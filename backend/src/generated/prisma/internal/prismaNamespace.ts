@@ -398,7 +398,10 @@ export const ModelName = {
   PsychometricQuestion: 'PsychometricQuestion',
   PsychometricAttempt: 'PsychometricAttempt',
   PsychometricAnswer: 'PsychometricAnswer',
-  OLQScore: 'OLQScore'
+  OLQScore: 'OLQScore',
+  StudyPlan: 'StudyPlan',
+  PerformanceAnalytics: 'PerformanceAnalytics',
+  RevisionSchedule: 'RevisionSchedule'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -414,7 +417,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "otp" | "course" | "module" | "lesson" | "enrollment" | "test" | "question" | "testAttempt" | "answer" | "psychometricTest" | "psychometricQuestion" | "psychometricAttempt" | "psychometricAnswer" | "oLQScore"
+    modelProps: "user" | "otp" | "course" | "module" | "lesson" | "enrollment" | "test" | "question" | "testAttempt" | "answer" | "psychometricTest" | "psychometricQuestion" | "psychometricAttempt" | "psychometricAnswer" | "oLQScore" | "studyPlan" | "performanceAnalytics" | "revisionSchedule"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1528,6 +1531,228 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    StudyPlan: {
+      payload: Prisma.$StudyPlanPayload<ExtArgs>
+      fields: Prisma.StudyPlanFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.StudyPlanFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StudyPlanPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.StudyPlanFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StudyPlanPayload>
+        }
+        findFirst: {
+          args: Prisma.StudyPlanFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StudyPlanPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.StudyPlanFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StudyPlanPayload>
+        }
+        findMany: {
+          args: Prisma.StudyPlanFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StudyPlanPayload>[]
+        }
+        create: {
+          args: Prisma.StudyPlanCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StudyPlanPayload>
+        }
+        createMany: {
+          args: Prisma.StudyPlanCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.StudyPlanCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StudyPlanPayload>[]
+        }
+        delete: {
+          args: Prisma.StudyPlanDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StudyPlanPayload>
+        }
+        update: {
+          args: Prisma.StudyPlanUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StudyPlanPayload>
+        }
+        deleteMany: {
+          args: Prisma.StudyPlanDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.StudyPlanUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.StudyPlanUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StudyPlanPayload>[]
+        }
+        upsert: {
+          args: Prisma.StudyPlanUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StudyPlanPayload>
+        }
+        aggregate: {
+          args: Prisma.StudyPlanAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateStudyPlan>
+        }
+        groupBy: {
+          args: Prisma.StudyPlanGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.StudyPlanGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.StudyPlanCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.StudyPlanCountAggregateOutputType> | number
+        }
+      }
+    }
+    PerformanceAnalytics: {
+      payload: Prisma.$PerformanceAnalyticsPayload<ExtArgs>
+      fields: Prisma.PerformanceAnalyticsFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PerformanceAnalyticsFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PerformanceAnalyticsPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PerformanceAnalyticsFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PerformanceAnalyticsPayload>
+        }
+        findFirst: {
+          args: Prisma.PerformanceAnalyticsFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PerformanceAnalyticsPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PerformanceAnalyticsFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PerformanceAnalyticsPayload>
+        }
+        findMany: {
+          args: Prisma.PerformanceAnalyticsFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PerformanceAnalyticsPayload>[]
+        }
+        create: {
+          args: Prisma.PerformanceAnalyticsCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PerformanceAnalyticsPayload>
+        }
+        createMany: {
+          args: Prisma.PerformanceAnalyticsCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.PerformanceAnalyticsCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PerformanceAnalyticsPayload>[]
+        }
+        delete: {
+          args: Prisma.PerformanceAnalyticsDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PerformanceAnalyticsPayload>
+        }
+        update: {
+          args: Prisma.PerformanceAnalyticsUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PerformanceAnalyticsPayload>
+        }
+        deleteMany: {
+          args: Prisma.PerformanceAnalyticsDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PerformanceAnalyticsUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.PerformanceAnalyticsUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PerformanceAnalyticsPayload>[]
+        }
+        upsert: {
+          args: Prisma.PerformanceAnalyticsUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PerformanceAnalyticsPayload>
+        }
+        aggregate: {
+          args: Prisma.PerformanceAnalyticsAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePerformanceAnalytics>
+        }
+        groupBy: {
+          args: Prisma.PerformanceAnalyticsGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PerformanceAnalyticsGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PerformanceAnalyticsCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PerformanceAnalyticsCountAggregateOutputType> | number
+        }
+      }
+    }
+    RevisionSchedule: {
+      payload: Prisma.$RevisionSchedulePayload<ExtArgs>
+      fields: Prisma.RevisionScheduleFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.RevisionScheduleFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RevisionSchedulePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.RevisionScheduleFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RevisionSchedulePayload>
+        }
+        findFirst: {
+          args: Prisma.RevisionScheduleFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RevisionSchedulePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.RevisionScheduleFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RevisionSchedulePayload>
+        }
+        findMany: {
+          args: Prisma.RevisionScheduleFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RevisionSchedulePayload>[]
+        }
+        create: {
+          args: Prisma.RevisionScheduleCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RevisionSchedulePayload>
+        }
+        createMany: {
+          args: Prisma.RevisionScheduleCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.RevisionScheduleCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RevisionSchedulePayload>[]
+        }
+        delete: {
+          args: Prisma.RevisionScheduleDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RevisionSchedulePayload>
+        }
+        update: {
+          args: Prisma.RevisionScheduleUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RevisionSchedulePayload>
+        }
+        deleteMany: {
+          args: Prisma.RevisionScheduleDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.RevisionScheduleUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.RevisionScheduleUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RevisionSchedulePayload>[]
+        }
+        upsert: {
+          args: Prisma.RevisionScheduleUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RevisionSchedulePayload>
+        }
+        aggregate: {
+          args: Prisma.RevisionScheduleAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateRevisionSchedule>
+        }
+        groupBy: {
+          args: Prisma.RevisionScheduleGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RevisionScheduleGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.RevisionScheduleCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RevisionScheduleCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1786,6 +2011,49 @@ export const OLQScoreScalarFieldEnum = {
 export type OLQScoreScalarFieldEnum = (typeof OLQScoreScalarFieldEnum)[keyof typeof OLQScoreScalarFieldEnum]
 
 
+export const StudyPlanScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  targetExam: 'targetExam',
+  studyHoursPerDay: 'studyHoursPerDay',
+  targetDate: 'targetDate',
+  strengths: 'strengths',
+  weaknesses: 'weaknesses',
+  generatedPlan: 'generatedPlan',
+  createdAt: 'createdAt'
+} as const
+
+export type StudyPlanScalarFieldEnum = (typeof StudyPlanScalarFieldEnum)[keyof typeof StudyPlanScalarFieldEnum]
+
+
+export const PerformanceAnalyticsScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  testAccuracy: 'testAccuracy',
+  weakTopics: 'weakTopics',
+  strongTopics: 'strongTopics',
+  averageScore: 'averageScore',
+  studyConsistency: 'studyConsistency',
+  revisionRate: 'revisionRate',
+  aiSuggestions: 'aiSuggestions',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PerformanceAnalyticsScalarFieldEnum = (typeof PerformanceAnalyticsScalarFieldEnum)[keyof typeof PerformanceAnalyticsScalarFieldEnum]
+
+
+export const RevisionScheduleScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  topic: 'topic',
+  revisionDate: 'revisionDate',
+  status: 'status',
+  priority: 'priority'
+} as const
+
+export type RevisionScheduleScalarFieldEnum = (typeof RevisionScheduleScalarFieldEnum)[keyof typeof RevisionScheduleScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -1800,6 +2068,13 @@ export const NullableJsonNullValueInput = {
 } as const
 
 export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
+
+
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
 export const QueryMode = {
@@ -2062,6 +2337,9 @@ export type GlobalOmitConfig = {
   psychometricAttempt?: Prisma.PsychometricAttemptOmit
   psychometricAnswer?: Prisma.PsychometricAnswerOmit
   oLQScore?: Prisma.OLQScoreOmit
+  studyPlan?: Prisma.StudyPlanOmit
+  performanceAnalytics?: Prisma.PerformanceAnalyticsOmit
+  revisionSchedule?: Prisma.RevisionScheduleOmit
 }
 
 /* Types for Logging */

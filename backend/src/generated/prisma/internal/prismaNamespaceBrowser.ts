@@ -65,7 +65,10 @@ export const ModelName = {
   PsychometricQuestion: 'PsychometricQuestion',
   PsychometricAttempt: 'PsychometricAttempt',
   PsychometricAnswer: 'PsychometricAnswer',
-  OLQScore: 'OLQScore'
+  OLQScore: 'OLQScore',
+  StudyPlan: 'StudyPlan',
+  PerformanceAnalytics: 'PerformanceAnalytics',
+  RevisionSchedule: 'RevisionSchedule'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -303,6 +306,49 @@ export const OLQScoreScalarFieldEnum = {
 export type OLQScoreScalarFieldEnum = (typeof OLQScoreScalarFieldEnum)[keyof typeof OLQScoreScalarFieldEnum]
 
 
+export const StudyPlanScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  targetExam: 'targetExam',
+  studyHoursPerDay: 'studyHoursPerDay',
+  targetDate: 'targetDate',
+  strengths: 'strengths',
+  weaknesses: 'weaknesses',
+  generatedPlan: 'generatedPlan',
+  createdAt: 'createdAt'
+} as const
+
+export type StudyPlanScalarFieldEnum = (typeof StudyPlanScalarFieldEnum)[keyof typeof StudyPlanScalarFieldEnum]
+
+
+export const PerformanceAnalyticsScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  testAccuracy: 'testAccuracy',
+  weakTopics: 'weakTopics',
+  strongTopics: 'strongTopics',
+  averageScore: 'averageScore',
+  studyConsistency: 'studyConsistency',
+  revisionRate: 'revisionRate',
+  aiSuggestions: 'aiSuggestions',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PerformanceAnalyticsScalarFieldEnum = (typeof PerformanceAnalyticsScalarFieldEnum)[keyof typeof PerformanceAnalyticsScalarFieldEnum]
+
+
+export const RevisionScheduleScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  topic: 'topic',
+  revisionDate: 'revisionDate',
+  status: 'status',
+  priority: 'priority'
+} as const
+
+export type RevisionScheduleScalarFieldEnum = (typeof RevisionScheduleScalarFieldEnum)[keyof typeof RevisionScheduleScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -317,6 +363,13 @@ export const NullableJsonNullValueInput = {
 } as const
 
 export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
+
+
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
 export const QueryMode = {

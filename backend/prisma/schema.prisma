@@ -35,6 +35,9 @@ model User {
   testAttempts   TestAttempt[]
   psychometricAttempts PsychometricAttempt[]
   olqScore       OLQScore?
+  studyPlans     StudyPlan[]
+  performanceAnalytics PerformanceAnalytics?
+  revisionSchedules RevisionSchedule[]
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 }
@@ -249,4 +252,45 @@ model OLQScore {
   emotionalStability    Int     @default(0)
   updatedAt             DateTime @updatedAt
   user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model StudyPlan {
+  id               String   @id @default(cuid())
+  userId           String
+  targetExam       String
+  studyHoursPerDay Int
+  targetDate       DateTime
+  strengths        Json
+  weaknesses       Json
+  generatedPlan    Json
+  createdAt        DateTime @default(now())
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model PerformanceAnalytics {
+  id               String   @id @default(cuid())
+  userId           String   @unique
+  testAccuracy     Float    @default(0)
+  weakTopics       Json
+  strongTopics     Json
+  averageScore     Float    @default(0)
+  studyConsistency Int      @default(0)
+  revisionRate     Int      @default(0)
+  aiSuggestions    Json
+  updatedAt        DateTime @updatedAt
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model RevisionSchedule {
+  id           String   @id @default(cuid())
+  userId       String
+  topic        String
+  revisionDate DateTime
+  status       String   @default("PENDING")
+  priority     String   @default("MEDIUM")
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }

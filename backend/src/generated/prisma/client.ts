@@ -116,3 +116,18 @@ export type PsychometricAnswer = Prisma.PsychometricAnswerModel
  * 
  */
 export type OLQScore = Prisma.OLQScoreModel
+/**
+ * Model StudyPlan
+ * 
+ */
+export type StudyPlan = Prisma.StudyPlanModel
+/**
+ * Model PerformanceAnalytics
+ * 
+ */
+export type PerformanceAnalytics = Prisma.PerformanceAnalyticsModel
+/**
+ * Model RevisionSchedule
+ * 
+ */
+export type RevisionSchedule = Prisma.RevisionScheduleModel
