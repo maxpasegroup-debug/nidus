@@ -10,6 +10,8 @@ export function getNavItems(role?: AuthRole) {
     { label: "SSB", href: "/psychometric" },
     { label: "AI Plan", href: "/ai-study-planner" },
     { label: "Live", href: "/live-classes" },
-    { label: "My Courses", href: "/my-courses" }
+    { label: "My Courses", href: "/my-courses" },
+    { label: "Hostel", href: "/hostel" },
+    { label: "Mess", href: "/mess-menu" }
   ];
 }

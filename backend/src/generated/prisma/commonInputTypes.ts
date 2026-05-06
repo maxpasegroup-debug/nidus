@@ -338,6 +338,40 @@ export type JsonWithAggregatesFilterBase<$PrismaModel = never> = {
   _max?: Prisma.NestedJsonFilter<$PrismaModel>
 }
 
+export type EnumHostelTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.HostelType | Prisma.EnumHostelTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.HostelType[] | Prisma.ListEnumHostelTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.HostelType[] | Prisma.ListEnumHostelTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumHostelTypeFilter<$PrismaModel> | $Enums.HostelType
+}
+
+export type EnumHostelTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.HostelType | Prisma.EnumHostelTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.HostelType[] | Prisma.ListEnumHostelTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.HostelType[] | Prisma.ListEnumHostelTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumHostelTypeWithAggregatesFilter<$PrismaModel> | $Enums.HostelType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumHostelTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumHostelTypeFilter<$PrismaModel>
+}
+
+export type EnumInOutTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.InOutType | Prisma.EnumInOutTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.InOutType[] | Prisma.ListEnumInOutTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.InOutType[] | Prisma.ListEnumInOutTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumInOutTypeFilter<$PrismaModel> | $Enums.InOutType
+}
+
+export type EnumInOutTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.InOutType | Prisma.EnumInOutTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.InOutType[] | Prisma.ListEnumInOutTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.InOutType[] | Prisma.ListEnumInOutTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumInOutTypeWithAggregatesFilter<$PrismaModel> | $Enums.InOutType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumInOutTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumInOutTypeFilter<$PrismaModel>
+}
+
 export type NestedStringFilter<$PrismaModel = never> = {
   equals?: string | Prisma.StringFieldRefInput<$PrismaModel>
   in?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel>
@@ -608,6 +642,40 @@ export type NestedJsonFilterBase<$PrismaModel = never> = {
   gt?: runtime.InputJsonValue | Prisma.JsonFieldRefInput<$PrismaModel>
   gte?: runtime.InputJsonValue | Prisma.JsonFieldRefInput<$PrismaModel>
   not?: runtime.InputJsonValue | Prisma.JsonFieldRefInput<$PrismaModel> | Prisma.JsonNullValueFilter
+}
+
+export type NestedEnumHostelTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.HostelType | Prisma.EnumHostelTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.HostelType[] | Prisma.ListEnumHostelTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.HostelType[] | Prisma.ListEnumHostelTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumHostelTypeFilter<$PrismaModel> | $Enums.HostelType
+}
+
+export type NestedEnumHostelTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.HostelType | Prisma.EnumHostelTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.HostelType[] | Prisma.ListEnumHostelTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.HostelType[] | Prisma.ListEnumHostelTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumHostelTypeWithAggregatesFilter<$PrismaModel> | $Enums.HostelType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumHostelTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumHostelTypeFilter<$PrismaModel>
+}
+
+export type NestedEnumInOutTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.InOutType | Prisma.EnumInOutTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.InOutType[] | Prisma.ListEnumInOutTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.InOutType[] | Prisma.ListEnumInOutTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumInOutTypeFilter<$PrismaModel> | $Enums.InOutType
+}
+
+export type NestedEnumInOutTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.InOutType | Prisma.EnumInOutTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.InOutType[] | Prisma.ListEnumInOutTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.InOutType[] | Prisma.ListEnumInOutTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumInOutTypeWithAggregatesFilter<$PrismaModel> | $Enums.InOutType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumInOutTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumInOutTypeFilter<$PrismaModel>
 }
 
 

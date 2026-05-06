@@ -1,6 +1,6 @@
 import { apiClient } from "@/services/api";
 
-export type AuthRole = "STUDENT" | "PARENT" | "ADMIN" | "GUEST";
+export type AuthRole = "STUDENT" | "PARENT" | "ADMIN" | "WARDEN" | "GUEST";
 
 export type AuthUser = {
   id: string;

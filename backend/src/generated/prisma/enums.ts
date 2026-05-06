@@ -13,10 +13,27 @@ export const Role = {
   STUDENT: 'STUDENT',
   PARENT: 'PARENT',
   ADMIN: 'ADMIN',
+  WARDEN: 'WARDEN',
   GUEST: 'GUEST'
 } as const
 
 export type Role = (typeof Role)[keyof typeof Role]
+
+
+export const HostelType = {
+  BOYS: 'BOYS',
+  GIRLS: 'GIRLS'
+} as const
+
+export type HostelType = (typeof HostelType)[keyof typeof HostelType]
+
+
+export const InOutType = {
+  IN: 'IN',
+  OUT: 'OUT'
+} as const
+
+export type InOutType = (typeof InOutType)[keyof typeof InOutType]
 
 
 export const OtpType = {

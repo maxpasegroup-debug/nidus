@@ -152,3 +152,43 @@ export type Payroll = Prisma.PayrollModel
  * 
  */
 export type Announcement = Prisma.AnnouncementModel
+/**
+ * Model Hostel
+ * 
+ */
+export type Hostel = Prisma.HostelModel
+/**
+ * Model Room
+ * 
+ */
+export type Room = Prisma.RoomModel
+/**
+ * Model HostelAllocation
+ * 
+ */
+export type HostelAllocation = Prisma.HostelAllocationModel
+/**
+ * Model InOutEntry
+ * 
+ */
+export type InOutEntry = Prisma.InOutEntryModel
+/**
+ * Model HostelLeave
+ * 
+ */
+export type HostelLeave = Prisma.HostelLeaveModel
+/**
+ * Model MessMenu
+ * 
+ */
+export type MessMenu = Prisma.MessMenuModel
+/**
+ * Model DisciplineRecord
+ * 
+ */
+export type DisciplineRecord = Prisma.DisciplineRecordModel
+/**
+ * Model ParadePerformance
+ * 
+ */
+export type ParadePerformance = Prisma.ParadePerformanceModel

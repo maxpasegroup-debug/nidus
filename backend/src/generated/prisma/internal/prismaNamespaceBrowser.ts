@@ -77,7 +77,15 @@ export const ModelName = {
   Faculty: 'Faculty',
   Classroom: 'Classroom',
   Payroll: 'Payroll',
-  Announcement: 'Announcement'
+  Announcement: 'Announcement',
+  Hostel: 'Hostel',
+  Room: 'Room',
+  HostelAllocation: 'HostelAllocation',
+  InOutEntry: 'InOutEntry',
+  HostelLeave: 'HostelLeave',
+  MessMenu: 'MessMenu',
+  DisciplineRecord: 'DisciplineRecord',
+  ParadePerformance: 'ParadePerformance'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -477,6 +485,107 @@ export const AnnouncementScalarFieldEnum = {
 } as const
 
 export type AnnouncementScalarFieldEnum = (typeof AnnouncementScalarFieldEnum)[keyof typeof AnnouncementScalarFieldEnum]
+
+
+export const HostelScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  type: 'type',
+  totalRooms: 'totalRooms',
+  wardenName: 'wardenName',
+  createdAt: 'createdAt'
+} as const
+
+export type HostelScalarFieldEnum = (typeof HostelScalarFieldEnum)[keyof typeof HostelScalarFieldEnum]
+
+
+export const RoomScalarFieldEnum = {
+  id: 'id',
+  hostelId: 'hostelId',
+  roomNumber: 'roomNumber',
+  floor: 'floor',
+  capacity: 'capacity',
+  occupiedCount: 'occupiedCount',
+  status: 'status'
+} as const
+
+export type RoomScalarFieldEnum = (typeof RoomScalarFieldEnum)[keyof typeof RoomScalarFieldEnum]
+
+
+export const HostelAllocationScalarFieldEnum = {
+  id: 'id',
+  studentId: 'studentId',
+  hostelId: 'hostelId',
+  roomId: 'roomId',
+  allocatedAt: 'allocatedAt',
+  status: 'status'
+} as const
+
+export type HostelAllocationScalarFieldEnum = (typeof HostelAllocationScalarFieldEnum)[keyof typeof HostelAllocationScalarFieldEnum]
+
+
+export const InOutEntryScalarFieldEnum = {
+  id: 'id',
+  studentId: 'studentId',
+  type: 'type',
+  entryTime: 'entryTime',
+  remarks: 'remarks'
+} as const
+
+export type InOutEntryScalarFieldEnum = (typeof InOutEntryScalarFieldEnum)[keyof typeof InOutEntryScalarFieldEnum]
+
+
+export const HostelLeaveScalarFieldEnum = {
+  id: 'id',
+  studentId: 'studentId',
+  reason: 'reason',
+  fromDate: 'fromDate',
+  toDate: 'toDate',
+  status: 'status',
+  approvedBy: 'approvedBy'
+} as const
+
+export type HostelLeaveScalarFieldEnum = (typeof HostelLeaveScalarFieldEnum)[keyof typeof HostelLeaveScalarFieldEnum]
+
+
+export const MessMenuScalarFieldEnum = {
+  id: 'id',
+  date: 'date',
+  breakfast: 'breakfast',
+  lunch: 'lunch',
+  snacks: 'snacks',
+  dinner: 'dinner'
+} as const
+
+export type MessMenuScalarFieldEnum = (typeof MessMenuScalarFieldEnum)[keyof typeof MessMenuScalarFieldEnum]
+
+
+export const DisciplineRecordScalarFieldEnum = {
+  id: 'id',
+  studentId: 'studentId',
+  category: 'category',
+  description: 'description',
+  severity: 'severity',
+  actionTaken: 'actionTaken',
+  recordedBy: 'recordedBy',
+  createdAt: 'createdAt'
+} as const
+
+export type DisciplineRecordScalarFieldEnum = (typeof DisciplineRecordScalarFieldEnum)[keyof typeof DisciplineRecordScalarFieldEnum]
+
+
+export const ParadePerformanceScalarFieldEnum = {
+  id: 'id',
+  studentId: 'studentId',
+  attendance: 'attendance',
+  discipline: 'discipline',
+  leadership: 'leadership',
+  fitness: 'fitness',
+  remarks: 'remarks',
+  createdAt: 'createdAt'
+} as const
+
+export type ParadePerformanceScalarFieldEnum = (typeof ParadePerformanceScalarFieldEnum)[keyof typeof ParadePerformanceScalarFieldEnum]
 
 
 export const SortOrder = {

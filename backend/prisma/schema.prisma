@@ -13,7 +13,18 @@ enum Role {
   STUDENT
   PARENT
   ADMIN
+  WARDEN
   GUEST
+}
+
+enum HostelType {
+  BOYS
+  GIRLS
+}
+
+enum InOutType {
+  IN
+  OUT
 }
 
 enum OtpType {
@@ -42,6 +53,13 @@ model User {
   attendanceRecords Attendance[] @relation("AttendanceUser")
   markedAttendance Attendance[] @relation("AttendanceMarker")
   facultyProfile Faculty?
+  hostelAllocations HostelAllocation[] @relation("HostelAllocationStudent")
+  inOutEntries InOutEntry[] @relation("InOutEntryStudent")
+  hostelLeaves HostelLeave[] @relation("HostelLeaveStudent")
+  approvedHostelLeaves HostelLeave[] @relation("HostelLeaveApprover")
+  disciplineRecords DisciplineRecord[] @relation("DisciplineRecordStudent")
+  recordedDiscipline DisciplineRecord[] @relation("DisciplineRecordRecorder")
+  paradePerformances ParadePerformance[] @relation("ParadePerformanceStudent")
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 }
@@ -412,4 +430,113 @@ model Announcement {
   description    String
   targetAudience String
   createdAt      DateTime @default(now())
+}
+
+model Hostel {
+  id          String   @id @default(cuid())
+  name        String
+  type        HostelType
+  totalRooms  Int
+  wardenName  String
+  rooms       Room[]
+  allocations HostelAllocation[]
+  createdAt   DateTime @default(now())
+}
+
+model Room {
+  id            String   @id @default(cuid())
+  hostelId      String
+  roomNumber    String
+  floor         Int
+  capacity      Int
+  occupiedCount Int      @default(0)
+  status        String   @default("AVAILABLE")
+  hostel        Hostel   @relation(fields: [hostelId], references: [id], onDelete: Cascade)
+  allocations   HostelAllocation[]
+
+  @@unique([hostelId, roomNumber])
+  @@index([hostelId])
+}
+
+model HostelAllocation {
+  id          String   @id @default(cuid())
+  studentId   String
+  hostelId    String
+  roomId      String
+  allocatedAt DateTime @default(now())
+  status      String   @default("ACTIVE")
+  student     User     @relation("HostelAllocationStudent", fields: [studentId], references: [id], onDelete: Cascade)
+  hostel      Hostel   @relation(fields: [hostelId], references: [id], onDelete: Cascade)
+  room        Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  @@index([studentId])
+  @@index([hostelId])
+  @@index([roomId])
+}
+
+model InOutEntry {
+  id        String    @id @default(cuid())
+  studentId String
+  type      InOutType
+  entryTime DateTime  @default(now())
+  remarks   String?
+  student   User      @relation("InOutEntryStudent", fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([studentId])
+  @@index([entryTime])
+}
+
+model HostelLeave {
+  id         String   @id @default(cuid())
+  studentId  String
+  reason     String
+  fromDate   DateTime
+  toDate     DateTime
+  status     String   @default("PENDING")
+  approvedBy String?
+  student    User     @relation("HostelLeaveStudent", fields: [studentId], references: [id], onDelete: Cascade)
+  approver   User?    @relation("HostelLeaveApprover", fields: [approvedBy], references: [id], onDelete: SetNull)
+
+  @@index([studentId])
+  @@index([status])
+}
+
+model MessMenu {
+  id        String   @id @default(cuid())
+  date      DateTime @unique
+  breakfast String
+  lunch     String
+  snacks    String
+  dinner    String
+}
+
+model DisciplineRecord {
+  id          String   @id @default(cuid())
+  studentId   String
+  category    String
+  description String
+  severity    String
+  actionTaken String
+  recordedBy  String
+  createdAt   DateTime @default(now())
+  student     User     @relation("DisciplineRecordStudent", fields: [studentId], references: [id], onDelete: Cascade)
+  recorder    User     @relation("DisciplineRecordRecorder", fields: [recordedBy], references: [id], onDelete: Cascade)
+
+  @@index([studentId])
+  @@index([severity])
+}
+
+model ParadePerformance {
+  id         String   @id @default(cuid())
+  studentId  String
+  attendance Int
+  discipline Int
+  leadership Int
+  fitness    Int
+  remarks    String?
+  createdAt  DateTime @default(now())
+  student    User     @relation("ParadePerformanceStudent", fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([studentId])
+  @@index([createdAt])
 }

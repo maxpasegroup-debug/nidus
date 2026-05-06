@@ -4,6 +4,7 @@ export const roleDashboardPath: Record<AuthRole, string> = {
   STUDENT: "/dashboard/student",
   PARENT: "/dashboard/parent",
   ADMIN: "/dashboard/admin",
+  WARDEN: "/hostel",
   GUEST: "/dashboard/guest"
 };
 
@@ -61,4 +62,3 @@ export const guestTimeline = [
   "AFCAT mock test window opened",
   "AISSEE orientation announced"
 ];
-

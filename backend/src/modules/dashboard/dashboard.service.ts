@@ -1,8 +1,9 @@
 import { prisma } from "../../config/prisma.js";
+import type { Role } from "../../generated/prisma/client.js";
 
 type DashboardUser = {
   id: string;
-  role: "STUDENT" | "PARENT" | "ADMIN" | "GUEST";
+  role: Role;
 };
 
 const performanceSeries = [

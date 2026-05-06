@@ -8,6 +8,7 @@ import { aiPlannerRouter, analyticsRouter, revisionScheduleRouter } from "./ai-p
 import { lectureProgressRouter, liveClassesRouter, recordedLecturesRouter } from "./live-classes/live-classes.routes.js";
 import { announcementsRouter, attendanceRouter, facultyRouter, payrollRouter, timetableRouter } from "./erp/erp.routes.js";
 import { usersRouter } from "./users/users.routes.js";
+import { disciplineRouter, hostelOpsRouter, hostelsRouter, messRouter, paradeRouter, roomsRouter } from "./hostel/hostel.routes.js";
 import { protect, allowRoles } from "./auth/auth.middleware.js";
 import { Role } from "../generated/prisma/client.js";
 import { coursesController } from "./courses/courses.controller.js";
@@ -35,4 +36,10 @@ apiRouter.use("/faculty", facultyRouter);
 apiRouter.use("/payroll", payrollRouter);
 apiRouter.use("/announcements", announcementsRouter);
 apiRouter.use("/users", usersRouter);
+apiRouter.use("/hostels", hostelsRouter);
+apiRouter.use("/rooms", roomsRouter);
+apiRouter.use("/hostel", hostelOpsRouter);
+apiRouter.use("/mess", messRouter);
+apiRouter.use("/discipline", disciplineRouter);
+apiRouter.use("/parade", paradeRouter);
 apiRouter.get("/my-courses", protect, allowRoles(Role.STUDENT, Role.ADMIN), coursesController.myCourses);
