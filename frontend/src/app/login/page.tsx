@@ -2,25 +2,15 @@
 
 import Link from "next/link";
 import { useState, type FormEvent } from "react";
-import { BrainCircuit, Check, Copy, LockKeyhole, ShieldCheck } from "lucide-react";
+import { BrainCircuit, LockKeyhole } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/components/providers/auth-provider";
-
-const demoAccounts = [
-  { title: "Command Admin", role: "ADMIN", email: "command@nidusacademy.com", password: "Nidus@Command2026" },
-  { title: "Academic Director", role: "DIRECTOR", email: "director.academics@nidusacademy.com", password: "Nidus@Academics2026" },
-  { title: "Defence Faculty", role: "TEACHER", email: "faculty.ssb@nidusacademy.com", password: "Nidus@Faculty2026" },
-  { title: "Officer Aspirant", role: "STUDENT", email: "cadet.arjun@nidusacademy.com", password: "Nidus@Cadet2026" },
-  { title: "Parent Access", role: "PARENT", email: "parent.arjun@nidusacademy.com", password: "Nidus@Parent2026" },
-  { title: "Public Demo", role: "GUEST", email: "explore@nidusacademy.com", password: "Nidus@Explore2026" }
-];
 
 export default function LoginPage() {
   const { login, isLoading } = useAuth();
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
-  const [copied, setCopied] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -33,18 +23,6 @@ export default function LoginPage() {
     } finally {
       setIsSubmitting(false);
     }
-  }
-
-  function selectDemo(account: (typeof demoAccounts)[number]) {
-    setIdentifier(account.email);
-    setPassword(account.password);
-  }
-
-  async function copyCredentials(account: (typeof demoAccounts)[number]) {
-    const value = `${account.title}\nEmail: ${account.email}\nPassword: ${account.password}\nRole: ${account.role}`;
-    await navigator.clipboard?.writeText(value);
-    setCopied(account.email);
-    window.setTimeout(() => setCopied(null), 1400);
   }
 
   return (
@@ -87,31 +65,6 @@ export default function LoginPage() {
             </Button>
           </form>
 
-          <div className="mt-6 rounded border border-gold/20 bg-gold/10 p-4">
-            <div className="flex items-center gap-2 text-sm font-semibold text-gold-soft">
-              <ShieldCheck className="h-4 w-4" />
-              Demo Access Credentials
-            </div>
-            <div className="mt-3 grid max-h-72 gap-2 overflow-y-auto pr-1 text-xs text-muted">
-              {demoAccounts.map((account) => (
-                <div key={account.email} className="rounded border border-white/10 bg-black/15 p-3 transition hover:border-gold/35 hover:bg-white/7">
-                  <div className="flex items-start justify-between gap-3">
-                    <button type="button" onClick={() => selectDemo(account)} className="min-w-0 text-left">
-                      <span className="block font-semibold text-ink">{account.title}</span>
-                      <span className="mt-1 inline-flex rounded border border-gold/25 bg-gold/10 px-2 py-1 text-[0.65rem] font-semibold text-gold-soft">{account.role}</span>
-                    </button>
-                    <button type="button" onClick={() => copyCredentials(account)} className="grid h-8 w-8 shrink-0 place-items-center rounded border border-white/10 text-gold-soft transition hover:border-gold/40 hover:bg-gold/10" aria-label={`Copy ${account.title} credentials`}>
-                      {copied === account.email ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                    </button>
-                  </div>
-                  <button type="button" onClick={() => selectDemo(account)} className="mt-3 block w-full min-w-0 rounded bg-white/6 px-3 py-2 text-left transition hover:bg-white/10">
-                    <span className="block truncate text-ink">{account.email}</span>
-                    <span className="mt-1 block truncate font-mono text-[0.7rem] text-muted">{account.password}</span>
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
           <div className="mt-4 flex items-center gap-2 text-xs text-muted">
             <LockKeyhole className="h-4 w-4 text-gold-soft" />
             <span>Student, parent, teacher, admin, and guest access resolves from one login.</span>
