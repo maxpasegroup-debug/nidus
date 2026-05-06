@@ -71,7 +71,13 @@ export const ModelName = {
   RevisionSchedule: 'RevisionSchedule',
   LiveClass: 'LiveClass',
   RecordedLecture: 'RecordedLecture',
-  LectureProgress: 'LectureProgress'
+  LectureProgress: 'LectureProgress',
+  Attendance: 'Attendance',
+  Timetable: 'Timetable',
+  Faculty: 'Faculty',
+  Classroom: 'Classroom',
+  Payroll: 'Payroll',
+  Announcement: 'Announcement'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -395,6 +401,82 @@ export const LectureProgressScalarFieldEnum = {
 } as const
 
 export type LectureProgressScalarFieldEnum = (typeof LectureProgressScalarFieldEnum)[keyof typeof LectureProgressScalarFieldEnum]
+
+
+export const AttendanceScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  date: 'date',
+  status: 'status',
+  markedBy: 'markedBy',
+  createdAt: 'createdAt'
+} as const
+
+export type AttendanceScalarFieldEnum = (typeof AttendanceScalarFieldEnum)[keyof typeof AttendanceScalarFieldEnum]
+
+
+export const TimetableScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  batch: 'batch',
+  subject: 'subject',
+  instructor: 'instructor',
+  startTime: 'startTime',
+  endTime: 'endTime',
+  classroom: 'classroom',
+  createdAt: 'createdAt'
+} as const
+
+export type TimetableScalarFieldEnum = (typeof TimetableScalarFieldEnum)[keyof typeof TimetableScalarFieldEnum]
+
+
+export const FacultyScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  department: 'department',
+  designation: 'designation',
+  joiningDate: 'joiningDate',
+  salary: 'salary',
+  status: 'status'
+} as const
+
+export type FacultyScalarFieldEnum = (typeof FacultyScalarFieldEnum)[keyof typeof FacultyScalarFieldEnum]
+
+
+export const ClassroomScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  capacity: 'capacity',
+  building: 'building',
+  availabilityStatus: 'availabilityStatus'
+} as const
+
+export type ClassroomScalarFieldEnum = (typeof ClassroomScalarFieldEnum)[keyof typeof ClassroomScalarFieldEnum]
+
+
+export const PayrollScalarFieldEnum = {
+  id: 'id',
+  facultyId: 'facultyId',
+  month: 'month',
+  basicSalary: 'basicSalary',
+  incentives: 'incentives',
+  deductions: 'deductions',
+  totalSalary: 'totalSalary',
+  paidStatus: 'paidStatus'
+} as const
+
+export type PayrollScalarFieldEnum = (typeof PayrollScalarFieldEnum)[keyof typeof PayrollScalarFieldEnum]
+
+
+export const AnnouncementScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  description: 'description',
+  targetAudience: 'targetAudience',
+  createdAt: 'createdAt'
+} as const
+
+export type AnnouncementScalarFieldEnum = (typeof AnnouncementScalarFieldEnum)[keyof typeof AnnouncementScalarFieldEnum]
 
 
 export const SortOrder = {

@@ -146,3 +146,33 @@ export type RecordedLecture = Prisma.RecordedLectureModel
  * 
  */
 export type LectureProgress = Prisma.LectureProgressModel
+/**
+ * Model Attendance
+ * 
+ */
+export type Attendance = Prisma.AttendanceModel
+/**
+ * Model Timetable
+ * 
+ */
+export type Timetable = Prisma.TimetableModel
+/**
+ * Model Faculty
+ * 
+ */
+export type Faculty = Prisma.FacultyModel
+/**
+ * Model Classroom
+ * 
+ */
+export type Classroom = Prisma.ClassroomModel
+/**
+ * Model Payroll
+ * 
+ */
+export type Payroll = Prisma.PayrollModel
+/**
+ * Model Announcement
+ * 
+ */
+export type Announcement = Prisma.AnnouncementModel

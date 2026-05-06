@@ -39,6 +39,9 @@ model User {
   performanceAnalytics PerformanceAnalytics?
   revisionSchedules RevisionSchedule[]
   lectureProgress LectureProgress[]
+  attendanceRecords Attendance[] @relation("AttendanceUser")
+  markedAttendance Attendance[] @relation("AttendanceMarker")
+  facultyProfile Faculty?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 }
@@ -341,4 +344,72 @@ model LectureProgress {
 
   @@unique([userId, lectureId])
   @@index([lectureId])
+}
+
+model Attendance {
+  id        String   @id @default(cuid())
+  userId    String
+  date      DateTime
+  status    String
+  markedBy  String
+  createdAt DateTime @default(now())
+  user      User     @relation("AttendanceUser", fields: [userId], references: [id], onDelete: Cascade)
+  marker    User     @relation("AttendanceMarker", fields: [markedBy], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([date])
+}
+
+model Timetable {
+  id        String   @id @default(cuid())
+  title     String
+  batch     String
+  subject   String
+  instructor String
+  startTime DateTime
+  endTime   DateTime
+  classroom String
+  createdAt DateTime @default(now())
+}
+
+model Faculty {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  department  String
+  designation String
+  joiningDate DateTime
+  salary      Float
+  status      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  payrolls    Payroll[]
+}
+
+model Classroom {
+  id                 String @id @default(cuid())
+  name               String
+  capacity           Int
+  building           String
+  availabilityStatus String
+}
+
+model Payroll {
+  id          String  @id @default(cuid())
+  facultyId   String
+  month       String
+  basicSalary Float
+  incentives  Float
+  deductions  Float
+  totalSalary Float
+  paidStatus  String
+  faculty     Faculty @relation(fields: [facultyId], references: [id], onDelete: Cascade)
+
+  @@index([facultyId])
+}
+
+model Announcement {
+  id             String   @id @default(cuid())
+  title          String
+  description    String
+  targetAudience String
+  createdAt      DateTime @default(now())
 }
