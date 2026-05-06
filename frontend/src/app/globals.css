@@ -1,0 +1,60 @@
+@import "tailwindcss";
+
+@theme {
+  --color-navy: #0b1f3a;
+  --color-navy-deep: #06111f;
+  --color-gold: #c9a646;
+  --color-gold-soft: #f2d675;
+  --color-ink: #eef4ff;
+  --color-muted: #9fb0c7;
+  --color-glass: rgba(255, 255, 255, 0.07);
+}
+
+:root {
+  color-scheme: dark;
+  --nav-height: 72px;
+  --sidebar-width: 272px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 15% 8%, rgba(201, 166, 70, 0.18), transparent 28rem),
+    radial-gradient(circle at 88% 18%, rgba(59, 130, 246, 0.18), transparent 26rem),
+    linear-gradient(135deg, #06111f 0%, #0b1f3a 48%, #020713 100%);
+  color: #eef4ff;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+::selection {
+  background: rgba(201, 166, 70, 0.35);
+}
+
+.premium-surface {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.045));
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(18px);
+}
+
+.subtle-grid {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 48px 48px;
+}

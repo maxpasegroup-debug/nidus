@@ -1,0 +1,47 @@
+generator client {
+  provider        = "prisma-client"
+  output          = "../src/generated/prisma"
+  moduleFormat    = "esm"
+  importFileExtension = "js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  STUDENT
+  PARENT
+  ADMIN
+  GUEST
+}
+
+enum OtpType {
+  LOGIN
+  FORGOT_PASSWORD
+  SIGNUP
+}
+
+model User {
+  id             String   @id @default(cuid())
+  name           String
+  email          String   @unique
+  mobile         String   @unique
+  password       String
+  role           Role     @default(STUDENT)
+  emailVerified  Boolean  @default(false)
+  mobileVerified Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model Otp {
+  id         String   @id @default(cuid())
+  identifier String
+  otp        String
+  type       OtpType
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+
+  @@index([identifier, type])
+}

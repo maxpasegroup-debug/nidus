@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="NIDUS">
+  <rect width="512" height="512" rx="64" fill="#0B1F3A"/>
+  <circle cx="390" cy="112" r="92" fill="#C9A646" opacity=".22"/>
+  <path d="M128 360V152h52l152 128V152h52v208h-52L180 232v128h-52Z" fill="#C9A646"/>
+  <path d="M128 408h256" stroke="#EEF4FF" stroke-width="20" stroke-linecap="round"/>
+</svg>
