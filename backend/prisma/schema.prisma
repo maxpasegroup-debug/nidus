@@ -33,6 +33,8 @@ model User {
   mobileVerified Boolean  @default(false)
   enrollments    Enrollment[]
   testAttempts   TestAttempt[]
+  psychometricAttempts PsychometricAttempt[]
+  olqScore       OLQScore?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 }
@@ -168,4 +170,83 @@ model Answer {
 
   @@unique([attemptId, questionId])
   @@index([questionId])
+}
+
+model PsychometricTest {
+  id           String                 @id @default(cuid())
+  title        String
+  type         String
+  description  String
+  duration     Int
+  instructions String
+  questions    PsychometricQuestion[]
+  attempts     PsychometricAttempt[]
+  createdAt    DateTime               @default(now())
+}
+
+model PsychometricQuestion {
+  id           String            @id @default(cuid())
+  testId       String
+  questionText String
+  imageUrl     String?
+  questionType String
+  options      Json?
+  order        Int
+  test         PsychometricTest  @relation(fields: [testId], references: [id], onDelete: Cascade)
+  answers      PsychometricAnswer[]
+
+  @@index([testId])
+}
+
+model PsychometricAttempt {
+  id            String                @id @default(cuid())
+  userId        String
+  testId        String
+  startedAt     DateTime              @default(now())
+  completedAt   DateTime?
+  score         Float                 @default(0)
+  aiAnalysis    String?
+  overallRemark String?
+  user          User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  test          PsychometricTest      @relation(fields: [testId], references: [id], onDelete: Cascade)
+  answers       PsychometricAnswer[]
+
+  @@index([userId])
+  @@index([testId])
+}
+
+model PsychometricAnswer {
+  id             String               @id @default(cuid())
+  attemptId      String
+  questionId     String
+  answerText     String?
+  selectedOption String?
+  score          Float                @default(0)
+  attempt        PsychometricAttempt  @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  question       PsychometricQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([attemptId, questionId])
+  @@index([questionId])
+}
+
+model OLQScore {
+  id                   String   @id @default(cuid())
+  userId               String   @unique
+  effectiveIntelligence Int     @default(0)
+  reasoningAbility      Int     @default(0)
+  organizingAbility     Int     @default(0)
+  socialAdaptability    Int     @default(0)
+  cooperation           Int     @default(0)
+  senseOfResponsibility Int     @default(0)
+  initiative            Int     @default(0)
+  selfConfidence        Int     @default(0)
+  speedOfDecision       Int     @default(0)
+  abilityToInfluence    Int     @default(0)
+  liveliness            Int     @default(0)
+  determination         Int     @default(0)
+  courage               Int     @default(0)
+  stamina               Int     @default(0)
+  emotionalStability    Int     @default(0)
+  updatedAt             DateTime @updatedAt
+  user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

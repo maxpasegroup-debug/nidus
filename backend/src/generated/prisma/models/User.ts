@@ -224,6 +224,8 @@ export type UserWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   enrollments?: Prisma.EnrollmentListRelationFilter
   testAttempts?: Prisma.TestAttemptListRelationFilter
+  psychometricAttempts?: Prisma.PsychometricAttemptListRelationFilter
+  olqScore?: Prisma.XOR<Prisma.OLQScoreNullableScalarRelationFilter, Prisma.OLQScoreWhereInput> | null
 }
 
 export type UserOrderByWithRelationInput = {
@@ -239,6 +241,8 @@ export type UserOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   enrollments?: Prisma.EnrollmentOrderByRelationAggregateInput
   testAttempts?: Prisma.TestAttemptOrderByRelationAggregateInput
+  psychometricAttempts?: Prisma.PsychometricAttemptOrderByRelationAggregateInput
+  olqScore?: Prisma.OLQScoreOrderByWithRelationInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -257,6 +261,8 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   enrollments?: Prisma.EnrollmentListRelationFilter
   testAttempts?: Prisma.TestAttemptListRelationFilter
+  psychometricAttempts?: Prisma.PsychometricAttemptListRelationFilter
+  olqScore?: Prisma.XOR<Prisma.OLQScoreNullableScalarRelationFilter, Prisma.OLQScoreWhereInput> | null
 }, "id" | "email" | "mobile">
 
 export type UserOrderByWithAggregationInput = {
@@ -304,6 +310,8 @@ export type UserCreateInput = {
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
   testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
+  psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
+  olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -319,6 +327,8 @@ export type UserUncheckedCreateInput = {
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
   testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
+  psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
+  olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -334,6 +344,8 @@ export type UserUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
   testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
+  psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
+  olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -349,6 +361,8 @@ export type UserUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
   testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
+  psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
+  olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -478,6 +492,34 @@ export type UserUpdateOneRequiredWithoutTestAttemptsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutTestAttemptsInput, Prisma.UserUpdateWithoutTestAttemptsInput>, Prisma.UserUncheckedUpdateWithoutTestAttemptsInput>
 }
 
+export type UserCreateNestedOneWithoutPsychometricAttemptsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutPsychometricAttemptsInput, Prisma.UserUncheckedCreateWithoutPsychometricAttemptsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutPsychometricAttemptsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutPsychometricAttemptsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutPsychometricAttemptsInput, Prisma.UserUncheckedCreateWithoutPsychometricAttemptsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutPsychometricAttemptsInput
+  upsert?: Prisma.UserUpsertWithoutPsychometricAttemptsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutPsychometricAttemptsInput, Prisma.UserUpdateWithoutPsychometricAttemptsInput>, Prisma.UserUncheckedUpdateWithoutPsychometricAttemptsInput>
+}
+
+export type UserCreateNestedOneWithoutOlqScoreInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutOlqScoreInput, Prisma.UserUncheckedCreateWithoutOlqScoreInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutOlqScoreInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutOlqScoreNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutOlqScoreInput, Prisma.UserUncheckedCreateWithoutOlqScoreInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutOlqScoreInput
+  upsert?: Prisma.UserUpsertWithoutOlqScoreInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutOlqScoreInput, Prisma.UserUpdateWithoutOlqScoreInput>, Prisma.UserUncheckedUpdateWithoutOlqScoreInput>
+}
+
 export type UserCreateWithoutEnrollmentsInput = {
   id?: string
   name: string
@@ -490,6 +532,8 @@ export type UserCreateWithoutEnrollmentsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
+  psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
+  olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutEnrollmentsInput = {
@@ -504,6 +548,8 @@ export type UserUncheckedCreateWithoutEnrollmentsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
+  psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
+  olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutEnrollmentsInput = {
@@ -534,6 +580,8 @@ export type UserUpdateWithoutEnrollmentsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
+  psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
+  olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEnrollmentsInput = {
@@ -548,6 +596,8 @@ export type UserUncheckedUpdateWithoutEnrollmentsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
+  psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
+  olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserCreateWithoutTestAttemptsInput = {
@@ -562,6 +612,8 @@ export type UserCreateWithoutTestAttemptsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
+  psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
+  olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutTestAttemptsInput = {
@@ -576,6 +628,8 @@ export type UserUncheckedCreateWithoutTestAttemptsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
+  psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
+  olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutTestAttemptsInput = {
@@ -606,6 +660,8 @@ export type UserUpdateWithoutTestAttemptsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
+  psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
+  olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutTestAttemptsInput = {
@@ -620,6 +676,168 @@ export type UserUncheckedUpdateWithoutTestAttemptsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
+  psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
+  olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
+}
+
+export type UserCreateWithoutPsychometricAttemptsInput = {
+  id?: string
+  name: string
+  email: string
+  mobile: string
+  password: string
+  role?: $Enums.Role
+  emailVerified?: boolean
+  mobileVerified?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
+  testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
+  olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutPsychometricAttemptsInput = {
+  id?: string
+  name: string
+  email: string
+  mobile: string
+  password: string
+  role?: $Enums.Role
+  emailVerified?: boolean
+  mobileVerified?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
+  testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
+  olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutPsychometricAttemptsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutPsychometricAttemptsInput, Prisma.UserUncheckedCreateWithoutPsychometricAttemptsInput>
+}
+
+export type UserUpsertWithoutPsychometricAttemptsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutPsychometricAttemptsInput, Prisma.UserUncheckedUpdateWithoutPsychometricAttemptsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutPsychometricAttemptsInput, Prisma.UserUncheckedCreateWithoutPsychometricAttemptsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutPsychometricAttemptsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutPsychometricAttemptsInput, Prisma.UserUncheckedUpdateWithoutPsychometricAttemptsInput>
+}
+
+export type UserUpdateWithoutPsychometricAttemptsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
+  testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
+  olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutPsychometricAttemptsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
+  testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
+  olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
+}
+
+export type UserCreateWithoutOlqScoreInput = {
+  id?: string
+  name: string
+  email: string
+  mobile: string
+  password: string
+  role?: $Enums.Role
+  emailVerified?: boolean
+  mobileVerified?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
+  testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
+  psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutOlqScoreInput = {
+  id?: string
+  name: string
+  email: string
+  mobile: string
+  password: string
+  role?: $Enums.Role
+  emailVerified?: boolean
+  mobileVerified?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
+  testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
+  psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutOlqScoreInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutOlqScoreInput, Prisma.UserUncheckedCreateWithoutOlqScoreInput>
+}
+
+export type UserUpsertWithoutOlqScoreInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutOlqScoreInput, Prisma.UserUncheckedUpdateWithoutOlqScoreInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutOlqScoreInput, Prisma.UserUncheckedCreateWithoutOlqScoreInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutOlqScoreInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutOlqScoreInput, Prisma.UserUncheckedUpdateWithoutOlqScoreInput>
+}
+
+export type UserUpdateWithoutOlqScoreInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
+  testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
+  psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutOlqScoreInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
+  testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
+  psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
 }
 
 
@@ -630,11 +848,13 @@ export type UserUncheckedUpdateWithoutTestAttemptsInput = {
 export type UserCountOutputType = {
   enrollments: number
   testAttempts: number
+  psychometricAttempts: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   enrollments?: boolean | UserCountOutputTypeCountEnrollmentsArgs
   testAttempts?: boolean | UserCountOutputTypeCountTestAttemptsArgs
+  psychometricAttempts?: boolean | UserCountOutputTypeCountPsychometricAttemptsArgs
 }
 
 /**
@@ -661,6 +881,13 @@ export type UserCountOutputTypeCountTestAttemptsArgs<ExtArgs extends runtime.Typ
   where?: Prisma.TestAttemptWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountPsychometricAttemptsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PsychometricAttemptWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -675,6 +902,8 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   updatedAt?: boolean
   enrollments?: boolean | Prisma.User$enrollmentsArgs<ExtArgs>
   testAttempts?: boolean | Prisma.User$testAttemptsArgs<ExtArgs>
+  psychometricAttempts?: boolean | Prisma.User$psychometricAttemptsArgs<ExtArgs>
+  olqScore?: boolean | Prisma.User$olqScoreArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -721,6 +950,8 @@ export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = run
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   enrollments?: boolean | Prisma.User$enrollmentsArgs<ExtArgs>
   testAttempts?: boolean | Prisma.User$testAttemptsArgs<ExtArgs>
+  psychometricAttempts?: boolean | Prisma.User$psychometricAttemptsArgs<ExtArgs>
+  olqScore?: boolean | Prisma.User$olqScoreArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -731,6 +962,8 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   objects: {
     enrollments: Prisma.$EnrollmentPayload<ExtArgs>[]
     testAttempts: Prisma.$TestAttemptPayload<ExtArgs>[]
+    psychometricAttempts: Prisma.$PsychometricAttemptPayload<ExtArgs>[]
+    olqScore: Prisma.$OLQScorePayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1139,6 +1372,8 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   readonly [Symbol.toStringTag]: "PrismaPromise"
   enrollments<T extends Prisma.User$enrollmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$enrollmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EnrollmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   testAttempts<T extends Prisma.User$testAttemptsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$testAttemptsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TestAttemptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  psychometricAttempts<T extends Prisma.User$psychometricAttemptsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$psychometricAttemptsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PsychometricAttemptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  olqScore<T extends Prisma.User$olqScoreArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$olqScoreArgs<ExtArgs>>): Prisma.Prisma__OLQScoreClient<runtime.Types.Result.GetResult<Prisma.$OLQScorePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1616,6 +1851,49 @@ export type User$testAttemptsArgs<ExtArgs extends runtime.Types.Extensions.Inter
   take?: number
   skip?: number
   distinct?: Prisma.TestAttemptScalarFieldEnum | Prisma.TestAttemptScalarFieldEnum[]
+}
+
+/**
+ * User.psychometricAttempts
+ */
+export type User$psychometricAttemptsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the PsychometricAttempt
+   */
+  select?: Prisma.PsychometricAttemptSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the PsychometricAttempt
+   */
+  omit?: Prisma.PsychometricAttemptOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PsychometricAttemptInclude<ExtArgs> | null
+  where?: Prisma.PsychometricAttemptWhereInput
+  orderBy?: Prisma.PsychometricAttemptOrderByWithRelationInput | Prisma.PsychometricAttemptOrderByWithRelationInput[]
+  cursor?: Prisma.PsychometricAttemptWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PsychometricAttemptScalarFieldEnum | Prisma.PsychometricAttemptScalarFieldEnum[]
+}
+
+/**
+ * User.olqScore
+ */
+export type User$olqScoreArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the OLQScore
+   */
+  select?: Prisma.OLQScoreSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the OLQScore
+   */
+  omit?: Prisma.OLQScoreOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OLQScoreInclude<ExtArgs> | null
+  where?: Prisma.OLQScoreWhereInput
 }
 
 /**

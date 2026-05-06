@@ -11,7 +11,8 @@
     "prisma:push": "prisma db push",
     "prisma:migrate": "prisma migrate dev",
     "seed:courses": "tsx src/scripts/seed-courses.ts",
-    "seed:tests": "tsx src/scripts/seed-tests.ts"
+    "seed:tests": "tsx src/scripts/seed-tests.ts",
+    "seed:psychometric": "tsx src/scripts/seed-psychometric.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.8.0",

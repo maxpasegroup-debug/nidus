@@ -60,7 +60,12 @@ export const ModelName = {
   Test: 'Test',
   Question: 'Question',
   TestAttempt: 'TestAttempt',
-  Answer: 'Answer'
+  Answer: 'Answer',
+  PsychometricTest: 'PsychometricTest',
+  PsychometricQuestion: 'PsychometricQuestion',
+  PsychometricAttempt: 'PsychometricAttempt',
+  PsychometricAnswer: 'PsychometricAnswer',
+  OLQScore: 'OLQScore'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -222,12 +227,96 @@ export const AnswerScalarFieldEnum = {
 export type AnswerScalarFieldEnum = (typeof AnswerScalarFieldEnum)[keyof typeof AnswerScalarFieldEnum]
 
 
+export const PsychometricTestScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  type: 'type',
+  description: 'description',
+  duration: 'duration',
+  instructions: 'instructions',
+  createdAt: 'createdAt'
+} as const
+
+export type PsychometricTestScalarFieldEnum = (typeof PsychometricTestScalarFieldEnum)[keyof typeof PsychometricTestScalarFieldEnum]
+
+
+export const PsychometricQuestionScalarFieldEnum = {
+  id: 'id',
+  testId: 'testId',
+  questionText: 'questionText',
+  imageUrl: 'imageUrl',
+  questionType: 'questionType',
+  options: 'options',
+  order: 'order'
+} as const
+
+export type PsychometricQuestionScalarFieldEnum = (typeof PsychometricQuestionScalarFieldEnum)[keyof typeof PsychometricQuestionScalarFieldEnum]
+
+
+export const PsychometricAttemptScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  testId: 'testId',
+  startedAt: 'startedAt',
+  completedAt: 'completedAt',
+  score: 'score',
+  aiAnalysis: 'aiAnalysis',
+  overallRemark: 'overallRemark'
+} as const
+
+export type PsychometricAttemptScalarFieldEnum = (typeof PsychometricAttemptScalarFieldEnum)[keyof typeof PsychometricAttemptScalarFieldEnum]
+
+
+export const PsychometricAnswerScalarFieldEnum = {
+  id: 'id',
+  attemptId: 'attemptId',
+  questionId: 'questionId',
+  answerText: 'answerText',
+  selectedOption: 'selectedOption',
+  score: 'score'
+} as const
+
+export type PsychometricAnswerScalarFieldEnum = (typeof PsychometricAnswerScalarFieldEnum)[keyof typeof PsychometricAnswerScalarFieldEnum]
+
+
+export const OLQScoreScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  effectiveIntelligence: 'effectiveIntelligence',
+  reasoningAbility: 'reasoningAbility',
+  organizingAbility: 'organizingAbility',
+  socialAdaptability: 'socialAdaptability',
+  cooperation: 'cooperation',
+  senseOfResponsibility: 'senseOfResponsibility',
+  initiative: 'initiative',
+  selfConfidence: 'selfConfidence',
+  speedOfDecision: 'speedOfDecision',
+  abilityToInfluence: 'abilityToInfluence',
+  liveliness: 'liveliness',
+  determination: 'determination',
+  courage: 'courage',
+  stamina: 'stamina',
+  emotionalStability: 'emotionalStability',
+  updatedAt: 'updatedAt'
+} as const
+
+export type OLQScoreScalarFieldEnum = (typeof OLQScoreScalarFieldEnum)[keyof typeof OLQScoreScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
 } as const
 
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
+
+
+export const NullableJsonNullValueInput = {
+  DbNull: DbNull,
+  JsonNull: JsonNull
+} as const
+
+export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
 
 
 export const QueryMode = {
@@ -244,4 +333,13 @@ export const NullsOrder = {
 } as const
 
 export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+export const JsonNullValueFilter = {
+  DbNull: DbNull,
+  JsonNull: JsonNull,
+  AnyNull: AnyNull
+} as const
+
+export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 

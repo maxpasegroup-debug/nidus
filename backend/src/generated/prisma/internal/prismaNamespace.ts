@@ -393,7 +393,12 @@ export const ModelName = {
   Test: 'Test',
   Question: 'Question',
   TestAttempt: 'TestAttempt',
-  Answer: 'Answer'
+  Answer: 'Answer',
+  PsychometricTest: 'PsychometricTest',
+  PsychometricQuestion: 'PsychometricQuestion',
+  PsychometricAttempt: 'PsychometricAttempt',
+  PsychometricAnswer: 'PsychometricAnswer',
+  OLQScore: 'OLQScore'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -409,7 +414,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "otp" | "course" | "module" | "lesson" | "enrollment" | "test" | "question" | "testAttempt" | "answer"
+    modelProps: "user" | "otp" | "course" | "module" | "lesson" | "enrollment" | "test" | "question" | "testAttempt" | "answer" | "psychometricTest" | "psychometricQuestion" | "psychometricAttempt" | "psychometricAnswer" | "oLQScore"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1153,6 +1158,376 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    PsychometricTest: {
+      payload: Prisma.$PsychometricTestPayload<ExtArgs>
+      fields: Prisma.PsychometricTestFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PsychometricTestFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PsychometricTestPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PsychometricTestFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PsychometricTestPayload>
+        }
+        findFirst: {
+          args: Prisma.PsychometricTestFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PsychometricTestPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PsychometricTestFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PsychometricTestPayload>
+        }
+        findMany: {
+          args: Prisma.PsychometricTestFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PsychometricTestPayload>[]
+        }
+        create: {
+          args: Prisma.PsychometricTestCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PsychometricTestPayload>
+        }
+        createMany: {
+          args: Prisma.PsychometricTestCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.PsychometricTestCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PsychometricTestPayload>[]
+        }
+        delete: {
+          args: Prisma.PsychometricTestDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PsychometricTestPayload>
+        }
+        update: {
+          args: Prisma.PsychometricTestUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PsychometricTestPayload>
+        }
+        deleteMany: {
+          args: Prisma.PsychometricTestDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PsychometricTestUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.PsychometricTestUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PsychometricTestPayload>[]
+        }
+        upsert: {
+          args: Prisma.PsychometricTestUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PsychometricTestPayload>
+        }
+        aggregate: {
+          args: Prisma.PsychometricTestAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePsychometricTest>
+        }
+        groupBy: {
+          args: Prisma.PsychometricTestGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PsychometricTestGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PsychometricTestCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PsychometricTestCountAggregateOutputType> | number
+        }
+      }
+    }
+    PsychometricQuestion: {
+      payload: Prisma.$PsychometricQuestionPayload<ExtArgs>
+      fields: Prisma.PsychometricQuestionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PsychometricQuestionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PsychometricQuestionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PsychometricQuestionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PsychometricQuestionPayload>
+        }
+        findFirst: {
+          args: Prisma.PsychometricQuestionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PsychometricQuestionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PsychometricQuestionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PsychometricQuestionPayload>
+        }
+        findMany: {
+          args: Prisma.PsychometricQuestionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PsychometricQuestionPayload>[]
+        }
+        create: {
+          args: Prisma.PsychometricQuestionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PsychometricQuestionPayload>
+        }
+        createMany: {
+          args: Prisma.PsychometricQuestionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.PsychometricQuestionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PsychometricQuestionPayload>[]
+        }
+        delete: {
+          args: Prisma.PsychometricQuestionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PsychometricQuestionPayload>
+        }
+        update: {
+          args: Prisma.PsychometricQuestionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PsychometricQuestionPayload>
+        }
+        deleteMany: {
+          args: Prisma.PsychometricQuestionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PsychometricQuestionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.PsychometricQuestionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PsychometricQuestionPayload>[]
+        }
+        upsert: {
+          args: Prisma.PsychometricQuestionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PsychometricQuestionPayload>
+        }
+        aggregate: {
+          args: Prisma.PsychometricQuestionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePsychometricQuestion>
+        }
+        groupBy: {
+          args: Prisma.PsychometricQuestionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PsychometricQuestionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PsychometricQuestionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PsychometricQuestionCountAggregateOutputType> | number
+        }
+      }
+    }
+    PsychometricAttempt: {
+      payload: Prisma.$PsychometricAttemptPayload<ExtArgs>
+      fields: Prisma.PsychometricAttemptFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PsychometricAttemptFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PsychometricAttemptPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PsychometricAttemptFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PsychometricAttemptPayload>
+        }
+        findFirst: {
+          args: Prisma.PsychometricAttemptFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PsychometricAttemptPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PsychometricAttemptFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PsychometricAttemptPayload>
+        }
+        findMany: {
+          args: Prisma.PsychometricAttemptFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PsychometricAttemptPayload>[]
+        }
+        create: {
+          args: Prisma.PsychometricAttemptCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PsychometricAttemptPayload>
+        }
+        createMany: {
+          args: Prisma.PsychometricAttemptCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.PsychometricAttemptCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PsychometricAttemptPayload>[]
+        }
+        delete: {
+          args: Prisma.PsychometricAttemptDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PsychometricAttemptPayload>
+        }
+        update: {
+          args: Prisma.PsychometricAttemptUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PsychometricAttemptPayload>
+        }
+        deleteMany: {
+          args: Prisma.PsychometricAttemptDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PsychometricAttemptUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.PsychometricAttemptUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PsychometricAttemptPayload>[]
+        }
+        upsert: {
+          args: Prisma.PsychometricAttemptUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PsychometricAttemptPayload>
+        }
+        aggregate: {
+          args: Prisma.PsychometricAttemptAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePsychometricAttempt>
+        }
+        groupBy: {
+          args: Prisma.PsychometricAttemptGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PsychometricAttemptGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PsychometricAttemptCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PsychometricAttemptCountAggregateOutputType> | number
+        }
+      }
+    }
+    PsychometricAnswer: {
+      payload: Prisma.$PsychometricAnswerPayload<ExtArgs>
+      fields: Prisma.PsychometricAnswerFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PsychometricAnswerFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PsychometricAnswerPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PsychometricAnswerFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PsychometricAnswerPayload>
+        }
+        findFirst: {
+          args: Prisma.PsychometricAnswerFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PsychometricAnswerPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PsychometricAnswerFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PsychometricAnswerPayload>
+        }
+        findMany: {
+          args: Prisma.PsychometricAnswerFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PsychometricAnswerPayload>[]
+        }
+        create: {
+          args: Prisma.PsychometricAnswerCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PsychometricAnswerPayload>
+        }
+        createMany: {
+          args: Prisma.PsychometricAnswerCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.PsychometricAnswerCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PsychometricAnswerPayload>[]
+        }
+        delete: {
+          args: Prisma.PsychometricAnswerDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PsychometricAnswerPayload>
+        }
+        update: {
+          args: Prisma.PsychometricAnswerUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PsychometricAnswerPayload>
+        }
+        deleteMany: {
+          args: Prisma.PsychometricAnswerDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PsychometricAnswerUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.PsychometricAnswerUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PsychometricAnswerPayload>[]
+        }
+        upsert: {
+          args: Prisma.PsychometricAnswerUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PsychometricAnswerPayload>
+        }
+        aggregate: {
+          args: Prisma.PsychometricAnswerAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePsychometricAnswer>
+        }
+        groupBy: {
+          args: Prisma.PsychometricAnswerGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PsychometricAnswerGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PsychometricAnswerCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PsychometricAnswerCountAggregateOutputType> | number
+        }
+      }
+    }
+    OLQScore: {
+      payload: Prisma.$OLQScorePayload<ExtArgs>
+      fields: Prisma.OLQScoreFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.OLQScoreFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OLQScorePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.OLQScoreFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OLQScorePayload>
+        }
+        findFirst: {
+          args: Prisma.OLQScoreFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OLQScorePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.OLQScoreFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OLQScorePayload>
+        }
+        findMany: {
+          args: Prisma.OLQScoreFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OLQScorePayload>[]
+        }
+        create: {
+          args: Prisma.OLQScoreCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OLQScorePayload>
+        }
+        createMany: {
+          args: Prisma.OLQScoreCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.OLQScoreCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OLQScorePayload>[]
+        }
+        delete: {
+          args: Prisma.OLQScoreDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OLQScorePayload>
+        }
+        update: {
+          args: Prisma.OLQScoreUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OLQScorePayload>
+        }
+        deleteMany: {
+          args: Prisma.OLQScoreDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.OLQScoreUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.OLQScoreUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OLQScorePayload>[]
+        }
+        upsert: {
+          args: Prisma.OLQScoreUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OLQScorePayload>
+        }
+        aggregate: {
+          args: Prisma.OLQScoreAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateOLQScore>
+        }
+        groupBy: {
+          args: Prisma.OLQScoreGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.OLQScoreGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.OLQScoreCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.OLQScoreCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1335,12 +1710,96 @@ export const AnswerScalarFieldEnum = {
 export type AnswerScalarFieldEnum = (typeof AnswerScalarFieldEnum)[keyof typeof AnswerScalarFieldEnum]
 
 
+export const PsychometricTestScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  type: 'type',
+  description: 'description',
+  duration: 'duration',
+  instructions: 'instructions',
+  createdAt: 'createdAt'
+} as const
+
+export type PsychometricTestScalarFieldEnum = (typeof PsychometricTestScalarFieldEnum)[keyof typeof PsychometricTestScalarFieldEnum]
+
+
+export const PsychometricQuestionScalarFieldEnum = {
+  id: 'id',
+  testId: 'testId',
+  questionText: 'questionText',
+  imageUrl: 'imageUrl',
+  questionType: 'questionType',
+  options: 'options',
+  order: 'order'
+} as const
+
+export type PsychometricQuestionScalarFieldEnum = (typeof PsychometricQuestionScalarFieldEnum)[keyof typeof PsychometricQuestionScalarFieldEnum]
+
+
+export const PsychometricAttemptScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  testId: 'testId',
+  startedAt: 'startedAt',
+  completedAt: 'completedAt',
+  score: 'score',
+  aiAnalysis: 'aiAnalysis',
+  overallRemark: 'overallRemark'
+} as const
+
+export type PsychometricAttemptScalarFieldEnum = (typeof PsychometricAttemptScalarFieldEnum)[keyof typeof PsychometricAttemptScalarFieldEnum]
+
+
+export const PsychometricAnswerScalarFieldEnum = {
+  id: 'id',
+  attemptId: 'attemptId',
+  questionId: 'questionId',
+  answerText: 'answerText',
+  selectedOption: 'selectedOption',
+  score: 'score'
+} as const
+
+export type PsychometricAnswerScalarFieldEnum = (typeof PsychometricAnswerScalarFieldEnum)[keyof typeof PsychometricAnswerScalarFieldEnum]
+
+
+export const OLQScoreScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  effectiveIntelligence: 'effectiveIntelligence',
+  reasoningAbility: 'reasoningAbility',
+  organizingAbility: 'organizingAbility',
+  socialAdaptability: 'socialAdaptability',
+  cooperation: 'cooperation',
+  senseOfResponsibility: 'senseOfResponsibility',
+  initiative: 'initiative',
+  selfConfidence: 'selfConfidence',
+  speedOfDecision: 'speedOfDecision',
+  abilityToInfluence: 'abilityToInfluence',
+  liveliness: 'liveliness',
+  determination: 'determination',
+  courage: 'courage',
+  stamina: 'stamina',
+  emotionalStability: 'emotionalStability',
+  updatedAt: 'updatedAt'
+} as const
+
+export type OLQScoreScalarFieldEnum = (typeof OLQScoreScalarFieldEnum)[keyof typeof OLQScoreScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
 } as const
 
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
+
+
+export const NullableJsonNullValueInput = {
+  DbNull: DbNull,
+  JsonNull: JsonNull
+} as const
+
+export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
 
 
 export const QueryMode = {
@@ -1357,6 +1816,15 @@ export const NullsOrder = {
 } as const
 
 export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+export const JsonNullValueFilter = {
+  DbNull: DbNull,
+  JsonNull: JsonNull,
+  AnyNull: AnyNull
+} as const
+
+export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 
 
 
@@ -1453,6 +1921,20 @@ export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'In
  * Reference to a field of type 'Int[]'
  */
 export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+    
+
+
+/**
+ * Reference to a field of type 'Json'
+ */
+export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+    
+
+
+/**
+ * Reference to a field of type 'QueryMode'
+ */
+export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
     
 
 /**
@@ -1575,6 +2057,11 @@ export type GlobalOmitConfig = {
   question?: Prisma.QuestionOmit
   testAttempt?: Prisma.TestAttemptOmit
   answer?: Prisma.AnswerOmit
+  psychometricTest?: Prisma.PsychometricTestOmit
+  psychometricQuestion?: Prisma.PsychometricQuestionOmit
+  psychometricAttempt?: Prisma.PsychometricAttemptOmit
+  psychometricAnswer?: Prisma.PsychometricAnswerOmit
+  oLQScore?: Prisma.OLQScoreOmit
 }
 
 /* Types for Logging */

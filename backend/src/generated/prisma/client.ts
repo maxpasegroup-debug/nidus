@@ -91,3 +91,28 @@ export type TestAttempt = Prisma.TestAttemptModel
  * 
  */
 export type Answer = Prisma.AnswerModel
+/**
+ * Model PsychometricTest
+ * 
+ */
+export type PsychometricTest = Prisma.PsychometricTestModel
+/**
+ * Model PsychometricQuestion
+ * 
+ */
+export type PsychometricQuestion = Prisma.PsychometricQuestionModel
+/**
+ * Model PsychometricAttempt
+ * 
+ */
+export type PsychometricAttempt = Prisma.PsychometricAttemptModel
+/**
+ * Model PsychometricAnswer
+ * 
+ */
+export type PsychometricAnswer = Prisma.PsychometricAnswerModel
+/**
+ * Model OLQScore
+ * 
+ */
+export type OLQScore = Prisma.OLQScoreModel
