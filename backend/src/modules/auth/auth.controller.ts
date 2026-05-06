@@ -1,5 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
 import { validationResult } from "express-validator";
+import { prisma } from "../../config/prisma.js";
 import { authService } from "./auth.service.js";
 import type { AuthenticatedRequest } from "./auth.middleware.js";
 
@@ -30,8 +31,25 @@ export const authController = {
     try {
       validateRequest(req);
       const result = await authService.login(req.body);
+      await prisma.auditLog.create({
+        data: {
+          userId: result.user.id,
+          action: "LOGIN_SUCCESS",
+          module: "auth",
+          description: `Successful login for ${result.user.email}`,
+          ipAddress: req.ip
+        }
+      }).catch(() => undefined);
       res.json(result);
     } catch (error) {
+      await prisma.auditLog.create({
+        data: {
+          action: "LOGIN_FAILED",
+          module: "auth",
+          description: `Failed login attempt for ${req.body?.identifier ?? "unknown"}`,
+          ipAddress: req.ip
+        }
+      }).catch(() => undefined);
       next(error);
     }
   },

@@ -104,6 +104,8 @@ model User {
   mediaFolders MediaFolder[] @relation("MediaFolderCreator")
   mediaFiles MediaFile[] @relation("MediaFileUploader")
   documents Document[] @relation("DocumentUploader")
+  adminRoles UserRole[]
+  auditLogs AuditLog[]
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 }
@@ -1106,5 +1108,88 @@ model Document {
 
   @@index([category])
   @@index([uploadedBy])
+  @@index([createdAt])
+}
+
+model AdminRole {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+  permissions RolePermission[]
+  users       UserRole[]
+
+  @@index([createdAt])
+}
+
+model Permission {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  module    String
+  action    String
+  createdAt DateTime @default(now())
+  roles     RolePermission[]
+
+  @@unique([module, action])
+  @@index([module])
+  @@index([action])
+}
+
+model RolePermission {
+  id           String     @id @default(cuid())
+  roleId       String
+  permissionId String
+  role         AdminRole  @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@unique([roleId, permissionId])
+  @@index([permissionId])
+}
+
+model UserRole {
+  id     String    @id @default(cuid())
+  userId String
+  roleId String
+  user   User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role   AdminRole @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, roleId])
+  @@index([roleId])
+}
+
+model SystemSetting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String
+  category  String
+  updatedAt DateTime @updatedAt
+
+  @@index([category])
+}
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  userId      String?
+  action      String
+  module      String
+  description String
+  ipAddress   String?
+  createdAt   DateTime @default(now())
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([module])
+  @@index([action])
+  @@index([createdAt])
+}
+
+model Branch {
+  id            String   @id @default(cuid())
+  name          String
+  location      String
+  contactNumber String
+  createdAt     DateTime @default(now())
+
+  @@index([location])
   @@index([createdAt])
 }

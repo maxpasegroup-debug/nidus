@@ -362,3 +362,38 @@ export type MediaFile = Prisma.MediaFileModel
  * 
  */
 export type Document = Prisma.DocumentModel
+/**
+ * Model AdminRole
+ * 
+ */
+export type AdminRole = Prisma.AdminRoleModel
+/**
+ * Model Permission
+ * 
+ */
+export type Permission = Prisma.PermissionModel
+/**
+ * Model RolePermission
+ * 
+ */
+export type RolePermission = Prisma.RolePermissionModel
+/**
+ * Model UserRole
+ * 
+ */
+export type UserRole = Prisma.UserRoleModel
+/**
+ * Model SystemSetting
+ * 
+ */
+export type SystemSetting = Prisma.SystemSettingModel
+/**
+ * Model AuditLog
+ * 
+ */
+export type AuditLog = Prisma.AuditLogModel
+/**
+ * Model Branch
+ * 
+ */
+export type Branch = Prisma.BranchModel

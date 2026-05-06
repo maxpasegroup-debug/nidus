@@ -18,6 +18,7 @@ export function getNavItems(role?: AuthRole) {
     { label: "Fitness", href: "/fitness" },
     { label: "My Courses", href: "/my-courses" },
     { label: "CRM", href: "/crm" },
+    { label: "Admin", href: "/admin-center" },
     { label: "Payments", href: "/payments" },
     { label: "Messages", href: "/messages" },
     { label: "Hostel", href: "/hostel" },

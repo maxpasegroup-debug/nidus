@@ -267,6 +267,8 @@ export type UserWhereInput = {
   mediaFolders?: Prisma.MediaFolderListRelationFilter
   mediaFiles?: Prisma.MediaFileListRelationFilter
   documents?: Prisma.DocumentListRelationFilter
+  adminRoles?: Prisma.UserRoleListRelationFilter
+  auditLogs?: Prisma.AuditLogListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -325,6 +327,8 @@ export type UserOrderByWithRelationInput = {
   mediaFolders?: Prisma.MediaFolderOrderByRelationAggregateInput
   mediaFiles?: Prisma.MediaFileOrderByRelationAggregateInput
   documents?: Prisma.DocumentOrderByRelationAggregateInput
+  adminRoles?: Prisma.UserRoleOrderByRelationAggregateInput
+  auditLogs?: Prisma.AuditLogOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -386,6 +390,8 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   mediaFolders?: Prisma.MediaFolderListRelationFilter
   mediaFiles?: Prisma.MediaFileListRelationFilter
   documents?: Prisma.DocumentListRelationFilter
+  adminRoles?: Prisma.UserRoleListRelationFilter
+  auditLogs?: Prisma.AuditLogListRelationFilter
 }, "id" | "email" | "mobile">
 
 export type UserOrderByWithAggregationInput = {
@@ -476,6 +482,8 @@ export type UserCreateInput = {
   mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -534,6 +542,8 @@ export type UserUncheckedCreateInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -592,6 +602,8 @@ export type UserUpdateInput = {
   mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -650,6 +662,8 @@ export type UserUncheckedUpdateInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -1394,6 +1408,36 @@ export type UserUpdateOneRequiredWithoutDocumentsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutDocumentsInput, Prisma.UserUpdateWithoutDocumentsInput>, Prisma.UserUncheckedUpdateWithoutDocumentsInput>
 }
 
+export type UserCreateNestedOneWithoutAdminRolesInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutAdminRolesInput, Prisma.UserUncheckedCreateWithoutAdminRolesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAdminRolesInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutAdminRolesNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutAdminRolesInput, Prisma.UserUncheckedCreateWithoutAdminRolesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAdminRolesInput
+  upsert?: Prisma.UserUpsertWithoutAdminRolesInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutAdminRolesInput, Prisma.UserUpdateWithoutAdminRolesInput>, Prisma.UserUncheckedUpdateWithoutAdminRolesInput>
+}
+
+export type UserCreateNestedOneWithoutAuditLogsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutAuditLogsInput, Prisma.UserUncheckedCreateWithoutAuditLogsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAuditLogsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutAuditLogsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutAuditLogsInput, Prisma.UserUncheckedCreateWithoutAuditLogsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAuditLogsInput
+  upsert?: Prisma.UserUpsertWithoutAuditLogsInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutAuditLogsInput, Prisma.UserUpdateWithoutAuditLogsInput>, Prisma.UserUncheckedUpdateWithoutAuditLogsInput>
+}
+
 export type UserCreateWithoutEnrollmentsInput = {
   id?: string
   name: string
@@ -1449,6 +1493,8 @@ export type UserCreateWithoutEnrollmentsInput = {
   mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutEnrollmentsInput = {
@@ -1506,6 +1552,8 @@ export type UserUncheckedCreateWithoutEnrollmentsInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutEnrollmentsInput = {
@@ -1579,6 +1627,8 @@ export type UserUpdateWithoutEnrollmentsInput = {
   mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEnrollmentsInput = {
@@ -1636,6 +1686,8 @@ export type UserUncheckedUpdateWithoutEnrollmentsInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutTestAttemptsInput = {
@@ -1693,6 +1745,8 @@ export type UserCreateWithoutTestAttemptsInput = {
   mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutTestAttemptsInput = {
@@ -1750,6 +1804,8 @@ export type UserUncheckedCreateWithoutTestAttemptsInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutTestAttemptsInput = {
@@ -1823,6 +1879,8 @@ export type UserUpdateWithoutTestAttemptsInput = {
   mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutTestAttemptsInput = {
@@ -1880,6 +1938,8 @@ export type UserUncheckedUpdateWithoutTestAttemptsInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutPsychometricAttemptsInput = {
@@ -1937,6 +1997,8 @@ export type UserCreateWithoutPsychometricAttemptsInput = {
   mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutPsychometricAttemptsInput = {
@@ -1994,6 +2056,8 @@ export type UserUncheckedCreateWithoutPsychometricAttemptsInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutPsychometricAttemptsInput = {
@@ -2067,6 +2131,8 @@ export type UserUpdateWithoutPsychometricAttemptsInput = {
   mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPsychometricAttemptsInput = {
@@ -2124,6 +2190,8 @@ export type UserUncheckedUpdateWithoutPsychometricAttemptsInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutOlqScoreInput = {
@@ -2181,6 +2249,8 @@ export type UserCreateWithoutOlqScoreInput = {
   mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutOlqScoreInput = {
@@ -2238,6 +2308,8 @@ export type UserUncheckedCreateWithoutOlqScoreInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutOlqScoreInput = {
@@ -2311,6 +2383,8 @@ export type UserUpdateWithoutOlqScoreInput = {
   mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutOlqScoreInput = {
@@ -2368,6 +2442,8 @@ export type UserUncheckedUpdateWithoutOlqScoreInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutStudyPlansInput = {
@@ -2425,6 +2501,8 @@ export type UserCreateWithoutStudyPlansInput = {
   mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutStudyPlansInput = {
@@ -2482,6 +2560,8 @@ export type UserUncheckedCreateWithoutStudyPlansInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutStudyPlansInput = {
@@ -2555,6 +2635,8 @@ export type UserUpdateWithoutStudyPlansInput = {
   mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutStudyPlansInput = {
@@ -2612,6 +2694,8 @@ export type UserUncheckedUpdateWithoutStudyPlansInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutPerformanceAnalyticsInput = {
@@ -2669,6 +2753,8 @@ export type UserCreateWithoutPerformanceAnalyticsInput = {
   mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutPerformanceAnalyticsInput = {
@@ -2726,6 +2812,8 @@ export type UserUncheckedCreateWithoutPerformanceAnalyticsInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutPerformanceAnalyticsInput = {
@@ -2799,6 +2887,8 @@ export type UserUpdateWithoutPerformanceAnalyticsInput = {
   mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPerformanceAnalyticsInput = {
@@ -2856,6 +2946,8 @@ export type UserUncheckedUpdateWithoutPerformanceAnalyticsInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutRevisionSchedulesInput = {
@@ -2913,6 +3005,8 @@ export type UserCreateWithoutRevisionSchedulesInput = {
   mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutRevisionSchedulesInput = {
@@ -2970,6 +3064,8 @@ export type UserUncheckedCreateWithoutRevisionSchedulesInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutRevisionSchedulesInput = {
@@ -3043,6 +3139,8 @@ export type UserUpdateWithoutRevisionSchedulesInput = {
   mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRevisionSchedulesInput = {
@@ -3100,6 +3198,8 @@ export type UserUncheckedUpdateWithoutRevisionSchedulesInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutLectureProgressInput = {
@@ -3157,6 +3257,8 @@ export type UserCreateWithoutLectureProgressInput = {
   mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutLectureProgressInput = {
@@ -3214,6 +3316,8 @@ export type UserUncheckedCreateWithoutLectureProgressInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutLectureProgressInput = {
@@ -3287,6 +3391,8 @@ export type UserUpdateWithoutLectureProgressInput = {
   mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutLectureProgressInput = {
@@ -3344,6 +3450,8 @@ export type UserUncheckedUpdateWithoutLectureProgressInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutAttendanceRecordsInput = {
@@ -3401,6 +3509,8 @@ export type UserCreateWithoutAttendanceRecordsInput = {
   mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAttendanceRecordsInput = {
@@ -3458,6 +3568,8 @@ export type UserUncheckedCreateWithoutAttendanceRecordsInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAttendanceRecordsInput = {
@@ -3520,6 +3632,8 @@ export type UserCreateWithoutMarkedAttendanceInput = {
   mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutMarkedAttendanceInput = {
@@ -3577,6 +3691,8 @@ export type UserUncheckedCreateWithoutMarkedAttendanceInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutMarkedAttendanceInput = {
@@ -3650,6 +3766,8 @@ export type UserUpdateWithoutAttendanceRecordsInput = {
   mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAttendanceRecordsInput = {
@@ -3707,6 +3825,8 @@ export type UserUncheckedUpdateWithoutAttendanceRecordsInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithoutMarkedAttendanceInput = {
@@ -3775,6 +3895,8 @@ export type UserUpdateWithoutMarkedAttendanceInput = {
   mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutMarkedAttendanceInput = {
@@ -3832,6 +3954,8 @@ export type UserUncheckedUpdateWithoutMarkedAttendanceInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutFacultyProfileInput = {
@@ -3889,6 +4013,8 @@ export type UserCreateWithoutFacultyProfileInput = {
   mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutFacultyProfileInput = {
@@ -3946,6 +4072,8 @@ export type UserUncheckedCreateWithoutFacultyProfileInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutFacultyProfileInput = {
@@ -4019,6 +4147,8 @@ export type UserUpdateWithoutFacultyProfileInput = {
   mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutFacultyProfileInput = {
@@ -4076,6 +4206,8 @@ export type UserUncheckedUpdateWithoutFacultyProfileInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutCommunicationAnnouncementsInput = {
@@ -4133,6 +4265,8 @@ export type UserCreateWithoutCommunicationAnnouncementsInput = {
   mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutCommunicationAnnouncementsInput = {
@@ -4190,6 +4324,8 @@ export type UserUncheckedCreateWithoutCommunicationAnnouncementsInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutCommunicationAnnouncementsInput = {
@@ -4263,6 +4399,8 @@ export type UserUpdateWithoutCommunicationAnnouncementsInput = {
   mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCommunicationAnnouncementsInput = {
@@ -4320,6 +4458,8 @@ export type UserUncheckedUpdateWithoutCommunicationAnnouncementsInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutHostelAllocationsInput = {
@@ -4377,6 +4517,8 @@ export type UserCreateWithoutHostelAllocationsInput = {
   mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutHostelAllocationsInput = {
@@ -4434,6 +4576,8 @@ export type UserUncheckedCreateWithoutHostelAllocationsInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutHostelAllocationsInput = {
@@ -4507,6 +4651,8 @@ export type UserUpdateWithoutHostelAllocationsInput = {
   mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutHostelAllocationsInput = {
@@ -4564,6 +4710,8 @@ export type UserUncheckedUpdateWithoutHostelAllocationsInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutInOutEntriesInput = {
@@ -4621,6 +4769,8 @@ export type UserCreateWithoutInOutEntriesInput = {
   mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutInOutEntriesInput = {
@@ -4678,6 +4828,8 @@ export type UserUncheckedCreateWithoutInOutEntriesInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutInOutEntriesInput = {
@@ -4751,6 +4903,8 @@ export type UserUpdateWithoutInOutEntriesInput = {
   mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutInOutEntriesInput = {
@@ -4808,6 +4962,8 @@ export type UserUncheckedUpdateWithoutInOutEntriesInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutHostelLeavesInput = {
@@ -4865,6 +5021,8 @@ export type UserCreateWithoutHostelLeavesInput = {
   mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutHostelLeavesInput = {
@@ -4922,6 +5080,8 @@ export type UserUncheckedCreateWithoutHostelLeavesInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutHostelLeavesInput = {
@@ -4984,6 +5144,8 @@ export type UserCreateWithoutApprovedHostelLeavesInput = {
   mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutApprovedHostelLeavesInput = {
@@ -5041,6 +5203,8 @@ export type UserUncheckedCreateWithoutApprovedHostelLeavesInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutApprovedHostelLeavesInput = {
@@ -5114,6 +5278,8 @@ export type UserUpdateWithoutHostelLeavesInput = {
   mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutHostelLeavesInput = {
@@ -5171,6 +5337,8 @@ export type UserUncheckedUpdateWithoutHostelLeavesInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithoutApprovedHostelLeavesInput = {
@@ -5239,6 +5407,8 @@ export type UserUpdateWithoutApprovedHostelLeavesInput = {
   mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutApprovedHostelLeavesInput = {
@@ -5296,6 +5466,8 @@ export type UserUncheckedUpdateWithoutApprovedHostelLeavesInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutDisciplineRecordsInput = {
@@ -5353,6 +5525,8 @@ export type UserCreateWithoutDisciplineRecordsInput = {
   mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutDisciplineRecordsInput = {
@@ -5410,6 +5584,8 @@ export type UserUncheckedCreateWithoutDisciplineRecordsInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutDisciplineRecordsInput = {
@@ -5472,6 +5648,8 @@ export type UserCreateWithoutRecordedDisciplineInput = {
   mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutRecordedDisciplineInput = {
@@ -5529,6 +5707,8 @@ export type UserUncheckedCreateWithoutRecordedDisciplineInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutRecordedDisciplineInput = {
@@ -5602,6 +5782,8 @@ export type UserUpdateWithoutDisciplineRecordsInput = {
   mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutDisciplineRecordsInput = {
@@ -5659,6 +5841,8 @@ export type UserUncheckedUpdateWithoutDisciplineRecordsInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithoutRecordedDisciplineInput = {
@@ -5727,6 +5911,8 @@ export type UserUpdateWithoutRecordedDisciplineInput = {
   mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRecordedDisciplineInput = {
@@ -5784,6 +5970,8 @@ export type UserUncheckedUpdateWithoutRecordedDisciplineInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutParadePerformancesInput = {
@@ -5841,6 +6029,8 @@ export type UserCreateWithoutParadePerformancesInput = {
   mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutParadePerformancesInput = {
@@ -5898,6 +6088,8 @@ export type UserUncheckedCreateWithoutParadePerformancesInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutParadePerformancesInput = {
@@ -5971,6 +6163,8 @@ export type UserUpdateWithoutParadePerformancesInput = {
   mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutParadePerformancesInput = {
@@ -6028,6 +6222,8 @@ export type UserUncheckedUpdateWithoutParadePerformancesInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutAssignedLeadsInput = {
@@ -6085,6 +6281,8 @@ export type UserCreateWithoutAssignedLeadsInput = {
   mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAssignedLeadsInput = {
@@ -6142,6 +6340,8 @@ export type UserUncheckedCreateWithoutAssignedLeadsInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAssignedLeadsInput = {
@@ -6215,6 +6415,8 @@ export type UserUpdateWithoutAssignedLeadsInput = {
   mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAssignedLeadsInput = {
@@ -6272,6 +6474,8 @@ export type UserUncheckedUpdateWithoutAssignedLeadsInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutFollowUpsCreatedInput = {
@@ -6329,6 +6533,8 @@ export type UserCreateWithoutFollowUpsCreatedInput = {
   mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutFollowUpsCreatedInput = {
@@ -6386,6 +6592,8 @@ export type UserUncheckedCreateWithoutFollowUpsCreatedInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutFollowUpsCreatedInput = {
@@ -6459,6 +6667,8 @@ export type UserUpdateWithoutFollowUpsCreatedInput = {
   mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutFollowUpsCreatedInput = {
@@ -6516,6 +6726,8 @@ export type UserUncheckedUpdateWithoutFollowUpsCreatedInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutAdmissionsInput = {
@@ -6573,6 +6785,8 @@ export type UserCreateWithoutAdmissionsInput = {
   mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAdmissionsInput = {
@@ -6630,6 +6844,8 @@ export type UserUncheckedCreateWithoutAdmissionsInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAdmissionsInput = {
@@ -6703,6 +6919,8 @@ export type UserUpdateWithoutAdmissionsInput = {
   mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAdmissionsInput = {
@@ -6760,6 +6978,8 @@ export type UserUncheckedUpdateWithoutAdmissionsInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutReferralsMadeInput = {
@@ -6817,6 +7037,8 @@ export type UserCreateWithoutReferralsMadeInput = {
   mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutReferralsMadeInput = {
@@ -6874,6 +7096,8 @@ export type UserUncheckedCreateWithoutReferralsMadeInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutReferralsMadeInput = {
@@ -6936,6 +7160,8 @@ export type UserCreateWithoutReferralsReceivedInput = {
   mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutReferralsReceivedInput = {
@@ -6993,6 +7219,8 @@ export type UserUncheckedCreateWithoutReferralsReceivedInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutReferralsReceivedInput = {
@@ -7066,6 +7294,8 @@ export type UserUpdateWithoutReferralsMadeInput = {
   mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReferralsMadeInput = {
@@ -7123,6 +7353,8 @@ export type UserUncheckedUpdateWithoutReferralsMadeInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithoutReferralsReceivedInput = {
@@ -7191,6 +7423,8 @@ export type UserUpdateWithoutReferralsReceivedInput = {
   mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReferralsReceivedInput = {
@@ -7248,6 +7482,8 @@ export type UserUncheckedUpdateWithoutReferralsReceivedInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutPaymentsInput = {
@@ -7305,6 +7541,8 @@ export type UserCreateWithoutPaymentsInput = {
   mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutPaymentsInput = {
@@ -7362,6 +7600,8 @@ export type UserUncheckedCreateWithoutPaymentsInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutPaymentsInput = {
@@ -7435,6 +7675,8 @@ export type UserUpdateWithoutPaymentsInput = {
   mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPaymentsInput = {
@@ -7492,6 +7734,8 @@ export type UserUncheckedUpdateWithoutPaymentsInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutSubscriptionsInput = {
@@ -7549,6 +7793,8 @@ export type UserCreateWithoutSubscriptionsInput = {
   mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutSubscriptionsInput = {
@@ -7606,6 +7852,8 @@ export type UserUncheckedCreateWithoutSubscriptionsInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutSubscriptionsInput = {
@@ -7679,6 +7927,8 @@ export type UserUpdateWithoutSubscriptionsInput = {
   mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSubscriptionsInput = {
@@ -7736,6 +7986,8 @@ export type UserUncheckedUpdateWithoutSubscriptionsInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutFeeInstallmentsInput = {
@@ -7793,6 +8045,8 @@ export type UserCreateWithoutFeeInstallmentsInput = {
   mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutFeeInstallmentsInput = {
@@ -7850,6 +8104,8 @@ export type UserUncheckedCreateWithoutFeeInstallmentsInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutFeeInstallmentsInput = {
@@ -7923,6 +8179,8 @@ export type UserUpdateWithoutFeeInstallmentsInput = {
   mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutFeeInstallmentsInput = {
@@ -7980,6 +8238,8 @@ export type UserUncheckedUpdateWithoutFeeInstallmentsInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutInvoicesInput = {
@@ -8037,6 +8297,8 @@ export type UserCreateWithoutInvoicesInput = {
   mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutInvoicesInput = {
@@ -8094,6 +8356,8 @@ export type UserUncheckedCreateWithoutInvoicesInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutInvoicesInput = {
@@ -8167,6 +8431,8 @@ export type UserUpdateWithoutInvoicesInput = {
   mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutInvoicesInput = {
@@ -8224,6 +8490,8 @@ export type UserUncheckedUpdateWithoutInvoicesInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutNotificationsInput = {
@@ -8281,6 +8549,8 @@ export type UserCreateWithoutNotificationsInput = {
   mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutNotificationsInput = {
@@ -8338,6 +8608,8 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutNotificationsInput = {
@@ -8411,6 +8683,8 @@ export type UserUpdateWithoutNotificationsInput = {
   mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutNotificationsInput = {
@@ -8468,6 +8742,8 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutMessageThreadsInput = {
@@ -8525,6 +8801,8 @@ export type UserCreateWithoutMessageThreadsInput = {
   mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutMessageThreadsInput = {
@@ -8582,6 +8860,8 @@ export type UserUncheckedCreateWithoutMessageThreadsInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutMessageThreadsInput = {
@@ -8655,6 +8935,8 @@ export type UserUpdateWithoutMessageThreadsInput = {
   mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutMessageThreadsInput = {
@@ -8712,6 +8994,8 @@ export type UserUncheckedUpdateWithoutMessageThreadsInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutSentMessagesInput = {
@@ -8769,6 +9053,8 @@ export type UserCreateWithoutSentMessagesInput = {
   mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutSentMessagesInput = {
@@ -8826,6 +9112,8 @@ export type UserUncheckedCreateWithoutSentMessagesInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutSentMessagesInput = {
@@ -8888,6 +9176,8 @@ export type UserCreateWithoutReceivedMessagesInput = {
   mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutReceivedMessagesInput = {
@@ -8945,6 +9235,8 @@ export type UserUncheckedCreateWithoutReceivedMessagesInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutReceivedMessagesInput = {
@@ -9018,6 +9310,8 @@ export type UserUpdateWithoutSentMessagesInput = {
   mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSentMessagesInput = {
@@ -9075,6 +9369,8 @@ export type UserUncheckedUpdateWithoutSentMessagesInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithoutReceivedMessagesInput = {
@@ -9143,6 +9439,8 @@ export type UserUpdateWithoutReceivedMessagesInput = {
   mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReceivedMessagesInput = {
@@ -9200,6 +9498,8 @@ export type UserUncheckedUpdateWithoutReceivedMessagesInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutAiInterviewSessionsInput = {
@@ -9257,6 +9557,8 @@ export type UserCreateWithoutAiInterviewSessionsInput = {
   mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAiInterviewSessionsInput = {
@@ -9314,6 +9616,8 @@ export type UserUncheckedCreateWithoutAiInterviewSessionsInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAiInterviewSessionsInput = {
@@ -9387,6 +9691,8 @@ export type UserUpdateWithoutAiInterviewSessionsInput = {
   mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAiInterviewSessionsInput = {
@@ -9444,6 +9750,8 @@ export type UserUncheckedUpdateWithoutAiInterviewSessionsInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutDoubtQueriesInput = {
@@ -9501,6 +9809,8 @@ export type UserCreateWithoutDoubtQueriesInput = {
   mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutDoubtQueriesInput = {
@@ -9558,6 +9868,8 @@ export type UserUncheckedCreateWithoutDoubtQueriesInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutDoubtQueriesInput = {
@@ -9631,6 +9943,8 @@ export type UserUpdateWithoutDoubtQueriesInput = {
   mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutDoubtQueriesInput = {
@@ -9688,6 +10002,8 @@ export type UserUncheckedUpdateWithoutDoubtQueriesInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutAiRecommendationsInput = {
@@ -9745,6 +10061,8 @@ export type UserCreateWithoutAiRecommendationsInput = {
   mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAiRecommendationsInput = {
@@ -9802,6 +10120,8 @@ export type UserUncheckedCreateWithoutAiRecommendationsInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAiRecommendationsInput = {
@@ -9875,6 +10195,8 @@ export type UserUpdateWithoutAiRecommendationsInput = {
   mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAiRecommendationsInput = {
@@ -9932,6 +10254,8 @@ export type UserUncheckedUpdateWithoutAiRecommendationsInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutOfficerPotentialInput = {
@@ -9989,6 +10313,8 @@ export type UserCreateWithoutOfficerPotentialInput = {
   mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutOfficerPotentialInput = {
@@ -10046,6 +10372,8 @@ export type UserUncheckedCreateWithoutOfficerPotentialInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutOfficerPotentialInput = {
@@ -10119,6 +10447,8 @@ export type UserUpdateWithoutOfficerPotentialInput = {
   mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutOfficerPotentialInput = {
@@ -10176,6 +10506,8 @@ export type UserUncheckedUpdateWithoutOfficerPotentialInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutFitnessProfileInput = {
@@ -10233,6 +10565,8 @@ export type UserCreateWithoutFitnessProfileInput = {
   mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutFitnessProfileInput = {
@@ -10290,6 +10624,8 @@ export type UserUncheckedCreateWithoutFitnessProfileInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutFitnessProfileInput = {
@@ -10363,6 +10699,8 @@ export type UserUpdateWithoutFitnessProfileInput = {
   mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutFitnessProfileInput = {
@@ -10420,6 +10758,8 @@ export type UserUncheckedUpdateWithoutFitnessProfileInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutPtAttendancesInput = {
@@ -10477,6 +10817,8 @@ export type UserCreateWithoutPtAttendancesInput = {
   mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutPtAttendancesInput = {
@@ -10534,6 +10876,8 @@ export type UserUncheckedCreateWithoutPtAttendancesInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutPtAttendancesInput = {
@@ -10607,6 +10951,8 @@ export type UserUpdateWithoutPtAttendancesInput = {
   mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPtAttendancesInput = {
@@ -10664,6 +11010,8 @@ export type UserUncheckedUpdateWithoutPtAttendancesInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutPhysicalEligibilitiesInput = {
@@ -10721,6 +11069,8 @@ export type UserCreateWithoutPhysicalEligibilitiesInput = {
   mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutPhysicalEligibilitiesInput = {
@@ -10778,6 +11128,8 @@ export type UserUncheckedCreateWithoutPhysicalEligibilitiesInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutPhysicalEligibilitiesInput = {
@@ -10851,6 +11203,8 @@ export type UserUpdateWithoutPhysicalEligibilitiesInput = {
   mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPhysicalEligibilitiesInput = {
@@ -10908,6 +11262,8 @@ export type UserUncheckedUpdateWithoutPhysicalEligibilitiesInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutDailyFitnessLogsInput = {
@@ -10965,6 +11321,8 @@ export type UserCreateWithoutDailyFitnessLogsInput = {
   mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutDailyFitnessLogsInput = {
@@ -11022,6 +11380,8 @@ export type UserUncheckedCreateWithoutDailyFitnessLogsInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutDailyFitnessLogsInput = {
@@ -11095,6 +11455,8 @@ export type UserUpdateWithoutDailyFitnessLogsInput = {
   mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutDailyFitnessLogsInput = {
@@ -11152,6 +11514,8 @@ export type UserUncheckedUpdateWithoutDailyFitnessLogsInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutQuizBattleParticipantsInput = {
@@ -11209,6 +11573,8 @@ export type UserCreateWithoutQuizBattleParticipantsInput = {
   mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutQuizBattleParticipantsInput = {
@@ -11266,6 +11632,8 @@ export type UserUncheckedCreateWithoutQuizBattleParticipantsInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutQuizBattleParticipantsInput = {
@@ -11339,6 +11707,8 @@ export type UserUpdateWithoutQuizBattleParticipantsInput = {
   mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutQuizBattleParticipantsInput = {
@@ -11396,6 +11766,8 @@ export type UserUncheckedUpdateWithoutQuizBattleParticipantsInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutLeaderboardInput = {
@@ -11453,6 +11825,8 @@ export type UserCreateWithoutLeaderboardInput = {
   mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutLeaderboardInput = {
@@ -11510,6 +11884,8 @@ export type UserUncheckedCreateWithoutLeaderboardInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutLeaderboardInput = {
@@ -11583,6 +11959,8 @@ export type UserUpdateWithoutLeaderboardInput = {
   mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutLeaderboardInput = {
@@ -11640,6 +12018,8 @@ export type UserUncheckedUpdateWithoutLeaderboardInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutMediaFoldersInput = {
@@ -11697,6 +12077,8 @@ export type UserCreateWithoutMediaFoldersInput = {
   leaderboard?: Prisma.LeaderboardCreateNestedOneWithoutUserInput
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutMediaFoldersInput = {
@@ -11754,6 +12136,8 @@ export type UserUncheckedCreateWithoutMediaFoldersInput = {
   leaderboard?: Prisma.LeaderboardUncheckedCreateNestedOneWithoutUserInput
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutMediaFoldersInput = {
@@ -11827,6 +12211,8 @@ export type UserUpdateWithoutMediaFoldersInput = {
   leaderboard?: Prisma.LeaderboardUpdateOneWithoutUserNestedInput
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutMediaFoldersInput = {
@@ -11884,6 +12270,8 @@ export type UserUncheckedUpdateWithoutMediaFoldersInput = {
   leaderboard?: Prisma.LeaderboardUncheckedUpdateOneWithoutUserNestedInput
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutMediaFilesInput = {
@@ -11941,6 +12329,8 @@ export type UserCreateWithoutMediaFilesInput = {
   leaderboard?: Prisma.LeaderboardCreateNestedOneWithoutUserInput
   mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutMediaFilesInput = {
@@ -11998,6 +12388,8 @@ export type UserUncheckedCreateWithoutMediaFilesInput = {
   leaderboard?: Prisma.LeaderboardUncheckedCreateNestedOneWithoutUserInput
   mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutMediaFilesInput = {
@@ -12071,6 +12463,8 @@ export type UserUpdateWithoutMediaFilesInput = {
   leaderboard?: Prisma.LeaderboardUpdateOneWithoutUserNestedInput
   mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutMediaFilesInput = {
@@ -12128,6 +12522,8 @@ export type UserUncheckedUpdateWithoutMediaFilesInput = {
   leaderboard?: Prisma.LeaderboardUncheckedUpdateOneWithoutUserNestedInput
   mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutDocumentsInput = {
@@ -12185,6 +12581,8 @@ export type UserCreateWithoutDocumentsInput = {
   leaderboard?: Prisma.LeaderboardCreateNestedOneWithoutUserInput
   mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutDocumentsInput = {
@@ -12242,6 +12640,8 @@ export type UserUncheckedCreateWithoutDocumentsInput = {
   leaderboard?: Prisma.LeaderboardUncheckedCreateNestedOneWithoutUserInput
   mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutDocumentsInput = {
@@ -12315,6 +12715,8 @@ export type UserUpdateWithoutDocumentsInput = {
   leaderboard?: Prisma.LeaderboardUpdateOneWithoutUserNestedInput
   mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutDocumentsInput = {
@@ -12372,6 +12774,512 @@ export type UserUncheckedUpdateWithoutDocumentsInput = {
   leaderboard?: Prisma.LeaderboardUncheckedUpdateOneWithoutUserNestedInput
   mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutAdminRolesInput = {
+  id?: string
+  name: string
+  email: string
+  mobile: string
+  password: string
+  role?: $Enums.Role
+  emailVerified?: boolean
+  mobileVerified?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
+  testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
+  psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
+  olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
+  studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
+  performanceAnalytics?: Prisma.PerformanceAnalyticsCreateNestedOneWithoutUserInput
+  revisionSchedules?: Prisma.RevisionScheduleCreateNestedManyWithoutUserInput
+  lectureProgress?: Prisma.LectureProgressCreateNestedManyWithoutUserInput
+  attendanceRecords?: Prisma.AttendanceCreateNestedManyWithoutUserInput
+  markedAttendance?: Prisma.AttendanceCreateNestedManyWithoutMarkerInput
+  facultyProfile?: Prisma.FacultyCreateNestedOneWithoutUserInput
+  hostelAllocations?: Prisma.HostelAllocationCreateNestedManyWithoutStudentInput
+  inOutEntries?: Prisma.InOutEntryCreateNestedManyWithoutStudentInput
+  hostelLeaves?: Prisma.HostelLeaveCreateNestedManyWithoutStudentInput
+  approvedHostelLeaves?: Prisma.HostelLeaveCreateNestedManyWithoutApproverInput
+  disciplineRecords?: Prisma.DisciplineRecordCreateNestedManyWithoutStudentInput
+  recordedDiscipline?: Prisma.DisciplineRecordCreateNestedManyWithoutRecorderInput
+  paradePerformances?: Prisma.ParadePerformanceCreateNestedManyWithoutStudentInput
+  assignedLeads?: Prisma.LeadCreateNestedManyWithoutAssigneeInput
+  followUpsCreated?: Prisma.FollowUpCreateNestedManyWithoutCreatorInput
+  admissions?: Prisma.AdmissionCreateNestedManyWithoutStudentInput
+  referralsMade?: Prisma.ReferralCreateNestedManyWithoutReferrerInput
+  referralsReceived?: Prisma.ReferralCreateNestedManyWithoutReferredInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutUserInput
+  subscriptions?: Prisma.SubscriptionCreateNestedManyWithoutUserInput
+  feeInstallments?: Prisma.FeeInstallmentCreateNestedManyWithoutStudentInput
+  invoices?: Prisma.InvoiceCreateNestedManyWithoutStudentInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  messageThreads?: Prisma.MessageThreadCreateNestedManyWithoutCreatorInput
+  sentMessages?: Prisma.MessageCreateNestedManyWithoutSenderInput
+  receivedMessages?: Prisma.MessageCreateNestedManyWithoutReceiverInput
+  communicationAnnouncements?: Prisma.AnnouncementCreateNestedManyWithoutCreatorInput
+  aiInterviewSessions?: Prisma.AIInterviewSessionCreateNestedManyWithoutUserInput
+  doubtQueries?: Prisma.DoubtQueryCreateNestedManyWithoutUserInput
+  aiRecommendations?: Prisma.AIRecommendationCreateNestedManyWithoutUserInput
+  officerPotential?: Prisma.OfficerPotentialCreateNestedOneWithoutUserInput
+  fitnessProfile?: Prisma.FitnessProfileCreateNestedOneWithoutUserInput
+  ptAttendances?: Prisma.PTAttendanceCreateNestedManyWithoutStudentInput
+  physicalEligibilities?: Prisma.PhysicalEligibilityCreateNestedManyWithoutUserInput
+  dailyFitnessLogs?: Prisma.DailyFitnessLogCreateNestedManyWithoutUserInput
+  quizBattleParticipants?: Prisma.QuizBattleParticipantCreateNestedManyWithoutUserInput
+  leaderboard?: Prisma.LeaderboardCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutAdminRolesInput = {
+  id?: string
+  name: string
+  email: string
+  mobile: string
+  password: string
+  role?: $Enums.Role
+  emailVerified?: boolean
+  mobileVerified?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
+  testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
+  psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
+  olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
+  studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
+  performanceAnalytics?: Prisma.PerformanceAnalyticsUncheckedCreateNestedOneWithoutUserInput
+  revisionSchedules?: Prisma.RevisionScheduleUncheckedCreateNestedManyWithoutUserInput
+  lectureProgress?: Prisma.LectureProgressUncheckedCreateNestedManyWithoutUserInput
+  attendanceRecords?: Prisma.AttendanceUncheckedCreateNestedManyWithoutUserInput
+  markedAttendance?: Prisma.AttendanceUncheckedCreateNestedManyWithoutMarkerInput
+  facultyProfile?: Prisma.FacultyUncheckedCreateNestedOneWithoutUserInput
+  hostelAllocations?: Prisma.HostelAllocationUncheckedCreateNestedManyWithoutStudentInput
+  inOutEntries?: Prisma.InOutEntryUncheckedCreateNestedManyWithoutStudentInput
+  hostelLeaves?: Prisma.HostelLeaveUncheckedCreateNestedManyWithoutStudentInput
+  approvedHostelLeaves?: Prisma.HostelLeaveUncheckedCreateNestedManyWithoutApproverInput
+  disciplineRecords?: Prisma.DisciplineRecordUncheckedCreateNestedManyWithoutStudentInput
+  recordedDiscipline?: Prisma.DisciplineRecordUncheckedCreateNestedManyWithoutRecorderInput
+  paradePerformances?: Prisma.ParadePerformanceUncheckedCreateNestedManyWithoutStudentInput
+  assignedLeads?: Prisma.LeadUncheckedCreateNestedManyWithoutAssigneeInput
+  followUpsCreated?: Prisma.FollowUpUncheckedCreateNestedManyWithoutCreatorInput
+  admissions?: Prisma.AdmissionUncheckedCreateNestedManyWithoutStudentInput
+  referralsMade?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferrerInput
+  referralsReceived?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferredInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutUserInput
+  subscriptions?: Prisma.SubscriptionUncheckedCreateNestedManyWithoutUserInput
+  feeInstallments?: Prisma.FeeInstallmentUncheckedCreateNestedManyWithoutStudentInput
+  invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutStudentInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  messageThreads?: Prisma.MessageThreadUncheckedCreateNestedManyWithoutCreatorInput
+  sentMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutSenderInput
+  receivedMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutReceiverInput
+  communicationAnnouncements?: Prisma.AnnouncementUncheckedCreateNestedManyWithoutCreatorInput
+  aiInterviewSessions?: Prisma.AIInterviewSessionUncheckedCreateNestedManyWithoutUserInput
+  doubtQueries?: Prisma.DoubtQueryUncheckedCreateNestedManyWithoutUserInput
+  aiRecommendations?: Prisma.AIRecommendationUncheckedCreateNestedManyWithoutUserInput
+  officerPotential?: Prisma.OfficerPotentialUncheckedCreateNestedOneWithoutUserInput
+  fitnessProfile?: Prisma.FitnessProfileUncheckedCreateNestedOneWithoutUserInput
+  ptAttendances?: Prisma.PTAttendanceUncheckedCreateNestedManyWithoutStudentInput
+  physicalEligibilities?: Prisma.PhysicalEligibilityUncheckedCreateNestedManyWithoutUserInput
+  dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedCreateNestedManyWithoutUserInput
+  quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedCreateNestedManyWithoutUserInput
+  leaderboard?: Prisma.LeaderboardUncheckedCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutAdminRolesInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutAdminRolesInput, Prisma.UserUncheckedCreateWithoutAdminRolesInput>
+}
+
+export type UserUpsertWithoutAdminRolesInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutAdminRolesInput, Prisma.UserUncheckedUpdateWithoutAdminRolesInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutAdminRolesInput, Prisma.UserUncheckedCreateWithoutAdminRolesInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutAdminRolesInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutAdminRolesInput, Prisma.UserUncheckedUpdateWithoutAdminRolesInput>
+}
+
+export type UserUpdateWithoutAdminRolesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
+  testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
+  psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
+  olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
+  studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
+  performanceAnalytics?: Prisma.PerformanceAnalyticsUpdateOneWithoutUserNestedInput
+  revisionSchedules?: Prisma.RevisionScheduleUpdateManyWithoutUserNestedInput
+  lectureProgress?: Prisma.LectureProgressUpdateManyWithoutUserNestedInput
+  attendanceRecords?: Prisma.AttendanceUpdateManyWithoutUserNestedInput
+  markedAttendance?: Prisma.AttendanceUpdateManyWithoutMarkerNestedInput
+  facultyProfile?: Prisma.FacultyUpdateOneWithoutUserNestedInput
+  hostelAllocations?: Prisma.HostelAllocationUpdateManyWithoutStudentNestedInput
+  inOutEntries?: Prisma.InOutEntryUpdateManyWithoutStudentNestedInput
+  hostelLeaves?: Prisma.HostelLeaveUpdateManyWithoutStudentNestedInput
+  approvedHostelLeaves?: Prisma.HostelLeaveUpdateManyWithoutApproverNestedInput
+  disciplineRecords?: Prisma.DisciplineRecordUpdateManyWithoutStudentNestedInput
+  recordedDiscipline?: Prisma.DisciplineRecordUpdateManyWithoutRecorderNestedInput
+  paradePerformances?: Prisma.ParadePerformanceUpdateManyWithoutStudentNestedInput
+  assignedLeads?: Prisma.LeadUpdateManyWithoutAssigneeNestedInput
+  followUpsCreated?: Prisma.FollowUpUpdateManyWithoutCreatorNestedInput
+  admissions?: Prisma.AdmissionUpdateManyWithoutStudentNestedInput
+  referralsMade?: Prisma.ReferralUpdateManyWithoutReferrerNestedInput
+  referralsReceived?: Prisma.ReferralUpdateManyWithoutReferredNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutUserNestedInput
+  subscriptions?: Prisma.SubscriptionUpdateManyWithoutUserNestedInput
+  feeInstallments?: Prisma.FeeInstallmentUpdateManyWithoutStudentNestedInput
+  invoices?: Prisma.InvoiceUpdateManyWithoutStudentNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  messageThreads?: Prisma.MessageThreadUpdateManyWithoutCreatorNestedInput
+  sentMessages?: Prisma.MessageUpdateManyWithoutSenderNestedInput
+  receivedMessages?: Prisma.MessageUpdateManyWithoutReceiverNestedInput
+  communicationAnnouncements?: Prisma.AnnouncementUpdateManyWithoutCreatorNestedInput
+  aiInterviewSessions?: Prisma.AIInterviewSessionUpdateManyWithoutUserNestedInput
+  doubtQueries?: Prisma.DoubtQueryUpdateManyWithoutUserNestedInput
+  aiRecommendations?: Prisma.AIRecommendationUpdateManyWithoutUserNestedInput
+  officerPotential?: Prisma.OfficerPotentialUpdateOneWithoutUserNestedInput
+  fitnessProfile?: Prisma.FitnessProfileUpdateOneWithoutUserNestedInput
+  ptAttendances?: Prisma.PTAttendanceUpdateManyWithoutStudentNestedInput
+  physicalEligibilities?: Prisma.PhysicalEligibilityUpdateManyWithoutUserNestedInput
+  dailyFitnessLogs?: Prisma.DailyFitnessLogUpdateManyWithoutUserNestedInput
+  quizBattleParticipants?: Prisma.QuizBattleParticipantUpdateManyWithoutUserNestedInput
+  leaderboard?: Prisma.LeaderboardUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutAdminRolesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
+  testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
+  psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
+  olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
+  studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
+  performanceAnalytics?: Prisma.PerformanceAnalyticsUncheckedUpdateOneWithoutUserNestedInput
+  revisionSchedules?: Prisma.RevisionScheduleUncheckedUpdateManyWithoutUserNestedInput
+  lectureProgress?: Prisma.LectureProgressUncheckedUpdateManyWithoutUserNestedInput
+  attendanceRecords?: Prisma.AttendanceUncheckedUpdateManyWithoutUserNestedInput
+  markedAttendance?: Prisma.AttendanceUncheckedUpdateManyWithoutMarkerNestedInput
+  facultyProfile?: Prisma.FacultyUncheckedUpdateOneWithoutUserNestedInput
+  hostelAllocations?: Prisma.HostelAllocationUncheckedUpdateManyWithoutStudentNestedInput
+  inOutEntries?: Prisma.InOutEntryUncheckedUpdateManyWithoutStudentNestedInput
+  hostelLeaves?: Prisma.HostelLeaveUncheckedUpdateManyWithoutStudentNestedInput
+  approvedHostelLeaves?: Prisma.HostelLeaveUncheckedUpdateManyWithoutApproverNestedInput
+  disciplineRecords?: Prisma.DisciplineRecordUncheckedUpdateManyWithoutStudentNestedInput
+  recordedDiscipline?: Prisma.DisciplineRecordUncheckedUpdateManyWithoutRecorderNestedInput
+  paradePerformances?: Prisma.ParadePerformanceUncheckedUpdateManyWithoutStudentNestedInput
+  assignedLeads?: Prisma.LeadUncheckedUpdateManyWithoutAssigneeNestedInput
+  followUpsCreated?: Prisma.FollowUpUncheckedUpdateManyWithoutCreatorNestedInput
+  admissions?: Prisma.AdmissionUncheckedUpdateManyWithoutStudentNestedInput
+  referralsMade?: Prisma.ReferralUncheckedUpdateManyWithoutReferrerNestedInput
+  referralsReceived?: Prisma.ReferralUncheckedUpdateManyWithoutReferredNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutUserNestedInput
+  subscriptions?: Prisma.SubscriptionUncheckedUpdateManyWithoutUserNestedInput
+  feeInstallments?: Prisma.FeeInstallmentUncheckedUpdateManyWithoutStudentNestedInput
+  invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutStudentNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  messageThreads?: Prisma.MessageThreadUncheckedUpdateManyWithoutCreatorNestedInput
+  sentMessages?: Prisma.MessageUncheckedUpdateManyWithoutSenderNestedInput
+  receivedMessages?: Prisma.MessageUncheckedUpdateManyWithoutReceiverNestedInput
+  communicationAnnouncements?: Prisma.AnnouncementUncheckedUpdateManyWithoutCreatorNestedInput
+  aiInterviewSessions?: Prisma.AIInterviewSessionUncheckedUpdateManyWithoutUserNestedInput
+  doubtQueries?: Prisma.DoubtQueryUncheckedUpdateManyWithoutUserNestedInput
+  aiRecommendations?: Prisma.AIRecommendationUncheckedUpdateManyWithoutUserNestedInput
+  officerPotential?: Prisma.OfficerPotentialUncheckedUpdateOneWithoutUserNestedInput
+  fitnessProfile?: Prisma.FitnessProfileUncheckedUpdateOneWithoutUserNestedInput
+  ptAttendances?: Prisma.PTAttendanceUncheckedUpdateManyWithoutStudentNestedInput
+  physicalEligibilities?: Prisma.PhysicalEligibilityUncheckedUpdateManyWithoutUserNestedInput
+  dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedUpdateManyWithoutUserNestedInput
+  quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedUpdateManyWithoutUserNestedInput
+  leaderboard?: Prisma.LeaderboardUncheckedUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutAuditLogsInput = {
+  id?: string
+  name: string
+  email: string
+  mobile: string
+  password: string
+  role?: $Enums.Role
+  emailVerified?: boolean
+  mobileVerified?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
+  testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
+  psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
+  olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
+  studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
+  performanceAnalytics?: Prisma.PerformanceAnalyticsCreateNestedOneWithoutUserInput
+  revisionSchedules?: Prisma.RevisionScheduleCreateNestedManyWithoutUserInput
+  lectureProgress?: Prisma.LectureProgressCreateNestedManyWithoutUserInput
+  attendanceRecords?: Prisma.AttendanceCreateNestedManyWithoutUserInput
+  markedAttendance?: Prisma.AttendanceCreateNestedManyWithoutMarkerInput
+  facultyProfile?: Prisma.FacultyCreateNestedOneWithoutUserInput
+  hostelAllocations?: Prisma.HostelAllocationCreateNestedManyWithoutStudentInput
+  inOutEntries?: Prisma.InOutEntryCreateNestedManyWithoutStudentInput
+  hostelLeaves?: Prisma.HostelLeaveCreateNestedManyWithoutStudentInput
+  approvedHostelLeaves?: Prisma.HostelLeaveCreateNestedManyWithoutApproverInput
+  disciplineRecords?: Prisma.DisciplineRecordCreateNestedManyWithoutStudentInput
+  recordedDiscipline?: Prisma.DisciplineRecordCreateNestedManyWithoutRecorderInput
+  paradePerformances?: Prisma.ParadePerformanceCreateNestedManyWithoutStudentInput
+  assignedLeads?: Prisma.LeadCreateNestedManyWithoutAssigneeInput
+  followUpsCreated?: Prisma.FollowUpCreateNestedManyWithoutCreatorInput
+  admissions?: Prisma.AdmissionCreateNestedManyWithoutStudentInput
+  referralsMade?: Prisma.ReferralCreateNestedManyWithoutReferrerInput
+  referralsReceived?: Prisma.ReferralCreateNestedManyWithoutReferredInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutUserInput
+  subscriptions?: Prisma.SubscriptionCreateNestedManyWithoutUserInput
+  feeInstallments?: Prisma.FeeInstallmentCreateNestedManyWithoutStudentInput
+  invoices?: Prisma.InvoiceCreateNestedManyWithoutStudentInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  messageThreads?: Prisma.MessageThreadCreateNestedManyWithoutCreatorInput
+  sentMessages?: Prisma.MessageCreateNestedManyWithoutSenderInput
+  receivedMessages?: Prisma.MessageCreateNestedManyWithoutReceiverInput
+  communicationAnnouncements?: Prisma.AnnouncementCreateNestedManyWithoutCreatorInput
+  aiInterviewSessions?: Prisma.AIInterviewSessionCreateNestedManyWithoutUserInput
+  doubtQueries?: Prisma.DoubtQueryCreateNestedManyWithoutUserInput
+  aiRecommendations?: Prisma.AIRecommendationCreateNestedManyWithoutUserInput
+  officerPotential?: Prisma.OfficerPotentialCreateNestedOneWithoutUserInput
+  fitnessProfile?: Prisma.FitnessProfileCreateNestedOneWithoutUserInput
+  ptAttendances?: Prisma.PTAttendanceCreateNestedManyWithoutStudentInput
+  physicalEligibilities?: Prisma.PhysicalEligibilityCreateNestedManyWithoutUserInput
+  dailyFitnessLogs?: Prisma.DailyFitnessLogCreateNestedManyWithoutUserInput
+  quizBattleParticipants?: Prisma.QuizBattleParticipantCreateNestedManyWithoutUserInput
+  leaderboard?: Prisma.LeaderboardCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutAuditLogsInput = {
+  id?: string
+  name: string
+  email: string
+  mobile: string
+  password: string
+  role?: $Enums.Role
+  emailVerified?: boolean
+  mobileVerified?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
+  testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
+  psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
+  olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
+  studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
+  performanceAnalytics?: Prisma.PerformanceAnalyticsUncheckedCreateNestedOneWithoutUserInput
+  revisionSchedules?: Prisma.RevisionScheduleUncheckedCreateNestedManyWithoutUserInput
+  lectureProgress?: Prisma.LectureProgressUncheckedCreateNestedManyWithoutUserInput
+  attendanceRecords?: Prisma.AttendanceUncheckedCreateNestedManyWithoutUserInput
+  markedAttendance?: Prisma.AttendanceUncheckedCreateNestedManyWithoutMarkerInput
+  facultyProfile?: Prisma.FacultyUncheckedCreateNestedOneWithoutUserInput
+  hostelAllocations?: Prisma.HostelAllocationUncheckedCreateNestedManyWithoutStudentInput
+  inOutEntries?: Prisma.InOutEntryUncheckedCreateNestedManyWithoutStudentInput
+  hostelLeaves?: Prisma.HostelLeaveUncheckedCreateNestedManyWithoutStudentInput
+  approvedHostelLeaves?: Prisma.HostelLeaveUncheckedCreateNestedManyWithoutApproverInput
+  disciplineRecords?: Prisma.DisciplineRecordUncheckedCreateNestedManyWithoutStudentInput
+  recordedDiscipline?: Prisma.DisciplineRecordUncheckedCreateNestedManyWithoutRecorderInput
+  paradePerformances?: Prisma.ParadePerformanceUncheckedCreateNestedManyWithoutStudentInput
+  assignedLeads?: Prisma.LeadUncheckedCreateNestedManyWithoutAssigneeInput
+  followUpsCreated?: Prisma.FollowUpUncheckedCreateNestedManyWithoutCreatorInput
+  admissions?: Prisma.AdmissionUncheckedCreateNestedManyWithoutStudentInput
+  referralsMade?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferrerInput
+  referralsReceived?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferredInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutUserInput
+  subscriptions?: Prisma.SubscriptionUncheckedCreateNestedManyWithoutUserInput
+  feeInstallments?: Prisma.FeeInstallmentUncheckedCreateNestedManyWithoutStudentInput
+  invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutStudentInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  messageThreads?: Prisma.MessageThreadUncheckedCreateNestedManyWithoutCreatorInput
+  sentMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutSenderInput
+  receivedMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutReceiverInput
+  communicationAnnouncements?: Prisma.AnnouncementUncheckedCreateNestedManyWithoutCreatorInput
+  aiInterviewSessions?: Prisma.AIInterviewSessionUncheckedCreateNestedManyWithoutUserInput
+  doubtQueries?: Prisma.DoubtQueryUncheckedCreateNestedManyWithoutUserInput
+  aiRecommendations?: Prisma.AIRecommendationUncheckedCreateNestedManyWithoutUserInput
+  officerPotential?: Prisma.OfficerPotentialUncheckedCreateNestedOneWithoutUserInput
+  fitnessProfile?: Prisma.FitnessProfileUncheckedCreateNestedOneWithoutUserInput
+  ptAttendances?: Prisma.PTAttendanceUncheckedCreateNestedManyWithoutStudentInput
+  physicalEligibilities?: Prisma.PhysicalEligibilityUncheckedCreateNestedManyWithoutUserInput
+  dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedCreateNestedManyWithoutUserInput
+  quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedCreateNestedManyWithoutUserInput
+  leaderboard?: Prisma.LeaderboardUncheckedCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutAuditLogsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutAuditLogsInput, Prisma.UserUncheckedCreateWithoutAuditLogsInput>
+}
+
+export type UserUpsertWithoutAuditLogsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutAuditLogsInput, Prisma.UserUncheckedUpdateWithoutAuditLogsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutAuditLogsInput, Prisma.UserUncheckedCreateWithoutAuditLogsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutAuditLogsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutAuditLogsInput, Prisma.UserUncheckedUpdateWithoutAuditLogsInput>
+}
+
+export type UserUpdateWithoutAuditLogsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
+  testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
+  psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
+  olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
+  studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
+  performanceAnalytics?: Prisma.PerformanceAnalyticsUpdateOneWithoutUserNestedInput
+  revisionSchedules?: Prisma.RevisionScheduleUpdateManyWithoutUserNestedInput
+  lectureProgress?: Prisma.LectureProgressUpdateManyWithoutUserNestedInput
+  attendanceRecords?: Prisma.AttendanceUpdateManyWithoutUserNestedInput
+  markedAttendance?: Prisma.AttendanceUpdateManyWithoutMarkerNestedInput
+  facultyProfile?: Prisma.FacultyUpdateOneWithoutUserNestedInput
+  hostelAllocations?: Prisma.HostelAllocationUpdateManyWithoutStudentNestedInput
+  inOutEntries?: Prisma.InOutEntryUpdateManyWithoutStudentNestedInput
+  hostelLeaves?: Prisma.HostelLeaveUpdateManyWithoutStudentNestedInput
+  approvedHostelLeaves?: Prisma.HostelLeaveUpdateManyWithoutApproverNestedInput
+  disciplineRecords?: Prisma.DisciplineRecordUpdateManyWithoutStudentNestedInput
+  recordedDiscipline?: Prisma.DisciplineRecordUpdateManyWithoutRecorderNestedInput
+  paradePerformances?: Prisma.ParadePerformanceUpdateManyWithoutStudentNestedInput
+  assignedLeads?: Prisma.LeadUpdateManyWithoutAssigneeNestedInput
+  followUpsCreated?: Prisma.FollowUpUpdateManyWithoutCreatorNestedInput
+  admissions?: Prisma.AdmissionUpdateManyWithoutStudentNestedInput
+  referralsMade?: Prisma.ReferralUpdateManyWithoutReferrerNestedInput
+  referralsReceived?: Prisma.ReferralUpdateManyWithoutReferredNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutUserNestedInput
+  subscriptions?: Prisma.SubscriptionUpdateManyWithoutUserNestedInput
+  feeInstallments?: Prisma.FeeInstallmentUpdateManyWithoutStudentNestedInput
+  invoices?: Prisma.InvoiceUpdateManyWithoutStudentNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  messageThreads?: Prisma.MessageThreadUpdateManyWithoutCreatorNestedInput
+  sentMessages?: Prisma.MessageUpdateManyWithoutSenderNestedInput
+  receivedMessages?: Prisma.MessageUpdateManyWithoutReceiverNestedInput
+  communicationAnnouncements?: Prisma.AnnouncementUpdateManyWithoutCreatorNestedInput
+  aiInterviewSessions?: Prisma.AIInterviewSessionUpdateManyWithoutUserNestedInput
+  doubtQueries?: Prisma.DoubtQueryUpdateManyWithoutUserNestedInput
+  aiRecommendations?: Prisma.AIRecommendationUpdateManyWithoutUserNestedInput
+  officerPotential?: Prisma.OfficerPotentialUpdateOneWithoutUserNestedInput
+  fitnessProfile?: Prisma.FitnessProfileUpdateOneWithoutUserNestedInput
+  ptAttendances?: Prisma.PTAttendanceUpdateManyWithoutStudentNestedInput
+  physicalEligibilities?: Prisma.PhysicalEligibilityUpdateManyWithoutUserNestedInput
+  dailyFitnessLogs?: Prisma.DailyFitnessLogUpdateManyWithoutUserNestedInput
+  quizBattleParticipants?: Prisma.QuizBattleParticipantUpdateManyWithoutUserNestedInput
+  leaderboard?: Prisma.LeaderboardUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutAuditLogsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
+  testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
+  psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
+  olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
+  studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
+  performanceAnalytics?: Prisma.PerformanceAnalyticsUncheckedUpdateOneWithoutUserNestedInput
+  revisionSchedules?: Prisma.RevisionScheduleUncheckedUpdateManyWithoutUserNestedInput
+  lectureProgress?: Prisma.LectureProgressUncheckedUpdateManyWithoutUserNestedInput
+  attendanceRecords?: Prisma.AttendanceUncheckedUpdateManyWithoutUserNestedInput
+  markedAttendance?: Prisma.AttendanceUncheckedUpdateManyWithoutMarkerNestedInput
+  facultyProfile?: Prisma.FacultyUncheckedUpdateOneWithoutUserNestedInput
+  hostelAllocations?: Prisma.HostelAllocationUncheckedUpdateManyWithoutStudentNestedInput
+  inOutEntries?: Prisma.InOutEntryUncheckedUpdateManyWithoutStudentNestedInput
+  hostelLeaves?: Prisma.HostelLeaveUncheckedUpdateManyWithoutStudentNestedInput
+  approvedHostelLeaves?: Prisma.HostelLeaveUncheckedUpdateManyWithoutApproverNestedInput
+  disciplineRecords?: Prisma.DisciplineRecordUncheckedUpdateManyWithoutStudentNestedInput
+  recordedDiscipline?: Prisma.DisciplineRecordUncheckedUpdateManyWithoutRecorderNestedInput
+  paradePerformances?: Prisma.ParadePerformanceUncheckedUpdateManyWithoutStudentNestedInput
+  assignedLeads?: Prisma.LeadUncheckedUpdateManyWithoutAssigneeNestedInput
+  followUpsCreated?: Prisma.FollowUpUncheckedUpdateManyWithoutCreatorNestedInput
+  admissions?: Prisma.AdmissionUncheckedUpdateManyWithoutStudentNestedInput
+  referralsMade?: Prisma.ReferralUncheckedUpdateManyWithoutReferrerNestedInput
+  referralsReceived?: Prisma.ReferralUncheckedUpdateManyWithoutReferredNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutUserNestedInput
+  subscriptions?: Prisma.SubscriptionUncheckedUpdateManyWithoutUserNestedInput
+  feeInstallments?: Prisma.FeeInstallmentUncheckedUpdateManyWithoutStudentNestedInput
+  invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutStudentNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  messageThreads?: Prisma.MessageThreadUncheckedUpdateManyWithoutCreatorNestedInput
+  sentMessages?: Prisma.MessageUncheckedUpdateManyWithoutSenderNestedInput
+  receivedMessages?: Prisma.MessageUncheckedUpdateManyWithoutReceiverNestedInput
+  communicationAnnouncements?: Prisma.AnnouncementUncheckedUpdateManyWithoutCreatorNestedInput
+  aiInterviewSessions?: Prisma.AIInterviewSessionUncheckedUpdateManyWithoutUserNestedInput
+  doubtQueries?: Prisma.DoubtQueryUncheckedUpdateManyWithoutUserNestedInput
+  aiRecommendations?: Prisma.AIRecommendationUncheckedUpdateManyWithoutUserNestedInput
+  officerPotential?: Prisma.OfficerPotentialUncheckedUpdateOneWithoutUserNestedInput
+  fitnessProfile?: Prisma.FitnessProfileUncheckedUpdateOneWithoutUserNestedInput
+  ptAttendances?: Prisma.PTAttendanceUncheckedUpdateManyWithoutStudentNestedInput
+  physicalEligibilities?: Prisma.PhysicalEligibilityUncheckedUpdateManyWithoutUserNestedInput
+  dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedUpdateManyWithoutUserNestedInput
+  quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedUpdateManyWithoutUserNestedInput
+  leaderboard?: Prisma.LeaderboardUncheckedUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
 }
 
 
@@ -12419,6 +13327,8 @@ export type UserCountOutputType = {
   mediaFolders: number
   mediaFiles: number
   documents: number
+  adminRoles: number
+  auditLogs: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -12461,6 +13371,8 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   mediaFolders?: boolean | UserCountOutputTypeCountMediaFoldersArgs
   mediaFiles?: boolean | UserCountOutputTypeCountMediaFilesArgs
   documents?: boolean | UserCountOutputTypeCountDocumentsArgs
+  adminRoles?: boolean | UserCountOutputTypeCountAdminRolesArgs
+  auditLogs?: boolean | UserCountOutputTypeCountAuditLogsArgs
 }
 
 /**
@@ -12746,6 +13658,20 @@ export type UserCountOutputTypeCountDocumentsArgs<ExtArgs extends runtime.Types.
   where?: Prisma.DocumentWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountAdminRolesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.UserRoleWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountAuditLogsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AuditLogWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -12803,6 +13729,8 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   mediaFolders?: boolean | Prisma.User$mediaFoldersArgs<ExtArgs>
   mediaFiles?: boolean | Prisma.User$mediaFilesArgs<ExtArgs>
   documents?: boolean | Prisma.User$documentsArgs<ExtArgs>
+  adminRoles?: boolean | Prisma.User$adminRolesArgs<ExtArgs>
+  auditLogs?: boolean | Prisma.User$auditLogsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -12892,6 +13820,8 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   mediaFolders?: boolean | Prisma.User$mediaFoldersArgs<ExtArgs>
   mediaFiles?: boolean | Prisma.User$mediaFilesArgs<ExtArgs>
   documents?: boolean | Prisma.User$documentsArgs<ExtArgs>
+  adminRoles?: boolean | Prisma.User$adminRolesArgs<ExtArgs>
+  auditLogs?: boolean | Prisma.User$auditLogsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -12945,6 +13875,8 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     mediaFolders: Prisma.$MediaFolderPayload<ExtArgs>[]
     mediaFiles: Prisma.$MediaFilePayload<ExtArgs>[]
     documents: Prisma.$DocumentPayload<ExtArgs>[]
+    adminRoles: Prisma.$UserRolePayload<ExtArgs>[]
+    auditLogs: Prisma.$AuditLogPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -13396,6 +14328,8 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   mediaFolders<T extends Prisma.User$mediaFoldersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$mediaFoldersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MediaFolderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   mediaFiles<T extends Prisma.User$mediaFilesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$mediaFilesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MediaFilePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   documents<T extends Prisma.User$documentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$documentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DocumentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  adminRoles<T extends Prisma.User$adminRolesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$adminRolesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserRolePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  auditLogs<T extends Prisma.User$auditLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$auditLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -14875,6 +15809,54 @@ export type User$documentsArgs<ExtArgs extends runtime.Types.Extensions.Internal
   take?: number
   skip?: number
   distinct?: Prisma.DocumentScalarFieldEnum | Prisma.DocumentScalarFieldEnum[]
+}
+
+/**
+ * User.adminRoles
+ */
+export type User$adminRolesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the UserRole
+   */
+  select?: Prisma.UserRoleSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the UserRole
+   */
+  omit?: Prisma.UserRoleOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserRoleInclude<ExtArgs> | null
+  where?: Prisma.UserRoleWhereInput
+  orderBy?: Prisma.UserRoleOrderByWithRelationInput | Prisma.UserRoleOrderByWithRelationInput[]
+  cursor?: Prisma.UserRoleWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.UserRoleScalarFieldEnum | Prisma.UserRoleScalarFieldEnum[]
+}
+
+/**
+ * User.auditLogs
+ */
+export type User$auditLogsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AuditLog
+   */
+  select?: Prisma.AuditLogSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the AuditLog
+   */
+  omit?: Prisma.AuditLogOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AuditLogInclude<ExtArgs> | null
+  where?: Prisma.AuditLogWhereInput
+  orderBy?: Prisma.AuditLogOrderByWithRelationInput | Prisma.AuditLogOrderByWithRelationInput[]
+  cursor?: Prisma.AuditLogWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.AuditLogScalarFieldEnum | Prisma.AuditLogScalarFieldEnum[]
 }
 
 /**
