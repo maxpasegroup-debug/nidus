@@ -241,3 +241,23 @@ export type CounsellingBooking = Prisma.CounsellingBookingModel
  * 
  */
 export type Referral = Prisma.ReferralModel
+/**
+ * Model Payment
+ * 
+ */
+export type Payment = Prisma.PaymentModel
+/**
+ * Model Subscription
+ * 
+ */
+export type Subscription = Prisma.SubscriptionModel
+/**
+ * Model FeeInstallment
+ * 
+ */
+export type FeeInstallment = Prisma.FeeInstallmentModel
+/**
+ * Model Invoice
+ * 
+ */
+export type Invoice = Prisma.InvoiceModel
