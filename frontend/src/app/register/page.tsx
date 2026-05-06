@@ -11,7 +11,8 @@ import type { AuthRole } from "@/services/auth";
 const roles: Array<{ label: string; value: AuthRole }> = [
   { label: "Student", value: "STUDENT" },
   { label: "Parent", value: "PARENT" },
-  { label: "Teacher", value: "FACULTY" },
+  { label: "Teacher", value: "TEACHER" },
+  { label: "Academic Director", value: "DIRECTOR" },
   { label: "Admin", value: "ADMIN" },
   { label: "Guest", value: "GUEST" }
 ];

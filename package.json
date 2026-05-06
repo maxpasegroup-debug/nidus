@@ -20,6 +20,7 @@
     "start": "npm run start:frontend",
     "start:frontend": "npm run start --workspace frontend",
     "start:backend": "npm run start --workspace backend",
+    "seed:demo": "npm run seed:demo --workspace backend",
     "prisma:migrate:deploy": "npm run prisma:generate --workspace backend && npx prisma migrate deploy --config backend/prisma.config.ts"
   }
 }

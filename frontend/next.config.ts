@@ -1,11 +1,17 @@
 import type { NextConfig } from "next";
+import { existsSync } from "node:fs";
+import { dirname, join } from "node:path";
+
+const projectRoot = existsSync(join(process.cwd(), "node_modules", "next", "package.json"))
+  ? process.cwd()
+  : dirname(process.cwd());
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   compress: true,
   turbopack: {
-    root: __dirname
+    root: projectRoot
   },
   images: {
     formats: ["image/avif", "image/webp"],

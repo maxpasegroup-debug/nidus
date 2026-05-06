@@ -9,5 +9,5 @@ dashboardRouter.use(protect);
 
 dashboardRouter.get("/student", allowRoles(Role.STUDENT, Role.ADMIN), dashboardController.student);
 dashboardRouter.get("/parent", allowRoles(Role.PARENT, Role.ADMIN), dashboardController.parent);
-dashboardRouter.get("/admin", allowRoles(Role.ADMIN), dashboardController.admin);
+dashboardRouter.get("/admin", allowRoles(Role.ADMIN, Role.DIRECTOR), dashboardController.admin);
 dashboardRouter.get("/guest", allowRoles(Role.GUEST, Role.ADMIN), dashboardController.guest);

@@ -18,7 +18,8 @@
     "seed:tests": "tsx src/scripts/seed-tests.ts",
     "seed:psychometric": "tsx src/scripts/seed-psychometric.ts",
     "seed:live-classes": "tsx src/scripts/seed-live-classes.ts",
-    "seed:learning-hub": "tsx src/scripts/seed-learning-hub.ts"
+    "seed:learning-hub": "tsx src/scripts/seed-learning-hub.ts",
+    "seed:demo": "tsx src/scripts/seed-demo.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.8.0",
