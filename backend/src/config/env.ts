@@ -10,7 +10,8 @@ const envSchema = z.object({
   RAZORPAY_KEY_ID: z.string().default(""),
   RAZORPAY_KEY_SECRET: z.string().default(""),
   BREVO_API_KEY: z.string().default(""),
-  BREVO_SENDER_EMAIL: z.string().email().default("no-reply@nidus.local")
+  BREVO_SENDER_EMAIL: z.string().email().default("no-reply@nidus.local"),
+  OPENAI_API_KEY: z.string().default("")
 });
 
 export const env = envSchema.parse(process.env);

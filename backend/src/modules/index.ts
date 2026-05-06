@@ -12,6 +12,7 @@ import { disciplineRouter, hostelOpsRouter, hostelsRouter, messRouter, paradeRou
 import { crmRouter } from "./crm/crm.routes.js";
 import { feesRouter, invoicesRouter, paymentsRouter, subscriptionsRouter } from "./payments/payments.routes.js";
 import { communicationAnnouncementsRouter, emailsRouter, messagesRouter, notificationsRouter, pushRouter } from "./communication/communication.routes.js";
+import { aiEngineRouter } from "./ai-engine/ai-engine.routes.js";
 import { protect, allowRoles } from "./auth/auth.middleware.js";
 import { Role } from "../generated/prisma/client.js";
 import { coursesController } from "./courses/courses.controller.js";
@@ -54,4 +55,5 @@ apiRouter.use("/notifications", notificationsRouter);
 apiRouter.use("/messages", messagesRouter);
 apiRouter.use("/emails", emailsRouter);
 apiRouter.use("/push", pushRouter);
+apiRouter.use("/ai", aiEngineRouter);
 apiRouter.get("/my-courses", protect, allowRoles(Role.STUDENT, Role.ADMIN), coursesController.myCourses);

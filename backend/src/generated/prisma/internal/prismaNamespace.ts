@@ -432,7 +432,12 @@ export const ModelName = {
   MessageThread: 'MessageThread',
   Message: 'Message',
   EmailLog: 'EmailLog',
-  PushNotification: 'PushNotification'
+  PushNotification: 'PushNotification',
+  AIInterviewSession: 'AIInterviewSession',
+  AIInterviewQuestion: 'AIInterviewQuestion',
+  DoubtQuery: 'DoubtQuery',
+  AIRecommendation: 'AIRecommendation',
+  OfficerPotential: 'OfficerPotential'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -448,7 +453,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "otp" | "course" | "module" | "lesson" | "enrollment" | "test" | "question" | "testAttempt" | "answer" | "psychometricTest" | "psychometricQuestion" | "psychometricAttempt" | "psychometricAnswer" | "oLQScore" | "studyPlan" | "performanceAnalytics" | "revisionSchedule" | "liveClass" | "recordedLecture" | "lectureProgress" | "attendance" | "timetable" | "faculty" | "classroom" | "payroll" | "announcement" | "hostel" | "room" | "hostelAllocation" | "inOutEntry" | "hostelLeave" | "messMenu" | "disciplineRecord" | "paradePerformance" | "lead" | "followUp" | "admission" | "counsellingBooking" | "referral" | "payment" | "subscription" | "feeInstallment" | "invoice" | "notification" | "messageThread" | "message" | "emailLog" | "pushNotification"
+    modelProps: "user" | "otp" | "course" | "module" | "lesson" | "enrollment" | "test" | "question" | "testAttempt" | "answer" | "psychometricTest" | "psychometricQuestion" | "psychometricAttempt" | "psychometricAnswer" | "oLQScore" | "studyPlan" | "performanceAnalytics" | "revisionSchedule" | "liveClass" | "recordedLecture" | "lectureProgress" | "attendance" | "timetable" | "faculty" | "classroom" | "payroll" | "announcement" | "hostel" | "room" | "hostelAllocation" | "inOutEntry" | "hostelLeave" | "messMenu" | "disciplineRecord" | "paradePerformance" | "lead" | "followUp" | "admission" | "counsellingBooking" | "referral" | "payment" | "subscription" | "feeInstallment" | "invoice" | "notification" | "messageThread" | "message" | "emailLog" | "pushNotification" | "aIInterviewSession" | "aIInterviewQuestion" | "doubtQuery" | "aIRecommendation" | "officerPotential"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -4078,6 +4083,376 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    AIInterviewSession: {
+      payload: Prisma.$AIInterviewSessionPayload<ExtArgs>
+      fields: Prisma.AIInterviewSessionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AIInterviewSessionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AIInterviewSessionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AIInterviewSessionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AIInterviewSessionPayload>
+        }
+        findFirst: {
+          args: Prisma.AIInterviewSessionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AIInterviewSessionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AIInterviewSessionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AIInterviewSessionPayload>
+        }
+        findMany: {
+          args: Prisma.AIInterviewSessionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AIInterviewSessionPayload>[]
+        }
+        create: {
+          args: Prisma.AIInterviewSessionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AIInterviewSessionPayload>
+        }
+        createMany: {
+          args: Prisma.AIInterviewSessionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.AIInterviewSessionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AIInterviewSessionPayload>[]
+        }
+        delete: {
+          args: Prisma.AIInterviewSessionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AIInterviewSessionPayload>
+        }
+        update: {
+          args: Prisma.AIInterviewSessionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AIInterviewSessionPayload>
+        }
+        deleteMany: {
+          args: Prisma.AIInterviewSessionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AIInterviewSessionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.AIInterviewSessionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AIInterviewSessionPayload>[]
+        }
+        upsert: {
+          args: Prisma.AIInterviewSessionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AIInterviewSessionPayload>
+        }
+        aggregate: {
+          args: Prisma.AIInterviewSessionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAIInterviewSession>
+        }
+        groupBy: {
+          args: Prisma.AIInterviewSessionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AIInterviewSessionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.AIInterviewSessionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AIInterviewSessionCountAggregateOutputType> | number
+        }
+      }
+    }
+    AIInterviewQuestion: {
+      payload: Prisma.$AIInterviewQuestionPayload<ExtArgs>
+      fields: Prisma.AIInterviewQuestionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AIInterviewQuestionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AIInterviewQuestionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AIInterviewQuestionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AIInterviewQuestionPayload>
+        }
+        findFirst: {
+          args: Prisma.AIInterviewQuestionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AIInterviewQuestionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AIInterviewQuestionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AIInterviewQuestionPayload>
+        }
+        findMany: {
+          args: Prisma.AIInterviewQuestionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AIInterviewQuestionPayload>[]
+        }
+        create: {
+          args: Prisma.AIInterviewQuestionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AIInterviewQuestionPayload>
+        }
+        createMany: {
+          args: Prisma.AIInterviewQuestionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.AIInterviewQuestionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AIInterviewQuestionPayload>[]
+        }
+        delete: {
+          args: Prisma.AIInterviewQuestionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AIInterviewQuestionPayload>
+        }
+        update: {
+          args: Prisma.AIInterviewQuestionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AIInterviewQuestionPayload>
+        }
+        deleteMany: {
+          args: Prisma.AIInterviewQuestionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AIInterviewQuestionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.AIInterviewQuestionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AIInterviewQuestionPayload>[]
+        }
+        upsert: {
+          args: Prisma.AIInterviewQuestionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AIInterviewQuestionPayload>
+        }
+        aggregate: {
+          args: Prisma.AIInterviewQuestionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAIInterviewQuestion>
+        }
+        groupBy: {
+          args: Prisma.AIInterviewQuestionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AIInterviewQuestionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.AIInterviewQuestionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AIInterviewQuestionCountAggregateOutputType> | number
+        }
+      }
+    }
+    DoubtQuery: {
+      payload: Prisma.$DoubtQueryPayload<ExtArgs>
+      fields: Prisma.DoubtQueryFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.DoubtQueryFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DoubtQueryPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.DoubtQueryFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DoubtQueryPayload>
+        }
+        findFirst: {
+          args: Prisma.DoubtQueryFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DoubtQueryPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.DoubtQueryFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DoubtQueryPayload>
+        }
+        findMany: {
+          args: Prisma.DoubtQueryFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DoubtQueryPayload>[]
+        }
+        create: {
+          args: Prisma.DoubtQueryCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DoubtQueryPayload>
+        }
+        createMany: {
+          args: Prisma.DoubtQueryCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.DoubtQueryCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DoubtQueryPayload>[]
+        }
+        delete: {
+          args: Prisma.DoubtQueryDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DoubtQueryPayload>
+        }
+        update: {
+          args: Prisma.DoubtQueryUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DoubtQueryPayload>
+        }
+        deleteMany: {
+          args: Prisma.DoubtQueryDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.DoubtQueryUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.DoubtQueryUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DoubtQueryPayload>[]
+        }
+        upsert: {
+          args: Prisma.DoubtQueryUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DoubtQueryPayload>
+        }
+        aggregate: {
+          args: Prisma.DoubtQueryAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateDoubtQuery>
+        }
+        groupBy: {
+          args: Prisma.DoubtQueryGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DoubtQueryGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.DoubtQueryCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DoubtQueryCountAggregateOutputType> | number
+        }
+      }
+    }
+    AIRecommendation: {
+      payload: Prisma.$AIRecommendationPayload<ExtArgs>
+      fields: Prisma.AIRecommendationFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AIRecommendationFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AIRecommendationPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AIRecommendationFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AIRecommendationPayload>
+        }
+        findFirst: {
+          args: Prisma.AIRecommendationFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AIRecommendationPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AIRecommendationFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AIRecommendationPayload>
+        }
+        findMany: {
+          args: Prisma.AIRecommendationFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AIRecommendationPayload>[]
+        }
+        create: {
+          args: Prisma.AIRecommendationCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AIRecommendationPayload>
+        }
+        createMany: {
+          args: Prisma.AIRecommendationCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.AIRecommendationCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AIRecommendationPayload>[]
+        }
+        delete: {
+          args: Prisma.AIRecommendationDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AIRecommendationPayload>
+        }
+        update: {
+          args: Prisma.AIRecommendationUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AIRecommendationPayload>
+        }
+        deleteMany: {
+          args: Prisma.AIRecommendationDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AIRecommendationUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.AIRecommendationUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AIRecommendationPayload>[]
+        }
+        upsert: {
+          args: Prisma.AIRecommendationUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AIRecommendationPayload>
+        }
+        aggregate: {
+          args: Prisma.AIRecommendationAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAIRecommendation>
+        }
+        groupBy: {
+          args: Prisma.AIRecommendationGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AIRecommendationGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.AIRecommendationCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AIRecommendationCountAggregateOutputType> | number
+        }
+      }
+    }
+    OfficerPotential: {
+      payload: Prisma.$OfficerPotentialPayload<ExtArgs>
+      fields: Prisma.OfficerPotentialFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.OfficerPotentialFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OfficerPotentialPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.OfficerPotentialFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OfficerPotentialPayload>
+        }
+        findFirst: {
+          args: Prisma.OfficerPotentialFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OfficerPotentialPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.OfficerPotentialFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OfficerPotentialPayload>
+        }
+        findMany: {
+          args: Prisma.OfficerPotentialFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OfficerPotentialPayload>[]
+        }
+        create: {
+          args: Prisma.OfficerPotentialCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OfficerPotentialPayload>
+        }
+        createMany: {
+          args: Prisma.OfficerPotentialCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.OfficerPotentialCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OfficerPotentialPayload>[]
+        }
+        delete: {
+          args: Prisma.OfficerPotentialDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OfficerPotentialPayload>
+        }
+        update: {
+          args: Prisma.OfficerPotentialUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OfficerPotentialPayload>
+        }
+        deleteMany: {
+          args: Prisma.OfficerPotentialDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.OfficerPotentialUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.OfficerPotentialUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OfficerPotentialPayload>[]
+        }
+        upsert: {
+          args: Prisma.OfficerPotentialUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OfficerPotentialPayload>
+        }
+        aggregate: {
+          args: Prisma.OfficerPotentialAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateOfficerPotential>
+        }
+        groupBy: {
+          args: Prisma.OfficerPotentialGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.OfficerPotentialGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.OfficerPotentialCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.OfficerPotentialCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -4783,6 +5158,73 @@ export const PushNotificationScalarFieldEnum = {
 export type PushNotificationScalarFieldEnum = (typeof PushNotificationScalarFieldEnum)[keyof typeof PushNotificationScalarFieldEnum]
 
 
+export const AIInterviewSessionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  examType: 'examType',
+  interviewType: 'interviewType',
+  status: 'status',
+  startedAt: 'startedAt',
+  completedAt: 'completedAt',
+  overallScore: 'overallScore',
+  aiFeedback: 'aiFeedback'
+} as const
+
+export type AIInterviewSessionScalarFieldEnum = (typeof AIInterviewSessionScalarFieldEnum)[keyof typeof AIInterviewSessionScalarFieldEnum]
+
+
+export const AIInterviewQuestionScalarFieldEnum = {
+  id: 'id',
+  sessionId: 'sessionId',
+  question: 'question',
+  userAnswer: 'userAnswer',
+  aiAnalysis: 'aiAnalysis',
+  score: 'score',
+  createdAt: 'createdAt'
+} as const
+
+export type AIInterviewQuestionScalarFieldEnum = (typeof AIInterviewQuestionScalarFieldEnum)[keyof typeof AIInterviewQuestionScalarFieldEnum]
+
+
+export const DoubtQueryScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  question: 'question',
+  subject: 'subject',
+  aiResponse: 'aiResponse',
+  createdAt: 'createdAt'
+} as const
+
+export type DoubtQueryScalarFieldEnum = (typeof DoubtQueryScalarFieldEnum)[keyof typeof DoubtQueryScalarFieldEnum]
+
+
+export const AIRecommendationScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  category: 'category',
+  recommendation: 'recommendation',
+  priority: 'priority',
+  createdAt: 'createdAt'
+} as const
+
+export type AIRecommendationScalarFieldEnum = (typeof AIRecommendationScalarFieldEnum)[keyof typeof AIRecommendationScalarFieldEnum]
+
+
+export const OfficerPotentialScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  leadershipScore: 'leadershipScore',
+  communicationScore: 'communicationScore',
+  disciplineScore: 'disciplineScore',
+  confidenceScore: 'confidenceScore',
+  officerReadiness: 'officerReadiness',
+  aiSummary: 'aiSummary',
+  updatedAt: 'updatedAt'
+} as const
+
+export type OfficerPotentialScalarFieldEnum = (typeof OfficerPotentialScalarFieldEnum)[keyof typeof OfficerPotentialScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -5156,6 +5598,11 @@ export type GlobalOmitConfig = {
   message?: Prisma.MessageOmit
   emailLog?: Prisma.EmailLogOmit
   pushNotification?: Prisma.PushNotificationOmit
+  aIInterviewSession?: Prisma.AIInterviewSessionOmit
+  aIInterviewQuestion?: Prisma.AIInterviewQuestionOmit
+  doubtQuery?: Prisma.DoubtQueryOmit
+  aIRecommendation?: Prisma.AIRecommendationOmit
+  officerPotential?: Prisma.OfficerPotentialOmit
 }
 
 /* Types for Logging */

@@ -262,3 +262,28 @@ export type EmailLog = Prisma.EmailLogModel
  * 
  */
 export type PushNotification = Prisma.PushNotificationModel
+/**
+ * Model AIInterviewSession
+ * 
+ */
+export type AIInterviewSession = Prisma.AIInterviewSessionModel
+/**
+ * Model AIInterviewQuestion
+ * 
+ */
+export type AIInterviewQuestion = Prisma.AIInterviewQuestionModel
+/**
+ * Model DoubtQuery
+ * 
+ */
+export type DoubtQuery = Prisma.DoubtQueryModel
+/**
+ * Model AIRecommendation
+ * 
+ */
+export type AIRecommendation = Prisma.AIRecommendationModel
+/**
+ * Model OfficerPotential
+ * 
+ */
+export type OfficerPotential = Prisma.OfficerPotentialModel

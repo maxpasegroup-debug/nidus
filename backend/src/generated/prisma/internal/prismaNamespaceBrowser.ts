@@ -99,7 +99,12 @@ export const ModelName = {
   MessageThread: 'MessageThread',
   Message: 'Message',
   EmailLog: 'EmailLog',
-  PushNotification: 'PushNotification'
+  PushNotification: 'PushNotification',
+  AIInterviewSession: 'AIInterviewSession',
+  AIInterviewQuestion: 'AIInterviewQuestion',
+  DoubtQuery: 'DoubtQuery',
+  AIRecommendation: 'AIRecommendation',
+  OfficerPotential: 'OfficerPotential'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -782,6 +787,73 @@ export const PushNotificationScalarFieldEnum = {
 } as const
 
 export type PushNotificationScalarFieldEnum = (typeof PushNotificationScalarFieldEnum)[keyof typeof PushNotificationScalarFieldEnum]
+
+
+export const AIInterviewSessionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  examType: 'examType',
+  interviewType: 'interviewType',
+  status: 'status',
+  startedAt: 'startedAt',
+  completedAt: 'completedAt',
+  overallScore: 'overallScore',
+  aiFeedback: 'aiFeedback'
+} as const
+
+export type AIInterviewSessionScalarFieldEnum = (typeof AIInterviewSessionScalarFieldEnum)[keyof typeof AIInterviewSessionScalarFieldEnum]
+
+
+export const AIInterviewQuestionScalarFieldEnum = {
+  id: 'id',
+  sessionId: 'sessionId',
+  question: 'question',
+  userAnswer: 'userAnswer',
+  aiAnalysis: 'aiAnalysis',
+  score: 'score',
+  createdAt: 'createdAt'
+} as const
+
+export type AIInterviewQuestionScalarFieldEnum = (typeof AIInterviewQuestionScalarFieldEnum)[keyof typeof AIInterviewQuestionScalarFieldEnum]
+
+
+export const DoubtQueryScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  question: 'question',
+  subject: 'subject',
+  aiResponse: 'aiResponse',
+  createdAt: 'createdAt'
+} as const
+
+export type DoubtQueryScalarFieldEnum = (typeof DoubtQueryScalarFieldEnum)[keyof typeof DoubtQueryScalarFieldEnum]
+
+
+export const AIRecommendationScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  category: 'category',
+  recommendation: 'recommendation',
+  priority: 'priority',
+  createdAt: 'createdAt'
+} as const
+
+export type AIRecommendationScalarFieldEnum = (typeof AIRecommendationScalarFieldEnum)[keyof typeof AIRecommendationScalarFieldEnum]
+
+
+export const OfficerPotentialScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  leadershipScore: 'leadershipScore',
+  communicationScore: 'communicationScore',
+  disciplineScore: 'disciplineScore',
+  confidenceScore: 'confidenceScore',
+  officerReadiness: 'officerReadiness',
+  aiSummary: 'aiSummary',
+  updatedAt: 'updatedAt'
+} as const
+
+export type OfficerPotentialScalarFieldEnum = (typeof OfficerPotentialScalarFieldEnum)[keyof typeof OfficerPotentialScalarFieldEnum]
 
 
 export const SortOrder = {
