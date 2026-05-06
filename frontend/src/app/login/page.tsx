@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState, type FormEvent } from "react";
-import { BrainCircuit, ShieldCheck } from "lucide-react";
+import { BrainCircuit, LockKeyhole, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/components/providers/auth-provider";
@@ -10,7 +10,9 @@ import { useAuth } from "@/components/providers/auth-provider";
 const demoAccounts = [
   { role: "Admin", email: "admin.demo@nidus.local" },
   { role: "Student", email: "student.demo@nidus.local" },
-  { role: "Parent", email: "parent.demo@nidus.local" }
+  { role: "Parent", email: "parent.demo@nidus.local" },
+  { role: "Teacher", email: "faculty.demo@nidus.local" },
+  { role: "Guest", email: "guest.demo@nidus.local" }
 ];
 
 export default function LoginPage() {
@@ -33,8 +35,9 @@ export default function LoginPage() {
 
   return (
     <main className="relative min-h-screen overflow-hidden px-4 pb-16 pt-28 sm:px-6 lg:px-8">
-      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(3,8,18,0.48),#030812_86%),url('https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=2200&q=80')] bg-cover bg-center opacity-70" />
+      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(3,8,18,0.44),#030812_86%),url('https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=2200&q=80')] bg-cover bg-center opacity-70" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_20%,rgba(201,166,70,0.22),transparent_24rem),radial-gradient(circle_at_18%_40%,rgba(59,130,246,0.16),transparent_28rem)]" />
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.035)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.035)_1px,transparent_1px)] bg-[size:72px_72px] opacity-25" />
       <div className="relative mx-auto grid min-h-[calc(100vh-10rem)] max-w-7xl gap-10 lg:grid-cols-[1fr_29rem] lg:items-center">
         <section className="max-w-3xl">
           <p className="text-xs font-semibold uppercase tracking-[0.3em] text-gold-soft">Secure Academy Access</p>
@@ -49,7 +52,8 @@ export default function LoginPage() {
           </div>
         </section>
 
-        <section className="rounded-lg border border-gold/25 bg-white/[0.075] p-6 shadow-[0_40px_120px_rgba(0,0,0,0.42)] backdrop-blur-2xl sm:p-8">
+        <section className="relative overflow-hidden rounded-lg border border-gold/25 bg-white/[0.075] p-6 shadow-[0_40px_120px_rgba(0,0,0,0.42)] backdrop-blur-2xl sm:p-8">
+          <div className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-gold/12 blur-3xl" />
           <div className="mb-8 flex items-start justify-between gap-4">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-gold-soft">NIDUS</p>
@@ -72,9 +76,9 @@ export default function LoginPage() {
           <div className="mt-6 rounded border border-gold/20 bg-gold/10 p-4">
             <div className="flex items-center gap-2 text-sm font-semibold text-gold-soft">
               <ShieldCheck className="h-4 w-4" />
-              Demo account directory
+              Unified role access
             </div>
-            <div className="mt-3 space-y-2 text-xs text-muted">
+            <div className="mt-3 grid gap-2 text-xs text-muted">
               {demoAccounts.map((account) => (
                 <button key={account.email} type="button" onClick={() => setIdentifier(account.email)} className="flex w-full items-center justify-between rounded border border-white/10 px-3 py-2 text-left transition hover:border-gold/30 hover:text-ink">
                   <span>{account.role}</span>
@@ -82,6 +86,10 @@ export default function LoginPage() {
                 </button>
               ))}
             </div>
+          </div>
+          <div className="mt-4 flex items-center gap-2 text-xs text-muted">
+            <LockKeyhole className="h-4 w-4 text-gold-soft" />
+            <span>Student, parent, teacher, admin, and guest access resolves from one login.</span>
           </div>
           <p className="mt-6 text-center text-sm text-muted">New to NIDUS? <Link href="/register" className="font-semibold text-gold-soft">Create an account</Link></p>
         </section>

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Menu, X } from "lucide-react";
+import { Menu, ShieldCheck, X } from "lucide-react";
 
 const navItems = [
   ["Home", "/"],
@@ -30,8 +30,10 @@ export function PublicNavbar() {
     <header className={`fixed left-0 right-0 top-0 z-50 transition duration-300 ${scrolled || open ? "border-b border-white/10 bg-navy-deep/84 shadow-[0_16px_60px_rgba(0,0,0,0.28)] backdrop-blur-2xl" : "bg-transparent"}`}>
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link href="/" className="flex items-center gap-3" onClick={() => setOpen(false)}>
-          <span className="grid h-11 w-11 place-items-center rounded border border-gold/45 bg-gold/12 text-sm font-bold text-gold-soft shadow-[0_0_28px_rgba(201,166,70,0.18)]">N</span>
-          <span>
+          <span className="grid h-11 w-11 place-items-center rounded border border-gold/45 bg-gold/12 text-gold-soft shadow-[0_0_28px_rgba(201,166,70,0.18)]">
+            <ShieldCheck className="h-5 w-5" />
+          </span>
+          <span className="min-w-0">
             <span className="block text-lg font-semibold tracking-normal text-ink">NIDUS</span>
             <span className="block text-[0.65rem] uppercase tracking-[0.24em] text-gold-soft">From Aspirant To Officer</span>
           </span>
