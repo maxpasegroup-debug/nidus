@@ -32,6 +32,7 @@ model User {
   emailVerified  Boolean  @default(false)
   mobileVerified Boolean  @default(false)
   enrollments    Enrollment[]
+  testAttempts   TestAttempt[]
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 }
@@ -100,4 +101,71 @@ model Enrollment {
 
   @@unique([userId, courseId])
   @@index([courseId])
+}
+
+model Test {
+  id          String        @id @default(cuid())
+  title       String
+  description String
+  examType    String
+  category    String
+  duration    Int
+  totalMarks  Float
+  isMockTest  Boolean       @default(true)
+  isLive      Boolean       @default(false)
+  questions   Question[]
+  attempts    TestAttempt[]
+  createdAt   DateTime      @default(now())
+}
+
+model Question {
+  id              String   @id @default(cuid())
+  testId          String
+  questionText    String
+  questionImage   String?
+  optionA         String
+  optionB         String
+  optionC         String
+  optionD         String
+  correctAnswer   String
+  explanation     String
+  marks           Float
+  negativeMarks   Float
+  difficultyLevel String
+  topic           String
+  test            Test     @relation(fields: [testId], references: [id], onDelete: Cascade)
+  answers         Answer[]
+
+  @@index([testId])
+}
+
+model TestAttempt {
+  id           String    @id @default(cuid())
+  userId       String
+  testId       String
+  score        Float     @default(0)
+  totalCorrect Int       @default(0)
+  totalWrong   Int       @default(0)
+  timeTaken    Int       @default(0)
+  startedAt    DateTime  @default(now())
+  submittedAt  DateTime?
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  test         Test      @relation(fields: [testId], references: [id], onDelete: Cascade)
+  answers      Answer[]
+
+  @@index([userId])
+  @@index([testId])
+}
+
+model Answer {
+  id             String      @id @default(cuid())
+  attemptId      String
+  questionId     String
+  selectedAnswer String
+  isCorrect      Boolean
+  attempt        TestAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  question       Question    @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([attemptId, questionId])
+  @@index([questionId])
 }

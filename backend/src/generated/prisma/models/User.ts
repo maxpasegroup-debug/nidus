@@ -223,6 +223,7 @@ export type UserWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   enrollments?: Prisma.EnrollmentListRelationFilter
+  testAttempts?: Prisma.TestAttemptListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -237,6 +238,7 @@ export type UserOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   enrollments?: Prisma.EnrollmentOrderByRelationAggregateInput
+  testAttempts?: Prisma.TestAttemptOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -254,6 +256,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   enrollments?: Prisma.EnrollmentListRelationFilter
+  testAttempts?: Prisma.TestAttemptListRelationFilter
 }, "id" | "email" | "mobile">
 
 export type UserOrderByWithAggregationInput = {
@@ -300,6 +303,7 @@ export type UserCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
+  testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -314,6 +318,7 @@ export type UserUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
+  testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -328,6 +333,7 @@ export type UserUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
+  testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -342,6 +348,7 @@ export type UserUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
+  testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -457,6 +464,20 @@ export type UserUpdateOneRequiredWithoutEnrollmentsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutEnrollmentsInput, Prisma.UserUpdateWithoutEnrollmentsInput>, Prisma.UserUncheckedUpdateWithoutEnrollmentsInput>
 }
 
+export type UserCreateNestedOneWithoutTestAttemptsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutTestAttemptsInput, Prisma.UserUncheckedCreateWithoutTestAttemptsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutTestAttemptsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutTestAttemptsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutTestAttemptsInput, Prisma.UserUncheckedCreateWithoutTestAttemptsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutTestAttemptsInput
+  upsert?: Prisma.UserUpsertWithoutTestAttemptsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutTestAttemptsInput, Prisma.UserUpdateWithoutTestAttemptsInput>, Prisma.UserUncheckedUpdateWithoutTestAttemptsInput>
+}
+
 export type UserCreateWithoutEnrollmentsInput = {
   id?: string
   name: string
@@ -468,6 +489,7 @@ export type UserCreateWithoutEnrollmentsInput = {
   mobileVerified?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutEnrollmentsInput = {
@@ -481,6 +503,7 @@ export type UserUncheckedCreateWithoutEnrollmentsInput = {
   mobileVerified?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutEnrollmentsInput = {
@@ -510,6 +533,7 @@ export type UserUpdateWithoutEnrollmentsInput = {
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEnrollmentsInput = {
@@ -523,6 +547,79 @@ export type UserUncheckedUpdateWithoutEnrollmentsInput = {
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutTestAttemptsInput = {
+  id?: string
+  name: string
+  email: string
+  mobile: string
+  password: string
+  role?: $Enums.Role
+  emailVerified?: boolean
+  mobileVerified?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutTestAttemptsInput = {
+  id?: string
+  name: string
+  email: string
+  mobile: string
+  password: string
+  role?: $Enums.Role
+  emailVerified?: boolean
+  mobileVerified?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutTestAttemptsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutTestAttemptsInput, Prisma.UserUncheckedCreateWithoutTestAttemptsInput>
+}
+
+export type UserUpsertWithoutTestAttemptsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutTestAttemptsInput, Prisma.UserUncheckedUpdateWithoutTestAttemptsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutTestAttemptsInput, Prisma.UserUncheckedCreateWithoutTestAttemptsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutTestAttemptsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutTestAttemptsInput, Prisma.UserUncheckedUpdateWithoutTestAttemptsInput>
+}
+
+export type UserUpdateWithoutTestAttemptsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutTestAttemptsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
 }
 
 
@@ -532,10 +629,12 @@ export type UserUncheckedUpdateWithoutEnrollmentsInput = {
 
 export type UserCountOutputType = {
   enrollments: number
+  testAttempts: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   enrollments?: boolean | UserCountOutputTypeCountEnrollmentsArgs
+  testAttempts?: boolean | UserCountOutputTypeCountTestAttemptsArgs
 }
 
 /**
@@ -555,6 +654,13 @@ export type UserCountOutputTypeCountEnrollmentsArgs<ExtArgs extends runtime.Type
   where?: Prisma.EnrollmentWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountTestAttemptsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.TestAttemptWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -568,6 +674,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   createdAt?: boolean
   updatedAt?: boolean
   enrollments?: boolean | Prisma.User$enrollmentsArgs<ExtArgs>
+  testAttempts?: boolean | Prisma.User$testAttemptsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -613,6 +720,7 @@ export type UserSelectScalar = {
 export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "email" | "mobile" | "password" | "role" | "emailVerified" | "mobileVerified" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   enrollments?: boolean | Prisma.User$enrollmentsArgs<ExtArgs>
+  testAttempts?: boolean | Prisma.User$testAttemptsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -622,6 +730,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   name: "User"
   objects: {
     enrollments: Prisma.$EnrollmentPayload<ExtArgs>[]
+    testAttempts: Prisma.$TestAttemptPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1029,6 +1138,7 @@ readonly fields: UserFieldRefs;
 export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   enrollments<T extends Prisma.User$enrollmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$enrollmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EnrollmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  testAttempts<T extends Prisma.User$testAttemptsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$testAttemptsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TestAttemptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1482,6 +1592,30 @@ export type User$enrollmentsArgs<ExtArgs extends runtime.Types.Extensions.Intern
   take?: number
   skip?: number
   distinct?: Prisma.EnrollmentScalarFieldEnum | Prisma.EnrollmentScalarFieldEnum[]
+}
+
+/**
+ * User.testAttempts
+ */
+export type User$testAttemptsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the TestAttempt
+   */
+  select?: Prisma.TestAttemptSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the TestAttempt
+   */
+  omit?: Prisma.TestAttemptOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TestAttemptInclude<ExtArgs> | null
+  where?: Prisma.TestAttemptWhereInput
+  orderBy?: Prisma.TestAttemptOrderByWithRelationInput | Prisma.TestAttemptOrderByWithRelationInput[]
+  cursor?: Prisma.TestAttemptWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.TestAttemptScalarFieldEnum | Prisma.TestAttemptScalarFieldEnum[]
 }
 
 /**

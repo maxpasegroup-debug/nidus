@@ -56,7 +56,11 @@ export const ModelName = {
   Course: 'Course',
   Module: 'Module',
   Lesson: 'Lesson',
-  Enrollment: 'Enrollment'
+  Enrollment: 'Enrollment',
+  Test: 'Test',
+  Question: 'Question',
+  TestAttempt: 'TestAttempt',
+  Answer: 'Answer'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -156,6 +160,68 @@ export const EnrollmentScalarFieldEnum = {
 export type EnrollmentScalarFieldEnum = (typeof EnrollmentScalarFieldEnum)[keyof typeof EnrollmentScalarFieldEnum]
 
 
+export const TestScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  description: 'description',
+  examType: 'examType',
+  category: 'category',
+  duration: 'duration',
+  totalMarks: 'totalMarks',
+  isMockTest: 'isMockTest',
+  isLive: 'isLive',
+  createdAt: 'createdAt'
+} as const
+
+export type TestScalarFieldEnum = (typeof TestScalarFieldEnum)[keyof typeof TestScalarFieldEnum]
+
+
+export const QuestionScalarFieldEnum = {
+  id: 'id',
+  testId: 'testId',
+  questionText: 'questionText',
+  questionImage: 'questionImage',
+  optionA: 'optionA',
+  optionB: 'optionB',
+  optionC: 'optionC',
+  optionD: 'optionD',
+  correctAnswer: 'correctAnswer',
+  explanation: 'explanation',
+  marks: 'marks',
+  negativeMarks: 'negativeMarks',
+  difficultyLevel: 'difficultyLevel',
+  topic: 'topic'
+} as const
+
+export type QuestionScalarFieldEnum = (typeof QuestionScalarFieldEnum)[keyof typeof QuestionScalarFieldEnum]
+
+
+export const TestAttemptScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  testId: 'testId',
+  score: 'score',
+  totalCorrect: 'totalCorrect',
+  totalWrong: 'totalWrong',
+  timeTaken: 'timeTaken',
+  startedAt: 'startedAt',
+  submittedAt: 'submittedAt'
+} as const
+
+export type TestAttemptScalarFieldEnum = (typeof TestAttemptScalarFieldEnum)[keyof typeof TestAttemptScalarFieldEnum]
+
+
+export const AnswerScalarFieldEnum = {
+  id: 'id',
+  attemptId: 'attemptId',
+  questionId: 'questionId',
+  selectedAnswer: 'selectedAnswer',
+  isCorrect: 'isCorrect'
+} as const
+
+export type AnswerScalarFieldEnum = (typeof AnswerScalarFieldEnum)[keyof typeof AnswerScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -170,4 +236,12 @@ export const QueryMode = {
 } as const
 
 export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
+
+
+export const NullsOrder = {
+  first: 'first',
+  last: 'last'
+} as const
+
+export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
 

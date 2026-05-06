@@ -71,3 +71,23 @@ export type Lesson = Prisma.LessonModel
  * 
  */
 export type Enrollment = Prisma.EnrollmentModel
+/**
+ * Model Test
+ * 
+ */
+export type Test = Prisma.TestModel
+/**
+ * Model Question
+ * 
+ */
+export type Question = Prisma.QuestionModel
+/**
+ * Model TestAttempt
+ * 
+ */
+export type TestAttempt = Prisma.TestAttemptModel
+/**
+ * Model Answer
+ * 
+ */
+export type Answer = Prisma.AnswerModel

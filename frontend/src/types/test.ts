@@ -1,0 +1,71 @@
+export type Question = {
+  id: string;
+  testId: string;
+  questionText: string;
+  questionImage?: string | null;
+  optionA: string;
+  optionB: string;
+  optionC: string;
+  optionD: string;
+  correctAnswer: string;
+  explanation: string;
+  marks: number;
+  negativeMarks: number;
+  difficultyLevel: string;
+  topic: string;
+};
+
+export type Test = {
+  id: string;
+  title: string;
+  description: string;
+  examType: string;
+  category: string;
+  duration: number;
+  totalMarks: number;
+  isMockTest: boolean;
+  isLive: boolean;
+  createdAt: string;
+  questions?: Question[];
+  _count?: {
+    questions?: number;
+    attempts?: number;
+  };
+};
+
+export type TestAttempt = {
+  id: string;
+  userId: string;
+  testId: string;
+  score: number;
+  totalCorrect: number;
+  totalWrong: number;
+  timeTaken: number;
+  startedAt: string;
+  submittedAt?: string | null;
+  test: Test;
+};
+
+export type ResultAnswer = {
+  id: string;
+  selectedAnswer: string;
+  isCorrect: boolean;
+  question: Question;
+};
+
+export type TestResult = {
+  attempt: TestAttempt & {
+    answers: ResultAnswer[];
+  };
+  analytics: {
+    accuracy: number;
+    weakTopics: string[];
+    timeAnalysis: {
+      timeTaken: number;
+      averagePerQuestion: number;
+    };
+    rankEstimation: number;
+    topicAnalysis: Array<{ topic: string; correct: number; total: number; accuracy: number }>;
+    aiInsights: string;
+  };
+};
