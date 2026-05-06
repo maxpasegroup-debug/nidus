@@ -29,6 +29,8 @@ export type AnnouncementMinAggregateOutputType = {
   title: string | null
   description: string | null
   targetAudience: string | null
+  audience: string | null
+  createdBy: string | null
   createdAt: Date | null
 }
 
@@ -37,6 +39,8 @@ export type AnnouncementMaxAggregateOutputType = {
   title: string | null
   description: string | null
   targetAudience: string | null
+  audience: string | null
+  createdBy: string | null
   createdAt: Date | null
 }
 
@@ -45,6 +49,8 @@ export type AnnouncementCountAggregateOutputType = {
   title: number
   description: number
   targetAudience: number
+  audience: number
+  createdBy: number
   createdAt: number
   _all: number
 }
@@ -55,6 +61,8 @@ export type AnnouncementMinAggregateInputType = {
   title?: true
   description?: true
   targetAudience?: true
+  audience?: true
+  createdBy?: true
   createdAt?: true
 }
 
@@ -63,6 +71,8 @@ export type AnnouncementMaxAggregateInputType = {
   title?: true
   description?: true
   targetAudience?: true
+  audience?: true
+  createdBy?: true
   createdAt?: true
 }
 
@@ -71,6 +81,8 @@ export type AnnouncementCountAggregateInputType = {
   title?: true
   description?: true
   targetAudience?: true
+  audience?: true
+  createdBy?: true
   createdAt?: true
   _all?: true
 }
@@ -152,6 +164,8 @@ export type AnnouncementGroupByOutputType = {
   title: string
   description: string
   targetAudience: string
+  audience: string | null
+  createdBy: string | null
   createdAt: Date
   _count: AnnouncementCountAggregateOutputType | null
   _min: AnnouncementMinAggregateOutputType | null
@@ -181,7 +195,10 @@ export type AnnouncementWhereInput = {
   title?: Prisma.StringFilter<"Announcement"> | string
   description?: Prisma.StringFilter<"Announcement"> | string
   targetAudience?: Prisma.StringFilter<"Announcement"> | string
+  audience?: Prisma.StringNullableFilter<"Announcement"> | string | null
+  createdBy?: Prisma.StringNullableFilter<"Announcement"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Announcement"> | Date | string
+  creator?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
 }
 
 export type AnnouncementOrderByWithRelationInput = {
@@ -189,7 +206,10 @@ export type AnnouncementOrderByWithRelationInput = {
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
   targetAudience?: Prisma.SortOrder
+  audience?: Prisma.SortOrderInput | Prisma.SortOrder
+  createdBy?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  creator?: Prisma.UserOrderByWithRelationInput
 }
 
 export type AnnouncementWhereUniqueInput = Prisma.AtLeast<{
@@ -200,7 +220,10 @@ export type AnnouncementWhereUniqueInput = Prisma.AtLeast<{
   title?: Prisma.StringFilter<"Announcement"> | string
   description?: Prisma.StringFilter<"Announcement"> | string
   targetAudience?: Prisma.StringFilter<"Announcement"> | string
+  audience?: Prisma.StringNullableFilter<"Announcement"> | string | null
+  createdBy?: Prisma.StringNullableFilter<"Announcement"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Announcement"> | Date | string
+  creator?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
 }, "id">
 
 export type AnnouncementOrderByWithAggregationInput = {
@@ -208,6 +231,8 @@ export type AnnouncementOrderByWithAggregationInput = {
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
   targetAudience?: Prisma.SortOrder
+  audience?: Prisma.SortOrderInput | Prisma.SortOrder
+  createdBy?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.AnnouncementCountOrderByAggregateInput
   _max?: Prisma.AnnouncementMaxOrderByAggregateInput
@@ -222,6 +247,8 @@ export type AnnouncementScalarWhereWithAggregatesInput = {
   title?: Prisma.StringWithAggregatesFilter<"Announcement"> | string
   description?: Prisma.StringWithAggregatesFilter<"Announcement"> | string
   targetAudience?: Prisma.StringWithAggregatesFilter<"Announcement"> | string
+  audience?: Prisma.StringNullableWithAggregatesFilter<"Announcement"> | string | null
+  createdBy?: Prisma.StringNullableWithAggregatesFilter<"Announcement"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Announcement"> | Date | string
 }
 
@@ -230,7 +257,9 @@ export type AnnouncementCreateInput = {
   title: string
   description: string
   targetAudience: string
+  audience?: string | null
   createdAt?: Date | string
+  creator?: Prisma.UserCreateNestedOneWithoutCommunicationAnnouncementsInput
 }
 
 export type AnnouncementUncheckedCreateInput = {
@@ -238,6 +267,8 @@ export type AnnouncementUncheckedCreateInput = {
   title: string
   description: string
   targetAudience: string
+  audience?: string | null
+  createdBy?: string | null
   createdAt?: Date | string
 }
 
@@ -246,7 +277,9 @@ export type AnnouncementUpdateInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   targetAudience?: Prisma.StringFieldUpdateOperationsInput | string
+  audience?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  creator?: Prisma.UserUpdateOneWithoutCommunicationAnnouncementsNestedInput
 }
 
 export type AnnouncementUncheckedUpdateInput = {
@@ -254,6 +287,8 @@ export type AnnouncementUncheckedUpdateInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   targetAudience?: Prisma.StringFieldUpdateOperationsInput | string
+  audience?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -262,6 +297,8 @@ export type AnnouncementCreateManyInput = {
   title: string
   description: string
   targetAudience: string
+  audience?: string | null
+  createdBy?: string | null
   createdAt?: Date | string
 }
 
@@ -270,6 +307,7 @@ export type AnnouncementUpdateManyMutationInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   targetAudience?: Prisma.StringFieldUpdateOperationsInput | string
+  audience?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -278,7 +316,19 @@ export type AnnouncementUncheckedUpdateManyInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   targetAudience?: Prisma.StringFieldUpdateOperationsInput | string
+  audience?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type AnnouncementListRelationFilter = {
+  every?: Prisma.AnnouncementWhereInput
+  some?: Prisma.AnnouncementWhereInput
+  none?: Prisma.AnnouncementWhereInput
+}
+
+export type AnnouncementOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
 }
 
 export type AnnouncementCountOrderByAggregateInput = {
@@ -286,6 +336,8 @@ export type AnnouncementCountOrderByAggregateInput = {
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
   targetAudience?: Prisma.SortOrder
+  audience?: Prisma.SortOrder
+  createdBy?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -294,6 +346,8 @@ export type AnnouncementMaxOrderByAggregateInput = {
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
   targetAudience?: Prisma.SortOrder
+  audience?: Prisma.SortOrder
+  createdBy?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -302,7 +356,144 @@ export type AnnouncementMinOrderByAggregateInput = {
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
   targetAudience?: Prisma.SortOrder
+  audience?: Prisma.SortOrder
+  createdBy?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+}
+
+export type AnnouncementCreateNestedManyWithoutCreatorInput = {
+  create?: Prisma.XOR<Prisma.AnnouncementCreateWithoutCreatorInput, Prisma.AnnouncementUncheckedCreateWithoutCreatorInput> | Prisma.AnnouncementCreateWithoutCreatorInput[] | Prisma.AnnouncementUncheckedCreateWithoutCreatorInput[]
+  connectOrCreate?: Prisma.AnnouncementCreateOrConnectWithoutCreatorInput | Prisma.AnnouncementCreateOrConnectWithoutCreatorInput[]
+  createMany?: Prisma.AnnouncementCreateManyCreatorInputEnvelope
+  connect?: Prisma.AnnouncementWhereUniqueInput | Prisma.AnnouncementWhereUniqueInput[]
+}
+
+export type AnnouncementUncheckedCreateNestedManyWithoutCreatorInput = {
+  create?: Prisma.XOR<Prisma.AnnouncementCreateWithoutCreatorInput, Prisma.AnnouncementUncheckedCreateWithoutCreatorInput> | Prisma.AnnouncementCreateWithoutCreatorInput[] | Prisma.AnnouncementUncheckedCreateWithoutCreatorInput[]
+  connectOrCreate?: Prisma.AnnouncementCreateOrConnectWithoutCreatorInput | Prisma.AnnouncementCreateOrConnectWithoutCreatorInput[]
+  createMany?: Prisma.AnnouncementCreateManyCreatorInputEnvelope
+  connect?: Prisma.AnnouncementWhereUniqueInput | Prisma.AnnouncementWhereUniqueInput[]
+}
+
+export type AnnouncementUpdateManyWithoutCreatorNestedInput = {
+  create?: Prisma.XOR<Prisma.AnnouncementCreateWithoutCreatorInput, Prisma.AnnouncementUncheckedCreateWithoutCreatorInput> | Prisma.AnnouncementCreateWithoutCreatorInput[] | Prisma.AnnouncementUncheckedCreateWithoutCreatorInput[]
+  connectOrCreate?: Prisma.AnnouncementCreateOrConnectWithoutCreatorInput | Prisma.AnnouncementCreateOrConnectWithoutCreatorInput[]
+  upsert?: Prisma.AnnouncementUpsertWithWhereUniqueWithoutCreatorInput | Prisma.AnnouncementUpsertWithWhereUniqueWithoutCreatorInput[]
+  createMany?: Prisma.AnnouncementCreateManyCreatorInputEnvelope
+  set?: Prisma.AnnouncementWhereUniqueInput | Prisma.AnnouncementWhereUniqueInput[]
+  disconnect?: Prisma.AnnouncementWhereUniqueInput | Prisma.AnnouncementWhereUniqueInput[]
+  delete?: Prisma.AnnouncementWhereUniqueInput | Prisma.AnnouncementWhereUniqueInput[]
+  connect?: Prisma.AnnouncementWhereUniqueInput | Prisma.AnnouncementWhereUniqueInput[]
+  update?: Prisma.AnnouncementUpdateWithWhereUniqueWithoutCreatorInput | Prisma.AnnouncementUpdateWithWhereUniqueWithoutCreatorInput[]
+  updateMany?: Prisma.AnnouncementUpdateManyWithWhereWithoutCreatorInput | Prisma.AnnouncementUpdateManyWithWhereWithoutCreatorInput[]
+  deleteMany?: Prisma.AnnouncementScalarWhereInput | Prisma.AnnouncementScalarWhereInput[]
+}
+
+export type AnnouncementUncheckedUpdateManyWithoutCreatorNestedInput = {
+  create?: Prisma.XOR<Prisma.AnnouncementCreateWithoutCreatorInput, Prisma.AnnouncementUncheckedCreateWithoutCreatorInput> | Prisma.AnnouncementCreateWithoutCreatorInput[] | Prisma.AnnouncementUncheckedCreateWithoutCreatorInput[]
+  connectOrCreate?: Prisma.AnnouncementCreateOrConnectWithoutCreatorInput | Prisma.AnnouncementCreateOrConnectWithoutCreatorInput[]
+  upsert?: Prisma.AnnouncementUpsertWithWhereUniqueWithoutCreatorInput | Prisma.AnnouncementUpsertWithWhereUniqueWithoutCreatorInput[]
+  createMany?: Prisma.AnnouncementCreateManyCreatorInputEnvelope
+  set?: Prisma.AnnouncementWhereUniqueInput | Prisma.AnnouncementWhereUniqueInput[]
+  disconnect?: Prisma.AnnouncementWhereUniqueInput | Prisma.AnnouncementWhereUniqueInput[]
+  delete?: Prisma.AnnouncementWhereUniqueInput | Prisma.AnnouncementWhereUniqueInput[]
+  connect?: Prisma.AnnouncementWhereUniqueInput | Prisma.AnnouncementWhereUniqueInput[]
+  update?: Prisma.AnnouncementUpdateWithWhereUniqueWithoutCreatorInput | Prisma.AnnouncementUpdateWithWhereUniqueWithoutCreatorInput[]
+  updateMany?: Prisma.AnnouncementUpdateManyWithWhereWithoutCreatorInput | Prisma.AnnouncementUpdateManyWithWhereWithoutCreatorInput[]
+  deleteMany?: Prisma.AnnouncementScalarWhereInput | Prisma.AnnouncementScalarWhereInput[]
+}
+
+export type AnnouncementCreateWithoutCreatorInput = {
+  id?: string
+  title: string
+  description: string
+  targetAudience: string
+  audience?: string | null
+  createdAt?: Date | string
+}
+
+export type AnnouncementUncheckedCreateWithoutCreatorInput = {
+  id?: string
+  title: string
+  description: string
+  targetAudience: string
+  audience?: string | null
+  createdAt?: Date | string
+}
+
+export type AnnouncementCreateOrConnectWithoutCreatorInput = {
+  where: Prisma.AnnouncementWhereUniqueInput
+  create: Prisma.XOR<Prisma.AnnouncementCreateWithoutCreatorInput, Prisma.AnnouncementUncheckedCreateWithoutCreatorInput>
+}
+
+export type AnnouncementCreateManyCreatorInputEnvelope = {
+  data: Prisma.AnnouncementCreateManyCreatorInput | Prisma.AnnouncementCreateManyCreatorInput[]
+  skipDuplicates?: boolean
+}
+
+export type AnnouncementUpsertWithWhereUniqueWithoutCreatorInput = {
+  where: Prisma.AnnouncementWhereUniqueInput
+  update: Prisma.XOR<Prisma.AnnouncementUpdateWithoutCreatorInput, Prisma.AnnouncementUncheckedUpdateWithoutCreatorInput>
+  create: Prisma.XOR<Prisma.AnnouncementCreateWithoutCreatorInput, Prisma.AnnouncementUncheckedCreateWithoutCreatorInput>
+}
+
+export type AnnouncementUpdateWithWhereUniqueWithoutCreatorInput = {
+  where: Prisma.AnnouncementWhereUniqueInput
+  data: Prisma.XOR<Prisma.AnnouncementUpdateWithoutCreatorInput, Prisma.AnnouncementUncheckedUpdateWithoutCreatorInput>
+}
+
+export type AnnouncementUpdateManyWithWhereWithoutCreatorInput = {
+  where: Prisma.AnnouncementScalarWhereInput
+  data: Prisma.XOR<Prisma.AnnouncementUpdateManyMutationInput, Prisma.AnnouncementUncheckedUpdateManyWithoutCreatorInput>
+}
+
+export type AnnouncementScalarWhereInput = {
+  AND?: Prisma.AnnouncementScalarWhereInput | Prisma.AnnouncementScalarWhereInput[]
+  OR?: Prisma.AnnouncementScalarWhereInput[]
+  NOT?: Prisma.AnnouncementScalarWhereInput | Prisma.AnnouncementScalarWhereInput[]
+  id?: Prisma.StringFilter<"Announcement"> | string
+  title?: Prisma.StringFilter<"Announcement"> | string
+  description?: Prisma.StringFilter<"Announcement"> | string
+  targetAudience?: Prisma.StringFilter<"Announcement"> | string
+  audience?: Prisma.StringNullableFilter<"Announcement"> | string | null
+  createdBy?: Prisma.StringNullableFilter<"Announcement"> | string | null
+  createdAt?: Prisma.DateTimeFilter<"Announcement"> | Date | string
+}
+
+export type AnnouncementCreateManyCreatorInput = {
+  id?: string
+  title: string
+  description: string
+  targetAudience: string
+  audience?: string | null
+  createdAt?: Date | string
+}
+
+export type AnnouncementUpdateWithoutCreatorInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  targetAudience?: Prisma.StringFieldUpdateOperationsInput | string
+  audience?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type AnnouncementUncheckedUpdateWithoutCreatorInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  targetAudience?: Prisma.StringFieldUpdateOperationsInput | string
+  audience?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type AnnouncementUncheckedUpdateManyWithoutCreatorInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  targetAudience?: Prisma.StringFieldUpdateOperationsInput | string
+  audience?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -312,7 +503,10 @@ export type AnnouncementSelect<ExtArgs extends runtime.Types.Extensions.Internal
   title?: boolean
   description?: boolean
   targetAudience?: boolean
+  audience?: boolean
+  createdBy?: boolean
   createdAt?: boolean
+  creator?: boolean | Prisma.Announcement$creatorArgs<ExtArgs>
 }, ExtArgs["result"]["announcement"]>
 
 export type AnnouncementSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -320,7 +514,10 @@ export type AnnouncementSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
   title?: boolean
   description?: boolean
   targetAudience?: boolean
+  audience?: boolean
+  createdBy?: boolean
   createdAt?: boolean
+  creator?: boolean | Prisma.Announcement$creatorArgs<ExtArgs>
 }, ExtArgs["result"]["announcement"]>
 
 export type AnnouncementSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -328,7 +525,10 @@ export type AnnouncementSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
   title?: boolean
   description?: boolean
   targetAudience?: boolean
+  audience?: boolean
+  createdBy?: boolean
   createdAt?: boolean
+  creator?: boolean | Prisma.Announcement$creatorArgs<ExtArgs>
 }, ExtArgs["result"]["announcement"]>
 
 export type AnnouncementSelectScalar = {
@@ -336,19 +536,34 @@ export type AnnouncementSelectScalar = {
   title?: boolean
   description?: boolean
   targetAudience?: boolean
+  audience?: boolean
+  createdBy?: boolean
   createdAt?: boolean
 }
 
-export type AnnouncementOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "description" | "targetAudience" | "createdAt", ExtArgs["result"]["announcement"]>
+export type AnnouncementOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "description" | "targetAudience" | "audience" | "createdBy" | "createdAt", ExtArgs["result"]["announcement"]>
+export type AnnouncementInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  creator?: boolean | Prisma.Announcement$creatorArgs<ExtArgs>
+}
+export type AnnouncementIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  creator?: boolean | Prisma.Announcement$creatorArgs<ExtArgs>
+}
+export type AnnouncementIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  creator?: boolean | Prisma.Announcement$creatorArgs<ExtArgs>
+}
 
 export type $AnnouncementPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Announcement"
-  objects: {}
+  objects: {
+    creator: Prisma.$UserPayload<ExtArgs> | null
+  }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     title: string
     description: string
     targetAudience: string
+    audience: string | null
+    createdBy: string | null
     createdAt: Date
   }, ExtArgs["result"]["announcement"]>
   composites: {}
@@ -744,6 +959,7 @@ readonly fields: AnnouncementFieldRefs;
  */
 export interface Prisma__AnnouncementClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  creator<T extends Prisma.Announcement$creatorArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Announcement$creatorArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -777,6 +993,8 @@ export interface AnnouncementFieldRefs {
   readonly title: Prisma.FieldRef<"Announcement", 'String'>
   readonly description: Prisma.FieldRef<"Announcement", 'String'>
   readonly targetAudience: Prisma.FieldRef<"Announcement", 'String'>
+  readonly audience: Prisma.FieldRef<"Announcement", 'String'>
+  readonly createdBy: Prisma.FieldRef<"Announcement", 'String'>
   readonly createdAt: Prisma.FieldRef<"Announcement", 'DateTime'>
 }
     
@@ -794,6 +1012,10 @@ export type AnnouncementFindUniqueArgs<ExtArgs extends runtime.Types.Extensions.
    * Omit specific fields from the Announcement
    */
   omit?: Prisma.AnnouncementOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AnnouncementInclude<ExtArgs> | null
   /**
    * Filter, which Announcement to fetch.
    */
@@ -813,6 +1035,10 @@ export type AnnouncementFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Exte
    */
   omit?: Prisma.AnnouncementOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AnnouncementInclude<ExtArgs> | null
+  /**
    * Filter, which Announcement to fetch.
    */
   where: Prisma.AnnouncementWhereUniqueInput
@@ -830,6 +1056,10 @@ export type AnnouncementFindFirstArgs<ExtArgs extends runtime.Types.Extensions.I
    * Omit specific fields from the Announcement
    */
   omit?: Prisma.AnnouncementOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AnnouncementInclude<ExtArgs> | null
   /**
    * Filter, which Announcement to fetch.
    */
@@ -879,6 +1109,10 @@ export type AnnouncementFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Exten
    */
   omit?: Prisma.AnnouncementOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AnnouncementInclude<ExtArgs> | null
+  /**
    * Filter, which Announcement to fetch.
    */
   where?: Prisma.AnnouncementWhereInput
@@ -926,6 +1160,10 @@ export type AnnouncementFindManyArgs<ExtArgs extends runtime.Types.Extensions.In
    * Omit specific fields from the Announcement
    */
   omit?: Prisma.AnnouncementOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AnnouncementInclude<ExtArgs> | null
   /**
    * Filter, which Announcements to fetch.
    */
@@ -975,6 +1213,10 @@ export type AnnouncementCreateArgs<ExtArgs extends runtime.Types.Extensions.Inte
    */
   omit?: Prisma.AnnouncementOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AnnouncementInclude<ExtArgs> | null
+  /**
    * The data needed to create a Announcement.
    */
   data: Prisma.XOR<Prisma.AnnouncementCreateInput, Prisma.AnnouncementUncheckedCreateInput>
@@ -1008,6 +1250,10 @@ export type AnnouncementCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Ex
    */
   data: Prisma.AnnouncementCreateManyInput | Prisma.AnnouncementCreateManyInput[]
   skipDuplicates?: boolean
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AnnouncementIncludeCreateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1022,6 +1268,10 @@ export type AnnouncementUpdateArgs<ExtArgs extends runtime.Types.Extensions.Inte
    * Omit specific fields from the Announcement
    */
   omit?: Prisma.AnnouncementOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AnnouncementInclude<ExtArgs> | null
   /**
    * The data needed to update a Announcement.
    */
@@ -1074,6 +1324,10 @@ export type AnnouncementUpdateManyAndReturnArgs<ExtArgs extends runtime.Types.Ex
    * Limit how many Announcements to update.
    */
   limit?: number
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AnnouncementIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1088,6 +1342,10 @@ export type AnnouncementUpsertArgs<ExtArgs extends runtime.Types.Extensions.Inte
    * Omit specific fields from the Announcement
    */
   omit?: Prisma.AnnouncementOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AnnouncementInclude<ExtArgs> | null
   /**
    * The filter to search for the Announcement to update in case it exists.
    */
@@ -1115,6 +1373,10 @@ export type AnnouncementDeleteArgs<ExtArgs extends runtime.Types.Extensions.Inte
    */
   omit?: Prisma.AnnouncementOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AnnouncementInclude<ExtArgs> | null
+  /**
    * Filter which Announcement to delete.
    */
   where: Prisma.AnnouncementWhereUniqueInput
@@ -1135,6 +1397,25 @@ export type AnnouncementDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.
 }
 
 /**
+ * Announcement.creator
+ */
+export type Announcement$creatorArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the User
+   */
+  select?: Prisma.UserSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the User
+   */
+  omit?: Prisma.UserOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserInclude<ExtArgs> | null
+  where?: Prisma.UserWhereInput
+}
+
+/**
  * Announcement without action
  */
 export type AnnouncementDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1146,4 +1427,8 @@ export type AnnouncementDefaultArgs<ExtArgs extends runtime.Types.Extensions.Int
    * Omit specific fields from the Announcement
    */
   omit?: Prisma.AnnouncementOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AnnouncementInclude<ExtArgs> | null
 }

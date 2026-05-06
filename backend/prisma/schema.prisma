@@ -84,6 +84,11 @@ model User {
   subscriptions Subscription[] @relation("SubscriptionUser")
   feeInstallments FeeInstallment[] @relation("FeeInstallmentStudent")
   invoices Invoice[] @relation("InvoiceStudent")
+  notifications Notification[] @relation("NotificationUser")
+  messageThreads MessageThread[] @relation("MessageThreadCreator")
+  sentMessages Message[] @relation("MessageSender")
+  receivedMessages Message[] @relation("MessageReceiver")
+  communicationAnnouncements Announcement[] @relation("AnnouncementCreator")
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 }
@@ -455,7 +460,13 @@ model Announcement {
   title          String
   description    String
   targetAudience String
+  audience       String?
+  createdBy      String?
+  creator        User?    @relation("AnnouncementCreator", fields: [createdBy], references: [id], onDelete: SetNull)
   createdAt      DateTime @default(now())
+
+  @@index([createdBy])
+  @@index([targetAudience])
 }
 
 model Hostel {
@@ -710,5 +721,76 @@ model Invoice {
   student       User     @relation("InvoiceStudent", fields: [studentId], references: [id], onDelete: Cascade)
 
   @@index([studentId])
+  @@index([status])
+}
+
+model Notification {
+  id         String   @id @default(cuid())
+  title      String
+  message    String
+  type       String
+  targetRole String?
+  isRead     Boolean  @default(false)
+  userId     String?
+  createdAt  DateTime @default(now())
+  user       User?    @relation("NotificationUser", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([targetRole])
+  @@index([isRead])
+  @@index([createdAt])
+}
+
+model MessageThread {
+  id        String   @id @default(cuid())
+  subject   String
+  createdBy String
+  createdAt DateTime @default(now())
+  creator   User     @relation("MessageThreadCreator", fields: [createdBy], references: [id], onDelete: Cascade)
+  messages  Message[]
+
+  @@index([createdBy])
+  @@index([createdAt])
+}
+
+model Message {
+  id            String   @id @default(cuid())
+  threadId      String
+  senderId      String
+  receiverId    String
+  message       String
+  attachmentUrl String?
+  createdAt     DateTime @default(now())
+  thread        MessageThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  sender        User     @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver      User     @relation("MessageReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  @@index([threadId])
+  @@index([senderId])
+  @@index([receiverId])
+  @@index([createdAt])
+}
+
+model EmailLog {
+  id        String   @id @default(cuid())
+  recipient String
+  subject   String
+  status    String
+  sentAt    DateTime @default(now())
+
+  @@index([recipient])
+  @@index([status])
+  @@index([sentAt])
+}
+
+model PushNotification {
+  id             String   @id @default(cuid())
+  title          String
+  body           String
+  targetAudience String
+  status         String
+  createdAt      DateTime @default(now())
+
+  @@index([targetAudience])
   @@index([status])
 }

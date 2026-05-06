@@ -94,7 +94,12 @@ export const ModelName = {
   Payment: 'Payment',
   Subscription: 'Subscription',
   FeeInstallment: 'FeeInstallment',
-  Invoice: 'Invoice'
+  Invoice: 'Invoice',
+  Notification: 'Notification',
+  MessageThread: 'MessageThread',
+  Message: 'Message',
+  EmailLog: 'EmailLog',
+  PushNotification: 'PushNotification'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -490,6 +495,8 @@ export const AnnouncementScalarFieldEnum = {
   title: 'title',
   description: 'description',
   targetAudience: 'targetAudience',
+  audience: 'audience',
+  createdBy: 'createdBy',
   createdAt: 'createdAt'
 } as const
 
@@ -715,6 +722,66 @@ export const InvoiceScalarFieldEnum = {
 } as const
 
 export type InvoiceScalarFieldEnum = (typeof InvoiceScalarFieldEnum)[keyof typeof InvoiceScalarFieldEnum]
+
+
+export const NotificationScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  message: 'message',
+  type: 'type',
+  targetRole: 'targetRole',
+  isRead: 'isRead',
+  userId: 'userId',
+  createdAt: 'createdAt'
+} as const
+
+export type NotificationScalarFieldEnum = (typeof NotificationScalarFieldEnum)[keyof typeof NotificationScalarFieldEnum]
+
+
+export const MessageThreadScalarFieldEnum = {
+  id: 'id',
+  subject: 'subject',
+  createdBy: 'createdBy',
+  createdAt: 'createdAt'
+} as const
+
+export type MessageThreadScalarFieldEnum = (typeof MessageThreadScalarFieldEnum)[keyof typeof MessageThreadScalarFieldEnum]
+
+
+export const MessageScalarFieldEnum = {
+  id: 'id',
+  threadId: 'threadId',
+  senderId: 'senderId',
+  receiverId: 'receiverId',
+  message: 'message',
+  attachmentUrl: 'attachmentUrl',
+  createdAt: 'createdAt'
+} as const
+
+export type MessageScalarFieldEnum = (typeof MessageScalarFieldEnum)[keyof typeof MessageScalarFieldEnum]
+
+
+export const EmailLogScalarFieldEnum = {
+  id: 'id',
+  recipient: 'recipient',
+  subject: 'subject',
+  status: 'status',
+  sentAt: 'sentAt'
+} as const
+
+export type EmailLogScalarFieldEnum = (typeof EmailLogScalarFieldEnum)[keyof typeof EmailLogScalarFieldEnum]
+
+
+export const PushNotificationScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  body: 'body',
+  targetAudience: 'targetAudience',
+  status: 'status',
+  createdAt: 'createdAt'
+} as const
+
+export type PushNotificationScalarFieldEnum = (typeof PushNotificationScalarFieldEnum)[keyof typeof PushNotificationScalarFieldEnum]
 
 
 export const SortOrder = {

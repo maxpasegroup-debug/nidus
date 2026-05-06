@@ -237,3 +237,28 @@ export type FeeInstallment = Prisma.FeeInstallmentModel
  * 
  */
 export type Invoice = Prisma.InvoiceModel
+/**
+ * Model Notification
+ * 
+ */
+export type Notification = Prisma.NotificationModel
+/**
+ * Model MessageThread
+ * 
+ */
+export type MessageThread = Prisma.MessageThreadModel
+/**
+ * Model Message
+ * 
+ */
+export type Message = Prisma.MessageModel
+/**
+ * Model EmailLog
+ * 
+ */
+export type EmailLog = Prisma.EmailLogModel
+/**
+ * Model PushNotification
+ * 
+ */
+export type PushNotification = Prisma.PushNotificationModel
