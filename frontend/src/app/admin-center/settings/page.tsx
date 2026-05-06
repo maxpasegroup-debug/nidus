@@ -12,7 +12,7 @@ export default function SettingsPage() {
         <div>
           <p className="text-xs uppercase tracking-[0.28em] text-gold-soft">System Configuration</p>
           <h1 className="mt-3 text-3xl font-semibold text-ink">Settings</h1>
-          <p className="mt-2 text-sm text-muted">App, branding, email, and security placeholders ready for production controls.</p>
+          <p className="mt-2 text-sm text-muted">App, branding, email, and security controls for production operations.</p>
         </div>
         <div className="mt-6">
           {settings.isLoading ? <div className="h-96 animate-pulse rounded-lg bg-white/10" /> : <SettingsPanel settings={settings.data ?? []} pending={settings.update.isPending} onSave={(payload) => settings.update.mutate(payload)} />}

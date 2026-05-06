@@ -17,6 +17,7 @@ import { fitnessRouter } from "./fitness/fitness.routes.js";
 import { currentAffairsRouter, leaderboardRouter, pyqRouter, quizBattlesRouter } from "./learning-hub/learning-hub.routes.js";
 import { documentsRouter, mediaRouter } from "./media/media.routes.js";
 import { adminCenterRouter } from "./admin-center/admin-center.routes.js";
+import { systemRouter } from "./system/system.routes.js";
 import { protect, allowRoles } from "./auth/auth.middleware.js";
 import { Role } from "../generated/prisma/client.js";
 import { coursesController } from "./courses/courses.controller.js";
@@ -24,8 +25,13 @@ import { coursesController } from "./courses/courses.controller.js";
 export const apiRouter = Router();
 
 apiRouter.get("/health", (_req, res) => {
-  res.send("Server running");
+  res.json({
+    status: "ok",
+    service: "nidus-backend",
+    timestamp: new Date().toISOString()
+  });
 });
+apiRouter.use("/system", systemRouter);
 
 apiRouter.use("/auth", authRouter);
 apiRouter.use("/courses", coursesRouter);

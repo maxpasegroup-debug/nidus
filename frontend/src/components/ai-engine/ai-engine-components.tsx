@@ -10,7 +10,7 @@ export function AISkeleton() {
   return <div className="grid gap-4 md:grid-cols-3">{[0, 1, 2].map((item) => <div key={item} className="h-36 animate-pulse rounded-lg border border-gold/10 bg-white/8" />)}</div>;
 }
 
-export function AIInterviewerCard({ title = "AI Interviewing Officer", note = "Voice interaction placeholder armed" }: { title?: string; note?: string }) {
+export function AIInterviewerCard({ title = "AI Interviewing Officer", note = "Voice interaction channel armed" }: { title?: string; note?: string }) {
   return <Card className="relative overflow-hidden p-6"><div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(201,166,70,0.22),transparent_55%)]" /><div className="relative flex items-center gap-4"><div className="grid h-14 w-14 place-items-center rounded-full border border-gold/40 bg-gold/10"><Bot className="h-7 w-7 text-gold" /></div><div><h3 className="text-xl font-black text-white">{title}</h3><p className="mt-1 text-sm text-muted">{note}</p></div></div><div className="relative mt-6 h-2 rounded-full bg-white/10"><motion.div className="h-2 rounded-full bg-gold" animate={{ width: ["20%", "80%", "45%"] }} transition={{ repeat: Infinity, duration: 3 }} /></div></Card>;
 }
 

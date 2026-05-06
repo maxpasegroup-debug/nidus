@@ -13,6 +13,7 @@ import {
   StatCard
 } from "@/components/dashboard";
 import { Button } from "@/components/ui/button";
+import { PageHero } from "@/components/layout/page-hero";
 import { useGuestDashboard } from "@/hooks/use-dashboard";
 
 export default function GuestDashboardPage() {
@@ -37,18 +38,17 @@ export default function GuestDashboardPage() {
   return (
     <RoleDashboardGuard role="GUEST">
     <motion.div className="space-y-8" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-      <section className="rounded-lg border border-gold/20 bg-gradient-to-br from-white/10 to-white/[0.04] p-6 backdrop-blur-xl">
-        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-gold">Guest Access</p>
-        <h1 className="mt-3 text-3xl font-semibold text-white sm:text-5xl">
-          Explore NIDUS training pathways
-        </h1>
-        <p className="mt-3 max-w-3xl text-sm leading-7 text-muted">
-          Preview defence exam courses, demo videos, free mock tests, announcements, and upgrade options.
-        </p>
-        <Button type="button" onClick={() => refetch()} disabled={isFetching} variant="secondary" className="mt-5">
-          {isFetching ? "Refreshing..." : "Refresh dashboard"}
-        </Button>
-      </section>
+      <PageHero
+        eyebrow="Guest Access"
+        title="Explore NIDUS training pathways"
+        description="Preview defence exam courses, demo videos, free mock tests, announcements, and upgrade options before joining the full command environment."
+        actions={<Button type="button" onClick={() => refetch()} disabled={isFetching} variant="secondary">{isFetching ? "Refreshing..." : "Refresh dashboard"}</Button>}
+        stats={[
+          { value: String(data.featuredCourses.length), label: "featured courses" },
+          { value: String(data.freeTests.length), label: "free mocks" },
+          { value: String(data.latestNews.length), label: "latest briefs" }
+        ]}
+      />
 
       <section className="grid gap-4 md:grid-cols-3">
         <StatCard label="Featured Courses" value={String(data.featuredCourses.length)} note={data.featuredCourses[0]?.title ?? "No featured courses"} />
@@ -70,9 +70,9 @@ export default function GuestDashboardPage() {
       </section>
 
       <section className="grid gap-4 md:grid-cols-3">
-        <QuickActionCard title="Try free mock test" description="Start a sample test without unlocking the full course." href="/dashboard/guest" />
-        <QuickActionCard title="Explore course catalog" description="Compare preparation tracks and batch formats." href="/dashboard/guest" />
-        <QuickActionCard title="Request counselling" description="Book a discovery call before upgrading." href="/dashboard/guest" />
+        <QuickActionCard title="Try free mock test" description="Start a sample test without unlocking the full course." href="/tests" />
+        <QuickActionCard title="Explore course catalog" description="Compare preparation tracks and batch formats." href="/courses" />
+        <QuickActionCard title="Request counselling" description="Book a discovery call before upgrading." href="/crm/counselling" />
       </section>
 
       {data.featuredCourses.length === 0 ? (

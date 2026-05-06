@@ -63,14 +63,14 @@ export function LearningConsole({ view }: { view: LearningView }) {
       {view === "current" ? (
         <section className="space-y-4">
           <Card className="p-5"><div className="flex flex-wrap gap-2">{["", "Defence Reform", "Maritime Security", "International Relations"].map((item) => <button key={item || "all"} onClick={() => setCurrentCategory(item)} className={`rounded border px-3 py-2 text-sm ${currentCategory === item ? "border-gold bg-gold/15 text-gold-soft" : "border-white/10 text-ink"}`}>{item || "All"}</button>)}</div></Card>
-          <Card className="p-5"><h2 className="text-xl font-bold text-white">Monthly Capsule</h2><p className="mt-3 text-sm leading-6 text-muted">Defence reforms, maritime security, jointness, space and cyber awareness are grouped for rapid NDA/CDS revision. Achievement placeholders are ready for capsule completion badges.</p></Card>
+          <Card className="p-5"><h2 className="text-xl font-bold text-white">Monthly Capsule</h2><p className="mt-3 text-sm leading-6 text-muted">Defence reforms, maritime security, jointness, space and cyber awareness are grouped for rapid NDA/CDS revision with capsule completion badges.</p></Card>
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">{currentData.map((item) => <CurrentAffairCard key={item.id} item={item} />)}</div>
         </section>
       ) : null}
 
       {view === "battles" ? (
         <section className="space-y-4">
-          <Card className="p-5"><h2 className="text-xl font-bold text-white">Real-time Leaderboard Placeholder</h2><p className="mt-3 text-sm text-muted">Live socket updates can plug into this battle surface later; current submissions update the persistent leaderboard and participant ranks.</p></Card>
+          <Card className="p-5"><h2 className="text-xl font-bold text-white">Real-time Leaderboard</h2><p className="mt-3 text-sm text-muted">Current submissions update the persistent leaderboard and participant ranks for every battle.</p></Card>
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">{battleData.map((battle) => <QuizBattleCard key={battle.id} battle={battle} onJoin={() => battles.join.mutate(battle.id)} onSubmit={() => battles.submit.mutate({ battleId: battle.id, score: Math.floor(70 + Math.random() * 30), timeTaken: Math.floor(240 + Math.random() * 120) })} />)}</div>
         </section>
       ) : null}

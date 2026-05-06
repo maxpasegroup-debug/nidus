@@ -1,110 +1,74 @@
 # NIDUS Defence Training Platform
 
-NIDUS is a full-stack defence training platform scaffold with an independent Next.js frontend and Node.js/Express backend.
+NIDUS is a production-ready defence training platform with a Next.js PWA frontend, Express API backend, Prisma, PostgreSQL, and Railway deployment support.
 
-## Project Structure
+## Stack
 
-```text
-nidus-platform/
-  frontend/
-    public/
-      icons/
-      manifest.webmanifest
-      sw.js
-    src/
-      app/
-      components/
-      hooks/
-      pages/
-      services/
-      types/
-    package.json
-  backend/
-    prisma/
-      schema.prisma
-    src/
-      config/
-      modules/
-        auth/
-        users/
-        courses/
-      shared/
-      server.ts
-    package.json
-```
+- Frontend: Next.js, React Query, Framer Motion, Recharts, PWA service worker
+- Backend: Express, Prisma, PostgreSQL, JWT auth, Cloudinary, Razorpay, Brevo
+- Production: Helmet, CORS, rate limiting, compression, Morgan logging, centralized errors, health checks
 
-## Prerequisites
-
-- Node.js 20+
-- npm 10+
-- PostgreSQL database, such as Railway PostgreSQL
-
-## Initial Setup Commands
+## Local Setup
 
 ```bash
-cd nidus-platform
 npm install
-```
-
-Create environment files:
-
-```bash
-cp frontend/.env.example frontend/.env.local
 cp backend/.env.example backend/.env
+cp frontend/.env.example frontend/.env
+npm run prisma:migrate:deploy
+npm run dev:backend
+npm run dev:frontend
 ```
 
-Generate the Prisma client:
+Frontend: `http://localhost:3000`
+
+Backend: `http://localhost:5000/api`
+
+## Production Build
 
 ```bash
-npm run prisma:generate --workspace backend
-```
-
-Push the schema to your PostgreSQL database:
-
-```bash
-npm run prisma:push --workspace backend
-```
-
-## Run Frontend
-
-```bash
-cd nidus-platform/frontend
-npm run dev
-```
-
-Frontend runs at `http://localhost:3000`.
-
-## Run Backend
-
-```bash
-cd nidus-platform/backend
-npm run dev
-```
-
-Backend runs at `http://localhost:4000`.
-
-## Build
-
-Build both apps from the root:
-
-```bash
-cd nidus-platform
 npm run build
+npm run start:backend
+npm run start:frontend
 ```
 
-Or build independently:
+## Health Checks
+
+- `GET /api/health`
+- `GET /api/system/status`
+
+## Key Environment Variables
+
+Backend:
 
 ```bash
-cd nidus-platform/frontend
-npm run build
-
-cd ../backend
-npm run build
+DATABASE_URL=
+JWT_SECRET=
+NODE_ENV=production
+PORT=5000
+CORS_ORIGIN=
+OPENAI_API_KEY=
+RAZORPAY_KEY_ID=
+RAZORPAY_KEY_SECRET=
+BREVO_API_KEY=
+BREVO_SENDER_EMAIL=
+CLOUDINARY_CLOUD_NAME=
+CLOUDINARY_API_KEY=
+CLOUDINARY_API_SECRET=
+MAINTENANCE_MODE=false
+REDIS_URL=
 ```
 
-## Environment Variables
+Frontend:
 
-Frontend uses `NEXT_PUBLIC_API_URL` to call the backend.
+```bash
+NEXT_PUBLIC_API_URL=
+NEXT_PUBLIC_MAINTENANCE_MODE=false
+```
 
-Backend uses `DATABASE_URL`, `JWT_SECRET`, `PORT`, `CORS_ORIGIN`, and `NODE_ENV`.
+## Railway
 
+See [DEPLOYMENT.md](./DEPLOYMENT.md) for Railway service setup, environment variables, health checks, and backup commands.
+
+## Production QA
+
+See [PRODUCTION_CHECKLIST.md](./PRODUCTION_CHECKLIST.md) for release gates, security checks, PWA checks, and demo account placeholders.

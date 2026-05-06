@@ -3,6 +3,7 @@ import "./globals.css";
 import { AppShell } from "@/components/layout/app-shell";
 import { AppProviders } from "@/components/providers/app-providers";
 import { PwaRegistration } from "@/components/pwa-registration";
+import { MaintenanceBanner } from "@/components/maintenance-banner";
 
 export const metadata: Metadata = {
   title: "NIDUS Defence Training Platform",
@@ -29,6 +30,7 @@ export default function RootLayout({
       <body>
         <AppProviders>
           <PwaRegistration />
+          <MaintenanceBanner />
           <AppShell>{children}</AppShell>
         </AppProviders>
       </body>

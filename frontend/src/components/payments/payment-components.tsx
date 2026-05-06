@@ -42,7 +42,7 @@ export function FeeInstallmentCard({ fee, onPay }: { fee: FeeInstallment; onPay?
 }
 
 export function InvoiceCard({ invoice }: { invoice: Invoice }) {
-  return <Card className="p-5"><div className="flex items-start justify-between gap-3"><div><h3 className="font-bold text-white">{invoice.invoiceNumber}</h3><p className="text-sm text-muted">{invoice.student?.name ?? invoice.studentId}</p></div><Receipt className="h-5 w-5 text-gold" /></div><p className="mt-4 text-2xl font-black text-gold">Rs {invoice.amount.toLocaleString()}</p><div className="mt-3 flex items-center justify-between gap-3"><PaymentStatusBadge status={invoice.status} /><button className="text-sm text-gold">PDF placeholder</button></div></Card>;
+  return <Card className="p-5"><div className="flex items-start justify-between gap-3"><div><h3 className="font-bold text-white">{invoice.invoiceNumber}</h3><p className="text-sm text-muted">{invoice.student?.name ?? invoice.studentId}</p></div><Receipt className="h-5 w-5 text-gold" /></div><p className="mt-4 text-2xl font-black text-gold">Rs {invoice.amount.toLocaleString()}</p><div className="mt-3 flex items-center justify-between gap-3"><PaymentStatusBadge status={invoice.status} /><button className="text-sm text-gold">View PDF</button></div></Card>;
 }
 
 export function RevenueChart({ data, title }: { data: Array<Record<string, string | number>>; title: string }) {

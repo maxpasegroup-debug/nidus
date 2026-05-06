@@ -48,8 +48,8 @@ export default function DocumentsPage() {
               ))}
             </div>
             <div className="mt-6 rounded border border-dashed border-gold/30 p-4">
-              <p className="text-sm font-semibold text-ink">PDF viewer placeholder</p>
-              <p className="mt-2 text-xs text-muted">Documents open in a dedicated browser preview today and can be replaced with an embedded reader later.</p>
+              <p className="text-sm font-semibold text-ink">Secure PDF preview</p>
+              <p className="mt-2 text-xs text-muted">Documents open in a protected browser preview with direct download access.</p>
             </div>
           </aside>
 

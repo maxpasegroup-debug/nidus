@@ -16,6 +16,7 @@ import {
   StatCard
 } from "@/components/dashboard";
 import { PerformanceChart } from "@/components/charts/performance-chart";
+import { PageHero } from "@/components/layout/page-hero";
 import { useAuth } from "@/components/providers/auth-provider";
 import { Button } from "@/components/ui/button";
 import { useStudentDashboard } from "@/hooks/use-dashboard";
@@ -49,20 +50,17 @@ export default function StudentDashboardPage() {
   return (
     <RoleDashboardGuard role="STUDENT">
     <motion.div className="space-y-8" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-      <section className="rounded-lg border border-gold/20 bg-gradient-to-br from-white/10 to-white/[0.04] p-6 shadow-[0_24px_90px_rgba(0,0,0,0.32)] backdrop-blur-xl">
-        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-gold">
-          Student Command Deck
-        </p>
-        <h1 className="mt-3 text-3xl font-semibold text-white sm:text-5xl">
-          Welcome back, {user?.name ?? "cadet"}
-        </h1>
-        <p className="mt-3 max-w-3xl text-sm leading-7 text-muted">
-          Your daily study plan, performance signals, attendance, tests, and AI recommendations are aligned for today.
-        </p>
-        <Button type="button" onClick={() => refetch()} disabled={isFetching} variant="secondary" className="mt-5">
-          {isFetching ? "Refreshing..." : "Refresh dashboard"}
-        </Button>
-      </section>
+      <PageHero
+        eyebrow="Student Command Deck"
+        title={`Welcome back, ${user?.name ?? "cadet"}`}
+        description="Your daily study plan, performance signals, attendance, tests, and AI recommendations are aligned for today's training cycle."
+        actions={<Button type="button" onClick={() => refetch()} disabled={isFetching} variant="secondary">{isFetching ? "Refreshing..." : "Refresh dashboard"}</Button>}
+        stats={[
+          { value: String(data.enrolledCourses.length), label: "enrolled courses" },
+          { value: `${data.attendance.percentage}%`, label: "attendance readiness" },
+          { value: `#${data.leaderboardRank.rank}`, label: "leaderboard rank" }
+        ]}
+      />
 
       <section className="grid gap-4 md:grid-cols-3">
         <StatCard label="Enrolled Courses" value={String(data.enrolledCourses.length)} note={data.enrolledCourses[0]?.nextLesson ?? "No active courses"} />
@@ -90,9 +88,9 @@ export default function StudentDashboardPage() {
 
       <SectionHeader eyebrow="Quick Actions" title="Move fast through your study loop" />
       <section className="grid gap-4 md:grid-cols-3">
-        <QuickActionCard title="Start mock test" description="Launch the next NDA timed assessment." href="/dashboard/student" />
-        <QuickActionCard title="Open study planner" description="Review today's academic and fitness targets." href="/dashboard/student" />
-        <QuickActionCard title="View leaderboard" description="Compare quiz momentum with your batch." href="/dashboard/student" />
+        <QuickActionCard title="Start mock test" description="Launch the next NDA timed assessment." href="/tests" />
+        <QuickActionCard title="Open study planner" description="Review today's academic and fitness targets." href="/ai-study-planner" />
+        <QuickActionCard title="View leaderboard" description="Compare quiz momentum with your batch." href="/leaderboard" />
       </section>
 
       {data.enrolledCourses.length === 0 ? (

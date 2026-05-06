@@ -1,5 +1,5 @@
-const CACHE_NAME = "nidus-shell-v1";
-const STATIC_ASSETS = ["/", "/manifest.webmanifest"];
+const CACHE_NAME = "nidus-shell-v2";
+const STATIC_ASSETS = ["/", "/offline", "/manifest.webmanifest", "/icons/icon-192.svg", "/icons/icon-512.svg"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -20,14 +20,20 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  event.respondWith(
-    caches.match(event.request).then((cached) => {
-      if (cached) {
-        return cached;
-      }
+  const requestUrl = new URL(event.request.url);
 
-      return fetch(event.request).catch(() => caches.match("/"));
-    })
+  if (requestUrl.pathname.startsWith("/api")) {
+    event.respondWith(fetch(event.request).catch(() => new Response(JSON.stringify({ message: "Offline" }), { status: 503, headers: { "Content-Type": "application/json" } })));
+    return;
+  }
+
+  event.respondWith(
+    fetch(event.request)
+      .then((response) => {
+        const clone = response.clone();
+        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+        return response;
+      })
+      .catch(() => caches.match(event.request).then((cached) => cached || caches.match("/offline") || caches.match("/")))
   );
 });
-

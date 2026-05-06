@@ -40,7 +40,7 @@ export default function OLQReportPage() {
     <div className="space-y-6">
       <SectionHeader eyebrow="OLQ Dashboard" title="Officer readiness report" action={`${data.insights.officerReadinessScore}% readiness`} />
       <RadarChart data={chartData} />
-      <AnalysisCard title="AI assessment placeholder" body={data.insights.summary} />
+      <AnalysisCard title="AI assessment summary" body={data.insights.summary} />
       <section className="grid gap-4 lg:grid-cols-2">
         {chartData.map((item) => <OLQProgressBar key={item.trait} label={item.trait} value={item.value} />)}
       </section>

@@ -15,7 +15,7 @@ export function DocumentCard({ document }: { document: DocumentItem }) {
         <span className="rounded border border-gold/30 px-3 py-1 text-xs text-gold-soft">{document.category}</span>
       </div>
       <h3 className="mt-5 text-base font-semibold text-ink">{document.title}</h3>
-      <p className="mt-2 line-clamp-2 min-h-10 text-sm text-muted">{document.description || "PDF viewer placeholder ready for this secure document."}</p>
+      <p className="mt-2 line-clamp-2 min-h-10 text-sm text-muted">{document.description || "Secure academy document ready for review."}</p>
       <div className="mt-5 flex items-center justify-between gap-3 border-t border-white/10 pt-4">
         <div className="flex items-center gap-2 text-xs text-muted">
           <ShieldCheck className="h-4 w-4 text-emerald-200" />

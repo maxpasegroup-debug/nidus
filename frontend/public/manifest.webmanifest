@@ -3,10 +3,16 @@
   "short_name": "NIDUS",
   "description": "Defence training, readiness, and course management platform.",
   "start_url": "/",
+  "scope": "/",
+  "id": "/",
   "display": "standalone",
   "background_color": "#06111f",
   "theme_color": "#0B1F3A",
   "orientation": "portrait-primary",
+  "categories": ["education", "productivity", "business"],
+  "lang": "en-IN",
+  "dir": "ltr",
+  "screenshots": [],
   "icons": [
     {
       "src": "/icons/icon-192.svg",

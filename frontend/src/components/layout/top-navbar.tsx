@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/components/providers/auth-provider";
+import { Bell, ChevronDown } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -30,7 +31,7 @@ export function TopNavbar() {
             className="relative grid h-10 w-10 place-items-center rounded border border-white/10 bg-white/5 text-gold transition hover:border-gold/30 hover:bg-gold/10"
             aria-label="Notifications"
           >
-            !
+            <Bell className="h-4 w-4" />
             <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-gold shadow-[0_0_14px_rgba(201,166,70,0.9)]" />
           </button>
           {isAuthenticated ? (
@@ -44,6 +45,7 @@ export function TopNavbar() {
                   {user?.name?.slice(0, 1).toUpperCase() ?? "N"}
                 </span>
                 <span className="hidden md:block">{user?.name}</span>
+                <ChevronDown className="h-4 w-4 text-muted" />
               </button>
               {isProfileOpen ? (
                 <div className="absolute right-0 mt-3 w-64 rounded-lg border border-white/10 bg-navy-deep/95 p-3 shadow-2xl backdrop-blur-xl">

@@ -15,6 +15,7 @@ import {
 } from "@/components/dashboard";
 import { PerformanceChart } from "@/components/charts/performance-chart";
 import { Button } from "@/components/ui/button";
+import { PageHero } from "@/components/layout/page-hero";
 import { useParentDashboard } from "@/hooks/use-dashboard";
 
 export default function ParentDashboardPage() {
@@ -45,12 +46,17 @@ export default function ParentDashboardPage() {
   return (
     <RoleDashboardGuard role="PARENT">
     <motion.div className="space-y-8" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-        <SectionHeader eyebrow="Parent Oversight" title="Student performance and wellbeing" action="Updated today" />
-        <Button type="button" onClick={() => refetch()} disabled={isFetching} variant="secondary">
-          {isFetching ? "Refreshing..." : "Refresh"}
-        </Button>
-      </div>
+      <PageHero
+        eyebrow="Parent Oversight"
+        title="Student performance and wellbeing"
+        description="A calm executive view of academics, attendance, discipline, fees, notifications, and counselling pathways."
+        actions={<Button type="button" onClick={() => refetch()} disabled={isFetching} variant="secondary">{isFetching ? "Refreshing..." : "Refresh"}</Button>}
+        stats={[
+          { value: `${data.studentPerformance.averageScore}%`, label: "performance" },
+          { value: `${data.attendance.percentage}%`, label: "attendance" },
+          { value: data.disciplineScore.grade, label: "discipline grade" }
+        ]}
+      />
 
       <section className="grid gap-4 md:grid-cols-4">
         <StatCard label="Performance" value={`${data.studentPerformance.averageScore}%`} note={`${data.studentPerformance.improvement}% improvement this month`} />
@@ -71,7 +77,7 @@ export default function ParentDashboardPage() {
       <section className="grid gap-4 lg:grid-cols-3">
         <ActivityTimeline title="Recent activity" items={data.notifications} />
         <AnnouncementCard title="Student" description={data.linkedStudent?.name ?? "No linked student found"} tag="Profile" />
-        <QuickActionCard title="Book counselling" description="Reserve a parent-counsellor review slot." href="/dashboard/parent" />
+        <QuickActionCard title="Book counselling" description="Reserve a parent-counsellor review slot." href="/crm/counselling" />
       </section>
     </motion.div>
     </RoleDashboardGuard>

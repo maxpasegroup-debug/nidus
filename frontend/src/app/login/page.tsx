@@ -1,10 +1,17 @@
 "use client";
 
+import Link from "next/link";
 import { useState, type FormEvent } from "react";
+import { BrainCircuit, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/components/providers/auth-provider";
+
+const demoAccounts = [
+  { role: "Admin", email: "admin.demo@nidus.local" },
+  { role: "Student", email: "student.demo@nidus.local" },
+  { role: "Parent", email: "parent.demo@nidus.local" }
+];
 
 export default function LoginPage() {
   const { login, isLoading } = useAuth();
@@ -14,6 +21,7 @@ export default function LoginPage() {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (!identifier.trim() || password.length < 8) return;
     setIsSubmitting(true);
 
     try {
@@ -24,48 +32,60 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="grid min-h-[calc(100vh-9rem)] items-center gap-8 lg:grid-cols-[1fr_460px]">
-      <section className="hidden lg:block">
-        <p className="text-sm font-semibold uppercase tracking-[0.24em] text-gold">
-          Secure Access
-        </p>
-        <h1 className="mt-5 max-w-2xl text-5xl font-semibold leading-tight text-white">
-          Authenticate into the NIDUS command environment.
-        </h1>
-        <p className="mt-5 max-w-xl text-base leading-7 text-muted">
-          A minimal officer login surface prepared for token-based backend authentication.
-        </p>
-      </section>
+    <main className="relative min-h-screen overflow-hidden px-4 pb-16 pt-28 sm:px-6 lg:px-8">
+      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(3,8,18,0.48),#030812_86%),url('https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=2200&q=80')] bg-cover bg-center opacity-70" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_20%,rgba(201,166,70,0.22),transparent_24rem),radial-gradient(circle_at_18%_40%,rgba(59,130,246,0.16),transparent_28rem)]" />
+      <div className="relative mx-auto grid min-h-[calc(100vh-10rem)] max-w-7xl gap-10 lg:grid-cols-[1fr_29rem] lg:items-center">
+        <section className="max-w-3xl">
+          <p className="text-xs font-semibold uppercase tracking-[0.3em] text-gold-soft">Secure Academy Access</p>
+          <h1 className="mt-5 text-4xl font-semibold leading-tight text-ink sm:text-6xl">Enter the NIDUS command environment.</h1>
+          <p className="mt-6 max-w-2xl text-base leading-8 text-muted">
+            One unified authentication system for students, parents, faculty, staff, administrators, and guests.
+          </p>
+          <div className="mt-8 grid gap-3 sm:grid-cols-3">
+            {["Encrypted token session", "Role-aware routing", "Audit-ready access"].map((item) => (
+              <div key={item} className="rounded border border-white/10 bg-white/7 p-4 text-sm text-muted backdrop-blur-xl">{item}</div>
+            ))}
+          </div>
+        </section>
 
-      <Card className="p-6 sm:p-8">
-        <div className="mb-8">
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-gold">NIDUS</p>
-          <h2 className="mt-3 text-3xl font-semibold text-white">Officer Login</h2>
-          <p className="mt-2 text-sm text-muted">Use your assigned credentials to continue.</p>
-        </div>
+        <section className="rounded-lg border border-gold/25 bg-white/[0.075] p-6 shadow-[0_40px_120px_rgba(0,0,0,0.42)] backdrop-blur-2xl sm:p-8">
+          <div className="mb-8 flex items-start justify-between gap-4">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-gold-soft">NIDUS</p>
+              <h2 className="mt-3 text-3xl font-semibold text-ink">Officer Login</h2>
+              <p className="mt-2 text-sm text-muted">Use your assigned credentials to continue.</p>
+            </div>
+            <div className="rounded-full border border-gold/30 bg-gold/10 p-3">
+              <BrainCircuit className="h-6 w-6 text-gold-soft" />
+            </div>
+          </div>
 
-        <form className="space-y-5" onSubmit={handleSubmit}>
-          <Input
-            label="Email or mobile"
-            type="text"
-            placeholder="officer@nidus.mil"
-            value={identifier}
-            onChange={(event) => setIdentifier(event.target.value)}
-            required
-          />
-          <Input
-            label="Password"
-            type="password"
-            placeholder="Enter secure password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            required
-          />
-          <Button type="submit" className="w-full" disabled={isSubmitting || isLoading}>
-            {isSubmitting ? "Authenticating..." : "Access Platform"}
-          </Button>
-        </form>
-      </Card>
-    </div>
+          <form className="space-y-5" onSubmit={handleSubmit}>
+            <Input label="Email or mobile" type="text" placeholder="officer@nidus.mil" value={identifier} onChange={(event) => setIdentifier(event.target.value)} required />
+            <Input label="Password" type="password" placeholder="Enter secure password" value={password} onChange={(event) => setPassword(event.target.value)} minLength={8} required />
+            <Button type="submit" className="w-full" disabled={isSubmitting || isLoading}>
+              {isSubmitting ? "Authenticating..." : "Access Platform"}
+            </Button>
+          </form>
+
+          <div className="mt-6 rounded border border-gold/20 bg-gold/10 p-4">
+            <div className="flex items-center gap-2 text-sm font-semibold text-gold-soft">
+              <ShieldCheck className="h-4 w-4" />
+              Demo account directory
+            </div>
+            <div className="mt-3 space-y-2 text-xs text-muted">
+              {demoAccounts.map((account) => (
+                <button key={account.email} type="button" onClick={() => setIdentifier(account.email)} className="flex w-full items-center justify-between rounded border border-white/10 px-3 py-2 text-left transition hover:border-gold/30 hover:text-ink">
+                  <span>{account.role}</span>
+                  <span>{account.email}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+          <p className="mt-6 text-center text-sm text-muted">New to NIDUS? <Link href="/register" className="font-semibold text-gold-soft">Create an account</Link></p>
+        </section>
+      </div>
+    </main>
   );
 }

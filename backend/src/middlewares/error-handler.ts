@@ -1,6 +1,7 @@
 import type { ErrorRequestHandler } from "express";
+import { logger } from "../utils/logger.js";
 
-export const errorHandler: ErrorRequestHandler = (error, _req, res, _next) => {
+export const errorHandler: ErrorRequestHandler = (error, req, res, _next) => {
   if (error instanceof Error) {
     const statusCode =
       error.message.includes("Invalid credentials") ||
@@ -13,9 +14,23 @@ export const errorHandler: ErrorRequestHandler = (error, _req, res, _next) => {
             ? 409
             : 400;
 
-    res.status(statusCode).json({ message: error.message });
+    logger.error("Request failed", {
+      statusCode,
+      method: req.method,
+      path: req.path,
+      ip: req.ip,
+      error: error.message,
+      stack: process.env.NODE_ENV === "production" ? undefined : error.stack
+    });
+
+    res.status(statusCode).json({
+      success: false,
+      message: error.message,
+      code: statusCode
+    });
     return;
   }
 
-  res.status(500).json({ message: "Internal server error" });
+  logger.error("Unknown request failure", { method: req.method, path: req.path, ip: req.ip });
+  res.status(500).json({ success: false, message: "Internal server error", code: 500 });
 };

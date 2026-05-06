@@ -18,6 +18,11 @@ export function RoleDashboardGuard({
   const { user, isLoading } = useAuth();
 
   useEffect(() => {
+    if (!isLoading && !user) {
+      router.replace("/login");
+      return;
+    }
+
     if (!isLoading && user && user.role !== role) {
       router.replace(roleDashboardPath[user.role]);
     }

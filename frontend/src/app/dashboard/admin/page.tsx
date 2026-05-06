@@ -15,6 +15,7 @@ import {
 } from "@/components/dashboard";
 import { PerformanceChart } from "@/components/charts/performance-chart";
 import { Button } from "@/components/ui/button";
+import { PageHero } from "@/components/layout/page-hero";
 import { useAdminDashboard } from "@/hooks/use-dashboard";
 
 export default function AdminDashboardPage() {
@@ -45,12 +46,17 @@ export default function AdminDashboardPage() {
   return (
     <RoleDashboardGuard role="ADMIN">
     <motion.div className="space-y-8" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-        <SectionHeader eyebrow="Admin Command" title="Institution operations overview" action="Live operational snapshot" />
-        <Button type="button" onClick={() => refetch()} disabled={isFetching} variant="secondary">
-          {isFetching ? "Refreshing..." : "Refresh"}
-        </Button>
-      </div>
+      <PageHero
+        eyebrow="Admin Command"
+        title="Institution operations overview"
+        description="Live admissions, attendance, revenue, hostel, staff, and operational readiness signals for management review."
+        actions={<Button type="button" onClick={() => refetch()} disabled={isFetching} variant="secondary">{isFetching ? "Refreshing..." : "Refresh"}</Button>}
+        stats={[
+          { value: String(data.totalStudents), label: "students" },
+          { value: `${data.attendanceAnalytics.average}%`, label: "attendance" },
+          { value: String(data.staffSummary.totalStaff), label: "staff strength" }
+        ]}
+      />
 
       <section className="grid gap-4 md:grid-cols-4">
         <StatCard label="Total Students" value={String(data.totalStudents)} note="Registered student users" />
@@ -76,9 +82,9 @@ export default function AdminDashboardPage() {
 
       <SectionHeader eyebrow="Management" title="Quick management shortcuts" />
       <section className="grid gap-4 md:grid-cols-3">
-        <QuickActionCard title="Admissions" description="Review new applications and lead source reports." href="/dashboard/admin" />
-        <QuickActionCard title="Courses" description="Manage modules, tests, batches and faculty ownership." href="/dashboard/admin" />
-        <QuickActionCard title="Reports" description="Export performance, revenue and attendance reports." href="/dashboard/admin" />
+        <QuickActionCard title="Admissions" description="Review new applications and lead source reports." href="/crm/admissions" />
+        <QuickActionCard title="Courses" description="Manage modules, tests, batches and faculty ownership." href="/courses" />
+        <QuickActionCard title="Reports" description="Open executive controls, audit logs, and system settings." href="/admin-center" />
       </section>
     </motion.div>
     </RoleDashboardGuard>

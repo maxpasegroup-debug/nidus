@@ -19,6 +19,7 @@ export function BottomNav() {
           className={`px-2 py-4 text-center text-[0.68rem] font-semibold uppercase tracking-[0.08em] transition ${
             pathname === item.href ? "bg-gold/10 text-gold" : "text-muted hover:bg-white/5 hover:text-gold"
           }`}
+          aria-current={pathname === item.href ? "page" : undefined}
         >
           {item.label}
         </Link>

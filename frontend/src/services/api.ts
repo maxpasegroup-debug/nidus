@@ -23,6 +23,21 @@ apiClient.interceptors.request.use((config) => {
   return config;
 });
 
+apiClient.interceptors.response.use(
+  (response) => response,
+  (error: AxiosError) => {
+    if (typeof window !== "undefined" && error.response?.status === 401) {
+      localStorage.removeItem(AUTH_TOKEN_KEY);
+      document.cookie = "nidus_auth=; path=/; max-age=0; samesite=lax";
+      if (!window.location.pathname.startsWith("/login")) {
+        window.dispatchEvent(new CustomEvent("nidus:session-expired"));
+      }
+    }
+
+    return Promise.reject(error);
+  }
+);
+
 export function getApiErrorMessage(error: unknown) {
   if (error instanceof AxiosError) {
     const message = error.response?.data?.message;

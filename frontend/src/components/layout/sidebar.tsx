@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { Menu, X } from "lucide-react";
+import { useEffect, useState } from "react";
 import { getNavItems } from "@/components/layout/nav-items";
 import { useAuth } from "@/components/providers/auth-provider";
 
@@ -12,6 +13,15 @@ export function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
   const navItems = getNavItems(user?.role);
 
+  useEffect(() => {
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") setIsOpen(false);
+    }
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
+
   return (
     <>
       <button
@@ -20,7 +30,7 @@ export function Sidebar() {
         className="fixed left-4 top-4 z-50 grid h-11 w-11 place-items-center rounded border border-gold/30 bg-navy-deep/85 text-gold shadow-xl backdrop-blur-xl lg:hidden"
         aria-label="Toggle navigation"
       >
-        {isOpen ? "X" : "N"}
+        {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
       </button>
 
       {isOpen ? (
@@ -36,6 +46,7 @@ export function Sidebar() {
         className={`fixed left-0 top-0 z-40 h-screen w-[var(--sidebar-width)] border-r border-white/10 bg-navy-deep/85 px-5 py-6 shadow-[30px_0_90px_rgba(0,0,0,0.35)] backdrop-blur-xl transition-transform duration-300 lg:translate-x-0 ${
           isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         }`}
+        aria-label="Primary navigation"
       >
         <Link href="/" className="flex items-center gap-3" onClick={() => setIsOpen(false)}>
           <span className="grid h-11 w-11 place-items-center rounded border border-gold/40 bg-gold/10 text-sm font-bold text-gold">
@@ -47,7 +58,7 @@ export function Sidebar() {
           </span>
         </Link>
 
-        <nav className="mt-10 space-y-2">
+        <nav className="mt-10 max-h-[calc(100vh-13rem)] space-y-2 overflow-y-auto pr-1">
           {navItems.map((item) => {
             const isActive = pathname === item.href;
 

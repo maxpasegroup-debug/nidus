@@ -83,6 +83,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     loadUser();
   }, [clearAuth]);
 
+  useEffect(() => {
+    function handleSessionExpired() {
+      clearAuth();
+      showToast("Session expired. Please log in again.", "error");
+      router.replace("/login");
+    }
+
+    window.addEventListener("nidus:session-expired", handleSessionExpired);
+    return () => window.removeEventListener("nidus:session-expired", handleSessionExpired);
+  }, [clearAuth, router, showToast]);
+
   const value = useMemo<AuthContextValue>(
     () => ({
       user,
