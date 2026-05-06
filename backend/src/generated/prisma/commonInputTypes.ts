@@ -372,6 +372,40 @@ export type EnumInOutTypeWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumInOutTypeFilter<$PrismaModel>
 }
 
+export type EnumLeadStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.LeadStatus | Prisma.EnumLeadStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.LeadStatus[] | Prisma.ListEnumLeadStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.LeadStatus[] | Prisma.ListEnumLeadStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumLeadStatusFilter<$PrismaModel> | $Enums.LeadStatus
+}
+
+export type EnumLeadStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.LeadStatus | Prisma.EnumLeadStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.LeadStatus[] | Prisma.ListEnumLeadStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.LeadStatus[] | Prisma.ListEnumLeadStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumLeadStatusWithAggregatesFilter<$PrismaModel> | $Enums.LeadStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumLeadStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumLeadStatusFilter<$PrismaModel>
+}
+
+export type EnumCounsellingModeFilter<$PrismaModel = never> = {
+  equals?: $Enums.CounsellingMode | Prisma.EnumCounsellingModeFieldRefInput<$PrismaModel>
+  in?: $Enums.CounsellingMode[] | Prisma.ListEnumCounsellingModeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CounsellingMode[] | Prisma.ListEnumCounsellingModeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCounsellingModeFilter<$PrismaModel> | $Enums.CounsellingMode
+}
+
+export type EnumCounsellingModeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CounsellingMode | Prisma.EnumCounsellingModeFieldRefInput<$PrismaModel>
+  in?: $Enums.CounsellingMode[] | Prisma.ListEnumCounsellingModeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CounsellingMode[] | Prisma.ListEnumCounsellingModeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCounsellingModeWithAggregatesFilter<$PrismaModel> | $Enums.CounsellingMode
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCounsellingModeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCounsellingModeFilter<$PrismaModel>
+}
+
 export type NestedStringFilter<$PrismaModel = never> = {
   equals?: string | Prisma.StringFieldRefInput<$PrismaModel>
   in?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel>
@@ -676,6 +710,40 @@ export type NestedEnumInOutTypeWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumInOutTypeFilter<$PrismaModel>
   _max?: Prisma.NestedEnumInOutTypeFilter<$PrismaModel>
+}
+
+export type NestedEnumLeadStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.LeadStatus | Prisma.EnumLeadStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.LeadStatus[] | Prisma.ListEnumLeadStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.LeadStatus[] | Prisma.ListEnumLeadStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumLeadStatusFilter<$PrismaModel> | $Enums.LeadStatus
+}
+
+export type NestedEnumLeadStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.LeadStatus | Prisma.EnumLeadStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.LeadStatus[] | Prisma.ListEnumLeadStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.LeadStatus[] | Prisma.ListEnumLeadStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumLeadStatusWithAggregatesFilter<$PrismaModel> | $Enums.LeadStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumLeadStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumLeadStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumCounsellingModeFilter<$PrismaModel = never> = {
+  equals?: $Enums.CounsellingMode | Prisma.EnumCounsellingModeFieldRefInput<$PrismaModel>
+  in?: $Enums.CounsellingMode[] | Prisma.ListEnumCounsellingModeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CounsellingMode[] | Prisma.ListEnumCounsellingModeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCounsellingModeFilter<$PrismaModel> | $Enums.CounsellingMode
+}
+
+export type NestedEnumCounsellingModeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CounsellingMode | Prisma.EnumCounsellingModeFieldRefInput<$PrismaModel>
+  in?: $Enums.CounsellingMode[] | Prisma.ListEnumCounsellingModeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CounsellingMode[] | Prisma.ListEnumCounsellingModeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCounsellingModeWithAggregatesFilter<$PrismaModel> | $Enums.CounsellingMode
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCounsellingModeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCounsellingModeFilter<$PrismaModel>
 }
 
 

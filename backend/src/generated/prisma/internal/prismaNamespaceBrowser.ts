@@ -85,7 +85,12 @@ export const ModelName = {
   HostelLeave: 'HostelLeave',
   MessMenu: 'MessMenu',
   DisciplineRecord: 'DisciplineRecord',
-  ParadePerformance: 'ParadePerformance'
+  ParadePerformance: 'ParadePerformance',
+  Lead: 'Lead',
+  FollowUp: 'FollowUp',
+  Admission: 'Admission',
+  CounsellingBooking: 'CounsellingBooking',
+  Referral: 'Referral'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -586,6 +591,70 @@ export const ParadePerformanceScalarFieldEnum = {
 } as const
 
 export type ParadePerformanceScalarFieldEnum = (typeof ParadePerformanceScalarFieldEnum)[keyof typeof ParadePerformanceScalarFieldEnum]
+
+
+export const LeadScalarFieldEnum = {
+  id: 'id',
+  fullName: 'fullName',
+  mobile: 'mobile',
+  email: 'email',
+  targetExam: 'targetExam',
+  source: 'source',
+  status: 'status',
+  assignedTo: 'assignedTo',
+  notes: 'notes',
+  createdAt: 'createdAt'
+} as const
+
+export type LeadScalarFieldEnum = (typeof LeadScalarFieldEnum)[keyof typeof LeadScalarFieldEnum]
+
+
+export const FollowUpScalarFieldEnum = {
+  id: 'id',
+  leadId: 'leadId',
+  followUpDate: 'followUpDate',
+  remarks: 'remarks',
+  status: 'status',
+  createdBy: 'createdBy'
+} as const
+
+export type FollowUpScalarFieldEnum = (typeof FollowUpScalarFieldEnum)[keyof typeof FollowUpScalarFieldEnum]
+
+
+export const AdmissionScalarFieldEnum = {
+  id: 'id',
+  studentId: 'studentId',
+  courseId: 'courseId',
+  admissionDate: 'admissionDate',
+  paymentStatus: 'paymentStatus',
+  batch: 'batch',
+  createdAt: 'createdAt'
+} as const
+
+export type AdmissionScalarFieldEnum = (typeof AdmissionScalarFieldEnum)[keyof typeof AdmissionScalarFieldEnum]
+
+
+export const CounsellingBookingScalarFieldEnum = {
+  id: 'id',
+  leadId: 'leadId',
+  counsellorName: 'counsellorName',
+  bookingDate: 'bookingDate',
+  mode: 'mode',
+  status: 'status'
+} as const
+
+export type CounsellingBookingScalarFieldEnum = (typeof CounsellingBookingScalarFieldEnum)[keyof typeof CounsellingBookingScalarFieldEnum]
+
+
+export const ReferralScalarFieldEnum = {
+  id: 'id',
+  referrerUserId: 'referrerUserId',
+  referredUserId: 'referredUserId',
+  rewardStatus: 'rewardStatus',
+  createdAt: 'createdAt'
+} as const
+
+export type ReferralScalarFieldEnum = (typeof ReferralScalarFieldEnum)[keyof typeof ReferralScalarFieldEnum]
 
 
 export const SortOrder = {

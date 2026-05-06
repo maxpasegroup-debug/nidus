@@ -14,10 +14,31 @@ export const Role = {
   PARENT: 'PARENT',
   ADMIN: 'ADMIN',
   WARDEN: 'WARDEN',
+  COUNSELLOR: 'COUNSELLOR',
+  STAFF: 'STAFF',
   GUEST: 'GUEST'
 } as const
 
 export type Role = (typeof Role)[keyof typeof Role]
+
+
+export const LeadStatus = {
+  NEW: 'NEW',
+  CONTACTED: 'CONTACTED',
+  COUNSELLING: 'COUNSELLING',
+  ENROLLED: 'ENROLLED',
+  LOST: 'LOST'
+} as const
+
+export type LeadStatus = (typeof LeadStatus)[keyof typeof LeadStatus]
+
+
+export const CounsellingMode = {
+  ONLINE: 'ONLINE',
+  OFFLINE: 'OFFLINE'
+} as const
+
+export type CounsellingMode = (typeof CounsellingMode)[keyof typeof CounsellingMode]
 
 
 export const HostelType = {

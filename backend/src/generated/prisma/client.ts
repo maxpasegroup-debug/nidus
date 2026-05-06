@@ -216,3 +216,28 @@ export type DisciplineRecord = Prisma.DisciplineRecordModel
  * 
  */
 export type ParadePerformance = Prisma.ParadePerformanceModel
+/**
+ * Model Lead
+ * 
+ */
+export type Lead = Prisma.LeadModel
+/**
+ * Model FollowUp
+ * 
+ */
+export type FollowUp = Prisma.FollowUpModel
+/**
+ * Model Admission
+ * 
+ */
+export type Admission = Prisma.AdmissionModel
+/**
+ * Model CounsellingBooking
+ * 
+ */
+export type CounsellingBooking = Prisma.CounsellingBookingModel
+/**
+ * Model Referral
+ * 
+ */
+export type Referral = Prisma.ReferralModel

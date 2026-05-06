@@ -1,0 +1,62 @@
+import type { NextFunction, Request, Response } from "express";
+import { validationResult } from "express-validator";
+import type { AuthenticatedRequest } from "../auth/auth.middleware.js";
+import { crmService } from "./crm.service.js";
+import type { LeadStatus } from "../../generated/prisma/client.js";
+
+function assertValid(req: Request) {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) throw new Error(errors.array().map((error) => error.msg).join(", "));
+}
+
+function param(req: Request, key: string) {
+  const value = req.params[key];
+  if (typeof value !== "string") throw new Error(`Invalid ${key}`);
+  return value;
+}
+
+function userId(req: AuthenticatedRequest) {
+  if (!req.user) throw new Error("Unauthorized");
+  return req.user.id;
+}
+
+export const crmController = {
+  async leads(req: Request, res: Response, next: NextFunction) {
+    try {
+      res.json({ leads: await crmService.leads({ status: typeof req.query.status === "string" ? req.query.status as LeadStatus : undefined, search: typeof req.query.search === "string" ? req.query.search : undefined }) });
+    } catch (error) { next(error); }
+  },
+  async createLead(req: Request, res: Response, next: NextFunction) {
+    try { assertValid(req); res.status(201).json({ lead: await crmService.createLead(req.body) }); } catch (error) { next(error); }
+  },
+  async updateLead(req: Request, res: Response, next: NextFunction) {
+    try { assertValid(req); res.json({ lead: await crmService.updateLead(param(req, "id"), req.body) }); } catch (error) { next(error); }
+  },
+  async deleteLead(req: Request, res: Response, next: NextFunction) {
+    try { res.json(await crmService.deleteLead(param(req, "id"))); } catch (error) { next(error); }
+  },
+  async createFollowUp(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try { assertValid(req); res.status(201).json({ followUp: await crmService.createFollowUp(req.body, userId(req)) }); } catch (error) { next(error); }
+  },
+  async followUps(_req: Request, res: Response, next: NextFunction) {
+    try { res.json({ followUps: await crmService.followUps() }); } catch (error) { next(error); }
+  },
+  async createAdmission(req: Request, res: Response, next: NextFunction) {
+    try { assertValid(req); res.status(201).json({ admission: await crmService.createAdmission(req.body) }); } catch (error) { next(error); }
+  },
+  async admissions(_req: Request, res: Response, next: NextFunction) {
+    try { res.json({ admissions: await crmService.admissions() }); } catch (error) { next(error); }
+  },
+  async createCounselling(req: Request, res: Response, next: NextFunction) {
+    try { assertValid(req); res.status(201).json({ booking: await crmService.createCounselling(req.body) }); } catch (error) { next(error); }
+  },
+  async counselling(_req: Request, res: Response, next: NextFunction) {
+    try { res.json({ bookings: await crmService.counselling() }); } catch (error) { next(error); }
+  },
+  async referrals(_req: Request, res: Response, next: NextFunction) {
+    try { res.json({ referrals: await crmService.referrals() }); } catch (error) { next(error); }
+  },
+  async createReferral(req: Request, res: Response, next: NextFunction) {
+    try { assertValid(req); res.status(201).json({ referral: await crmService.createReferral(req.body) }); } catch (error) { next(error); }
+  }
+};

@@ -5,6 +5,8 @@ export const roleDashboardPath: Record<AuthRole, string> = {
   PARENT: "/dashboard/parent",
   ADMIN: "/dashboard/admin",
   WARDEN: "/hostel",
+  COUNSELLOR: "/crm",
+  STAFF: "/crm",
   GUEST: "/dashboard/guest"
 };
 
