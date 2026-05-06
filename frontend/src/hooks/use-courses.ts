@@ -1,46 +1,50 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { getCourses } from "@/services/courses";
-import type { Course } from "@/types/course";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { getApiErrorMessage } from "@/services/api";
+import {
+  enrollCourse,
+  getCourseDetails,
+  getCourses,
+  getMyCourses,
+  type CourseFilters
+} from "@/services/courses";
+import { useToast } from "@/components/providers/toast-provider";
 
-type CoursesState = {
-  courses: Course[];
-  error: string | null;
-  isLoading: boolean;
-};
-
-export function useCourses(): CoursesState {
-  const [state, setState] = useState<CoursesState>({
-    courses: [],
-    error: null,
-    isLoading: true
+export function useCourses(filters: CourseFilters = {}) {
+  return useQuery({
+    queryKey: ["courses", filters],
+    queryFn: () => getCourses(filters)
   });
-
-  useEffect(() => {
-    let isMounted = true;
-
-    getCourses()
-      .then((courses) => {
-        if (isMounted) {
-          setState({ courses, error: null, isLoading: false });
-        }
-      })
-      .catch(() => {
-        if (isMounted) {
-          setState({
-            courses: [],
-            error: "Unable to load courses. Confirm the backend is running.",
-            isLoading: false
-          });
-        }
-      });
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
-  return state;
 }
 
+export function useCourseDetails(slug: string) {
+  return useQuery({
+    queryKey: ["courses", slug],
+    queryFn: () => getCourseDetails(slug),
+    enabled: Boolean(slug)
+  });
+}
+
+export function useEnrollCourse() {
+  const queryClient = useQueryClient();
+  const { showToast } = useToast();
+
+  return useMutation({
+    mutationFn: enrollCourse,
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["my-courses"] });
+      showToast("Enrollment successful", "success");
+    },
+    onError: (error) => {
+      showToast(getApiErrorMessage(error), "error");
+    }
+  });
+}
+
+export function useMyCourses() {
+  return useQuery({
+    queryKey: ["my-courses"],
+    queryFn: getMyCourses
+  });
+}

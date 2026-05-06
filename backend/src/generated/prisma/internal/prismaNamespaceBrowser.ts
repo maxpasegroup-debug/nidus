@@ -52,7 +52,11 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   User: 'User',
-  Otp: 'Otp'
+  Otp: 'Otp',
+  Course: 'Course',
+  Module: 'Module',
+  Lesson: 'Lesson',
+  Enrollment: 'Enrollment'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -97,6 +101,59 @@ export const OtpScalarFieldEnum = {
 } as const
 
 export type OtpScalarFieldEnum = (typeof OtpScalarFieldEnum)[keyof typeof OtpScalarFieldEnum]
+
+
+export const CourseScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  slug: 'slug',
+  description: 'description',
+  thumbnail: 'thumbnail',
+  category: 'category',
+  examType: 'examType',
+  duration: 'duration',
+  price: 'price',
+  isPremium: 'isPremium',
+  createdAt: 'createdAt'
+} as const
+
+export type CourseScalarFieldEnum = (typeof CourseScalarFieldEnum)[keyof typeof CourseScalarFieldEnum]
+
+
+export const ModuleScalarFieldEnum = {
+  id: 'id',
+  courseId: 'courseId',
+  title: 'title',
+  order: 'order'
+} as const
+
+export type ModuleScalarFieldEnum = (typeof ModuleScalarFieldEnum)[keyof typeof ModuleScalarFieldEnum]
+
+
+export const LessonScalarFieldEnum = {
+  id: 'id',
+  moduleId: 'moduleId',
+  title: 'title',
+  description: 'description',
+  videoUrl: 'videoUrl',
+  pdfUrl: 'pdfUrl',
+  duration: 'duration',
+  isPreview: 'isPreview',
+  order: 'order'
+} as const
+
+export type LessonScalarFieldEnum = (typeof LessonScalarFieldEnum)[keyof typeof LessonScalarFieldEnum]
+
+
+export const EnrollmentScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  courseId: 'courseId',
+  enrolledAt: 'enrolledAt',
+  progress: 'progress'
+} as const
+
+export type EnrollmentScalarFieldEnum = (typeof EnrollmentScalarFieldEnum)[keyof typeof EnrollmentScalarFieldEnum]
 
 
 export const SortOrder = {

@@ -27,3 +27,23 @@ export type User = Prisma.UserModel
  * 
  */
 export type Otp = Prisma.OtpModel
+/**
+ * Model Course
+ * 
+ */
+export type Course = Prisma.CourseModel
+/**
+ * Model Module
+ * 
+ */
+export type Module = Prisma.ModuleModel
+/**
+ * Model Lesson
+ * 
+ */
+export type Lesson = Prisma.LessonModel
+/**
+ * Model Enrollment
+ * 
+ */
+export type Enrollment = Prisma.EnrollmentModel
