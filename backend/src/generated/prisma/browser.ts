@@ -287,3 +287,28 @@ export type AIRecommendation = Prisma.AIRecommendationModel
  * 
  */
 export type OfficerPotential = Prisma.OfficerPotentialModel
+/**
+ * Model FitnessProfile
+ * 
+ */
+export type FitnessProfile = Prisma.FitnessProfileModel
+/**
+ * Model PTSchedule
+ * 
+ */
+export type PTSchedule = Prisma.PTScheduleModel
+/**
+ * Model PTAttendance
+ * 
+ */
+export type PTAttendance = Prisma.PTAttendanceModel
+/**
+ * Model PhysicalEligibility
+ * 
+ */
+export type PhysicalEligibility = Prisma.PhysicalEligibilityModel
+/**
+ * Model DailyFitnessLog
+ * 
+ */
+export type DailyFitnessLog = Prisma.DailyFitnessLogModel

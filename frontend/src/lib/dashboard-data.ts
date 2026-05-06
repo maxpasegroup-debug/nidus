@@ -7,6 +7,7 @@ export const roleDashboardPath: Record<AuthRole, string> = {
   WARDEN: "/hostel",
   COUNSELLOR: "/crm",
   STAFF: "/crm",
+  TRAINER: "/fitness",
   GUEST: "/dashboard/guest"
 };
 

@@ -16,6 +16,7 @@ export const Role = {
   WARDEN: 'WARDEN',
   COUNSELLOR: 'COUNSELLOR',
   STAFF: 'STAFF',
+  TRAINER: 'TRAINER',
   GUEST: 'GUEST'
 } as const
 

@@ -104,7 +104,12 @@ export const ModelName = {
   AIInterviewQuestion: 'AIInterviewQuestion',
   DoubtQuery: 'DoubtQuery',
   AIRecommendation: 'AIRecommendation',
-  OfficerPotential: 'OfficerPotential'
+  OfficerPotential: 'OfficerPotential',
+  FitnessProfile: 'FitnessProfile',
+  PTSchedule: 'PTSchedule',
+  PTAttendance: 'PTAttendance',
+  PhysicalEligibility: 'PhysicalEligibility',
+  DailyFitnessLog: 'DailyFitnessLog'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -854,6 +859,80 @@ export const OfficerPotentialScalarFieldEnum = {
 } as const
 
 export type OfficerPotentialScalarFieldEnum = (typeof OfficerPotentialScalarFieldEnum)[keyof typeof OfficerPotentialScalarFieldEnum]
+
+
+export const FitnessProfileScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  height: 'height',
+  weight: 'weight',
+  bmi: 'bmi',
+  runningTime: 'runningTime',
+  pushups: 'pushups',
+  pullups: 'pullups',
+  situps: 'situps',
+  staminaScore: 'staminaScore',
+  fitnessLevel: 'fitnessLevel',
+  updatedAt: 'updatedAt'
+} as const
+
+export type FitnessProfileScalarFieldEnum = (typeof FitnessProfileScalarFieldEnum)[keyof typeof FitnessProfileScalarFieldEnum]
+
+
+export const PTScheduleScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  description: 'description',
+  scheduledDate: 'scheduledDate',
+  trainerName: 'trainerName',
+  activityType: 'activityType',
+  duration: 'duration',
+  createdAt: 'createdAt'
+} as const
+
+export type PTScheduleScalarFieldEnum = (typeof PTScheduleScalarFieldEnum)[keyof typeof PTScheduleScalarFieldEnum]
+
+
+export const PTAttendanceScalarFieldEnum = {
+  id: 'id',
+  studentId: 'studentId',
+  ptScheduleId: 'ptScheduleId',
+  attendanceStatus: 'attendanceStatus',
+  remarks: 'remarks',
+  markedAt: 'markedAt'
+} as const
+
+export type PTAttendanceScalarFieldEnum = (typeof PTAttendanceScalarFieldEnum)[keyof typeof PTAttendanceScalarFieldEnum]
+
+
+export const PhysicalEligibilityScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  examType: 'examType',
+  eligibilityStatus: 'eligibilityStatus',
+  heightEligible: 'heightEligible',
+  weightEligible: 'weightEligible',
+  bmiEligible: 'bmiEligible',
+  staminaEligible: 'staminaEligible',
+  overallRemark: 'overallRemark',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PhysicalEligibilityScalarFieldEnum = (typeof PhysicalEligibilityScalarFieldEnum)[keyof typeof PhysicalEligibilityScalarFieldEnum]
+
+
+export const DailyFitnessLogScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  runningDistance: 'runningDistance',
+  caloriesBurned: 'caloriesBurned',
+  waterIntake: 'waterIntake',
+  workoutDuration: 'workoutDuration',
+  notes: 'notes',
+  createdAt: 'createdAt'
+} as const
+
+export type DailyFitnessLogScalarFieldEnum = (typeof DailyFitnessLogScalarFieldEnum)[keyof typeof DailyFitnessLogScalarFieldEnum]
 
 
 export const SortOrder = {

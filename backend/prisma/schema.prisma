@@ -16,6 +16,7 @@ enum Role {
   WARDEN
   COUNSELLOR
   STAFF
+  TRAINER
   GUEST
 }
 
@@ -93,6 +94,10 @@ model User {
   doubtQueries DoubtQuery[]
   aiRecommendations AIRecommendation[]
   officerPotential OfficerPotential?
+  fitnessProfile FitnessProfile?
+  ptAttendances PTAttendance[] @relation("PTAttendanceStudent")
+  physicalEligibilities PhysicalEligibility[]
+  dailyFitnessLogs DailyFitnessLog[]
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 }
@@ -866,4 +871,81 @@ model OfficerPotential {
   aiSummary          String
   updatedAt          DateTime @updatedAt
   user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model FitnessProfile {
+  id            String   @id @default(cuid())
+  userId        String   @unique
+  height        Float
+  weight        Float
+  bmi           Float
+  runningTime   Float
+  pushups       Int
+  pullups       Int
+  situps        Int
+  staminaScore  Float
+  fitnessLevel  String
+  updatedAt     DateTime @updatedAt
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model PTSchedule {
+  id            String   @id @default(cuid())
+  title         String
+  description   String
+  scheduledDate DateTime
+  trainerName   String
+  activityType  String
+  duration      Int
+  createdAt     DateTime @default(now())
+  attendances   PTAttendance[]
+
+  @@index([scheduledDate])
+  @@index([activityType])
+}
+
+model PTAttendance {
+  id               String   @id @default(cuid())
+  studentId        String
+  ptScheduleId     String
+  attendanceStatus String
+  remarks          String?
+  markedAt         DateTime @default(now())
+  student          User     @relation("PTAttendanceStudent", fields: [studentId], references: [id], onDelete: Cascade)
+  ptSchedule       PTSchedule @relation(fields: [ptScheduleId], references: [id], onDelete: Cascade)
+
+  @@index([studentId])
+  @@index([ptScheduleId])
+}
+
+model PhysicalEligibility {
+  id                String   @id @default(cuid())
+  userId            String
+  examType          String
+  eligibilityStatus String
+  heightEligible    Boolean
+  weightEligible    Boolean
+  bmiEligible       Boolean
+  staminaEligible   Boolean
+  overallRemark     String
+  updatedAt         DateTime @updatedAt
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, examType])
+  @@index([eligibilityStatus])
+}
+
+model DailyFitnessLog {
+  id              String   @id @default(cuid())
+  userId          String
+  runningDistance Float
+  caloriesBurned  Float
+  waterIntake     Float
+  workoutDuration Int
+  notes           String?
+  createdAt       DateTime @default(now())
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([createdAt])
 }
