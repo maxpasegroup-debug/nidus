@@ -264,6 +264,9 @@ export type UserWhereInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogListRelationFilter
   quizBattleParticipants?: Prisma.QuizBattleParticipantListRelationFilter
   leaderboard?: Prisma.XOR<Prisma.LeaderboardNullableScalarRelationFilter, Prisma.LeaderboardWhereInput> | null
+  mediaFolders?: Prisma.MediaFolderListRelationFilter
+  mediaFiles?: Prisma.MediaFileListRelationFilter
+  documents?: Prisma.DocumentListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -319,6 +322,9 @@ export type UserOrderByWithRelationInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogOrderByRelationAggregateInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantOrderByRelationAggregateInput
   leaderboard?: Prisma.LeaderboardOrderByWithRelationInput
+  mediaFolders?: Prisma.MediaFolderOrderByRelationAggregateInput
+  mediaFiles?: Prisma.MediaFileOrderByRelationAggregateInput
+  documents?: Prisma.DocumentOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -377,6 +383,9 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   dailyFitnessLogs?: Prisma.DailyFitnessLogListRelationFilter
   quizBattleParticipants?: Prisma.QuizBattleParticipantListRelationFilter
   leaderboard?: Prisma.XOR<Prisma.LeaderboardNullableScalarRelationFilter, Prisma.LeaderboardWhereInput> | null
+  mediaFolders?: Prisma.MediaFolderListRelationFilter
+  mediaFiles?: Prisma.MediaFileListRelationFilter
+  documents?: Prisma.DocumentListRelationFilter
 }, "id" | "email" | "mobile">
 
 export type UserOrderByWithAggregationInput = {
@@ -464,6 +473,9 @@ export type UserCreateInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -519,6 +531,9 @@ export type UserUncheckedCreateInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardUncheckedCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
 }
 
 export type UserUpdateInput = {
@@ -574,6 +589,9 @@ export type UserUpdateInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -629,6 +647,9 @@ export type UserUncheckedUpdateInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUncheckedUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -1331,6 +1352,48 @@ export type UserUpdateOneRequiredWithoutLeaderboardNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutLeaderboardInput, Prisma.UserUpdateWithoutLeaderboardInput>, Prisma.UserUncheckedUpdateWithoutLeaderboardInput>
 }
 
+export type UserCreateNestedOneWithoutMediaFoldersInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutMediaFoldersInput, Prisma.UserUncheckedCreateWithoutMediaFoldersInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutMediaFoldersInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutMediaFoldersNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutMediaFoldersInput, Prisma.UserUncheckedCreateWithoutMediaFoldersInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutMediaFoldersInput
+  upsert?: Prisma.UserUpsertWithoutMediaFoldersInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutMediaFoldersInput, Prisma.UserUpdateWithoutMediaFoldersInput>, Prisma.UserUncheckedUpdateWithoutMediaFoldersInput>
+}
+
+export type UserCreateNestedOneWithoutMediaFilesInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutMediaFilesInput, Prisma.UserUncheckedCreateWithoutMediaFilesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutMediaFilesInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutMediaFilesNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutMediaFilesInput, Prisma.UserUncheckedCreateWithoutMediaFilesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutMediaFilesInput
+  upsert?: Prisma.UserUpsertWithoutMediaFilesInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutMediaFilesInput, Prisma.UserUpdateWithoutMediaFilesInput>, Prisma.UserUncheckedUpdateWithoutMediaFilesInput>
+}
+
+export type UserCreateNestedOneWithoutDocumentsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutDocumentsInput, Prisma.UserUncheckedCreateWithoutDocumentsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutDocumentsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutDocumentsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutDocumentsInput, Prisma.UserUncheckedCreateWithoutDocumentsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutDocumentsInput
+  upsert?: Prisma.UserUpsertWithoutDocumentsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutDocumentsInput, Prisma.UserUpdateWithoutDocumentsInput>, Prisma.UserUncheckedUpdateWithoutDocumentsInput>
+}
+
 export type UserCreateWithoutEnrollmentsInput = {
   id?: string
   name: string
@@ -1383,6 +1446,9 @@ export type UserCreateWithoutEnrollmentsInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
 }
 
 export type UserUncheckedCreateWithoutEnrollmentsInput = {
@@ -1437,6 +1503,9 @@ export type UserUncheckedCreateWithoutEnrollmentsInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardUncheckedCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
 }
 
 export type UserCreateOrConnectWithoutEnrollmentsInput = {
@@ -1507,6 +1576,9 @@ export type UserUpdateWithoutEnrollmentsInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEnrollmentsInput = {
@@ -1561,6 +1633,9 @@ export type UserUncheckedUpdateWithoutEnrollmentsInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUncheckedUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserCreateWithoutTestAttemptsInput = {
@@ -1615,6 +1690,9 @@ export type UserCreateWithoutTestAttemptsInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
 }
 
 export type UserUncheckedCreateWithoutTestAttemptsInput = {
@@ -1669,6 +1747,9 @@ export type UserUncheckedCreateWithoutTestAttemptsInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardUncheckedCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
 }
 
 export type UserCreateOrConnectWithoutTestAttemptsInput = {
@@ -1739,6 +1820,9 @@ export type UserUpdateWithoutTestAttemptsInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutTestAttemptsInput = {
@@ -1793,6 +1877,9 @@ export type UserUncheckedUpdateWithoutTestAttemptsInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUncheckedUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserCreateWithoutPsychometricAttemptsInput = {
@@ -1847,6 +1934,9 @@ export type UserCreateWithoutPsychometricAttemptsInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
 }
 
 export type UserUncheckedCreateWithoutPsychometricAttemptsInput = {
@@ -1901,6 +1991,9 @@ export type UserUncheckedCreateWithoutPsychometricAttemptsInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardUncheckedCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
 }
 
 export type UserCreateOrConnectWithoutPsychometricAttemptsInput = {
@@ -1971,6 +2064,9 @@ export type UserUpdateWithoutPsychometricAttemptsInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPsychometricAttemptsInput = {
@@ -2025,6 +2121,9 @@ export type UserUncheckedUpdateWithoutPsychometricAttemptsInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUncheckedUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserCreateWithoutOlqScoreInput = {
@@ -2079,6 +2178,9 @@ export type UserCreateWithoutOlqScoreInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
 }
 
 export type UserUncheckedCreateWithoutOlqScoreInput = {
@@ -2133,6 +2235,9 @@ export type UserUncheckedCreateWithoutOlqScoreInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardUncheckedCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
 }
 
 export type UserCreateOrConnectWithoutOlqScoreInput = {
@@ -2203,6 +2308,9 @@ export type UserUpdateWithoutOlqScoreInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutOlqScoreInput = {
@@ -2257,6 +2365,9 @@ export type UserUncheckedUpdateWithoutOlqScoreInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUncheckedUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserCreateWithoutStudyPlansInput = {
@@ -2311,6 +2422,9 @@ export type UserCreateWithoutStudyPlansInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
 }
 
 export type UserUncheckedCreateWithoutStudyPlansInput = {
@@ -2365,6 +2479,9 @@ export type UserUncheckedCreateWithoutStudyPlansInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardUncheckedCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
 }
 
 export type UserCreateOrConnectWithoutStudyPlansInput = {
@@ -2435,6 +2552,9 @@ export type UserUpdateWithoutStudyPlansInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutStudyPlansInput = {
@@ -2489,6 +2609,9 @@ export type UserUncheckedUpdateWithoutStudyPlansInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUncheckedUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserCreateWithoutPerformanceAnalyticsInput = {
@@ -2543,6 +2666,9 @@ export type UserCreateWithoutPerformanceAnalyticsInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
 }
 
 export type UserUncheckedCreateWithoutPerformanceAnalyticsInput = {
@@ -2597,6 +2723,9 @@ export type UserUncheckedCreateWithoutPerformanceAnalyticsInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardUncheckedCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
 }
 
 export type UserCreateOrConnectWithoutPerformanceAnalyticsInput = {
@@ -2667,6 +2796,9 @@ export type UserUpdateWithoutPerformanceAnalyticsInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPerformanceAnalyticsInput = {
@@ -2721,6 +2853,9 @@ export type UserUncheckedUpdateWithoutPerformanceAnalyticsInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUncheckedUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserCreateWithoutRevisionSchedulesInput = {
@@ -2775,6 +2910,9 @@ export type UserCreateWithoutRevisionSchedulesInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
 }
 
 export type UserUncheckedCreateWithoutRevisionSchedulesInput = {
@@ -2829,6 +2967,9 @@ export type UserUncheckedCreateWithoutRevisionSchedulesInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardUncheckedCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
 }
 
 export type UserCreateOrConnectWithoutRevisionSchedulesInput = {
@@ -2899,6 +3040,9 @@ export type UserUpdateWithoutRevisionSchedulesInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRevisionSchedulesInput = {
@@ -2953,6 +3097,9 @@ export type UserUncheckedUpdateWithoutRevisionSchedulesInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUncheckedUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserCreateWithoutLectureProgressInput = {
@@ -3007,6 +3154,9 @@ export type UserCreateWithoutLectureProgressInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
 }
 
 export type UserUncheckedCreateWithoutLectureProgressInput = {
@@ -3061,6 +3211,9 @@ export type UserUncheckedCreateWithoutLectureProgressInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardUncheckedCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
 }
 
 export type UserCreateOrConnectWithoutLectureProgressInput = {
@@ -3131,6 +3284,9 @@ export type UserUpdateWithoutLectureProgressInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutLectureProgressInput = {
@@ -3185,6 +3341,9 @@ export type UserUncheckedUpdateWithoutLectureProgressInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUncheckedUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserCreateWithoutAttendanceRecordsInput = {
@@ -3239,6 +3398,9 @@ export type UserCreateWithoutAttendanceRecordsInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
 }
 
 export type UserUncheckedCreateWithoutAttendanceRecordsInput = {
@@ -3293,6 +3455,9 @@ export type UserUncheckedCreateWithoutAttendanceRecordsInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardUncheckedCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
 }
 
 export type UserCreateOrConnectWithoutAttendanceRecordsInput = {
@@ -3352,6 +3517,9 @@ export type UserCreateWithoutMarkedAttendanceInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
 }
 
 export type UserUncheckedCreateWithoutMarkedAttendanceInput = {
@@ -3406,6 +3574,9 @@ export type UserUncheckedCreateWithoutMarkedAttendanceInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardUncheckedCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
 }
 
 export type UserCreateOrConnectWithoutMarkedAttendanceInput = {
@@ -3476,6 +3647,9 @@ export type UserUpdateWithoutAttendanceRecordsInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAttendanceRecordsInput = {
@@ -3530,6 +3704,9 @@ export type UserUncheckedUpdateWithoutAttendanceRecordsInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUncheckedUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserUpsertWithoutMarkedAttendanceInput = {
@@ -3595,6 +3772,9 @@ export type UserUpdateWithoutMarkedAttendanceInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutMarkedAttendanceInput = {
@@ -3649,6 +3829,9 @@ export type UserUncheckedUpdateWithoutMarkedAttendanceInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUncheckedUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserCreateWithoutFacultyProfileInput = {
@@ -3703,6 +3886,9 @@ export type UserCreateWithoutFacultyProfileInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
 }
 
 export type UserUncheckedCreateWithoutFacultyProfileInput = {
@@ -3757,6 +3943,9 @@ export type UserUncheckedCreateWithoutFacultyProfileInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardUncheckedCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
 }
 
 export type UserCreateOrConnectWithoutFacultyProfileInput = {
@@ -3827,6 +4016,9 @@ export type UserUpdateWithoutFacultyProfileInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutFacultyProfileInput = {
@@ -3881,6 +4073,9 @@ export type UserUncheckedUpdateWithoutFacultyProfileInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUncheckedUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserCreateWithoutCommunicationAnnouncementsInput = {
@@ -3935,6 +4130,9 @@ export type UserCreateWithoutCommunicationAnnouncementsInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
 }
 
 export type UserUncheckedCreateWithoutCommunicationAnnouncementsInput = {
@@ -3989,6 +4187,9 @@ export type UserUncheckedCreateWithoutCommunicationAnnouncementsInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardUncheckedCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
 }
 
 export type UserCreateOrConnectWithoutCommunicationAnnouncementsInput = {
@@ -4059,6 +4260,9 @@ export type UserUpdateWithoutCommunicationAnnouncementsInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCommunicationAnnouncementsInput = {
@@ -4113,6 +4317,9 @@ export type UserUncheckedUpdateWithoutCommunicationAnnouncementsInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUncheckedUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserCreateWithoutHostelAllocationsInput = {
@@ -4167,6 +4374,9 @@ export type UserCreateWithoutHostelAllocationsInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
 }
 
 export type UserUncheckedCreateWithoutHostelAllocationsInput = {
@@ -4221,6 +4431,9 @@ export type UserUncheckedCreateWithoutHostelAllocationsInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardUncheckedCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
 }
 
 export type UserCreateOrConnectWithoutHostelAllocationsInput = {
@@ -4291,6 +4504,9 @@ export type UserUpdateWithoutHostelAllocationsInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutHostelAllocationsInput = {
@@ -4345,6 +4561,9 @@ export type UserUncheckedUpdateWithoutHostelAllocationsInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUncheckedUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserCreateWithoutInOutEntriesInput = {
@@ -4399,6 +4618,9 @@ export type UserCreateWithoutInOutEntriesInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
 }
 
 export type UserUncheckedCreateWithoutInOutEntriesInput = {
@@ -4453,6 +4675,9 @@ export type UserUncheckedCreateWithoutInOutEntriesInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardUncheckedCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
 }
 
 export type UserCreateOrConnectWithoutInOutEntriesInput = {
@@ -4523,6 +4748,9 @@ export type UserUpdateWithoutInOutEntriesInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutInOutEntriesInput = {
@@ -4577,6 +4805,9 @@ export type UserUncheckedUpdateWithoutInOutEntriesInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUncheckedUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserCreateWithoutHostelLeavesInput = {
@@ -4631,6 +4862,9 @@ export type UserCreateWithoutHostelLeavesInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
 }
 
 export type UserUncheckedCreateWithoutHostelLeavesInput = {
@@ -4685,6 +4919,9 @@ export type UserUncheckedCreateWithoutHostelLeavesInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardUncheckedCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
 }
 
 export type UserCreateOrConnectWithoutHostelLeavesInput = {
@@ -4744,6 +4981,9 @@ export type UserCreateWithoutApprovedHostelLeavesInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
 }
 
 export type UserUncheckedCreateWithoutApprovedHostelLeavesInput = {
@@ -4798,6 +5038,9 @@ export type UserUncheckedCreateWithoutApprovedHostelLeavesInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardUncheckedCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
 }
 
 export type UserCreateOrConnectWithoutApprovedHostelLeavesInput = {
@@ -4868,6 +5111,9 @@ export type UserUpdateWithoutHostelLeavesInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutHostelLeavesInput = {
@@ -4922,6 +5168,9 @@ export type UserUncheckedUpdateWithoutHostelLeavesInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUncheckedUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserUpsertWithoutApprovedHostelLeavesInput = {
@@ -4987,6 +5236,9 @@ export type UserUpdateWithoutApprovedHostelLeavesInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutApprovedHostelLeavesInput = {
@@ -5041,6 +5293,9 @@ export type UserUncheckedUpdateWithoutApprovedHostelLeavesInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUncheckedUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserCreateWithoutDisciplineRecordsInput = {
@@ -5095,6 +5350,9 @@ export type UserCreateWithoutDisciplineRecordsInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
 }
 
 export type UserUncheckedCreateWithoutDisciplineRecordsInput = {
@@ -5149,6 +5407,9 @@ export type UserUncheckedCreateWithoutDisciplineRecordsInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardUncheckedCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
 }
 
 export type UserCreateOrConnectWithoutDisciplineRecordsInput = {
@@ -5208,6 +5469,9 @@ export type UserCreateWithoutRecordedDisciplineInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
 }
 
 export type UserUncheckedCreateWithoutRecordedDisciplineInput = {
@@ -5262,6 +5526,9 @@ export type UserUncheckedCreateWithoutRecordedDisciplineInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardUncheckedCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
 }
 
 export type UserCreateOrConnectWithoutRecordedDisciplineInput = {
@@ -5332,6 +5599,9 @@ export type UserUpdateWithoutDisciplineRecordsInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutDisciplineRecordsInput = {
@@ -5386,6 +5656,9 @@ export type UserUncheckedUpdateWithoutDisciplineRecordsInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUncheckedUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserUpsertWithoutRecordedDisciplineInput = {
@@ -5451,6 +5724,9 @@ export type UserUpdateWithoutRecordedDisciplineInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRecordedDisciplineInput = {
@@ -5505,6 +5781,9 @@ export type UserUncheckedUpdateWithoutRecordedDisciplineInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUncheckedUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserCreateWithoutParadePerformancesInput = {
@@ -5559,6 +5838,9 @@ export type UserCreateWithoutParadePerformancesInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
 }
 
 export type UserUncheckedCreateWithoutParadePerformancesInput = {
@@ -5613,6 +5895,9 @@ export type UserUncheckedCreateWithoutParadePerformancesInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardUncheckedCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
 }
 
 export type UserCreateOrConnectWithoutParadePerformancesInput = {
@@ -5683,6 +5968,9 @@ export type UserUpdateWithoutParadePerformancesInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutParadePerformancesInput = {
@@ -5737,6 +6025,9 @@ export type UserUncheckedUpdateWithoutParadePerformancesInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUncheckedUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserCreateWithoutAssignedLeadsInput = {
@@ -5791,6 +6082,9 @@ export type UserCreateWithoutAssignedLeadsInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
 }
 
 export type UserUncheckedCreateWithoutAssignedLeadsInput = {
@@ -5845,6 +6139,9 @@ export type UserUncheckedCreateWithoutAssignedLeadsInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardUncheckedCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
 }
 
 export type UserCreateOrConnectWithoutAssignedLeadsInput = {
@@ -5915,6 +6212,9 @@ export type UserUpdateWithoutAssignedLeadsInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAssignedLeadsInput = {
@@ -5969,6 +6269,9 @@ export type UserUncheckedUpdateWithoutAssignedLeadsInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUncheckedUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserCreateWithoutFollowUpsCreatedInput = {
@@ -6023,6 +6326,9 @@ export type UserCreateWithoutFollowUpsCreatedInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
 }
 
 export type UserUncheckedCreateWithoutFollowUpsCreatedInput = {
@@ -6077,6 +6383,9 @@ export type UserUncheckedCreateWithoutFollowUpsCreatedInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardUncheckedCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
 }
 
 export type UserCreateOrConnectWithoutFollowUpsCreatedInput = {
@@ -6147,6 +6456,9 @@ export type UserUpdateWithoutFollowUpsCreatedInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutFollowUpsCreatedInput = {
@@ -6201,6 +6513,9 @@ export type UserUncheckedUpdateWithoutFollowUpsCreatedInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUncheckedUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserCreateWithoutAdmissionsInput = {
@@ -6255,6 +6570,9 @@ export type UserCreateWithoutAdmissionsInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
 }
 
 export type UserUncheckedCreateWithoutAdmissionsInput = {
@@ -6309,6 +6627,9 @@ export type UserUncheckedCreateWithoutAdmissionsInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardUncheckedCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
 }
 
 export type UserCreateOrConnectWithoutAdmissionsInput = {
@@ -6379,6 +6700,9 @@ export type UserUpdateWithoutAdmissionsInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAdmissionsInput = {
@@ -6433,6 +6757,9 @@ export type UserUncheckedUpdateWithoutAdmissionsInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUncheckedUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserCreateWithoutReferralsMadeInput = {
@@ -6487,6 +6814,9 @@ export type UserCreateWithoutReferralsMadeInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
 }
 
 export type UserUncheckedCreateWithoutReferralsMadeInput = {
@@ -6541,6 +6871,9 @@ export type UserUncheckedCreateWithoutReferralsMadeInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardUncheckedCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
 }
 
 export type UserCreateOrConnectWithoutReferralsMadeInput = {
@@ -6600,6 +6933,9 @@ export type UserCreateWithoutReferralsReceivedInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
 }
 
 export type UserUncheckedCreateWithoutReferralsReceivedInput = {
@@ -6654,6 +6990,9 @@ export type UserUncheckedCreateWithoutReferralsReceivedInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardUncheckedCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
 }
 
 export type UserCreateOrConnectWithoutReferralsReceivedInput = {
@@ -6724,6 +7063,9 @@ export type UserUpdateWithoutReferralsMadeInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReferralsMadeInput = {
@@ -6778,6 +7120,9 @@ export type UserUncheckedUpdateWithoutReferralsMadeInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUncheckedUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserUpsertWithoutReferralsReceivedInput = {
@@ -6843,6 +7188,9 @@ export type UserUpdateWithoutReferralsReceivedInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReferralsReceivedInput = {
@@ -6897,6 +7245,9 @@ export type UserUncheckedUpdateWithoutReferralsReceivedInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUncheckedUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserCreateWithoutPaymentsInput = {
@@ -6951,6 +7302,9 @@ export type UserCreateWithoutPaymentsInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
 }
 
 export type UserUncheckedCreateWithoutPaymentsInput = {
@@ -7005,6 +7359,9 @@ export type UserUncheckedCreateWithoutPaymentsInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardUncheckedCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
 }
 
 export type UserCreateOrConnectWithoutPaymentsInput = {
@@ -7075,6 +7432,9 @@ export type UserUpdateWithoutPaymentsInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPaymentsInput = {
@@ -7129,6 +7489,9 @@ export type UserUncheckedUpdateWithoutPaymentsInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUncheckedUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserCreateWithoutSubscriptionsInput = {
@@ -7183,6 +7546,9 @@ export type UserCreateWithoutSubscriptionsInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
 }
 
 export type UserUncheckedCreateWithoutSubscriptionsInput = {
@@ -7237,6 +7603,9 @@ export type UserUncheckedCreateWithoutSubscriptionsInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardUncheckedCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
 }
 
 export type UserCreateOrConnectWithoutSubscriptionsInput = {
@@ -7307,6 +7676,9 @@ export type UserUpdateWithoutSubscriptionsInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSubscriptionsInput = {
@@ -7361,6 +7733,9 @@ export type UserUncheckedUpdateWithoutSubscriptionsInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUncheckedUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserCreateWithoutFeeInstallmentsInput = {
@@ -7415,6 +7790,9 @@ export type UserCreateWithoutFeeInstallmentsInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
 }
 
 export type UserUncheckedCreateWithoutFeeInstallmentsInput = {
@@ -7469,6 +7847,9 @@ export type UserUncheckedCreateWithoutFeeInstallmentsInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardUncheckedCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
 }
 
 export type UserCreateOrConnectWithoutFeeInstallmentsInput = {
@@ -7539,6 +7920,9 @@ export type UserUpdateWithoutFeeInstallmentsInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutFeeInstallmentsInput = {
@@ -7593,6 +7977,9 @@ export type UserUncheckedUpdateWithoutFeeInstallmentsInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUncheckedUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserCreateWithoutInvoicesInput = {
@@ -7647,6 +8034,9 @@ export type UserCreateWithoutInvoicesInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
 }
 
 export type UserUncheckedCreateWithoutInvoicesInput = {
@@ -7701,6 +8091,9 @@ export type UserUncheckedCreateWithoutInvoicesInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardUncheckedCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
 }
 
 export type UserCreateOrConnectWithoutInvoicesInput = {
@@ -7771,6 +8164,9 @@ export type UserUpdateWithoutInvoicesInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutInvoicesInput = {
@@ -7825,6 +8221,9 @@ export type UserUncheckedUpdateWithoutInvoicesInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUncheckedUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserCreateWithoutNotificationsInput = {
@@ -7879,6 +8278,9 @@ export type UserCreateWithoutNotificationsInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
 }
 
 export type UserUncheckedCreateWithoutNotificationsInput = {
@@ -7933,6 +8335,9 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardUncheckedCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
 }
 
 export type UserCreateOrConnectWithoutNotificationsInput = {
@@ -8003,6 +8408,9 @@ export type UserUpdateWithoutNotificationsInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutNotificationsInput = {
@@ -8057,6 +8465,9 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUncheckedUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserCreateWithoutMessageThreadsInput = {
@@ -8111,6 +8522,9 @@ export type UserCreateWithoutMessageThreadsInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
 }
 
 export type UserUncheckedCreateWithoutMessageThreadsInput = {
@@ -8165,6 +8579,9 @@ export type UserUncheckedCreateWithoutMessageThreadsInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardUncheckedCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
 }
 
 export type UserCreateOrConnectWithoutMessageThreadsInput = {
@@ -8235,6 +8652,9 @@ export type UserUpdateWithoutMessageThreadsInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutMessageThreadsInput = {
@@ -8289,6 +8709,9 @@ export type UserUncheckedUpdateWithoutMessageThreadsInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUncheckedUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserCreateWithoutSentMessagesInput = {
@@ -8343,6 +8766,9 @@ export type UserCreateWithoutSentMessagesInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
 }
 
 export type UserUncheckedCreateWithoutSentMessagesInput = {
@@ -8397,6 +8823,9 @@ export type UserUncheckedCreateWithoutSentMessagesInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardUncheckedCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
 }
 
 export type UserCreateOrConnectWithoutSentMessagesInput = {
@@ -8456,6 +8885,9 @@ export type UserCreateWithoutReceivedMessagesInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
 }
 
 export type UserUncheckedCreateWithoutReceivedMessagesInput = {
@@ -8510,6 +8942,9 @@ export type UserUncheckedCreateWithoutReceivedMessagesInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardUncheckedCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
 }
 
 export type UserCreateOrConnectWithoutReceivedMessagesInput = {
@@ -8580,6 +9015,9 @@ export type UserUpdateWithoutSentMessagesInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSentMessagesInput = {
@@ -8634,6 +9072,9 @@ export type UserUncheckedUpdateWithoutSentMessagesInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUncheckedUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserUpsertWithoutReceivedMessagesInput = {
@@ -8699,6 +9140,9 @@ export type UserUpdateWithoutReceivedMessagesInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReceivedMessagesInput = {
@@ -8753,6 +9197,9 @@ export type UserUncheckedUpdateWithoutReceivedMessagesInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUncheckedUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserCreateWithoutAiInterviewSessionsInput = {
@@ -8807,6 +9254,9 @@ export type UserCreateWithoutAiInterviewSessionsInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
 }
 
 export type UserUncheckedCreateWithoutAiInterviewSessionsInput = {
@@ -8861,6 +9311,9 @@ export type UserUncheckedCreateWithoutAiInterviewSessionsInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardUncheckedCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
 }
 
 export type UserCreateOrConnectWithoutAiInterviewSessionsInput = {
@@ -8931,6 +9384,9 @@ export type UserUpdateWithoutAiInterviewSessionsInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAiInterviewSessionsInput = {
@@ -8985,6 +9441,9 @@ export type UserUncheckedUpdateWithoutAiInterviewSessionsInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUncheckedUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserCreateWithoutDoubtQueriesInput = {
@@ -9039,6 +9498,9 @@ export type UserCreateWithoutDoubtQueriesInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
 }
 
 export type UserUncheckedCreateWithoutDoubtQueriesInput = {
@@ -9093,6 +9555,9 @@ export type UserUncheckedCreateWithoutDoubtQueriesInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardUncheckedCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
 }
 
 export type UserCreateOrConnectWithoutDoubtQueriesInput = {
@@ -9163,6 +9628,9 @@ export type UserUpdateWithoutDoubtQueriesInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutDoubtQueriesInput = {
@@ -9217,6 +9685,9 @@ export type UserUncheckedUpdateWithoutDoubtQueriesInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUncheckedUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserCreateWithoutAiRecommendationsInput = {
@@ -9271,6 +9742,9 @@ export type UserCreateWithoutAiRecommendationsInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
 }
 
 export type UserUncheckedCreateWithoutAiRecommendationsInput = {
@@ -9325,6 +9799,9 @@ export type UserUncheckedCreateWithoutAiRecommendationsInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardUncheckedCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
 }
 
 export type UserCreateOrConnectWithoutAiRecommendationsInput = {
@@ -9395,6 +9872,9 @@ export type UserUpdateWithoutAiRecommendationsInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAiRecommendationsInput = {
@@ -9449,6 +9929,9 @@ export type UserUncheckedUpdateWithoutAiRecommendationsInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUncheckedUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserCreateWithoutOfficerPotentialInput = {
@@ -9503,6 +9986,9 @@ export type UserCreateWithoutOfficerPotentialInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
 }
 
 export type UserUncheckedCreateWithoutOfficerPotentialInput = {
@@ -9557,6 +10043,9 @@ export type UserUncheckedCreateWithoutOfficerPotentialInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardUncheckedCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
 }
 
 export type UserCreateOrConnectWithoutOfficerPotentialInput = {
@@ -9627,6 +10116,9 @@ export type UserUpdateWithoutOfficerPotentialInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutOfficerPotentialInput = {
@@ -9681,6 +10173,9 @@ export type UserUncheckedUpdateWithoutOfficerPotentialInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUncheckedUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserCreateWithoutFitnessProfileInput = {
@@ -9735,6 +10230,9 @@ export type UserCreateWithoutFitnessProfileInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
 }
 
 export type UserUncheckedCreateWithoutFitnessProfileInput = {
@@ -9789,6 +10287,9 @@ export type UserUncheckedCreateWithoutFitnessProfileInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardUncheckedCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
 }
 
 export type UserCreateOrConnectWithoutFitnessProfileInput = {
@@ -9859,6 +10360,9 @@ export type UserUpdateWithoutFitnessProfileInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutFitnessProfileInput = {
@@ -9913,6 +10417,9 @@ export type UserUncheckedUpdateWithoutFitnessProfileInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUncheckedUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserCreateWithoutPtAttendancesInput = {
@@ -9967,6 +10474,9 @@ export type UserCreateWithoutPtAttendancesInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
 }
 
 export type UserUncheckedCreateWithoutPtAttendancesInput = {
@@ -10021,6 +10531,9 @@ export type UserUncheckedCreateWithoutPtAttendancesInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardUncheckedCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
 }
 
 export type UserCreateOrConnectWithoutPtAttendancesInput = {
@@ -10091,6 +10604,9 @@ export type UserUpdateWithoutPtAttendancesInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPtAttendancesInput = {
@@ -10145,6 +10661,9 @@ export type UserUncheckedUpdateWithoutPtAttendancesInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUncheckedUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserCreateWithoutPhysicalEligibilitiesInput = {
@@ -10199,6 +10718,9 @@ export type UserCreateWithoutPhysicalEligibilitiesInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
 }
 
 export type UserUncheckedCreateWithoutPhysicalEligibilitiesInput = {
@@ -10253,6 +10775,9 @@ export type UserUncheckedCreateWithoutPhysicalEligibilitiesInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardUncheckedCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
 }
 
 export type UserCreateOrConnectWithoutPhysicalEligibilitiesInput = {
@@ -10323,6 +10848,9 @@ export type UserUpdateWithoutPhysicalEligibilitiesInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPhysicalEligibilitiesInput = {
@@ -10377,6 +10905,9 @@ export type UserUncheckedUpdateWithoutPhysicalEligibilitiesInput = {
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUncheckedUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserCreateWithoutDailyFitnessLogsInput = {
@@ -10431,6 +10962,9 @@ export type UserCreateWithoutDailyFitnessLogsInput = {
   physicalEligibilities?: Prisma.PhysicalEligibilityCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
 }
 
 export type UserUncheckedCreateWithoutDailyFitnessLogsInput = {
@@ -10485,6 +11019,9 @@ export type UserUncheckedCreateWithoutDailyFitnessLogsInput = {
   physicalEligibilities?: Prisma.PhysicalEligibilityUncheckedCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardUncheckedCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
 }
 
 export type UserCreateOrConnectWithoutDailyFitnessLogsInput = {
@@ -10555,6 +11092,9 @@ export type UserUpdateWithoutDailyFitnessLogsInput = {
   physicalEligibilities?: Prisma.PhysicalEligibilityUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutDailyFitnessLogsInput = {
@@ -10609,6 +11149,9 @@ export type UserUncheckedUpdateWithoutDailyFitnessLogsInput = {
   physicalEligibilities?: Prisma.PhysicalEligibilityUncheckedUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUncheckedUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserCreateWithoutQuizBattleParticipantsInput = {
@@ -10663,6 +11206,9 @@ export type UserCreateWithoutQuizBattleParticipantsInput = {
   physicalEligibilities?: Prisma.PhysicalEligibilityCreateNestedManyWithoutUserInput
   dailyFitnessLogs?: Prisma.DailyFitnessLogCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
 }
 
 export type UserUncheckedCreateWithoutQuizBattleParticipantsInput = {
@@ -10717,6 +11263,9 @@ export type UserUncheckedCreateWithoutQuizBattleParticipantsInput = {
   physicalEligibilities?: Prisma.PhysicalEligibilityUncheckedCreateNestedManyWithoutUserInput
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedCreateNestedManyWithoutUserInput
   leaderboard?: Prisma.LeaderboardUncheckedCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
 }
 
 export type UserCreateOrConnectWithoutQuizBattleParticipantsInput = {
@@ -10787,6 +11336,9 @@ export type UserUpdateWithoutQuizBattleParticipantsInput = {
   physicalEligibilities?: Prisma.PhysicalEligibilityUpdateManyWithoutUserNestedInput
   dailyFitnessLogs?: Prisma.DailyFitnessLogUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutQuizBattleParticipantsInput = {
@@ -10841,6 +11393,9 @@ export type UserUncheckedUpdateWithoutQuizBattleParticipantsInput = {
   physicalEligibilities?: Prisma.PhysicalEligibilityUncheckedUpdateManyWithoutUserNestedInput
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedUpdateManyWithoutUserNestedInput
   leaderboard?: Prisma.LeaderboardUncheckedUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserCreateWithoutLeaderboardInput = {
@@ -10895,6 +11450,9 @@ export type UserCreateWithoutLeaderboardInput = {
   physicalEligibilities?: Prisma.PhysicalEligibilityCreateNestedManyWithoutUserInput
   dailyFitnessLogs?: Prisma.DailyFitnessLogCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantCreateNestedManyWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
 }
 
 export type UserUncheckedCreateWithoutLeaderboardInput = {
@@ -10949,6 +11507,9 @@ export type UserUncheckedCreateWithoutLeaderboardInput = {
   physicalEligibilities?: Prisma.PhysicalEligibilityUncheckedCreateNestedManyWithoutUserInput
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedCreateNestedManyWithoutUserInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedCreateNestedManyWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
 }
 
 export type UserCreateOrConnectWithoutLeaderboardInput = {
@@ -11019,6 +11580,9 @@ export type UserUpdateWithoutLeaderboardInput = {
   physicalEligibilities?: Prisma.PhysicalEligibilityUpdateManyWithoutUserNestedInput
   dailyFitnessLogs?: Prisma.DailyFitnessLogUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUpdateManyWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
 }
 
 export type UserUncheckedUpdateWithoutLeaderboardInput = {
@@ -11073,6 +11637,741 @@ export type UserUncheckedUpdateWithoutLeaderboardInput = {
   physicalEligibilities?: Prisma.PhysicalEligibilityUncheckedUpdateManyWithoutUserNestedInput
   dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedUpdateManyWithoutUserNestedInput
   quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedUpdateManyWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
+}
+
+export type UserCreateWithoutMediaFoldersInput = {
+  id?: string
+  name: string
+  email: string
+  mobile: string
+  password: string
+  role?: $Enums.Role
+  emailVerified?: boolean
+  mobileVerified?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
+  testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
+  psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
+  olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
+  studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
+  performanceAnalytics?: Prisma.PerformanceAnalyticsCreateNestedOneWithoutUserInput
+  revisionSchedules?: Prisma.RevisionScheduleCreateNestedManyWithoutUserInput
+  lectureProgress?: Prisma.LectureProgressCreateNestedManyWithoutUserInput
+  attendanceRecords?: Prisma.AttendanceCreateNestedManyWithoutUserInput
+  markedAttendance?: Prisma.AttendanceCreateNestedManyWithoutMarkerInput
+  facultyProfile?: Prisma.FacultyCreateNestedOneWithoutUserInput
+  hostelAllocations?: Prisma.HostelAllocationCreateNestedManyWithoutStudentInput
+  inOutEntries?: Prisma.InOutEntryCreateNestedManyWithoutStudentInput
+  hostelLeaves?: Prisma.HostelLeaveCreateNestedManyWithoutStudentInput
+  approvedHostelLeaves?: Prisma.HostelLeaveCreateNestedManyWithoutApproverInput
+  disciplineRecords?: Prisma.DisciplineRecordCreateNestedManyWithoutStudentInput
+  recordedDiscipline?: Prisma.DisciplineRecordCreateNestedManyWithoutRecorderInput
+  paradePerformances?: Prisma.ParadePerformanceCreateNestedManyWithoutStudentInput
+  assignedLeads?: Prisma.LeadCreateNestedManyWithoutAssigneeInput
+  followUpsCreated?: Prisma.FollowUpCreateNestedManyWithoutCreatorInput
+  admissions?: Prisma.AdmissionCreateNestedManyWithoutStudentInput
+  referralsMade?: Prisma.ReferralCreateNestedManyWithoutReferrerInput
+  referralsReceived?: Prisma.ReferralCreateNestedManyWithoutReferredInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutUserInput
+  subscriptions?: Prisma.SubscriptionCreateNestedManyWithoutUserInput
+  feeInstallments?: Prisma.FeeInstallmentCreateNestedManyWithoutStudentInput
+  invoices?: Prisma.InvoiceCreateNestedManyWithoutStudentInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  messageThreads?: Prisma.MessageThreadCreateNestedManyWithoutCreatorInput
+  sentMessages?: Prisma.MessageCreateNestedManyWithoutSenderInput
+  receivedMessages?: Prisma.MessageCreateNestedManyWithoutReceiverInput
+  communicationAnnouncements?: Prisma.AnnouncementCreateNestedManyWithoutCreatorInput
+  aiInterviewSessions?: Prisma.AIInterviewSessionCreateNestedManyWithoutUserInput
+  doubtQueries?: Prisma.DoubtQueryCreateNestedManyWithoutUserInput
+  aiRecommendations?: Prisma.AIRecommendationCreateNestedManyWithoutUserInput
+  officerPotential?: Prisma.OfficerPotentialCreateNestedOneWithoutUserInput
+  fitnessProfile?: Prisma.FitnessProfileCreateNestedOneWithoutUserInput
+  ptAttendances?: Prisma.PTAttendanceCreateNestedManyWithoutStudentInput
+  physicalEligibilities?: Prisma.PhysicalEligibilityCreateNestedManyWithoutUserInput
+  dailyFitnessLogs?: Prisma.DailyFitnessLogCreateNestedManyWithoutUserInput
+  quizBattleParticipants?: Prisma.QuizBattleParticipantCreateNestedManyWithoutUserInput
+  leaderboard?: Prisma.LeaderboardCreateNestedOneWithoutUserInput
+  mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
+}
+
+export type UserUncheckedCreateWithoutMediaFoldersInput = {
+  id?: string
+  name: string
+  email: string
+  mobile: string
+  password: string
+  role?: $Enums.Role
+  emailVerified?: boolean
+  mobileVerified?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
+  testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
+  psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
+  olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
+  studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
+  performanceAnalytics?: Prisma.PerformanceAnalyticsUncheckedCreateNestedOneWithoutUserInput
+  revisionSchedules?: Prisma.RevisionScheduleUncheckedCreateNestedManyWithoutUserInput
+  lectureProgress?: Prisma.LectureProgressUncheckedCreateNestedManyWithoutUserInput
+  attendanceRecords?: Prisma.AttendanceUncheckedCreateNestedManyWithoutUserInput
+  markedAttendance?: Prisma.AttendanceUncheckedCreateNestedManyWithoutMarkerInput
+  facultyProfile?: Prisma.FacultyUncheckedCreateNestedOneWithoutUserInput
+  hostelAllocations?: Prisma.HostelAllocationUncheckedCreateNestedManyWithoutStudentInput
+  inOutEntries?: Prisma.InOutEntryUncheckedCreateNestedManyWithoutStudentInput
+  hostelLeaves?: Prisma.HostelLeaveUncheckedCreateNestedManyWithoutStudentInput
+  approvedHostelLeaves?: Prisma.HostelLeaveUncheckedCreateNestedManyWithoutApproverInput
+  disciplineRecords?: Prisma.DisciplineRecordUncheckedCreateNestedManyWithoutStudentInput
+  recordedDiscipline?: Prisma.DisciplineRecordUncheckedCreateNestedManyWithoutRecorderInput
+  paradePerformances?: Prisma.ParadePerformanceUncheckedCreateNestedManyWithoutStudentInput
+  assignedLeads?: Prisma.LeadUncheckedCreateNestedManyWithoutAssigneeInput
+  followUpsCreated?: Prisma.FollowUpUncheckedCreateNestedManyWithoutCreatorInput
+  admissions?: Prisma.AdmissionUncheckedCreateNestedManyWithoutStudentInput
+  referralsMade?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferrerInput
+  referralsReceived?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferredInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutUserInput
+  subscriptions?: Prisma.SubscriptionUncheckedCreateNestedManyWithoutUserInput
+  feeInstallments?: Prisma.FeeInstallmentUncheckedCreateNestedManyWithoutStudentInput
+  invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutStudentInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  messageThreads?: Prisma.MessageThreadUncheckedCreateNestedManyWithoutCreatorInput
+  sentMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutSenderInput
+  receivedMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutReceiverInput
+  communicationAnnouncements?: Prisma.AnnouncementUncheckedCreateNestedManyWithoutCreatorInput
+  aiInterviewSessions?: Prisma.AIInterviewSessionUncheckedCreateNestedManyWithoutUserInput
+  doubtQueries?: Prisma.DoubtQueryUncheckedCreateNestedManyWithoutUserInput
+  aiRecommendations?: Prisma.AIRecommendationUncheckedCreateNestedManyWithoutUserInput
+  officerPotential?: Prisma.OfficerPotentialUncheckedCreateNestedOneWithoutUserInput
+  fitnessProfile?: Prisma.FitnessProfileUncheckedCreateNestedOneWithoutUserInput
+  ptAttendances?: Prisma.PTAttendanceUncheckedCreateNestedManyWithoutStudentInput
+  physicalEligibilities?: Prisma.PhysicalEligibilityUncheckedCreateNestedManyWithoutUserInput
+  dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedCreateNestedManyWithoutUserInput
+  quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedCreateNestedManyWithoutUserInput
+  leaderboard?: Prisma.LeaderboardUncheckedCreateNestedOneWithoutUserInput
+  mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
+}
+
+export type UserCreateOrConnectWithoutMediaFoldersInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutMediaFoldersInput, Prisma.UserUncheckedCreateWithoutMediaFoldersInput>
+}
+
+export type UserUpsertWithoutMediaFoldersInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutMediaFoldersInput, Prisma.UserUncheckedUpdateWithoutMediaFoldersInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutMediaFoldersInput, Prisma.UserUncheckedCreateWithoutMediaFoldersInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutMediaFoldersInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutMediaFoldersInput, Prisma.UserUncheckedUpdateWithoutMediaFoldersInput>
+}
+
+export type UserUpdateWithoutMediaFoldersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
+  testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
+  psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
+  olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
+  studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
+  performanceAnalytics?: Prisma.PerformanceAnalyticsUpdateOneWithoutUserNestedInput
+  revisionSchedules?: Prisma.RevisionScheduleUpdateManyWithoutUserNestedInput
+  lectureProgress?: Prisma.LectureProgressUpdateManyWithoutUserNestedInput
+  attendanceRecords?: Prisma.AttendanceUpdateManyWithoutUserNestedInput
+  markedAttendance?: Prisma.AttendanceUpdateManyWithoutMarkerNestedInput
+  facultyProfile?: Prisma.FacultyUpdateOneWithoutUserNestedInput
+  hostelAllocations?: Prisma.HostelAllocationUpdateManyWithoutStudentNestedInput
+  inOutEntries?: Prisma.InOutEntryUpdateManyWithoutStudentNestedInput
+  hostelLeaves?: Prisma.HostelLeaveUpdateManyWithoutStudentNestedInput
+  approvedHostelLeaves?: Prisma.HostelLeaveUpdateManyWithoutApproverNestedInput
+  disciplineRecords?: Prisma.DisciplineRecordUpdateManyWithoutStudentNestedInput
+  recordedDiscipline?: Prisma.DisciplineRecordUpdateManyWithoutRecorderNestedInput
+  paradePerformances?: Prisma.ParadePerformanceUpdateManyWithoutStudentNestedInput
+  assignedLeads?: Prisma.LeadUpdateManyWithoutAssigneeNestedInput
+  followUpsCreated?: Prisma.FollowUpUpdateManyWithoutCreatorNestedInput
+  admissions?: Prisma.AdmissionUpdateManyWithoutStudentNestedInput
+  referralsMade?: Prisma.ReferralUpdateManyWithoutReferrerNestedInput
+  referralsReceived?: Prisma.ReferralUpdateManyWithoutReferredNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutUserNestedInput
+  subscriptions?: Prisma.SubscriptionUpdateManyWithoutUserNestedInput
+  feeInstallments?: Prisma.FeeInstallmentUpdateManyWithoutStudentNestedInput
+  invoices?: Prisma.InvoiceUpdateManyWithoutStudentNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  messageThreads?: Prisma.MessageThreadUpdateManyWithoutCreatorNestedInput
+  sentMessages?: Prisma.MessageUpdateManyWithoutSenderNestedInput
+  receivedMessages?: Prisma.MessageUpdateManyWithoutReceiverNestedInput
+  communicationAnnouncements?: Prisma.AnnouncementUpdateManyWithoutCreatorNestedInput
+  aiInterviewSessions?: Prisma.AIInterviewSessionUpdateManyWithoutUserNestedInput
+  doubtQueries?: Prisma.DoubtQueryUpdateManyWithoutUserNestedInput
+  aiRecommendations?: Prisma.AIRecommendationUpdateManyWithoutUserNestedInput
+  officerPotential?: Prisma.OfficerPotentialUpdateOneWithoutUserNestedInput
+  fitnessProfile?: Prisma.FitnessProfileUpdateOneWithoutUserNestedInput
+  ptAttendances?: Prisma.PTAttendanceUpdateManyWithoutStudentNestedInput
+  physicalEligibilities?: Prisma.PhysicalEligibilityUpdateManyWithoutUserNestedInput
+  dailyFitnessLogs?: Prisma.DailyFitnessLogUpdateManyWithoutUserNestedInput
+  quizBattleParticipants?: Prisma.QuizBattleParticipantUpdateManyWithoutUserNestedInput
+  leaderboard?: Prisma.LeaderboardUpdateOneWithoutUserNestedInput
+  mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
+}
+
+export type UserUncheckedUpdateWithoutMediaFoldersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
+  testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
+  psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
+  olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
+  studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
+  performanceAnalytics?: Prisma.PerformanceAnalyticsUncheckedUpdateOneWithoutUserNestedInput
+  revisionSchedules?: Prisma.RevisionScheduleUncheckedUpdateManyWithoutUserNestedInput
+  lectureProgress?: Prisma.LectureProgressUncheckedUpdateManyWithoutUserNestedInput
+  attendanceRecords?: Prisma.AttendanceUncheckedUpdateManyWithoutUserNestedInput
+  markedAttendance?: Prisma.AttendanceUncheckedUpdateManyWithoutMarkerNestedInput
+  facultyProfile?: Prisma.FacultyUncheckedUpdateOneWithoutUserNestedInput
+  hostelAllocations?: Prisma.HostelAllocationUncheckedUpdateManyWithoutStudentNestedInput
+  inOutEntries?: Prisma.InOutEntryUncheckedUpdateManyWithoutStudentNestedInput
+  hostelLeaves?: Prisma.HostelLeaveUncheckedUpdateManyWithoutStudentNestedInput
+  approvedHostelLeaves?: Prisma.HostelLeaveUncheckedUpdateManyWithoutApproverNestedInput
+  disciplineRecords?: Prisma.DisciplineRecordUncheckedUpdateManyWithoutStudentNestedInput
+  recordedDiscipline?: Prisma.DisciplineRecordUncheckedUpdateManyWithoutRecorderNestedInput
+  paradePerformances?: Prisma.ParadePerformanceUncheckedUpdateManyWithoutStudentNestedInput
+  assignedLeads?: Prisma.LeadUncheckedUpdateManyWithoutAssigneeNestedInput
+  followUpsCreated?: Prisma.FollowUpUncheckedUpdateManyWithoutCreatorNestedInput
+  admissions?: Prisma.AdmissionUncheckedUpdateManyWithoutStudentNestedInput
+  referralsMade?: Prisma.ReferralUncheckedUpdateManyWithoutReferrerNestedInput
+  referralsReceived?: Prisma.ReferralUncheckedUpdateManyWithoutReferredNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutUserNestedInput
+  subscriptions?: Prisma.SubscriptionUncheckedUpdateManyWithoutUserNestedInput
+  feeInstallments?: Prisma.FeeInstallmentUncheckedUpdateManyWithoutStudentNestedInput
+  invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutStudentNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  messageThreads?: Prisma.MessageThreadUncheckedUpdateManyWithoutCreatorNestedInput
+  sentMessages?: Prisma.MessageUncheckedUpdateManyWithoutSenderNestedInput
+  receivedMessages?: Prisma.MessageUncheckedUpdateManyWithoutReceiverNestedInput
+  communicationAnnouncements?: Prisma.AnnouncementUncheckedUpdateManyWithoutCreatorNestedInput
+  aiInterviewSessions?: Prisma.AIInterviewSessionUncheckedUpdateManyWithoutUserNestedInput
+  doubtQueries?: Prisma.DoubtQueryUncheckedUpdateManyWithoutUserNestedInput
+  aiRecommendations?: Prisma.AIRecommendationUncheckedUpdateManyWithoutUserNestedInput
+  officerPotential?: Prisma.OfficerPotentialUncheckedUpdateOneWithoutUserNestedInput
+  fitnessProfile?: Prisma.FitnessProfileUncheckedUpdateOneWithoutUserNestedInput
+  ptAttendances?: Prisma.PTAttendanceUncheckedUpdateManyWithoutStudentNestedInput
+  physicalEligibilities?: Prisma.PhysicalEligibilityUncheckedUpdateManyWithoutUserNestedInput
+  dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedUpdateManyWithoutUserNestedInput
+  quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedUpdateManyWithoutUserNestedInput
+  leaderboard?: Prisma.LeaderboardUncheckedUpdateOneWithoutUserNestedInput
+  mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
+}
+
+export type UserCreateWithoutMediaFilesInput = {
+  id?: string
+  name: string
+  email: string
+  mobile: string
+  password: string
+  role?: $Enums.Role
+  emailVerified?: boolean
+  mobileVerified?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
+  testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
+  psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
+  olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
+  studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
+  performanceAnalytics?: Prisma.PerformanceAnalyticsCreateNestedOneWithoutUserInput
+  revisionSchedules?: Prisma.RevisionScheduleCreateNestedManyWithoutUserInput
+  lectureProgress?: Prisma.LectureProgressCreateNestedManyWithoutUserInput
+  attendanceRecords?: Prisma.AttendanceCreateNestedManyWithoutUserInput
+  markedAttendance?: Prisma.AttendanceCreateNestedManyWithoutMarkerInput
+  facultyProfile?: Prisma.FacultyCreateNestedOneWithoutUserInput
+  hostelAllocations?: Prisma.HostelAllocationCreateNestedManyWithoutStudentInput
+  inOutEntries?: Prisma.InOutEntryCreateNestedManyWithoutStudentInput
+  hostelLeaves?: Prisma.HostelLeaveCreateNestedManyWithoutStudentInput
+  approvedHostelLeaves?: Prisma.HostelLeaveCreateNestedManyWithoutApproverInput
+  disciplineRecords?: Prisma.DisciplineRecordCreateNestedManyWithoutStudentInput
+  recordedDiscipline?: Prisma.DisciplineRecordCreateNestedManyWithoutRecorderInput
+  paradePerformances?: Prisma.ParadePerformanceCreateNestedManyWithoutStudentInput
+  assignedLeads?: Prisma.LeadCreateNestedManyWithoutAssigneeInput
+  followUpsCreated?: Prisma.FollowUpCreateNestedManyWithoutCreatorInput
+  admissions?: Prisma.AdmissionCreateNestedManyWithoutStudentInput
+  referralsMade?: Prisma.ReferralCreateNestedManyWithoutReferrerInput
+  referralsReceived?: Prisma.ReferralCreateNestedManyWithoutReferredInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutUserInput
+  subscriptions?: Prisma.SubscriptionCreateNestedManyWithoutUserInput
+  feeInstallments?: Prisma.FeeInstallmentCreateNestedManyWithoutStudentInput
+  invoices?: Prisma.InvoiceCreateNestedManyWithoutStudentInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  messageThreads?: Prisma.MessageThreadCreateNestedManyWithoutCreatorInput
+  sentMessages?: Prisma.MessageCreateNestedManyWithoutSenderInput
+  receivedMessages?: Prisma.MessageCreateNestedManyWithoutReceiverInput
+  communicationAnnouncements?: Prisma.AnnouncementCreateNestedManyWithoutCreatorInput
+  aiInterviewSessions?: Prisma.AIInterviewSessionCreateNestedManyWithoutUserInput
+  doubtQueries?: Prisma.DoubtQueryCreateNestedManyWithoutUserInput
+  aiRecommendations?: Prisma.AIRecommendationCreateNestedManyWithoutUserInput
+  officerPotential?: Prisma.OfficerPotentialCreateNestedOneWithoutUserInput
+  fitnessProfile?: Prisma.FitnessProfileCreateNestedOneWithoutUserInput
+  ptAttendances?: Prisma.PTAttendanceCreateNestedManyWithoutStudentInput
+  physicalEligibilities?: Prisma.PhysicalEligibilityCreateNestedManyWithoutUserInput
+  dailyFitnessLogs?: Prisma.DailyFitnessLogCreateNestedManyWithoutUserInput
+  quizBattleParticipants?: Prisma.QuizBattleParticipantCreateNestedManyWithoutUserInput
+  leaderboard?: Prisma.LeaderboardCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
+  documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
+}
+
+export type UserUncheckedCreateWithoutMediaFilesInput = {
+  id?: string
+  name: string
+  email: string
+  mobile: string
+  password: string
+  role?: $Enums.Role
+  emailVerified?: boolean
+  mobileVerified?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
+  testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
+  psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
+  olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
+  studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
+  performanceAnalytics?: Prisma.PerformanceAnalyticsUncheckedCreateNestedOneWithoutUserInput
+  revisionSchedules?: Prisma.RevisionScheduleUncheckedCreateNestedManyWithoutUserInput
+  lectureProgress?: Prisma.LectureProgressUncheckedCreateNestedManyWithoutUserInput
+  attendanceRecords?: Prisma.AttendanceUncheckedCreateNestedManyWithoutUserInput
+  markedAttendance?: Prisma.AttendanceUncheckedCreateNestedManyWithoutMarkerInput
+  facultyProfile?: Prisma.FacultyUncheckedCreateNestedOneWithoutUserInput
+  hostelAllocations?: Prisma.HostelAllocationUncheckedCreateNestedManyWithoutStudentInput
+  inOutEntries?: Prisma.InOutEntryUncheckedCreateNestedManyWithoutStudentInput
+  hostelLeaves?: Prisma.HostelLeaveUncheckedCreateNestedManyWithoutStudentInput
+  approvedHostelLeaves?: Prisma.HostelLeaveUncheckedCreateNestedManyWithoutApproverInput
+  disciplineRecords?: Prisma.DisciplineRecordUncheckedCreateNestedManyWithoutStudentInput
+  recordedDiscipline?: Prisma.DisciplineRecordUncheckedCreateNestedManyWithoutRecorderInput
+  paradePerformances?: Prisma.ParadePerformanceUncheckedCreateNestedManyWithoutStudentInput
+  assignedLeads?: Prisma.LeadUncheckedCreateNestedManyWithoutAssigneeInput
+  followUpsCreated?: Prisma.FollowUpUncheckedCreateNestedManyWithoutCreatorInput
+  admissions?: Prisma.AdmissionUncheckedCreateNestedManyWithoutStudentInput
+  referralsMade?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferrerInput
+  referralsReceived?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferredInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutUserInput
+  subscriptions?: Prisma.SubscriptionUncheckedCreateNestedManyWithoutUserInput
+  feeInstallments?: Prisma.FeeInstallmentUncheckedCreateNestedManyWithoutStudentInput
+  invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutStudentInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  messageThreads?: Prisma.MessageThreadUncheckedCreateNestedManyWithoutCreatorInput
+  sentMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutSenderInput
+  receivedMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutReceiverInput
+  communicationAnnouncements?: Prisma.AnnouncementUncheckedCreateNestedManyWithoutCreatorInput
+  aiInterviewSessions?: Prisma.AIInterviewSessionUncheckedCreateNestedManyWithoutUserInput
+  doubtQueries?: Prisma.DoubtQueryUncheckedCreateNestedManyWithoutUserInput
+  aiRecommendations?: Prisma.AIRecommendationUncheckedCreateNestedManyWithoutUserInput
+  officerPotential?: Prisma.OfficerPotentialUncheckedCreateNestedOneWithoutUserInput
+  fitnessProfile?: Prisma.FitnessProfileUncheckedCreateNestedOneWithoutUserInput
+  ptAttendances?: Prisma.PTAttendanceUncheckedCreateNestedManyWithoutStudentInput
+  physicalEligibilities?: Prisma.PhysicalEligibilityUncheckedCreateNestedManyWithoutUserInput
+  dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedCreateNestedManyWithoutUserInput
+  quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedCreateNestedManyWithoutUserInput
+  leaderboard?: Prisma.LeaderboardUncheckedCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
+  documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
+}
+
+export type UserCreateOrConnectWithoutMediaFilesInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutMediaFilesInput, Prisma.UserUncheckedCreateWithoutMediaFilesInput>
+}
+
+export type UserUpsertWithoutMediaFilesInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutMediaFilesInput, Prisma.UserUncheckedUpdateWithoutMediaFilesInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutMediaFilesInput, Prisma.UserUncheckedCreateWithoutMediaFilesInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutMediaFilesInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutMediaFilesInput, Prisma.UserUncheckedUpdateWithoutMediaFilesInput>
+}
+
+export type UserUpdateWithoutMediaFilesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
+  testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
+  psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
+  olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
+  studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
+  performanceAnalytics?: Prisma.PerformanceAnalyticsUpdateOneWithoutUserNestedInput
+  revisionSchedules?: Prisma.RevisionScheduleUpdateManyWithoutUserNestedInput
+  lectureProgress?: Prisma.LectureProgressUpdateManyWithoutUserNestedInput
+  attendanceRecords?: Prisma.AttendanceUpdateManyWithoutUserNestedInput
+  markedAttendance?: Prisma.AttendanceUpdateManyWithoutMarkerNestedInput
+  facultyProfile?: Prisma.FacultyUpdateOneWithoutUserNestedInput
+  hostelAllocations?: Prisma.HostelAllocationUpdateManyWithoutStudentNestedInput
+  inOutEntries?: Prisma.InOutEntryUpdateManyWithoutStudentNestedInput
+  hostelLeaves?: Prisma.HostelLeaveUpdateManyWithoutStudentNestedInput
+  approvedHostelLeaves?: Prisma.HostelLeaveUpdateManyWithoutApproverNestedInput
+  disciplineRecords?: Prisma.DisciplineRecordUpdateManyWithoutStudentNestedInput
+  recordedDiscipline?: Prisma.DisciplineRecordUpdateManyWithoutRecorderNestedInput
+  paradePerformances?: Prisma.ParadePerformanceUpdateManyWithoutStudentNestedInput
+  assignedLeads?: Prisma.LeadUpdateManyWithoutAssigneeNestedInput
+  followUpsCreated?: Prisma.FollowUpUpdateManyWithoutCreatorNestedInput
+  admissions?: Prisma.AdmissionUpdateManyWithoutStudentNestedInput
+  referralsMade?: Prisma.ReferralUpdateManyWithoutReferrerNestedInput
+  referralsReceived?: Prisma.ReferralUpdateManyWithoutReferredNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutUserNestedInput
+  subscriptions?: Prisma.SubscriptionUpdateManyWithoutUserNestedInput
+  feeInstallments?: Prisma.FeeInstallmentUpdateManyWithoutStudentNestedInput
+  invoices?: Prisma.InvoiceUpdateManyWithoutStudentNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  messageThreads?: Prisma.MessageThreadUpdateManyWithoutCreatorNestedInput
+  sentMessages?: Prisma.MessageUpdateManyWithoutSenderNestedInput
+  receivedMessages?: Prisma.MessageUpdateManyWithoutReceiverNestedInput
+  communicationAnnouncements?: Prisma.AnnouncementUpdateManyWithoutCreatorNestedInput
+  aiInterviewSessions?: Prisma.AIInterviewSessionUpdateManyWithoutUserNestedInput
+  doubtQueries?: Prisma.DoubtQueryUpdateManyWithoutUserNestedInput
+  aiRecommendations?: Prisma.AIRecommendationUpdateManyWithoutUserNestedInput
+  officerPotential?: Prisma.OfficerPotentialUpdateOneWithoutUserNestedInput
+  fitnessProfile?: Prisma.FitnessProfileUpdateOneWithoutUserNestedInput
+  ptAttendances?: Prisma.PTAttendanceUpdateManyWithoutStudentNestedInput
+  physicalEligibilities?: Prisma.PhysicalEligibilityUpdateManyWithoutUserNestedInput
+  dailyFitnessLogs?: Prisma.DailyFitnessLogUpdateManyWithoutUserNestedInput
+  quizBattleParticipants?: Prisma.QuizBattleParticipantUpdateManyWithoutUserNestedInput
+  leaderboard?: Prisma.LeaderboardUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
+  documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
+}
+
+export type UserUncheckedUpdateWithoutMediaFilesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
+  testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
+  psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
+  olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
+  studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
+  performanceAnalytics?: Prisma.PerformanceAnalyticsUncheckedUpdateOneWithoutUserNestedInput
+  revisionSchedules?: Prisma.RevisionScheduleUncheckedUpdateManyWithoutUserNestedInput
+  lectureProgress?: Prisma.LectureProgressUncheckedUpdateManyWithoutUserNestedInput
+  attendanceRecords?: Prisma.AttendanceUncheckedUpdateManyWithoutUserNestedInput
+  markedAttendance?: Prisma.AttendanceUncheckedUpdateManyWithoutMarkerNestedInput
+  facultyProfile?: Prisma.FacultyUncheckedUpdateOneWithoutUserNestedInput
+  hostelAllocations?: Prisma.HostelAllocationUncheckedUpdateManyWithoutStudentNestedInput
+  inOutEntries?: Prisma.InOutEntryUncheckedUpdateManyWithoutStudentNestedInput
+  hostelLeaves?: Prisma.HostelLeaveUncheckedUpdateManyWithoutStudentNestedInput
+  approvedHostelLeaves?: Prisma.HostelLeaveUncheckedUpdateManyWithoutApproverNestedInput
+  disciplineRecords?: Prisma.DisciplineRecordUncheckedUpdateManyWithoutStudentNestedInput
+  recordedDiscipline?: Prisma.DisciplineRecordUncheckedUpdateManyWithoutRecorderNestedInput
+  paradePerformances?: Prisma.ParadePerformanceUncheckedUpdateManyWithoutStudentNestedInput
+  assignedLeads?: Prisma.LeadUncheckedUpdateManyWithoutAssigneeNestedInput
+  followUpsCreated?: Prisma.FollowUpUncheckedUpdateManyWithoutCreatorNestedInput
+  admissions?: Prisma.AdmissionUncheckedUpdateManyWithoutStudentNestedInput
+  referralsMade?: Prisma.ReferralUncheckedUpdateManyWithoutReferrerNestedInput
+  referralsReceived?: Prisma.ReferralUncheckedUpdateManyWithoutReferredNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutUserNestedInput
+  subscriptions?: Prisma.SubscriptionUncheckedUpdateManyWithoutUserNestedInput
+  feeInstallments?: Prisma.FeeInstallmentUncheckedUpdateManyWithoutStudentNestedInput
+  invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutStudentNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  messageThreads?: Prisma.MessageThreadUncheckedUpdateManyWithoutCreatorNestedInput
+  sentMessages?: Prisma.MessageUncheckedUpdateManyWithoutSenderNestedInput
+  receivedMessages?: Prisma.MessageUncheckedUpdateManyWithoutReceiverNestedInput
+  communicationAnnouncements?: Prisma.AnnouncementUncheckedUpdateManyWithoutCreatorNestedInput
+  aiInterviewSessions?: Prisma.AIInterviewSessionUncheckedUpdateManyWithoutUserNestedInput
+  doubtQueries?: Prisma.DoubtQueryUncheckedUpdateManyWithoutUserNestedInput
+  aiRecommendations?: Prisma.AIRecommendationUncheckedUpdateManyWithoutUserNestedInput
+  officerPotential?: Prisma.OfficerPotentialUncheckedUpdateOneWithoutUserNestedInput
+  fitnessProfile?: Prisma.FitnessProfileUncheckedUpdateOneWithoutUserNestedInput
+  ptAttendances?: Prisma.PTAttendanceUncheckedUpdateManyWithoutStudentNestedInput
+  physicalEligibilities?: Prisma.PhysicalEligibilityUncheckedUpdateManyWithoutUserNestedInput
+  dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedUpdateManyWithoutUserNestedInput
+  quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedUpdateManyWithoutUserNestedInput
+  leaderboard?: Prisma.LeaderboardUncheckedUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
+  documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
+}
+
+export type UserCreateWithoutDocumentsInput = {
+  id?: string
+  name: string
+  email: string
+  mobile: string
+  password: string
+  role?: $Enums.Role
+  emailVerified?: boolean
+  mobileVerified?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
+  testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
+  psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
+  olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
+  studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
+  performanceAnalytics?: Prisma.PerformanceAnalyticsCreateNestedOneWithoutUserInput
+  revisionSchedules?: Prisma.RevisionScheduleCreateNestedManyWithoutUserInput
+  lectureProgress?: Prisma.LectureProgressCreateNestedManyWithoutUserInput
+  attendanceRecords?: Prisma.AttendanceCreateNestedManyWithoutUserInput
+  markedAttendance?: Prisma.AttendanceCreateNestedManyWithoutMarkerInput
+  facultyProfile?: Prisma.FacultyCreateNestedOneWithoutUserInput
+  hostelAllocations?: Prisma.HostelAllocationCreateNestedManyWithoutStudentInput
+  inOutEntries?: Prisma.InOutEntryCreateNestedManyWithoutStudentInput
+  hostelLeaves?: Prisma.HostelLeaveCreateNestedManyWithoutStudentInput
+  approvedHostelLeaves?: Prisma.HostelLeaveCreateNestedManyWithoutApproverInput
+  disciplineRecords?: Prisma.DisciplineRecordCreateNestedManyWithoutStudentInput
+  recordedDiscipline?: Prisma.DisciplineRecordCreateNestedManyWithoutRecorderInput
+  paradePerformances?: Prisma.ParadePerformanceCreateNestedManyWithoutStudentInput
+  assignedLeads?: Prisma.LeadCreateNestedManyWithoutAssigneeInput
+  followUpsCreated?: Prisma.FollowUpCreateNestedManyWithoutCreatorInput
+  admissions?: Prisma.AdmissionCreateNestedManyWithoutStudentInput
+  referralsMade?: Prisma.ReferralCreateNestedManyWithoutReferrerInput
+  referralsReceived?: Prisma.ReferralCreateNestedManyWithoutReferredInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutUserInput
+  subscriptions?: Prisma.SubscriptionCreateNestedManyWithoutUserInput
+  feeInstallments?: Prisma.FeeInstallmentCreateNestedManyWithoutStudentInput
+  invoices?: Prisma.InvoiceCreateNestedManyWithoutStudentInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  messageThreads?: Prisma.MessageThreadCreateNestedManyWithoutCreatorInput
+  sentMessages?: Prisma.MessageCreateNestedManyWithoutSenderInput
+  receivedMessages?: Prisma.MessageCreateNestedManyWithoutReceiverInput
+  communicationAnnouncements?: Prisma.AnnouncementCreateNestedManyWithoutCreatorInput
+  aiInterviewSessions?: Prisma.AIInterviewSessionCreateNestedManyWithoutUserInput
+  doubtQueries?: Prisma.DoubtQueryCreateNestedManyWithoutUserInput
+  aiRecommendations?: Prisma.AIRecommendationCreateNestedManyWithoutUserInput
+  officerPotential?: Prisma.OfficerPotentialCreateNestedOneWithoutUserInput
+  fitnessProfile?: Prisma.FitnessProfileCreateNestedOneWithoutUserInput
+  ptAttendances?: Prisma.PTAttendanceCreateNestedManyWithoutStudentInput
+  physicalEligibilities?: Prisma.PhysicalEligibilityCreateNestedManyWithoutUserInput
+  dailyFitnessLogs?: Prisma.DailyFitnessLogCreateNestedManyWithoutUserInput
+  quizBattleParticipants?: Prisma.QuizBattleParticipantCreateNestedManyWithoutUserInput
+  leaderboard?: Prisma.LeaderboardCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
+}
+
+export type UserUncheckedCreateWithoutDocumentsInput = {
+  id?: string
+  name: string
+  email: string
+  mobile: string
+  password: string
+  role?: $Enums.Role
+  emailVerified?: boolean
+  mobileVerified?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
+  testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
+  psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
+  olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
+  studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
+  performanceAnalytics?: Prisma.PerformanceAnalyticsUncheckedCreateNestedOneWithoutUserInput
+  revisionSchedules?: Prisma.RevisionScheduleUncheckedCreateNestedManyWithoutUserInput
+  lectureProgress?: Prisma.LectureProgressUncheckedCreateNestedManyWithoutUserInput
+  attendanceRecords?: Prisma.AttendanceUncheckedCreateNestedManyWithoutUserInput
+  markedAttendance?: Prisma.AttendanceUncheckedCreateNestedManyWithoutMarkerInput
+  facultyProfile?: Prisma.FacultyUncheckedCreateNestedOneWithoutUserInput
+  hostelAllocations?: Prisma.HostelAllocationUncheckedCreateNestedManyWithoutStudentInput
+  inOutEntries?: Prisma.InOutEntryUncheckedCreateNestedManyWithoutStudentInput
+  hostelLeaves?: Prisma.HostelLeaveUncheckedCreateNestedManyWithoutStudentInput
+  approvedHostelLeaves?: Prisma.HostelLeaveUncheckedCreateNestedManyWithoutApproverInput
+  disciplineRecords?: Prisma.DisciplineRecordUncheckedCreateNestedManyWithoutStudentInput
+  recordedDiscipline?: Prisma.DisciplineRecordUncheckedCreateNestedManyWithoutRecorderInput
+  paradePerformances?: Prisma.ParadePerformanceUncheckedCreateNestedManyWithoutStudentInput
+  assignedLeads?: Prisma.LeadUncheckedCreateNestedManyWithoutAssigneeInput
+  followUpsCreated?: Prisma.FollowUpUncheckedCreateNestedManyWithoutCreatorInput
+  admissions?: Prisma.AdmissionUncheckedCreateNestedManyWithoutStudentInput
+  referralsMade?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferrerInput
+  referralsReceived?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferredInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutUserInput
+  subscriptions?: Prisma.SubscriptionUncheckedCreateNestedManyWithoutUserInput
+  feeInstallments?: Prisma.FeeInstallmentUncheckedCreateNestedManyWithoutStudentInput
+  invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutStudentInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  messageThreads?: Prisma.MessageThreadUncheckedCreateNestedManyWithoutCreatorInput
+  sentMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutSenderInput
+  receivedMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutReceiverInput
+  communicationAnnouncements?: Prisma.AnnouncementUncheckedCreateNestedManyWithoutCreatorInput
+  aiInterviewSessions?: Prisma.AIInterviewSessionUncheckedCreateNestedManyWithoutUserInput
+  doubtQueries?: Prisma.DoubtQueryUncheckedCreateNestedManyWithoutUserInput
+  aiRecommendations?: Prisma.AIRecommendationUncheckedCreateNestedManyWithoutUserInput
+  officerPotential?: Prisma.OfficerPotentialUncheckedCreateNestedOneWithoutUserInput
+  fitnessProfile?: Prisma.FitnessProfileUncheckedCreateNestedOneWithoutUserInput
+  ptAttendances?: Prisma.PTAttendanceUncheckedCreateNestedManyWithoutStudentInput
+  physicalEligibilities?: Prisma.PhysicalEligibilityUncheckedCreateNestedManyWithoutUserInput
+  dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedCreateNestedManyWithoutUserInput
+  quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedCreateNestedManyWithoutUserInput
+  leaderboard?: Prisma.LeaderboardUncheckedCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
+}
+
+export type UserCreateOrConnectWithoutDocumentsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutDocumentsInput, Prisma.UserUncheckedCreateWithoutDocumentsInput>
+}
+
+export type UserUpsertWithoutDocumentsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutDocumentsInput, Prisma.UserUncheckedUpdateWithoutDocumentsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutDocumentsInput, Prisma.UserUncheckedCreateWithoutDocumentsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutDocumentsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutDocumentsInput, Prisma.UserUncheckedUpdateWithoutDocumentsInput>
+}
+
+export type UserUpdateWithoutDocumentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
+  testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
+  psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
+  olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
+  studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
+  performanceAnalytics?: Prisma.PerformanceAnalyticsUpdateOneWithoutUserNestedInput
+  revisionSchedules?: Prisma.RevisionScheduleUpdateManyWithoutUserNestedInput
+  lectureProgress?: Prisma.LectureProgressUpdateManyWithoutUserNestedInput
+  attendanceRecords?: Prisma.AttendanceUpdateManyWithoutUserNestedInput
+  markedAttendance?: Prisma.AttendanceUpdateManyWithoutMarkerNestedInput
+  facultyProfile?: Prisma.FacultyUpdateOneWithoutUserNestedInput
+  hostelAllocations?: Prisma.HostelAllocationUpdateManyWithoutStudentNestedInput
+  inOutEntries?: Prisma.InOutEntryUpdateManyWithoutStudentNestedInput
+  hostelLeaves?: Prisma.HostelLeaveUpdateManyWithoutStudentNestedInput
+  approvedHostelLeaves?: Prisma.HostelLeaveUpdateManyWithoutApproverNestedInput
+  disciplineRecords?: Prisma.DisciplineRecordUpdateManyWithoutStudentNestedInput
+  recordedDiscipline?: Prisma.DisciplineRecordUpdateManyWithoutRecorderNestedInput
+  paradePerformances?: Prisma.ParadePerformanceUpdateManyWithoutStudentNestedInput
+  assignedLeads?: Prisma.LeadUpdateManyWithoutAssigneeNestedInput
+  followUpsCreated?: Prisma.FollowUpUpdateManyWithoutCreatorNestedInput
+  admissions?: Prisma.AdmissionUpdateManyWithoutStudentNestedInput
+  referralsMade?: Prisma.ReferralUpdateManyWithoutReferrerNestedInput
+  referralsReceived?: Prisma.ReferralUpdateManyWithoutReferredNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutUserNestedInput
+  subscriptions?: Prisma.SubscriptionUpdateManyWithoutUserNestedInput
+  feeInstallments?: Prisma.FeeInstallmentUpdateManyWithoutStudentNestedInput
+  invoices?: Prisma.InvoiceUpdateManyWithoutStudentNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  messageThreads?: Prisma.MessageThreadUpdateManyWithoutCreatorNestedInput
+  sentMessages?: Prisma.MessageUpdateManyWithoutSenderNestedInput
+  receivedMessages?: Prisma.MessageUpdateManyWithoutReceiverNestedInput
+  communicationAnnouncements?: Prisma.AnnouncementUpdateManyWithoutCreatorNestedInput
+  aiInterviewSessions?: Prisma.AIInterviewSessionUpdateManyWithoutUserNestedInput
+  doubtQueries?: Prisma.DoubtQueryUpdateManyWithoutUserNestedInput
+  aiRecommendations?: Prisma.AIRecommendationUpdateManyWithoutUserNestedInput
+  officerPotential?: Prisma.OfficerPotentialUpdateOneWithoutUserNestedInput
+  fitnessProfile?: Prisma.FitnessProfileUpdateOneWithoutUserNestedInput
+  ptAttendances?: Prisma.PTAttendanceUpdateManyWithoutStudentNestedInput
+  physicalEligibilities?: Prisma.PhysicalEligibilityUpdateManyWithoutUserNestedInput
+  dailyFitnessLogs?: Prisma.DailyFitnessLogUpdateManyWithoutUserNestedInput
+  quizBattleParticipants?: Prisma.QuizBattleParticipantUpdateManyWithoutUserNestedInput
+  leaderboard?: Prisma.LeaderboardUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
+}
+
+export type UserUncheckedUpdateWithoutDocumentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
+  testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
+  psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
+  olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
+  studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
+  performanceAnalytics?: Prisma.PerformanceAnalyticsUncheckedUpdateOneWithoutUserNestedInput
+  revisionSchedules?: Prisma.RevisionScheduleUncheckedUpdateManyWithoutUserNestedInput
+  lectureProgress?: Prisma.LectureProgressUncheckedUpdateManyWithoutUserNestedInput
+  attendanceRecords?: Prisma.AttendanceUncheckedUpdateManyWithoutUserNestedInput
+  markedAttendance?: Prisma.AttendanceUncheckedUpdateManyWithoutMarkerNestedInput
+  facultyProfile?: Prisma.FacultyUncheckedUpdateOneWithoutUserNestedInput
+  hostelAllocations?: Prisma.HostelAllocationUncheckedUpdateManyWithoutStudentNestedInput
+  inOutEntries?: Prisma.InOutEntryUncheckedUpdateManyWithoutStudentNestedInput
+  hostelLeaves?: Prisma.HostelLeaveUncheckedUpdateManyWithoutStudentNestedInput
+  approvedHostelLeaves?: Prisma.HostelLeaveUncheckedUpdateManyWithoutApproverNestedInput
+  disciplineRecords?: Prisma.DisciplineRecordUncheckedUpdateManyWithoutStudentNestedInput
+  recordedDiscipline?: Prisma.DisciplineRecordUncheckedUpdateManyWithoutRecorderNestedInput
+  paradePerformances?: Prisma.ParadePerformanceUncheckedUpdateManyWithoutStudentNestedInput
+  assignedLeads?: Prisma.LeadUncheckedUpdateManyWithoutAssigneeNestedInput
+  followUpsCreated?: Prisma.FollowUpUncheckedUpdateManyWithoutCreatorNestedInput
+  admissions?: Prisma.AdmissionUncheckedUpdateManyWithoutStudentNestedInput
+  referralsMade?: Prisma.ReferralUncheckedUpdateManyWithoutReferrerNestedInput
+  referralsReceived?: Prisma.ReferralUncheckedUpdateManyWithoutReferredNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutUserNestedInput
+  subscriptions?: Prisma.SubscriptionUncheckedUpdateManyWithoutUserNestedInput
+  feeInstallments?: Prisma.FeeInstallmentUncheckedUpdateManyWithoutStudentNestedInput
+  invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutStudentNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  messageThreads?: Prisma.MessageThreadUncheckedUpdateManyWithoutCreatorNestedInput
+  sentMessages?: Prisma.MessageUncheckedUpdateManyWithoutSenderNestedInput
+  receivedMessages?: Prisma.MessageUncheckedUpdateManyWithoutReceiverNestedInput
+  communicationAnnouncements?: Prisma.AnnouncementUncheckedUpdateManyWithoutCreatorNestedInput
+  aiInterviewSessions?: Prisma.AIInterviewSessionUncheckedUpdateManyWithoutUserNestedInput
+  doubtQueries?: Prisma.DoubtQueryUncheckedUpdateManyWithoutUserNestedInput
+  aiRecommendations?: Prisma.AIRecommendationUncheckedUpdateManyWithoutUserNestedInput
+  officerPotential?: Prisma.OfficerPotentialUncheckedUpdateOneWithoutUserNestedInput
+  fitnessProfile?: Prisma.FitnessProfileUncheckedUpdateOneWithoutUserNestedInput
+  ptAttendances?: Prisma.PTAttendanceUncheckedUpdateManyWithoutStudentNestedInput
+  physicalEligibilities?: Prisma.PhysicalEligibilityUncheckedUpdateManyWithoutUserNestedInput
+  dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedUpdateManyWithoutUserNestedInput
+  quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedUpdateManyWithoutUserNestedInput
+  leaderboard?: Prisma.LeaderboardUncheckedUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
 }
 
 
@@ -11117,6 +12416,9 @@ export type UserCountOutputType = {
   physicalEligibilities: number
   dailyFitnessLogs: number
   quizBattleParticipants: number
+  mediaFolders: number
+  mediaFiles: number
+  documents: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -11156,6 +12458,9 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   physicalEligibilities?: boolean | UserCountOutputTypeCountPhysicalEligibilitiesArgs
   dailyFitnessLogs?: boolean | UserCountOutputTypeCountDailyFitnessLogsArgs
   quizBattleParticipants?: boolean | UserCountOutputTypeCountQuizBattleParticipantsArgs
+  mediaFolders?: boolean | UserCountOutputTypeCountMediaFoldersArgs
+  mediaFiles?: boolean | UserCountOutputTypeCountMediaFilesArgs
+  documents?: boolean | UserCountOutputTypeCountDocumentsArgs
 }
 
 /**
@@ -11420,6 +12725,27 @@ export type UserCountOutputTypeCountQuizBattleParticipantsArgs<ExtArgs extends r
   where?: Prisma.QuizBattleParticipantWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountMediaFoldersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.MediaFolderWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountMediaFilesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.MediaFileWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountDocumentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.DocumentWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -11474,6 +12800,9 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   dailyFitnessLogs?: boolean | Prisma.User$dailyFitnessLogsArgs<ExtArgs>
   quizBattleParticipants?: boolean | Prisma.User$quizBattleParticipantsArgs<ExtArgs>
   leaderboard?: boolean | Prisma.User$leaderboardArgs<ExtArgs>
+  mediaFolders?: boolean | Prisma.User$mediaFoldersArgs<ExtArgs>
+  mediaFiles?: boolean | Prisma.User$mediaFilesArgs<ExtArgs>
+  documents?: boolean | Prisma.User$documentsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -11560,6 +12889,9 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   dailyFitnessLogs?: boolean | Prisma.User$dailyFitnessLogsArgs<ExtArgs>
   quizBattleParticipants?: boolean | Prisma.User$quizBattleParticipantsArgs<ExtArgs>
   leaderboard?: boolean | Prisma.User$leaderboardArgs<ExtArgs>
+  mediaFolders?: boolean | Prisma.User$mediaFoldersArgs<ExtArgs>
+  mediaFiles?: boolean | Prisma.User$mediaFilesArgs<ExtArgs>
+  documents?: boolean | Prisma.User$documentsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -11610,6 +12942,9 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     dailyFitnessLogs: Prisma.$DailyFitnessLogPayload<ExtArgs>[]
     quizBattleParticipants: Prisma.$QuizBattleParticipantPayload<ExtArgs>[]
     leaderboard: Prisma.$LeaderboardPayload<ExtArgs> | null
+    mediaFolders: Prisma.$MediaFolderPayload<ExtArgs>[]
+    mediaFiles: Prisma.$MediaFilePayload<ExtArgs>[]
+    documents: Prisma.$DocumentPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -12058,6 +13393,9 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   dailyFitnessLogs<T extends Prisma.User$dailyFitnessLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$dailyFitnessLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DailyFitnessLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   quizBattleParticipants<T extends Prisma.User$quizBattleParticipantsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$quizBattleParticipantsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$QuizBattleParticipantPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   leaderboard<T extends Prisma.User$leaderboardArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$leaderboardArgs<ExtArgs>>): Prisma.Prisma__LeaderboardClient<runtime.Types.Result.GetResult<Prisma.$LeaderboardPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  mediaFolders<T extends Prisma.User$mediaFoldersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$mediaFoldersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MediaFolderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  mediaFiles<T extends Prisma.User$mediaFilesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$mediaFilesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MediaFilePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  documents<T extends Prisma.User$documentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$documentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DocumentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -13465,6 +14803,78 @@ export type User$leaderboardArgs<ExtArgs extends runtime.Types.Extensions.Intern
    */
   include?: Prisma.LeaderboardInclude<ExtArgs> | null
   where?: Prisma.LeaderboardWhereInput
+}
+
+/**
+ * User.mediaFolders
+ */
+export type User$mediaFoldersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the MediaFolder
+   */
+  select?: Prisma.MediaFolderSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the MediaFolder
+   */
+  omit?: Prisma.MediaFolderOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.MediaFolderInclude<ExtArgs> | null
+  where?: Prisma.MediaFolderWhereInput
+  orderBy?: Prisma.MediaFolderOrderByWithRelationInput | Prisma.MediaFolderOrderByWithRelationInput[]
+  cursor?: Prisma.MediaFolderWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.MediaFolderScalarFieldEnum | Prisma.MediaFolderScalarFieldEnum[]
+}
+
+/**
+ * User.mediaFiles
+ */
+export type User$mediaFilesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the MediaFile
+   */
+  select?: Prisma.MediaFileSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the MediaFile
+   */
+  omit?: Prisma.MediaFileOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.MediaFileInclude<ExtArgs> | null
+  where?: Prisma.MediaFileWhereInput
+  orderBy?: Prisma.MediaFileOrderByWithRelationInput | Prisma.MediaFileOrderByWithRelationInput[]
+  cursor?: Prisma.MediaFileWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.MediaFileScalarFieldEnum | Prisma.MediaFileScalarFieldEnum[]
+}
+
+/**
+ * User.documents
+ */
+export type User$documentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Document
+   */
+  select?: Prisma.DocumentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Document
+   */
+  omit?: Prisma.DocumentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.DocumentInclude<ExtArgs> | null
+  where?: Prisma.DocumentWhereInput
+  orderBy?: Prisma.DocumentOrderByWithRelationInput | Prisma.DocumentOrderByWithRelationInput[]
+  cursor?: Prisma.DocumentWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.DocumentScalarFieldEnum | Prisma.DocumentScalarFieldEnum[]
 }
 
 /**

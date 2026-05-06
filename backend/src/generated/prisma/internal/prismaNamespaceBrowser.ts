@@ -116,7 +116,10 @@ export const ModelName = {
   CurrentAffairQuiz: 'CurrentAffairQuiz',
   QuizBattle: 'QuizBattle',
   QuizBattleParticipant: 'QuizBattleParticipant',
-  Leaderboard: 'Leaderboard'
+  Leaderboard: 'Leaderboard',
+  MediaFolder: 'MediaFolder',
+  MediaFile: 'MediaFile',
+  Document: 'Document'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1033,6 +1036,46 @@ export const LeaderboardScalarFieldEnum = {
 } as const
 
 export type LeaderboardScalarFieldEnum = (typeof LeaderboardScalarFieldEnum)[keyof typeof LeaderboardScalarFieldEnum]
+
+
+export const MediaFolderScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  parentId: 'parentId',
+  createdBy: 'createdBy',
+  createdAt: 'createdAt'
+} as const
+
+export type MediaFolderScalarFieldEnum = (typeof MediaFolderScalarFieldEnum)[keyof typeof MediaFolderScalarFieldEnum]
+
+
+export const MediaFileScalarFieldEnum = {
+  id: 'id',
+  fileName: 'fileName',
+  originalName: 'originalName',
+  fileType: 'fileType',
+  fileSize: 'fileSize',
+  cloudinaryUrl: 'cloudinaryUrl',
+  publicId: 'publicId',
+  folderId: 'folderId',
+  uploadedBy: 'uploadedBy',
+  createdAt: 'createdAt'
+} as const
+
+export type MediaFileScalarFieldEnum = (typeof MediaFileScalarFieldEnum)[keyof typeof MediaFileScalarFieldEnum]
+
+
+export const DocumentScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  description: 'description',
+  fileUrl: 'fileUrl',
+  category: 'category',
+  uploadedBy: 'uploadedBy',
+  createdAt: 'createdAt'
+} as const
+
+export type DocumentScalarFieldEnum = (typeof DocumentScalarFieldEnum)[keyof typeof DocumentScalarFieldEnum]
 
 
 export const SortOrder = {

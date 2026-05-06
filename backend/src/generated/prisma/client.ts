@@ -371,3 +371,18 @@ export type QuizBattleParticipant = Prisma.QuizBattleParticipantModel
  * 
  */
 export type Leaderboard = Prisma.LeaderboardModel
+/**
+ * Model MediaFolder
+ * 
+ */
+export type MediaFolder = Prisma.MediaFolderModel
+/**
+ * Model MediaFile
+ * 
+ */
+export type MediaFile = Prisma.MediaFileModel
+/**
+ * Model Document
+ * 
+ */
+export type Document = Prisma.DocumentModel

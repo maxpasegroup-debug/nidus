@@ -449,7 +449,10 @@ export const ModelName = {
   CurrentAffairQuiz: 'CurrentAffairQuiz',
   QuizBattle: 'QuizBattle',
   QuizBattleParticipant: 'QuizBattleParticipant',
-  Leaderboard: 'Leaderboard'
+  Leaderboard: 'Leaderboard',
+  MediaFolder: 'MediaFolder',
+  MediaFile: 'MediaFile',
+  Document: 'Document'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -465,7 +468,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "otp" | "course" | "module" | "lesson" | "enrollment" | "test" | "question" | "testAttempt" | "answer" | "psychometricTest" | "psychometricQuestion" | "psychometricAttempt" | "psychometricAnswer" | "oLQScore" | "studyPlan" | "performanceAnalytics" | "revisionSchedule" | "liveClass" | "recordedLecture" | "lectureProgress" | "attendance" | "timetable" | "faculty" | "classroom" | "payroll" | "announcement" | "hostel" | "room" | "hostelAllocation" | "inOutEntry" | "hostelLeave" | "messMenu" | "disciplineRecord" | "paradePerformance" | "lead" | "followUp" | "admission" | "counsellingBooking" | "referral" | "payment" | "subscription" | "feeInstallment" | "invoice" | "notification" | "messageThread" | "message" | "emailLog" | "pushNotification" | "aIInterviewSession" | "aIInterviewQuestion" | "doubtQuery" | "aIRecommendation" | "officerPotential" | "fitnessProfile" | "pTSchedule" | "pTAttendance" | "physicalEligibility" | "dailyFitnessLog" | "pYQCategory" | "pYQQuestion" | "currentAffair" | "currentAffairQuiz" | "quizBattle" | "quizBattleParticipant" | "leaderboard"
+    modelProps: "user" | "otp" | "course" | "module" | "lesson" | "enrollment" | "test" | "question" | "testAttempt" | "answer" | "psychometricTest" | "psychometricQuestion" | "psychometricAttempt" | "psychometricAnswer" | "oLQScore" | "studyPlan" | "performanceAnalytics" | "revisionSchedule" | "liveClass" | "recordedLecture" | "lectureProgress" | "attendance" | "timetable" | "faculty" | "classroom" | "payroll" | "announcement" | "hostel" | "room" | "hostelAllocation" | "inOutEntry" | "hostelLeave" | "messMenu" | "disciplineRecord" | "paradePerformance" | "lead" | "followUp" | "admission" | "counsellingBooking" | "referral" | "payment" | "subscription" | "feeInstallment" | "invoice" | "notification" | "messageThread" | "message" | "emailLog" | "pushNotification" | "aIInterviewSession" | "aIInterviewQuestion" | "doubtQuery" | "aIRecommendation" | "officerPotential" | "fitnessProfile" | "pTSchedule" | "pTAttendance" | "physicalEligibility" | "dailyFitnessLog" | "pYQCategory" | "pYQQuestion" | "currentAffair" | "currentAffairQuiz" | "quizBattle" | "quizBattleParticipant" | "leaderboard" | "mediaFolder" | "mediaFile" | "document"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -5353,6 +5356,228 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    MediaFolder: {
+      payload: Prisma.$MediaFolderPayload<ExtArgs>
+      fields: Prisma.MediaFolderFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.MediaFolderFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MediaFolderPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.MediaFolderFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MediaFolderPayload>
+        }
+        findFirst: {
+          args: Prisma.MediaFolderFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MediaFolderPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.MediaFolderFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MediaFolderPayload>
+        }
+        findMany: {
+          args: Prisma.MediaFolderFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MediaFolderPayload>[]
+        }
+        create: {
+          args: Prisma.MediaFolderCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MediaFolderPayload>
+        }
+        createMany: {
+          args: Prisma.MediaFolderCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.MediaFolderCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MediaFolderPayload>[]
+        }
+        delete: {
+          args: Prisma.MediaFolderDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MediaFolderPayload>
+        }
+        update: {
+          args: Prisma.MediaFolderUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MediaFolderPayload>
+        }
+        deleteMany: {
+          args: Prisma.MediaFolderDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.MediaFolderUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.MediaFolderUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MediaFolderPayload>[]
+        }
+        upsert: {
+          args: Prisma.MediaFolderUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MediaFolderPayload>
+        }
+        aggregate: {
+          args: Prisma.MediaFolderAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateMediaFolder>
+        }
+        groupBy: {
+          args: Prisma.MediaFolderGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MediaFolderGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.MediaFolderCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MediaFolderCountAggregateOutputType> | number
+        }
+      }
+    }
+    MediaFile: {
+      payload: Prisma.$MediaFilePayload<ExtArgs>
+      fields: Prisma.MediaFileFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.MediaFileFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MediaFilePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.MediaFileFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MediaFilePayload>
+        }
+        findFirst: {
+          args: Prisma.MediaFileFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MediaFilePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.MediaFileFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MediaFilePayload>
+        }
+        findMany: {
+          args: Prisma.MediaFileFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MediaFilePayload>[]
+        }
+        create: {
+          args: Prisma.MediaFileCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MediaFilePayload>
+        }
+        createMany: {
+          args: Prisma.MediaFileCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.MediaFileCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MediaFilePayload>[]
+        }
+        delete: {
+          args: Prisma.MediaFileDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MediaFilePayload>
+        }
+        update: {
+          args: Prisma.MediaFileUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MediaFilePayload>
+        }
+        deleteMany: {
+          args: Prisma.MediaFileDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.MediaFileUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.MediaFileUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MediaFilePayload>[]
+        }
+        upsert: {
+          args: Prisma.MediaFileUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MediaFilePayload>
+        }
+        aggregate: {
+          args: Prisma.MediaFileAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateMediaFile>
+        }
+        groupBy: {
+          args: Prisma.MediaFileGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MediaFileGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.MediaFileCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MediaFileCountAggregateOutputType> | number
+        }
+      }
+    }
+    Document: {
+      payload: Prisma.$DocumentPayload<ExtArgs>
+      fields: Prisma.DocumentFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.DocumentFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocumentPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.DocumentFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocumentPayload>
+        }
+        findFirst: {
+          args: Prisma.DocumentFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocumentPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.DocumentFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocumentPayload>
+        }
+        findMany: {
+          args: Prisma.DocumentFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocumentPayload>[]
+        }
+        create: {
+          args: Prisma.DocumentCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocumentPayload>
+        }
+        createMany: {
+          args: Prisma.DocumentCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.DocumentCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocumentPayload>[]
+        }
+        delete: {
+          args: Prisma.DocumentDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocumentPayload>
+        }
+        update: {
+          args: Prisma.DocumentUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocumentPayload>
+        }
+        deleteMany: {
+          args: Prisma.DocumentDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.DocumentUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.DocumentUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocumentPayload>[]
+        }
+        upsert: {
+          args: Prisma.DocumentUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocumentPayload>
+        }
+        aggregate: {
+          args: Prisma.DocumentAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateDocument>
+        }
+        groupBy: {
+          args: Prisma.DocumentGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DocumentGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.DocumentCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DocumentCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -6292,6 +6517,46 @@ export const LeaderboardScalarFieldEnum = {
 export type LeaderboardScalarFieldEnum = (typeof LeaderboardScalarFieldEnum)[keyof typeof LeaderboardScalarFieldEnum]
 
 
+export const MediaFolderScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  parentId: 'parentId',
+  createdBy: 'createdBy',
+  createdAt: 'createdAt'
+} as const
+
+export type MediaFolderScalarFieldEnum = (typeof MediaFolderScalarFieldEnum)[keyof typeof MediaFolderScalarFieldEnum]
+
+
+export const MediaFileScalarFieldEnum = {
+  id: 'id',
+  fileName: 'fileName',
+  originalName: 'originalName',
+  fileType: 'fileType',
+  fileSize: 'fileSize',
+  cloudinaryUrl: 'cloudinaryUrl',
+  publicId: 'publicId',
+  folderId: 'folderId',
+  uploadedBy: 'uploadedBy',
+  createdAt: 'createdAt'
+} as const
+
+export type MediaFileScalarFieldEnum = (typeof MediaFileScalarFieldEnum)[keyof typeof MediaFileScalarFieldEnum]
+
+
+export const DocumentScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  description: 'description',
+  fileUrl: 'fileUrl',
+  category: 'category',
+  uploadedBy: 'uploadedBy',
+  createdAt: 'createdAt'
+} as const
+
+export type DocumentScalarFieldEnum = (typeof DocumentScalarFieldEnum)[keyof typeof DocumentScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -6682,6 +6947,9 @@ export type GlobalOmitConfig = {
   quizBattle?: Prisma.QuizBattleOmit
   quizBattleParticipant?: Prisma.QuizBattleParticipantOmit
   leaderboard?: Prisma.LeaderboardOmit
+  mediaFolder?: Prisma.MediaFolderOmit
+  mediaFile?: Prisma.MediaFileOmit
+  document?: Prisma.DocumentOmit
 }
 
 /* Types for Logging */

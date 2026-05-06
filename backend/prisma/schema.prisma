@@ -13,6 +13,7 @@ enum Role {
   STUDENT
   PARENT
   ADMIN
+  FACULTY
   WARDEN
   COUNSELLOR
   STAFF
@@ -100,6 +101,9 @@ model User {
   dailyFitnessLogs DailyFitnessLog[]
   quizBattleParticipants QuizBattleParticipant[]
   leaderboard Leaderboard?
+  mediaFolders MediaFolder[] @relation("MediaFolderCreator")
+  mediaFiles MediaFile[] @relation("MediaFileUploader")
+  documents Document[] @relation("DocumentUploader")
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 }
@@ -1052,4 +1056,55 @@ model Leaderboard {
 
   @@index([points])
   @@index([rank])
+}
+
+model MediaFolder {
+  id        String   @id @default(cuid())
+  name      String
+  parentId  String?
+  createdBy String
+  createdAt DateTime @default(now())
+  parent    MediaFolder? @relation("MediaFolderTree", fields: [parentId], references: [id], onDelete: SetNull)
+  children  MediaFolder[] @relation("MediaFolderTree")
+  creator   User     @relation("MediaFolderCreator", fields: [createdBy], references: [id], onDelete: Cascade)
+  files     MediaFile[]
+
+  @@index([parentId])
+  @@index([createdBy])
+  @@index([createdAt])
+}
+
+model MediaFile {
+  id            String   @id @default(cuid())
+  fileName      String
+  originalName  String
+  fileType      String
+  fileSize      Int
+  cloudinaryUrl String
+  publicId      String
+  folderId      String?
+  uploadedBy    String
+  createdAt     DateTime @default(now())
+  folder        MediaFolder? @relation(fields: [folderId], references: [id], onDelete: SetNull)
+  uploader      User     @relation("MediaFileUploader", fields: [uploadedBy], references: [id], onDelete: Cascade)
+
+  @@index([folderId])
+  @@index([uploadedBy])
+  @@index([fileType])
+  @@index([createdAt])
+}
+
+model Document {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  fileUrl     String
+  category    String
+  uploadedBy  String
+  createdAt   DateTime @default(now())
+  uploader    User     @relation("DocumentUploader", fields: [uploadedBy], references: [id], onDelete: Cascade)
+
+  @@index([category])
+  @@index([uploadedBy])
+  @@index([createdAt])
 }
