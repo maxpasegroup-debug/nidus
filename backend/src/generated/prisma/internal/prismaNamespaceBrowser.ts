@@ -109,7 +109,14 @@ export const ModelName = {
   PTSchedule: 'PTSchedule',
   PTAttendance: 'PTAttendance',
   PhysicalEligibility: 'PhysicalEligibility',
-  DailyFitnessLog: 'DailyFitnessLog'
+  DailyFitnessLog: 'DailyFitnessLog',
+  PYQCategory: 'PYQCategory',
+  PYQQuestion: 'PYQQuestion',
+  CurrentAffair: 'CurrentAffair',
+  CurrentAffairQuiz: 'CurrentAffairQuiz',
+  QuizBattle: 'QuizBattle',
+  QuizBattleParticipant: 'QuizBattleParticipant',
+  Leaderboard: 'Leaderboard'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -933,6 +940,99 @@ export const DailyFitnessLogScalarFieldEnum = {
 } as const
 
 export type DailyFitnessLogScalarFieldEnum = (typeof DailyFitnessLogScalarFieldEnum)[keyof typeof DailyFitnessLogScalarFieldEnum]
+
+
+export const PYQCategoryScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  examType: 'examType',
+  createdAt: 'createdAt'
+} as const
+
+export type PYQCategoryScalarFieldEnum = (typeof PYQCategoryScalarFieldEnum)[keyof typeof PYQCategoryScalarFieldEnum]
+
+
+export const PYQQuestionScalarFieldEnum = {
+  id: 'id',
+  categoryId: 'categoryId',
+  year: 'year',
+  subject: 'subject',
+  topic: 'topic',
+  questionText: 'questionText',
+  optionA: 'optionA',
+  optionB: 'optionB',
+  optionC: 'optionC',
+  optionD: 'optionD',
+  correctAnswer: 'correctAnswer',
+  explanation: 'explanation',
+  difficultyLevel: 'difficultyLevel',
+  createdAt: 'createdAt'
+} as const
+
+export type PYQQuestionScalarFieldEnum = (typeof PYQQuestionScalarFieldEnum)[keyof typeof PYQQuestionScalarFieldEnum]
+
+
+export const CurrentAffairScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  description: 'description',
+  category: 'category',
+  imageUrl: 'imageUrl',
+  publishedDate: 'publishedDate',
+  createdAt: 'createdAt'
+} as const
+
+export type CurrentAffairScalarFieldEnum = (typeof CurrentAffairScalarFieldEnum)[keyof typeof CurrentAffairScalarFieldEnum]
+
+
+export const CurrentAffairQuizScalarFieldEnum = {
+  id: 'id',
+  currentAffairId: 'currentAffairId',
+  question: 'question',
+  optionA: 'optionA',
+  optionB: 'optionB',
+  optionC: 'optionC',
+  optionD: 'optionD',
+  correctAnswer: 'correctAnswer'
+} as const
+
+export type CurrentAffairQuizScalarFieldEnum = (typeof CurrentAffairQuizScalarFieldEnum)[keyof typeof CurrentAffairQuizScalarFieldEnum]
+
+
+export const QuizBattleScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  category: 'category',
+  startTime: 'startTime',
+  endTime: 'endTime',
+  createdAt: 'createdAt'
+} as const
+
+export type QuizBattleScalarFieldEnum = (typeof QuizBattleScalarFieldEnum)[keyof typeof QuizBattleScalarFieldEnum]
+
+
+export const QuizBattleParticipantScalarFieldEnum = {
+  id: 'id',
+  battleId: 'battleId',
+  userId: 'userId',
+  score: 'score',
+  rank: 'rank',
+  timeTaken: 'timeTaken'
+} as const
+
+export type QuizBattleParticipantScalarFieldEnum = (typeof QuizBattleParticipantScalarFieldEnum)[keyof typeof QuizBattleParticipantScalarFieldEnum]
+
+
+export const LeaderboardScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  points: 'points',
+  streak: 'streak',
+  rank: 'rank',
+  updatedAt: 'updatedAt'
+} as const
+
+export type LeaderboardScalarFieldEnum = (typeof LeaderboardScalarFieldEnum)[keyof typeof LeaderboardScalarFieldEnum]
 
 
 export const SortOrder = {

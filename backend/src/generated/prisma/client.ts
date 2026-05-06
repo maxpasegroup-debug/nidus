@@ -336,3 +336,38 @@ export type PhysicalEligibility = Prisma.PhysicalEligibilityModel
  * 
  */
 export type DailyFitnessLog = Prisma.DailyFitnessLogModel
+/**
+ * Model PYQCategory
+ * 
+ */
+export type PYQCategory = Prisma.PYQCategoryModel
+/**
+ * Model PYQQuestion
+ * 
+ */
+export type PYQQuestion = Prisma.PYQQuestionModel
+/**
+ * Model CurrentAffair
+ * 
+ */
+export type CurrentAffair = Prisma.CurrentAffairModel
+/**
+ * Model CurrentAffairQuiz
+ * 
+ */
+export type CurrentAffairQuiz = Prisma.CurrentAffairQuizModel
+/**
+ * Model QuizBattle
+ * 
+ */
+export type QuizBattle = Prisma.QuizBattleModel
+/**
+ * Model QuizBattleParticipant
+ * 
+ */
+export type QuizBattleParticipant = Prisma.QuizBattleParticipantModel
+/**
+ * Model Leaderboard
+ * 
+ */
+export type Leaderboard = Prisma.LeaderboardModel

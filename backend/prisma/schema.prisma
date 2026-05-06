@@ -98,6 +98,8 @@ model User {
   ptAttendances PTAttendance[] @relation("PTAttendanceStudent")
   physicalEligibilities PhysicalEligibility[]
   dailyFitnessLogs DailyFitnessLog[]
+  quizBattleParticipants QuizBattleParticipant[]
+  leaderboard Leaderboard?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 }
@@ -948,4 +950,106 @@ model DailyFitnessLog {
 
   @@index([userId])
   @@index([createdAt])
+}
+
+model PYQCategory {
+  id        String   @id @default(cuid())
+  name      String
+  examType  String
+  createdAt DateTime @default(now())
+  questions PYQQuestion[]
+
+  @@unique([name, examType])
+  @@index([examType])
+}
+
+model PYQQuestion {
+  id              String   @id @default(cuid())
+  categoryId      String
+  year            Int
+  subject         String
+  topic           String
+  questionText    String
+  optionA         String
+  optionB         String
+  optionC         String
+  optionD         String
+  correctAnswer   String
+  explanation     String
+  difficultyLevel String
+  createdAt       DateTime @default(now())
+  category        PYQCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@index([categoryId])
+  @@index([year])
+  @@index([subject])
+  @@index([topic])
+}
+
+model CurrentAffair {
+  id            String   @id @default(cuid())
+  title         String
+  description   String
+  category      String
+  imageUrl      String?
+  publishedDate DateTime
+  createdAt     DateTime @default(now())
+  quizzes       CurrentAffairQuiz[]
+
+  @@index([category])
+  @@index([publishedDate])
+}
+
+model CurrentAffairQuiz {
+  id              String   @id @default(cuid())
+  currentAffairId String
+  question        String
+  optionA         String
+  optionB         String
+  optionC         String
+  optionD         String
+  correctAnswer   String
+  currentAffair   CurrentAffair @relation(fields: [currentAffairId], references: [id], onDelete: Cascade)
+
+  @@index([currentAffairId])
+}
+
+model QuizBattle {
+  id           String   @id @default(cuid())
+  title        String
+  category     String
+  startTime    DateTime
+  endTime      DateTime
+  createdAt    DateTime @default(now())
+  participants QuizBattleParticipant[]
+
+  @@index([category])
+  @@index([startTime])
+}
+
+model QuizBattleParticipant {
+  id        String @id @default(cuid())
+  battleId  String
+  userId    String
+  score     Int    @default(0)
+  rank      Int?
+  timeTaken Int    @default(0)
+  battle    QuizBattle @relation(fields: [battleId], references: [id], onDelete: Cascade)
+  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([battleId, userId])
+  @@index([userId])
+}
+
+model Leaderboard {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  points    Int      @default(0)
+  streak    Int      @default(0)
+  rank      Int?
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([points])
+  @@index([rank])
 }

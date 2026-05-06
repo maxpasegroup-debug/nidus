@@ -14,6 +14,7 @@ import { feesRouter, invoicesRouter, paymentsRouter, subscriptionsRouter } from 
 import { communicationAnnouncementsRouter, emailsRouter, messagesRouter, notificationsRouter, pushRouter } from "./communication/communication.routes.js";
 import { aiEngineRouter } from "./ai-engine/ai-engine.routes.js";
 import { fitnessRouter } from "./fitness/fitness.routes.js";
+import { currentAffairsRouter, leaderboardRouter, pyqRouter, quizBattlesRouter } from "./learning-hub/learning-hub.routes.js";
 import { protect, allowRoles } from "./auth/auth.middleware.js";
 import { Role } from "../generated/prisma/client.js";
 import { coursesController } from "./courses/courses.controller.js";
@@ -58,4 +59,8 @@ apiRouter.use("/emails", emailsRouter);
 apiRouter.use("/push", pushRouter);
 apiRouter.use("/ai", aiEngineRouter);
 apiRouter.use("/fitness", fitnessRouter);
+apiRouter.use("/pyq", pyqRouter);
+apiRouter.use("/current-affairs", currentAffairsRouter);
+apiRouter.use("/quiz-battles", quizBattlesRouter);
+apiRouter.use("/leaderboard", leaderboardRouter);
 apiRouter.get("/my-courses", protect, allowRoles(Role.STUDENT, Role.ADMIN), coursesController.myCourses);

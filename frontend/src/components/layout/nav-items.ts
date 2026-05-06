@@ -7,6 +7,8 @@ export function getNavItems(role?: AuthRole) {
     { label: "Dashboard", href: role ? roleDashboardPath[role] : "/dashboard" },
     { label: "Courses", href: "/courses" },
     { label: "Tests", href: "/tests" },
+    { label: "PYQ", href: "/pyq-bank" },
+    { label: "Battles", href: "/quiz-battles" },
     { label: "SSB", href: "/psychometric" },
     { label: "AI Plan", href: "/ai-study-planner" },
     { label: "AI Interview", href: "/ai-interview" },
