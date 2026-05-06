@@ -2,6 +2,10 @@
   "name": "nidus-frontend",
   "private": true,
   "version": "0.1.0",
+  "engines": {
+    "node": ">=20.19.0 <23",
+    "npm": ">=10"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",

@@ -1,6 +1,11 @@
 {
   "name": "nidus-platform",
   "private": true,
+  "packageManager": "npm@10.8.2",
+  "engines": {
+    "node": ">=20.19.0 <23",
+    "npm": ">=10"
+  },
   "workspaces": [
     "frontend",
     "backend"
