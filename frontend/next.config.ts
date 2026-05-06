@@ -4,6 +4,9 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   compress: true,
+  turbopack: {
+    root: __dirname
+  },
   images: {
     formats: ["image/avif", "image/webp"],
     remotePatterns: [
@@ -15,6 +18,15 @@ const nextConfig: NextConfig = {
   },
   async headers() {
     return [
+      {
+        source: "/",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "no-store, max-age=0"
+          }
+        ]
+      },
       {
         source: "/(.*)",
         headers: [
