@@ -68,7 +68,10 @@ export const ModelName = {
   OLQScore: 'OLQScore',
   StudyPlan: 'StudyPlan',
   PerformanceAnalytics: 'PerformanceAnalytics',
-  RevisionSchedule: 'RevisionSchedule'
+  RevisionSchedule: 'RevisionSchedule',
+  LiveClass: 'LiveClass',
+  RecordedLecture: 'RecordedLecture',
+  LectureProgress: 'LectureProgress'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -347,6 +350,51 @@ export const RevisionScheduleScalarFieldEnum = {
 } as const
 
 export type RevisionScheduleScalarFieldEnum = (typeof RevisionScheduleScalarFieldEnum)[keyof typeof RevisionScheduleScalarFieldEnum]
+
+
+export const LiveClassScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  description: 'description',
+  examType: 'examType',
+  instructorName: 'instructorName',
+  scheduledAt: 'scheduledAt',
+  duration: 'duration',
+  meetingLink: 'meetingLink',
+  thumbnail: 'thumbnail',
+  isLive: 'isLive',
+  createdAt: 'createdAt'
+} as const
+
+export type LiveClassScalarFieldEnum = (typeof LiveClassScalarFieldEnum)[keyof typeof LiveClassScalarFieldEnum]
+
+
+export const RecordedLectureScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  description: 'description',
+  courseId: 'courseId',
+  moduleId: 'moduleId',
+  videoUrl: 'videoUrl',
+  thumbnail: 'thumbnail',
+  duration: 'duration',
+  instructorName: 'instructorName',
+  createdAt: 'createdAt'
+} as const
+
+export type RecordedLectureScalarFieldEnum = (typeof RecordedLectureScalarFieldEnum)[keyof typeof RecordedLectureScalarFieldEnum]
+
+
+export const LectureProgressScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  lectureId: 'lectureId',
+  watchedDuration: 'watchedDuration',
+  completed: 'completed',
+  updatedAt: 'updatedAt'
+} as const
+
+export type LectureProgressScalarFieldEnum = (typeof LectureProgressScalarFieldEnum)[keyof typeof LectureProgressScalarFieldEnum]
 
 
 export const SortOrder = {

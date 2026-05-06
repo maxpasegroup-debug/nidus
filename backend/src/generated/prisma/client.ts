@@ -131,3 +131,18 @@ export type PerformanceAnalytics = Prisma.PerformanceAnalyticsModel
  * 
  */
 export type RevisionSchedule = Prisma.RevisionScheduleModel
+/**
+ * Model LiveClass
+ * 
+ */
+export type LiveClass = Prisma.LiveClassModel
+/**
+ * Model RecordedLecture
+ * 
+ */
+export type RecordedLecture = Prisma.RecordedLectureModel
+/**
+ * Model LectureProgress
+ * 
+ */
+export type LectureProgress = Prisma.LectureProgressModel

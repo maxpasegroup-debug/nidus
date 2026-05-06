@@ -229,6 +229,7 @@ export type UserWhereInput = {
   studyPlans?: Prisma.StudyPlanListRelationFilter
   performanceAnalytics?: Prisma.XOR<Prisma.PerformanceAnalyticsNullableScalarRelationFilter, Prisma.PerformanceAnalyticsWhereInput> | null
   revisionSchedules?: Prisma.RevisionScheduleListRelationFilter
+  lectureProgress?: Prisma.LectureProgressListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -249,6 +250,7 @@ export type UserOrderByWithRelationInput = {
   studyPlans?: Prisma.StudyPlanOrderByRelationAggregateInput
   performanceAnalytics?: Prisma.PerformanceAnalyticsOrderByWithRelationInput
   revisionSchedules?: Prisma.RevisionScheduleOrderByRelationAggregateInput
+  lectureProgress?: Prisma.LectureProgressOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -272,6 +274,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   studyPlans?: Prisma.StudyPlanListRelationFilter
   performanceAnalytics?: Prisma.XOR<Prisma.PerformanceAnalyticsNullableScalarRelationFilter, Prisma.PerformanceAnalyticsWhereInput> | null
   revisionSchedules?: Prisma.RevisionScheduleListRelationFilter
+  lectureProgress?: Prisma.LectureProgressListRelationFilter
 }, "id" | "email" | "mobile">
 
 export type UserOrderByWithAggregationInput = {
@@ -324,6 +327,7 @@ export type UserCreateInput = {
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
   performanceAnalytics?: Prisma.PerformanceAnalyticsCreateNestedOneWithoutUserInput
   revisionSchedules?: Prisma.RevisionScheduleCreateNestedManyWithoutUserInput
+  lectureProgress?: Prisma.LectureProgressCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -344,6 +348,7 @@ export type UserUncheckedCreateInput = {
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
   performanceAnalytics?: Prisma.PerformanceAnalyticsUncheckedCreateNestedOneWithoutUserInput
   revisionSchedules?: Prisma.RevisionScheduleUncheckedCreateNestedManyWithoutUserInput
+  lectureProgress?: Prisma.LectureProgressUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -364,6 +369,7 @@ export type UserUpdateInput = {
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
   performanceAnalytics?: Prisma.PerformanceAnalyticsUpdateOneWithoutUserNestedInput
   revisionSchedules?: Prisma.RevisionScheduleUpdateManyWithoutUserNestedInput
+  lectureProgress?: Prisma.LectureProgressUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -384,6 +390,7 @@ export type UserUncheckedUpdateInput = {
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
   performanceAnalytics?: Prisma.PerformanceAnalyticsUncheckedUpdateOneWithoutUserNestedInput
   revisionSchedules?: Prisma.RevisionScheduleUncheckedUpdateManyWithoutUserNestedInput
+  lectureProgress?: Prisma.LectureProgressUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -583,6 +590,20 @@ export type UserUpdateOneRequiredWithoutRevisionSchedulesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutRevisionSchedulesInput, Prisma.UserUpdateWithoutRevisionSchedulesInput>, Prisma.UserUncheckedUpdateWithoutRevisionSchedulesInput>
 }
 
+export type UserCreateNestedOneWithoutLectureProgressInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutLectureProgressInput, Prisma.UserUncheckedCreateWithoutLectureProgressInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutLectureProgressInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutLectureProgressNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutLectureProgressInput, Prisma.UserUncheckedCreateWithoutLectureProgressInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutLectureProgressInput
+  upsert?: Prisma.UserUpsertWithoutLectureProgressInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutLectureProgressInput, Prisma.UserUpdateWithoutLectureProgressInput>, Prisma.UserUncheckedUpdateWithoutLectureProgressInput>
+}
+
 export type UserCreateWithoutEnrollmentsInput = {
   id?: string
   name: string
@@ -600,6 +621,7 @@ export type UserCreateWithoutEnrollmentsInput = {
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
   performanceAnalytics?: Prisma.PerformanceAnalyticsCreateNestedOneWithoutUserInput
   revisionSchedules?: Prisma.RevisionScheduleCreateNestedManyWithoutUserInput
+  lectureProgress?: Prisma.LectureProgressCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutEnrollmentsInput = {
@@ -619,6 +641,7 @@ export type UserUncheckedCreateWithoutEnrollmentsInput = {
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
   performanceAnalytics?: Prisma.PerformanceAnalyticsUncheckedCreateNestedOneWithoutUserInput
   revisionSchedules?: Prisma.RevisionScheduleUncheckedCreateNestedManyWithoutUserInput
+  lectureProgress?: Prisma.LectureProgressUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutEnrollmentsInput = {
@@ -654,6 +677,7 @@ export type UserUpdateWithoutEnrollmentsInput = {
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
   performanceAnalytics?: Prisma.PerformanceAnalyticsUpdateOneWithoutUserNestedInput
   revisionSchedules?: Prisma.RevisionScheduleUpdateManyWithoutUserNestedInput
+  lectureProgress?: Prisma.LectureProgressUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEnrollmentsInput = {
@@ -673,6 +697,7 @@ export type UserUncheckedUpdateWithoutEnrollmentsInput = {
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
   performanceAnalytics?: Prisma.PerformanceAnalyticsUncheckedUpdateOneWithoutUserNestedInput
   revisionSchedules?: Prisma.RevisionScheduleUncheckedUpdateManyWithoutUserNestedInput
+  lectureProgress?: Prisma.LectureProgressUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutTestAttemptsInput = {
@@ -692,6 +717,7 @@ export type UserCreateWithoutTestAttemptsInput = {
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
   performanceAnalytics?: Prisma.PerformanceAnalyticsCreateNestedOneWithoutUserInput
   revisionSchedules?: Prisma.RevisionScheduleCreateNestedManyWithoutUserInput
+  lectureProgress?: Prisma.LectureProgressCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutTestAttemptsInput = {
@@ -711,6 +737,7 @@ export type UserUncheckedCreateWithoutTestAttemptsInput = {
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
   performanceAnalytics?: Prisma.PerformanceAnalyticsUncheckedCreateNestedOneWithoutUserInput
   revisionSchedules?: Prisma.RevisionScheduleUncheckedCreateNestedManyWithoutUserInput
+  lectureProgress?: Prisma.LectureProgressUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutTestAttemptsInput = {
@@ -746,6 +773,7 @@ export type UserUpdateWithoutTestAttemptsInput = {
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
   performanceAnalytics?: Prisma.PerformanceAnalyticsUpdateOneWithoutUserNestedInput
   revisionSchedules?: Prisma.RevisionScheduleUpdateManyWithoutUserNestedInput
+  lectureProgress?: Prisma.LectureProgressUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutTestAttemptsInput = {
@@ -765,6 +793,7 @@ export type UserUncheckedUpdateWithoutTestAttemptsInput = {
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
   performanceAnalytics?: Prisma.PerformanceAnalyticsUncheckedUpdateOneWithoutUserNestedInput
   revisionSchedules?: Prisma.RevisionScheduleUncheckedUpdateManyWithoutUserNestedInput
+  lectureProgress?: Prisma.LectureProgressUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutPsychometricAttemptsInput = {
@@ -784,6 +813,7 @@ export type UserCreateWithoutPsychometricAttemptsInput = {
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
   performanceAnalytics?: Prisma.PerformanceAnalyticsCreateNestedOneWithoutUserInput
   revisionSchedules?: Prisma.RevisionScheduleCreateNestedManyWithoutUserInput
+  lectureProgress?: Prisma.LectureProgressCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutPsychometricAttemptsInput = {
@@ -803,6 +833,7 @@ export type UserUncheckedCreateWithoutPsychometricAttemptsInput = {
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
   performanceAnalytics?: Prisma.PerformanceAnalyticsUncheckedCreateNestedOneWithoutUserInput
   revisionSchedules?: Prisma.RevisionScheduleUncheckedCreateNestedManyWithoutUserInput
+  lectureProgress?: Prisma.LectureProgressUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutPsychometricAttemptsInput = {
@@ -838,6 +869,7 @@ export type UserUpdateWithoutPsychometricAttemptsInput = {
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
   performanceAnalytics?: Prisma.PerformanceAnalyticsUpdateOneWithoutUserNestedInput
   revisionSchedules?: Prisma.RevisionScheduleUpdateManyWithoutUserNestedInput
+  lectureProgress?: Prisma.LectureProgressUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPsychometricAttemptsInput = {
@@ -857,6 +889,7 @@ export type UserUncheckedUpdateWithoutPsychometricAttemptsInput = {
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
   performanceAnalytics?: Prisma.PerformanceAnalyticsUncheckedUpdateOneWithoutUserNestedInput
   revisionSchedules?: Prisma.RevisionScheduleUncheckedUpdateManyWithoutUserNestedInput
+  lectureProgress?: Prisma.LectureProgressUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutOlqScoreInput = {
@@ -876,6 +909,7 @@ export type UserCreateWithoutOlqScoreInput = {
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
   performanceAnalytics?: Prisma.PerformanceAnalyticsCreateNestedOneWithoutUserInput
   revisionSchedules?: Prisma.RevisionScheduleCreateNestedManyWithoutUserInput
+  lectureProgress?: Prisma.LectureProgressCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutOlqScoreInput = {
@@ -895,6 +929,7 @@ export type UserUncheckedCreateWithoutOlqScoreInput = {
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
   performanceAnalytics?: Prisma.PerformanceAnalyticsUncheckedCreateNestedOneWithoutUserInput
   revisionSchedules?: Prisma.RevisionScheduleUncheckedCreateNestedManyWithoutUserInput
+  lectureProgress?: Prisma.LectureProgressUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutOlqScoreInput = {
@@ -930,6 +965,7 @@ export type UserUpdateWithoutOlqScoreInput = {
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
   performanceAnalytics?: Prisma.PerformanceAnalyticsUpdateOneWithoutUserNestedInput
   revisionSchedules?: Prisma.RevisionScheduleUpdateManyWithoutUserNestedInput
+  lectureProgress?: Prisma.LectureProgressUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutOlqScoreInput = {
@@ -949,6 +985,7 @@ export type UserUncheckedUpdateWithoutOlqScoreInput = {
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
   performanceAnalytics?: Prisma.PerformanceAnalyticsUncheckedUpdateOneWithoutUserNestedInput
   revisionSchedules?: Prisma.RevisionScheduleUncheckedUpdateManyWithoutUserNestedInput
+  lectureProgress?: Prisma.LectureProgressUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutStudyPlansInput = {
@@ -968,6 +1005,7 @@ export type UserCreateWithoutStudyPlansInput = {
   olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
   performanceAnalytics?: Prisma.PerformanceAnalyticsCreateNestedOneWithoutUserInput
   revisionSchedules?: Prisma.RevisionScheduleCreateNestedManyWithoutUserInput
+  lectureProgress?: Prisma.LectureProgressCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutStudyPlansInput = {
@@ -987,6 +1025,7 @@ export type UserUncheckedCreateWithoutStudyPlansInput = {
   olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
   performanceAnalytics?: Prisma.PerformanceAnalyticsUncheckedCreateNestedOneWithoutUserInput
   revisionSchedules?: Prisma.RevisionScheduleUncheckedCreateNestedManyWithoutUserInput
+  lectureProgress?: Prisma.LectureProgressUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutStudyPlansInput = {
@@ -1022,6 +1061,7 @@ export type UserUpdateWithoutStudyPlansInput = {
   olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
   performanceAnalytics?: Prisma.PerformanceAnalyticsUpdateOneWithoutUserNestedInput
   revisionSchedules?: Prisma.RevisionScheduleUpdateManyWithoutUserNestedInput
+  lectureProgress?: Prisma.LectureProgressUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutStudyPlansInput = {
@@ -1041,6 +1081,7 @@ export type UserUncheckedUpdateWithoutStudyPlansInput = {
   olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
   performanceAnalytics?: Prisma.PerformanceAnalyticsUncheckedUpdateOneWithoutUserNestedInput
   revisionSchedules?: Prisma.RevisionScheduleUncheckedUpdateManyWithoutUserNestedInput
+  lectureProgress?: Prisma.LectureProgressUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutPerformanceAnalyticsInput = {
@@ -1060,6 +1101,7 @@ export type UserCreateWithoutPerformanceAnalyticsInput = {
   olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
   revisionSchedules?: Prisma.RevisionScheduleCreateNestedManyWithoutUserInput
+  lectureProgress?: Prisma.LectureProgressCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutPerformanceAnalyticsInput = {
@@ -1079,6 +1121,7 @@ export type UserUncheckedCreateWithoutPerformanceAnalyticsInput = {
   olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
   revisionSchedules?: Prisma.RevisionScheduleUncheckedCreateNestedManyWithoutUserInput
+  lectureProgress?: Prisma.LectureProgressUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutPerformanceAnalyticsInput = {
@@ -1114,6 +1157,7 @@ export type UserUpdateWithoutPerformanceAnalyticsInput = {
   olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
   revisionSchedules?: Prisma.RevisionScheduleUpdateManyWithoutUserNestedInput
+  lectureProgress?: Prisma.LectureProgressUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPerformanceAnalyticsInput = {
@@ -1133,6 +1177,7 @@ export type UserUncheckedUpdateWithoutPerformanceAnalyticsInput = {
   olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
   revisionSchedules?: Prisma.RevisionScheduleUncheckedUpdateManyWithoutUserNestedInput
+  lectureProgress?: Prisma.LectureProgressUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutRevisionSchedulesInput = {
@@ -1152,6 +1197,7 @@ export type UserCreateWithoutRevisionSchedulesInput = {
   olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
   performanceAnalytics?: Prisma.PerformanceAnalyticsCreateNestedOneWithoutUserInput
+  lectureProgress?: Prisma.LectureProgressCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutRevisionSchedulesInput = {
@@ -1171,6 +1217,7 @@ export type UserUncheckedCreateWithoutRevisionSchedulesInput = {
   olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
   performanceAnalytics?: Prisma.PerformanceAnalyticsUncheckedCreateNestedOneWithoutUserInput
+  lectureProgress?: Prisma.LectureProgressUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutRevisionSchedulesInput = {
@@ -1206,6 +1253,7 @@ export type UserUpdateWithoutRevisionSchedulesInput = {
   olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
   performanceAnalytics?: Prisma.PerformanceAnalyticsUpdateOneWithoutUserNestedInput
+  lectureProgress?: Prisma.LectureProgressUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRevisionSchedulesInput = {
@@ -1225,6 +1273,103 @@ export type UserUncheckedUpdateWithoutRevisionSchedulesInput = {
   olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
   performanceAnalytics?: Prisma.PerformanceAnalyticsUncheckedUpdateOneWithoutUserNestedInput
+  lectureProgress?: Prisma.LectureProgressUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutLectureProgressInput = {
+  id?: string
+  name: string
+  email: string
+  mobile: string
+  password: string
+  role?: $Enums.Role
+  emailVerified?: boolean
+  mobileVerified?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
+  testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
+  psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
+  olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
+  studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
+  performanceAnalytics?: Prisma.PerformanceAnalyticsCreateNestedOneWithoutUserInput
+  revisionSchedules?: Prisma.RevisionScheduleCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutLectureProgressInput = {
+  id?: string
+  name: string
+  email: string
+  mobile: string
+  password: string
+  role?: $Enums.Role
+  emailVerified?: boolean
+  mobileVerified?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
+  testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
+  psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
+  olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
+  studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
+  performanceAnalytics?: Prisma.PerformanceAnalyticsUncheckedCreateNestedOneWithoutUserInput
+  revisionSchedules?: Prisma.RevisionScheduleUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutLectureProgressInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutLectureProgressInput, Prisma.UserUncheckedCreateWithoutLectureProgressInput>
+}
+
+export type UserUpsertWithoutLectureProgressInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutLectureProgressInput, Prisma.UserUncheckedUpdateWithoutLectureProgressInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutLectureProgressInput, Prisma.UserUncheckedCreateWithoutLectureProgressInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutLectureProgressInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutLectureProgressInput, Prisma.UserUncheckedUpdateWithoutLectureProgressInput>
+}
+
+export type UserUpdateWithoutLectureProgressInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
+  testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
+  psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
+  olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
+  studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
+  performanceAnalytics?: Prisma.PerformanceAnalyticsUpdateOneWithoutUserNestedInput
+  revisionSchedules?: Prisma.RevisionScheduleUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutLectureProgressInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
+  testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
+  psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
+  olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
+  studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
+  performanceAnalytics?: Prisma.PerformanceAnalyticsUncheckedUpdateOneWithoutUserNestedInput
+  revisionSchedules?: Prisma.RevisionScheduleUncheckedUpdateManyWithoutUserNestedInput
 }
 
 
@@ -1238,6 +1383,7 @@ export type UserCountOutputType = {
   psychometricAttempts: number
   studyPlans: number
   revisionSchedules: number
+  lectureProgress: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1246,6 +1392,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   psychometricAttempts?: boolean | UserCountOutputTypeCountPsychometricAttemptsArgs
   studyPlans?: boolean | UserCountOutputTypeCountStudyPlansArgs
   revisionSchedules?: boolean | UserCountOutputTypeCountRevisionSchedulesArgs
+  lectureProgress?: boolean | UserCountOutputTypeCountLectureProgressArgs
 }
 
 /**
@@ -1293,6 +1440,13 @@ export type UserCountOutputTypeCountRevisionSchedulesArgs<ExtArgs extends runtim
   where?: Prisma.RevisionScheduleWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountLectureProgressArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.LectureProgressWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1312,6 +1466,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   studyPlans?: boolean | Prisma.User$studyPlansArgs<ExtArgs>
   performanceAnalytics?: boolean | Prisma.User$performanceAnalyticsArgs<ExtArgs>
   revisionSchedules?: boolean | Prisma.User$revisionSchedulesArgs<ExtArgs>
+  lectureProgress?: boolean | Prisma.User$lectureProgressArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -1363,6 +1518,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   studyPlans?: boolean | Prisma.User$studyPlansArgs<ExtArgs>
   performanceAnalytics?: boolean | Prisma.User$performanceAnalyticsArgs<ExtArgs>
   revisionSchedules?: boolean | Prisma.User$revisionSchedulesArgs<ExtArgs>
+  lectureProgress?: boolean | Prisma.User$lectureProgressArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1378,6 +1534,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     studyPlans: Prisma.$StudyPlanPayload<ExtArgs>[]
     performanceAnalytics: Prisma.$PerformanceAnalyticsPayload<ExtArgs> | null
     revisionSchedules: Prisma.$RevisionSchedulePayload<ExtArgs>[]
+    lectureProgress: Prisma.$LectureProgressPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1791,6 +1948,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   studyPlans<T extends Prisma.User$studyPlansArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$studyPlansArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$StudyPlanPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   performanceAnalytics<T extends Prisma.User$performanceAnalyticsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$performanceAnalyticsArgs<ExtArgs>>): Prisma.Prisma__PerformanceAnalyticsClient<runtime.Types.Result.GetResult<Prisma.$PerformanceAnalyticsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   revisionSchedules<T extends Prisma.User$revisionSchedulesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$revisionSchedulesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RevisionSchedulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  lectureProgress<T extends Prisma.User$lectureProgressArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$lectureProgressArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LectureProgressPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2378,6 +2536,30 @@ export type User$revisionSchedulesArgs<ExtArgs extends runtime.Types.Extensions.
   take?: number
   skip?: number
   distinct?: Prisma.RevisionScheduleScalarFieldEnum | Prisma.RevisionScheduleScalarFieldEnum[]
+}
+
+/**
+ * User.lectureProgress
+ */
+export type User$lectureProgressArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the LectureProgress
+   */
+  select?: Prisma.LectureProgressSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the LectureProgress
+   */
+  omit?: Prisma.LectureProgressOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LectureProgressInclude<ExtArgs> | null
+  where?: Prisma.LectureProgressWhereInput
+  orderBy?: Prisma.LectureProgressOrderByWithRelationInput | Prisma.LectureProgressOrderByWithRelationInput[]
+  cursor?: Prisma.LectureProgressWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.LectureProgressScalarFieldEnum | Prisma.LectureProgressScalarFieldEnum[]
 }
 
 /**
