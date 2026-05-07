@@ -10,6 +10,12 @@ import { responseFormatter } from "./middlewares/response-formatter.js";
 import { apiRateLimiter, authRateLimiter, csrfPlaceholder, suspiciousActivityLogger } from "./middlewares/security.js";
 import { logger } from "./utils/logger.js";
 
+const corsOrigins = env.CORS_ORIGIN.split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
+const allowedCorsOrigins = corsOrigins.length > 0 ? corsOrigins : ["http://localhost:3000"];
+
 export function createApp() {
   const app = express();
 
@@ -28,7 +34,7 @@ export function createApp() {
                 styleSrc: ["'self'", "'unsafe-inline'"],
                 imgSrc: ["'self'", "data:", "https://res.cloudinary.com"],
                 mediaSrc: ["'self'", "https://res.cloudinary.com"],
-                connectSrc: ["'self'", env.CORS_ORIGIN],
+                connectSrc: ["'self'", ...allowedCorsOrigins],
                 frameSrc: ["'self'", "https://res.cloudinary.com"]
               }
             }
@@ -37,7 +43,7 @@ export function createApp() {
   );
   app.use(
     cors({
-      origin: env.CORS_ORIGIN,
+      origin: allowedCorsOrigins,
       credentials: true,
       methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
       allowedHeaders: ["Content-Type", "Authorization", "X-CSRF-Token"]

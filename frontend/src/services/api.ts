@@ -1,6 +1,6 @@
 import axios, { AxiosError } from "axios";
 
-export const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api";
+export const API_URL = process.env.NEXT_PUBLIC_API_URL?.trim() || "/api";
 export const AUTH_TOKEN_KEY = "nidus_auth_token";
 
 export const apiClient = axios.create({
@@ -41,7 +41,12 @@ apiClient.interceptors.response.use(
 export function getApiErrorMessage(error: unknown) {
   if (error instanceof AxiosError) {
     const message = error.response?.data?.message;
-    return typeof message === "string" ? message : error.message;
+    if (typeof message === "string") return message;
+    if (error.code === "ERR_NETWORK" || !error.response) {
+      return "Backend is unavailable. Start the API server and try again.";
+    }
+
+    return error.message;
   }
 
   if (error instanceof Error) {
