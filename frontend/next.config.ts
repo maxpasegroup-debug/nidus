@@ -6,7 +6,7 @@ const projectRoot = existsSync(join(process.cwd(), "node_modules", "next", "pack
   ? process.cwd()
   : dirname(process.cwd());
 
-const backendUrl = process.env.API_PROXY_TARGET?.trim() || "http://localhost:5000";
+const backendUrl = process.env.API_PROXY_TARGET?.trim() || "http://127.0.0.1:5000";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
