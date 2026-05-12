@@ -1,10 +1,21 @@
 import axios, { AxiosError } from "axios";
 
 export const API_URL = process.env.NEXT_PUBLIC_API_URL?.trim() || "/api";
-export const AUTH_TOKEN_KEY = "nidus_auth_token";
+const CSRF_COOKIE_NAME = process.env.NEXT_PUBLIC_CSRF_COOKIE_NAME?.trim() || "nidus_csrf";
+
+function readCookie(name: string) {
+  if (typeof document === "undefined") return undefined;
+
+  return document.cookie
+    .split(";")
+    .map((part) => part.trim())
+    .find((part) => part.startsWith(`${name}=`))
+    ?.slice(name.length + 1);
+}
 
 export const apiClient = axios.create({
   baseURL: API_URL,
+  withCredentials: true,
   headers: {
     Accept: "application/json, text/plain",
     "Content-Type": "application/json"
@@ -12,12 +23,9 @@ export const apiClient = axios.create({
 });
 
 apiClient.interceptors.request.use((config) => {
-  if (typeof window !== "undefined") {
-    const token = localStorage.getItem(AUTH_TOKEN_KEY);
-
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
+  if (typeof window !== "undefined" && config.method && !["get", "head", "options"].includes(config.method.toLowerCase())) {
+    const csrfToken = readCookie(CSRF_COOKIE_NAME);
+    if (csrfToken) config.headers["X-CSRF-Token"] = decodeURIComponent(csrfToken);
   }
 
   return config;
@@ -25,9 +33,19 @@ apiClient.interceptors.request.use((config) => {
 
 apiClient.interceptors.response.use(
   (response) => response,
-  (error: AxiosError) => {
+  async (error: AxiosError) => {
+    const originalRequest = error.config as typeof error.config & { _retry?: boolean };
+    if (error.response?.status === 401 && originalRequest && !originalRequest._retry && !originalRequest.url?.includes("/auth/refresh")) {
+      originalRequest._retry = true;
+      try {
+        await apiClient.post("/auth/refresh");
+        return apiClient(originalRequest);
+      } catch (_refreshError) {
+        // Fall through to normal session-expired handling.
+      }
+    }
+
     if (typeof window !== "undefined" && error.response?.status === 401) {
-      localStorage.removeItem(AUTH_TOKEN_KEY);
       document.cookie = "nidus_auth=; path=/; max-age=0; samesite=lax";
       if (!window.location.pathname.startsWith("/login")) {
         window.dispatchEvent(new CustomEvent("nidus:session-expired"));

@@ -130,5 +130,38 @@ export const adminCenterController = {
     } catch (error) {
       next(error);
     }
+  },
+
+  async disableUser(req: Request, res: Response, next: NextFunction) {
+    try {
+      assertValid(req);
+      res.json(await adminCenterService.disableUser(getParam(req, "id"), Boolean(req.body.disabled)));
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async forceLogoutUser(req: Request, res: Response, next: NextFunction) {
+    try {
+      res.json(await adminCenterService.forceLogoutUser(getParam(req, "id")));
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async resetVerification(req: Request, res: Response, next: NextFunction) {
+    try {
+      res.json(await adminCenterService.resetVerification(getParam(req, "id")));
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async revokeSession(req: Request, res: Response, next: NextFunction) {
+    try {
+      res.json(await adminCenterService.revokeSession(getParam(req, "id")));
+    } catch (error) {
+      next(error);
+    }
   }
 };

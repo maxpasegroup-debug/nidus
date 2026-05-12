@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 
-const protectedRoutes = ["/dashboard", "/my-courses", "/course-player", "/test-attempt", "/results", "/psychometric/attempt", "/psychometric/results", "/psychometric/olq-report", "/ai-study-planner", "/performance-analytics", "/revision-schedule", "/recorded-lectures"];
+const protectedRoutes = ["/dashboard", "/my-courses", "/course-player", "/test-attempt", "/results", "/psychometric/attempt", "/psychometric/results", "/psychometric/olq-report", "/ai-study-planner", "/performance-analytics", "/revision-schedule", "/recorded-lectures", "/sessions"];
 
 export function middleware(request: NextRequest) {
   const isProtectedRoute = protectedRoutes.some((route) =>
@@ -23,5 +23,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/my-courses/:path*", "/course-player/:path*", "/test-attempt/:path*", "/results/:path*", "/psychometric/attempt/:path*", "/psychometric/results/:path*", "/psychometric/olq-report", "/ai-study-planner", "/performance-analytics", "/revision-schedule", "/recorded-lectures/:path*"]
+  matcher: ["/dashboard/:path*", "/my-courses/:path*", "/course-player/:path*", "/test-attempt/:path*", "/results/:path*", "/psychometric/attempt/:path*", "/psychometric/results/:path*", "/psychometric/olq-report", "/ai-study-planner", "/performance-analytics", "/revision-schedule", "/recorded-lectures/:path*", "/sessions"]
 };

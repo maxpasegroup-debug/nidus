@@ -19,7 +19,8 @@
     "seed:psychometric": "tsx src/scripts/seed-psychometric.ts",
     "seed:live-classes": "tsx src/scripts/seed-live-classes.ts",
     "seed:learning-hub": "tsx src/scripts/seed-learning-hub.ts",
-    "seed:demo": "tsx src/scripts/seed-demo.ts"
+    "seed:demo": "tsx src/scripts/seed-demo.ts",
+    "test:auth": "tsx src/scripts/auth-flow-verification.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.8.0",

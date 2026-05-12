@@ -8,7 +8,9 @@ export const errorHandler: ErrorRequestHandler = (error, req, res, _next) => {
       error.message.includes("Invalid or expired OTP") ||
       error.message.includes("Invalid reset token")
         ? 401
-        : error.message.includes("not found") || error.message.includes("not registered")
+        : error.message.includes("Forbidden") || error.message.includes("Permission denied")
+          ? 403
+          : error.message.includes("not found") || error.message.includes("not registered")
           ? 404
           : error.message.includes("already registered")
             ? 409

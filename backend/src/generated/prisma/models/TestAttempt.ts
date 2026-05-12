@@ -565,10 +565,6 @@ export type TestAttemptUncheckedUpdateManyWithoutTestNestedInput = {
   deleteMany?: Prisma.TestAttemptScalarWhereInput | Prisma.TestAttemptScalarWhereInput[]
 }
 
-export type NullableDateTimeFieldUpdateOperationsInput = {
-  set?: Date | string | null
-}
-
 export type TestAttemptCreateNestedOneWithoutAnswersInput = {
   create?: Prisma.XOR<Prisma.TestAttemptCreateWithoutAnswersInput, Prisma.TestAttemptUncheckedCreateWithoutAnswersInput>
   connectOrCreate?: Prisma.TestAttemptCreateOrConnectWithoutAnswersInput

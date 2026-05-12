@@ -17,7 +17,7 @@ paymentsRouter.post("/verify", ...financeRoles, [body("razorpayOrderId").notEmpt
 paymentsRouter.get("/history", ...financeRoles, paymentsController.history);
 
 subscriptionsRouter.get("/", ...financeRoles, paymentsController.subscriptions);
-subscriptionsRouter.post("/", ...financeRoles, [body("userId").optional().trim(), body("planName").trim().notEmpty(), body("startDate").isISO8601(), body("endDate").isISO8601(), body("status").trim().notEmpty(), body("amount").isFloat({ min: 0 })], paymentsController.createSubscription);
+subscriptionsRouter.post("/", ...adminOnly, [body("userId").optional().trim(), body("planName").trim().notEmpty(), body("startDate").isISO8601(), body("endDate").isISO8601(), body("status").trim().notEmpty(), body("amount").isFloat({ min: 0 })], paymentsController.createSubscription);
 
 feesRouter.get("/", ...financeRoles, paymentsController.fees);
 feesRouter.post("/installment", ...adminOnly, [body("studentId").notEmpty(), body("title").trim().notEmpty(), body("amount").isFloat({ min: 1 }), body("dueDate").isISO8601(), body("paidStatus").optional().trim()], paymentsController.createInstallment);

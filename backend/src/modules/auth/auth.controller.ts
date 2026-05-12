@@ -2,6 +2,7 @@ import type { Request, Response, NextFunction } from "express";
 import { validationResult } from "express-validator";
 import { prisma } from "../../config/prisma.js";
 import { authService } from "./auth.service.js";
+import { clearAuthCookies, readRefreshToken, setAuthCookies } from "./auth.cookies.js";
 import type { AuthenticatedRequest } from "./auth.middleware.js";
 
 function validateRequest(req: Request) {
@@ -30,26 +31,41 @@ export const authController = {
   async login(req: Request, res: Response, next: NextFunction) {
     try {
       validateRequest(req);
-      const result = await authService.login(req.body);
-      await prisma.auditLog.create({
-        data: {
-          userId: result.user.id,
-          action: "LOGIN_SUCCESS",
-          module: "auth",
-          description: `Successful login for ${result.user.email}`,
-          ipAddress: req.ip
-        }
-      }).catch(() => undefined);
-      res.json(result);
+      const result = await authService.login(req.body, { ip: req.ip, userAgent: req.headers["user-agent"] });
+      setAuthCookies(res, result.accessToken, result.refreshToken);
+      res.json({ user: result.user });
     } catch (error) {
-      await prisma.auditLog.create({
-        data: {
-          action: "LOGIN_FAILED",
-          module: "auth",
-          description: `Failed login attempt for ${req.body?.identifier ?? "unknown"}`,
-          ipAddress: req.ip
-        }
-      }).catch(() => undefined);
+      next(error);
+    }
+  },
+
+  async refresh(req: Request, res: Response, next: NextFunction) {
+    try {
+      const result = await authService.refresh(readRefreshToken(req), { ip: req.ip, userAgent: req.headers["user-agent"] });
+      setAuthCookies(res, result.accessToken, result.refreshToken);
+      res.json({ user: result.user });
+    } catch (error) {
+      clearAuthCookies(res);
+      next(error);
+    }
+  },
+
+  async resendVerification(req: Request, res: Response, next: NextFunction) {
+    try {
+      validateRequest(req);
+      res.json(await authService.resendVerification(req.body.identifier));
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async verifyEmail(req: Request, res: Response, next: NextFunction) {
+    try {
+      validateRequest(req);
+      const result = await authService.verifyEmail(req.body.token, { ip: req.ip, userAgent: req.headers["user-agent"] });
+      setAuthCookies(res, result.accessToken, result.refreshToken);
+      res.json({ user: result.user });
+    } catch (error) {
       next(error);
     }
   },
@@ -57,7 +73,7 @@ export const authController = {
   async sendMobileOtp(req: Request, res: Response, next: NextFunction) {
     try {
       validateRequest(req);
-      const result = await authService.sendMobileOtp(req.body.mobile);
+      const result = await authService.resendVerification(req.body.mobile);
       res.json(result);
     } catch (error) {
       next(error);
@@ -67,8 +83,7 @@ export const authController = {
   async verifyMobileOtp(req: Request, res: Response, next: NextFunction) {
     try {
       validateRequest(req);
-      const result = await authService.verifyMobileOtp(req.body.mobile, req.body.otp);
-      res.json(result);
+      throw new Error("Mobile OTP login is not enabled in production");
     } catch (error) {
       next(error);
     }
@@ -77,7 +92,7 @@ export const authController = {
   async sendForgotPasswordOtp(req: Request, res: Response, next: NextFunction) {
     try {
       validateRequest(req);
-      const result = await authService.sendForgotPasswordOtp(req.body.identifier);
+      const result = await authService.requestPasswordReset(req.body.identifier);
       res.json(result);
     } catch (error) {
       next(error);
@@ -87,8 +102,7 @@ export const authController = {
   async verifyForgotPassword(req: Request, res: Response, next: NextFunction) {
     try {
       validateRequest(req);
-      const result = await authService.verifyForgotPasswordOtp(req.body.identifier, req.body.otp);
-      res.json(result);
+      throw new Error("Password reset OTP verification is replaced by secure email reset links");
     } catch (error) {
       next(error);
     }
@@ -97,7 +111,7 @@ export const authController = {
   async resetPassword(req: Request, res: Response, next: NextFunction) {
     try {
       validateRequest(req);
-      const result = await authService.resetPassword(req.body.resetToken, req.body.password);
+      const result = await authService.resetPassword(req.body.resetToken ?? req.body.token, req.body.password);
       res.json(result);
     } catch (error) {
       next(error);
@@ -113,6 +127,62 @@ export const authController = {
 
       const user = await authService.getMe(req.user.id);
       res.json(user);
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async sessions(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      if (!req.user) throw new Error("Unauthorized");
+      res.json({ sessions: await authService.sessions(req.user.id) });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async revokeSession(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      if (!req.user) throw new Error("Unauthorized");
+      const sessionId = req.params.id;
+      if (typeof sessionId !== "string") throw new Error("Invalid session id");
+      res.json(await authService.revokeSession(req.user.id, sessionId));
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async logoutAll(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      if (!req.user) throw new Error("Unauthorized");
+      const result = await authService.logoutAll(req.user.id);
+      clearAuthCookies(res);
+      res.json(result);
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async logout(req: AuthenticatedRequest, res: Response) {
+    await authService.logout(req.user?.sessionId);
+    clearAuthCookies(res);
+    res.json({ message: "Logged out successfully" });
+  },
+
+  async inviteParentLink(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      validateRequest(req);
+      if (!req.user) throw new Error("Unauthorized");
+      res.status(201).json(await authService.inviteParentLink(req.user.id, req.body.studentId));
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async acceptParentLink(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      validateRequest(req);
+      res.json(await authService.acceptParentLink(req.body.token, req.user?.id));
     } catch (error) {
       next(error);
     }

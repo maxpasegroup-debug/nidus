@@ -3,10 +3,12 @@ import jwt from "jsonwebtoken";
 import { env } from "../../config/env.js";
 import { prisma } from "../../config/prisma.js";
 import type { Role } from "../../generated/prisma/client.js";
+import { readAuthToken } from "./auth.cookies.js";
 
 export type JwtUser = {
   id: string;
   role: Role;
+  sessionId?: string;
 };
 
 export type AuthenticatedRequest = Request & {
@@ -16,18 +18,17 @@ export type AuthenticatedRequest = Request & {
 type AuthTokenPayload = jwt.JwtPayload & {
   sub: string;
   role: Role;
+  sid?: string;
 };
 
 export async function protect(req: AuthenticatedRequest, res: Response, next: NextFunction) {
   try {
-    const authHeader = req.headers.authorization;
-
-    if (!authHeader?.startsWith("Bearer ")) {
+    const token = readAuthToken(req);
+    if (!token) {
       res.status(401).json({ message: "Authentication token required" });
       return;
     }
 
-    const token = authHeader.split(" ")[1];
     const decoded = jwt.verify(token, env.JWT_SECRET) as AuthTokenPayload;
 
     if (!decoded.sub) {
@@ -37,15 +38,29 @@ export async function protect(req: AuthenticatedRequest, res: Response, next: Ne
 
     const user = await prisma.user.findUnique({
       where: { id: decoded.sub },
-      select: { id: true, role: true }
+      select: { id: true, role: true, isDisabled: true }
     });
 
-    if (!user) {
+    if (!user || user.isDisabled) {
       res.status(401).json({ message: "User not found" });
       return;
     }
 
-    req.user = user;
+    if (decoded.sid) {
+      const session = await prisma.authSession.findUnique({ where: { id: decoded.sid } });
+      const idleExpiry = new Date(Date.now() - env.AUTH_IDLE_TIMEOUT_MINUTES * 60 * 1000);
+      if (!session || session.userId !== user.id || session.revokedAt || session.expiresAt <= new Date() || session.lastActivityAt <= idleExpiry) {
+        res.status(401).json({ message: "Session expired" });
+        return;
+      }
+
+      await prisma.authSession.update({
+        where: { id: session.id },
+        data: { lastActivityAt: new Date() }
+      });
+    }
+
+    req.user = { id: user.id, role: user.role, sessionId: decoded.sid };
     next();
   } catch (_error) {
     res.status(401).json({ message: "Invalid or expired authentication token" });

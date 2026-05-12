@@ -52,6 +52,11 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   User: 'User',
+  AuthVerificationToken: 'AuthVerificationToken',
+  PasswordResetToken: 'PasswordResetToken',
+  AuthSession: 'AuthSession',
+  ParentStudentInvitation: 'ParentStudentInvitation',
+  ParentStudentLink: 'ParentStudentLink',
   Otp: 'Otp',
   Course: 'Course',
   Module: 'Module',
@@ -154,11 +159,83 @@ export const UserScalarFieldEnum = {
   role: 'role',
   emailVerified: 'emailVerified',
   mobileVerified: 'mobileVerified',
+  isDisabled: 'isDisabled',
+  disabledAt: 'disabledAt',
+  loginFailureCount: 'loginFailureCount',
+  lockedUntil: 'lockedUntil',
+  lastLoginAt: 'lastLoginAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
+
+
+export const AuthVerificationTokenScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  tokenHash: 'tokenHash',
+  purpose: 'purpose',
+  expiresAt: 'expiresAt',
+  consumedAt: 'consumedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type AuthVerificationTokenScalarFieldEnum = (typeof AuthVerificationTokenScalarFieldEnum)[keyof typeof AuthVerificationTokenScalarFieldEnum]
+
+
+export const PasswordResetTokenScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  tokenHash: 'tokenHash',
+  expiresAt: 'expiresAt',
+  consumedAt: 'consumedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type PasswordResetTokenScalarFieldEnum = (typeof PasswordResetTokenScalarFieldEnum)[keyof typeof PasswordResetTokenScalarFieldEnum]
+
+
+export const AuthSessionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  refreshTokenHash: 'refreshTokenHash',
+  device: 'device',
+  browser: 'browser',
+  ipAddress: 'ipAddress',
+  userAgent: 'userAgent',
+  loginAt: 'loginAt',
+  lastActivityAt: 'lastActivityAt',
+  expiresAt: 'expiresAt',
+  revokedAt: 'revokedAt',
+  revokeReason: 'revokeReason'
+} as const
+
+export type AuthSessionScalarFieldEnum = (typeof AuthSessionScalarFieldEnum)[keyof typeof AuthSessionScalarFieldEnum]
+
+
+export const ParentStudentInvitationScalarFieldEnum = {
+  id: 'id',
+  parentId: 'parentId',
+  studentId: 'studentId',
+  tokenHash: 'tokenHash',
+  expiresAt: 'expiresAt',
+  acceptedAt: 'acceptedAt',
+  revokedAt: 'revokedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type ParentStudentInvitationScalarFieldEnum = (typeof ParentStudentInvitationScalarFieldEnum)[keyof typeof ParentStudentInvitationScalarFieldEnum]
+
+
+export const ParentStudentLinkScalarFieldEnum = {
+  id: 'id',
+  parentId: 'parentId',
+  studentId: 'studentId',
+  linkedAt: 'linkedAt'
+} as const
+
+export type ParentStudentLinkScalarFieldEnum = (typeof ParentStudentLinkScalarFieldEnum)[keyof typeof ParentStudentLinkScalarFieldEnum]
 
 
 export const OtpScalarFieldEnum = {

@@ -5,7 +5,7 @@ import { useToast } from "@/components/providers/toast-provider";
 import { getApiErrorMessage } from "@/services/api";
 import { createBranch, createRole, deleteRole, getAdminDashboard, getAuditLogs, getBranches, getPermissions, getRoles, getSettings, updateRole, updateSettings } from "@/services/admin-center";
 
-function toastMutation<TPayload, TResult>(mutationFn: (payload: TPayload) => Promise<TResult>, keys: unknown[][], message: string) {
+function useToastMutation<TPayload, TResult>(mutationFn: (payload: TPayload) => Promise<TResult>, keys: unknown[][], message: string) {
   const queryClient = useQueryClient();
   const { showToast } = useToast();
 
@@ -26,9 +26,9 @@ export function useAdminDashboard() {
 export function useRoles() {
   return {
     ...useQuery({ queryKey: ["admin-center", "roles"], queryFn: getRoles }),
-    create: toastMutation(createRole, [["admin-center", "roles"], ["admin-center", "dashboard"], ["admin-center", "audit-logs"]], "Role created"),
-    update: toastMutation(updateRole, [["admin-center", "roles"], ["admin-center", "audit-logs"]], "Role updated"),
-    remove: toastMutation(deleteRole, [["admin-center", "roles"], ["admin-center", "dashboard"], ["admin-center", "audit-logs"]], "Role deleted")
+    create: useToastMutation(createRole, [["admin-center", "roles"], ["admin-center", "dashboard"], ["admin-center", "audit-logs"]], "Role created"),
+    update: useToastMutation(updateRole, [["admin-center", "roles"], ["admin-center", "audit-logs"]], "Role updated"),
+    remove: useToastMutation(deleteRole, [["admin-center", "roles"], ["admin-center", "dashboard"], ["admin-center", "audit-logs"]], "Role deleted")
   };
 }
 
@@ -39,7 +39,7 @@ export function usePermissions() {
 export function useSettings() {
   return {
     ...useQuery({ queryKey: ["admin-center", "settings"], queryFn: getSettings }),
-    update: toastMutation(updateSettings, [["admin-center", "settings"], ["admin-center", "audit-logs"]], "Settings updated")
+    update: useToastMutation(updateSettings, [["admin-center", "settings"], ["admin-center", "audit-logs"]], "Settings updated")
   };
 }
 
@@ -50,6 +50,6 @@ export function useAuditLogs(filters?: { module?: string; action?: string; searc
 export function useBranches() {
   return {
     ...useQuery({ queryKey: ["admin-center", "branches"], queryFn: getBranches }),
-    create: toastMutation(createBranch, [["admin-center", "branches"], ["admin-center", "dashboard"], ["admin-center", "audit-logs"]], "Branch created")
+    create: useToastMutation(createBranch, [["admin-center", "branches"], ["admin-center", "dashboard"], ["admin-center", "audit-logs"]], "Branch created")
   };
 }

@@ -69,6 +69,7 @@ export default function LoginPage() {
             <LockKeyhole className="h-4 w-4 text-gold-soft" />
             <span>Student, parent, teacher, admin, and guest access resolves from one login.</span>
           </div>
+          <p className="mt-4 text-center text-sm text-muted"><Link href="/forgot-password" className="font-semibold text-gold-soft">Forgot password?</Link></p>
           <p className="mt-6 text-center text-sm text-muted">New to NIDUS? <Link href="/register" className="font-semibold text-gold-soft">Create an account</Link></p>
         </section>
       </div>

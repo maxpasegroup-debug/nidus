@@ -3,11 +3,22 @@ import { z } from "zod";
 
 const envSchema = z.object({
   DATABASE_URL: z.string().min(1),
-  JWT_SECRET: z.string().min(16),
+  JWT_SECRET: z.string().min(32),
   PORT: z.coerce.number().default(4000),
   CORS_ORIGIN: z.string().default("http://localhost:3000"),
+  FRONTEND_APP_URL: z.string().url().default("http://localhost:3000"),
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
   TRUST_PROXY: z.coerce.boolean().default(true),
+  COOKIE_DOMAIN: z.string().default(""),
+  COOKIE_SECURE: z.coerce.boolean().optional(),
+  CSRF_COOKIE_NAME: z.string().default("nidus_csrf"),
+  AUTH_ACCESS_TOKEN_MINUTES: z.coerce.number().int().positive().default(15),
+  AUTH_REFRESH_TOKEN_DAYS: z.coerce.number().int().positive().default(30),
+  AUTH_IDLE_TIMEOUT_MINUTES: z.coerce.number().int().positive().default(720),
+  AUTH_VERIFY_TOKEN_MINUTES: z.coerce.number().int().positive().default(15),
+  AUTH_RESET_TOKEN_MINUTES: z.coerce.number().int().positive().default(15),
+  AUTH_MAX_LOGIN_FAILURES: z.coerce.number().int().positive().default(5),
+  AUTH_LOCK_MINUTES: z.coerce.number().int().positive().default(15),
   REDIS_URL: z.string().default(""),
   MAINTENANCE_MODE: z.coerce.boolean().default(false),
   RAZORPAY_KEY_ID: z.string().default(""),
@@ -20,6 +31,14 @@ const envSchema = z.object({
   CLOUDINARY_API_SECRET: z.string().default("")
 }).superRefine((env, ctx) => {
   if (env.NODE_ENV !== "production") return;
+
+  if (env.CORS_ORIGIN.includes("localhost") || env.CORS_ORIGIN.includes("*")) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "CORS_ORIGIN must be explicit production origin(s)",
+      path: ["CORS_ORIGIN"]
+    });
+  }
 
   const requiredInProduction = [
     "OPENAI_API_KEY",

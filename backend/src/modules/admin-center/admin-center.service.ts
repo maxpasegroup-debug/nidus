@@ -1,5 +1,6 @@
 import { prisma } from "../../config/prisma.js";
 import { ensureDefaultPermissions } from "./admin-center.rbac.js";
+import { authTokenUtils } from "../auth/auth.service.js";
 
 type RolePayload = {
   name: string;
@@ -180,5 +181,45 @@ export const adminCenterService = {
 
   async createBranch(payload: { name: string; location: string; contactNumber: string }) {
     return prisma.branch.create({ data: payload });
+  },
+
+  async disableUser(userId: string, disabled: boolean) {
+    const user = await prisma.user.update({
+      where: { id: userId },
+      data: { isDisabled: disabled, disabledAt: disabled ? new Date() : null }
+    });
+    if (disabled) {
+      await prisma.authSession.updateMany({
+        where: { userId, revokedAt: null },
+        data: { revokedAt: new Date(), revokeReason: "ADMIN_DISABLED_USER" }
+      });
+    }
+    await authTokenUtils.audit({ userId, action: disabled ? "USER_DISABLED" : "USER_ENABLED", description: `Admin ${disabled ? "disabled" : "enabled"} user ${user.email}` });
+    return { message: disabled ? "User disabled" : "User enabled" };
+  },
+
+  async forceLogoutUser(userId: string) {
+    await prisma.authSession.updateMany({
+      where: { userId, revokedAt: null },
+      data: { revokedAt: new Date(), revokeReason: "ADMIN_FORCE_LOGOUT" }
+    });
+    await authTokenUtils.audit({ userId, action: "ADMIN_FORCE_LOGOUT", description: "Admin forced user logout" });
+    return { message: "User sessions revoked" };
+  },
+
+  async resetVerification(userId: string) {
+    const user = await prisma.user.update({ where: { id: userId }, data: { emailVerified: false } });
+    await authTokenUtils.createEmailVerification(user);
+    await authTokenUtils.audit({ userId, action: "ADMIN_RESET_VERIFICATION", description: `Admin reset verification for ${user.email}` });
+    return { message: "Verification reset and email sent" };
+  },
+
+  async revokeSession(sessionId: string) {
+    const session = await prisma.authSession.update({
+      where: { id: sessionId },
+      data: { revokedAt: new Date(), revokeReason: "ADMIN_REVOKED" }
+    });
+    await authTokenUtils.audit({ userId: session.userId, action: "ADMIN_SESSION_REVOKED", description: `Admin revoked session ${sessionId}` });
+    return { message: "Session revoked" };
   }
 };

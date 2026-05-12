@@ -23,8 +23,8 @@ export const paymentsController = {
   async createOrder(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try { assertValid(req); res.status(201).json(await paymentsService.createOrder(requester(req), req.body)); } catch (error) { next(error); }
   },
-  async verify(req: Request, res: Response, next: NextFunction) {
-    try { assertValid(req); res.json(await paymentsService.verify(req.body)); } catch (error) { next(error); }
+  async verify(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try { assertValid(req); res.json(await paymentsService.verify(requester(req), req.body)); } catch (error) { next(error); }
   },
   async history(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try { res.json({ payments: await paymentsService.history(requester(req)) }); } catch (error) { next(error); }
@@ -41,8 +41,8 @@ export const paymentsController = {
   async createInstallment(req: Request, res: Response, next: NextFunction) {
     try { assertValid(req); res.status(201).json({ fee: await paymentsService.createInstallment(req.body) }); } catch (error) { next(error); }
   },
-  async payInstallment(req: Request, res: Response, next: NextFunction) {
-    try { res.json({ fee: await paymentsService.payInstallment(param(req, "id")) }); } catch (error) { next(error); }
+  async payInstallment(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try { res.json({ fee: await paymentsService.payInstallment(requester(req), param(req, "id")) }); } catch (error) { next(error); }
   },
   async invoices(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try { res.json({ invoices: await paymentsService.invoices(requester(req)) }); } catch (error) { next(error); }

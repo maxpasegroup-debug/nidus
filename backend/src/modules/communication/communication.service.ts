@@ -12,7 +12,11 @@ export const communicationService = {
       orderBy: { createdAt: "desc" }
     });
   },
-  markNotificationRead(id: string, user: { id: string; role: Role }) {
+  async markNotificationRead(id: string, user: { id: string; role: Role }) {
+    const notification = await prisma.notification.findUnique({ where: { id } });
+    if (!notification) throw new Error("Notification not found");
+    if (notification.userId !== user.id) throw new Error("Only user-specific notifications can be marked read");
+
     return prisma.notification.update({ where: { id }, data: { isRead: true } });
   },
   threads(user: { id: string; role: Role }) {
@@ -25,7 +29,19 @@ export const communicationService = {
   createThread(input: { subject: string }, createdBy: string) {
     return prisma.messageThread.create({ data: { subject: input.subject, createdBy }, include: { creator: { select: userSelect }, messages: true } });
   },
-  sendMessage(input: { threadId: string; receiverId: string; message: string; attachmentUrl?: string }, senderId: string) {
+  async sendMessage(input: { threadId: string; receiverId: string; message: string; attachmentUrl?: string }, senderId: string) {
+    const thread = await prisma.messageThread.findFirst({
+      where: {
+        id: input.threadId,
+        OR: [
+          { createdBy: senderId },
+          { messages: { some: { OR: [{ senderId }, { receiverId: senderId }] } } }
+        ]
+      }
+    });
+
+    if (!thread) throw new Error("Message thread not found");
+
     return prisma.message.create({
       data: { ...input, senderId },
       include: { sender: { select: userSelect }, receiver: { select: userSelect }, thread: true }

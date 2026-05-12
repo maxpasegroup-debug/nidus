@@ -14,8 +14,17 @@ export type AuthUser = {
   updatedAt: string;
 };
 
+export type AuthSession = {
+  id: string;
+  device?: string;
+  browser?: string;
+  ipAddress?: string;
+  loginAt: string;
+  lastActivityAt: string;
+  expiresAt: string;
+};
+
 export type AuthResponse = {
-  token: string;
   user: AuthUser;
 };
 
@@ -72,6 +81,51 @@ export async function resetPassword(resetToken: string, password: string) {
     resetToken,
     password
   });
+  return response.data;
+}
+
+export async function logout() {
+  const response = await apiClient.post<{ message: string }>("/auth/logout");
+  return response.data;
+}
+
+export async function refreshSession() {
+  const response = await apiClient.post<AuthResponse>("/auth/refresh");
+  return response.data;
+}
+
+export async function verifyEmail(token: string) {
+  const response = await apiClient.post<AuthResponse>("/auth/verify-email", { token });
+  return response.data;
+}
+
+export async function resendVerification(identifier: string) {
+  const response = await apiClient.post<{ message: string }>("/auth/verify-email/resend", { identifier });
+  return response.data;
+}
+
+export async function getSessions() {
+  const response = await apiClient.get<{ sessions: AuthSession[] }>("/auth/sessions");
+  return response.data.sessions;
+}
+
+export async function revokeSession(id: string) {
+  const response = await apiClient.delete<{ message: string }>(`/auth/sessions/${id}`);
+  return response.data;
+}
+
+export async function logoutAll() {
+  const response = await apiClient.post<{ message: string }>("/auth/logout-all");
+  return response.data;
+}
+
+export async function inviteParentLink(studentId: string) {
+  const response = await apiClient.post<{ message: string }>("/auth/parent-link/invite", { studentId });
+  return response.data;
+}
+
+export async function acceptParentLink(token: string) {
+  const response = await apiClient.post<{ message: string }>("/auth/parent-link/accept", { token });
   return response.data;
 }
 

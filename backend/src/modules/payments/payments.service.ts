@@ -29,7 +29,11 @@ export const paymentsService = {
     });
     return { payment, order, keyId: razorpayService.keyId() };
   },
-  async verify(input: { razorpayOrderId: string; razorpayPaymentId: string; razorpaySignature: string; paymentMethod?: string }) {
+  async verify(requester: { id: string; role: Role }, input: { razorpayOrderId: string; razorpayPaymentId: string; razorpaySignature: string; paymentMethod?: string }) {
+    const existing = await prisma.payment.findUnique({ where: { razorpayOrderId: input.razorpayOrderId } });
+    if (!existing) throw new Error("Payment not found");
+    if (requester.role !== "ADMIN" && existing.userId !== requester.id) throw new Error("Forbidden");
+
     const verified = razorpayService.verifySignature(input);
     const payment = await prisma.payment.update({
       where: { razorpayOrderId: input.razorpayOrderId },
@@ -77,7 +81,11 @@ export const paymentsService = {
       include: { student: { select: userSelect } }
     });
   },
-  payInstallment(id: string) {
+  async payInstallment(requester: { id: string; role: Role }, id: string) {
+    const fee = await prisma.feeInstallment.findUnique({ where: { id } });
+    if (!fee) throw new Error("Fee installment not found");
+    if (requester.role !== "ADMIN" && fee.studentId !== requester.id) throw new Error("Forbidden");
+
     return prisma.feeInstallment.update({
       where: { id },
       data: { paidStatus: "PAID", paidAt: new Date() },

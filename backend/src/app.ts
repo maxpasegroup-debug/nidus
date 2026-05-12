@@ -7,7 +7,7 @@ import { env } from "./config/env.js";
 import { apiRouter } from "./modules/index.js";
 import { errorHandler } from "./middlewares/error-handler.js";
 import { responseFormatter } from "./middlewares/response-formatter.js";
-import { apiRateLimiter, authRateLimiter, csrfPlaceholder, suspiciousActivityLogger } from "./middlewares/security.js";
+import { apiRateLimiter, authRateLimiter, csrfProtection, suspiciousActivityLogger } from "./middlewares/security.js";
 import { logger } from "./utils/logger.js";
 
 const corsOrigins = env.CORS_ORIGIN.split(",")
@@ -35,7 +35,11 @@ export function createApp() {
                 imgSrc: ["'self'", "data:", "https://res.cloudinary.com"],
                 mediaSrc: ["'self'", "https://res.cloudinary.com"],
                 connectSrc: ["'self'", ...allowedCorsOrigins],
-                frameSrc: ["'self'", "https://res.cloudinary.com"]
+                frameSrc: ["'self'", "https://res.cloudinary.com"],
+                objectSrc: ["'none'"],
+                baseUri: ["'self'"],
+                formAction: ["'self'"],
+                frameAncestors: ["'none'"]
               }
             }
           : false
@@ -60,7 +64,7 @@ export function createApp() {
   app.use(express.json({ limit: "1mb" }));
   app.use(express.urlencoded({ extended: true, limit: "1mb" }));
   app.use(responseFormatter);
-  app.use(csrfPlaceholder);
+  app.use(csrfProtection);
   app.use(suspiciousActivityLogger);
   app.use("/api/auth", authRateLimiter);
   app.use("/api", apiRateLimiter);

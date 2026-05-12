@@ -2,16 +2,20 @@ import { Router } from "express";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { prisma } from "../../config/prisma.js";
+import { Role } from "../../generated/prisma/client.js";
+import { allowRoles, protect } from "../auth/auth.middleware.js";
 
 const createUserSchema = z.object({
   name: z.string().min(2),
   email: z.string().email(),
   mobile: z.string().min(7),
   password: z.string().min(8),
-  role: z.enum(["STUDENT", "PARENT", "ADMIN", "GUEST"]).default("STUDENT")
+  role: z.nativeEnum(Role).default(Role.STUDENT)
 });
 
 export const usersRouter = Router();
+
+usersRouter.use(protect, allowRoles(Role.ADMIN));
 
 usersRouter.get("/", async (_req, res, next) => {
   try {

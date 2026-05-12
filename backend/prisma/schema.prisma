@@ -61,6 +61,11 @@ model User {
   role           Role     @default(STUDENT)
   emailVerified  Boolean  @default(false)
   mobileVerified Boolean  @default(false)
+  isDisabled      Boolean  @default(false)
+  disabledAt      DateTime?
+  loginFailureCount Int    @default(0)
+  lockedUntil     DateTime?
+  lastLoginAt     DateTime?
   enrollments    Enrollment[]
   testAttempts   TestAttempt[]
   psychometricAttempts PsychometricAttempt[]
@@ -108,8 +113,89 @@ model User {
   documents Document[] @relation("DocumentUploader")
   adminRoles UserRole[]
   auditLogs AuditLog[]
+  authVerificationTokens AuthVerificationToken[]
+  passwordResetTokens PasswordResetToken[]
+  authSessions AuthSession[]
+  parentInvitationsSent ParentStudentInvitation[] @relation("ParentInvitationParent")
+  parentInvitationsReceived ParentStudentInvitation[] @relation("ParentInvitationStudent")
+  parentLinks ParentStudentLink[] @relation("ParentLinkParent")
+  studentLinks ParentStudentLink[] @relation("ParentLinkStudent")
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+}
+
+model AuthVerificationToken {
+  id         String   @id @default(cuid())
+  userId     String
+  tokenHash  String
+  purpose    String
+  expiresAt  DateTime
+  consumedAt DateTime?
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, purpose])
+  @@index([expiresAt])
+}
+
+model PasswordResetToken {
+  id         String   @id @default(cuid())
+  userId     String
+  tokenHash  String
+  expiresAt  DateTime
+  consumedAt DateTime?
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model AuthSession {
+  id               String   @id @default(cuid())
+  userId           String
+  refreshTokenHash String
+  device           String?
+  browser          String?
+  ipAddress        String?
+  userAgent        String?
+  loginAt          DateTime @default(now())
+  lastActivityAt   DateTime @default(now())
+  expiresAt        DateTime
+  revokedAt        DateTime?
+  revokeReason     String?
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, revokedAt])
+  @@index([expiresAt])
+}
+
+model ParentStudentInvitation {
+  id          String   @id @default(cuid())
+  parentId    String
+  studentId   String
+  tokenHash   String
+  expiresAt   DateTime
+  acceptedAt  DateTime?
+  revokedAt   DateTime?
+  createdAt   DateTime @default(now())
+  parent      User     @relation("ParentInvitationParent", fields: [parentId], references: [id], onDelete: Cascade)
+  student     User     @relation("ParentInvitationStudent", fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([parentId, studentId])
+  @@index([expiresAt])
+}
+
+model ParentStudentLink {
+  id        String   @id @default(cuid())
+  parentId  String
+  studentId String
+  linkedAt  DateTime @default(now())
+  parent    User     @relation("ParentLinkParent", fields: [parentId], references: [id], onDelete: Cascade)
+  student   User     @relation("ParentLinkStudent", fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([parentId, studentId])
+  @@index([studentId])
 }
 
 model Otp {

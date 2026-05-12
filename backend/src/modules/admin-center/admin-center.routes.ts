@@ -63,3 +63,8 @@ adminCenterRouter.post(
   auditAction("branches", "CREATE", "Created branch"),
   adminCenterController.createBranch
 );
+
+adminCenterRouter.patch("/users/:id/disabled", requirePermission("users", "manage"), [body("disabled").isBoolean()], auditAction("users", "DISABLE", "Changed user disabled status"), adminCenterController.disableUser);
+adminCenterRouter.post("/users/:id/force-logout", requirePermission("users", "manage"), auditAction("users", "FORCE_LOGOUT", "Forced user logout"), adminCenterController.forceLogoutUser);
+adminCenterRouter.post("/users/:id/reset-verification", requirePermission("users", "manage"), auditAction("users", "RESET_VERIFICATION", "Reset user verification"), adminCenterController.resetVerification);
+adminCenterRouter.delete("/sessions/:id", requirePermission("users", "manage"), auditAction("sessions", "REVOKE", "Revoked user session"), adminCenterController.revokeSession);
