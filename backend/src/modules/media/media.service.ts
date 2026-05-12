@@ -1,4 +1,4 @@
-import { deleteCloudinaryAsset, uploadBufferToCloudinary } from "../../config/cloudinary.js";
+import { deleteCloudinaryAsset, signedMediaUrl, uploadBufferToCloudinary } from "../../config/cloudinary.js";
 import { prisma } from "../../config/prisma.js";
 
 type FolderInput = {
@@ -73,7 +73,7 @@ export const mediaService = {
   },
 
   async listFiles(filters: FileFilters) {
-    return prisma.mediaFile.findMany({
+    const files = await prisma.mediaFile.findMany({
       where: {
         folderId: filters.folderId,
         fileType: filters.fileType,
@@ -85,6 +85,13 @@ export const mediaService = {
           : undefined
       },
       orderBy: { createdAt: "desc" }
+    });
+    return files.map((file) => {
+      try {
+        return { ...file, signedUrl: signedMediaUrl(file.publicId, file.fileType) };
+      } catch (_error) {
+        return { ...file, signedUrl: file.cloudinaryUrl };
+      }
     });
   },
 

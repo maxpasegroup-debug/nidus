@@ -1,10 +1,41 @@
+import admin from "firebase-admin";
+import { env } from "../../config/env.js";
+import { enqueueNotification, type NotificationJob } from "../../queues/notification.queue.js";
+import { logger } from "../../utils/logger.js";
+
+let firebaseReady = false;
+
+function initFirebase() {
+  if (firebaseReady || admin.apps.length) return firebaseReady;
+  if (!env.FIREBASE_PROJECT_ID || !env.FIREBASE_CLIENT_EMAIL || !env.FIREBASE_PRIVATE_KEY) return false;
+  admin.initializeApp({
+    credential: admin.credential.cert({
+      projectId: env.FIREBASE_PROJECT_ID,
+      clientEmail: env.FIREBASE_CLIENT_EMAIL,
+      privateKey: env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n")
+    })
+  });
+  firebaseReady = true;
+  return true;
+}
+
 export const pushService = {
-  async sendFirebasePlaceholder(input: { title: string; body: string; targetAudience: string }) {
-    console.log("[FIREBASE_PUSH_PLACEHOLDER]", input);
-    return { provider: "FIREBASE_PLACEHOLDER", status: "QUEUED_PLACEHOLDER" };
+  async sendQueued(input: NotificationJob) {
+    const job = await enqueueNotification(input);
+    if (job) return { provider: "FIREBASE", status: "QUEUED", jobId: job.id };
+    return this.sendPushNow(input);
   },
-  async sendMobilePushPlaceholder(input: { title: string; body: string; targetAudience: string }) {
-    console.log("[MOBILE_PUSH_PLACEHOLDER]", input);
-    return { provider: "MOBILE_PUSH_PLACEHOLDER", status: "QUEUED_PLACEHOLDER" };
+
+  async sendPushNow(input: NotificationJob) {
+    if (!initFirebase()) {
+      logger.warn("Firebase not configured; push notification skipped", input);
+      return { provider: "FIREBASE", status: "SKIPPED_NO_FIREBASE" };
+    }
+
+    await admin.messaging().send({
+      topic: input.targetAudience,
+      notification: { title: input.title, body: input.body }
+    });
+    return { provider: "FIREBASE", status: "SENT" };
   }
 };

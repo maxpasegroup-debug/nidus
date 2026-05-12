@@ -1,30 +1,54 @@
 import type { NextFunction, Request, Response } from "express";
-import rateLimit from "express-rate-limit";
 import { env } from "../config/env.js";
+import { getRedis, isRedisReady } from "../config/redis.js";
 import { createCsrfToken, csrfCookieOptions, parseCookies } from "../modules/auth/auth.cookies.js";
 import { logger } from "../utils/logger.js";
 
-export const apiRateLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  limit: 300,
-  standardHeaders: "draft-8",
-  legacyHeaders: false,
-  handler: (req, res) => {
-    logger.warn("Rate limit exceeded", { ip: req.ip, path: req.path });
-    res.status(429).json({ message: "Too many requests. Please try again later." });
-  }
-});
+const localRateLimit = new Map<string, { count: number; expiresAt: number }>();
 
-export const authRateLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  limit: 30,
-  standardHeaders: "draft-8",
-  legacyHeaders: false,
-  handler: (req, res) => {
-    logger.warn("Authentication rate limit exceeded", { ip: req.ip, path: req.path });
-    res.status(429).json({ message: "Too many authentication attempts. Please wait before retrying." });
-  }
-});
+function redisBackedRateLimiter(name: string, windowMs: number, limit: number, message: string) {
+  return async (req: Request, res: Response, next: NextFunction) => {
+    const key = `rate:${name}:${req.ip ?? "unknown"}`;
+    const redis = getRedis();
+
+    try {
+      if (redis && isRedisReady()) {
+        const count = await redis.incr(key);
+        if (count === 1) await redis.pexpire(key, windowMs);
+        const ttl = await redis.pttl(key);
+        res.setHeader("RateLimit-Limit", String(limit));
+        res.setHeader("RateLimit-Remaining", String(Math.max(0, limit - count)));
+        res.setHeader("RateLimit-Reset", String(Math.ceil(Math.max(ttl, 0) / 1000)));
+        if (count > limit) {
+          logger.warn("Redis-backed rate limit exceeded", { name, ip: req.ip, path: req.path });
+          res.status(429).json({ message });
+          return;
+        }
+        next();
+        return;
+      }
+    } catch (error) {
+      logger.warn("Redis rate limiter failed; using local fallback", { name, error: error instanceof Error ? error.message : "Unknown error" });
+    }
+
+    const now = Date.now();
+    const current = localRateLimit.get(key);
+    const nextRecord = !current || current.expiresAt < now ? { count: 1, expiresAt: now + windowMs } : { count: current.count + 1, expiresAt: current.expiresAt };
+    localRateLimit.set(key, nextRecord);
+    if (nextRecord.count > limit) {
+      logger.warn("Local rate limit exceeded", { name, ip: req.ip, path: req.path });
+      res.status(429).json({ message });
+      return;
+    }
+    next();
+  };
+}
+
+export const apiRateLimiter = redisBackedRateLimiter("api", 15 * 60 * 1000, 300, "Too many requests. Please try again later.");
+export const authRateLimiter = redisBackedRateLimiter("auth", 15 * 60 * 1000, 30, "Too many authentication attempts. Please wait before retrying.");
+export const aiRateLimiter = redisBackedRateLimiter("ai", 60 * 1000, 30, "Too many AI requests. Please slow down.");
+export const paymentsRateLimiter = redisBackedRateLimiter("payments", 60 * 1000, 40, "Too many payment requests. Please slow down.");
+export const uploadRateLimiter = redisBackedRateLimiter("uploads", 60 * 1000, 20, "Too many uploads. Please slow down.");
 
 const suspiciousPatterns = [
   /<script/i,

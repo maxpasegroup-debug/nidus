@@ -131,6 +131,8 @@ export const ModelName = {
   UserRole: 'UserRole',
   SystemSetting: 'SystemSetting',
   AuditLog: 'AuditLog',
+  QueueJobLog: 'QueueJobLog',
+  AIRequestLog: 'AIRequestLog',
   Branch: 'Branch'
 } as const
 
@@ -1223,6 +1225,38 @@ export const AuditLogScalarFieldEnum = {
 } as const
 
 export type AuditLogScalarFieldEnum = (typeof AuditLogScalarFieldEnum)[keyof typeof AuditLogScalarFieldEnum]
+
+
+export const QueueJobLogScalarFieldEnum = {
+  id: 'id',
+  queueName: 'queueName',
+  jobName: 'jobName',
+  jobId: 'jobId',
+  status: 'status',
+  attempts: 'attempts',
+  error: 'error',
+  payload: 'payload',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type QueueJobLogScalarFieldEnum = (typeof QueueJobLogScalarFieldEnum)[keyof typeof QueueJobLogScalarFieldEnum]
+
+
+export const AIRequestLogScalarFieldEnum = {
+  id: 'id',
+  feature: 'feature',
+  model: 'model',
+  status: 'status',
+  promptChars: 'promptChars',
+  outputChars: 'outputChars',
+  tokenUsage: 'tokenUsage',
+  error: 'error',
+  durationMs: 'durationMs',
+  createdAt: 'createdAt'
+} as const
+
+export type AIRequestLogScalarFieldEnum = (typeof AIRequestLogScalarFieldEnum)[keyof typeof AIRequestLogScalarFieldEnum]
 
 
 export const BranchScalarFieldEnum = {

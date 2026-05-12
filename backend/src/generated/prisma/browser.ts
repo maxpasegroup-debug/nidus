@@ -418,6 +418,16 @@ export type SystemSetting = Prisma.SystemSettingModel
  */
 export type AuditLog = Prisma.AuditLogModel
 /**
+ * Model QueueJobLog
+ * 
+ */
+export type QueueJobLog = Prisma.QueueJobLogModel
+/**
+ * Model AIRequestLog
+ * 
+ */
+export type AIRequestLog = Prisma.AIRequestLogModel
+/**
  * Model Branch
  * 
  */

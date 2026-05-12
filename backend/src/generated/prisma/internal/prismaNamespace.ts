@@ -464,6 +464,8 @@ export const ModelName = {
   UserRole: 'UserRole',
   SystemSetting: 'SystemSetting',
   AuditLog: 'AuditLog',
+  QueueJobLog: 'QueueJobLog',
+  AIRequestLog: 'AIRequestLog',
   Branch: 'Branch'
 } as const
 
@@ -480,7 +482,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "authVerificationToken" | "passwordResetToken" | "authSession" | "parentStudentInvitation" | "parentStudentLink" | "otp" | "course" | "module" | "lesson" | "enrollment" | "test" | "question" | "testAttempt" | "answer" | "psychometricTest" | "psychometricQuestion" | "psychometricAttempt" | "psychometricAnswer" | "oLQScore" | "studyPlan" | "performanceAnalytics" | "revisionSchedule" | "liveClass" | "recordedLecture" | "lectureProgress" | "attendance" | "timetable" | "faculty" | "classroom" | "payroll" | "announcement" | "hostel" | "room" | "hostelAllocation" | "inOutEntry" | "hostelLeave" | "messMenu" | "disciplineRecord" | "paradePerformance" | "lead" | "followUp" | "admission" | "counsellingBooking" | "referral" | "payment" | "subscription" | "feeInstallment" | "invoice" | "notification" | "messageThread" | "message" | "emailLog" | "pushNotification" | "aIInterviewSession" | "aIInterviewQuestion" | "doubtQuery" | "aIRecommendation" | "officerPotential" | "fitnessProfile" | "pTSchedule" | "pTAttendance" | "physicalEligibility" | "dailyFitnessLog" | "pYQCategory" | "pYQQuestion" | "currentAffair" | "currentAffairQuiz" | "quizBattle" | "quizBattleParticipant" | "leaderboard" | "mediaFolder" | "mediaFile" | "document" | "adminRole" | "permission" | "rolePermission" | "userRole" | "systemSetting" | "auditLog" | "branch"
+    modelProps: "user" | "authVerificationToken" | "passwordResetToken" | "authSession" | "parentStudentInvitation" | "parentStudentLink" | "otp" | "course" | "module" | "lesson" | "enrollment" | "test" | "question" | "testAttempt" | "answer" | "psychometricTest" | "psychometricQuestion" | "psychometricAttempt" | "psychometricAnswer" | "oLQScore" | "studyPlan" | "performanceAnalytics" | "revisionSchedule" | "liveClass" | "recordedLecture" | "lectureProgress" | "attendance" | "timetable" | "faculty" | "classroom" | "payroll" | "announcement" | "hostel" | "room" | "hostelAllocation" | "inOutEntry" | "hostelLeave" | "messMenu" | "disciplineRecord" | "paradePerformance" | "lead" | "followUp" | "admission" | "counsellingBooking" | "referral" | "payment" | "subscription" | "feeInstallment" | "invoice" | "notification" | "messageThread" | "message" | "emailLog" | "pushNotification" | "aIInterviewSession" | "aIInterviewQuestion" | "doubtQuery" | "aIRecommendation" | "officerPotential" | "fitnessProfile" | "pTSchedule" | "pTAttendance" | "physicalEligibility" | "dailyFitnessLog" | "pYQCategory" | "pYQQuestion" | "currentAffair" | "currentAffairQuiz" | "quizBattle" | "quizBattleParticipant" | "leaderboard" | "mediaFolder" | "mediaFile" | "document" | "adminRole" | "permission" | "rolePermission" | "userRole" | "systemSetting" | "auditLog" | "queueJobLog" | "aIRequestLog" | "branch"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -6404,6 +6406,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    QueueJobLog: {
+      payload: Prisma.$QueueJobLogPayload<ExtArgs>
+      fields: Prisma.QueueJobLogFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.QueueJobLogFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QueueJobLogPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.QueueJobLogFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QueueJobLogPayload>
+        }
+        findFirst: {
+          args: Prisma.QueueJobLogFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QueueJobLogPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.QueueJobLogFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QueueJobLogPayload>
+        }
+        findMany: {
+          args: Prisma.QueueJobLogFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QueueJobLogPayload>[]
+        }
+        create: {
+          args: Prisma.QueueJobLogCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QueueJobLogPayload>
+        }
+        createMany: {
+          args: Prisma.QueueJobLogCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.QueueJobLogCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QueueJobLogPayload>[]
+        }
+        delete: {
+          args: Prisma.QueueJobLogDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QueueJobLogPayload>
+        }
+        update: {
+          args: Prisma.QueueJobLogUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QueueJobLogPayload>
+        }
+        deleteMany: {
+          args: Prisma.QueueJobLogDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.QueueJobLogUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.QueueJobLogUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QueueJobLogPayload>[]
+        }
+        upsert: {
+          args: Prisma.QueueJobLogUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QueueJobLogPayload>
+        }
+        aggregate: {
+          args: Prisma.QueueJobLogAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateQueueJobLog>
+        }
+        groupBy: {
+          args: Prisma.QueueJobLogGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.QueueJobLogGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.QueueJobLogCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.QueueJobLogCountAggregateOutputType> | number
+        }
+      }
+    }
+    AIRequestLog: {
+      payload: Prisma.$AIRequestLogPayload<ExtArgs>
+      fields: Prisma.AIRequestLogFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AIRequestLogFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AIRequestLogPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AIRequestLogFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AIRequestLogPayload>
+        }
+        findFirst: {
+          args: Prisma.AIRequestLogFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AIRequestLogPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AIRequestLogFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AIRequestLogPayload>
+        }
+        findMany: {
+          args: Prisma.AIRequestLogFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AIRequestLogPayload>[]
+        }
+        create: {
+          args: Prisma.AIRequestLogCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AIRequestLogPayload>
+        }
+        createMany: {
+          args: Prisma.AIRequestLogCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.AIRequestLogCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AIRequestLogPayload>[]
+        }
+        delete: {
+          args: Prisma.AIRequestLogDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AIRequestLogPayload>
+        }
+        update: {
+          args: Prisma.AIRequestLogUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AIRequestLogPayload>
+        }
+        deleteMany: {
+          args: Prisma.AIRequestLogDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AIRequestLogUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.AIRequestLogUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AIRequestLogPayload>[]
+        }
+        upsert: {
+          args: Prisma.AIRequestLogUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AIRequestLogPayload>
+        }
+        aggregate: {
+          args: Prisma.AIRequestLogAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAIRequestLog>
+        }
+        groupBy: {
+          args: Prisma.AIRequestLogGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AIRequestLogGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.AIRequestLogCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AIRequestLogCountAggregateOutputType> | number
+        }
+      }
+    }
     Branch: {
       payload: Prisma.$BranchPayload<ExtArgs>
       fields: Prisma.BranchFieldRefs
@@ -7592,6 +7742,38 @@ export const AuditLogScalarFieldEnum = {
 export type AuditLogScalarFieldEnum = (typeof AuditLogScalarFieldEnum)[keyof typeof AuditLogScalarFieldEnum]
 
 
+export const QueueJobLogScalarFieldEnum = {
+  id: 'id',
+  queueName: 'queueName',
+  jobName: 'jobName',
+  jobId: 'jobId',
+  status: 'status',
+  attempts: 'attempts',
+  error: 'error',
+  payload: 'payload',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type QueueJobLogScalarFieldEnum = (typeof QueueJobLogScalarFieldEnum)[keyof typeof QueueJobLogScalarFieldEnum]
+
+
+export const AIRequestLogScalarFieldEnum = {
+  id: 'id',
+  feature: 'feature',
+  model: 'model',
+  status: 'status',
+  promptChars: 'promptChars',
+  outputChars: 'outputChars',
+  tokenUsage: 'tokenUsage',
+  error: 'error',
+  durationMs: 'durationMs',
+  createdAt: 'createdAt'
+} as const
+
+export type AIRequestLogScalarFieldEnum = (typeof AIRequestLogScalarFieldEnum)[keyof typeof AIRequestLogScalarFieldEnum]
+
+
 export const BranchScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -8007,6 +8189,8 @@ export type GlobalOmitConfig = {
   userRole?: Prisma.UserRoleOmit
   systemSetting?: Prisma.SystemSettingOmit
   auditLog?: Prisma.AuditLogOmit
+  queueJobLog?: Prisma.QueueJobLogOmit
+  aIRequestLog?: Prisma.AIRequestLogOmit
   branch?: Prisma.BranchOmit
 }
 

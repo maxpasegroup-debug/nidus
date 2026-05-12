@@ -3,12 +3,16 @@ import compression from "compression";
 import express from "express";
 import helmet from "helmet";
 import morgan from "morgan";
+import { pinoHttp } from "pino-http";
+import type { Request } from "express";
+import { initMonitoring } from "./config/monitoring.js";
 import { env } from "./config/env.js";
 import { apiRouter } from "./modules/index.js";
 import { errorHandler } from "./middlewares/error-handler.js";
 import { responseFormatter } from "./middlewares/response-formatter.js";
-import { apiRateLimiter, authRateLimiter, csrfProtection, suspiciousActivityLogger } from "./middlewares/security.js";
+import { apiRateLimiter, aiRateLimiter, authRateLimiter, csrfProtection, paymentsRateLimiter, suspiciousActivityLogger, uploadRateLimiter } from "./middlewares/security.js";
 import { logger } from "./utils/logger.js";
+import { requestContext } from "./middlewares/request-context.js";
 
 const corsOrigins = env.CORS_ORIGIN.split(",")
   .map((origin) => origin.trim())
@@ -17,10 +21,17 @@ const corsOrigins = env.CORS_ORIGIN.split(",")
 const allowedCorsOrigins = corsOrigins.length > 0 ? corsOrigins : ["http://localhost:3000"];
 
 export function createApp() {
+  initMonitoring();
   const app = express();
 
   app.set("trust proxy", env.TRUST_PROXY ? 1 : false);
   app.disable("x-powered-by");
+  app.use(requestContext);
+  app.use(pinoHttp({
+    logger: logger.child({ component: "http" }),
+    genReqId: (req: Request) => req.requestId ?? "unknown",
+    customProps: (req: Request) => ({ requestId: req.requestId })
+  }));
 
   app.use(
     helmet({
@@ -67,6 +78,10 @@ export function createApp() {
   app.use(csrfProtection);
   app.use(suspiciousActivityLogger);
   app.use("/api/auth", authRateLimiter);
+  app.use("/api/ai", aiRateLimiter);
+  app.use("/api/payments", paymentsRateLimiter);
+  app.use("/api/media/upload", uploadRateLimiter);
+  app.use("/api/documents", uploadRateLimiter);
   app.use("/api", apiRateLimiter);
 
   app.use((_req, res, next) => {

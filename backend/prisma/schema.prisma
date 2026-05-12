@@ -1271,6 +1271,40 @@ model AuditLog {
   @@index([createdAt])
 }
 
+model QueueJobLog {
+  id        String   @id @default(cuid())
+  queueName String
+  jobName   String
+  jobId     String?
+  status    String
+  attempts  Int      @default(0)
+  error     String?
+  payload   Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([queueName])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model AIRequestLog {
+  id          String   @id @default(cuid())
+  feature     String
+  model       String
+  status      String
+  promptChars Int      @default(0)
+  outputChars Int      @default(0)
+  tokenUsage  Json?
+  error       String?
+  durationMs  Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  @@index([feature])
+  @@index([status])
+  @@index([createdAt])
+}
+
 model Branch {
   id            String   @id @default(cuid())
   name          String

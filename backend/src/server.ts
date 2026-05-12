@@ -1,23 +1,43 @@
 import { env } from "./config/env.js";
 import { createApp } from "./app.js";
+import { assertCloudinaryReady } from "./config/cloudinary.js";
+import { closeRedis, verifyRedisConnection } from "./config/redis.js";
+import { verifyDatabaseConnection } from "./config/prisma.js";
+import { startInfrastructureWorkers, stopInfrastructureWorkers } from "./queues/index.js";
 import { logger } from "./utils/logger.js";
 
 const app = createApp();
 
-const server = app.listen(env.PORT, () => {
-  logger.info("NIDUS backend started", { port: env.PORT, environment: env.NODE_ENV });
+async function startupChecks() {
+  const databaseConnected = await verifyDatabaseConnection();
+  if (!databaseConnected) throw new Error("Database startup validation failed");
+  await verifyRedisConnection();
+  assertCloudinaryReady();
+  await startInfrastructureWorkers();
+}
+
+const server = app.listen(env.PORT, async () => {
+  try {
+    await startupChecks();
+    logger.info("NIDUS backend started", { port: env.PORT, environment: env.NODE_ENV });
+  } catch (error) {
+    logger.error("Startup validation failed", { error: error instanceof Error ? error.message : "Unknown error" });
+    process.exit(1);
+  }
 });
 
-function shutdown(signal: string) {
+async function shutdown(signal: string) {
   logger.warn("Shutdown signal received", { signal });
+  await stopInfrastructureWorkers().catch(() => undefined);
+  await closeRedis().catch(() => undefined);
   server.close(() => {
     logger.info("HTTP server closed");
     process.exit(0);
   });
 }
 
-process.on("SIGINT", () => shutdown("SIGINT"));
-process.on("SIGTERM", () => shutdown("SIGTERM"));
+process.on("SIGINT", () => void shutdown("SIGINT"));
+process.on("SIGTERM", () => void shutdown("SIGTERM"));
 process.on("unhandledRejection", (reason) => {
   logger.error("Unhandled promise rejection", { reason: reason instanceof Error ? reason.message : String(reason) });
 });

@@ -20,6 +20,17 @@ const envSchema = z.object({
   AUTH_MAX_LOGIN_FAILURES: z.coerce.number().int().positive().default(5),
   AUTH_LOCK_MINUTES: z.coerce.number().int().positive().default(15),
   REDIS_URL: z.string().default(""),
+  REDIS_REQUIRED: z.coerce.boolean().default(false),
+  QUEUE_WORKERS_ENABLED: z.coerce.boolean().default(true),
+  QUEUE_CONCURRENCY: z.coerce.number().int().positive().default(5),
+  SENTRY_DSN: z.string().default(""),
+  SENTRY_TRACES_SAMPLE_RATE: z.coerce.number().min(0).max(1).default(0.05),
+  FIREBASE_PROJECT_ID: z.string().default(""),
+  FIREBASE_CLIENT_EMAIL: z.string().default(""),
+  FIREBASE_PRIVATE_KEY: z.string().default(""),
+  MAX_UPLOAD_MB: z.coerce.number().int().positive().default(50),
+  AI_REQUEST_TIMEOUT_MS: z.coerce.number().int().positive().default(30000),
+  AI_QUEUE_ENABLED: z.coerce.boolean().default(false),
   MAINTENANCE_MODE: z.coerce.boolean().default(false),
   RAZORPAY_KEY_ID: z.string().default(""),
   RAZORPAY_KEY_SECRET: z.string().default(""),
@@ -37,6 +48,14 @@ const envSchema = z.object({
       code: z.ZodIssueCode.custom,
       message: "CORS_ORIGIN must be explicit production origin(s)",
       path: ["CORS_ORIGIN"]
+    });
+  }
+
+  if (env.REDIS_REQUIRED && !env.REDIS_URL) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "REDIS_URL is required when REDIS_REQUIRED=true",
+      path: ["REDIS_URL"]
     });
   }
 

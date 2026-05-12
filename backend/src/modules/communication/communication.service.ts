@@ -75,8 +75,7 @@ export const communicationService = {
     return prisma.emailLog.findMany({ orderBy: { sentAt: "desc" } });
   },
   async sendPush(input: { title: string; body: string; targetAudience: string }) {
-    const result = await pushService.sendFirebasePlaceholder(input);
-    await pushService.sendMobilePushPlaceholder(input);
+    const result = await pushService.sendQueued(input);
     return prisma.pushNotification.create({ data: { ...input, status: result.status } });
   }
 };

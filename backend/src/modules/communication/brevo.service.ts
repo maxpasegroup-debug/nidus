@@ -1,4 +1,6 @@
 import { env } from "../../config/env.js";
+import { enqueueEmail } from "../../queues/email.queue.js";
+import { logger } from "../../utils/logger.js";
 
 type EmailPayload = {
   recipient: string;
@@ -14,8 +16,14 @@ export function renderEmailTemplate(input: { title: string; body: string; action
 
 export const brevoService = {
   async sendEmail(payload: EmailPayload) {
+    const job = await enqueueEmail(payload);
+    if (job) return { status: "QUEUED", jobId: job.id };
+    return this.sendEmailNow(payload);
+  },
+
+  async sendEmailNow(payload: EmailPayload) {
     if (!env.BREVO_API_KEY) {
-      console.log("[BREVO_PLACEHOLDER]", payload);
+      logger.warn("Brevo API key missing; email skipped", { recipient: payload.recipient, subject: payload.subject });
       return { status: "SKIPPED_NO_API_KEY" };
     }
 
