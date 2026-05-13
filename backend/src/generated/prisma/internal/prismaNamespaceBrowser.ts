@@ -119,6 +119,13 @@ export const ModelName = {
   AIRecommendation: 'AIRecommendation',
   AITutorSession: 'AITutorSession',
   AITutorMessage: 'AITutorMessage',
+  AITutorFeedback: 'AITutorFeedback',
+  AIResponseCache: 'AIResponseCache',
+  LearningTopicInsight: 'LearningTopicInsight',
+  RevisionQueueItem: 'RevisionQueueItem',
+  CBTIntelligenceReport: 'CBTIntelligenceReport',
+  ContentIngestionJob: 'ContentIngestionJob',
+  GeneratedContentAsset: 'GeneratedContentAsset',
   OfflineSyncEvent: 'OfflineSyncEvent',
   LearningAnalyticsSnapshot: 'LearningAnalyticsSnapshot',
   DailyIntelligenceIssue: 'DailyIntelligenceIssue',
@@ -1181,6 +1188,124 @@ export const AITutorMessageScalarFieldEnum = {
 } as const
 
 export type AITutorMessageScalarFieldEnum = (typeof AITutorMessageScalarFieldEnum)[keyof typeof AITutorMessageScalarFieldEnum]
+
+
+export const AITutorFeedbackScalarFieldEnum = {
+  id: 'id',
+  sessionId: 'sessionId',
+  userId: 'userId',
+  rating: 'rating',
+  feedback: 'feedback',
+  escalationRequested: 'escalationRequested',
+  createdAt: 'createdAt'
+} as const
+
+export type AITutorFeedbackScalarFieldEnum = (typeof AITutorFeedbackScalarFieldEnum)[keyof typeof AITutorFeedbackScalarFieldEnum]
+
+
+export const AIResponseCacheScalarFieldEnum = {
+  id: 'id',
+  cacheKey: 'cacheKey',
+  feature: 'feature',
+  promptHash: 'promptHash',
+  response: 'response',
+  expiresAt: 'expiresAt',
+  hitCount: 'hitCount',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AIResponseCacheScalarFieldEnum = (typeof AIResponseCacheScalarFieldEnum)[keyof typeof AIResponseCacheScalarFieldEnum]
+
+
+export const LearningTopicInsightScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  examType: 'examType',
+  subject: 'subject',
+  topic: 'topic',
+  strengthScore: 'strengthScore',
+  weaknessScore: 'weaknessScore',
+  confidenceScore: 'confidenceScore',
+  accuracy: 'accuracy',
+  speedScore: 'speedScore',
+  engagementScore: 'engagementScore',
+  trend: 'trend',
+  recommendations: 'recommendations',
+  updatedAt: 'updatedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type LearningTopicInsightScalarFieldEnum = (typeof LearningTopicInsightScalarFieldEnum)[keyof typeof LearningTopicInsightScalarFieldEnum]
+
+
+export const RevisionQueueItemScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  topic: 'topic',
+  subject: 'subject',
+  priority: 'priority',
+  reason: 'reason',
+  dueAt: 'dueAt',
+  status: 'status',
+  source: 'source',
+  createdAt: 'createdAt',
+  completedAt: 'completedAt'
+} as const
+
+export type RevisionQueueItemScalarFieldEnum = (typeof RevisionQueueItemScalarFieldEnum)[keyof typeof RevisionQueueItemScalarFieldEnum]
+
+
+export const CBTIntelligenceReportScalarFieldEnum = {
+  id: 'id',
+  attemptId: 'attemptId',
+  userId: 'userId',
+  skippedQuestionIds: 'skippedQuestionIds',
+  aiReviewOrder: 'aiReviewOrder',
+  confidenceAnalysis: 'confidenceAnalysis',
+  accuracyAnalytics: 'accuracyAnalytics',
+  speedAnalytics: 'speedAnalytics',
+  timePressureAnalysis: 'timePressureAnalysis',
+  weakTopicAnalytics: 'weakTopicAnalytics',
+  quickWinSuggestions: 'quickWinSuggestions',
+  rankPrediction: 'rankPrediction',
+  createdAt: 'createdAt'
+} as const
+
+export type CBTIntelligenceReportScalarFieldEnum = (typeof CBTIntelligenceReportScalarFieldEnum)[keyof typeof CBTIntelligenceReportScalarFieldEnum]
+
+
+export const ContentIngestionJobScalarFieldEnum = {
+  id: 'id',
+  sourceType: 'sourceType',
+  sourceUrl: 'sourceUrl',
+  uploadUrl: 'uploadUrl',
+  targetModule: 'targetModule',
+  status: 'status',
+  metadata: 'metadata',
+  createdBy: 'createdBy',
+  processedAt: 'processedAt',
+  error: 'error',
+  createdAt: 'createdAt'
+} as const
+
+export type ContentIngestionJobScalarFieldEnum = (typeof ContentIngestionJobScalarFieldEnum)[keyof typeof ContentIngestionJobScalarFieldEnum]
+
+
+export const GeneratedContentAssetScalarFieldEnum = {
+  id: 'id',
+  contentType: 'contentType',
+  sourceId: 'sourceId',
+  title: 'title',
+  body: 'body',
+  tags: 'tags',
+  moderationStatus: 'moderationStatus',
+  createdBy: 'createdBy',
+  publishedAt: 'publishedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type GeneratedContentAssetScalarFieldEnum = (typeof GeneratedContentAssetScalarFieldEnum)[keyof typeof GeneratedContentAssetScalarFieldEnum]
 
 
 export const OfflineSyncEventScalarFieldEnum = {

@@ -27,3 +27,4 @@ psychometricRouter.post(
 );
 psychometricRouter.get("/results/:attemptId", protect, allowRoles(Role.STUDENT, Role.ADMIN), psychometricController.result);
 psychometricRouter.get("/olq-report", protect, allowRoles(Role.STUDENT, Role.ADMIN), psychometricController.olqReport);
+psychometricRouter.get("/intelligence", protect, allowRoles(Role.STUDENT, Role.TEACHER, Role.ADMIN), psychometricController.intelligence);

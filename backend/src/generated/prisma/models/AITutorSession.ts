@@ -211,6 +211,7 @@ export type AITutorSessionWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"AITutorSession"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"AITutorSession"> | Date | string
   messages?: Prisma.AITutorMessageListRelationFilter
+  feedback?: Prisma.AITutorFeedbackListRelationFilter
 }
 
 export type AITutorSessionOrderByWithRelationInput = {
@@ -224,6 +225,7 @@ export type AITutorSessionOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   messages?: Prisma.AITutorMessageOrderByRelationAggregateInput
+  feedback?: Prisma.AITutorFeedbackOrderByRelationAggregateInput
 }
 
 export type AITutorSessionWhereUniqueInput = Prisma.AtLeast<{
@@ -240,6 +242,7 @@ export type AITutorSessionWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"AITutorSession"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"AITutorSession"> | Date | string
   messages?: Prisma.AITutorMessageListRelationFilter
+  feedback?: Prisma.AITutorFeedbackListRelationFilter
 }, "id">
 
 export type AITutorSessionOrderByWithAggregationInput = {
@@ -283,6 +286,7 @@ export type AITutorSessionCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   messages?: Prisma.AITutorMessageCreateNestedManyWithoutSessionInput
+  feedback?: Prisma.AITutorFeedbackCreateNestedManyWithoutSessionInput
 }
 
 export type AITutorSessionUncheckedCreateInput = {
@@ -296,6 +300,7 @@ export type AITutorSessionUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   messages?: Prisma.AITutorMessageUncheckedCreateNestedManyWithoutSessionInput
+  feedback?: Prisma.AITutorFeedbackUncheckedCreateNestedManyWithoutSessionInput
 }
 
 export type AITutorSessionUpdateInput = {
@@ -309,6 +314,7 @@ export type AITutorSessionUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   messages?: Prisma.AITutorMessageUpdateManyWithoutSessionNestedInput
+  feedback?: Prisma.AITutorFeedbackUpdateManyWithoutSessionNestedInput
 }
 
 export type AITutorSessionUncheckedUpdateInput = {
@@ -322,6 +328,7 @@ export type AITutorSessionUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   messages?: Prisma.AITutorMessageUncheckedUpdateManyWithoutSessionNestedInput
+  feedback?: Prisma.AITutorFeedbackUncheckedUpdateManyWithoutSessionNestedInput
 }
 
 export type AITutorSessionCreateManyInput = {
@@ -413,6 +420,20 @@ export type AITutorSessionUpdateOneRequiredWithoutMessagesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.AITutorSessionUpdateToOneWithWhereWithoutMessagesInput, Prisma.AITutorSessionUpdateWithoutMessagesInput>, Prisma.AITutorSessionUncheckedUpdateWithoutMessagesInput>
 }
 
+export type AITutorSessionCreateNestedOneWithoutFeedbackInput = {
+  create?: Prisma.XOR<Prisma.AITutorSessionCreateWithoutFeedbackInput, Prisma.AITutorSessionUncheckedCreateWithoutFeedbackInput>
+  connectOrCreate?: Prisma.AITutorSessionCreateOrConnectWithoutFeedbackInput
+  connect?: Prisma.AITutorSessionWhereUniqueInput
+}
+
+export type AITutorSessionUpdateOneRequiredWithoutFeedbackNestedInput = {
+  create?: Prisma.XOR<Prisma.AITutorSessionCreateWithoutFeedbackInput, Prisma.AITutorSessionUncheckedCreateWithoutFeedbackInput>
+  connectOrCreate?: Prisma.AITutorSessionCreateOrConnectWithoutFeedbackInput
+  upsert?: Prisma.AITutorSessionUpsertWithoutFeedbackInput
+  connect?: Prisma.AITutorSessionWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.AITutorSessionUpdateToOneWithWhereWithoutFeedbackInput, Prisma.AITutorSessionUpdateWithoutFeedbackInput>, Prisma.AITutorSessionUncheckedUpdateWithoutFeedbackInput>
+}
+
 export type AITutorSessionCreateWithoutMessagesInput = {
   id?: string
   userId: string
@@ -423,6 +444,7 @@ export type AITutorSessionCreateWithoutMessagesInput = {
   escalationStatus?: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  feedback?: Prisma.AITutorFeedbackCreateNestedManyWithoutSessionInput
 }
 
 export type AITutorSessionUncheckedCreateWithoutMessagesInput = {
@@ -435,6 +457,7 @@ export type AITutorSessionUncheckedCreateWithoutMessagesInput = {
   escalationStatus?: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  feedback?: Prisma.AITutorFeedbackUncheckedCreateNestedManyWithoutSessionInput
 }
 
 export type AITutorSessionCreateOrConnectWithoutMessagesInput = {
@@ -463,6 +486,7 @@ export type AITutorSessionUpdateWithoutMessagesInput = {
   escalationStatus?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  feedback?: Prisma.AITutorFeedbackUpdateManyWithoutSessionNestedInput
 }
 
 export type AITutorSessionUncheckedUpdateWithoutMessagesInput = {
@@ -475,6 +499,75 @@ export type AITutorSessionUncheckedUpdateWithoutMessagesInput = {
   escalationStatus?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  feedback?: Prisma.AITutorFeedbackUncheckedUpdateManyWithoutSessionNestedInput
+}
+
+export type AITutorSessionCreateWithoutFeedbackInput = {
+  id?: string
+  userId: string
+  subject: string
+  topic?: string | null
+  status?: string
+  context?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  escalationStatus?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  messages?: Prisma.AITutorMessageCreateNestedManyWithoutSessionInput
+}
+
+export type AITutorSessionUncheckedCreateWithoutFeedbackInput = {
+  id?: string
+  userId: string
+  subject: string
+  topic?: string | null
+  status?: string
+  context?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  escalationStatus?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  messages?: Prisma.AITutorMessageUncheckedCreateNestedManyWithoutSessionInput
+}
+
+export type AITutorSessionCreateOrConnectWithoutFeedbackInput = {
+  where: Prisma.AITutorSessionWhereUniqueInput
+  create: Prisma.XOR<Prisma.AITutorSessionCreateWithoutFeedbackInput, Prisma.AITutorSessionUncheckedCreateWithoutFeedbackInput>
+}
+
+export type AITutorSessionUpsertWithoutFeedbackInput = {
+  update: Prisma.XOR<Prisma.AITutorSessionUpdateWithoutFeedbackInput, Prisma.AITutorSessionUncheckedUpdateWithoutFeedbackInput>
+  create: Prisma.XOR<Prisma.AITutorSessionCreateWithoutFeedbackInput, Prisma.AITutorSessionUncheckedCreateWithoutFeedbackInput>
+  where?: Prisma.AITutorSessionWhereInput
+}
+
+export type AITutorSessionUpdateToOneWithWhereWithoutFeedbackInput = {
+  where?: Prisma.AITutorSessionWhereInput
+  data: Prisma.XOR<Prisma.AITutorSessionUpdateWithoutFeedbackInput, Prisma.AITutorSessionUncheckedUpdateWithoutFeedbackInput>
+}
+
+export type AITutorSessionUpdateWithoutFeedbackInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  subject?: Prisma.StringFieldUpdateOperationsInput | string
+  topic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  context?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  escalationStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  messages?: Prisma.AITutorMessageUpdateManyWithoutSessionNestedInput
+}
+
+export type AITutorSessionUncheckedUpdateWithoutFeedbackInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  subject?: Prisma.StringFieldUpdateOperationsInput | string
+  topic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  context?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  escalationStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  messages?: Prisma.AITutorMessageUncheckedUpdateManyWithoutSessionNestedInput
 }
 
 
@@ -484,10 +577,12 @@ export type AITutorSessionUncheckedUpdateWithoutMessagesInput = {
 
 export type AITutorSessionCountOutputType = {
   messages: number
+  feedback: number
 }
 
 export type AITutorSessionCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   messages?: boolean | AITutorSessionCountOutputTypeCountMessagesArgs
+  feedback?: boolean | AITutorSessionCountOutputTypeCountFeedbackArgs
 }
 
 /**
@@ -507,6 +602,13 @@ export type AITutorSessionCountOutputTypeCountMessagesArgs<ExtArgs extends runti
   where?: Prisma.AITutorMessageWhereInput
 }
 
+/**
+ * AITutorSessionCountOutputType without action
+ */
+export type AITutorSessionCountOutputTypeCountFeedbackArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AITutorFeedbackWhereInput
+}
+
 
 export type AITutorSessionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -519,6 +621,7 @@ export type AITutorSessionSelect<ExtArgs extends runtime.Types.Extensions.Intern
   createdAt?: boolean
   updatedAt?: boolean
   messages?: boolean | Prisma.AITutorSession$messagesArgs<ExtArgs>
+  feedback?: boolean | Prisma.AITutorSession$feedbackArgs<ExtArgs>
   _count?: boolean | Prisma.AITutorSessionCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["aITutorSession"]>
 
@@ -561,6 +664,7 @@ export type AITutorSessionSelectScalar = {
 export type AITutorSessionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "subject" | "topic" | "status" | "context" | "escalationStatus" | "createdAt" | "updatedAt", ExtArgs["result"]["aITutorSession"]>
 export type AITutorSessionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   messages?: boolean | Prisma.AITutorSession$messagesArgs<ExtArgs>
+  feedback?: boolean | Prisma.AITutorSession$feedbackArgs<ExtArgs>
   _count?: boolean | Prisma.AITutorSessionCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type AITutorSessionIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -570,6 +674,7 @@ export type $AITutorSessionPayload<ExtArgs extends runtime.Types.Extensions.Inte
   name: "AITutorSession"
   objects: {
     messages: Prisma.$AITutorMessagePayload<ExtArgs>[]
+    feedback: Prisma.$AITutorFeedbackPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -976,6 +1081,7 @@ readonly fields: AITutorSessionFieldRefs;
 export interface Prisma__AITutorSessionClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   messages<T extends Prisma.AITutorSession$messagesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AITutorSession$messagesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AITutorMessagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  feedback<T extends Prisma.AITutorSession$feedbackArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AITutorSession$feedbackArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AITutorFeedbackPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1428,6 +1534,30 @@ export type AITutorSession$messagesArgs<ExtArgs extends runtime.Types.Extensions
   take?: number
   skip?: number
   distinct?: Prisma.AITutorMessageScalarFieldEnum | Prisma.AITutorMessageScalarFieldEnum[]
+}
+
+/**
+ * AITutorSession.feedback
+ */
+export type AITutorSession$feedbackArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AITutorFeedback
+   */
+  select?: Prisma.AITutorFeedbackSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the AITutorFeedback
+   */
+  omit?: Prisma.AITutorFeedbackOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AITutorFeedbackInclude<ExtArgs> | null
+  where?: Prisma.AITutorFeedbackWhereInput
+  orderBy?: Prisma.AITutorFeedbackOrderByWithRelationInput | Prisma.AITutorFeedbackOrderByWithRelationInput[]
+  cursor?: Prisma.AITutorFeedbackWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.AITutorFeedbackScalarFieldEnum | Prisma.AITutorFeedbackScalarFieldEnum[]
 }
 
 /**

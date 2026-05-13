@@ -131,6 +131,15 @@ export const testsController = {
     }
   },
 
+  async intelligenceReport(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      const report = await testsService.intelligenceReport(userId(req), param(req, "attemptId"));
+      res.json({ report });
+    } catch (error) {
+      next(error);
+    }
+  },
+
   async history(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
       const attempts = await testsService.history(userId(req));

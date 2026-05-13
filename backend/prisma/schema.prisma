@@ -1246,6 +1246,7 @@ model AITutorSession {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   messages    AITutorMessage[]
+  feedback    AITutorFeedback[]
 
   @@index([userId])
   @@index([status])
@@ -1263,6 +1264,132 @@ model AITutorMessage {
 
   @@index([sessionId])
   @@index([createdAt])
+}
+
+model AITutorFeedback {
+  id        String   @id @default(cuid())
+  sessionId String
+  userId    String
+  rating    Int
+  feedback  String?
+  escalationRequested Boolean @default(false)
+  createdAt DateTime @default(now())
+  session   AITutorSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId])
+  @@index([userId])
+  @@index([rating])
+}
+
+model AIResponseCache {
+  id          String   @id @default(cuid())
+  cacheKey    String   @unique
+  feature     String
+  promptHash  String
+  response    Json
+  expiresAt   DateTime
+  hitCount    Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([feature])
+  @@index([expiresAt])
+}
+
+model LearningTopicInsight {
+  id          String   @id @default(cuid())
+  userId      String
+  examType    String?
+  subject     String
+  topic       String
+  strengthScore Int    @default(0)
+  weaknessScore Int    @default(0)
+  confidenceScore Int   @default(50)
+  accuracy    Float    @default(0)
+  speedScore  Int      @default(0)
+  engagementScore Int  @default(0)
+  trend       String   @default("STABLE")
+  recommendations Json?
+  updatedAt   DateTime @updatedAt
+  createdAt   DateTime @default(now())
+
+  @@unique([userId, subject, topic])
+  @@index([userId])
+  @@index([examType])
+  @@index([weaknessScore])
+}
+
+model RevisionQueueItem {
+  id          String   @id @default(cuid())
+  userId      String
+  topic       String
+  subject     String
+  priority    String   @default("MEDIUM")
+  reason      String
+  dueAt       DateTime
+  status      String   @default("PENDING")
+  source      String   @default("ADAPTIVE_ENGINE")
+  createdAt   DateTime @default(now())
+  completedAt DateTime?
+
+  @@index([userId, status])
+  @@index([priority])
+  @@index([dueAt])
+}
+
+model CBTIntelligenceReport {
+  id          String   @id @default(cuid())
+  attemptId   String   @unique
+  userId      String
+  skippedQuestionIds Json
+  aiReviewOrder Json
+  confidenceAnalysis Json?
+  accuracyAnalytics Json?
+  speedAnalytics Json?
+  timePressureAnalysis Json?
+  weakTopicAnalytics Json?
+  quickWinSuggestions Json?
+  rankPrediction Json?
+  createdAt   DateTime @default(now())
+
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model ContentIngestionJob {
+  id          String   @id @default(cuid())
+  sourceType  String
+  sourceUrl   String?
+  uploadUrl   String?
+  targetModule String
+  status      String   @default("PENDING")
+  metadata    Json?
+  createdBy   String?
+  processedAt DateTime?
+  error       String?
+  createdAt   DateTime @default(now())
+
+  @@index([sourceType])
+  @@index([targetModule])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model GeneratedContentAsset {
+  id          String   @id @default(cuid())
+  contentType String
+  sourceId    String?
+  title       String
+  body        Json
+  tags        Json?
+  moderationStatus String @default("PENDING")
+  createdBy   String?
+  publishedAt DateTime?
+  createdAt   DateTime @default(now())
+
+  @@index([contentType])
+  @@index([sourceId])
+  @@index([moderationStatus])
 }
 
 model OfflineSyncEvent {

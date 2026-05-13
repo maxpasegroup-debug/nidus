@@ -1,10 +1,13 @@
 import { env } from "../../config/env.js";
 import { prisma } from "../../config/prisma.js";
 import { logger } from "../../utils/logger.js";
+import crypto from "node:crypto";
+import type { Prisma } from "../../generated/prisma/client.js";
 
 type JsonValue = Record<string, unknown>;
 
 const MODEL = "gpt-4.1-mini";
+const CACHE_TTL_MS = 1000 * 60 * 60 * 6;
 
 function extractOutputText(payload: unknown) {
   const data = payload as { output_text?: string; output?: Array<{ content?: Array<{ text?: string }> }> };
@@ -13,6 +16,13 @@ function extractOutputText(payload: unknown) {
 }
 
 export async function callOpenAIJson<T extends JsonValue>(instructions: string, input: string, fallback: T): Promise<T> {
+  const promptHash = crypto.createHash("sha256").update(`${instructions}:${input}`).digest("hex");
+  const cacheKey = `responses-json:${MODEL}:${promptHash}`;
+  const cached = await prisma.aIResponseCache.findFirst({ where: { cacheKey, expiresAt: { gt: new Date() } } }).catch(() => null);
+  if (cached) {
+    await prisma.aIResponseCache.update({ where: { id: cached.id }, data: { hitCount: { increment: 1 } } }).catch(() => undefined);
+    return cached.response as T;
+  }
   if (!env.OPENAI_API_KEY) return fallback;
   const started = Date.now();
   const controller = new AbortController();
@@ -39,7 +49,14 @@ export async function callOpenAIJson<T extends JsonValue>(instructions: string, 
       }
     }).catch(() => undefined);
     const clean = text.replace(/^```json\s*/i, "").replace(/```$/i, "").trim();
-    return JSON.parse(clean) as T;
+    const parsed = JSON.parse(clean) as T;
+    const cacheResponse = parsed as Prisma.InputJsonValue;
+    await prisma.aIResponseCache.upsert({
+      where: { cacheKey },
+      update: { response: cacheResponse, expiresAt: new Date(Date.now() + CACHE_TTL_MS) },
+      create: { cacheKey, feature: "responses-json", promptHash, response: cacheResponse, expiresAt: new Date(Date.now() + CACHE_TTL_MS) }
+    }).catch(() => undefined);
+    return parsed;
   } catch (error) {
     logger.warn("OpenAI request failed; using fallback", { error: error instanceof Error ? error.message : "Unknown error" });
     await prisma.aIRequestLog.create({

@@ -111,5 +111,27 @@ export const psychometricService = {
     const values = Object.fromEntries(olqKeys.map((key) => [key, score[key]]));
     const insights = psychometricAiService.generateOLQInsights(values);
     return { score, insights };
+  },
+
+  async intelligence(userId: string) {
+    const [attempts, olq] = await Promise.all([
+      prisma.psychometricAttempt.findMany({ where: { userId }, include: { test: true, answers: { include: { question: true } } }, orderBy: { startedAt: "desc" }, take: 20 }),
+      prisma.oLQScore.findUnique({ where: { userId } })
+    ]);
+    const averageScore = attempts.length ? Math.round(attempts.reduce((sum, item) => sum + item.score, 0) / attempts.length) : 0;
+    const frameworks = ["TAT", "WAT", "SRT", "SD", "OLQ"];
+    return {
+      averageScore,
+      attempts: attempts.length,
+      olq,
+      personalityAnalytics: {
+        dominantSignals: olq ? Object.entries(Object.fromEntries(olqKeys.map((key) => [key, olq[key]]))).sort((a, b) => Number(b[1]) - Number(a[1])).slice(0, 5) : [],
+        developmentSignals: olq ? Object.entries(Object.fromEntries(olqKeys.map((key) => [key, olq[key]]))).sort((a, b) => Number(a[1]) - Number(b[1])).slice(0, 5) : []
+      },
+      officerReadiness: Math.min(100, Math.round((averageScore + (olq?.selfConfidence ?? 60) + (olq?.senseOfResponsibility ?? 60)) / 3)),
+      trendAnalytics: attempts.map((attempt) => ({ type: attempt.test.type, score: attempt.score, date: attempt.startedAt })),
+      aiPersonalityInsight: "Psychometric intelligence shell ready for TAT, WAT, SRT, SD and OLQ guided interpretation.",
+      interviewReadiness: frameworks.map((framework) => ({ framework, status: attempts.some((attempt) => attempt.test.type === framework) ? "OBSERVED" : "PENDING_DATA" }))
+    };
   }
 };

@@ -74,5 +74,14 @@ export const psychometricController = {
     } catch (error) {
       next(error);
     }
+  },
+
+  async intelligence(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      const intelligence = await psychometricService.intelligence(userId(req));
+      res.json({ intelligence });
+    } catch (error) {
+      next(error);
+    }
   }
 };

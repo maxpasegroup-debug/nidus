@@ -25,6 +25,7 @@ testsRouter.get("/attempts/history", protect, allowRoles(Role.STUDENT, Role.ADMI
 testsRouter.get("/result/:attemptId", protect, allowRoles(Role.STUDENT, Role.ADMIN), testsController.result);
 testsRouter.get("/attempts/:attemptId/resume", protect, allowRoles(Role.STUDENT, Role.ADMIN), testsController.resume);
 testsRouter.get("/attempts/:attemptId/review-plan", protect, allowRoles(Role.STUDENT, Role.ADMIN), testsController.reviewPlan);
+testsRouter.get("/attempts/:attemptId/intelligence", protect, allowRoles(Role.STUDENT, Role.TEACHER, Role.ADMIN), testsController.intelligenceReport);
 testsRouter.get("/:id", testsController.details);
 testsRouter.post("/", protect, allowRoles(Role.ADMIN), testValidators(), testsController.create);
 testsRouter.put("/:id", protect, allowRoles(Role.ADMIN), testValidators(true), testsController.update);

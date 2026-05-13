@@ -266,6 +266,42 @@ export const testsService = {
     };
   },
 
+  async intelligenceReport(userId: string, attemptId: string) {
+    const attempt = await prisma.testAttempt.findFirst({
+      where: { id: attemptId, userId },
+      include: { test: { include: { questions: true } }, answerStates: { include: { question: true } }, answers: { include: { question: true } } }
+    });
+    if (!attempt) throw new Error("Attempt not found");
+    const skipped = attempt.answerStates.filter((state) => state.status === "SKIPPED" || !state.selectedAnswer);
+    const lowConfidence = attempt.answerStates.filter((state) => state.confidence === "LOW");
+    const highTime = attempt.answerStates.filter((state) => state.timeSpent > 120);
+    const topicAnalysis = getTopicAnalysis(attempt.answers);
+    const weakTopicAnalytics = topicAnalysis.filter((topic) => topic.accuracy < 60);
+    const aiReviewOrder = Array.from(new Set([...skipped, ...lowConfidence, ...highTime].map((state) => state.questionId)));
+    const accuracy = attempt.answers.length ? Math.round((attempt.totalCorrect / attempt.answers.length) * 100) : 0;
+    const reportData = {
+      attemptId,
+      userId,
+      skippedQuestionIds: skipped.map((state) => state.questionId),
+      aiReviewOrder,
+      confidenceAnalysis: {
+        lowConfidence: lowConfidence.length,
+        confidenceMismatch: attempt.answerStates.filter((state) => state.confidence === "HIGH" && state.selectedAnswer && attempt.answers.some((answer) => answer.questionId === state.questionId && !answer.isCorrect)).length
+      },
+      accuracyAnalytics: { accuracy, correct: attempt.totalCorrect, wrong: attempt.totalWrong },
+      speedAnalytics: { averagePerQuestion: attempt.answers.length ? Math.round(attempt.timeTaken / attempt.answers.length) : 0, slowQuestionIds: highTime.map((state) => state.questionId) },
+      timePressureAnalysis: { timeTaken: attempt.timeTaken, duration: attempt.test.duration, pressure: attempt.timeTaken > attempt.test.duration * 60 * 0.85 ? "HIGH" : "NORMAL" },
+      weakTopicAnalytics,
+      quickWinSuggestions: aiReviewOrder.slice(0, 5).map((questionId) => ({ questionId, action: "Review explanation, then solve one similar question." })),
+      rankPrediction: { predictedRank: Math.max(1, 500 - Math.round(attempt.score * 3)), confidence: "SHELL" }
+    };
+    return prisma.cBTIntelligenceReport.upsert({
+      where: { attemptId },
+      update: reportData,
+      create: reportData
+    });
+  },
+
   async submit(userId: string, attemptId: string, answers: SubmitAnswer[], timeTaken: number) {
     const attempt = await prisma.testAttempt.findFirst({
       where: { id: attemptId, userId },

@@ -382,6 +382,41 @@ export type AITutorSession = Prisma.AITutorSessionModel
  */
 export type AITutorMessage = Prisma.AITutorMessageModel
 /**
+ * Model AITutorFeedback
+ * 
+ */
+export type AITutorFeedback = Prisma.AITutorFeedbackModel
+/**
+ * Model AIResponseCache
+ * 
+ */
+export type AIResponseCache = Prisma.AIResponseCacheModel
+/**
+ * Model LearningTopicInsight
+ * 
+ */
+export type LearningTopicInsight = Prisma.LearningTopicInsightModel
+/**
+ * Model RevisionQueueItem
+ * 
+ */
+export type RevisionQueueItem = Prisma.RevisionQueueItemModel
+/**
+ * Model CBTIntelligenceReport
+ * 
+ */
+export type CBTIntelligenceReport = Prisma.CBTIntelligenceReportModel
+/**
+ * Model ContentIngestionJob
+ * 
+ */
+export type ContentIngestionJob = Prisma.ContentIngestionJobModel
+/**
+ * Model GeneratedContentAsset
+ * 
+ */
+export type GeneratedContentAsset = Prisma.GeneratedContentAssetModel
+/**
  * Model OfflineSyncEvent
  * 
  */

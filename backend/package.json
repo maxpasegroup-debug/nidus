@@ -23,6 +23,7 @@
     "test:auth": "tsx src/scripts/auth-flow-verification.ts",
     "test:roles": "tsx src/scripts/role-flow-verification.ts",
     "test:payments": "tsx src/scripts/payment-flow-verification.ts",
+    "test:ai": "tsx src/scripts/ai-flow-verification.ts",
     "test:infra": "tsx src/scripts/infra-verification.ts",
     "test:cbt": "tsx src/scripts/cbt-flow-verification.ts"
   },
