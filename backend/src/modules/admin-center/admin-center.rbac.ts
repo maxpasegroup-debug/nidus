@@ -10,6 +10,7 @@ export const defaultPermissions = [
   { module: "settings", action: "manage", name: "Manage settings" },
   { module: "auditLogs", action: "read", name: "View audit logs" },
   { module: "branches", action: "manage", name: "Manage branches" },
+  { module: "operations", action: "read", name: "View production operations" },
   { module: "media", action: "manage", name: "Manage media library" },
   { module: "documents", action: "manage", name: "Manage documents" },
   { module: "users", action: "manage", name: "Manage users" }

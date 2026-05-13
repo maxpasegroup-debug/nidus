@@ -3,7 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/components/providers/toast-provider";
 import { getApiErrorMessage } from "@/services/api";
-import { createBranch, createRole, deleteRole, getAdminDashboard, getAuditLogs, getBranches, getPermissions, getRoles, getSettings, updateRole, updateSettings } from "@/services/admin-center";
+import { createBranch, createRole, deleteRole, getAdminDashboard, getAdminOperations, getAuditLogs, getBranches, getPermissions, getRoles, getSettings, updateRole, updateSettings } from "@/services/admin-center";
 
 function useToastMutation<TPayload, TResult>(mutationFn: (payload: TPayload) => Promise<TResult>, keys: unknown[][], message: string) {
   const queryClient = useQueryClient();
@@ -21,6 +21,10 @@ function useToastMutation<TPayload, TResult>(mutationFn: (payload: TPayload) => 
 
 export function useAdminDashboard() {
   return useQuery({ queryKey: ["admin-center", "dashboard"], queryFn: getAdminDashboard });
+}
+
+export function useAdminOperations() {
+  return useQuery({ queryKey: ["admin-center", "operations"], queryFn: getAdminOperations, refetchInterval: 30000 });
 }
 
 export function useRoles() {

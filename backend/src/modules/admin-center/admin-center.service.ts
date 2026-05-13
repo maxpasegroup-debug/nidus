@@ -1,6 +1,11 @@
 import { prisma } from "../../config/prisma.js";
 import { ensureDefaultPermissions } from "./admin-center.rbac.js";
 import { authTokenUtils } from "../auth/auth.service.js";
+import { env } from "../../config/env.js";
+import { verifyDatabaseConnection } from "../../config/prisma.js";
+import { verifyRedisConnection } from "../../config/redis.js";
+import { getQueue, isQueueAvailable, queueNames } from "../../queues/queue.config.js";
+import { getRuntimeState } from "../../runtime/lifecycle.js";
 
 type RolePayload = {
   name: string;
@@ -58,6 +63,93 @@ export const adminCenterService = {
       },
       totals: { roles, permissions, settings, branches, users },
       recentActions: auditLogs
+    };
+  },
+
+  async operations() {
+    const since24h = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const since30d = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+
+    const queueHealth = await Promise.all(
+      Object.values(queueNames).map(async (queueName) => {
+        const queue = getQueue(queueName);
+        if (!queue) {
+          return { queueName, status: "UNAVAILABLE", waiting: 0, active: 0, completed: 0, failed: 0, delayed: 0, paused: 0 };
+        }
+
+        try {
+          const counts = await queue.getJobCounts("waiting", "active", "completed", "failed", "delayed", "paused");
+          return { queueName, status: counts.failed > 0 ? "ATTENTION" : "HEALTHY", ...counts };
+        } catch (_error) {
+          return { queueName, status: "DEGRADED", waiting: 0, active: 0, completed: 0, failed: 0, delayed: 0, paused: 0 };
+        }
+      })
+    );
+
+    const [
+      databaseConnected,
+      redisConnected,
+      activeUsers,
+      newUsers24h,
+      cbtAttempts24h,
+      aiRequests24h,
+      failedAi24h,
+      payments24h,
+      paymentFailures24h,
+      revenue30d,
+      dailyIssues30d,
+      failedQueueLogs24h,
+      auditEvents24h
+    ] = await Promise.all([
+      verifyDatabaseConnection(),
+      verifyRedisConnection().catch(() => false),
+      prisma.authSession.count({ where: { revokedAt: null, expiresAt: { gt: new Date() } } }),
+      prisma.user.count({ where: { createdAt: { gte: since24h } } }),
+      prisma.testAttempt.count({ where: { startedAt: { gte: since24h } } }),
+      prisma.aIRequestLog.count({ where: { createdAt: { gte: since24h } } }),
+      prisma.aIRequestLog.count({ where: { createdAt: { gte: since24h }, status: "FAILED" } }),
+      prisma.payment.count({ where: { createdAt: { gte: since24h } } }),
+      prisma.payment.count({ where: { createdAt: { gte: since24h }, paymentStatus: { in: ["FAILED", "CANCELLED"] } } }),
+      prisma.payment.aggregate({ where: { createdAt: { gte: since30d }, paymentStatus: { in: ["PAID", "VERIFIED", "CAPTURED"] } }, _sum: { amount: true } }),
+      prisma.dailyIntelligenceIssue.count({ where: { createdAt: { gte: since30d } } }),
+      prisma.queueJobLog.count({ where: { createdAt: { gte: since24h }, status: "FAILED" } }),
+      prisma.auditLog.count({ where: { createdAt: { gte: since24h } } })
+    ]);
+
+    return {
+      runtime: getRuntimeState(),
+      environment: {
+        nodeEnv: env.NODE_ENV,
+        processRole: env.PROCESS_ROLE,
+        appDomain: env.APP_DOMAIN,
+        apiDomain: env.API_DOMAIN,
+        queueWorkersEnabled: env.QUEUE_WORKERS_ENABLED,
+        queueAvailable: isQueueAvailable(),
+        redisRequired: env.REDIS_REQUIRED,
+        maintenanceMode: env.MAINTENANCE_MODE,
+        sentryConfigured: Boolean(env.SENTRY_DSN),
+        backupTargetConfigured: Boolean(env.BACKUP_BUCKET)
+      },
+      infrastructure: {
+        database: databaseConnected ? "CONNECTED" : "FAILED",
+        redis: redisConnected ? "CONNECTED" : "UNAVAILABLE",
+        memoryMb: Math.round(process.memoryUsage().rss / 1024 / 1024),
+        uptimeSeconds: Math.round(process.uptime())
+      },
+      queueHealth,
+      analytics: {
+        activeUsers,
+        newUsers24h,
+        cbtAttempts24h,
+        aiRequests24h,
+        failedAi24h,
+        payments24h,
+        paymentFailures24h,
+        revenue30d: revenue30d._sum.amount ?? 0,
+        dailyIssues30d,
+        failedQueueLogs24h,
+        auditEvents24h
+      }
     };
   },
 

@@ -10,6 +10,10 @@ export const metadata: Metadata = {
   title: "NIDUS Defence Training Platform",
   description: "Defence training, course readiness, and personnel development platform.",
   manifest: "/manifest.webmanifest",
+  icons: {
+    icon: "/icons/icon-192.svg",
+    apple: "/icons/icon-192.svg"
+  },
   appleWebApp: {
     capable: true,
     title: "NIDUS",

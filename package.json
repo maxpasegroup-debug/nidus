@@ -21,7 +21,7 @@
     "start:frontend": "npm run start --workspace frontend",
     "start:backend": "npm run start --workspace backend",
     "test:e2e": "npm run test:e2e --workspace frontend",
-    "test:public-beta": "npx prisma validate --config backend/prisma.config.ts && npm run lint --workspace frontend && npm run build --workspace backend && npm run build --workspace frontend && npm run test:auth --workspace backend && npm run test:infra --workspace backend && npm run test:cbt --workspace backend",
+    "test:public-beta": "npx prisma validate --config backend/prisma.config.ts && npm run lint --workspace frontend && npm run build --workspace backend && npm run build --workspace frontend && npm run test:auth --workspace backend && npm run test:infra --workspace backend && npm run test:cbt --workspace backend && npm run test:payments --workspace backend && npm run test:ai --workspace backend && npm run test:ops --workspace backend",
     "seed:demo": "npm run seed:demo --workspace backend",
     "prisma:migrate:deploy": "npm run prisma:generate --workspace backend && npx prisma migrate deploy --config backend/prisma.config.ts"
   }

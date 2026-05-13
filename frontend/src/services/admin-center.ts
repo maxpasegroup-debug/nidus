@@ -1,8 +1,12 @@
 import { apiClient } from "@/services/api";
-import type { AdminDashboard, AdminRole, AuditLog, Branch, Permission, SystemSetting } from "@/types/admin-center";
+import type { AdminDashboard, AdminOperations, AdminRole, AuditLog, Branch, Permission, SystemSetting } from "@/types/admin-center";
 
 export async function getAdminDashboard() {
   return (await apiClient.get<{ dashboard: AdminDashboard }>("/admin")).data.dashboard;
+}
+
+export async function getAdminOperations() {
+  return (await apiClient.get<{ operations: AdminOperations }>("/admin/operations")).data.operations;
 }
 
 export async function getRoles() {

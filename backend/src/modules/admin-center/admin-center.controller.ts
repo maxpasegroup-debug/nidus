@@ -24,6 +24,15 @@ export const adminCenterController = {
     }
   },
 
+  async operations(_req: Request, res: Response, next: NextFunction) {
+    try {
+      const operations = await adminCenterService.operations();
+      res.json({ operations });
+    } catch (error) {
+      next(error);
+    }
+  },
+
   async roles(_req: Request, res: Response, next: NextFunction) {
     try {
       const roles = await adminCenterService.listRoles();

@@ -14,7 +14,7 @@ ENV NEXT_TELEMETRY_DISABLED=1
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-RUN npm run build
+RUN npm run build --workspace frontend
 
 FROM node:20.19.4-bookworm-slim AS runner
 
@@ -27,4 +27,4 @@ COPY --from=build /app ./
 
 EXPOSE 3000
 
-CMD ["npm", "run", "start"]
+CMD ["npm", "run", "start:frontend"]

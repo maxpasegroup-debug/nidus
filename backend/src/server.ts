@@ -5,6 +5,7 @@ import { closeRedis, verifyRedisConnection } from "./config/redis.js";
 import { verifyDatabaseConnection } from "./config/prisma.js";
 import { startInfrastructureWorkers, stopInfrastructureWorkers } from "./queues/index.js";
 import { logger } from "./utils/logger.js";
+import { markRuntimeDegraded, markRuntimeReady, markRuntimeShuttingDown } from "./runtime/lifecycle.js";
 
 const app = createApp();
 
@@ -13,20 +14,23 @@ async function startupChecks() {
   if (!databaseConnected) throw new Error("Database startup validation failed");
   await verifyRedisConnection();
   assertCloudinaryReady();
-  await startInfrastructureWorkers();
+  if (env.PROCESS_ROLE !== "web") await startInfrastructureWorkers();
 }
 
 const server = app.listen(env.PORT, async () => {
   try {
     await startupChecks();
-    logger.info("NIDUS backend started", { port: env.PORT, environment: env.NODE_ENV });
+    markRuntimeReady();
+    logger.info("NIDUS backend started", { port: env.PORT, environment: env.NODE_ENV, processRole: env.PROCESS_ROLE });
   } catch (error) {
+    markRuntimeDegraded(error);
     logger.error("Startup validation failed", { error: error instanceof Error ? error.message : "Unknown error" });
     process.exit(1);
   }
 });
 
 async function shutdown(signal: string) {
+  markRuntimeShuttingDown();
   logger.warn("Shutdown signal received", { signal });
   await stopInfrastructureWorkers().catch(() => undefined);
   await closeRedis().catch(() => undefined);

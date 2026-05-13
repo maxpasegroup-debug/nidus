@@ -22,14 +22,19 @@ import { learningStabilityRouter } from "./learning-stability/learning-stability
 import { protect, allowRoles } from "./auth/auth.middleware.js";
 import { Role } from "../generated/prisma/client.js";
 import { coursesController } from "./courses/courses.controller.js";
+import { getRuntimeState } from "../runtime/lifecycle.js";
+import { env } from "../config/env.js";
 
 export const apiRouter = Router();
 
 apiRouter.get("/health", (_req, res) => {
+  const runtime = getRuntimeState();
+  const healthy = !env.HEALTHCHECK_STRICT || runtime.ready;
   res.json({
-    status: "ok",
+    status: healthy ? "ok" : "starting",
     service: "nidus-backend",
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    runtime
   });
 });
 apiRouter.use("/system", systemRouter);

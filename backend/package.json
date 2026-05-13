@@ -24,6 +24,10 @@
     "test:roles": "tsx src/scripts/role-flow-verification.ts",
     "test:payments": "tsx src/scripts/payment-flow-verification.ts",
     "test:ai": "tsx src/scripts/ai-flow-verification.ts",
+    "test:ops": "tsx src/scripts/ops-flow-verification.ts",
+    "ops:smoke": "tsx src/scripts/production-smoke.ts",
+    "backup:database": "tsx src/scripts/backup-database.ts",
+    "backup:media": "tsx src/scripts/backup-media.ts",
     "test:infra": "tsx src/scripts/infra-verification.ts",
     "test:cbt": "tsx src/scripts/cbt-flow-verification.ts"
   },

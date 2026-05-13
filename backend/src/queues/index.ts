@@ -10,6 +10,11 @@ import { closeQueues, isQueueAvailable } from "./queue.config.js";
 const workers: Array<{ worker: { close: () => Promise<void> }; events?: { close: () => Promise<void> } } | null> = [];
 
 export async function startInfrastructureWorkers() {
+  if (env.PROCESS_ROLE === "web") {
+    logger.info("Queue workers skipped for web process", { processRole: env.PROCESS_ROLE });
+    return;
+  }
+
   if (!env.QUEUE_WORKERS_ENABLED || !isQueueAvailable()) {
     logger.warn("Queue workers not started", { workersEnabled: env.QUEUE_WORKERS_ENABLED, queueAvailable: isQueueAvailable() });
     return;

@@ -7,7 +7,11 @@ const envSchema = z.object({
   PORT: z.coerce.number().default(4000),
   CORS_ORIGIN: z.string().default("http://localhost:3000"),
   FRONTEND_APP_URL: z.string().url().default("http://localhost:3000"),
+  BACKEND_PUBLIC_URL: z.string().url().default("http://localhost:4000"),
+  APP_DOMAIN: z.string().default("app.nidusacademy.in"),
+  API_DOMAIN: z.string().default("api.nidusacademy.in"),
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
+  PROCESS_ROLE: z.enum(["web", "worker", "all"]).default("all"),
   TRUST_PROXY: z.coerce.boolean().default(true),
   COOKIE_DOMAIN: z.string().default(""),
   COOKIE_SECURE: z.coerce.boolean().optional(),
@@ -23,6 +27,9 @@ const envSchema = z.object({
   REDIS_REQUIRED: z.coerce.boolean().default(false),
   QUEUE_WORKERS_ENABLED: z.coerce.boolean().default(true),
   QUEUE_CONCURRENCY: z.coerce.number().int().positive().default(5),
+  HEALTHCHECK_STRICT: z.coerce.boolean().default(true),
+  BACKUP_BUCKET: z.string().default(""),
+  MEDIA_BACKUP_PREFIX: z.string().default("nidus-media-backups"),
   SENTRY_DSN: z.string().default(""),
   SENTRY_TRACES_SAMPLE_RATE: z.coerce.number().min(0).max(1).default(0.05),
   FIREBASE_PROJECT_ID: z.string().default(""),
@@ -57,6 +64,22 @@ const envSchema = z.object({
       code: z.ZodIssueCode.custom,
       message: "REDIS_URL is required when REDIS_REQUIRED=true",
       path: ["REDIS_URL"]
+    });
+  }
+
+  if (!env.FRONTEND_APP_URL.includes(env.APP_DOMAIN)) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "FRONTEND_APP_URL must point to APP_DOMAIN in production",
+      path: ["FRONTEND_APP_URL"]
+    });
+  }
+
+  if (!env.BACKEND_PUBLIC_URL.includes(env.API_DOMAIN)) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "BACKEND_PUBLIC_URL must point to API_DOMAIN in production",
+      path: ["BACKEND_PUBLIC_URL"]
     });
   }
 

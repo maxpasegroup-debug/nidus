@@ -1,4 +1,4 @@
-const CACHE_NAME = "nidus-shell-v5";
+const CACHE_NAME = "nidus-shell-v6";
 const STATIC_ASSETS = ["/offline", "/manifest.webmanifest", "/icons/icon-192.svg", "/icons/icon-512.svg"];
 const SYNC_DB = "nidus-offline-sync";
 const SYNC_STORE = "requests";

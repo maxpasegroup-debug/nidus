@@ -16,6 +16,7 @@ const roleValidators = [
 adminCenterRouter.use(protect);
 
 adminCenterRouter.get("/", requirePermission("admin", "read"), adminCenterController.dashboard);
+adminCenterRouter.get("/operations", requirePermission("operations", "read"), adminCenterController.operations);
 
 adminCenterRouter.get("/roles", requirePermission("roles", "manage"), adminCenterController.roles);
 adminCenterRouter.post("/roles", requirePermission("roles", "manage"), roleValidators, auditAction("roles", "CREATE", "Created admin role"), adminCenterController.createRole);

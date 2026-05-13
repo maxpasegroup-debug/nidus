@@ -18,7 +18,9 @@ const corsOrigins = env.CORS_ORIGIN.split(",")
   .map((origin) => origin.trim())
   .filter(Boolean);
 
-const allowedCorsOrigins = corsOrigins.length > 0 ? corsOrigins : ["http://localhost:3000"];
+const productionOrigins = [`https://${env.APP_DOMAIN}`, env.FRONTEND_APP_URL].filter(Boolean);
+const allowedCorsOrigins = Array.from(new Set(corsOrigins.length > 0 ? corsOrigins : ["http://localhost:3000", ...productionOrigins]));
+const connectSources = Array.from(new Set(["'self'", ...allowedCorsOrigins, env.BACKEND_PUBLIC_URL, "https://api.razorpay.com", "https://checkout.razorpay.com", "https://*.sentry.io"]));
 
 export function createApp() {
   initMonitoring();
@@ -41,12 +43,12 @@ export function createApp() {
           ? {
               directives: {
                 defaultSrc: ["'self'"],
-                scriptSrc: ["'self'", "'unsafe-inline'"],
+                scriptSrc: ["'self'", "'unsafe-inline'", "https://checkout.razorpay.com"],
                 styleSrc: ["'self'", "'unsafe-inline'"],
                 imgSrc: ["'self'", "data:", "https://res.cloudinary.com"],
                 mediaSrc: ["'self'", "https://res.cloudinary.com"],
-                connectSrc: ["'self'", ...allowedCorsOrigins],
-                frameSrc: ["'self'", "https://res.cloudinary.com"],
+                connectSrc: connectSources,
+                frameSrc: ["'self'", "https://res.cloudinary.com", "https://api.razorpay.com", "https://checkout.razorpay.com"],
                 objectSrc: ["'none'"],
                 baseUri: ["'self'"],
                 formAction: ["'self'"],

@@ -53,3 +53,26 @@ export type AdminDashboard = {
   };
   recentActions: AuditLog[];
 };
+
+export type AdminOperations = {
+  runtime: {
+    phase: string;
+    ready: boolean;
+    startedAt: string;
+    uptimeSeconds: number;
+    lastError?: string | null;
+  };
+  environment: Record<string, string | boolean | number>;
+  infrastructure: Record<string, string | number>;
+  queueHealth: Array<{
+    queueName: string;
+    status: string;
+    waiting: number;
+    active: number;
+    completed: number;
+    failed: number;
+    delayed: number;
+    paused: number;
+  }>;
+  analytics: Record<string, number>;
+};

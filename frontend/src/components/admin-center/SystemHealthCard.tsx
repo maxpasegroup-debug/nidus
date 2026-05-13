@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { Activity, ShieldCheck } from "lucide-react";
 
 export function SystemHealthCard({ label, status, value }: { label: string; status: string; value?: string | number }) {
-  const good = ["OPERATIONAL", "CONNECTED", "ACTIVE", "MONITORED"].includes(status);
+  const good = ["OPERATIONAL", "CONNECTED", "ACTIVE", "MONITORED", "READY", "HEALTHY"].includes(status);
 
   return (
     <motion.article initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="premium-surface rounded-lg p-5">

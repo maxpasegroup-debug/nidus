@@ -5,6 +5,7 @@ import { env } from "../../config/env.js";
 import { prismaBackupConfig, verifyDatabaseConnection } from "../../config/prisma.js";
 import { verifyRedisConnection } from "../../config/redis.js";
 import { isQueueAvailable } from "../../queues/queue.config.js";
+import { getRuntimeState } from "../../runtime/lifecycle.js";
 
 export const systemRouter = Router();
 
@@ -26,6 +27,7 @@ systemRouter.get("/status", async (_req, res, next) => {
       environment: env.NODE_ENV,
       uptime: process.uptime(),
       timestamp: new Date().toISOString(),
+      runtime: getRuntimeState(),
       checks: {
         database: databaseConnected ? "CONNECTED" : "FAILED",
         cache: redisConnected ? "REDIS_CONNECTED" : cacheConfig.mode,
