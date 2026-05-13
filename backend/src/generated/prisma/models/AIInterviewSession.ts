@@ -503,14 +503,6 @@ export type AIInterviewSessionUncheckedUpdateManyWithoutUserNestedInput = {
   deleteMany?: Prisma.AIInterviewSessionScalarWhereInput | Prisma.AIInterviewSessionScalarWhereInput[]
 }
 
-export type NullableFloatFieldUpdateOperationsInput = {
-  set?: number | null
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
-}
-
 export type AIInterviewSessionCreateNestedOneWithoutQuestionsInput = {
   create?: Prisma.XOR<Prisma.AIInterviewSessionCreateWithoutQuestionsInput, Prisma.AIInterviewSessionUncheckedCreateWithoutQuestionsInput>
   connectOrCreate?: Prisma.AIInterviewSessionCreateOrConnectWithoutQuestionsInput

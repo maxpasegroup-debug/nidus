@@ -28,80 +28,128 @@ export type AggregateFeeInstallment = {
 
 export type FeeInstallmentAvgAggregateOutputType = {
   amount: number | null
+  paidAmount: number | null
+  dueAmount: number | null
+  sequence: number | null
 }
 
 export type FeeInstallmentSumAggregateOutputType = {
   amount: number | null
+  paidAmount: number | null
+  dueAmount: number | null
+  sequence: number | null
 }
 
 export type FeeInstallmentMinAggregateOutputType = {
   id: string | null
   studentId: string | null
+  feePlanId: string | null
   title: string | null
   amount: number | null
+  paidAmount: number | null
+  dueAmount: number | null
   dueDate: Date | null
   paidStatus: string | null
   paidAt: Date | null
+  overdueAt: Date | null
+  reminderStatus: string | null
+  sequence: number | null
 }
 
 export type FeeInstallmentMaxAggregateOutputType = {
   id: string | null
   studentId: string | null
+  feePlanId: string | null
   title: string | null
   amount: number | null
+  paidAmount: number | null
+  dueAmount: number | null
   dueDate: Date | null
   paidStatus: string | null
   paidAt: Date | null
+  overdueAt: Date | null
+  reminderStatus: string | null
+  sequence: number | null
 }
 
 export type FeeInstallmentCountAggregateOutputType = {
   id: number
   studentId: number
+  feePlanId: number
   title: number
   amount: number
+  paidAmount: number
+  dueAmount: number
   dueDate: number
   paidStatus: number
   paidAt: number
+  overdueAt: number
+  reminderStatus: number
+  sequence: number
   _all: number
 }
 
 
 export type FeeInstallmentAvgAggregateInputType = {
   amount?: true
+  paidAmount?: true
+  dueAmount?: true
+  sequence?: true
 }
 
 export type FeeInstallmentSumAggregateInputType = {
   amount?: true
+  paidAmount?: true
+  dueAmount?: true
+  sequence?: true
 }
 
 export type FeeInstallmentMinAggregateInputType = {
   id?: true
   studentId?: true
+  feePlanId?: true
   title?: true
   amount?: true
+  paidAmount?: true
+  dueAmount?: true
   dueDate?: true
   paidStatus?: true
   paidAt?: true
+  overdueAt?: true
+  reminderStatus?: true
+  sequence?: true
 }
 
 export type FeeInstallmentMaxAggregateInputType = {
   id?: true
   studentId?: true
+  feePlanId?: true
   title?: true
   amount?: true
+  paidAmount?: true
+  dueAmount?: true
   dueDate?: true
   paidStatus?: true
   paidAt?: true
+  overdueAt?: true
+  reminderStatus?: true
+  sequence?: true
 }
 
 export type FeeInstallmentCountAggregateInputType = {
   id?: true
   studentId?: true
+  feePlanId?: true
   title?: true
   amount?: true
+  paidAmount?: true
+  dueAmount?: true
   dueDate?: true
   paidStatus?: true
   paidAt?: true
+  overdueAt?: true
+  reminderStatus?: true
+  sequence?: true
   _all?: true
 }
 
@@ -194,11 +242,17 @@ export type FeeInstallmentGroupByArgs<ExtArgs extends runtime.Types.Extensions.I
 export type FeeInstallmentGroupByOutputType = {
   id: string
   studentId: string
+  feePlanId: string | null
   title: string
   amount: number
+  paidAmount: number
+  dueAmount: number
   dueDate: Date
   paidStatus: string
   paidAt: Date | null
+  overdueAt: Date | null
+  reminderStatus: string
+  sequence: number
   _count: FeeInstallmentCountAggregateOutputType | null
   _avg: FeeInstallmentAvgAggregateOutputType | null
   _sum: FeeInstallmentSumAggregateOutputType | null
@@ -227,23 +281,39 @@ export type FeeInstallmentWhereInput = {
   NOT?: Prisma.FeeInstallmentWhereInput | Prisma.FeeInstallmentWhereInput[]
   id?: Prisma.StringFilter<"FeeInstallment"> | string
   studentId?: Prisma.StringFilter<"FeeInstallment"> | string
+  feePlanId?: Prisma.StringNullableFilter<"FeeInstallment"> | string | null
   title?: Prisma.StringFilter<"FeeInstallment"> | string
   amount?: Prisma.FloatFilter<"FeeInstallment"> | number
+  paidAmount?: Prisma.FloatFilter<"FeeInstallment"> | number
+  dueAmount?: Prisma.FloatFilter<"FeeInstallment"> | number
   dueDate?: Prisma.DateTimeFilter<"FeeInstallment"> | Date | string
   paidStatus?: Prisma.StringFilter<"FeeInstallment"> | string
   paidAt?: Prisma.DateTimeNullableFilter<"FeeInstallment"> | Date | string | null
+  overdueAt?: Prisma.DateTimeNullableFilter<"FeeInstallment"> | Date | string | null
+  reminderStatus?: Prisma.StringFilter<"FeeInstallment"> | string
+  sequence?: Prisma.IntFilter<"FeeInstallment"> | number
   student?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  feePlan?: Prisma.XOR<Prisma.FeePlanNullableScalarRelationFilter, Prisma.FeePlanWhereInput> | null
+  payments?: Prisma.PaymentListRelationFilter
 }
 
 export type FeeInstallmentOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   studentId?: Prisma.SortOrder
+  feePlanId?: Prisma.SortOrderInput | Prisma.SortOrder
   title?: Prisma.SortOrder
   amount?: Prisma.SortOrder
+  paidAmount?: Prisma.SortOrder
+  dueAmount?: Prisma.SortOrder
   dueDate?: Prisma.SortOrder
   paidStatus?: Prisma.SortOrder
   paidAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  overdueAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  reminderStatus?: Prisma.SortOrder
+  sequence?: Prisma.SortOrder
   student?: Prisma.UserOrderByWithRelationInput
+  feePlan?: Prisma.FeePlanOrderByWithRelationInput
+  payments?: Prisma.PaymentOrderByRelationAggregateInput
 }
 
 export type FeeInstallmentWhereUniqueInput = Prisma.AtLeast<{
@@ -252,22 +322,36 @@ export type FeeInstallmentWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.FeeInstallmentWhereInput[]
   NOT?: Prisma.FeeInstallmentWhereInput | Prisma.FeeInstallmentWhereInput[]
   studentId?: Prisma.StringFilter<"FeeInstallment"> | string
+  feePlanId?: Prisma.StringNullableFilter<"FeeInstallment"> | string | null
   title?: Prisma.StringFilter<"FeeInstallment"> | string
   amount?: Prisma.FloatFilter<"FeeInstallment"> | number
+  paidAmount?: Prisma.FloatFilter<"FeeInstallment"> | number
+  dueAmount?: Prisma.FloatFilter<"FeeInstallment"> | number
   dueDate?: Prisma.DateTimeFilter<"FeeInstallment"> | Date | string
   paidStatus?: Prisma.StringFilter<"FeeInstallment"> | string
   paidAt?: Prisma.DateTimeNullableFilter<"FeeInstallment"> | Date | string | null
+  overdueAt?: Prisma.DateTimeNullableFilter<"FeeInstallment"> | Date | string | null
+  reminderStatus?: Prisma.StringFilter<"FeeInstallment"> | string
+  sequence?: Prisma.IntFilter<"FeeInstallment"> | number
   student?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  feePlan?: Prisma.XOR<Prisma.FeePlanNullableScalarRelationFilter, Prisma.FeePlanWhereInput> | null
+  payments?: Prisma.PaymentListRelationFilter
 }, "id">
 
 export type FeeInstallmentOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   studentId?: Prisma.SortOrder
+  feePlanId?: Prisma.SortOrderInput | Prisma.SortOrder
   title?: Prisma.SortOrder
   amount?: Prisma.SortOrder
+  paidAmount?: Prisma.SortOrder
+  dueAmount?: Prisma.SortOrder
   dueDate?: Prisma.SortOrder
   paidStatus?: Prisma.SortOrder
   paidAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  overdueAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  reminderStatus?: Prisma.SortOrder
+  sequence?: Prisma.SortOrder
   _count?: Prisma.FeeInstallmentCountOrderByAggregateInput
   _avg?: Prisma.FeeInstallmentAvgOrderByAggregateInput
   _max?: Prisma.FeeInstallmentMaxOrderByAggregateInput
@@ -281,80 +365,131 @@ export type FeeInstallmentScalarWhereWithAggregatesInput = {
   NOT?: Prisma.FeeInstallmentScalarWhereWithAggregatesInput | Prisma.FeeInstallmentScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"FeeInstallment"> | string
   studentId?: Prisma.StringWithAggregatesFilter<"FeeInstallment"> | string
+  feePlanId?: Prisma.StringNullableWithAggregatesFilter<"FeeInstallment"> | string | null
   title?: Prisma.StringWithAggregatesFilter<"FeeInstallment"> | string
   amount?: Prisma.FloatWithAggregatesFilter<"FeeInstallment"> | number
+  paidAmount?: Prisma.FloatWithAggregatesFilter<"FeeInstallment"> | number
+  dueAmount?: Prisma.FloatWithAggregatesFilter<"FeeInstallment"> | number
   dueDate?: Prisma.DateTimeWithAggregatesFilter<"FeeInstallment"> | Date | string
   paidStatus?: Prisma.StringWithAggregatesFilter<"FeeInstallment"> | string
   paidAt?: Prisma.DateTimeNullableWithAggregatesFilter<"FeeInstallment"> | Date | string | null
+  overdueAt?: Prisma.DateTimeNullableWithAggregatesFilter<"FeeInstallment"> | Date | string | null
+  reminderStatus?: Prisma.StringWithAggregatesFilter<"FeeInstallment"> | string
+  sequence?: Prisma.IntWithAggregatesFilter<"FeeInstallment"> | number
 }
 
 export type FeeInstallmentCreateInput = {
   id?: string
   title: string
   amount: number
+  paidAmount?: number
+  dueAmount?: number
   dueDate: Date | string
   paidStatus?: string
   paidAt?: Date | string | null
+  overdueAt?: Date | string | null
+  reminderStatus?: string
+  sequence?: number
   student: Prisma.UserCreateNestedOneWithoutFeeInstallmentsInput
+  feePlan?: Prisma.FeePlanCreateNestedOneWithoutInstallmentsInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutInstallmentInput
 }
 
 export type FeeInstallmentUncheckedCreateInput = {
   id?: string
   studentId: string
+  feePlanId?: string | null
   title: string
   amount: number
+  paidAmount?: number
+  dueAmount?: number
   dueDate: Date | string
   paidStatus?: string
   paidAt?: Date | string | null
+  overdueAt?: Date | string | null
+  reminderStatus?: string
+  sequence?: number
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutInstallmentInput
 }
 
 export type FeeInstallmentUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
+  paidAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  dueAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   dueDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   paidStatus?: Prisma.StringFieldUpdateOperationsInput | string
   paidAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  overdueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminderStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  sequence?: Prisma.IntFieldUpdateOperationsInput | number
   student?: Prisma.UserUpdateOneRequiredWithoutFeeInstallmentsNestedInput
+  feePlan?: Prisma.FeePlanUpdateOneWithoutInstallmentsNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutInstallmentNestedInput
 }
 
 export type FeeInstallmentUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   studentId?: Prisma.StringFieldUpdateOperationsInput | string
+  feePlanId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
+  paidAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  dueAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   dueDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   paidStatus?: Prisma.StringFieldUpdateOperationsInput | string
   paidAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  overdueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminderStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  sequence?: Prisma.IntFieldUpdateOperationsInput | number
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutInstallmentNestedInput
 }
 
 export type FeeInstallmentCreateManyInput = {
   id?: string
   studentId: string
+  feePlanId?: string | null
   title: string
   amount: number
+  paidAmount?: number
+  dueAmount?: number
   dueDate: Date | string
   paidStatus?: string
   paidAt?: Date | string | null
+  overdueAt?: Date | string | null
+  reminderStatus?: string
+  sequence?: number
 }
 
 export type FeeInstallmentUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
+  paidAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  dueAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   dueDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   paidStatus?: Prisma.StringFieldUpdateOperationsInput | string
   paidAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  overdueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminderStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  sequence?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type FeeInstallmentUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   studentId?: Prisma.StringFieldUpdateOperationsInput | string
+  feePlanId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
+  paidAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  dueAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   dueDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   paidStatus?: Prisma.StringFieldUpdateOperationsInput | string
   paidAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  overdueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminderStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  sequence?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type FeeInstallmentListRelationFilter = {
@@ -367,42 +502,71 @@ export type FeeInstallmentOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
+export type FeeInstallmentNullableScalarRelationFilter = {
+  is?: Prisma.FeeInstallmentWhereInput | null
+  isNot?: Prisma.FeeInstallmentWhereInput | null
+}
+
 export type FeeInstallmentCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   studentId?: Prisma.SortOrder
+  feePlanId?: Prisma.SortOrder
   title?: Prisma.SortOrder
   amount?: Prisma.SortOrder
+  paidAmount?: Prisma.SortOrder
+  dueAmount?: Prisma.SortOrder
   dueDate?: Prisma.SortOrder
   paidStatus?: Prisma.SortOrder
   paidAt?: Prisma.SortOrder
+  overdueAt?: Prisma.SortOrder
+  reminderStatus?: Prisma.SortOrder
+  sequence?: Prisma.SortOrder
 }
 
 export type FeeInstallmentAvgOrderByAggregateInput = {
   amount?: Prisma.SortOrder
+  paidAmount?: Prisma.SortOrder
+  dueAmount?: Prisma.SortOrder
+  sequence?: Prisma.SortOrder
 }
 
 export type FeeInstallmentMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   studentId?: Prisma.SortOrder
+  feePlanId?: Prisma.SortOrder
   title?: Prisma.SortOrder
   amount?: Prisma.SortOrder
+  paidAmount?: Prisma.SortOrder
+  dueAmount?: Prisma.SortOrder
   dueDate?: Prisma.SortOrder
   paidStatus?: Prisma.SortOrder
   paidAt?: Prisma.SortOrder
+  overdueAt?: Prisma.SortOrder
+  reminderStatus?: Prisma.SortOrder
+  sequence?: Prisma.SortOrder
 }
 
 export type FeeInstallmentMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   studentId?: Prisma.SortOrder
+  feePlanId?: Prisma.SortOrder
   title?: Prisma.SortOrder
   amount?: Prisma.SortOrder
+  paidAmount?: Prisma.SortOrder
+  dueAmount?: Prisma.SortOrder
   dueDate?: Prisma.SortOrder
   paidStatus?: Prisma.SortOrder
   paidAt?: Prisma.SortOrder
+  overdueAt?: Prisma.SortOrder
+  reminderStatus?: Prisma.SortOrder
+  sequence?: Prisma.SortOrder
 }
 
 export type FeeInstallmentSumOrderByAggregateInput = {
   amount?: Prisma.SortOrder
+  paidAmount?: Prisma.SortOrder
+  dueAmount?: Prisma.SortOrder
+  sequence?: Prisma.SortOrder
 }
 
 export type FeeInstallmentCreateNestedManyWithoutStudentInput = {
@@ -447,22 +611,94 @@ export type FeeInstallmentUncheckedUpdateManyWithoutStudentNestedInput = {
   deleteMany?: Prisma.FeeInstallmentScalarWhereInput | Prisma.FeeInstallmentScalarWhereInput[]
 }
 
+export type FeeInstallmentCreateNestedOneWithoutPaymentsInput = {
+  create?: Prisma.XOR<Prisma.FeeInstallmentCreateWithoutPaymentsInput, Prisma.FeeInstallmentUncheckedCreateWithoutPaymentsInput>
+  connectOrCreate?: Prisma.FeeInstallmentCreateOrConnectWithoutPaymentsInput
+  connect?: Prisma.FeeInstallmentWhereUniqueInput
+}
+
+export type FeeInstallmentUpdateOneWithoutPaymentsNestedInput = {
+  create?: Prisma.XOR<Prisma.FeeInstallmentCreateWithoutPaymentsInput, Prisma.FeeInstallmentUncheckedCreateWithoutPaymentsInput>
+  connectOrCreate?: Prisma.FeeInstallmentCreateOrConnectWithoutPaymentsInput
+  upsert?: Prisma.FeeInstallmentUpsertWithoutPaymentsInput
+  disconnect?: Prisma.FeeInstallmentWhereInput | boolean
+  delete?: Prisma.FeeInstallmentWhereInput | boolean
+  connect?: Prisma.FeeInstallmentWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FeeInstallmentUpdateToOneWithWhereWithoutPaymentsInput, Prisma.FeeInstallmentUpdateWithoutPaymentsInput>, Prisma.FeeInstallmentUncheckedUpdateWithoutPaymentsInput>
+}
+
+export type FeeInstallmentCreateNestedManyWithoutFeePlanInput = {
+  create?: Prisma.XOR<Prisma.FeeInstallmentCreateWithoutFeePlanInput, Prisma.FeeInstallmentUncheckedCreateWithoutFeePlanInput> | Prisma.FeeInstallmentCreateWithoutFeePlanInput[] | Prisma.FeeInstallmentUncheckedCreateWithoutFeePlanInput[]
+  connectOrCreate?: Prisma.FeeInstallmentCreateOrConnectWithoutFeePlanInput | Prisma.FeeInstallmentCreateOrConnectWithoutFeePlanInput[]
+  createMany?: Prisma.FeeInstallmentCreateManyFeePlanInputEnvelope
+  connect?: Prisma.FeeInstallmentWhereUniqueInput | Prisma.FeeInstallmentWhereUniqueInput[]
+}
+
+export type FeeInstallmentUncheckedCreateNestedManyWithoutFeePlanInput = {
+  create?: Prisma.XOR<Prisma.FeeInstallmentCreateWithoutFeePlanInput, Prisma.FeeInstallmentUncheckedCreateWithoutFeePlanInput> | Prisma.FeeInstallmentCreateWithoutFeePlanInput[] | Prisma.FeeInstallmentUncheckedCreateWithoutFeePlanInput[]
+  connectOrCreate?: Prisma.FeeInstallmentCreateOrConnectWithoutFeePlanInput | Prisma.FeeInstallmentCreateOrConnectWithoutFeePlanInput[]
+  createMany?: Prisma.FeeInstallmentCreateManyFeePlanInputEnvelope
+  connect?: Prisma.FeeInstallmentWhereUniqueInput | Prisma.FeeInstallmentWhereUniqueInput[]
+}
+
+export type FeeInstallmentUpdateManyWithoutFeePlanNestedInput = {
+  create?: Prisma.XOR<Prisma.FeeInstallmentCreateWithoutFeePlanInput, Prisma.FeeInstallmentUncheckedCreateWithoutFeePlanInput> | Prisma.FeeInstallmentCreateWithoutFeePlanInput[] | Prisma.FeeInstallmentUncheckedCreateWithoutFeePlanInput[]
+  connectOrCreate?: Prisma.FeeInstallmentCreateOrConnectWithoutFeePlanInput | Prisma.FeeInstallmentCreateOrConnectWithoutFeePlanInput[]
+  upsert?: Prisma.FeeInstallmentUpsertWithWhereUniqueWithoutFeePlanInput | Prisma.FeeInstallmentUpsertWithWhereUniqueWithoutFeePlanInput[]
+  createMany?: Prisma.FeeInstallmentCreateManyFeePlanInputEnvelope
+  set?: Prisma.FeeInstallmentWhereUniqueInput | Prisma.FeeInstallmentWhereUniqueInput[]
+  disconnect?: Prisma.FeeInstallmentWhereUniqueInput | Prisma.FeeInstallmentWhereUniqueInput[]
+  delete?: Prisma.FeeInstallmentWhereUniqueInput | Prisma.FeeInstallmentWhereUniqueInput[]
+  connect?: Prisma.FeeInstallmentWhereUniqueInput | Prisma.FeeInstallmentWhereUniqueInput[]
+  update?: Prisma.FeeInstallmentUpdateWithWhereUniqueWithoutFeePlanInput | Prisma.FeeInstallmentUpdateWithWhereUniqueWithoutFeePlanInput[]
+  updateMany?: Prisma.FeeInstallmentUpdateManyWithWhereWithoutFeePlanInput | Prisma.FeeInstallmentUpdateManyWithWhereWithoutFeePlanInput[]
+  deleteMany?: Prisma.FeeInstallmentScalarWhereInput | Prisma.FeeInstallmentScalarWhereInput[]
+}
+
+export type FeeInstallmentUncheckedUpdateManyWithoutFeePlanNestedInput = {
+  create?: Prisma.XOR<Prisma.FeeInstallmentCreateWithoutFeePlanInput, Prisma.FeeInstallmentUncheckedCreateWithoutFeePlanInput> | Prisma.FeeInstallmentCreateWithoutFeePlanInput[] | Prisma.FeeInstallmentUncheckedCreateWithoutFeePlanInput[]
+  connectOrCreate?: Prisma.FeeInstallmentCreateOrConnectWithoutFeePlanInput | Prisma.FeeInstallmentCreateOrConnectWithoutFeePlanInput[]
+  upsert?: Prisma.FeeInstallmentUpsertWithWhereUniqueWithoutFeePlanInput | Prisma.FeeInstallmentUpsertWithWhereUniqueWithoutFeePlanInput[]
+  createMany?: Prisma.FeeInstallmentCreateManyFeePlanInputEnvelope
+  set?: Prisma.FeeInstallmentWhereUniqueInput | Prisma.FeeInstallmentWhereUniqueInput[]
+  disconnect?: Prisma.FeeInstallmentWhereUniqueInput | Prisma.FeeInstallmentWhereUniqueInput[]
+  delete?: Prisma.FeeInstallmentWhereUniqueInput | Prisma.FeeInstallmentWhereUniqueInput[]
+  connect?: Prisma.FeeInstallmentWhereUniqueInput | Prisma.FeeInstallmentWhereUniqueInput[]
+  update?: Prisma.FeeInstallmentUpdateWithWhereUniqueWithoutFeePlanInput | Prisma.FeeInstallmentUpdateWithWhereUniqueWithoutFeePlanInput[]
+  updateMany?: Prisma.FeeInstallmentUpdateManyWithWhereWithoutFeePlanInput | Prisma.FeeInstallmentUpdateManyWithWhereWithoutFeePlanInput[]
+  deleteMany?: Prisma.FeeInstallmentScalarWhereInput | Prisma.FeeInstallmentScalarWhereInput[]
+}
+
 export type FeeInstallmentCreateWithoutStudentInput = {
   id?: string
   title: string
   amount: number
+  paidAmount?: number
+  dueAmount?: number
   dueDate: Date | string
   paidStatus?: string
   paidAt?: Date | string | null
+  overdueAt?: Date | string | null
+  reminderStatus?: string
+  sequence?: number
+  feePlan?: Prisma.FeePlanCreateNestedOneWithoutInstallmentsInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutInstallmentInput
 }
 
 export type FeeInstallmentUncheckedCreateWithoutStudentInput = {
   id?: string
+  feePlanId?: string | null
   title: string
   amount: number
+  paidAmount?: number
+  dueAmount?: number
   dueDate: Date | string
   paidStatus?: string
   paidAt?: Date | string | null
+  overdueAt?: Date | string | null
+  reminderStatus?: string
+  sequence?: number
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutInstallmentInput
 }
 
 export type FeeInstallmentCreateOrConnectWithoutStudentInput = {
@@ -497,118 +733,421 @@ export type FeeInstallmentScalarWhereInput = {
   NOT?: Prisma.FeeInstallmentScalarWhereInput | Prisma.FeeInstallmentScalarWhereInput[]
   id?: Prisma.StringFilter<"FeeInstallment"> | string
   studentId?: Prisma.StringFilter<"FeeInstallment"> | string
+  feePlanId?: Prisma.StringNullableFilter<"FeeInstallment"> | string | null
   title?: Prisma.StringFilter<"FeeInstallment"> | string
   amount?: Prisma.FloatFilter<"FeeInstallment"> | number
+  paidAmount?: Prisma.FloatFilter<"FeeInstallment"> | number
+  dueAmount?: Prisma.FloatFilter<"FeeInstallment"> | number
   dueDate?: Prisma.DateTimeFilter<"FeeInstallment"> | Date | string
   paidStatus?: Prisma.StringFilter<"FeeInstallment"> | string
   paidAt?: Prisma.DateTimeNullableFilter<"FeeInstallment"> | Date | string | null
+  overdueAt?: Prisma.DateTimeNullableFilter<"FeeInstallment"> | Date | string | null
+  reminderStatus?: Prisma.StringFilter<"FeeInstallment"> | string
+  sequence?: Prisma.IntFilter<"FeeInstallment"> | number
+}
+
+export type FeeInstallmentCreateWithoutPaymentsInput = {
+  id?: string
+  title: string
+  amount: number
+  paidAmount?: number
+  dueAmount?: number
+  dueDate: Date | string
+  paidStatus?: string
+  paidAt?: Date | string | null
+  overdueAt?: Date | string | null
+  reminderStatus?: string
+  sequence?: number
+  student: Prisma.UserCreateNestedOneWithoutFeeInstallmentsInput
+  feePlan?: Prisma.FeePlanCreateNestedOneWithoutInstallmentsInput
+}
+
+export type FeeInstallmentUncheckedCreateWithoutPaymentsInput = {
+  id?: string
+  studentId: string
+  feePlanId?: string | null
+  title: string
+  amount: number
+  paidAmount?: number
+  dueAmount?: number
+  dueDate: Date | string
+  paidStatus?: string
+  paidAt?: Date | string | null
+  overdueAt?: Date | string | null
+  reminderStatus?: string
+  sequence?: number
+}
+
+export type FeeInstallmentCreateOrConnectWithoutPaymentsInput = {
+  where: Prisma.FeeInstallmentWhereUniqueInput
+  create: Prisma.XOR<Prisma.FeeInstallmentCreateWithoutPaymentsInput, Prisma.FeeInstallmentUncheckedCreateWithoutPaymentsInput>
+}
+
+export type FeeInstallmentUpsertWithoutPaymentsInput = {
+  update: Prisma.XOR<Prisma.FeeInstallmentUpdateWithoutPaymentsInput, Prisma.FeeInstallmentUncheckedUpdateWithoutPaymentsInput>
+  create: Prisma.XOR<Prisma.FeeInstallmentCreateWithoutPaymentsInput, Prisma.FeeInstallmentUncheckedCreateWithoutPaymentsInput>
+  where?: Prisma.FeeInstallmentWhereInput
+}
+
+export type FeeInstallmentUpdateToOneWithWhereWithoutPaymentsInput = {
+  where?: Prisma.FeeInstallmentWhereInput
+  data: Prisma.XOR<Prisma.FeeInstallmentUpdateWithoutPaymentsInput, Prisma.FeeInstallmentUncheckedUpdateWithoutPaymentsInput>
+}
+
+export type FeeInstallmentUpdateWithoutPaymentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  amount?: Prisma.FloatFieldUpdateOperationsInput | number
+  paidAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  dueAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  dueDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  paidStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  paidAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  overdueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminderStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  sequence?: Prisma.IntFieldUpdateOperationsInput | number
+  student?: Prisma.UserUpdateOneRequiredWithoutFeeInstallmentsNestedInput
+  feePlan?: Prisma.FeePlanUpdateOneWithoutInstallmentsNestedInput
+}
+
+export type FeeInstallmentUncheckedUpdateWithoutPaymentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  studentId?: Prisma.StringFieldUpdateOperationsInput | string
+  feePlanId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  amount?: Prisma.FloatFieldUpdateOperationsInput | number
+  paidAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  dueAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  dueDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  paidStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  paidAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  overdueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminderStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  sequence?: Prisma.IntFieldUpdateOperationsInput | number
+}
+
+export type FeeInstallmentCreateWithoutFeePlanInput = {
+  id?: string
+  title: string
+  amount: number
+  paidAmount?: number
+  dueAmount?: number
+  dueDate: Date | string
+  paidStatus?: string
+  paidAt?: Date | string | null
+  overdueAt?: Date | string | null
+  reminderStatus?: string
+  sequence?: number
+  student: Prisma.UserCreateNestedOneWithoutFeeInstallmentsInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutInstallmentInput
+}
+
+export type FeeInstallmentUncheckedCreateWithoutFeePlanInput = {
+  id?: string
+  studentId: string
+  title: string
+  amount: number
+  paidAmount?: number
+  dueAmount?: number
+  dueDate: Date | string
+  paidStatus?: string
+  paidAt?: Date | string | null
+  overdueAt?: Date | string | null
+  reminderStatus?: string
+  sequence?: number
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutInstallmentInput
+}
+
+export type FeeInstallmentCreateOrConnectWithoutFeePlanInput = {
+  where: Prisma.FeeInstallmentWhereUniqueInput
+  create: Prisma.XOR<Prisma.FeeInstallmentCreateWithoutFeePlanInput, Prisma.FeeInstallmentUncheckedCreateWithoutFeePlanInput>
+}
+
+export type FeeInstallmentCreateManyFeePlanInputEnvelope = {
+  data: Prisma.FeeInstallmentCreateManyFeePlanInput | Prisma.FeeInstallmentCreateManyFeePlanInput[]
+  skipDuplicates?: boolean
+}
+
+export type FeeInstallmentUpsertWithWhereUniqueWithoutFeePlanInput = {
+  where: Prisma.FeeInstallmentWhereUniqueInput
+  update: Prisma.XOR<Prisma.FeeInstallmentUpdateWithoutFeePlanInput, Prisma.FeeInstallmentUncheckedUpdateWithoutFeePlanInput>
+  create: Prisma.XOR<Prisma.FeeInstallmentCreateWithoutFeePlanInput, Prisma.FeeInstallmentUncheckedCreateWithoutFeePlanInput>
+}
+
+export type FeeInstallmentUpdateWithWhereUniqueWithoutFeePlanInput = {
+  where: Prisma.FeeInstallmentWhereUniqueInput
+  data: Prisma.XOR<Prisma.FeeInstallmentUpdateWithoutFeePlanInput, Prisma.FeeInstallmentUncheckedUpdateWithoutFeePlanInput>
+}
+
+export type FeeInstallmentUpdateManyWithWhereWithoutFeePlanInput = {
+  where: Prisma.FeeInstallmentScalarWhereInput
+  data: Prisma.XOR<Prisma.FeeInstallmentUpdateManyMutationInput, Prisma.FeeInstallmentUncheckedUpdateManyWithoutFeePlanInput>
 }
 
 export type FeeInstallmentCreateManyStudentInput = {
   id?: string
+  feePlanId?: string | null
   title: string
   amount: number
+  paidAmount?: number
+  dueAmount?: number
   dueDate: Date | string
   paidStatus?: string
   paidAt?: Date | string | null
+  overdueAt?: Date | string | null
+  reminderStatus?: string
+  sequence?: number
 }
 
 export type FeeInstallmentUpdateWithoutStudentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
+  paidAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  dueAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   dueDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   paidStatus?: Prisma.StringFieldUpdateOperationsInput | string
   paidAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  overdueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminderStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  sequence?: Prisma.IntFieldUpdateOperationsInput | number
+  feePlan?: Prisma.FeePlanUpdateOneWithoutInstallmentsNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutInstallmentNestedInput
 }
 
 export type FeeInstallmentUncheckedUpdateWithoutStudentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  feePlanId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
+  paidAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  dueAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   dueDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   paidStatus?: Prisma.StringFieldUpdateOperationsInput | string
   paidAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  overdueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminderStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  sequence?: Prisma.IntFieldUpdateOperationsInput | number
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutInstallmentNestedInput
 }
 
 export type FeeInstallmentUncheckedUpdateManyWithoutStudentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  feePlanId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
+  paidAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  dueAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   dueDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   paidStatus?: Prisma.StringFieldUpdateOperationsInput | string
   paidAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  overdueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminderStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  sequence?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
+export type FeeInstallmentCreateManyFeePlanInput = {
+  id?: string
+  studentId: string
+  title: string
+  amount: number
+  paidAmount?: number
+  dueAmount?: number
+  dueDate: Date | string
+  paidStatus?: string
+  paidAt?: Date | string | null
+  overdueAt?: Date | string | null
+  reminderStatus?: string
+  sequence?: number
+}
+
+export type FeeInstallmentUpdateWithoutFeePlanInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  amount?: Prisma.FloatFieldUpdateOperationsInput | number
+  paidAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  dueAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  dueDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  paidStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  paidAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  overdueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminderStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  sequence?: Prisma.IntFieldUpdateOperationsInput | number
+  student?: Prisma.UserUpdateOneRequiredWithoutFeeInstallmentsNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutInstallmentNestedInput
+}
+
+export type FeeInstallmentUncheckedUpdateWithoutFeePlanInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  studentId?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  amount?: Prisma.FloatFieldUpdateOperationsInput | number
+  paidAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  dueAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  dueDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  paidStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  paidAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  overdueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminderStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  sequence?: Prisma.IntFieldUpdateOperationsInput | number
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutInstallmentNestedInput
+}
+
+export type FeeInstallmentUncheckedUpdateManyWithoutFeePlanInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  studentId?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  amount?: Prisma.FloatFieldUpdateOperationsInput | number
+  paidAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  dueAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  dueDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  paidStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  paidAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  overdueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminderStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  sequence?: Prisma.IntFieldUpdateOperationsInput | number
+}
+
+
+/**
+ * Count Type FeeInstallmentCountOutputType
+ */
+
+export type FeeInstallmentCountOutputType = {
+  payments: number
+}
+
+export type FeeInstallmentCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  payments?: boolean | FeeInstallmentCountOutputTypeCountPaymentsArgs
+}
+
+/**
+ * FeeInstallmentCountOutputType without action
+ */
+export type FeeInstallmentCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FeeInstallmentCountOutputType
+   */
+  select?: Prisma.FeeInstallmentCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * FeeInstallmentCountOutputType without action
+ */
+export type FeeInstallmentCountOutputTypeCountPaymentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PaymentWhereInput
+}
 
 
 export type FeeInstallmentSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   studentId?: boolean
+  feePlanId?: boolean
   title?: boolean
   amount?: boolean
+  paidAmount?: boolean
+  dueAmount?: boolean
   dueDate?: boolean
   paidStatus?: boolean
   paidAt?: boolean
+  overdueAt?: boolean
+  reminderStatus?: boolean
+  sequence?: boolean
   student?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  feePlan?: boolean | Prisma.FeeInstallment$feePlanArgs<ExtArgs>
+  payments?: boolean | Prisma.FeeInstallment$paymentsArgs<ExtArgs>
+  _count?: boolean | Prisma.FeeInstallmentCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["feeInstallment"]>
 
 export type FeeInstallmentSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   studentId?: boolean
+  feePlanId?: boolean
   title?: boolean
   amount?: boolean
+  paidAmount?: boolean
+  dueAmount?: boolean
   dueDate?: boolean
   paidStatus?: boolean
   paidAt?: boolean
+  overdueAt?: boolean
+  reminderStatus?: boolean
+  sequence?: boolean
   student?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  feePlan?: boolean | Prisma.FeeInstallment$feePlanArgs<ExtArgs>
 }, ExtArgs["result"]["feeInstallment"]>
 
 export type FeeInstallmentSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   studentId?: boolean
+  feePlanId?: boolean
   title?: boolean
   amount?: boolean
+  paidAmount?: boolean
+  dueAmount?: boolean
   dueDate?: boolean
   paidStatus?: boolean
   paidAt?: boolean
+  overdueAt?: boolean
+  reminderStatus?: boolean
+  sequence?: boolean
   student?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  feePlan?: boolean | Prisma.FeeInstallment$feePlanArgs<ExtArgs>
 }, ExtArgs["result"]["feeInstallment"]>
 
 export type FeeInstallmentSelectScalar = {
   id?: boolean
   studentId?: boolean
+  feePlanId?: boolean
   title?: boolean
   amount?: boolean
+  paidAmount?: boolean
+  dueAmount?: boolean
   dueDate?: boolean
   paidStatus?: boolean
   paidAt?: boolean
+  overdueAt?: boolean
+  reminderStatus?: boolean
+  sequence?: boolean
 }
 
-export type FeeInstallmentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "studentId" | "title" | "amount" | "dueDate" | "paidStatus" | "paidAt", ExtArgs["result"]["feeInstallment"]>
+export type FeeInstallmentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "studentId" | "feePlanId" | "title" | "amount" | "paidAmount" | "dueAmount" | "dueDate" | "paidStatus" | "paidAt" | "overdueAt" | "reminderStatus" | "sequence", ExtArgs["result"]["feeInstallment"]>
 export type FeeInstallmentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   student?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  feePlan?: boolean | Prisma.FeeInstallment$feePlanArgs<ExtArgs>
+  payments?: boolean | Prisma.FeeInstallment$paymentsArgs<ExtArgs>
+  _count?: boolean | Prisma.FeeInstallmentCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type FeeInstallmentIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   student?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  feePlan?: boolean | Prisma.FeeInstallment$feePlanArgs<ExtArgs>
 }
 export type FeeInstallmentIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   student?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  feePlan?: boolean | Prisma.FeeInstallment$feePlanArgs<ExtArgs>
 }
 
 export type $FeeInstallmentPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "FeeInstallment"
   objects: {
     student: Prisma.$UserPayload<ExtArgs>
+    feePlan: Prisma.$FeePlanPayload<ExtArgs> | null
+    payments: Prisma.$PaymentPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     studentId: string
+    feePlanId: string | null
     title: string
     amount: number
+    paidAmount: number
+    dueAmount: number
     dueDate: Date
     paidStatus: string
     paidAt: Date | null
+    overdueAt: Date | null
+    reminderStatus: string
+    sequence: number
   }, ExtArgs["result"]["feeInstallment"]>
   composites: {}
 }
@@ -1004,6 +1543,8 @@ readonly fields: FeeInstallmentFieldRefs;
 export interface Prisma__FeeInstallmentClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   student<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  feePlan<T extends Prisma.FeeInstallment$feePlanArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FeeInstallment$feePlanArgs<ExtArgs>>): Prisma.Prisma__FeePlanClient<runtime.Types.Result.GetResult<Prisma.$FeePlanPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  payments<T extends Prisma.FeeInstallment$paymentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FeeInstallment$paymentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PaymentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1035,11 +1576,17 @@ export interface Prisma__FeeInstallmentClient<T, Null = never, ExtArgs extends r
 export interface FeeInstallmentFieldRefs {
   readonly id: Prisma.FieldRef<"FeeInstallment", 'String'>
   readonly studentId: Prisma.FieldRef<"FeeInstallment", 'String'>
+  readonly feePlanId: Prisma.FieldRef<"FeeInstallment", 'String'>
   readonly title: Prisma.FieldRef<"FeeInstallment", 'String'>
   readonly amount: Prisma.FieldRef<"FeeInstallment", 'Float'>
+  readonly paidAmount: Prisma.FieldRef<"FeeInstallment", 'Float'>
+  readonly dueAmount: Prisma.FieldRef<"FeeInstallment", 'Float'>
   readonly dueDate: Prisma.FieldRef<"FeeInstallment", 'DateTime'>
   readonly paidStatus: Prisma.FieldRef<"FeeInstallment", 'String'>
   readonly paidAt: Prisma.FieldRef<"FeeInstallment", 'DateTime'>
+  readonly overdueAt: Prisma.FieldRef<"FeeInstallment", 'DateTime'>
+  readonly reminderStatus: Prisma.FieldRef<"FeeInstallment", 'String'>
+  readonly sequence: Prisma.FieldRef<"FeeInstallment", 'Int'>
 }
     
 
@@ -1438,6 +1985,49 @@ export type FeeInstallmentDeleteManyArgs<ExtArgs extends runtime.Types.Extension
    * Limit how many FeeInstallments to delete.
    */
   limit?: number
+}
+
+/**
+ * FeeInstallment.feePlan
+ */
+export type FeeInstallment$feePlanArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FeePlan
+   */
+  select?: Prisma.FeePlanSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FeePlan
+   */
+  omit?: Prisma.FeePlanOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FeePlanInclude<ExtArgs> | null
+  where?: Prisma.FeePlanWhereInput
+}
+
+/**
+ * FeeInstallment.payments
+ */
+export type FeeInstallment$paymentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Payment
+   */
+  select?: Prisma.PaymentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Payment
+   */
+  omit?: Prisma.PaymentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PaymentInclude<ExtArgs> | null
+  where?: Prisma.PaymentWhereInput
+  orderBy?: Prisma.PaymentOrderByWithRelationInput | Prisma.PaymentOrderByWithRelationInput[]
+  cursor?: Prisma.PaymentWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PaymentScalarFieldEnum | Prisma.PaymentScalarFieldEnum[]
 }
 
 /**

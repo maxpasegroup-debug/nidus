@@ -278,6 +278,31 @@ export type FeeInstallment = Prisma.FeeInstallmentModel
  */
 export type Invoice = Prisma.InvoiceModel
 /**
+ * Model FeePlan
+ * 
+ */
+export type FeePlan = Prisma.FeePlanModel
+/**
+ * Model PaymentTransactionLog
+ * 
+ */
+export type PaymentTransactionLog = Prisma.PaymentTransactionLogModel
+/**
+ * Model ApprovalRequest
+ * 
+ */
+export type ApprovalRequest = Prisma.ApprovalRequestModel
+/**
+ * Model ScholarshipDiscount
+ * 
+ */
+export type ScholarshipDiscount = Prisma.ScholarshipDiscountModel
+/**
+ * Model FinanceDocument
+ * 
+ */
+export type FinanceDocument = Prisma.FinanceDocumentModel
+/**
  * Model Notification
  * 
  */

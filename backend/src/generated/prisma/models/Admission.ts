@@ -20,70 +20,180 @@ export type AdmissionModel = runtime.Types.Result.DefaultSelection<Prisma.$Admis
 
 export type AggregateAdmission = {
   _count: AdmissionCountAggregateOutputType | null
+  _avg: AdmissionAvgAggregateOutputType | null
+  _sum: AdmissionSumAggregateOutputType | null
   _min: AdmissionMinAggregateOutputType | null
   _max: AdmissionMaxAggregateOutputType | null
 }
 
+export type AdmissionAvgAggregateOutputType = {
+  totalFee: number | null
+  paidAmount: number | null
+  dueAmount: number | null
+}
+
+export type AdmissionSumAggregateOutputType = {
+  totalFee: number | null
+  paidAmount: number | null
+  dueAmount: number | null
+}
+
 export type AdmissionMinAggregateOutputType = {
   id: string | null
+  leadId: string | null
   studentId: string | null
   courseId: string | null
+  instituteId: string | null
+  branchId: string | null
   admissionDate: Date | null
   paymentStatus: string | null
+  status: string | null
+  admissionMode: string | null
+  approvalStatus: string | null
+  approvedBy: string | null
+  approvedAt: Date | null
+  onboardingStatus: string | null
   batch: string | null
+  totalFee: number | null
+  paidAmount: number | null
+  dueAmount: number | null
+  remarks: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type AdmissionMaxAggregateOutputType = {
   id: string | null
+  leadId: string | null
   studentId: string | null
   courseId: string | null
+  instituteId: string | null
+  branchId: string | null
   admissionDate: Date | null
   paymentStatus: string | null
+  status: string | null
+  admissionMode: string | null
+  approvalStatus: string | null
+  approvedBy: string | null
+  approvedAt: Date | null
+  onboardingStatus: string | null
   batch: string | null
+  totalFee: number | null
+  paidAmount: number | null
+  dueAmount: number | null
+  remarks: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type AdmissionCountAggregateOutputType = {
   id: number
+  leadId: number
   studentId: number
   courseId: number
+  instituteId: number
+  branchId: number
   admissionDate: number
   paymentStatus: number
+  status: number
+  admissionMode: number
+  approvalStatus: number
+  approvedBy: number
+  approvedAt: number
+  onboardingStatus: number
   batch: number
+  totalFee: number
+  paidAmount: number
+  dueAmount: number
+  remarks: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
 
+export type AdmissionAvgAggregateInputType = {
+  totalFee?: true
+  paidAmount?: true
+  dueAmount?: true
+}
+
+export type AdmissionSumAggregateInputType = {
+  totalFee?: true
+  paidAmount?: true
+  dueAmount?: true
+}
+
 export type AdmissionMinAggregateInputType = {
   id?: true
+  leadId?: true
   studentId?: true
   courseId?: true
+  instituteId?: true
+  branchId?: true
   admissionDate?: true
   paymentStatus?: true
+  status?: true
+  admissionMode?: true
+  approvalStatus?: true
+  approvedBy?: true
+  approvedAt?: true
+  onboardingStatus?: true
   batch?: true
+  totalFee?: true
+  paidAmount?: true
+  dueAmount?: true
+  remarks?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type AdmissionMaxAggregateInputType = {
   id?: true
+  leadId?: true
   studentId?: true
   courseId?: true
+  instituteId?: true
+  branchId?: true
   admissionDate?: true
   paymentStatus?: true
+  status?: true
+  admissionMode?: true
+  approvalStatus?: true
+  approvedBy?: true
+  approvedAt?: true
+  onboardingStatus?: true
   batch?: true
+  totalFee?: true
+  paidAmount?: true
+  dueAmount?: true
+  remarks?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type AdmissionCountAggregateInputType = {
   id?: true
+  leadId?: true
   studentId?: true
   courseId?: true
+  instituteId?: true
+  branchId?: true
   admissionDate?: true
   paymentStatus?: true
+  status?: true
+  admissionMode?: true
+  approvalStatus?: true
+  approvedBy?: true
+  approvedAt?: true
+  onboardingStatus?: true
   batch?: true
+  totalFee?: true
+  paidAmount?: true
+  dueAmount?: true
+  remarks?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -125,6 +235,18 @@ export type AdmissionAggregateArgs<ExtArgs extends runtime.Types.Extensions.Inte
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: AdmissionAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: AdmissionSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: AdmissionMinAggregateInputType
@@ -155,19 +277,37 @@ export type AdmissionGroupByArgs<ExtArgs extends runtime.Types.Extensions.Intern
   take?: number
   skip?: number
   _count?: AdmissionCountAggregateInputType | true
+  _avg?: AdmissionAvgAggregateInputType
+  _sum?: AdmissionSumAggregateInputType
   _min?: AdmissionMinAggregateInputType
   _max?: AdmissionMaxAggregateInputType
 }
 
 export type AdmissionGroupByOutputType = {
   id: string
+  leadId: string | null
   studentId: string
   courseId: string
+  instituteId: string | null
+  branchId: string | null
   admissionDate: Date
   paymentStatus: string
+  status: string
+  admissionMode: string
+  approvalStatus: string
+  approvedBy: string | null
+  approvedAt: Date | null
+  onboardingStatus: string
   batch: string
+  totalFee: number
+  paidAmount: number
+  dueAmount: number
+  remarks: string | null
   createdAt: Date
+  updatedAt: Date
   _count: AdmissionCountAggregateOutputType | null
+  _avg: AdmissionAvgAggregateOutputType | null
+  _sum: AdmissionSumAggregateOutputType | null
   _min: AdmissionMinAggregateOutputType | null
   _max: AdmissionMaxAggregateOutputType | null
 }
@@ -192,26 +332,64 @@ export type AdmissionWhereInput = {
   OR?: Prisma.AdmissionWhereInput[]
   NOT?: Prisma.AdmissionWhereInput | Prisma.AdmissionWhereInput[]
   id?: Prisma.StringFilter<"Admission"> | string
+  leadId?: Prisma.StringNullableFilter<"Admission"> | string | null
   studentId?: Prisma.StringFilter<"Admission"> | string
   courseId?: Prisma.StringFilter<"Admission"> | string
+  instituteId?: Prisma.StringNullableFilter<"Admission"> | string | null
+  branchId?: Prisma.StringNullableFilter<"Admission"> | string | null
   admissionDate?: Prisma.DateTimeFilter<"Admission"> | Date | string
   paymentStatus?: Prisma.StringFilter<"Admission"> | string
+  status?: Prisma.StringFilter<"Admission"> | string
+  admissionMode?: Prisma.StringFilter<"Admission"> | string
+  approvalStatus?: Prisma.StringFilter<"Admission"> | string
+  approvedBy?: Prisma.StringNullableFilter<"Admission"> | string | null
+  approvedAt?: Prisma.DateTimeNullableFilter<"Admission"> | Date | string | null
+  onboardingStatus?: Prisma.StringFilter<"Admission"> | string
   batch?: Prisma.StringFilter<"Admission"> | string
+  totalFee?: Prisma.FloatFilter<"Admission"> | number
+  paidAmount?: Prisma.FloatFilter<"Admission"> | number
+  dueAmount?: Prisma.FloatFilter<"Admission"> | number
+  remarks?: Prisma.StringNullableFilter<"Admission"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Admission"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"Admission"> | Date | string
   student?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   course?: Prisma.XOR<Prisma.CourseScalarRelationFilter, Prisma.CourseWhereInput>
+  lead?: Prisma.XOR<Prisma.LeadNullableScalarRelationFilter, Prisma.LeadWhereInput> | null
+  institute?: Prisma.XOR<Prisma.InstituteNullableScalarRelationFilter, Prisma.InstituteWhereInput> | null
+  branch?: Prisma.XOR<Prisma.BranchNullableScalarRelationFilter, Prisma.BranchWhereInput> | null
+  approvals?: Prisma.ApprovalRequestListRelationFilter
+  feePlans?: Prisma.FeePlanListRelationFilter
 }
 
 export type AdmissionOrderByWithRelationInput = {
   id?: Prisma.SortOrder
+  leadId?: Prisma.SortOrderInput | Prisma.SortOrder
   studentId?: Prisma.SortOrder
   courseId?: Prisma.SortOrder
+  instituteId?: Prisma.SortOrderInput | Prisma.SortOrder
+  branchId?: Prisma.SortOrderInput | Prisma.SortOrder
   admissionDate?: Prisma.SortOrder
   paymentStatus?: Prisma.SortOrder
+  status?: Prisma.SortOrder
+  admissionMode?: Prisma.SortOrder
+  approvalStatus?: Prisma.SortOrder
+  approvedBy?: Prisma.SortOrderInput | Prisma.SortOrder
+  approvedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  onboardingStatus?: Prisma.SortOrder
   batch?: Prisma.SortOrder
+  totalFee?: Prisma.SortOrder
+  paidAmount?: Prisma.SortOrder
+  dueAmount?: Prisma.SortOrder
+  remarks?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   student?: Prisma.UserOrderByWithRelationInput
   course?: Prisma.CourseOrderByWithRelationInput
+  lead?: Prisma.LeadOrderByWithRelationInput
+  institute?: Prisma.InstituteOrderByWithRelationInput
+  branch?: Prisma.BranchOrderByWithRelationInput
+  approvals?: Prisma.ApprovalRequestOrderByRelationAggregateInput
+  feePlans?: Prisma.FeePlanOrderByRelationAggregateInput
 }
 
 export type AdmissionWhereUniqueInput = Prisma.AtLeast<{
@@ -219,27 +397,62 @@ export type AdmissionWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.AdmissionWhereInput | Prisma.AdmissionWhereInput[]
   OR?: Prisma.AdmissionWhereInput[]
   NOT?: Prisma.AdmissionWhereInput | Prisma.AdmissionWhereInput[]
+  leadId?: Prisma.StringNullableFilter<"Admission"> | string | null
   studentId?: Prisma.StringFilter<"Admission"> | string
   courseId?: Prisma.StringFilter<"Admission"> | string
+  instituteId?: Prisma.StringNullableFilter<"Admission"> | string | null
+  branchId?: Prisma.StringNullableFilter<"Admission"> | string | null
   admissionDate?: Prisma.DateTimeFilter<"Admission"> | Date | string
   paymentStatus?: Prisma.StringFilter<"Admission"> | string
+  status?: Prisma.StringFilter<"Admission"> | string
+  admissionMode?: Prisma.StringFilter<"Admission"> | string
+  approvalStatus?: Prisma.StringFilter<"Admission"> | string
+  approvedBy?: Prisma.StringNullableFilter<"Admission"> | string | null
+  approvedAt?: Prisma.DateTimeNullableFilter<"Admission"> | Date | string | null
+  onboardingStatus?: Prisma.StringFilter<"Admission"> | string
   batch?: Prisma.StringFilter<"Admission"> | string
+  totalFee?: Prisma.FloatFilter<"Admission"> | number
+  paidAmount?: Prisma.FloatFilter<"Admission"> | number
+  dueAmount?: Prisma.FloatFilter<"Admission"> | number
+  remarks?: Prisma.StringNullableFilter<"Admission"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Admission"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"Admission"> | Date | string
   student?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   course?: Prisma.XOR<Prisma.CourseScalarRelationFilter, Prisma.CourseWhereInput>
+  lead?: Prisma.XOR<Prisma.LeadNullableScalarRelationFilter, Prisma.LeadWhereInput> | null
+  institute?: Prisma.XOR<Prisma.InstituteNullableScalarRelationFilter, Prisma.InstituteWhereInput> | null
+  branch?: Prisma.XOR<Prisma.BranchNullableScalarRelationFilter, Prisma.BranchWhereInput> | null
+  approvals?: Prisma.ApprovalRequestListRelationFilter
+  feePlans?: Prisma.FeePlanListRelationFilter
 }, "id">
 
 export type AdmissionOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
+  leadId?: Prisma.SortOrderInput | Prisma.SortOrder
   studentId?: Prisma.SortOrder
   courseId?: Prisma.SortOrder
+  instituteId?: Prisma.SortOrderInput | Prisma.SortOrder
+  branchId?: Prisma.SortOrderInput | Prisma.SortOrder
   admissionDate?: Prisma.SortOrder
   paymentStatus?: Prisma.SortOrder
+  status?: Prisma.SortOrder
+  admissionMode?: Prisma.SortOrder
+  approvalStatus?: Prisma.SortOrder
+  approvedBy?: Prisma.SortOrderInput | Prisma.SortOrder
+  approvedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  onboardingStatus?: Prisma.SortOrder
   batch?: Prisma.SortOrder
+  totalFee?: Prisma.SortOrder
+  paidAmount?: Prisma.SortOrder
+  dueAmount?: Prisma.SortOrder
+  remarks?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.AdmissionCountOrderByAggregateInput
+  _avg?: Prisma.AdmissionAvgOrderByAggregateInput
   _max?: Prisma.AdmissionMaxOrderByAggregateInput
   _min?: Prisma.AdmissionMinOrderByAggregateInput
+  _sum?: Prisma.AdmissionSumOrderByAggregateInput
 }
 
 export type AdmissionScalarWhereWithAggregatesInput = {
@@ -247,80 +460,197 @@ export type AdmissionScalarWhereWithAggregatesInput = {
   OR?: Prisma.AdmissionScalarWhereWithAggregatesInput[]
   NOT?: Prisma.AdmissionScalarWhereWithAggregatesInput | Prisma.AdmissionScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"Admission"> | string
+  leadId?: Prisma.StringNullableWithAggregatesFilter<"Admission"> | string | null
   studentId?: Prisma.StringWithAggregatesFilter<"Admission"> | string
   courseId?: Prisma.StringWithAggregatesFilter<"Admission"> | string
+  instituteId?: Prisma.StringNullableWithAggregatesFilter<"Admission"> | string | null
+  branchId?: Prisma.StringNullableWithAggregatesFilter<"Admission"> | string | null
   admissionDate?: Prisma.DateTimeWithAggregatesFilter<"Admission"> | Date | string
   paymentStatus?: Prisma.StringWithAggregatesFilter<"Admission"> | string
+  status?: Prisma.StringWithAggregatesFilter<"Admission"> | string
+  admissionMode?: Prisma.StringWithAggregatesFilter<"Admission"> | string
+  approvalStatus?: Prisma.StringWithAggregatesFilter<"Admission"> | string
+  approvedBy?: Prisma.StringNullableWithAggregatesFilter<"Admission"> | string | null
+  approvedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Admission"> | Date | string | null
+  onboardingStatus?: Prisma.StringWithAggregatesFilter<"Admission"> | string
   batch?: Prisma.StringWithAggregatesFilter<"Admission"> | string
+  totalFee?: Prisma.FloatWithAggregatesFilter<"Admission"> | number
+  paidAmount?: Prisma.FloatWithAggregatesFilter<"Admission"> | number
+  dueAmount?: Prisma.FloatWithAggregatesFilter<"Admission"> | number
+  remarks?: Prisma.StringNullableWithAggregatesFilter<"Admission"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Admission"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Admission"> | Date | string
 }
 
 export type AdmissionCreateInput = {
   id?: string
   admissionDate: Date | string
   paymentStatus: string
+  status?: string
+  admissionMode?: string
+  approvalStatus?: string
+  approvedBy?: string | null
+  approvedAt?: Date | string | null
+  onboardingStatus?: string
   batch: string
+  totalFee?: number
+  paidAmount?: number
+  dueAmount?: number
+  remarks?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   student: Prisma.UserCreateNestedOneWithoutAdmissionsInput
   course: Prisma.CourseCreateNestedOneWithoutAdmissionsInput
+  lead?: Prisma.LeadCreateNestedOneWithoutAdmissionsInput
+  institute?: Prisma.InstituteCreateNestedOneWithoutAdmissionsInput
+  branch?: Prisma.BranchCreateNestedOneWithoutAdmissionsInput
+  approvals?: Prisma.ApprovalRequestCreateNestedManyWithoutAdmissionInput
+  feePlans?: Prisma.FeePlanCreateNestedManyWithoutAdmissionInput
 }
 
 export type AdmissionUncheckedCreateInput = {
   id?: string
+  leadId?: string | null
   studentId: string
   courseId: string
+  instituteId?: string | null
+  branchId?: string | null
   admissionDate: Date | string
   paymentStatus: string
+  status?: string
+  admissionMode?: string
+  approvalStatus?: string
+  approvedBy?: string | null
+  approvedAt?: Date | string | null
+  onboardingStatus?: string
   batch: string
+  totalFee?: number
+  paidAmount?: number
+  dueAmount?: number
+  remarks?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
+  approvals?: Prisma.ApprovalRequestUncheckedCreateNestedManyWithoutAdmissionInput
+  feePlans?: Prisma.FeePlanUncheckedCreateNestedManyWithoutAdmissionInput
 }
 
 export type AdmissionUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   admissionDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  admissionMode?: Prisma.StringFieldUpdateOperationsInput | string
+  approvalStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  approvedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  onboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
   batch?: Prisma.StringFieldUpdateOperationsInput | string
+  totalFee?: Prisma.FloatFieldUpdateOperationsInput | number
+  paidAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  dueAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  remarks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   student?: Prisma.UserUpdateOneRequiredWithoutAdmissionsNestedInput
   course?: Prisma.CourseUpdateOneRequiredWithoutAdmissionsNestedInput
+  lead?: Prisma.LeadUpdateOneWithoutAdmissionsNestedInput
+  institute?: Prisma.InstituteUpdateOneWithoutAdmissionsNestedInput
+  branch?: Prisma.BranchUpdateOneWithoutAdmissionsNestedInput
+  approvals?: Prisma.ApprovalRequestUpdateManyWithoutAdmissionNestedInput
+  feePlans?: Prisma.FeePlanUpdateManyWithoutAdmissionNestedInput
 }
 
 export type AdmissionUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  leadId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   studentId?: Prisma.StringFieldUpdateOperationsInput | string
   courseId?: Prisma.StringFieldUpdateOperationsInput | string
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   admissionDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  admissionMode?: Prisma.StringFieldUpdateOperationsInput | string
+  approvalStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  approvedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  onboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
   batch?: Prisma.StringFieldUpdateOperationsInput | string
+  totalFee?: Prisma.FloatFieldUpdateOperationsInput | number
+  paidAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  dueAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  remarks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  approvals?: Prisma.ApprovalRequestUncheckedUpdateManyWithoutAdmissionNestedInput
+  feePlans?: Prisma.FeePlanUncheckedUpdateManyWithoutAdmissionNestedInput
 }
 
 export type AdmissionCreateManyInput = {
   id?: string
+  leadId?: string | null
   studentId: string
   courseId: string
+  instituteId?: string | null
+  branchId?: string | null
   admissionDate: Date | string
   paymentStatus: string
+  status?: string
+  admissionMode?: string
+  approvalStatus?: string
+  approvedBy?: string | null
+  approvedAt?: Date | string | null
+  onboardingStatus?: string
   batch: string
+  totalFee?: number
+  paidAmount?: number
+  dueAmount?: number
+  remarks?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type AdmissionUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   admissionDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  admissionMode?: Prisma.StringFieldUpdateOperationsInput | string
+  approvalStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  approvedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  onboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
   batch?: Prisma.StringFieldUpdateOperationsInput | string
+  totalFee?: Prisma.FloatFieldUpdateOperationsInput | number
+  paidAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  dueAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  remarks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type AdmissionUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  leadId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   studentId?: Prisma.StringFieldUpdateOperationsInput | string
   courseId?: Prisma.StringFieldUpdateOperationsInput | string
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   admissionDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  admissionMode?: Prisma.StringFieldUpdateOperationsInput | string
+  approvalStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  approvedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  onboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
   batch?: Prisma.StringFieldUpdateOperationsInput | string
+  totalFee?: Prisma.FloatFieldUpdateOperationsInput | number
+  paidAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  dueAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  remarks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type AdmissionListRelationFilter = {
@@ -335,32 +665,91 @@ export type AdmissionOrderByRelationAggregateInput = {
 
 export type AdmissionCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  leadId?: Prisma.SortOrder
   studentId?: Prisma.SortOrder
   courseId?: Prisma.SortOrder
+  instituteId?: Prisma.SortOrder
+  branchId?: Prisma.SortOrder
   admissionDate?: Prisma.SortOrder
   paymentStatus?: Prisma.SortOrder
+  status?: Prisma.SortOrder
+  admissionMode?: Prisma.SortOrder
+  approvalStatus?: Prisma.SortOrder
+  approvedBy?: Prisma.SortOrder
+  approvedAt?: Prisma.SortOrder
+  onboardingStatus?: Prisma.SortOrder
   batch?: Prisma.SortOrder
+  totalFee?: Prisma.SortOrder
+  paidAmount?: Prisma.SortOrder
+  dueAmount?: Prisma.SortOrder
+  remarks?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
+}
+
+export type AdmissionAvgOrderByAggregateInput = {
+  totalFee?: Prisma.SortOrder
+  paidAmount?: Prisma.SortOrder
+  dueAmount?: Prisma.SortOrder
 }
 
 export type AdmissionMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  leadId?: Prisma.SortOrder
   studentId?: Prisma.SortOrder
   courseId?: Prisma.SortOrder
+  instituteId?: Prisma.SortOrder
+  branchId?: Prisma.SortOrder
   admissionDate?: Prisma.SortOrder
   paymentStatus?: Prisma.SortOrder
+  status?: Prisma.SortOrder
+  admissionMode?: Prisma.SortOrder
+  approvalStatus?: Prisma.SortOrder
+  approvedBy?: Prisma.SortOrder
+  approvedAt?: Prisma.SortOrder
+  onboardingStatus?: Prisma.SortOrder
   batch?: Prisma.SortOrder
+  totalFee?: Prisma.SortOrder
+  paidAmount?: Prisma.SortOrder
+  dueAmount?: Prisma.SortOrder
+  remarks?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type AdmissionMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  leadId?: Prisma.SortOrder
   studentId?: Prisma.SortOrder
   courseId?: Prisma.SortOrder
+  instituteId?: Prisma.SortOrder
+  branchId?: Prisma.SortOrder
   admissionDate?: Prisma.SortOrder
   paymentStatus?: Prisma.SortOrder
+  status?: Prisma.SortOrder
+  admissionMode?: Prisma.SortOrder
+  approvalStatus?: Prisma.SortOrder
+  approvedBy?: Prisma.SortOrder
+  approvedAt?: Prisma.SortOrder
+  onboardingStatus?: Prisma.SortOrder
   batch?: Prisma.SortOrder
+  totalFee?: Prisma.SortOrder
+  paidAmount?: Prisma.SortOrder
+  dueAmount?: Prisma.SortOrder
+  remarks?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
+}
+
+export type AdmissionSumOrderByAggregateInput = {
+  totalFee?: Prisma.SortOrder
+  paidAmount?: Prisma.SortOrder
+  dueAmount?: Prisma.SortOrder
+}
+
+export type AdmissionNullableScalarRelationFilter = {
+  is?: Prisma.AdmissionWhereInput | null
+  isNot?: Prisma.AdmissionWhereInput | null
 }
 
 export type AdmissionCreateNestedManyWithoutStudentInput = {
@@ -447,22 +836,212 @@ export type AdmissionUncheckedUpdateManyWithoutCourseNestedInput = {
   deleteMany?: Prisma.AdmissionScalarWhereInput | Prisma.AdmissionScalarWhereInput[]
 }
 
+export type AdmissionCreateNestedManyWithoutLeadInput = {
+  create?: Prisma.XOR<Prisma.AdmissionCreateWithoutLeadInput, Prisma.AdmissionUncheckedCreateWithoutLeadInput> | Prisma.AdmissionCreateWithoutLeadInput[] | Prisma.AdmissionUncheckedCreateWithoutLeadInput[]
+  connectOrCreate?: Prisma.AdmissionCreateOrConnectWithoutLeadInput | Prisma.AdmissionCreateOrConnectWithoutLeadInput[]
+  createMany?: Prisma.AdmissionCreateManyLeadInputEnvelope
+  connect?: Prisma.AdmissionWhereUniqueInput | Prisma.AdmissionWhereUniqueInput[]
+}
+
+export type AdmissionUncheckedCreateNestedManyWithoutLeadInput = {
+  create?: Prisma.XOR<Prisma.AdmissionCreateWithoutLeadInput, Prisma.AdmissionUncheckedCreateWithoutLeadInput> | Prisma.AdmissionCreateWithoutLeadInput[] | Prisma.AdmissionUncheckedCreateWithoutLeadInput[]
+  connectOrCreate?: Prisma.AdmissionCreateOrConnectWithoutLeadInput | Prisma.AdmissionCreateOrConnectWithoutLeadInput[]
+  createMany?: Prisma.AdmissionCreateManyLeadInputEnvelope
+  connect?: Prisma.AdmissionWhereUniqueInput | Prisma.AdmissionWhereUniqueInput[]
+}
+
+export type AdmissionUpdateManyWithoutLeadNestedInput = {
+  create?: Prisma.XOR<Prisma.AdmissionCreateWithoutLeadInput, Prisma.AdmissionUncheckedCreateWithoutLeadInput> | Prisma.AdmissionCreateWithoutLeadInput[] | Prisma.AdmissionUncheckedCreateWithoutLeadInput[]
+  connectOrCreate?: Prisma.AdmissionCreateOrConnectWithoutLeadInput | Prisma.AdmissionCreateOrConnectWithoutLeadInput[]
+  upsert?: Prisma.AdmissionUpsertWithWhereUniqueWithoutLeadInput | Prisma.AdmissionUpsertWithWhereUniqueWithoutLeadInput[]
+  createMany?: Prisma.AdmissionCreateManyLeadInputEnvelope
+  set?: Prisma.AdmissionWhereUniqueInput | Prisma.AdmissionWhereUniqueInput[]
+  disconnect?: Prisma.AdmissionWhereUniqueInput | Prisma.AdmissionWhereUniqueInput[]
+  delete?: Prisma.AdmissionWhereUniqueInput | Prisma.AdmissionWhereUniqueInput[]
+  connect?: Prisma.AdmissionWhereUniqueInput | Prisma.AdmissionWhereUniqueInput[]
+  update?: Prisma.AdmissionUpdateWithWhereUniqueWithoutLeadInput | Prisma.AdmissionUpdateWithWhereUniqueWithoutLeadInput[]
+  updateMany?: Prisma.AdmissionUpdateManyWithWhereWithoutLeadInput | Prisma.AdmissionUpdateManyWithWhereWithoutLeadInput[]
+  deleteMany?: Prisma.AdmissionScalarWhereInput | Prisma.AdmissionScalarWhereInput[]
+}
+
+export type AdmissionUncheckedUpdateManyWithoutLeadNestedInput = {
+  create?: Prisma.XOR<Prisma.AdmissionCreateWithoutLeadInput, Prisma.AdmissionUncheckedCreateWithoutLeadInput> | Prisma.AdmissionCreateWithoutLeadInput[] | Prisma.AdmissionUncheckedCreateWithoutLeadInput[]
+  connectOrCreate?: Prisma.AdmissionCreateOrConnectWithoutLeadInput | Prisma.AdmissionCreateOrConnectWithoutLeadInput[]
+  upsert?: Prisma.AdmissionUpsertWithWhereUniqueWithoutLeadInput | Prisma.AdmissionUpsertWithWhereUniqueWithoutLeadInput[]
+  createMany?: Prisma.AdmissionCreateManyLeadInputEnvelope
+  set?: Prisma.AdmissionWhereUniqueInput | Prisma.AdmissionWhereUniqueInput[]
+  disconnect?: Prisma.AdmissionWhereUniqueInput | Prisma.AdmissionWhereUniqueInput[]
+  delete?: Prisma.AdmissionWhereUniqueInput | Prisma.AdmissionWhereUniqueInput[]
+  connect?: Prisma.AdmissionWhereUniqueInput | Prisma.AdmissionWhereUniqueInput[]
+  update?: Prisma.AdmissionUpdateWithWhereUniqueWithoutLeadInput | Prisma.AdmissionUpdateWithWhereUniqueWithoutLeadInput[]
+  updateMany?: Prisma.AdmissionUpdateManyWithWhereWithoutLeadInput | Prisma.AdmissionUpdateManyWithWhereWithoutLeadInput[]
+  deleteMany?: Prisma.AdmissionScalarWhereInput | Prisma.AdmissionScalarWhereInput[]
+}
+
+export type AdmissionCreateNestedOneWithoutFeePlansInput = {
+  create?: Prisma.XOR<Prisma.AdmissionCreateWithoutFeePlansInput, Prisma.AdmissionUncheckedCreateWithoutFeePlansInput>
+  connectOrCreate?: Prisma.AdmissionCreateOrConnectWithoutFeePlansInput
+  connect?: Prisma.AdmissionWhereUniqueInput
+}
+
+export type AdmissionUpdateOneWithoutFeePlansNestedInput = {
+  create?: Prisma.XOR<Prisma.AdmissionCreateWithoutFeePlansInput, Prisma.AdmissionUncheckedCreateWithoutFeePlansInput>
+  connectOrCreate?: Prisma.AdmissionCreateOrConnectWithoutFeePlansInput
+  upsert?: Prisma.AdmissionUpsertWithoutFeePlansInput
+  disconnect?: Prisma.AdmissionWhereInput | boolean
+  delete?: Prisma.AdmissionWhereInput | boolean
+  connect?: Prisma.AdmissionWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.AdmissionUpdateToOneWithWhereWithoutFeePlansInput, Prisma.AdmissionUpdateWithoutFeePlansInput>, Prisma.AdmissionUncheckedUpdateWithoutFeePlansInput>
+}
+
+export type AdmissionCreateNestedOneWithoutApprovalsInput = {
+  create?: Prisma.XOR<Prisma.AdmissionCreateWithoutApprovalsInput, Prisma.AdmissionUncheckedCreateWithoutApprovalsInput>
+  connectOrCreate?: Prisma.AdmissionCreateOrConnectWithoutApprovalsInput
+  connect?: Prisma.AdmissionWhereUniqueInput
+}
+
+export type AdmissionUpdateOneWithoutApprovalsNestedInput = {
+  create?: Prisma.XOR<Prisma.AdmissionCreateWithoutApprovalsInput, Prisma.AdmissionUncheckedCreateWithoutApprovalsInput>
+  connectOrCreate?: Prisma.AdmissionCreateOrConnectWithoutApprovalsInput
+  upsert?: Prisma.AdmissionUpsertWithoutApprovalsInput
+  disconnect?: Prisma.AdmissionWhereInput | boolean
+  delete?: Prisma.AdmissionWhereInput | boolean
+  connect?: Prisma.AdmissionWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.AdmissionUpdateToOneWithWhereWithoutApprovalsInput, Prisma.AdmissionUpdateWithoutApprovalsInput>, Prisma.AdmissionUncheckedUpdateWithoutApprovalsInput>
+}
+
+export type AdmissionCreateNestedManyWithoutBranchInput = {
+  create?: Prisma.XOR<Prisma.AdmissionCreateWithoutBranchInput, Prisma.AdmissionUncheckedCreateWithoutBranchInput> | Prisma.AdmissionCreateWithoutBranchInput[] | Prisma.AdmissionUncheckedCreateWithoutBranchInput[]
+  connectOrCreate?: Prisma.AdmissionCreateOrConnectWithoutBranchInput | Prisma.AdmissionCreateOrConnectWithoutBranchInput[]
+  createMany?: Prisma.AdmissionCreateManyBranchInputEnvelope
+  connect?: Prisma.AdmissionWhereUniqueInput | Prisma.AdmissionWhereUniqueInput[]
+}
+
+export type AdmissionUncheckedCreateNestedManyWithoutBranchInput = {
+  create?: Prisma.XOR<Prisma.AdmissionCreateWithoutBranchInput, Prisma.AdmissionUncheckedCreateWithoutBranchInput> | Prisma.AdmissionCreateWithoutBranchInput[] | Prisma.AdmissionUncheckedCreateWithoutBranchInput[]
+  connectOrCreate?: Prisma.AdmissionCreateOrConnectWithoutBranchInput | Prisma.AdmissionCreateOrConnectWithoutBranchInput[]
+  createMany?: Prisma.AdmissionCreateManyBranchInputEnvelope
+  connect?: Prisma.AdmissionWhereUniqueInput | Prisma.AdmissionWhereUniqueInput[]
+}
+
+export type AdmissionUpdateManyWithoutBranchNestedInput = {
+  create?: Prisma.XOR<Prisma.AdmissionCreateWithoutBranchInput, Prisma.AdmissionUncheckedCreateWithoutBranchInput> | Prisma.AdmissionCreateWithoutBranchInput[] | Prisma.AdmissionUncheckedCreateWithoutBranchInput[]
+  connectOrCreate?: Prisma.AdmissionCreateOrConnectWithoutBranchInput | Prisma.AdmissionCreateOrConnectWithoutBranchInput[]
+  upsert?: Prisma.AdmissionUpsertWithWhereUniqueWithoutBranchInput | Prisma.AdmissionUpsertWithWhereUniqueWithoutBranchInput[]
+  createMany?: Prisma.AdmissionCreateManyBranchInputEnvelope
+  set?: Prisma.AdmissionWhereUniqueInput | Prisma.AdmissionWhereUniqueInput[]
+  disconnect?: Prisma.AdmissionWhereUniqueInput | Prisma.AdmissionWhereUniqueInput[]
+  delete?: Prisma.AdmissionWhereUniqueInput | Prisma.AdmissionWhereUniqueInput[]
+  connect?: Prisma.AdmissionWhereUniqueInput | Prisma.AdmissionWhereUniqueInput[]
+  update?: Prisma.AdmissionUpdateWithWhereUniqueWithoutBranchInput | Prisma.AdmissionUpdateWithWhereUniqueWithoutBranchInput[]
+  updateMany?: Prisma.AdmissionUpdateManyWithWhereWithoutBranchInput | Prisma.AdmissionUpdateManyWithWhereWithoutBranchInput[]
+  deleteMany?: Prisma.AdmissionScalarWhereInput | Prisma.AdmissionScalarWhereInput[]
+}
+
+export type AdmissionUncheckedUpdateManyWithoutBranchNestedInput = {
+  create?: Prisma.XOR<Prisma.AdmissionCreateWithoutBranchInput, Prisma.AdmissionUncheckedCreateWithoutBranchInput> | Prisma.AdmissionCreateWithoutBranchInput[] | Prisma.AdmissionUncheckedCreateWithoutBranchInput[]
+  connectOrCreate?: Prisma.AdmissionCreateOrConnectWithoutBranchInput | Prisma.AdmissionCreateOrConnectWithoutBranchInput[]
+  upsert?: Prisma.AdmissionUpsertWithWhereUniqueWithoutBranchInput | Prisma.AdmissionUpsertWithWhereUniqueWithoutBranchInput[]
+  createMany?: Prisma.AdmissionCreateManyBranchInputEnvelope
+  set?: Prisma.AdmissionWhereUniqueInput | Prisma.AdmissionWhereUniqueInput[]
+  disconnect?: Prisma.AdmissionWhereUniqueInput | Prisma.AdmissionWhereUniqueInput[]
+  delete?: Prisma.AdmissionWhereUniqueInput | Prisma.AdmissionWhereUniqueInput[]
+  connect?: Prisma.AdmissionWhereUniqueInput | Prisma.AdmissionWhereUniqueInput[]
+  update?: Prisma.AdmissionUpdateWithWhereUniqueWithoutBranchInput | Prisma.AdmissionUpdateWithWhereUniqueWithoutBranchInput[]
+  updateMany?: Prisma.AdmissionUpdateManyWithWhereWithoutBranchInput | Prisma.AdmissionUpdateManyWithWhereWithoutBranchInput[]
+  deleteMany?: Prisma.AdmissionScalarWhereInput | Prisma.AdmissionScalarWhereInput[]
+}
+
+export type AdmissionCreateNestedManyWithoutInstituteInput = {
+  create?: Prisma.XOR<Prisma.AdmissionCreateWithoutInstituteInput, Prisma.AdmissionUncheckedCreateWithoutInstituteInput> | Prisma.AdmissionCreateWithoutInstituteInput[] | Prisma.AdmissionUncheckedCreateWithoutInstituteInput[]
+  connectOrCreate?: Prisma.AdmissionCreateOrConnectWithoutInstituteInput | Prisma.AdmissionCreateOrConnectWithoutInstituteInput[]
+  createMany?: Prisma.AdmissionCreateManyInstituteInputEnvelope
+  connect?: Prisma.AdmissionWhereUniqueInput | Prisma.AdmissionWhereUniqueInput[]
+}
+
+export type AdmissionUncheckedCreateNestedManyWithoutInstituteInput = {
+  create?: Prisma.XOR<Prisma.AdmissionCreateWithoutInstituteInput, Prisma.AdmissionUncheckedCreateWithoutInstituteInput> | Prisma.AdmissionCreateWithoutInstituteInput[] | Prisma.AdmissionUncheckedCreateWithoutInstituteInput[]
+  connectOrCreate?: Prisma.AdmissionCreateOrConnectWithoutInstituteInput | Prisma.AdmissionCreateOrConnectWithoutInstituteInput[]
+  createMany?: Prisma.AdmissionCreateManyInstituteInputEnvelope
+  connect?: Prisma.AdmissionWhereUniqueInput | Prisma.AdmissionWhereUniqueInput[]
+}
+
+export type AdmissionUpdateManyWithoutInstituteNestedInput = {
+  create?: Prisma.XOR<Prisma.AdmissionCreateWithoutInstituteInput, Prisma.AdmissionUncheckedCreateWithoutInstituteInput> | Prisma.AdmissionCreateWithoutInstituteInput[] | Prisma.AdmissionUncheckedCreateWithoutInstituteInput[]
+  connectOrCreate?: Prisma.AdmissionCreateOrConnectWithoutInstituteInput | Prisma.AdmissionCreateOrConnectWithoutInstituteInput[]
+  upsert?: Prisma.AdmissionUpsertWithWhereUniqueWithoutInstituteInput | Prisma.AdmissionUpsertWithWhereUniqueWithoutInstituteInput[]
+  createMany?: Prisma.AdmissionCreateManyInstituteInputEnvelope
+  set?: Prisma.AdmissionWhereUniqueInput | Prisma.AdmissionWhereUniqueInput[]
+  disconnect?: Prisma.AdmissionWhereUniqueInput | Prisma.AdmissionWhereUniqueInput[]
+  delete?: Prisma.AdmissionWhereUniqueInput | Prisma.AdmissionWhereUniqueInput[]
+  connect?: Prisma.AdmissionWhereUniqueInput | Prisma.AdmissionWhereUniqueInput[]
+  update?: Prisma.AdmissionUpdateWithWhereUniqueWithoutInstituteInput | Prisma.AdmissionUpdateWithWhereUniqueWithoutInstituteInput[]
+  updateMany?: Prisma.AdmissionUpdateManyWithWhereWithoutInstituteInput | Prisma.AdmissionUpdateManyWithWhereWithoutInstituteInput[]
+  deleteMany?: Prisma.AdmissionScalarWhereInput | Prisma.AdmissionScalarWhereInput[]
+}
+
+export type AdmissionUncheckedUpdateManyWithoutInstituteNestedInput = {
+  create?: Prisma.XOR<Prisma.AdmissionCreateWithoutInstituteInput, Prisma.AdmissionUncheckedCreateWithoutInstituteInput> | Prisma.AdmissionCreateWithoutInstituteInput[] | Prisma.AdmissionUncheckedCreateWithoutInstituteInput[]
+  connectOrCreate?: Prisma.AdmissionCreateOrConnectWithoutInstituteInput | Prisma.AdmissionCreateOrConnectWithoutInstituteInput[]
+  upsert?: Prisma.AdmissionUpsertWithWhereUniqueWithoutInstituteInput | Prisma.AdmissionUpsertWithWhereUniqueWithoutInstituteInput[]
+  createMany?: Prisma.AdmissionCreateManyInstituteInputEnvelope
+  set?: Prisma.AdmissionWhereUniqueInput | Prisma.AdmissionWhereUniqueInput[]
+  disconnect?: Prisma.AdmissionWhereUniqueInput | Prisma.AdmissionWhereUniqueInput[]
+  delete?: Prisma.AdmissionWhereUniqueInput | Prisma.AdmissionWhereUniqueInput[]
+  connect?: Prisma.AdmissionWhereUniqueInput | Prisma.AdmissionWhereUniqueInput[]
+  update?: Prisma.AdmissionUpdateWithWhereUniqueWithoutInstituteInput | Prisma.AdmissionUpdateWithWhereUniqueWithoutInstituteInput[]
+  updateMany?: Prisma.AdmissionUpdateManyWithWhereWithoutInstituteInput | Prisma.AdmissionUpdateManyWithWhereWithoutInstituteInput[]
+  deleteMany?: Prisma.AdmissionScalarWhereInput | Prisma.AdmissionScalarWhereInput[]
+}
+
 export type AdmissionCreateWithoutStudentInput = {
   id?: string
   admissionDate: Date | string
   paymentStatus: string
+  status?: string
+  admissionMode?: string
+  approvalStatus?: string
+  approvedBy?: string | null
+  approvedAt?: Date | string | null
+  onboardingStatus?: string
   batch: string
+  totalFee?: number
+  paidAmount?: number
+  dueAmount?: number
+  remarks?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   course: Prisma.CourseCreateNestedOneWithoutAdmissionsInput
+  lead?: Prisma.LeadCreateNestedOneWithoutAdmissionsInput
+  institute?: Prisma.InstituteCreateNestedOneWithoutAdmissionsInput
+  branch?: Prisma.BranchCreateNestedOneWithoutAdmissionsInput
+  approvals?: Prisma.ApprovalRequestCreateNestedManyWithoutAdmissionInput
+  feePlans?: Prisma.FeePlanCreateNestedManyWithoutAdmissionInput
 }
 
 export type AdmissionUncheckedCreateWithoutStudentInput = {
   id?: string
+  leadId?: string | null
   courseId: string
+  instituteId?: string | null
+  branchId?: string | null
   admissionDate: Date | string
   paymentStatus: string
+  status?: string
+  admissionMode?: string
+  approvalStatus?: string
+  approvedBy?: string | null
+  approvedAt?: Date | string | null
+  onboardingStatus?: string
   batch: string
+  totalFee?: number
+  paidAmount?: number
+  dueAmount?: number
+  remarks?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
+  approvals?: Prisma.ApprovalRequestUncheckedCreateNestedManyWithoutAdmissionInput
+  feePlans?: Prisma.FeePlanUncheckedCreateNestedManyWithoutAdmissionInput
 }
 
 export type AdmissionCreateOrConnectWithoutStudentInput = {
@@ -496,30 +1075,76 @@ export type AdmissionScalarWhereInput = {
   OR?: Prisma.AdmissionScalarWhereInput[]
   NOT?: Prisma.AdmissionScalarWhereInput | Prisma.AdmissionScalarWhereInput[]
   id?: Prisma.StringFilter<"Admission"> | string
+  leadId?: Prisma.StringNullableFilter<"Admission"> | string | null
   studentId?: Prisma.StringFilter<"Admission"> | string
   courseId?: Prisma.StringFilter<"Admission"> | string
+  instituteId?: Prisma.StringNullableFilter<"Admission"> | string | null
+  branchId?: Prisma.StringNullableFilter<"Admission"> | string | null
   admissionDate?: Prisma.DateTimeFilter<"Admission"> | Date | string
   paymentStatus?: Prisma.StringFilter<"Admission"> | string
+  status?: Prisma.StringFilter<"Admission"> | string
+  admissionMode?: Prisma.StringFilter<"Admission"> | string
+  approvalStatus?: Prisma.StringFilter<"Admission"> | string
+  approvedBy?: Prisma.StringNullableFilter<"Admission"> | string | null
+  approvedAt?: Prisma.DateTimeNullableFilter<"Admission"> | Date | string | null
+  onboardingStatus?: Prisma.StringFilter<"Admission"> | string
   batch?: Prisma.StringFilter<"Admission"> | string
+  totalFee?: Prisma.FloatFilter<"Admission"> | number
+  paidAmount?: Prisma.FloatFilter<"Admission"> | number
+  dueAmount?: Prisma.FloatFilter<"Admission"> | number
+  remarks?: Prisma.StringNullableFilter<"Admission"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Admission"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"Admission"> | Date | string
 }
 
 export type AdmissionCreateWithoutCourseInput = {
   id?: string
   admissionDate: Date | string
   paymentStatus: string
+  status?: string
+  admissionMode?: string
+  approvalStatus?: string
+  approvedBy?: string | null
+  approvedAt?: Date | string | null
+  onboardingStatus?: string
   batch: string
+  totalFee?: number
+  paidAmount?: number
+  dueAmount?: number
+  remarks?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   student: Prisma.UserCreateNestedOneWithoutAdmissionsInput
+  lead?: Prisma.LeadCreateNestedOneWithoutAdmissionsInput
+  institute?: Prisma.InstituteCreateNestedOneWithoutAdmissionsInput
+  branch?: Prisma.BranchCreateNestedOneWithoutAdmissionsInput
+  approvals?: Prisma.ApprovalRequestCreateNestedManyWithoutAdmissionInput
+  feePlans?: Prisma.FeePlanCreateNestedManyWithoutAdmissionInput
 }
 
 export type AdmissionUncheckedCreateWithoutCourseInput = {
   id?: string
+  leadId?: string | null
   studentId: string
+  instituteId?: string | null
+  branchId?: string | null
   admissionDate: Date | string
   paymentStatus: string
+  status?: string
+  admissionMode?: string
+  approvalStatus?: string
+  approvedBy?: string | null
+  approvedAt?: Date | string | null
+  onboardingStatus?: string
   batch: string
+  totalFee?: number
+  paidAmount?: number
+  dueAmount?: number
+  remarks?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
+  approvals?: Prisma.ApprovalRequestUncheckedCreateNestedManyWithoutAdmissionInput
+  feePlans?: Prisma.FeePlanUncheckedCreateNestedManyWithoutAdmissionInput
 }
 
 export type AdmissionCreateOrConnectWithoutCourseInput = {
@@ -548,138 +1173,1124 @@ export type AdmissionUpdateManyWithWhereWithoutCourseInput = {
   data: Prisma.XOR<Prisma.AdmissionUpdateManyMutationInput, Prisma.AdmissionUncheckedUpdateManyWithoutCourseInput>
 }
 
-export type AdmissionCreateManyStudentInput = {
+export type AdmissionCreateWithoutLeadInput = {
   id?: string
-  courseId: string
   admissionDate: Date | string
   paymentStatus: string
+  status?: string
+  admissionMode?: string
+  approvalStatus?: string
+  approvedBy?: string | null
+  approvedAt?: Date | string | null
+  onboardingStatus?: string
   batch: string
+  totalFee?: number
+  paidAmount?: number
+  dueAmount?: number
+  remarks?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
+  student: Prisma.UserCreateNestedOneWithoutAdmissionsInput
+  course: Prisma.CourseCreateNestedOneWithoutAdmissionsInput
+  institute?: Prisma.InstituteCreateNestedOneWithoutAdmissionsInput
+  branch?: Prisma.BranchCreateNestedOneWithoutAdmissionsInput
+  approvals?: Prisma.ApprovalRequestCreateNestedManyWithoutAdmissionInput
+  feePlans?: Prisma.FeePlanCreateNestedManyWithoutAdmissionInput
+}
+
+export type AdmissionUncheckedCreateWithoutLeadInput = {
+  id?: string
+  studentId: string
+  courseId: string
+  instituteId?: string | null
+  branchId?: string | null
+  admissionDate: Date | string
+  paymentStatus: string
+  status?: string
+  admissionMode?: string
+  approvalStatus?: string
+  approvedBy?: string | null
+  approvedAt?: Date | string | null
+  onboardingStatus?: string
+  batch: string
+  totalFee?: number
+  paidAmount?: number
+  dueAmount?: number
+  remarks?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  approvals?: Prisma.ApprovalRequestUncheckedCreateNestedManyWithoutAdmissionInput
+  feePlans?: Prisma.FeePlanUncheckedCreateNestedManyWithoutAdmissionInput
+}
+
+export type AdmissionCreateOrConnectWithoutLeadInput = {
+  where: Prisma.AdmissionWhereUniqueInput
+  create: Prisma.XOR<Prisma.AdmissionCreateWithoutLeadInput, Prisma.AdmissionUncheckedCreateWithoutLeadInput>
+}
+
+export type AdmissionCreateManyLeadInputEnvelope = {
+  data: Prisma.AdmissionCreateManyLeadInput | Prisma.AdmissionCreateManyLeadInput[]
+  skipDuplicates?: boolean
+}
+
+export type AdmissionUpsertWithWhereUniqueWithoutLeadInput = {
+  where: Prisma.AdmissionWhereUniqueInput
+  update: Prisma.XOR<Prisma.AdmissionUpdateWithoutLeadInput, Prisma.AdmissionUncheckedUpdateWithoutLeadInput>
+  create: Prisma.XOR<Prisma.AdmissionCreateWithoutLeadInput, Prisma.AdmissionUncheckedCreateWithoutLeadInput>
+}
+
+export type AdmissionUpdateWithWhereUniqueWithoutLeadInput = {
+  where: Prisma.AdmissionWhereUniqueInput
+  data: Prisma.XOR<Prisma.AdmissionUpdateWithoutLeadInput, Prisma.AdmissionUncheckedUpdateWithoutLeadInput>
+}
+
+export type AdmissionUpdateManyWithWhereWithoutLeadInput = {
+  where: Prisma.AdmissionScalarWhereInput
+  data: Prisma.XOR<Prisma.AdmissionUpdateManyMutationInput, Prisma.AdmissionUncheckedUpdateManyWithoutLeadInput>
+}
+
+export type AdmissionCreateWithoutFeePlansInput = {
+  id?: string
+  admissionDate: Date | string
+  paymentStatus: string
+  status?: string
+  admissionMode?: string
+  approvalStatus?: string
+  approvedBy?: string | null
+  approvedAt?: Date | string | null
+  onboardingStatus?: string
+  batch: string
+  totalFee?: number
+  paidAmount?: number
+  dueAmount?: number
+  remarks?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  student: Prisma.UserCreateNestedOneWithoutAdmissionsInput
+  course: Prisma.CourseCreateNestedOneWithoutAdmissionsInput
+  lead?: Prisma.LeadCreateNestedOneWithoutAdmissionsInput
+  institute?: Prisma.InstituteCreateNestedOneWithoutAdmissionsInput
+  branch?: Prisma.BranchCreateNestedOneWithoutAdmissionsInput
+  approvals?: Prisma.ApprovalRequestCreateNestedManyWithoutAdmissionInput
+}
+
+export type AdmissionUncheckedCreateWithoutFeePlansInput = {
+  id?: string
+  leadId?: string | null
+  studentId: string
+  courseId: string
+  instituteId?: string | null
+  branchId?: string | null
+  admissionDate: Date | string
+  paymentStatus: string
+  status?: string
+  admissionMode?: string
+  approvalStatus?: string
+  approvedBy?: string | null
+  approvedAt?: Date | string | null
+  onboardingStatus?: string
+  batch: string
+  totalFee?: number
+  paidAmount?: number
+  dueAmount?: number
+  remarks?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  approvals?: Prisma.ApprovalRequestUncheckedCreateNestedManyWithoutAdmissionInput
+}
+
+export type AdmissionCreateOrConnectWithoutFeePlansInput = {
+  where: Prisma.AdmissionWhereUniqueInput
+  create: Prisma.XOR<Prisma.AdmissionCreateWithoutFeePlansInput, Prisma.AdmissionUncheckedCreateWithoutFeePlansInput>
+}
+
+export type AdmissionUpsertWithoutFeePlansInput = {
+  update: Prisma.XOR<Prisma.AdmissionUpdateWithoutFeePlansInput, Prisma.AdmissionUncheckedUpdateWithoutFeePlansInput>
+  create: Prisma.XOR<Prisma.AdmissionCreateWithoutFeePlansInput, Prisma.AdmissionUncheckedCreateWithoutFeePlansInput>
+  where?: Prisma.AdmissionWhereInput
+}
+
+export type AdmissionUpdateToOneWithWhereWithoutFeePlansInput = {
+  where?: Prisma.AdmissionWhereInput
+  data: Prisma.XOR<Prisma.AdmissionUpdateWithoutFeePlansInput, Prisma.AdmissionUncheckedUpdateWithoutFeePlansInput>
+}
+
+export type AdmissionUpdateWithoutFeePlansInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  admissionDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  admissionMode?: Prisma.StringFieldUpdateOperationsInput | string
+  approvalStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  approvedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  onboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  batch?: Prisma.StringFieldUpdateOperationsInput | string
+  totalFee?: Prisma.FloatFieldUpdateOperationsInput | number
+  paidAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  dueAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  remarks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  student?: Prisma.UserUpdateOneRequiredWithoutAdmissionsNestedInput
+  course?: Prisma.CourseUpdateOneRequiredWithoutAdmissionsNestedInput
+  lead?: Prisma.LeadUpdateOneWithoutAdmissionsNestedInput
+  institute?: Prisma.InstituteUpdateOneWithoutAdmissionsNestedInput
+  branch?: Prisma.BranchUpdateOneWithoutAdmissionsNestedInput
+  approvals?: Prisma.ApprovalRequestUpdateManyWithoutAdmissionNestedInput
+}
+
+export type AdmissionUncheckedUpdateWithoutFeePlansInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  leadId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  studentId?: Prisma.StringFieldUpdateOperationsInput | string
+  courseId?: Prisma.StringFieldUpdateOperationsInput | string
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  admissionDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  admissionMode?: Prisma.StringFieldUpdateOperationsInput | string
+  approvalStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  approvedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  onboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  batch?: Prisma.StringFieldUpdateOperationsInput | string
+  totalFee?: Prisma.FloatFieldUpdateOperationsInput | number
+  paidAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  dueAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  remarks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  approvals?: Prisma.ApprovalRequestUncheckedUpdateManyWithoutAdmissionNestedInput
+}
+
+export type AdmissionCreateWithoutApprovalsInput = {
+  id?: string
+  admissionDate: Date | string
+  paymentStatus: string
+  status?: string
+  admissionMode?: string
+  approvalStatus?: string
+  approvedBy?: string | null
+  approvedAt?: Date | string | null
+  onboardingStatus?: string
+  batch: string
+  totalFee?: number
+  paidAmount?: number
+  dueAmount?: number
+  remarks?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  student: Prisma.UserCreateNestedOneWithoutAdmissionsInput
+  course: Prisma.CourseCreateNestedOneWithoutAdmissionsInput
+  lead?: Prisma.LeadCreateNestedOneWithoutAdmissionsInput
+  institute?: Prisma.InstituteCreateNestedOneWithoutAdmissionsInput
+  branch?: Prisma.BranchCreateNestedOneWithoutAdmissionsInput
+  feePlans?: Prisma.FeePlanCreateNestedManyWithoutAdmissionInput
+}
+
+export type AdmissionUncheckedCreateWithoutApprovalsInput = {
+  id?: string
+  leadId?: string | null
+  studentId: string
+  courseId: string
+  instituteId?: string | null
+  branchId?: string | null
+  admissionDate: Date | string
+  paymentStatus: string
+  status?: string
+  admissionMode?: string
+  approvalStatus?: string
+  approvedBy?: string | null
+  approvedAt?: Date | string | null
+  onboardingStatus?: string
+  batch: string
+  totalFee?: number
+  paidAmount?: number
+  dueAmount?: number
+  remarks?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  feePlans?: Prisma.FeePlanUncheckedCreateNestedManyWithoutAdmissionInput
+}
+
+export type AdmissionCreateOrConnectWithoutApprovalsInput = {
+  where: Prisma.AdmissionWhereUniqueInput
+  create: Prisma.XOR<Prisma.AdmissionCreateWithoutApprovalsInput, Prisma.AdmissionUncheckedCreateWithoutApprovalsInput>
+}
+
+export type AdmissionUpsertWithoutApprovalsInput = {
+  update: Prisma.XOR<Prisma.AdmissionUpdateWithoutApprovalsInput, Prisma.AdmissionUncheckedUpdateWithoutApprovalsInput>
+  create: Prisma.XOR<Prisma.AdmissionCreateWithoutApprovalsInput, Prisma.AdmissionUncheckedCreateWithoutApprovalsInput>
+  where?: Prisma.AdmissionWhereInput
+}
+
+export type AdmissionUpdateToOneWithWhereWithoutApprovalsInput = {
+  where?: Prisma.AdmissionWhereInput
+  data: Prisma.XOR<Prisma.AdmissionUpdateWithoutApprovalsInput, Prisma.AdmissionUncheckedUpdateWithoutApprovalsInput>
+}
+
+export type AdmissionUpdateWithoutApprovalsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  admissionDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  admissionMode?: Prisma.StringFieldUpdateOperationsInput | string
+  approvalStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  approvedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  onboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  batch?: Prisma.StringFieldUpdateOperationsInput | string
+  totalFee?: Prisma.FloatFieldUpdateOperationsInput | number
+  paidAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  dueAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  remarks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  student?: Prisma.UserUpdateOneRequiredWithoutAdmissionsNestedInput
+  course?: Prisma.CourseUpdateOneRequiredWithoutAdmissionsNestedInput
+  lead?: Prisma.LeadUpdateOneWithoutAdmissionsNestedInput
+  institute?: Prisma.InstituteUpdateOneWithoutAdmissionsNestedInput
+  branch?: Prisma.BranchUpdateOneWithoutAdmissionsNestedInput
+  feePlans?: Prisma.FeePlanUpdateManyWithoutAdmissionNestedInput
+}
+
+export type AdmissionUncheckedUpdateWithoutApprovalsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  leadId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  studentId?: Prisma.StringFieldUpdateOperationsInput | string
+  courseId?: Prisma.StringFieldUpdateOperationsInput | string
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  admissionDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  admissionMode?: Prisma.StringFieldUpdateOperationsInput | string
+  approvalStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  approvedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  onboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  batch?: Prisma.StringFieldUpdateOperationsInput | string
+  totalFee?: Prisma.FloatFieldUpdateOperationsInput | number
+  paidAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  dueAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  remarks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  feePlans?: Prisma.FeePlanUncheckedUpdateManyWithoutAdmissionNestedInput
+}
+
+export type AdmissionCreateWithoutBranchInput = {
+  id?: string
+  admissionDate: Date | string
+  paymentStatus: string
+  status?: string
+  admissionMode?: string
+  approvalStatus?: string
+  approvedBy?: string | null
+  approvedAt?: Date | string | null
+  onboardingStatus?: string
+  batch: string
+  totalFee?: number
+  paidAmount?: number
+  dueAmount?: number
+  remarks?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  student: Prisma.UserCreateNestedOneWithoutAdmissionsInput
+  course: Prisma.CourseCreateNestedOneWithoutAdmissionsInput
+  lead?: Prisma.LeadCreateNestedOneWithoutAdmissionsInput
+  institute?: Prisma.InstituteCreateNestedOneWithoutAdmissionsInput
+  approvals?: Prisma.ApprovalRequestCreateNestedManyWithoutAdmissionInput
+  feePlans?: Prisma.FeePlanCreateNestedManyWithoutAdmissionInput
+}
+
+export type AdmissionUncheckedCreateWithoutBranchInput = {
+  id?: string
+  leadId?: string | null
+  studentId: string
+  courseId: string
+  instituteId?: string | null
+  admissionDate: Date | string
+  paymentStatus: string
+  status?: string
+  admissionMode?: string
+  approvalStatus?: string
+  approvedBy?: string | null
+  approvedAt?: Date | string | null
+  onboardingStatus?: string
+  batch: string
+  totalFee?: number
+  paidAmount?: number
+  dueAmount?: number
+  remarks?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  approvals?: Prisma.ApprovalRequestUncheckedCreateNestedManyWithoutAdmissionInput
+  feePlans?: Prisma.FeePlanUncheckedCreateNestedManyWithoutAdmissionInput
+}
+
+export type AdmissionCreateOrConnectWithoutBranchInput = {
+  where: Prisma.AdmissionWhereUniqueInput
+  create: Prisma.XOR<Prisma.AdmissionCreateWithoutBranchInput, Prisma.AdmissionUncheckedCreateWithoutBranchInput>
+}
+
+export type AdmissionCreateManyBranchInputEnvelope = {
+  data: Prisma.AdmissionCreateManyBranchInput | Prisma.AdmissionCreateManyBranchInput[]
+  skipDuplicates?: boolean
+}
+
+export type AdmissionUpsertWithWhereUniqueWithoutBranchInput = {
+  where: Prisma.AdmissionWhereUniqueInput
+  update: Prisma.XOR<Prisma.AdmissionUpdateWithoutBranchInput, Prisma.AdmissionUncheckedUpdateWithoutBranchInput>
+  create: Prisma.XOR<Prisma.AdmissionCreateWithoutBranchInput, Prisma.AdmissionUncheckedCreateWithoutBranchInput>
+}
+
+export type AdmissionUpdateWithWhereUniqueWithoutBranchInput = {
+  where: Prisma.AdmissionWhereUniqueInput
+  data: Prisma.XOR<Prisma.AdmissionUpdateWithoutBranchInput, Prisma.AdmissionUncheckedUpdateWithoutBranchInput>
+}
+
+export type AdmissionUpdateManyWithWhereWithoutBranchInput = {
+  where: Prisma.AdmissionScalarWhereInput
+  data: Prisma.XOR<Prisma.AdmissionUpdateManyMutationInput, Prisma.AdmissionUncheckedUpdateManyWithoutBranchInput>
+}
+
+export type AdmissionCreateWithoutInstituteInput = {
+  id?: string
+  admissionDate: Date | string
+  paymentStatus: string
+  status?: string
+  admissionMode?: string
+  approvalStatus?: string
+  approvedBy?: string | null
+  approvedAt?: Date | string | null
+  onboardingStatus?: string
+  batch: string
+  totalFee?: number
+  paidAmount?: number
+  dueAmount?: number
+  remarks?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  student: Prisma.UserCreateNestedOneWithoutAdmissionsInput
+  course: Prisma.CourseCreateNestedOneWithoutAdmissionsInput
+  lead?: Prisma.LeadCreateNestedOneWithoutAdmissionsInput
+  branch?: Prisma.BranchCreateNestedOneWithoutAdmissionsInput
+  approvals?: Prisma.ApprovalRequestCreateNestedManyWithoutAdmissionInput
+  feePlans?: Prisma.FeePlanCreateNestedManyWithoutAdmissionInput
+}
+
+export type AdmissionUncheckedCreateWithoutInstituteInput = {
+  id?: string
+  leadId?: string | null
+  studentId: string
+  courseId: string
+  branchId?: string | null
+  admissionDate: Date | string
+  paymentStatus: string
+  status?: string
+  admissionMode?: string
+  approvalStatus?: string
+  approvedBy?: string | null
+  approvedAt?: Date | string | null
+  onboardingStatus?: string
+  batch: string
+  totalFee?: number
+  paidAmount?: number
+  dueAmount?: number
+  remarks?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  approvals?: Prisma.ApprovalRequestUncheckedCreateNestedManyWithoutAdmissionInput
+  feePlans?: Prisma.FeePlanUncheckedCreateNestedManyWithoutAdmissionInput
+}
+
+export type AdmissionCreateOrConnectWithoutInstituteInput = {
+  where: Prisma.AdmissionWhereUniqueInput
+  create: Prisma.XOR<Prisma.AdmissionCreateWithoutInstituteInput, Prisma.AdmissionUncheckedCreateWithoutInstituteInput>
+}
+
+export type AdmissionCreateManyInstituteInputEnvelope = {
+  data: Prisma.AdmissionCreateManyInstituteInput | Prisma.AdmissionCreateManyInstituteInput[]
+  skipDuplicates?: boolean
+}
+
+export type AdmissionUpsertWithWhereUniqueWithoutInstituteInput = {
+  where: Prisma.AdmissionWhereUniqueInput
+  update: Prisma.XOR<Prisma.AdmissionUpdateWithoutInstituteInput, Prisma.AdmissionUncheckedUpdateWithoutInstituteInput>
+  create: Prisma.XOR<Prisma.AdmissionCreateWithoutInstituteInput, Prisma.AdmissionUncheckedCreateWithoutInstituteInput>
+}
+
+export type AdmissionUpdateWithWhereUniqueWithoutInstituteInput = {
+  where: Prisma.AdmissionWhereUniqueInput
+  data: Prisma.XOR<Prisma.AdmissionUpdateWithoutInstituteInput, Prisma.AdmissionUncheckedUpdateWithoutInstituteInput>
+}
+
+export type AdmissionUpdateManyWithWhereWithoutInstituteInput = {
+  where: Prisma.AdmissionScalarWhereInput
+  data: Prisma.XOR<Prisma.AdmissionUpdateManyMutationInput, Prisma.AdmissionUncheckedUpdateManyWithoutInstituteInput>
+}
+
+export type AdmissionCreateManyStudentInput = {
+  id?: string
+  leadId?: string | null
+  courseId: string
+  instituteId?: string | null
+  branchId?: string | null
+  admissionDate: Date | string
+  paymentStatus: string
+  status?: string
+  admissionMode?: string
+  approvalStatus?: string
+  approvedBy?: string | null
+  approvedAt?: Date | string | null
+  onboardingStatus?: string
+  batch: string
+  totalFee?: number
+  paidAmount?: number
+  dueAmount?: number
+  remarks?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type AdmissionUpdateWithoutStudentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   admissionDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  admissionMode?: Prisma.StringFieldUpdateOperationsInput | string
+  approvalStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  approvedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  onboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
   batch?: Prisma.StringFieldUpdateOperationsInput | string
+  totalFee?: Prisma.FloatFieldUpdateOperationsInput | number
+  paidAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  dueAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  remarks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   course?: Prisma.CourseUpdateOneRequiredWithoutAdmissionsNestedInput
+  lead?: Prisma.LeadUpdateOneWithoutAdmissionsNestedInput
+  institute?: Prisma.InstituteUpdateOneWithoutAdmissionsNestedInput
+  branch?: Prisma.BranchUpdateOneWithoutAdmissionsNestedInput
+  approvals?: Prisma.ApprovalRequestUpdateManyWithoutAdmissionNestedInput
+  feePlans?: Prisma.FeePlanUpdateManyWithoutAdmissionNestedInput
 }
 
 export type AdmissionUncheckedUpdateWithoutStudentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  leadId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   courseId?: Prisma.StringFieldUpdateOperationsInput | string
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   admissionDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  admissionMode?: Prisma.StringFieldUpdateOperationsInput | string
+  approvalStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  approvedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  onboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
   batch?: Prisma.StringFieldUpdateOperationsInput | string
+  totalFee?: Prisma.FloatFieldUpdateOperationsInput | number
+  paidAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  dueAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  remarks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  approvals?: Prisma.ApprovalRequestUncheckedUpdateManyWithoutAdmissionNestedInput
+  feePlans?: Prisma.FeePlanUncheckedUpdateManyWithoutAdmissionNestedInput
 }
 
 export type AdmissionUncheckedUpdateManyWithoutStudentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  leadId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   courseId?: Prisma.StringFieldUpdateOperationsInput | string
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   admissionDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  admissionMode?: Prisma.StringFieldUpdateOperationsInput | string
+  approvalStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  approvedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  onboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
   batch?: Prisma.StringFieldUpdateOperationsInput | string
+  totalFee?: Prisma.FloatFieldUpdateOperationsInput | number
+  paidAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  dueAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  remarks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type AdmissionCreateManyCourseInput = {
   id?: string
+  leadId?: string | null
   studentId: string
+  instituteId?: string | null
+  branchId?: string | null
   admissionDate: Date | string
   paymentStatus: string
+  status?: string
+  admissionMode?: string
+  approvalStatus?: string
+  approvedBy?: string | null
+  approvedAt?: Date | string | null
+  onboardingStatus?: string
   batch: string
+  totalFee?: number
+  paidAmount?: number
+  dueAmount?: number
+  remarks?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type AdmissionUpdateWithoutCourseInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   admissionDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  admissionMode?: Prisma.StringFieldUpdateOperationsInput | string
+  approvalStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  approvedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  onboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
   batch?: Prisma.StringFieldUpdateOperationsInput | string
+  totalFee?: Prisma.FloatFieldUpdateOperationsInput | number
+  paidAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  dueAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  remarks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   student?: Prisma.UserUpdateOneRequiredWithoutAdmissionsNestedInput
+  lead?: Prisma.LeadUpdateOneWithoutAdmissionsNestedInput
+  institute?: Prisma.InstituteUpdateOneWithoutAdmissionsNestedInput
+  branch?: Prisma.BranchUpdateOneWithoutAdmissionsNestedInput
+  approvals?: Prisma.ApprovalRequestUpdateManyWithoutAdmissionNestedInput
+  feePlans?: Prisma.FeePlanUpdateManyWithoutAdmissionNestedInput
 }
 
 export type AdmissionUncheckedUpdateWithoutCourseInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  leadId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   studentId?: Prisma.StringFieldUpdateOperationsInput | string
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   admissionDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  admissionMode?: Prisma.StringFieldUpdateOperationsInput | string
+  approvalStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  approvedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  onboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
   batch?: Prisma.StringFieldUpdateOperationsInput | string
+  totalFee?: Prisma.FloatFieldUpdateOperationsInput | number
+  paidAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  dueAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  remarks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  approvals?: Prisma.ApprovalRequestUncheckedUpdateManyWithoutAdmissionNestedInput
+  feePlans?: Prisma.FeePlanUncheckedUpdateManyWithoutAdmissionNestedInput
 }
 
 export type AdmissionUncheckedUpdateManyWithoutCourseInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  leadId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   studentId?: Prisma.StringFieldUpdateOperationsInput | string
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   admissionDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  admissionMode?: Prisma.StringFieldUpdateOperationsInput | string
+  approvalStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  approvedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  onboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
   batch?: Prisma.StringFieldUpdateOperationsInput | string
+  totalFee?: Prisma.FloatFieldUpdateOperationsInput | number
+  paidAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  dueAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  remarks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
+export type AdmissionCreateManyLeadInput = {
+  id?: string
+  studentId: string
+  courseId: string
+  instituteId?: string | null
+  branchId?: string | null
+  admissionDate: Date | string
+  paymentStatus: string
+  status?: string
+  admissionMode?: string
+  approvalStatus?: string
+  approvedBy?: string | null
+  approvedAt?: Date | string | null
+  onboardingStatus?: string
+  batch: string
+  totalFee?: number
+  paidAmount?: number
+  dueAmount?: number
+  remarks?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type AdmissionUpdateWithoutLeadInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  admissionDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  admissionMode?: Prisma.StringFieldUpdateOperationsInput | string
+  approvalStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  approvedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  onboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  batch?: Prisma.StringFieldUpdateOperationsInput | string
+  totalFee?: Prisma.FloatFieldUpdateOperationsInput | number
+  paidAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  dueAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  remarks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  student?: Prisma.UserUpdateOneRequiredWithoutAdmissionsNestedInput
+  course?: Prisma.CourseUpdateOneRequiredWithoutAdmissionsNestedInput
+  institute?: Prisma.InstituteUpdateOneWithoutAdmissionsNestedInput
+  branch?: Prisma.BranchUpdateOneWithoutAdmissionsNestedInput
+  approvals?: Prisma.ApprovalRequestUpdateManyWithoutAdmissionNestedInput
+  feePlans?: Prisma.FeePlanUpdateManyWithoutAdmissionNestedInput
+}
+
+export type AdmissionUncheckedUpdateWithoutLeadInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  studentId?: Prisma.StringFieldUpdateOperationsInput | string
+  courseId?: Prisma.StringFieldUpdateOperationsInput | string
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  admissionDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  admissionMode?: Prisma.StringFieldUpdateOperationsInput | string
+  approvalStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  approvedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  onboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  batch?: Prisma.StringFieldUpdateOperationsInput | string
+  totalFee?: Prisma.FloatFieldUpdateOperationsInput | number
+  paidAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  dueAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  remarks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  approvals?: Prisma.ApprovalRequestUncheckedUpdateManyWithoutAdmissionNestedInput
+  feePlans?: Prisma.FeePlanUncheckedUpdateManyWithoutAdmissionNestedInput
+}
+
+export type AdmissionUncheckedUpdateManyWithoutLeadInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  studentId?: Prisma.StringFieldUpdateOperationsInput | string
+  courseId?: Prisma.StringFieldUpdateOperationsInput | string
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  admissionDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  admissionMode?: Prisma.StringFieldUpdateOperationsInput | string
+  approvalStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  approvedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  onboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  batch?: Prisma.StringFieldUpdateOperationsInput | string
+  totalFee?: Prisma.FloatFieldUpdateOperationsInput | number
+  paidAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  dueAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  remarks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type AdmissionCreateManyBranchInput = {
+  id?: string
+  leadId?: string | null
+  studentId: string
+  courseId: string
+  instituteId?: string | null
+  admissionDate: Date | string
+  paymentStatus: string
+  status?: string
+  admissionMode?: string
+  approvalStatus?: string
+  approvedBy?: string | null
+  approvedAt?: Date | string | null
+  onboardingStatus?: string
+  batch: string
+  totalFee?: number
+  paidAmount?: number
+  dueAmount?: number
+  remarks?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type AdmissionUpdateWithoutBranchInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  admissionDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  admissionMode?: Prisma.StringFieldUpdateOperationsInput | string
+  approvalStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  approvedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  onboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  batch?: Prisma.StringFieldUpdateOperationsInput | string
+  totalFee?: Prisma.FloatFieldUpdateOperationsInput | number
+  paidAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  dueAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  remarks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  student?: Prisma.UserUpdateOneRequiredWithoutAdmissionsNestedInput
+  course?: Prisma.CourseUpdateOneRequiredWithoutAdmissionsNestedInput
+  lead?: Prisma.LeadUpdateOneWithoutAdmissionsNestedInput
+  institute?: Prisma.InstituteUpdateOneWithoutAdmissionsNestedInput
+  approvals?: Prisma.ApprovalRequestUpdateManyWithoutAdmissionNestedInput
+  feePlans?: Prisma.FeePlanUpdateManyWithoutAdmissionNestedInput
+}
+
+export type AdmissionUncheckedUpdateWithoutBranchInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  leadId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  studentId?: Prisma.StringFieldUpdateOperationsInput | string
+  courseId?: Prisma.StringFieldUpdateOperationsInput | string
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  admissionDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  admissionMode?: Prisma.StringFieldUpdateOperationsInput | string
+  approvalStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  approvedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  onboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  batch?: Prisma.StringFieldUpdateOperationsInput | string
+  totalFee?: Prisma.FloatFieldUpdateOperationsInput | number
+  paidAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  dueAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  remarks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  approvals?: Prisma.ApprovalRequestUncheckedUpdateManyWithoutAdmissionNestedInput
+  feePlans?: Prisma.FeePlanUncheckedUpdateManyWithoutAdmissionNestedInput
+}
+
+export type AdmissionUncheckedUpdateManyWithoutBranchInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  leadId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  studentId?: Prisma.StringFieldUpdateOperationsInput | string
+  courseId?: Prisma.StringFieldUpdateOperationsInput | string
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  admissionDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  admissionMode?: Prisma.StringFieldUpdateOperationsInput | string
+  approvalStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  approvedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  onboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  batch?: Prisma.StringFieldUpdateOperationsInput | string
+  totalFee?: Prisma.FloatFieldUpdateOperationsInput | number
+  paidAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  dueAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  remarks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type AdmissionCreateManyInstituteInput = {
+  id?: string
+  leadId?: string | null
+  studentId: string
+  courseId: string
+  branchId?: string | null
+  admissionDate: Date | string
+  paymentStatus: string
+  status?: string
+  admissionMode?: string
+  approvalStatus?: string
+  approvedBy?: string | null
+  approvedAt?: Date | string | null
+  onboardingStatus?: string
+  batch: string
+  totalFee?: number
+  paidAmount?: number
+  dueAmount?: number
+  remarks?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type AdmissionUpdateWithoutInstituteInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  admissionDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  admissionMode?: Prisma.StringFieldUpdateOperationsInput | string
+  approvalStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  approvedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  onboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  batch?: Prisma.StringFieldUpdateOperationsInput | string
+  totalFee?: Prisma.FloatFieldUpdateOperationsInput | number
+  paidAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  dueAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  remarks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  student?: Prisma.UserUpdateOneRequiredWithoutAdmissionsNestedInput
+  course?: Prisma.CourseUpdateOneRequiredWithoutAdmissionsNestedInput
+  lead?: Prisma.LeadUpdateOneWithoutAdmissionsNestedInput
+  branch?: Prisma.BranchUpdateOneWithoutAdmissionsNestedInput
+  approvals?: Prisma.ApprovalRequestUpdateManyWithoutAdmissionNestedInput
+  feePlans?: Prisma.FeePlanUpdateManyWithoutAdmissionNestedInput
+}
+
+export type AdmissionUncheckedUpdateWithoutInstituteInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  leadId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  studentId?: Prisma.StringFieldUpdateOperationsInput | string
+  courseId?: Prisma.StringFieldUpdateOperationsInput | string
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  admissionDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  admissionMode?: Prisma.StringFieldUpdateOperationsInput | string
+  approvalStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  approvedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  onboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  batch?: Prisma.StringFieldUpdateOperationsInput | string
+  totalFee?: Prisma.FloatFieldUpdateOperationsInput | number
+  paidAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  dueAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  remarks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  approvals?: Prisma.ApprovalRequestUncheckedUpdateManyWithoutAdmissionNestedInput
+  feePlans?: Prisma.FeePlanUncheckedUpdateManyWithoutAdmissionNestedInput
+}
+
+export type AdmissionUncheckedUpdateManyWithoutInstituteInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  leadId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  studentId?: Prisma.StringFieldUpdateOperationsInput | string
+  courseId?: Prisma.StringFieldUpdateOperationsInput | string
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  admissionDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  admissionMode?: Prisma.StringFieldUpdateOperationsInput | string
+  approvalStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  approvedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  onboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  batch?: Prisma.StringFieldUpdateOperationsInput | string
+  totalFee?: Prisma.FloatFieldUpdateOperationsInput | number
+  paidAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  dueAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  remarks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+
+/**
+ * Count Type AdmissionCountOutputType
+ */
+
+export type AdmissionCountOutputType = {
+  approvals: number
+  feePlans: number
+}
+
+export type AdmissionCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  approvals?: boolean | AdmissionCountOutputTypeCountApprovalsArgs
+  feePlans?: boolean | AdmissionCountOutputTypeCountFeePlansArgs
+}
+
+/**
+ * AdmissionCountOutputType without action
+ */
+export type AdmissionCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AdmissionCountOutputType
+   */
+  select?: Prisma.AdmissionCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * AdmissionCountOutputType without action
+ */
+export type AdmissionCountOutputTypeCountApprovalsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ApprovalRequestWhereInput
+}
+
+/**
+ * AdmissionCountOutputType without action
+ */
+export type AdmissionCountOutputTypeCountFeePlansArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FeePlanWhereInput
+}
 
 
 export type AdmissionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  leadId?: boolean
   studentId?: boolean
   courseId?: boolean
+  instituteId?: boolean
+  branchId?: boolean
   admissionDate?: boolean
   paymentStatus?: boolean
+  status?: boolean
+  admissionMode?: boolean
+  approvalStatus?: boolean
+  approvedBy?: boolean
+  approvedAt?: boolean
+  onboardingStatus?: boolean
   batch?: boolean
+  totalFee?: boolean
+  paidAmount?: boolean
+  dueAmount?: boolean
+  remarks?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   student?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   course?: boolean | Prisma.CourseDefaultArgs<ExtArgs>
+  lead?: boolean | Prisma.Admission$leadArgs<ExtArgs>
+  institute?: boolean | Prisma.Admission$instituteArgs<ExtArgs>
+  branch?: boolean | Prisma.Admission$branchArgs<ExtArgs>
+  approvals?: boolean | Prisma.Admission$approvalsArgs<ExtArgs>
+  feePlans?: boolean | Prisma.Admission$feePlansArgs<ExtArgs>
+  _count?: boolean | Prisma.AdmissionCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["admission"]>
 
 export type AdmissionSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  leadId?: boolean
   studentId?: boolean
   courseId?: boolean
+  instituteId?: boolean
+  branchId?: boolean
   admissionDate?: boolean
   paymentStatus?: boolean
+  status?: boolean
+  admissionMode?: boolean
+  approvalStatus?: boolean
+  approvedBy?: boolean
+  approvedAt?: boolean
+  onboardingStatus?: boolean
   batch?: boolean
+  totalFee?: boolean
+  paidAmount?: boolean
+  dueAmount?: boolean
+  remarks?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   student?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   course?: boolean | Prisma.CourseDefaultArgs<ExtArgs>
+  lead?: boolean | Prisma.Admission$leadArgs<ExtArgs>
+  institute?: boolean | Prisma.Admission$instituteArgs<ExtArgs>
+  branch?: boolean | Prisma.Admission$branchArgs<ExtArgs>
 }, ExtArgs["result"]["admission"]>
 
 export type AdmissionSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  leadId?: boolean
   studentId?: boolean
   courseId?: boolean
+  instituteId?: boolean
+  branchId?: boolean
   admissionDate?: boolean
   paymentStatus?: boolean
+  status?: boolean
+  admissionMode?: boolean
+  approvalStatus?: boolean
+  approvedBy?: boolean
+  approvedAt?: boolean
+  onboardingStatus?: boolean
   batch?: boolean
+  totalFee?: boolean
+  paidAmount?: boolean
+  dueAmount?: boolean
+  remarks?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   student?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   course?: boolean | Prisma.CourseDefaultArgs<ExtArgs>
+  lead?: boolean | Prisma.Admission$leadArgs<ExtArgs>
+  institute?: boolean | Prisma.Admission$instituteArgs<ExtArgs>
+  branch?: boolean | Prisma.Admission$branchArgs<ExtArgs>
 }, ExtArgs["result"]["admission"]>
 
 export type AdmissionSelectScalar = {
   id?: boolean
+  leadId?: boolean
   studentId?: boolean
   courseId?: boolean
+  instituteId?: boolean
+  branchId?: boolean
   admissionDate?: boolean
   paymentStatus?: boolean
+  status?: boolean
+  admissionMode?: boolean
+  approvalStatus?: boolean
+  approvedBy?: boolean
+  approvedAt?: boolean
+  onboardingStatus?: boolean
   batch?: boolean
+  totalFee?: boolean
+  paidAmount?: boolean
+  dueAmount?: boolean
+  remarks?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type AdmissionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "studentId" | "courseId" | "admissionDate" | "paymentStatus" | "batch" | "createdAt", ExtArgs["result"]["admission"]>
+export type AdmissionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "leadId" | "studentId" | "courseId" | "instituteId" | "branchId" | "admissionDate" | "paymentStatus" | "status" | "admissionMode" | "approvalStatus" | "approvedBy" | "approvedAt" | "onboardingStatus" | "batch" | "totalFee" | "paidAmount" | "dueAmount" | "remarks" | "createdAt" | "updatedAt", ExtArgs["result"]["admission"]>
 export type AdmissionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   student?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   course?: boolean | Prisma.CourseDefaultArgs<ExtArgs>
+  lead?: boolean | Prisma.Admission$leadArgs<ExtArgs>
+  institute?: boolean | Prisma.Admission$instituteArgs<ExtArgs>
+  branch?: boolean | Prisma.Admission$branchArgs<ExtArgs>
+  approvals?: boolean | Prisma.Admission$approvalsArgs<ExtArgs>
+  feePlans?: boolean | Prisma.Admission$feePlansArgs<ExtArgs>
+  _count?: boolean | Prisma.AdmissionCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type AdmissionIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   student?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   course?: boolean | Prisma.CourseDefaultArgs<ExtArgs>
+  lead?: boolean | Prisma.Admission$leadArgs<ExtArgs>
+  institute?: boolean | Prisma.Admission$instituteArgs<ExtArgs>
+  branch?: boolean | Prisma.Admission$branchArgs<ExtArgs>
 }
 export type AdmissionIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   student?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   course?: boolean | Prisma.CourseDefaultArgs<ExtArgs>
+  lead?: boolean | Prisma.Admission$leadArgs<ExtArgs>
+  institute?: boolean | Prisma.Admission$instituteArgs<ExtArgs>
+  branch?: boolean | Prisma.Admission$branchArgs<ExtArgs>
 }
 
 export type $AdmissionPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -687,15 +2298,34 @@ export type $AdmissionPayload<ExtArgs extends runtime.Types.Extensions.InternalA
   objects: {
     student: Prisma.$UserPayload<ExtArgs>
     course: Prisma.$CoursePayload<ExtArgs>
+    lead: Prisma.$LeadPayload<ExtArgs> | null
+    institute: Prisma.$InstitutePayload<ExtArgs> | null
+    branch: Prisma.$BranchPayload<ExtArgs> | null
+    approvals: Prisma.$ApprovalRequestPayload<ExtArgs>[]
+    feePlans: Prisma.$FeePlanPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
+    leadId: string | null
     studentId: string
     courseId: string
+    instituteId: string | null
+    branchId: string | null
     admissionDate: Date
     paymentStatus: string
+    status: string
+    admissionMode: string
+    approvalStatus: string
+    approvedBy: string | null
+    approvedAt: Date | null
+    onboardingStatus: string
     batch: string
+    totalFee: number
+    paidAmount: number
+    dueAmount: number
+    remarks: string | null
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["admission"]>
   composites: {}
 }
@@ -1092,6 +2722,11 @@ export interface Prisma__AdmissionClient<T, Null = never, ExtArgs extends runtim
   readonly [Symbol.toStringTag]: "PrismaPromise"
   student<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   course<T extends Prisma.CourseDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CourseDefaultArgs<ExtArgs>>): Prisma.Prisma__CourseClient<runtime.Types.Result.GetResult<Prisma.$CoursePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  lead<T extends Prisma.Admission$leadArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Admission$leadArgs<ExtArgs>>): Prisma.Prisma__LeadClient<runtime.Types.Result.GetResult<Prisma.$LeadPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  institute<T extends Prisma.Admission$instituteArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Admission$instituteArgs<ExtArgs>>): Prisma.Prisma__InstituteClient<runtime.Types.Result.GetResult<Prisma.$InstitutePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  branch<T extends Prisma.Admission$branchArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Admission$branchArgs<ExtArgs>>): Prisma.Prisma__BranchClient<runtime.Types.Result.GetResult<Prisma.$BranchPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  approvals<T extends Prisma.Admission$approvalsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Admission$approvalsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ApprovalRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  feePlans<T extends Prisma.Admission$feePlansArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Admission$feePlansArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FeePlanPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1122,12 +2757,26 @@ export interface Prisma__AdmissionClient<T, Null = never, ExtArgs extends runtim
  */
 export interface AdmissionFieldRefs {
   readonly id: Prisma.FieldRef<"Admission", 'String'>
+  readonly leadId: Prisma.FieldRef<"Admission", 'String'>
   readonly studentId: Prisma.FieldRef<"Admission", 'String'>
   readonly courseId: Prisma.FieldRef<"Admission", 'String'>
+  readonly instituteId: Prisma.FieldRef<"Admission", 'String'>
+  readonly branchId: Prisma.FieldRef<"Admission", 'String'>
   readonly admissionDate: Prisma.FieldRef<"Admission", 'DateTime'>
   readonly paymentStatus: Prisma.FieldRef<"Admission", 'String'>
+  readonly status: Prisma.FieldRef<"Admission", 'String'>
+  readonly admissionMode: Prisma.FieldRef<"Admission", 'String'>
+  readonly approvalStatus: Prisma.FieldRef<"Admission", 'String'>
+  readonly approvedBy: Prisma.FieldRef<"Admission", 'String'>
+  readonly approvedAt: Prisma.FieldRef<"Admission", 'DateTime'>
+  readonly onboardingStatus: Prisma.FieldRef<"Admission", 'String'>
   readonly batch: Prisma.FieldRef<"Admission", 'String'>
+  readonly totalFee: Prisma.FieldRef<"Admission", 'Float'>
+  readonly paidAmount: Prisma.FieldRef<"Admission", 'Float'>
+  readonly dueAmount: Prisma.FieldRef<"Admission", 'Float'>
+  readonly remarks: Prisma.FieldRef<"Admission", 'String'>
   readonly createdAt: Prisma.FieldRef<"Admission", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"Admission", 'DateTime'>
 }
     
 
@@ -1526,6 +3175,111 @@ export type AdmissionDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Int
    * Limit how many Admissions to delete.
    */
   limit?: number
+}
+
+/**
+ * Admission.lead
+ */
+export type Admission$leadArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Lead
+   */
+  select?: Prisma.LeadSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Lead
+   */
+  omit?: Prisma.LeadOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LeadInclude<ExtArgs> | null
+  where?: Prisma.LeadWhereInput
+}
+
+/**
+ * Admission.institute
+ */
+export type Admission$instituteArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Institute
+   */
+  select?: Prisma.InstituteSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Institute
+   */
+  omit?: Prisma.InstituteOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InstituteInclude<ExtArgs> | null
+  where?: Prisma.InstituteWhereInput
+}
+
+/**
+ * Admission.branch
+ */
+export type Admission$branchArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Branch
+   */
+  select?: Prisma.BranchSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Branch
+   */
+  omit?: Prisma.BranchOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BranchInclude<ExtArgs> | null
+  where?: Prisma.BranchWhereInput
+}
+
+/**
+ * Admission.approvals
+ */
+export type Admission$approvalsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ApprovalRequest
+   */
+  select?: Prisma.ApprovalRequestSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ApprovalRequest
+   */
+  omit?: Prisma.ApprovalRequestOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ApprovalRequestInclude<ExtArgs> | null
+  where?: Prisma.ApprovalRequestWhereInput
+  orderBy?: Prisma.ApprovalRequestOrderByWithRelationInput | Prisma.ApprovalRequestOrderByWithRelationInput[]
+  cursor?: Prisma.ApprovalRequestWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ApprovalRequestScalarFieldEnum | Prisma.ApprovalRequestScalarFieldEnum[]
+}
+
+/**
+ * Admission.feePlans
+ */
+export type Admission$feePlansArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FeePlan
+   */
+  select?: Prisma.FeePlanSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FeePlan
+   */
+  omit?: Prisma.FeePlanOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FeePlanInclude<ExtArgs> | null
+  where?: Prisma.FeePlanWhereInput
+  orderBy?: Prisma.FeePlanOrderByWithRelationInput | Prisma.FeePlanOrderByWithRelationInput[]
+  cursor?: Prisma.FeePlanWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FeePlanScalarFieldEnum | Prisma.FeePlanScalarFieldEnum[]
 }
 
 /**

@@ -20,6 +20,11 @@ function userId(req: AuthenticatedRequest) {
   return req.user.id;
 }
 
+function requester(req: AuthenticatedRequest) {
+  if (!req.user) throw new Error("Unauthorized");
+  return req.user;
+}
+
 export const crmController = {
   async leads(req: Request, res: Response, next: NextFunction) {
     try {
@@ -41,11 +46,23 @@ export const crmController = {
   async followUps(_req: Request, res: Response, next: NextFunction) {
     try { res.json({ followUps: await crmService.followUps() }); } catch (error) { next(error); }
   },
-  async createAdmission(req: Request, res: Response, next: NextFunction) {
-    try { assertValid(req); res.status(201).json({ admission: await crmService.createAdmission(req.body) }); } catch (error) { next(error); }
+  async createAdmission(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try { assertValid(req); res.status(201).json({ admission: await crmService.createAdmission(requester(req), req.body) }); } catch (error) { next(error); }
   },
-  async admissions(_req: Request, res: Response, next: NextFunction) {
-    try { res.json({ admissions: await crmService.admissions() }); } catch (error) { next(error); }
+  async admissions(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try { res.json({ admissions: await crmService.admissions(requester(req)) }); } catch (error) { next(error); }
+  },
+  async approveAdmission(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try { assertValid(req); res.json({ admission: await crmService.approveAdmission(requester(req), param(req, "id"), req.body) }); } catch (error) { next(error); }
+  },
+  async approvals(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try { res.json({ approvals: await crmService.approvals(requester(req)) }); } catch (error) { next(error); }
+  },
+  async createScholarship(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try { assertValid(req); res.status(201).json({ scholarship: await crmService.createScholarship(requester(req), req.body) }); } catch (error) { next(error); }
+  },
+  async reviewScholarship(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try { assertValid(req); res.json({ scholarship: await crmService.reviewScholarship(requester(req), param(req, "id"), req.body) }); } catch (error) { next(error); }
   },
   async createCounselling(req: Request, res: Response, next: NextFunction) {
     try { assertValid(req); res.status(201).json({ booking: await crmService.createCounselling(req.body) }); } catch (error) { next(error); }

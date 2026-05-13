@@ -28,17 +28,27 @@ export type AggregateInvoice = {
 
 export type InvoiceAvgAggregateOutputType = {
   amount: number | null
+  paidAmount: number | null
+  dueAmount: number | null
 }
 
 export type InvoiceSumAggregateOutputType = {
   amount: number | null
+  paidAmount: number | null
+  dueAmount: number | null
 }
 
 export type InvoiceMinAggregateOutputType = {
   id: string | null
   studentId: string | null
+  admissionId: string | null
+  feePlanId: string | null
   invoiceNumber: string | null
   amount: number | null
+  paidAmount: number | null
+  dueAmount: number | null
+  pdfUrl: string | null
+  receiptUrl: string | null
   generatedAt: Date | null
   status: string | null
 }
@@ -46,8 +56,14 @@ export type InvoiceMinAggregateOutputType = {
 export type InvoiceMaxAggregateOutputType = {
   id: string | null
   studentId: string | null
+  admissionId: string | null
+  feePlanId: string | null
   invoiceNumber: string | null
   amount: number | null
+  paidAmount: number | null
+  dueAmount: number | null
+  pdfUrl: string | null
+  receiptUrl: string | null
   generatedAt: Date | null
   status: string | null
 }
@@ -55,8 +71,14 @@ export type InvoiceMaxAggregateOutputType = {
 export type InvoiceCountAggregateOutputType = {
   id: number
   studentId: number
+  admissionId: number
+  feePlanId: number
   invoiceNumber: number
   amount: number
+  paidAmount: number
+  dueAmount: number
+  pdfUrl: number
+  receiptUrl: number
   generatedAt: number
   status: number
   _all: number
@@ -65,17 +87,27 @@ export type InvoiceCountAggregateOutputType = {
 
 export type InvoiceAvgAggregateInputType = {
   amount?: true
+  paidAmount?: true
+  dueAmount?: true
 }
 
 export type InvoiceSumAggregateInputType = {
   amount?: true
+  paidAmount?: true
+  dueAmount?: true
 }
 
 export type InvoiceMinAggregateInputType = {
   id?: true
   studentId?: true
+  admissionId?: true
+  feePlanId?: true
   invoiceNumber?: true
   amount?: true
+  paidAmount?: true
+  dueAmount?: true
+  pdfUrl?: true
+  receiptUrl?: true
   generatedAt?: true
   status?: true
 }
@@ -83,8 +115,14 @@ export type InvoiceMinAggregateInputType = {
 export type InvoiceMaxAggregateInputType = {
   id?: true
   studentId?: true
+  admissionId?: true
+  feePlanId?: true
   invoiceNumber?: true
   amount?: true
+  paidAmount?: true
+  dueAmount?: true
+  pdfUrl?: true
+  receiptUrl?: true
   generatedAt?: true
   status?: true
 }
@@ -92,8 +130,14 @@ export type InvoiceMaxAggregateInputType = {
 export type InvoiceCountAggregateInputType = {
   id?: true
   studentId?: true
+  admissionId?: true
+  feePlanId?: true
   invoiceNumber?: true
   amount?: true
+  paidAmount?: true
+  dueAmount?: true
+  pdfUrl?: true
+  receiptUrl?: true
   generatedAt?: true
   status?: true
   _all?: true
@@ -188,8 +232,14 @@ export type InvoiceGroupByArgs<ExtArgs extends runtime.Types.Extensions.Internal
 export type InvoiceGroupByOutputType = {
   id: string
   studentId: string
+  admissionId: string | null
+  feePlanId: string | null
   invoiceNumber: string
   amount: number
+  paidAmount: number
+  dueAmount: number
+  pdfUrl: string | null
+  receiptUrl: string | null
   generatedAt: Date
   status: string
   _count: InvoiceCountAggregateOutputType | null
@@ -220,21 +270,35 @@ export type InvoiceWhereInput = {
   NOT?: Prisma.InvoiceWhereInput | Prisma.InvoiceWhereInput[]
   id?: Prisma.StringFilter<"Invoice"> | string
   studentId?: Prisma.StringFilter<"Invoice"> | string
+  admissionId?: Prisma.StringNullableFilter<"Invoice"> | string | null
+  feePlanId?: Prisma.StringNullableFilter<"Invoice"> | string | null
   invoiceNumber?: Prisma.StringFilter<"Invoice"> | string
   amount?: Prisma.FloatFilter<"Invoice"> | number
+  paidAmount?: Prisma.FloatFilter<"Invoice"> | number
+  dueAmount?: Prisma.FloatFilter<"Invoice"> | number
+  pdfUrl?: Prisma.StringNullableFilter<"Invoice"> | string | null
+  receiptUrl?: Prisma.StringNullableFilter<"Invoice"> | string | null
   generatedAt?: Prisma.DateTimeFilter<"Invoice"> | Date | string
   status?: Prisma.StringFilter<"Invoice"> | string
   student?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  payments?: Prisma.PaymentListRelationFilter
 }
 
 export type InvoiceOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   studentId?: Prisma.SortOrder
+  admissionId?: Prisma.SortOrderInput | Prisma.SortOrder
+  feePlanId?: Prisma.SortOrderInput | Prisma.SortOrder
   invoiceNumber?: Prisma.SortOrder
   amount?: Prisma.SortOrder
+  paidAmount?: Prisma.SortOrder
+  dueAmount?: Prisma.SortOrder
+  pdfUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  receiptUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   generatedAt?: Prisma.SortOrder
   status?: Prisma.SortOrder
   student?: Prisma.UserOrderByWithRelationInput
+  payments?: Prisma.PaymentOrderByRelationAggregateInput
 }
 
 export type InvoiceWhereUniqueInput = Prisma.AtLeast<{
@@ -244,17 +308,30 @@ export type InvoiceWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.InvoiceWhereInput[]
   NOT?: Prisma.InvoiceWhereInput | Prisma.InvoiceWhereInput[]
   studentId?: Prisma.StringFilter<"Invoice"> | string
+  admissionId?: Prisma.StringNullableFilter<"Invoice"> | string | null
+  feePlanId?: Prisma.StringNullableFilter<"Invoice"> | string | null
   amount?: Prisma.FloatFilter<"Invoice"> | number
+  paidAmount?: Prisma.FloatFilter<"Invoice"> | number
+  dueAmount?: Prisma.FloatFilter<"Invoice"> | number
+  pdfUrl?: Prisma.StringNullableFilter<"Invoice"> | string | null
+  receiptUrl?: Prisma.StringNullableFilter<"Invoice"> | string | null
   generatedAt?: Prisma.DateTimeFilter<"Invoice"> | Date | string
   status?: Prisma.StringFilter<"Invoice"> | string
   student?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  payments?: Prisma.PaymentListRelationFilter
 }, "id" | "invoiceNumber">
 
 export type InvoiceOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   studentId?: Prisma.SortOrder
+  admissionId?: Prisma.SortOrderInput | Prisma.SortOrder
+  feePlanId?: Prisma.SortOrderInput | Prisma.SortOrder
   invoiceNumber?: Prisma.SortOrder
   amount?: Prisma.SortOrder
+  paidAmount?: Prisma.SortOrder
+  dueAmount?: Prisma.SortOrder
+  pdfUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  receiptUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   generatedAt?: Prisma.SortOrder
   status?: Prisma.SortOrder
   _count?: Prisma.InvoiceCountOrderByAggregateInput
@@ -270,61 +347,107 @@ export type InvoiceScalarWhereWithAggregatesInput = {
   NOT?: Prisma.InvoiceScalarWhereWithAggregatesInput | Prisma.InvoiceScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"Invoice"> | string
   studentId?: Prisma.StringWithAggregatesFilter<"Invoice"> | string
+  admissionId?: Prisma.StringNullableWithAggregatesFilter<"Invoice"> | string | null
+  feePlanId?: Prisma.StringNullableWithAggregatesFilter<"Invoice"> | string | null
   invoiceNumber?: Prisma.StringWithAggregatesFilter<"Invoice"> | string
   amount?: Prisma.FloatWithAggregatesFilter<"Invoice"> | number
+  paidAmount?: Prisma.FloatWithAggregatesFilter<"Invoice"> | number
+  dueAmount?: Prisma.FloatWithAggregatesFilter<"Invoice"> | number
+  pdfUrl?: Prisma.StringNullableWithAggregatesFilter<"Invoice"> | string | null
+  receiptUrl?: Prisma.StringNullableWithAggregatesFilter<"Invoice"> | string | null
   generatedAt?: Prisma.DateTimeWithAggregatesFilter<"Invoice"> | Date | string
   status?: Prisma.StringWithAggregatesFilter<"Invoice"> | string
 }
 
 export type InvoiceCreateInput = {
   id?: string
+  admissionId?: string | null
+  feePlanId?: string | null
   invoiceNumber: string
   amount: number
+  paidAmount?: number
+  dueAmount?: number
+  pdfUrl?: string | null
+  receiptUrl?: string | null
   generatedAt?: Date | string
   status: string
   student: Prisma.UserCreateNestedOneWithoutInvoicesInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutInvoiceInput
 }
 
 export type InvoiceUncheckedCreateInput = {
   id?: string
   studentId: string
+  admissionId?: string | null
+  feePlanId?: string | null
   invoiceNumber: string
   amount: number
+  paidAmount?: number
+  dueAmount?: number
+  pdfUrl?: string | null
+  receiptUrl?: string | null
   generatedAt?: Date | string
   status: string
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutInvoiceInput
 }
 
 export type InvoiceUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  admissionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feePlanId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   invoiceNumber?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
+  paidAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  dueAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   generatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   student?: Prisma.UserUpdateOneRequiredWithoutInvoicesNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutInvoiceNestedInput
 }
 
 export type InvoiceUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   studentId?: Prisma.StringFieldUpdateOperationsInput | string
+  admissionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feePlanId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   invoiceNumber?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
+  paidAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  dueAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   generatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutInvoiceNestedInput
 }
 
 export type InvoiceCreateManyInput = {
   id?: string
   studentId: string
+  admissionId?: string | null
+  feePlanId?: string | null
   invoiceNumber: string
   amount: number
+  paidAmount?: number
+  dueAmount?: number
+  pdfUrl?: string | null
+  receiptUrl?: string | null
   generatedAt?: Date | string
   status: string
 }
 
 export type InvoiceUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  admissionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feePlanId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   invoiceNumber?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
+  paidAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  dueAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   generatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
 }
@@ -332,8 +455,14 @@ export type InvoiceUpdateManyMutationInput = {
 export type InvoiceUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   studentId?: Prisma.StringFieldUpdateOperationsInput | string
+  admissionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feePlanId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   invoiceNumber?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
+  paidAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  dueAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   generatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
 }
@@ -348,24 +477,43 @@ export type InvoiceOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
+export type InvoiceNullableScalarRelationFilter = {
+  is?: Prisma.InvoiceWhereInput | null
+  isNot?: Prisma.InvoiceWhereInput | null
+}
+
 export type InvoiceCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   studentId?: Prisma.SortOrder
+  admissionId?: Prisma.SortOrder
+  feePlanId?: Prisma.SortOrder
   invoiceNumber?: Prisma.SortOrder
   amount?: Prisma.SortOrder
+  paidAmount?: Prisma.SortOrder
+  dueAmount?: Prisma.SortOrder
+  pdfUrl?: Prisma.SortOrder
+  receiptUrl?: Prisma.SortOrder
   generatedAt?: Prisma.SortOrder
   status?: Prisma.SortOrder
 }
 
 export type InvoiceAvgOrderByAggregateInput = {
   amount?: Prisma.SortOrder
+  paidAmount?: Prisma.SortOrder
+  dueAmount?: Prisma.SortOrder
 }
 
 export type InvoiceMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   studentId?: Prisma.SortOrder
+  admissionId?: Prisma.SortOrder
+  feePlanId?: Prisma.SortOrder
   invoiceNumber?: Prisma.SortOrder
   amount?: Prisma.SortOrder
+  paidAmount?: Prisma.SortOrder
+  dueAmount?: Prisma.SortOrder
+  pdfUrl?: Prisma.SortOrder
+  receiptUrl?: Prisma.SortOrder
   generatedAt?: Prisma.SortOrder
   status?: Prisma.SortOrder
 }
@@ -373,14 +521,22 @@ export type InvoiceMaxOrderByAggregateInput = {
 export type InvoiceMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   studentId?: Prisma.SortOrder
+  admissionId?: Prisma.SortOrder
+  feePlanId?: Prisma.SortOrder
   invoiceNumber?: Prisma.SortOrder
   amount?: Prisma.SortOrder
+  paidAmount?: Prisma.SortOrder
+  dueAmount?: Prisma.SortOrder
+  pdfUrl?: Prisma.SortOrder
+  receiptUrl?: Prisma.SortOrder
   generatedAt?: Prisma.SortOrder
   status?: Prisma.SortOrder
 }
 
 export type InvoiceSumOrderByAggregateInput = {
   amount?: Prisma.SortOrder
+  paidAmount?: Prisma.SortOrder
+  dueAmount?: Prisma.SortOrder
 }
 
 export type InvoiceCreateNestedManyWithoutStudentInput = {
@@ -425,20 +581,50 @@ export type InvoiceUncheckedUpdateManyWithoutStudentNestedInput = {
   deleteMany?: Prisma.InvoiceScalarWhereInput | Prisma.InvoiceScalarWhereInput[]
 }
 
+export type InvoiceCreateNestedOneWithoutPaymentsInput = {
+  create?: Prisma.XOR<Prisma.InvoiceCreateWithoutPaymentsInput, Prisma.InvoiceUncheckedCreateWithoutPaymentsInput>
+  connectOrCreate?: Prisma.InvoiceCreateOrConnectWithoutPaymentsInput
+  connect?: Prisma.InvoiceWhereUniqueInput
+}
+
+export type InvoiceUpdateOneWithoutPaymentsNestedInput = {
+  create?: Prisma.XOR<Prisma.InvoiceCreateWithoutPaymentsInput, Prisma.InvoiceUncheckedCreateWithoutPaymentsInput>
+  connectOrCreate?: Prisma.InvoiceCreateOrConnectWithoutPaymentsInput
+  upsert?: Prisma.InvoiceUpsertWithoutPaymentsInput
+  disconnect?: Prisma.InvoiceWhereInput | boolean
+  delete?: Prisma.InvoiceWhereInput | boolean
+  connect?: Prisma.InvoiceWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.InvoiceUpdateToOneWithWhereWithoutPaymentsInput, Prisma.InvoiceUpdateWithoutPaymentsInput>, Prisma.InvoiceUncheckedUpdateWithoutPaymentsInput>
+}
+
 export type InvoiceCreateWithoutStudentInput = {
   id?: string
+  admissionId?: string | null
+  feePlanId?: string | null
   invoiceNumber: string
   amount: number
+  paidAmount?: number
+  dueAmount?: number
+  pdfUrl?: string | null
+  receiptUrl?: string | null
   generatedAt?: Date | string
   status: string
+  payments?: Prisma.PaymentCreateNestedManyWithoutInvoiceInput
 }
 
 export type InvoiceUncheckedCreateWithoutStudentInput = {
   id?: string
+  admissionId?: string | null
+  feePlanId?: string | null
   invoiceNumber: string
   amount: number
+  paidAmount?: number
+  dueAmount?: number
+  pdfUrl?: string | null
+  receiptUrl?: string | null
   generatedAt?: Date | string
   status: string
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutInvoiceInput
 }
 
 export type InvoiceCreateOrConnectWithoutStudentInput = {
@@ -473,61 +659,212 @@ export type InvoiceScalarWhereInput = {
   NOT?: Prisma.InvoiceScalarWhereInput | Prisma.InvoiceScalarWhereInput[]
   id?: Prisma.StringFilter<"Invoice"> | string
   studentId?: Prisma.StringFilter<"Invoice"> | string
+  admissionId?: Prisma.StringNullableFilter<"Invoice"> | string | null
+  feePlanId?: Prisma.StringNullableFilter<"Invoice"> | string | null
   invoiceNumber?: Prisma.StringFilter<"Invoice"> | string
   amount?: Prisma.FloatFilter<"Invoice"> | number
+  paidAmount?: Prisma.FloatFilter<"Invoice"> | number
+  dueAmount?: Prisma.FloatFilter<"Invoice"> | number
+  pdfUrl?: Prisma.StringNullableFilter<"Invoice"> | string | null
+  receiptUrl?: Prisma.StringNullableFilter<"Invoice"> | string | null
   generatedAt?: Prisma.DateTimeFilter<"Invoice"> | Date | string
   status?: Prisma.StringFilter<"Invoice"> | string
 }
 
-export type InvoiceCreateManyStudentInput = {
+export type InvoiceCreateWithoutPaymentsInput = {
   id?: string
+  admissionId?: string | null
+  feePlanId?: string | null
   invoiceNumber: string
   amount: number
+  paidAmount?: number
+  dueAmount?: number
+  pdfUrl?: string | null
+  receiptUrl?: string | null
+  generatedAt?: Date | string
+  status: string
+  student: Prisma.UserCreateNestedOneWithoutInvoicesInput
+}
+
+export type InvoiceUncheckedCreateWithoutPaymentsInput = {
+  id?: string
+  studentId: string
+  admissionId?: string | null
+  feePlanId?: string | null
+  invoiceNumber: string
+  amount: number
+  paidAmount?: number
+  dueAmount?: number
+  pdfUrl?: string | null
+  receiptUrl?: string | null
+  generatedAt?: Date | string
+  status: string
+}
+
+export type InvoiceCreateOrConnectWithoutPaymentsInput = {
+  where: Prisma.InvoiceWhereUniqueInput
+  create: Prisma.XOR<Prisma.InvoiceCreateWithoutPaymentsInput, Prisma.InvoiceUncheckedCreateWithoutPaymentsInput>
+}
+
+export type InvoiceUpsertWithoutPaymentsInput = {
+  update: Prisma.XOR<Prisma.InvoiceUpdateWithoutPaymentsInput, Prisma.InvoiceUncheckedUpdateWithoutPaymentsInput>
+  create: Prisma.XOR<Prisma.InvoiceCreateWithoutPaymentsInput, Prisma.InvoiceUncheckedCreateWithoutPaymentsInput>
+  where?: Prisma.InvoiceWhereInput
+}
+
+export type InvoiceUpdateToOneWithWhereWithoutPaymentsInput = {
+  where?: Prisma.InvoiceWhereInput
+  data: Prisma.XOR<Prisma.InvoiceUpdateWithoutPaymentsInput, Prisma.InvoiceUncheckedUpdateWithoutPaymentsInput>
+}
+
+export type InvoiceUpdateWithoutPaymentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  admissionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feePlanId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invoiceNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  amount?: Prisma.FloatFieldUpdateOperationsInput | number
+  paidAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  dueAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  generatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  student?: Prisma.UserUpdateOneRequiredWithoutInvoicesNestedInput
+}
+
+export type InvoiceUncheckedUpdateWithoutPaymentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  studentId?: Prisma.StringFieldUpdateOperationsInput | string
+  admissionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feePlanId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invoiceNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  amount?: Prisma.FloatFieldUpdateOperationsInput | number
+  paidAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  dueAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  generatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+}
+
+export type InvoiceCreateManyStudentInput = {
+  id?: string
+  admissionId?: string | null
+  feePlanId?: string | null
+  invoiceNumber: string
+  amount: number
+  paidAmount?: number
+  dueAmount?: number
+  pdfUrl?: string | null
+  receiptUrl?: string | null
   generatedAt?: Date | string
   status: string
 }
 
 export type InvoiceUpdateWithoutStudentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  admissionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feePlanId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   invoiceNumber?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
+  paidAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  dueAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   generatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  payments?: Prisma.PaymentUpdateManyWithoutInvoiceNestedInput
 }
 
 export type InvoiceUncheckedUpdateWithoutStudentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  admissionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feePlanId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   invoiceNumber?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
+  paidAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  dueAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   generatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutInvoiceNestedInput
 }
 
 export type InvoiceUncheckedUpdateManyWithoutStudentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  admissionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feePlanId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   invoiceNumber?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
+  paidAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  dueAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   generatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
+
+/**
+ * Count Type InvoiceCountOutputType
+ */
+
+export type InvoiceCountOutputType = {
+  payments: number
+}
+
+export type InvoiceCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  payments?: boolean | InvoiceCountOutputTypeCountPaymentsArgs
+}
+
+/**
+ * InvoiceCountOutputType without action
+ */
+export type InvoiceCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the InvoiceCountOutputType
+   */
+  select?: Prisma.InvoiceCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * InvoiceCountOutputType without action
+ */
+export type InvoiceCountOutputTypeCountPaymentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PaymentWhereInput
+}
 
 
 export type InvoiceSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   studentId?: boolean
+  admissionId?: boolean
+  feePlanId?: boolean
   invoiceNumber?: boolean
   amount?: boolean
+  paidAmount?: boolean
+  dueAmount?: boolean
+  pdfUrl?: boolean
+  receiptUrl?: boolean
   generatedAt?: boolean
   status?: boolean
   student?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  payments?: boolean | Prisma.Invoice$paymentsArgs<ExtArgs>
+  _count?: boolean | Prisma.InvoiceCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["invoice"]>
 
 export type InvoiceSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   studentId?: boolean
+  admissionId?: boolean
+  feePlanId?: boolean
   invoiceNumber?: boolean
   amount?: boolean
+  paidAmount?: boolean
+  dueAmount?: boolean
+  pdfUrl?: boolean
+  receiptUrl?: boolean
   generatedAt?: boolean
   status?: boolean
   student?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -536,8 +873,14 @@ export type InvoiceSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
 export type InvoiceSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   studentId?: boolean
+  admissionId?: boolean
+  feePlanId?: boolean
   invoiceNumber?: boolean
   amount?: boolean
+  paidAmount?: boolean
+  dueAmount?: boolean
+  pdfUrl?: boolean
+  receiptUrl?: boolean
   generatedAt?: boolean
   status?: boolean
   student?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -546,15 +889,23 @@ export type InvoiceSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
 export type InvoiceSelectScalar = {
   id?: boolean
   studentId?: boolean
+  admissionId?: boolean
+  feePlanId?: boolean
   invoiceNumber?: boolean
   amount?: boolean
+  paidAmount?: boolean
+  dueAmount?: boolean
+  pdfUrl?: boolean
+  receiptUrl?: boolean
   generatedAt?: boolean
   status?: boolean
 }
 
-export type InvoiceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "studentId" | "invoiceNumber" | "amount" | "generatedAt" | "status", ExtArgs["result"]["invoice"]>
+export type InvoiceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "studentId" | "admissionId" | "feePlanId" | "invoiceNumber" | "amount" | "paidAmount" | "dueAmount" | "pdfUrl" | "receiptUrl" | "generatedAt" | "status", ExtArgs["result"]["invoice"]>
 export type InvoiceInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   student?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  payments?: boolean | Prisma.Invoice$paymentsArgs<ExtArgs>
+  _count?: boolean | Prisma.InvoiceCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type InvoiceIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   student?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -567,12 +918,19 @@ export type $InvoicePayload<ExtArgs extends runtime.Types.Extensions.InternalArg
   name: "Invoice"
   objects: {
     student: Prisma.$UserPayload<ExtArgs>
+    payments: Prisma.$PaymentPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     studentId: string
+    admissionId: string | null
+    feePlanId: string | null
     invoiceNumber: string
     amount: number
+    paidAmount: number
+    dueAmount: number
+    pdfUrl: string | null
+    receiptUrl: string | null
     generatedAt: Date
     status: string
   }, ExtArgs["result"]["invoice"]>
@@ -970,6 +1328,7 @@ readonly fields: InvoiceFieldRefs;
 export interface Prisma__InvoiceClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   student<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  payments<T extends Prisma.Invoice$paymentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Invoice$paymentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PaymentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1001,8 +1360,14 @@ export interface Prisma__InvoiceClient<T, Null = never, ExtArgs extends runtime.
 export interface InvoiceFieldRefs {
   readonly id: Prisma.FieldRef<"Invoice", 'String'>
   readonly studentId: Prisma.FieldRef<"Invoice", 'String'>
+  readonly admissionId: Prisma.FieldRef<"Invoice", 'String'>
+  readonly feePlanId: Prisma.FieldRef<"Invoice", 'String'>
   readonly invoiceNumber: Prisma.FieldRef<"Invoice", 'String'>
   readonly amount: Prisma.FieldRef<"Invoice", 'Float'>
+  readonly paidAmount: Prisma.FieldRef<"Invoice", 'Float'>
+  readonly dueAmount: Prisma.FieldRef<"Invoice", 'Float'>
+  readonly pdfUrl: Prisma.FieldRef<"Invoice", 'String'>
+  readonly receiptUrl: Prisma.FieldRef<"Invoice", 'String'>
   readonly generatedAt: Prisma.FieldRef<"Invoice", 'DateTime'>
   readonly status: Prisma.FieldRef<"Invoice", 'String'>
 }
@@ -1403,6 +1768,30 @@ export type InvoiceDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * Limit how many Invoices to delete.
    */
   limit?: number
+}
+
+/**
+ * Invoice.payments
+ */
+export type Invoice$paymentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Payment
+   */
+  select?: Prisma.PaymentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Payment
+   */
+  omit?: Prisma.PaymentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PaymentInclude<ExtArgs> | null
+  where?: Prisma.PaymentWhereInput
+  orderBy?: Prisma.PaymentOrderByWithRelationInput | Prisma.PaymentOrderByWithRelationInput[]
+  cursor?: Prisma.PaymentWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PaymentScalarFieldEnum | Prisma.PaymentScalarFieldEnum[]
 }
 
 /**

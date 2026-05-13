@@ -225,6 +225,7 @@ export type LeadWhereInput = {
   assignee?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   followUps?: Prisma.FollowUpListRelationFilter
   counsellingBookings?: Prisma.CounsellingBookingListRelationFilter
+  admissions?: Prisma.AdmissionListRelationFilter
 }
 
 export type LeadOrderByWithRelationInput = {
@@ -241,6 +242,7 @@ export type LeadOrderByWithRelationInput = {
   assignee?: Prisma.UserOrderByWithRelationInput
   followUps?: Prisma.FollowUpOrderByRelationAggregateInput
   counsellingBookings?: Prisma.CounsellingBookingOrderByRelationAggregateInput
+  admissions?: Prisma.AdmissionOrderByRelationAggregateInput
 }
 
 export type LeadWhereUniqueInput = Prisma.AtLeast<{
@@ -260,6 +262,7 @@ export type LeadWhereUniqueInput = Prisma.AtLeast<{
   assignee?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   followUps?: Prisma.FollowUpListRelationFilter
   counsellingBookings?: Prisma.CounsellingBookingListRelationFilter
+  admissions?: Prisma.AdmissionListRelationFilter
 }, "id">
 
 export type LeadOrderByWithAggregationInput = {
@@ -307,6 +310,7 @@ export type LeadCreateInput = {
   assignee?: Prisma.UserCreateNestedOneWithoutAssignedLeadsInput
   followUps?: Prisma.FollowUpCreateNestedManyWithoutLeadInput
   counsellingBookings?: Prisma.CounsellingBookingCreateNestedManyWithoutLeadInput
+  admissions?: Prisma.AdmissionCreateNestedManyWithoutLeadInput
 }
 
 export type LeadUncheckedCreateInput = {
@@ -322,6 +326,7 @@ export type LeadUncheckedCreateInput = {
   createdAt?: Date | string
   followUps?: Prisma.FollowUpUncheckedCreateNestedManyWithoutLeadInput
   counsellingBookings?: Prisma.CounsellingBookingUncheckedCreateNestedManyWithoutLeadInput
+  admissions?: Prisma.AdmissionUncheckedCreateNestedManyWithoutLeadInput
 }
 
 export type LeadUpdateInput = {
@@ -337,6 +342,7 @@ export type LeadUpdateInput = {
   assignee?: Prisma.UserUpdateOneWithoutAssignedLeadsNestedInput
   followUps?: Prisma.FollowUpUpdateManyWithoutLeadNestedInput
   counsellingBookings?: Prisma.CounsellingBookingUpdateManyWithoutLeadNestedInput
+  admissions?: Prisma.AdmissionUpdateManyWithoutLeadNestedInput
 }
 
 export type LeadUncheckedUpdateInput = {
@@ -352,6 +358,7 @@ export type LeadUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   followUps?: Prisma.FollowUpUncheckedUpdateManyWithoutLeadNestedInput
   counsellingBookings?: Prisma.CounsellingBookingUncheckedUpdateManyWithoutLeadNestedInput
+  admissions?: Prisma.AdmissionUncheckedUpdateManyWithoutLeadNestedInput
 }
 
 export type LeadCreateManyInput = {
@@ -446,6 +453,11 @@ export type LeadScalarRelationFilter = {
   isNot?: Prisma.LeadWhereInput
 }
 
+export type LeadNullableScalarRelationFilter = {
+  is?: Prisma.LeadWhereInput | null
+  isNot?: Prisma.LeadWhereInput | null
+}
+
 export type LeadCreateNestedManyWithoutAssigneeInput = {
   create?: Prisma.XOR<Prisma.LeadCreateWithoutAssigneeInput, Prisma.LeadUncheckedCreateWithoutAssigneeInput> | Prisma.LeadCreateWithoutAssigneeInput[] | Prisma.LeadUncheckedCreateWithoutAssigneeInput[]
   connectOrCreate?: Prisma.LeadCreateOrConnectWithoutAssigneeInput | Prisma.LeadCreateOrConnectWithoutAssigneeInput[]
@@ -506,6 +518,22 @@ export type LeadUpdateOneRequiredWithoutFollowUpsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.LeadUpdateToOneWithWhereWithoutFollowUpsInput, Prisma.LeadUpdateWithoutFollowUpsInput>, Prisma.LeadUncheckedUpdateWithoutFollowUpsInput>
 }
 
+export type LeadCreateNestedOneWithoutAdmissionsInput = {
+  create?: Prisma.XOR<Prisma.LeadCreateWithoutAdmissionsInput, Prisma.LeadUncheckedCreateWithoutAdmissionsInput>
+  connectOrCreate?: Prisma.LeadCreateOrConnectWithoutAdmissionsInput
+  connect?: Prisma.LeadWhereUniqueInput
+}
+
+export type LeadUpdateOneWithoutAdmissionsNestedInput = {
+  create?: Prisma.XOR<Prisma.LeadCreateWithoutAdmissionsInput, Prisma.LeadUncheckedCreateWithoutAdmissionsInput>
+  connectOrCreate?: Prisma.LeadCreateOrConnectWithoutAdmissionsInput
+  upsert?: Prisma.LeadUpsertWithoutAdmissionsInput
+  disconnect?: Prisma.LeadWhereInput | boolean
+  delete?: Prisma.LeadWhereInput | boolean
+  connect?: Prisma.LeadWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.LeadUpdateToOneWithWhereWithoutAdmissionsInput, Prisma.LeadUpdateWithoutAdmissionsInput>, Prisma.LeadUncheckedUpdateWithoutAdmissionsInput>
+}
+
 export type LeadCreateNestedOneWithoutCounsellingBookingsInput = {
   create?: Prisma.XOR<Prisma.LeadCreateWithoutCounsellingBookingsInput, Prisma.LeadUncheckedCreateWithoutCounsellingBookingsInput>
   connectOrCreate?: Prisma.LeadCreateOrConnectWithoutCounsellingBookingsInput
@@ -532,6 +560,7 @@ export type LeadCreateWithoutAssigneeInput = {
   createdAt?: Date | string
   followUps?: Prisma.FollowUpCreateNestedManyWithoutLeadInput
   counsellingBookings?: Prisma.CounsellingBookingCreateNestedManyWithoutLeadInput
+  admissions?: Prisma.AdmissionCreateNestedManyWithoutLeadInput
 }
 
 export type LeadUncheckedCreateWithoutAssigneeInput = {
@@ -546,6 +575,7 @@ export type LeadUncheckedCreateWithoutAssigneeInput = {
   createdAt?: Date | string
   followUps?: Prisma.FollowUpUncheckedCreateNestedManyWithoutLeadInput
   counsellingBookings?: Prisma.CounsellingBookingUncheckedCreateNestedManyWithoutLeadInput
+  admissions?: Prisma.AdmissionUncheckedCreateNestedManyWithoutLeadInput
 }
 
 export type LeadCreateOrConnectWithoutAssigneeInput = {
@@ -602,6 +632,7 @@ export type LeadCreateWithoutFollowUpsInput = {
   createdAt?: Date | string
   assignee?: Prisma.UserCreateNestedOneWithoutAssignedLeadsInput
   counsellingBookings?: Prisma.CounsellingBookingCreateNestedManyWithoutLeadInput
+  admissions?: Prisma.AdmissionCreateNestedManyWithoutLeadInput
 }
 
 export type LeadUncheckedCreateWithoutFollowUpsInput = {
@@ -616,6 +647,7 @@ export type LeadUncheckedCreateWithoutFollowUpsInput = {
   notes?: string | null
   createdAt?: Date | string
   counsellingBookings?: Prisma.CounsellingBookingUncheckedCreateNestedManyWithoutLeadInput
+  admissions?: Prisma.AdmissionUncheckedCreateNestedManyWithoutLeadInput
 }
 
 export type LeadCreateOrConnectWithoutFollowUpsInput = {
@@ -646,6 +678,7 @@ export type LeadUpdateWithoutFollowUpsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assignee?: Prisma.UserUpdateOneWithoutAssignedLeadsNestedInput
   counsellingBookings?: Prisma.CounsellingBookingUpdateManyWithoutLeadNestedInput
+  admissions?: Prisma.AdmissionUpdateManyWithoutLeadNestedInput
 }
 
 export type LeadUncheckedUpdateWithoutFollowUpsInput = {
@@ -659,6 +692,83 @@ export type LeadUncheckedUpdateWithoutFollowUpsInput = {
   assignedTo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  counsellingBookings?: Prisma.CounsellingBookingUncheckedUpdateManyWithoutLeadNestedInput
+  admissions?: Prisma.AdmissionUncheckedUpdateManyWithoutLeadNestedInput
+}
+
+export type LeadCreateWithoutAdmissionsInput = {
+  id?: string
+  fullName: string
+  mobile: string
+  email: string
+  targetExam: string
+  source: string
+  status?: $Enums.LeadStatus
+  notes?: string | null
+  createdAt?: Date | string
+  assignee?: Prisma.UserCreateNestedOneWithoutAssignedLeadsInput
+  followUps?: Prisma.FollowUpCreateNestedManyWithoutLeadInput
+  counsellingBookings?: Prisma.CounsellingBookingCreateNestedManyWithoutLeadInput
+}
+
+export type LeadUncheckedCreateWithoutAdmissionsInput = {
+  id?: string
+  fullName: string
+  mobile: string
+  email: string
+  targetExam: string
+  source: string
+  status?: $Enums.LeadStatus
+  assignedTo?: string | null
+  notes?: string | null
+  createdAt?: Date | string
+  followUps?: Prisma.FollowUpUncheckedCreateNestedManyWithoutLeadInput
+  counsellingBookings?: Prisma.CounsellingBookingUncheckedCreateNestedManyWithoutLeadInput
+}
+
+export type LeadCreateOrConnectWithoutAdmissionsInput = {
+  where: Prisma.LeadWhereUniqueInput
+  create: Prisma.XOR<Prisma.LeadCreateWithoutAdmissionsInput, Prisma.LeadUncheckedCreateWithoutAdmissionsInput>
+}
+
+export type LeadUpsertWithoutAdmissionsInput = {
+  update: Prisma.XOR<Prisma.LeadUpdateWithoutAdmissionsInput, Prisma.LeadUncheckedUpdateWithoutAdmissionsInput>
+  create: Prisma.XOR<Prisma.LeadCreateWithoutAdmissionsInput, Prisma.LeadUncheckedCreateWithoutAdmissionsInput>
+  where?: Prisma.LeadWhereInput
+}
+
+export type LeadUpdateToOneWithWhereWithoutAdmissionsInput = {
+  where?: Prisma.LeadWhereInput
+  data: Prisma.XOR<Prisma.LeadUpdateWithoutAdmissionsInput, Prisma.LeadUncheckedUpdateWithoutAdmissionsInput>
+}
+
+export type LeadUpdateWithoutAdmissionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  targetExam?: Prisma.StringFieldUpdateOperationsInput | string
+  source?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumLeadStatusFieldUpdateOperationsInput | $Enums.LeadStatus
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  assignee?: Prisma.UserUpdateOneWithoutAssignedLeadsNestedInput
+  followUps?: Prisma.FollowUpUpdateManyWithoutLeadNestedInput
+  counsellingBookings?: Prisma.CounsellingBookingUpdateManyWithoutLeadNestedInput
+}
+
+export type LeadUncheckedUpdateWithoutAdmissionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  targetExam?: Prisma.StringFieldUpdateOperationsInput | string
+  source?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumLeadStatusFieldUpdateOperationsInput | $Enums.LeadStatus
+  assignedTo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  followUps?: Prisma.FollowUpUncheckedUpdateManyWithoutLeadNestedInput
   counsellingBookings?: Prisma.CounsellingBookingUncheckedUpdateManyWithoutLeadNestedInput
 }
 
@@ -674,6 +784,7 @@ export type LeadCreateWithoutCounsellingBookingsInput = {
   createdAt?: Date | string
   assignee?: Prisma.UserCreateNestedOneWithoutAssignedLeadsInput
   followUps?: Prisma.FollowUpCreateNestedManyWithoutLeadInput
+  admissions?: Prisma.AdmissionCreateNestedManyWithoutLeadInput
 }
 
 export type LeadUncheckedCreateWithoutCounsellingBookingsInput = {
@@ -688,6 +799,7 @@ export type LeadUncheckedCreateWithoutCounsellingBookingsInput = {
   notes?: string | null
   createdAt?: Date | string
   followUps?: Prisma.FollowUpUncheckedCreateNestedManyWithoutLeadInput
+  admissions?: Prisma.AdmissionUncheckedCreateNestedManyWithoutLeadInput
 }
 
 export type LeadCreateOrConnectWithoutCounsellingBookingsInput = {
@@ -718,6 +830,7 @@ export type LeadUpdateWithoutCounsellingBookingsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assignee?: Prisma.UserUpdateOneWithoutAssignedLeadsNestedInput
   followUps?: Prisma.FollowUpUpdateManyWithoutLeadNestedInput
+  admissions?: Prisma.AdmissionUpdateManyWithoutLeadNestedInput
 }
 
 export type LeadUncheckedUpdateWithoutCounsellingBookingsInput = {
@@ -732,6 +845,7 @@ export type LeadUncheckedUpdateWithoutCounsellingBookingsInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   followUps?: Prisma.FollowUpUncheckedUpdateManyWithoutLeadNestedInput
+  admissions?: Prisma.AdmissionUncheckedUpdateManyWithoutLeadNestedInput
 }
 
 export type LeadCreateManyAssigneeInput = {
@@ -758,6 +872,7 @@ export type LeadUpdateWithoutAssigneeInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   followUps?: Prisma.FollowUpUpdateManyWithoutLeadNestedInput
   counsellingBookings?: Prisma.CounsellingBookingUpdateManyWithoutLeadNestedInput
+  admissions?: Prisma.AdmissionUpdateManyWithoutLeadNestedInput
 }
 
 export type LeadUncheckedUpdateWithoutAssigneeInput = {
@@ -772,6 +887,7 @@ export type LeadUncheckedUpdateWithoutAssigneeInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   followUps?: Prisma.FollowUpUncheckedUpdateManyWithoutLeadNestedInput
   counsellingBookings?: Prisma.CounsellingBookingUncheckedUpdateManyWithoutLeadNestedInput
+  admissions?: Prisma.AdmissionUncheckedUpdateManyWithoutLeadNestedInput
 }
 
 export type LeadUncheckedUpdateManyWithoutAssigneeInput = {
@@ -794,11 +910,13 @@ export type LeadUncheckedUpdateManyWithoutAssigneeInput = {
 export type LeadCountOutputType = {
   followUps: number
   counsellingBookings: number
+  admissions: number
 }
 
 export type LeadCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   followUps?: boolean | LeadCountOutputTypeCountFollowUpsArgs
   counsellingBookings?: boolean | LeadCountOutputTypeCountCounsellingBookingsArgs
+  admissions?: boolean | LeadCountOutputTypeCountAdmissionsArgs
 }
 
 /**
@@ -825,6 +943,13 @@ export type LeadCountOutputTypeCountCounsellingBookingsArgs<ExtArgs extends runt
   where?: Prisma.CounsellingBookingWhereInput
 }
 
+/**
+ * LeadCountOutputType without action
+ */
+export type LeadCountOutputTypeCountAdmissionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AdmissionWhereInput
+}
+
 
 export type LeadSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -840,6 +965,7 @@ export type LeadSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   assignee?: boolean | Prisma.Lead$assigneeArgs<ExtArgs>
   followUps?: boolean | Prisma.Lead$followUpsArgs<ExtArgs>
   counsellingBookings?: boolean | Prisma.Lead$counsellingBookingsArgs<ExtArgs>
+  admissions?: boolean | Prisma.Lead$admissionsArgs<ExtArgs>
   _count?: boolean | Prisma.LeadCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["lead"]>
 
@@ -889,6 +1015,7 @@ export type LeadInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   assignee?: boolean | Prisma.Lead$assigneeArgs<ExtArgs>
   followUps?: boolean | Prisma.Lead$followUpsArgs<ExtArgs>
   counsellingBookings?: boolean | Prisma.Lead$counsellingBookingsArgs<ExtArgs>
+  admissions?: boolean | Prisma.Lead$admissionsArgs<ExtArgs>
   _count?: boolean | Prisma.LeadCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type LeadIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -904,6 +1031,7 @@ export type $LeadPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     assignee: Prisma.$UserPayload<ExtArgs> | null
     followUps: Prisma.$FollowUpPayload<ExtArgs>[]
     counsellingBookings: Prisma.$CounsellingBookingPayload<ExtArgs>[]
+    admissions: Prisma.$AdmissionPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1313,6 +1441,7 @@ export interface Prisma__LeadClient<T, Null = never, ExtArgs extends runtime.Typ
   assignee<T extends Prisma.Lead$assigneeArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Lead$assigneeArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   followUps<T extends Prisma.Lead$followUpsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Lead$followUpsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FollowUpPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   counsellingBookings<T extends Prisma.Lead$counsellingBookingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Lead$counsellingBookingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CounsellingBookingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  admissions<T extends Prisma.Lead$admissionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Lead$admissionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AdmissionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1817,6 +1946,30 @@ export type Lead$counsellingBookingsArgs<ExtArgs extends runtime.Types.Extension
   take?: number
   skip?: number
   distinct?: Prisma.CounsellingBookingScalarFieldEnum | Prisma.CounsellingBookingScalarFieldEnum[]
+}
+
+/**
+ * Lead.admissions
+ */
+export type Lead$admissionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Admission
+   */
+  select?: Prisma.AdmissionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Admission
+   */
+  omit?: Prisma.AdmissionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AdmissionInclude<ExtArgs> | null
+  where?: Prisma.AdmissionWhereInput
+  orderBy?: Prisma.AdmissionOrderByWithRelationInput | Prisma.AdmissionOrderByWithRelationInput[]
+  cursor?: Prisma.AdmissionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.AdmissionScalarFieldEnum | Prisma.AdmissionScalarFieldEnum[]
 }
 
 /**

@@ -108,6 +108,11 @@ function ensureCsrfCookie(req: Request, res: Response) {
 }
 
 export function csrfProtection(req: Request, res: Response, next: NextFunction) {
+  if (req.path === "/api/payments/webhook") {
+    next();
+    return;
+  }
+
   const cookieToken = ensureCsrfCookie(req, res);
 
   if (safeMethods.has(req.method)) {

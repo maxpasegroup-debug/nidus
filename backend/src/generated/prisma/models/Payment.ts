@@ -28,16 +28,24 @@ export type AggregatePayment = {
 
 export type PaymentAvgAggregateOutputType = {
   amount: number | null
+  refundedAmount: number | null
 }
 
 export type PaymentSumAggregateOutputType = {
   amount: number | null
+  refundedAmount: number | null
 }
 
 export type PaymentMinAggregateOutputType = {
   id: string | null
   userId: string | null
   courseId: string | null
+  admissionId: string | null
+  feeInstallmentId: string | null
+  invoiceId: string | null
+  branchId: string | null
+  collectorId: string | null
+  verifiedBy: string | null
   amount: number | null
   currency: string | null
   razorpayOrderId: string | null
@@ -45,13 +53,31 @@ export type PaymentMinAggregateOutputType = {
   razorpaySignature: string | null
   paymentStatus: string | null
   paymentMethod: string | null
+  paymentMode: string | null
+  transactionRef: string | null
+  receiptNumber: string | null
+  receiptUrl: string | null
+  receiptUploadUrl: string | null
+  remarks: string | null
+  failureReason: string | null
+  refundStatus: string | null
+  refundedAmount: number | null
+  reconciledAt: Date | null
+  verifiedAt: Date | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type PaymentMaxAggregateOutputType = {
   id: string | null
   userId: string | null
   courseId: string | null
+  admissionId: string | null
+  feeInstallmentId: string | null
+  invoiceId: string | null
+  branchId: string | null
+  collectorId: string | null
+  verifiedBy: string | null
   amount: number | null
   currency: string | null
   razorpayOrderId: string | null
@@ -59,13 +85,31 @@ export type PaymentMaxAggregateOutputType = {
   razorpaySignature: string | null
   paymentStatus: string | null
   paymentMethod: string | null
+  paymentMode: string | null
+  transactionRef: string | null
+  receiptNumber: string | null
+  receiptUrl: string | null
+  receiptUploadUrl: string | null
+  remarks: string | null
+  failureReason: string | null
+  refundStatus: string | null
+  refundedAmount: number | null
+  reconciledAt: Date | null
+  verifiedAt: Date | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type PaymentCountAggregateOutputType = {
   id: number
   userId: number
   courseId: number
+  admissionId: number
+  feeInstallmentId: number
+  invoiceId: number
+  branchId: number
+  collectorId: number
+  verifiedBy: number
   amount: number
   currency: number
   razorpayOrderId: number
@@ -73,23 +117,43 @@ export type PaymentCountAggregateOutputType = {
   razorpaySignature: number
   paymentStatus: number
   paymentMethod: number
+  paymentMode: number
+  transactionRef: number
+  receiptNumber: number
+  receiptUrl: number
+  receiptUploadUrl: number
+  remarks: number
+  failureReason: number
+  refundStatus: number
+  refundedAmount: number
+  reconciledAt: number
+  verifiedAt: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
 
 export type PaymentAvgAggregateInputType = {
   amount?: true
+  refundedAmount?: true
 }
 
 export type PaymentSumAggregateInputType = {
   amount?: true
+  refundedAmount?: true
 }
 
 export type PaymentMinAggregateInputType = {
   id?: true
   userId?: true
   courseId?: true
+  admissionId?: true
+  feeInstallmentId?: true
+  invoiceId?: true
+  branchId?: true
+  collectorId?: true
+  verifiedBy?: true
   amount?: true
   currency?: true
   razorpayOrderId?: true
@@ -97,13 +161,31 @@ export type PaymentMinAggregateInputType = {
   razorpaySignature?: true
   paymentStatus?: true
   paymentMethod?: true
+  paymentMode?: true
+  transactionRef?: true
+  receiptNumber?: true
+  receiptUrl?: true
+  receiptUploadUrl?: true
+  remarks?: true
+  failureReason?: true
+  refundStatus?: true
+  refundedAmount?: true
+  reconciledAt?: true
+  verifiedAt?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type PaymentMaxAggregateInputType = {
   id?: true
   userId?: true
   courseId?: true
+  admissionId?: true
+  feeInstallmentId?: true
+  invoiceId?: true
+  branchId?: true
+  collectorId?: true
+  verifiedBy?: true
   amount?: true
   currency?: true
   razorpayOrderId?: true
@@ -111,13 +193,31 @@ export type PaymentMaxAggregateInputType = {
   razorpaySignature?: true
   paymentStatus?: true
   paymentMethod?: true
+  paymentMode?: true
+  transactionRef?: true
+  receiptNumber?: true
+  receiptUrl?: true
+  receiptUploadUrl?: true
+  remarks?: true
+  failureReason?: true
+  refundStatus?: true
+  refundedAmount?: true
+  reconciledAt?: true
+  verifiedAt?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type PaymentCountAggregateInputType = {
   id?: true
   userId?: true
   courseId?: true
+  admissionId?: true
+  feeInstallmentId?: true
+  invoiceId?: true
+  branchId?: true
+  collectorId?: true
+  verifiedBy?: true
   amount?: true
   currency?: true
   razorpayOrderId?: true
@@ -125,7 +225,19 @@ export type PaymentCountAggregateInputType = {
   razorpaySignature?: true
   paymentStatus?: true
   paymentMethod?: true
+  paymentMode?: true
+  transactionRef?: true
+  receiptNumber?: true
+  receiptUrl?: true
+  receiptUploadUrl?: true
+  remarks?: true
+  failureReason?: true
+  refundStatus?: true
+  refundedAmount?: true
+  reconciledAt?: true
+  verifiedAt?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -219,6 +331,12 @@ export type PaymentGroupByOutputType = {
   id: string
   userId: string
   courseId: string | null
+  admissionId: string | null
+  feeInstallmentId: string | null
+  invoiceId: string | null
+  branchId: string | null
+  collectorId: string | null
+  verifiedBy: string | null
   amount: number
   currency: string
   razorpayOrderId: string
@@ -226,7 +344,19 @@ export type PaymentGroupByOutputType = {
   razorpaySignature: string | null
   paymentStatus: string
   paymentMethod: string | null
+  paymentMode: string
+  transactionRef: string | null
+  receiptNumber: string | null
+  receiptUrl: string | null
+  receiptUploadUrl: string | null
+  remarks: string | null
+  failureReason: string | null
+  refundStatus: string
+  refundedAmount: number
+  reconciledAt: Date | null
+  verifiedAt: Date | null
   createdAt: Date
+  updatedAt: Date
   _count: PaymentCountAggregateOutputType | null
   _avg: PaymentAvgAggregateOutputType | null
   _sum: PaymentSumAggregateOutputType | null
@@ -256,6 +386,12 @@ export type PaymentWhereInput = {
   id?: Prisma.StringFilter<"Payment"> | string
   userId?: Prisma.StringFilter<"Payment"> | string
   courseId?: Prisma.StringNullableFilter<"Payment"> | string | null
+  admissionId?: Prisma.StringNullableFilter<"Payment"> | string | null
+  feeInstallmentId?: Prisma.StringNullableFilter<"Payment"> | string | null
+  invoiceId?: Prisma.StringNullableFilter<"Payment"> | string | null
+  branchId?: Prisma.StringNullableFilter<"Payment"> | string | null
+  collectorId?: Prisma.StringNullableFilter<"Payment"> | string | null
+  verifiedBy?: Prisma.StringNullableFilter<"Payment"> | string | null
   amount?: Prisma.FloatFilter<"Payment"> | number
   currency?: Prisma.StringFilter<"Payment"> | string
   razorpayOrderId?: Prisma.StringFilter<"Payment"> | string
@@ -263,15 +399,39 @@ export type PaymentWhereInput = {
   razorpaySignature?: Prisma.StringNullableFilter<"Payment"> | string | null
   paymentStatus?: Prisma.StringFilter<"Payment"> | string
   paymentMethod?: Prisma.StringNullableFilter<"Payment"> | string | null
+  paymentMode?: Prisma.StringFilter<"Payment"> | string
+  transactionRef?: Prisma.StringNullableFilter<"Payment"> | string | null
+  receiptNumber?: Prisma.StringNullableFilter<"Payment"> | string | null
+  receiptUrl?: Prisma.StringNullableFilter<"Payment"> | string | null
+  receiptUploadUrl?: Prisma.StringNullableFilter<"Payment"> | string | null
+  remarks?: Prisma.StringNullableFilter<"Payment"> | string | null
+  failureReason?: Prisma.StringNullableFilter<"Payment"> | string | null
+  refundStatus?: Prisma.StringFilter<"Payment"> | string
+  refundedAmount?: Prisma.FloatFilter<"Payment"> | number
+  reconciledAt?: Prisma.DateTimeNullableFilter<"Payment"> | Date | string | null
+  verifiedAt?: Prisma.DateTimeNullableFilter<"Payment"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Payment"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"Payment"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   course?: Prisma.XOR<Prisma.CourseNullableScalarRelationFilter, Prisma.CourseWhereInput> | null
+  installment?: Prisma.XOR<Prisma.FeeInstallmentNullableScalarRelationFilter, Prisma.FeeInstallmentWhereInput> | null
+  invoice?: Prisma.XOR<Prisma.InvoiceNullableScalarRelationFilter, Prisma.InvoiceWhereInput> | null
+  branch?: Prisma.XOR<Prisma.BranchNullableScalarRelationFilter, Prisma.BranchWhereInput> | null
+  collector?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  verifier?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  logs?: Prisma.PaymentTransactionLogListRelationFilter
 }
 
 export type PaymentOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   courseId?: Prisma.SortOrderInput | Prisma.SortOrder
+  admissionId?: Prisma.SortOrderInput | Prisma.SortOrder
+  feeInstallmentId?: Prisma.SortOrderInput | Prisma.SortOrder
+  invoiceId?: Prisma.SortOrderInput | Prisma.SortOrder
+  branchId?: Prisma.SortOrderInput | Prisma.SortOrder
+  collectorId?: Prisma.SortOrderInput | Prisma.SortOrder
+  verifiedBy?: Prisma.SortOrderInput | Prisma.SortOrder
   amount?: Prisma.SortOrder
   currency?: Prisma.SortOrder
   razorpayOrderId?: Prisma.SortOrder
@@ -279,34 +439,82 @@ export type PaymentOrderByWithRelationInput = {
   razorpaySignature?: Prisma.SortOrderInput | Prisma.SortOrder
   paymentStatus?: Prisma.SortOrder
   paymentMethod?: Prisma.SortOrderInput | Prisma.SortOrder
+  paymentMode?: Prisma.SortOrder
+  transactionRef?: Prisma.SortOrderInput | Prisma.SortOrder
+  receiptNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  receiptUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  receiptUploadUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  remarks?: Prisma.SortOrderInput | Prisma.SortOrder
+  failureReason?: Prisma.SortOrderInput | Prisma.SortOrder
+  refundStatus?: Prisma.SortOrder
+  refundedAmount?: Prisma.SortOrder
+  reconciledAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  verifiedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
   course?: Prisma.CourseOrderByWithRelationInput
+  installment?: Prisma.FeeInstallmentOrderByWithRelationInput
+  invoice?: Prisma.InvoiceOrderByWithRelationInput
+  branch?: Prisma.BranchOrderByWithRelationInput
+  collector?: Prisma.UserOrderByWithRelationInput
+  verifier?: Prisma.UserOrderByWithRelationInput
+  logs?: Prisma.PaymentTransactionLogOrderByRelationAggregateInput
 }
 
 export type PaymentWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   razorpayOrderId?: string
+  receiptNumber?: string
   AND?: Prisma.PaymentWhereInput | Prisma.PaymentWhereInput[]
   OR?: Prisma.PaymentWhereInput[]
   NOT?: Prisma.PaymentWhereInput | Prisma.PaymentWhereInput[]
   userId?: Prisma.StringFilter<"Payment"> | string
   courseId?: Prisma.StringNullableFilter<"Payment"> | string | null
+  admissionId?: Prisma.StringNullableFilter<"Payment"> | string | null
+  feeInstallmentId?: Prisma.StringNullableFilter<"Payment"> | string | null
+  invoiceId?: Prisma.StringNullableFilter<"Payment"> | string | null
+  branchId?: Prisma.StringNullableFilter<"Payment"> | string | null
+  collectorId?: Prisma.StringNullableFilter<"Payment"> | string | null
+  verifiedBy?: Prisma.StringNullableFilter<"Payment"> | string | null
   amount?: Prisma.FloatFilter<"Payment"> | number
   currency?: Prisma.StringFilter<"Payment"> | string
   razorpayPaymentId?: Prisma.StringNullableFilter<"Payment"> | string | null
   razorpaySignature?: Prisma.StringNullableFilter<"Payment"> | string | null
   paymentStatus?: Prisma.StringFilter<"Payment"> | string
   paymentMethod?: Prisma.StringNullableFilter<"Payment"> | string | null
+  paymentMode?: Prisma.StringFilter<"Payment"> | string
+  transactionRef?: Prisma.StringNullableFilter<"Payment"> | string | null
+  receiptUrl?: Prisma.StringNullableFilter<"Payment"> | string | null
+  receiptUploadUrl?: Prisma.StringNullableFilter<"Payment"> | string | null
+  remarks?: Prisma.StringNullableFilter<"Payment"> | string | null
+  failureReason?: Prisma.StringNullableFilter<"Payment"> | string | null
+  refundStatus?: Prisma.StringFilter<"Payment"> | string
+  refundedAmount?: Prisma.FloatFilter<"Payment"> | number
+  reconciledAt?: Prisma.DateTimeNullableFilter<"Payment"> | Date | string | null
+  verifiedAt?: Prisma.DateTimeNullableFilter<"Payment"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Payment"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"Payment"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   course?: Prisma.XOR<Prisma.CourseNullableScalarRelationFilter, Prisma.CourseWhereInput> | null
-}, "id" | "razorpayOrderId">
+  installment?: Prisma.XOR<Prisma.FeeInstallmentNullableScalarRelationFilter, Prisma.FeeInstallmentWhereInput> | null
+  invoice?: Prisma.XOR<Prisma.InvoiceNullableScalarRelationFilter, Prisma.InvoiceWhereInput> | null
+  branch?: Prisma.XOR<Prisma.BranchNullableScalarRelationFilter, Prisma.BranchWhereInput> | null
+  collector?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  verifier?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  logs?: Prisma.PaymentTransactionLogListRelationFilter
+}, "id" | "razorpayOrderId" | "receiptNumber">
 
 export type PaymentOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   courseId?: Prisma.SortOrderInput | Prisma.SortOrder
+  admissionId?: Prisma.SortOrderInput | Prisma.SortOrder
+  feeInstallmentId?: Prisma.SortOrderInput | Prisma.SortOrder
+  invoiceId?: Prisma.SortOrderInput | Prisma.SortOrder
+  branchId?: Prisma.SortOrderInput | Prisma.SortOrder
+  collectorId?: Prisma.SortOrderInput | Prisma.SortOrder
+  verifiedBy?: Prisma.SortOrderInput | Prisma.SortOrder
   amount?: Prisma.SortOrder
   currency?: Prisma.SortOrder
   razorpayOrderId?: Prisma.SortOrder
@@ -314,7 +522,19 @@ export type PaymentOrderByWithAggregationInput = {
   razorpaySignature?: Prisma.SortOrderInput | Prisma.SortOrder
   paymentStatus?: Prisma.SortOrder
   paymentMethod?: Prisma.SortOrderInput | Prisma.SortOrder
+  paymentMode?: Prisma.SortOrder
+  transactionRef?: Prisma.SortOrderInput | Prisma.SortOrder
+  receiptNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  receiptUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  receiptUploadUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  remarks?: Prisma.SortOrderInput | Prisma.SortOrder
+  failureReason?: Prisma.SortOrderInput | Prisma.SortOrder
+  refundStatus?: Prisma.SortOrder
+  refundedAmount?: Prisma.SortOrder
+  reconciledAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  verifiedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.PaymentCountOrderByAggregateInput
   _avg?: Prisma.PaymentAvgOrderByAggregateInput
   _max?: Prisma.PaymentMaxOrderByAggregateInput
@@ -329,6 +549,12 @@ export type PaymentScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"Payment"> | string
   userId?: Prisma.StringWithAggregatesFilter<"Payment"> | string
   courseId?: Prisma.StringNullableWithAggregatesFilter<"Payment"> | string | null
+  admissionId?: Prisma.StringNullableWithAggregatesFilter<"Payment"> | string | null
+  feeInstallmentId?: Prisma.StringNullableWithAggregatesFilter<"Payment"> | string | null
+  invoiceId?: Prisma.StringNullableWithAggregatesFilter<"Payment"> | string | null
+  branchId?: Prisma.StringNullableWithAggregatesFilter<"Payment"> | string | null
+  collectorId?: Prisma.StringNullableWithAggregatesFilter<"Payment"> | string | null
+  verifiedBy?: Prisma.StringNullableWithAggregatesFilter<"Payment"> | string | null
   amount?: Prisma.FloatWithAggregatesFilter<"Payment"> | number
   currency?: Prisma.StringWithAggregatesFilter<"Payment"> | string
   razorpayOrderId?: Prisma.StringWithAggregatesFilter<"Payment"> | string
@@ -336,11 +562,24 @@ export type PaymentScalarWhereWithAggregatesInput = {
   razorpaySignature?: Prisma.StringNullableWithAggregatesFilter<"Payment"> | string | null
   paymentStatus?: Prisma.StringWithAggregatesFilter<"Payment"> | string
   paymentMethod?: Prisma.StringNullableWithAggregatesFilter<"Payment"> | string | null
+  paymentMode?: Prisma.StringWithAggregatesFilter<"Payment"> | string
+  transactionRef?: Prisma.StringNullableWithAggregatesFilter<"Payment"> | string | null
+  receiptNumber?: Prisma.StringNullableWithAggregatesFilter<"Payment"> | string | null
+  receiptUrl?: Prisma.StringNullableWithAggregatesFilter<"Payment"> | string | null
+  receiptUploadUrl?: Prisma.StringNullableWithAggregatesFilter<"Payment"> | string | null
+  remarks?: Prisma.StringNullableWithAggregatesFilter<"Payment"> | string | null
+  failureReason?: Prisma.StringNullableWithAggregatesFilter<"Payment"> | string | null
+  refundStatus?: Prisma.StringWithAggregatesFilter<"Payment"> | string
+  refundedAmount?: Prisma.FloatWithAggregatesFilter<"Payment"> | number
+  reconciledAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Payment"> | Date | string | null
+  verifiedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Payment"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Payment"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Payment"> | Date | string
 }
 
 export type PaymentCreateInput = {
   id?: string
+  admissionId?: string | null
   amount: number
   currency?: string
   razorpayOrderId: string
@@ -348,15 +587,39 @@ export type PaymentCreateInput = {
   razorpaySignature?: string | null
   paymentStatus?: string
   paymentMethod?: string | null
+  paymentMode?: string
+  transactionRef?: string | null
+  receiptNumber?: string | null
+  receiptUrl?: string | null
+  receiptUploadUrl?: string | null
+  remarks?: string | null
+  failureReason?: string | null
+  refundStatus?: string
+  refundedAmount?: number
+  reconciledAt?: Date | string | null
+  verifiedAt?: Date | string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutPaymentsInput
   course?: Prisma.CourseCreateNestedOneWithoutPaymentsInput
+  installment?: Prisma.FeeInstallmentCreateNestedOneWithoutPaymentsInput
+  invoice?: Prisma.InvoiceCreateNestedOneWithoutPaymentsInput
+  branch?: Prisma.BranchCreateNestedOneWithoutPaymentsInput
+  collector?: Prisma.UserCreateNestedOneWithoutCollectedPaymentsInput
+  verifier?: Prisma.UserCreateNestedOneWithoutVerifiedPaymentsInput
+  logs?: Prisma.PaymentTransactionLogCreateNestedManyWithoutPaymentInput
 }
 
 export type PaymentUncheckedCreateInput = {
   id?: string
   userId: string
   courseId?: string | null
+  admissionId?: string | null
+  feeInstallmentId?: string | null
+  invoiceId?: string | null
+  branchId?: string | null
+  collectorId?: string | null
+  verifiedBy?: string | null
   amount: number
   currency?: string
   razorpayOrderId: string
@@ -364,11 +627,25 @@ export type PaymentUncheckedCreateInput = {
   razorpaySignature?: string | null
   paymentStatus?: string
   paymentMethod?: string | null
+  paymentMode?: string
+  transactionRef?: string | null
+  receiptNumber?: string | null
+  receiptUrl?: string | null
+  receiptUploadUrl?: string | null
+  remarks?: string | null
+  failureReason?: string | null
+  refundStatus?: string
+  refundedAmount?: number
+  reconciledAt?: Date | string | null
+  verifiedAt?: Date | string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
+  logs?: Prisma.PaymentTransactionLogUncheckedCreateNestedManyWithoutPaymentInput
 }
 
 export type PaymentUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  admissionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   razorpayOrderId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -376,15 +653,39 @@ export type PaymentUpdateInput = {
   razorpaySignature?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
   paymentMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMode?: Prisma.StringFieldUpdateOperationsInput | string
+  transactionRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptUploadUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remarks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  refundStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  refundedAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  reconciledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutPaymentsNestedInput
   course?: Prisma.CourseUpdateOneWithoutPaymentsNestedInput
+  installment?: Prisma.FeeInstallmentUpdateOneWithoutPaymentsNestedInput
+  invoice?: Prisma.InvoiceUpdateOneWithoutPaymentsNestedInput
+  branch?: Prisma.BranchUpdateOneWithoutPaymentsNestedInput
+  collector?: Prisma.UserUpdateOneWithoutCollectedPaymentsNestedInput
+  verifier?: Prisma.UserUpdateOneWithoutVerifiedPaymentsNestedInput
+  logs?: Prisma.PaymentTransactionLogUpdateManyWithoutPaymentNestedInput
 }
 
 export type PaymentUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   courseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  admissionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feeInstallmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invoiceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  collectorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verifiedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   razorpayOrderId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -392,13 +693,32 @@ export type PaymentUncheckedUpdateInput = {
   razorpaySignature?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
   paymentMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMode?: Prisma.StringFieldUpdateOperationsInput | string
+  transactionRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptUploadUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remarks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  refundStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  refundedAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  reconciledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  logs?: Prisma.PaymentTransactionLogUncheckedUpdateManyWithoutPaymentNestedInput
 }
 
 export type PaymentCreateManyInput = {
   id?: string
   userId: string
   courseId?: string | null
+  admissionId?: string | null
+  feeInstallmentId?: string | null
+  invoiceId?: string | null
+  branchId?: string | null
+  collectorId?: string | null
+  verifiedBy?: string | null
   amount: number
   currency?: string
   razorpayOrderId: string
@@ -406,11 +726,24 @@ export type PaymentCreateManyInput = {
   razorpaySignature?: string | null
   paymentStatus?: string
   paymentMethod?: string | null
+  paymentMode?: string
+  transactionRef?: string | null
+  receiptNumber?: string | null
+  receiptUrl?: string | null
+  receiptUploadUrl?: string | null
+  remarks?: string | null
+  failureReason?: string | null
+  refundStatus?: string
+  refundedAmount?: number
+  reconciledAt?: Date | string | null
+  verifiedAt?: Date | string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type PaymentUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  admissionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   razorpayOrderId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -418,13 +751,31 @@ export type PaymentUpdateManyMutationInput = {
   razorpaySignature?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
   paymentMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMode?: Prisma.StringFieldUpdateOperationsInput | string
+  transactionRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptUploadUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remarks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  refundStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  refundedAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  reconciledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PaymentUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   courseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  admissionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feeInstallmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invoiceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  collectorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verifiedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   razorpayOrderId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -432,7 +783,19 @@ export type PaymentUncheckedUpdateManyInput = {
   razorpaySignature?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
   paymentMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMode?: Prisma.StringFieldUpdateOperationsInput | string
+  transactionRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptUploadUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remarks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  refundStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  refundedAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  reconciledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PaymentListRelationFilter = {
@@ -449,6 +812,12 @@ export type PaymentCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   courseId?: Prisma.SortOrder
+  admissionId?: Prisma.SortOrder
+  feeInstallmentId?: Prisma.SortOrder
+  invoiceId?: Prisma.SortOrder
+  branchId?: Prisma.SortOrder
+  collectorId?: Prisma.SortOrder
+  verifiedBy?: Prisma.SortOrder
   amount?: Prisma.SortOrder
   currency?: Prisma.SortOrder
   razorpayOrderId?: Prisma.SortOrder
@@ -456,17 +825,36 @@ export type PaymentCountOrderByAggregateInput = {
   razorpaySignature?: Prisma.SortOrder
   paymentStatus?: Prisma.SortOrder
   paymentMethod?: Prisma.SortOrder
+  paymentMode?: Prisma.SortOrder
+  transactionRef?: Prisma.SortOrder
+  receiptNumber?: Prisma.SortOrder
+  receiptUrl?: Prisma.SortOrder
+  receiptUploadUrl?: Prisma.SortOrder
+  remarks?: Prisma.SortOrder
+  failureReason?: Prisma.SortOrder
+  refundStatus?: Prisma.SortOrder
+  refundedAmount?: Prisma.SortOrder
+  reconciledAt?: Prisma.SortOrder
+  verifiedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type PaymentAvgOrderByAggregateInput = {
   amount?: Prisma.SortOrder
+  refundedAmount?: Prisma.SortOrder
 }
 
 export type PaymentMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   courseId?: Prisma.SortOrder
+  admissionId?: Prisma.SortOrder
+  feeInstallmentId?: Prisma.SortOrder
+  invoiceId?: Prisma.SortOrder
+  branchId?: Prisma.SortOrder
+  collectorId?: Prisma.SortOrder
+  verifiedBy?: Prisma.SortOrder
   amount?: Prisma.SortOrder
   currency?: Prisma.SortOrder
   razorpayOrderId?: Prisma.SortOrder
@@ -474,13 +862,31 @@ export type PaymentMaxOrderByAggregateInput = {
   razorpaySignature?: Prisma.SortOrder
   paymentStatus?: Prisma.SortOrder
   paymentMethod?: Prisma.SortOrder
+  paymentMode?: Prisma.SortOrder
+  transactionRef?: Prisma.SortOrder
+  receiptNumber?: Prisma.SortOrder
+  receiptUrl?: Prisma.SortOrder
+  receiptUploadUrl?: Prisma.SortOrder
+  remarks?: Prisma.SortOrder
+  failureReason?: Prisma.SortOrder
+  refundStatus?: Prisma.SortOrder
+  refundedAmount?: Prisma.SortOrder
+  reconciledAt?: Prisma.SortOrder
+  verifiedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type PaymentMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   courseId?: Prisma.SortOrder
+  admissionId?: Prisma.SortOrder
+  feeInstallmentId?: Prisma.SortOrder
+  invoiceId?: Prisma.SortOrder
+  branchId?: Prisma.SortOrder
+  collectorId?: Prisma.SortOrder
+  verifiedBy?: Prisma.SortOrder
   amount?: Prisma.SortOrder
   currency?: Prisma.SortOrder
   razorpayOrderId?: Prisma.SortOrder
@@ -488,11 +894,29 @@ export type PaymentMinOrderByAggregateInput = {
   razorpaySignature?: Prisma.SortOrder
   paymentStatus?: Prisma.SortOrder
   paymentMethod?: Prisma.SortOrder
+  paymentMode?: Prisma.SortOrder
+  transactionRef?: Prisma.SortOrder
+  receiptNumber?: Prisma.SortOrder
+  receiptUrl?: Prisma.SortOrder
+  receiptUploadUrl?: Prisma.SortOrder
+  remarks?: Prisma.SortOrder
+  failureReason?: Prisma.SortOrder
+  refundStatus?: Prisma.SortOrder
+  refundedAmount?: Prisma.SortOrder
+  reconciledAt?: Prisma.SortOrder
+  verifiedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type PaymentSumOrderByAggregateInput = {
   amount?: Prisma.SortOrder
+  refundedAmount?: Prisma.SortOrder
+}
+
+export type PaymentScalarRelationFilter = {
+  is?: Prisma.PaymentWhereInput
+  isNot?: Prisma.PaymentWhereInput
 }
 
 export type PaymentCreateNestedManyWithoutUserInput = {
@@ -502,10 +926,38 @@ export type PaymentCreateNestedManyWithoutUserInput = {
   connect?: Prisma.PaymentWhereUniqueInput | Prisma.PaymentWhereUniqueInput[]
 }
 
+export type PaymentCreateNestedManyWithoutCollectorInput = {
+  create?: Prisma.XOR<Prisma.PaymentCreateWithoutCollectorInput, Prisma.PaymentUncheckedCreateWithoutCollectorInput> | Prisma.PaymentCreateWithoutCollectorInput[] | Prisma.PaymentUncheckedCreateWithoutCollectorInput[]
+  connectOrCreate?: Prisma.PaymentCreateOrConnectWithoutCollectorInput | Prisma.PaymentCreateOrConnectWithoutCollectorInput[]
+  createMany?: Prisma.PaymentCreateManyCollectorInputEnvelope
+  connect?: Prisma.PaymentWhereUniqueInput | Prisma.PaymentWhereUniqueInput[]
+}
+
+export type PaymentCreateNestedManyWithoutVerifierInput = {
+  create?: Prisma.XOR<Prisma.PaymentCreateWithoutVerifierInput, Prisma.PaymentUncheckedCreateWithoutVerifierInput> | Prisma.PaymentCreateWithoutVerifierInput[] | Prisma.PaymentUncheckedCreateWithoutVerifierInput[]
+  connectOrCreate?: Prisma.PaymentCreateOrConnectWithoutVerifierInput | Prisma.PaymentCreateOrConnectWithoutVerifierInput[]
+  createMany?: Prisma.PaymentCreateManyVerifierInputEnvelope
+  connect?: Prisma.PaymentWhereUniqueInput | Prisma.PaymentWhereUniqueInput[]
+}
+
 export type PaymentUncheckedCreateNestedManyWithoutUserInput = {
   create?: Prisma.XOR<Prisma.PaymentCreateWithoutUserInput, Prisma.PaymentUncheckedCreateWithoutUserInput> | Prisma.PaymentCreateWithoutUserInput[] | Prisma.PaymentUncheckedCreateWithoutUserInput[]
   connectOrCreate?: Prisma.PaymentCreateOrConnectWithoutUserInput | Prisma.PaymentCreateOrConnectWithoutUserInput[]
   createMany?: Prisma.PaymentCreateManyUserInputEnvelope
+  connect?: Prisma.PaymentWhereUniqueInput | Prisma.PaymentWhereUniqueInput[]
+}
+
+export type PaymentUncheckedCreateNestedManyWithoutCollectorInput = {
+  create?: Prisma.XOR<Prisma.PaymentCreateWithoutCollectorInput, Prisma.PaymentUncheckedCreateWithoutCollectorInput> | Prisma.PaymentCreateWithoutCollectorInput[] | Prisma.PaymentUncheckedCreateWithoutCollectorInput[]
+  connectOrCreate?: Prisma.PaymentCreateOrConnectWithoutCollectorInput | Prisma.PaymentCreateOrConnectWithoutCollectorInput[]
+  createMany?: Prisma.PaymentCreateManyCollectorInputEnvelope
+  connect?: Prisma.PaymentWhereUniqueInput | Prisma.PaymentWhereUniqueInput[]
+}
+
+export type PaymentUncheckedCreateNestedManyWithoutVerifierInput = {
+  create?: Prisma.XOR<Prisma.PaymentCreateWithoutVerifierInput, Prisma.PaymentUncheckedCreateWithoutVerifierInput> | Prisma.PaymentCreateWithoutVerifierInput[] | Prisma.PaymentUncheckedCreateWithoutVerifierInput[]
+  connectOrCreate?: Prisma.PaymentCreateOrConnectWithoutVerifierInput | Prisma.PaymentCreateOrConnectWithoutVerifierInput[]
+  createMany?: Prisma.PaymentCreateManyVerifierInputEnvelope
   connect?: Prisma.PaymentWhereUniqueInput | Prisma.PaymentWhereUniqueInput[]
 }
 
@@ -523,6 +975,34 @@ export type PaymentUpdateManyWithoutUserNestedInput = {
   deleteMany?: Prisma.PaymentScalarWhereInput | Prisma.PaymentScalarWhereInput[]
 }
 
+export type PaymentUpdateManyWithoutCollectorNestedInput = {
+  create?: Prisma.XOR<Prisma.PaymentCreateWithoutCollectorInput, Prisma.PaymentUncheckedCreateWithoutCollectorInput> | Prisma.PaymentCreateWithoutCollectorInput[] | Prisma.PaymentUncheckedCreateWithoutCollectorInput[]
+  connectOrCreate?: Prisma.PaymentCreateOrConnectWithoutCollectorInput | Prisma.PaymentCreateOrConnectWithoutCollectorInput[]
+  upsert?: Prisma.PaymentUpsertWithWhereUniqueWithoutCollectorInput | Prisma.PaymentUpsertWithWhereUniqueWithoutCollectorInput[]
+  createMany?: Prisma.PaymentCreateManyCollectorInputEnvelope
+  set?: Prisma.PaymentWhereUniqueInput | Prisma.PaymentWhereUniqueInput[]
+  disconnect?: Prisma.PaymentWhereUniqueInput | Prisma.PaymentWhereUniqueInput[]
+  delete?: Prisma.PaymentWhereUniqueInput | Prisma.PaymentWhereUniqueInput[]
+  connect?: Prisma.PaymentWhereUniqueInput | Prisma.PaymentWhereUniqueInput[]
+  update?: Prisma.PaymentUpdateWithWhereUniqueWithoutCollectorInput | Prisma.PaymentUpdateWithWhereUniqueWithoutCollectorInput[]
+  updateMany?: Prisma.PaymentUpdateManyWithWhereWithoutCollectorInput | Prisma.PaymentUpdateManyWithWhereWithoutCollectorInput[]
+  deleteMany?: Prisma.PaymentScalarWhereInput | Prisma.PaymentScalarWhereInput[]
+}
+
+export type PaymentUpdateManyWithoutVerifierNestedInput = {
+  create?: Prisma.XOR<Prisma.PaymentCreateWithoutVerifierInput, Prisma.PaymentUncheckedCreateWithoutVerifierInput> | Prisma.PaymentCreateWithoutVerifierInput[] | Prisma.PaymentUncheckedCreateWithoutVerifierInput[]
+  connectOrCreate?: Prisma.PaymentCreateOrConnectWithoutVerifierInput | Prisma.PaymentCreateOrConnectWithoutVerifierInput[]
+  upsert?: Prisma.PaymentUpsertWithWhereUniqueWithoutVerifierInput | Prisma.PaymentUpsertWithWhereUniqueWithoutVerifierInput[]
+  createMany?: Prisma.PaymentCreateManyVerifierInputEnvelope
+  set?: Prisma.PaymentWhereUniqueInput | Prisma.PaymentWhereUniqueInput[]
+  disconnect?: Prisma.PaymentWhereUniqueInput | Prisma.PaymentWhereUniqueInput[]
+  delete?: Prisma.PaymentWhereUniqueInput | Prisma.PaymentWhereUniqueInput[]
+  connect?: Prisma.PaymentWhereUniqueInput | Prisma.PaymentWhereUniqueInput[]
+  update?: Prisma.PaymentUpdateWithWhereUniqueWithoutVerifierInput | Prisma.PaymentUpdateWithWhereUniqueWithoutVerifierInput[]
+  updateMany?: Prisma.PaymentUpdateManyWithWhereWithoutVerifierInput | Prisma.PaymentUpdateManyWithWhereWithoutVerifierInput[]
+  deleteMany?: Prisma.PaymentScalarWhereInput | Prisma.PaymentScalarWhereInput[]
+}
+
 export type PaymentUncheckedUpdateManyWithoutUserNestedInput = {
   create?: Prisma.XOR<Prisma.PaymentCreateWithoutUserInput, Prisma.PaymentUncheckedCreateWithoutUserInput> | Prisma.PaymentCreateWithoutUserInput[] | Prisma.PaymentUncheckedCreateWithoutUserInput[]
   connectOrCreate?: Prisma.PaymentCreateOrConnectWithoutUserInput | Prisma.PaymentCreateOrConnectWithoutUserInput[]
@@ -534,6 +1014,34 @@ export type PaymentUncheckedUpdateManyWithoutUserNestedInput = {
   connect?: Prisma.PaymentWhereUniqueInput | Prisma.PaymentWhereUniqueInput[]
   update?: Prisma.PaymentUpdateWithWhereUniqueWithoutUserInput | Prisma.PaymentUpdateWithWhereUniqueWithoutUserInput[]
   updateMany?: Prisma.PaymentUpdateManyWithWhereWithoutUserInput | Prisma.PaymentUpdateManyWithWhereWithoutUserInput[]
+  deleteMany?: Prisma.PaymentScalarWhereInput | Prisma.PaymentScalarWhereInput[]
+}
+
+export type PaymentUncheckedUpdateManyWithoutCollectorNestedInput = {
+  create?: Prisma.XOR<Prisma.PaymentCreateWithoutCollectorInput, Prisma.PaymentUncheckedCreateWithoutCollectorInput> | Prisma.PaymentCreateWithoutCollectorInput[] | Prisma.PaymentUncheckedCreateWithoutCollectorInput[]
+  connectOrCreate?: Prisma.PaymentCreateOrConnectWithoutCollectorInput | Prisma.PaymentCreateOrConnectWithoutCollectorInput[]
+  upsert?: Prisma.PaymentUpsertWithWhereUniqueWithoutCollectorInput | Prisma.PaymentUpsertWithWhereUniqueWithoutCollectorInput[]
+  createMany?: Prisma.PaymentCreateManyCollectorInputEnvelope
+  set?: Prisma.PaymentWhereUniqueInput | Prisma.PaymentWhereUniqueInput[]
+  disconnect?: Prisma.PaymentWhereUniqueInput | Prisma.PaymentWhereUniqueInput[]
+  delete?: Prisma.PaymentWhereUniqueInput | Prisma.PaymentWhereUniqueInput[]
+  connect?: Prisma.PaymentWhereUniqueInput | Prisma.PaymentWhereUniqueInput[]
+  update?: Prisma.PaymentUpdateWithWhereUniqueWithoutCollectorInput | Prisma.PaymentUpdateWithWhereUniqueWithoutCollectorInput[]
+  updateMany?: Prisma.PaymentUpdateManyWithWhereWithoutCollectorInput | Prisma.PaymentUpdateManyWithWhereWithoutCollectorInput[]
+  deleteMany?: Prisma.PaymentScalarWhereInput | Prisma.PaymentScalarWhereInput[]
+}
+
+export type PaymentUncheckedUpdateManyWithoutVerifierNestedInput = {
+  create?: Prisma.XOR<Prisma.PaymentCreateWithoutVerifierInput, Prisma.PaymentUncheckedCreateWithoutVerifierInput> | Prisma.PaymentCreateWithoutVerifierInput[] | Prisma.PaymentUncheckedCreateWithoutVerifierInput[]
+  connectOrCreate?: Prisma.PaymentCreateOrConnectWithoutVerifierInput | Prisma.PaymentCreateOrConnectWithoutVerifierInput[]
+  upsert?: Prisma.PaymentUpsertWithWhereUniqueWithoutVerifierInput | Prisma.PaymentUpsertWithWhereUniqueWithoutVerifierInput[]
+  createMany?: Prisma.PaymentCreateManyVerifierInputEnvelope
+  set?: Prisma.PaymentWhereUniqueInput | Prisma.PaymentWhereUniqueInput[]
+  disconnect?: Prisma.PaymentWhereUniqueInput | Prisma.PaymentWhereUniqueInput[]
+  delete?: Prisma.PaymentWhereUniqueInput | Prisma.PaymentWhereUniqueInput[]
+  connect?: Prisma.PaymentWhereUniqueInput | Prisma.PaymentWhereUniqueInput[]
+  update?: Prisma.PaymentUpdateWithWhereUniqueWithoutVerifierInput | Prisma.PaymentUpdateWithWhereUniqueWithoutVerifierInput[]
+  updateMany?: Prisma.PaymentUpdateManyWithWhereWithoutVerifierInput | Prisma.PaymentUpdateManyWithWhereWithoutVerifierInput[]
   deleteMany?: Prisma.PaymentScalarWhereInput | Prisma.PaymentScalarWhereInput[]
 }
 
@@ -579,8 +1087,149 @@ export type PaymentUncheckedUpdateManyWithoutCourseNestedInput = {
   deleteMany?: Prisma.PaymentScalarWhereInput | Prisma.PaymentScalarWhereInput[]
 }
 
+export type PaymentCreateNestedManyWithoutInstallmentInput = {
+  create?: Prisma.XOR<Prisma.PaymentCreateWithoutInstallmentInput, Prisma.PaymentUncheckedCreateWithoutInstallmentInput> | Prisma.PaymentCreateWithoutInstallmentInput[] | Prisma.PaymentUncheckedCreateWithoutInstallmentInput[]
+  connectOrCreate?: Prisma.PaymentCreateOrConnectWithoutInstallmentInput | Prisma.PaymentCreateOrConnectWithoutInstallmentInput[]
+  createMany?: Prisma.PaymentCreateManyInstallmentInputEnvelope
+  connect?: Prisma.PaymentWhereUniqueInput | Prisma.PaymentWhereUniqueInput[]
+}
+
+export type PaymentUncheckedCreateNestedManyWithoutInstallmentInput = {
+  create?: Prisma.XOR<Prisma.PaymentCreateWithoutInstallmentInput, Prisma.PaymentUncheckedCreateWithoutInstallmentInput> | Prisma.PaymentCreateWithoutInstallmentInput[] | Prisma.PaymentUncheckedCreateWithoutInstallmentInput[]
+  connectOrCreate?: Prisma.PaymentCreateOrConnectWithoutInstallmentInput | Prisma.PaymentCreateOrConnectWithoutInstallmentInput[]
+  createMany?: Prisma.PaymentCreateManyInstallmentInputEnvelope
+  connect?: Prisma.PaymentWhereUniqueInput | Prisma.PaymentWhereUniqueInput[]
+}
+
+export type PaymentUpdateManyWithoutInstallmentNestedInput = {
+  create?: Prisma.XOR<Prisma.PaymentCreateWithoutInstallmentInput, Prisma.PaymentUncheckedCreateWithoutInstallmentInput> | Prisma.PaymentCreateWithoutInstallmentInput[] | Prisma.PaymentUncheckedCreateWithoutInstallmentInput[]
+  connectOrCreate?: Prisma.PaymentCreateOrConnectWithoutInstallmentInput | Prisma.PaymentCreateOrConnectWithoutInstallmentInput[]
+  upsert?: Prisma.PaymentUpsertWithWhereUniqueWithoutInstallmentInput | Prisma.PaymentUpsertWithWhereUniqueWithoutInstallmentInput[]
+  createMany?: Prisma.PaymentCreateManyInstallmentInputEnvelope
+  set?: Prisma.PaymentWhereUniqueInput | Prisma.PaymentWhereUniqueInput[]
+  disconnect?: Prisma.PaymentWhereUniqueInput | Prisma.PaymentWhereUniqueInput[]
+  delete?: Prisma.PaymentWhereUniqueInput | Prisma.PaymentWhereUniqueInput[]
+  connect?: Prisma.PaymentWhereUniqueInput | Prisma.PaymentWhereUniqueInput[]
+  update?: Prisma.PaymentUpdateWithWhereUniqueWithoutInstallmentInput | Prisma.PaymentUpdateWithWhereUniqueWithoutInstallmentInput[]
+  updateMany?: Prisma.PaymentUpdateManyWithWhereWithoutInstallmentInput | Prisma.PaymentUpdateManyWithWhereWithoutInstallmentInput[]
+  deleteMany?: Prisma.PaymentScalarWhereInput | Prisma.PaymentScalarWhereInput[]
+}
+
+export type PaymentUncheckedUpdateManyWithoutInstallmentNestedInput = {
+  create?: Prisma.XOR<Prisma.PaymentCreateWithoutInstallmentInput, Prisma.PaymentUncheckedCreateWithoutInstallmentInput> | Prisma.PaymentCreateWithoutInstallmentInput[] | Prisma.PaymentUncheckedCreateWithoutInstallmentInput[]
+  connectOrCreate?: Prisma.PaymentCreateOrConnectWithoutInstallmentInput | Prisma.PaymentCreateOrConnectWithoutInstallmentInput[]
+  upsert?: Prisma.PaymentUpsertWithWhereUniqueWithoutInstallmentInput | Prisma.PaymentUpsertWithWhereUniqueWithoutInstallmentInput[]
+  createMany?: Prisma.PaymentCreateManyInstallmentInputEnvelope
+  set?: Prisma.PaymentWhereUniqueInput | Prisma.PaymentWhereUniqueInput[]
+  disconnect?: Prisma.PaymentWhereUniqueInput | Prisma.PaymentWhereUniqueInput[]
+  delete?: Prisma.PaymentWhereUniqueInput | Prisma.PaymentWhereUniqueInput[]
+  connect?: Prisma.PaymentWhereUniqueInput | Prisma.PaymentWhereUniqueInput[]
+  update?: Prisma.PaymentUpdateWithWhereUniqueWithoutInstallmentInput | Prisma.PaymentUpdateWithWhereUniqueWithoutInstallmentInput[]
+  updateMany?: Prisma.PaymentUpdateManyWithWhereWithoutInstallmentInput | Prisma.PaymentUpdateManyWithWhereWithoutInstallmentInput[]
+  deleteMany?: Prisma.PaymentScalarWhereInput | Prisma.PaymentScalarWhereInput[]
+}
+
+export type PaymentCreateNestedManyWithoutInvoiceInput = {
+  create?: Prisma.XOR<Prisma.PaymentCreateWithoutInvoiceInput, Prisma.PaymentUncheckedCreateWithoutInvoiceInput> | Prisma.PaymentCreateWithoutInvoiceInput[] | Prisma.PaymentUncheckedCreateWithoutInvoiceInput[]
+  connectOrCreate?: Prisma.PaymentCreateOrConnectWithoutInvoiceInput | Prisma.PaymentCreateOrConnectWithoutInvoiceInput[]
+  createMany?: Prisma.PaymentCreateManyInvoiceInputEnvelope
+  connect?: Prisma.PaymentWhereUniqueInput | Prisma.PaymentWhereUniqueInput[]
+}
+
+export type PaymentUncheckedCreateNestedManyWithoutInvoiceInput = {
+  create?: Prisma.XOR<Prisma.PaymentCreateWithoutInvoiceInput, Prisma.PaymentUncheckedCreateWithoutInvoiceInput> | Prisma.PaymentCreateWithoutInvoiceInput[] | Prisma.PaymentUncheckedCreateWithoutInvoiceInput[]
+  connectOrCreate?: Prisma.PaymentCreateOrConnectWithoutInvoiceInput | Prisma.PaymentCreateOrConnectWithoutInvoiceInput[]
+  createMany?: Prisma.PaymentCreateManyInvoiceInputEnvelope
+  connect?: Prisma.PaymentWhereUniqueInput | Prisma.PaymentWhereUniqueInput[]
+}
+
+export type PaymentUpdateManyWithoutInvoiceNestedInput = {
+  create?: Prisma.XOR<Prisma.PaymentCreateWithoutInvoiceInput, Prisma.PaymentUncheckedCreateWithoutInvoiceInput> | Prisma.PaymentCreateWithoutInvoiceInput[] | Prisma.PaymentUncheckedCreateWithoutInvoiceInput[]
+  connectOrCreate?: Prisma.PaymentCreateOrConnectWithoutInvoiceInput | Prisma.PaymentCreateOrConnectWithoutInvoiceInput[]
+  upsert?: Prisma.PaymentUpsertWithWhereUniqueWithoutInvoiceInput | Prisma.PaymentUpsertWithWhereUniqueWithoutInvoiceInput[]
+  createMany?: Prisma.PaymentCreateManyInvoiceInputEnvelope
+  set?: Prisma.PaymentWhereUniqueInput | Prisma.PaymentWhereUniqueInput[]
+  disconnect?: Prisma.PaymentWhereUniqueInput | Prisma.PaymentWhereUniqueInput[]
+  delete?: Prisma.PaymentWhereUniqueInput | Prisma.PaymentWhereUniqueInput[]
+  connect?: Prisma.PaymentWhereUniqueInput | Prisma.PaymentWhereUniqueInput[]
+  update?: Prisma.PaymentUpdateWithWhereUniqueWithoutInvoiceInput | Prisma.PaymentUpdateWithWhereUniqueWithoutInvoiceInput[]
+  updateMany?: Prisma.PaymentUpdateManyWithWhereWithoutInvoiceInput | Prisma.PaymentUpdateManyWithWhereWithoutInvoiceInput[]
+  deleteMany?: Prisma.PaymentScalarWhereInput | Prisma.PaymentScalarWhereInput[]
+}
+
+export type PaymentUncheckedUpdateManyWithoutInvoiceNestedInput = {
+  create?: Prisma.XOR<Prisma.PaymentCreateWithoutInvoiceInput, Prisma.PaymentUncheckedCreateWithoutInvoiceInput> | Prisma.PaymentCreateWithoutInvoiceInput[] | Prisma.PaymentUncheckedCreateWithoutInvoiceInput[]
+  connectOrCreate?: Prisma.PaymentCreateOrConnectWithoutInvoiceInput | Prisma.PaymentCreateOrConnectWithoutInvoiceInput[]
+  upsert?: Prisma.PaymentUpsertWithWhereUniqueWithoutInvoiceInput | Prisma.PaymentUpsertWithWhereUniqueWithoutInvoiceInput[]
+  createMany?: Prisma.PaymentCreateManyInvoiceInputEnvelope
+  set?: Prisma.PaymentWhereUniqueInput | Prisma.PaymentWhereUniqueInput[]
+  disconnect?: Prisma.PaymentWhereUniqueInput | Prisma.PaymentWhereUniqueInput[]
+  delete?: Prisma.PaymentWhereUniqueInput | Prisma.PaymentWhereUniqueInput[]
+  connect?: Prisma.PaymentWhereUniqueInput | Prisma.PaymentWhereUniqueInput[]
+  update?: Prisma.PaymentUpdateWithWhereUniqueWithoutInvoiceInput | Prisma.PaymentUpdateWithWhereUniqueWithoutInvoiceInput[]
+  updateMany?: Prisma.PaymentUpdateManyWithWhereWithoutInvoiceInput | Prisma.PaymentUpdateManyWithWhereWithoutInvoiceInput[]
+  deleteMany?: Prisma.PaymentScalarWhereInput | Prisma.PaymentScalarWhereInput[]
+}
+
+export type PaymentCreateNestedOneWithoutLogsInput = {
+  create?: Prisma.XOR<Prisma.PaymentCreateWithoutLogsInput, Prisma.PaymentUncheckedCreateWithoutLogsInput>
+  connectOrCreate?: Prisma.PaymentCreateOrConnectWithoutLogsInput
+  connect?: Prisma.PaymentWhereUniqueInput
+}
+
+export type PaymentUpdateOneRequiredWithoutLogsNestedInput = {
+  create?: Prisma.XOR<Prisma.PaymentCreateWithoutLogsInput, Prisma.PaymentUncheckedCreateWithoutLogsInput>
+  connectOrCreate?: Prisma.PaymentCreateOrConnectWithoutLogsInput
+  upsert?: Prisma.PaymentUpsertWithoutLogsInput
+  connect?: Prisma.PaymentWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.PaymentUpdateToOneWithWhereWithoutLogsInput, Prisma.PaymentUpdateWithoutLogsInput>, Prisma.PaymentUncheckedUpdateWithoutLogsInput>
+}
+
+export type PaymentCreateNestedManyWithoutBranchInput = {
+  create?: Prisma.XOR<Prisma.PaymentCreateWithoutBranchInput, Prisma.PaymentUncheckedCreateWithoutBranchInput> | Prisma.PaymentCreateWithoutBranchInput[] | Prisma.PaymentUncheckedCreateWithoutBranchInput[]
+  connectOrCreate?: Prisma.PaymentCreateOrConnectWithoutBranchInput | Prisma.PaymentCreateOrConnectWithoutBranchInput[]
+  createMany?: Prisma.PaymentCreateManyBranchInputEnvelope
+  connect?: Prisma.PaymentWhereUniqueInput | Prisma.PaymentWhereUniqueInput[]
+}
+
+export type PaymentUncheckedCreateNestedManyWithoutBranchInput = {
+  create?: Prisma.XOR<Prisma.PaymentCreateWithoutBranchInput, Prisma.PaymentUncheckedCreateWithoutBranchInput> | Prisma.PaymentCreateWithoutBranchInput[] | Prisma.PaymentUncheckedCreateWithoutBranchInput[]
+  connectOrCreate?: Prisma.PaymentCreateOrConnectWithoutBranchInput | Prisma.PaymentCreateOrConnectWithoutBranchInput[]
+  createMany?: Prisma.PaymentCreateManyBranchInputEnvelope
+  connect?: Prisma.PaymentWhereUniqueInput | Prisma.PaymentWhereUniqueInput[]
+}
+
+export type PaymentUpdateManyWithoutBranchNestedInput = {
+  create?: Prisma.XOR<Prisma.PaymentCreateWithoutBranchInput, Prisma.PaymentUncheckedCreateWithoutBranchInput> | Prisma.PaymentCreateWithoutBranchInput[] | Prisma.PaymentUncheckedCreateWithoutBranchInput[]
+  connectOrCreate?: Prisma.PaymentCreateOrConnectWithoutBranchInput | Prisma.PaymentCreateOrConnectWithoutBranchInput[]
+  upsert?: Prisma.PaymentUpsertWithWhereUniqueWithoutBranchInput | Prisma.PaymentUpsertWithWhereUniqueWithoutBranchInput[]
+  createMany?: Prisma.PaymentCreateManyBranchInputEnvelope
+  set?: Prisma.PaymentWhereUniqueInput | Prisma.PaymentWhereUniqueInput[]
+  disconnect?: Prisma.PaymentWhereUniqueInput | Prisma.PaymentWhereUniqueInput[]
+  delete?: Prisma.PaymentWhereUniqueInput | Prisma.PaymentWhereUniqueInput[]
+  connect?: Prisma.PaymentWhereUniqueInput | Prisma.PaymentWhereUniqueInput[]
+  update?: Prisma.PaymentUpdateWithWhereUniqueWithoutBranchInput | Prisma.PaymentUpdateWithWhereUniqueWithoutBranchInput[]
+  updateMany?: Prisma.PaymentUpdateManyWithWhereWithoutBranchInput | Prisma.PaymentUpdateManyWithWhereWithoutBranchInput[]
+  deleteMany?: Prisma.PaymentScalarWhereInput | Prisma.PaymentScalarWhereInput[]
+}
+
+export type PaymentUncheckedUpdateManyWithoutBranchNestedInput = {
+  create?: Prisma.XOR<Prisma.PaymentCreateWithoutBranchInput, Prisma.PaymentUncheckedCreateWithoutBranchInput> | Prisma.PaymentCreateWithoutBranchInput[] | Prisma.PaymentUncheckedCreateWithoutBranchInput[]
+  connectOrCreate?: Prisma.PaymentCreateOrConnectWithoutBranchInput | Prisma.PaymentCreateOrConnectWithoutBranchInput[]
+  upsert?: Prisma.PaymentUpsertWithWhereUniqueWithoutBranchInput | Prisma.PaymentUpsertWithWhereUniqueWithoutBranchInput[]
+  createMany?: Prisma.PaymentCreateManyBranchInputEnvelope
+  set?: Prisma.PaymentWhereUniqueInput | Prisma.PaymentWhereUniqueInput[]
+  disconnect?: Prisma.PaymentWhereUniqueInput | Prisma.PaymentWhereUniqueInput[]
+  delete?: Prisma.PaymentWhereUniqueInput | Prisma.PaymentWhereUniqueInput[]
+  connect?: Prisma.PaymentWhereUniqueInput | Prisma.PaymentWhereUniqueInput[]
+  update?: Prisma.PaymentUpdateWithWhereUniqueWithoutBranchInput | Prisma.PaymentUpdateWithWhereUniqueWithoutBranchInput[]
+  updateMany?: Prisma.PaymentUpdateManyWithWhereWithoutBranchInput | Prisma.PaymentUpdateManyWithWhereWithoutBranchInput[]
+  deleteMany?: Prisma.PaymentScalarWhereInput | Prisma.PaymentScalarWhereInput[]
+}
+
 export type PaymentCreateWithoutUserInput = {
   id?: string
+  admissionId?: string | null
   amount: number
   currency?: string
   razorpayOrderId: string
@@ -588,13 +1237,37 @@ export type PaymentCreateWithoutUserInput = {
   razorpaySignature?: string | null
   paymentStatus?: string
   paymentMethod?: string | null
+  paymentMode?: string
+  transactionRef?: string | null
+  receiptNumber?: string | null
+  receiptUrl?: string | null
+  receiptUploadUrl?: string | null
+  remarks?: string | null
+  failureReason?: string | null
+  refundStatus?: string
+  refundedAmount?: number
+  reconciledAt?: Date | string | null
+  verifiedAt?: Date | string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   course?: Prisma.CourseCreateNestedOneWithoutPaymentsInput
+  installment?: Prisma.FeeInstallmentCreateNestedOneWithoutPaymentsInput
+  invoice?: Prisma.InvoiceCreateNestedOneWithoutPaymentsInput
+  branch?: Prisma.BranchCreateNestedOneWithoutPaymentsInput
+  collector?: Prisma.UserCreateNestedOneWithoutCollectedPaymentsInput
+  verifier?: Prisma.UserCreateNestedOneWithoutVerifiedPaymentsInput
+  logs?: Prisma.PaymentTransactionLogCreateNestedManyWithoutPaymentInput
 }
 
 export type PaymentUncheckedCreateWithoutUserInput = {
   id?: string
   courseId?: string | null
+  admissionId?: string | null
+  feeInstallmentId?: string | null
+  invoiceId?: string | null
+  branchId?: string | null
+  collectorId?: string | null
+  verifiedBy?: string | null
   amount: number
   currency?: string
   razorpayOrderId: string
@@ -602,7 +1275,20 @@ export type PaymentUncheckedCreateWithoutUserInput = {
   razorpaySignature?: string | null
   paymentStatus?: string
   paymentMethod?: string | null
+  paymentMode?: string
+  transactionRef?: string | null
+  receiptNumber?: string | null
+  receiptUrl?: string | null
+  receiptUploadUrl?: string | null
+  remarks?: string | null
+  failureReason?: string | null
+  refundStatus?: string
+  refundedAmount?: number
+  reconciledAt?: Date | string | null
+  verifiedAt?: Date | string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
+  logs?: Prisma.PaymentTransactionLogUncheckedCreateNestedManyWithoutPaymentInput
 }
 
 export type PaymentCreateOrConnectWithoutUserInput = {
@@ -612,6 +1298,154 @@ export type PaymentCreateOrConnectWithoutUserInput = {
 
 export type PaymentCreateManyUserInputEnvelope = {
   data: Prisma.PaymentCreateManyUserInput | Prisma.PaymentCreateManyUserInput[]
+  skipDuplicates?: boolean
+}
+
+export type PaymentCreateWithoutCollectorInput = {
+  id?: string
+  admissionId?: string | null
+  amount: number
+  currency?: string
+  razorpayOrderId: string
+  razorpayPaymentId?: string | null
+  razorpaySignature?: string | null
+  paymentStatus?: string
+  paymentMethod?: string | null
+  paymentMode?: string
+  transactionRef?: string | null
+  receiptNumber?: string | null
+  receiptUrl?: string | null
+  receiptUploadUrl?: string | null
+  remarks?: string | null
+  failureReason?: string | null
+  refundStatus?: string
+  refundedAmount?: number
+  reconciledAt?: Date | string | null
+  verifiedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  user: Prisma.UserCreateNestedOneWithoutPaymentsInput
+  course?: Prisma.CourseCreateNestedOneWithoutPaymentsInput
+  installment?: Prisma.FeeInstallmentCreateNestedOneWithoutPaymentsInput
+  invoice?: Prisma.InvoiceCreateNestedOneWithoutPaymentsInput
+  branch?: Prisma.BranchCreateNestedOneWithoutPaymentsInput
+  verifier?: Prisma.UserCreateNestedOneWithoutVerifiedPaymentsInput
+  logs?: Prisma.PaymentTransactionLogCreateNestedManyWithoutPaymentInput
+}
+
+export type PaymentUncheckedCreateWithoutCollectorInput = {
+  id?: string
+  userId: string
+  courseId?: string | null
+  admissionId?: string | null
+  feeInstallmentId?: string | null
+  invoiceId?: string | null
+  branchId?: string | null
+  verifiedBy?: string | null
+  amount: number
+  currency?: string
+  razorpayOrderId: string
+  razorpayPaymentId?: string | null
+  razorpaySignature?: string | null
+  paymentStatus?: string
+  paymentMethod?: string | null
+  paymentMode?: string
+  transactionRef?: string | null
+  receiptNumber?: string | null
+  receiptUrl?: string | null
+  receiptUploadUrl?: string | null
+  remarks?: string | null
+  failureReason?: string | null
+  refundStatus?: string
+  refundedAmount?: number
+  reconciledAt?: Date | string | null
+  verifiedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  logs?: Prisma.PaymentTransactionLogUncheckedCreateNestedManyWithoutPaymentInput
+}
+
+export type PaymentCreateOrConnectWithoutCollectorInput = {
+  where: Prisma.PaymentWhereUniqueInput
+  create: Prisma.XOR<Prisma.PaymentCreateWithoutCollectorInput, Prisma.PaymentUncheckedCreateWithoutCollectorInput>
+}
+
+export type PaymentCreateManyCollectorInputEnvelope = {
+  data: Prisma.PaymentCreateManyCollectorInput | Prisma.PaymentCreateManyCollectorInput[]
+  skipDuplicates?: boolean
+}
+
+export type PaymentCreateWithoutVerifierInput = {
+  id?: string
+  admissionId?: string | null
+  amount: number
+  currency?: string
+  razorpayOrderId: string
+  razorpayPaymentId?: string | null
+  razorpaySignature?: string | null
+  paymentStatus?: string
+  paymentMethod?: string | null
+  paymentMode?: string
+  transactionRef?: string | null
+  receiptNumber?: string | null
+  receiptUrl?: string | null
+  receiptUploadUrl?: string | null
+  remarks?: string | null
+  failureReason?: string | null
+  refundStatus?: string
+  refundedAmount?: number
+  reconciledAt?: Date | string | null
+  verifiedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  user: Prisma.UserCreateNestedOneWithoutPaymentsInput
+  course?: Prisma.CourseCreateNestedOneWithoutPaymentsInput
+  installment?: Prisma.FeeInstallmentCreateNestedOneWithoutPaymentsInput
+  invoice?: Prisma.InvoiceCreateNestedOneWithoutPaymentsInput
+  branch?: Prisma.BranchCreateNestedOneWithoutPaymentsInput
+  collector?: Prisma.UserCreateNestedOneWithoutCollectedPaymentsInput
+  logs?: Prisma.PaymentTransactionLogCreateNestedManyWithoutPaymentInput
+}
+
+export type PaymentUncheckedCreateWithoutVerifierInput = {
+  id?: string
+  userId: string
+  courseId?: string | null
+  admissionId?: string | null
+  feeInstallmentId?: string | null
+  invoiceId?: string | null
+  branchId?: string | null
+  collectorId?: string | null
+  amount: number
+  currency?: string
+  razorpayOrderId: string
+  razorpayPaymentId?: string | null
+  razorpaySignature?: string | null
+  paymentStatus?: string
+  paymentMethod?: string | null
+  paymentMode?: string
+  transactionRef?: string | null
+  receiptNumber?: string | null
+  receiptUrl?: string | null
+  receiptUploadUrl?: string | null
+  remarks?: string | null
+  failureReason?: string | null
+  refundStatus?: string
+  refundedAmount?: number
+  reconciledAt?: Date | string | null
+  verifiedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  logs?: Prisma.PaymentTransactionLogUncheckedCreateNestedManyWithoutPaymentInput
+}
+
+export type PaymentCreateOrConnectWithoutVerifierInput = {
+  where: Prisma.PaymentWhereUniqueInput
+  create: Prisma.XOR<Prisma.PaymentCreateWithoutVerifierInput, Prisma.PaymentUncheckedCreateWithoutVerifierInput>
+}
+
+export type PaymentCreateManyVerifierInputEnvelope = {
+  data: Prisma.PaymentCreateManyVerifierInput | Prisma.PaymentCreateManyVerifierInput[]
   skipDuplicates?: boolean
 }
 
@@ -638,6 +1472,12 @@ export type PaymentScalarWhereInput = {
   id?: Prisma.StringFilter<"Payment"> | string
   userId?: Prisma.StringFilter<"Payment"> | string
   courseId?: Prisma.StringNullableFilter<"Payment"> | string | null
+  admissionId?: Prisma.StringNullableFilter<"Payment"> | string | null
+  feeInstallmentId?: Prisma.StringNullableFilter<"Payment"> | string | null
+  invoiceId?: Prisma.StringNullableFilter<"Payment"> | string | null
+  branchId?: Prisma.StringNullableFilter<"Payment"> | string | null
+  collectorId?: Prisma.StringNullableFilter<"Payment"> | string | null
+  verifiedBy?: Prisma.StringNullableFilter<"Payment"> | string | null
   amount?: Prisma.FloatFilter<"Payment"> | number
   currency?: Prisma.StringFilter<"Payment"> | string
   razorpayOrderId?: Prisma.StringFilter<"Payment"> | string
@@ -645,11 +1485,56 @@ export type PaymentScalarWhereInput = {
   razorpaySignature?: Prisma.StringNullableFilter<"Payment"> | string | null
   paymentStatus?: Prisma.StringFilter<"Payment"> | string
   paymentMethod?: Prisma.StringNullableFilter<"Payment"> | string | null
+  paymentMode?: Prisma.StringFilter<"Payment"> | string
+  transactionRef?: Prisma.StringNullableFilter<"Payment"> | string | null
+  receiptNumber?: Prisma.StringNullableFilter<"Payment"> | string | null
+  receiptUrl?: Prisma.StringNullableFilter<"Payment"> | string | null
+  receiptUploadUrl?: Prisma.StringNullableFilter<"Payment"> | string | null
+  remarks?: Prisma.StringNullableFilter<"Payment"> | string | null
+  failureReason?: Prisma.StringNullableFilter<"Payment"> | string | null
+  refundStatus?: Prisma.StringFilter<"Payment"> | string
+  refundedAmount?: Prisma.FloatFilter<"Payment"> | number
+  reconciledAt?: Prisma.DateTimeNullableFilter<"Payment"> | Date | string | null
+  verifiedAt?: Prisma.DateTimeNullableFilter<"Payment"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Payment"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"Payment"> | Date | string
+}
+
+export type PaymentUpsertWithWhereUniqueWithoutCollectorInput = {
+  where: Prisma.PaymentWhereUniqueInput
+  update: Prisma.XOR<Prisma.PaymentUpdateWithoutCollectorInput, Prisma.PaymentUncheckedUpdateWithoutCollectorInput>
+  create: Prisma.XOR<Prisma.PaymentCreateWithoutCollectorInput, Prisma.PaymentUncheckedCreateWithoutCollectorInput>
+}
+
+export type PaymentUpdateWithWhereUniqueWithoutCollectorInput = {
+  where: Prisma.PaymentWhereUniqueInput
+  data: Prisma.XOR<Prisma.PaymentUpdateWithoutCollectorInput, Prisma.PaymentUncheckedUpdateWithoutCollectorInput>
+}
+
+export type PaymentUpdateManyWithWhereWithoutCollectorInput = {
+  where: Prisma.PaymentScalarWhereInput
+  data: Prisma.XOR<Prisma.PaymentUpdateManyMutationInput, Prisma.PaymentUncheckedUpdateManyWithoutCollectorInput>
+}
+
+export type PaymentUpsertWithWhereUniqueWithoutVerifierInput = {
+  where: Prisma.PaymentWhereUniqueInput
+  update: Prisma.XOR<Prisma.PaymentUpdateWithoutVerifierInput, Prisma.PaymentUncheckedUpdateWithoutVerifierInput>
+  create: Prisma.XOR<Prisma.PaymentCreateWithoutVerifierInput, Prisma.PaymentUncheckedCreateWithoutVerifierInput>
+}
+
+export type PaymentUpdateWithWhereUniqueWithoutVerifierInput = {
+  where: Prisma.PaymentWhereUniqueInput
+  data: Prisma.XOR<Prisma.PaymentUpdateWithoutVerifierInput, Prisma.PaymentUncheckedUpdateWithoutVerifierInput>
+}
+
+export type PaymentUpdateManyWithWhereWithoutVerifierInput = {
+  where: Prisma.PaymentScalarWhereInput
+  data: Prisma.XOR<Prisma.PaymentUpdateManyMutationInput, Prisma.PaymentUncheckedUpdateManyWithoutVerifierInput>
 }
 
 export type PaymentCreateWithoutCourseInput = {
   id?: string
+  admissionId?: string | null
   amount: number
   currency?: string
   razorpayOrderId: string
@@ -657,13 +1542,37 @@ export type PaymentCreateWithoutCourseInput = {
   razorpaySignature?: string | null
   paymentStatus?: string
   paymentMethod?: string | null
+  paymentMode?: string
+  transactionRef?: string | null
+  receiptNumber?: string | null
+  receiptUrl?: string | null
+  receiptUploadUrl?: string | null
+  remarks?: string | null
+  failureReason?: string | null
+  refundStatus?: string
+  refundedAmount?: number
+  reconciledAt?: Date | string | null
+  verifiedAt?: Date | string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutPaymentsInput
+  installment?: Prisma.FeeInstallmentCreateNestedOneWithoutPaymentsInput
+  invoice?: Prisma.InvoiceCreateNestedOneWithoutPaymentsInput
+  branch?: Prisma.BranchCreateNestedOneWithoutPaymentsInput
+  collector?: Prisma.UserCreateNestedOneWithoutCollectedPaymentsInput
+  verifier?: Prisma.UserCreateNestedOneWithoutVerifiedPaymentsInput
+  logs?: Prisma.PaymentTransactionLogCreateNestedManyWithoutPaymentInput
 }
 
 export type PaymentUncheckedCreateWithoutCourseInput = {
   id?: string
   userId: string
+  admissionId?: string | null
+  feeInstallmentId?: string | null
+  invoiceId?: string | null
+  branchId?: string | null
+  collectorId?: string | null
+  verifiedBy?: string | null
   amount: number
   currency?: string
   razorpayOrderId: string
@@ -671,7 +1580,20 @@ export type PaymentUncheckedCreateWithoutCourseInput = {
   razorpaySignature?: string | null
   paymentStatus?: string
   paymentMethod?: string | null
+  paymentMode?: string
+  transactionRef?: string | null
+  receiptNumber?: string | null
+  receiptUrl?: string | null
+  receiptUploadUrl?: string | null
+  remarks?: string | null
+  failureReason?: string | null
+  refundStatus?: string
+  refundedAmount?: number
+  reconciledAt?: Date | string | null
+  verifiedAt?: Date | string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
+  logs?: Prisma.PaymentTransactionLogUncheckedCreateNestedManyWithoutPaymentInput
 }
 
 export type PaymentCreateOrConnectWithoutCourseInput = {
@@ -700,9 +1622,9 @@ export type PaymentUpdateManyWithWhereWithoutCourseInput = {
   data: Prisma.XOR<Prisma.PaymentUpdateManyMutationInput, Prisma.PaymentUncheckedUpdateManyWithoutCourseInput>
 }
 
-export type PaymentCreateManyUserInput = {
+export type PaymentCreateWithoutInstallmentInput = {
   id?: string
-  courseId?: string | null
+  admissionId?: string | null
   amount: number
   currency?: string
   razorpayOrderId: string
@@ -710,11 +1632,259 @@ export type PaymentCreateManyUserInput = {
   razorpaySignature?: string | null
   paymentStatus?: string
   paymentMethod?: string | null
+  paymentMode?: string
+  transactionRef?: string | null
+  receiptNumber?: string | null
+  receiptUrl?: string | null
+  receiptUploadUrl?: string | null
+  remarks?: string | null
+  failureReason?: string | null
+  refundStatus?: string
+  refundedAmount?: number
+  reconciledAt?: Date | string | null
+  verifiedAt?: Date | string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
+  user: Prisma.UserCreateNestedOneWithoutPaymentsInput
+  course?: Prisma.CourseCreateNestedOneWithoutPaymentsInput
+  invoice?: Prisma.InvoiceCreateNestedOneWithoutPaymentsInput
+  branch?: Prisma.BranchCreateNestedOneWithoutPaymentsInput
+  collector?: Prisma.UserCreateNestedOneWithoutCollectedPaymentsInput
+  verifier?: Prisma.UserCreateNestedOneWithoutVerifiedPaymentsInput
+  logs?: Prisma.PaymentTransactionLogCreateNestedManyWithoutPaymentInput
 }
 
-export type PaymentUpdateWithoutUserInput = {
+export type PaymentUncheckedCreateWithoutInstallmentInput = {
+  id?: string
+  userId: string
+  courseId?: string | null
+  admissionId?: string | null
+  invoiceId?: string | null
+  branchId?: string | null
+  collectorId?: string | null
+  verifiedBy?: string | null
+  amount: number
+  currency?: string
+  razorpayOrderId: string
+  razorpayPaymentId?: string | null
+  razorpaySignature?: string | null
+  paymentStatus?: string
+  paymentMethod?: string | null
+  paymentMode?: string
+  transactionRef?: string | null
+  receiptNumber?: string | null
+  receiptUrl?: string | null
+  receiptUploadUrl?: string | null
+  remarks?: string | null
+  failureReason?: string | null
+  refundStatus?: string
+  refundedAmount?: number
+  reconciledAt?: Date | string | null
+  verifiedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  logs?: Prisma.PaymentTransactionLogUncheckedCreateNestedManyWithoutPaymentInput
+}
+
+export type PaymentCreateOrConnectWithoutInstallmentInput = {
+  where: Prisma.PaymentWhereUniqueInput
+  create: Prisma.XOR<Prisma.PaymentCreateWithoutInstallmentInput, Prisma.PaymentUncheckedCreateWithoutInstallmentInput>
+}
+
+export type PaymentCreateManyInstallmentInputEnvelope = {
+  data: Prisma.PaymentCreateManyInstallmentInput | Prisma.PaymentCreateManyInstallmentInput[]
+  skipDuplicates?: boolean
+}
+
+export type PaymentUpsertWithWhereUniqueWithoutInstallmentInput = {
+  where: Prisma.PaymentWhereUniqueInput
+  update: Prisma.XOR<Prisma.PaymentUpdateWithoutInstallmentInput, Prisma.PaymentUncheckedUpdateWithoutInstallmentInput>
+  create: Prisma.XOR<Prisma.PaymentCreateWithoutInstallmentInput, Prisma.PaymentUncheckedCreateWithoutInstallmentInput>
+}
+
+export type PaymentUpdateWithWhereUniqueWithoutInstallmentInput = {
+  where: Prisma.PaymentWhereUniqueInput
+  data: Prisma.XOR<Prisma.PaymentUpdateWithoutInstallmentInput, Prisma.PaymentUncheckedUpdateWithoutInstallmentInput>
+}
+
+export type PaymentUpdateManyWithWhereWithoutInstallmentInput = {
+  where: Prisma.PaymentScalarWhereInput
+  data: Prisma.XOR<Prisma.PaymentUpdateManyMutationInput, Prisma.PaymentUncheckedUpdateManyWithoutInstallmentInput>
+}
+
+export type PaymentCreateWithoutInvoiceInput = {
+  id?: string
+  admissionId?: string | null
+  amount: number
+  currency?: string
+  razorpayOrderId: string
+  razorpayPaymentId?: string | null
+  razorpaySignature?: string | null
+  paymentStatus?: string
+  paymentMethod?: string | null
+  paymentMode?: string
+  transactionRef?: string | null
+  receiptNumber?: string | null
+  receiptUrl?: string | null
+  receiptUploadUrl?: string | null
+  remarks?: string | null
+  failureReason?: string | null
+  refundStatus?: string
+  refundedAmount?: number
+  reconciledAt?: Date | string | null
+  verifiedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  user: Prisma.UserCreateNestedOneWithoutPaymentsInput
+  course?: Prisma.CourseCreateNestedOneWithoutPaymentsInput
+  installment?: Prisma.FeeInstallmentCreateNestedOneWithoutPaymentsInput
+  branch?: Prisma.BranchCreateNestedOneWithoutPaymentsInput
+  collector?: Prisma.UserCreateNestedOneWithoutCollectedPaymentsInput
+  verifier?: Prisma.UserCreateNestedOneWithoutVerifiedPaymentsInput
+  logs?: Prisma.PaymentTransactionLogCreateNestedManyWithoutPaymentInput
+}
+
+export type PaymentUncheckedCreateWithoutInvoiceInput = {
+  id?: string
+  userId: string
+  courseId?: string | null
+  admissionId?: string | null
+  feeInstallmentId?: string | null
+  branchId?: string | null
+  collectorId?: string | null
+  verifiedBy?: string | null
+  amount: number
+  currency?: string
+  razorpayOrderId: string
+  razorpayPaymentId?: string | null
+  razorpaySignature?: string | null
+  paymentStatus?: string
+  paymentMethod?: string | null
+  paymentMode?: string
+  transactionRef?: string | null
+  receiptNumber?: string | null
+  receiptUrl?: string | null
+  receiptUploadUrl?: string | null
+  remarks?: string | null
+  failureReason?: string | null
+  refundStatus?: string
+  refundedAmount?: number
+  reconciledAt?: Date | string | null
+  verifiedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  logs?: Prisma.PaymentTransactionLogUncheckedCreateNestedManyWithoutPaymentInput
+}
+
+export type PaymentCreateOrConnectWithoutInvoiceInput = {
+  where: Prisma.PaymentWhereUniqueInput
+  create: Prisma.XOR<Prisma.PaymentCreateWithoutInvoiceInput, Prisma.PaymentUncheckedCreateWithoutInvoiceInput>
+}
+
+export type PaymentCreateManyInvoiceInputEnvelope = {
+  data: Prisma.PaymentCreateManyInvoiceInput | Prisma.PaymentCreateManyInvoiceInput[]
+  skipDuplicates?: boolean
+}
+
+export type PaymentUpsertWithWhereUniqueWithoutInvoiceInput = {
+  where: Prisma.PaymentWhereUniqueInput
+  update: Prisma.XOR<Prisma.PaymentUpdateWithoutInvoiceInput, Prisma.PaymentUncheckedUpdateWithoutInvoiceInput>
+  create: Prisma.XOR<Prisma.PaymentCreateWithoutInvoiceInput, Prisma.PaymentUncheckedCreateWithoutInvoiceInput>
+}
+
+export type PaymentUpdateWithWhereUniqueWithoutInvoiceInput = {
+  where: Prisma.PaymentWhereUniqueInput
+  data: Prisma.XOR<Prisma.PaymentUpdateWithoutInvoiceInput, Prisma.PaymentUncheckedUpdateWithoutInvoiceInput>
+}
+
+export type PaymentUpdateManyWithWhereWithoutInvoiceInput = {
+  where: Prisma.PaymentScalarWhereInput
+  data: Prisma.XOR<Prisma.PaymentUpdateManyMutationInput, Prisma.PaymentUncheckedUpdateManyWithoutInvoiceInput>
+}
+
+export type PaymentCreateWithoutLogsInput = {
+  id?: string
+  admissionId?: string | null
+  amount: number
+  currency?: string
+  razorpayOrderId: string
+  razorpayPaymentId?: string | null
+  razorpaySignature?: string | null
+  paymentStatus?: string
+  paymentMethod?: string | null
+  paymentMode?: string
+  transactionRef?: string | null
+  receiptNumber?: string | null
+  receiptUrl?: string | null
+  receiptUploadUrl?: string | null
+  remarks?: string | null
+  failureReason?: string | null
+  refundStatus?: string
+  refundedAmount?: number
+  reconciledAt?: Date | string | null
+  verifiedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  user: Prisma.UserCreateNestedOneWithoutPaymentsInput
+  course?: Prisma.CourseCreateNestedOneWithoutPaymentsInput
+  installment?: Prisma.FeeInstallmentCreateNestedOneWithoutPaymentsInput
+  invoice?: Prisma.InvoiceCreateNestedOneWithoutPaymentsInput
+  branch?: Prisma.BranchCreateNestedOneWithoutPaymentsInput
+  collector?: Prisma.UserCreateNestedOneWithoutCollectedPaymentsInput
+  verifier?: Prisma.UserCreateNestedOneWithoutVerifiedPaymentsInput
+}
+
+export type PaymentUncheckedCreateWithoutLogsInput = {
+  id?: string
+  userId: string
+  courseId?: string | null
+  admissionId?: string | null
+  feeInstallmentId?: string | null
+  invoiceId?: string | null
+  branchId?: string | null
+  collectorId?: string | null
+  verifiedBy?: string | null
+  amount: number
+  currency?: string
+  razorpayOrderId: string
+  razorpayPaymentId?: string | null
+  razorpaySignature?: string | null
+  paymentStatus?: string
+  paymentMethod?: string | null
+  paymentMode?: string
+  transactionRef?: string | null
+  receiptNumber?: string | null
+  receiptUrl?: string | null
+  receiptUploadUrl?: string | null
+  remarks?: string | null
+  failureReason?: string | null
+  refundStatus?: string
+  refundedAmount?: number
+  reconciledAt?: Date | string | null
+  verifiedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type PaymentCreateOrConnectWithoutLogsInput = {
+  where: Prisma.PaymentWhereUniqueInput
+  create: Prisma.XOR<Prisma.PaymentCreateWithoutLogsInput, Prisma.PaymentUncheckedCreateWithoutLogsInput>
+}
+
+export type PaymentUpsertWithoutLogsInput = {
+  update: Prisma.XOR<Prisma.PaymentUpdateWithoutLogsInput, Prisma.PaymentUncheckedUpdateWithoutLogsInput>
+  create: Prisma.XOR<Prisma.PaymentCreateWithoutLogsInput, Prisma.PaymentUncheckedCreateWithoutLogsInput>
+  where?: Prisma.PaymentWhereInput
+}
+
+export type PaymentUpdateToOneWithWhereWithoutLogsInput = {
+  where?: Prisma.PaymentWhereInput
+  data: Prisma.XOR<Prisma.PaymentUpdateWithoutLogsInput, Prisma.PaymentUncheckedUpdateWithoutLogsInput>
+}
+
+export type PaymentUpdateWithoutLogsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  admissionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   razorpayOrderId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -722,13 +1892,284 @@ export type PaymentUpdateWithoutUserInput = {
   razorpaySignature?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
   paymentMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMode?: Prisma.StringFieldUpdateOperationsInput | string
+  transactionRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptUploadUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remarks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  refundStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  refundedAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  reconciledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneRequiredWithoutPaymentsNestedInput
   course?: Prisma.CourseUpdateOneWithoutPaymentsNestedInput
+  installment?: Prisma.FeeInstallmentUpdateOneWithoutPaymentsNestedInput
+  invoice?: Prisma.InvoiceUpdateOneWithoutPaymentsNestedInput
+  branch?: Prisma.BranchUpdateOneWithoutPaymentsNestedInput
+  collector?: Prisma.UserUpdateOneWithoutCollectedPaymentsNestedInput
+  verifier?: Prisma.UserUpdateOneWithoutVerifiedPaymentsNestedInput
+}
+
+export type PaymentUncheckedUpdateWithoutLogsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  courseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  admissionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feeInstallmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invoiceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  collectorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verifiedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  amount?: Prisma.FloatFieldUpdateOperationsInput | number
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  razorpayOrderId?: Prisma.StringFieldUpdateOperationsInput | string
+  razorpayPaymentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  razorpaySignature?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMode?: Prisma.StringFieldUpdateOperationsInput | string
+  transactionRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptUploadUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remarks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  refundStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  refundedAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  reconciledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type PaymentCreateWithoutBranchInput = {
+  id?: string
+  admissionId?: string | null
+  amount: number
+  currency?: string
+  razorpayOrderId: string
+  razorpayPaymentId?: string | null
+  razorpaySignature?: string | null
+  paymentStatus?: string
+  paymentMethod?: string | null
+  paymentMode?: string
+  transactionRef?: string | null
+  receiptNumber?: string | null
+  receiptUrl?: string | null
+  receiptUploadUrl?: string | null
+  remarks?: string | null
+  failureReason?: string | null
+  refundStatus?: string
+  refundedAmount?: number
+  reconciledAt?: Date | string | null
+  verifiedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  user: Prisma.UserCreateNestedOneWithoutPaymentsInput
+  course?: Prisma.CourseCreateNestedOneWithoutPaymentsInput
+  installment?: Prisma.FeeInstallmentCreateNestedOneWithoutPaymentsInput
+  invoice?: Prisma.InvoiceCreateNestedOneWithoutPaymentsInput
+  collector?: Prisma.UserCreateNestedOneWithoutCollectedPaymentsInput
+  verifier?: Prisma.UserCreateNestedOneWithoutVerifiedPaymentsInput
+  logs?: Prisma.PaymentTransactionLogCreateNestedManyWithoutPaymentInput
+}
+
+export type PaymentUncheckedCreateWithoutBranchInput = {
+  id?: string
+  userId: string
+  courseId?: string | null
+  admissionId?: string | null
+  feeInstallmentId?: string | null
+  invoiceId?: string | null
+  collectorId?: string | null
+  verifiedBy?: string | null
+  amount: number
+  currency?: string
+  razorpayOrderId: string
+  razorpayPaymentId?: string | null
+  razorpaySignature?: string | null
+  paymentStatus?: string
+  paymentMethod?: string | null
+  paymentMode?: string
+  transactionRef?: string | null
+  receiptNumber?: string | null
+  receiptUrl?: string | null
+  receiptUploadUrl?: string | null
+  remarks?: string | null
+  failureReason?: string | null
+  refundStatus?: string
+  refundedAmount?: number
+  reconciledAt?: Date | string | null
+  verifiedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  logs?: Prisma.PaymentTransactionLogUncheckedCreateNestedManyWithoutPaymentInput
+}
+
+export type PaymentCreateOrConnectWithoutBranchInput = {
+  where: Prisma.PaymentWhereUniqueInput
+  create: Prisma.XOR<Prisma.PaymentCreateWithoutBranchInput, Prisma.PaymentUncheckedCreateWithoutBranchInput>
+}
+
+export type PaymentCreateManyBranchInputEnvelope = {
+  data: Prisma.PaymentCreateManyBranchInput | Prisma.PaymentCreateManyBranchInput[]
+  skipDuplicates?: boolean
+}
+
+export type PaymentUpsertWithWhereUniqueWithoutBranchInput = {
+  where: Prisma.PaymentWhereUniqueInput
+  update: Prisma.XOR<Prisma.PaymentUpdateWithoutBranchInput, Prisma.PaymentUncheckedUpdateWithoutBranchInput>
+  create: Prisma.XOR<Prisma.PaymentCreateWithoutBranchInput, Prisma.PaymentUncheckedCreateWithoutBranchInput>
+}
+
+export type PaymentUpdateWithWhereUniqueWithoutBranchInput = {
+  where: Prisma.PaymentWhereUniqueInput
+  data: Prisma.XOR<Prisma.PaymentUpdateWithoutBranchInput, Prisma.PaymentUncheckedUpdateWithoutBranchInput>
+}
+
+export type PaymentUpdateManyWithWhereWithoutBranchInput = {
+  where: Prisma.PaymentScalarWhereInput
+  data: Prisma.XOR<Prisma.PaymentUpdateManyMutationInput, Prisma.PaymentUncheckedUpdateManyWithoutBranchInput>
+}
+
+export type PaymentCreateManyUserInput = {
+  id?: string
+  courseId?: string | null
+  admissionId?: string | null
+  feeInstallmentId?: string | null
+  invoiceId?: string | null
+  branchId?: string | null
+  collectorId?: string | null
+  verifiedBy?: string | null
+  amount: number
+  currency?: string
+  razorpayOrderId: string
+  razorpayPaymentId?: string | null
+  razorpaySignature?: string | null
+  paymentStatus?: string
+  paymentMethod?: string | null
+  paymentMode?: string
+  transactionRef?: string | null
+  receiptNumber?: string | null
+  receiptUrl?: string | null
+  receiptUploadUrl?: string | null
+  remarks?: string | null
+  failureReason?: string | null
+  refundStatus?: string
+  refundedAmount?: number
+  reconciledAt?: Date | string | null
+  verifiedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type PaymentCreateManyCollectorInput = {
+  id?: string
+  userId: string
+  courseId?: string | null
+  admissionId?: string | null
+  feeInstallmentId?: string | null
+  invoiceId?: string | null
+  branchId?: string | null
+  verifiedBy?: string | null
+  amount: number
+  currency?: string
+  razorpayOrderId: string
+  razorpayPaymentId?: string | null
+  razorpaySignature?: string | null
+  paymentStatus?: string
+  paymentMethod?: string | null
+  paymentMode?: string
+  transactionRef?: string | null
+  receiptNumber?: string | null
+  receiptUrl?: string | null
+  receiptUploadUrl?: string | null
+  remarks?: string | null
+  failureReason?: string | null
+  refundStatus?: string
+  refundedAmount?: number
+  reconciledAt?: Date | string | null
+  verifiedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type PaymentCreateManyVerifierInput = {
+  id?: string
+  userId: string
+  courseId?: string | null
+  admissionId?: string | null
+  feeInstallmentId?: string | null
+  invoiceId?: string | null
+  branchId?: string | null
+  collectorId?: string | null
+  amount: number
+  currency?: string
+  razorpayOrderId: string
+  razorpayPaymentId?: string | null
+  razorpaySignature?: string | null
+  paymentStatus?: string
+  paymentMethod?: string | null
+  paymentMode?: string
+  transactionRef?: string | null
+  receiptNumber?: string | null
+  receiptUrl?: string | null
+  receiptUploadUrl?: string | null
+  remarks?: string | null
+  failureReason?: string | null
+  refundStatus?: string
+  refundedAmount?: number
+  reconciledAt?: Date | string | null
+  verifiedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type PaymentUpdateWithoutUserInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  admissionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  amount?: Prisma.FloatFieldUpdateOperationsInput | number
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  razorpayOrderId?: Prisma.StringFieldUpdateOperationsInput | string
+  razorpayPaymentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  razorpaySignature?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMode?: Prisma.StringFieldUpdateOperationsInput | string
+  transactionRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptUploadUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remarks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  refundStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  refundedAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  reconciledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  course?: Prisma.CourseUpdateOneWithoutPaymentsNestedInput
+  installment?: Prisma.FeeInstallmentUpdateOneWithoutPaymentsNestedInput
+  invoice?: Prisma.InvoiceUpdateOneWithoutPaymentsNestedInput
+  branch?: Prisma.BranchUpdateOneWithoutPaymentsNestedInput
+  collector?: Prisma.UserUpdateOneWithoutCollectedPaymentsNestedInput
+  verifier?: Prisma.UserUpdateOneWithoutVerifiedPaymentsNestedInput
+  logs?: Prisma.PaymentTransactionLogUpdateManyWithoutPaymentNestedInput
 }
 
 export type PaymentUncheckedUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   courseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  admissionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feeInstallmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invoiceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  collectorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verifiedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   razorpayOrderId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -736,12 +2177,31 @@ export type PaymentUncheckedUpdateWithoutUserInput = {
   razorpaySignature?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
   paymentMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMode?: Prisma.StringFieldUpdateOperationsInput | string
+  transactionRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptUploadUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remarks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  refundStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  refundedAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  reconciledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  logs?: Prisma.PaymentTransactionLogUncheckedUpdateManyWithoutPaymentNestedInput
 }
 
 export type PaymentUncheckedUpdateManyWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   courseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  admissionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feeInstallmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invoiceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  collectorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verifiedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   razorpayOrderId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -749,12 +2209,220 @@ export type PaymentUncheckedUpdateManyWithoutUserInput = {
   razorpaySignature?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
   paymentMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMode?: Prisma.StringFieldUpdateOperationsInput | string
+  transactionRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptUploadUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remarks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  refundStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  refundedAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  reconciledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type PaymentUpdateWithoutCollectorInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  admissionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  amount?: Prisma.FloatFieldUpdateOperationsInput | number
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  razorpayOrderId?: Prisma.StringFieldUpdateOperationsInput | string
+  razorpayPaymentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  razorpaySignature?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMode?: Prisma.StringFieldUpdateOperationsInput | string
+  transactionRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptUploadUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remarks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  refundStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  refundedAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  reconciledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneRequiredWithoutPaymentsNestedInput
+  course?: Prisma.CourseUpdateOneWithoutPaymentsNestedInput
+  installment?: Prisma.FeeInstallmentUpdateOneWithoutPaymentsNestedInput
+  invoice?: Prisma.InvoiceUpdateOneWithoutPaymentsNestedInput
+  branch?: Prisma.BranchUpdateOneWithoutPaymentsNestedInput
+  verifier?: Prisma.UserUpdateOneWithoutVerifiedPaymentsNestedInput
+  logs?: Prisma.PaymentTransactionLogUpdateManyWithoutPaymentNestedInput
+}
+
+export type PaymentUncheckedUpdateWithoutCollectorInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  courseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  admissionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feeInstallmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invoiceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verifiedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  amount?: Prisma.FloatFieldUpdateOperationsInput | number
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  razorpayOrderId?: Prisma.StringFieldUpdateOperationsInput | string
+  razorpayPaymentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  razorpaySignature?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMode?: Prisma.StringFieldUpdateOperationsInput | string
+  transactionRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptUploadUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remarks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  refundStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  refundedAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  reconciledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  logs?: Prisma.PaymentTransactionLogUncheckedUpdateManyWithoutPaymentNestedInput
+}
+
+export type PaymentUncheckedUpdateManyWithoutCollectorInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  courseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  admissionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feeInstallmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invoiceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verifiedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  amount?: Prisma.FloatFieldUpdateOperationsInput | number
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  razorpayOrderId?: Prisma.StringFieldUpdateOperationsInput | string
+  razorpayPaymentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  razorpaySignature?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMode?: Prisma.StringFieldUpdateOperationsInput | string
+  transactionRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptUploadUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remarks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  refundStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  refundedAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  reconciledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type PaymentUpdateWithoutVerifierInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  admissionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  amount?: Prisma.FloatFieldUpdateOperationsInput | number
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  razorpayOrderId?: Prisma.StringFieldUpdateOperationsInput | string
+  razorpayPaymentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  razorpaySignature?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMode?: Prisma.StringFieldUpdateOperationsInput | string
+  transactionRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptUploadUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remarks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  refundStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  refundedAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  reconciledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneRequiredWithoutPaymentsNestedInput
+  course?: Prisma.CourseUpdateOneWithoutPaymentsNestedInput
+  installment?: Prisma.FeeInstallmentUpdateOneWithoutPaymentsNestedInput
+  invoice?: Prisma.InvoiceUpdateOneWithoutPaymentsNestedInput
+  branch?: Prisma.BranchUpdateOneWithoutPaymentsNestedInput
+  collector?: Prisma.UserUpdateOneWithoutCollectedPaymentsNestedInput
+  logs?: Prisma.PaymentTransactionLogUpdateManyWithoutPaymentNestedInput
+}
+
+export type PaymentUncheckedUpdateWithoutVerifierInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  courseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  admissionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feeInstallmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invoiceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  collectorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  amount?: Prisma.FloatFieldUpdateOperationsInput | number
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  razorpayOrderId?: Prisma.StringFieldUpdateOperationsInput | string
+  razorpayPaymentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  razorpaySignature?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMode?: Prisma.StringFieldUpdateOperationsInput | string
+  transactionRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptUploadUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remarks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  refundStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  refundedAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  reconciledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  logs?: Prisma.PaymentTransactionLogUncheckedUpdateManyWithoutPaymentNestedInput
+}
+
+export type PaymentUncheckedUpdateManyWithoutVerifierInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  courseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  admissionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feeInstallmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invoiceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  collectorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  amount?: Prisma.FloatFieldUpdateOperationsInput | number
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  razorpayOrderId?: Prisma.StringFieldUpdateOperationsInput | string
+  razorpayPaymentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  razorpaySignature?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMode?: Prisma.StringFieldUpdateOperationsInput | string
+  transactionRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptUploadUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remarks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  refundStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  refundedAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  reconciledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PaymentCreateManyCourseInput = {
   id?: string
   userId: string
+  admissionId?: string | null
+  feeInstallmentId?: string | null
+  invoiceId?: string | null
+  branchId?: string | null
+  collectorId?: string | null
+  verifiedBy?: string | null
   amount: number
   currency?: string
   razorpayOrderId: string
@@ -762,11 +2430,24 @@ export type PaymentCreateManyCourseInput = {
   razorpaySignature?: string | null
   paymentStatus?: string
   paymentMethod?: string | null
+  paymentMode?: string
+  transactionRef?: string | null
+  receiptNumber?: string | null
+  receiptUrl?: string | null
+  receiptUploadUrl?: string | null
+  remarks?: string | null
+  failureReason?: string | null
+  refundStatus?: string
+  refundedAmount?: number
+  reconciledAt?: Date | string | null
+  verifiedAt?: Date | string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type PaymentUpdateWithoutCourseInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  admissionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   razorpayOrderId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -774,13 +2455,37 @@ export type PaymentUpdateWithoutCourseInput = {
   razorpaySignature?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
   paymentMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMode?: Prisma.StringFieldUpdateOperationsInput | string
+  transactionRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptUploadUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remarks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  refundStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  refundedAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  reconciledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutPaymentsNestedInput
+  installment?: Prisma.FeeInstallmentUpdateOneWithoutPaymentsNestedInput
+  invoice?: Prisma.InvoiceUpdateOneWithoutPaymentsNestedInput
+  branch?: Prisma.BranchUpdateOneWithoutPaymentsNestedInput
+  collector?: Prisma.UserUpdateOneWithoutCollectedPaymentsNestedInput
+  verifier?: Prisma.UserUpdateOneWithoutVerifiedPaymentsNestedInput
+  logs?: Prisma.PaymentTransactionLogUpdateManyWithoutPaymentNestedInput
 }
 
 export type PaymentUncheckedUpdateWithoutCourseInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
+  admissionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feeInstallmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invoiceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  collectorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verifiedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   razorpayOrderId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -788,12 +2493,31 @@ export type PaymentUncheckedUpdateWithoutCourseInput = {
   razorpaySignature?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
   paymentMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMode?: Prisma.StringFieldUpdateOperationsInput | string
+  transactionRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptUploadUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remarks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  refundStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  refundedAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  reconciledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  logs?: Prisma.PaymentTransactionLogUncheckedUpdateManyWithoutPaymentNestedInput
 }
 
 export type PaymentUncheckedUpdateManyWithoutCourseInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
+  admissionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feeInstallmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invoiceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  collectorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verifiedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   razorpayOrderId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -801,15 +2525,440 @@ export type PaymentUncheckedUpdateManyWithoutCourseInput = {
   razorpaySignature?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
   paymentMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMode?: Prisma.StringFieldUpdateOperationsInput | string
+  transactionRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptUploadUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remarks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  refundStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  refundedAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  reconciledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
+export type PaymentCreateManyInstallmentInput = {
+  id?: string
+  userId: string
+  courseId?: string | null
+  admissionId?: string | null
+  invoiceId?: string | null
+  branchId?: string | null
+  collectorId?: string | null
+  verifiedBy?: string | null
+  amount: number
+  currency?: string
+  razorpayOrderId: string
+  razorpayPaymentId?: string | null
+  razorpaySignature?: string | null
+  paymentStatus?: string
+  paymentMethod?: string | null
+  paymentMode?: string
+  transactionRef?: string | null
+  receiptNumber?: string | null
+  receiptUrl?: string | null
+  receiptUploadUrl?: string | null
+  remarks?: string | null
+  failureReason?: string | null
+  refundStatus?: string
+  refundedAmount?: number
+  reconciledAt?: Date | string | null
+  verifiedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type PaymentUpdateWithoutInstallmentInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  admissionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  amount?: Prisma.FloatFieldUpdateOperationsInput | number
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  razorpayOrderId?: Prisma.StringFieldUpdateOperationsInput | string
+  razorpayPaymentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  razorpaySignature?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMode?: Prisma.StringFieldUpdateOperationsInput | string
+  transactionRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptUploadUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remarks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  refundStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  refundedAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  reconciledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneRequiredWithoutPaymentsNestedInput
+  course?: Prisma.CourseUpdateOneWithoutPaymentsNestedInput
+  invoice?: Prisma.InvoiceUpdateOneWithoutPaymentsNestedInput
+  branch?: Prisma.BranchUpdateOneWithoutPaymentsNestedInput
+  collector?: Prisma.UserUpdateOneWithoutCollectedPaymentsNestedInput
+  verifier?: Prisma.UserUpdateOneWithoutVerifiedPaymentsNestedInput
+  logs?: Prisma.PaymentTransactionLogUpdateManyWithoutPaymentNestedInput
+}
+
+export type PaymentUncheckedUpdateWithoutInstallmentInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  courseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  admissionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invoiceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  collectorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verifiedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  amount?: Prisma.FloatFieldUpdateOperationsInput | number
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  razorpayOrderId?: Prisma.StringFieldUpdateOperationsInput | string
+  razorpayPaymentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  razorpaySignature?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMode?: Prisma.StringFieldUpdateOperationsInput | string
+  transactionRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptUploadUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remarks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  refundStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  refundedAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  reconciledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  logs?: Prisma.PaymentTransactionLogUncheckedUpdateManyWithoutPaymentNestedInput
+}
+
+export type PaymentUncheckedUpdateManyWithoutInstallmentInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  courseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  admissionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invoiceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  collectorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verifiedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  amount?: Prisma.FloatFieldUpdateOperationsInput | number
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  razorpayOrderId?: Prisma.StringFieldUpdateOperationsInput | string
+  razorpayPaymentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  razorpaySignature?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMode?: Prisma.StringFieldUpdateOperationsInput | string
+  transactionRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptUploadUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remarks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  refundStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  refundedAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  reconciledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type PaymentCreateManyInvoiceInput = {
+  id?: string
+  userId: string
+  courseId?: string | null
+  admissionId?: string | null
+  feeInstallmentId?: string | null
+  branchId?: string | null
+  collectorId?: string | null
+  verifiedBy?: string | null
+  amount: number
+  currency?: string
+  razorpayOrderId: string
+  razorpayPaymentId?: string | null
+  razorpaySignature?: string | null
+  paymentStatus?: string
+  paymentMethod?: string | null
+  paymentMode?: string
+  transactionRef?: string | null
+  receiptNumber?: string | null
+  receiptUrl?: string | null
+  receiptUploadUrl?: string | null
+  remarks?: string | null
+  failureReason?: string | null
+  refundStatus?: string
+  refundedAmount?: number
+  reconciledAt?: Date | string | null
+  verifiedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type PaymentUpdateWithoutInvoiceInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  admissionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  amount?: Prisma.FloatFieldUpdateOperationsInput | number
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  razorpayOrderId?: Prisma.StringFieldUpdateOperationsInput | string
+  razorpayPaymentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  razorpaySignature?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMode?: Prisma.StringFieldUpdateOperationsInput | string
+  transactionRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptUploadUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remarks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  refundStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  refundedAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  reconciledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneRequiredWithoutPaymentsNestedInput
+  course?: Prisma.CourseUpdateOneWithoutPaymentsNestedInput
+  installment?: Prisma.FeeInstallmentUpdateOneWithoutPaymentsNestedInput
+  branch?: Prisma.BranchUpdateOneWithoutPaymentsNestedInput
+  collector?: Prisma.UserUpdateOneWithoutCollectedPaymentsNestedInput
+  verifier?: Prisma.UserUpdateOneWithoutVerifiedPaymentsNestedInput
+  logs?: Prisma.PaymentTransactionLogUpdateManyWithoutPaymentNestedInput
+}
+
+export type PaymentUncheckedUpdateWithoutInvoiceInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  courseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  admissionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feeInstallmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  collectorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verifiedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  amount?: Prisma.FloatFieldUpdateOperationsInput | number
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  razorpayOrderId?: Prisma.StringFieldUpdateOperationsInput | string
+  razorpayPaymentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  razorpaySignature?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMode?: Prisma.StringFieldUpdateOperationsInput | string
+  transactionRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptUploadUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remarks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  refundStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  refundedAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  reconciledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  logs?: Prisma.PaymentTransactionLogUncheckedUpdateManyWithoutPaymentNestedInput
+}
+
+export type PaymentUncheckedUpdateManyWithoutInvoiceInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  courseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  admissionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feeInstallmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  collectorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verifiedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  amount?: Prisma.FloatFieldUpdateOperationsInput | number
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  razorpayOrderId?: Prisma.StringFieldUpdateOperationsInput | string
+  razorpayPaymentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  razorpaySignature?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMode?: Prisma.StringFieldUpdateOperationsInput | string
+  transactionRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptUploadUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remarks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  refundStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  refundedAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  reconciledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type PaymentCreateManyBranchInput = {
+  id?: string
+  userId: string
+  courseId?: string | null
+  admissionId?: string | null
+  feeInstallmentId?: string | null
+  invoiceId?: string | null
+  collectorId?: string | null
+  verifiedBy?: string | null
+  amount: number
+  currency?: string
+  razorpayOrderId: string
+  razorpayPaymentId?: string | null
+  razorpaySignature?: string | null
+  paymentStatus?: string
+  paymentMethod?: string | null
+  paymentMode?: string
+  transactionRef?: string | null
+  receiptNumber?: string | null
+  receiptUrl?: string | null
+  receiptUploadUrl?: string | null
+  remarks?: string | null
+  failureReason?: string | null
+  refundStatus?: string
+  refundedAmount?: number
+  reconciledAt?: Date | string | null
+  verifiedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type PaymentUpdateWithoutBranchInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  admissionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  amount?: Prisma.FloatFieldUpdateOperationsInput | number
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  razorpayOrderId?: Prisma.StringFieldUpdateOperationsInput | string
+  razorpayPaymentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  razorpaySignature?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMode?: Prisma.StringFieldUpdateOperationsInput | string
+  transactionRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptUploadUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remarks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  refundStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  refundedAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  reconciledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneRequiredWithoutPaymentsNestedInput
+  course?: Prisma.CourseUpdateOneWithoutPaymentsNestedInput
+  installment?: Prisma.FeeInstallmentUpdateOneWithoutPaymentsNestedInput
+  invoice?: Prisma.InvoiceUpdateOneWithoutPaymentsNestedInput
+  collector?: Prisma.UserUpdateOneWithoutCollectedPaymentsNestedInput
+  verifier?: Prisma.UserUpdateOneWithoutVerifiedPaymentsNestedInput
+  logs?: Prisma.PaymentTransactionLogUpdateManyWithoutPaymentNestedInput
+}
+
+export type PaymentUncheckedUpdateWithoutBranchInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  courseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  admissionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feeInstallmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invoiceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  collectorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verifiedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  amount?: Prisma.FloatFieldUpdateOperationsInput | number
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  razorpayOrderId?: Prisma.StringFieldUpdateOperationsInput | string
+  razorpayPaymentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  razorpaySignature?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMode?: Prisma.StringFieldUpdateOperationsInput | string
+  transactionRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptUploadUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remarks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  refundStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  refundedAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  reconciledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  logs?: Prisma.PaymentTransactionLogUncheckedUpdateManyWithoutPaymentNestedInput
+}
+
+export type PaymentUncheckedUpdateManyWithoutBranchInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  courseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  admissionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feeInstallmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invoiceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  collectorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verifiedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  amount?: Prisma.FloatFieldUpdateOperationsInput | number
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  razorpayOrderId?: Prisma.StringFieldUpdateOperationsInput | string
+  razorpayPaymentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  razorpaySignature?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMode?: Prisma.StringFieldUpdateOperationsInput | string
+  transactionRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptUploadUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remarks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  refundStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  refundedAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  reconciledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+
+/**
+ * Count Type PaymentCountOutputType
+ */
+
+export type PaymentCountOutputType = {
+  logs: number
+}
+
+export type PaymentCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  logs?: boolean | PaymentCountOutputTypeCountLogsArgs
+}
+
+/**
+ * PaymentCountOutputType without action
+ */
+export type PaymentCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the PaymentCountOutputType
+   */
+  select?: Prisma.PaymentCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * PaymentCountOutputType without action
+ */
+export type PaymentCountOutputTypeCountLogsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PaymentTransactionLogWhereInput
+}
 
 
 export type PaymentSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   userId?: boolean
   courseId?: boolean
+  admissionId?: boolean
+  feeInstallmentId?: boolean
+  invoiceId?: boolean
+  branchId?: boolean
+  collectorId?: boolean
+  verifiedBy?: boolean
   amount?: boolean
   currency?: boolean
   razorpayOrderId?: boolean
@@ -817,15 +2966,40 @@ export type PaymentSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   razorpaySignature?: boolean
   paymentStatus?: boolean
   paymentMethod?: boolean
+  paymentMode?: boolean
+  transactionRef?: boolean
+  receiptNumber?: boolean
+  receiptUrl?: boolean
+  receiptUploadUrl?: boolean
+  remarks?: boolean
+  failureReason?: boolean
+  refundStatus?: boolean
+  refundedAmount?: boolean
+  reconciledAt?: boolean
+  verifiedAt?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   course?: boolean | Prisma.Payment$courseArgs<ExtArgs>
+  installment?: boolean | Prisma.Payment$installmentArgs<ExtArgs>
+  invoice?: boolean | Prisma.Payment$invoiceArgs<ExtArgs>
+  branch?: boolean | Prisma.Payment$branchArgs<ExtArgs>
+  collector?: boolean | Prisma.Payment$collectorArgs<ExtArgs>
+  verifier?: boolean | Prisma.Payment$verifierArgs<ExtArgs>
+  logs?: boolean | Prisma.Payment$logsArgs<ExtArgs>
+  _count?: boolean | Prisma.PaymentCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["payment"]>
 
 export type PaymentSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   userId?: boolean
   courseId?: boolean
+  admissionId?: boolean
+  feeInstallmentId?: boolean
+  invoiceId?: boolean
+  branchId?: boolean
+  collectorId?: boolean
+  verifiedBy?: boolean
   amount?: boolean
   currency?: boolean
   razorpayOrderId?: boolean
@@ -833,15 +3007,38 @@ export type PaymentSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   razorpaySignature?: boolean
   paymentStatus?: boolean
   paymentMethod?: boolean
+  paymentMode?: boolean
+  transactionRef?: boolean
+  receiptNumber?: boolean
+  receiptUrl?: boolean
+  receiptUploadUrl?: boolean
+  remarks?: boolean
+  failureReason?: boolean
+  refundStatus?: boolean
+  refundedAmount?: boolean
+  reconciledAt?: boolean
+  verifiedAt?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   course?: boolean | Prisma.Payment$courseArgs<ExtArgs>
+  installment?: boolean | Prisma.Payment$installmentArgs<ExtArgs>
+  invoice?: boolean | Prisma.Payment$invoiceArgs<ExtArgs>
+  branch?: boolean | Prisma.Payment$branchArgs<ExtArgs>
+  collector?: boolean | Prisma.Payment$collectorArgs<ExtArgs>
+  verifier?: boolean | Prisma.Payment$verifierArgs<ExtArgs>
 }, ExtArgs["result"]["payment"]>
 
 export type PaymentSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   userId?: boolean
   courseId?: boolean
+  admissionId?: boolean
+  feeInstallmentId?: boolean
+  invoiceId?: boolean
+  branchId?: boolean
+  collectorId?: boolean
+  verifiedBy?: boolean
   amount?: boolean
   currency?: boolean
   razorpayOrderId?: boolean
@@ -849,15 +3046,38 @@ export type PaymentSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   razorpaySignature?: boolean
   paymentStatus?: boolean
   paymentMethod?: boolean
+  paymentMode?: boolean
+  transactionRef?: boolean
+  receiptNumber?: boolean
+  receiptUrl?: boolean
+  receiptUploadUrl?: boolean
+  remarks?: boolean
+  failureReason?: boolean
+  refundStatus?: boolean
+  refundedAmount?: boolean
+  reconciledAt?: boolean
+  verifiedAt?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   course?: boolean | Prisma.Payment$courseArgs<ExtArgs>
+  installment?: boolean | Prisma.Payment$installmentArgs<ExtArgs>
+  invoice?: boolean | Prisma.Payment$invoiceArgs<ExtArgs>
+  branch?: boolean | Prisma.Payment$branchArgs<ExtArgs>
+  collector?: boolean | Prisma.Payment$collectorArgs<ExtArgs>
+  verifier?: boolean | Prisma.Payment$verifierArgs<ExtArgs>
 }, ExtArgs["result"]["payment"]>
 
 export type PaymentSelectScalar = {
   id?: boolean
   userId?: boolean
   courseId?: boolean
+  admissionId?: boolean
+  feeInstallmentId?: boolean
+  invoiceId?: boolean
+  branchId?: boolean
+  collectorId?: boolean
+  verifiedBy?: boolean
   amount?: boolean
   currency?: boolean
   razorpayOrderId?: boolean
@@ -865,21 +3085,50 @@ export type PaymentSelectScalar = {
   razorpaySignature?: boolean
   paymentStatus?: boolean
   paymentMethod?: boolean
+  paymentMode?: boolean
+  transactionRef?: boolean
+  receiptNumber?: boolean
+  receiptUrl?: boolean
+  receiptUploadUrl?: boolean
+  remarks?: boolean
+  failureReason?: boolean
+  refundStatus?: boolean
+  refundedAmount?: boolean
+  reconciledAt?: boolean
+  verifiedAt?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type PaymentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "courseId" | "amount" | "currency" | "razorpayOrderId" | "razorpayPaymentId" | "razorpaySignature" | "paymentStatus" | "paymentMethod" | "createdAt", ExtArgs["result"]["payment"]>
+export type PaymentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "courseId" | "admissionId" | "feeInstallmentId" | "invoiceId" | "branchId" | "collectorId" | "verifiedBy" | "amount" | "currency" | "razorpayOrderId" | "razorpayPaymentId" | "razorpaySignature" | "paymentStatus" | "paymentMethod" | "paymentMode" | "transactionRef" | "receiptNumber" | "receiptUrl" | "receiptUploadUrl" | "remarks" | "failureReason" | "refundStatus" | "refundedAmount" | "reconciledAt" | "verifiedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["payment"]>
 export type PaymentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   course?: boolean | Prisma.Payment$courseArgs<ExtArgs>
+  installment?: boolean | Prisma.Payment$installmentArgs<ExtArgs>
+  invoice?: boolean | Prisma.Payment$invoiceArgs<ExtArgs>
+  branch?: boolean | Prisma.Payment$branchArgs<ExtArgs>
+  collector?: boolean | Prisma.Payment$collectorArgs<ExtArgs>
+  verifier?: boolean | Prisma.Payment$verifierArgs<ExtArgs>
+  logs?: boolean | Prisma.Payment$logsArgs<ExtArgs>
+  _count?: boolean | Prisma.PaymentCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type PaymentIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   course?: boolean | Prisma.Payment$courseArgs<ExtArgs>
+  installment?: boolean | Prisma.Payment$installmentArgs<ExtArgs>
+  invoice?: boolean | Prisma.Payment$invoiceArgs<ExtArgs>
+  branch?: boolean | Prisma.Payment$branchArgs<ExtArgs>
+  collector?: boolean | Prisma.Payment$collectorArgs<ExtArgs>
+  verifier?: boolean | Prisma.Payment$verifierArgs<ExtArgs>
 }
 export type PaymentIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   course?: boolean | Prisma.Payment$courseArgs<ExtArgs>
+  installment?: boolean | Prisma.Payment$installmentArgs<ExtArgs>
+  invoice?: boolean | Prisma.Payment$invoiceArgs<ExtArgs>
+  branch?: boolean | Prisma.Payment$branchArgs<ExtArgs>
+  collector?: boolean | Prisma.Payment$collectorArgs<ExtArgs>
+  verifier?: boolean | Prisma.Payment$verifierArgs<ExtArgs>
 }
 
 export type $PaymentPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -887,11 +3136,23 @@ export type $PaymentPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
   objects: {
     user: Prisma.$UserPayload<ExtArgs>
     course: Prisma.$CoursePayload<ExtArgs> | null
+    installment: Prisma.$FeeInstallmentPayload<ExtArgs> | null
+    invoice: Prisma.$InvoicePayload<ExtArgs> | null
+    branch: Prisma.$BranchPayload<ExtArgs> | null
+    collector: Prisma.$UserPayload<ExtArgs> | null
+    verifier: Prisma.$UserPayload<ExtArgs> | null
+    logs: Prisma.$PaymentTransactionLogPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     userId: string
     courseId: string | null
+    admissionId: string | null
+    feeInstallmentId: string | null
+    invoiceId: string | null
+    branchId: string | null
+    collectorId: string | null
+    verifiedBy: string | null
     amount: number
     currency: string
     razorpayOrderId: string
@@ -899,7 +3160,19 @@ export type $PaymentPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     razorpaySignature: string | null
     paymentStatus: string
     paymentMethod: string | null
+    paymentMode: string
+    transactionRef: string | null
+    receiptNumber: string | null
+    receiptUrl: string | null
+    receiptUploadUrl: string | null
+    remarks: string | null
+    failureReason: string | null
+    refundStatus: string
+    refundedAmount: number
+    reconciledAt: Date | null
+    verifiedAt: Date | null
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["payment"]>
   composites: {}
 }
@@ -1296,6 +3569,12 @@ export interface Prisma__PaymentClient<T, Null = never, ExtArgs extends runtime.
   readonly [Symbol.toStringTag]: "PrismaPromise"
   user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   course<T extends Prisma.Payment$courseArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Payment$courseArgs<ExtArgs>>): Prisma.Prisma__CourseClient<runtime.Types.Result.GetResult<Prisma.$CoursePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  installment<T extends Prisma.Payment$installmentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Payment$installmentArgs<ExtArgs>>): Prisma.Prisma__FeeInstallmentClient<runtime.Types.Result.GetResult<Prisma.$FeeInstallmentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  invoice<T extends Prisma.Payment$invoiceArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Payment$invoiceArgs<ExtArgs>>): Prisma.Prisma__InvoiceClient<runtime.Types.Result.GetResult<Prisma.$InvoicePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  branch<T extends Prisma.Payment$branchArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Payment$branchArgs<ExtArgs>>): Prisma.Prisma__BranchClient<runtime.Types.Result.GetResult<Prisma.$BranchPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  collector<T extends Prisma.Payment$collectorArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Payment$collectorArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  verifier<T extends Prisma.Payment$verifierArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Payment$verifierArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  logs<T extends Prisma.Payment$logsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Payment$logsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PaymentTransactionLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1328,6 +3607,12 @@ export interface PaymentFieldRefs {
   readonly id: Prisma.FieldRef<"Payment", 'String'>
   readonly userId: Prisma.FieldRef<"Payment", 'String'>
   readonly courseId: Prisma.FieldRef<"Payment", 'String'>
+  readonly admissionId: Prisma.FieldRef<"Payment", 'String'>
+  readonly feeInstallmentId: Prisma.FieldRef<"Payment", 'String'>
+  readonly invoiceId: Prisma.FieldRef<"Payment", 'String'>
+  readonly branchId: Prisma.FieldRef<"Payment", 'String'>
+  readonly collectorId: Prisma.FieldRef<"Payment", 'String'>
+  readonly verifiedBy: Prisma.FieldRef<"Payment", 'String'>
   readonly amount: Prisma.FieldRef<"Payment", 'Float'>
   readonly currency: Prisma.FieldRef<"Payment", 'String'>
   readonly razorpayOrderId: Prisma.FieldRef<"Payment", 'String'>
@@ -1335,7 +3620,19 @@ export interface PaymentFieldRefs {
   readonly razorpaySignature: Prisma.FieldRef<"Payment", 'String'>
   readonly paymentStatus: Prisma.FieldRef<"Payment", 'String'>
   readonly paymentMethod: Prisma.FieldRef<"Payment", 'String'>
+  readonly paymentMode: Prisma.FieldRef<"Payment", 'String'>
+  readonly transactionRef: Prisma.FieldRef<"Payment", 'String'>
+  readonly receiptNumber: Prisma.FieldRef<"Payment", 'String'>
+  readonly receiptUrl: Prisma.FieldRef<"Payment", 'String'>
+  readonly receiptUploadUrl: Prisma.FieldRef<"Payment", 'String'>
+  readonly remarks: Prisma.FieldRef<"Payment", 'String'>
+  readonly failureReason: Prisma.FieldRef<"Payment", 'String'>
+  readonly refundStatus: Prisma.FieldRef<"Payment", 'String'>
+  readonly refundedAmount: Prisma.FieldRef<"Payment", 'Float'>
+  readonly reconciledAt: Prisma.FieldRef<"Payment", 'DateTime'>
+  readonly verifiedAt: Prisma.FieldRef<"Payment", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"Payment", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"Payment", 'DateTime'>
 }
     
 
@@ -1753,6 +4050,125 @@ export type Payment$courseArgs<ExtArgs extends runtime.Types.Extensions.Internal
    */
   include?: Prisma.CourseInclude<ExtArgs> | null
   where?: Prisma.CourseWhereInput
+}
+
+/**
+ * Payment.installment
+ */
+export type Payment$installmentArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FeeInstallment
+   */
+  select?: Prisma.FeeInstallmentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FeeInstallment
+   */
+  omit?: Prisma.FeeInstallmentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FeeInstallmentInclude<ExtArgs> | null
+  where?: Prisma.FeeInstallmentWhereInput
+}
+
+/**
+ * Payment.invoice
+ */
+export type Payment$invoiceArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Invoice
+   */
+  select?: Prisma.InvoiceSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Invoice
+   */
+  omit?: Prisma.InvoiceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InvoiceInclude<ExtArgs> | null
+  where?: Prisma.InvoiceWhereInput
+}
+
+/**
+ * Payment.branch
+ */
+export type Payment$branchArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Branch
+   */
+  select?: Prisma.BranchSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Branch
+   */
+  omit?: Prisma.BranchOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BranchInclude<ExtArgs> | null
+  where?: Prisma.BranchWhereInput
+}
+
+/**
+ * Payment.collector
+ */
+export type Payment$collectorArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the User
+   */
+  select?: Prisma.UserSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the User
+   */
+  omit?: Prisma.UserOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserInclude<ExtArgs> | null
+  where?: Prisma.UserWhereInput
+}
+
+/**
+ * Payment.verifier
+ */
+export type Payment$verifierArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the User
+   */
+  select?: Prisma.UserSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the User
+   */
+  omit?: Prisma.UserOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserInclude<ExtArgs> | null
+  where?: Prisma.UserWhereInput
+}
+
+/**
+ * Payment.logs
+ */
+export type Payment$logsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the PaymentTransactionLog
+   */
+  select?: Prisma.PaymentTransactionLogSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the PaymentTransactionLog
+   */
+  omit?: Prisma.PaymentTransactionLogOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PaymentTransactionLogInclude<ExtArgs> | null
+  where?: Prisma.PaymentTransactionLogWhereInput
+  orderBy?: Prisma.PaymentTransactionLogOrderByWithRelationInput | Prisma.PaymentTransactionLogOrderByWithRelationInput[]
+  cursor?: Prisma.PaymentTransactionLogWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PaymentTransactionLogScalarFieldEnum | Prisma.PaymentTransactionLogScalarFieldEnum[]
 }
 
 /**

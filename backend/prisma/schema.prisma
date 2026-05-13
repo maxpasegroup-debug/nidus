@@ -93,9 +93,15 @@ model User {
   referralsMade Referral[] @relation("ReferralReferrer")
   referralsReceived Referral[] @relation("ReferralReferred")
   payments Payment[] @relation("PaymentUser")
+  collectedPayments Payment[] @relation("PaymentCollector")
+  verifiedPayments Payment[] @relation("PaymentVerifier")
   subscriptions Subscription[] @relation("SubscriptionUser")
   feeInstallments FeeInstallment[] @relation("FeeInstallmentStudent")
   invoices Invoice[] @relation("InvoiceStudent")
+  approvalRequestsCreated ApprovalRequest[] @relation("ApprovalRequester")
+  approvalRequestsReviewed ApprovalRequest[] @relation("ApprovalReviewer")
+  scholarships ScholarshipDiscount[] @relation("ScholarshipStudent")
+  scholarshipReviewActions ScholarshipDiscount[] @relation("ScholarshipApprover")
   notifications Notification[] @relation("NotificationUser")
   messageThreads MessageThread[] @relation("MessageThreadCreator")
   sentMessages Message[] @relation("MessageSender")
@@ -240,6 +246,7 @@ model Course {
   recordedLectures RecordedLecture[]
   admissions  Admission[]
   payments    Payment[]
+  feePlans    FeePlan[]
   createdAt   DateTime     @default(now())
 }
 
@@ -773,6 +780,7 @@ model Lead {
   assignee    User?       @relation("LeadAssignee", fields: [assignedTo], references: [id], onDelete: SetNull)
   followUps   FollowUp[]
   counsellingBookings CounsellingBooking[]
+  admissions  Admission[]
   createdAt   DateTime    @default(now())
 
   @@index([status])
@@ -798,19 +806,43 @@ model FollowUp {
 
 model Admission {
   id             String   @id @default(cuid())
+  leadId         String?
   studentId      String
   courseId       String
+  instituteId    String?
+  branchId       String?
   admissionDate  DateTime
   paymentStatus  String
+  status         String   @default("PENDING_APPROVAL")
+  admissionMode  String   @default("ONLINE")
+  approvalStatus String   @default("PENDING")
+  approvedBy     String?
+  approvedAt     DateTime?
+  onboardingStatus String @default("PENDING")
   batch          String
+  totalFee       Float    @default(0)
+  paidAmount     Float    @default(0)
+  dueAmount      Float    @default(0)
+  remarks        String?
   createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
   student        User     @relation("AdmissionStudent", fields: [studentId], references: [id], onDelete: Cascade)
   course         Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lead           Lead?    @relation(fields: [leadId], references: [id], onDelete: SetNull)
+  institute      Institute? @relation(fields: [instituteId], references: [id], onDelete: SetNull)
+  branch         Branch?  @relation(fields: [branchId], references: [id], onDelete: SetNull)
+  approvals      ApprovalRequest[]
+  feePlans       FeePlan[]
 
+  @@index([leadId])
   @@index([studentId])
   @@index([courseId])
+  @@index([instituteId])
+  @@index([branchId])
   @@index([admissionDate])
   @@index([paymentStatus])
+  @@index([status])
+  @@index([approvalStatus])
 }
 
 model CounsellingBooking {
@@ -845,6 +877,12 @@ model Payment {
   id                 String   @id @default(cuid())
   userId             String
   courseId           String?
+  admissionId        String?
+  feeInstallmentId   String?
+  invoiceId          String?
+  branchId           String?
+  collectorId        String?
+  verifiedBy         String?
   amount             Float
   currency           String   @default("INR")
   razorpayOrderId    String   @unique
@@ -852,13 +890,38 @@ model Payment {
   razorpaySignature  String?
   paymentStatus      String   @default("CREATED")
   paymentMethod      String?
+  paymentMode        String   @default("ONLINE")
+  transactionRef     String?
+  receiptNumber      String?  @unique
+  receiptUrl         String?
+  receiptUploadUrl   String?
+  remarks            String?
+  failureReason      String?
+  refundStatus       String   @default("NONE")
+  refundedAmount     Float    @default(0)
+  reconciledAt       DateTime?
+  verifiedAt         DateTime?
   createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
   user               User     @relation("PaymentUser", fields: [userId], references: [id], onDelete: Cascade)
   course             Course?  @relation(fields: [courseId], references: [id], onDelete: SetNull)
+  installment        FeeInstallment? @relation(fields: [feeInstallmentId], references: [id], onDelete: SetNull)
+  invoice            Invoice? @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
+  branch             Branch?  @relation(fields: [branchId], references: [id], onDelete: SetNull)
+  collector          User?    @relation("PaymentCollector", fields: [collectorId], references: [id], onDelete: SetNull)
+  verifier           User?    @relation("PaymentVerifier", fields: [verifiedBy], references: [id], onDelete: SetNull)
+  logs               PaymentTransactionLog[]
 
   @@index([userId])
   @@index([courseId])
+  @@index([admissionId])
+  @@index([feeInstallmentId])
+  @@index([invoiceId])
+  @@index([branchId])
+  @@index([collectorId])
   @@index([paymentStatus])
+  @@index([paymentMethod])
+  @@index([paymentMode])
   @@index([createdAt])
 }
 
@@ -881,28 +944,167 @@ model Subscription {
 model FeeInstallment {
   id         String    @id @default(cuid())
   studentId  String
+  feePlanId  String?
   title      String
   amount     Float
+  paidAmount Float     @default(0)
+  dueAmount  Float     @default(0)
   dueDate    DateTime
   paidStatus String    @default("PENDING")
   paidAt     DateTime?
+  overdueAt  DateTime?
+  reminderStatus String @default("PENDING")
+  sequence   Int       @default(1)
   student    User      @relation("FeeInstallmentStudent", fields: [studentId], references: [id], onDelete: Cascade)
+  feePlan    FeePlan?  @relation(fields: [feePlanId], references: [id], onDelete: Cascade)
+  payments   Payment[]
 
   @@index([studentId])
+  @@index([feePlanId])
   @@index([dueDate])
   @@index([paidStatus])
+  @@index([reminderStatus])
 }
 
 model Invoice {
   id            String   @id @default(cuid())
   studentId     String
+  admissionId   String?
+  feePlanId     String?
   invoiceNumber String   @unique
   amount        Float
+  paidAmount    Float    @default(0)
+  dueAmount     Float    @default(0)
+  pdfUrl        String?
+  receiptUrl    String?
   generatedAt   DateTime @default(now())
   status        String
   student       User     @relation("InvoiceStudent", fields: [studentId], references: [id], onDelete: Cascade)
+  payments      Payment[]
 
   @@index([studentId])
+  @@index([admissionId])
+  @@index([feePlanId])
+  @@index([status])
+}
+
+model FeePlan {
+  id              String   @id @default(cuid())
+  studentId       String
+  admissionId     String?
+  courseId        String?
+  instituteId     String?
+  branchId        String?
+  title           String
+  totalAmount     Float
+  discountAmount  Float    @default(0)
+  scholarshipAmount Float  @default(0)
+  netAmount       Float
+  paidAmount      Float    @default(0)
+  dueAmount       Float
+  status          String   @default("ACTIVE")
+  createdBy       String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  admission       Admission? @relation(fields: [admissionId], references: [id], onDelete: SetNull)
+  course          Course?  @relation(fields: [courseId], references: [id], onDelete: SetNull)
+  institute       Institute? @relation(fields: [instituteId], references: [id], onDelete: SetNull)
+  branch          Branch? @relation(fields: [branchId], references: [id], onDelete: SetNull)
+  installments    FeeInstallment[]
+
+  @@index([studentId])
+  @@index([admissionId])
+  @@index([courseId])
+  @@index([instituteId])
+  @@index([branchId])
+  @@index([status])
+}
+
+model PaymentTransactionLog {
+  id          String   @id @default(cuid())
+  paymentId   String
+  actorId     String?
+  event       String
+  statusFrom  String?
+  statusTo    String?
+  metadata    Json?
+  ipAddress   String?
+  createdAt   DateTime @default(now())
+  payment     Payment  @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+
+  @@index([paymentId])
+  @@index([actorId])
+  @@index([event])
+  @@index([createdAt])
+}
+
+model ApprovalRequest {
+  id          String   @id @default(cuid())
+  type        String
+  status      String   @default("PENDING")
+  requesterId String?
+  reviewerId  String?
+  admissionId String?
+  targetType  String
+  targetId    String?
+  amount      Float?
+  reason      String?
+  remarks     String?
+  metadata    Json?
+  requestedAt DateTime @default(now())
+  reviewedAt  DateTime?
+  requester   User?    @relation("ApprovalRequester", fields: [requesterId], references: [id], onDelete: SetNull)
+  reviewer    User?    @relation("ApprovalReviewer", fields: [reviewerId], references: [id], onDelete: SetNull)
+  admission   Admission? @relation(fields: [admissionId], references: [id], onDelete: SetNull)
+
+  @@index([type])
+  @@index([status])
+  @@index([requesterId])
+  @@index([reviewerId])
+  @@index([admissionId])
+  @@index([targetType, targetId])
+}
+
+model ScholarshipDiscount {
+  id          String   @id @default(cuid())
+  studentId   String
+  admissionId String?
+  type        String
+  title       String
+  amount      Float
+  status      String   @default("PENDING")
+  requestedBy String?
+  approvedBy  String?
+  approvedAt  DateTime?
+  reason      String?
+  metadata    Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  student     User     @relation("ScholarshipStudent", fields: [studentId], references: [id], onDelete: Cascade)
+  approver    User?    @relation("ScholarshipApprover", fields: [approvedBy], references: [id], onDelete: SetNull)
+
+  @@index([studentId])
+  @@index([admissionId])
+  @@index([type])
+  @@index([status])
+}
+
+model FinanceDocument {
+  id          String   @id @default(cuid())
+  ownerId     String
+  documentType String
+  targetType  String
+  targetId    String
+  documentNumber String?
+  fileUrl     String?
+  status      String   @default("QUEUED")
+  metadata    Json?
+  generatedAt DateTime?
+  createdAt   DateTime @default(now())
+
+  @@index([ownerId])
+  @@index([documentType])
+  @@index([targetType, targetId])
   @@index([status])
 }
 
@@ -1526,6 +1728,9 @@ model Branch {
   users         User[]
   userRoles     UserRole[]
   roleActivities RoleActivity[]
+  admissions    Admission[]
+  feePlans      FeePlan[]
+  payments      Payment[]
 
   @@index([instituteId])
   @@index([location])
@@ -1548,6 +1753,8 @@ model Institute {
   users         User[]
   userRoles     UserRole[]
   roleActivities RoleActivity[]
+  admissions    Admission[]
+  feePlans      FeePlan[]
 
   @@index([status])
   @@index([createdAt])

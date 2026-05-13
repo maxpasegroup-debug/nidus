@@ -44,6 +44,24 @@ export const erpService = {
   createPayroll(input: { facultyId: string; month: string; basicSalary: number; incentives: number; deductions: number; paidStatus: string }) {
     return prisma.payroll.create({ data: { ...input, totalSalary: input.basicSalary + input.incentives - input.deductions } });
   },
+  async operationsShell() {
+    const [hostelAdmissions, roomAllocations, leaveRequests, payrollPending, timetableSlots, facultyCount] = await Promise.all([
+      prisma.hostelAllocation.count(),
+      prisma.room.count({ where: { status: { not: "AVAILABLE" } } }),
+      prisma.hostelLeave.count({ where: { status: "PENDING" } }),
+      prisma.payroll.count({ where: { paidStatus: { not: "PAID" } } }),
+      prisma.timetable.count(),
+      prisma.faculty.count()
+    ]);
+    return {
+      hostelAdmissionShell: { activeAllocations: hostelAdmissions, status: "READY" },
+      roomAllocationShell: { occupiedRooms: roomAllocations, status: "READY" },
+      leaveManagementShell: { pendingLeaves: leaveRequests, status: "READY" },
+      payrollWorkflowShell: { pendingPayroll: payrollPending, status: "READY" },
+      timetableAutomationShell: { scheduledSlots: timetableSlots, status: "READY" },
+      facultyAssignmentWorkflow: { facultyCount, status: "READY" }
+    };
+  },
   announcements() {
     return prisma.announcement.findMany({ orderBy: { createdAt: "desc" } });
   },

@@ -10,7 +10,7 @@ export const facultyRouter = Router();
 export const payrollRouter = Router();
 export const announcementsRouter = Router();
 
-const admin = [protect, allowRoles(Role.ADMIN)];
+const admin = [protect, allowRoles(Role.ADMIN, Role.DIRECTOR)];
 const staff = [protect, allowRoles(Role.ADMIN, Role.STUDENT)];
 
 attendanceRouter.post("/mark", ...admin, [body("userId").notEmpty(), body("date").isISO8601(), body("status").isIn(["PRESENT", "ABSENT", "LATE"])], erpController.markAttendance);
@@ -26,6 +26,7 @@ facultyRouter.get("/", ...admin, erpController.faculty);
 facultyRouter.post("/", ...admin, [body("userId").notEmpty(), body("department").notEmpty(), body("designation").notEmpty(), body("joiningDate").isISO8601(), body("salary").isFloat({ min: 0 }), body("status").notEmpty()], erpController.createFaculty);
 
 payrollRouter.get("/", ...admin, erpController.payroll);
+payrollRouter.get("/operations-shell", ...admin, erpController.operationsShell);
 payrollRouter.post("/", ...admin, [body("facultyId").notEmpty(), body("month").notEmpty(), body("basicSalary").isFloat({ min: 0 }), body("incentives").isFloat({ min: 0 }), body("deductions").isFloat({ min: 0 }), body("paidStatus").notEmpty()], erpController.createPayroll);
 
 announcementsRouter.get("/", protect, erpController.announcements);

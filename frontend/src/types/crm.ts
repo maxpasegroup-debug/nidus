@@ -36,14 +36,53 @@ export type FollowUp = {
 
 export type Admission = {
   id: string;
+  leadId?: string;
   studentId: string;
   courseId: string;
+  instituteId?: string;
+  branchId?: string;
   admissionDate: string;
   paymentStatus: string;
+  status?: string;
+  admissionMode?: "ONLINE" | "MANUAL";
+  approvalStatus?: string;
+  onboardingStatus?: string;
+  totalFee?: number;
+  paidAmount?: number;
+  dueAmount?: number;
+  remarks?: string;
   batch: string;
   createdAt: string;
   student?: CRMUser;
   course?: { id: string; title: string; price: number; examType?: string };
+};
+
+export type ApprovalRequest = {
+  id: string;
+  type: string;
+  status: string;
+  targetType: string;
+  targetId?: string;
+  amount?: number;
+  reason?: string;
+  remarks?: string;
+  requestedAt: string;
+  reviewedAt?: string;
+  admission?: Admission;
+  requester?: CRMUser;
+  reviewer?: CRMUser;
+};
+
+export type ScholarshipDiscount = {
+  id: string;
+  studentId: string;
+  admissionId?: string;
+  type: "SCHOLARSHIP" | "DISCOUNT" | "FEE_WAIVER";
+  title: string;
+  amount: number;
+  status: string;
+  reason?: string;
+  student?: CRMUser;
 };
 
 export type CounsellingBooking = {

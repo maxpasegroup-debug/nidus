@@ -194,6 +194,9 @@ export type BranchWhereInput = {
   users?: Prisma.UserListRelationFilter
   userRoles?: Prisma.UserRoleListRelationFilter
   roleActivities?: Prisma.RoleActivityListRelationFilter
+  admissions?: Prisma.AdmissionListRelationFilter
+  feePlans?: Prisma.FeePlanListRelationFilter
+  payments?: Prisma.PaymentListRelationFilter
 }
 
 export type BranchOrderByWithRelationInput = {
@@ -207,6 +210,9 @@ export type BranchOrderByWithRelationInput = {
   users?: Prisma.UserOrderByRelationAggregateInput
   userRoles?: Prisma.UserRoleOrderByRelationAggregateInput
   roleActivities?: Prisma.RoleActivityOrderByRelationAggregateInput
+  admissions?: Prisma.AdmissionOrderByRelationAggregateInput
+  feePlans?: Prisma.FeePlanOrderByRelationAggregateInput
+  payments?: Prisma.PaymentOrderByRelationAggregateInput
 }
 
 export type BranchWhereUniqueInput = Prisma.AtLeast<{
@@ -223,6 +229,9 @@ export type BranchWhereUniqueInput = Prisma.AtLeast<{
   users?: Prisma.UserListRelationFilter
   userRoles?: Prisma.UserRoleListRelationFilter
   roleActivities?: Prisma.RoleActivityListRelationFilter
+  admissions?: Prisma.AdmissionListRelationFilter
+  feePlans?: Prisma.FeePlanListRelationFilter
+  payments?: Prisma.PaymentListRelationFilter
 }, "id">
 
 export type BranchOrderByWithAggregationInput = {
@@ -259,6 +268,9 @@ export type BranchCreateInput = {
   users?: Prisma.UserCreateNestedManyWithoutBranchInput
   userRoles?: Prisma.UserRoleCreateNestedManyWithoutBranchInput
   roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutBranchInput
+  admissions?: Prisma.AdmissionCreateNestedManyWithoutBranchInput
+  feePlans?: Prisma.FeePlanCreateNestedManyWithoutBranchInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutBranchInput
 }
 
 export type BranchUncheckedCreateInput = {
@@ -271,6 +283,9 @@ export type BranchUncheckedCreateInput = {
   users?: Prisma.UserUncheckedCreateNestedManyWithoutBranchInput
   userRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutBranchInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutBranchInput
+  admissions?: Prisma.AdmissionUncheckedCreateNestedManyWithoutBranchInput
+  feePlans?: Prisma.FeePlanUncheckedCreateNestedManyWithoutBranchInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutBranchInput
 }
 
 export type BranchUpdateInput = {
@@ -283,6 +298,9 @@ export type BranchUpdateInput = {
   users?: Prisma.UserUpdateManyWithoutBranchNestedInput
   userRoles?: Prisma.UserRoleUpdateManyWithoutBranchNestedInput
   roleActivities?: Prisma.RoleActivityUpdateManyWithoutBranchNestedInput
+  admissions?: Prisma.AdmissionUpdateManyWithoutBranchNestedInput
+  feePlans?: Prisma.FeePlanUpdateManyWithoutBranchNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutBranchNestedInput
 }
 
 export type BranchUncheckedUpdateInput = {
@@ -295,6 +313,9 @@ export type BranchUncheckedUpdateInput = {
   users?: Prisma.UserUncheckedUpdateManyWithoutBranchNestedInput
   userRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutBranchNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutBranchNestedInput
+  admissions?: Prisma.AdmissionUncheckedUpdateManyWithoutBranchNestedInput
+  feePlans?: Prisma.FeePlanUncheckedUpdateManyWithoutBranchNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutBranchNestedInput
 }
 
 export type BranchCreateManyInput = {
@@ -381,6 +402,54 @@ export type BranchUpdateOneWithoutUsersNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.BranchUpdateToOneWithWhereWithoutUsersInput, Prisma.BranchUpdateWithoutUsersInput>, Prisma.BranchUncheckedUpdateWithoutUsersInput>
 }
 
+export type BranchCreateNestedOneWithoutAdmissionsInput = {
+  create?: Prisma.XOR<Prisma.BranchCreateWithoutAdmissionsInput, Prisma.BranchUncheckedCreateWithoutAdmissionsInput>
+  connectOrCreate?: Prisma.BranchCreateOrConnectWithoutAdmissionsInput
+  connect?: Prisma.BranchWhereUniqueInput
+}
+
+export type BranchUpdateOneWithoutAdmissionsNestedInput = {
+  create?: Prisma.XOR<Prisma.BranchCreateWithoutAdmissionsInput, Prisma.BranchUncheckedCreateWithoutAdmissionsInput>
+  connectOrCreate?: Prisma.BranchCreateOrConnectWithoutAdmissionsInput
+  upsert?: Prisma.BranchUpsertWithoutAdmissionsInput
+  disconnect?: Prisma.BranchWhereInput | boolean
+  delete?: Prisma.BranchWhereInput | boolean
+  connect?: Prisma.BranchWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.BranchUpdateToOneWithWhereWithoutAdmissionsInput, Prisma.BranchUpdateWithoutAdmissionsInput>, Prisma.BranchUncheckedUpdateWithoutAdmissionsInput>
+}
+
+export type BranchCreateNestedOneWithoutPaymentsInput = {
+  create?: Prisma.XOR<Prisma.BranchCreateWithoutPaymentsInput, Prisma.BranchUncheckedCreateWithoutPaymentsInput>
+  connectOrCreate?: Prisma.BranchCreateOrConnectWithoutPaymentsInput
+  connect?: Prisma.BranchWhereUniqueInput
+}
+
+export type BranchUpdateOneWithoutPaymentsNestedInput = {
+  create?: Prisma.XOR<Prisma.BranchCreateWithoutPaymentsInput, Prisma.BranchUncheckedCreateWithoutPaymentsInput>
+  connectOrCreate?: Prisma.BranchCreateOrConnectWithoutPaymentsInput
+  upsert?: Prisma.BranchUpsertWithoutPaymentsInput
+  disconnect?: Prisma.BranchWhereInput | boolean
+  delete?: Prisma.BranchWhereInput | boolean
+  connect?: Prisma.BranchWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.BranchUpdateToOneWithWhereWithoutPaymentsInput, Prisma.BranchUpdateWithoutPaymentsInput>, Prisma.BranchUncheckedUpdateWithoutPaymentsInput>
+}
+
+export type BranchCreateNestedOneWithoutFeePlansInput = {
+  create?: Prisma.XOR<Prisma.BranchCreateWithoutFeePlansInput, Prisma.BranchUncheckedCreateWithoutFeePlansInput>
+  connectOrCreate?: Prisma.BranchCreateOrConnectWithoutFeePlansInput
+  connect?: Prisma.BranchWhereUniqueInput
+}
+
+export type BranchUpdateOneWithoutFeePlansNestedInput = {
+  create?: Prisma.XOR<Prisma.BranchCreateWithoutFeePlansInput, Prisma.BranchUncheckedCreateWithoutFeePlansInput>
+  connectOrCreate?: Prisma.BranchCreateOrConnectWithoutFeePlansInput
+  upsert?: Prisma.BranchUpsertWithoutFeePlansInput
+  disconnect?: Prisma.BranchWhereInput | boolean
+  delete?: Prisma.BranchWhereInput | boolean
+  connect?: Prisma.BranchWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.BranchUpdateToOneWithWhereWithoutFeePlansInput, Prisma.BranchUpdateWithoutFeePlansInput>, Prisma.BranchUncheckedUpdateWithoutFeePlansInput>
+}
+
 export type BranchCreateNestedOneWithoutUserRolesInput = {
   create?: Prisma.XOR<Prisma.BranchCreateWithoutUserRolesInput, Prisma.BranchUncheckedCreateWithoutUserRolesInput>
   connectOrCreate?: Prisma.BranchCreateOrConnectWithoutUserRolesInput
@@ -464,6 +533,9 @@ export type BranchCreateWithoutUsersInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutBranchesInput
   userRoles?: Prisma.UserRoleCreateNestedManyWithoutBranchInput
   roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutBranchInput
+  admissions?: Prisma.AdmissionCreateNestedManyWithoutBranchInput
+  feePlans?: Prisma.FeePlanCreateNestedManyWithoutBranchInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutBranchInput
 }
 
 export type BranchUncheckedCreateWithoutUsersInput = {
@@ -475,6 +547,9 @@ export type BranchUncheckedCreateWithoutUsersInput = {
   createdAt?: Date | string
   userRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutBranchInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutBranchInput
+  admissions?: Prisma.AdmissionUncheckedCreateNestedManyWithoutBranchInput
+  feePlans?: Prisma.FeePlanUncheckedCreateNestedManyWithoutBranchInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutBranchInput
 }
 
 export type BranchCreateOrConnectWithoutUsersInput = {
@@ -502,6 +577,9 @@ export type BranchUpdateWithoutUsersInput = {
   institute?: Prisma.InstituteUpdateOneWithoutBranchesNestedInput
   userRoles?: Prisma.UserRoleUpdateManyWithoutBranchNestedInput
   roleActivities?: Prisma.RoleActivityUpdateManyWithoutBranchNestedInput
+  admissions?: Prisma.AdmissionUpdateManyWithoutBranchNestedInput
+  feePlans?: Prisma.FeePlanUpdateManyWithoutBranchNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutBranchNestedInput
 }
 
 export type BranchUncheckedUpdateWithoutUsersInput = {
@@ -513,6 +591,225 @@ export type BranchUncheckedUpdateWithoutUsersInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   userRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutBranchNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutBranchNestedInput
+  admissions?: Prisma.AdmissionUncheckedUpdateManyWithoutBranchNestedInput
+  feePlans?: Prisma.FeePlanUncheckedUpdateManyWithoutBranchNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutBranchNestedInput
+}
+
+export type BranchCreateWithoutAdmissionsInput = {
+  id?: string
+  name: string
+  location: string
+  contactNumber: string
+  createdAt?: Date | string
+  institute?: Prisma.InstituteCreateNestedOneWithoutBranchesInput
+  users?: Prisma.UserCreateNestedManyWithoutBranchInput
+  userRoles?: Prisma.UserRoleCreateNestedManyWithoutBranchInput
+  roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutBranchInput
+  feePlans?: Prisma.FeePlanCreateNestedManyWithoutBranchInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutBranchInput
+}
+
+export type BranchUncheckedCreateWithoutAdmissionsInput = {
+  id?: string
+  instituteId?: string | null
+  name: string
+  location: string
+  contactNumber: string
+  createdAt?: Date | string
+  users?: Prisma.UserUncheckedCreateNestedManyWithoutBranchInput
+  userRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutBranchInput
+  roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutBranchInput
+  feePlans?: Prisma.FeePlanUncheckedCreateNestedManyWithoutBranchInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutBranchInput
+}
+
+export type BranchCreateOrConnectWithoutAdmissionsInput = {
+  where: Prisma.BranchWhereUniqueInput
+  create: Prisma.XOR<Prisma.BranchCreateWithoutAdmissionsInput, Prisma.BranchUncheckedCreateWithoutAdmissionsInput>
+}
+
+export type BranchUpsertWithoutAdmissionsInput = {
+  update: Prisma.XOR<Prisma.BranchUpdateWithoutAdmissionsInput, Prisma.BranchUncheckedUpdateWithoutAdmissionsInput>
+  create: Prisma.XOR<Prisma.BranchCreateWithoutAdmissionsInput, Prisma.BranchUncheckedCreateWithoutAdmissionsInput>
+  where?: Prisma.BranchWhereInput
+}
+
+export type BranchUpdateToOneWithWhereWithoutAdmissionsInput = {
+  where?: Prisma.BranchWhereInput
+  data: Prisma.XOR<Prisma.BranchUpdateWithoutAdmissionsInput, Prisma.BranchUncheckedUpdateWithoutAdmissionsInput>
+}
+
+export type BranchUpdateWithoutAdmissionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  location?: Prisma.StringFieldUpdateOperationsInput | string
+  contactNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  institute?: Prisma.InstituteUpdateOneWithoutBranchesNestedInput
+  users?: Prisma.UserUpdateManyWithoutBranchNestedInput
+  userRoles?: Prisma.UserRoleUpdateManyWithoutBranchNestedInput
+  roleActivities?: Prisma.RoleActivityUpdateManyWithoutBranchNestedInput
+  feePlans?: Prisma.FeePlanUpdateManyWithoutBranchNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutBranchNestedInput
+}
+
+export type BranchUncheckedUpdateWithoutAdmissionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  location?: Prisma.StringFieldUpdateOperationsInput | string
+  contactNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  users?: Prisma.UserUncheckedUpdateManyWithoutBranchNestedInput
+  userRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutBranchNestedInput
+  roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutBranchNestedInput
+  feePlans?: Prisma.FeePlanUncheckedUpdateManyWithoutBranchNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutBranchNestedInput
+}
+
+export type BranchCreateWithoutPaymentsInput = {
+  id?: string
+  name: string
+  location: string
+  contactNumber: string
+  createdAt?: Date | string
+  institute?: Prisma.InstituteCreateNestedOneWithoutBranchesInput
+  users?: Prisma.UserCreateNestedManyWithoutBranchInput
+  userRoles?: Prisma.UserRoleCreateNestedManyWithoutBranchInput
+  roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutBranchInput
+  admissions?: Prisma.AdmissionCreateNestedManyWithoutBranchInput
+  feePlans?: Prisma.FeePlanCreateNestedManyWithoutBranchInput
+}
+
+export type BranchUncheckedCreateWithoutPaymentsInput = {
+  id?: string
+  instituteId?: string | null
+  name: string
+  location: string
+  contactNumber: string
+  createdAt?: Date | string
+  users?: Prisma.UserUncheckedCreateNestedManyWithoutBranchInput
+  userRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutBranchInput
+  roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutBranchInput
+  admissions?: Prisma.AdmissionUncheckedCreateNestedManyWithoutBranchInput
+  feePlans?: Prisma.FeePlanUncheckedCreateNestedManyWithoutBranchInput
+}
+
+export type BranchCreateOrConnectWithoutPaymentsInput = {
+  where: Prisma.BranchWhereUniqueInput
+  create: Prisma.XOR<Prisma.BranchCreateWithoutPaymentsInput, Prisma.BranchUncheckedCreateWithoutPaymentsInput>
+}
+
+export type BranchUpsertWithoutPaymentsInput = {
+  update: Prisma.XOR<Prisma.BranchUpdateWithoutPaymentsInput, Prisma.BranchUncheckedUpdateWithoutPaymentsInput>
+  create: Prisma.XOR<Prisma.BranchCreateWithoutPaymentsInput, Prisma.BranchUncheckedCreateWithoutPaymentsInput>
+  where?: Prisma.BranchWhereInput
+}
+
+export type BranchUpdateToOneWithWhereWithoutPaymentsInput = {
+  where?: Prisma.BranchWhereInput
+  data: Prisma.XOR<Prisma.BranchUpdateWithoutPaymentsInput, Prisma.BranchUncheckedUpdateWithoutPaymentsInput>
+}
+
+export type BranchUpdateWithoutPaymentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  location?: Prisma.StringFieldUpdateOperationsInput | string
+  contactNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  institute?: Prisma.InstituteUpdateOneWithoutBranchesNestedInput
+  users?: Prisma.UserUpdateManyWithoutBranchNestedInput
+  userRoles?: Prisma.UserRoleUpdateManyWithoutBranchNestedInput
+  roleActivities?: Prisma.RoleActivityUpdateManyWithoutBranchNestedInput
+  admissions?: Prisma.AdmissionUpdateManyWithoutBranchNestedInput
+  feePlans?: Prisma.FeePlanUpdateManyWithoutBranchNestedInput
+}
+
+export type BranchUncheckedUpdateWithoutPaymentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  location?: Prisma.StringFieldUpdateOperationsInput | string
+  contactNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  users?: Prisma.UserUncheckedUpdateManyWithoutBranchNestedInput
+  userRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutBranchNestedInput
+  roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutBranchNestedInput
+  admissions?: Prisma.AdmissionUncheckedUpdateManyWithoutBranchNestedInput
+  feePlans?: Prisma.FeePlanUncheckedUpdateManyWithoutBranchNestedInput
+}
+
+export type BranchCreateWithoutFeePlansInput = {
+  id?: string
+  name: string
+  location: string
+  contactNumber: string
+  createdAt?: Date | string
+  institute?: Prisma.InstituteCreateNestedOneWithoutBranchesInput
+  users?: Prisma.UserCreateNestedManyWithoutBranchInput
+  userRoles?: Prisma.UserRoleCreateNestedManyWithoutBranchInput
+  roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutBranchInput
+  admissions?: Prisma.AdmissionCreateNestedManyWithoutBranchInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutBranchInput
+}
+
+export type BranchUncheckedCreateWithoutFeePlansInput = {
+  id?: string
+  instituteId?: string | null
+  name: string
+  location: string
+  contactNumber: string
+  createdAt?: Date | string
+  users?: Prisma.UserUncheckedCreateNestedManyWithoutBranchInput
+  userRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutBranchInput
+  roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutBranchInput
+  admissions?: Prisma.AdmissionUncheckedCreateNestedManyWithoutBranchInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutBranchInput
+}
+
+export type BranchCreateOrConnectWithoutFeePlansInput = {
+  where: Prisma.BranchWhereUniqueInput
+  create: Prisma.XOR<Prisma.BranchCreateWithoutFeePlansInput, Prisma.BranchUncheckedCreateWithoutFeePlansInput>
+}
+
+export type BranchUpsertWithoutFeePlansInput = {
+  update: Prisma.XOR<Prisma.BranchUpdateWithoutFeePlansInput, Prisma.BranchUncheckedUpdateWithoutFeePlansInput>
+  create: Prisma.XOR<Prisma.BranchCreateWithoutFeePlansInput, Prisma.BranchUncheckedCreateWithoutFeePlansInput>
+  where?: Prisma.BranchWhereInput
+}
+
+export type BranchUpdateToOneWithWhereWithoutFeePlansInput = {
+  where?: Prisma.BranchWhereInput
+  data: Prisma.XOR<Prisma.BranchUpdateWithoutFeePlansInput, Prisma.BranchUncheckedUpdateWithoutFeePlansInput>
+}
+
+export type BranchUpdateWithoutFeePlansInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  location?: Prisma.StringFieldUpdateOperationsInput | string
+  contactNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  institute?: Prisma.InstituteUpdateOneWithoutBranchesNestedInput
+  users?: Prisma.UserUpdateManyWithoutBranchNestedInput
+  userRoles?: Prisma.UserRoleUpdateManyWithoutBranchNestedInput
+  roleActivities?: Prisma.RoleActivityUpdateManyWithoutBranchNestedInput
+  admissions?: Prisma.AdmissionUpdateManyWithoutBranchNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutBranchNestedInput
+}
+
+export type BranchUncheckedUpdateWithoutFeePlansInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  location?: Prisma.StringFieldUpdateOperationsInput | string
+  contactNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  users?: Prisma.UserUncheckedUpdateManyWithoutBranchNestedInput
+  userRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutBranchNestedInput
+  roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutBranchNestedInput
+  admissions?: Prisma.AdmissionUncheckedUpdateManyWithoutBranchNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutBranchNestedInput
 }
 
 export type BranchCreateWithoutUserRolesInput = {
@@ -524,6 +821,9 @@ export type BranchCreateWithoutUserRolesInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutBranchesInput
   users?: Prisma.UserCreateNestedManyWithoutBranchInput
   roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutBranchInput
+  admissions?: Prisma.AdmissionCreateNestedManyWithoutBranchInput
+  feePlans?: Prisma.FeePlanCreateNestedManyWithoutBranchInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutBranchInput
 }
 
 export type BranchUncheckedCreateWithoutUserRolesInput = {
@@ -535,6 +835,9 @@ export type BranchUncheckedCreateWithoutUserRolesInput = {
   createdAt?: Date | string
   users?: Prisma.UserUncheckedCreateNestedManyWithoutBranchInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutBranchInput
+  admissions?: Prisma.AdmissionUncheckedCreateNestedManyWithoutBranchInput
+  feePlans?: Prisma.FeePlanUncheckedCreateNestedManyWithoutBranchInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutBranchInput
 }
 
 export type BranchCreateOrConnectWithoutUserRolesInput = {
@@ -562,6 +865,9 @@ export type BranchUpdateWithoutUserRolesInput = {
   institute?: Prisma.InstituteUpdateOneWithoutBranchesNestedInput
   users?: Prisma.UserUpdateManyWithoutBranchNestedInput
   roleActivities?: Prisma.RoleActivityUpdateManyWithoutBranchNestedInput
+  admissions?: Prisma.AdmissionUpdateManyWithoutBranchNestedInput
+  feePlans?: Prisma.FeePlanUpdateManyWithoutBranchNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutBranchNestedInput
 }
 
 export type BranchUncheckedUpdateWithoutUserRolesInput = {
@@ -573,6 +879,9 @@ export type BranchUncheckedUpdateWithoutUserRolesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   users?: Prisma.UserUncheckedUpdateManyWithoutBranchNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutBranchNestedInput
+  admissions?: Prisma.AdmissionUncheckedUpdateManyWithoutBranchNestedInput
+  feePlans?: Prisma.FeePlanUncheckedUpdateManyWithoutBranchNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutBranchNestedInput
 }
 
 export type BranchCreateWithoutRoleActivitiesInput = {
@@ -584,6 +893,9 @@ export type BranchCreateWithoutRoleActivitiesInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutBranchesInput
   users?: Prisma.UserCreateNestedManyWithoutBranchInput
   userRoles?: Prisma.UserRoleCreateNestedManyWithoutBranchInput
+  admissions?: Prisma.AdmissionCreateNestedManyWithoutBranchInput
+  feePlans?: Prisma.FeePlanCreateNestedManyWithoutBranchInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutBranchInput
 }
 
 export type BranchUncheckedCreateWithoutRoleActivitiesInput = {
@@ -595,6 +907,9 @@ export type BranchUncheckedCreateWithoutRoleActivitiesInput = {
   createdAt?: Date | string
   users?: Prisma.UserUncheckedCreateNestedManyWithoutBranchInput
   userRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutBranchInput
+  admissions?: Prisma.AdmissionUncheckedCreateNestedManyWithoutBranchInput
+  feePlans?: Prisma.FeePlanUncheckedCreateNestedManyWithoutBranchInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutBranchInput
 }
 
 export type BranchCreateOrConnectWithoutRoleActivitiesInput = {
@@ -622,6 +937,9 @@ export type BranchUpdateWithoutRoleActivitiesInput = {
   institute?: Prisma.InstituteUpdateOneWithoutBranchesNestedInput
   users?: Prisma.UserUpdateManyWithoutBranchNestedInput
   userRoles?: Prisma.UserRoleUpdateManyWithoutBranchNestedInput
+  admissions?: Prisma.AdmissionUpdateManyWithoutBranchNestedInput
+  feePlans?: Prisma.FeePlanUpdateManyWithoutBranchNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutBranchNestedInput
 }
 
 export type BranchUncheckedUpdateWithoutRoleActivitiesInput = {
@@ -633,6 +951,9 @@ export type BranchUncheckedUpdateWithoutRoleActivitiesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   users?: Prisma.UserUncheckedUpdateManyWithoutBranchNestedInput
   userRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutBranchNestedInput
+  admissions?: Prisma.AdmissionUncheckedUpdateManyWithoutBranchNestedInput
+  feePlans?: Prisma.FeePlanUncheckedUpdateManyWithoutBranchNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutBranchNestedInput
 }
 
 export type BranchCreateWithoutInstituteInput = {
@@ -644,6 +965,9 @@ export type BranchCreateWithoutInstituteInput = {
   users?: Prisma.UserCreateNestedManyWithoutBranchInput
   userRoles?: Prisma.UserRoleCreateNestedManyWithoutBranchInput
   roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutBranchInput
+  admissions?: Prisma.AdmissionCreateNestedManyWithoutBranchInput
+  feePlans?: Prisma.FeePlanCreateNestedManyWithoutBranchInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutBranchInput
 }
 
 export type BranchUncheckedCreateWithoutInstituteInput = {
@@ -655,6 +979,9 @@ export type BranchUncheckedCreateWithoutInstituteInput = {
   users?: Prisma.UserUncheckedCreateNestedManyWithoutBranchInput
   userRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutBranchInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutBranchInput
+  admissions?: Prisma.AdmissionUncheckedCreateNestedManyWithoutBranchInput
+  feePlans?: Prisma.FeePlanUncheckedCreateNestedManyWithoutBranchInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutBranchInput
 }
 
 export type BranchCreateOrConnectWithoutInstituteInput = {
@@ -712,6 +1039,9 @@ export type BranchUpdateWithoutInstituteInput = {
   users?: Prisma.UserUpdateManyWithoutBranchNestedInput
   userRoles?: Prisma.UserRoleUpdateManyWithoutBranchNestedInput
   roleActivities?: Prisma.RoleActivityUpdateManyWithoutBranchNestedInput
+  admissions?: Prisma.AdmissionUpdateManyWithoutBranchNestedInput
+  feePlans?: Prisma.FeePlanUpdateManyWithoutBranchNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutBranchNestedInput
 }
 
 export type BranchUncheckedUpdateWithoutInstituteInput = {
@@ -723,6 +1053,9 @@ export type BranchUncheckedUpdateWithoutInstituteInput = {
   users?: Prisma.UserUncheckedUpdateManyWithoutBranchNestedInput
   userRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutBranchNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutBranchNestedInput
+  admissions?: Prisma.AdmissionUncheckedUpdateManyWithoutBranchNestedInput
+  feePlans?: Prisma.FeePlanUncheckedUpdateManyWithoutBranchNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutBranchNestedInput
 }
 
 export type BranchUncheckedUpdateManyWithoutInstituteInput = {
@@ -742,12 +1075,18 @@ export type BranchCountOutputType = {
   users: number
   userRoles: number
   roleActivities: number
+  admissions: number
+  feePlans: number
+  payments: number
 }
 
 export type BranchCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   users?: boolean | BranchCountOutputTypeCountUsersArgs
   userRoles?: boolean | BranchCountOutputTypeCountUserRolesArgs
   roleActivities?: boolean | BranchCountOutputTypeCountRoleActivitiesArgs
+  admissions?: boolean | BranchCountOutputTypeCountAdmissionsArgs
+  feePlans?: boolean | BranchCountOutputTypeCountFeePlansArgs
+  payments?: boolean | BranchCountOutputTypeCountPaymentsArgs
 }
 
 /**
@@ -781,6 +1120,27 @@ export type BranchCountOutputTypeCountRoleActivitiesArgs<ExtArgs extends runtime
   where?: Prisma.RoleActivityWhereInput
 }
 
+/**
+ * BranchCountOutputType without action
+ */
+export type BranchCountOutputTypeCountAdmissionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AdmissionWhereInput
+}
+
+/**
+ * BranchCountOutputType without action
+ */
+export type BranchCountOutputTypeCountFeePlansArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FeePlanWhereInput
+}
+
+/**
+ * BranchCountOutputType without action
+ */
+export type BranchCountOutputTypeCountPaymentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PaymentWhereInput
+}
+
 
 export type BranchSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -793,6 +1153,9 @@ export type BranchSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   users?: boolean | Prisma.Branch$usersArgs<ExtArgs>
   userRoles?: boolean | Prisma.Branch$userRolesArgs<ExtArgs>
   roleActivities?: boolean | Prisma.Branch$roleActivitiesArgs<ExtArgs>
+  admissions?: boolean | Prisma.Branch$admissionsArgs<ExtArgs>
+  feePlans?: boolean | Prisma.Branch$feePlansArgs<ExtArgs>
+  payments?: boolean | Prisma.Branch$paymentsArgs<ExtArgs>
   _count?: boolean | Prisma.BranchCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["branch"]>
 
@@ -831,6 +1194,9 @@ export type BranchInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   users?: boolean | Prisma.Branch$usersArgs<ExtArgs>
   userRoles?: boolean | Prisma.Branch$userRolesArgs<ExtArgs>
   roleActivities?: boolean | Prisma.Branch$roleActivitiesArgs<ExtArgs>
+  admissions?: boolean | Prisma.Branch$admissionsArgs<ExtArgs>
+  feePlans?: boolean | Prisma.Branch$feePlansArgs<ExtArgs>
+  payments?: boolean | Prisma.Branch$paymentsArgs<ExtArgs>
   _count?: boolean | Prisma.BranchCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type BranchIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -847,6 +1213,9 @@ export type $BranchPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     users: Prisma.$UserPayload<ExtArgs>[]
     userRoles: Prisma.$UserRolePayload<ExtArgs>[]
     roleActivities: Prisma.$RoleActivityPayload<ExtArgs>[]
+    admissions: Prisma.$AdmissionPayload<ExtArgs>[]
+    feePlans: Prisma.$FeePlanPayload<ExtArgs>[]
+    payments: Prisma.$PaymentPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1253,6 +1622,9 @@ export interface Prisma__BranchClient<T, Null = never, ExtArgs extends runtime.T
   users<T extends Prisma.Branch$usersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Branch$usersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   userRoles<T extends Prisma.Branch$userRolesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Branch$userRolesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserRolePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   roleActivities<T extends Prisma.Branch$roleActivitiesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Branch$roleActivitiesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RoleActivityPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  admissions<T extends Prisma.Branch$admissionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Branch$admissionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AdmissionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  feePlans<T extends Prisma.Branch$feePlansArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Branch$feePlansArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FeePlanPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  payments<T extends Prisma.Branch$paymentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Branch$paymentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PaymentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1777,6 +2149,78 @@ export type Branch$roleActivitiesArgs<ExtArgs extends runtime.Types.Extensions.I
   take?: number
   skip?: number
   distinct?: Prisma.RoleActivityScalarFieldEnum | Prisma.RoleActivityScalarFieldEnum[]
+}
+
+/**
+ * Branch.admissions
+ */
+export type Branch$admissionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Admission
+   */
+  select?: Prisma.AdmissionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Admission
+   */
+  omit?: Prisma.AdmissionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AdmissionInclude<ExtArgs> | null
+  where?: Prisma.AdmissionWhereInput
+  orderBy?: Prisma.AdmissionOrderByWithRelationInput | Prisma.AdmissionOrderByWithRelationInput[]
+  cursor?: Prisma.AdmissionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.AdmissionScalarFieldEnum | Prisma.AdmissionScalarFieldEnum[]
+}
+
+/**
+ * Branch.feePlans
+ */
+export type Branch$feePlansArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FeePlan
+   */
+  select?: Prisma.FeePlanSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FeePlan
+   */
+  omit?: Prisma.FeePlanOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FeePlanInclude<ExtArgs> | null
+  where?: Prisma.FeePlanWhereInput
+  orderBy?: Prisma.FeePlanOrderByWithRelationInput | Prisma.FeePlanOrderByWithRelationInput[]
+  cursor?: Prisma.FeePlanWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FeePlanScalarFieldEnum | Prisma.FeePlanScalarFieldEnum[]
+}
+
+/**
+ * Branch.payments
+ */
+export type Branch$paymentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Payment
+   */
+  select?: Prisma.PaymentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Payment
+   */
+  omit?: Prisma.PaymentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PaymentInclude<ExtArgs> | null
+  where?: Prisma.PaymentWhereInput
+  orderBy?: Prisma.PaymentOrderByWithRelationInput | Prisma.PaymentOrderByWithRelationInput[]
+  cursor?: Prisma.PaymentWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PaymentScalarFieldEnum | Prisma.PaymentScalarFieldEnum[]
 }
 
 /**

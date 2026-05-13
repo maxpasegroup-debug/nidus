@@ -3,7 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/components/providers/toast-provider";
 import { getApiErrorMessage } from "@/services/api";
-import { createAdmission, createCounselling, createFollowup, createLead, createReferral, deleteLead, getAdmissions, getCounselling, getFollowups, getLeads, getReferrals, updateLead } from "@/services/crm";
+import { approveAdmission, createAdmission, createCounselling, createFollowup, createLead, createReferral, createScholarship, deleteLead, getAdmissions, getApprovals, getCounselling, getFollowups, getLeads, getReferrals, reviewScholarship, updateLead } from "@/services/crm";
 import type { LeadStatus } from "@/types/crm";
 
 function useToastMutation<TPayload, TResult>(mutationFn: (payload: TPayload) => Promise<TResult>, keys: unknown[][], message: string) {
@@ -33,7 +33,14 @@ export function useFollowups() {
 }
 
 export function useAdmissions() {
-  return { ...useQuery({ queryKey: ["crm", "admissions"], queryFn: getAdmissions }), create: useToastMutation(createAdmission, [["crm", "admissions"]], "Admission recorded") };
+  return {
+    ...useQuery({ queryKey: ["crm", "admissions"], queryFn: getAdmissions }),
+    approvals: useQuery({ queryKey: ["crm", "approvals"], queryFn: getApprovals }),
+    create: useToastMutation(createAdmission, [["crm", "admissions"], ["crm", "approvals"]], "Admission submitted for approval"),
+    approve: useToastMutation(approveAdmission, [["crm", "admissions"], ["crm", "approvals"]], "Admission reviewed"),
+    scholarship: useToastMutation(createScholarship, [["crm", "approvals"]], "Scholarship request submitted"),
+    reviewScholarship: useToastMutation(reviewScholarship, [["crm", "approvals"]], "Scholarship reviewed")
+  };
 }
 
 export function useCounselling() {

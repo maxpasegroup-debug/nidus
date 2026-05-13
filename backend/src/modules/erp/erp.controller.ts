@@ -50,6 +50,9 @@ export const erpController = {
   async payroll(_req: Request, res: Response, next: NextFunction) {
     try { res.json({ payroll: await erpService.payroll() }); } catch (error) { next(error); }
   },
+  async operationsShell(_req: Request, res: Response, next: NextFunction) {
+    try { res.json({ operations: await erpService.operationsShell() }); } catch (error) { next(error); }
+  },
   async createPayroll(req: Request, res: Response, next: NextFunction) {
     try { assertValid(req); res.status(201).json({ payroll: await erpService.createPayroll(req.body) }); } catch (error) { next(error); }
   },

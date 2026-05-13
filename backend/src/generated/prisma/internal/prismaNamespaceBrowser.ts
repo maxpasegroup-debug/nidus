@@ -103,6 +103,11 @@ export const ModelName = {
   Subscription: 'Subscription',
   FeeInstallment: 'FeeInstallment',
   Invoice: 'Invoice',
+  FeePlan: 'FeePlan',
+  PaymentTransactionLog: 'PaymentTransactionLog',
+  ApprovalRequest: 'ApprovalRequest',
+  ScholarshipDiscount: 'ScholarshipDiscount',
+  FinanceDocument: 'FinanceDocument',
   Notification: 'Notification',
   MessageThread: 'MessageThread',
   Message: 'Message',
@@ -810,12 +815,26 @@ export type FollowUpScalarFieldEnum = (typeof FollowUpScalarFieldEnum)[keyof typ
 
 export const AdmissionScalarFieldEnum = {
   id: 'id',
+  leadId: 'leadId',
   studentId: 'studentId',
   courseId: 'courseId',
+  instituteId: 'instituteId',
+  branchId: 'branchId',
   admissionDate: 'admissionDate',
   paymentStatus: 'paymentStatus',
+  status: 'status',
+  admissionMode: 'admissionMode',
+  approvalStatus: 'approvalStatus',
+  approvedBy: 'approvedBy',
+  approvedAt: 'approvedAt',
+  onboardingStatus: 'onboardingStatus',
   batch: 'batch',
-  createdAt: 'createdAt'
+  totalFee: 'totalFee',
+  paidAmount: 'paidAmount',
+  dueAmount: 'dueAmount',
+  remarks: 'remarks',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type AdmissionScalarFieldEnum = (typeof AdmissionScalarFieldEnum)[keyof typeof AdmissionScalarFieldEnum]
@@ -848,6 +867,12 @@ export const PaymentScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
   courseId: 'courseId',
+  admissionId: 'admissionId',
+  feeInstallmentId: 'feeInstallmentId',
+  invoiceId: 'invoiceId',
+  branchId: 'branchId',
+  collectorId: 'collectorId',
+  verifiedBy: 'verifiedBy',
   amount: 'amount',
   currency: 'currency',
   razorpayOrderId: 'razorpayOrderId',
@@ -855,7 +880,19 @@ export const PaymentScalarFieldEnum = {
   razorpaySignature: 'razorpaySignature',
   paymentStatus: 'paymentStatus',
   paymentMethod: 'paymentMethod',
-  createdAt: 'createdAt'
+  paymentMode: 'paymentMode',
+  transactionRef: 'transactionRef',
+  receiptNumber: 'receiptNumber',
+  receiptUrl: 'receiptUrl',
+  receiptUploadUrl: 'receiptUploadUrl',
+  remarks: 'remarks',
+  failureReason: 'failureReason',
+  refundStatus: 'refundStatus',
+  refundedAmount: 'refundedAmount',
+  reconciledAt: 'reconciledAt',
+  verifiedAt: 'verifiedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type PaymentScalarFieldEnum = (typeof PaymentScalarFieldEnum)[keyof typeof PaymentScalarFieldEnum]
@@ -878,11 +915,17 @@ export type SubscriptionScalarFieldEnum = (typeof SubscriptionScalarFieldEnum)[k
 export const FeeInstallmentScalarFieldEnum = {
   id: 'id',
   studentId: 'studentId',
+  feePlanId: 'feePlanId',
   title: 'title',
   amount: 'amount',
+  paidAmount: 'paidAmount',
+  dueAmount: 'dueAmount',
   dueDate: 'dueDate',
   paidStatus: 'paidStatus',
-  paidAt: 'paidAt'
+  paidAt: 'paidAt',
+  overdueAt: 'overdueAt',
+  reminderStatus: 'reminderStatus',
+  sequence: 'sequence'
 } as const
 
 export type FeeInstallmentScalarFieldEnum = (typeof FeeInstallmentScalarFieldEnum)[keyof typeof FeeInstallmentScalarFieldEnum]
@@ -891,13 +934,114 @@ export type FeeInstallmentScalarFieldEnum = (typeof FeeInstallmentScalarFieldEnu
 export const InvoiceScalarFieldEnum = {
   id: 'id',
   studentId: 'studentId',
+  admissionId: 'admissionId',
+  feePlanId: 'feePlanId',
   invoiceNumber: 'invoiceNumber',
   amount: 'amount',
+  paidAmount: 'paidAmount',
+  dueAmount: 'dueAmount',
+  pdfUrl: 'pdfUrl',
+  receiptUrl: 'receiptUrl',
   generatedAt: 'generatedAt',
   status: 'status'
 } as const
 
 export type InvoiceScalarFieldEnum = (typeof InvoiceScalarFieldEnum)[keyof typeof InvoiceScalarFieldEnum]
+
+
+export const FeePlanScalarFieldEnum = {
+  id: 'id',
+  studentId: 'studentId',
+  admissionId: 'admissionId',
+  courseId: 'courseId',
+  instituteId: 'instituteId',
+  branchId: 'branchId',
+  title: 'title',
+  totalAmount: 'totalAmount',
+  discountAmount: 'discountAmount',
+  scholarshipAmount: 'scholarshipAmount',
+  netAmount: 'netAmount',
+  paidAmount: 'paidAmount',
+  dueAmount: 'dueAmount',
+  status: 'status',
+  createdBy: 'createdBy',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type FeePlanScalarFieldEnum = (typeof FeePlanScalarFieldEnum)[keyof typeof FeePlanScalarFieldEnum]
+
+
+export const PaymentTransactionLogScalarFieldEnum = {
+  id: 'id',
+  paymentId: 'paymentId',
+  actorId: 'actorId',
+  event: 'event',
+  statusFrom: 'statusFrom',
+  statusTo: 'statusTo',
+  metadata: 'metadata',
+  ipAddress: 'ipAddress',
+  createdAt: 'createdAt'
+} as const
+
+export type PaymentTransactionLogScalarFieldEnum = (typeof PaymentTransactionLogScalarFieldEnum)[keyof typeof PaymentTransactionLogScalarFieldEnum]
+
+
+export const ApprovalRequestScalarFieldEnum = {
+  id: 'id',
+  type: 'type',
+  status: 'status',
+  requesterId: 'requesterId',
+  reviewerId: 'reviewerId',
+  admissionId: 'admissionId',
+  targetType: 'targetType',
+  targetId: 'targetId',
+  amount: 'amount',
+  reason: 'reason',
+  remarks: 'remarks',
+  metadata: 'metadata',
+  requestedAt: 'requestedAt',
+  reviewedAt: 'reviewedAt'
+} as const
+
+export type ApprovalRequestScalarFieldEnum = (typeof ApprovalRequestScalarFieldEnum)[keyof typeof ApprovalRequestScalarFieldEnum]
+
+
+export const ScholarshipDiscountScalarFieldEnum = {
+  id: 'id',
+  studentId: 'studentId',
+  admissionId: 'admissionId',
+  type: 'type',
+  title: 'title',
+  amount: 'amount',
+  status: 'status',
+  requestedBy: 'requestedBy',
+  approvedBy: 'approvedBy',
+  approvedAt: 'approvedAt',
+  reason: 'reason',
+  metadata: 'metadata',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ScholarshipDiscountScalarFieldEnum = (typeof ScholarshipDiscountScalarFieldEnum)[keyof typeof ScholarshipDiscountScalarFieldEnum]
+
+
+export const FinanceDocumentScalarFieldEnum = {
+  id: 'id',
+  ownerId: 'ownerId',
+  documentType: 'documentType',
+  targetType: 'targetType',
+  targetId: 'targetId',
+  documentNumber: 'documentNumber',
+  fileUrl: 'fileUrl',
+  status: 'status',
+  metadata: 'metadata',
+  generatedAt: 'generatedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type FinanceDocumentScalarFieldEnum = (typeof FinanceDocumentScalarFieldEnum)[keyof typeof FinanceDocumentScalarFieldEnum]
 
 
 export const NotificationScalarFieldEnum = {

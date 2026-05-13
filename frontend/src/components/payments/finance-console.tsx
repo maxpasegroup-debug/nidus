@@ -39,6 +39,7 @@ export function FinanceConsole({ view }: { view: FinanceView }) {
   const subscriptionData = subscriptions.data ?? [];
   const feeData = fees.data ?? [];
   const invoiceData = invoices.data ?? [];
+  const analytics = payments.analytics.data;
   const revenue = paymentData.filter((item) => item.paymentStatus === "SUCCESS").reduce((sum, item) => sum + item.amount, 0);
   const feePaid = feeData.filter((item) => item.paidStatus === "PAID").reduce((sum, item) => sum + item.amount, 0);
   const feePending = feeData.filter((item) => item.paidStatus !== "PAID").reduce((sum, item) => sum + item.amount, 0);
@@ -80,6 +81,12 @@ export function FinanceConsole({ view }: { view: FinanceView }) {
         <Card className="p-5"><p className="text-sm text-muted">Fees Paid</p><b className="mt-2 block text-3xl text-white">Rs {feePaid.toLocaleString()}</b></Card>
         <Card className="p-5"><p className="text-sm text-muted">Pending Dues</p><b className="mt-2 block text-3xl text-white">Rs {feePending.toLocaleString()}</b></Card>
       </section>
+      <section className="grid gap-4 md:grid-cols-4">
+        <Card className="p-5"><p className="text-sm text-muted">Daily Revenue</p><b className="mt-2 block text-2xl text-white">Rs {(analytics?.dailyRevenue ?? 0).toLocaleString()}</b></Card>
+        <Card className="p-5"><p className="text-sm text-muted">Monthly Revenue</p><b className="mt-2 block text-2xl text-white">Rs {(analytics?.monthlyRevenue ?? revenue).toLocaleString()}</b></Card>
+        <Card className="p-5"><p className="text-sm text-muted">Transactions</p><b className="mt-2 block text-2xl text-white">{analytics?.successfulTransactions ?? 0}/{analytics?.totalTransactions ?? 0}</b></Card>
+        <Card className="p-5"><p className="text-sm text-muted">Method Mix</p><b className="mt-2 block text-2xl text-white">{Object.keys(analytics?.paymentMethodAnalytics ?? {}).length}</b></Card>
+      </section>
 
       {view === "payments" ? (
         <section className="space-y-4">
@@ -88,6 +95,15 @@ export function FinanceConsole({ view }: { view: FinanceView }) {
             <form onSubmit={(event: FormEvent<HTMLFormElement>) => { event.preventDefault(); void checkout(event.currentTarget); }}>
               <Grid><Input name="userId" label="User ID" defaultValue={user?.id} /><Input name="courseId" label="Course ID" /><Input name="amount" label="Amount" type="number" required /><Input name="currency" label="Currency" defaultValue="INR" /></Grid>
               <div className="mt-4"><Button size="sm" disabled={payments.createOrder.isPending}>{payments.createOrder.isPending ? "Creating..." : "Pay with Razorpay"}</Button></div>
+            </form>
+          </Card>
+          <Card className="p-5">
+            <h2 className="mb-4 text-xl font-bold text-white">Manual / Offline Payment</h2>
+            <form onSubmit={(event: FormEvent<HTMLFormElement>) => { event.preventDefault(); const form = event.currentTarget; payments.manual.mutate({ userId: value(form, "userId"), courseId: value(form, "courseId") || undefined, admissionId: value(form, "admissionId") || undefined, feeInstallmentId: value(form, "feeInstallmentId") || undefined, invoiceId: value(form, "invoiceId") || undefined, branchId: value(form, "branchId") || undefined, amount: Number(value(form, "amount")), currency: value(form, "currency") || "INR", paymentMethod: value(form, "paymentMethod"), transactionRef: value(form, "transactionRef") || undefined, receiptUploadUrl: value(form, "receiptUploadUrl") || undefined, remarks: value(form, "remarks") || undefined }); }}>
+              <Grid><Input name="userId" label="Student/User ID" required /><Input name="feeInstallmentId" label="Installment ID" /><Input name="invoiceId" label="Invoice ID" /><Input name="amount" label="Amount" type="number" required /><Input name="currency" label="Currency" defaultValue="INR" /><Input name="paymentMethod" label="Method" defaultValue="UPI" /><Input name="transactionRef" label="Transaction Ref" /><Input name="branchId" label="Branch ID" /></Grid>
+              <div className="mt-3 grid gap-3 md:grid-cols-2"><Input name="receiptUploadUrl" label="Receipt Upload URL" /><Input name="remarks" label="Remarks" /></div>
+              <p className="mt-3 text-xs text-muted">Supported methods: CASH, UPI, BANK_TRANSFER, CHEQUE, OFFICE_COLLECTION.</p>
+              <div className="mt-4"><Button size="sm" disabled={payments.manual.isPending}>Record Manual Payment</Button></div>
             </form>
           </Card>
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">{paymentData.length ? paymentData.map((item) => <PaymentCard key={item.id} payment={item} />) : <FinanceEmptyState title="No payments yet" note="Completed and attempted payments will appear here." />}</div>
@@ -104,6 +120,7 @@ export function FinanceConsole({ view }: { view: FinanceView }) {
 
       {view === "fees" ? (
         <section className="space-y-4">
+          <Card className="p-5"><h2 className="mb-4 text-xl font-bold text-white">Installment Plan Engine</h2><form onSubmit={(event: FormEvent<HTMLFormElement>) => { event.preventDefault(); const form = event.currentTarget; fees.createPlan.mutate({ studentId: value(form, "studentId"), admissionId: value(form, "admissionId") || undefined, courseId: value(form, "courseId") || undefined, title: value(form, "title"), totalAmount: Number(value(form, "totalAmount")), discountAmount: Number(value(form, "discountAmount") || 0), scholarshipAmount: Number(value(form, "scholarshipAmount") || 0), installments: [{ title: "Installment 1", amount: Number(value(form, "firstAmount")), dueDate: value(form, "firstDueDate") }, { title: "Installment 2", amount: Number(value(form, "secondAmount")), dueDate: value(form, "secondDueDate") }] }); }}><Grid><Input name="studentId" label="Student ID" required /><Input name="admissionId" label="Admission ID" /><Input name="courseId" label="Course ID" /><Input name="title" label="Plan Title" required /><Input name="totalAmount" label="Total Fee" type="number" required /><Input name="discountAmount" label="Discount" type="number" defaultValue="0" /><Input name="scholarshipAmount" label="Scholarship" type="number" defaultValue="0" /><Input name="firstAmount" label="Installment 1 Amount" type="number" required /><Input name="firstDueDate" label="Installment 1 Due" type="date" required /><Input name="secondAmount" label="Installment 2 Amount" type="number" required /><Input name="secondDueDate" label="Installment 2 Due" type="date" required /></Grid><div className="mt-4"><Button size="sm">Create Fee Plan</Button></div></form></Card>
           <Card className="p-5"><h2 className="mb-4 text-xl font-bold text-white">Create Installment</h2><form onSubmit={(event: FormEvent<HTMLFormElement>) => { event.preventDefault(); const form = event.currentTarget; fees.create.mutate({ studentId: value(form, "studentId"), title: value(form, "title"), amount: Number(value(form, "amount")), dueDate: value(form, "dueDate"), paidStatus: value(form, "paidStatus") }); }}><Grid><Input name="studentId" label="Student ID" required /><Input name="title" label="Title" required /><Input name="amount" label="Amount" type="number" required /><Input name="dueDate" label="Due Date" type="date" required /><Input name="paidStatus" label="Paid Status" defaultValue="PENDING" /></Grid><div className="mt-4"><Button size="sm">Create Installment</Button></div></form></Card>
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">{feeData.map((item) => <FeeInstallmentCard key={item.id} fee={item} onPay={() => fees.pay.mutate(item.id)} />)}</div>
         </section>

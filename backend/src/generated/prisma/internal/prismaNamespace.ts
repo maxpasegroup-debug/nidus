@@ -436,6 +436,11 @@ export const ModelName = {
   Subscription: 'Subscription',
   FeeInstallment: 'FeeInstallment',
   Invoice: 'Invoice',
+  FeePlan: 'FeePlan',
+  PaymentTransactionLog: 'PaymentTransactionLog',
+  ApprovalRequest: 'ApprovalRequest',
+  ScholarshipDiscount: 'ScholarshipDiscount',
+  FinanceDocument: 'FinanceDocument',
   Notification: 'Notification',
   MessageThread: 'MessageThread',
   Message: 'Message',
@@ -493,7 +498,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "authVerificationToken" | "passwordResetToken" | "authSession" | "parentStudentInvitation" | "parentStudentLink" | "otp" | "course" | "module" | "lesson" | "enrollment" | "test" | "question" | "testAttempt" | "cBTAnswerState" | "cBTIntegrityEvent" | "answer" | "psychometricTest" | "psychometricQuestion" | "psychometricAttempt" | "psychometricAnswer" | "oLQScore" | "studyPlan" | "performanceAnalytics" | "revisionSchedule" | "liveClass" | "recordedLecture" | "lectureProgress" | "lecturePlaybackEvent" | "attendance" | "timetable" | "faculty" | "classroom" | "payroll" | "announcement" | "hostel" | "room" | "hostelAllocation" | "inOutEntry" | "hostelLeave" | "messMenu" | "disciplineRecord" | "paradePerformance" | "lead" | "followUp" | "admission" | "counsellingBooking" | "referral" | "payment" | "subscription" | "feeInstallment" | "invoice" | "notification" | "messageThread" | "message" | "emailLog" | "pushNotification" | "aIInterviewSession" | "aIInterviewQuestion" | "doubtQuery" | "aIRecommendation" | "aITutorSession" | "aITutorMessage" | "offlineSyncEvent" | "learningAnalyticsSnapshot" | "dailyIntelligenceIssue" | "contentModerationItem" | "officerPotential" | "fitnessProfile" | "pTSchedule" | "pTAttendance" | "physicalEligibility" | "dailyFitnessLog" | "pYQCategory" | "pYQQuestion" | "currentAffair" | "currentAffairQuiz" | "quizBattle" | "quizBattleParticipant" | "leaderboard" | "mediaFolder" | "mediaFile" | "document" | "adminRole" | "permission" | "rolePermission" | "userRole" | "roleActivity" | "systemSetting" | "auditLog" | "queueJobLog" | "aIRequestLog" | "branch" | "institute"
+    modelProps: "user" | "authVerificationToken" | "passwordResetToken" | "authSession" | "parentStudentInvitation" | "parentStudentLink" | "otp" | "course" | "module" | "lesson" | "enrollment" | "test" | "question" | "testAttempt" | "cBTAnswerState" | "cBTIntegrityEvent" | "answer" | "psychometricTest" | "psychometricQuestion" | "psychometricAttempt" | "psychometricAnswer" | "oLQScore" | "studyPlan" | "performanceAnalytics" | "revisionSchedule" | "liveClass" | "recordedLecture" | "lectureProgress" | "lecturePlaybackEvent" | "attendance" | "timetable" | "faculty" | "classroom" | "payroll" | "announcement" | "hostel" | "room" | "hostelAllocation" | "inOutEntry" | "hostelLeave" | "messMenu" | "disciplineRecord" | "paradePerformance" | "lead" | "followUp" | "admission" | "counsellingBooking" | "referral" | "payment" | "subscription" | "feeInstallment" | "invoice" | "feePlan" | "paymentTransactionLog" | "approvalRequest" | "scholarshipDiscount" | "financeDocument" | "notification" | "messageThread" | "message" | "emailLog" | "pushNotification" | "aIInterviewSession" | "aIInterviewQuestion" | "doubtQuery" | "aIRecommendation" | "aITutorSession" | "aITutorMessage" | "offlineSyncEvent" | "learningAnalyticsSnapshot" | "dailyIntelligenceIssue" | "contentModerationItem" | "officerPotential" | "fitnessProfile" | "pTSchedule" | "pTAttendance" | "physicalEligibility" | "dailyFitnessLog" | "pYQCategory" | "pYQQuestion" | "currentAffair" | "currentAffairQuiz" | "quizBattle" | "quizBattleParticipant" | "leaderboard" | "mediaFolder" | "mediaFile" | "document" | "adminRole" | "permission" | "rolePermission" | "userRole" | "roleActivity" | "systemSetting" | "auditLog" | "queueJobLog" | "aIRequestLog" | "branch" | "institute"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -4345,6 +4350,376 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    FeePlan: {
+      payload: Prisma.$FeePlanPayload<ExtArgs>
+      fields: Prisma.FeePlanFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.FeePlanFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FeePlanPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.FeePlanFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FeePlanPayload>
+        }
+        findFirst: {
+          args: Prisma.FeePlanFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FeePlanPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.FeePlanFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FeePlanPayload>
+        }
+        findMany: {
+          args: Prisma.FeePlanFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FeePlanPayload>[]
+        }
+        create: {
+          args: Prisma.FeePlanCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FeePlanPayload>
+        }
+        createMany: {
+          args: Prisma.FeePlanCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.FeePlanCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FeePlanPayload>[]
+        }
+        delete: {
+          args: Prisma.FeePlanDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FeePlanPayload>
+        }
+        update: {
+          args: Prisma.FeePlanUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FeePlanPayload>
+        }
+        deleteMany: {
+          args: Prisma.FeePlanDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.FeePlanUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.FeePlanUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FeePlanPayload>[]
+        }
+        upsert: {
+          args: Prisma.FeePlanUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FeePlanPayload>
+        }
+        aggregate: {
+          args: Prisma.FeePlanAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateFeePlan>
+        }
+        groupBy: {
+          args: Prisma.FeePlanGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FeePlanGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.FeePlanCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FeePlanCountAggregateOutputType> | number
+        }
+      }
+    }
+    PaymentTransactionLog: {
+      payload: Prisma.$PaymentTransactionLogPayload<ExtArgs>
+      fields: Prisma.PaymentTransactionLogFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PaymentTransactionLogFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentTransactionLogPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PaymentTransactionLogFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentTransactionLogPayload>
+        }
+        findFirst: {
+          args: Prisma.PaymentTransactionLogFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentTransactionLogPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PaymentTransactionLogFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentTransactionLogPayload>
+        }
+        findMany: {
+          args: Prisma.PaymentTransactionLogFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentTransactionLogPayload>[]
+        }
+        create: {
+          args: Prisma.PaymentTransactionLogCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentTransactionLogPayload>
+        }
+        createMany: {
+          args: Prisma.PaymentTransactionLogCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.PaymentTransactionLogCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentTransactionLogPayload>[]
+        }
+        delete: {
+          args: Prisma.PaymentTransactionLogDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentTransactionLogPayload>
+        }
+        update: {
+          args: Prisma.PaymentTransactionLogUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentTransactionLogPayload>
+        }
+        deleteMany: {
+          args: Prisma.PaymentTransactionLogDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PaymentTransactionLogUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.PaymentTransactionLogUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentTransactionLogPayload>[]
+        }
+        upsert: {
+          args: Prisma.PaymentTransactionLogUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentTransactionLogPayload>
+        }
+        aggregate: {
+          args: Prisma.PaymentTransactionLogAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePaymentTransactionLog>
+        }
+        groupBy: {
+          args: Prisma.PaymentTransactionLogGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PaymentTransactionLogGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PaymentTransactionLogCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PaymentTransactionLogCountAggregateOutputType> | number
+        }
+      }
+    }
+    ApprovalRequest: {
+      payload: Prisma.$ApprovalRequestPayload<ExtArgs>
+      fields: Prisma.ApprovalRequestFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ApprovalRequestFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ApprovalRequestPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ApprovalRequestFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ApprovalRequestPayload>
+        }
+        findFirst: {
+          args: Prisma.ApprovalRequestFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ApprovalRequestPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ApprovalRequestFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ApprovalRequestPayload>
+        }
+        findMany: {
+          args: Prisma.ApprovalRequestFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ApprovalRequestPayload>[]
+        }
+        create: {
+          args: Prisma.ApprovalRequestCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ApprovalRequestPayload>
+        }
+        createMany: {
+          args: Prisma.ApprovalRequestCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ApprovalRequestCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ApprovalRequestPayload>[]
+        }
+        delete: {
+          args: Prisma.ApprovalRequestDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ApprovalRequestPayload>
+        }
+        update: {
+          args: Prisma.ApprovalRequestUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ApprovalRequestPayload>
+        }
+        deleteMany: {
+          args: Prisma.ApprovalRequestDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ApprovalRequestUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ApprovalRequestUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ApprovalRequestPayload>[]
+        }
+        upsert: {
+          args: Prisma.ApprovalRequestUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ApprovalRequestPayload>
+        }
+        aggregate: {
+          args: Prisma.ApprovalRequestAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateApprovalRequest>
+        }
+        groupBy: {
+          args: Prisma.ApprovalRequestGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ApprovalRequestGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ApprovalRequestCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ApprovalRequestCountAggregateOutputType> | number
+        }
+      }
+    }
+    ScholarshipDiscount: {
+      payload: Prisma.$ScholarshipDiscountPayload<ExtArgs>
+      fields: Prisma.ScholarshipDiscountFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ScholarshipDiscountFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScholarshipDiscountPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ScholarshipDiscountFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScholarshipDiscountPayload>
+        }
+        findFirst: {
+          args: Prisma.ScholarshipDiscountFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScholarshipDiscountPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ScholarshipDiscountFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScholarshipDiscountPayload>
+        }
+        findMany: {
+          args: Prisma.ScholarshipDiscountFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScholarshipDiscountPayload>[]
+        }
+        create: {
+          args: Prisma.ScholarshipDiscountCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScholarshipDiscountPayload>
+        }
+        createMany: {
+          args: Prisma.ScholarshipDiscountCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ScholarshipDiscountCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScholarshipDiscountPayload>[]
+        }
+        delete: {
+          args: Prisma.ScholarshipDiscountDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScholarshipDiscountPayload>
+        }
+        update: {
+          args: Prisma.ScholarshipDiscountUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScholarshipDiscountPayload>
+        }
+        deleteMany: {
+          args: Prisma.ScholarshipDiscountDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ScholarshipDiscountUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ScholarshipDiscountUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScholarshipDiscountPayload>[]
+        }
+        upsert: {
+          args: Prisma.ScholarshipDiscountUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScholarshipDiscountPayload>
+        }
+        aggregate: {
+          args: Prisma.ScholarshipDiscountAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateScholarshipDiscount>
+        }
+        groupBy: {
+          args: Prisma.ScholarshipDiscountGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ScholarshipDiscountGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ScholarshipDiscountCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ScholarshipDiscountCountAggregateOutputType> | number
+        }
+      }
+    }
+    FinanceDocument: {
+      payload: Prisma.$FinanceDocumentPayload<ExtArgs>
+      fields: Prisma.FinanceDocumentFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.FinanceDocumentFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceDocumentPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.FinanceDocumentFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceDocumentPayload>
+        }
+        findFirst: {
+          args: Prisma.FinanceDocumentFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceDocumentPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.FinanceDocumentFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceDocumentPayload>
+        }
+        findMany: {
+          args: Prisma.FinanceDocumentFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceDocumentPayload>[]
+        }
+        create: {
+          args: Prisma.FinanceDocumentCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceDocumentPayload>
+        }
+        createMany: {
+          args: Prisma.FinanceDocumentCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.FinanceDocumentCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceDocumentPayload>[]
+        }
+        delete: {
+          args: Prisma.FinanceDocumentDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceDocumentPayload>
+        }
+        update: {
+          args: Prisma.FinanceDocumentUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceDocumentPayload>
+        }
+        deleteMany: {
+          args: Prisma.FinanceDocumentDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.FinanceDocumentUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.FinanceDocumentUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceDocumentPayload>[]
+        }
+        upsert: {
+          args: Prisma.FinanceDocumentUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceDocumentPayload>
+        }
+        aggregate: {
+          args: Prisma.FinanceDocumentAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateFinanceDocument>
+        }
+        groupBy: {
+          args: Prisma.FinanceDocumentGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FinanceDocumentGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.FinanceDocumentCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FinanceDocumentCountAggregateOutputType> | number
+        }
+      }
+    }
     Notification: {
       payload: Prisma.$NotificationPayload<ExtArgs>
       fields: Prisma.NotificationFieldRefs
@@ -8139,12 +8514,26 @@ export type FollowUpScalarFieldEnum = (typeof FollowUpScalarFieldEnum)[keyof typ
 
 export const AdmissionScalarFieldEnum = {
   id: 'id',
+  leadId: 'leadId',
   studentId: 'studentId',
   courseId: 'courseId',
+  instituteId: 'instituteId',
+  branchId: 'branchId',
   admissionDate: 'admissionDate',
   paymentStatus: 'paymentStatus',
+  status: 'status',
+  admissionMode: 'admissionMode',
+  approvalStatus: 'approvalStatus',
+  approvedBy: 'approvedBy',
+  approvedAt: 'approvedAt',
+  onboardingStatus: 'onboardingStatus',
   batch: 'batch',
-  createdAt: 'createdAt'
+  totalFee: 'totalFee',
+  paidAmount: 'paidAmount',
+  dueAmount: 'dueAmount',
+  remarks: 'remarks',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type AdmissionScalarFieldEnum = (typeof AdmissionScalarFieldEnum)[keyof typeof AdmissionScalarFieldEnum]
@@ -8177,6 +8566,12 @@ export const PaymentScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
   courseId: 'courseId',
+  admissionId: 'admissionId',
+  feeInstallmentId: 'feeInstallmentId',
+  invoiceId: 'invoiceId',
+  branchId: 'branchId',
+  collectorId: 'collectorId',
+  verifiedBy: 'verifiedBy',
   amount: 'amount',
   currency: 'currency',
   razorpayOrderId: 'razorpayOrderId',
@@ -8184,7 +8579,19 @@ export const PaymentScalarFieldEnum = {
   razorpaySignature: 'razorpaySignature',
   paymentStatus: 'paymentStatus',
   paymentMethod: 'paymentMethod',
-  createdAt: 'createdAt'
+  paymentMode: 'paymentMode',
+  transactionRef: 'transactionRef',
+  receiptNumber: 'receiptNumber',
+  receiptUrl: 'receiptUrl',
+  receiptUploadUrl: 'receiptUploadUrl',
+  remarks: 'remarks',
+  failureReason: 'failureReason',
+  refundStatus: 'refundStatus',
+  refundedAmount: 'refundedAmount',
+  reconciledAt: 'reconciledAt',
+  verifiedAt: 'verifiedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type PaymentScalarFieldEnum = (typeof PaymentScalarFieldEnum)[keyof typeof PaymentScalarFieldEnum]
@@ -8207,11 +8614,17 @@ export type SubscriptionScalarFieldEnum = (typeof SubscriptionScalarFieldEnum)[k
 export const FeeInstallmentScalarFieldEnum = {
   id: 'id',
   studentId: 'studentId',
+  feePlanId: 'feePlanId',
   title: 'title',
   amount: 'amount',
+  paidAmount: 'paidAmount',
+  dueAmount: 'dueAmount',
   dueDate: 'dueDate',
   paidStatus: 'paidStatus',
-  paidAt: 'paidAt'
+  paidAt: 'paidAt',
+  overdueAt: 'overdueAt',
+  reminderStatus: 'reminderStatus',
+  sequence: 'sequence'
 } as const
 
 export type FeeInstallmentScalarFieldEnum = (typeof FeeInstallmentScalarFieldEnum)[keyof typeof FeeInstallmentScalarFieldEnum]
@@ -8220,13 +8633,114 @@ export type FeeInstallmentScalarFieldEnum = (typeof FeeInstallmentScalarFieldEnu
 export const InvoiceScalarFieldEnum = {
   id: 'id',
   studentId: 'studentId',
+  admissionId: 'admissionId',
+  feePlanId: 'feePlanId',
   invoiceNumber: 'invoiceNumber',
   amount: 'amount',
+  paidAmount: 'paidAmount',
+  dueAmount: 'dueAmount',
+  pdfUrl: 'pdfUrl',
+  receiptUrl: 'receiptUrl',
   generatedAt: 'generatedAt',
   status: 'status'
 } as const
 
 export type InvoiceScalarFieldEnum = (typeof InvoiceScalarFieldEnum)[keyof typeof InvoiceScalarFieldEnum]
+
+
+export const FeePlanScalarFieldEnum = {
+  id: 'id',
+  studentId: 'studentId',
+  admissionId: 'admissionId',
+  courseId: 'courseId',
+  instituteId: 'instituteId',
+  branchId: 'branchId',
+  title: 'title',
+  totalAmount: 'totalAmount',
+  discountAmount: 'discountAmount',
+  scholarshipAmount: 'scholarshipAmount',
+  netAmount: 'netAmount',
+  paidAmount: 'paidAmount',
+  dueAmount: 'dueAmount',
+  status: 'status',
+  createdBy: 'createdBy',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type FeePlanScalarFieldEnum = (typeof FeePlanScalarFieldEnum)[keyof typeof FeePlanScalarFieldEnum]
+
+
+export const PaymentTransactionLogScalarFieldEnum = {
+  id: 'id',
+  paymentId: 'paymentId',
+  actorId: 'actorId',
+  event: 'event',
+  statusFrom: 'statusFrom',
+  statusTo: 'statusTo',
+  metadata: 'metadata',
+  ipAddress: 'ipAddress',
+  createdAt: 'createdAt'
+} as const
+
+export type PaymentTransactionLogScalarFieldEnum = (typeof PaymentTransactionLogScalarFieldEnum)[keyof typeof PaymentTransactionLogScalarFieldEnum]
+
+
+export const ApprovalRequestScalarFieldEnum = {
+  id: 'id',
+  type: 'type',
+  status: 'status',
+  requesterId: 'requesterId',
+  reviewerId: 'reviewerId',
+  admissionId: 'admissionId',
+  targetType: 'targetType',
+  targetId: 'targetId',
+  amount: 'amount',
+  reason: 'reason',
+  remarks: 'remarks',
+  metadata: 'metadata',
+  requestedAt: 'requestedAt',
+  reviewedAt: 'reviewedAt'
+} as const
+
+export type ApprovalRequestScalarFieldEnum = (typeof ApprovalRequestScalarFieldEnum)[keyof typeof ApprovalRequestScalarFieldEnum]
+
+
+export const ScholarshipDiscountScalarFieldEnum = {
+  id: 'id',
+  studentId: 'studentId',
+  admissionId: 'admissionId',
+  type: 'type',
+  title: 'title',
+  amount: 'amount',
+  status: 'status',
+  requestedBy: 'requestedBy',
+  approvedBy: 'approvedBy',
+  approvedAt: 'approvedAt',
+  reason: 'reason',
+  metadata: 'metadata',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ScholarshipDiscountScalarFieldEnum = (typeof ScholarshipDiscountScalarFieldEnum)[keyof typeof ScholarshipDiscountScalarFieldEnum]
+
+
+export const FinanceDocumentScalarFieldEnum = {
+  id: 'id',
+  ownerId: 'ownerId',
+  documentType: 'documentType',
+  targetType: 'targetType',
+  targetId: 'targetId',
+  documentNumber: 'documentNumber',
+  fileUrl: 'fileUrl',
+  status: 'status',
+  metadata: 'metadata',
+  generatedAt: 'generatedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type FinanceDocumentScalarFieldEnum = (typeof FinanceDocumentScalarFieldEnum)[keyof typeof FinanceDocumentScalarFieldEnum]
 
 
 export const NotificationScalarFieldEnum = {
@@ -9178,6 +9692,11 @@ export type GlobalOmitConfig = {
   subscription?: Prisma.SubscriptionOmit
   feeInstallment?: Prisma.FeeInstallmentOmit
   invoice?: Prisma.InvoiceOmit
+  feePlan?: Prisma.FeePlanOmit
+  paymentTransactionLog?: Prisma.PaymentTransactionLogOmit
+  approvalRequest?: Prisma.ApprovalRequestOmit
+  scholarshipDiscount?: Prisma.ScholarshipDiscountOmit
+  financeDocument?: Prisma.FinanceDocumentOmit
   notification?: Prisma.NotificationOmit
   messageThread?: Prisma.MessageThreadOmit
   message?: Prisma.MessageOmit

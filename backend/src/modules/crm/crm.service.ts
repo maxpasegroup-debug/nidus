@@ -1,9 +1,18 @@
 import { prisma } from "../../config/prisma.js";
-import type { CounsellingMode, LeadStatus } from "../../generated/prisma/client.js";
+import { Role, type CounsellingMode, type LeadStatus } from "../../generated/prisma/client.js";
 import { crmNotificationService } from "./crm-notification.service.js";
 
 const userSelect = { id: true, name: true, email: true, mobile: true, role: true } as const;
 const leadInclude = { assignee: { select: userSelect }, followUps: { orderBy: { followUpDate: "asc" as const }, take: 3 } } as const;
+type Requester = { id: string; role: Role; instituteId?: string | null; branchId?: string | null };
+
+function canApprove(requester: Requester) {
+  return requester.role === Role.ADMIN || requester.role === Role.DIRECTOR;
+}
+
+function assertCanApprove(requester: Requester) {
+  if (!canApprove(requester)) throw new Error("Approval requires admin or director access");
+}
 
 export const crmService = {
   leads(filters: { status?: LeadStatus; search?: string }) {
@@ -46,13 +55,112 @@ export const crmService = {
   followUps() {
     return prisma.followUp.findMany({ orderBy: { followUpDate: "asc" }, include: { lead: true, creator: { select: userSelect } } });
   },
-  admissions() {
-    return prisma.admission.findMany({ orderBy: { admissionDate: "desc" }, include: { student: { select: userSelect }, course: true } });
+  admissions(requester?: Requester) {
+    return prisma.admission.findMany({
+      where: requester?.role === Role.DIRECTOR ? { instituteId: requester.instituteId ?? undefined, branchId: requester.branchId ?? undefined } : undefined,
+      orderBy: { admissionDate: "desc" },
+      include: { student: { select: userSelect }, course: true, lead: true, approvals: true, feePlans: { include: { installments: true } } }
+    });
   },
-  createAdmission(input: { studentId: string; courseId: string; admissionDate: string; paymentStatus: string; batch: string }) {
-    return prisma.admission.create({
-      data: { ...input, admissionDate: new Date(input.admissionDate) },
-      include: { student: { select: userSelect }, course: true }
+  async createAdmission(requester: Requester, input: { leadId?: string; studentId: string; courseId: string; instituteId?: string; branchId?: string; admissionDate: string; paymentStatus?: string; batch: string; admissionMode?: string; totalFee?: number; remarks?: string }) {
+    const totalFee = input.totalFee ?? 0;
+    const admission = await prisma.admission.create({
+      data: {
+        leadId: input.leadId,
+        studentId: input.studentId,
+        courseId: input.courseId,
+        instituteId: input.instituteId ?? requester.instituteId ?? undefined,
+        branchId: input.branchId ?? requester.branchId ?? undefined,
+        admissionDate: new Date(input.admissionDate),
+        paymentStatus: input.paymentStatus ?? "PENDING",
+        batch: input.batch,
+        admissionMode: input.admissionMode ?? "ONLINE",
+        totalFee,
+        dueAmount: totalFee,
+        remarks: input.remarks,
+        status: "PENDING_APPROVAL",
+        approvalStatus: "PENDING"
+      },
+      include: { student: { select: userSelect }, course: true, lead: true }
+    });
+    await prisma.approvalRequest.create({
+      data: {
+        type: "ADMISSION_APPROVAL",
+        requesterId: requester.id,
+        admissionId: admission.id,
+        targetType: "Admission",
+        targetId: admission.id,
+        amount: totalFee,
+        reason: "Admission requires approval",
+        metadata: { admissionMode: admission.admissionMode, batch: admission.batch }
+      }
+    });
+    return admission;
+  },
+  async approveAdmission(requester: Requester, id: string, input: { approved: boolean; remarks?: string; batch?: string; instituteId?: string; branchId?: string }) {
+    assertCanApprove(requester);
+    const admission = await prisma.admission.findUniqueOrThrow({ where: { id } });
+    if (requester.role === Role.DIRECTOR) {
+      if (requester.instituteId && admission.instituteId && requester.instituteId !== admission.instituteId) throw new Error("Institute access denied");
+      if (requester.branchId && admission.branchId && requester.branchId !== admission.branchId) throw new Error("Branch access denied");
+    }
+    const status = input.approved ? "APPROVED" : "REJECTED";
+    await prisma.approvalRequest.updateMany({
+      where: { admissionId: id, type: "ADMISSION_APPROVAL", status: "PENDING" },
+      data: { status, reviewerId: requester.id, reviewedAt: new Date(), remarks: input.remarks }
+    });
+    return prisma.admission.update({
+      where: { id },
+      data: {
+        status: input.approved ? "ENROLLED" : "REJECTED",
+        approvalStatus: status,
+        approvedBy: input.approved ? requester.id : admission.approvedBy,
+        approvedAt: input.approved ? new Date() : admission.approvedAt,
+        onboardingStatus: input.approved ? "IN_PROGRESS" : admission.onboardingStatus,
+        batch: input.batch ?? admission.batch,
+        instituteId: input.instituteId ?? admission.instituteId,
+        branchId: input.branchId ?? admission.branchId,
+        remarks: input.remarks ?? admission.remarks
+      },
+      include: { student: { select: userSelect }, course: true, approvals: true }
+    });
+  },
+  approvals(requester: Requester) {
+    return prisma.approvalRequest.findMany({
+      where: requester.role === Role.DIRECTOR ? { status: "PENDING" } : undefined,
+      orderBy: { requestedAt: "desc" },
+      include: { requester: { select: userSelect }, reviewer: { select: userSelect }, admission: { include: { student: { select: userSelect }, course: true } } }
+    });
+  },
+  async createScholarship(requester: Requester, input: { studentId: string; admissionId?: string; type: string; title: string; amount: number; reason?: string }) {
+    const record = await prisma.scholarshipDiscount.create({
+      data: { ...input, requestedBy: requester.id, status: "PENDING" },
+      include: { student: { select: userSelect } }
+    });
+    await prisma.approvalRequest.create({
+      data: {
+        type: input.type === "FEE_WAIVER" ? "FEE_WAIVER_APPROVAL" : "DISCOUNT_APPROVAL",
+        requesterId: requester.id,
+        admissionId: input.admissionId,
+        targetType: "ScholarshipDiscount",
+        targetId: record.id,
+        amount: input.amount,
+        reason: input.reason
+      }
+    });
+    return record;
+  },
+  async reviewScholarship(requester: Requester, id: string, input: { approved: boolean; remarks?: string }) {
+    assertCanApprove(requester);
+    const status = input.approved ? "APPROVED" : "REJECTED";
+    await prisma.approvalRequest.updateMany({
+      where: { targetType: "ScholarshipDiscount", targetId: id, status: "PENDING" },
+      data: { status, reviewerId: requester.id, reviewedAt: new Date(), remarks: input.remarks }
+    });
+    return prisma.scholarshipDiscount.update({
+      where: { id },
+      data: { status, approvedBy: input.approved ? requester.id : undefined, approvedAt: input.approved ? new Date() : undefined },
+      include: { student: { select: userSelect }, approver: { select: userSelect } }
     });
   },
   counselling() {

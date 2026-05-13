@@ -26,8 +26,27 @@ export const paymentsController = {
   async verify(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try { assertValid(req); res.json(await paymentsService.verify(requester(req), req.body)); } catch (error) { next(error); }
   },
+  async webhook(req: Request, res: Response, next: NextFunction) {
+    try {
+      const rawBody = Buffer.isBuffer(req.body) ? req.body : Buffer.from(JSON.stringify(req.body));
+      const payload = Buffer.isBuffer(req.body) ? JSON.parse(req.body.toString("utf8")) : req.body;
+      res.json(await paymentsService.webhook(rawBody, req.headers["x-razorpay-signature"] as string | undefined, payload));
+    } catch (error) { next(error); }
+  },
+  async manualPayment(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try { assertValid(req); res.status(201).json({ payment: await paymentsService.manualPayment(requester(req), req.body) }); } catch (error) { next(error); }
+  },
+  async failPayment(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try { assertValid(req); res.json({ payment: await paymentsService.failPayment(requester(req), param(req, "id"), req.body.reason) }); } catch (error) { next(error); }
+  },
+  async refundShell(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try { assertValid(req); res.json({ payment: await paymentsService.refundShell(requester(req), param(req, "id"), req.body) }); } catch (error) { next(error); }
+  },
   async history(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try { res.json({ payments: await paymentsService.history(requester(req)) }); } catch (error) { next(error); }
+  },
+  async analytics(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try { res.json({ analytics: await paymentsService.analytics(requester(req)) }); } catch (error) { next(error); }
   },
   async subscriptions(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try { res.json({ subscriptions: await paymentsService.subscriptions(requester(req)) }); } catch (error) { next(error); }
@@ -39,7 +58,10 @@ export const paymentsController = {
     try { res.json({ fees: await paymentsService.fees(requester(req)) }); } catch (error) { next(error); }
   },
   async createInstallment(req: Request, res: Response, next: NextFunction) {
-    try { assertValid(req); res.status(201).json({ fee: await paymentsService.createInstallment(req.body) }); } catch (error) { next(error); }
+    try { assertValid(req); res.status(201).json({ fee: await paymentsService.createInstallment(requester(req as AuthenticatedRequest), req.body) }); } catch (error) { next(error); }
+  },
+  async createFeePlan(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try { assertValid(req); res.status(201).json({ feePlan: await paymentsService.createFeePlan(requester(req), req.body) }); } catch (error) { next(error); }
   },
   async payInstallment(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try { res.json({ fee: await paymentsService.payInstallment(requester(req), param(req, "id")) }); } catch (error) { next(error); }
@@ -48,6 +70,6 @@ export const paymentsController = {
     try { res.json({ invoices: await paymentsService.invoices(requester(req)) }); } catch (error) { next(error); }
   },
   async generateInvoice(req: Request, res: Response, next: NextFunction) {
-    try { assertValid(req); res.status(201).json({ invoice: await paymentsService.generateInvoice(req.body) }); } catch (error) { next(error); }
+    try { assertValid(req); res.status(201).json({ invoice: await paymentsService.generateInvoice(requester(req as AuthenticatedRequest), req.body) }); } catch (error) { next(error); }
   }
 };

@@ -16,6 +16,11 @@ export type Payment = {
   id: string;
   userId: string;
   courseId?: string;
+  admissionId?: string;
+  feeInstallmentId?: string;
+  invoiceId?: string;
+  branchId?: string;
+  collectorId?: string;
   amount: number;
   currency: string;
   razorpayOrderId: string;
@@ -23,6 +28,15 @@ export type Payment = {
   razorpaySignature?: string;
   paymentStatus: string;
   paymentMethod?: string;
+  paymentMode?: string;
+  transactionRef?: string;
+  receiptNumber?: string;
+  receiptUrl?: string;
+  receiptUploadUrl?: string;
+  remarks?: string;
+  failureReason?: string;
+  refundStatus?: string;
+  refundedAmount?: number;
   createdAt: string;
   user?: FinanceUser;
   course?: FinanceCourse;
@@ -54,8 +68,11 @@ export type Subscription = {
 export type FeeInstallment = {
   id: string;
   studentId: string;
+  feePlanId?: string;
   title: string;
   amount: number;
+  paidAmount?: number;
+  dueAmount?: number;
   dueDate: string;
   paidStatus: string;
   paidAt?: string;
@@ -65,9 +82,38 @@ export type FeeInstallment = {
 export type Invoice = {
   id: string;
   studentId: string;
+  admissionId?: string;
+  feePlanId?: string;
   invoiceNumber: string;
   amount: number;
+  paidAmount?: number;
+  dueAmount?: number;
+  pdfUrl?: string;
+  receiptUrl?: string;
   generatedAt: string;
   status: string;
   student?: FinanceUser;
+};
+
+export type PaymentAnalytics = {
+  dailyRevenue: number;
+  monthlyRevenue: number;
+  pendingDues: number;
+  paymentMethodAnalytics: Record<string, number>;
+  totalTransactions: number;
+  successfulTransactions: number;
+};
+
+export type FeePlan = {
+  id: string;
+  studentId: string;
+  title: string;
+  totalAmount: number;
+  discountAmount: number;
+  scholarshipAmount: number;
+  netAmount: number;
+  paidAmount: number;
+  dueAmount: number;
+  status: string;
+  installments?: FeeInstallment[];
 };
