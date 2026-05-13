@@ -41,6 +41,11 @@ export type UserMinAggregateOutputType = {
   mobile: string | null
   password: string | null
   role: $Enums.Role | null
+  instituteId: string | null
+  branchId: string | null
+  roleOnboardingStatus: string | null
+  roleActivatedAt: Date | null
+  lastRoleActivityAt: Date | null
   emailVerified: boolean | null
   mobileVerified: boolean | null
   isDisabled: boolean | null
@@ -59,6 +64,11 @@ export type UserMaxAggregateOutputType = {
   mobile: string | null
   password: string | null
   role: $Enums.Role | null
+  instituteId: string | null
+  branchId: string | null
+  roleOnboardingStatus: string | null
+  roleActivatedAt: Date | null
+  lastRoleActivityAt: Date | null
   emailVerified: boolean | null
   mobileVerified: boolean | null
   isDisabled: boolean | null
@@ -77,6 +87,12 @@ export type UserCountAggregateOutputType = {
   mobile: number
   password: number
   role: number
+  instituteId: number
+  branchId: number
+  roleMetadata: number
+  roleOnboardingStatus: number
+  roleActivatedAt: number
+  lastRoleActivityAt: number
   emailVerified: number
   mobileVerified: number
   isDisabled: number
@@ -105,6 +121,11 @@ export type UserMinAggregateInputType = {
   mobile?: true
   password?: true
   role?: true
+  instituteId?: true
+  branchId?: true
+  roleOnboardingStatus?: true
+  roleActivatedAt?: true
+  lastRoleActivityAt?: true
   emailVerified?: true
   mobileVerified?: true
   isDisabled?: true
@@ -123,6 +144,11 @@ export type UserMaxAggregateInputType = {
   mobile?: true
   password?: true
   role?: true
+  instituteId?: true
+  branchId?: true
+  roleOnboardingStatus?: true
+  roleActivatedAt?: true
+  lastRoleActivityAt?: true
   emailVerified?: true
   mobileVerified?: true
   isDisabled?: true
@@ -141,6 +167,12 @@ export type UserCountAggregateInputType = {
   mobile?: true
   password?: true
   role?: true
+  instituteId?: true
+  branchId?: true
+  roleMetadata?: true
+  roleOnboardingStatus?: true
+  roleActivatedAt?: true
+  lastRoleActivityAt?: true
   emailVerified?: true
   mobileVerified?: true
   isDisabled?: true
@@ -246,6 +278,12 @@ export type UserGroupByOutputType = {
   mobile: string
   password: string
   role: $Enums.Role
+  instituteId: string | null
+  branchId: string | null
+  roleMetadata: runtime.JsonValue | null
+  roleOnboardingStatus: string
+  roleActivatedAt: Date | null
+  lastRoleActivityAt: Date | null
   emailVerified: boolean
   mobileVerified: boolean
   isDisabled: boolean
@@ -287,6 +325,12 @@ export type UserWhereInput = {
   mobile?: Prisma.StringFilter<"User"> | string
   password?: Prisma.StringFilter<"User"> | string
   role?: Prisma.EnumRoleFilter<"User"> | $Enums.Role
+  instituteId?: Prisma.StringNullableFilter<"User"> | string | null
+  branchId?: Prisma.StringNullableFilter<"User"> | string | null
+  roleMetadata?: Prisma.JsonNullableFilter<"User">
+  roleOnboardingStatus?: Prisma.StringFilter<"User"> | string
+  roleActivatedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  lastRoleActivityAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   emailVerified?: Prisma.BoolFilter<"User"> | boolean
   mobileVerified?: Prisma.BoolFilter<"User"> | boolean
   isDisabled?: Prisma.BoolFilter<"User"> | boolean
@@ -342,6 +386,9 @@ export type UserWhereInput = {
   mediaFiles?: Prisma.MediaFileListRelationFilter
   documents?: Prisma.DocumentListRelationFilter
   adminRoles?: Prisma.UserRoleListRelationFilter
+  roleActivities?: Prisma.RoleActivityListRelationFilter
+  institute?: Prisma.XOR<Prisma.InstituteNullableScalarRelationFilter, Prisma.InstituteWhereInput> | null
+  branch?: Prisma.XOR<Prisma.BranchNullableScalarRelationFilter, Prisma.BranchWhereInput> | null
   auditLogs?: Prisma.AuditLogListRelationFilter
   authVerificationTokens?: Prisma.AuthVerificationTokenListRelationFilter
   passwordResetTokens?: Prisma.PasswordResetTokenListRelationFilter
@@ -359,6 +406,12 @@ export type UserOrderByWithRelationInput = {
   mobile?: Prisma.SortOrder
   password?: Prisma.SortOrder
   role?: Prisma.SortOrder
+  instituteId?: Prisma.SortOrderInput | Prisma.SortOrder
+  branchId?: Prisma.SortOrderInput | Prisma.SortOrder
+  roleMetadata?: Prisma.SortOrderInput | Prisma.SortOrder
+  roleOnboardingStatus?: Prisma.SortOrder
+  roleActivatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  lastRoleActivityAt?: Prisma.SortOrderInput | Prisma.SortOrder
   emailVerified?: Prisma.SortOrder
   mobileVerified?: Prisma.SortOrder
   isDisabled?: Prisma.SortOrder
@@ -414,6 +467,9 @@ export type UserOrderByWithRelationInput = {
   mediaFiles?: Prisma.MediaFileOrderByRelationAggregateInput
   documents?: Prisma.DocumentOrderByRelationAggregateInput
   adminRoles?: Prisma.UserRoleOrderByRelationAggregateInput
+  roleActivities?: Prisma.RoleActivityOrderByRelationAggregateInput
+  institute?: Prisma.InstituteOrderByWithRelationInput
+  branch?: Prisma.BranchOrderByWithRelationInput
   auditLogs?: Prisma.AuditLogOrderByRelationAggregateInput
   authVerificationTokens?: Prisma.AuthVerificationTokenOrderByRelationAggregateInput
   passwordResetTokens?: Prisma.PasswordResetTokenOrderByRelationAggregateInput
@@ -434,6 +490,12 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   name?: Prisma.StringFilter<"User"> | string
   password?: Prisma.StringFilter<"User"> | string
   role?: Prisma.EnumRoleFilter<"User"> | $Enums.Role
+  instituteId?: Prisma.StringNullableFilter<"User"> | string | null
+  branchId?: Prisma.StringNullableFilter<"User"> | string | null
+  roleMetadata?: Prisma.JsonNullableFilter<"User">
+  roleOnboardingStatus?: Prisma.StringFilter<"User"> | string
+  roleActivatedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  lastRoleActivityAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   emailVerified?: Prisma.BoolFilter<"User"> | boolean
   mobileVerified?: Prisma.BoolFilter<"User"> | boolean
   isDisabled?: Prisma.BoolFilter<"User"> | boolean
@@ -489,6 +551,9 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   mediaFiles?: Prisma.MediaFileListRelationFilter
   documents?: Prisma.DocumentListRelationFilter
   adminRoles?: Prisma.UserRoleListRelationFilter
+  roleActivities?: Prisma.RoleActivityListRelationFilter
+  institute?: Prisma.XOR<Prisma.InstituteNullableScalarRelationFilter, Prisma.InstituteWhereInput> | null
+  branch?: Prisma.XOR<Prisma.BranchNullableScalarRelationFilter, Prisma.BranchWhereInput> | null
   auditLogs?: Prisma.AuditLogListRelationFilter
   authVerificationTokens?: Prisma.AuthVerificationTokenListRelationFilter
   passwordResetTokens?: Prisma.PasswordResetTokenListRelationFilter
@@ -506,6 +571,12 @@ export type UserOrderByWithAggregationInput = {
   mobile?: Prisma.SortOrder
   password?: Prisma.SortOrder
   role?: Prisma.SortOrder
+  instituteId?: Prisma.SortOrderInput | Prisma.SortOrder
+  branchId?: Prisma.SortOrderInput | Prisma.SortOrder
+  roleMetadata?: Prisma.SortOrderInput | Prisma.SortOrder
+  roleOnboardingStatus?: Prisma.SortOrder
+  roleActivatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  lastRoleActivityAt?: Prisma.SortOrderInput | Prisma.SortOrder
   emailVerified?: Prisma.SortOrder
   mobileVerified?: Prisma.SortOrder
   isDisabled?: Prisma.SortOrder
@@ -532,6 +603,12 @@ export type UserScalarWhereWithAggregatesInput = {
   mobile?: Prisma.StringWithAggregatesFilter<"User"> | string
   password?: Prisma.StringWithAggregatesFilter<"User"> | string
   role?: Prisma.EnumRoleWithAggregatesFilter<"User"> | $Enums.Role
+  instituteId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  branchId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  roleMetadata?: Prisma.JsonNullableWithAggregatesFilter<"User">
+  roleOnboardingStatus?: Prisma.StringWithAggregatesFilter<"User"> | string
+  roleActivatedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
+  lastRoleActivityAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
   emailVerified?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   mobileVerified?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   isDisabled?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
@@ -550,6 +627,10 @@ export type UserCreateInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -605,6 +686,9 @@ export type UserCreateInput = {
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutUserInput
+  institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
+  branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -622,6 +706,12 @@ export type UserUncheckedCreateInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  instituteId?: string | null
+  branchId?: string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -677,6 +767,7 @@ export type UserUncheckedCreateInput = {
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -694,6 +785,10 @@ export type UserUpdateInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -749,6 +844,9 @@ export type UserUpdateInput = {
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUpdateManyWithoutUserNestedInput
+  institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
+  branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -766,6 +864,12 @@ export type UserUncheckedUpdateInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -821,6 +925,7 @@ export type UserUncheckedUpdateInput = {
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -838,6 +943,12 @@ export type UserCreateManyInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  instituteId?: string | null
+  branchId?: string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -856,6 +967,10 @@ export type UserUpdateManyMutationInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -874,6 +989,12 @@ export type UserUncheckedUpdateManyInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -892,6 +1013,12 @@ export type UserCountOrderByAggregateInput = {
   mobile?: Prisma.SortOrder
   password?: Prisma.SortOrder
   role?: Prisma.SortOrder
+  instituteId?: Prisma.SortOrder
+  branchId?: Prisma.SortOrder
+  roleMetadata?: Prisma.SortOrder
+  roleOnboardingStatus?: Prisma.SortOrder
+  roleActivatedAt?: Prisma.SortOrder
+  lastRoleActivityAt?: Prisma.SortOrder
   emailVerified?: Prisma.SortOrder
   mobileVerified?: Prisma.SortOrder
   isDisabled?: Prisma.SortOrder
@@ -914,6 +1041,11 @@ export type UserMaxOrderByAggregateInput = {
   mobile?: Prisma.SortOrder
   password?: Prisma.SortOrder
   role?: Prisma.SortOrder
+  instituteId?: Prisma.SortOrder
+  branchId?: Prisma.SortOrder
+  roleOnboardingStatus?: Prisma.SortOrder
+  roleActivatedAt?: Prisma.SortOrder
+  lastRoleActivityAt?: Prisma.SortOrder
   emailVerified?: Prisma.SortOrder
   mobileVerified?: Prisma.SortOrder
   isDisabled?: Prisma.SortOrder
@@ -932,6 +1064,11 @@ export type UserMinOrderByAggregateInput = {
   mobile?: Prisma.SortOrder
   password?: Prisma.SortOrder
   role?: Prisma.SortOrder
+  instituteId?: Prisma.SortOrder
+  branchId?: Prisma.SortOrder
+  roleOnboardingStatus?: Prisma.SortOrder
+  roleActivatedAt?: Prisma.SortOrder
+  lastRoleActivityAt?: Prisma.SortOrder
   emailVerified?: Prisma.SortOrder
   mobileVerified?: Prisma.SortOrder
   isDisabled?: Prisma.SortOrder
@@ -957,6 +1094,16 @@ export type UserNullableScalarRelationFilter = {
   isNot?: Prisma.UserWhereInput | null
 }
 
+export type UserListRelationFilter = {
+  every?: Prisma.UserWhereInput
+  some?: Prisma.UserWhereInput
+  none?: Prisma.UserWhereInput
+}
+
+export type UserOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
+}
+
 export type StringFieldUpdateOperationsInput = {
   set?: string
 }
@@ -965,12 +1112,12 @@ export type EnumRoleFieldUpdateOperationsInput = {
   set?: $Enums.Role
 }
 
-export type BoolFieldUpdateOperationsInput = {
-  set?: boolean
-}
-
 export type NullableDateTimeFieldUpdateOperationsInput = {
   set?: Date | string | null
+}
+
+export type BoolFieldUpdateOperationsInput = {
+  set?: boolean
 }
 
 export type IntFieldUpdateOperationsInput = {
@@ -983,6 +1130,10 @@ export type IntFieldUpdateOperationsInput = {
 
 export type DateTimeFieldUpdateOperationsInput = {
   set?: Date | string
+}
+
+export type NullableStringFieldUpdateOperationsInput = {
+  set?: string | null
 }
 
 export type UserCreateNestedOneWithoutAuthVerificationTokensInput = {
@@ -1735,6 +1886,20 @@ export type UserUpdateOneRequiredWithoutAdminRolesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutAdminRolesInput, Prisma.UserUpdateWithoutAdminRolesInput>, Prisma.UserUncheckedUpdateWithoutAdminRolesInput>
 }
 
+export type UserCreateNestedOneWithoutRoleActivitiesInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutRoleActivitiesInput, Prisma.UserUncheckedCreateWithoutRoleActivitiesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutRoleActivitiesInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutRoleActivitiesNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutRoleActivitiesInput, Prisma.UserUncheckedCreateWithoutRoleActivitiesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutRoleActivitiesInput
+  upsert?: Prisma.UserUpsertWithoutRoleActivitiesInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutRoleActivitiesInput, Prisma.UserUpdateWithoutRoleActivitiesInput>, Prisma.UserUncheckedUpdateWithoutRoleActivitiesInput>
+}
+
 export type UserCreateNestedOneWithoutAuditLogsInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutAuditLogsInput, Prisma.UserUncheckedCreateWithoutAuditLogsInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutAuditLogsInput
@@ -1751,6 +1916,90 @@ export type UserUpdateOneWithoutAuditLogsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutAuditLogsInput, Prisma.UserUpdateWithoutAuditLogsInput>, Prisma.UserUncheckedUpdateWithoutAuditLogsInput>
 }
 
+export type UserCreateNestedManyWithoutBranchInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutBranchInput, Prisma.UserUncheckedCreateWithoutBranchInput> | Prisma.UserCreateWithoutBranchInput[] | Prisma.UserUncheckedCreateWithoutBranchInput[]
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutBranchInput | Prisma.UserCreateOrConnectWithoutBranchInput[]
+  createMany?: Prisma.UserCreateManyBranchInputEnvelope
+  connect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+}
+
+export type UserUncheckedCreateNestedManyWithoutBranchInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutBranchInput, Prisma.UserUncheckedCreateWithoutBranchInput> | Prisma.UserCreateWithoutBranchInput[] | Prisma.UserUncheckedCreateWithoutBranchInput[]
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutBranchInput | Prisma.UserCreateOrConnectWithoutBranchInput[]
+  createMany?: Prisma.UserCreateManyBranchInputEnvelope
+  connect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+}
+
+export type UserUpdateManyWithoutBranchNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutBranchInput, Prisma.UserUncheckedCreateWithoutBranchInput> | Prisma.UserCreateWithoutBranchInput[] | Prisma.UserUncheckedCreateWithoutBranchInput[]
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutBranchInput | Prisma.UserCreateOrConnectWithoutBranchInput[]
+  upsert?: Prisma.UserUpsertWithWhereUniqueWithoutBranchInput | Prisma.UserUpsertWithWhereUniqueWithoutBranchInput[]
+  createMany?: Prisma.UserCreateManyBranchInputEnvelope
+  set?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  disconnect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  delete?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  connect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  update?: Prisma.UserUpdateWithWhereUniqueWithoutBranchInput | Prisma.UserUpdateWithWhereUniqueWithoutBranchInput[]
+  updateMany?: Prisma.UserUpdateManyWithWhereWithoutBranchInput | Prisma.UserUpdateManyWithWhereWithoutBranchInput[]
+  deleteMany?: Prisma.UserScalarWhereInput | Prisma.UserScalarWhereInput[]
+}
+
+export type UserUncheckedUpdateManyWithoutBranchNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutBranchInput, Prisma.UserUncheckedCreateWithoutBranchInput> | Prisma.UserCreateWithoutBranchInput[] | Prisma.UserUncheckedCreateWithoutBranchInput[]
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutBranchInput | Prisma.UserCreateOrConnectWithoutBranchInput[]
+  upsert?: Prisma.UserUpsertWithWhereUniqueWithoutBranchInput | Prisma.UserUpsertWithWhereUniqueWithoutBranchInput[]
+  createMany?: Prisma.UserCreateManyBranchInputEnvelope
+  set?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  disconnect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  delete?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  connect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  update?: Prisma.UserUpdateWithWhereUniqueWithoutBranchInput | Prisma.UserUpdateWithWhereUniqueWithoutBranchInput[]
+  updateMany?: Prisma.UserUpdateManyWithWhereWithoutBranchInput | Prisma.UserUpdateManyWithWhereWithoutBranchInput[]
+  deleteMany?: Prisma.UserScalarWhereInput | Prisma.UserScalarWhereInput[]
+}
+
+export type UserCreateNestedManyWithoutInstituteInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutInstituteInput, Prisma.UserUncheckedCreateWithoutInstituteInput> | Prisma.UserCreateWithoutInstituteInput[] | Prisma.UserUncheckedCreateWithoutInstituteInput[]
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutInstituteInput | Prisma.UserCreateOrConnectWithoutInstituteInput[]
+  createMany?: Prisma.UserCreateManyInstituteInputEnvelope
+  connect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+}
+
+export type UserUncheckedCreateNestedManyWithoutInstituteInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutInstituteInput, Prisma.UserUncheckedCreateWithoutInstituteInput> | Prisma.UserCreateWithoutInstituteInput[] | Prisma.UserUncheckedCreateWithoutInstituteInput[]
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutInstituteInput | Prisma.UserCreateOrConnectWithoutInstituteInput[]
+  createMany?: Prisma.UserCreateManyInstituteInputEnvelope
+  connect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+}
+
+export type UserUpdateManyWithoutInstituteNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutInstituteInput, Prisma.UserUncheckedCreateWithoutInstituteInput> | Prisma.UserCreateWithoutInstituteInput[] | Prisma.UserUncheckedCreateWithoutInstituteInput[]
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutInstituteInput | Prisma.UserCreateOrConnectWithoutInstituteInput[]
+  upsert?: Prisma.UserUpsertWithWhereUniqueWithoutInstituteInput | Prisma.UserUpsertWithWhereUniqueWithoutInstituteInput[]
+  createMany?: Prisma.UserCreateManyInstituteInputEnvelope
+  set?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  disconnect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  delete?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  connect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  update?: Prisma.UserUpdateWithWhereUniqueWithoutInstituteInput | Prisma.UserUpdateWithWhereUniqueWithoutInstituteInput[]
+  updateMany?: Prisma.UserUpdateManyWithWhereWithoutInstituteInput | Prisma.UserUpdateManyWithWhereWithoutInstituteInput[]
+  deleteMany?: Prisma.UserScalarWhereInput | Prisma.UserScalarWhereInput[]
+}
+
+export type UserUncheckedUpdateManyWithoutInstituteNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutInstituteInput, Prisma.UserUncheckedCreateWithoutInstituteInput> | Prisma.UserCreateWithoutInstituteInput[] | Prisma.UserUncheckedCreateWithoutInstituteInput[]
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutInstituteInput | Prisma.UserCreateOrConnectWithoutInstituteInput[]
+  upsert?: Prisma.UserUpsertWithWhereUniqueWithoutInstituteInput | Prisma.UserUpsertWithWhereUniqueWithoutInstituteInput[]
+  createMany?: Prisma.UserCreateManyInstituteInputEnvelope
+  set?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  disconnect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  delete?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  connect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  update?: Prisma.UserUpdateWithWhereUniqueWithoutInstituteInput | Prisma.UserUpdateWithWhereUniqueWithoutInstituteInput[]
+  updateMany?: Prisma.UserUpdateManyWithWhereWithoutInstituteInput | Prisma.UserUpdateManyWithWhereWithoutInstituteInput[]
+  deleteMany?: Prisma.UserScalarWhereInput | Prisma.UserScalarWhereInput[]
+}
+
 export type UserCreateWithoutAuthVerificationTokensInput = {
   id?: string
   name: string
@@ -1758,6 +2007,10 @@ export type UserCreateWithoutAuthVerificationTokensInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -1813,6 +2066,9 @@ export type UserCreateWithoutAuthVerificationTokensInput = {
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutUserInput
+  institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
+  branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
   authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
@@ -1829,6 +2085,12 @@ export type UserUncheckedCreateWithoutAuthVerificationTokensInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  instituteId?: string | null
+  branchId?: string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -1884,6 +2146,7 @@ export type UserUncheckedCreateWithoutAuthVerificationTokensInput = {
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
   authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
@@ -1916,6 +2179,10 @@ export type UserUpdateWithoutAuthVerificationTokensInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1971,6 +2238,9 @@ export type UserUpdateWithoutAuthVerificationTokensInput = {
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUpdateManyWithoutUserNestedInput
+  institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
+  branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
   authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
@@ -1987,6 +2257,12 @@ export type UserUncheckedUpdateWithoutAuthVerificationTokensInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2042,6 +2318,7 @@ export type UserUncheckedUpdateWithoutAuthVerificationTokensInput = {
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
   authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
@@ -2058,6 +2335,10 @@ export type UserCreateWithoutPasswordResetTokensInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -2113,6 +2394,9 @@ export type UserCreateWithoutPasswordResetTokensInput = {
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutUserInput
+  institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
+  branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
   authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
@@ -2129,6 +2413,12 @@ export type UserUncheckedCreateWithoutPasswordResetTokensInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  instituteId?: string | null
+  branchId?: string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -2184,6 +2474,7 @@ export type UserUncheckedCreateWithoutPasswordResetTokensInput = {
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
   authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
@@ -2216,6 +2507,10 @@ export type UserUpdateWithoutPasswordResetTokensInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2271,6 +2566,9 @@ export type UserUpdateWithoutPasswordResetTokensInput = {
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUpdateManyWithoutUserNestedInput
+  institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
+  branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
   authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
@@ -2287,6 +2585,12 @@ export type UserUncheckedUpdateWithoutPasswordResetTokensInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2342,6 +2646,7 @@ export type UserUncheckedUpdateWithoutPasswordResetTokensInput = {
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
   authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
@@ -2358,6 +2663,10 @@ export type UserCreateWithoutAuthSessionsInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -2413,6 +2722,9 @@ export type UserCreateWithoutAuthSessionsInput = {
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutUserInput
+  institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
+  branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -2429,6 +2741,12 @@ export type UserUncheckedCreateWithoutAuthSessionsInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  instituteId?: string | null
+  branchId?: string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -2484,6 +2802,7 @@ export type UserUncheckedCreateWithoutAuthSessionsInput = {
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -2516,6 +2835,10 @@ export type UserUpdateWithoutAuthSessionsInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2571,6 +2894,9 @@ export type UserUpdateWithoutAuthSessionsInput = {
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUpdateManyWithoutUserNestedInput
+  institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
+  branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -2587,6 +2913,12 @@ export type UserUncheckedUpdateWithoutAuthSessionsInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2642,6 +2974,7 @@ export type UserUncheckedUpdateWithoutAuthSessionsInput = {
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -2658,6 +2991,10 @@ export type UserCreateWithoutParentInvitationsSentInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -2713,6 +3050,9 @@ export type UserCreateWithoutParentInvitationsSentInput = {
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutUserInput
+  institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
+  branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -2729,6 +3069,12 @@ export type UserUncheckedCreateWithoutParentInvitationsSentInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  instituteId?: string | null
+  branchId?: string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -2784,6 +3130,7 @@ export type UserUncheckedCreateWithoutParentInvitationsSentInput = {
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -2805,6 +3152,10 @@ export type UserCreateWithoutParentInvitationsReceivedInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -2860,6 +3211,9 @@ export type UserCreateWithoutParentInvitationsReceivedInput = {
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutUserInput
+  institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
+  branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -2876,6 +3230,12 @@ export type UserUncheckedCreateWithoutParentInvitationsReceivedInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  instituteId?: string | null
+  branchId?: string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -2931,6 +3291,7 @@ export type UserUncheckedCreateWithoutParentInvitationsReceivedInput = {
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -2963,6 +3324,10 @@ export type UserUpdateWithoutParentInvitationsSentInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3018,6 +3383,9 @@ export type UserUpdateWithoutParentInvitationsSentInput = {
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUpdateManyWithoutUserNestedInput
+  institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
+  branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -3034,6 +3402,12 @@ export type UserUncheckedUpdateWithoutParentInvitationsSentInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3089,6 +3463,7 @@ export type UserUncheckedUpdateWithoutParentInvitationsSentInput = {
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -3116,6 +3491,10 @@ export type UserUpdateWithoutParentInvitationsReceivedInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3171,6 +3550,9 @@ export type UserUpdateWithoutParentInvitationsReceivedInput = {
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUpdateManyWithoutUserNestedInput
+  institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
+  branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -3187,6 +3569,12 @@ export type UserUncheckedUpdateWithoutParentInvitationsReceivedInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3242,6 +3630,7 @@ export type UserUncheckedUpdateWithoutParentInvitationsReceivedInput = {
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -3258,6 +3647,10 @@ export type UserCreateWithoutParentLinksInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -3313,6 +3706,9 @@ export type UserCreateWithoutParentLinksInput = {
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutUserInput
+  institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
+  branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -3329,6 +3725,12 @@ export type UserUncheckedCreateWithoutParentLinksInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  instituteId?: string | null
+  branchId?: string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -3384,6 +3786,7 @@ export type UserUncheckedCreateWithoutParentLinksInput = {
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -3405,6 +3808,10 @@ export type UserCreateWithoutStudentLinksInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -3460,6 +3867,9 @@ export type UserCreateWithoutStudentLinksInput = {
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutUserInput
+  institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
+  branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -3476,6 +3886,12 @@ export type UserUncheckedCreateWithoutStudentLinksInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  instituteId?: string | null
+  branchId?: string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -3531,6 +3947,7 @@ export type UserUncheckedCreateWithoutStudentLinksInput = {
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -3563,6 +3980,10 @@ export type UserUpdateWithoutParentLinksInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3618,6 +4039,9 @@ export type UserUpdateWithoutParentLinksInput = {
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUpdateManyWithoutUserNestedInput
+  institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
+  branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -3634,6 +4058,12 @@ export type UserUncheckedUpdateWithoutParentLinksInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3689,6 +4119,7 @@ export type UserUncheckedUpdateWithoutParentLinksInput = {
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -3716,6 +4147,10 @@ export type UserUpdateWithoutStudentLinksInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3771,6 +4206,9 @@ export type UserUpdateWithoutStudentLinksInput = {
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUpdateManyWithoutUserNestedInput
+  institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
+  branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -3787,6 +4225,12 @@ export type UserUncheckedUpdateWithoutStudentLinksInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3842,6 +4286,7 @@ export type UserUncheckedUpdateWithoutStudentLinksInput = {
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -3858,6 +4303,10 @@ export type UserCreateWithoutEnrollmentsInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -3912,6 +4361,9 @@ export type UserCreateWithoutEnrollmentsInput = {
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutUserInput
+  institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
+  branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -3929,6 +4381,12 @@ export type UserUncheckedCreateWithoutEnrollmentsInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  instituteId?: string | null
+  branchId?: string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -3983,6 +4441,7 @@ export type UserUncheckedCreateWithoutEnrollmentsInput = {
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -4016,6 +4475,10 @@ export type UserUpdateWithoutEnrollmentsInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4070,6 +4533,9 @@ export type UserUpdateWithoutEnrollmentsInput = {
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUpdateManyWithoutUserNestedInput
+  institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
+  branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -4087,6 +4553,12 @@ export type UserUncheckedUpdateWithoutEnrollmentsInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4141,6 +4613,7 @@ export type UserUncheckedUpdateWithoutEnrollmentsInput = {
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -4158,6 +4631,10 @@ export type UserCreateWithoutTestAttemptsInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -4212,6 +4689,9 @@ export type UserCreateWithoutTestAttemptsInput = {
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutUserInput
+  institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
+  branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -4229,6 +4709,12 @@ export type UserUncheckedCreateWithoutTestAttemptsInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  instituteId?: string | null
+  branchId?: string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -4283,6 +4769,7 @@ export type UserUncheckedCreateWithoutTestAttemptsInput = {
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -4316,6 +4803,10 @@ export type UserUpdateWithoutTestAttemptsInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4370,6 +4861,9 @@ export type UserUpdateWithoutTestAttemptsInput = {
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUpdateManyWithoutUserNestedInput
+  institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
+  branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -4387,6 +4881,12 @@ export type UserUncheckedUpdateWithoutTestAttemptsInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4441,6 +4941,7 @@ export type UserUncheckedUpdateWithoutTestAttemptsInput = {
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -4458,6 +4959,10 @@ export type UserCreateWithoutPsychometricAttemptsInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -4512,6 +5017,9 @@ export type UserCreateWithoutPsychometricAttemptsInput = {
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutUserInput
+  institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
+  branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -4529,6 +5037,12 @@ export type UserUncheckedCreateWithoutPsychometricAttemptsInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  instituteId?: string | null
+  branchId?: string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -4583,6 +5097,7 @@ export type UserUncheckedCreateWithoutPsychometricAttemptsInput = {
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -4616,6 +5131,10 @@ export type UserUpdateWithoutPsychometricAttemptsInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4670,6 +5189,9 @@ export type UserUpdateWithoutPsychometricAttemptsInput = {
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUpdateManyWithoutUserNestedInput
+  institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
+  branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -4687,6 +5209,12 @@ export type UserUncheckedUpdateWithoutPsychometricAttemptsInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4741,6 +5269,7 @@ export type UserUncheckedUpdateWithoutPsychometricAttemptsInput = {
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -4758,6 +5287,10 @@ export type UserCreateWithoutOlqScoreInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -4812,6 +5345,9 @@ export type UserCreateWithoutOlqScoreInput = {
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutUserInput
+  institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
+  branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -4829,6 +5365,12 @@ export type UserUncheckedCreateWithoutOlqScoreInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  instituteId?: string | null
+  branchId?: string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -4883,6 +5425,7 @@ export type UserUncheckedCreateWithoutOlqScoreInput = {
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -4916,6 +5459,10 @@ export type UserUpdateWithoutOlqScoreInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4970,6 +5517,9 @@ export type UserUpdateWithoutOlqScoreInput = {
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUpdateManyWithoutUserNestedInput
+  institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
+  branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -4987,6 +5537,12 @@ export type UserUncheckedUpdateWithoutOlqScoreInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5041,6 +5597,7 @@ export type UserUncheckedUpdateWithoutOlqScoreInput = {
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -5058,6 +5615,10 @@ export type UserCreateWithoutStudyPlansInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -5112,6 +5673,9 @@ export type UserCreateWithoutStudyPlansInput = {
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutUserInput
+  institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
+  branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -5129,6 +5693,12 @@ export type UserUncheckedCreateWithoutStudyPlansInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  instituteId?: string | null
+  branchId?: string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -5183,6 +5753,7 @@ export type UserUncheckedCreateWithoutStudyPlansInput = {
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -5216,6 +5787,10 @@ export type UserUpdateWithoutStudyPlansInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5270,6 +5845,9 @@ export type UserUpdateWithoutStudyPlansInput = {
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUpdateManyWithoutUserNestedInput
+  institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
+  branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -5287,6 +5865,12 @@ export type UserUncheckedUpdateWithoutStudyPlansInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5341,6 +5925,7 @@ export type UserUncheckedUpdateWithoutStudyPlansInput = {
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -5358,6 +5943,10 @@ export type UserCreateWithoutPerformanceAnalyticsInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -5412,6 +6001,9 @@ export type UserCreateWithoutPerformanceAnalyticsInput = {
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutUserInput
+  institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
+  branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -5429,6 +6021,12 @@ export type UserUncheckedCreateWithoutPerformanceAnalyticsInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  instituteId?: string | null
+  branchId?: string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -5483,6 +6081,7 @@ export type UserUncheckedCreateWithoutPerformanceAnalyticsInput = {
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -5516,6 +6115,10 @@ export type UserUpdateWithoutPerformanceAnalyticsInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5570,6 +6173,9 @@ export type UserUpdateWithoutPerformanceAnalyticsInput = {
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUpdateManyWithoutUserNestedInput
+  institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
+  branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -5587,6 +6193,12 @@ export type UserUncheckedUpdateWithoutPerformanceAnalyticsInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5641,6 +6253,7 @@ export type UserUncheckedUpdateWithoutPerformanceAnalyticsInput = {
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -5658,6 +6271,10 @@ export type UserCreateWithoutRevisionSchedulesInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -5712,6 +6329,9 @@ export type UserCreateWithoutRevisionSchedulesInput = {
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutUserInput
+  institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
+  branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -5729,6 +6349,12 @@ export type UserUncheckedCreateWithoutRevisionSchedulesInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  instituteId?: string | null
+  branchId?: string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -5783,6 +6409,7 @@ export type UserUncheckedCreateWithoutRevisionSchedulesInput = {
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -5816,6 +6443,10 @@ export type UserUpdateWithoutRevisionSchedulesInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5870,6 +6501,9 @@ export type UserUpdateWithoutRevisionSchedulesInput = {
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUpdateManyWithoutUserNestedInput
+  institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
+  branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -5887,6 +6521,12 @@ export type UserUncheckedUpdateWithoutRevisionSchedulesInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5941,6 +6581,7 @@ export type UserUncheckedUpdateWithoutRevisionSchedulesInput = {
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -5958,6 +6599,10 @@ export type UserCreateWithoutLectureProgressInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -6012,6 +6657,9 @@ export type UserCreateWithoutLectureProgressInput = {
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutUserInput
+  institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
+  branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -6029,6 +6677,12 @@ export type UserUncheckedCreateWithoutLectureProgressInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  instituteId?: string | null
+  branchId?: string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -6083,6 +6737,7 @@ export type UserUncheckedCreateWithoutLectureProgressInput = {
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -6116,6 +6771,10 @@ export type UserUpdateWithoutLectureProgressInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -6170,6 +6829,9 @@ export type UserUpdateWithoutLectureProgressInput = {
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUpdateManyWithoutUserNestedInput
+  institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
+  branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -6187,6 +6849,12 @@ export type UserUncheckedUpdateWithoutLectureProgressInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -6241,6 +6909,7 @@ export type UserUncheckedUpdateWithoutLectureProgressInput = {
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -6258,6 +6927,10 @@ export type UserCreateWithoutAttendanceRecordsInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -6312,6 +6985,9 @@ export type UserCreateWithoutAttendanceRecordsInput = {
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutUserInput
+  institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
+  branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -6329,6 +7005,12 @@ export type UserUncheckedCreateWithoutAttendanceRecordsInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  instituteId?: string | null
+  branchId?: string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -6383,6 +7065,7 @@ export type UserUncheckedCreateWithoutAttendanceRecordsInput = {
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -6405,6 +7088,10 @@ export type UserCreateWithoutMarkedAttendanceInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -6459,6 +7146,9 @@ export type UserCreateWithoutMarkedAttendanceInput = {
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutUserInput
+  institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
+  branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -6476,6 +7166,12 @@ export type UserUncheckedCreateWithoutMarkedAttendanceInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  instituteId?: string | null
+  branchId?: string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -6530,6 +7226,7 @@ export type UserUncheckedCreateWithoutMarkedAttendanceInput = {
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -6563,6 +7260,10 @@ export type UserUpdateWithoutAttendanceRecordsInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -6617,6 +7318,9 @@ export type UserUpdateWithoutAttendanceRecordsInput = {
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUpdateManyWithoutUserNestedInput
+  institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
+  branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -6634,6 +7338,12 @@ export type UserUncheckedUpdateWithoutAttendanceRecordsInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -6688,6 +7398,7 @@ export type UserUncheckedUpdateWithoutAttendanceRecordsInput = {
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -6716,6 +7427,10 @@ export type UserUpdateWithoutMarkedAttendanceInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -6770,6 +7485,9 @@ export type UserUpdateWithoutMarkedAttendanceInput = {
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUpdateManyWithoutUserNestedInput
+  institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
+  branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -6787,6 +7505,12 @@ export type UserUncheckedUpdateWithoutMarkedAttendanceInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -6841,6 +7565,7 @@ export type UserUncheckedUpdateWithoutMarkedAttendanceInput = {
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -6858,6 +7583,10 @@ export type UserCreateWithoutFacultyProfileInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -6912,6 +7641,9 @@ export type UserCreateWithoutFacultyProfileInput = {
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutUserInput
+  institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
+  branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -6929,6 +7661,12 @@ export type UserUncheckedCreateWithoutFacultyProfileInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  instituteId?: string | null
+  branchId?: string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -6983,6 +7721,7 @@ export type UserUncheckedCreateWithoutFacultyProfileInput = {
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -7016,6 +7755,10 @@ export type UserUpdateWithoutFacultyProfileInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -7070,6 +7813,9 @@ export type UserUpdateWithoutFacultyProfileInput = {
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUpdateManyWithoutUserNestedInput
+  institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
+  branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -7087,6 +7833,12 @@ export type UserUncheckedUpdateWithoutFacultyProfileInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -7141,6 +7893,7 @@ export type UserUncheckedUpdateWithoutFacultyProfileInput = {
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -7158,6 +7911,10 @@ export type UserCreateWithoutCommunicationAnnouncementsInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -7212,6 +7969,9 @@ export type UserCreateWithoutCommunicationAnnouncementsInput = {
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutUserInput
+  institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
+  branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -7229,6 +7989,12 @@ export type UserUncheckedCreateWithoutCommunicationAnnouncementsInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  instituteId?: string | null
+  branchId?: string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -7283,6 +8049,7 @@ export type UserUncheckedCreateWithoutCommunicationAnnouncementsInput = {
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -7316,6 +8083,10 @@ export type UserUpdateWithoutCommunicationAnnouncementsInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -7370,6 +8141,9 @@ export type UserUpdateWithoutCommunicationAnnouncementsInput = {
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUpdateManyWithoutUserNestedInput
+  institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
+  branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -7387,6 +8161,12 @@ export type UserUncheckedUpdateWithoutCommunicationAnnouncementsInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -7441,6 +8221,7 @@ export type UserUncheckedUpdateWithoutCommunicationAnnouncementsInput = {
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -7458,6 +8239,10 @@ export type UserCreateWithoutHostelAllocationsInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -7512,6 +8297,9 @@ export type UserCreateWithoutHostelAllocationsInput = {
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutUserInput
+  institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
+  branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -7529,6 +8317,12 @@ export type UserUncheckedCreateWithoutHostelAllocationsInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  instituteId?: string | null
+  branchId?: string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -7583,6 +8377,7 @@ export type UserUncheckedCreateWithoutHostelAllocationsInput = {
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -7616,6 +8411,10 @@ export type UserUpdateWithoutHostelAllocationsInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -7670,6 +8469,9 @@ export type UserUpdateWithoutHostelAllocationsInput = {
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUpdateManyWithoutUserNestedInput
+  institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
+  branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -7687,6 +8489,12 @@ export type UserUncheckedUpdateWithoutHostelAllocationsInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -7741,6 +8549,7 @@ export type UserUncheckedUpdateWithoutHostelAllocationsInput = {
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -7758,6 +8567,10 @@ export type UserCreateWithoutInOutEntriesInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -7812,6 +8625,9 @@ export type UserCreateWithoutInOutEntriesInput = {
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutUserInput
+  institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
+  branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -7829,6 +8645,12 @@ export type UserUncheckedCreateWithoutInOutEntriesInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  instituteId?: string | null
+  branchId?: string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -7883,6 +8705,7 @@ export type UserUncheckedCreateWithoutInOutEntriesInput = {
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -7916,6 +8739,10 @@ export type UserUpdateWithoutInOutEntriesInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -7970,6 +8797,9 @@ export type UserUpdateWithoutInOutEntriesInput = {
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUpdateManyWithoutUserNestedInput
+  institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
+  branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -7987,6 +8817,12 @@ export type UserUncheckedUpdateWithoutInOutEntriesInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -8041,6 +8877,7 @@ export type UserUncheckedUpdateWithoutInOutEntriesInput = {
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -8058,6 +8895,10 @@ export type UserCreateWithoutHostelLeavesInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -8112,6 +8953,9 @@ export type UserCreateWithoutHostelLeavesInput = {
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutUserInput
+  institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
+  branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -8129,6 +8973,12 @@ export type UserUncheckedCreateWithoutHostelLeavesInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  instituteId?: string | null
+  branchId?: string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -8183,6 +9033,7 @@ export type UserUncheckedCreateWithoutHostelLeavesInput = {
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -8205,6 +9056,10 @@ export type UserCreateWithoutApprovedHostelLeavesInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -8259,6 +9114,9 @@ export type UserCreateWithoutApprovedHostelLeavesInput = {
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutUserInput
+  institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
+  branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -8276,6 +9134,12 @@ export type UserUncheckedCreateWithoutApprovedHostelLeavesInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  instituteId?: string | null
+  branchId?: string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -8330,6 +9194,7 @@ export type UserUncheckedCreateWithoutApprovedHostelLeavesInput = {
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -8363,6 +9228,10 @@ export type UserUpdateWithoutHostelLeavesInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -8417,6 +9286,9 @@ export type UserUpdateWithoutHostelLeavesInput = {
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUpdateManyWithoutUserNestedInput
+  institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
+  branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -8434,6 +9306,12 @@ export type UserUncheckedUpdateWithoutHostelLeavesInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -8488,6 +9366,7 @@ export type UserUncheckedUpdateWithoutHostelLeavesInput = {
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -8516,6 +9395,10 @@ export type UserUpdateWithoutApprovedHostelLeavesInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -8570,6 +9453,9 @@ export type UserUpdateWithoutApprovedHostelLeavesInput = {
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUpdateManyWithoutUserNestedInput
+  institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
+  branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -8587,6 +9473,12 @@ export type UserUncheckedUpdateWithoutApprovedHostelLeavesInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -8641,6 +9533,7 @@ export type UserUncheckedUpdateWithoutApprovedHostelLeavesInput = {
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -8658,6 +9551,10 @@ export type UserCreateWithoutDisciplineRecordsInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -8712,6 +9609,9 @@ export type UserCreateWithoutDisciplineRecordsInput = {
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutUserInput
+  institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
+  branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -8729,6 +9629,12 @@ export type UserUncheckedCreateWithoutDisciplineRecordsInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  instituteId?: string | null
+  branchId?: string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -8783,6 +9689,7 @@ export type UserUncheckedCreateWithoutDisciplineRecordsInput = {
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -8805,6 +9712,10 @@ export type UserCreateWithoutRecordedDisciplineInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -8859,6 +9770,9 @@ export type UserCreateWithoutRecordedDisciplineInput = {
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutUserInput
+  institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
+  branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -8876,6 +9790,12 @@ export type UserUncheckedCreateWithoutRecordedDisciplineInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  instituteId?: string | null
+  branchId?: string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -8930,6 +9850,7 @@ export type UserUncheckedCreateWithoutRecordedDisciplineInput = {
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -8963,6 +9884,10 @@ export type UserUpdateWithoutDisciplineRecordsInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -9017,6 +9942,9 @@ export type UserUpdateWithoutDisciplineRecordsInput = {
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUpdateManyWithoutUserNestedInput
+  institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
+  branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -9034,6 +9962,12 @@ export type UserUncheckedUpdateWithoutDisciplineRecordsInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -9088,6 +10022,7 @@ export type UserUncheckedUpdateWithoutDisciplineRecordsInput = {
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -9116,6 +10051,10 @@ export type UserUpdateWithoutRecordedDisciplineInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -9170,6 +10109,9 @@ export type UserUpdateWithoutRecordedDisciplineInput = {
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUpdateManyWithoutUserNestedInput
+  institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
+  branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -9187,6 +10129,12 @@ export type UserUncheckedUpdateWithoutRecordedDisciplineInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -9241,6 +10189,7 @@ export type UserUncheckedUpdateWithoutRecordedDisciplineInput = {
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -9258,6 +10207,10 @@ export type UserCreateWithoutParadePerformancesInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -9312,6 +10265,9 @@ export type UserCreateWithoutParadePerformancesInput = {
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutUserInput
+  institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
+  branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -9329,6 +10285,12 @@ export type UserUncheckedCreateWithoutParadePerformancesInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  instituteId?: string | null
+  branchId?: string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -9383,6 +10345,7 @@ export type UserUncheckedCreateWithoutParadePerformancesInput = {
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -9416,6 +10379,10 @@ export type UserUpdateWithoutParadePerformancesInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -9470,6 +10437,9 @@ export type UserUpdateWithoutParadePerformancesInput = {
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUpdateManyWithoutUserNestedInput
+  institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
+  branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -9487,6 +10457,12 @@ export type UserUncheckedUpdateWithoutParadePerformancesInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -9541,6 +10517,7 @@ export type UserUncheckedUpdateWithoutParadePerformancesInput = {
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -9558,6 +10535,10 @@ export type UserCreateWithoutAssignedLeadsInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -9612,6 +10593,9 @@ export type UserCreateWithoutAssignedLeadsInput = {
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutUserInput
+  institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
+  branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -9629,6 +10613,12 @@ export type UserUncheckedCreateWithoutAssignedLeadsInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  instituteId?: string | null
+  branchId?: string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -9683,6 +10673,7 @@ export type UserUncheckedCreateWithoutAssignedLeadsInput = {
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -9716,6 +10707,10 @@ export type UserUpdateWithoutAssignedLeadsInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -9770,6 +10765,9 @@ export type UserUpdateWithoutAssignedLeadsInput = {
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUpdateManyWithoutUserNestedInput
+  institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
+  branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -9787,6 +10785,12 @@ export type UserUncheckedUpdateWithoutAssignedLeadsInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -9841,6 +10845,7 @@ export type UserUncheckedUpdateWithoutAssignedLeadsInput = {
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -9858,6 +10863,10 @@ export type UserCreateWithoutFollowUpsCreatedInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -9912,6 +10921,9 @@ export type UserCreateWithoutFollowUpsCreatedInput = {
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutUserInput
+  institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
+  branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -9929,6 +10941,12 @@ export type UserUncheckedCreateWithoutFollowUpsCreatedInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  instituteId?: string | null
+  branchId?: string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -9983,6 +11001,7 @@ export type UserUncheckedCreateWithoutFollowUpsCreatedInput = {
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -10016,6 +11035,10 @@ export type UserUpdateWithoutFollowUpsCreatedInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -10070,6 +11093,9 @@ export type UserUpdateWithoutFollowUpsCreatedInput = {
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUpdateManyWithoutUserNestedInput
+  institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
+  branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -10087,6 +11113,12 @@ export type UserUncheckedUpdateWithoutFollowUpsCreatedInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -10141,6 +11173,7 @@ export type UserUncheckedUpdateWithoutFollowUpsCreatedInput = {
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -10158,6 +11191,10 @@ export type UserCreateWithoutAdmissionsInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -10212,6 +11249,9 @@ export type UserCreateWithoutAdmissionsInput = {
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutUserInput
+  institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
+  branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -10229,6 +11269,12 @@ export type UserUncheckedCreateWithoutAdmissionsInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  instituteId?: string | null
+  branchId?: string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -10283,6 +11329,7 @@ export type UserUncheckedCreateWithoutAdmissionsInput = {
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -10316,6 +11363,10 @@ export type UserUpdateWithoutAdmissionsInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -10370,6 +11421,9 @@ export type UserUpdateWithoutAdmissionsInput = {
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUpdateManyWithoutUserNestedInput
+  institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
+  branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -10387,6 +11441,12 @@ export type UserUncheckedUpdateWithoutAdmissionsInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -10441,6 +11501,7 @@ export type UserUncheckedUpdateWithoutAdmissionsInput = {
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -10458,6 +11519,10 @@ export type UserCreateWithoutReferralsMadeInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -10512,6 +11577,9 @@ export type UserCreateWithoutReferralsMadeInput = {
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutUserInput
+  institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
+  branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -10529,6 +11597,12 @@ export type UserUncheckedCreateWithoutReferralsMadeInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  instituteId?: string | null
+  branchId?: string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -10583,6 +11657,7 @@ export type UserUncheckedCreateWithoutReferralsMadeInput = {
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -10605,6 +11680,10 @@ export type UserCreateWithoutReferralsReceivedInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -10659,6 +11738,9 @@ export type UserCreateWithoutReferralsReceivedInput = {
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutUserInput
+  institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
+  branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -10676,6 +11758,12 @@ export type UserUncheckedCreateWithoutReferralsReceivedInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  instituteId?: string | null
+  branchId?: string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -10730,6 +11818,7 @@ export type UserUncheckedCreateWithoutReferralsReceivedInput = {
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -10763,6 +11852,10 @@ export type UserUpdateWithoutReferralsMadeInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -10817,6 +11910,9 @@ export type UserUpdateWithoutReferralsMadeInput = {
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUpdateManyWithoutUserNestedInput
+  institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
+  branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -10834,6 +11930,12 @@ export type UserUncheckedUpdateWithoutReferralsMadeInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -10888,6 +11990,7 @@ export type UserUncheckedUpdateWithoutReferralsMadeInput = {
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -10916,6 +12019,10 @@ export type UserUpdateWithoutReferralsReceivedInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -10970,6 +12077,9 @@ export type UserUpdateWithoutReferralsReceivedInput = {
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUpdateManyWithoutUserNestedInput
+  institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
+  branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -10987,6 +12097,12 @@ export type UserUncheckedUpdateWithoutReferralsReceivedInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -11041,6 +12157,7 @@ export type UserUncheckedUpdateWithoutReferralsReceivedInput = {
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -11058,6 +12175,10 @@ export type UserCreateWithoutPaymentsInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -11112,6 +12233,9 @@ export type UserCreateWithoutPaymentsInput = {
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutUserInput
+  institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
+  branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -11129,6 +12253,12 @@ export type UserUncheckedCreateWithoutPaymentsInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  instituteId?: string | null
+  branchId?: string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -11183,6 +12313,7 @@ export type UserUncheckedCreateWithoutPaymentsInput = {
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -11216,6 +12347,10 @@ export type UserUpdateWithoutPaymentsInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -11270,6 +12405,9 @@ export type UserUpdateWithoutPaymentsInput = {
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUpdateManyWithoutUserNestedInput
+  institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
+  branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -11287,6 +12425,12 @@ export type UserUncheckedUpdateWithoutPaymentsInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -11341,6 +12485,7 @@ export type UserUncheckedUpdateWithoutPaymentsInput = {
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -11358,6 +12503,10 @@ export type UserCreateWithoutSubscriptionsInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -11412,6 +12561,9 @@ export type UserCreateWithoutSubscriptionsInput = {
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutUserInput
+  institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
+  branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -11429,6 +12581,12 @@ export type UserUncheckedCreateWithoutSubscriptionsInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  instituteId?: string | null
+  branchId?: string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -11483,6 +12641,7 @@ export type UserUncheckedCreateWithoutSubscriptionsInput = {
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -11516,6 +12675,10 @@ export type UserUpdateWithoutSubscriptionsInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -11570,6 +12733,9 @@ export type UserUpdateWithoutSubscriptionsInput = {
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUpdateManyWithoutUserNestedInput
+  institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
+  branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -11587,6 +12753,12 @@ export type UserUncheckedUpdateWithoutSubscriptionsInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -11641,6 +12813,7 @@ export type UserUncheckedUpdateWithoutSubscriptionsInput = {
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -11658,6 +12831,10 @@ export type UserCreateWithoutFeeInstallmentsInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -11712,6 +12889,9 @@ export type UserCreateWithoutFeeInstallmentsInput = {
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutUserInput
+  institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
+  branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -11729,6 +12909,12 @@ export type UserUncheckedCreateWithoutFeeInstallmentsInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  instituteId?: string | null
+  branchId?: string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -11783,6 +12969,7 @@ export type UserUncheckedCreateWithoutFeeInstallmentsInput = {
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -11816,6 +13003,10 @@ export type UserUpdateWithoutFeeInstallmentsInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -11870,6 +13061,9 @@ export type UserUpdateWithoutFeeInstallmentsInput = {
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUpdateManyWithoutUserNestedInput
+  institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
+  branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -11887,6 +13081,12 @@ export type UserUncheckedUpdateWithoutFeeInstallmentsInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -11941,6 +13141,7 @@ export type UserUncheckedUpdateWithoutFeeInstallmentsInput = {
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -11958,6 +13159,10 @@ export type UserCreateWithoutInvoicesInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -12012,6 +13217,9 @@ export type UserCreateWithoutInvoicesInput = {
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutUserInput
+  institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
+  branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -12029,6 +13237,12 @@ export type UserUncheckedCreateWithoutInvoicesInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  instituteId?: string | null
+  branchId?: string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -12083,6 +13297,7 @@ export type UserUncheckedCreateWithoutInvoicesInput = {
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -12116,6 +13331,10 @@ export type UserUpdateWithoutInvoicesInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -12170,6 +13389,9 @@ export type UserUpdateWithoutInvoicesInput = {
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUpdateManyWithoutUserNestedInput
+  institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
+  branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -12187,6 +13409,12 @@ export type UserUncheckedUpdateWithoutInvoicesInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -12241,6 +13469,7 @@ export type UserUncheckedUpdateWithoutInvoicesInput = {
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -12258,6 +13487,10 @@ export type UserCreateWithoutNotificationsInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -12312,6 +13545,9 @@ export type UserCreateWithoutNotificationsInput = {
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutUserInput
+  institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
+  branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -12329,6 +13565,12 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  instituteId?: string | null
+  branchId?: string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -12383,6 +13625,7 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -12416,6 +13659,10 @@ export type UserUpdateWithoutNotificationsInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -12470,6 +13717,9 @@ export type UserUpdateWithoutNotificationsInput = {
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUpdateManyWithoutUserNestedInput
+  institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
+  branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -12487,6 +13737,12 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -12541,6 +13797,7 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -12558,6 +13815,10 @@ export type UserCreateWithoutMessageThreadsInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -12612,6 +13873,9 @@ export type UserCreateWithoutMessageThreadsInput = {
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutUserInput
+  institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
+  branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -12629,6 +13893,12 @@ export type UserUncheckedCreateWithoutMessageThreadsInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  instituteId?: string | null
+  branchId?: string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -12683,6 +13953,7 @@ export type UserUncheckedCreateWithoutMessageThreadsInput = {
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -12716,6 +13987,10 @@ export type UserUpdateWithoutMessageThreadsInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -12770,6 +14045,9 @@ export type UserUpdateWithoutMessageThreadsInput = {
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUpdateManyWithoutUserNestedInput
+  institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
+  branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -12787,6 +14065,12 @@ export type UserUncheckedUpdateWithoutMessageThreadsInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -12841,6 +14125,7 @@ export type UserUncheckedUpdateWithoutMessageThreadsInput = {
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -12858,6 +14143,10 @@ export type UserCreateWithoutSentMessagesInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -12912,6 +14201,9 @@ export type UserCreateWithoutSentMessagesInput = {
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutUserInput
+  institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
+  branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -12929,6 +14221,12 @@ export type UserUncheckedCreateWithoutSentMessagesInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  instituteId?: string | null
+  branchId?: string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -12983,6 +14281,7 @@ export type UserUncheckedCreateWithoutSentMessagesInput = {
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -13005,6 +14304,10 @@ export type UserCreateWithoutReceivedMessagesInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -13059,6 +14362,9 @@ export type UserCreateWithoutReceivedMessagesInput = {
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutUserInput
+  institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
+  branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -13076,6 +14382,12 @@ export type UserUncheckedCreateWithoutReceivedMessagesInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  instituteId?: string | null
+  branchId?: string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -13130,6 +14442,7 @@ export type UserUncheckedCreateWithoutReceivedMessagesInput = {
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -13163,6 +14476,10 @@ export type UserUpdateWithoutSentMessagesInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -13217,6 +14534,9 @@ export type UserUpdateWithoutSentMessagesInput = {
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUpdateManyWithoutUserNestedInput
+  institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
+  branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -13234,6 +14554,12 @@ export type UserUncheckedUpdateWithoutSentMessagesInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -13288,6 +14614,7 @@ export type UserUncheckedUpdateWithoutSentMessagesInput = {
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -13316,6 +14643,10 @@ export type UserUpdateWithoutReceivedMessagesInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -13370,6 +14701,9 @@ export type UserUpdateWithoutReceivedMessagesInput = {
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUpdateManyWithoutUserNestedInput
+  institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
+  branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -13387,6 +14721,12 @@ export type UserUncheckedUpdateWithoutReceivedMessagesInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -13441,6 +14781,7 @@ export type UserUncheckedUpdateWithoutReceivedMessagesInput = {
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -13458,6 +14799,10 @@ export type UserCreateWithoutAiInterviewSessionsInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -13512,6 +14857,9 @@ export type UserCreateWithoutAiInterviewSessionsInput = {
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutUserInput
+  institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
+  branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -13529,6 +14877,12 @@ export type UserUncheckedCreateWithoutAiInterviewSessionsInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  instituteId?: string | null
+  branchId?: string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -13583,6 +14937,7 @@ export type UserUncheckedCreateWithoutAiInterviewSessionsInput = {
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -13616,6 +14971,10 @@ export type UserUpdateWithoutAiInterviewSessionsInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -13670,6 +15029,9 @@ export type UserUpdateWithoutAiInterviewSessionsInput = {
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUpdateManyWithoutUserNestedInput
+  institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
+  branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -13687,6 +15049,12 @@ export type UserUncheckedUpdateWithoutAiInterviewSessionsInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -13741,6 +15109,7 @@ export type UserUncheckedUpdateWithoutAiInterviewSessionsInput = {
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -13758,6 +15127,10 @@ export type UserCreateWithoutDoubtQueriesInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -13812,6 +15185,9 @@ export type UserCreateWithoutDoubtQueriesInput = {
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutUserInput
+  institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
+  branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -13829,6 +15205,12 @@ export type UserUncheckedCreateWithoutDoubtQueriesInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  instituteId?: string | null
+  branchId?: string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -13883,6 +15265,7 @@ export type UserUncheckedCreateWithoutDoubtQueriesInput = {
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -13916,6 +15299,10 @@ export type UserUpdateWithoutDoubtQueriesInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -13970,6 +15357,9 @@ export type UserUpdateWithoutDoubtQueriesInput = {
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUpdateManyWithoutUserNestedInput
+  institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
+  branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -13987,6 +15377,12 @@ export type UserUncheckedUpdateWithoutDoubtQueriesInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -14041,6 +15437,7 @@ export type UserUncheckedUpdateWithoutDoubtQueriesInput = {
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -14058,6 +15455,10 @@ export type UserCreateWithoutAiRecommendationsInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -14112,6 +15513,9 @@ export type UserCreateWithoutAiRecommendationsInput = {
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutUserInput
+  institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
+  branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -14129,6 +15533,12 @@ export type UserUncheckedCreateWithoutAiRecommendationsInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  instituteId?: string | null
+  branchId?: string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -14183,6 +15593,7 @@ export type UserUncheckedCreateWithoutAiRecommendationsInput = {
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -14216,6 +15627,10 @@ export type UserUpdateWithoutAiRecommendationsInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -14270,6 +15685,9 @@ export type UserUpdateWithoutAiRecommendationsInput = {
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUpdateManyWithoutUserNestedInput
+  institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
+  branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -14287,6 +15705,12 @@ export type UserUncheckedUpdateWithoutAiRecommendationsInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -14341,6 +15765,7 @@ export type UserUncheckedUpdateWithoutAiRecommendationsInput = {
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -14358,6 +15783,10 @@ export type UserCreateWithoutOfficerPotentialInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -14412,6 +15841,9 @@ export type UserCreateWithoutOfficerPotentialInput = {
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutUserInput
+  institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
+  branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -14429,6 +15861,12 @@ export type UserUncheckedCreateWithoutOfficerPotentialInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  instituteId?: string | null
+  branchId?: string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -14483,6 +15921,7 @@ export type UserUncheckedCreateWithoutOfficerPotentialInput = {
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -14516,6 +15955,10 @@ export type UserUpdateWithoutOfficerPotentialInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -14570,6 +16013,9 @@ export type UserUpdateWithoutOfficerPotentialInput = {
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUpdateManyWithoutUserNestedInput
+  institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
+  branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -14587,6 +16033,12 @@ export type UserUncheckedUpdateWithoutOfficerPotentialInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -14641,6 +16093,7 @@ export type UserUncheckedUpdateWithoutOfficerPotentialInput = {
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -14658,6 +16111,10 @@ export type UserCreateWithoutFitnessProfileInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -14712,6 +16169,9 @@ export type UserCreateWithoutFitnessProfileInput = {
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutUserInput
+  institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
+  branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -14729,6 +16189,12 @@ export type UserUncheckedCreateWithoutFitnessProfileInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  instituteId?: string | null
+  branchId?: string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -14783,6 +16249,7 @@ export type UserUncheckedCreateWithoutFitnessProfileInput = {
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -14816,6 +16283,10 @@ export type UserUpdateWithoutFitnessProfileInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -14870,6 +16341,9 @@ export type UserUpdateWithoutFitnessProfileInput = {
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUpdateManyWithoutUserNestedInput
+  institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
+  branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -14887,6 +16361,12 @@ export type UserUncheckedUpdateWithoutFitnessProfileInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -14941,6 +16421,7 @@ export type UserUncheckedUpdateWithoutFitnessProfileInput = {
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -14958,6 +16439,10 @@ export type UserCreateWithoutPtAttendancesInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -15012,6 +16497,9 @@ export type UserCreateWithoutPtAttendancesInput = {
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutUserInput
+  institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
+  branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -15029,6 +16517,12 @@ export type UserUncheckedCreateWithoutPtAttendancesInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  instituteId?: string | null
+  branchId?: string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -15083,6 +16577,7 @@ export type UserUncheckedCreateWithoutPtAttendancesInput = {
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -15116,6 +16611,10 @@ export type UserUpdateWithoutPtAttendancesInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -15170,6 +16669,9 @@ export type UserUpdateWithoutPtAttendancesInput = {
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUpdateManyWithoutUserNestedInput
+  institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
+  branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -15187,6 +16689,12 @@ export type UserUncheckedUpdateWithoutPtAttendancesInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -15241,6 +16749,7 @@ export type UserUncheckedUpdateWithoutPtAttendancesInput = {
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -15258,6 +16767,10 @@ export type UserCreateWithoutPhysicalEligibilitiesInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -15312,6 +16825,9 @@ export type UserCreateWithoutPhysicalEligibilitiesInput = {
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutUserInput
+  institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
+  branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -15329,6 +16845,12 @@ export type UserUncheckedCreateWithoutPhysicalEligibilitiesInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  instituteId?: string | null
+  branchId?: string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -15383,6 +16905,7 @@ export type UserUncheckedCreateWithoutPhysicalEligibilitiesInput = {
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -15416,6 +16939,10 @@ export type UserUpdateWithoutPhysicalEligibilitiesInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -15470,6 +16997,9 @@ export type UserUpdateWithoutPhysicalEligibilitiesInput = {
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUpdateManyWithoutUserNestedInput
+  institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
+  branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -15487,6 +17017,12 @@ export type UserUncheckedUpdateWithoutPhysicalEligibilitiesInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -15541,6 +17077,7 @@ export type UserUncheckedUpdateWithoutPhysicalEligibilitiesInput = {
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -15558,6 +17095,10 @@ export type UserCreateWithoutDailyFitnessLogsInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -15612,6 +17153,9 @@ export type UserCreateWithoutDailyFitnessLogsInput = {
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutUserInput
+  institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
+  branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -15629,6 +17173,12 @@ export type UserUncheckedCreateWithoutDailyFitnessLogsInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  instituteId?: string | null
+  branchId?: string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -15683,6 +17233,7 @@ export type UserUncheckedCreateWithoutDailyFitnessLogsInput = {
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -15716,6 +17267,10 @@ export type UserUpdateWithoutDailyFitnessLogsInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -15770,6 +17325,9 @@ export type UserUpdateWithoutDailyFitnessLogsInput = {
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUpdateManyWithoutUserNestedInput
+  institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
+  branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -15787,6 +17345,12 @@ export type UserUncheckedUpdateWithoutDailyFitnessLogsInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -15841,6 +17405,7 @@ export type UserUncheckedUpdateWithoutDailyFitnessLogsInput = {
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -15858,6 +17423,10 @@ export type UserCreateWithoutQuizBattleParticipantsInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -15912,6 +17481,9 @@ export type UserCreateWithoutQuizBattleParticipantsInput = {
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutUserInput
+  institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
+  branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -15929,6 +17501,12 @@ export type UserUncheckedCreateWithoutQuizBattleParticipantsInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  instituteId?: string | null
+  branchId?: string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -15983,6 +17561,7 @@ export type UserUncheckedCreateWithoutQuizBattleParticipantsInput = {
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -16016,6 +17595,10 @@ export type UserUpdateWithoutQuizBattleParticipantsInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -16070,6 +17653,9 @@ export type UserUpdateWithoutQuizBattleParticipantsInput = {
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUpdateManyWithoutUserNestedInput
+  institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
+  branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -16087,6 +17673,12 @@ export type UserUncheckedUpdateWithoutQuizBattleParticipantsInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -16141,6 +17733,7 @@ export type UserUncheckedUpdateWithoutQuizBattleParticipantsInput = {
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -16158,6 +17751,10 @@ export type UserCreateWithoutLeaderboardInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -16212,6 +17809,9 @@ export type UserCreateWithoutLeaderboardInput = {
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutUserInput
+  institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
+  branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -16229,6 +17829,12 @@ export type UserUncheckedCreateWithoutLeaderboardInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  instituteId?: string | null
+  branchId?: string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -16283,6 +17889,7 @@ export type UserUncheckedCreateWithoutLeaderboardInput = {
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -16316,6 +17923,10 @@ export type UserUpdateWithoutLeaderboardInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -16370,6 +17981,9 @@ export type UserUpdateWithoutLeaderboardInput = {
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUpdateManyWithoutUserNestedInput
+  institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
+  branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -16387,6 +18001,12 @@ export type UserUncheckedUpdateWithoutLeaderboardInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -16441,6 +18061,7 @@ export type UserUncheckedUpdateWithoutLeaderboardInput = {
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -16458,6 +18079,10 @@ export type UserCreateWithoutMediaFoldersInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -16512,6 +18137,9 @@ export type UserCreateWithoutMediaFoldersInput = {
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutUserInput
+  institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
+  branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -16529,6 +18157,12 @@ export type UserUncheckedCreateWithoutMediaFoldersInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  instituteId?: string | null
+  branchId?: string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -16583,6 +18217,7 @@ export type UserUncheckedCreateWithoutMediaFoldersInput = {
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -16616,6 +18251,10 @@ export type UserUpdateWithoutMediaFoldersInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -16670,6 +18309,9 @@ export type UserUpdateWithoutMediaFoldersInput = {
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUpdateManyWithoutUserNestedInput
+  institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
+  branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -16687,6 +18329,12 @@ export type UserUncheckedUpdateWithoutMediaFoldersInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -16741,6 +18389,7 @@ export type UserUncheckedUpdateWithoutMediaFoldersInput = {
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -16758,6 +18407,10 @@ export type UserCreateWithoutMediaFilesInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -16812,6 +18465,9 @@ export type UserCreateWithoutMediaFilesInput = {
   mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutUserInput
+  institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
+  branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -16829,6 +18485,12 @@ export type UserUncheckedCreateWithoutMediaFilesInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  instituteId?: string | null
+  branchId?: string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -16883,6 +18545,7 @@ export type UserUncheckedCreateWithoutMediaFilesInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -16916,6 +18579,10 @@ export type UserUpdateWithoutMediaFilesInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -16970,6 +18637,9 @@ export type UserUpdateWithoutMediaFilesInput = {
   mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUpdateManyWithoutUserNestedInput
+  institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
+  branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -16987,6 +18657,12 @@ export type UserUncheckedUpdateWithoutMediaFilesInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -17041,6 +18717,7 @@ export type UserUncheckedUpdateWithoutMediaFilesInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -17058,6 +18735,10 @@ export type UserCreateWithoutDocumentsInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -17112,6 +18793,9 @@ export type UserCreateWithoutDocumentsInput = {
   mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutUserInput
+  institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
+  branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -17129,6 +18813,12 @@ export type UserUncheckedCreateWithoutDocumentsInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  instituteId?: string | null
+  branchId?: string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -17183,6 +18873,7 @@ export type UserUncheckedCreateWithoutDocumentsInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -17216,6 +18907,10 @@ export type UserUpdateWithoutDocumentsInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -17270,6 +18965,9 @@ export type UserUpdateWithoutDocumentsInput = {
   mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUpdateManyWithoutUserNestedInput
+  institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
+  branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -17287,6 +18985,12 @@ export type UserUncheckedUpdateWithoutDocumentsInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -17341,6 +19045,7 @@ export type UserUncheckedUpdateWithoutDocumentsInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -17358,6 +19063,10 @@ export type UserCreateWithoutAdminRolesInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -17412,6 +19121,9 @@ export type UserCreateWithoutAdminRolesInput = {
   mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
+  roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutUserInput
+  institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
+  branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -17429,6 +19141,12 @@ export type UserUncheckedCreateWithoutAdminRolesInput = {
   mobile: string
   password: string
   role?: $Enums.Role
+  instituteId?: string | null
+  branchId?: string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -17483,6 +19201,7 @@ export type UserUncheckedCreateWithoutAdminRolesInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
+  roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -17516,6 +19235,10 @@ export type UserUpdateWithoutAdminRolesInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -17570,6 +19293,9 @@ export type UserUpdateWithoutAdminRolesInput = {
   mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
+  roleActivities?: Prisma.RoleActivityUpdateManyWithoutUserNestedInput
+  institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
+  branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -17587,6 +19313,12 @@ export type UserUncheckedUpdateWithoutAdminRolesInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -17641,6 +19373,7 @@ export type UserUncheckedUpdateWithoutAdminRolesInput = {
   mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
+  roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -17651,13 +19384,17 @@ export type UserUncheckedUpdateWithoutAdminRolesInput = {
   studentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutStudentNestedInput
 }
 
-export type UserCreateWithoutAuditLogsInput = {
+export type UserCreateWithoutRoleActivitiesInput = {
   id?: string
   name: string
   email: string
   mobile: string
   password: string
   role?: $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -17713,6 +19450,9 @@ export type UserCreateWithoutAuditLogsInput = {
   mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
+  branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
   authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
@@ -17722,13 +19462,19 @@ export type UserCreateWithoutAuditLogsInput = {
   studentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutStudentInput
 }
 
-export type UserUncheckedCreateWithoutAuditLogsInput = {
+export type UserUncheckedCreateWithoutRoleActivitiesInput = {
   id?: string
   name: string
   email: string
   mobile: string
   password: string
   role?: $Enums.Role
+  instituteId?: string | null
+  branchId?: string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -17784,6 +19530,7 @@ export type UserUncheckedCreateWithoutAuditLogsInput = {
   mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
   authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
@@ -17793,29 +19540,33 @@ export type UserUncheckedCreateWithoutAuditLogsInput = {
   studentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutStudentInput
 }
 
-export type UserCreateOrConnectWithoutAuditLogsInput = {
+export type UserCreateOrConnectWithoutRoleActivitiesInput = {
   where: Prisma.UserWhereUniqueInput
-  create: Prisma.XOR<Prisma.UserCreateWithoutAuditLogsInput, Prisma.UserUncheckedCreateWithoutAuditLogsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutRoleActivitiesInput, Prisma.UserUncheckedCreateWithoutRoleActivitiesInput>
 }
 
-export type UserUpsertWithoutAuditLogsInput = {
-  update: Prisma.XOR<Prisma.UserUpdateWithoutAuditLogsInput, Prisma.UserUncheckedUpdateWithoutAuditLogsInput>
-  create: Prisma.XOR<Prisma.UserCreateWithoutAuditLogsInput, Prisma.UserUncheckedCreateWithoutAuditLogsInput>
+export type UserUpsertWithoutRoleActivitiesInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutRoleActivitiesInput, Prisma.UserUncheckedUpdateWithoutRoleActivitiesInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutRoleActivitiesInput, Prisma.UserUncheckedCreateWithoutRoleActivitiesInput>
   where?: Prisma.UserWhereInput
 }
 
-export type UserUpdateToOneWithWhereWithoutAuditLogsInput = {
+export type UserUpdateToOneWithWhereWithoutRoleActivitiesInput = {
   where?: Prisma.UserWhereInput
-  data: Prisma.XOR<Prisma.UserUpdateWithoutAuditLogsInput, Prisma.UserUncheckedUpdateWithoutAuditLogsInput>
+  data: Prisma.XOR<Prisma.UserUpdateWithoutRoleActivitiesInput, Prisma.UserUncheckedUpdateWithoutRoleActivitiesInput>
 }
 
-export type UserUpdateWithoutAuditLogsInput = {
+export type UserUpdateWithoutRoleActivitiesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -17871,6 +19622,9 @@ export type UserUpdateWithoutAuditLogsInput = {
   mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
+  branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
   authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
@@ -17880,13 +19634,19 @@ export type UserUpdateWithoutAuditLogsInput = {
   studentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutStudentNestedInput
 }
 
-export type UserUncheckedUpdateWithoutAuditLogsInput = {
+export type UserUncheckedUpdateWithoutRoleActivitiesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -17942,6 +19702,7 @@ export type UserUncheckedUpdateWithoutAuditLogsInput = {
   mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
   authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
@@ -17949,6 +19710,1129 @@ export type UserUncheckedUpdateWithoutAuditLogsInput = {
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutParentNestedInput
   studentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutStudentNestedInput
+}
+
+export type UserCreateWithoutAuditLogsInput = {
+  id?: string
+  name: string
+  email: string
+  mobile: string
+  password: string
+  role?: $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
+  emailVerified?: boolean
+  mobileVerified?: boolean
+  isDisabled?: boolean
+  disabledAt?: Date | string | null
+  loginFailureCount?: number
+  lockedUntil?: Date | string | null
+  lastLoginAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
+  testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
+  psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
+  olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
+  studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
+  performanceAnalytics?: Prisma.PerformanceAnalyticsCreateNestedOneWithoutUserInput
+  revisionSchedules?: Prisma.RevisionScheduleCreateNestedManyWithoutUserInput
+  lectureProgress?: Prisma.LectureProgressCreateNestedManyWithoutUserInput
+  attendanceRecords?: Prisma.AttendanceCreateNestedManyWithoutUserInput
+  markedAttendance?: Prisma.AttendanceCreateNestedManyWithoutMarkerInput
+  facultyProfile?: Prisma.FacultyCreateNestedOneWithoutUserInput
+  hostelAllocations?: Prisma.HostelAllocationCreateNestedManyWithoutStudentInput
+  inOutEntries?: Prisma.InOutEntryCreateNestedManyWithoutStudentInput
+  hostelLeaves?: Prisma.HostelLeaveCreateNestedManyWithoutStudentInput
+  approvedHostelLeaves?: Prisma.HostelLeaveCreateNestedManyWithoutApproverInput
+  disciplineRecords?: Prisma.DisciplineRecordCreateNestedManyWithoutStudentInput
+  recordedDiscipline?: Prisma.DisciplineRecordCreateNestedManyWithoutRecorderInput
+  paradePerformances?: Prisma.ParadePerformanceCreateNestedManyWithoutStudentInput
+  assignedLeads?: Prisma.LeadCreateNestedManyWithoutAssigneeInput
+  followUpsCreated?: Prisma.FollowUpCreateNestedManyWithoutCreatorInput
+  admissions?: Prisma.AdmissionCreateNestedManyWithoutStudentInput
+  referralsMade?: Prisma.ReferralCreateNestedManyWithoutReferrerInput
+  referralsReceived?: Prisma.ReferralCreateNestedManyWithoutReferredInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutUserInput
+  subscriptions?: Prisma.SubscriptionCreateNestedManyWithoutUserInput
+  feeInstallments?: Prisma.FeeInstallmentCreateNestedManyWithoutStudentInput
+  invoices?: Prisma.InvoiceCreateNestedManyWithoutStudentInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  messageThreads?: Prisma.MessageThreadCreateNestedManyWithoutCreatorInput
+  sentMessages?: Prisma.MessageCreateNestedManyWithoutSenderInput
+  receivedMessages?: Prisma.MessageCreateNestedManyWithoutReceiverInput
+  communicationAnnouncements?: Prisma.AnnouncementCreateNestedManyWithoutCreatorInput
+  aiInterviewSessions?: Prisma.AIInterviewSessionCreateNestedManyWithoutUserInput
+  doubtQueries?: Prisma.DoubtQueryCreateNestedManyWithoutUserInput
+  aiRecommendations?: Prisma.AIRecommendationCreateNestedManyWithoutUserInput
+  officerPotential?: Prisma.OfficerPotentialCreateNestedOneWithoutUserInput
+  fitnessProfile?: Prisma.FitnessProfileCreateNestedOneWithoutUserInput
+  ptAttendances?: Prisma.PTAttendanceCreateNestedManyWithoutStudentInput
+  physicalEligibilities?: Prisma.PhysicalEligibilityCreateNestedManyWithoutUserInput
+  dailyFitnessLogs?: Prisma.DailyFitnessLogCreateNestedManyWithoutUserInput
+  quizBattleParticipants?: Prisma.QuizBattleParticipantCreateNestedManyWithoutUserInput
+  leaderboard?: Prisma.LeaderboardCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutUserInput
+  institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
+  branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
+  authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
+  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
+  parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
+  parentInvitationsReceived?: Prisma.ParentStudentInvitationCreateNestedManyWithoutStudentInput
+  parentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutParentInput
+  studentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutStudentInput
+}
+
+export type UserUncheckedCreateWithoutAuditLogsInput = {
+  id?: string
+  name: string
+  email: string
+  mobile: string
+  password: string
+  role?: $Enums.Role
+  instituteId?: string | null
+  branchId?: string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
+  emailVerified?: boolean
+  mobileVerified?: boolean
+  isDisabled?: boolean
+  disabledAt?: Date | string | null
+  loginFailureCount?: number
+  lockedUntil?: Date | string | null
+  lastLoginAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
+  testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
+  psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
+  olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
+  studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
+  performanceAnalytics?: Prisma.PerformanceAnalyticsUncheckedCreateNestedOneWithoutUserInput
+  revisionSchedules?: Prisma.RevisionScheduleUncheckedCreateNestedManyWithoutUserInput
+  lectureProgress?: Prisma.LectureProgressUncheckedCreateNestedManyWithoutUserInput
+  attendanceRecords?: Prisma.AttendanceUncheckedCreateNestedManyWithoutUserInput
+  markedAttendance?: Prisma.AttendanceUncheckedCreateNestedManyWithoutMarkerInput
+  facultyProfile?: Prisma.FacultyUncheckedCreateNestedOneWithoutUserInput
+  hostelAllocations?: Prisma.HostelAllocationUncheckedCreateNestedManyWithoutStudentInput
+  inOutEntries?: Prisma.InOutEntryUncheckedCreateNestedManyWithoutStudentInput
+  hostelLeaves?: Prisma.HostelLeaveUncheckedCreateNestedManyWithoutStudentInput
+  approvedHostelLeaves?: Prisma.HostelLeaveUncheckedCreateNestedManyWithoutApproverInput
+  disciplineRecords?: Prisma.DisciplineRecordUncheckedCreateNestedManyWithoutStudentInput
+  recordedDiscipline?: Prisma.DisciplineRecordUncheckedCreateNestedManyWithoutRecorderInput
+  paradePerformances?: Prisma.ParadePerformanceUncheckedCreateNestedManyWithoutStudentInput
+  assignedLeads?: Prisma.LeadUncheckedCreateNestedManyWithoutAssigneeInput
+  followUpsCreated?: Prisma.FollowUpUncheckedCreateNestedManyWithoutCreatorInput
+  admissions?: Prisma.AdmissionUncheckedCreateNestedManyWithoutStudentInput
+  referralsMade?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferrerInput
+  referralsReceived?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferredInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutUserInput
+  subscriptions?: Prisma.SubscriptionUncheckedCreateNestedManyWithoutUserInput
+  feeInstallments?: Prisma.FeeInstallmentUncheckedCreateNestedManyWithoutStudentInput
+  invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutStudentInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  messageThreads?: Prisma.MessageThreadUncheckedCreateNestedManyWithoutCreatorInput
+  sentMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutSenderInput
+  receivedMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutReceiverInput
+  communicationAnnouncements?: Prisma.AnnouncementUncheckedCreateNestedManyWithoutCreatorInput
+  aiInterviewSessions?: Prisma.AIInterviewSessionUncheckedCreateNestedManyWithoutUserInput
+  doubtQueries?: Prisma.DoubtQueryUncheckedCreateNestedManyWithoutUserInput
+  aiRecommendations?: Prisma.AIRecommendationUncheckedCreateNestedManyWithoutUserInput
+  officerPotential?: Prisma.OfficerPotentialUncheckedCreateNestedOneWithoutUserInput
+  fitnessProfile?: Prisma.FitnessProfileUncheckedCreateNestedOneWithoutUserInput
+  ptAttendances?: Prisma.PTAttendanceUncheckedCreateNestedManyWithoutStudentInput
+  physicalEligibilities?: Prisma.PhysicalEligibilityUncheckedCreateNestedManyWithoutUserInput
+  dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedCreateNestedManyWithoutUserInput
+  quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedCreateNestedManyWithoutUserInput
+  leaderboard?: Prisma.LeaderboardUncheckedCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
+  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
+  parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
+  parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutStudentInput
+  parentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutParentInput
+  studentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutStudentInput
+}
+
+export type UserCreateOrConnectWithoutAuditLogsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutAuditLogsInput, Prisma.UserUncheckedCreateWithoutAuditLogsInput>
+}
+
+export type UserUpsertWithoutAuditLogsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutAuditLogsInput, Prisma.UserUncheckedUpdateWithoutAuditLogsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutAuditLogsInput, Prisma.UserUncheckedCreateWithoutAuditLogsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutAuditLogsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutAuditLogsInput, Prisma.UserUncheckedUpdateWithoutAuditLogsInput>
+}
+
+export type UserUpdateWithoutAuditLogsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  disabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
+  testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
+  psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
+  olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
+  studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
+  performanceAnalytics?: Prisma.PerformanceAnalyticsUpdateOneWithoutUserNestedInput
+  revisionSchedules?: Prisma.RevisionScheduleUpdateManyWithoutUserNestedInput
+  lectureProgress?: Prisma.LectureProgressUpdateManyWithoutUserNestedInput
+  attendanceRecords?: Prisma.AttendanceUpdateManyWithoutUserNestedInput
+  markedAttendance?: Prisma.AttendanceUpdateManyWithoutMarkerNestedInput
+  facultyProfile?: Prisma.FacultyUpdateOneWithoutUserNestedInput
+  hostelAllocations?: Prisma.HostelAllocationUpdateManyWithoutStudentNestedInput
+  inOutEntries?: Prisma.InOutEntryUpdateManyWithoutStudentNestedInput
+  hostelLeaves?: Prisma.HostelLeaveUpdateManyWithoutStudentNestedInput
+  approvedHostelLeaves?: Prisma.HostelLeaveUpdateManyWithoutApproverNestedInput
+  disciplineRecords?: Prisma.DisciplineRecordUpdateManyWithoutStudentNestedInput
+  recordedDiscipline?: Prisma.DisciplineRecordUpdateManyWithoutRecorderNestedInput
+  paradePerformances?: Prisma.ParadePerformanceUpdateManyWithoutStudentNestedInput
+  assignedLeads?: Prisma.LeadUpdateManyWithoutAssigneeNestedInput
+  followUpsCreated?: Prisma.FollowUpUpdateManyWithoutCreatorNestedInput
+  admissions?: Prisma.AdmissionUpdateManyWithoutStudentNestedInput
+  referralsMade?: Prisma.ReferralUpdateManyWithoutReferrerNestedInput
+  referralsReceived?: Prisma.ReferralUpdateManyWithoutReferredNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutUserNestedInput
+  subscriptions?: Prisma.SubscriptionUpdateManyWithoutUserNestedInput
+  feeInstallments?: Prisma.FeeInstallmentUpdateManyWithoutStudentNestedInput
+  invoices?: Prisma.InvoiceUpdateManyWithoutStudentNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  messageThreads?: Prisma.MessageThreadUpdateManyWithoutCreatorNestedInput
+  sentMessages?: Prisma.MessageUpdateManyWithoutSenderNestedInput
+  receivedMessages?: Prisma.MessageUpdateManyWithoutReceiverNestedInput
+  communicationAnnouncements?: Prisma.AnnouncementUpdateManyWithoutCreatorNestedInput
+  aiInterviewSessions?: Prisma.AIInterviewSessionUpdateManyWithoutUserNestedInput
+  doubtQueries?: Prisma.DoubtQueryUpdateManyWithoutUserNestedInput
+  aiRecommendations?: Prisma.AIRecommendationUpdateManyWithoutUserNestedInput
+  officerPotential?: Prisma.OfficerPotentialUpdateOneWithoutUserNestedInput
+  fitnessProfile?: Prisma.FitnessProfileUpdateOneWithoutUserNestedInput
+  ptAttendances?: Prisma.PTAttendanceUpdateManyWithoutStudentNestedInput
+  physicalEligibilities?: Prisma.PhysicalEligibilityUpdateManyWithoutUserNestedInput
+  dailyFitnessLogs?: Prisma.DailyFitnessLogUpdateManyWithoutUserNestedInput
+  quizBattleParticipants?: Prisma.QuizBattleParticipantUpdateManyWithoutUserNestedInput
+  leaderboard?: Prisma.LeaderboardUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUpdateManyWithoutUserNestedInput
+  institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
+  branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
+  authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
+  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
+  parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
+  parentInvitationsReceived?: Prisma.ParentStudentInvitationUpdateManyWithoutStudentNestedInput
+  parentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutParentNestedInput
+  studentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutStudentNestedInput
+}
+
+export type UserUncheckedUpdateWithoutAuditLogsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  disabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
+  testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
+  psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
+  olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
+  studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
+  performanceAnalytics?: Prisma.PerformanceAnalyticsUncheckedUpdateOneWithoutUserNestedInput
+  revisionSchedules?: Prisma.RevisionScheduleUncheckedUpdateManyWithoutUserNestedInput
+  lectureProgress?: Prisma.LectureProgressUncheckedUpdateManyWithoutUserNestedInput
+  attendanceRecords?: Prisma.AttendanceUncheckedUpdateManyWithoutUserNestedInput
+  markedAttendance?: Prisma.AttendanceUncheckedUpdateManyWithoutMarkerNestedInput
+  facultyProfile?: Prisma.FacultyUncheckedUpdateOneWithoutUserNestedInput
+  hostelAllocations?: Prisma.HostelAllocationUncheckedUpdateManyWithoutStudentNestedInput
+  inOutEntries?: Prisma.InOutEntryUncheckedUpdateManyWithoutStudentNestedInput
+  hostelLeaves?: Prisma.HostelLeaveUncheckedUpdateManyWithoutStudentNestedInput
+  approvedHostelLeaves?: Prisma.HostelLeaveUncheckedUpdateManyWithoutApproverNestedInput
+  disciplineRecords?: Prisma.DisciplineRecordUncheckedUpdateManyWithoutStudentNestedInput
+  recordedDiscipline?: Prisma.DisciplineRecordUncheckedUpdateManyWithoutRecorderNestedInput
+  paradePerformances?: Prisma.ParadePerformanceUncheckedUpdateManyWithoutStudentNestedInput
+  assignedLeads?: Prisma.LeadUncheckedUpdateManyWithoutAssigneeNestedInput
+  followUpsCreated?: Prisma.FollowUpUncheckedUpdateManyWithoutCreatorNestedInput
+  admissions?: Prisma.AdmissionUncheckedUpdateManyWithoutStudentNestedInput
+  referralsMade?: Prisma.ReferralUncheckedUpdateManyWithoutReferrerNestedInput
+  referralsReceived?: Prisma.ReferralUncheckedUpdateManyWithoutReferredNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutUserNestedInput
+  subscriptions?: Prisma.SubscriptionUncheckedUpdateManyWithoutUserNestedInput
+  feeInstallments?: Prisma.FeeInstallmentUncheckedUpdateManyWithoutStudentNestedInput
+  invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutStudentNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  messageThreads?: Prisma.MessageThreadUncheckedUpdateManyWithoutCreatorNestedInput
+  sentMessages?: Prisma.MessageUncheckedUpdateManyWithoutSenderNestedInput
+  receivedMessages?: Prisma.MessageUncheckedUpdateManyWithoutReceiverNestedInput
+  communicationAnnouncements?: Prisma.AnnouncementUncheckedUpdateManyWithoutCreatorNestedInput
+  aiInterviewSessions?: Prisma.AIInterviewSessionUncheckedUpdateManyWithoutUserNestedInput
+  doubtQueries?: Prisma.DoubtQueryUncheckedUpdateManyWithoutUserNestedInput
+  aiRecommendations?: Prisma.AIRecommendationUncheckedUpdateManyWithoutUserNestedInput
+  officerPotential?: Prisma.OfficerPotentialUncheckedUpdateOneWithoutUserNestedInput
+  fitnessProfile?: Prisma.FitnessProfileUncheckedUpdateOneWithoutUserNestedInput
+  ptAttendances?: Prisma.PTAttendanceUncheckedUpdateManyWithoutStudentNestedInput
+  physicalEligibilities?: Prisma.PhysicalEligibilityUncheckedUpdateManyWithoutUserNestedInput
+  dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedUpdateManyWithoutUserNestedInput
+  quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedUpdateManyWithoutUserNestedInput
+  leaderboard?: Prisma.LeaderboardUncheckedUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
+  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
+  parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
+  parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutStudentNestedInput
+  parentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutParentNestedInput
+  studentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutStudentNestedInput
+}
+
+export type UserCreateWithoutBranchInput = {
+  id?: string
+  name: string
+  email: string
+  mobile: string
+  password: string
+  role?: $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
+  emailVerified?: boolean
+  mobileVerified?: boolean
+  isDisabled?: boolean
+  disabledAt?: Date | string | null
+  loginFailureCount?: number
+  lockedUntil?: Date | string | null
+  lastLoginAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
+  testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
+  psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
+  olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
+  studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
+  performanceAnalytics?: Prisma.PerformanceAnalyticsCreateNestedOneWithoutUserInput
+  revisionSchedules?: Prisma.RevisionScheduleCreateNestedManyWithoutUserInput
+  lectureProgress?: Prisma.LectureProgressCreateNestedManyWithoutUserInput
+  attendanceRecords?: Prisma.AttendanceCreateNestedManyWithoutUserInput
+  markedAttendance?: Prisma.AttendanceCreateNestedManyWithoutMarkerInput
+  facultyProfile?: Prisma.FacultyCreateNestedOneWithoutUserInput
+  hostelAllocations?: Prisma.HostelAllocationCreateNestedManyWithoutStudentInput
+  inOutEntries?: Prisma.InOutEntryCreateNestedManyWithoutStudentInput
+  hostelLeaves?: Prisma.HostelLeaveCreateNestedManyWithoutStudentInput
+  approvedHostelLeaves?: Prisma.HostelLeaveCreateNestedManyWithoutApproverInput
+  disciplineRecords?: Prisma.DisciplineRecordCreateNestedManyWithoutStudentInput
+  recordedDiscipline?: Prisma.DisciplineRecordCreateNestedManyWithoutRecorderInput
+  paradePerformances?: Prisma.ParadePerformanceCreateNestedManyWithoutStudentInput
+  assignedLeads?: Prisma.LeadCreateNestedManyWithoutAssigneeInput
+  followUpsCreated?: Prisma.FollowUpCreateNestedManyWithoutCreatorInput
+  admissions?: Prisma.AdmissionCreateNestedManyWithoutStudentInput
+  referralsMade?: Prisma.ReferralCreateNestedManyWithoutReferrerInput
+  referralsReceived?: Prisma.ReferralCreateNestedManyWithoutReferredInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutUserInput
+  subscriptions?: Prisma.SubscriptionCreateNestedManyWithoutUserInput
+  feeInstallments?: Prisma.FeeInstallmentCreateNestedManyWithoutStudentInput
+  invoices?: Prisma.InvoiceCreateNestedManyWithoutStudentInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  messageThreads?: Prisma.MessageThreadCreateNestedManyWithoutCreatorInput
+  sentMessages?: Prisma.MessageCreateNestedManyWithoutSenderInput
+  receivedMessages?: Prisma.MessageCreateNestedManyWithoutReceiverInput
+  communicationAnnouncements?: Prisma.AnnouncementCreateNestedManyWithoutCreatorInput
+  aiInterviewSessions?: Prisma.AIInterviewSessionCreateNestedManyWithoutUserInput
+  doubtQueries?: Prisma.DoubtQueryCreateNestedManyWithoutUserInput
+  aiRecommendations?: Prisma.AIRecommendationCreateNestedManyWithoutUserInput
+  officerPotential?: Prisma.OfficerPotentialCreateNestedOneWithoutUserInput
+  fitnessProfile?: Prisma.FitnessProfileCreateNestedOneWithoutUserInput
+  ptAttendances?: Prisma.PTAttendanceCreateNestedManyWithoutStudentInput
+  physicalEligibilities?: Prisma.PhysicalEligibilityCreateNestedManyWithoutUserInput
+  dailyFitnessLogs?: Prisma.DailyFitnessLogCreateNestedManyWithoutUserInput
+  quizBattleParticipants?: Prisma.QuizBattleParticipantCreateNestedManyWithoutUserInput
+  leaderboard?: Prisma.LeaderboardCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutUserInput
+  institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
+  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
+  parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
+  parentInvitationsReceived?: Prisma.ParentStudentInvitationCreateNestedManyWithoutStudentInput
+  parentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutParentInput
+  studentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutStudentInput
+}
+
+export type UserUncheckedCreateWithoutBranchInput = {
+  id?: string
+  name: string
+  email: string
+  mobile: string
+  password: string
+  role?: $Enums.Role
+  instituteId?: string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
+  emailVerified?: boolean
+  mobileVerified?: boolean
+  isDisabled?: boolean
+  disabledAt?: Date | string | null
+  loginFailureCount?: number
+  lockedUntil?: Date | string | null
+  lastLoginAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
+  testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
+  psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
+  olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
+  studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
+  performanceAnalytics?: Prisma.PerformanceAnalyticsUncheckedCreateNestedOneWithoutUserInput
+  revisionSchedules?: Prisma.RevisionScheduleUncheckedCreateNestedManyWithoutUserInput
+  lectureProgress?: Prisma.LectureProgressUncheckedCreateNestedManyWithoutUserInput
+  attendanceRecords?: Prisma.AttendanceUncheckedCreateNestedManyWithoutUserInput
+  markedAttendance?: Prisma.AttendanceUncheckedCreateNestedManyWithoutMarkerInput
+  facultyProfile?: Prisma.FacultyUncheckedCreateNestedOneWithoutUserInput
+  hostelAllocations?: Prisma.HostelAllocationUncheckedCreateNestedManyWithoutStudentInput
+  inOutEntries?: Prisma.InOutEntryUncheckedCreateNestedManyWithoutStudentInput
+  hostelLeaves?: Prisma.HostelLeaveUncheckedCreateNestedManyWithoutStudentInput
+  approvedHostelLeaves?: Prisma.HostelLeaveUncheckedCreateNestedManyWithoutApproverInput
+  disciplineRecords?: Prisma.DisciplineRecordUncheckedCreateNestedManyWithoutStudentInput
+  recordedDiscipline?: Prisma.DisciplineRecordUncheckedCreateNestedManyWithoutRecorderInput
+  paradePerformances?: Prisma.ParadePerformanceUncheckedCreateNestedManyWithoutStudentInput
+  assignedLeads?: Prisma.LeadUncheckedCreateNestedManyWithoutAssigneeInput
+  followUpsCreated?: Prisma.FollowUpUncheckedCreateNestedManyWithoutCreatorInput
+  admissions?: Prisma.AdmissionUncheckedCreateNestedManyWithoutStudentInput
+  referralsMade?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferrerInput
+  referralsReceived?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferredInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutUserInput
+  subscriptions?: Prisma.SubscriptionUncheckedCreateNestedManyWithoutUserInput
+  feeInstallments?: Prisma.FeeInstallmentUncheckedCreateNestedManyWithoutStudentInput
+  invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutStudentInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  messageThreads?: Prisma.MessageThreadUncheckedCreateNestedManyWithoutCreatorInput
+  sentMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutSenderInput
+  receivedMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutReceiverInput
+  communicationAnnouncements?: Prisma.AnnouncementUncheckedCreateNestedManyWithoutCreatorInput
+  aiInterviewSessions?: Prisma.AIInterviewSessionUncheckedCreateNestedManyWithoutUserInput
+  doubtQueries?: Prisma.DoubtQueryUncheckedCreateNestedManyWithoutUserInput
+  aiRecommendations?: Prisma.AIRecommendationUncheckedCreateNestedManyWithoutUserInput
+  officerPotential?: Prisma.OfficerPotentialUncheckedCreateNestedOneWithoutUserInput
+  fitnessProfile?: Prisma.FitnessProfileUncheckedCreateNestedOneWithoutUserInput
+  ptAttendances?: Prisma.PTAttendanceUncheckedCreateNestedManyWithoutStudentInput
+  physicalEligibilities?: Prisma.PhysicalEligibilityUncheckedCreateNestedManyWithoutUserInput
+  dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedCreateNestedManyWithoutUserInput
+  quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedCreateNestedManyWithoutUserInput
+  leaderboard?: Prisma.LeaderboardUncheckedCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
+  parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
+  parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutStudentInput
+  parentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutParentInput
+  studentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutStudentInput
+}
+
+export type UserCreateOrConnectWithoutBranchInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutBranchInput, Prisma.UserUncheckedCreateWithoutBranchInput>
+}
+
+export type UserCreateManyBranchInputEnvelope = {
+  data: Prisma.UserCreateManyBranchInput | Prisma.UserCreateManyBranchInput[]
+  skipDuplicates?: boolean
+}
+
+export type UserUpsertWithWhereUniqueWithoutBranchInput = {
+  where: Prisma.UserWhereUniqueInput
+  update: Prisma.XOR<Prisma.UserUpdateWithoutBranchInput, Prisma.UserUncheckedUpdateWithoutBranchInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutBranchInput, Prisma.UserUncheckedCreateWithoutBranchInput>
+}
+
+export type UserUpdateWithWhereUniqueWithoutBranchInput = {
+  where: Prisma.UserWhereUniqueInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutBranchInput, Prisma.UserUncheckedUpdateWithoutBranchInput>
+}
+
+export type UserUpdateManyWithWhereWithoutBranchInput = {
+  where: Prisma.UserScalarWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateManyMutationInput, Prisma.UserUncheckedUpdateManyWithoutBranchInput>
+}
+
+export type UserScalarWhereInput = {
+  AND?: Prisma.UserScalarWhereInput | Prisma.UserScalarWhereInput[]
+  OR?: Prisma.UserScalarWhereInput[]
+  NOT?: Prisma.UserScalarWhereInput | Prisma.UserScalarWhereInput[]
+  id?: Prisma.StringFilter<"User"> | string
+  name?: Prisma.StringFilter<"User"> | string
+  email?: Prisma.StringFilter<"User"> | string
+  mobile?: Prisma.StringFilter<"User"> | string
+  password?: Prisma.StringFilter<"User"> | string
+  role?: Prisma.EnumRoleFilter<"User"> | $Enums.Role
+  instituteId?: Prisma.StringNullableFilter<"User"> | string | null
+  branchId?: Prisma.StringNullableFilter<"User"> | string | null
+  roleMetadata?: Prisma.JsonNullableFilter<"User">
+  roleOnboardingStatus?: Prisma.StringFilter<"User"> | string
+  roleActivatedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  lastRoleActivityAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  emailVerified?: Prisma.BoolFilter<"User"> | boolean
+  mobileVerified?: Prisma.BoolFilter<"User"> | boolean
+  isDisabled?: Prisma.BoolFilter<"User"> | boolean
+  disabledAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  loginFailureCount?: Prisma.IntFilter<"User"> | number
+  lockedUntil?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  lastLoginAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
+}
+
+export type UserCreateWithoutInstituteInput = {
+  id?: string
+  name: string
+  email: string
+  mobile: string
+  password: string
+  role?: $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
+  emailVerified?: boolean
+  mobileVerified?: boolean
+  isDisabled?: boolean
+  disabledAt?: Date | string | null
+  loginFailureCount?: number
+  lockedUntil?: Date | string | null
+  lastLoginAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
+  testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
+  psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
+  olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
+  studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
+  performanceAnalytics?: Prisma.PerformanceAnalyticsCreateNestedOneWithoutUserInput
+  revisionSchedules?: Prisma.RevisionScheduleCreateNestedManyWithoutUserInput
+  lectureProgress?: Prisma.LectureProgressCreateNestedManyWithoutUserInput
+  attendanceRecords?: Prisma.AttendanceCreateNestedManyWithoutUserInput
+  markedAttendance?: Prisma.AttendanceCreateNestedManyWithoutMarkerInput
+  facultyProfile?: Prisma.FacultyCreateNestedOneWithoutUserInput
+  hostelAllocations?: Prisma.HostelAllocationCreateNestedManyWithoutStudentInput
+  inOutEntries?: Prisma.InOutEntryCreateNestedManyWithoutStudentInput
+  hostelLeaves?: Prisma.HostelLeaveCreateNestedManyWithoutStudentInput
+  approvedHostelLeaves?: Prisma.HostelLeaveCreateNestedManyWithoutApproverInput
+  disciplineRecords?: Prisma.DisciplineRecordCreateNestedManyWithoutStudentInput
+  recordedDiscipline?: Prisma.DisciplineRecordCreateNestedManyWithoutRecorderInput
+  paradePerformances?: Prisma.ParadePerformanceCreateNestedManyWithoutStudentInput
+  assignedLeads?: Prisma.LeadCreateNestedManyWithoutAssigneeInput
+  followUpsCreated?: Prisma.FollowUpCreateNestedManyWithoutCreatorInput
+  admissions?: Prisma.AdmissionCreateNestedManyWithoutStudentInput
+  referralsMade?: Prisma.ReferralCreateNestedManyWithoutReferrerInput
+  referralsReceived?: Prisma.ReferralCreateNestedManyWithoutReferredInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutUserInput
+  subscriptions?: Prisma.SubscriptionCreateNestedManyWithoutUserInput
+  feeInstallments?: Prisma.FeeInstallmentCreateNestedManyWithoutStudentInput
+  invoices?: Prisma.InvoiceCreateNestedManyWithoutStudentInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  messageThreads?: Prisma.MessageThreadCreateNestedManyWithoutCreatorInput
+  sentMessages?: Prisma.MessageCreateNestedManyWithoutSenderInput
+  receivedMessages?: Prisma.MessageCreateNestedManyWithoutReceiverInput
+  communicationAnnouncements?: Prisma.AnnouncementCreateNestedManyWithoutCreatorInput
+  aiInterviewSessions?: Prisma.AIInterviewSessionCreateNestedManyWithoutUserInput
+  doubtQueries?: Prisma.DoubtQueryCreateNestedManyWithoutUserInput
+  aiRecommendations?: Prisma.AIRecommendationCreateNestedManyWithoutUserInput
+  officerPotential?: Prisma.OfficerPotentialCreateNestedOneWithoutUserInput
+  fitnessProfile?: Prisma.FitnessProfileCreateNestedOneWithoutUserInput
+  ptAttendances?: Prisma.PTAttendanceCreateNestedManyWithoutStudentInput
+  physicalEligibilities?: Prisma.PhysicalEligibilityCreateNestedManyWithoutUserInput
+  dailyFitnessLogs?: Prisma.DailyFitnessLogCreateNestedManyWithoutUserInput
+  quizBattleParticipants?: Prisma.QuizBattleParticipantCreateNestedManyWithoutUserInput
+  leaderboard?: Prisma.LeaderboardCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutUserInput
+  branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
+  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
+  parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
+  parentInvitationsReceived?: Prisma.ParentStudentInvitationCreateNestedManyWithoutStudentInput
+  parentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutParentInput
+  studentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutStudentInput
+}
+
+export type UserUncheckedCreateWithoutInstituteInput = {
+  id?: string
+  name: string
+  email: string
+  mobile: string
+  password: string
+  role?: $Enums.Role
+  branchId?: string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
+  emailVerified?: boolean
+  mobileVerified?: boolean
+  isDisabled?: boolean
+  disabledAt?: Date | string | null
+  loginFailureCount?: number
+  lockedUntil?: Date | string | null
+  lastLoginAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
+  testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
+  psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
+  olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
+  studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
+  performanceAnalytics?: Prisma.PerformanceAnalyticsUncheckedCreateNestedOneWithoutUserInput
+  revisionSchedules?: Prisma.RevisionScheduleUncheckedCreateNestedManyWithoutUserInput
+  lectureProgress?: Prisma.LectureProgressUncheckedCreateNestedManyWithoutUserInput
+  attendanceRecords?: Prisma.AttendanceUncheckedCreateNestedManyWithoutUserInput
+  markedAttendance?: Prisma.AttendanceUncheckedCreateNestedManyWithoutMarkerInput
+  facultyProfile?: Prisma.FacultyUncheckedCreateNestedOneWithoutUserInput
+  hostelAllocations?: Prisma.HostelAllocationUncheckedCreateNestedManyWithoutStudentInput
+  inOutEntries?: Prisma.InOutEntryUncheckedCreateNestedManyWithoutStudentInput
+  hostelLeaves?: Prisma.HostelLeaveUncheckedCreateNestedManyWithoutStudentInput
+  approvedHostelLeaves?: Prisma.HostelLeaveUncheckedCreateNestedManyWithoutApproverInput
+  disciplineRecords?: Prisma.DisciplineRecordUncheckedCreateNestedManyWithoutStudentInput
+  recordedDiscipline?: Prisma.DisciplineRecordUncheckedCreateNestedManyWithoutRecorderInput
+  paradePerformances?: Prisma.ParadePerformanceUncheckedCreateNestedManyWithoutStudentInput
+  assignedLeads?: Prisma.LeadUncheckedCreateNestedManyWithoutAssigneeInput
+  followUpsCreated?: Prisma.FollowUpUncheckedCreateNestedManyWithoutCreatorInput
+  admissions?: Prisma.AdmissionUncheckedCreateNestedManyWithoutStudentInput
+  referralsMade?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferrerInput
+  referralsReceived?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferredInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutUserInput
+  subscriptions?: Prisma.SubscriptionUncheckedCreateNestedManyWithoutUserInput
+  feeInstallments?: Prisma.FeeInstallmentUncheckedCreateNestedManyWithoutStudentInput
+  invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutStudentInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  messageThreads?: Prisma.MessageThreadUncheckedCreateNestedManyWithoutCreatorInput
+  sentMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutSenderInput
+  receivedMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutReceiverInput
+  communicationAnnouncements?: Prisma.AnnouncementUncheckedCreateNestedManyWithoutCreatorInput
+  aiInterviewSessions?: Prisma.AIInterviewSessionUncheckedCreateNestedManyWithoutUserInput
+  doubtQueries?: Prisma.DoubtQueryUncheckedCreateNestedManyWithoutUserInput
+  aiRecommendations?: Prisma.AIRecommendationUncheckedCreateNestedManyWithoutUserInput
+  officerPotential?: Prisma.OfficerPotentialUncheckedCreateNestedOneWithoutUserInput
+  fitnessProfile?: Prisma.FitnessProfileUncheckedCreateNestedOneWithoutUserInput
+  ptAttendances?: Prisma.PTAttendanceUncheckedCreateNestedManyWithoutStudentInput
+  physicalEligibilities?: Prisma.PhysicalEligibilityUncheckedCreateNestedManyWithoutUserInput
+  dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedCreateNestedManyWithoutUserInput
+  quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedCreateNestedManyWithoutUserInput
+  leaderboard?: Prisma.LeaderboardUncheckedCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
+  parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
+  parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutStudentInput
+  parentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutParentInput
+  studentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutStudentInput
+}
+
+export type UserCreateOrConnectWithoutInstituteInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutInstituteInput, Prisma.UserUncheckedCreateWithoutInstituteInput>
+}
+
+export type UserCreateManyInstituteInputEnvelope = {
+  data: Prisma.UserCreateManyInstituteInput | Prisma.UserCreateManyInstituteInput[]
+  skipDuplicates?: boolean
+}
+
+export type UserUpsertWithWhereUniqueWithoutInstituteInput = {
+  where: Prisma.UserWhereUniqueInput
+  update: Prisma.XOR<Prisma.UserUpdateWithoutInstituteInput, Prisma.UserUncheckedUpdateWithoutInstituteInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutInstituteInput, Prisma.UserUncheckedCreateWithoutInstituteInput>
+}
+
+export type UserUpdateWithWhereUniqueWithoutInstituteInput = {
+  where: Prisma.UserWhereUniqueInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutInstituteInput, Prisma.UserUncheckedUpdateWithoutInstituteInput>
+}
+
+export type UserUpdateManyWithWhereWithoutInstituteInput = {
+  where: Prisma.UserScalarWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateManyMutationInput, Prisma.UserUncheckedUpdateManyWithoutInstituteInput>
+}
+
+export type UserCreateManyBranchInput = {
+  id?: string
+  name: string
+  email: string
+  mobile: string
+  password: string
+  role?: $Enums.Role
+  instituteId?: string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
+  emailVerified?: boolean
+  mobileVerified?: boolean
+  isDisabled?: boolean
+  disabledAt?: Date | string | null
+  loginFailureCount?: number
+  lockedUntil?: Date | string | null
+  lastLoginAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type UserUpdateWithoutBranchInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  disabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
+  testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
+  psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
+  olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
+  studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
+  performanceAnalytics?: Prisma.PerformanceAnalyticsUpdateOneWithoutUserNestedInput
+  revisionSchedules?: Prisma.RevisionScheduleUpdateManyWithoutUserNestedInput
+  lectureProgress?: Prisma.LectureProgressUpdateManyWithoutUserNestedInput
+  attendanceRecords?: Prisma.AttendanceUpdateManyWithoutUserNestedInput
+  markedAttendance?: Prisma.AttendanceUpdateManyWithoutMarkerNestedInput
+  facultyProfile?: Prisma.FacultyUpdateOneWithoutUserNestedInput
+  hostelAllocations?: Prisma.HostelAllocationUpdateManyWithoutStudentNestedInput
+  inOutEntries?: Prisma.InOutEntryUpdateManyWithoutStudentNestedInput
+  hostelLeaves?: Prisma.HostelLeaveUpdateManyWithoutStudentNestedInput
+  approvedHostelLeaves?: Prisma.HostelLeaveUpdateManyWithoutApproverNestedInput
+  disciplineRecords?: Prisma.DisciplineRecordUpdateManyWithoutStudentNestedInput
+  recordedDiscipline?: Prisma.DisciplineRecordUpdateManyWithoutRecorderNestedInput
+  paradePerformances?: Prisma.ParadePerformanceUpdateManyWithoutStudentNestedInput
+  assignedLeads?: Prisma.LeadUpdateManyWithoutAssigneeNestedInput
+  followUpsCreated?: Prisma.FollowUpUpdateManyWithoutCreatorNestedInput
+  admissions?: Prisma.AdmissionUpdateManyWithoutStudentNestedInput
+  referralsMade?: Prisma.ReferralUpdateManyWithoutReferrerNestedInput
+  referralsReceived?: Prisma.ReferralUpdateManyWithoutReferredNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutUserNestedInput
+  subscriptions?: Prisma.SubscriptionUpdateManyWithoutUserNestedInput
+  feeInstallments?: Prisma.FeeInstallmentUpdateManyWithoutStudentNestedInput
+  invoices?: Prisma.InvoiceUpdateManyWithoutStudentNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  messageThreads?: Prisma.MessageThreadUpdateManyWithoutCreatorNestedInput
+  sentMessages?: Prisma.MessageUpdateManyWithoutSenderNestedInput
+  receivedMessages?: Prisma.MessageUpdateManyWithoutReceiverNestedInput
+  communicationAnnouncements?: Prisma.AnnouncementUpdateManyWithoutCreatorNestedInput
+  aiInterviewSessions?: Prisma.AIInterviewSessionUpdateManyWithoutUserNestedInput
+  doubtQueries?: Prisma.DoubtQueryUpdateManyWithoutUserNestedInput
+  aiRecommendations?: Prisma.AIRecommendationUpdateManyWithoutUserNestedInput
+  officerPotential?: Prisma.OfficerPotentialUpdateOneWithoutUserNestedInput
+  fitnessProfile?: Prisma.FitnessProfileUpdateOneWithoutUserNestedInput
+  ptAttendances?: Prisma.PTAttendanceUpdateManyWithoutStudentNestedInput
+  physicalEligibilities?: Prisma.PhysicalEligibilityUpdateManyWithoutUserNestedInput
+  dailyFitnessLogs?: Prisma.DailyFitnessLogUpdateManyWithoutUserNestedInput
+  quizBattleParticipants?: Prisma.QuizBattleParticipantUpdateManyWithoutUserNestedInput
+  leaderboard?: Prisma.LeaderboardUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUpdateManyWithoutUserNestedInput
+  institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
+  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
+  parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
+  parentInvitationsReceived?: Prisma.ParentStudentInvitationUpdateManyWithoutStudentNestedInput
+  parentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutParentNestedInput
+  studentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutStudentNestedInput
+}
+
+export type UserUncheckedUpdateWithoutBranchInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  disabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
+  testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
+  psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
+  olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
+  studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
+  performanceAnalytics?: Prisma.PerformanceAnalyticsUncheckedUpdateOneWithoutUserNestedInput
+  revisionSchedules?: Prisma.RevisionScheduleUncheckedUpdateManyWithoutUserNestedInput
+  lectureProgress?: Prisma.LectureProgressUncheckedUpdateManyWithoutUserNestedInput
+  attendanceRecords?: Prisma.AttendanceUncheckedUpdateManyWithoutUserNestedInput
+  markedAttendance?: Prisma.AttendanceUncheckedUpdateManyWithoutMarkerNestedInput
+  facultyProfile?: Prisma.FacultyUncheckedUpdateOneWithoutUserNestedInput
+  hostelAllocations?: Prisma.HostelAllocationUncheckedUpdateManyWithoutStudentNestedInput
+  inOutEntries?: Prisma.InOutEntryUncheckedUpdateManyWithoutStudentNestedInput
+  hostelLeaves?: Prisma.HostelLeaveUncheckedUpdateManyWithoutStudentNestedInput
+  approvedHostelLeaves?: Prisma.HostelLeaveUncheckedUpdateManyWithoutApproverNestedInput
+  disciplineRecords?: Prisma.DisciplineRecordUncheckedUpdateManyWithoutStudentNestedInput
+  recordedDiscipline?: Prisma.DisciplineRecordUncheckedUpdateManyWithoutRecorderNestedInput
+  paradePerformances?: Prisma.ParadePerformanceUncheckedUpdateManyWithoutStudentNestedInput
+  assignedLeads?: Prisma.LeadUncheckedUpdateManyWithoutAssigneeNestedInput
+  followUpsCreated?: Prisma.FollowUpUncheckedUpdateManyWithoutCreatorNestedInput
+  admissions?: Prisma.AdmissionUncheckedUpdateManyWithoutStudentNestedInput
+  referralsMade?: Prisma.ReferralUncheckedUpdateManyWithoutReferrerNestedInput
+  referralsReceived?: Prisma.ReferralUncheckedUpdateManyWithoutReferredNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutUserNestedInput
+  subscriptions?: Prisma.SubscriptionUncheckedUpdateManyWithoutUserNestedInput
+  feeInstallments?: Prisma.FeeInstallmentUncheckedUpdateManyWithoutStudentNestedInput
+  invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutStudentNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  messageThreads?: Prisma.MessageThreadUncheckedUpdateManyWithoutCreatorNestedInput
+  sentMessages?: Prisma.MessageUncheckedUpdateManyWithoutSenderNestedInput
+  receivedMessages?: Prisma.MessageUncheckedUpdateManyWithoutReceiverNestedInput
+  communicationAnnouncements?: Prisma.AnnouncementUncheckedUpdateManyWithoutCreatorNestedInput
+  aiInterviewSessions?: Prisma.AIInterviewSessionUncheckedUpdateManyWithoutUserNestedInput
+  doubtQueries?: Prisma.DoubtQueryUncheckedUpdateManyWithoutUserNestedInput
+  aiRecommendations?: Prisma.AIRecommendationUncheckedUpdateManyWithoutUserNestedInput
+  officerPotential?: Prisma.OfficerPotentialUncheckedUpdateOneWithoutUserNestedInput
+  fitnessProfile?: Prisma.FitnessProfileUncheckedUpdateOneWithoutUserNestedInput
+  ptAttendances?: Prisma.PTAttendanceUncheckedUpdateManyWithoutStudentNestedInput
+  physicalEligibilities?: Prisma.PhysicalEligibilityUncheckedUpdateManyWithoutUserNestedInput
+  dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedUpdateManyWithoutUserNestedInput
+  quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedUpdateManyWithoutUserNestedInput
+  leaderboard?: Prisma.LeaderboardUncheckedUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
+  parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
+  parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutStudentNestedInput
+  parentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutParentNestedInput
+  studentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutStudentNestedInput
+}
+
+export type UserUncheckedUpdateManyWithoutBranchInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  disabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type UserCreateManyInstituteInput = {
+  id?: string
+  name: string
+  email: string
+  mobile: string
+  password: string
+  role?: $Enums.Role
+  branchId?: string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
+  emailVerified?: boolean
+  mobileVerified?: boolean
+  isDisabled?: boolean
+  disabledAt?: Date | string | null
+  loginFailureCount?: number
+  lockedUntil?: Date | string | null
+  lastLoginAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type UserUpdateWithoutInstituteInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  disabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
+  testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
+  psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
+  olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
+  studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
+  performanceAnalytics?: Prisma.PerformanceAnalyticsUpdateOneWithoutUserNestedInput
+  revisionSchedules?: Prisma.RevisionScheduleUpdateManyWithoutUserNestedInput
+  lectureProgress?: Prisma.LectureProgressUpdateManyWithoutUserNestedInput
+  attendanceRecords?: Prisma.AttendanceUpdateManyWithoutUserNestedInput
+  markedAttendance?: Prisma.AttendanceUpdateManyWithoutMarkerNestedInput
+  facultyProfile?: Prisma.FacultyUpdateOneWithoutUserNestedInput
+  hostelAllocations?: Prisma.HostelAllocationUpdateManyWithoutStudentNestedInput
+  inOutEntries?: Prisma.InOutEntryUpdateManyWithoutStudentNestedInput
+  hostelLeaves?: Prisma.HostelLeaveUpdateManyWithoutStudentNestedInput
+  approvedHostelLeaves?: Prisma.HostelLeaveUpdateManyWithoutApproverNestedInput
+  disciplineRecords?: Prisma.DisciplineRecordUpdateManyWithoutStudentNestedInput
+  recordedDiscipline?: Prisma.DisciplineRecordUpdateManyWithoutRecorderNestedInput
+  paradePerformances?: Prisma.ParadePerformanceUpdateManyWithoutStudentNestedInput
+  assignedLeads?: Prisma.LeadUpdateManyWithoutAssigneeNestedInput
+  followUpsCreated?: Prisma.FollowUpUpdateManyWithoutCreatorNestedInput
+  admissions?: Prisma.AdmissionUpdateManyWithoutStudentNestedInput
+  referralsMade?: Prisma.ReferralUpdateManyWithoutReferrerNestedInput
+  referralsReceived?: Prisma.ReferralUpdateManyWithoutReferredNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutUserNestedInput
+  subscriptions?: Prisma.SubscriptionUpdateManyWithoutUserNestedInput
+  feeInstallments?: Prisma.FeeInstallmentUpdateManyWithoutStudentNestedInput
+  invoices?: Prisma.InvoiceUpdateManyWithoutStudentNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  messageThreads?: Prisma.MessageThreadUpdateManyWithoutCreatorNestedInput
+  sentMessages?: Prisma.MessageUpdateManyWithoutSenderNestedInput
+  receivedMessages?: Prisma.MessageUpdateManyWithoutReceiverNestedInput
+  communicationAnnouncements?: Prisma.AnnouncementUpdateManyWithoutCreatorNestedInput
+  aiInterviewSessions?: Prisma.AIInterviewSessionUpdateManyWithoutUserNestedInput
+  doubtQueries?: Prisma.DoubtQueryUpdateManyWithoutUserNestedInput
+  aiRecommendations?: Prisma.AIRecommendationUpdateManyWithoutUserNestedInput
+  officerPotential?: Prisma.OfficerPotentialUpdateOneWithoutUserNestedInput
+  fitnessProfile?: Prisma.FitnessProfileUpdateOneWithoutUserNestedInput
+  ptAttendances?: Prisma.PTAttendanceUpdateManyWithoutStudentNestedInput
+  physicalEligibilities?: Prisma.PhysicalEligibilityUpdateManyWithoutUserNestedInput
+  dailyFitnessLogs?: Prisma.DailyFitnessLogUpdateManyWithoutUserNestedInput
+  quizBattleParticipants?: Prisma.QuizBattleParticipantUpdateManyWithoutUserNestedInput
+  leaderboard?: Prisma.LeaderboardUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUpdateManyWithoutUserNestedInput
+  branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
+  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
+  parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
+  parentInvitationsReceived?: Prisma.ParentStudentInvitationUpdateManyWithoutStudentNestedInput
+  parentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutParentNestedInput
+  studentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutStudentNestedInput
+}
+
+export type UserUncheckedUpdateWithoutInstituteInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  disabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
+  testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
+  psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
+  olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
+  studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
+  performanceAnalytics?: Prisma.PerformanceAnalyticsUncheckedUpdateOneWithoutUserNestedInput
+  revisionSchedules?: Prisma.RevisionScheduleUncheckedUpdateManyWithoutUserNestedInput
+  lectureProgress?: Prisma.LectureProgressUncheckedUpdateManyWithoutUserNestedInput
+  attendanceRecords?: Prisma.AttendanceUncheckedUpdateManyWithoutUserNestedInput
+  markedAttendance?: Prisma.AttendanceUncheckedUpdateManyWithoutMarkerNestedInput
+  facultyProfile?: Prisma.FacultyUncheckedUpdateOneWithoutUserNestedInput
+  hostelAllocations?: Prisma.HostelAllocationUncheckedUpdateManyWithoutStudentNestedInput
+  inOutEntries?: Prisma.InOutEntryUncheckedUpdateManyWithoutStudentNestedInput
+  hostelLeaves?: Prisma.HostelLeaveUncheckedUpdateManyWithoutStudentNestedInput
+  approvedHostelLeaves?: Prisma.HostelLeaveUncheckedUpdateManyWithoutApproverNestedInput
+  disciplineRecords?: Prisma.DisciplineRecordUncheckedUpdateManyWithoutStudentNestedInput
+  recordedDiscipline?: Prisma.DisciplineRecordUncheckedUpdateManyWithoutRecorderNestedInput
+  paradePerformances?: Prisma.ParadePerformanceUncheckedUpdateManyWithoutStudentNestedInput
+  assignedLeads?: Prisma.LeadUncheckedUpdateManyWithoutAssigneeNestedInput
+  followUpsCreated?: Prisma.FollowUpUncheckedUpdateManyWithoutCreatorNestedInput
+  admissions?: Prisma.AdmissionUncheckedUpdateManyWithoutStudentNestedInput
+  referralsMade?: Prisma.ReferralUncheckedUpdateManyWithoutReferrerNestedInput
+  referralsReceived?: Prisma.ReferralUncheckedUpdateManyWithoutReferredNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutUserNestedInput
+  subscriptions?: Prisma.SubscriptionUncheckedUpdateManyWithoutUserNestedInput
+  feeInstallments?: Prisma.FeeInstallmentUncheckedUpdateManyWithoutStudentNestedInput
+  invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutStudentNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  messageThreads?: Prisma.MessageThreadUncheckedUpdateManyWithoutCreatorNestedInput
+  sentMessages?: Prisma.MessageUncheckedUpdateManyWithoutSenderNestedInput
+  receivedMessages?: Prisma.MessageUncheckedUpdateManyWithoutReceiverNestedInput
+  communicationAnnouncements?: Prisma.AnnouncementUncheckedUpdateManyWithoutCreatorNestedInput
+  aiInterviewSessions?: Prisma.AIInterviewSessionUncheckedUpdateManyWithoutUserNestedInput
+  doubtQueries?: Prisma.DoubtQueryUncheckedUpdateManyWithoutUserNestedInput
+  aiRecommendations?: Prisma.AIRecommendationUncheckedUpdateManyWithoutUserNestedInput
+  officerPotential?: Prisma.OfficerPotentialUncheckedUpdateOneWithoutUserNestedInput
+  fitnessProfile?: Prisma.FitnessProfileUncheckedUpdateOneWithoutUserNestedInput
+  ptAttendances?: Prisma.PTAttendanceUncheckedUpdateManyWithoutStudentNestedInput
+  physicalEligibilities?: Prisma.PhysicalEligibilityUncheckedUpdateManyWithoutUserNestedInput
+  dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedUpdateManyWithoutUserNestedInput
+  quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedUpdateManyWithoutUserNestedInput
+  leaderboard?: Prisma.LeaderboardUncheckedUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
+  parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
+  parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutStudentNestedInput
+  parentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutParentNestedInput
+  studentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutStudentNestedInput
+}
+
+export type UserUncheckedUpdateManyWithoutInstituteInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  disabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -17997,6 +20881,7 @@ export type UserCountOutputType = {
   mediaFiles: number
   documents: number
   adminRoles: number
+  roleActivities: number
   auditLogs: number
   authVerificationTokens: number
   passwordResetTokens: number
@@ -18048,6 +20933,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   mediaFiles?: boolean | UserCountOutputTypeCountMediaFilesArgs
   documents?: boolean | UserCountOutputTypeCountDocumentsArgs
   adminRoles?: boolean | UserCountOutputTypeCountAdminRolesArgs
+  roleActivities?: boolean | UserCountOutputTypeCountRoleActivitiesArgs
   auditLogs?: boolean | UserCountOutputTypeCountAuditLogsArgs
   authVerificationTokens?: boolean | UserCountOutputTypeCountAuthVerificationTokensArgs
   passwordResetTokens?: boolean | UserCountOutputTypeCountPasswordResetTokensArgs
@@ -18351,6 +21237,13 @@ export type UserCountOutputTypeCountAdminRolesArgs<ExtArgs extends runtime.Types
 /**
  * UserCountOutputType without action
  */
+export type UserCountOutputTypeCountRoleActivitiesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.RoleActivityWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
 export type UserCountOutputTypeCountAuditLogsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.AuditLogWhereInput
 }
@@ -18412,6 +21305,12 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   mobile?: boolean
   password?: boolean
   role?: boolean
+  instituteId?: boolean
+  branchId?: boolean
+  roleMetadata?: boolean
+  roleOnboardingStatus?: boolean
+  roleActivatedAt?: boolean
+  lastRoleActivityAt?: boolean
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -18467,6 +21366,9 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   mediaFiles?: boolean | Prisma.User$mediaFilesArgs<ExtArgs>
   documents?: boolean | Prisma.User$documentsArgs<ExtArgs>
   adminRoles?: boolean | Prisma.User$adminRolesArgs<ExtArgs>
+  roleActivities?: boolean | Prisma.User$roleActivitiesArgs<ExtArgs>
+  institute?: boolean | Prisma.User$instituteArgs<ExtArgs>
+  branch?: boolean | Prisma.User$branchArgs<ExtArgs>
   auditLogs?: boolean | Prisma.User$auditLogsArgs<ExtArgs>
   authVerificationTokens?: boolean | Prisma.User$authVerificationTokensArgs<ExtArgs>
   passwordResetTokens?: boolean | Prisma.User$passwordResetTokensArgs<ExtArgs>
@@ -18485,6 +21387,12 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   mobile?: boolean
   password?: boolean
   role?: boolean
+  instituteId?: boolean
+  branchId?: boolean
+  roleMetadata?: boolean
+  roleOnboardingStatus?: boolean
+  roleActivatedAt?: boolean
+  lastRoleActivityAt?: boolean
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -18494,6 +21402,8 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   lastLoginAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  institute?: boolean | Prisma.User$instituteArgs<ExtArgs>
+  branch?: boolean | Prisma.User$branchArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
 export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -18503,6 +21413,12 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   mobile?: boolean
   password?: boolean
   role?: boolean
+  instituteId?: boolean
+  branchId?: boolean
+  roleMetadata?: boolean
+  roleOnboardingStatus?: boolean
+  roleActivatedAt?: boolean
+  lastRoleActivityAt?: boolean
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -18512,6 +21428,8 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   lastLoginAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  institute?: boolean | Prisma.User$instituteArgs<ExtArgs>
+  branch?: boolean | Prisma.User$branchArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
 export type UserSelectScalar = {
@@ -18521,6 +21439,12 @@ export type UserSelectScalar = {
   mobile?: boolean
   password?: boolean
   role?: boolean
+  instituteId?: boolean
+  branchId?: boolean
+  roleMetadata?: boolean
+  roleOnboardingStatus?: boolean
+  roleActivatedAt?: boolean
+  lastRoleActivityAt?: boolean
   emailVerified?: boolean
   mobileVerified?: boolean
   isDisabled?: boolean
@@ -18532,7 +21456,7 @@ export type UserSelectScalar = {
   updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "email" | "mobile" | "password" | "role" | "emailVerified" | "mobileVerified" | "isDisabled" | "disabledAt" | "loginFailureCount" | "lockedUntil" | "lastLoginAt" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "email" | "mobile" | "password" | "role" | "instituteId" | "branchId" | "roleMetadata" | "roleOnboardingStatus" | "roleActivatedAt" | "lastRoleActivityAt" | "emailVerified" | "mobileVerified" | "isDisabled" | "disabledAt" | "loginFailureCount" | "lockedUntil" | "lastLoginAt" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   enrollments?: boolean | Prisma.User$enrollmentsArgs<ExtArgs>
   testAttempts?: boolean | Prisma.User$testAttemptsArgs<ExtArgs>
@@ -18580,6 +21504,9 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   mediaFiles?: boolean | Prisma.User$mediaFilesArgs<ExtArgs>
   documents?: boolean | Prisma.User$documentsArgs<ExtArgs>
   adminRoles?: boolean | Prisma.User$adminRolesArgs<ExtArgs>
+  roleActivities?: boolean | Prisma.User$roleActivitiesArgs<ExtArgs>
+  institute?: boolean | Prisma.User$instituteArgs<ExtArgs>
+  branch?: boolean | Prisma.User$branchArgs<ExtArgs>
   auditLogs?: boolean | Prisma.User$auditLogsArgs<ExtArgs>
   authVerificationTokens?: boolean | Prisma.User$authVerificationTokensArgs<ExtArgs>
   passwordResetTokens?: boolean | Prisma.User$passwordResetTokensArgs<ExtArgs>
@@ -18590,8 +21517,14 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   studentLinks?: boolean | Prisma.User$studentLinksArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
-export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
-export type UserIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
+export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  institute?: boolean | Prisma.User$instituteArgs<ExtArgs>
+  branch?: boolean | Prisma.User$branchArgs<ExtArgs>
+}
+export type UserIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  institute?: boolean | Prisma.User$instituteArgs<ExtArgs>
+  branch?: boolean | Prisma.User$branchArgs<ExtArgs>
+}
 
 export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "User"
@@ -18642,6 +21575,9 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     mediaFiles: Prisma.$MediaFilePayload<ExtArgs>[]
     documents: Prisma.$DocumentPayload<ExtArgs>[]
     adminRoles: Prisma.$UserRolePayload<ExtArgs>[]
+    roleActivities: Prisma.$RoleActivityPayload<ExtArgs>[]
+    institute: Prisma.$InstitutePayload<ExtArgs> | null
+    branch: Prisma.$BranchPayload<ExtArgs> | null
     auditLogs: Prisma.$AuditLogPayload<ExtArgs>[]
     authVerificationTokens: Prisma.$AuthVerificationTokenPayload<ExtArgs>[]
     passwordResetTokens: Prisma.$PasswordResetTokenPayload<ExtArgs>[]
@@ -18658,6 +21594,12 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     mobile: string
     password: string
     role: $Enums.Role
+    instituteId: string | null
+    branchId: string | null
+    roleMetadata: runtime.JsonValue | null
+    roleOnboardingStatus: string
+    roleActivatedAt: Date | null
+    lastRoleActivityAt: Date | null
     emailVerified: boolean
     mobileVerified: boolean
     isDisabled: boolean
@@ -19107,6 +22049,9 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   mediaFiles<T extends Prisma.User$mediaFilesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$mediaFilesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MediaFilePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   documents<T extends Prisma.User$documentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$documentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DocumentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   adminRoles<T extends Prisma.User$adminRolesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$adminRolesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserRolePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  roleActivities<T extends Prisma.User$roleActivitiesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$roleActivitiesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RoleActivityPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  institute<T extends Prisma.User$instituteArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$instituteArgs<ExtArgs>>): Prisma.Prisma__InstituteClient<runtime.Types.Result.GetResult<Prisma.$InstitutePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  branch<T extends Prisma.User$branchArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$branchArgs<ExtArgs>>): Prisma.Prisma__BranchClient<runtime.Types.Result.GetResult<Prisma.$BranchPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   auditLogs<T extends Prisma.User$auditLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$auditLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   authVerificationTokens<T extends Prisma.User$authVerificationTokensArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$authVerificationTokensArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AuthVerificationTokenPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   passwordResetTokens<T extends Prisma.User$passwordResetTokensArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$passwordResetTokensArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PasswordResetTokenPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -19150,6 +22095,12 @@ export interface UserFieldRefs {
   readonly mobile: Prisma.FieldRef<"User", 'String'>
   readonly password: Prisma.FieldRef<"User", 'String'>
   readonly role: Prisma.FieldRef<"User", 'Role'>
+  readonly instituteId: Prisma.FieldRef<"User", 'String'>
+  readonly branchId: Prisma.FieldRef<"User", 'String'>
+  readonly roleMetadata: Prisma.FieldRef<"User", 'Json'>
+  readonly roleOnboardingStatus: Prisma.FieldRef<"User", 'String'>
+  readonly roleActivatedAt: Prisma.FieldRef<"User", 'DateTime'>
+  readonly lastRoleActivityAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly emailVerified: Prisma.FieldRef<"User", 'Boolean'>
   readonly mobileVerified: Prisma.FieldRef<"User", 'Boolean'>
   readonly isDisabled: Prisma.FieldRef<"User", 'Boolean'>
@@ -19413,6 +22364,10 @@ export type UserCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensions
    */
   data: Prisma.UserCreateManyInput | Prisma.UserCreateManyInput[]
   skipDuplicates?: boolean
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserIncludeCreateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -19483,6 +22438,10 @@ export type UserUpdateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensions
    * Limit how many Users to update.
    */
   limit?: number
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -20623,6 +23582,68 @@ export type User$adminRolesArgs<ExtArgs extends runtime.Types.Extensions.Interna
   take?: number
   skip?: number
   distinct?: Prisma.UserRoleScalarFieldEnum | Prisma.UserRoleScalarFieldEnum[]
+}
+
+/**
+ * User.roleActivities
+ */
+export type User$roleActivitiesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the RoleActivity
+   */
+  select?: Prisma.RoleActivitySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the RoleActivity
+   */
+  omit?: Prisma.RoleActivityOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.RoleActivityInclude<ExtArgs> | null
+  where?: Prisma.RoleActivityWhereInput
+  orderBy?: Prisma.RoleActivityOrderByWithRelationInput | Prisma.RoleActivityOrderByWithRelationInput[]
+  cursor?: Prisma.RoleActivityWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.RoleActivityScalarFieldEnum | Prisma.RoleActivityScalarFieldEnum[]
+}
+
+/**
+ * User.institute
+ */
+export type User$instituteArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Institute
+   */
+  select?: Prisma.InstituteSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Institute
+   */
+  omit?: Prisma.InstituteOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InstituteInclude<ExtArgs> | null
+  where?: Prisma.InstituteWhereInput
+}
+
+/**
+ * User.branch
+ */
+export type User$branchArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Branch
+   */
+  select?: Prisma.BranchSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Branch
+   */
+  omit?: Prisma.BranchOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BranchInclude<ExtArgs> | null
+  where?: Prisma.BranchWhereInput
 }
 
 /**

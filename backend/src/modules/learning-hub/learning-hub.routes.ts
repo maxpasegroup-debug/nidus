@@ -10,7 +10,7 @@ export const quizBattlesRouter = Router();
 export const leaderboardRouter = Router();
 
 const authenticated = [protect];
-const admin = [protect, allowRoles(Role.ADMIN, Role.STAFF)];
+const admin = [protect, allowRoles(Role.ADMIN, Role.TEACHER)];
 
 const questionValidators = [body("categoryId").notEmpty(), body("year").isInt({ min: 1900 }), body("subject").trim().notEmpty(), body("topic").trim().notEmpty(), body("questionText").trim().notEmpty(), body("optionA").trim().notEmpty(), body("optionB").trim().notEmpty(), body("optionC").trim().notEmpty(), body("optionD").trim().notEmpty(), body("correctAnswer").trim().notEmpty(), body("explanation").trim().notEmpty(), body("difficultyLevel").trim().notEmpty()];
 

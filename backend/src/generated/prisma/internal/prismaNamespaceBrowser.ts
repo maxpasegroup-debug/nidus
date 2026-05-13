@@ -138,11 +138,13 @@ export const ModelName = {
   Permission: 'Permission',
   RolePermission: 'RolePermission',
   UserRole: 'UserRole',
+  RoleActivity: 'RoleActivity',
   SystemSetting: 'SystemSetting',
   AuditLog: 'AuditLog',
   QueueJobLog: 'QueueJobLog',
   AIRequestLog: 'AIRequestLog',
-  Branch: 'Branch'
+  Branch: 'Branch',
+  Institute: 'Institute'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -168,6 +170,12 @@ export const UserScalarFieldEnum = {
   mobile: 'mobile',
   password: 'password',
   role: 'role',
+  instituteId: 'instituteId',
+  branchId: 'branchId',
+  roleMetadata: 'roleMetadata',
+  roleOnboardingStatus: 'roleOnboardingStatus',
+  roleActivatedAt: 'roleActivatedAt',
+  lastRoleActivityAt: 'lastRoleActivityAt',
   emailVerified: 'emailVerified',
   mobileVerified: 'mobileVerified',
   isDisabled: 'isDisabled',
@@ -243,6 +251,9 @@ export const ParentStudentLinkScalarFieldEnum = {
   id: 'id',
   parentId: 'parentId',
   studentId: 'studentId',
+  status: 'status',
+  monitoringPermissions: 'monitoringPermissions',
+  lastViewedAt: 'lastViewedAt',
   linkedAt: 'linkedAt'
 } as const
 
@@ -1351,10 +1362,30 @@ export type RolePermissionScalarFieldEnum = (typeof RolePermissionScalarFieldEnu
 export const UserRoleScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
-  roleId: 'roleId'
+  roleId: 'roleId',
+  instituteId: 'instituteId',
+  branchId: 'branchId',
+  metadata: 'metadata',
+  onboardingStatus: 'onboardingStatus',
+  assignedAt: 'assignedAt',
+  lastActiveAt: 'lastActiveAt'
 } as const
 
 export type UserRoleScalarFieldEnum = (typeof UserRoleScalarFieldEnum)[keyof typeof UserRoleScalarFieldEnum]
+
+
+export const RoleActivityScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  role: 'role',
+  activity: 'activity',
+  metadata: 'metadata',
+  instituteId: 'instituteId',
+  branchId: 'branchId',
+  createdAt: 'createdAt'
+} as const
+
+export type RoleActivityScalarFieldEnum = (typeof RoleActivityScalarFieldEnum)[keyof typeof RoleActivityScalarFieldEnum]
 
 
 export const SystemSettingScalarFieldEnum = {
@@ -1415,6 +1446,7 @@ export type AIRequestLogScalarFieldEnum = (typeof AIRequestLogScalarFieldEnum)[k
 
 export const BranchScalarFieldEnum = {
   id: 'id',
+  instituteId: 'instituteId',
   name: 'name',
   location: 'location',
   contactNumber: 'contactNumber',
@@ -1422,6 +1454,23 @@ export const BranchScalarFieldEnum = {
 } as const
 
 export type BranchScalarFieldEnum = (typeof BranchScalarFieldEnum)[keyof typeof BranchScalarFieldEnum]
+
+
+export const InstituteScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  code: 'code',
+  city: 'city',
+  state: 'state',
+  contactEmail: 'contactEmail',
+  contactNumber: 'contactNumber',
+  status: 'status',
+  metadata: 'metadata',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type InstituteScalarFieldEnum = (typeof InstituteScalarFieldEnum)[keyof typeof InstituteScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -1455,14 +1504,6 @@ export const QueryMode = {
 export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
 
 
-export const NullsOrder = {
-  first: 'first',
-  last: 'last'
-} as const
-
-export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
-
-
 export const JsonNullValueFilter = {
   DbNull: DbNull,
   JsonNull: JsonNull,
@@ -1470,4 +1511,12 @@ export const JsonNullValueFilter = {
 } as const
 
 export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
+
+
+export const NullsOrder = {
+  first: 'first',
+  last: 'last'
+} as const
+
+export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
 

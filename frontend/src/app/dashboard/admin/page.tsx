@@ -86,6 +86,19 @@ export default function AdminDashboardPage() {
         <QuickActionCard title="Courses" description="Manage modules, tests, batches and faculty ownership." href="/courses" />
         <QuickActionCard title="Reports" description="Open executive controls, audit logs, and system settings." href="/admin-center" />
       </section>
+
+      <SectionHeader eyebrow="Phase 6A Controls" title="Final role and institute operations" />
+      <section className="grid gap-4 md:grid-cols-3">
+        <QuickActionCard title="Role management" description="Manage ADMIN, GUEST, STUDENT, PARENT, TEACHER, DIRECTOR, TELECALLER and MARKETING roles." href="/admin-center/roles" />
+        <QuickActionCard title="Permission management" description="Review module permissions and guarded access policies." href="/admin-center/permissions" />
+        <QuickActionCard title="Institute management" description="Manage institutes, branches, and director scope." href="/admin-center/branches" />
+        <QuickActionCard title="Director management" description="Audit executive access and branch-specific command scope." href="/dashboard/director" />
+        <QuickActionCard title="Telecaller management" description="Monitor lead pipeline ownership and callback activity." href="/dashboard/telecaller" />
+        <QuickActionCard title="Marketing team management" description="Track campaigns, attribution, and Daily Intelligence sharing." href="/dashboard/marketing" />
+        <QuickActionCard title="Activity audit logs" description="Inspect role activity, auth events, and admin actions." href="/admin-center/audit-logs" />
+        <QuickActionCard title="Role analytics" description="Review role adoption, onboarding status, and access posture." href="/admin-center" />
+        <QuickActionCard title="Onboarding approvals" description="Activate staff and student account readiness workflows." href="/admin-center/settings" />
+      </section>
     </motion.div>
     </RoleDashboardGuard>
   );

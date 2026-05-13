@@ -453,6 +453,11 @@ export type RolePermission = Prisma.RolePermissionModel
  */
 export type UserRole = Prisma.UserRoleModel
 /**
+ * Model RoleActivity
+ * 
+ */
+export type RoleActivity = Prisma.RoleActivityModel
+/**
  * Model SystemSetting
  * 
  */
@@ -477,3 +482,8 @@ export type AIRequestLog = Prisma.AIRequestLogModel
  * 
  */
 export type Branch = Prisma.BranchModel
+/**
+ * Model Institute
+ * 
+ */
+export type Institute = Prisma.InstituteModel

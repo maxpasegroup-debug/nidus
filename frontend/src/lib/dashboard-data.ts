@@ -1,17 +1,14 @@
 import type { AuthRole } from "@/services/auth";
 
 export const roleDashboardPath: Record<AuthRole, string> = {
+  ADMIN: "/dashboard/admin",
+  GUEST: "/dashboard/guest",
   STUDENT: "/dashboard/student",
   PARENT: "/dashboard/parent",
-  ADMIN: "/dashboard/admin",
-  DIRECTOR: "/dashboard/admin",
-  TEACHER: "/documents",
-  FACULTY: "/documents",
-  WARDEN: "/hostel",
-  COUNSELLOR: "/crm",
-  STAFF: "/crm",
-  TRAINER: "/fitness",
-  GUEST: "/dashboard/guest"
+  TEACHER: "/dashboard/teacher",
+  DIRECTOR: "/dashboard/director",
+  TELECALLER: "/dashboard/telecaller",
+  MARKETING_COORDINATOR: "/dashboard/marketing"
 };
 
 export const examCards = [

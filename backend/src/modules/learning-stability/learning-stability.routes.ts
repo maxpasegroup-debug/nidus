@@ -45,22 +45,22 @@ learningStabilityRouter.post("/tutor/sessions/:id/message", [body("content").tri
   try { assertValid(req); res.status(201).json({ message: await learningStabilityService.tutorMessage(userId(req), param(req, "id"), req.body.content) }); } catch (error) { next(error); }
 });
 
-learningStabilityRouter.get("/daily-intelligence", allowRoles(Role.ADMIN, Role.STAFF, Role.FACULTY), async (_req, res, next) => {
+learningStabilityRouter.get("/daily-intelligence", allowRoles(Role.ADMIN, Role.TEACHER, Role.MARKETING_COORDINATOR), async (_req, res, next) => {
   try { res.json({ issues: await learningStabilityService.dailyIssues() }); } catch (error) { next(error); }
 });
 
-learningStabilityRouter.get("/daily-intelligence/moderation", allowRoles(Role.ADMIN, Role.STAFF, Role.FACULTY), async (_req, res, next) => {
+learningStabilityRouter.get("/daily-intelligence/moderation", allowRoles(Role.ADMIN, Role.TEACHER, Role.MARKETING_COORDINATOR), async (_req, res, next) => {
   try { res.json({ items: await learningStabilityService.moderationQueue() }); } catch (error) { next(error); }
 });
 
-learningStabilityRouter.post("/daily-intelligence", allowRoles(Role.ADMIN, Role.STAFF, Role.FACULTY), [body("title").trim().notEmpty(), body("issueDate").isISO8601(), body("categories").isArray()], async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+learningStabilityRouter.post("/daily-intelligence", allowRoles(Role.ADMIN, Role.TEACHER, Role.MARKETING_COORDINATOR), [body("title").trim().notEmpty(), body("issueDate").isISO8601(), body("categories").isArray()], async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   try { assertValid(req); res.status(201).json({ issue: await learningStabilityService.dailyIssueDraft(req.body) }); } catch (error) { next(error); }
 });
 
-learningStabilityRouter.post("/daily-intelligence/:id/publish", allowRoles(Role.ADMIN, Role.STAFF), async (req, res, next) => {
+learningStabilityRouter.post("/daily-intelligence/:id/publish", allowRoles(Role.ADMIN, Role.MARKETING_COORDINATOR), async (req, res, next) => {
   try { res.json({ issue: await learningStabilityService.publishIssue(param(req as AuthenticatedRequest, "id")) }); } catch (error) { next(error); }
 });
 
-learningStabilityRouter.post("/daily-intelligence/:id/archive", allowRoles(Role.ADMIN, Role.STAFF), async (req, res, next) => {
+learningStabilityRouter.post("/daily-intelligence/:id/archive", allowRoles(Role.ADMIN, Role.MARKETING_COORDINATOR), async (req, res, next) => {
   try { res.json({ issue: await learningStabilityService.archiveIssue(param(req as AuthenticatedRequest, "id")) }); } catch (error) { next(error); }
 });

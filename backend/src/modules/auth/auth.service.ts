@@ -9,6 +9,9 @@ import { authEmailService } from "./auth-email.service.js";
 type AuthUser = Pick<User, "id" | "name" | "email" | "mobile" | "role" | "emailVerified" | "mobileVerified" | "createdAt" | "updatedAt"> & {
   isDisabled?: boolean;
   lockedUntil?: Date | null;
+  instituteId?: string | null;
+  branchId?: string | null;
+  roleOnboardingStatus?: string;
 };
 
 type RegisterInput = { name: string; email: string; mobile: string; password: string; role?: Role };
@@ -17,6 +20,15 @@ type RequestContext = { ip?: string; userAgent?: string };
 
 const publicRegistrationRoles = new Set<Role>([Role.GUEST, Role.STUDENT]);
 const accessTokenExpirySeconds = env.AUTH_ACCESS_TOKEN_MINUTES * 60;
+const ADMIN_BOOTSTRAP_EMAIL = "nidusacademycalicut@gmail.com";
+
+function normalizeEmail(email: string) {
+  return email.trim().toLowerCase();
+}
+
+function isBootstrapAdminEmail(email: string) {
+  return normalizeEmail(email) === ADMIN_BOOTSTRAP_EMAIL;
+}
 
 function sanitizeUser(user: User): AuthUser {
   return {
@@ -30,7 +42,10 @@ function sanitizeUser(user: User): AuthUser {
     createdAt: user.createdAt,
     updatedAt: user.updatedAt,
     isDisabled: user.isDisabled,
-    lockedUntil: user.lockedUntil
+    lockedUntil: user.lockedUntil,
+    instituteId: user.instituteId,
+    branchId: user.branchId,
+    roleOnboardingStatus: user.roleOnboardingStatus
   };
 }
 
@@ -114,18 +129,42 @@ async function revokeSession(id: string, reason: string) {
 }
 
 export const authService = {
-  async register(input: RegisterInput) {
-    const role = input.role ?? Role.STUDENT;
-    if (!publicRegistrationRoles.has(role)) throw new Error("This role cannot be selected during public registration");
+  async register(input: RegisterInput, ctx?: RequestContext) {
+    const email = normalizeEmail(input.email);
+    const isBootstrapAdmin = isBootstrapAdminEmail(email);
+    const role = isBootstrapAdmin ? Role.ADMIN : input.role ?? Role.STUDENT;
+    if (!isBootstrapAdmin && !publicRegistrationRoles.has(role)) throw new Error("This role cannot be selected during public registration");
 
-    const existingUser = await prisma.user.findFirst({ where: { OR: [{ email: input.email }, { mobile: input.mobile }] } });
+    const existingUser = await prisma.user.findFirst({ where: { OR: [{ email }, { mobile: input.mobile }] } });
     if (existingUser) throw new Error("Email or mobile already registered");
 
     const user = await prisma.user.create({
-      data: { name: input.name, email: input.email, mobile: input.mobile, password: await bcrypt.hash(input.password, 10), role }
+      data: {
+        name: input.name,
+        email,
+        mobile: input.mobile,
+        password: await bcrypt.hash(input.password, 10),
+        role,
+        emailVerified: isBootstrapAdmin,
+        roleOnboardingStatus: isBootstrapAdmin ? "ACTIVE" : "PENDING",
+        roleActivatedAt: isBootstrapAdmin ? new Date() : null,
+        roleMetadata: isBootstrapAdmin ? { bootstrapAdmin: true } : undefined
+      }
     });
-    await createEmailVerification(user);
+    await prisma.roleActivity.create({
+      data: {
+        userId: user.id,
+        role: user.role,
+        activity: isBootstrapAdmin ? "BOOTSTRAP_ADMIN_REGISTERED" : "REGISTERED",
+        metadata: isBootstrapAdmin ? { bypassedApproval: true } : undefined
+      }
+    }).catch(() => undefined);
+    if (!isBootstrapAdmin) await createEmailVerification(user);
     await audit({ userId: user.id, action: "REGISTERED", description: `Registered ${user.email}` });
+    if (isBootstrapAdmin && ctx) {
+      const session = await createSession(user, ctx);
+      return { user: sanitizeUser(user), ...session, message: "Admin account created." };
+    }
     return { user: sanitizeUser(user), message: "Account created. Verify your email before logging in." };
   },
 
@@ -153,7 +192,8 @@ export const authService = {
   },
 
   async login(input: LoginInput, ctx: RequestContext) {
-    const user = await prisma.user.findFirst({ where: { OR: [{ email: input.identifier }, { mobile: input.identifier }] } });
+    const identifier = input.identifier.includes("@") ? normalizeEmail(input.identifier) : input.identifier;
+    const user = await prisma.user.findFirst({ where: { OR: [{ email: identifier }, { mobile: identifier }] } });
     if (!user) {
       await audit({ action: "LOGIN_FAILED", description: `Failed login for unknown account ${input.identifier}`, ip: ctx.ip });
       throw new Error("Invalid credentials");
@@ -161,7 +201,7 @@ export const authService = {
 
     if (user.isDisabled) throw new Error("Account disabled");
     if (user.lockedUntil && user.lockedUntil > new Date()) throw new Error("Account temporarily locked");
-    if (!user.emailVerified) throw new Error("Email verification required");
+    if (!user.emailVerified && !isBootstrapAdminEmail(user.email)) throw new Error("Email verification required");
 
     const isPasswordValid = await bcrypt.compare(input.password, user.password);
     if (!isPasswordValid) {
@@ -179,8 +219,20 @@ export const authService = {
 
     const updated = await prisma.user.update({
       where: { id: user.id },
-      data: { loginFailureCount: 0, lockedUntil: null, lastLoginAt: new Date() }
+      data: {
+        role: isBootstrapAdminEmail(user.email) ? Role.ADMIN : user.role,
+        emailVerified: isBootstrapAdminEmail(user.email) ? true : user.emailVerified,
+        roleOnboardingStatus: isBootstrapAdminEmail(user.email) ? "ACTIVE" : user.roleOnboardingStatus,
+        roleActivatedAt: isBootstrapAdminEmail(user.email) && !user.roleActivatedAt ? new Date() : user.roleActivatedAt,
+        loginFailureCount: 0,
+        lockedUntil: null,
+        lastLoginAt: new Date(),
+        lastRoleActivityAt: new Date()
+      }
     });
+    await prisma.roleActivity.create({
+      data: { userId: updated.id, role: updated.role, activity: "LOGIN", instituteId: updated.instituteId, branchId: updated.branchId }
+    }).catch(() => undefined);
     const session = await createSession(updated, ctx);
     await audit({ userId: updated.id, action: "LOGIN_SUCCESS", description: `Successful login for ${updated.email}`, ip: ctx.ip });
     return { user: sanitizeUser(updated), ...session };
@@ -295,8 +347,19 @@ export const authService = {
     await prisma.$transaction([
       prisma.parentStudentLink.upsert({
         where: { parentId_studentId: { parentId: invitation.parentId, studentId: invitation.studentId } },
-        update: {},
-        create: { parentId: invitation.parentId, studentId: invitation.studentId }
+        update: { status: "ACTIVE" },
+        create: {
+          parentId: invitation.parentId,
+          studentId: invitation.studentId,
+          status: "ACTIVE",
+          monitoringPermissions: {
+            attendance: true,
+            performance: true,
+            fees: true,
+            discipline: true,
+            counselling: true
+          }
+        }
       }),
       prisma.parentStudentInvitation.update({ where: { id: invitation.id }, data: { acceptedAt: new Date() } })
     ]);

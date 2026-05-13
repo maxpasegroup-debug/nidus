@@ -471,11 +471,13 @@ export const ModelName = {
   Permission: 'Permission',
   RolePermission: 'RolePermission',
   UserRole: 'UserRole',
+  RoleActivity: 'RoleActivity',
   SystemSetting: 'SystemSetting',
   AuditLog: 'AuditLog',
   QueueJobLog: 'QueueJobLog',
   AIRequestLog: 'AIRequestLog',
-  Branch: 'Branch'
+  Branch: 'Branch',
+  Institute: 'Institute'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -491,7 +493,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "authVerificationToken" | "passwordResetToken" | "authSession" | "parentStudentInvitation" | "parentStudentLink" | "otp" | "course" | "module" | "lesson" | "enrollment" | "test" | "question" | "testAttempt" | "cBTAnswerState" | "cBTIntegrityEvent" | "answer" | "psychometricTest" | "psychometricQuestion" | "psychometricAttempt" | "psychometricAnswer" | "oLQScore" | "studyPlan" | "performanceAnalytics" | "revisionSchedule" | "liveClass" | "recordedLecture" | "lectureProgress" | "lecturePlaybackEvent" | "attendance" | "timetable" | "faculty" | "classroom" | "payroll" | "announcement" | "hostel" | "room" | "hostelAllocation" | "inOutEntry" | "hostelLeave" | "messMenu" | "disciplineRecord" | "paradePerformance" | "lead" | "followUp" | "admission" | "counsellingBooking" | "referral" | "payment" | "subscription" | "feeInstallment" | "invoice" | "notification" | "messageThread" | "message" | "emailLog" | "pushNotification" | "aIInterviewSession" | "aIInterviewQuestion" | "doubtQuery" | "aIRecommendation" | "aITutorSession" | "aITutorMessage" | "offlineSyncEvent" | "learningAnalyticsSnapshot" | "dailyIntelligenceIssue" | "contentModerationItem" | "officerPotential" | "fitnessProfile" | "pTSchedule" | "pTAttendance" | "physicalEligibility" | "dailyFitnessLog" | "pYQCategory" | "pYQQuestion" | "currentAffair" | "currentAffairQuiz" | "quizBattle" | "quizBattleParticipant" | "leaderboard" | "mediaFolder" | "mediaFile" | "document" | "adminRole" | "permission" | "rolePermission" | "userRole" | "systemSetting" | "auditLog" | "queueJobLog" | "aIRequestLog" | "branch"
+    modelProps: "user" | "authVerificationToken" | "passwordResetToken" | "authSession" | "parentStudentInvitation" | "parentStudentLink" | "otp" | "course" | "module" | "lesson" | "enrollment" | "test" | "question" | "testAttempt" | "cBTAnswerState" | "cBTIntegrityEvent" | "answer" | "psychometricTest" | "psychometricQuestion" | "psychometricAttempt" | "psychometricAnswer" | "oLQScore" | "studyPlan" | "performanceAnalytics" | "revisionSchedule" | "liveClass" | "recordedLecture" | "lectureProgress" | "lecturePlaybackEvent" | "attendance" | "timetable" | "faculty" | "classroom" | "payroll" | "announcement" | "hostel" | "room" | "hostelAllocation" | "inOutEntry" | "hostelLeave" | "messMenu" | "disciplineRecord" | "paradePerformance" | "lead" | "followUp" | "admission" | "counsellingBooking" | "referral" | "payment" | "subscription" | "feeInstallment" | "invoice" | "notification" | "messageThread" | "message" | "emailLog" | "pushNotification" | "aIInterviewSession" | "aIInterviewQuestion" | "doubtQuery" | "aIRecommendation" | "aITutorSession" | "aITutorMessage" | "offlineSyncEvent" | "learningAnalyticsSnapshot" | "dailyIntelligenceIssue" | "contentModerationItem" | "officerPotential" | "fitnessProfile" | "pTSchedule" | "pTAttendance" | "physicalEligibility" | "dailyFitnessLog" | "pYQCategory" | "pYQQuestion" | "currentAffair" | "currentAffairQuiz" | "quizBattle" | "quizBattleParticipant" | "leaderboard" | "mediaFolder" | "mediaFile" | "document" | "adminRole" | "permission" | "rolePermission" | "userRole" | "roleActivity" | "systemSetting" | "auditLog" | "queueJobLog" | "aIRequestLog" | "branch" | "institute"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -6933,6 +6935,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    RoleActivity: {
+      payload: Prisma.$RoleActivityPayload<ExtArgs>
+      fields: Prisma.RoleActivityFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.RoleActivityFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RoleActivityPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.RoleActivityFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RoleActivityPayload>
+        }
+        findFirst: {
+          args: Prisma.RoleActivityFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RoleActivityPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.RoleActivityFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RoleActivityPayload>
+        }
+        findMany: {
+          args: Prisma.RoleActivityFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RoleActivityPayload>[]
+        }
+        create: {
+          args: Prisma.RoleActivityCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RoleActivityPayload>
+        }
+        createMany: {
+          args: Prisma.RoleActivityCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.RoleActivityCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RoleActivityPayload>[]
+        }
+        delete: {
+          args: Prisma.RoleActivityDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RoleActivityPayload>
+        }
+        update: {
+          args: Prisma.RoleActivityUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RoleActivityPayload>
+        }
+        deleteMany: {
+          args: Prisma.RoleActivityDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.RoleActivityUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.RoleActivityUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RoleActivityPayload>[]
+        }
+        upsert: {
+          args: Prisma.RoleActivityUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RoleActivityPayload>
+        }
+        aggregate: {
+          args: Prisma.RoleActivityAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateRoleActivity>
+        }
+        groupBy: {
+          args: Prisma.RoleActivityGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RoleActivityGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.RoleActivityCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RoleActivityCountAggregateOutputType> | number
+        }
+      }
+    }
     SystemSetting: {
       payload: Prisma.$SystemSettingPayload<ExtArgs>
       fields: Prisma.SystemSettingFieldRefs
@@ -7303,6 +7379,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    Institute: {
+      payload: Prisma.$InstitutePayload<ExtArgs>
+      fields: Prisma.InstituteFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.InstituteFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InstitutePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.InstituteFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InstitutePayload>
+        }
+        findFirst: {
+          args: Prisma.InstituteFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InstitutePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.InstituteFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InstitutePayload>
+        }
+        findMany: {
+          args: Prisma.InstituteFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InstitutePayload>[]
+        }
+        create: {
+          args: Prisma.InstituteCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InstitutePayload>
+        }
+        createMany: {
+          args: Prisma.InstituteCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.InstituteCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InstitutePayload>[]
+        }
+        delete: {
+          args: Prisma.InstituteDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InstitutePayload>
+        }
+        update: {
+          args: Prisma.InstituteUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InstitutePayload>
+        }
+        deleteMany: {
+          args: Prisma.InstituteDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.InstituteUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.InstituteUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InstitutePayload>[]
+        }
+        upsert: {
+          args: Prisma.InstituteUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InstitutePayload>
+        }
+        aggregate: {
+          args: Prisma.InstituteAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateInstitute>
+        }
+        groupBy: {
+          args: Prisma.InstituteGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.InstituteGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.InstituteCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.InstituteCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -7349,6 +7499,12 @@ export const UserScalarFieldEnum = {
   mobile: 'mobile',
   password: 'password',
   role: 'role',
+  instituteId: 'instituteId',
+  branchId: 'branchId',
+  roleMetadata: 'roleMetadata',
+  roleOnboardingStatus: 'roleOnboardingStatus',
+  roleActivatedAt: 'roleActivatedAt',
+  lastRoleActivityAt: 'lastRoleActivityAt',
   emailVerified: 'emailVerified',
   mobileVerified: 'mobileVerified',
   isDisabled: 'isDisabled',
@@ -7424,6 +7580,9 @@ export const ParentStudentLinkScalarFieldEnum = {
   id: 'id',
   parentId: 'parentId',
   studentId: 'studentId',
+  status: 'status',
+  monitoringPermissions: 'monitoringPermissions',
+  lastViewedAt: 'lastViewedAt',
   linkedAt: 'linkedAt'
 } as const
 
@@ -8532,10 +8691,30 @@ export type RolePermissionScalarFieldEnum = (typeof RolePermissionScalarFieldEnu
 export const UserRoleScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
-  roleId: 'roleId'
+  roleId: 'roleId',
+  instituteId: 'instituteId',
+  branchId: 'branchId',
+  metadata: 'metadata',
+  onboardingStatus: 'onboardingStatus',
+  assignedAt: 'assignedAt',
+  lastActiveAt: 'lastActiveAt'
 } as const
 
 export type UserRoleScalarFieldEnum = (typeof UserRoleScalarFieldEnum)[keyof typeof UserRoleScalarFieldEnum]
+
+
+export const RoleActivityScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  role: 'role',
+  activity: 'activity',
+  metadata: 'metadata',
+  instituteId: 'instituteId',
+  branchId: 'branchId',
+  createdAt: 'createdAt'
+} as const
+
+export type RoleActivityScalarFieldEnum = (typeof RoleActivityScalarFieldEnum)[keyof typeof RoleActivityScalarFieldEnum]
 
 
 export const SystemSettingScalarFieldEnum = {
@@ -8596,6 +8775,7 @@ export type AIRequestLogScalarFieldEnum = (typeof AIRequestLogScalarFieldEnum)[k
 
 export const BranchScalarFieldEnum = {
   id: 'id',
+  instituteId: 'instituteId',
   name: 'name',
   location: 'location',
   contactNumber: 'contactNumber',
@@ -8603,6 +8783,23 @@ export const BranchScalarFieldEnum = {
 } as const
 
 export type BranchScalarFieldEnum = (typeof BranchScalarFieldEnum)[keyof typeof BranchScalarFieldEnum]
+
+
+export const InstituteScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  code: 'code',
+  city: 'city',
+  state: 'state',
+  contactEmail: 'contactEmail',
+  contactNumber: 'contactNumber',
+  status: 'status',
+  metadata: 'metadata',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type InstituteScalarFieldEnum = (typeof InstituteScalarFieldEnum)[keyof typeof InstituteScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -8636,14 +8833,6 @@ export const QueryMode = {
 export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
 
 
-export const NullsOrder = {
-  first: 'first',
-  last: 'last'
-} as const
-
-export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
-
-
 export const JsonNullValueFilter = {
   DbNull: DbNull,
   JsonNull: JsonNull,
@@ -8651,6 +8840,14 @@ export const JsonNullValueFilter = {
 } as const
 
 export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
+
+
+export const NullsOrder = {
+  first: 'first',
+  last: 'last'
+} as const
+
+export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
 
 
 
@@ -8688,9 +8885,16 @@ export type ListEnumRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaM
 
 
 /**
- * Reference to a field of type 'Boolean'
+ * Reference to a field of type 'Json'
  */
-export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
+export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+    
+
+
+/**
+ * Reference to a field of type 'QueryMode'
+ */
+export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
     
 
 
@@ -8705,6 +8909,13 @@ export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel
  * Reference to a field of type 'DateTime[]'
  */
 export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>
+    
+
+
+/**
+ * Reference to a field of type 'Boolean'
+ */
+export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
     
 
 
@@ -8747,20 +8958,6 @@ export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, '
  * Reference to a field of type 'Float[]'
  */
 export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
-    
-
-
-/**
- * Reference to a field of type 'Json'
- */
-export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
-    
-
-
-/**
- * Reference to a field of type 'QueryMode'
- */
-export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
     
 
 
@@ -9016,11 +9213,13 @@ export type GlobalOmitConfig = {
   permission?: Prisma.PermissionOmit
   rolePermission?: Prisma.RolePermissionOmit
   userRole?: Prisma.UserRoleOmit
+  roleActivity?: Prisma.RoleActivityOmit
   systemSetting?: Prisma.SystemSettingOmit
   auditLog?: Prisma.AuditLogOmit
   queueJobLog?: Prisma.QueueJobLogOmit
   aIRequestLog?: Prisma.AIRequestLogOmit
   branch?: Prisma.BranchOmit
+  institute?: Prisma.InstituteOmit
 }
 
 /* Types for Logging */

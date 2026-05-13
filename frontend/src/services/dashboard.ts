@@ -38,6 +38,7 @@ export type StudentDashboardData = {
 
 export type ParentDashboardData = {
   linkedStudent: Pick<AuthUser, "id" | "name" | "email" | "mobile"> | null;
+  monitoringPermissions?: Record<string, boolean> | null;
   studentPerformance: {
     averageScore: number;
     improvement: number;
@@ -94,6 +95,46 @@ export type GuestDashboardData = {
   latestNews: string[];
 };
 
+export type TeacherDashboardData = {
+  profile: (Pick<AuthUser, "id" | "name" | "email" | "mobile" | "role"> & { instituteId?: string | null; branchId?: string | null }) | null;
+  subjects: string[];
+  classPerformance: { averageScore: number; attendance: number; weakStudentCount: number; assignmentsDue: number };
+  contentOps: { lectureUploads: number; notesUploads: number; pendingReviews: number; cbtDrafts: number };
+  modules: Array<{ title: string; status: string; metric: string }>;
+  weakStudentAlerts: string[];
+  aiRecommendations: string[];
+};
+
+export type DirectorDashboardData = {
+  scope: { instituteId: string | null; branchId: string | null };
+  instituteAnalytics: { students: number; teachers: number; attendance: number; cbtCompletion: number };
+  admissionsAnalytics: { leads: number; admissions: number; conversionRate: number };
+  revenueAnalytics: { collected: number; pending: number; forecast: number };
+  facultyAnalytics: { active: number; utilization: number; reviewDue: number };
+  riskAlerts: string[];
+  executiveInsights: string[];
+  growthForecast: Array<{ month: string; forecast: number }>;
+};
+
+export type TelecallerDashboardData = {
+  leadPipeline: { new: number; contacted: number; counselling: number; enrolled: number; lost: number; assignedLeads: number };
+  scheduling: { callbacksToday: number; counselling: number; overdueFollowUps: number };
+  performance: { callsToday: number; conversionRate: number; averageResponseTime: string; notesAdded: number };
+  modules: string[];
+  aiCallScripts: string[];
+  whatsappShell: { status: string; templates: number; pendingOptIns: number };
+};
+
+export type MarketingDashboardData = {
+  campaignTracking: { activeCampaigns: number; leadsGenerated: number; costPerLead: number; roi: number };
+  attribution: Array<{ channel: string; leads: number; conversion: number }>;
+  webinarRegistrations: { upcoming: number; registered: number; attendedLast: number };
+  landingPageAnalytics: { visitors: number; conversionRate: number; topPage: string };
+  roiAnalytics: Array<{ month: string; roi: number }>;
+  publishingShell: { contentQueue: number; dailyIntelligenceShares: number; socialPosts: number };
+  socialCampaignAnalytics: { reach: number; engagement: number; enquiries: number };
+};
+
 async function getDashboard<T>(path: string) {
   const response = await apiClient.get<DashboardResponse<T>>(path);
   return response.data.data;
@@ -113,4 +154,20 @@ export function getAdminDashboard() {
 
 export function getGuestDashboard() {
   return getDashboard<GuestDashboardData>("/dashboard/guest");
+}
+
+export function getTeacherDashboard() {
+  return getDashboard<TeacherDashboardData>("/dashboard/teacher");
+}
+
+export function getDirectorDashboard() {
+  return getDashboard<DirectorDashboardData>("/dashboard/director");
+}
+
+export function getTelecallerDashboard() {
+  return getDashboard<TelecallerDashboardData>("/dashboard/telecaller");
+}
+
+export function getMarketingDashboard() {
+  return getDashboard<MarketingDashboardData>("/dashboard/marketing");
 }

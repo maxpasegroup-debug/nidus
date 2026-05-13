@@ -11,9 +11,9 @@ export const messRouter = Router();
 export const disciplineRouter = Router();
 export const paradeRouter = Router();
 
-const adminWarden = [protect, allowRoles(Role.ADMIN, Role.WARDEN)];
-const hostelAccess = [protect, allowRoles(Role.ADMIN, Role.WARDEN, Role.STUDENT)];
-const mealAccess = [protect, allowRoles(Role.ADMIN, Role.WARDEN, Role.STUDENT)];
+const adminWarden = [protect, allowRoles(Role.ADMIN, Role.DIRECTOR)];
+const hostelAccess = [protect, allowRoles(Role.ADMIN, Role.DIRECTOR, Role.STUDENT, Role.PARENT)];
+const mealAccess = [protect, allowRoles(Role.ADMIN, Role.DIRECTOR, Role.STUDENT, Role.PARENT)];
 
 hostelsRouter.get("/", ...hostelAccess, hostelController.hostels);
 hostelsRouter.post("/", ...adminWarden, [body("name").trim().notEmpty(), body("type").isIn(["BOYS", "GIRLS"]), body("totalRooms").isInt({ min: 1 }), body("wardenName").trim().notEmpty()], hostelController.createHostel);

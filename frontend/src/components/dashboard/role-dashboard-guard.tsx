@@ -8,9 +8,11 @@ import { roleDashboardPath } from "@/lib/dashboard-data";
 import type { AuthRole } from "@/services/auth";
 
 const compatibleRoles: Partial<Record<AuthRole, AuthRole[]>> = {
-  ADMIN: ["ADMIN", "DIRECTOR"],
-  FACULTY: ["FACULTY", "TEACHER"],
-  TEACHER: ["TEACHER", "FACULTY"]
+  ADMIN: ["ADMIN"],
+  DIRECTOR: ["DIRECTOR", "ADMIN"],
+  TEACHER: ["TEACHER", "ADMIN"],
+  TELECALLER: ["TELECALLER", "ADMIN", "DIRECTOR"],
+  MARKETING_COORDINATOR: ["MARKETING_COORDINATOR", "ADMIN", "DIRECTOR"]
 };
 
 export function RoleDashboardGuard({

@@ -9,6 +9,8 @@ export type JwtUser = {
   id: string;
   role: Role;
   sessionId?: string;
+  instituteId?: string | null;
+  branchId?: string | null;
 };
 
 export type AuthenticatedRequest = Request & {
@@ -38,7 +40,7 @@ export async function protect(req: AuthenticatedRequest, res: Response, next: Ne
 
     const user = await prisma.user.findUnique({
       where: { id: decoded.sub },
-      select: { id: true, role: true, isDisabled: true }
+      select: { id: true, role: true, isDisabled: true, instituteId: true, branchId: true }
     });
 
     if (!user || user.isDisabled) {
@@ -60,11 +62,40 @@ export async function protect(req: AuthenticatedRequest, res: Response, next: Ne
       });
     }
 
-    req.user = { id: user.id, role: user.role, sessionId: decoded.sid };
+    req.user = { id: user.id, role: user.role, sessionId: decoded.sid, instituteId: user.instituteId, branchId: user.branchId };
     next();
   } catch (_error) {
     res.status(401).json({ message: "Invalid or expired authentication token" });
   }
+}
+
+export function requireInstituteScope() {
+  return (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    if (!req.user) {
+      res.status(401).json({ message: "Unauthorized" });
+      return;
+    }
+
+    if (req.user.role === "ADMIN") {
+      next();
+      return;
+    }
+
+    const instituteId = typeof req.params.instituteId === "string" ? req.params.instituteId : req.query.instituteId;
+    const branchId = typeof req.params.branchId === "string" ? req.params.branchId : req.query.branchId;
+
+    if (typeof instituteId === "string" && req.user.instituteId && instituteId !== req.user.instituteId) {
+      res.status(403).json({ message: "Institute access denied" });
+      return;
+    }
+
+    if (typeof branchId === "string" && req.user.branchId && branchId !== req.user.branchId) {
+      res.status(403).json({ message: "Branch access denied" });
+      return;
+    }
+
+    next();
+  };
 }
 
 export function allowRoles(...roles: Role[]) {

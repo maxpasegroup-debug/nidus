@@ -4,8 +4,12 @@ import { useQuery } from "@tanstack/react-query";
 import {
   getAdminDashboard,
   getGuestDashboard,
+  getDirectorDashboard,
+  getMarketingDashboard,
   getParentDashboard,
-  getStudentDashboard
+  getStudentDashboard,
+  getTeacherDashboard,
+  getTelecallerDashboard
 } from "@/services/dashboard";
 
 export function useStudentDashboard() {
@@ -34,4 +38,20 @@ export function useGuestDashboard() {
     queryKey: ["dashboard", "guest"],
     queryFn: getGuestDashboard
   });
+}
+
+export function useTeacherDashboard() {
+  return useQuery({ queryKey: ["dashboard", "teacher"], queryFn: getTeacherDashboard });
+}
+
+export function useDirectorDashboard() {
+  return useQuery({ queryKey: ["dashboard", "director"], queryFn: getDirectorDashboard });
+}
+
+export function useTelecallerDashboard() {
+  return useQuery({ queryKey: ["dashboard", "telecaller"], queryFn: getTelecallerDashboard });
+}
+
+export function useMarketingDashboard() {
+  return useQuery({ queryKey: ["dashboard", "marketing"], queryFn: getMarketingDashboard });
 }

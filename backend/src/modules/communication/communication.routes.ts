@@ -11,7 +11,7 @@ export const emailsRouter = Router();
 export const pushRouter = Router();
 
 const authenticated = [protect];
-const publishers = [protect, allowRoles(Role.ADMIN, Role.STAFF, Role.COUNSELLOR, Role.WARDEN)];
+const publishers = [protect, allowRoles(Role.ADMIN, Role.DIRECTOR, Role.TEACHER, Role.TELECALLER, Role.MARKETING_COORDINATOR)];
 
 notificationsRouter.get("/", ...authenticated, communicationController.notifications);
 notificationsRouter.put("/read/:id", ...authenticated, communicationController.markNotificationRead);

@@ -45,5 +45,41 @@ export const dashboardController = {
     } catch (error) {
       next(error);
     }
+  },
+
+  async teacher(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      const data = await dashboardService.getTeacherDashboard(getAuthenticatedUser(req));
+      res.json({ role: "TEACHER", data });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async director(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      const data = await dashboardService.getDirectorDashboard(getAuthenticatedUser(req));
+      res.json({ role: "DIRECTOR", data });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async telecaller(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      const data = await dashboardService.getTelecallerDashboard(getAuthenticatedUser(req));
+      res.json({ role: "TELECALLER", data });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async marketing(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      const data = await dashboardService.getMarketingDashboard(getAuthenticatedUser(req));
+      res.json({ role: "MARKETING_COORDINATOR", data });
+    } catch (error) {
+      next(error);
+    }
   }
 };

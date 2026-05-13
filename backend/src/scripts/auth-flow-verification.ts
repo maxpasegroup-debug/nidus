@@ -22,7 +22,8 @@ assert.match(routes, /\/logout-all/, "logout-all endpoint must exist");
 assert.match(routes, /\/sessions\/:id/, "session revoke endpoint must exist");
 assert.match(routes, /\/forgot-password\/send-otp/, "forgot password request endpoint must exist");
 
-assert.match(service, /emailVerified\)\s+throw new Error\("Email verification required"\)/, "login must require verified email");
+assert.match(service, /!user\.emailVerified && !isBootstrapAdminEmail\(user\.email\)/, "login must require verified email except bootstrap admin");
+assert.match(service, /ADMIN_BOOTSTRAP_EMAIL = "nidusacademycalicut@gmail.com"/, "bootstrap admin email must be locked in auth service");
 assert.match(service, /loginFailureCount/, "login failures must be tracked");
 assert.match(service, /lockedUntil/, "temporary lockout must be tracked");
 assert.match(service, /refreshTokenHash/, "refresh tokens must be hashed and stored");

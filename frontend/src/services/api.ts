@@ -2,6 +2,7 @@ import axios, { AxiosError } from "axios";
 
 export const API_URL = process.env.NEXT_PUBLIC_API_URL?.trim() || "/api";
 const CSRF_COOKIE_NAME = process.env.NEXT_PUBLIC_CSRF_COOKIE_NAME?.trim() || "nidus_csrf";
+const publicAuthPaths = new Set(["/", "/login", "/register", "/contact", "/forgot-password", "/reset-password", "/verify-email"]);
 
 function readCookie(name: string) {
   if (typeof document === "undefined") return undefined;
@@ -47,7 +48,7 @@ apiClient.interceptors.response.use(
 
     if (typeof window !== "undefined" && error.response?.status === 401) {
       document.cookie = "nidus_auth=; path=/; max-age=0; samesite=lax";
-      if (!window.location.pathname.startsWith("/login")) {
+      if (!publicAuthPaths.has(window.location.pathname)) {
         window.dispatchEvent(new CustomEvent("nidus:session-expired"));
       }
     }

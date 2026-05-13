@@ -6,6 +6,7 @@ import { getApiErrorMessage } from "@/services/api";
 import * as authApi from "@/services/auth";
 import type { AuthResponse, AuthUser, LoginPayload, RegisterPayload } from "@/services/auth";
 import { useToast } from "@/components/providers/toast-provider";
+import { roleDashboardPath } from "@/lib/dashboard-data";
 
 type AuthContextValue = {
   user: AuthUser | null;
@@ -42,7 +43,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(response.user);
       setAuthCookie(true);
       showToast(message, "success");
-      router.replace("/dashboard");
+      router.replace(roleDashboardPath[response.user.role]);
     },
     [router, showToast]
   );
@@ -88,6 +89,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         try {
           const response = await authApi.register(payload);
           setUser(response.user);
+          if (response.user.role === "ADMIN") {
+            setAuthCookie(true);
+            showToast("Admin account created", "success");
+            router.replace(roleDashboardPath.ADMIN);
+            return;
+          }
           showToast("Account created. Verify your email before logging in.", "success");
           router.replace(`/verify-email?identifier=${encodeURIComponent(payload.email)}`);
         } catch (error) {

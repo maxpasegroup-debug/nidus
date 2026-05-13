@@ -13,10 +13,9 @@ test("login flow reaches dashboard with mocked backend auth", async ({ page }) =
 test("registration keeps public roles restricted to student or guest", async ({ page }) => {
   await mockPublicApi(page);
   await page.goto("/register");
-  await expect(page.getByLabel("Access profile")).toContainText("Student");
-  await expect(page.getByLabel("Access profile")).toContainText("Guest");
-  await expect(page.getByLabel("Access profile")).not.toContainText("Admin");
-  await expect(page.getByLabel("Access profile")).not.toContainText("Teacher");
+  const options = page.locator("#access-profile option");
+  await expect(options).toContainText(["Student", "Guest"]);
+  await expect(options).not.toContainText(["Admin", "Teacher"]);
 });
 
 test("forgot password has recoverable request UX", async ({ page }) => {

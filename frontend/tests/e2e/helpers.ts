@@ -28,6 +28,18 @@ export async function mockPublicApi(page: Page, authenticated = false) {
   await page.route("**/api/auth/forgot-password/send-otp", (route) => json(route, { message: "Reset instructions sent" }));
   await page.route("**/api/auth/logout", (route) => json(route, { message: "Logged out" }));
   await page.route("**/api/tests?**", (route) => json(route, { tests: [{ id: "test-1", title: "NDA Beta Mock", description: "Public beta CBT smoke test", examType: "NDA", category: "Math", duration: 30, totalMarks: 100, isLive: false, isMockTest: true }] }));
-  await page.route("**/api/dashboard/**", (route) => json(route, {}));
+  await page.route("**/api/dashboard/**", (route) => json(route, {
+    role: betaUser.role,
+    data: {
+      profile: betaUser,
+      enrolledCourses: [],
+      upcomingTests: [],
+      attendance: { percentage: 0, present: 0, total: 0, trend: [] },
+      leaderboardRank: { rank: 1, percentile: 100, batch: "Beta" },
+      aiRecommendations: [],
+      fitnessProgress: { score: 0, streakDays: 0, focus: "Baseline" },
+      recentActivities: []
+    }
+  }));
   await page.route("**/api/my-courses", (route) => json(route, { courses: [] }));
 }

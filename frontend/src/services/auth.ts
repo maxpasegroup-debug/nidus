@@ -1,6 +1,6 @@
 import { apiClient } from "@/services/api";
 
-export type AuthRole = "STUDENT" | "PARENT" | "ADMIN" | "DIRECTOR" | "TEACHER" | "FACULTY" | "WARDEN" | "COUNSELLOR" | "STAFF" | "TRAINER" | "GUEST";
+export type AuthRole = "ADMIN" | "GUEST" | "STUDENT" | "PARENT" | "TEACHER" | "DIRECTOR" | "TELECALLER" | "MARKETING_COORDINATOR";
 
 export type AuthUser = {
   id: string;
@@ -10,6 +10,9 @@ export type AuthUser = {
   role: AuthRole;
   emailVerified: boolean;
   mobileVerified: boolean;
+  instituteId?: string | null;
+  branchId?: string | null;
+  roleOnboardingStatus?: string;
   createdAt: string;
   updatedAt: string;
 };
@@ -26,6 +29,7 @@ export type AuthSession = {
 
 export type AuthResponse = {
   user: AuthUser;
+  message?: string;
 };
 
 export type RegisterPayload = {

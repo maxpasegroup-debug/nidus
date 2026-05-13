@@ -10,17 +10,14 @@ datasource db {
 }
 
 enum Role {
+  ADMIN
+  GUEST
   STUDENT
   PARENT
-  ADMIN
-  DIRECTOR
   TEACHER
-  FACULTY
-  WARDEN
-  COUNSELLOR
-  STAFF
-  TRAINER
-  GUEST
+  DIRECTOR
+  TELECALLER
+  MARKETING_COORDINATOR
 }
 
 enum LeadStatus {
@@ -59,6 +56,12 @@ model User {
   mobile         String   @unique
   password       String
   role           Role     @default(STUDENT)
+  instituteId    String?
+  branchId       String?
+  roleMetadata   Json?
+  roleOnboardingStatus String @default("PENDING")
+  roleActivatedAt DateTime?
+  lastRoleActivityAt DateTime?
   emailVerified  Boolean  @default(false)
   mobileVerified Boolean  @default(false)
   isDisabled      Boolean  @default(false)
@@ -112,6 +115,9 @@ model User {
   mediaFiles MediaFile[] @relation("MediaFileUploader")
   documents Document[] @relation("DocumentUploader")
   adminRoles UserRole[]
+  roleActivities RoleActivity[]
+  institute Institute? @relation(fields: [instituteId], references: [id], onDelete: SetNull)
+  branch Branch? @relation(fields: [branchId], references: [id], onDelete: SetNull)
   auditLogs AuditLog[]
   authVerificationTokens AuthVerificationToken[]
   passwordResetTokens PasswordResetToken[]
@@ -122,6 +128,11 @@ model User {
   studentLinks ParentStudentLink[] @relation("ParentLinkStudent")
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+
+  @@index([role])
+  @@index([instituteId])
+  @@index([branchId])
+  @@index([roleOnboardingStatus])
 }
 
 model AuthVerificationToken {
@@ -190,12 +201,16 @@ model ParentStudentLink {
   id        String   @id @default(cuid())
   parentId  String
   studentId String
+  status    String   @default("ACTIVE")
+  monitoringPermissions Json?
+  lastViewedAt DateTime?
   linkedAt  DateTime @default(now())
   parent    User     @relation("ParentLinkParent", fields: [parentId], references: [id], onDelete: Cascade)
   student   User     @relation("ParentLinkStudent", fields: [studentId], references: [id], onDelete: Cascade)
 
   @@unique([parentId, studentId])
   @@index([studentId])
+  @@index([status])
 }
 
 model Otp {
@@ -1399,14 +1414,45 @@ model RolePermission {
 }
 
 model UserRole {
-  id     String    @id @default(cuid())
-  userId String
-  roleId String
-  user   User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  role   AdminRole @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  id          String    @id @default(cuid())
+  userId      String
+  roleId      String
+  instituteId String?
+  branchId    String?
+  metadata    Json?
+  onboardingStatus String @default("PENDING")
+  assignedAt  DateTime @default(now())
+  lastActiveAt DateTime?
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role        AdminRole @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  institute   Institute? @relation(fields: [instituteId], references: [id], onDelete: SetNull)
+  branch      Branch? @relation(fields: [branchId], references: [id], onDelete: SetNull)
 
   @@unique([userId, roleId])
   @@index([roleId])
+  @@index([instituteId])
+  @@index([branchId])
+  @@index([onboardingStatus])
+}
+
+model RoleActivity {
+  id          String   @id @default(cuid())
+  userId      String
+  role        Role
+  activity    String
+  metadata    Json?
+  instituteId String?
+  branchId    String?
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  institute   Institute? @relation(fields: [instituteId], references: [id], onDelete: SetNull)
+  branch      Branch? @relation(fields: [branchId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([role])
+  @@index([instituteId])
+  @@index([branchId])
+  @@index([createdAt])
 }
 
 model SystemSetting {
@@ -1471,11 +1517,38 @@ model AIRequestLog {
 
 model Branch {
   id            String   @id @default(cuid())
+  instituteId   String?
   name          String
   location      String
   contactNumber String
   createdAt     DateTime @default(now())
+  institute     Institute? @relation(fields: [instituteId], references: [id], onDelete: SetNull)
+  users         User[]
+  userRoles     UserRole[]
+  roleActivities RoleActivity[]
 
+  @@index([instituteId])
   @@index([location])
+  @@index([createdAt])
+}
+
+model Institute {
+  id            String   @id @default(cuid())
+  name          String
+  code          String   @unique
+  city          String?
+  state         String?
+  contactEmail  String?
+  contactNumber String?
+  status        String   @default("ACTIVE")
+  metadata      Json?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  branches      Branch[]
+  users         User[]
+  userRoles     UserRole[]
+  roleActivities RoleActivity[]
+
+  @@index([status])
   @@index([createdAt])
 }

@@ -21,8 +21,11 @@ export const authController = {
   async register(req: Request, res: Response, next: NextFunction) {
     try {
       validateRequest(req);
-      const result = await authService.register(req.body);
-      res.status(201).json(result);
+      const result = await authService.register(req.body, { ip: req.ip, userAgent: req.headers["user-agent"] });
+      if ("accessToken" in result && "refreshToken" in result) {
+        setAuthCookies(res, result.accessToken, result.refreshToken);
+      }
+      res.status(201).json({ user: result.user, message: result.message });
     } catch (error) {
       next(error);
     }

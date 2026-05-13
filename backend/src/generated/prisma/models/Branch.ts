@@ -26,6 +26,7 @@ export type AggregateBranch = {
 
 export type BranchMinAggregateOutputType = {
   id: string | null
+  instituteId: string | null
   name: string | null
   location: string | null
   contactNumber: string | null
@@ -34,6 +35,7 @@ export type BranchMinAggregateOutputType = {
 
 export type BranchMaxAggregateOutputType = {
   id: string | null
+  instituteId: string | null
   name: string | null
   location: string | null
   contactNumber: string | null
@@ -42,6 +44,7 @@ export type BranchMaxAggregateOutputType = {
 
 export type BranchCountAggregateOutputType = {
   id: number
+  instituteId: number
   name: number
   location: number
   contactNumber: number
@@ -52,6 +55,7 @@ export type BranchCountAggregateOutputType = {
 
 export type BranchMinAggregateInputType = {
   id?: true
+  instituteId?: true
   name?: true
   location?: true
   contactNumber?: true
@@ -60,6 +64,7 @@ export type BranchMinAggregateInputType = {
 
 export type BranchMaxAggregateInputType = {
   id?: true
+  instituteId?: true
   name?: true
   location?: true
   contactNumber?: true
@@ -68,6 +73,7 @@ export type BranchMaxAggregateInputType = {
 
 export type BranchCountAggregateInputType = {
   id?: true
+  instituteId?: true
   name?: true
   location?: true
   contactNumber?: true
@@ -149,6 +155,7 @@ export type BranchGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalA
 
 export type BranchGroupByOutputType = {
   id: string
+  instituteId: string | null
   name: string
   location: string
   contactNumber: string
@@ -178,18 +185,28 @@ export type BranchWhereInput = {
   OR?: Prisma.BranchWhereInput[]
   NOT?: Prisma.BranchWhereInput | Prisma.BranchWhereInput[]
   id?: Prisma.StringFilter<"Branch"> | string
+  instituteId?: Prisma.StringNullableFilter<"Branch"> | string | null
   name?: Prisma.StringFilter<"Branch"> | string
   location?: Prisma.StringFilter<"Branch"> | string
   contactNumber?: Prisma.StringFilter<"Branch"> | string
   createdAt?: Prisma.DateTimeFilter<"Branch"> | Date | string
+  institute?: Prisma.XOR<Prisma.InstituteNullableScalarRelationFilter, Prisma.InstituteWhereInput> | null
+  users?: Prisma.UserListRelationFilter
+  userRoles?: Prisma.UserRoleListRelationFilter
+  roleActivities?: Prisma.RoleActivityListRelationFilter
 }
 
 export type BranchOrderByWithRelationInput = {
   id?: Prisma.SortOrder
+  instituteId?: Prisma.SortOrderInput | Prisma.SortOrder
   name?: Prisma.SortOrder
   location?: Prisma.SortOrder
   contactNumber?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  institute?: Prisma.InstituteOrderByWithRelationInput
+  users?: Prisma.UserOrderByRelationAggregateInput
+  userRoles?: Prisma.UserRoleOrderByRelationAggregateInput
+  roleActivities?: Prisma.RoleActivityOrderByRelationAggregateInput
 }
 
 export type BranchWhereUniqueInput = Prisma.AtLeast<{
@@ -197,14 +214,20 @@ export type BranchWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.BranchWhereInput | Prisma.BranchWhereInput[]
   OR?: Prisma.BranchWhereInput[]
   NOT?: Prisma.BranchWhereInput | Prisma.BranchWhereInput[]
+  instituteId?: Prisma.StringNullableFilter<"Branch"> | string | null
   name?: Prisma.StringFilter<"Branch"> | string
   location?: Prisma.StringFilter<"Branch"> | string
   contactNumber?: Prisma.StringFilter<"Branch"> | string
   createdAt?: Prisma.DateTimeFilter<"Branch"> | Date | string
+  institute?: Prisma.XOR<Prisma.InstituteNullableScalarRelationFilter, Prisma.InstituteWhereInput> | null
+  users?: Prisma.UserListRelationFilter
+  userRoles?: Prisma.UserRoleListRelationFilter
+  roleActivities?: Prisma.RoleActivityListRelationFilter
 }, "id">
 
 export type BranchOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
+  instituteId?: Prisma.SortOrderInput | Prisma.SortOrder
   name?: Prisma.SortOrder
   location?: Prisma.SortOrder
   contactNumber?: Prisma.SortOrder
@@ -219,6 +242,7 @@ export type BranchScalarWhereWithAggregatesInput = {
   OR?: Prisma.BranchScalarWhereWithAggregatesInput[]
   NOT?: Prisma.BranchScalarWhereWithAggregatesInput | Prisma.BranchScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"Branch"> | string
+  instituteId?: Prisma.StringNullableWithAggregatesFilter<"Branch"> | string | null
   name?: Prisma.StringWithAggregatesFilter<"Branch"> | string
   location?: Prisma.StringWithAggregatesFilter<"Branch"> | string
   contactNumber?: Prisma.StringWithAggregatesFilter<"Branch"> | string
@@ -231,14 +255,22 @@ export type BranchCreateInput = {
   location: string
   contactNumber: string
   createdAt?: Date | string
+  institute?: Prisma.InstituteCreateNestedOneWithoutBranchesInput
+  users?: Prisma.UserCreateNestedManyWithoutBranchInput
+  userRoles?: Prisma.UserRoleCreateNestedManyWithoutBranchInput
+  roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutBranchInput
 }
 
 export type BranchUncheckedCreateInput = {
   id?: string
+  instituteId?: string | null
   name: string
   location: string
   contactNumber: string
   createdAt?: Date | string
+  users?: Prisma.UserUncheckedCreateNestedManyWithoutBranchInput
+  userRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutBranchInput
+  roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutBranchInput
 }
 
 export type BranchUpdateInput = {
@@ -247,18 +279,27 @@ export type BranchUpdateInput = {
   location?: Prisma.StringFieldUpdateOperationsInput | string
   contactNumber?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  institute?: Prisma.InstituteUpdateOneWithoutBranchesNestedInput
+  users?: Prisma.UserUpdateManyWithoutBranchNestedInput
+  userRoles?: Prisma.UserRoleUpdateManyWithoutBranchNestedInput
+  roleActivities?: Prisma.RoleActivityUpdateManyWithoutBranchNestedInput
 }
 
 export type BranchUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   location?: Prisma.StringFieldUpdateOperationsInput | string
   contactNumber?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  users?: Prisma.UserUncheckedUpdateManyWithoutBranchNestedInput
+  userRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutBranchNestedInput
+  roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutBranchNestedInput
 }
 
 export type BranchCreateManyInput = {
   id?: string
+  instituteId?: string | null
   name: string
   location: string
   contactNumber: string
@@ -275,14 +316,21 @@ export type BranchUpdateManyMutationInput = {
 
 export type BranchUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   location?: Prisma.StringFieldUpdateOperationsInput | string
   contactNumber?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
+export type BranchNullableScalarRelationFilter = {
+  is?: Prisma.BranchWhereInput | null
+  isNot?: Prisma.BranchWhereInput | null
+}
+
 export type BranchCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  instituteId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   location?: Prisma.SortOrder
   contactNumber?: Prisma.SortOrder
@@ -291,6 +339,7 @@ export type BranchCountOrderByAggregateInput = {
 
 export type BranchMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  instituteId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   location?: Prisma.SortOrder
   contactNumber?: Prisma.SortOrder
@@ -299,53 +348,509 @@ export type BranchMaxOrderByAggregateInput = {
 
 export type BranchMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  instituteId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   location?: Prisma.SortOrder
   contactNumber?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
+export type BranchListRelationFilter = {
+  every?: Prisma.BranchWhereInput
+  some?: Prisma.BranchWhereInput
+  none?: Prisma.BranchWhereInput
+}
+
+export type BranchOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
+}
+
+export type BranchCreateNestedOneWithoutUsersInput = {
+  create?: Prisma.XOR<Prisma.BranchCreateWithoutUsersInput, Prisma.BranchUncheckedCreateWithoutUsersInput>
+  connectOrCreate?: Prisma.BranchCreateOrConnectWithoutUsersInput
+  connect?: Prisma.BranchWhereUniqueInput
+}
+
+export type BranchUpdateOneWithoutUsersNestedInput = {
+  create?: Prisma.XOR<Prisma.BranchCreateWithoutUsersInput, Prisma.BranchUncheckedCreateWithoutUsersInput>
+  connectOrCreate?: Prisma.BranchCreateOrConnectWithoutUsersInput
+  upsert?: Prisma.BranchUpsertWithoutUsersInput
+  disconnect?: Prisma.BranchWhereInput | boolean
+  delete?: Prisma.BranchWhereInput | boolean
+  connect?: Prisma.BranchWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.BranchUpdateToOneWithWhereWithoutUsersInput, Prisma.BranchUpdateWithoutUsersInput>, Prisma.BranchUncheckedUpdateWithoutUsersInput>
+}
+
+export type BranchCreateNestedOneWithoutUserRolesInput = {
+  create?: Prisma.XOR<Prisma.BranchCreateWithoutUserRolesInput, Prisma.BranchUncheckedCreateWithoutUserRolesInput>
+  connectOrCreate?: Prisma.BranchCreateOrConnectWithoutUserRolesInput
+  connect?: Prisma.BranchWhereUniqueInput
+}
+
+export type BranchUpdateOneWithoutUserRolesNestedInput = {
+  create?: Prisma.XOR<Prisma.BranchCreateWithoutUserRolesInput, Prisma.BranchUncheckedCreateWithoutUserRolesInput>
+  connectOrCreate?: Prisma.BranchCreateOrConnectWithoutUserRolesInput
+  upsert?: Prisma.BranchUpsertWithoutUserRolesInput
+  disconnect?: Prisma.BranchWhereInput | boolean
+  delete?: Prisma.BranchWhereInput | boolean
+  connect?: Prisma.BranchWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.BranchUpdateToOneWithWhereWithoutUserRolesInput, Prisma.BranchUpdateWithoutUserRolesInput>, Prisma.BranchUncheckedUpdateWithoutUserRolesInput>
+}
+
+export type BranchCreateNestedOneWithoutRoleActivitiesInput = {
+  create?: Prisma.XOR<Prisma.BranchCreateWithoutRoleActivitiesInput, Prisma.BranchUncheckedCreateWithoutRoleActivitiesInput>
+  connectOrCreate?: Prisma.BranchCreateOrConnectWithoutRoleActivitiesInput
+  connect?: Prisma.BranchWhereUniqueInput
+}
+
+export type BranchUpdateOneWithoutRoleActivitiesNestedInput = {
+  create?: Prisma.XOR<Prisma.BranchCreateWithoutRoleActivitiesInput, Prisma.BranchUncheckedCreateWithoutRoleActivitiesInput>
+  connectOrCreate?: Prisma.BranchCreateOrConnectWithoutRoleActivitiesInput
+  upsert?: Prisma.BranchUpsertWithoutRoleActivitiesInput
+  disconnect?: Prisma.BranchWhereInput | boolean
+  delete?: Prisma.BranchWhereInput | boolean
+  connect?: Prisma.BranchWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.BranchUpdateToOneWithWhereWithoutRoleActivitiesInput, Prisma.BranchUpdateWithoutRoleActivitiesInput>, Prisma.BranchUncheckedUpdateWithoutRoleActivitiesInput>
+}
+
+export type BranchCreateNestedManyWithoutInstituteInput = {
+  create?: Prisma.XOR<Prisma.BranchCreateWithoutInstituteInput, Prisma.BranchUncheckedCreateWithoutInstituteInput> | Prisma.BranchCreateWithoutInstituteInput[] | Prisma.BranchUncheckedCreateWithoutInstituteInput[]
+  connectOrCreate?: Prisma.BranchCreateOrConnectWithoutInstituteInput | Prisma.BranchCreateOrConnectWithoutInstituteInput[]
+  createMany?: Prisma.BranchCreateManyInstituteInputEnvelope
+  connect?: Prisma.BranchWhereUniqueInput | Prisma.BranchWhereUniqueInput[]
+}
+
+export type BranchUncheckedCreateNestedManyWithoutInstituteInput = {
+  create?: Prisma.XOR<Prisma.BranchCreateWithoutInstituteInput, Prisma.BranchUncheckedCreateWithoutInstituteInput> | Prisma.BranchCreateWithoutInstituteInput[] | Prisma.BranchUncheckedCreateWithoutInstituteInput[]
+  connectOrCreate?: Prisma.BranchCreateOrConnectWithoutInstituteInput | Prisma.BranchCreateOrConnectWithoutInstituteInput[]
+  createMany?: Prisma.BranchCreateManyInstituteInputEnvelope
+  connect?: Prisma.BranchWhereUniqueInput | Prisma.BranchWhereUniqueInput[]
+}
+
+export type BranchUpdateManyWithoutInstituteNestedInput = {
+  create?: Prisma.XOR<Prisma.BranchCreateWithoutInstituteInput, Prisma.BranchUncheckedCreateWithoutInstituteInput> | Prisma.BranchCreateWithoutInstituteInput[] | Prisma.BranchUncheckedCreateWithoutInstituteInput[]
+  connectOrCreate?: Prisma.BranchCreateOrConnectWithoutInstituteInput | Prisma.BranchCreateOrConnectWithoutInstituteInput[]
+  upsert?: Prisma.BranchUpsertWithWhereUniqueWithoutInstituteInput | Prisma.BranchUpsertWithWhereUniqueWithoutInstituteInput[]
+  createMany?: Prisma.BranchCreateManyInstituteInputEnvelope
+  set?: Prisma.BranchWhereUniqueInput | Prisma.BranchWhereUniqueInput[]
+  disconnect?: Prisma.BranchWhereUniqueInput | Prisma.BranchWhereUniqueInput[]
+  delete?: Prisma.BranchWhereUniqueInput | Prisma.BranchWhereUniqueInput[]
+  connect?: Prisma.BranchWhereUniqueInput | Prisma.BranchWhereUniqueInput[]
+  update?: Prisma.BranchUpdateWithWhereUniqueWithoutInstituteInput | Prisma.BranchUpdateWithWhereUniqueWithoutInstituteInput[]
+  updateMany?: Prisma.BranchUpdateManyWithWhereWithoutInstituteInput | Prisma.BranchUpdateManyWithWhereWithoutInstituteInput[]
+  deleteMany?: Prisma.BranchScalarWhereInput | Prisma.BranchScalarWhereInput[]
+}
+
+export type BranchUncheckedUpdateManyWithoutInstituteNestedInput = {
+  create?: Prisma.XOR<Prisma.BranchCreateWithoutInstituteInput, Prisma.BranchUncheckedCreateWithoutInstituteInput> | Prisma.BranchCreateWithoutInstituteInput[] | Prisma.BranchUncheckedCreateWithoutInstituteInput[]
+  connectOrCreate?: Prisma.BranchCreateOrConnectWithoutInstituteInput | Prisma.BranchCreateOrConnectWithoutInstituteInput[]
+  upsert?: Prisma.BranchUpsertWithWhereUniqueWithoutInstituteInput | Prisma.BranchUpsertWithWhereUniqueWithoutInstituteInput[]
+  createMany?: Prisma.BranchCreateManyInstituteInputEnvelope
+  set?: Prisma.BranchWhereUniqueInput | Prisma.BranchWhereUniqueInput[]
+  disconnect?: Prisma.BranchWhereUniqueInput | Prisma.BranchWhereUniqueInput[]
+  delete?: Prisma.BranchWhereUniqueInput | Prisma.BranchWhereUniqueInput[]
+  connect?: Prisma.BranchWhereUniqueInput | Prisma.BranchWhereUniqueInput[]
+  update?: Prisma.BranchUpdateWithWhereUniqueWithoutInstituteInput | Prisma.BranchUpdateWithWhereUniqueWithoutInstituteInput[]
+  updateMany?: Prisma.BranchUpdateManyWithWhereWithoutInstituteInput | Prisma.BranchUpdateManyWithWhereWithoutInstituteInput[]
+  deleteMany?: Prisma.BranchScalarWhereInput | Prisma.BranchScalarWhereInput[]
+}
+
+export type BranchCreateWithoutUsersInput = {
+  id?: string
+  name: string
+  location: string
+  contactNumber: string
+  createdAt?: Date | string
+  institute?: Prisma.InstituteCreateNestedOneWithoutBranchesInput
+  userRoles?: Prisma.UserRoleCreateNestedManyWithoutBranchInput
+  roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutBranchInput
+}
+
+export type BranchUncheckedCreateWithoutUsersInput = {
+  id?: string
+  instituteId?: string | null
+  name: string
+  location: string
+  contactNumber: string
+  createdAt?: Date | string
+  userRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutBranchInput
+  roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutBranchInput
+}
+
+export type BranchCreateOrConnectWithoutUsersInput = {
+  where: Prisma.BranchWhereUniqueInput
+  create: Prisma.XOR<Prisma.BranchCreateWithoutUsersInput, Prisma.BranchUncheckedCreateWithoutUsersInput>
+}
+
+export type BranchUpsertWithoutUsersInput = {
+  update: Prisma.XOR<Prisma.BranchUpdateWithoutUsersInput, Prisma.BranchUncheckedUpdateWithoutUsersInput>
+  create: Prisma.XOR<Prisma.BranchCreateWithoutUsersInput, Prisma.BranchUncheckedCreateWithoutUsersInput>
+  where?: Prisma.BranchWhereInput
+}
+
+export type BranchUpdateToOneWithWhereWithoutUsersInput = {
+  where?: Prisma.BranchWhereInput
+  data: Prisma.XOR<Prisma.BranchUpdateWithoutUsersInput, Prisma.BranchUncheckedUpdateWithoutUsersInput>
+}
+
+export type BranchUpdateWithoutUsersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  location?: Prisma.StringFieldUpdateOperationsInput | string
+  contactNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  institute?: Prisma.InstituteUpdateOneWithoutBranchesNestedInput
+  userRoles?: Prisma.UserRoleUpdateManyWithoutBranchNestedInput
+  roleActivities?: Prisma.RoleActivityUpdateManyWithoutBranchNestedInput
+}
+
+export type BranchUncheckedUpdateWithoutUsersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  location?: Prisma.StringFieldUpdateOperationsInput | string
+  contactNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  userRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutBranchNestedInput
+  roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutBranchNestedInput
+}
+
+export type BranchCreateWithoutUserRolesInput = {
+  id?: string
+  name: string
+  location: string
+  contactNumber: string
+  createdAt?: Date | string
+  institute?: Prisma.InstituteCreateNestedOneWithoutBranchesInput
+  users?: Prisma.UserCreateNestedManyWithoutBranchInput
+  roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutBranchInput
+}
+
+export type BranchUncheckedCreateWithoutUserRolesInput = {
+  id?: string
+  instituteId?: string | null
+  name: string
+  location: string
+  contactNumber: string
+  createdAt?: Date | string
+  users?: Prisma.UserUncheckedCreateNestedManyWithoutBranchInput
+  roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutBranchInput
+}
+
+export type BranchCreateOrConnectWithoutUserRolesInput = {
+  where: Prisma.BranchWhereUniqueInput
+  create: Prisma.XOR<Prisma.BranchCreateWithoutUserRolesInput, Prisma.BranchUncheckedCreateWithoutUserRolesInput>
+}
+
+export type BranchUpsertWithoutUserRolesInput = {
+  update: Prisma.XOR<Prisma.BranchUpdateWithoutUserRolesInput, Prisma.BranchUncheckedUpdateWithoutUserRolesInput>
+  create: Prisma.XOR<Prisma.BranchCreateWithoutUserRolesInput, Prisma.BranchUncheckedCreateWithoutUserRolesInput>
+  where?: Prisma.BranchWhereInput
+}
+
+export type BranchUpdateToOneWithWhereWithoutUserRolesInput = {
+  where?: Prisma.BranchWhereInput
+  data: Prisma.XOR<Prisma.BranchUpdateWithoutUserRolesInput, Prisma.BranchUncheckedUpdateWithoutUserRolesInput>
+}
+
+export type BranchUpdateWithoutUserRolesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  location?: Prisma.StringFieldUpdateOperationsInput | string
+  contactNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  institute?: Prisma.InstituteUpdateOneWithoutBranchesNestedInput
+  users?: Prisma.UserUpdateManyWithoutBranchNestedInput
+  roleActivities?: Prisma.RoleActivityUpdateManyWithoutBranchNestedInput
+}
+
+export type BranchUncheckedUpdateWithoutUserRolesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  location?: Prisma.StringFieldUpdateOperationsInput | string
+  contactNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  users?: Prisma.UserUncheckedUpdateManyWithoutBranchNestedInput
+  roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutBranchNestedInput
+}
+
+export type BranchCreateWithoutRoleActivitiesInput = {
+  id?: string
+  name: string
+  location: string
+  contactNumber: string
+  createdAt?: Date | string
+  institute?: Prisma.InstituteCreateNestedOneWithoutBranchesInput
+  users?: Prisma.UserCreateNestedManyWithoutBranchInput
+  userRoles?: Prisma.UserRoleCreateNestedManyWithoutBranchInput
+}
+
+export type BranchUncheckedCreateWithoutRoleActivitiesInput = {
+  id?: string
+  instituteId?: string | null
+  name: string
+  location: string
+  contactNumber: string
+  createdAt?: Date | string
+  users?: Prisma.UserUncheckedCreateNestedManyWithoutBranchInput
+  userRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutBranchInput
+}
+
+export type BranchCreateOrConnectWithoutRoleActivitiesInput = {
+  where: Prisma.BranchWhereUniqueInput
+  create: Prisma.XOR<Prisma.BranchCreateWithoutRoleActivitiesInput, Prisma.BranchUncheckedCreateWithoutRoleActivitiesInput>
+}
+
+export type BranchUpsertWithoutRoleActivitiesInput = {
+  update: Prisma.XOR<Prisma.BranchUpdateWithoutRoleActivitiesInput, Prisma.BranchUncheckedUpdateWithoutRoleActivitiesInput>
+  create: Prisma.XOR<Prisma.BranchCreateWithoutRoleActivitiesInput, Prisma.BranchUncheckedCreateWithoutRoleActivitiesInput>
+  where?: Prisma.BranchWhereInput
+}
+
+export type BranchUpdateToOneWithWhereWithoutRoleActivitiesInput = {
+  where?: Prisma.BranchWhereInput
+  data: Prisma.XOR<Prisma.BranchUpdateWithoutRoleActivitiesInput, Prisma.BranchUncheckedUpdateWithoutRoleActivitiesInput>
+}
+
+export type BranchUpdateWithoutRoleActivitiesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  location?: Prisma.StringFieldUpdateOperationsInput | string
+  contactNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  institute?: Prisma.InstituteUpdateOneWithoutBranchesNestedInput
+  users?: Prisma.UserUpdateManyWithoutBranchNestedInput
+  userRoles?: Prisma.UserRoleUpdateManyWithoutBranchNestedInput
+}
+
+export type BranchUncheckedUpdateWithoutRoleActivitiesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  location?: Prisma.StringFieldUpdateOperationsInput | string
+  contactNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  users?: Prisma.UserUncheckedUpdateManyWithoutBranchNestedInput
+  userRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutBranchNestedInput
+}
+
+export type BranchCreateWithoutInstituteInput = {
+  id?: string
+  name: string
+  location: string
+  contactNumber: string
+  createdAt?: Date | string
+  users?: Prisma.UserCreateNestedManyWithoutBranchInput
+  userRoles?: Prisma.UserRoleCreateNestedManyWithoutBranchInput
+  roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutBranchInput
+}
+
+export type BranchUncheckedCreateWithoutInstituteInput = {
+  id?: string
+  name: string
+  location: string
+  contactNumber: string
+  createdAt?: Date | string
+  users?: Prisma.UserUncheckedCreateNestedManyWithoutBranchInput
+  userRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutBranchInput
+  roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutBranchInput
+}
+
+export type BranchCreateOrConnectWithoutInstituteInput = {
+  where: Prisma.BranchWhereUniqueInput
+  create: Prisma.XOR<Prisma.BranchCreateWithoutInstituteInput, Prisma.BranchUncheckedCreateWithoutInstituteInput>
+}
+
+export type BranchCreateManyInstituteInputEnvelope = {
+  data: Prisma.BranchCreateManyInstituteInput | Prisma.BranchCreateManyInstituteInput[]
+  skipDuplicates?: boolean
+}
+
+export type BranchUpsertWithWhereUniqueWithoutInstituteInput = {
+  where: Prisma.BranchWhereUniqueInput
+  update: Prisma.XOR<Prisma.BranchUpdateWithoutInstituteInput, Prisma.BranchUncheckedUpdateWithoutInstituteInput>
+  create: Prisma.XOR<Prisma.BranchCreateWithoutInstituteInput, Prisma.BranchUncheckedCreateWithoutInstituteInput>
+}
+
+export type BranchUpdateWithWhereUniqueWithoutInstituteInput = {
+  where: Prisma.BranchWhereUniqueInput
+  data: Prisma.XOR<Prisma.BranchUpdateWithoutInstituteInput, Prisma.BranchUncheckedUpdateWithoutInstituteInput>
+}
+
+export type BranchUpdateManyWithWhereWithoutInstituteInput = {
+  where: Prisma.BranchScalarWhereInput
+  data: Prisma.XOR<Prisma.BranchUpdateManyMutationInput, Prisma.BranchUncheckedUpdateManyWithoutInstituteInput>
+}
+
+export type BranchScalarWhereInput = {
+  AND?: Prisma.BranchScalarWhereInput | Prisma.BranchScalarWhereInput[]
+  OR?: Prisma.BranchScalarWhereInput[]
+  NOT?: Prisma.BranchScalarWhereInput | Prisma.BranchScalarWhereInput[]
+  id?: Prisma.StringFilter<"Branch"> | string
+  instituteId?: Prisma.StringNullableFilter<"Branch"> | string | null
+  name?: Prisma.StringFilter<"Branch"> | string
+  location?: Prisma.StringFilter<"Branch"> | string
+  contactNumber?: Prisma.StringFilter<"Branch"> | string
+  createdAt?: Prisma.DateTimeFilter<"Branch"> | Date | string
+}
+
+export type BranchCreateManyInstituteInput = {
+  id?: string
+  name: string
+  location: string
+  contactNumber: string
+  createdAt?: Date | string
+}
+
+export type BranchUpdateWithoutInstituteInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  location?: Prisma.StringFieldUpdateOperationsInput | string
+  contactNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  users?: Prisma.UserUpdateManyWithoutBranchNestedInput
+  userRoles?: Prisma.UserRoleUpdateManyWithoutBranchNestedInput
+  roleActivities?: Prisma.RoleActivityUpdateManyWithoutBranchNestedInput
+}
+
+export type BranchUncheckedUpdateWithoutInstituteInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  location?: Prisma.StringFieldUpdateOperationsInput | string
+  contactNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  users?: Prisma.UserUncheckedUpdateManyWithoutBranchNestedInput
+  userRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutBranchNestedInput
+  roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutBranchNestedInput
+}
+
+export type BranchUncheckedUpdateManyWithoutInstituteInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  location?: Prisma.StringFieldUpdateOperationsInput | string
+  contactNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+
+/**
+ * Count Type BranchCountOutputType
+ */
+
+export type BranchCountOutputType = {
+  users: number
+  userRoles: number
+  roleActivities: number
+}
+
+export type BranchCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  users?: boolean | BranchCountOutputTypeCountUsersArgs
+  userRoles?: boolean | BranchCountOutputTypeCountUserRolesArgs
+  roleActivities?: boolean | BranchCountOutputTypeCountRoleActivitiesArgs
+}
+
+/**
+ * BranchCountOutputType without action
+ */
+export type BranchCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the BranchCountOutputType
+   */
+  select?: Prisma.BranchCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * BranchCountOutputType without action
+ */
+export type BranchCountOutputTypeCountUsersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.UserWhereInput
+}
+
+/**
+ * BranchCountOutputType without action
+ */
+export type BranchCountOutputTypeCountUserRolesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.UserRoleWhereInput
+}
+
+/**
+ * BranchCountOutputType without action
+ */
+export type BranchCountOutputTypeCountRoleActivitiesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.RoleActivityWhereInput
+}
 
 
 export type BranchSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  instituteId?: boolean
   name?: boolean
   location?: boolean
   contactNumber?: boolean
   createdAt?: boolean
+  institute?: boolean | Prisma.Branch$instituteArgs<ExtArgs>
+  users?: boolean | Prisma.Branch$usersArgs<ExtArgs>
+  userRoles?: boolean | Prisma.Branch$userRolesArgs<ExtArgs>
+  roleActivities?: boolean | Prisma.Branch$roleActivitiesArgs<ExtArgs>
+  _count?: boolean | Prisma.BranchCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["branch"]>
 
 export type BranchSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  instituteId?: boolean
   name?: boolean
   location?: boolean
   contactNumber?: boolean
   createdAt?: boolean
+  institute?: boolean | Prisma.Branch$instituteArgs<ExtArgs>
 }, ExtArgs["result"]["branch"]>
 
 export type BranchSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  instituteId?: boolean
   name?: boolean
   location?: boolean
   contactNumber?: boolean
   createdAt?: boolean
+  institute?: boolean | Prisma.Branch$instituteArgs<ExtArgs>
 }, ExtArgs["result"]["branch"]>
 
 export type BranchSelectScalar = {
   id?: boolean
+  instituteId?: boolean
   name?: boolean
   location?: boolean
   contactNumber?: boolean
   createdAt?: boolean
 }
 
-export type BranchOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "location" | "contactNumber" | "createdAt", ExtArgs["result"]["branch"]>
+export type BranchOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "instituteId" | "name" | "location" | "contactNumber" | "createdAt", ExtArgs["result"]["branch"]>
+export type BranchInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  institute?: boolean | Prisma.Branch$instituteArgs<ExtArgs>
+  users?: boolean | Prisma.Branch$usersArgs<ExtArgs>
+  userRoles?: boolean | Prisma.Branch$userRolesArgs<ExtArgs>
+  roleActivities?: boolean | Prisma.Branch$roleActivitiesArgs<ExtArgs>
+  _count?: boolean | Prisma.BranchCountOutputTypeDefaultArgs<ExtArgs>
+}
+export type BranchIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  institute?: boolean | Prisma.Branch$instituteArgs<ExtArgs>
+}
+export type BranchIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  institute?: boolean | Prisma.Branch$instituteArgs<ExtArgs>
+}
 
 export type $BranchPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Branch"
-  objects: {}
+  objects: {
+    institute: Prisma.$InstitutePayload<ExtArgs> | null
+    users: Prisma.$UserPayload<ExtArgs>[]
+    userRoles: Prisma.$UserRolePayload<ExtArgs>[]
+    roleActivities: Prisma.$RoleActivityPayload<ExtArgs>[]
+  }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
+    instituteId: string | null
     name: string
     location: string
     contactNumber: string
@@ -744,6 +1249,10 @@ readonly fields: BranchFieldRefs;
  */
 export interface Prisma__BranchClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  institute<T extends Prisma.Branch$instituteArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Branch$instituteArgs<ExtArgs>>): Prisma.Prisma__InstituteClient<runtime.Types.Result.GetResult<Prisma.$InstitutePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  users<T extends Prisma.Branch$usersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Branch$usersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  userRoles<T extends Prisma.Branch$userRolesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Branch$userRolesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserRolePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  roleActivities<T extends Prisma.Branch$roleActivitiesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Branch$roleActivitiesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RoleActivityPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -774,6 +1283,7 @@ export interface Prisma__BranchClient<T, Null = never, ExtArgs extends runtime.T
  */
 export interface BranchFieldRefs {
   readonly id: Prisma.FieldRef<"Branch", 'String'>
+  readonly instituteId: Prisma.FieldRef<"Branch", 'String'>
   readonly name: Prisma.FieldRef<"Branch", 'String'>
   readonly location: Prisma.FieldRef<"Branch", 'String'>
   readonly contactNumber: Prisma.FieldRef<"Branch", 'String'>
@@ -795,6 +1305,10 @@ export type BranchFindUniqueArgs<ExtArgs extends runtime.Types.Extensions.Intern
    */
   omit?: Prisma.BranchOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BranchInclude<ExtArgs> | null
+  /**
    * Filter, which Branch to fetch.
    */
   where: Prisma.BranchWhereUniqueInput
@@ -813,6 +1327,10 @@ export type BranchFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Extensions
    */
   omit?: Prisma.BranchOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BranchInclude<ExtArgs> | null
+  /**
    * Filter, which Branch to fetch.
    */
   where: Prisma.BranchWhereUniqueInput
@@ -830,6 +1348,10 @@ export type BranchFindFirstArgs<ExtArgs extends runtime.Types.Extensions.Interna
    * Omit specific fields from the Branch
    */
   omit?: Prisma.BranchOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BranchInclude<ExtArgs> | null
   /**
    * Filter, which Branch to fetch.
    */
@@ -879,6 +1401,10 @@ export type BranchFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Extensions.
    */
   omit?: Prisma.BranchOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BranchInclude<ExtArgs> | null
+  /**
    * Filter, which Branch to fetch.
    */
   where?: Prisma.BranchWhereInput
@@ -926,6 +1452,10 @@ export type BranchFindManyArgs<ExtArgs extends runtime.Types.Extensions.Internal
    * Omit specific fields from the Branch
    */
   omit?: Prisma.BranchOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BranchInclude<ExtArgs> | null
   /**
    * Filter, which Branches to fetch.
    */
@@ -975,6 +1505,10 @@ export type BranchCreateArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
    */
   omit?: Prisma.BranchOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BranchInclude<ExtArgs> | null
+  /**
    * The data needed to create a Branch.
    */
   data: Prisma.XOR<Prisma.BranchCreateInput, Prisma.BranchUncheckedCreateInput>
@@ -1008,6 +1542,10 @@ export type BranchCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensio
    */
   data: Prisma.BranchCreateManyInput | Prisma.BranchCreateManyInput[]
   skipDuplicates?: boolean
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BranchIncludeCreateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1022,6 +1560,10 @@ export type BranchUpdateArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
    * Omit specific fields from the Branch
    */
   omit?: Prisma.BranchOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BranchInclude<ExtArgs> | null
   /**
    * The data needed to update a Branch.
    */
@@ -1074,6 +1616,10 @@ export type BranchUpdateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensio
    * Limit how many Branches to update.
    */
   limit?: number
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BranchIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1088,6 +1634,10 @@ export type BranchUpsertArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
    * Omit specific fields from the Branch
    */
   omit?: Prisma.BranchOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BranchInclude<ExtArgs> | null
   /**
    * The filter to search for the Branch to update in case it exists.
    */
@@ -1115,6 +1665,10 @@ export type BranchDeleteArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
    */
   omit?: Prisma.BranchOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BranchInclude<ExtArgs> | null
+  /**
    * Filter which Branch to delete.
    */
   where: Prisma.BranchWhereUniqueInput
@@ -1135,6 +1689,97 @@ export type BranchDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Intern
 }
 
 /**
+ * Branch.institute
+ */
+export type Branch$instituteArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Institute
+   */
+  select?: Prisma.InstituteSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Institute
+   */
+  omit?: Prisma.InstituteOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InstituteInclude<ExtArgs> | null
+  where?: Prisma.InstituteWhereInput
+}
+
+/**
+ * Branch.users
+ */
+export type Branch$usersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the User
+   */
+  select?: Prisma.UserSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the User
+   */
+  omit?: Prisma.UserOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserInclude<ExtArgs> | null
+  where?: Prisma.UserWhereInput
+  orderBy?: Prisma.UserOrderByWithRelationInput | Prisma.UserOrderByWithRelationInput[]
+  cursor?: Prisma.UserWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.UserScalarFieldEnum | Prisma.UserScalarFieldEnum[]
+}
+
+/**
+ * Branch.userRoles
+ */
+export type Branch$userRolesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the UserRole
+   */
+  select?: Prisma.UserRoleSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the UserRole
+   */
+  omit?: Prisma.UserRoleOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserRoleInclude<ExtArgs> | null
+  where?: Prisma.UserRoleWhereInput
+  orderBy?: Prisma.UserRoleOrderByWithRelationInput | Prisma.UserRoleOrderByWithRelationInput[]
+  cursor?: Prisma.UserRoleWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.UserRoleScalarFieldEnum | Prisma.UserRoleScalarFieldEnum[]
+}
+
+/**
+ * Branch.roleActivities
+ */
+export type Branch$roleActivitiesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the RoleActivity
+   */
+  select?: Prisma.RoleActivitySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the RoleActivity
+   */
+  omit?: Prisma.RoleActivityOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.RoleActivityInclude<ExtArgs> | null
+  where?: Prisma.RoleActivityWhereInput
+  orderBy?: Prisma.RoleActivityOrderByWithRelationInput | Prisma.RoleActivityOrderByWithRelationInput[]
+  cursor?: Prisma.RoleActivityWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.RoleActivityScalarFieldEnum | Prisma.RoleActivityScalarFieldEnum[]
+}
+
+/**
  * Branch without action
  */
 export type BranchDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1146,4 +1791,8 @@ export type BranchDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalA
    * Omit specific fields from the Branch
    */
   omit?: Prisma.BranchOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BranchInclude<ExtArgs> | null
 }
