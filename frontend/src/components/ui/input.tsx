@@ -14,10 +14,11 @@ export function Input({ label, error, id, className = "", ...props }: InputProps
       <input
         id={inputId}
         className={`mt-2 h-12 w-full rounded border border-white/12 bg-white/6 px-4 text-sm text-white outline-none transition placeholder:text-muted/60 focus:border-gold focus:bg-white/10 focus:ring-2 focus:ring-gold/20 ${className}`}
+        aria-invalid={error ? true : undefined}
+        aria-describedby={error ? `${inputId}-error` : undefined}
         {...props}
       />
-      {error ? <span className="mt-2 block text-xs text-red-200">{error}</span> : null}
+      {error ? <span id={`${inputId}-error`} className="mt-2 block text-xs text-red-200">{error}</span> : null}
     </label>
   );
 }
-

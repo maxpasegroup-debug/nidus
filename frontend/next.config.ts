@@ -7,6 +7,19 @@ const projectRoot = existsSync(join(process.cwd(), "node_modules", "next", "pack
   : dirname(process.cwd());
 
 const backendUrl = process.env.API_PROXY_TARGET?.trim() || "http://127.0.0.1:5000";
+const csp = [
+  "default-src 'self'",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: blob: https://res.cloudinary.com https://images.unsplash.com",
+  "font-src 'self' data:",
+  "connect-src 'self' https: http://127.0.0.1:5000",
+  "media-src 'self' blob: https://res.cloudinary.com",
+  "frame-ancestors 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "upgrade-insecure-requests"
+].join("; ");
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
@@ -41,7 +54,8 @@ const nextConfig: NextConfig = {
           { key: "X-Frame-Options", value: "DENY" },
           { key: "X-Content-Type-Options", value: "nosniff" },
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
-          { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(self)" }
+          { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(self)" },
+          { key: "Content-Security-Policy", value: csp }
         ]
       },
       {

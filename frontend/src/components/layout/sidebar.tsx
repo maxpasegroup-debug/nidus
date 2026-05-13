@@ -27,8 +27,10 @@ export function Sidebar() {
       <button
         type="button"
         onClick={() => setIsOpen((current) => !current)}
-        className="fixed left-4 top-4 z-50 grid h-11 w-11 place-items-center rounded border border-gold/30 bg-navy-deep/85 text-gold shadow-xl backdrop-blur-xl lg:hidden"
+        className="fixed left-4 top-[calc(1rem+env(safe-area-inset-top))] z-50 grid h-11 w-11 place-items-center rounded border border-gold/30 bg-navy-deep/85 text-gold shadow-xl backdrop-blur-xl lg:hidden"
         aria-label="Toggle navigation"
+        aria-expanded={isOpen}
+        aria-controls="primary-sidebar"
       >
         {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
       </button>
@@ -43,6 +45,7 @@ export function Sidebar() {
       ) : null}
 
       <aside
+        id="primary-sidebar"
         className={`fixed left-0 top-0 z-40 h-screen w-[var(--sidebar-width)] border-r border-white/10 bg-navy-deep/85 px-5 py-6 shadow-[30px_0_90px_rgba(0,0,0,0.35)] backdrop-blur-xl transition-transform duration-300 lg:translate-x-0 ${
           isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         }`}
@@ -58,7 +61,7 @@ export function Sidebar() {
           </span>
         </Link>
 
-        <nav className="mt-10 max-h-[calc(100vh-13rem)] space-y-2 overflow-y-auto pr-1">
+        <nav className="mt-10 max-h-[calc(100vh-13rem)] space-y-2 overflow-y-auto pr-1" aria-label="Main sections">
           {navItems.map((item) => {
             const isActive = pathname === item.href;
 
@@ -67,11 +70,12 @@ export function Sidebar() {
                 key={`${item.label}-${item.href}`}
                 href={item.href}
                 onClick={() => setIsOpen(false)}
-                className={`block rounded border px-4 py-3 text-sm font-medium transition ${
+                className={`block min-h-11 rounded border px-4 py-3 text-sm font-medium transition ${
                   isActive
                     ? "border-gold/35 bg-gold/10 text-gold"
                     : "border-transparent text-muted hover:border-gold/20 hover:bg-white/5 hover:text-white"
                 }`}
+              aria-current={isActive ? "page" : undefined}
               >
                 {item.label}
               </Link>

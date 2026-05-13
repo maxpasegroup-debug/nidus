@@ -68,7 +68,7 @@ export default function RegisterPage() {
             <Input label="Password" type="password" value={password} onChange={(event) => setPassword(event.target.value)} minLength={8} required />
             <label className="block">
               <span className="text-sm font-medium text-ink">Access profile</span>
-              <select value={role} onChange={(event) => setRole(event.target.value as AuthRole)} className="mt-2 h-12 w-full rounded border border-white/12 bg-white/6 px-4 text-sm text-white outline-none transition focus:border-gold focus:bg-white/10 focus:ring-2 focus:ring-gold/20">
+              <select id="access-profile" value={role} onChange={(event) => setRole(event.target.value as AuthRole)} className="mt-2 h-12 w-full rounded border border-white/12 bg-white/6 px-4 text-sm text-white outline-none transition focus:border-gold focus:bg-white/10 focus:ring-2 focus:ring-gold/20">
                 {roles.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}
               </select>
             </label>

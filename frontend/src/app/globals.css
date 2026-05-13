@@ -14,6 +14,7 @@
   color-scheme: dark;
   --nav-height: 72px;
   --sidebar-width: 272px;
+  scroll-padding-top: calc(var(--nav-height) + 1rem);
 }
 
 * {
@@ -32,6 +33,7 @@ body {
   font-family: Arial, Helvetica, sans-serif;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
+  min-width: 320px;
 }
 
 a {
@@ -62,6 +64,41 @@ textarea:focus-visible {
 
 button {
   touch-action: manipulation;
+}
+
+button,
+[role="button"],
+input,
+select,
+textarea,
+a {
+  -webkit-tap-highlight-color: rgba(242, 214, 117, 0.18);
+}
+
+button,
+input,
+select,
+textarea {
+  min-height: 2.75rem;
+}
+
+img,
+video,
+canvas,
+svg {
+  max-width: 100%;
+}
+
+.table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (display-mode: standalone) {
+  body {
+    padding-top: env(safe-area-inset-top);
+  }
 }
 
 ::selection {

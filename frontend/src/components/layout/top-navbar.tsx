@@ -40,6 +40,8 @@ export function TopNavbar() {
                 type="button"
                 onClick={() => setIsProfileOpen((current) => !current)}
                 className="flex h-10 items-center gap-3 rounded border border-white/10 bg-white/5 px-3 text-sm text-white transition hover:border-gold/30 hover:bg-gold/10"
+                aria-expanded={isProfileOpen}
+                aria-haspopup="menu"
               >
                 <span className="grid h-7 w-7 place-items-center rounded bg-gold/15 text-xs font-bold text-gold">
                   {user?.name?.slice(0, 1).toUpperCase() ?? "N"}
@@ -48,7 +50,7 @@ export function TopNavbar() {
                 <ChevronDown className="h-4 w-4 text-muted" />
               </button>
               {isProfileOpen ? (
-                <div className="absolute right-0 mt-3 w-64 rounded-lg border border-white/10 bg-navy-deep/95 p-3 shadow-2xl backdrop-blur-xl">
+                <div className="absolute right-0 mt-3 w-64 rounded-lg border border-white/10 bg-navy-deep/95 p-3 shadow-2xl backdrop-blur-xl" role="menu">
                   <p className="font-semibold text-white">{user?.name}</p>
                   <p className="mt-1 text-xs text-muted">{user?.email}</p>
                   <p className="mt-3 rounded border border-gold/20 bg-gold/10 px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-gold">

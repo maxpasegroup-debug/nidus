@@ -16,9 +16,9 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   if (isPublicRoute) {
     return (
-      <div className="min-h-screen overflow-hidden bg-navy-deep text-ink">
+      <div className="min-h-screen overflow-x-hidden bg-navy-deep text-ink">
         <PublicNavbar />
-        {children}
+        <main id="main-content">{children}</main>
         <PublicFooter />
       </div>
     );
@@ -28,7 +28,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     <div className="subtle-grid min-h-screen">
       <TopNavbar />
       <Sidebar />
-      <main className="px-4 pb-24 pt-24 sm:px-6 lg:ml-[var(--sidebar-width)] lg:px-8">
+      <main id="main-content" className="px-4 pb-[calc(6rem+env(safe-area-inset-bottom))] pt-[calc(var(--nav-height)+1rem)] sm:px-6 lg:ml-[var(--sidebar-width)] lg:px-8">
         <div className="mx-auto w-full max-w-7xl">{children}</div>
       </main>
       <BottomNav />
