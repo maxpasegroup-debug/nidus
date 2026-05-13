@@ -34,7 +34,7 @@ recordedLecturesRouter.get("/:id", liveClassesController.lectureDetails);
 lectureProgressRouter.post(
   "/update",
   protect,
-  [body("lectureId").notEmpty(), body("watchedDuration").isInt({ min: 0 }), body("completed").optional().isBoolean()],
+  [body("lectureId").notEmpty(), body("watchedDuration").isInt({ min: 0 }), body("completed").optional().isBoolean(), body("eventType").optional().trim(), body("position").optional().isInt({ min: 0 }), body("duration").optional().isInt({ min: 0 })],
   liveClassesController.updateProgress
 );
 lectureProgressRouter.get("/:lectureId", protect, liveClassesController.progress);

@@ -69,20 +69,42 @@ export const liveClassesService = {
     return lecture;
   },
 
-  updateProgress(userId: string, payload: { lectureId: string; watchedDuration: number; completed?: boolean }) {
-    return prisma.lectureProgress.upsert({
+  async updateProgress(userId: string, payload: { lectureId: string; watchedDuration: number; completed?: boolean; eventType?: string; position?: number; duration?: number }) {
+    const lecture = await prisma.recordedLecture.findUnique({ where: { id: payload.lectureId } });
+    if (!lecture) throw new Error("Recorded lecture not found");
+    const completionPercent = lecture.duration > 0 ? Math.min(100, Math.round((payload.watchedDuration / Math.max(1, lecture.duration * 60)) * 100)) : 0;
+    const activeWatchTime = payload.duration ?? 0;
+    const engagementScore = Math.min(100, Math.round((completionPercent * 0.7) + (activeWatchTime > 0 ? 30 : 0)));
+    const progress = await prisma.lectureProgress.upsert({
       where: { userId_lectureId: { userId, lectureId: payload.lectureId } },
       create: {
         userId,
         lectureId: payload.lectureId,
         watchedDuration: payload.watchedDuration,
-        completed: payload.completed ?? false
+        completed: payload.completed ?? completionPercent >= 90,
+        activeWatchTime,
+        lastPosition: payload.position ?? payload.watchedDuration,
+        engagementScore
       },
       update: {
         watchedDuration: payload.watchedDuration,
-        completed: payload.completed
+        completed: payload.completed ?? completionPercent >= 90,
+        activeWatchTime: { increment: activeWatchTime },
+        lastPosition: payload.position ?? payload.watchedDuration,
+        engagementScore
       }
     });
+    await prisma.lecturePlaybackEvent.create({
+      data: {
+        userId,
+        lectureId: payload.lectureId,
+        eventType: payload.eventType ?? "PROGRESS",
+        position: payload.position ?? payload.watchedDuration,
+        duration: payload.duration ?? 0,
+        metadata: { completionPercent, fakeWatchShell: activeWatchTime === 0 && payload.watchedDuration > 0 }
+      }
+    });
+    return progress;
   },
 
   progress(userId: string, lectureId: string) {

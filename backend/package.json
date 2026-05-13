@@ -21,7 +21,8 @@
     "seed:learning-hub": "tsx src/scripts/seed-learning-hub.ts",
     "seed:demo": "tsx src/scripts/seed-demo.ts",
     "test:auth": "tsx src/scripts/auth-flow-verification.ts",
-    "test:infra": "tsx src/scripts/infra-verification.ts"
+    "test:infra": "tsx src/scripts/infra-verification.ts",
+    "test:cbt": "tsx src/scripts/cbt-flow-verification.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.8.0",

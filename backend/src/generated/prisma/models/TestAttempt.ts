@@ -31,6 +31,7 @@ export type TestAttemptAvgAggregateOutputType = {
   totalCorrect: number | null
   totalWrong: number | null
   timeTaken: number | null
+  integrityScore: number | null
 }
 
 export type TestAttemptSumAggregateOutputType = {
@@ -38,6 +39,7 @@ export type TestAttemptSumAggregateOutputType = {
   totalCorrect: number | null
   totalWrong: number | null
   timeTaken: number | null
+  integrityScore: number | null
 }
 
 export type TestAttemptMinAggregateOutputType = {
@@ -50,6 +52,10 @@ export type TestAttemptMinAggregateOutputType = {
   timeTaken: number | null
   startedAt: Date | null
   submittedAt: Date | null
+  lastSavedAt: Date | null
+  status: string | null
+  currentQuestionId: string | null
+  integrityScore: number | null
 }
 
 export type TestAttemptMaxAggregateOutputType = {
@@ -62,6 +68,10 @@ export type TestAttemptMaxAggregateOutputType = {
   timeTaken: number | null
   startedAt: Date | null
   submittedAt: Date | null
+  lastSavedAt: Date | null
+  status: string | null
+  currentQuestionId: string | null
+  integrityScore: number | null
 }
 
 export type TestAttemptCountAggregateOutputType = {
@@ -74,6 +84,11 @@ export type TestAttemptCountAggregateOutputType = {
   timeTaken: number
   startedAt: number
   submittedAt: number
+  lastSavedAt: number
+  status: number
+  currentQuestionId: number
+  sectionState: number
+  integrityScore: number
   _all: number
 }
 
@@ -83,6 +98,7 @@ export type TestAttemptAvgAggregateInputType = {
   totalCorrect?: true
   totalWrong?: true
   timeTaken?: true
+  integrityScore?: true
 }
 
 export type TestAttemptSumAggregateInputType = {
@@ -90,6 +106,7 @@ export type TestAttemptSumAggregateInputType = {
   totalCorrect?: true
   totalWrong?: true
   timeTaken?: true
+  integrityScore?: true
 }
 
 export type TestAttemptMinAggregateInputType = {
@@ -102,6 +119,10 @@ export type TestAttemptMinAggregateInputType = {
   timeTaken?: true
   startedAt?: true
   submittedAt?: true
+  lastSavedAt?: true
+  status?: true
+  currentQuestionId?: true
+  integrityScore?: true
 }
 
 export type TestAttemptMaxAggregateInputType = {
@@ -114,6 +135,10 @@ export type TestAttemptMaxAggregateInputType = {
   timeTaken?: true
   startedAt?: true
   submittedAt?: true
+  lastSavedAt?: true
+  status?: true
+  currentQuestionId?: true
+  integrityScore?: true
 }
 
 export type TestAttemptCountAggregateInputType = {
@@ -126,6 +151,11 @@ export type TestAttemptCountAggregateInputType = {
   timeTaken?: true
   startedAt?: true
   submittedAt?: true
+  lastSavedAt?: true
+  status?: true
+  currentQuestionId?: true
+  sectionState?: true
+  integrityScore?: true
   _all?: true
 }
 
@@ -225,6 +255,11 @@ export type TestAttemptGroupByOutputType = {
   timeTaken: number
   startedAt: Date
   submittedAt: Date | null
+  lastSavedAt: Date | null
+  status: string
+  currentQuestionId: string | null
+  sectionState: runtime.JsonValue | null
+  integrityScore: number
   _count: TestAttemptCountAggregateOutputType | null
   _avg: TestAttemptAvgAggregateOutputType | null
   _sum: TestAttemptSumAggregateOutputType | null
@@ -260,9 +295,16 @@ export type TestAttemptWhereInput = {
   timeTaken?: Prisma.IntFilter<"TestAttempt"> | number
   startedAt?: Prisma.DateTimeFilter<"TestAttempt"> | Date | string
   submittedAt?: Prisma.DateTimeNullableFilter<"TestAttempt"> | Date | string | null
+  lastSavedAt?: Prisma.DateTimeNullableFilter<"TestAttempt"> | Date | string | null
+  status?: Prisma.StringFilter<"TestAttempt"> | string
+  currentQuestionId?: Prisma.StringNullableFilter<"TestAttempt"> | string | null
+  sectionState?: Prisma.JsonNullableFilter<"TestAttempt">
+  integrityScore?: Prisma.IntFilter<"TestAttempt"> | number
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   test?: Prisma.XOR<Prisma.TestScalarRelationFilter, Prisma.TestWhereInput>
   answers?: Prisma.AnswerListRelationFilter
+  answerStates?: Prisma.CBTAnswerStateListRelationFilter
+  integrityEvents?: Prisma.CBTIntegrityEventListRelationFilter
 }
 
 export type TestAttemptOrderByWithRelationInput = {
@@ -275,9 +317,16 @@ export type TestAttemptOrderByWithRelationInput = {
   timeTaken?: Prisma.SortOrder
   startedAt?: Prisma.SortOrder
   submittedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  lastSavedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  status?: Prisma.SortOrder
+  currentQuestionId?: Prisma.SortOrderInput | Prisma.SortOrder
+  sectionState?: Prisma.SortOrderInput | Prisma.SortOrder
+  integrityScore?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
   test?: Prisma.TestOrderByWithRelationInput
   answers?: Prisma.AnswerOrderByRelationAggregateInput
+  answerStates?: Prisma.CBTAnswerStateOrderByRelationAggregateInput
+  integrityEvents?: Prisma.CBTIntegrityEventOrderByRelationAggregateInput
 }
 
 export type TestAttemptWhereUniqueInput = Prisma.AtLeast<{
@@ -293,9 +342,16 @@ export type TestAttemptWhereUniqueInput = Prisma.AtLeast<{
   timeTaken?: Prisma.IntFilter<"TestAttempt"> | number
   startedAt?: Prisma.DateTimeFilter<"TestAttempt"> | Date | string
   submittedAt?: Prisma.DateTimeNullableFilter<"TestAttempt"> | Date | string | null
+  lastSavedAt?: Prisma.DateTimeNullableFilter<"TestAttempt"> | Date | string | null
+  status?: Prisma.StringFilter<"TestAttempt"> | string
+  currentQuestionId?: Prisma.StringNullableFilter<"TestAttempt"> | string | null
+  sectionState?: Prisma.JsonNullableFilter<"TestAttempt">
+  integrityScore?: Prisma.IntFilter<"TestAttempt"> | number
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   test?: Prisma.XOR<Prisma.TestScalarRelationFilter, Prisma.TestWhereInput>
   answers?: Prisma.AnswerListRelationFilter
+  answerStates?: Prisma.CBTAnswerStateListRelationFilter
+  integrityEvents?: Prisma.CBTIntegrityEventListRelationFilter
 }, "id">
 
 export type TestAttemptOrderByWithAggregationInput = {
@@ -308,6 +364,11 @@ export type TestAttemptOrderByWithAggregationInput = {
   timeTaken?: Prisma.SortOrder
   startedAt?: Prisma.SortOrder
   submittedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  lastSavedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  status?: Prisma.SortOrder
+  currentQuestionId?: Prisma.SortOrderInput | Prisma.SortOrder
+  sectionState?: Prisma.SortOrderInput | Prisma.SortOrder
+  integrityScore?: Prisma.SortOrder
   _count?: Prisma.TestAttemptCountOrderByAggregateInput
   _avg?: Prisma.TestAttemptAvgOrderByAggregateInput
   _max?: Prisma.TestAttemptMaxOrderByAggregateInput
@@ -328,6 +389,11 @@ export type TestAttemptScalarWhereWithAggregatesInput = {
   timeTaken?: Prisma.IntWithAggregatesFilter<"TestAttempt"> | number
   startedAt?: Prisma.DateTimeWithAggregatesFilter<"TestAttempt"> | Date | string
   submittedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"TestAttempt"> | Date | string | null
+  lastSavedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"TestAttempt"> | Date | string | null
+  status?: Prisma.StringWithAggregatesFilter<"TestAttempt"> | string
+  currentQuestionId?: Prisma.StringNullableWithAggregatesFilter<"TestAttempt"> | string | null
+  sectionState?: Prisma.JsonNullableWithAggregatesFilter<"TestAttempt">
+  integrityScore?: Prisma.IntWithAggregatesFilter<"TestAttempt"> | number
 }
 
 export type TestAttemptCreateInput = {
@@ -338,9 +404,16 @@ export type TestAttemptCreateInput = {
   timeTaken?: number
   startedAt?: Date | string
   submittedAt?: Date | string | null
+  lastSavedAt?: Date | string | null
+  status?: string
+  currentQuestionId?: string | null
+  sectionState?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  integrityScore?: number
   user: Prisma.UserCreateNestedOneWithoutTestAttemptsInput
   test: Prisma.TestCreateNestedOneWithoutAttemptsInput
   answers?: Prisma.AnswerCreateNestedManyWithoutAttemptInput
+  answerStates?: Prisma.CBTAnswerStateCreateNestedManyWithoutAttemptInput
+  integrityEvents?: Prisma.CBTIntegrityEventCreateNestedManyWithoutAttemptInput
 }
 
 export type TestAttemptUncheckedCreateInput = {
@@ -353,7 +426,14 @@ export type TestAttemptUncheckedCreateInput = {
   timeTaken?: number
   startedAt?: Date | string
   submittedAt?: Date | string | null
+  lastSavedAt?: Date | string | null
+  status?: string
+  currentQuestionId?: string | null
+  sectionState?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  integrityScore?: number
   answers?: Prisma.AnswerUncheckedCreateNestedManyWithoutAttemptInput
+  answerStates?: Prisma.CBTAnswerStateUncheckedCreateNestedManyWithoutAttemptInput
+  integrityEvents?: Prisma.CBTIntegrityEventUncheckedCreateNestedManyWithoutAttemptInput
 }
 
 export type TestAttemptUpdateInput = {
@@ -364,9 +444,16 @@ export type TestAttemptUpdateInput = {
   timeTaken?: Prisma.IntFieldUpdateOperationsInput | number
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSavedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  currentQuestionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sectionState?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  integrityScore?: Prisma.IntFieldUpdateOperationsInput | number
   user?: Prisma.UserUpdateOneRequiredWithoutTestAttemptsNestedInput
   test?: Prisma.TestUpdateOneRequiredWithoutAttemptsNestedInput
   answers?: Prisma.AnswerUpdateManyWithoutAttemptNestedInput
+  answerStates?: Prisma.CBTAnswerStateUpdateManyWithoutAttemptNestedInput
+  integrityEvents?: Prisma.CBTIntegrityEventUpdateManyWithoutAttemptNestedInput
 }
 
 export type TestAttemptUncheckedUpdateInput = {
@@ -379,7 +466,14 @@ export type TestAttemptUncheckedUpdateInput = {
   timeTaken?: Prisma.IntFieldUpdateOperationsInput | number
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSavedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  currentQuestionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sectionState?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  integrityScore?: Prisma.IntFieldUpdateOperationsInput | number
   answers?: Prisma.AnswerUncheckedUpdateManyWithoutAttemptNestedInput
+  answerStates?: Prisma.CBTAnswerStateUncheckedUpdateManyWithoutAttemptNestedInput
+  integrityEvents?: Prisma.CBTIntegrityEventUncheckedUpdateManyWithoutAttemptNestedInput
 }
 
 export type TestAttemptCreateManyInput = {
@@ -392,6 +486,11 @@ export type TestAttemptCreateManyInput = {
   timeTaken?: number
   startedAt?: Date | string
   submittedAt?: Date | string | null
+  lastSavedAt?: Date | string | null
+  status?: string
+  currentQuestionId?: string | null
+  sectionState?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  integrityScore?: number
 }
 
 export type TestAttemptUpdateManyMutationInput = {
@@ -402,6 +501,11 @@ export type TestAttemptUpdateManyMutationInput = {
   timeTaken?: Prisma.IntFieldUpdateOperationsInput | number
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSavedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  currentQuestionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sectionState?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  integrityScore?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type TestAttemptUncheckedUpdateManyInput = {
@@ -414,6 +518,11 @@ export type TestAttemptUncheckedUpdateManyInput = {
   timeTaken?: Prisma.IntFieldUpdateOperationsInput | number
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSavedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  currentQuestionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sectionState?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  integrityScore?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type TestAttemptListRelationFilter = {
@@ -436,6 +545,11 @@ export type TestAttemptCountOrderByAggregateInput = {
   timeTaken?: Prisma.SortOrder
   startedAt?: Prisma.SortOrder
   submittedAt?: Prisma.SortOrder
+  lastSavedAt?: Prisma.SortOrder
+  status?: Prisma.SortOrder
+  currentQuestionId?: Prisma.SortOrder
+  sectionState?: Prisma.SortOrder
+  integrityScore?: Prisma.SortOrder
 }
 
 export type TestAttemptAvgOrderByAggregateInput = {
@@ -443,6 +557,7 @@ export type TestAttemptAvgOrderByAggregateInput = {
   totalCorrect?: Prisma.SortOrder
   totalWrong?: Prisma.SortOrder
   timeTaken?: Prisma.SortOrder
+  integrityScore?: Prisma.SortOrder
 }
 
 export type TestAttemptMaxOrderByAggregateInput = {
@@ -455,6 +570,10 @@ export type TestAttemptMaxOrderByAggregateInput = {
   timeTaken?: Prisma.SortOrder
   startedAt?: Prisma.SortOrder
   submittedAt?: Prisma.SortOrder
+  lastSavedAt?: Prisma.SortOrder
+  status?: Prisma.SortOrder
+  currentQuestionId?: Prisma.SortOrder
+  integrityScore?: Prisma.SortOrder
 }
 
 export type TestAttemptMinOrderByAggregateInput = {
@@ -467,6 +586,10 @@ export type TestAttemptMinOrderByAggregateInput = {
   timeTaken?: Prisma.SortOrder
   startedAt?: Prisma.SortOrder
   submittedAt?: Prisma.SortOrder
+  lastSavedAt?: Prisma.SortOrder
+  status?: Prisma.SortOrder
+  currentQuestionId?: Prisma.SortOrder
+  integrityScore?: Prisma.SortOrder
 }
 
 export type TestAttemptSumOrderByAggregateInput = {
@@ -474,6 +597,7 @@ export type TestAttemptSumOrderByAggregateInput = {
   totalCorrect?: Prisma.SortOrder
   totalWrong?: Prisma.SortOrder
   timeTaken?: Prisma.SortOrder
+  integrityScore?: Prisma.SortOrder
 }
 
 export type TestAttemptScalarRelationFilter = {
@@ -565,6 +689,34 @@ export type TestAttemptUncheckedUpdateManyWithoutTestNestedInput = {
   deleteMany?: Prisma.TestAttemptScalarWhereInput | Prisma.TestAttemptScalarWhereInput[]
 }
 
+export type TestAttemptCreateNestedOneWithoutAnswerStatesInput = {
+  create?: Prisma.XOR<Prisma.TestAttemptCreateWithoutAnswerStatesInput, Prisma.TestAttemptUncheckedCreateWithoutAnswerStatesInput>
+  connectOrCreate?: Prisma.TestAttemptCreateOrConnectWithoutAnswerStatesInput
+  connect?: Prisma.TestAttemptWhereUniqueInput
+}
+
+export type TestAttemptUpdateOneRequiredWithoutAnswerStatesNestedInput = {
+  create?: Prisma.XOR<Prisma.TestAttemptCreateWithoutAnswerStatesInput, Prisma.TestAttemptUncheckedCreateWithoutAnswerStatesInput>
+  connectOrCreate?: Prisma.TestAttemptCreateOrConnectWithoutAnswerStatesInput
+  upsert?: Prisma.TestAttemptUpsertWithoutAnswerStatesInput
+  connect?: Prisma.TestAttemptWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TestAttemptUpdateToOneWithWhereWithoutAnswerStatesInput, Prisma.TestAttemptUpdateWithoutAnswerStatesInput>, Prisma.TestAttemptUncheckedUpdateWithoutAnswerStatesInput>
+}
+
+export type TestAttemptCreateNestedOneWithoutIntegrityEventsInput = {
+  create?: Prisma.XOR<Prisma.TestAttemptCreateWithoutIntegrityEventsInput, Prisma.TestAttemptUncheckedCreateWithoutIntegrityEventsInput>
+  connectOrCreate?: Prisma.TestAttemptCreateOrConnectWithoutIntegrityEventsInput
+  connect?: Prisma.TestAttemptWhereUniqueInput
+}
+
+export type TestAttemptUpdateOneRequiredWithoutIntegrityEventsNestedInput = {
+  create?: Prisma.XOR<Prisma.TestAttemptCreateWithoutIntegrityEventsInput, Prisma.TestAttemptUncheckedCreateWithoutIntegrityEventsInput>
+  connectOrCreate?: Prisma.TestAttemptCreateOrConnectWithoutIntegrityEventsInput
+  upsert?: Prisma.TestAttemptUpsertWithoutIntegrityEventsInput
+  connect?: Prisma.TestAttemptWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TestAttemptUpdateToOneWithWhereWithoutIntegrityEventsInput, Prisma.TestAttemptUpdateWithoutIntegrityEventsInput>, Prisma.TestAttemptUncheckedUpdateWithoutIntegrityEventsInput>
+}
+
 export type TestAttemptCreateNestedOneWithoutAnswersInput = {
   create?: Prisma.XOR<Prisma.TestAttemptCreateWithoutAnswersInput, Prisma.TestAttemptUncheckedCreateWithoutAnswersInput>
   connectOrCreate?: Prisma.TestAttemptCreateOrConnectWithoutAnswersInput
@@ -587,8 +739,15 @@ export type TestAttemptCreateWithoutUserInput = {
   timeTaken?: number
   startedAt?: Date | string
   submittedAt?: Date | string | null
+  lastSavedAt?: Date | string | null
+  status?: string
+  currentQuestionId?: string | null
+  sectionState?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  integrityScore?: number
   test: Prisma.TestCreateNestedOneWithoutAttemptsInput
   answers?: Prisma.AnswerCreateNestedManyWithoutAttemptInput
+  answerStates?: Prisma.CBTAnswerStateCreateNestedManyWithoutAttemptInput
+  integrityEvents?: Prisma.CBTIntegrityEventCreateNestedManyWithoutAttemptInput
 }
 
 export type TestAttemptUncheckedCreateWithoutUserInput = {
@@ -600,7 +759,14 @@ export type TestAttemptUncheckedCreateWithoutUserInput = {
   timeTaken?: number
   startedAt?: Date | string
   submittedAt?: Date | string | null
+  lastSavedAt?: Date | string | null
+  status?: string
+  currentQuestionId?: string | null
+  sectionState?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  integrityScore?: number
   answers?: Prisma.AnswerUncheckedCreateNestedManyWithoutAttemptInput
+  answerStates?: Prisma.CBTAnswerStateUncheckedCreateNestedManyWithoutAttemptInput
+  integrityEvents?: Prisma.CBTIntegrityEventUncheckedCreateNestedManyWithoutAttemptInput
 }
 
 export type TestAttemptCreateOrConnectWithoutUserInput = {
@@ -642,6 +808,11 @@ export type TestAttemptScalarWhereInput = {
   timeTaken?: Prisma.IntFilter<"TestAttempt"> | number
   startedAt?: Prisma.DateTimeFilter<"TestAttempt"> | Date | string
   submittedAt?: Prisma.DateTimeNullableFilter<"TestAttempt"> | Date | string | null
+  lastSavedAt?: Prisma.DateTimeNullableFilter<"TestAttempt"> | Date | string | null
+  status?: Prisma.StringFilter<"TestAttempt"> | string
+  currentQuestionId?: Prisma.StringNullableFilter<"TestAttempt"> | string | null
+  sectionState?: Prisma.JsonNullableFilter<"TestAttempt">
+  integrityScore?: Prisma.IntFilter<"TestAttempt"> | number
 }
 
 export type TestAttemptCreateWithoutTestInput = {
@@ -652,8 +823,15 @@ export type TestAttemptCreateWithoutTestInput = {
   timeTaken?: number
   startedAt?: Date | string
   submittedAt?: Date | string | null
+  lastSavedAt?: Date | string | null
+  status?: string
+  currentQuestionId?: string | null
+  sectionState?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  integrityScore?: number
   user: Prisma.UserCreateNestedOneWithoutTestAttemptsInput
   answers?: Prisma.AnswerCreateNestedManyWithoutAttemptInput
+  answerStates?: Prisma.CBTAnswerStateCreateNestedManyWithoutAttemptInput
+  integrityEvents?: Prisma.CBTIntegrityEventCreateNestedManyWithoutAttemptInput
 }
 
 export type TestAttemptUncheckedCreateWithoutTestInput = {
@@ -665,7 +843,14 @@ export type TestAttemptUncheckedCreateWithoutTestInput = {
   timeTaken?: number
   startedAt?: Date | string
   submittedAt?: Date | string | null
+  lastSavedAt?: Date | string | null
+  status?: string
+  currentQuestionId?: string | null
+  sectionState?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  integrityScore?: number
   answers?: Prisma.AnswerUncheckedCreateNestedManyWithoutAttemptInput
+  answerStates?: Prisma.CBTAnswerStateUncheckedCreateNestedManyWithoutAttemptInput
+  integrityEvents?: Prisma.CBTIntegrityEventUncheckedCreateNestedManyWithoutAttemptInput
 }
 
 export type TestAttemptCreateOrConnectWithoutTestInput = {
@@ -694,6 +879,190 @@ export type TestAttemptUpdateManyWithWhereWithoutTestInput = {
   data: Prisma.XOR<Prisma.TestAttemptUpdateManyMutationInput, Prisma.TestAttemptUncheckedUpdateManyWithoutTestInput>
 }
 
+export type TestAttemptCreateWithoutAnswerStatesInput = {
+  id?: string
+  score?: number
+  totalCorrect?: number
+  totalWrong?: number
+  timeTaken?: number
+  startedAt?: Date | string
+  submittedAt?: Date | string | null
+  lastSavedAt?: Date | string | null
+  status?: string
+  currentQuestionId?: string | null
+  sectionState?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  integrityScore?: number
+  user: Prisma.UserCreateNestedOneWithoutTestAttemptsInput
+  test: Prisma.TestCreateNestedOneWithoutAttemptsInput
+  answers?: Prisma.AnswerCreateNestedManyWithoutAttemptInput
+  integrityEvents?: Prisma.CBTIntegrityEventCreateNestedManyWithoutAttemptInput
+}
+
+export type TestAttemptUncheckedCreateWithoutAnswerStatesInput = {
+  id?: string
+  userId: string
+  testId: string
+  score?: number
+  totalCorrect?: number
+  totalWrong?: number
+  timeTaken?: number
+  startedAt?: Date | string
+  submittedAt?: Date | string | null
+  lastSavedAt?: Date | string | null
+  status?: string
+  currentQuestionId?: string | null
+  sectionState?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  integrityScore?: number
+  answers?: Prisma.AnswerUncheckedCreateNestedManyWithoutAttemptInput
+  integrityEvents?: Prisma.CBTIntegrityEventUncheckedCreateNestedManyWithoutAttemptInput
+}
+
+export type TestAttemptCreateOrConnectWithoutAnswerStatesInput = {
+  where: Prisma.TestAttemptWhereUniqueInput
+  create: Prisma.XOR<Prisma.TestAttemptCreateWithoutAnswerStatesInput, Prisma.TestAttemptUncheckedCreateWithoutAnswerStatesInput>
+}
+
+export type TestAttemptUpsertWithoutAnswerStatesInput = {
+  update: Prisma.XOR<Prisma.TestAttemptUpdateWithoutAnswerStatesInput, Prisma.TestAttemptUncheckedUpdateWithoutAnswerStatesInput>
+  create: Prisma.XOR<Prisma.TestAttemptCreateWithoutAnswerStatesInput, Prisma.TestAttemptUncheckedCreateWithoutAnswerStatesInput>
+  where?: Prisma.TestAttemptWhereInput
+}
+
+export type TestAttemptUpdateToOneWithWhereWithoutAnswerStatesInput = {
+  where?: Prisma.TestAttemptWhereInput
+  data: Prisma.XOR<Prisma.TestAttemptUpdateWithoutAnswerStatesInput, Prisma.TestAttemptUncheckedUpdateWithoutAnswerStatesInput>
+}
+
+export type TestAttemptUpdateWithoutAnswerStatesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  score?: Prisma.FloatFieldUpdateOperationsInput | number
+  totalCorrect?: Prisma.IntFieldUpdateOperationsInput | number
+  totalWrong?: Prisma.IntFieldUpdateOperationsInput | number
+  timeTaken?: Prisma.IntFieldUpdateOperationsInput | number
+  startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSavedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  currentQuestionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sectionState?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  integrityScore?: Prisma.IntFieldUpdateOperationsInput | number
+  user?: Prisma.UserUpdateOneRequiredWithoutTestAttemptsNestedInput
+  test?: Prisma.TestUpdateOneRequiredWithoutAttemptsNestedInput
+  answers?: Prisma.AnswerUpdateManyWithoutAttemptNestedInput
+  integrityEvents?: Prisma.CBTIntegrityEventUpdateManyWithoutAttemptNestedInput
+}
+
+export type TestAttemptUncheckedUpdateWithoutAnswerStatesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  testId?: Prisma.StringFieldUpdateOperationsInput | string
+  score?: Prisma.FloatFieldUpdateOperationsInput | number
+  totalCorrect?: Prisma.IntFieldUpdateOperationsInput | number
+  totalWrong?: Prisma.IntFieldUpdateOperationsInput | number
+  timeTaken?: Prisma.IntFieldUpdateOperationsInput | number
+  startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSavedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  currentQuestionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sectionState?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  integrityScore?: Prisma.IntFieldUpdateOperationsInput | number
+  answers?: Prisma.AnswerUncheckedUpdateManyWithoutAttemptNestedInput
+  integrityEvents?: Prisma.CBTIntegrityEventUncheckedUpdateManyWithoutAttemptNestedInput
+}
+
+export type TestAttemptCreateWithoutIntegrityEventsInput = {
+  id?: string
+  score?: number
+  totalCorrect?: number
+  totalWrong?: number
+  timeTaken?: number
+  startedAt?: Date | string
+  submittedAt?: Date | string | null
+  lastSavedAt?: Date | string | null
+  status?: string
+  currentQuestionId?: string | null
+  sectionState?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  integrityScore?: number
+  user: Prisma.UserCreateNestedOneWithoutTestAttemptsInput
+  test: Prisma.TestCreateNestedOneWithoutAttemptsInput
+  answers?: Prisma.AnswerCreateNestedManyWithoutAttemptInput
+  answerStates?: Prisma.CBTAnswerStateCreateNestedManyWithoutAttemptInput
+}
+
+export type TestAttemptUncheckedCreateWithoutIntegrityEventsInput = {
+  id?: string
+  userId: string
+  testId: string
+  score?: number
+  totalCorrect?: number
+  totalWrong?: number
+  timeTaken?: number
+  startedAt?: Date | string
+  submittedAt?: Date | string | null
+  lastSavedAt?: Date | string | null
+  status?: string
+  currentQuestionId?: string | null
+  sectionState?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  integrityScore?: number
+  answers?: Prisma.AnswerUncheckedCreateNestedManyWithoutAttemptInput
+  answerStates?: Prisma.CBTAnswerStateUncheckedCreateNestedManyWithoutAttemptInput
+}
+
+export type TestAttemptCreateOrConnectWithoutIntegrityEventsInput = {
+  where: Prisma.TestAttemptWhereUniqueInput
+  create: Prisma.XOR<Prisma.TestAttemptCreateWithoutIntegrityEventsInput, Prisma.TestAttemptUncheckedCreateWithoutIntegrityEventsInput>
+}
+
+export type TestAttemptUpsertWithoutIntegrityEventsInput = {
+  update: Prisma.XOR<Prisma.TestAttemptUpdateWithoutIntegrityEventsInput, Prisma.TestAttemptUncheckedUpdateWithoutIntegrityEventsInput>
+  create: Prisma.XOR<Prisma.TestAttemptCreateWithoutIntegrityEventsInput, Prisma.TestAttemptUncheckedCreateWithoutIntegrityEventsInput>
+  where?: Prisma.TestAttemptWhereInput
+}
+
+export type TestAttemptUpdateToOneWithWhereWithoutIntegrityEventsInput = {
+  where?: Prisma.TestAttemptWhereInput
+  data: Prisma.XOR<Prisma.TestAttemptUpdateWithoutIntegrityEventsInput, Prisma.TestAttemptUncheckedUpdateWithoutIntegrityEventsInput>
+}
+
+export type TestAttemptUpdateWithoutIntegrityEventsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  score?: Prisma.FloatFieldUpdateOperationsInput | number
+  totalCorrect?: Prisma.IntFieldUpdateOperationsInput | number
+  totalWrong?: Prisma.IntFieldUpdateOperationsInput | number
+  timeTaken?: Prisma.IntFieldUpdateOperationsInput | number
+  startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSavedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  currentQuestionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sectionState?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  integrityScore?: Prisma.IntFieldUpdateOperationsInput | number
+  user?: Prisma.UserUpdateOneRequiredWithoutTestAttemptsNestedInput
+  test?: Prisma.TestUpdateOneRequiredWithoutAttemptsNestedInput
+  answers?: Prisma.AnswerUpdateManyWithoutAttemptNestedInput
+  answerStates?: Prisma.CBTAnswerStateUpdateManyWithoutAttemptNestedInput
+}
+
+export type TestAttemptUncheckedUpdateWithoutIntegrityEventsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  testId?: Prisma.StringFieldUpdateOperationsInput | string
+  score?: Prisma.FloatFieldUpdateOperationsInput | number
+  totalCorrect?: Prisma.IntFieldUpdateOperationsInput | number
+  totalWrong?: Prisma.IntFieldUpdateOperationsInput | number
+  timeTaken?: Prisma.IntFieldUpdateOperationsInput | number
+  startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSavedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  currentQuestionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sectionState?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  integrityScore?: Prisma.IntFieldUpdateOperationsInput | number
+  answers?: Prisma.AnswerUncheckedUpdateManyWithoutAttemptNestedInput
+  answerStates?: Prisma.CBTAnswerStateUncheckedUpdateManyWithoutAttemptNestedInput
+}
+
 export type TestAttemptCreateWithoutAnswersInput = {
   id?: string
   score?: number
@@ -702,8 +1071,15 @@ export type TestAttemptCreateWithoutAnswersInput = {
   timeTaken?: number
   startedAt?: Date | string
   submittedAt?: Date | string | null
+  lastSavedAt?: Date | string | null
+  status?: string
+  currentQuestionId?: string | null
+  sectionState?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  integrityScore?: number
   user: Prisma.UserCreateNestedOneWithoutTestAttemptsInput
   test: Prisma.TestCreateNestedOneWithoutAttemptsInput
+  answerStates?: Prisma.CBTAnswerStateCreateNestedManyWithoutAttemptInput
+  integrityEvents?: Prisma.CBTIntegrityEventCreateNestedManyWithoutAttemptInput
 }
 
 export type TestAttemptUncheckedCreateWithoutAnswersInput = {
@@ -716,6 +1092,13 @@ export type TestAttemptUncheckedCreateWithoutAnswersInput = {
   timeTaken?: number
   startedAt?: Date | string
   submittedAt?: Date | string | null
+  lastSavedAt?: Date | string | null
+  status?: string
+  currentQuestionId?: string | null
+  sectionState?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  integrityScore?: number
+  answerStates?: Prisma.CBTAnswerStateUncheckedCreateNestedManyWithoutAttemptInput
+  integrityEvents?: Prisma.CBTIntegrityEventUncheckedCreateNestedManyWithoutAttemptInput
 }
 
 export type TestAttemptCreateOrConnectWithoutAnswersInput = {
@@ -742,8 +1125,15 @@ export type TestAttemptUpdateWithoutAnswersInput = {
   timeTaken?: Prisma.IntFieldUpdateOperationsInput | number
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSavedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  currentQuestionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sectionState?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  integrityScore?: Prisma.IntFieldUpdateOperationsInput | number
   user?: Prisma.UserUpdateOneRequiredWithoutTestAttemptsNestedInput
   test?: Prisma.TestUpdateOneRequiredWithoutAttemptsNestedInput
+  answerStates?: Prisma.CBTAnswerStateUpdateManyWithoutAttemptNestedInput
+  integrityEvents?: Prisma.CBTIntegrityEventUpdateManyWithoutAttemptNestedInput
 }
 
 export type TestAttemptUncheckedUpdateWithoutAnswersInput = {
@@ -756,6 +1146,13 @@ export type TestAttemptUncheckedUpdateWithoutAnswersInput = {
   timeTaken?: Prisma.IntFieldUpdateOperationsInput | number
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSavedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  currentQuestionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sectionState?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  integrityScore?: Prisma.IntFieldUpdateOperationsInput | number
+  answerStates?: Prisma.CBTAnswerStateUncheckedUpdateManyWithoutAttemptNestedInput
+  integrityEvents?: Prisma.CBTIntegrityEventUncheckedUpdateManyWithoutAttemptNestedInput
 }
 
 export type TestAttemptCreateManyUserInput = {
@@ -767,6 +1164,11 @@ export type TestAttemptCreateManyUserInput = {
   timeTaken?: number
   startedAt?: Date | string
   submittedAt?: Date | string | null
+  lastSavedAt?: Date | string | null
+  status?: string
+  currentQuestionId?: string | null
+  sectionState?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  integrityScore?: number
 }
 
 export type TestAttemptUpdateWithoutUserInput = {
@@ -777,8 +1179,15 @@ export type TestAttemptUpdateWithoutUserInput = {
   timeTaken?: Prisma.IntFieldUpdateOperationsInput | number
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSavedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  currentQuestionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sectionState?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  integrityScore?: Prisma.IntFieldUpdateOperationsInput | number
   test?: Prisma.TestUpdateOneRequiredWithoutAttemptsNestedInput
   answers?: Prisma.AnswerUpdateManyWithoutAttemptNestedInput
+  answerStates?: Prisma.CBTAnswerStateUpdateManyWithoutAttemptNestedInput
+  integrityEvents?: Prisma.CBTIntegrityEventUpdateManyWithoutAttemptNestedInput
 }
 
 export type TestAttemptUncheckedUpdateWithoutUserInput = {
@@ -790,7 +1199,14 @@ export type TestAttemptUncheckedUpdateWithoutUserInput = {
   timeTaken?: Prisma.IntFieldUpdateOperationsInput | number
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSavedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  currentQuestionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sectionState?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  integrityScore?: Prisma.IntFieldUpdateOperationsInput | number
   answers?: Prisma.AnswerUncheckedUpdateManyWithoutAttemptNestedInput
+  answerStates?: Prisma.CBTAnswerStateUncheckedUpdateManyWithoutAttemptNestedInput
+  integrityEvents?: Prisma.CBTIntegrityEventUncheckedUpdateManyWithoutAttemptNestedInput
 }
 
 export type TestAttemptUncheckedUpdateManyWithoutUserInput = {
@@ -802,6 +1218,11 @@ export type TestAttemptUncheckedUpdateManyWithoutUserInput = {
   timeTaken?: Prisma.IntFieldUpdateOperationsInput | number
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSavedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  currentQuestionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sectionState?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  integrityScore?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type TestAttemptCreateManyTestInput = {
@@ -813,6 +1234,11 @@ export type TestAttemptCreateManyTestInput = {
   timeTaken?: number
   startedAt?: Date | string
   submittedAt?: Date | string | null
+  lastSavedAt?: Date | string | null
+  status?: string
+  currentQuestionId?: string | null
+  sectionState?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  integrityScore?: number
 }
 
 export type TestAttemptUpdateWithoutTestInput = {
@@ -823,8 +1249,15 @@ export type TestAttemptUpdateWithoutTestInput = {
   timeTaken?: Prisma.IntFieldUpdateOperationsInput | number
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSavedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  currentQuestionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sectionState?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  integrityScore?: Prisma.IntFieldUpdateOperationsInput | number
   user?: Prisma.UserUpdateOneRequiredWithoutTestAttemptsNestedInput
   answers?: Prisma.AnswerUpdateManyWithoutAttemptNestedInput
+  answerStates?: Prisma.CBTAnswerStateUpdateManyWithoutAttemptNestedInput
+  integrityEvents?: Prisma.CBTIntegrityEventUpdateManyWithoutAttemptNestedInput
 }
 
 export type TestAttemptUncheckedUpdateWithoutTestInput = {
@@ -836,7 +1269,14 @@ export type TestAttemptUncheckedUpdateWithoutTestInput = {
   timeTaken?: Prisma.IntFieldUpdateOperationsInput | number
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSavedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  currentQuestionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sectionState?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  integrityScore?: Prisma.IntFieldUpdateOperationsInput | number
   answers?: Prisma.AnswerUncheckedUpdateManyWithoutAttemptNestedInput
+  answerStates?: Prisma.CBTAnswerStateUncheckedUpdateManyWithoutAttemptNestedInput
+  integrityEvents?: Prisma.CBTIntegrityEventUncheckedUpdateManyWithoutAttemptNestedInput
 }
 
 export type TestAttemptUncheckedUpdateManyWithoutTestInput = {
@@ -848,6 +1288,11 @@ export type TestAttemptUncheckedUpdateManyWithoutTestInput = {
   timeTaken?: Prisma.IntFieldUpdateOperationsInput | number
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSavedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  currentQuestionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sectionState?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  integrityScore?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 
@@ -857,10 +1302,14 @@ export type TestAttemptUncheckedUpdateManyWithoutTestInput = {
 
 export type TestAttemptCountOutputType = {
   answers: number
+  answerStates: number
+  integrityEvents: number
 }
 
 export type TestAttemptCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   answers?: boolean | TestAttemptCountOutputTypeCountAnswersArgs
+  answerStates?: boolean | TestAttemptCountOutputTypeCountAnswerStatesArgs
+  integrityEvents?: boolean | TestAttemptCountOutputTypeCountIntegrityEventsArgs
 }
 
 /**
@@ -880,6 +1329,20 @@ export type TestAttemptCountOutputTypeCountAnswersArgs<ExtArgs extends runtime.T
   where?: Prisma.AnswerWhereInput
 }
 
+/**
+ * TestAttemptCountOutputType without action
+ */
+export type TestAttemptCountOutputTypeCountAnswerStatesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CBTAnswerStateWhereInput
+}
+
+/**
+ * TestAttemptCountOutputType without action
+ */
+export type TestAttemptCountOutputTypeCountIntegrityEventsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CBTIntegrityEventWhereInput
+}
+
 
 export type TestAttemptSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -891,9 +1354,16 @@ export type TestAttemptSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   timeTaken?: boolean
   startedAt?: boolean
   submittedAt?: boolean
+  lastSavedAt?: boolean
+  status?: boolean
+  currentQuestionId?: boolean
+  sectionState?: boolean
+  integrityScore?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   test?: boolean | Prisma.TestDefaultArgs<ExtArgs>
   answers?: boolean | Prisma.TestAttempt$answersArgs<ExtArgs>
+  answerStates?: boolean | Prisma.TestAttempt$answerStatesArgs<ExtArgs>
+  integrityEvents?: boolean | Prisma.TestAttempt$integrityEventsArgs<ExtArgs>
   _count?: boolean | Prisma.TestAttemptCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["testAttempt"]>
 
@@ -907,6 +1377,11 @@ export type TestAttemptSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   timeTaken?: boolean
   startedAt?: boolean
   submittedAt?: boolean
+  lastSavedAt?: boolean
+  status?: boolean
+  currentQuestionId?: boolean
+  sectionState?: boolean
+  integrityScore?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   test?: boolean | Prisma.TestDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["testAttempt"]>
@@ -921,6 +1396,11 @@ export type TestAttemptSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   timeTaken?: boolean
   startedAt?: boolean
   submittedAt?: boolean
+  lastSavedAt?: boolean
+  status?: boolean
+  currentQuestionId?: boolean
+  sectionState?: boolean
+  integrityScore?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   test?: boolean | Prisma.TestDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["testAttempt"]>
@@ -935,13 +1415,20 @@ export type TestAttemptSelectScalar = {
   timeTaken?: boolean
   startedAt?: boolean
   submittedAt?: boolean
+  lastSavedAt?: boolean
+  status?: boolean
+  currentQuestionId?: boolean
+  sectionState?: boolean
+  integrityScore?: boolean
 }
 
-export type TestAttemptOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "testId" | "score" | "totalCorrect" | "totalWrong" | "timeTaken" | "startedAt" | "submittedAt", ExtArgs["result"]["testAttempt"]>
+export type TestAttemptOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "testId" | "score" | "totalCorrect" | "totalWrong" | "timeTaken" | "startedAt" | "submittedAt" | "lastSavedAt" | "status" | "currentQuestionId" | "sectionState" | "integrityScore", ExtArgs["result"]["testAttempt"]>
 export type TestAttemptInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   test?: boolean | Prisma.TestDefaultArgs<ExtArgs>
   answers?: boolean | Prisma.TestAttempt$answersArgs<ExtArgs>
+  answerStates?: boolean | Prisma.TestAttempt$answerStatesArgs<ExtArgs>
+  integrityEvents?: boolean | Prisma.TestAttempt$integrityEventsArgs<ExtArgs>
   _count?: boolean | Prisma.TestAttemptCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type TestAttemptIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -959,6 +1446,8 @@ export type $TestAttemptPayload<ExtArgs extends runtime.Types.Extensions.Interna
     user: Prisma.$UserPayload<ExtArgs>
     test: Prisma.$TestPayload<ExtArgs>
     answers: Prisma.$AnswerPayload<ExtArgs>[]
+    answerStates: Prisma.$CBTAnswerStatePayload<ExtArgs>[]
+    integrityEvents: Prisma.$CBTIntegrityEventPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -970,6 +1459,11 @@ export type $TestAttemptPayload<ExtArgs extends runtime.Types.Extensions.Interna
     timeTaken: number
     startedAt: Date
     submittedAt: Date | null
+    lastSavedAt: Date | null
+    status: string
+    currentQuestionId: string | null
+    sectionState: runtime.JsonValue | null
+    integrityScore: number
   }, ExtArgs["result"]["testAttempt"]>
   composites: {}
 }
@@ -1367,6 +1861,8 @@ export interface Prisma__TestAttemptClient<T, Null = never, ExtArgs extends runt
   user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   test<T extends Prisma.TestDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TestDefaultArgs<ExtArgs>>): Prisma.Prisma__TestClient<runtime.Types.Result.GetResult<Prisma.$TestPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   answers<T extends Prisma.TestAttempt$answersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TestAttempt$answersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AnswerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  answerStates<T extends Prisma.TestAttempt$answerStatesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TestAttempt$answerStatesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CBTAnswerStatePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  integrityEvents<T extends Prisma.TestAttempt$integrityEventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TestAttempt$integrityEventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CBTIntegrityEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1405,6 +1901,11 @@ export interface TestAttemptFieldRefs {
   readonly timeTaken: Prisma.FieldRef<"TestAttempt", 'Int'>
   readonly startedAt: Prisma.FieldRef<"TestAttempt", 'DateTime'>
   readonly submittedAt: Prisma.FieldRef<"TestAttempt", 'DateTime'>
+  readonly lastSavedAt: Prisma.FieldRef<"TestAttempt", 'DateTime'>
+  readonly status: Prisma.FieldRef<"TestAttempt", 'String'>
+  readonly currentQuestionId: Prisma.FieldRef<"TestAttempt", 'String'>
+  readonly sectionState: Prisma.FieldRef<"TestAttempt", 'Json'>
+  readonly integrityScore: Prisma.FieldRef<"TestAttempt", 'Int'>
 }
     
 
@@ -1827,6 +2328,54 @@ export type TestAttempt$answersArgs<ExtArgs extends runtime.Types.Extensions.Int
   take?: number
   skip?: number
   distinct?: Prisma.AnswerScalarFieldEnum | Prisma.AnswerScalarFieldEnum[]
+}
+
+/**
+ * TestAttempt.answerStates
+ */
+export type TestAttempt$answerStatesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CBTAnswerState
+   */
+  select?: Prisma.CBTAnswerStateSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CBTAnswerState
+   */
+  omit?: Prisma.CBTAnswerStateOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CBTAnswerStateInclude<ExtArgs> | null
+  where?: Prisma.CBTAnswerStateWhereInput
+  orderBy?: Prisma.CBTAnswerStateOrderByWithRelationInput | Prisma.CBTAnswerStateOrderByWithRelationInput[]
+  cursor?: Prisma.CBTAnswerStateWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CBTAnswerStateScalarFieldEnum | Prisma.CBTAnswerStateScalarFieldEnum[]
+}
+
+/**
+ * TestAttempt.integrityEvents
+ */
+export type TestAttempt$integrityEventsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CBTIntegrityEvent
+   */
+  select?: Prisma.CBTIntegrityEventSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CBTIntegrityEvent
+   */
+  omit?: Prisma.CBTIntegrityEventOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CBTIntegrityEventInclude<ExtArgs> | null
+  where?: Prisma.CBTIntegrityEventWhereInput
+  orderBy?: Prisma.CBTIntegrityEventOrderByWithRelationInput | Prisma.CBTIntegrityEventOrderByWithRelationInput[]
+  cursor?: Prisma.CBTIntegrityEventWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CBTIntegrityEventScalarFieldEnum | Prisma.CBTIntegrityEventScalarFieldEnum[]
 }
 
 /**

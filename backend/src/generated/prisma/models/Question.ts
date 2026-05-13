@@ -294,6 +294,7 @@ export type QuestionWhereInput = {
   topic?: Prisma.StringFilter<"Question"> | string
   test?: Prisma.XOR<Prisma.TestScalarRelationFilter, Prisma.TestWhereInput>
   answers?: Prisma.AnswerListRelationFilter
+  answerStates?: Prisma.CBTAnswerStateListRelationFilter
 }
 
 export type QuestionOrderByWithRelationInput = {
@@ -313,6 +314,7 @@ export type QuestionOrderByWithRelationInput = {
   topic?: Prisma.SortOrder
   test?: Prisma.TestOrderByWithRelationInput
   answers?: Prisma.AnswerOrderByRelationAggregateInput
+  answerStates?: Prisma.CBTAnswerStateOrderByRelationAggregateInput
 }
 
 export type QuestionWhereUniqueInput = Prisma.AtLeast<{
@@ -335,6 +337,7 @@ export type QuestionWhereUniqueInput = Prisma.AtLeast<{
   topic?: Prisma.StringFilter<"Question"> | string
   test?: Prisma.XOR<Prisma.TestScalarRelationFilter, Prisma.TestWhereInput>
   answers?: Prisma.AnswerListRelationFilter
+  answerStates?: Prisma.CBTAnswerStateListRelationFilter
 }, "id">
 
 export type QuestionOrderByWithAggregationInput = {
@@ -395,6 +398,7 @@ export type QuestionCreateInput = {
   topic: string
   test: Prisma.TestCreateNestedOneWithoutQuestionsInput
   answers?: Prisma.AnswerCreateNestedManyWithoutQuestionInput
+  answerStates?: Prisma.CBTAnswerStateCreateNestedManyWithoutQuestionInput
 }
 
 export type QuestionUncheckedCreateInput = {
@@ -413,6 +417,7 @@ export type QuestionUncheckedCreateInput = {
   difficultyLevel: string
   topic: string
   answers?: Prisma.AnswerUncheckedCreateNestedManyWithoutQuestionInput
+  answerStates?: Prisma.CBTAnswerStateUncheckedCreateNestedManyWithoutQuestionInput
 }
 
 export type QuestionUpdateInput = {
@@ -431,6 +436,7 @@ export type QuestionUpdateInput = {
   topic?: Prisma.StringFieldUpdateOperationsInput | string
   test?: Prisma.TestUpdateOneRequiredWithoutQuestionsNestedInput
   answers?: Prisma.AnswerUpdateManyWithoutQuestionNestedInput
+  answerStates?: Prisma.CBTAnswerStateUpdateManyWithoutQuestionNestedInput
 }
 
 export type QuestionUncheckedUpdateInput = {
@@ -449,6 +455,7 @@ export type QuestionUncheckedUpdateInput = {
   difficultyLevel?: Prisma.StringFieldUpdateOperationsInput | string
   topic?: Prisma.StringFieldUpdateOperationsInput | string
   answers?: Prisma.AnswerUncheckedUpdateManyWithoutQuestionNestedInput
+  answerStates?: Prisma.CBTAnswerStateUncheckedUpdateManyWithoutQuestionNestedInput
 }
 
 export type QuestionCreateManyInput = {
@@ -619,6 +626,20 @@ export type QuestionUncheckedUpdateManyWithoutTestNestedInput = {
   deleteMany?: Prisma.QuestionScalarWhereInput | Prisma.QuestionScalarWhereInput[]
 }
 
+export type QuestionCreateNestedOneWithoutAnswerStatesInput = {
+  create?: Prisma.XOR<Prisma.QuestionCreateWithoutAnswerStatesInput, Prisma.QuestionUncheckedCreateWithoutAnswerStatesInput>
+  connectOrCreate?: Prisma.QuestionCreateOrConnectWithoutAnswerStatesInput
+  connect?: Prisma.QuestionWhereUniqueInput
+}
+
+export type QuestionUpdateOneRequiredWithoutAnswerStatesNestedInput = {
+  create?: Prisma.XOR<Prisma.QuestionCreateWithoutAnswerStatesInput, Prisma.QuestionUncheckedCreateWithoutAnswerStatesInput>
+  connectOrCreate?: Prisma.QuestionCreateOrConnectWithoutAnswerStatesInput
+  upsert?: Prisma.QuestionUpsertWithoutAnswerStatesInput
+  connect?: Prisma.QuestionWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.QuestionUpdateToOneWithWhereWithoutAnswerStatesInput, Prisma.QuestionUpdateWithoutAnswerStatesInput>, Prisma.QuestionUncheckedUpdateWithoutAnswerStatesInput>
+}
+
 export type QuestionCreateNestedOneWithoutAnswersInput = {
   create?: Prisma.XOR<Prisma.QuestionCreateWithoutAnswersInput, Prisma.QuestionUncheckedCreateWithoutAnswersInput>
   connectOrCreate?: Prisma.QuestionCreateOrConnectWithoutAnswersInput
@@ -648,6 +669,7 @@ export type QuestionCreateWithoutTestInput = {
   difficultyLevel: string
   topic: string
   answers?: Prisma.AnswerCreateNestedManyWithoutQuestionInput
+  answerStates?: Prisma.CBTAnswerStateCreateNestedManyWithoutQuestionInput
 }
 
 export type QuestionUncheckedCreateWithoutTestInput = {
@@ -665,6 +687,7 @@ export type QuestionUncheckedCreateWithoutTestInput = {
   difficultyLevel: string
   topic: string
   answers?: Prisma.AnswerUncheckedCreateNestedManyWithoutQuestionInput
+  answerStates?: Prisma.CBTAnswerStateUncheckedCreateNestedManyWithoutQuestionInput
 }
 
 export type QuestionCreateOrConnectWithoutTestInput = {
@@ -713,6 +736,94 @@ export type QuestionScalarWhereInput = {
   topic?: Prisma.StringFilter<"Question"> | string
 }
 
+export type QuestionCreateWithoutAnswerStatesInput = {
+  id?: string
+  questionText: string
+  questionImage?: string | null
+  optionA: string
+  optionB: string
+  optionC: string
+  optionD: string
+  correctAnswer: string
+  explanation: string
+  marks: number
+  negativeMarks: number
+  difficultyLevel: string
+  topic: string
+  test: Prisma.TestCreateNestedOneWithoutQuestionsInput
+  answers?: Prisma.AnswerCreateNestedManyWithoutQuestionInput
+}
+
+export type QuestionUncheckedCreateWithoutAnswerStatesInput = {
+  id?: string
+  testId: string
+  questionText: string
+  questionImage?: string | null
+  optionA: string
+  optionB: string
+  optionC: string
+  optionD: string
+  correctAnswer: string
+  explanation: string
+  marks: number
+  negativeMarks: number
+  difficultyLevel: string
+  topic: string
+  answers?: Prisma.AnswerUncheckedCreateNestedManyWithoutQuestionInput
+}
+
+export type QuestionCreateOrConnectWithoutAnswerStatesInput = {
+  where: Prisma.QuestionWhereUniqueInput
+  create: Prisma.XOR<Prisma.QuestionCreateWithoutAnswerStatesInput, Prisma.QuestionUncheckedCreateWithoutAnswerStatesInput>
+}
+
+export type QuestionUpsertWithoutAnswerStatesInput = {
+  update: Prisma.XOR<Prisma.QuestionUpdateWithoutAnswerStatesInput, Prisma.QuestionUncheckedUpdateWithoutAnswerStatesInput>
+  create: Prisma.XOR<Prisma.QuestionCreateWithoutAnswerStatesInput, Prisma.QuestionUncheckedCreateWithoutAnswerStatesInput>
+  where?: Prisma.QuestionWhereInput
+}
+
+export type QuestionUpdateToOneWithWhereWithoutAnswerStatesInput = {
+  where?: Prisma.QuestionWhereInput
+  data: Prisma.XOR<Prisma.QuestionUpdateWithoutAnswerStatesInput, Prisma.QuestionUncheckedUpdateWithoutAnswerStatesInput>
+}
+
+export type QuestionUpdateWithoutAnswerStatesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  questionText?: Prisma.StringFieldUpdateOperationsInput | string
+  questionImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  optionA?: Prisma.StringFieldUpdateOperationsInput | string
+  optionB?: Prisma.StringFieldUpdateOperationsInput | string
+  optionC?: Prisma.StringFieldUpdateOperationsInput | string
+  optionD?: Prisma.StringFieldUpdateOperationsInput | string
+  correctAnswer?: Prisma.StringFieldUpdateOperationsInput | string
+  explanation?: Prisma.StringFieldUpdateOperationsInput | string
+  marks?: Prisma.FloatFieldUpdateOperationsInput | number
+  negativeMarks?: Prisma.FloatFieldUpdateOperationsInput | number
+  difficultyLevel?: Prisma.StringFieldUpdateOperationsInput | string
+  topic?: Prisma.StringFieldUpdateOperationsInput | string
+  test?: Prisma.TestUpdateOneRequiredWithoutQuestionsNestedInput
+  answers?: Prisma.AnswerUpdateManyWithoutQuestionNestedInput
+}
+
+export type QuestionUncheckedUpdateWithoutAnswerStatesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  testId?: Prisma.StringFieldUpdateOperationsInput | string
+  questionText?: Prisma.StringFieldUpdateOperationsInput | string
+  questionImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  optionA?: Prisma.StringFieldUpdateOperationsInput | string
+  optionB?: Prisma.StringFieldUpdateOperationsInput | string
+  optionC?: Prisma.StringFieldUpdateOperationsInput | string
+  optionD?: Prisma.StringFieldUpdateOperationsInput | string
+  correctAnswer?: Prisma.StringFieldUpdateOperationsInput | string
+  explanation?: Prisma.StringFieldUpdateOperationsInput | string
+  marks?: Prisma.FloatFieldUpdateOperationsInput | number
+  negativeMarks?: Prisma.FloatFieldUpdateOperationsInput | number
+  difficultyLevel?: Prisma.StringFieldUpdateOperationsInput | string
+  topic?: Prisma.StringFieldUpdateOperationsInput | string
+  answers?: Prisma.AnswerUncheckedUpdateManyWithoutQuestionNestedInput
+}
+
 export type QuestionCreateWithoutAnswersInput = {
   id?: string
   questionText: string
@@ -728,6 +839,7 @@ export type QuestionCreateWithoutAnswersInput = {
   difficultyLevel: string
   topic: string
   test: Prisma.TestCreateNestedOneWithoutQuestionsInput
+  answerStates?: Prisma.CBTAnswerStateCreateNestedManyWithoutQuestionInput
 }
 
 export type QuestionUncheckedCreateWithoutAnswersInput = {
@@ -745,6 +857,7 @@ export type QuestionUncheckedCreateWithoutAnswersInput = {
   negativeMarks: number
   difficultyLevel: string
   topic: string
+  answerStates?: Prisma.CBTAnswerStateUncheckedCreateNestedManyWithoutQuestionInput
 }
 
 export type QuestionCreateOrConnectWithoutAnswersInput = {
@@ -778,6 +891,7 @@ export type QuestionUpdateWithoutAnswersInput = {
   difficultyLevel?: Prisma.StringFieldUpdateOperationsInput | string
   topic?: Prisma.StringFieldUpdateOperationsInput | string
   test?: Prisma.TestUpdateOneRequiredWithoutQuestionsNestedInput
+  answerStates?: Prisma.CBTAnswerStateUpdateManyWithoutQuestionNestedInput
 }
 
 export type QuestionUncheckedUpdateWithoutAnswersInput = {
@@ -795,6 +909,7 @@ export type QuestionUncheckedUpdateWithoutAnswersInput = {
   negativeMarks?: Prisma.FloatFieldUpdateOperationsInput | number
   difficultyLevel?: Prisma.StringFieldUpdateOperationsInput | string
   topic?: Prisma.StringFieldUpdateOperationsInput | string
+  answerStates?: Prisma.CBTAnswerStateUncheckedUpdateManyWithoutQuestionNestedInput
 }
 
 export type QuestionCreateManyTestInput = {
@@ -828,6 +943,7 @@ export type QuestionUpdateWithoutTestInput = {
   difficultyLevel?: Prisma.StringFieldUpdateOperationsInput | string
   topic?: Prisma.StringFieldUpdateOperationsInput | string
   answers?: Prisma.AnswerUpdateManyWithoutQuestionNestedInput
+  answerStates?: Prisma.CBTAnswerStateUpdateManyWithoutQuestionNestedInput
 }
 
 export type QuestionUncheckedUpdateWithoutTestInput = {
@@ -845,6 +961,7 @@ export type QuestionUncheckedUpdateWithoutTestInput = {
   difficultyLevel?: Prisma.StringFieldUpdateOperationsInput | string
   topic?: Prisma.StringFieldUpdateOperationsInput | string
   answers?: Prisma.AnswerUncheckedUpdateManyWithoutQuestionNestedInput
+  answerStates?: Prisma.CBTAnswerStateUncheckedUpdateManyWithoutQuestionNestedInput
 }
 
 export type QuestionUncheckedUpdateManyWithoutTestInput = {
@@ -870,10 +987,12 @@ export type QuestionUncheckedUpdateManyWithoutTestInput = {
 
 export type QuestionCountOutputType = {
   answers: number
+  answerStates: number
 }
 
 export type QuestionCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   answers?: boolean | QuestionCountOutputTypeCountAnswersArgs
+  answerStates?: boolean | QuestionCountOutputTypeCountAnswerStatesArgs
 }
 
 /**
@@ -891,6 +1010,13 @@ export type QuestionCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Ext
  */
 export type QuestionCountOutputTypeCountAnswersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.AnswerWhereInput
+}
+
+/**
+ * QuestionCountOutputType without action
+ */
+export type QuestionCountOutputTypeCountAnswerStatesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CBTAnswerStateWhereInput
 }
 
 
@@ -911,6 +1037,7 @@ export type QuestionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   topic?: boolean
   test?: boolean | Prisma.TestDefaultArgs<ExtArgs>
   answers?: boolean | Prisma.Question$answersArgs<ExtArgs>
+  answerStates?: boolean | Prisma.Question$answerStatesArgs<ExtArgs>
   _count?: boolean | Prisma.QuestionCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["question"]>
 
@@ -971,6 +1098,7 @@ export type QuestionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs =
 export type QuestionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   test?: boolean | Prisma.TestDefaultArgs<ExtArgs>
   answers?: boolean | Prisma.Question$answersArgs<ExtArgs>
+  answerStates?: boolean | Prisma.Question$answerStatesArgs<ExtArgs>
   _count?: boolean | Prisma.QuestionCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type QuestionIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -985,6 +1113,7 @@ export type $QuestionPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
   objects: {
     test: Prisma.$TestPayload<ExtArgs>
     answers: Prisma.$AnswerPayload<ExtArgs>[]
+    answerStates: Prisma.$CBTAnswerStatePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1397,6 +1526,7 @@ export interface Prisma__QuestionClient<T, Null = never, ExtArgs extends runtime
   readonly [Symbol.toStringTag]: "PrismaPromise"
   test<T extends Prisma.TestDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TestDefaultArgs<ExtArgs>>): Prisma.Prisma__TestClient<runtime.Types.Result.GetResult<Prisma.$TestPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   answers<T extends Prisma.Question$answersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Question$answersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AnswerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  answerStates<T extends Prisma.Question$answerStatesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Question$answerStatesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CBTAnswerStatePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1862,6 +1992,30 @@ export type Question$answersArgs<ExtArgs extends runtime.Types.Extensions.Intern
   take?: number
   skip?: number
   distinct?: Prisma.AnswerScalarFieldEnum | Prisma.AnswerScalarFieldEnum[]
+}
+
+/**
+ * Question.answerStates
+ */
+export type Question$answerStatesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CBTAnswerState
+   */
+  select?: Prisma.CBTAnswerStateSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CBTAnswerState
+   */
+  omit?: Prisma.CBTAnswerStateOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CBTAnswerStateInclude<ExtArgs> | null
+  where?: Prisma.CBTAnswerStateWhereInput
+  orderBy?: Prisma.CBTAnswerStateOrderByWithRelationInput | Prisma.CBTAnswerStateOrderByWithRelationInput[]
+  cursor?: Prisma.CBTAnswerStateWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CBTAnswerStateScalarFieldEnum | Prisma.CBTAnswerStateScalarFieldEnum[]
 }
 
 /**

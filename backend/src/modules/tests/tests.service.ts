@@ -32,6 +32,20 @@ type SubmitAnswer = {
   selectedAnswer: string;
 };
 
+type SaveStateInput = {
+  attemptId: string;
+  currentQuestionId?: string;
+  sectionState?: unknown;
+  answers: Array<{
+    questionId: string;
+    selectedAnswer?: string;
+    status?: string;
+    confidence?: string;
+    timeSpent?: number;
+    markedForReview?: boolean;
+  }>;
+};
+
 const testInclude = {
   questions: {
     orderBy: { id: "asc" as const }
@@ -145,9 +159,9 @@ export const testsService = {
   },
 
   async start(userId: string, testId: string) {
-    await this.details(testId);
+    const test = await this.details(testId);
 
-    return prisma.testAttempt.create({
+    const attempt = await prisma.testAttempt.create({
       data: { userId, testId },
       include: {
         test: {
@@ -155,6 +169,101 @@ export const testsService = {
         }
       }
     });
+    await prisma.cBTAnswerState.createMany({
+      data: test.questions.map((question) => ({ attemptId: attempt.id, questionId: question.id })),
+      skipDuplicates: true
+    });
+    return attempt;
+  },
+
+  async resume(userId: string, attemptId: string) {
+    const attempt = await prisma.testAttempt.findFirst({
+      where: { id: attemptId, userId },
+      include: {
+        test: { include: testInclude },
+        answerStates: true,
+        integrityEvents: { orderBy: { createdAt: "desc" }, take: 20 }
+      }
+    });
+    if (!attempt) throw new Error("Attempt not found");
+    return attempt;
+  },
+
+  async saveState(userId: string, input: SaveStateInput) {
+    const attempt = await prisma.testAttempt.findFirst({
+      where: { id: input.attemptId, userId },
+      include: { test: { include: { questions: true } } }
+    });
+    if (!attempt) throw new Error("Attempt not found");
+    if (attempt.submittedAt) throw new Error("Attempt already submitted");
+
+    const questionIds = new Set(attempt.test.questions.map((question) => question.id));
+    await prisma.$transaction([
+      prisma.testAttempt.update({
+        where: { id: input.attemptId },
+        data: {
+          currentQuestionId: input.currentQuestionId,
+          sectionState: input.sectionState as object,
+          lastSavedAt: new Date(),
+          status: "IN_PROGRESS"
+        }
+      }),
+      ...input.answers
+        .filter((answer) => questionIds.has(answer.questionId))
+        .map((answer) =>
+          prisma.cBTAnswerState.upsert({
+            where: { attemptId_questionId: { attemptId: input.attemptId, questionId: answer.questionId } },
+            update: {
+              selectedAnswer: answer.selectedAnswer,
+              status: answer.status ?? (answer.selectedAnswer ? "ANSWERED" : "UNANSWERED"),
+              confidence: answer.confidence,
+              timeSpent: answer.timeSpent,
+              markedForReview: answer.markedForReview,
+              visitCount: { increment: 1 }
+            },
+            create: {
+              attemptId: input.attemptId,
+              questionId: answer.questionId,
+              selectedAnswer: answer.selectedAnswer,
+              status: answer.status ?? (answer.selectedAnswer ? "ANSWERED" : "UNANSWERED"),
+              confidence: answer.confidence,
+              timeSpent: answer.timeSpent ?? 0,
+              markedForReview: answer.markedForReview ?? false,
+              visitCount: 1
+            }
+          })
+        )
+    ]);
+    return this.resume(userId, input.attemptId);
+  },
+
+  async integrityEvent(userId: string, input: { attemptId: string; eventType: string; severity?: string; metadata?: unknown }) {
+    const attempt = await prisma.testAttempt.findFirst({ where: { id: input.attemptId, userId } });
+    if (!attempt) throw new Error("Attempt not found");
+    const penalty = input.severity === "HIGH" ? 10 : input.severity === "MEDIUM" ? 5 : 1;
+    await prisma.testAttempt.update({
+      where: { id: input.attemptId },
+      data: { integrityScore: { decrement: penalty } }
+    });
+    return prisma.cBTIntegrityEvent.create({
+      data: { attemptId: input.attemptId, eventType: input.eventType, severity: input.severity ?? "LOW", metadata: input.metadata as object }
+    });
+  },
+
+  async reviewPlan(userId: string, attemptId: string) {
+    const attempt = await this.resume(userId, attemptId);
+    const states = attempt.answerStates;
+    const skipped = states.filter((state) => state.status === "SKIPPED" || !state.selectedAnswer);
+    const review = states.filter((state) => state.markedForReview);
+    const lowConfidence = states.filter((state) => state.confidence === "LOW");
+    const orderedIds = [...skipped, ...lowConfidence, ...review].map((state) => state.questionId);
+    return {
+      skippedQuestionIds: skipped.map((state) => state.questionId),
+      reviewQuestionIds: review.map((state) => state.questionId),
+      lowConfidenceQuestionIds: lowConfidence.map((state) => state.questionId),
+      aiReviewOrder: Array.from(new Set(orderedIds)),
+      quickWinShell: Array.from(new Set(orderedIds)).slice(0, 5)
+    };
   },
 
   async submit(userId: string, attemptId: string, answers: SubmitAnswer[], timeTaken: number) {
@@ -202,7 +311,8 @@ export const testsService = {
         totalCorrect,
         totalWrong,
         timeTaken,
-        submittedAt: new Date()
+        submittedAt: new Date(),
+        status: "SUBMITTED"
       },
       include: {
         test: true,

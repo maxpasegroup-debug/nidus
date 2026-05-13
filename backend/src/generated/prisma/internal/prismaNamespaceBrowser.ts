@@ -65,6 +65,8 @@ export const ModelName = {
   Test: 'Test',
   Question: 'Question',
   TestAttempt: 'TestAttempt',
+  CBTAnswerState: 'CBTAnswerState',
+  CBTIntegrityEvent: 'CBTIntegrityEvent',
   Answer: 'Answer',
   PsychometricTest: 'PsychometricTest',
   PsychometricQuestion: 'PsychometricQuestion',
@@ -77,6 +79,7 @@ export const ModelName = {
   LiveClass: 'LiveClass',
   RecordedLecture: 'RecordedLecture',
   LectureProgress: 'LectureProgress',
+  LecturePlaybackEvent: 'LecturePlaybackEvent',
   Attendance: 'Attendance',
   Timetable: 'Timetable',
   Faculty: 'Faculty',
@@ -109,6 +112,12 @@ export const ModelName = {
   AIInterviewQuestion: 'AIInterviewQuestion',
   DoubtQuery: 'DoubtQuery',
   AIRecommendation: 'AIRecommendation',
+  AITutorSession: 'AITutorSession',
+  AITutorMessage: 'AITutorMessage',
+  OfflineSyncEvent: 'OfflineSyncEvent',
+  LearningAnalyticsSnapshot: 'LearningAnalyticsSnapshot',
+  DailyIntelligenceIssue: 'DailyIntelligenceIssue',
+  ContentModerationItem: 'ContentModerationItem',
   OfficerPotential: 'OfficerPotential',
   FitnessProfile: 'FitnessProfile',
   PTSchedule: 'PTSchedule',
@@ -350,10 +359,43 @@ export const TestAttemptScalarFieldEnum = {
   totalWrong: 'totalWrong',
   timeTaken: 'timeTaken',
   startedAt: 'startedAt',
-  submittedAt: 'submittedAt'
+  submittedAt: 'submittedAt',
+  lastSavedAt: 'lastSavedAt',
+  status: 'status',
+  currentQuestionId: 'currentQuestionId',
+  sectionState: 'sectionState',
+  integrityScore: 'integrityScore'
 } as const
 
 export type TestAttemptScalarFieldEnum = (typeof TestAttemptScalarFieldEnum)[keyof typeof TestAttemptScalarFieldEnum]
+
+
+export const CBTAnswerStateScalarFieldEnum = {
+  id: 'id',
+  attemptId: 'attemptId',
+  questionId: 'questionId',
+  selectedAnswer: 'selectedAnswer',
+  status: 'status',
+  confidence: 'confidence',
+  timeSpent: 'timeSpent',
+  visitCount: 'visitCount',
+  markedForReview: 'markedForReview',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CBTAnswerStateScalarFieldEnum = (typeof CBTAnswerStateScalarFieldEnum)[keyof typeof CBTAnswerStateScalarFieldEnum]
+
+
+export const CBTIntegrityEventScalarFieldEnum = {
+  id: 'id',
+  attemptId: 'attemptId',
+  eventType: 'eventType',
+  severity: 'severity',
+  metadata: 'metadata',
+  createdAt: 'createdAt'
+} as const
+
+export type CBTIntegrityEventScalarFieldEnum = (typeof CBTIntegrityEventScalarFieldEnum)[keyof typeof CBTIntegrityEventScalarFieldEnum]
 
 
 export const AnswerScalarFieldEnum = {
@@ -525,10 +567,27 @@ export const LectureProgressScalarFieldEnum = {
   lectureId: 'lectureId',
   watchedDuration: 'watchedDuration',
   completed: 'completed',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  activeWatchTime: 'activeWatchTime',
+  lastPosition: 'lastPosition',
+  engagementScore: 'engagementScore'
 } as const
 
 export type LectureProgressScalarFieldEnum = (typeof LectureProgressScalarFieldEnum)[keyof typeof LectureProgressScalarFieldEnum]
+
+
+export const LecturePlaybackEventScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  lectureId: 'lectureId',
+  eventType: 'eventType',
+  position: 'position',
+  duration: 'duration',
+  metadata: 'metadata',
+  createdAt: 'createdAt'
+} as const
+
+export type LecturePlaybackEventScalarFieldEnum = (typeof LecturePlaybackEventScalarFieldEnum)[keyof typeof LecturePlaybackEventScalarFieldEnum]
 
 
 export const AttendanceScalarFieldEnum = {
@@ -940,6 +999,101 @@ export const AIRecommendationScalarFieldEnum = {
 } as const
 
 export type AIRecommendationScalarFieldEnum = (typeof AIRecommendationScalarFieldEnum)[keyof typeof AIRecommendationScalarFieldEnum]
+
+
+export const AITutorSessionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  subject: 'subject',
+  topic: 'topic',
+  status: 'status',
+  context: 'context',
+  escalationStatus: 'escalationStatus',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AITutorSessionScalarFieldEnum = (typeof AITutorSessionScalarFieldEnum)[keyof typeof AITutorSessionScalarFieldEnum]
+
+
+export const AITutorMessageScalarFieldEnum = {
+  id: 'id',
+  sessionId: 'sessionId',
+  role: 'role',
+  content: 'content',
+  metadata: 'metadata',
+  createdAt: 'createdAt'
+} as const
+
+export type AITutorMessageScalarFieldEnum = (typeof AITutorMessageScalarFieldEnum)[keyof typeof AITutorMessageScalarFieldEnum]
+
+
+export const OfflineSyncEventScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  entityType: 'entityType',
+  entityId: 'entityId',
+  operation: 'operation',
+  payload: 'payload',
+  status: 'status',
+  error: 'error',
+  createdAt: 'createdAt',
+  syncedAt: 'syncedAt'
+} as const
+
+export type OfflineSyncEventScalarFieldEnum = (typeof OfflineSyncEventScalarFieldEnum)[keyof typeof OfflineSyncEventScalarFieldEnum]
+
+
+export const LearningAnalyticsSnapshotScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  studyConsistency: 'studyConsistency',
+  lectureEngagement: 'lectureEngagement',
+  completionRate: 'completionRate',
+  productivityScore: 'productivityScore',
+  weakTopics: 'weakTopics',
+  heatmap: 'heatmap',
+  aiInsights: 'aiInsights',
+  generatedAt: 'generatedAt'
+} as const
+
+export type LearningAnalyticsSnapshotScalarFieldEnum = (typeof LearningAnalyticsSnapshotScalarFieldEnum)[keyof typeof LearningAnalyticsSnapshotScalarFieldEnum]
+
+
+export const DailyIntelligenceIssueScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  issueDate: 'issueDate',
+  status: 'status',
+  categories: 'categories',
+  currentAffairs: 'currentAffairs',
+  vocabulary: 'vocabulary',
+  quiz: 'quiz',
+  pdfPublicId: 'pdfPublicId',
+  pdfUrl: 'pdfUrl',
+  whatsappText: 'whatsappText',
+  moderationStatus: 'moderationStatus',
+  publishedAt: 'publishedAt',
+  archivedAt: 'archivedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DailyIntelligenceIssueScalarFieldEnum = (typeof DailyIntelligenceIssueScalarFieldEnum)[keyof typeof DailyIntelligenceIssueScalarFieldEnum]
+
+
+export const ContentModerationItemScalarFieldEnum = {
+  id: 'id',
+  contentType: 'contentType',
+  contentId: 'contentId',
+  status: 'status',
+  reason: 'reason',
+  reviewedBy: 'reviewedBy',
+  reviewedAt: 'reviewedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type ContentModerationItemScalarFieldEnum = (typeof ContentModerationItemScalarFieldEnum)[keyof typeof ContentModerationItemScalarFieldEnum]
 
 
 export const OfficerPotentialScalarFieldEnum = {

@@ -93,6 +93,44 @@ export const testsController = {
     }
   },
 
+  async resume(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      const attempt = await testsService.resume(userId(req), param(req, "attemptId"));
+      res.json({ attempt });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async saveState(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      assertValid(req);
+      const attempt = await testsService.saveState(userId(req), req.body);
+      res.json({ attempt });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async integrityEvent(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      assertValid(req);
+      const event = await testsService.integrityEvent(userId(req), req.body);
+      res.status(201).json({ event });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async reviewPlan(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      const plan = await testsService.reviewPlan(userId(req), param(req, "attemptId"));
+      res.json({ plan });
+    } catch (error) {
+      next(error);
+    }
+  },
+
   async history(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
       const attempts = await testsService.history(userId(req));

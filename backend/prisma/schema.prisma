@@ -299,6 +299,7 @@ model Question {
   topic           String
   test            Test     @relation(fields: [testId], references: [id], onDelete: Cascade)
   answers         Answer[]
+  answerStates    CBTAnswerState[]
 
   @@index([testId])
 }
@@ -313,12 +314,52 @@ model TestAttempt {
   timeTaken    Int       @default(0)
   startedAt    DateTime  @default(now())
   submittedAt  DateTime?
+  lastSavedAt   DateTime?
+  status        String    @default("IN_PROGRESS")
+  currentQuestionId String?
+  sectionState  Json?
+  integrityScore Int      @default(100)
   user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   test         Test      @relation(fields: [testId], references: [id], onDelete: Cascade)
   answers      Answer[]
+  answerStates CBTAnswerState[]
+  integrityEvents CBTIntegrityEvent[]
 
   @@index([userId])
   @@index([testId])
+}
+
+model CBTAnswerState {
+  id              String   @id @default(cuid())
+  attemptId       String
+  questionId      String
+  selectedAnswer  String?
+  status          String   @default("UNANSWERED")
+  confidence      String?
+  timeSpent       Int      @default(0)
+  visitCount      Int      @default(0)
+  markedForReview Boolean  @default(false)
+  updatedAt       DateTime @updatedAt
+  attempt         TestAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  question        Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([attemptId, questionId])
+  @@index([attemptId, status])
+  @@index([questionId])
+}
+
+model CBTIntegrityEvent {
+  id         String   @id @default(cuid())
+  attemptId  String
+  eventType  String
+  severity   String   @default("LOW")
+  metadata   Json?
+  createdAt  DateTime @default(now())
+  attempt    TestAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+
+  @@index([attemptId])
+  @@index([eventType])
+  @@index([createdAt])
 }
 
 model Answer {
@@ -493,11 +534,32 @@ model LectureProgress {
   watchedDuration Int             @default(0)
   completed       Boolean         @default(false)
   updatedAt       DateTime        @updatedAt
+  activeWatchTime Int             @default(0)
+  lastPosition    Int             @default(0)
+  engagementScore Int             @default(0)
+  playbackEvents  LecturePlaybackEvent[]
   user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   lecture         RecordedLecture @relation(fields: [lectureId], references: [id], onDelete: Cascade)
 
   @@unique([userId, lectureId])
   @@index([lectureId])
+}
+
+model LecturePlaybackEvent {
+  id         String   @id @default(cuid())
+  userId     String
+  lectureId  String
+  eventType  String
+  position   Int      @default(0)
+  duration   Int      @default(0)
+  metadata   Json?
+  createdAt  DateTime @default(now())
+  progress   LectureProgress @relation(fields: [userId, lectureId], references: [userId, lectureId], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([lectureId])
+  @@index([eventType])
+  @@index([createdAt])
 }
 
 model Attendance {
@@ -954,6 +1016,108 @@ model AIRecommendation {
 
   @@index([userId])
   @@index([priority])
+}
+
+model AITutorSession {
+  id          String   @id @default(cuid())
+  userId      String
+  subject     String
+  topic       String?
+  status      String   @default("ACTIVE")
+  context     Json?
+  escalationStatus String @default("NONE")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  messages    AITutorMessage[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model AITutorMessage {
+  id         String   @id @default(cuid())
+  sessionId  String
+  role       String
+  content    String
+  metadata   Json?
+  createdAt  DateTime @default(now())
+  session    AITutorSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId])
+  @@index([createdAt])
+}
+
+model OfflineSyncEvent {
+  id          String   @id @default(cuid())
+  userId      String
+  entityType  String
+  entityId    String
+  operation   String
+  payload     Json
+  status      String   @default("PENDING")
+  error       String?
+  createdAt   DateTime @default(now())
+  syncedAt    DateTime?
+
+  @@index([userId, status])
+  @@index([entityType, entityId])
+  @@index([createdAt])
+}
+
+model LearningAnalyticsSnapshot {
+  id                  String   @id @default(cuid())
+  userId              String
+  studyConsistency    Int      @default(0)
+  lectureEngagement   Int      @default(0)
+  completionRate      Int      @default(0)
+  productivityScore   Int      @default(0)
+  weakTopics          Json?
+  heatmap             Json?
+  aiInsights          Json?
+  generatedAt         DateTime @default(now())
+
+  @@index([userId])
+  @@index([generatedAt])
+}
+
+model DailyIntelligenceIssue {
+  id             String   @id @default(cuid())
+  title          String
+  issueDate      DateTime
+  status         String   @default("DRAFT")
+  categories     Json
+  currentAffairs Json?
+  vocabulary     Json?
+  quiz           Json?
+  pdfPublicId    String?
+  pdfUrl         String?
+  whatsappText   String?
+  moderationStatus String @default("PENDING")
+  publishedAt    DateTime?
+  archivedAt     DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([issueDate])
+  @@index([status])
+  @@index([moderationStatus])
+  @@index([issueDate])
+}
+
+model ContentModerationItem {
+  id          String   @id @default(cuid())
+  contentType String
+  contentId   String
+  status      String   @default("PENDING")
+  reason      String?
+  reviewedBy  String?
+  reviewedAt  DateTime?
+  createdAt   DateTime @default(now())
+
+  @@index([contentType, contentId])
+  @@index([status])
+  @@index([createdAt])
 }
 
 model OfficerPotential {

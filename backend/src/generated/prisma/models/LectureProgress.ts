@@ -28,10 +28,16 @@ export type AggregateLectureProgress = {
 
 export type LectureProgressAvgAggregateOutputType = {
   watchedDuration: number | null
+  activeWatchTime: number | null
+  lastPosition: number | null
+  engagementScore: number | null
 }
 
 export type LectureProgressSumAggregateOutputType = {
   watchedDuration: number | null
+  activeWatchTime: number | null
+  lastPosition: number | null
+  engagementScore: number | null
 }
 
 export type LectureProgressMinAggregateOutputType = {
@@ -41,6 +47,9 @@ export type LectureProgressMinAggregateOutputType = {
   watchedDuration: number | null
   completed: boolean | null
   updatedAt: Date | null
+  activeWatchTime: number | null
+  lastPosition: number | null
+  engagementScore: number | null
 }
 
 export type LectureProgressMaxAggregateOutputType = {
@@ -50,6 +59,9 @@ export type LectureProgressMaxAggregateOutputType = {
   watchedDuration: number | null
   completed: boolean | null
   updatedAt: Date | null
+  activeWatchTime: number | null
+  lastPosition: number | null
+  engagementScore: number | null
 }
 
 export type LectureProgressCountAggregateOutputType = {
@@ -59,16 +71,25 @@ export type LectureProgressCountAggregateOutputType = {
   watchedDuration: number
   completed: number
   updatedAt: number
+  activeWatchTime: number
+  lastPosition: number
+  engagementScore: number
   _all: number
 }
 
 
 export type LectureProgressAvgAggregateInputType = {
   watchedDuration?: true
+  activeWatchTime?: true
+  lastPosition?: true
+  engagementScore?: true
 }
 
 export type LectureProgressSumAggregateInputType = {
   watchedDuration?: true
+  activeWatchTime?: true
+  lastPosition?: true
+  engagementScore?: true
 }
 
 export type LectureProgressMinAggregateInputType = {
@@ -78,6 +99,9 @@ export type LectureProgressMinAggregateInputType = {
   watchedDuration?: true
   completed?: true
   updatedAt?: true
+  activeWatchTime?: true
+  lastPosition?: true
+  engagementScore?: true
 }
 
 export type LectureProgressMaxAggregateInputType = {
@@ -87,6 +111,9 @@ export type LectureProgressMaxAggregateInputType = {
   watchedDuration?: true
   completed?: true
   updatedAt?: true
+  activeWatchTime?: true
+  lastPosition?: true
+  engagementScore?: true
 }
 
 export type LectureProgressCountAggregateInputType = {
@@ -96,6 +123,9 @@ export type LectureProgressCountAggregateInputType = {
   watchedDuration?: true
   completed?: true
   updatedAt?: true
+  activeWatchTime?: true
+  lastPosition?: true
+  engagementScore?: true
   _all?: true
 }
 
@@ -192,6 +222,9 @@ export type LectureProgressGroupByOutputType = {
   watchedDuration: number
   completed: boolean
   updatedAt: Date
+  activeWatchTime: number
+  lastPosition: number
+  engagementScore: number
   _count: LectureProgressCountAggregateOutputType | null
   _avg: LectureProgressAvgAggregateOutputType | null
   _sum: LectureProgressSumAggregateOutputType | null
@@ -224,6 +257,10 @@ export type LectureProgressWhereInput = {
   watchedDuration?: Prisma.IntFilter<"LectureProgress"> | number
   completed?: Prisma.BoolFilter<"LectureProgress"> | boolean
   updatedAt?: Prisma.DateTimeFilter<"LectureProgress"> | Date | string
+  activeWatchTime?: Prisma.IntFilter<"LectureProgress"> | number
+  lastPosition?: Prisma.IntFilter<"LectureProgress"> | number
+  engagementScore?: Prisma.IntFilter<"LectureProgress"> | number
+  playbackEvents?: Prisma.LecturePlaybackEventListRelationFilter
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   lecture?: Prisma.XOR<Prisma.RecordedLectureScalarRelationFilter, Prisma.RecordedLectureWhereInput>
 }
@@ -235,6 +272,10 @@ export type LectureProgressOrderByWithRelationInput = {
   watchedDuration?: Prisma.SortOrder
   completed?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  activeWatchTime?: Prisma.SortOrder
+  lastPosition?: Prisma.SortOrder
+  engagementScore?: Prisma.SortOrder
+  playbackEvents?: Prisma.LecturePlaybackEventOrderByRelationAggregateInput
   user?: Prisma.UserOrderByWithRelationInput
   lecture?: Prisma.RecordedLectureOrderByWithRelationInput
 }
@@ -250,6 +291,10 @@ export type LectureProgressWhereUniqueInput = Prisma.AtLeast<{
   watchedDuration?: Prisma.IntFilter<"LectureProgress"> | number
   completed?: Prisma.BoolFilter<"LectureProgress"> | boolean
   updatedAt?: Prisma.DateTimeFilter<"LectureProgress"> | Date | string
+  activeWatchTime?: Prisma.IntFilter<"LectureProgress"> | number
+  lastPosition?: Prisma.IntFilter<"LectureProgress"> | number
+  engagementScore?: Prisma.IntFilter<"LectureProgress"> | number
+  playbackEvents?: Prisma.LecturePlaybackEventListRelationFilter
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   lecture?: Prisma.XOR<Prisma.RecordedLectureScalarRelationFilter, Prisma.RecordedLectureWhereInput>
 }, "id" | "userId_lectureId">
@@ -261,6 +306,9 @@ export type LectureProgressOrderByWithAggregationInput = {
   watchedDuration?: Prisma.SortOrder
   completed?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  activeWatchTime?: Prisma.SortOrder
+  lastPosition?: Prisma.SortOrder
+  engagementScore?: Prisma.SortOrder
   _count?: Prisma.LectureProgressCountOrderByAggregateInput
   _avg?: Prisma.LectureProgressAvgOrderByAggregateInput
   _max?: Prisma.LectureProgressMaxOrderByAggregateInput
@@ -278,6 +326,9 @@ export type LectureProgressScalarWhereWithAggregatesInput = {
   watchedDuration?: Prisma.IntWithAggregatesFilter<"LectureProgress"> | number
   completed?: Prisma.BoolWithAggregatesFilter<"LectureProgress"> | boolean
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"LectureProgress"> | Date | string
+  activeWatchTime?: Prisma.IntWithAggregatesFilter<"LectureProgress"> | number
+  lastPosition?: Prisma.IntWithAggregatesFilter<"LectureProgress"> | number
+  engagementScore?: Prisma.IntWithAggregatesFilter<"LectureProgress"> | number
 }
 
 export type LectureProgressCreateInput = {
@@ -285,6 +336,10 @@ export type LectureProgressCreateInput = {
   watchedDuration?: number
   completed?: boolean
   updatedAt?: Date | string
+  activeWatchTime?: number
+  lastPosition?: number
+  engagementScore?: number
+  playbackEvents?: Prisma.LecturePlaybackEventCreateNestedManyWithoutProgressInput
   user: Prisma.UserCreateNestedOneWithoutLectureProgressInput
   lecture: Prisma.RecordedLectureCreateNestedOneWithoutProgressInput
 }
@@ -296,6 +351,10 @@ export type LectureProgressUncheckedCreateInput = {
   watchedDuration?: number
   completed?: boolean
   updatedAt?: Date | string
+  activeWatchTime?: number
+  lastPosition?: number
+  engagementScore?: number
+  playbackEvents?: Prisma.LecturePlaybackEventUncheckedCreateNestedManyWithoutProgressInput
 }
 
 export type LectureProgressUpdateInput = {
@@ -303,6 +362,10 @@ export type LectureProgressUpdateInput = {
   watchedDuration?: Prisma.IntFieldUpdateOperationsInput | number
   completed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  activeWatchTime?: Prisma.IntFieldUpdateOperationsInput | number
+  lastPosition?: Prisma.IntFieldUpdateOperationsInput | number
+  engagementScore?: Prisma.IntFieldUpdateOperationsInput | number
+  playbackEvents?: Prisma.LecturePlaybackEventUpdateManyWithoutProgressNestedInput
   user?: Prisma.UserUpdateOneRequiredWithoutLectureProgressNestedInput
   lecture?: Prisma.RecordedLectureUpdateOneRequiredWithoutProgressNestedInput
 }
@@ -314,6 +377,10 @@ export type LectureProgressUncheckedUpdateInput = {
   watchedDuration?: Prisma.IntFieldUpdateOperationsInput | number
   completed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  activeWatchTime?: Prisma.IntFieldUpdateOperationsInput | number
+  lastPosition?: Prisma.IntFieldUpdateOperationsInput | number
+  engagementScore?: Prisma.IntFieldUpdateOperationsInput | number
+  playbackEvents?: Prisma.LecturePlaybackEventUncheckedUpdateManyWithoutProgressNestedInput
 }
 
 export type LectureProgressCreateManyInput = {
@@ -323,6 +390,9 @@ export type LectureProgressCreateManyInput = {
   watchedDuration?: number
   completed?: boolean
   updatedAt?: Date | string
+  activeWatchTime?: number
+  lastPosition?: number
+  engagementScore?: number
 }
 
 export type LectureProgressUpdateManyMutationInput = {
@@ -330,6 +400,9 @@ export type LectureProgressUpdateManyMutationInput = {
   watchedDuration?: Prisma.IntFieldUpdateOperationsInput | number
   completed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  activeWatchTime?: Prisma.IntFieldUpdateOperationsInput | number
+  lastPosition?: Prisma.IntFieldUpdateOperationsInput | number
+  engagementScore?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type LectureProgressUncheckedUpdateManyInput = {
@@ -339,6 +412,9 @@ export type LectureProgressUncheckedUpdateManyInput = {
   watchedDuration?: Prisma.IntFieldUpdateOperationsInput | number
   completed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  activeWatchTime?: Prisma.IntFieldUpdateOperationsInput | number
+  lastPosition?: Prisma.IntFieldUpdateOperationsInput | number
+  engagementScore?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type LectureProgressListRelationFilter = {
@@ -363,10 +439,16 @@ export type LectureProgressCountOrderByAggregateInput = {
   watchedDuration?: Prisma.SortOrder
   completed?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  activeWatchTime?: Prisma.SortOrder
+  lastPosition?: Prisma.SortOrder
+  engagementScore?: Prisma.SortOrder
 }
 
 export type LectureProgressAvgOrderByAggregateInput = {
   watchedDuration?: Prisma.SortOrder
+  activeWatchTime?: Prisma.SortOrder
+  lastPosition?: Prisma.SortOrder
+  engagementScore?: Prisma.SortOrder
 }
 
 export type LectureProgressMaxOrderByAggregateInput = {
@@ -376,6 +458,9 @@ export type LectureProgressMaxOrderByAggregateInput = {
   watchedDuration?: Prisma.SortOrder
   completed?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  activeWatchTime?: Prisma.SortOrder
+  lastPosition?: Prisma.SortOrder
+  engagementScore?: Prisma.SortOrder
 }
 
 export type LectureProgressMinOrderByAggregateInput = {
@@ -385,10 +470,21 @@ export type LectureProgressMinOrderByAggregateInput = {
   watchedDuration?: Prisma.SortOrder
   completed?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  activeWatchTime?: Prisma.SortOrder
+  lastPosition?: Prisma.SortOrder
+  engagementScore?: Prisma.SortOrder
 }
 
 export type LectureProgressSumOrderByAggregateInput = {
   watchedDuration?: Prisma.SortOrder
+  activeWatchTime?: Prisma.SortOrder
+  lastPosition?: Prisma.SortOrder
+  engagementScore?: Prisma.SortOrder
+}
+
+export type LectureProgressScalarRelationFilter = {
+  is?: Prisma.LectureProgressWhereInput
+  isNot?: Prisma.LectureProgressWhereInput
 }
 
 export type LectureProgressCreateNestedManyWithoutUserInput = {
@@ -475,11 +571,29 @@ export type LectureProgressUncheckedUpdateManyWithoutLectureNestedInput = {
   deleteMany?: Prisma.LectureProgressScalarWhereInput | Prisma.LectureProgressScalarWhereInput[]
 }
 
+export type LectureProgressCreateNestedOneWithoutPlaybackEventsInput = {
+  create?: Prisma.XOR<Prisma.LectureProgressCreateWithoutPlaybackEventsInput, Prisma.LectureProgressUncheckedCreateWithoutPlaybackEventsInput>
+  connectOrCreate?: Prisma.LectureProgressCreateOrConnectWithoutPlaybackEventsInput
+  connect?: Prisma.LectureProgressWhereUniqueInput
+}
+
+export type LectureProgressUpdateOneRequiredWithoutPlaybackEventsNestedInput = {
+  create?: Prisma.XOR<Prisma.LectureProgressCreateWithoutPlaybackEventsInput, Prisma.LectureProgressUncheckedCreateWithoutPlaybackEventsInput>
+  connectOrCreate?: Prisma.LectureProgressCreateOrConnectWithoutPlaybackEventsInput
+  upsert?: Prisma.LectureProgressUpsertWithoutPlaybackEventsInput
+  connect?: Prisma.LectureProgressWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.LectureProgressUpdateToOneWithWhereWithoutPlaybackEventsInput, Prisma.LectureProgressUpdateWithoutPlaybackEventsInput>, Prisma.LectureProgressUncheckedUpdateWithoutPlaybackEventsInput>
+}
+
 export type LectureProgressCreateWithoutUserInput = {
   id?: string
   watchedDuration?: number
   completed?: boolean
   updatedAt?: Date | string
+  activeWatchTime?: number
+  lastPosition?: number
+  engagementScore?: number
+  playbackEvents?: Prisma.LecturePlaybackEventCreateNestedManyWithoutProgressInput
   lecture: Prisma.RecordedLectureCreateNestedOneWithoutProgressInput
 }
 
@@ -489,6 +603,10 @@ export type LectureProgressUncheckedCreateWithoutUserInput = {
   watchedDuration?: number
   completed?: boolean
   updatedAt?: Date | string
+  activeWatchTime?: number
+  lastPosition?: number
+  engagementScore?: number
+  playbackEvents?: Prisma.LecturePlaybackEventUncheckedCreateNestedManyWithoutProgressInput
 }
 
 export type LectureProgressCreateOrConnectWithoutUserInput = {
@@ -527,6 +645,9 @@ export type LectureProgressScalarWhereInput = {
   watchedDuration?: Prisma.IntFilter<"LectureProgress"> | number
   completed?: Prisma.BoolFilter<"LectureProgress"> | boolean
   updatedAt?: Prisma.DateTimeFilter<"LectureProgress"> | Date | string
+  activeWatchTime?: Prisma.IntFilter<"LectureProgress"> | number
+  lastPosition?: Prisma.IntFilter<"LectureProgress"> | number
+  engagementScore?: Prisma.IntFilter<"LectureProgress"> | number
 }
 
 export type LectureProgressCreateWithoutLectureInput = {
@@ -534,6 +655,10 @@ export type LectureProgressCreateWithoutLectureInput = {
   watchedDuration?: number
   completed?: boolean
   updatedAt?: Date | string
+  activeWatchTime?: number
+  lastPosition?: number
+  engagementScore?: number
+  playbackEvents?: Prisma.LecturePlaybackEventCreateNestedManyWithoutProgressInput
   user: Prisma.UserCreateNestedOneWithoutLectureProgressInput
 }
 
@@ -543,6 +668,10 @@ export type LectureProgressUncheckedCreateWithoutLectureInput = {
   watchedDuration?: number
   completed?: boolean
   updatedAt?: Date | string
+  activeWatchTime?: number
+  lastPosition?: number
+  engagementScore?: number
+  playbackEvents?: Prisma.LecturePlaybackEventUncheckedCreateNestedManyWithoutProgressInput
 }
 
 export type LectureProgressCreateOrConnectWithoutLectureInput = {
@@ -571,12 +700,79 @@ export type LectureProgressUpdateManyWithWhereWithoutLectureInput = {
   data: Prisma.XOR<Prisma.LectureProgressUpdateManyMutationInput, Prisma.LectureProgressUncheckedUpdateManyWithoutLectureInput>
 }
 
+export type LectureProgressCreateWithoutPlaybackEventsInput = {
+  id?: string
+  watchedDuration?: number
+  completed?: boolean
+  updatedAt?: Date | string
+  activeWatchTime?: number
+  lastPosition?: number
+  engagementScore?: number
+  user: Prisma.UserCreateNestedOneWithoutLectureProgressInput
+  lecture: Prisma.RecordedLectureCreateNestedOneWithoutProgressInput
+}
+
+export type LectureProgressUncheckedCreateWithoutPlaybackEventsInput = {
+  id?: string
+  userId: string
+  lectureId: string
+  watchedDuration?: number
+  completed?: boolean
+  updatedAt?: Date | string
+  activeWatchTime?: number
+  lastPosition?: number
+  engagementScore?: number
+}
+
+export type LectureProgressCreateOrConnectWithoutPlaybackEventsInput = {
+  where: Prisma.LectureProgressWhereUniqueInput
+  create: Prisma.XOR<Prisma.LectureProgressCreateWithoutPlaybackEventsInput, Prisma.LectureProgressUncheckedCreateWithoutPlaybackEventsInput>
+}
+
+export type LectureProgressUpsertWithoutPlaybackEventsInput = {
+  update: Prisma.XOR<Prisma.LectureProgressUpdateWithoutPlaybackEventsInput, Prisma.LectureProgressUncheckedUpdateWithoutPlaybackEventsInput>
+  create: Prisma.XOR<Prisma.LectureProgressCreateWithoutPlaybackEventsInput, Prisma.LectureProgressUncheckedCreateWithoutPlaybackEventsInput>
+  where?: Prisma.LectureProgressWhereInput
+}
+
+export type LectureProgressUpdateToOneWithWhereWithoutPlaybackEventsInput = {
+  where?: Prisma.LectureProgressWhereInput
+  data: Prisma.XOR<Prisma.LectureProgressUpdateWithoutPlaybackEventsInput, Prisma.LectureProgressUncheckedUpdateWithoutPlaybackEventsInput>
+}
+
+export type LectureProgressUpdateWithoutPlaybackEventsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  watchedDuration?: Prisma.IntFieldUpdateOperationsInput | number
+  completed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  activeWatchTime?: Prisma.IntFieldUpdateOperationsInput | number
+  lastPosition?: Prisma.IntFieldUpdateOperationsInput | number
+  engagementScore?: Prisma.IntFieldUpdateOperationsInput | number
+  user?: Prisma.UserUpdateOneRequiredWithoutLectureProgressNestedInput
+  lecture?: Prisma.RecordedLectureUpdateOneRequiredWithoutProgressNestedInput
+}
+
+export type LectureProgressUncheckedUpdateWithoutPlaybackEventsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  lectureId?: Prisma.StringFieldUpdateOperationsInput | string
+  watchedDuration?: Prisma.IntFieldUpdateOperationsInput | number
+  completed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  activeWatchTime?: Prisma.IntFieldUpdateOperationsInput | number
+  lastPosition?: Prisma.IntFieldUpdateOperationsInput | number
+  engagementScore?: Prisma.IntFieldUpdateOperationsInput | number
+}
+
 export type LectureProgressCreateManyUserInput = {
   id?: string
   lectureId: string
   watchedDuration?: number
   completed?: boolean
   updatedAt?: Date | string
+  activeWatchTime?: number
+  lastPosition?: number
+  engagementScore?: number
 }
 
 export type LectureProgressUpdateWithoutUserInput = {
@@ -584,6 +780,10 @@ export type LectureProgressUpdateWithoutUserInput = {
   watchedDuration?: Prisma.IntFieldUpdateOperationsInput | number
   completed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  activeWatchTime?: Prisma.IntFieldUpdateOperationsInput | number
+  lastPosition?: Prisma.IntFieldUpdateOperationsInput | number
+  engagementScore?: Prisma.IntFieldUpdateOperationsInput | number
+  playbackEvents?: Prisma.LecturePlaybackEventUpdateManyWithoutProgressNestedInput
   lecture?: Prisma.RecordedLectureUpdateOneRequiredWithoutProgressNestedInput
 }
 
@@ -593,6 +793,10 @@ export type LectureProgressUncheckedUpdateWithoutUserInput = {
   watchedDuration?: Prisma.IntFieldUpdateOperationsInput | number
   completed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  activeWatchTime?: Prisma.IntFieldUpdateOperationsInput | number
+  lastPosition?: Prisma.IntFieldUpdateOperationsInput | number
+  engagementScore?: Prisma.IntFieldUpdateOperationsInput | number
+  playbackEvents?: Prisma.LecturePlaybackEventUncheckedUpdateManyWithoutProgressNestedInput
 }
 
 export type LectureProgressUncheckedUpdateManyWithoutUserInput = {
@@ -601,6 +805,9 @@ export type LectureProgressUncheckedUpdateManyWithoutUserInput = {
   watchedDuration?: Prisma.IntFieldUpdateOperationsInput | number
   completed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  activeWatchTime?: Prisma.IntFieldUpdateOperationsInput | number
+  lastPosition?: Prisma.IntFieldUpdateOperationsInput | number
+  engagementScore?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type LectureProgressCreateManyLectureInput = {
@@ -609,6 +816,9 @@ export type LectureProgressCreateManyLectureInput = {
   watchedDuration?: number
   completed?: boolean
   updatedAt?: Date | string
+  activeWatchTime?: number
+  lastPosition?: number
+  engagementScore?: number
 }
 
 export type LectureProgressUpdateWithoutLectureInput = {
@@ -616,6 +826,10 @@ export type LectureProgressUpdateWithoutLectureInput = {
   watchedDuration?: Prisma.IntFieldUpdateOperationsInput | number
   completed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  activeWatchTime?: Prisma.IntFieldUpdateOperationsInput | number
+  lastPosition?: Prisma.IntFieldUpdateOperationsInput | number
+  engagementScore?: Prisma.IntFieldUpdateOperationsInput | number
+  playbackEvents?: Prisma.LecturePlaybackEventUpdateManyWithoutProgressNestedInput
   user?: Prisma.UserUpdateOneRequiredWithoutLectureProgressNestedInput
 }
 
@@ -625,6 +839,10 @@ export type LectureProgressUncheckedUpdateWithoutLectureInput = {
   watchedDuration?: Prisma.IntFieldUpdateOperationsInput | number
   completed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  activeWatchTime?: Prisma.IntFieldUpdateOperationsInput | number
+  lastPosition?: Prisma.IntFieldUpdateOperationsInput | number
+  engagementScore?: Prisma.IntFieldUpdateOperationsInput | number
+  playbackEvents?: Prisma.LecturePlaybackEventUncheckedUpdateManyWithoutProgressNestedInput
 }
 
 export type LectureProgressUncheckedUpdateManyWithoutLectureInput = {
@@ -633,8 +851,40 @@ export type LectureProgressUncheckedUpdateManyWithoutLectureInput = {
   watchedDuration?: Prisma.IntFieldUpdateOperationsInput | number
   completed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  activeWatchTime?: Prisma.IntFieldUpdateOperationsInput | number
+  lastPosition?: Prisma.IntFieldUpdateOperationsInput | number
+  engagementScore?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
+
+/**
+ * Count Type LectureProgressCountOutputType
+ */
+
+export type LectureProgressCountOutputType = {
+  playbackEvents: number
+}
+
+export type LectureProgressCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  playbackEvents?: boolean | LectureProgressCountOutputTypeCountPlaybackEventsArgs
+}
+
+/**
+ * LectureProgressCountOutputType without action
+ */
+export type LectureProgressCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the LectureProgressCountOutputType
+   */
+  select?: Prisma.LectureProgressCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * LectureProgressCountOutputType without action
+ */
+export type LectureProgressCountOutputTypeCountPlaybackEventsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.LecturePlaybackEventWhereInput
+}
 
 
 export type LectureProgressSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -644,8 +894,13 @@ export type LectureProgressSelect<ExtArgs extends runtime.Types.Extensions.Inter
   watchedDuration?: boolean
   completed?: boolean
   updatedAt?: boolean
+  activeWatchTime?: boolean
+  lastPosition?: boolean
+  engagementScore?: boolean
+  playbackEvents?: boolean | Prisma.LectureProgress$playbackEventsArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   lecture?: boolean | Prisma.RecordedLectureDefaultArgs<ExtArgs>
+  _count?: boolean | Prisma.LectureProgressCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["lectureProgress"]>
 
 export type LectureProgressSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -655,6 +910,9 @@ export type LectureProgressSelectCreateManyAndReturn<ExtArgs extends runtime.Typ
   watchedDuration?: boolean
   completed?: boolean
   updatedAt?: boolean
+  activeWatchTime?: boolean
+  lastPosition?: boolean
+  engagementScore?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   lecture?: boolean | Prisma.RecordedLectureDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["lectureProgress"]>
@@ -666,6 +924,9 @@ export type LectureProgressSelectUpdateManyAndReturn<ExtArgs extends runtime.Typ
   watchedDuration?: boolean
   completed?: boolean
   updatedAt?: boolean
+  activeWatchTime?: boolean
+  lastPosition?: boolean
+  engagementScore?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   lecture?: boolean | Prisma.RecordedLectureDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["lectureProgress"]>
@@ -677,12 +938,17 @@ export type LectureProgressSelectScalar = {
   watchedDuration?: boolean
   completed?: boolean
   updatedAt?: boolean
+  activeWatchTime?: boolean
+  lastPosition?: boolean
+  engagementScore?: boolean
 }
 
-export type LectureProgressOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "lectureId" | "watchedDuration" | "completed" | "updatedAt", ExtArgs["result"]["lectureProgress"]>
+export type LectureProgressOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "lectureId" | "watchedDuration" | "completed" | "updatedAt" | "activeWatchTime" | "lastPosition" | "engagementScore", ExtArgs["result"]["lectureProgress"]>
 export type LectureProgressInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  playbackEvents?: boolean | Prisma.LectureProgress$playbackEventsArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   lecture?: boolean | Prisma.RecordedLectureDefaultArgs<ExtArgs>
+  _count?: boolean | Prisma.LectureProgressCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type LectureProgressIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -696,6 +962,7 @@ export type LectureProgressIncludeUpdateManyAndReturn<ExtArgs extends runtime.Ty
 export type $LectureProgressPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "LectureProgress"
   objects: {
+    playbackEvents: Prisma.$LecturePlaybackEventPayload<ExtArgs>[]
     user: Prisma.$UserPayload<ExtArgs>
     lecture: Prisma.$RecordedLecturePayload<ExtArgs>
   }
@@ -706,6 +973,9 @@ export type $LectureProgressPayload<ExtArgs extends runtime.Types.Extensions.Int
     watchedDuration: number
     completed: boolean
     updatedAt: Date
+    activeWatchTime: number
+    lastPosition: number
+    engagementScore: number
   }, ExtArgs["result"]["lectureProgress"]>
   composites: {}
 }
@@ -1100,6 +1370,7 @@ readonly fields: LectureProgressFieldRefs;
  */
 export interface Prisma__LectureProgressClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  playbackEvents<T extends Prisma.LectureProgress$playbackEventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LectureProgress$playbackEventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LecturePlaybackEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   lecture<T extends Prisma.RecordedLectureDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.RecordedLectureDefaultArgs<ExtArgs>>): Prisma.Prisma__RecordedLectureClient<runtime.Types.Result.GetResult<Prisma.$RecordedLecturePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
@@ -1137,6 +1408,9 @@ export interface LectureProgressFieldRefs {
   readonly watchedDuration: Prisma.FieldRef<"LectureProgress", 'Int'>
   readonly completed: Prisma.FieldRef<"LectureProgress", 'Boolean'>
   readonly updatedAt: Prisma.FieldRef<"LectureProgress", 'DateTime'>
+  readonly activeWatchTime: Prisma.FieldRef<"LectureProgress", 'Int'>
+  readonly lastPosition: Prisma.FieldRef<"LectureProgress", 'Int'>
+  readonly engagementScore: Prisma.FieldRef<"LectureProgress", 'Int'>
 }
     
 
@@ -1535,6 +1809,30 @@ export type LectureProgressDeleteManyArgs<ExtArgs extends runtime.Types.Extensio
    * Limit how many LectureProgresses to delete.
    */
   limit?: number
+}
+
+/**
+ * LectureProgress.playbackEvents
+ */
+export type LectureProgress$playbackEventsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the LecturePlaybackEvent
+   */
+  select?: Prisma.LecturePlaybackEventSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the LecturePlaybackEvent
+   */
+  omit?: Prisma.LecturePlaybackEventOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LecturePlaybackEventInclude<ExtArgs> | null
+  where?: Prisma.LecturePlaybackEventWhereInput
+  orderBy?: Prisma.LecturePlaybackEventOrderByWithRelationInput | Prisma.LecturePlaybackEventOrderByWithRelationInput[]
+  cursor?: Prisma.LecturePlaybackEventWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.LecturePlaybackEventScalarFieldEnum | Prisma.LecturePlaybackEventScalarFieldEnum[]
 }
 
 /**

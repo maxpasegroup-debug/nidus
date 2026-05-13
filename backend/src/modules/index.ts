@@ -18,6 +18,7 @@ import { currentAffairsRouter, leaderboardRouter, pyqRouter, quizBattlesRouter }
 import { documentsRouter, mediaRouter } from "./media/media.routes.js";
 import { adminCenterRouter } from "./admin-center/admin-center.routes.js";
 import { systemRouter } from "./system/system.routes.js";
+import { learningStabilityRouter } from "./learning-stability/learning-stability.routes.js";
 import { protect, allowRoles } from "./auth/auth.middleware.js";
 import { Role } from "../generated/prisma/client.js";
 import { coursesController } from "./courses/courses.controller.js";
@@ -74,4 +75,5 @@ apiRouter.use("/leaderboard", leaderboardRouter);
 apiRouter.use("/media", mediaRouter);
 apiRouter.use("/documents", documentsRouter);
 apiRouter.use("/admin", adminCenterRouter);
+apiRouter.use("/learning-stability", learningStabilityRouter);
 apiRouter.get("/my-courses", protect, allowRoles(Role.STUDENT, Role.ADMIN), coursesController.myCourses);

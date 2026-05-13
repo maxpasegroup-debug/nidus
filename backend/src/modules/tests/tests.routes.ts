@@ -23,6 +23,8 @@ function testValidators(optional = false) {
 testsRouter.get("/", testsController.list);
 testsRouter.get("/attempts/history", protect, allowRoles(Role.STUDENT, Role.ADMIN), testsController.history);
 testsRouter.get("/result/:attemptId", protect, allowRoles(Role.STUDENT, Role.ADMIN), testsController.result);
+testsRouter.get("/attempts/:attemptId/resume", protect, allowRoles(Role.STUDENT, Role.ADMIN), testsController.resume);
+testsRouter.get("/attempts/:attemptId/review-plan", protect, allowRoles(Role.STUDENT, Role.ADMIN), testsController.reviewPlan);
 testsRouter.get("/:id", testsController.details);
 testsRouter.post("/", protect, allowRoles(Role.ADMIN), testValidators(), testsController.create);
 testsRouter.put("/:id", protect, allowRoles(Role.ADMIN), testValidators(true), testsController.update);
@@ -38,4 +40,18 @@ testsRouter.post(
     body("timeTaken").isInt({ min: 0 })
   ],
   testsController.submit
+);
+testsRouter.post(
+  "/autosave",
+  protect,
+  allowRoles(Role.STUDENT, Role.ADMIN),
+  [body("attemptId").notEmpty(), body("answers").isArray()],
+  testsController.saveState
+);
+testsRouter.post(
+  "/integrity-event",
+  protect,
+  allowRoles(Role.STUDENT, Role.ADMIN),
+  [body("attemptId").notEmpty(), body("eventType").trim().notEmpty(), body("severity").optional().isIn(["LOW", "MEDIUM", "HIGH"])],
+  testsController.integrityEvent
 );

@@ -88,6 +88,16 @@ export type Question = Prisma.QuestionModel
  */
 export type TestAttempt = Prisma.TestAttemptModel
 /**
+ * Model CBTAnswerState
+ * 
+ */
+export type CBTAnswerState = Prisma.CBTAnswerStateModel
+/**
+ * Model CBTIntegrityEvent
+ * 
+ */
+export type CBTIntegrityEvent = Prisma.CBTIntegrityEventModel
+/**
  * Model Answer
  * 
  */
@@ -147,6 +157,11 @@ export type RecordedLecture = Prisma.RecordedLectureModel
  * 
  */
 export type LectureProgress = Prisma.LectureProgressModel
+/**
+ * Model LecturePlaybackEvent
+ * 
+ */
+export type LecturePlaybackEvent = Prisma.LecturePlaybackEventModel
 /**
  * Model Attendance
  * 
@@ -307,6 +322,36 @@ export type DoubtQuery = Prisma.DoubtQueryModel
  * 
  */
 export type AIRecommendation = Prisma.AIRecommendationModel
+/**
+ * Model AITutorSession
+ * 
+ */
+export type AITutorSession = Prisma.AITutorSessionModel
+/**
+ * Model AITutorMessage
+ * 
+ */
+export type AITutorMessage = Prisma.AITutorMessageModel
+/**
+ * Model OfflineSyncEvent
+ * 
+ */
+export type OfflineSyncEvent = Prisma.OfflineSyncEventModel
+/**
+ * Model LearningAnalyticsSnapshot
+ * 
+ */
+export type LearningAnalyticsSnapshot = Prisma.LearningAnalyticsSnapshotModel
+/**
+ * Model DailyIntelligenceIssue
+ * 
+ */
+export type DailyIntelligenceIssue = Prisma.DailyIntelligenceIssueModel
+/**
+ * Model ContentModerationItem
+ * 
+ */
+export type ContentModerationItem = Prisma.ContentModerationItemModel
 /**
  * Model OfficerPotential
  * 
