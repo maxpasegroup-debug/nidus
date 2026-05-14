@@ -34,7 +34,7 @@ export default function ContactPage() {
           <div className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-gold/12 blur-3xl" />
           <div className="relative">
             <h2 className="text-2xl font-semibold text-ink">Request academy demo</h2>
-            <p className="mt-2 text-sm text-muted">This public contact surface is ready to connect with Brevo or CRM lead capture.</p>
+            <p className="mt-2 text-sm text-muted">This public contact surface is ready to connect with Resend or CRM lead capture.</p>
             <div className="mt-6 grid gap-4 sm:grid-cols-2">
               <input className="rounded border border-white/12 bg-white/6 px-4 py-3 text-sm text-white outline-none focus:border-gold" placeholder="Full name" />
               <input className="rounded border border-white/12 bg-white/6 px-4 py-3 text-sm text-white outline-none focus:border-gold" placeholder="Academy / Organization" />

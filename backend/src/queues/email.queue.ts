@@ -1,4 +1,4 @@
-import { brevoService } from "../modules/communication/brevo.service.js";
+import { resendService } from "../modules/communication/resend.service.js";
 import { addJob, createWorker, queueNames } from "./queue.config.js";
 
 export type EmailJob = {
@@ -14,6 +14,6 @@ export function enqueueEmail(payload: EmailJob) {
 
 export function startEmailWorker() {
   return createWorker<EmailJob>(queueNames.email, async (job) => {
-    return brevoService.sendEmailNow(job.data);
+    return resendService.sendEmailNow(job.data);
   });
 }

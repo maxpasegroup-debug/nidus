@@ -1,6 +1,6 @@
 import { prisma } from "../../config/prisma.js";
 import type { Role } from "../../generated/prisma/client.js";
-import { brevoService, renderEmailTemplate } from "./brevo.service.js";
+import { renderEmailTemplate, resendService } from "./resend.service.js";
 import { pushService } from "./push.service.js";
 
 const userSelect = { id: true, name: true, email: true, mobile: true, role: true } as const;
@@ -64,7 +64,7 @@ export const communicationService = {
     const htmlContent = renderEmailTemplate({ title: input.subject, body: input.body, actionLabel: input.actionLabel, actionUrl: input.actionUrl });
     let status = "SENT";
     try {
-      const result = await brevoService.sendEmail({ recipient: input.recipient, subject: input.subject, htmlContent, textContent: input.body });
+      const result = await resendService.sendEmail({ recipient: input.recipient, subject: input.subject, htmlContent, textContent: input.body });
       status = result.status;
     } catch (_error) {
       status = "FAILED";

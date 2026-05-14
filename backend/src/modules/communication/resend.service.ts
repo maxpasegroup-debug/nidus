@@ -14,7 +14,7 @@ export function renderEmailTemplate(input: { title: string; body: string; action
   return `<div style="font-family:Arial,sans-serif;background:#06111f;color:#eef4ff;padding:24px"><h2 style="color:#f2d675">${input.title}</h2><p>${input.body}</p>${action}<p style="color:#9fb0c7;font-size:12px">NIDUS Defence Training Platform</p></div>`;
 }
 
-export const brevoService = {
+export const resendService = {
   async sendEmail(payload: EmailPayload) {
     const job = await enqueueEmail(payload);
     if (job) return { status: "QUEUED", jobId: job.id };
@@ -22,28 +22,31 @@ export const brevoService = {
   },
 
   async sendEmailNow(payload: EmailPayload) {
-    if (!env.BREVO_API_KEY) {
-      logger.warn("Brevo API key missing; email skipped", { recipient: payload.recipient, subject: payload.subject });
+    if (!env.RESEND_API_KEY) {
+      logger.warn("Resend API key missing; email skipped", { recipient: payload.recipient, subject: payload.subject });
       return { status: "SKIPPED_NO_API_KEY" };
     }
 
-    const response = await fetch("https://api.brevo.com/v3/smtp/email", {
+    const response = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
-        "api-key": env.BREVO_API_KEY,
-        "content-type": "application/json",
-        accept: "application/json"
+        authorization: `Bearer ${env.RESEND_API_KEY}`,
+        "content-type": "application/json"
       },
       body: JSON.stringify({
-        sender: { email: env.BREVO_SENDER_EMAIL, name: "NIDUS" },
-        to: [{ email: payload.recipient }],
+        from: env.RESEND_FROM_EMAIL,
+        to: [payload.recipient],
         subject: payload.subject,
-        htmlContent: payload.htmlContent,
-        textContent: payload.textContent
+        html: payload.htmlContent,
+        text: payload.textContent
       })
     });
 
-    if (!response.ok) throw new Error(`Brevo email failed with status ${response.status}`);
+    if (!response.ok) {
+      const details = await response.text().catch(() => "");
+      throw new Error(`Resend email failed with status ${response.status}${details ? `: ${details}` : ""}`);
+    }
+
     return { status: "SENT" };
   }
 };

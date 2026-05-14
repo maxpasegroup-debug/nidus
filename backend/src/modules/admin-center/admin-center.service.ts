@@ -25,7 +25,7 @@ const defaultSettings = [
   { key: "app.name", value: "NIDUS", category: "app" },
   { key: "branding.primaryColor", value: "#0b1f3a", category: "branding" },
   { key: "branding.accentColor", value: "#c9a646", category: "branding" },
-  { key: "email.sender", value: "no-reply@nidus.local", category: "email" },
+  { key: "email.sender", value: "NIDUS <no-reply@nidus.local>", category: "email" },
   { key: "security.sessionTtl", value: "8h", category: "security" }
 ];
 

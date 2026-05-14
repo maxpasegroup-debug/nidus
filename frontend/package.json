@@ -22,6 +22,7 @@
     "jsonwebtoken": "^9.0.3",
     "lucide-react": "^1.14.0",
     "next": "latest",
+    "nidus-platform": "file:..",
     "react": "latest",
     "react-countdown": "^2.3.6",
     "react-dom": "latest",

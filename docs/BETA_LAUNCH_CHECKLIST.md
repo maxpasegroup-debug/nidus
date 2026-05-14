@@ -7,7 +7,7 @@
 - Admin operations panel: `/admin-center/operations`.
 - Prisma migrations deployed.
 - Razorpay webhook URL registered: `https://api.nidusacademy.in/api/payments/webhook`.
-- Brevo sender verified.
+- Resend sender/domain verified.
 - Cloudinary credentials verified.
 - OpenAI billing and limits verified.
 - Sentry project connected.
