@@ -91,7 +91,12 @@ export function createApp() {
     res.send("Backend running");
   });
 
-  app.use((_req, res, next) => {
+  app.use((req, res, next) => {
+    if (req.path === "/api/health") {
+      next();
+      return;
+    }
+
     if (env.MAINTENANCE_MODE) {
       res.status(503).json({ message: "NIDUS is temporarily in maintenance mode" });
       return;

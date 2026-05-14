@@ -14,6 +14,7 @@
     "prisma:generate": "prisma generate",
     "prisma:push": "prisma db push",
     "prisma:migrate": "prisma migrate dev",
+    "prisma:migrate:deploy": "prisma migrate deploy",
     "seed:courses": "tsx src/scripts/seed-courses.ts",
     "seed:tests": "tsx src/scripts/seed-tests.ts",
     "seed:psychometric": "tsx src/scripts/seed-psychometric.ts",

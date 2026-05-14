@@ -1,6 +1,18 @@
 import "dotenv/config";
 import { z } from "zod";
 
+const envBoolean = (defaultValue: boolean) =>
+  z.preprocess((value) => {
+    if (value === undefined || value === null || value === "") return defaultValue;
+    if (typeof value === "boolean") return value;
+    if (typeof value === "string") {
+      const normalized = value.trim().toLowerCase();
+      if (["true", "1", "yes", "on"].includes(normalized)) return true;
+      if (["false", "0", "no", "off"].includes(normalized)) return false;
+    }
+    return value;
+  }, z.boolean());
+
 const envSchema = z.object({
   DATABASE_URL: z.string().min(1),
   JWT_SECRET: z.string().min(32),
@@ -12,9 +24,9 @@ const envSchema = z.object({
   API_DOMAIN: z.string().default("api.nidusacademy.in"),
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
   PROCESS_ROLE: z.enum(["web", "worker", "all"]).default("all"),
-  TRUST_PROXY: z.coerce.boolean().default(true),
+  TRUST_PROXY: envBoolean(true),
   COOKIE_DOMAIN: z.string().default(""),
-  COOKIE_SECURE: z.coerce.boolean().optional(),
+  COOKIE_SECURE: envBoolean(false).optional(),
   CSRF_COOKIE_NAME: z.string().default("nidus_csrf"),
   AUTH_ACCESS_TOKEN_MINUTES: z.coerce.number().int().positive().default(15),
   AUTH_REFRESH_TOKEN_DAYS: z.coerce.number().int().positive().default(30),
@@ -24,10 +36,10 @@ const envSchema = z.object({
   AUTH_MAX_LOGIN_FAILURES: z.coerce.number().int().positive().default(5),
   AUTH_LOCK_MINUTES: z.coerce.number().int().positive().default(15),
   REDIS_URL: z.string().default(""),
-  REDIS_REQUIRED: z.coerce.boolean().default(false),
-  QUEUE_WORKERS_ENABLED: z.coerce.boolean().default(true),
+  REDIS_REQUIRED: envBoolean(false),
+  QUEUE_WORKERS_ENABLED: envBoolean(true),
   QUEUE_CONCURRENCY: z.coerce.number().int().positive().default(5),
-  HEALTHCHECK_STRICT: z.coerce.boolean().default(true),
+  HEALTHCHECK_STRICT: envBoolean(true),
   BACKUP_BUCKET: z.string().default(""),
   MEDIA_BACKUP_PREFIX: z.string().default("nidus-media-backups"),
   SENTRY_DSN: z.string().default(""),
@@ -37,8 +49,8 @@ const envSchema = z.object({
   FIREBASE_PRIVATE_KEY: z.string().default(""),
   MAX_UPLOAD_MB: z.coerce.number().int().positive().default(50),
   AI_REQUEST_TIMEOUT_MS: z.coerce.number().int().positive().default(30000),
-  AI_QUEUE_ENABLED: z.coerce.boolean().default(false),
-  MAINTENANCE_MODE: z.coerce.boolean().default(false),
+  AI_QUEUE_ENABLED: envBoolean(false),
+  MAINTENANCE_MODE: envBoolean(false),
   RAZORPAY_KEY_ID: z.string().default(""),
   RAZORPAY_KEY_SECRET: z.string().default(""),
   RAZORPAY_WEBHOOK_SECRET: z.string().default(""),
