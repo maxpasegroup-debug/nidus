@@ -8,6 +8,7 @@ import { logger } from "./utils/logger.js";
 import { markRuntimeDegraded, markRuntimeReady, markRuntimeShuttingDown } from "./runtime/lifecycle.js";
 
 const app = createApp();
+const PORT = Number(process.env.PORT || env.PORT || 8080);
 
 async function startupChecks() {
   const databaseConnected = await verifyDatabaseConnection();
@@ -17,11 +18,11 @@ async function startupChecks() {
   if (env.PROCESS_ROLE !== "web") await startInfrastructureWorkers();
 }
 
-const server = app.listen(env.PORT, async () => {
+const server = app.listen(PORT, "0.0.0.0", async () => {
   try {
     await startupChecks();
     markRuntimeReady();
-    logger.info("NIDUS backend started", { port: env.PORT, environment: env.NODE_ENV, processRole: env.PROCESS_ROLE });
+    logger.info("NIDUS backend started", { port: PORT, environment: env.NODE_ENV, processRole: env.PROCESS_ROLE });
   } catch (error) {
     markRuntimeDegraded(error);
     logger.error("Startup validation failed", { error: error instanceof Error ? error.message : "Unknown error" });

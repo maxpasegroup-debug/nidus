@@ -87,6 +87,10 @@ export function createApp() {
   app.use("/api/documents", uploadRateLimiter);
   app.use("/api", apiRateLimiter);
 
+  app.get("/", (_req, res) => {
+    res.send("Backend running");
+  });
+
   app.use((_req, res, next) => {
     if (env.MAINTENANCE_MODE) {
       res.status(503).json({ message: "NIDUS is temporarily in maintenance mode" });
