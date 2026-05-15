@@ -33,6 +33,8 @@ export type AuthResponse = {
   message?: string;
 };
 
+type UnknownRecord = Record<string, unknown>;
+
 export type RegisterPayload = {
   name: string;
   email: string;
@@ -46,16 +48,72 @@ export type LoginPayload = {
   password: string;
 };
 
+function isRecord(value: unknown): value is UnknownRecord {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+function normalizeRole(role: unknown): AuthRole {
+  const normalized = String(role || "GUEST").trim().toUpperCase();
+  if (normalized === "MARKETING") return "MARKETING_COORDINATOR";
+
+  const allowedRoles: AuthRole[] = ["ADMIN", "GUEST", "STUDENT", "PARENT", "TEACHER", "DIRECTOR", "TELECALLER", "MARKETING_COORDINATOR"];
+  return allowedRoles.includes(normalized as AuthRole) ? (normalized as AuthRole) : "GUEST";
+}
+
+function normalizeUser(value: unknown): AuthUser | undefined {
+  if (!isRecord(value)) return undefined;
+
+  const email = typeof value.email === "string" ? value.email : "";
+  const id = typeof value.id === "string" ? value.id : email;
+  if (!id || !email) return undefined;
+
+  return {
+    id,
+    name: typeof value.name === "string" ? value.name : email,
+    email,
+    mobile: typeof value.mobile === "string" ? value.mobile : "",
+    role: normalizeRole(value.role),
+    emailVerified: Boolean(value.emailVerified),
+    mobileVerified: Boolean(value.mobileVerified),
+    instituteId: typeof value.instituteId === "string" ? value.instituteId : null,
+    branchId: typeof value.branchId === "string" ? value.branchId : null,
+    roleOnboardingStatus: typeof value.roleOnboardingStatus === "string" ? value.roleOnboardingStatus : "ACTIVE",
+    createdAt: typeof value.createdAt === "string" ? value.createdAt : new Date().toISOString(),
+    updatedAt: typeof value.updatedAt === "string" ? value.updatedAt : new Date().toISOString()
+  };
+}
+
+function readAuthPayload(payload: unknown): { token?: string; user?: AuthUser; message?: string } {
+  const root = isRecord(payload) ? payload : {};
+  const data = isRecord(root.data) ? root.data : root;
+  const token = [data.token, data.accessToken, data.access_token, root.token, root.accessToken, root.access_token].find((item) => typeof item === "string") as string | undefined;
+  const user = normalizeUser(data.user) ?? normalizeUser(root.user) ?? normalizeUser(data.profile) ?? normalizeUser(root.profile);
+  const message = typeof data.message === "string" ? data.message : typeof root.message === "string" ? root.message : undefined;
+  return { token, user, message };
+}
+
+async function completeAuth(payload: unknown): Promise<AuthResponse> {
+  const parsed = readAuthPayload(payload);
+  if (!parsed.token) throw new Error("Authentication succeeded, but the API did not return an access token.");
+
+  storeToken(parsed.token);
+  const user = parsed.user ?? (await getCurrentUser());
+  if (!user?.role) {
+    clearStoredToken();
+    throw new Error("Authentication succeeded, but the API did not return a valid user role.");
+  }
+
+  return { token: parsed.token, user, message: parsed.message };
+}
+
 export async function register(payload: RegisterPayload) {
-  const response = await apiClient.post<AuthResponse>("/auth/signup", payload);
-  storeToken(response.data.token);
-  return response.data;
+  const response = await apiClient.post<unknown>("/auth/signup", payload);
+  return completeAuth(response.data);
 }
 
 export async function login(payload: LoginPayload) {
-  const response = await apiClient.post<AuthResponse>("/auth/login", payload);
-  storeToken(response.data.token);
-  return response.data;
+  const response = await apiClient.post<unknown>("/auth/login", payload);
+  return completeAuth(response.data);
 }
 
 export async function logout() {
@@ -65,8 +123,10 @@ export async function logout() {
 }
 
 export async function getCurrentUser() {
-  const response = await apiClient.get<AuthUser>("/auth/me");
-  return response.data;
+  const response = await apiClient.get<unknown>("/auth/me");
+  const user = normalizeUser(response.data) ?? normalizeUser(isRecord(response.data) ? response.data.user : undefined);
+  if (!user?.role) throw new Error("Authenticated user profile is unavailable.");
+  return user;
 }
 
 export async function sendOtp(_mobile: string) {

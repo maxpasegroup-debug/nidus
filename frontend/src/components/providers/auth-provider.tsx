@@ -31,9 +31,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const applyAuth = useCallback(
     (response: AuthResponse, message: string) => {
+      if (!response.user?.role) throw new Error("Authenticated user role is missing.");
       setUser(response.user);
       showToast(message, "success");
-      router.replace(roleDashboardPath[response.user.role]);
+      router.replace(roleDashboardPath[response.user.role] ?? "/dashboard");
     },
     [router, showToast]
   );
