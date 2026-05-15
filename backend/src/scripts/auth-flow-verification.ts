@@ -6,6 +6,7 @@ const root = process.cwd();
 const read = (path: string) => readFileSync(join(root, path), "utf8");
 
 const routes = read("src/modules/auth/auth.routes.ts");
+const controller = read("src/modules/auth/auth.controller.ts");
 const service = read("src/modules/auth/auth.service.ts");
 const middleware = read("src/modules/auth/auth.middleware.ts");
 const app = read("src/app.ts");
@@ -16,6 +17,9 @@ assert.match(routes, /\/login/, "JWT login endpoint must exist");
 assert.match(routes, /\/me/, "JWT me endpoint must exist");
 assert.match(routes, /\/logout/, "logout endpoint must exist");
 assert.doesNotMatch(routes, /\/csrf|\/refresh|\/sessions|verify-email/, "cookie/session auth endpoints must not be active");
+
+assert.match(controller, /success: true, token: result\.token, user: result\.user/, "login and signup must return the stable { success, token, user } contract");
+assert.doesNotMatch(controller, /accessToken|access_token|jwt|sessionToken/, "auth controller must not return alternate token fields");
 
 assert.match(service, /bcrypt\.hash\(input\.password, 12\)/, "signup must hash passwords with bcrypt");
 assert.match(service, /bcrypt\.compare\(input\.password, user\.password\)/, "login must verify bcrypt password hashes");

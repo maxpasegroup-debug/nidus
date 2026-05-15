@@ -13,7 +13,7 @@ export const authController = {
     try {
       validateRequest(req);
       const result = await authService.signup(req.body, { ip: req.ip });
-      res.status(201).json({ token: result.token, accessToken: result.token, user: result.user, message: result.message ?? "Account created" });
+      res.status(201).json({ success: true, token: result.token, user: result.user });
     } catch (error) {
       next(error);
     }
@@ -23,7 +23,7 @@ export const authController = {
     try {
       validateRequest(req);
       const result = await authService.login(req.body, { ip: req.ip });
-      res.json({ token: result.token, accessToken: result.token, user: result.user, message: result.message ?? "Login successful" });
+      res.json({ success: true, token: result.token, user: result.user });
     } catch (error) {
       next(error);
     }

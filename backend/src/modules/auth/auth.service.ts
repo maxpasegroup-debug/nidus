@@ -15,7 +15,7 @@ type SignupInput = { name: string; email: string; mobile: string; password: stri
 type LoginInput = { identifier: string; password: string };
 
 const ADMIN_BOOTSTRAP_EMAIL = "nidusacademycalicut@gmail.com";
-const accessTokenExpirySeconds = env.AUTH_ACCESS_TOKEN_MINUTES * 60;
+const tokenExpirySeconds = env.AUTH_ACCESS_TOKEN_MINUTES * 60;
 
 const roleMap: Record<string, Role> = {
   admin: Role.ADMIN,
@@ -65,7 +65,7 @@ function sanitizeUser(user: User): AuthUser {
 }
 
 function signAccessToken(user: Pick<User, "id" | "email" | "role">) {
-  return jwt.sign({ id: user.id, email: user.email, role: user.role }, env.JWT_SECRET, { expiresIn: accessTokenExpirySeconds });
+  return jwt.sign({ id: user.id, email: user.email, role: user.role }, env.JWT_SECRET, { expiresIn: tokenExpirySeconds });
 }
 
 async function audit(input: { userId?: string; action: string; description: string; ip?: string }) {

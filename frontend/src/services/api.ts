@@ -1,6 +1,6 @@
 import axios, { AxiosError } from "axios";
 
-const TOKEN_KEY = "nidus_access_token";
+const TOKEN_KEY = "nidus_token";
 
 function normalizeApiUrl(value?: string) {
   const configured = value?.trim().replace(/\/+$/, "");
@@ -15,15 +15,13 @@ const publicAuthPaths = new Set(["/", "/login", "/register", "/contact", "/forgo
 
 export function getStoredToken() {
   if (typeof window === "undefined") return undefined;
-  return window.localStorage.getItem(TOKEN_KEY) ?? window.sessionStorage.getItem(TOKEN_KEY) ?? undefined;
+  return window.localStorage.getItem(TOKEN_KEY) ?? undefined;
 }
 
-export function storeToken(token: string, remember = true) {
+export function storeToken(token: string) {
   if (typeof window === "undefined") return;
-  const primary = remember ? window.localStorage : window.sessionStorage;
-  const secondary = remember ? window.sessionStorage : window.localStorage;
-  primary.setItem(TOKEN_KEY, token);
-  secondary.removeItem(TOKEN_KEY);
+  window.localStorage.setItem(TOKEN_KEY, token);
+  window.sessionStorage.removeItem(TOKEN_KEY);
 }
 
 export function clearStoredToken() {
