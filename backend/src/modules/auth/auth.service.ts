@@ -132,6 +132,7 @@ export const authService = {
   async register(input: RegisterInput, ctx?: RequestContext) {
     const email = normalizeEmail(input.email);
     const isBootstrapAdmin = isBootstrapAdminEmail(email);
+    const requiresEmailVerification = !isBootstrapAdmin && (env.NODE_ENV === "production" || Boolean(env.RESEND_API_KEY));
     const role = isBootstrapAdmin ? Role.ADMIN : input.role ?? Role.STUDENT;
     if (!isBootstrapAdmin && !publicRegistrationRoles.has(role)) throw new Error("This role cannot be selected during public registration");
 
@@ -145,10 +146,10 @@ export const authService = {
         mobile: input.mobile,
         password: await bcrypt.hash(input.password, 10),
         role,
-        emailVerified: isBootstrapAdmin,
+        emailVerified: isBootstrapAdmin || !requiresEmailVerification,
         roleOnboardingStatus: isBootstrapAdmin ? "ACTIVE" : "PENDING",
         roleActivatedAt: isBootstrapAdmin ? new Date() : null,
-        roleMetadata: isBootstrapAdmin ? { bootstrapAdmin: true } : undefined
+        roleMetadata: isBootstrapAdmin ? { bootstrapAdmin: true } : !requiresEmailVerification ? { developmentEmailVerificationBypass: true } : undefined
       }
     });
     await prisma.roleActivity.create({
@@ -159,11 +160,15 @@ export const authService = {
         metadata: isBootstrapAdmin ? { bypassedApproval: true } : undefined
       }
     }).catch(() => undefined);
-    if (!isBootstrapAdmin) await createEmailVerification(user);
+    if (requiresEmailVerification) await createEmailVerification(user);
     await audit({ userId: user.id, action: "REGISTERED", description: `Registered ${user.email}` });
-    if (isBootstrapAdmin && ctx) {
+    if (user.emailVerified && ctx) {
       const session = await createSession(user, ctx);
-      return { user: sanitizeUser(user), ...session, message: "Admin account created." };
+      return {
+        user: sanitizeUser(user),
+        ...session,
+        message: isBootstrapAdmin ? "Admin account created." : "Account created. You are signed in."
+      };
     }
     return { user: sanitizeUser(user), message: "Account created. Verify your email before logging in." };
   },

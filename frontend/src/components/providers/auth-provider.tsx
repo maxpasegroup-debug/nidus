@@ -88,13 +88,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       async register(payload) {
         try {
           const response = await authApi.register(payload);
-          setUser(response.user);
-          if (response.user.role === "ADMIN") {
+          if (response.user.emailVerified) {
+            setUser(response.user);
             setAuthCookie(true);
-            showToast("Admin account created", "success");
-            router.replace(roleDashboardPath.ADMIN);
+            showToast(response.message || "Account created", "success");
+            router.replace(roleDashboardPath[response.user.role]);
             return;
           }
+          clearAuth();
           showToast("Account created. Verify your email before logging in.", "success");
           router.replace(`/verify-email?identifier=${encodeURIComponent(payload.email)}`);
         } catch (error) {

@@ -1,12 +1,19 @@
 import { Router } from "express";
 import { body } from "express-validator";
 import { Role } from "../../generated/prisma/client.js";
+import { env } from "../../config/env.js";
+import { parseCookies } from "./auth.cookies.js";
 import { authController } from "./auth.controller.js";
 import { allowRoles, protect } from "./auth.middleware.js";
 
 export const authRouter = Router();
 
 const publicRoleValues = [Role.STUDENT, Role.GUEST];
+
+authRouter.get("/csrf", (req, res) => {
+  const token = typeof res.locals.csrfToken === "string" ? res.locals.csrfToken : parseCookies(req).get(env.CSRF_COOKIE_NAME);
+  res.json({ csrfToken: token });
+});
 
 authRouter.post(
   "/register",

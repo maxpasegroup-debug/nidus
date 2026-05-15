@@ -19,7 +19,7 @@ const corsOrigins = env.CORS_ORIGIN.split(",")
   .filter(Boolean);
 
 const productionOrigins = [`https://${env.APP_DOMAIN}`, env.FRONTEND_APP_URL].filter(Boolean);
-const allowedCorsOrigins = Array.from(new Set(corsOrigins.length > 0 ? corsOrigins : ["http://localhost:3000", ...productionOrigins]));
+const allowedCorsOrigins = Array.from(new Set([...corsOrigins, ...productionOrigins, env.NODE_ENV === "production" ? undefined : "http://localhost:3000"].filter((origin): origin is string => Boolean(origin))));
 const connectSources = Array.from(new Set(["'self'", ...allowedCorsOrigins, env.BACKEND_PUBLIC_URL, "https://api.razorpay.com", "https://checkout.razorpay.com", "https://*.sentry.io"]));
 
 export function createApp() {

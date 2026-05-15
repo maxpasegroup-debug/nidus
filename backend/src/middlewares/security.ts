@@ -80,9 +80,18 @@ export function suspiciousActivityLogger(req: Request, _res: Response, next: Nex
 const safeMethods = new Set(["GET", "HEAD", "OPTIONS"]);
 
 function allowedOrigins() {
-  return env.CORS_ORIGIN.split(",")
+  const configuredOrigins = env.CORS_ORIGIN.split(",")
     .map((origin) => origin.trim())
     .filter(Boolean);
+
+  return Array.from(
+    new Set([
+      ...configuredOrigins,
+      env.FRONTEND_APP_URL,
+      `https://${env.APP_DOMAIN}`,
+      env.NODE_ENV === "production" ? undefined : "http://localhost:3000"
+    ].filter((origin): origin is string => Boolean(origin)))
+  );
 }
 
 function requestOrigin(req: Request) {
@@ -103,6 +112,7 @@ function ensureCsrfCookie(req: Request, res: Response) {
   const cookies = parseCookies(req);
   const existing = cookies.get(env.CSRF_COOKIE_NAME);
   const token = existing || createCsrfToken();
+  res.locals.csrfToken = token;
   res.cookie(env.CSRF_COOKIE_NAME, token, csrfCookieOptions());
   return token;
 }

@@ -3,6 +3,8 @@ import axios, { AxiosError } from "axios";
 export const API_URL = process.env.NEXT_PUBLIC_API_URL?.trim() || "/api";
 const CSRF_COOKIE_NAME = process.env.NEXT_PUBLIC_CSRF_COOKIE_NAME?.trim() || "nidus_csrf";
 const publicAuthPaths = new Set(["/", "/login", "/register", "/contact", "/forgot-password", "/reset-password", "/verify-email"]);
+const unsafeMethods = new Set(["post", "put", "patch", "delete"]);
+let csrfBootstrapPromise: Promise<string | undefined> | null = null;
 
 function readCookie(name: string) {
   if (typeof document === "undefined") return undefined;
@@ -23,10 +25,31 @@ export const apiClient = axios.create({
   }
 });
 
-apiClient.interceptors.request.use((config) => {
-  if (typeof window !== "undefined" && config.method && !["get", "head", "options"].includes(config.method.toLowerCase())) {
-    const csrfToken = readCookie(CSRF_COOKIE_NAME);
-    if (csrfToken) config.headers["X-CSRF-Token"] = decodeURIComponent(csrfToken);
+async function ensureCsrfToken() {
+  const existing = readCookie(CSRF_COOKIE_NAME);
+  if (existing) return decodeURIComponent(existing);
+
+  if (!csrfBootstrapPromise) {
+    csrfBootstrapPromise = apiClient
+      .get<{ csrfToken?: string }>("/auth/csrf")
+      .then((response) => response.data.csrfToken ?? readCookie(CSRF_COOKIE_NAME))
+      .finally(() => {
+        csrfBootstrapPromise = null;
+      });
+  }
+
+  const token = await csrfBootstrapPromise;
+  return token ? decodeURIComponent(token) : undefined;
+}
+
+apiClient.interceptors.request.use(async (config) => {
+  const method = config.method?.toLowerCase();
+  if (typeof window !== "undefined" && method && unsafeMethods.has(method)) {
+    const csrfToken = await ensureCsrfToken();
+    if (csrfToken) {
+      config.headers.set?.("X-CSRF-Token", csrfToken);
+      config.headers["X-CSRF-Token"] = csrfToken;
+    }
   }
 
   return config;

@@ -9,6 +9,7 @@ const schema = read("prisma/schema.prisma");
 const routes = read("src/modules/auth/auth.routes.ts");
 const service = read("src/modules/auth/auth.service.ts");
 const middleware = read("src/modules/auth/auth.middleware.ts");
+const security = read("src/middlewares/security.ts");
 const usersRoutes = read("src/modules/users/users.routes.ts");
 
 assert.match(schema, /model AuthSession/, "refresh/session model must exist");
@@ -21,6 +22,7 @@ assert.match(routes, /\/refresh/, "refresh endpoint must exist");
 assert.match(routes, /\/logout-all/, "logout-all endpoint must exist");
 assert.match(routes, /\/sessions\/:id/, "session revoke endpoint must exist");
 assert.match(routes, /\/forgot-password\/send-otp/, "forgot password request endpoint must exist");
+assert.match(routes, /\/csrf/, "CSRF bootstrap endpoint must exist for first signup/login POST");
 
 assert.match(service, /!user\.emailVerified && !isBootstrapAdminEmail\(user\.email\)/, "login must require verified email except bootstrap admin");
 assert.match(service, /ADMIN_BOOTSTRAP_EMAIL = "nidusacademycalicut@gmail.com"/, "bootstrap admin email must be locked in auth service");
@@ -31,6 +33,8 @@ assert.match(service, /consumedAt/, "one-time tokens must be consumed");
 assert.match(service, /PASSWORD_RESET/, "password reset must revoke sessions");
 
 assert.match(middleware, /lastActivityAt/, "auth middleware must enforce idle timeout");
+assert.match(security, /FRONTEND_APP_URL/, "CSRF origin allow-list must include configured frontend URL");
+assert.match(security, /APP_DOMAIN/, "CSRF origin allow-list must include configured production app domain");
 assert.match(usersRoutes, /usersRouter\.use\(protect, allowRoles\(Role\.ADMIN\)\)/, "users routes must be admin protected");
 
 console.log("Auth flow verification checks passed.");
