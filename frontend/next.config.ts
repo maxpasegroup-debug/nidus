@@ -6,7 +6,7 @@ const projectRoot = existsSync(join(process.cwd(), "node_modules", "next", "pack
   ? process.cwd()
   : dirname(process.cwd());
 
-const backendUrl = process.env.API_PROXY_TARGET?.trim() || "http://127.0.0.1:5000";
+const backendUrl = process.env.API_PROXY_TARGET?.trim() || (process.env.NODE_ENV === "production" ? "" : "http://127.0.0.1:5000");
 const csp = [
   "default-src 'self'",
   "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
@@ -74,10 +74,12 @@ const nextConfig: NextConfig = {
     ];
   },
   async rewrites() {
+    if (!backendUrl) return [];
+
     return [
       {
         source: "/api/:path*",
-        destination: `${backendUrl}/api/:path*`
+        destination: `${backendUrl.replace(/\/$/, "")}/api/:path*`
       }
     ];
   }
