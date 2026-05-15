@@ -2,7 +2,9 @@ import axios, { AxiosError } from "axios";
 
 function normalizeApiUrl(value?: string) {
   const configured = value?.trim().replace(/\/+$/, "");
-  if (!configured) return "/api";
+  if (!configured || (configured === "/api" && process.env.NODE_ENV === "production")) {
+    return process.env.NODE_ENV === "production" ? "https://api.nidusacademy.com/api" : "/api";
+  }
   if (configured === "/api" || configured.endsWith("/api")) return configured;
   if (configured.startsWith("http://") || configured.startsWith("https://")) {
     return `${configured.replace(/\/$/, "")}/api`;
