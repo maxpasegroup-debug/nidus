@@ -1,14 +1,17 @@
 -- Phase 6A final production role architecture.
--- Existing pre-production staff roles are normalized before the enum is locked.
-UPDATE "User" SET "role" = 'TEACHER' WHERE "role" = 'FACULTY';
-UPDATE "User" SET "role" = 'TEACHER' WHERE "role" = 'TRAINER';
-UPDATE "User" SET "role" = 'TELECALLER' WHERE "role" IN ('COUNSELLOR', 'STAFF');
-UPDATE "User" SET "role" = 'DIRECTOR' WHERE "role" = 'WARDEN';
-
 ALTER TYPE "Role" RENAME TO "Role_old";
 CREATE TYPE "Role" AS ENUM ('ADMIN', 'GUEST', 'STUDENT', 'PARENT', 'TEACHER', 'DIRECTOR', 'TELECALLER', 'MARKETING_COORDINATOR');
 ALTER TABLE "User" ALTER COLUMN "role" DROP DEFAULT;
-ALTER TABLE "User" ALTER COLUMN "role" TYPE "Role" USING "role"::text::"Role";
+ALTER TABLE "User" ALTER COLUMN "role" TYPE "Role" USING (
+  CASE "role"::text
+    WHEN 'FACULTY' THEN 'TEACHER'
+    WHEN 'TRAINER' THEN 'TEACHER'
+    WHEN 'COUNSELLOR' THEN 'TELECALLER'
+    WHEN 'STAFF' THEN 'TELECALLER'
+    WHEN 'WARDEN' THEN 'DIRECTOR'
+    ELSE "role"::text
+  END
+)::"Role";
 ALTER TABLE "User" ALTER COLUMN "role" SET DEFAULT 'STUDENT';
 DROP TYPE "Role_old";
 
