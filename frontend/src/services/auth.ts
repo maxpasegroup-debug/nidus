@@ -52,6 +52,52 @@ function isRecord(value: unknown): value is UnknownRecord {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
 }
 
+function parsePayload(payload: unknown): unknown {
+  if (typeof payload !== "string") return payload;
+  try {
+    return JSON.parse(payload);
+  } catch (_error) {
+    return payload;
+  }
+}
+
+function readString(value: unknown) {
+  return typeof value === "string" && value.trim() ? value : undefined;
+}
+
+function findStringByKey(value: unknown, keys: string[], depth = 0): string | undefined {
+  if (!isRecord(value) || depth > 4) return undefined;
+
+  for (const key of keys) {
+    const found = readString(value[key]);
+    if (found) return found;
+  }
+
+  for (const child of Object.values(value)) {
+    const found = findStringByKey(child, keys, depth + 1);
+    if (found) return found;
+  }
+
+  return undefined;
+}
+
+function findUser(value: unknown, depth = 0): AuthUser | undefined {
+  if (!isRecord(value) || depth > 4) return undefined;
+
+  const direct = normalizeUser(value.user) ?? normalizeUser(value.profile) ?? normalizeUser(value.account);
+  if (direct) return direct;
+
+  const self = normalizeUser(value);
+  if (self) return self;
+
+  for (const child of Object.values(value)) {
+    const found = findUser(child, depth + 1);
+    if (found) return found;
+  }
+
+  return undefined;
+}
+
 function normalizeRole(role: unknown): AuthRole {
   const normalized = String(role || "GUEST").trim().toUpperCase();
   if (normalized === "MARKETING") return "MARKETING_COORDINATOR";
@@ -84,11 +130,11 @@ function normalizeUser(value: unknown): AuthUser | undefined {
 }
 
 function readAuthPayload(payload: unknown): { token?: string; user?: AuthUser; message?: string } {
-  const root = isRecord(payload) ? payload : {};
-  const data = isRecord(root.data) ? root.data : root;
-  const token = [data.token, data.accessToken, data.access_token, root.token, root.accessToken, root.access_token].find((item) => typeof item === "string") as string | undefined;
-  const user = normalizeUser(data.user) ?? normalizeUser(root.user) ?? normalizeUser(data.profile) ?? normalizeUser(root.profile);
-  const message = typeof data.message === "string" ? data.message : typeof root.message === "string" ? root.message : undefined;
+  const parsedPayload = parsePayload(payload);
+  const root = isRecord(parsedPayload) ? parsedPayload : {};
+  const token = findStringByKey(root, ["token", "accessToken", "access_token", "jwt", "bearerToken"]);
+  const user = findUser(root);
+  const message = findStringByKey(root, ["message"]);
   return { token, user, message };
 }
 
@@ -124,7 +170,7 @@ export async function logout() {
 
 export async function getCurrentUser() {
   const response = await apiClient.get<unknown>("/auth/me");
-  const user = normalizeUser(response.data) ?? normalizeUser(isRecord(response.data) ? response.data.user : undefined);
+  const user = findUser(parsePayload(response.data));
   if (!user?.role) throw new Error("Authenticated user profile is unavailable.");
   return user;
 }

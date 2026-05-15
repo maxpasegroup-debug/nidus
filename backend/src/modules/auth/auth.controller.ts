@@ -12,7 +12,8 @@ export const authController = {
   async signup(req: Request, res: Response, next: NextFunction) {
     try {
       validateRequest(req);
-      res.status(201).json(await authService.signup(req.body, { ip: req.ip }));
+      const result = await authService.signup(req.body, { ip: req.ip });
+      res.status(201).json({ token: result.token, accessToken: result.token, user: result.user, message: result.message ?? "Account created" });
     } catch (error) {
       next(error);
     }
@@ -21,7 +22,8 @@ export const authController = {
   async login(req: Request, res: Response, next: NextFunction) {
     try {
       validateRequest(req);
-      res.json(await authService.login(req.body, { ip: req.ip }));
+      const result = await authService.login(req.body, { ip: req.ip });
+      res.json({ token: result.token, accessToken: result.token, user: result.user, message: result.message ?? "Login successful" });
     } catch (error) {
       next(error);
     }
