@@ -17,7 +17,7 @@ const hopByHopHeaders = new Set([
 ]);
 
 function apiTarget() {
-  const configured = process.env.API_PROXY_TARGET?.trim().replace(/\/+$/, "");
+  const configured = process.env.API_PROXY_TARGET?.trim().replace(/\/+$/, "") || (process.env.NODE_ENV === "production" ? "" : "http://127.0.0.1:5000");
   if (!configured) return undefined;
   return configured.endsWith("/api") ? configured : `${configured}/api`;
 }
@@ -61,6 +61,16 @@ async function proxy(request: NextRequest, context: { params: Promise<{ path?: s
     headers: forwardedHeaders(request),
     body: ["GET", "HEAD"].includes(request.method) ? undefined : await request.arrayBuffer(),
     redirect: "manual"
+  }).catch((error: unknown) => {
+    const message = error instanceof Error ? error.message : "Unknown proxy error";
+    return NextResponse.json(
+      {
+        message: "Backend API is unreachable from the frontend proxy.",
+        targetOrigin: targetUrl.origin,
+        detail: message
+      },
+      { status: 502 }
+    );
   });
 
   const responseHeaders = new Headers(response.headers);
