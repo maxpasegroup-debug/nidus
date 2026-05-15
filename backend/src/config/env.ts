@@ -85,42 +85,13 @@ const envSchema = z.object({
     });
   }
 
-  if (!env.FRONTEND_APP_URL.includes(env.APP_DOMAIN)) {
+  if (env.JWT_SECRET.length < 32) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
-      message: "FRONTEND_APP_URL must point to APP_DOMAIN in production",
-      path: ["FRONTEND_APP_URL"]
+      message: "JWT_SECRET must be at least 32 characters",
+      path: ["JWT_SECRET"]
     });
   }
-
-  if (!env.BACKEND_PUBLIC_URL.includes(env.API_DOMAIN)) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: "BACKEND_PUBLIC_URL must point to API_DOMAIN in production",
-      path: ["BACKEND_PUBLIC_URL"]
-    });
-  }
-
-  const requiredInProduction = [
-    "OPENAI_API_KEY",
-    "RAZORPAY_KEY_ID",
-    "RAZORPAY_KEY_SECRET",
-    "RAZORPAY_WEBHOOK_SECRET",
-    "RESEND_API_KEY",
-    "CLOUDINARY_CLOUD_NAME",
-    "CLOUDINARY_API_KEY",
-    "CLOUDINARY_API_SECRET"
-  ] as const;
-
-  requiredInProduction.forEach((key) => {
-    if (!env[key]) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: `${key} is required in production`,
-        path: [key]
-      });
-    }
-  });
 });
 
 export const env = envSchema.parse(process.env);
