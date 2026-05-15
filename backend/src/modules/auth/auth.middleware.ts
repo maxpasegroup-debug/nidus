@@ -3,12 +3,11 @@ import jwt from "jsonwebtoken";
 import { env } from "../../config/env.js";
 import { prisma } from "../../config/prisma.js";
 import type { Role } from "../../generated/prisma/client.js";
-import { readAuthToken } from "./auth.cookies.js";
 
 export type JwtUser = {
   id: string;
+  email?: string;
   role: Role;
-  sessionId?: string;
   instituteId?: string | null;
   branchId?: string | null;
 };
@@ -18,29 +17,36 @@ export type AuthenticatedRequest = Request & {
 };
 
 type AuthTokenPayload = jwt.JwtPayload & {
-  sub: string;
+  id?: string;
+  sub?: string;
+  email?: string;
   role: Role;
-  sid?: string;
 };
+
+function readBearerToken(req: Request) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader?.startsWith("Bearer ")) return undefined;
+  return authHeader.slice("Bearer ".length).trim();
+}
 
 export async function protect(req: AuthenticatedRequest, res: Response, next: NextFunction) {
   try {
-    const token = readAuthToken(req);
+    const token = readBearerToken(req);
     if (!token) {
       res.status(401).json({ message: "Authentication token required" });
       return;
     }
 
     const decoded = jwt.verify(token, env.JWT_SECRET) as AuthTokenPayload;
-
-    if (!decoded.sub) {
+    const userId = decoded.id ?? decoded.sub;
+    if (!userId) {
       res.status(401).json({ message: "Invalid authentication token" });
       return;
     }
 
     const user = await prisma.user.findUnique({
-      where: { id: decoded.sub },
-      select: { id: true, role: true, isDisabled: true, instituteId: true, branchId: true }
+      where: { id: userId },
+      select: { id: true, email: true, role: true, isDisabled: true, instituteId: true, branchId: true }
     });
 
     if (!user || user.isDisabled) {
@@ -48,21 +54,7 @@ export async function protect(req: AuthenticatedRequest, res: Response, next: Ne
       return;
     }
 
-    if (decoded.sid) {
-      const session = await prisma.authSession.findUnique({ where: { id: decoded.sid } });
-      const idleExpiry = new Date(Date.now() - env.AUTH_IDLE_TIMEOUT_MINUTES * 60 * 1000);
-      if (!session || session.userId !== user.id || session.revokedAt || session.expiresAt <= new Date() || session.lastActivityAt <= idleExpiry) {
-        res.status(401).json({ message: "Session expired" });
-        return;
-      }
-
-      await prisma.authSession.update({
-        where: { id: session.id },
-        data: { lastActivityAt: new Date() }
-      });
-    }
-
-    req.user = { id: user.id, role: user.role, sessionId: decoded.sid, instituteId: user.instituteId, branchId: user.branchId };
+    req.user = { id: user.id, email: user.email, role: user.role, instituteId: user.instituteId, branchId: user.branchId };
     next();
   } catch (_error) {
     res.status(401).json({ message: "Invalid or expired authentication token" });

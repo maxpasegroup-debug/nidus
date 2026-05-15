@@ -5,36 +5,33 @@ import { join } from "node:path";
 const root = process.cwd();
 const read = (path: string) => readFileSync(join(root, path), "utf8");
 
-const schema = read("prisma/schema.prisma");
 const routes = read("src/modules/auth/auth.routes.ts");
 const service = read("src/modules/auth/auth.service.ts");
 const middleware = read("src/modules/auth/auth.middleware.ts");
-const security = read("src/middlewares/security.ts");
+const app = read("src/app.ts");
 const usersRoutes = read("src/modules/users/users.routes.ts");
 
-assert.match(schema, /model AuthSession/, "refresh/session model must exist");
-assert.match(schema, /model AuthVerificationToken/, "email verification token model must exist");
-assert.match(schema, /model PasswordResetToken/, "password reset token model must exist");
-assert.match(schema, /model ParentStudentLink/, "parent-student link model must exist");
+assert.match(routes, /\/signup/, "JWT signup endpoint must exist");
+assert.match(routes, /\/login/, "JWT login endpoint must exist");
+assert.match(routes, /\/me/, "JWT me endpoint must exist");
+assert.match(routes, /\/logout/, "logout endpoint must exist");
+assert.doesNotMatch(routes, /\/csrf|\/refresh|\/sessions|verify-email/, "cookie/session auth endpoints must not be active");
 
-assert.match(routes, /\/verify-email/, "email verification endpoint must exist");
-assert.match(routes, /\/refresh/, "refresh endpoint must exist");
-assert.match(routes, /\/logout-all/, "logout-all endpoint must exist");
-assert.match(routes, /\/sessions\/:id/, "session revoke endpoint must exist");
-assert.match(routes, /\/forgot-password\/send-otp/, "forgot password request endpoint must exist");
-assert.match(routes, /\/csrf/, "CSRF bootstrap endpoint must exist for first signup/login POST");
-
-assert.match(service, /!user\.emailVerified && !isBootstrapAdminEmail\(user\.email\)/, "login must require verified email except bootstrap admin");
-assert.match(service, /ADMIN_BOOTSTRAP_EMAIL = "nidusacademycalicut@gmail.com"/, "bootstrap admin email must be locked in auth service");
+assert.match(service, /bcrypt\.hash\(input\.password, 12\)/, "signup must hash passwords with bcrypt");
+assert.match(service, /bcrypt\.compare\(input\.password, user\.password\)/, "login must verify bcrypt password hashes");
+assert.match(service, /jwt\.sign\(\{ id: user\.id, email: user\.email, role: user\.role \}/, "JWT must embed id, email, and role");
+assert.match(service, /ADMIN_BOOTSTRAP_EMAIL = "nidusacademycalicut@gmail.com"/, "bootstrap admin email must be locked");
+assert.match(service, /isBootstrapAdminEmail\(email\)\) return Role\.ADMIN/, "bootstrap admin signup must force ADMIN role");
+assert.match(service, /isBootstrapAdminEmail\(user\.email\) \? Role\.ADMIN/, "bootstrap admin login must force ADMIN role");
 assert.match(service, /loginFailureCount/, "login failures must be tracked");
 assert.match(service, /lockedUntil/, "temporary lockout must be tracked");
-assert.match(service, /refreshTokenHash/, "refresh tokens must be hashed and stored");
-assert.match(service, /consumedAt/, "one-time tokens must be consumed");
-assert.match(service, /PASSWORD_RESET/, "password reset must revoke sessions");
 
-assert.match(middleware, /lastActivityAt/, "auth middleware must enforce idle timeout");
-assert.match(security, /FRONTEND_APP_URL/, "CSRF origin allow-list must include configured frontend URL");
-assert.match(security, /APP_DOMAIN/, "CSRF origin allow-list must include configured production app domain");
-assert.match(usersRoutes, /usersRouter\.use\(protect, allowRoles\(Role\.ADMIN\)\)/, "users routes must be admin protected");
+assert.match(middleware, /startsWith\("Bearer "\)/, "auth middleware must require Bearer tokens");
+assert.match(middleware, /jwt\.verify\(token, env\.JWT_SECRET\)/, "auth middleware must verify JWT");
+assert.doesNotMatch(middleware, /readAuthToken|authSession|lastActivityAt|sid/, "auth middleware must not depend on cookies or server sessions");
 
-console.log("Auth flow verification checks passed.");
+assert.doesNotMatch(app, /csrfProtection/, "global CSRF middleware must not be active for Bearer JWT auth");
+assert.match(usersRoutes, /usersRouter\.use\(protect, allowRoles\(Role\.ADMIN\)\)/, "user management routes must be admin protected");
+assert.match(usersRoutes, /z\.nativeEnum\(Role\)/, "admin user creation must support all Prisma roles");
+
+console.log("JWT auth flow verification checks passed.");

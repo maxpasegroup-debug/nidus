@@ -1,7 +1,5 @@
 import type { NextFunction, Request, Response } from "express";
-import { env } from "../config/env.js";
 import { getRedis, isRedisReady } from "../config/redis.js";
-import { createCsrfToken, csrfCookieOptions, parseCookies } from "../modules/auth/auth.cookies.js";
 import { logger } from "../utils/logger.js";
 
 const localRateLimit = new Map<string, { count: number; expiresAt: number }>();
@@ -74,77 +72,5 @@ export function suspiciousActivityLogger(req: Request, _res: Response, next: Nex
     });
   }
 
-  next();
-}
-
-const safeMethods = new Set(["GET", "HEAD", "OPTIONS"]);
-
-function allowedOrigins() {
-  const configuredOrigins = env.CORS_ORIGIN.split(",")
-    .map((origin) => origin.trim())
-    .filter(Boolean);
-
-  return Array.from(
-    new Set([
-      ...configuredOrigins,
-      env.FRONTEND_APP_URL,
-      `https://${env.APP_DOMAIN}`,
-      env.NODE_ENV === "production" ? undefined : "http://localhost:3000"
-    ].filter((origin): origin is string => Boolean(origin)))
-  );
-}
-
-function requestOrigin(req: Request) {
-  const origin = req.headers.origin;
-  if (origin) return origin;
-
-  const referer = req.headers.referer;
-  if (!referer) return undefined;
-
-  try {
-    return new URL(referer).origin;
-  } catch (_error) {
-    return undefined;
-  }
-}
-
-function ensureCsrfCookie(req: Request, res: Response) {
-  const cookies = parseCookies(req);
-  const existing = cookies.get(env.CSRF_COOKIE_NAME);
-  const token = existing || createCsrfToken();
-  res.locals.csrfToken = token;
-  res.cookie(env.CSRF_COOKIE_NAME, token, csrfCookieOptions());
-  return token;
-}
-
-export function csrfProtection(req: Request, res: Response, next: NextFunction) {
-  if (req.path === "/api/payments/webhook") {
-    next();
-    return;
-  }
-
-  const cookieToken = ensureCsrfCookie(req, res);
-
-  if (safeMethods.has(req.method)) {
-    res.setHeader("X-CSRF-Protection-Mode", "double-submit-cookie");
-    next();
-    return;
-  }
-
-  const origin = requestOrigin(req);
-  if (!origin || !allowedOrigins().includes(origin)) {
-    logger.warn("CSRF origin rejected", { ip: req.ip, method: req.method, path: req.path, origin });
-    res.status(403).json({ message: "Invalid request origin" });
-    return;
-  }
-
-  const headerToken = req.headers["x-csrf-token"];
-  if (typeof headerToken !== "string" || headerToken.length < 32 || headerToken !== cookieToken) {
-    logger.warn("CSRF token rejected", { ip: req.ip, method: req.method, path: req.path });
-    res.status(403).json({ message: "Invalid CSRF token" });
-    return;
-  }
-
-  res.setHeader("X-CSRF-Protection-Mode", "double-submit-cookie");
   next();
 }

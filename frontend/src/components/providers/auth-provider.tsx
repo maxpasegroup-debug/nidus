@@ -2,7 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
-import { getApiErrorMessage } from "@/services/api";
+import { clearStoredToken, getApiErrorMessage, getStoredToken } from "@/services/api";
 import * as authApi from "@/services/auth";
 import type { AuthResponse, AuthUser, LoginPayload, RegisterPayload } from "@/services/auth";
 import { useToast } from "@/components/providers/toast-provider";
@@ -23,15 +23,6 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
-function setAuthCookie(isAuthenticated: boolean) {
-  if (isAuthenticated) {
-    document.cookie = "nidus_auth=1; path=/; max-age=604800; samesite=lax";
-    return;
-  }
-
-  document.cookie = "nidus_auth=; path=/; max-age=0; samesite=lax";
-}
-
 export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
   const { showToast } = useToast();
@@ -41,7 +32,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const applyAuth = useCallback(
     (response: AuthResponse, message: string) => {
       setUser(response.user);
-      setAuthCookie(true);
       showToast(message, "success");
       router.replace(roleDashboardPath[response.user.role]);
     },
@@ -49,16 +39,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 
   const clearAuth = useCallback(() => {
-    setAuthCookie(false);
+    clearStoredToken();
     setUser(null);
   }, []);
 
   useEffect(() => {
     async function loadUser() {
       try {
+        if (!getStoredToken()) {
+          clearAuth();
+          return;
+        }
         const currentUser = await authApi.getCurrentUser();
         setUser(currentUser);
-        setAuthCookie(true);
       } catch (_error) {
         clearAuth();
       } finally {
@@ -88,16 +81,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       async register(payload) {
         try {
           const response = await authApi.register(payload);
-          if (response.user.emailVerified) {
-            setUser(response.user);
-            setAuthCookie(true);
-            showToast(response.message || "Account created", "success");
-            router.replace(roleDashboardPath[response.user.role]);
-            return;
-          }
-          clearAuth();
-          showToast("Account created. Verify your email before logging in.", "success");
-          router.replace(`/verify-email?identifier=${encodeURIComponent(payload.email)}`);
+          applyAuth(response, "Account created");
         } catch (error) {
           showToast(getApiErrorMessage(error), "error");
           throw error;

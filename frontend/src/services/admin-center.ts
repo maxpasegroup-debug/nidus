@@ -1,5 +1,6 @@
 import { apiClient } from "@/services/api";
-import type { AdminDashboard, AdminOperations, AdminRole, AuditLog, Branch, Permission, SystemSetting } from "@/types/admin-center";
+import type { AdminDashboard, AdminOperations, AdminRole, AdminUser, AuditLog, Branch, Permission, SystemSetting } from "@/types/admin-center";
+import type { AuthRole } from "@/services/auth";
 
 export async function getAdminDashboard() {
   return (await apiClient.get<{ dashboard: AdminDashboard }>("/admin")).data.dashboard;
@@ -52,4 +53,12 @@ export async function getBranches() {
 
 export async function createBranch(payload: { name: string; location: string; contactNumber: string }) {
   return (await apiClient.post<{ branch: Branch }>("/admin/branches", payload)).data.branch;
+}
+
+export async function getUsers() {
+  return (await apiClient.get<AdminUser[]>("/users")).data;
+}
+
+export async function createUser(payload: { name: string; email: string; mobile: string; password: string; role: AuthRole }) {
+  return (await apiClient.post<AdminUser>("/users", payload)).data;
 }

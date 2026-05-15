@@ -2,11 +2,11 @@
 
 ## Before Launch
 
-- Production domains verified: `app.nidusacademy.in`, `api.nidusacademy.in`.
+- Production domains verified: `app.nidusacademy.com`, `api.nidusacademy.com`.
 - Backend health: `/api/health`.
 - Admin operations panel: `/admin-center/operations`.
 - Prisma migrations deployed.
-- Razorpay webhook URL registered: `https://api.nidusacademy.in/api/payments/webhook`.
+- Razorpay webhook URL registered: `https://api.nidusacademy.com/api/payments/webhook`.
 - Resend sender/domain verified.
 - Cloudinary credentials verified.
 - OpenAI billing and limits verified.

@@ -10,8 +10,6 @@
 - `APP_DOMAIN=app.nidusacademy.com`
 - `API_DOMAIN=api.nidusacademy.com`
 - `CORS_ORIGIN=https://app.nidusacademy.com`
-- `COOKIE_DOMAIN=.nidusacademy.com`
-- `COOKIE_SECURE=true`
 - `TRUST_PROXY=true`
 
 ## Infrastructure
@@ -40,8 +38,7 @@
 
 ## Frontend
 
-- `NEXT_PUBLIC_API_URL=https://api.nidusacademy.com/api`
-- `NEXT_PUBLIC_CSRF_COOKIE_NAME=nidus_csrf`
+- `NEXT_PUBLIC_API_URL=https://api.nidusacademy.com`
 
 ## Backups
 

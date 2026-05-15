@@ -10,6 +10,7 @@ import { useAdminDashboard } from "@/hooks/use-admin-center";
 
 const commandLinks = [
   { href: "/admin-center/roles", label: "Roles", icon: Shield },
+  { href: "/admin-center/users", label: "Users", icon: Users },
   { href: "/admin-center/permissions", label: "Permissions", icon: LockKeyhole },
   { href: "/admin-center/settings", label: "Settings", icon: Settings },
   { href: "/admin-center/operations", label: "Operations", icon: Activity },

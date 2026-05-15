@@ -28,6 +28,9 @@ usersRouter.get("/", async (_req, res, next) => {
         role: true,
         emailVerified: true,
         mobileVerified: true,
+        instituteId: true,
+        branchId: true,
+        roleOnboardingStatus: true,
         createdAt: true,
         updatedAt: true
       },
@@ -47,7 +50,11 @@ usersRouter.post("/", async (req, res, next) => {
     const user = await prisma.user.create({
       data: {
         ...payload,
-        password: hashedPassword
+        email: payload.email.trim().toLowerCase(),
+        password: hashedPassword,
+        emailVerified: true,
+        roleOnboardingStatus: "ACTIVE",
+        roleActivatedAt: new Date()
       },
       select: {
         id: true,
@@ -57,6 +64,9 @@ usersRouter.post("/", async (req, res, next) => {
         role: true,
         emailVerified: true,
         mobileVerified: true,
+        instituteId: true,
+        branchId: true,
+        roleOnboardingStatus: true,
         createdAt: true,
         updatedAt: true
       }

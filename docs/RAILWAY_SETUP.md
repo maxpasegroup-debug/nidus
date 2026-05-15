@@ -13,7 +13,7 @@
 1. PostgreSQL and Redis provisioned.
 2. Backend web service deployed with `PROCESS_ROLE=web`.
 3. Backend worker service deployed with `PROCESS_ROLE=worker`.
-4. Frontend deployed with `NEXT_PUBLIC_API_URL=https://api.nidusacademy.com/api`.
+4. Frontend deployed with `NEXT_PUBLIC_API_URL=https://api.nidusacademy.com`.
 5. Run `npm run prisma:migrate:deploy` once from the backend service or CI.
 
 ## Health Checks

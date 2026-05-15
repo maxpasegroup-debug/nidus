@@ -13,27 +13,18 @@ const envBoolean = (defaultValue: boolean) =>
     return value;
   }, z.boolean());
 
-const nidusDomainString = (defaultValue: string) =>
-  z.preprocess((value) => {
-    if (typeof value !== "string") return value;
-    return value.replace(/nidusacademy\.in/g, "nidusacademy.com");
-  }, z.string().default(defaultValue));
-
 const envSchema = z.object({
   DATABASE_URL: z.string().min(1),
   JWT_SECRET: z.string().min(32),
   PORT: z.coerce.number().default(8080),
-  CORS_ORIGIN: nidusDomainString("https://app.nidusacademy.com"),
-  FRONTEND_APP_URL: nidusDomainString("https://app.nidusacademy.com").pipe(z.string().url()),
-  BACKEND_PUBLIC_URL: nidusDomainString("https://api.nidusacademy.com").pipe(z.string().url()),
-  APP_DOMAIN: nidusDomainString("app.nidusacademy.com"),
-  API_DOMAIN: nidusDomainString("api.nidusacademy.com"),
+  CORS_ORIGIN: z.string().default("https://app.nidusacademy.com"),
+  FRONTEND_APP_URL: z.string().url().default("https://app.nidusacademy.com"),
+  BACKEND_PUBLIC_URL: z.string().url().default("https://api.nidusacademy.com"),
+  APP_DOMAIN: z.string().default("app.nidusacademy.com"),
+  API_DOMAIN: z.string().default("api.nidusacademy.com"),
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
   PROCESS_ROLE: z.enum(["web", "worker", "all"]).default("all"),
   TRUST_PROXY: envBoolean(true),
-  COOKIE_DOMAIN: nidusDomainString(""),
-  COOKIE_SECURE: envBoolean(false).optional(),
-  CSRF_COOKIE_NAME: z.string().default("nidus_csrf"),
   AUTH_ACCESS_TOKEN_MINUTES: z.coerce.number().int().positive().default(15),
   AUTH_REFRESH_TOKEN_DAYS: z.coerce.number().int().positive().default(30),
   AUTH_IDLE_TIMEOUT_MINUTES: z.coerce.number().int().positive().default(720),

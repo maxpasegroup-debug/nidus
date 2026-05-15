@@ -4,23 +4,30 @@ import jwt from "jsonwebtoken";
 import { env } from "../../config/env.js";
 import { prisma } from "../../config/prisma.js";
 import { Role, type User } from "../../generated/prisma/client.js";
-import { authEmailService } from "./auth-email.service.js";
 
-type AuthUser = Pick<User, "id" | "name" | "email" | "mobile" | "role" | "emailVerified" | "mobileVerified" | "createdAt" | "updatedAt"> & {
-  isDisabled?: boolean;
-  lockedUntil?: Date | null;
+export type AuthUser = Pick<User, "id" | "name" | "email" | "mobile" | "role" | "emailVerified" | "mobileVerified" | "createdAt" | "updatedAt"> & {
   instituteId?: string | null;
   branchId?: string | null;
   roleOnboardingStatus?: string;
 };
 
-type RegisterInput = { name: string; email: string; mobile: string; password: string; role?: Role };
+type SignupInput = { name: string; email: string; mobile: string; password: string; role?: string };
 type LoginInput = { identifier: string; password: string };
-type RequestContext = { ip?: string; userAgent?: string };
 
-const publicRegistrationRoles = new Set<Role>([Role.GUEST, Role.STUDENT]);
-const accessTokenExpirySeconds = env.AUTH_ACCESS_TOKEN_MINUTES * 60;
 const ADMIN_BOOTSTRAP_EMAIL = "nidusacademycalicut@gmail.com";
+const accessTokenExpirySeconds = env.AUTH_ACCESS_TOKEN_MINUTES * 60;
+
+const roleMap: Record<string, Role> = {
+  admin: Role.ADMIN,
+  director: Role.DIRECTOR,
+  teacher: Role.TEACHER,
+  student: Role.STUDENT,
+  parent: Role.PARENT,
+  telecaller: Role.TELECALLER,
+  marketing: Role.MARKETING_COORDINATOR,
+  marketing_coordinator: Role.MARKETING_COORDINATOR,
+  guest: Role.GUEST
+};
 
 function normalizeEmail(email: string) {
   return email.trim().toLowerCase();
@@ -28,6 +35,16 @@ function normalizeEmail(email: string) {
 
 function isBootstrapAdminEmail(email: string) {
   return normalizeEmail(email) === ADMIN_BOOTSTRAP_EMAIL;
+}
+
+function normalizeRole(role?: string, email?: string) {
+  if (email && isBootstrapAdminEmail(email)) return Role.ADMIN;
+  const normalized = role?.trim().toLowerCase();
+  if (!normalized) return Role.STUDENT;
+  const mapped = roleMap[normalized];
+  if (!mapped) throw new Error("Invalid role selected");
+  if (mapped === Role.ADMIN) throw new Error("Admin role is reserved for the bootstrap admin email");
+  return mapped;
 }
 
 function sanitizeUser(user: User): AuthUser {
@@ -39,50 +56,16 @@ function sanitizeUser(user: User): AuthUser {
     role: user.role,
     emailVerified: user.emailVerified,
     mobileVerified: user.mobileVerified,
-    createdAt: user.createdAt,
-    updatedAt: user.updatedAt,
-    isDisabled: user.isDisabled,
-    lockedUntil: user.lockedUntil,
     instituteId: user.instituteId,
     branchId: user.branchId,
-    roleOnboardingStatus: user.roleOnboardingStatus
+    roleOnboardingStatus: user.roleOnboardingStatus,
+    createdAt: user.createdAt,
+    updatedAt: user.updatedAt
   };
 }
 
-function randomToken() {
-  return crypto.randomBytes(32).toString("base64url");
-}
-
-function hashToken(token: string) {
-  return crypto.createHash("sha256").update(token).digest("hex");
-}
-
-function addMinutes(minutes: number) {
-  return new Date(Date.now() + minutes * 60 * 1000);
-}
-
-function addDays(days: number) {
-  return new Date(Date.now() + days * 24 * 60 * 60 * 1000);
-}
-
-function signAccessToken(user: Pick<User, "id" | "role">, sessionId: string) {
-  return jwt.sign({ sub: user.id, role: user.role, sid: sessionId }, env.JWT_SECRET, { expiresIn: accessTokenExpirySeconds });
-}
-
-function deviceFromUserAgent(userAgent?: string) {
-  if (!userAgent) return "Unknown device";
-  if (/mobile|android|iphone/i.test(userAgent)) return "Mobile";
-  if (/ipad|tablet/i.test(userAgent)) return "Tablet";
-  return "Desktop";
-}
-
-function browserFromUserAgent(userAgent?: string) {
-  if (!userAgent) return "Unknown browser";
-  if (/edg/i.test(userAgent)) return "Edge";
-  if (/chrome/i.test(userAgent)) return "Chrome";
-  if (/safari/i.test(userAgent)) return "Safari";
-  if (/firefox/i.test(userAgent)) return "Firefox";
-  return "Browser";
+function signAccessToken(user: Pick<User, "id" | "email" | "role">) {
+  return jwt.sign({ id: user.id, email: user.email, role: user.role }, env.JWT_SECRET, { expiresIn: accessTokenExpirySeconds });
 }
 
 async function audit(input: { userId?: string; action: string; description: string; ip?: string }) {
@@ -91,122 +74,54 @@ async function audit(input: { userId?: string; action: string; description: stri
   }).catch(() => undefined);
 }
 
-async function createEmailVerification(user: Pick<User, "id" | "name" | "email">) {
-  const token = randomToken();
-  await prisma.authVerificationToken.create({
-    data: {
-      userId: user.id,
-      tokenHash: hashToken(token),
-      purpose: "EMAIL_VERIFY",
-      expiresAt: addMinutes(env.AUTH_VERIFY_TOKEN_MINUTES)
-    }
-  });
-  await authEmailService.sendVerificationEmail({ recipient: user.email, name: user.name, token });
-  return token;
-}
-
-async function createSession(user: Pick<User, "id" | "role">, ctx: RequestContext) {
-  const refreshToken = randomToken();
-  const session = await prisma.authSession.create({
-    data: {
-      userId: user.id,
-      refreshTokenHash: hashToken(refreshToken),
-      device: deviceFromUserAgent(ctx.userAgent),
-      browser: browserFromUserAgent(ctx.userAgent),
-      ipAddress: ctx.ip,
-      userAgent: ctx.userAgent,
-      expiresAt: addDays(env.AUTH_REFRESH_TOKEN_DAYS)
-    }
-  });
-  return { session, accessToken: signAccessToken(user, session.id), refreshToken };
-}
-
-async function revokeSession(id: string, reason: string) {
-  await prisma.authSession.updateMany({
-    where: { id, revokedAt: null },
-    data: { revokedAt: new Date(), revokeReason: reason }
-  });
+async function createEmailVerification(_user: Pick<User, "id" | "name" | "email">) {
+  return undefined;
 }
 
 export const authService = {
-  async register(input: RegisterInput, ctx?: RequestContext) {
+  async signup(input: SignupInput, ctx?: { ip?: string }) {
     const email = normalizeEmail(input.email);
-    const isBootstrapAdmin = isBootstrapAdminEmail(email);
-    const requiresEmailVerification = !isBootstrapAdmin && (env.NODE_ENV === "production" || Boolean(env.RESEND_API_KEY));
-    const role = isBootstrapAdmin ? Role.ADMIN : input.role ?? Role.STUDENT;
-    if (!isBootstrapAdmin && !publicRegistrationRoles.has(role)) throw new Error("This role cannot be selected during public registration");
+    const mobile = input.mobile.trim();
+    const role = normalizeRole(input.role, email);
 
-    const existingUser = await prisma.user.findFirst({ where: { OR: [{ email }, { mobile: input.mobile }] } });
+    const existingUser = await prisma.user.findFirst({ where: { OR: [{ email }, { mobile }] } });
     if (existingUser) throw new Error("Email or mobile already registered");
 
     const user = await prisma.user.create({
       data: {
-        name: input.name,
+        name: input.name.trim(),
         email,
-        mobile: input.mobile,
-        password: await bcrypt.hash(input.password, 10),
+        mobile,
+        password: await bcrypt.hash(input.password, 12),
         role,
-        emailVerified: isBootstrapAdmin || !requiresEmailVerification,
-        roleOnboardingStatus: isBootstrapAdmin ? "ACTIVE" : "PENDING",
-        roleActivatedAt: isBootstrapAdmin ? new Date() : null,
-        roleMetadata: isBootstrapAdmin ? { bootstrapAdmin: true } : !requiresEmailVerification ? { developmentEmailVerificationBypass: true } : undefined
+        emailVerified: true,
+        mobileVerified: false,
+        roleOnboardingStatus: "ACTIVE",
+        roleActivatedAt: new Date(),
+        lastRoleActivityAt: new Date(),
+        roleMetadata: isBootstrapAdminEmail(email) ? { bootstrapAdmin: true } : undefined
       }
     });
+
     await prisma.roleActivity.create({
-      data: {
-        userId: user.id,
-        role: user.role,
-        activity: isBootstrapAdmin ? "BOOTSTRAP_ADMIN_REGISTERED" : "REGISTERED",
-        metadata: isBootstrapAdmin ? { bypassedApproval: true } : undefined
-      }
+      data: { userId: user.id, role: user.role, activity: isBootstrapAdminEmail(email) ? "BOOTSTRAP_ADMIN_SIGNUP" : "SIGNUP" }
     }).catch(() => undefined);
-    if (requiresEmailVerification) await createEmailVerification(user);
-    await audit({ userId: user.id, action: "REGISTERED", description: `Registered ${user.email}` });
-    if (user.emailVerified && ctx) {
-      const session = await createSession(user, ctx);
-      return {
-        user: sanitizeUser(user),
-        ...session,
-        message: isBootstrapAdmin ? "Admin account created." : "Account created. You are signed in."
-      };
-    }
-    return { user: sanitizeUser(user), message: "Account created. Verify your email before logging in." };
+    await audit({ userId: user.id, action: "SIGNUP", description: `Signed up ${user.email}`, ip: ctx?.ip });
+
+    return { token: signAccessToken(user), user: sanitizeUser(user), message: "Account created" };
   },
 
-  async resendVerification(identifier: string) {
+  async login(input: LoginInput, ctx?: { ip?: string }) {
+    const identifier = input.identifier.includes("@") ? normalizeEmail(input.identifier) : input.identifier.trim();
     const user = await prisma.user.findFirst({ where: { OR: [{ email: identifier }, { mobile: identifier }] } });
-    if (!user) return { message: "If the account exists, a verification email has been sent." };
-    if (user.emailVerified) return { message: "Email is already verified." };
-    await createEmailVerification(user);
-    await audit({ userId: user.id, action: "VERIFICATION_RESENT", description: `Verification email resent for ${user.email}` });
-    return { message: "Verification email sent." };
-  },
 
-  async verifyEmail(token: string, ctx: RequestContext) {
-    const record = await prisma.authVerificationToken.findFirst({
-      where: { tokenHash: hashToken(token), purpose: "EMAIL_VERIFY", consumedAt: null, expiresAt: { gt: new Date() } },
-      include: { user: true }
-    });
-    if (!record) throw new Error("Invalid or expired verification token");
-
-    const user = await prisma.user.update({ where: { id: record.userId }, data: { emailVerified: true } });
-    await prisma.authVerificationToken.update({ where: { id: record.id }, data: { consumedAt: new Date() } });
-    const session = await createSession(user, ctx);
-    await audit({ userId: user.id, action: "EMAIL_VERIFIED", description: `Email verified for ${user.email}`, ip: ctx.ip });
-    return { user: sanitizeUser(user), ...session };
-  },
-
-  async login(input: LoginInput, ctx: RequestContext) {
-    const identifier = input.identifier.includes("@") ? normalizeEmail(input.identifier) : input.identifier;
-    const user = await prisma.user.findFirst({ where: { OR: [{ email: identifier }, { mobile: identifier }] } });
     if (!user) {
-      await audit({ action: "LOGIN_FAILED", description: `Failed login for unknown account ${input.identifier}`, ip: ctx.ip });
+      await audit({ action: "LOGIN_FAILED", description: `Failed login for unknown account ${input.identifier}`, ip: ctx?.ip });
       throw new Error("Invalid credentials");
     }
 
     if (user.isDisabled) throw new Error("Account disabled");
     if (user.lockedUntil && user.lockedUntil > new Date()) throw new Error("Account temporarily locked");
-    if (!user.emailVerified && !isBootstrapAdminEmail(user.email)) throw new Error("Email verification required");
 
     const isPasswordValid = await bcrypt.compare(input.password, user.password);
     if (!isPasswordValid) {
@@ -215,10 +130,10 @@ export const authService = {
         where: { id: user.id },
         data: {
           loginFailureCount: failures,
-          lockedUntil: failures >= env.AUTH_MAX_LOGIN_FAILURES ? addMinutes(env.AUTH_LOCK_MINUTES) : null
+          lockedUntil: failures >= env.AUTH_MAX_LOGIN_FAILURES ? new Date(Date.now() + env.AUTH_LOCK_MINUTES * 60 * 1000) : null
         }
       });
-      await audit({ userId: user.id, action: "LOGIN_FAILED", description: `Failed login for ${user.email}`, ip: ctx.ip });
+      await audit({ userId: user.id, action: "LOGIN_FAILED", description: `Failed login for ${user.email}`, ip: ctx?.ip });
       throw new Error("Invalid credentials");
     }
 
@@ -226,8 +141,8 @@ export const authService = {
       where: { id: user.id },
       data: {
         role: isBootstrapAdminEmail(user.email) ? Role.ADMIN : user.role,
-        emailVerified: isBootstrapAdminEmail(user.email) ? true : user.emailVerified,
-        roleOnboardingStatus: isBootstrapAdminEmail(user.email) ? "ACTIVE" : user.roleOnboardingStatus,
+        emailVerified: true,
+        roleOnboardingStatus: "ACTIVE",
         roleActivatedAt: isBootstrapAdminEmail(user.email) && !user.roleActivatedAt ? new Date() : user.roleActivatedAt,
         loginFailureCount: 0,
         lockedUntil: null,
@@ -235,148 +150,24 @@ export const authService = {
         lastRoleActivityAt: new Date()
       }
     });
+
     await prisma.roleActivity.create({
       data: { userId: updated.id, role: updated.role, activity: "LOGIN", instituteId: updated.instituteId, branchId: updated.branchId }
     }).catch(() => undefined);
-    const session = await createSession(updated, ctx);
-    await audit({ userId: updated.id, action: "LOGIN_SUCCESS", description: `Successful login for ${updated.email}`, ip: ctx.ip });
-    return { user: sanitizeUser(updated), ...session };
-  },
+    await audit({ userId: updated.id, action: "LOGIN_SUCCESS", description: `Successful login for ${updated.email}`, ip: ctx?.ip });
 
-  async refresh(refreshToken: string | undefined, ctx: RequestContext) {
-    if (!refreshToken) throw new Error("Refresh token required");
-    const tokenHash = hashToken(refreshToken);
-    const session = await prisma.authSession.findFirst({ where: { refreshTokenHash: tokenHash }, include: { user: true } });
-    if (!session || session.expiresAt <= new Date() || session.revokedAt) {
-      await audit({ action: "REFRESH_REJECTED", description: "Invalid or reused refresh token", ip: ctx.ip });
-      throw new Error("Invalid refresh token");
-    }
-    if (session.user.isDisabled) throw new Error("Account disabled");
-
-    const idleExpiry = new Date(Date.now() - env.AUTH_IDLE_TIMEOUT_MINUTES * 60 * 1000);
-    if (session.lastActivityAt <= idleExpiry) {
-      await revokeSession(session.id, "IDLE_TIMEOUT");
-      throw new Error("Session expired");
-    }
-
-    const nextRefreshToken = randomToken();
-    const updated = await prisma.authSession.update({
-      where: { id: session.id },
-      data: { refreshTokenHash: hashToken(nextRefreshToken), lastActivityAt: new Date(), ipAddress: ctx.ip ?? session.ipAddress }
-    });
-    return { user: sanitizeUser(session.user), session: updated, accessToken: signAccessToken(session.user, session.id), refreshToken: nextRefreshToken };
-  },
-
-  async requestPasswordReset(identifier: string) {
-    const user = await prisma.user.findFirst({ where: { OR: [{ email: identifier }, { mobile: identifier }] } });
-    if (!user) return { message: "If the account exists, a reset email has been sent." };
-    const token = randomToken();
-    await prisma.passwordResetToken.create({
-      data: { userId: user.id, tokenHash: hashToken(token), expiresAt: addMinutes(env.AUTH_RESET_TOKEN_MINUTES) }
-    });
-    await authEmailService.sendPasswordResetEmail({ recipient: user.email, name: user.name, token });
-    await audit({ userId: user.id, action: "PASSWORD_RESET_REQUESTED", description: `Password reset requested for ${user.email}` });
-    return { message: "If the account exists, a reset email has been sent." };
-  },
-
-  async resetPassword(token: string, password: string) {
-    const record = await prisma.passwordResetToken.findFirst({
-      where: { tokenHash: hashToken(token), consumedAt: null, expiresAt: { gt: new Date() } },
-      include: { user: true }
-    });
-    if (!record) throw new Error("Invalid or expired reset token");
-    await prisma.$transaction([
-      prisma.user.update({ where: { id: record.userId }, data: { password: await bcrypt.hash(password, 10), loginFailureCount: 0, lockedUntil: null } }),
-      prisma.passwordResetToken.update({ where: { id: record.id }, data: { consumedAt: new Date() } }),
-      prisma.authSession.updateMany({ where: { userId: record.userId, revokedAt: null }, data: { revokedAt: new Date(), revokeReason: "PASSWORD_RESET" } })
-    ]);
-    await audit({ userId: record.userId, action: "PASSWORD_RESET_COMPLETED", description: `Password reset completed for ${record.user.email}` });
-    return { message: "Password reset successfully" };
-  },
-
-  async logout(sessionId?: string) {
-    if (sessionId) await revokeSession(sessionId, "LOGOUT");
-    return { message: "Logged out successfully" };
-  },
-
-  async logoutAll(userId: string) {
-    await prisma.authSession.updateMany({ where: { userId, revokedAt: null }, data: { revokedAt: new Date(), revokeReason: "LOGOUT_ALL" } });
-    await audit({ userId, action: "LOGOUT_ALL", description: "Logged out from all devices" });
-    return { message: "Logged out from all devices" };
-  },
-
-  async sessions(userId: string) {
-    return prisma.authSession.findMany({
-      where: { userId, revokedAt: null, expiresAt: { gt: new Date() } },
-      orderBy: { lastActivityAt: "desc" },
-      select: { id: true, device: true, browser: true, ipAddress: true, loginAt: true, lastActivityAt: true, expiresAt: true }
-    });
-  },
-
-  async revokeSession(userId: string, sessionId: string) {
-    const result = await prisma.authSession.updateMany({ where: { id: sessionId, userId, revokedAt: null }, data: { revokedAt: new Date(), revokeReason: "USER_REVOKED" } });
-    if (!result.count) throw new Error("Session not found");
-    await audit({ userId, action: "SESSION_REVOKED", description: `Revoked session ${sessionId}` });
-    return { message: "Session revoked" };
-  },
-
-  async inviteParentLink(parentId: string, studentId: string) {
-    const [parent, student] = await Promise.all([
-      prisma.user.findUnique({ where: { id: parentId } }),
-      prisma.user.findUnique({ where: { id: studentId } })
-    ]);
-    if (!parent || parent.role !== Role.PARENT) throw new Error("Parent account required");
-    if (!student || student.role !== Role.STUDENT) throw new Error("Student account required");
-
-    const token = randomToken();
-    await prisma.parentStudentInvitation.create({
-      data: {
-        parentId,
-        studentId,
-        tokenHash: hashToken(token),
-        expiresAt: addDays(7)
-      }
-    });
-    await authEmailService.sendParentInvitation({ recipient: student.email, token });
-    await audit({ userId: parentId, action: "PARENT_LINK_INVITED", description: `Parent link invited for student ${student.email}` });
-    return { message: "Parent link invitation sent." };
-  },
-
-  async acceptParentLink(token: string, studentUserId?: string) {
-    const invitation = await prisma.parentStudentInvitation.findFirst({
-      where: { tokenHash: hashToken(token), acceptedAt: null, revokedAt: null, expiresAt: { gt: new Date() } }
-    });
-    if (!invitation) throw new Error("Invalid or expired parent link invitation");
-    if (studentUserId && invitation.studentId !== studentUserId) throw new Error("Forbidden");
-
-    await prisma.$transaction([
-      prisma.parentStudentLink.upsert({
-        where: { parentId_studentId: { parentId: invitation.parentId, studentId: invitation.studentId } },
-        update: { status: "ACTIVE" },
-        create: {
-          parentId: invitation.parentId,
-          studentId: invitation.studentId,
-          status: "ACTIVE",
-          monitoringPermissions: {
-            attendance: true,
-            performance: true,
-            fees: true,
-            discipline: true,
-            counselling: true
-          }
-        }
-      }),
-      prisma.parentStudentInvitation.update({ where: { id: invitation.id }, data: { acceptedAt: new Date() } })
-    ]);
-    await audit({ userId: invitation.studentId, action: "PARENT_LINK_ACCEPTED", description: `Parent link accepted for ${invitation.parentId}` });
-    return { message: "Parent account linked." };
+    return { token: signAccessToken(updated), user: sanitizeUser(updated), message: "Login successful" };
   },
 
   async getMe(userId: string) {
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user || user.isDisabled) throw new Error("User not found");
     return sanitizeUser(user);
+  },
+
+  async logout() {
+    return { message: "Logged out successfully" };
   }
 };
 
-export const authTokenUtils = { randomToken, hashToken, audit, createEmailVerification };
+export const authTokenUtils = { audit, createEmailVerification };

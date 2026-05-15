@@ -1,86 +1,59 @@
 import axios, { AxiosError } from "axios";
 
+const TOKEN_KEY = "nidus_access_token";
+
 function normalizeApiUrl(value?: string) {
   const configured = value?.trim().replace(/\/+$/, "");
-  if (!configured) return "/api";
+  if (!configured) return process.env.NODE_ENV === "production" ? "https://api.nidusacademy.com/api" : "/api";
   if (configured === "/api" || configured.endsWith("/api")) return configured;
-  if (configured.startsWith("http://") || configured.startsWith("https://")) {
-    return `${configured.replace(/\/$/, "")}/api`;
-  }
+  if (configured.startsWith("http://") || configured.startsWith("https://")) return `${configured}/api`;
   return configured;
 }
 
 export const API_URL = normalizeApiUrl(process.env.NEXT_PUBLIC_API_URL);
-const CSRF_COOKIE_NAME = process.env.NEXT_PUBLIC_CSRF_COOKIE_NAME?.trim() || "nidus_csrf";
 const publicAuthPaths = new Set(["/", "/login", "/register", "/contact", "/forgot-password", "/reset-password", "/verify-email"]);
-const unsafeMethods = new Set(["post", "put", "patch", "delete"]);
-let csrfBootstrapPromise: Promise<string | undefined> | null = null;
 
-function readCookie(name: string) {
-  if (typeof document === "undefined") return undefined;
+export function getStoredToken() {
+  if (typeof window === "undefined") return undefined;
+  return window.localStorage.getItem(TOKEN_KEY) ?? window.sessionStorage.getItem(TOKEN_KEY) ?? undefined;
+}
 
-  return document.cookie
-    .split(";")
-    .map((part) => part.trim())
-    .find((part) => part.startsWith(`${name}=`))
-    ?.slice(name.length + 1);
+export function storeToken(token: string, remember = true) {
+  if (typeof window === "undefined") return;
+  const primary = remember ? window.localStorage : window.sessionStorage;
+  const secondary = remember ? window.sessionStorage : window.localStorage;
+  primary.setItem(TOKEN_KEY, token);
+  secondary.removeItem(TOKEN_KEY);
+}
+
+export function clearStoredToken() {
+  if (typeof window === "undefined") return;
+  window.localStorage.removeItem(TOKEN_KEY);
+  window.sessionStorage.removeItem(TOKEN_KEY);
 }
 
 export const apiClient = axios.create({
   baseURL: API_URL,
-  withCredentials: true,
   headers: {
     Accept: "application/json, text/plain",
     "Content-Type": "application/json"
   }
 });
 
-async function ensureCsrfToken() {
-  const existing = readCookie(CSRF_COOKIE_NAME);
-  if (existing) return decodeURIComponent(existing);
-
-  if (!csrfBootstrapPromise) {
-    csrfBootstrapPromise = apiClient
-      .get<{ csrfToken?: string }>("/auth/csrf")
-      .then((response) => response.data.csrfToken ?? readCookie(CSRF_COOKIE_NAME))
-      .finally(() => {
-        csrfBootstrapPromise = null;
-      });
+apiClient.interceptors.request.use((config) => {
+  const token = getStoredToken();
+  if (token) {
+    config.headers.set?.("Authorization", `Bearer ${token}`);
+    config.headers.Authorization = `Bearer ${token}`;
   }
-
-  const token = await csrfBootstrapPromise;
-  return token ? decodeURIComponent(token) : undefined;
-}
-
-apiClient.interceptors.request.use(async (config) => {
-  const method = config.method?.toLowerCase();
-  if (typeof window !== "undefined" && method && unsafeMethods.has(method)) {
-    const csrfToken = await ensureCsrfToken();
-    if (csrfToken) {
-      config.headers.set?.("X-CSRF-Token", csrfToken);
-      config.headers["X-CSRF-Token"] = csrfToken;
-    }
-  }
-
   return config;
 });
 
 apiClient.interceptors.response.use(
   (response) => response,
-  async (error: AxiosError) => {
-    const originalRequest = error.config as typeof error.config & { _retry?: boolean };
-    if (error.response?.status === 401 && originalRequest && !originalRequest._retry && !originalRequest.url?.includes("/auth/refresh")) {
-      originalRequest._retry = true;
-      try {
-        await apiClient.post("/auth/refresh");
-        return apiClient(originalRequest);
-      } catch (_refreshError) {
-        // Fall through to normal session-expired handling.
-      }
-    }
-
+  (error: AxiosError) => {
     if (typeof window !== "undefined" && error.response?.status === 401) {
-      document.cookie = "nidus_auth=; path=/; max-age=0; samesite=lax";
+      clearStoredToken();
       if (!publicAuthPaths.has(window.location.pathname)) {
         window.dispatchEvent(new CustomEvent("nidus:session-expired"));
       }
@@ -92,19 +65,13 @@ apiClient.interceptors.response.use(
 
 export function getApiErrorMessage(error: unknown) {
   if (error instanceof AxiosError) {
-    const message = error.response?.data?.message;
+    const message = error.response?.data && typeof error.response.data === "object" && "message" in error.response.data ? error.response.data.message : undefined;
     if (typeof message === "string") return message;
-    if (error.code === "ERR_NETWORK" || !error.response) {
-      return "Backend is unavailable. Start the API server and try again.";
-    }
-
+    if (error.code === "ERR_NETWORK" || !error.response) return "Backend is unavailable. Please try again after the API is online.";
     return error.message;
   }
 
-  if (error instanceof Error) {
-    return error.message;
-  }
-
+  if (error instanceof Error) return error.message;
   return "Something went wrong";
 }
 

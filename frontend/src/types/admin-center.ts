@@ -76,3 +76,18 @@ export type AdminOperations = {
   }>;
   analytics: Record<string, number>;
 };
+
+export type AdminUser = {
+  id: string;
+  name: string;
+  email: string;
+  mobile: string;
+  role: string;
+  emailVerified: boolean;
+  mobileVerified: boolean;
+  instituteId?: string | null;
+  branchId?: string | null;
+  roleOnboardingStatus?: string;
+  createdAt: string;
+  updatedAt: string;
+};
