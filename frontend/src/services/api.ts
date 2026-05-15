@@ -1,6 +1,16 @@
 import axios, { AxiosError } from "axios";
 
-export const API_URL = process.env.NEXT_PUBLIC_API_URL?.trim() || "/api";
+function normalizeApiUrl(value?: string) {
+  const configured = value?.trim().replace(/\/+$/, "");
+  if (!configured) return "/api";
+  if (configured === "/api" || configured.endsWith("/api")) return configured;
+  if (configured.startsWith("http://") || configured.startsWith("https://")) {
+    return `${configured.replace(/\/$/, "")}/api`;
+  }
+  return configured;
+}
+
+export const API_URL = normalizeApiUrl(process.env.NEXT_PUBLIC_API_URL);
 const CSRF_COOKIE_NAME = process.env.NEXT_PUBLIC_CSRF_COOKIE_NAME?.trim() || "nidus_csrf";
 const publicAuthPaths = new Set(["/", "/login", "/register", "/contact", "/forgot-password", "/reset-password", "/verify-email"]);
 const unsafeMethods = new Set(["post", "put", "patch", "delete"]);

@@ -5,12 +5,12 @@
 - `NODE_ENV=production`
 - `DATABASE_URL`
 - `JWT_SECRET`
-- `FRONTEND_APP_URL=https://app.nidusacademy.in`
-- `BACKEND_PUBLIC_URL=https://api.nidusacademy.in`
-- `APP_DOMAIN=app.nidusacademy.in`
-- `API_DOMAIN=api.nidusacademy.in`
-- `CORS_ORIGIN=https://app.nidusacademy.in`
-- `COOKIE_DOMAIN=.nidusacademy.in`
+- `FRONTEND_APP_URL=https://app.nidusacademy.com`
+- `BACKEND_PUBLIC_URL=https://api.nidusacademy.com`
+- `APP_DOMAIN=app.nidusacademy.com`
+- `API_DOMAIN=api.nidusacademy.com`
+- `CORS_ORIGIN=https://app.nidusacademy.com`
+- `COOKIE_DOMAIN=.nidusacademy.com`
 - `COOKIE_SECURE=true`
 - `TRUST_PROXY=true`
 
@@ -40,7 +40,7 @@
 
 ## Frontend
 
-- `NEXT_PUBLIC_API_URL=https://api.nidusacademy.in/api`
+- `NEXT_PUBLIC_API_URL=https://api.nidusacademy.com/api`
 - `NEXT_PUBLIC_CSRF_COOKIE_NAME=nidus_csrf`
 
 ## Backups
