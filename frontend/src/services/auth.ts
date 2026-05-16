@@ -85,7 +85,7 @@ function normalizeUser(value: unknown): AuthUser | undefined {
 }
 
 function completeAuth(payload: unknown): AuthResponse {
-  if (!isRecord(payload) || payload.success !== true || typeof payload.token !== "string") {
+  if (!isRecord(payload) || typeof payload.token !== "string") {
     throw new Error("Authentication response is invalid.");
   }
 

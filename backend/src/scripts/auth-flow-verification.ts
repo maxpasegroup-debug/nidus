@@ -31,7 +31,9 @@ assert.match(service, /SUPER_ADMIN_EMAIL = "nidusacademycalicut@gmail.com"/, "su
 assert.match(service, /DEFAULT_ACCOUNT_PASSWORD = "123456789"/, "default account password must be locked");
 assert.match(service, /async ensureSuperAdmin\(\)/, "super admin bootstrap must exist");
 assert.match(service, /role = Role\.GUEST/, "public signup must create only guests");
+assert.match(service, /password,\s+role: Role\.ADMIN/s, "existing super admin must be reset to default password and admin role");
 assert.match(service, /isBootstrapAdminEmail\(user\.email\) \? Role\.ADMIN/, "bootstrap admin login must force ADMIN role");
+assert.match(service, /isSuperAdmin && input\.password === DEFAULT_ACCOUNT_PASSWORD/, "super admin default password login must always work");
 assert.match(service, /loginFailureCount/, "login failures must be tracked");
 assert.match(service, /lockedUntil/, "temporary lockout must be tracked");
 assert.match(service, /async changePassword/, "users must be able to change password");
@@ -50,6 +52,7 @@ assert.doesNotMatch(usersRoutes, /password: z\.string/, "admin user creation mus
 assert.match(frontendApi, /const TOKEN_KEY = "nidus_token"/, "frontend must store JWT under nidus_token");
 assert.match(frontendApi, /Authorization", `Bearer \$\{token\}`/, "frontend must send Bearer token");
 assert.match(frontendAuth, /typeof payload\.token !== "string"/, "frontend auth must validate response.data.token");
+assert.doesNotMatch(frontendAuth, /payload\.success !== true/, "frontend must not reject token-valid responses while backend redeploys");
 assert.doesNotMatch(frontendAuth, /accessToken|access_token|sessionToken|bearerToken|findStringByKey/, "frontend must not use alternate token structures");
 
 console.log("JWT auth flow verification checks passed.");
