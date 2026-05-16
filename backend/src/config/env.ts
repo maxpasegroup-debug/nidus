@@ -26,6 +26,7 @@ const envSchema = z.object({
   PROCESS_ROLE: z.enum(["web", "worker", "all"]).default("all"),
   TRUST_PROXY: envBoolean(true),
   AUTH_ACCESS_TOKEN_MINUTES: z.coerce.number().int().positive().default(15),
+  AUTH_REFRESH_TOKEN_MINUTES: z.coerce.number().int().positive().default(10080),
   AUTH_REFRESH_TOKEN_DAYS: z.coerce.number().int().positive().default(30),
   AUTH_IDLE_TIMEOUT_MINUTES: z.coerce.number().int().positive().default(720),
   AUTH_VERIFY_TOKEN_MINUTES: z.coerce.number().int().positive().default(15),

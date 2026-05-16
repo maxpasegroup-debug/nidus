@@ -14,6 +14,7 @@ const signupValidators = [
 
 authRouter.post("/signup", signupValidators, authController.signup);
 authRouter.post("/register", signupValidators, authController.signup);
+authRouter.post("/refresh", [body("refreshToken").notEmpty().withMessage("Refresh token is required")], authController.refresh);
 
 authRouter.post(
   "/login",
@@ -34,4 +35,5 @@ authRouter.post(
   ],
   authController.changePassword
 );
-authRouter.post("/logout", authController.logout);
+authRouter.post("/logout", protect, authController.logout);
+authRouter.post("/logout-all", protect, authController.logoutAll);

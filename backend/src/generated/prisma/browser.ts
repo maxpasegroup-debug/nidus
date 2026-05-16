@@ -38,6 +38,16 @@ export type PasswordResetToken = Prisma.PasswordResetTokenModel
  */
 export type AuthSession = Prisma.AuthSessionModel
 /**
+ * Model RefreshToken
+ * 
+ */
+export type RefreshToken = Prisma.RefreshTokenModel
+/**
+ * Model TokenBlacklist
+ * 
+ */
+export type TokenBlacklist = Prisma.TokenBlacklistModel
+/**
  * Model ParentStudentInvitation
  * 
  */

@@ -1,4 +1,4 @@
-import { apiClient, clearStoredToken, storeToken } from "@/services/api";
+import { apiClient, clearStoredToken, getStoredRefreshToken, storeAuthTokens } from "@/services/api";
 
 export type AuthRole = "ADMIN" | "GUEST" | "STUDENT" | "PARENT" | "TEACHER" | "DIRECTOR" | "TELECALLER" | "MARKETING_COORDINATOR";
 
@@ -30,7 +30,8 @@ export type AuthSession = {
 
 export type AuthResponse = {
   success: true;
-  token: string;
+  accessToken: string;
+  refreshToken: string;
   user: AuthUser;
 };
 
@@ -85,18 +86,18 @@ function normalizeUser(value: unknown): AuthUser | undefined {
 }
 
 function completeAuth(payload: unknown): AuthResponse {
-  if (!isRecord(payload) || typeof payload.token !== "string") {
+  if (!isRecord(payload) || payload.success !== true || typeof payload.accessToken !== "string" || typeof payload.refreshToken !== "string") {
     throw new Error("Authentication response is invalid.");
   }
 
-  storeToken(payload.token);
   const user = normalizeUser(payload.user);
   if (!user?.role) {
     clearStoredToken();
     throw new Error("Authentication succeeded, but the API did not return a valid user role.");
   }
 
-  return { success: true, token: payload.token, user };
+  storeAuthTokens(payload.accessToken, payload.refreshToken);
+  return { success: true, accessToken: payload.accessToken, refreshToken: payload.refreshToken, user };
 }
 
 export async function register(payload: RegisterPayload) {
@@ -110,9 +111,15 @@ export async function login(payload: LoginPayload) {
 }
 
 export async function logout() {
-  clearStoredToken();
-  const response = await apiClient.post<{ message: string }>("/auth/logout").catch(() => ({ data: { message: "Logged out successfully" } }));
-  return response.data;
+  const refreshToken = getStoredRefreshToken();
+  try {
+    const response = await apiClient.post<{ message: string }>("/auth/logout", { refreshToken });
+    return response.data;
+  } catch (_error) {
+    return { message: "Logged out successfully" };
+  } finally {
+    clearStoredToken();
+  }
 }
 
 export async function changePassword(payload: { currentPassword: string; newPassword: string }) {
@@ -168,8 +175,14 @@ export async function revokeSession(_id: string) {
 }
 
 export async function logoutAll() {
-  clearStoredToken();
-  return { message: "Logged out from all devices" };
+  try {
+    const response = await apiClient.post<{ message: string }>("/auth/logout-all");
+    return response.data;
+  } catch (_error) {
+    return { message: "Logged out from all devices" };
+  } finally {
+    clearStoredToken();
+  }
 }
 
 export async function inviteParentLink(_studentId: string) {

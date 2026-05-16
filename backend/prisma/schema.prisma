@@ -69,6 +69,7 @@ model User {
   loginFailureCount Int    @default(0)
   lockedUntil     DateTime?
   lastLoginAt     DateTime?
+  tokenVersion    Int      @default(0)
   enrollments    Enrollment[]
   testAttempts   TestAttempt[]
   psychometricAttempts PsychometricAttempt[]
@@ -128,6 +129,8 @@ model User {
   authVerificationTokens AuthVerificationToken[]
   passwordResetTokens PasswordResetToken[]
   authSessions AuthSession[]
+  refreshTokens RefreshToken[]
+  tokenBlacklist TokenBlacklist[]
   parentInvitationsSent ParentStudentInvitation[] @relation("ParentInvitationParent")
   parentInvitationsReceived ParentStudentInvitation[] @relation("ParentInvitationStudent")
   parentLinks ParentStudentLink[] @relation("ParentLinkParent")
@@ -184,6 +187,33 @@ model AuthSession {
   user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, revokedAt])
+  @@index([expiresAt])
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  userId    String
+  tokenHash String   @unique
+  jti       String   @unique
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, revokedAt])
+  @@index([expiresAt])
+}
+
+model TokenBlacklist {
+  id        String   @id @default(cuid())
+  userId    String?
+  tokenHash String   @unique
+  jti       String?
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
   @@index([expiresAt])
 }
 
