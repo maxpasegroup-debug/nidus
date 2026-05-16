@@ -4,6 +4,20 @@ import { logger } from "../utils/logger.js";
 
 const localRateLimit = new Map<string, { count: number; expiresAt: number }>();
 
+async function withTimeout<T>(operation: Promise<T>, timeoutMs = 1000): Promise<T> {
+  let timeout: NodeJS.Timeout | undefined;
+  try {
+    return await Promise.race([
+      operation,
+      new Promise<T>((_resolve, reject) => {
+        timeout = setTimeout(() => reject(new Error(`Rate limiter Redis operation timed out after ${timeoutMs}ms`)), timeoutMs);
+      })
+    ]);
+  } finally {
+    if (timeout) clearTimeout(timeout);
+  }
+}
+
 function redisBackedRateLimiter(name: string, windowMs: number, limit: number, message: string) {
   return async (req: Request, res: Response, next: NextFunction) => {
     const key = `rate:${name}:${req.ip ?? "unknown"}`;
@@ -11,9 +25,9 @@ function redisBackedRateLimiter(name: string, windowMs: number, limit: number, m
 
     try {
       if (redis && isRedisReady()) {
-        const count = await redis.incr(key);
-        if (count === 1) await redis.pexpire(key, windowMs);
-        const ttl = await redis.pttl(key);
+        const count = await withTimeout(redis.incr(key));
+        if (count === 1) await withTimeout(redis.pexpire(key, windowMs));
+        const ttl = await withTimeout(redis.pttl(key));
         res.setHeader("RateLimit-Limit", String(limit));
         res.setHeader("RateLimit-Remaining", String(Math.max(0, limit - count)));
         res.setHeader("RateLimit-Reset", String(Math.ceil(Math.max(ttl, 0) / 1000)));

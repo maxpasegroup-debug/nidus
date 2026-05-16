@@ -10,9 +10,23 @@ export const prisma = new PrismaClient({
   log: env.NODE_ENV === "production" ? ["error", "warn"] : ["error", "warn"]
 });
 
+async function withTimeout<T>(operation: Promise<T>, timeoutMs = 3000): Promise<T> {
+  let timeout: NodeJS.Timeout | undefined;
+  try {
+    return await Promise.race([
+      operation,
+      new Promise<T>((_resolve, reject) => {
+        timeout = setTimeout(() => reject(new Error(`Database operation timed out after ${timeoutMs}ms`)), timeoutMs);
+      })
+    ]);
+  } finally {
+    if (timeout) clearTimeout(timeout);
+  }
+}
+
 export async function verifyDatabaseConnection() {
   try {
-    await prisma.$queryRaw`SELECT 1`;
+    await withTimeout(prisma.$queryRaw`SELECT 1`);
     return true;
   } catch (error) {
     logger.error("Database health check failed", { error: error instanceof Error ? error.message : "Unknown error" });

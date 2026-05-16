@@ -4,7 +4,7 @@ import express from "express";
 import helmet from "helmet";
 import morgan from "morgan";
 import { pinoHttp } from "pino-http";
-import type { Request } from "express";
+import type { NextFunction, Request, Response } from "express";
 import { initMonitoring } from "./config/monitoring.js";
 import { env } from "./config/env.js";
 import { apiRouter } from "./modules/index.js";
@@ -22,6 +22,26 @@ const productionOrigins = [`https://${env.APP_DOMAIN}`, env.FRONTEND_APP_URL].fi
 const allowedCorsOrigins = Array.from(new Set([...corsOrigins, ...productionOrigins, env.NODE_ENV === "production" ? undefined : "http://localhost:3000"].filter((origin): origin is string => Boolean(origin))));
 const connectSources = Array.from(new Set(["'self'", ...allowedCorsOrigins, env.BACKEND_PUBLIC_URL, "https://api.razorpay.com", "https://checkout.razorpay.com", "https://*.sentry.io"]));
 
+function apiRouteDebugger(req: Request, res: Response, next: NextFunction) {
+  if (!req.path.startsWith("/api")) {
+    next();
+    return;
+  }
+
+  const startedAt = Date.now();
+  logger.info("API request started", { requestId: req.requestId, method: req.method, path: req.originalUrl });
+  res.on("finish", () => {
+    logger.info("API request finished", {
+      requestId: req.requestId,
+      method: req.method,
+      path: req.originalUrl,
+      statusCode: res.statusCode,
+      durationMs: Date.now() - startedAt
+    });
+  });
+  next();
+}
+
 export function createApp() {
   initMonitoring();
   const app = express();
@@ -29,6 +49,7 @@ export function createApp() {
   app.set("trust proxy", env.TRUST_PROXY ? 1 : false);
   app.disable("x-powered-by");
   app.use(requestContext);
+  app.use(apiRouteDebugger);
   app.use(pinoHttp({
     logger: logger.child({ component: "http" }),
     genReqId: (req: Request) => req.requestId ?? "unknown",

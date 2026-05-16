@@ -4,12 +4,29 @@ import { logger } from "../utils/logger.js";
 
 let redis: Redis | null = null;
 let redisReady = false;
+const REDIS_OPERATION_TIMEOUT_MS = 1500;
+
+async function withTimeout<T>(operation: Promise<T>, timeoutMs = REDIS_OPERATION_TIMEOUT_MS): Promise<T> {
+  let timeout: NodeJS.Timeout | undefined;
+  try {
+    return await Promise.race([
+      operation,
+      new Promise<T>((_resolve, reject) => {
+        timeout = setTimeout(() => reject(new Error(`Redis operation timed out after ${timeoutMs}ms`)), timeoutMs);
+      })
+    ]);
+  } finally {
+    if (timeout) clearTimeout(timeout);
+  }
+}
 
 export function getRedis() {
   if (!env.REDIS_URL) return null;
   if (redis) return redis;
 
   redis = new Redis(env.REDIS_URL, {
+    connectTimeout: 1500,
+    commandTimeout: REDIS_OPERATION_TIMEOUT_MS,
     maxRetriesPerRequest: null,
     enableReadyCheck: false,
     retryStrategy(times: number) {
@@ -45,7 +62,7 @@ export async function verifyRedisConnection() {
   const client = getRedis();
   if (!client) return false;
   try {
-    await client.ping();
+    await withTimeout(client.ping());
     redisReady = true;
     return true;
   } catch (error) {
