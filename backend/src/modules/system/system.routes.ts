@@ -3,42 +3,71 @@ import { cacheConfig } from "../../config/cache.js";
 import { assertCloudinaryReady } from "../../config/cloudinary.js";
 import { env } from "../../config/env.js";
 import { prismaBackupConfig, verifyDatabaseConnection } from "../../config/prisma.js";
-import { verifyRedisConnection } from "../../config/redis.js";
-import { isQueueAvailable } from "../../queues/queue.config.js";
+import { isRedisReady, verifyRedisConnection } from "../../config/redis.js";
 import { getRuntimeState } from "../../runtime/lifecycle.js";
+import { logger } from "../../utils/logger.js";
 
 export const systemRouter = Router();
 
-systemRouter.get("/status", async (_req, res, next) => {
-  try {
-    const databaseConnected = await verifyDatabaseConnection();
-    const redisConnected = await verifyRedisConnection();
-    const cloudinaryReady = (() => {
-      try {
-        return assertCloudinaryReady();
-      } catch (_error) {
-        return false;
-      }
-    })();
+const STATUS_TIMEOUT_MS = 900;
 
-    res.json({
-      status: databaseConnected && (!env.REDIS_REQUIRED || redisConnected) ? "OPERATIONAL" : "DEGRADED",
-      service: "nidus-backend",
-      environment: env.NODE_ENV,
-      uptime: process.uptime(),
-      timestamp: new Date().toISOString(),
-      runtime: getRuntimeState(),
-      checks: {
-        database: databaseConnected ? "CONNECTED" : "FAILED",
-        cache: redisConnected ? "REDIS_CONNECTED" : cacheConfig.mode,
-        queue: isQueueAvailable() ? "AVAILABLE" : "UNAVAILABLE",
-        cloudinary: cloudinaryReady ? "READY" : "NOT_CONFIGURED",
-        sentry: env.SENTRY_DSN ? "CONFIGURED" : "DISABLED",
-        backups: prismaBackupConfig.provider,
-        maintenanceMode: env.MAINTENANCE_MODE
-      }
-    });
+async function probe<T>(name: string, operation: () => Promise<T> | T, fallback: T, timeoutMs = STATUS_TIMEOUT_MS): Promise<T> {
+  let timeout: NodeJS.Timeout | undefined;
+  const startedAt = Date.now();
+
+  try {
+    const result = await Promise.race([
+      Promise.resolve().then(operation),
+      new Promise<T>((_resolve, reject) => {
+        timeout = setTimeout(() => reject(new Error(`${name} status probe timed out after ${timeoutMs}ms`)), timeoutMs);
+      })
+    ]);
+    logger.info("System status probe completed", { probe: name, durationMs: Date.now() - startedAt });
+    return result;
   } catch (error) {
-    next(error);
+    logger.warn("System status probe degraded", { probe: name, durationMs: Date.now() - startedAt, error: error instanceof Error ? error.message : "Unknown error" });
+    return fallback;
+  } finally {
+    if (timeout) clearTimeout(timeout);
   }
+}
+
+systemRouter.get("/status", async (_req, res) => {
+  const startedAt = Date.now();
+  logger.info("System status request started");
+
+  const [databaseConnected, redisConnected, cloudinaryReady, sentryConfigured] = await Promise.all([
+    probe("database", verifyDatabaseConnection, false),
+    probe("redis", verifyRedisConnection, false),
+    probe("cloudinary", () => assertCloudinaryReady(), false),
+    probe("sentry", () => Boolean(env.SENTRY_DSN), false, 100)
+  ]);
+
+  const queueAvailable = redisConnected || isRedisReady();
+  const operational = databaseConnected && (!env.REDIS_REQUIRED || redisConnected);
+  const response = {
+    status: operational ? "ok" : "degraded",
+    service: "nidus-backend",
+    environment: env.NODE_ENV,
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString(),
+    durationMs: Date.now() - startedAt,
+    runtime: getRuntimeState(),
+    database: databaseConnected ? "connected" : "degraded",
+    redis: redisConnected ? "connected" : cacheConfig.mode === "memory-fallback" ? "not_configured" : "degraded",
+    queue: queueAvailable ? "available" : "degraded",
+    cloudinary: cloudinaryReady ? "ready" : "not_configured",
+    checks: {
+      database: databaseConnected ? "CONNECTED" : "DEGRADED",
+      cache: redisConnected ? "REDIS_CONNECTED" : cacheConfig.mode,
+      queue: queueAvailable ? "AVAILABLE" : "DEGRADED",
+      cloudinary: cloudinaryReady ? "READY" : "NOT_CONFIGURED",
+      sentry: sentryConfigured ? "CONFIGURED" : "DISABLED",
+      backups: prismaBackupConfig.provider,
+      maintenanceMode: env.MAINTENANCE_MODE
+    }
+  };
+
+  logger.info("System status request finished", { status: response.status, durationMs: response.durationMs });
+  res.json(response);
 });
