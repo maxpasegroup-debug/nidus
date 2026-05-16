@@ -47,16 +47,35 @@ export default function AdminDashboardPage() {
     <RoleDashboardGuard role="ADMIN">
     <motion.div className="space-y-8" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
       <PageHero
-        eyebrow="Admin Command"
-        title="Institution operations overview"
-        description="Live admissions, attendance, revenue, hostel, staff, and operational readiness signals for management review."
+        eyebrow="NIDUS Command Center"
+        title="Welcome to the Control Panel"
+        description="Executive visibility across admissions, academy operations, revenue, staff readiness, and role onboarding."
         actions={<Button type="button" onClick={() => refetch()} disabled={isFetching} variant="secondary">{isFetching ? "Refreshing..." : "Refresh"}</Button>}
         stats={[
           { value: String(data.totalStudents), label: "students" },
           { value: `${data.attendanceAnalytics.average}%`, label: "attendance" },
-          { value: String(data.staffSummary.totalStaff), label: "staff strength" }
+          { value: String(data.staffSummary.totalStaff), label: "staff strength" },
+          { value: `${data.hostelStats.occupancyPercentage}%`, label: "hostel occupancy" }
         ]}
       />
+
+      <section className="grid gap-4 md:grid-cols-3">
+        <div className="premium-surface rounded-lg p-5">
+          <p className="text-xs uppercase tracking-[0.2em] text-gold-soft">Operational Summary</p>
+          <h2 className="mt-3 text-2xl font-semibold text-ink">Academy pulse is live</h2>
+          <p className="mt-2 text-sm leading-6 text-muted">Admissions, attendance, revenue, and staff coverage are available from one control surface.</p>
+        </div>
+        <div className="premium-surface rounded-lg p-5">
+          <p className="text-xs uppercase tracking-[0.2em] text-gold-soft">Role Onboarding</p>
+          <h2 className="mt-3 text-2xl font-semibold text-ink">Internal access is admin-led</h2>
+          <p className="mt-2 text-sm leading-6 text-muted">Directors, teachers, students, parents, telecallers, and marketing users are created from Admin Center.</p>
+        </div>
+        <div className="premium-surface rounded-lg p-5">
+          <p className="text-xs uppercase tracking-[0.2em] text-gold-soft">Security</p>
+          <h2 className="mt-3 text-2xl font-semibold text-ink">JWT command access</h2>
+          <p className="mt-2 text-sm leading-6 text-muted">Bearer-token login, protected dashboards, and password reset controls remain centralized.</p>
+        </div>
+      </section>
 
       <section className="grid gap-4 md:grid-cols-4">
         <StatCard label="Total Students" value={String(data.totalStudents)} note="Registered student users" />

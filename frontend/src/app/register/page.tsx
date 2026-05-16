@@ -6,17 +6,6 @@ import { ShieldCheck, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/components/providers/auth-provider";
-import type { AuthRole } from "@/services/auth";
-
-const roles: Array<{ label: string; value: AuthRole }> = [
-  { label: "Student", value: "STUDENT" },
-  { label: "Parent", value: "PARENT" },
-  { label: "Teacher", value: "TEACHER" },
-  { label: "Director", value: "DIRECTOR" },
-  { label: "Telecaller", value: "TELECALLER" },
-  { label: "Marketing", value: "MARKETING_COORDINATOR" },
-  { label: "Guest", value: "GUEST" }
-];
 
 export default function RegisterPage() {
   const { register } = useAuth();
@@ -24,14 +13,13 @@ export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [mobile, setMobile] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState<AuthRole>("STUDENT");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setIsSubmitting(true);
     try {
-      await register({ name, email, mobile, password, role });
+      await register({ name, email, mobile, password });
     } finally {
       setIsSubmitting(false);
     }
@@ -71,12 +59,6 @@ export default function RegisterPage() {
             <Input label="Email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} required />
             <Input label="Mobile" value={mobile} onChange={(event) => setMobile(event.target.value)} required />
             <Input label="Password" type="password" value={password} onChange={(event) => setPassword(event.target.value)} minLength={8} required />
-            <label className="block">
-              <span className="text-sm font-medium text-ink">Access profile</span>
-              <select id="access-profile" value={role} onChange={(event) => setRole(event.target.value as AuthRole)} className="mt-2 h-12 w-full rounded border border-white/12 bg-white/6 px-4 text-sm text-white outline-none transition focus:border-gold focus:bg-white/10 focus:ring-2 focus:ring-gold/20">
-                {roles.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}
-              </select>
-            </label>
             <Button type="submit" className="w-full" disabled={isSubmitting}>{isSubmitting ? "Creating account..." : "Join NIDUS"}</Button>
           </form>
           <p className="mt-6 text-center text-sm text-muted">Already registered? <Link href="/login" className="font-semibold text-gold-soft">Login</Link></p>

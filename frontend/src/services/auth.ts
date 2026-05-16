@@ -12,6 +12,7 @@ export type AuthUser = {
   mobileVerified: boolean;
   instituteId?: string | null;
   branchId?: string | null;
+  roleMetadata?: Record<string, unknown> | null;
   roleOnboardingStatus?: string;
   createdAt: string;
   updatedAt: string;
@@ -40,7 +41,6 @@ export type RegisterPayload = {
   email: string;
   mobile: string;
   password: string;
-  role?: AuthRole;
 };
 
 export type LoginPayload = {
@@ -77,6 +77,7 @@ function normalizeUser(value: unknown): AuthUser | undefined {
     mobileVerified: Boolean(value.mobileVerified),
     instituteId: typeof value.instituteId === "string" ? value.instituteId : null,
     branchId: typeof value.branchId === "string" ? value.branchId : null,
+    roleMetadata: isRecord(value.roleMetadata) ? value.roleMetadata : null,
     roleOnboardingStatus: typeof value.roleOnboardingStatus === "string" ? value.roleOnboardingStatus : "ACTIVE",
     createdAt: typeof value.createdAt === "string" ? value.createdAt : new Date().toISOString(),
     updatedAt: typeof value.updatedAt === "string" ? value.updatedAt : new Date().toISOString()
@@ -111,6 +112,11 @@ export async function login(payload: LoginPayload) {
 export async function logout() {
   clearStoredToken();
   const response = await apiClient.post<{ message: string }>("/auth/logout").catch(() => ({ data: { message: "Logged out successfully" } }));
+  return response.data;
+}
+
+export async function changePassword(payload: { currentPassword: string; newPassword: string }) {
+  const response = await apiClient.post<{ message: string }>("/auth/change-password", payload);
   return response.data;
 }
 

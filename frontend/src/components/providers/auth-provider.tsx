@@ -45,6 +45,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
+    document.documentElement.dataset.nidusHydrated = "true";
+
     async function loadUser() {
       try {
         if (!getStoredToken()) {

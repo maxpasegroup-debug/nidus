@@ -3,7 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/components/providers/toast-provider";
 import { getApiErrorMessage } from "@/services/api";
-import { createBranch, createRole, createUser, deleteRole, getAdminDashboard, getAdminOperations, getAuditLogs, getBranches, getPermissions, getRoles, getSettings, getUsers, updateRole, updateSettings } from "@/services/admin-center";
+import { createBranch, createRole, createUser, deleteRole, getAdminDashboard, getAdminOperations, getAuditLogs, getBranches, getPermissions, getRoles, getSettings, getUsers, resetUserPassword, updateRole, updateSettings } from "@/services/admin-center";
 
 function useToastMutation<TPayload, TResult>(mutationFn: (payload: TPayload) => Promise<TResult>, keys: unknown[][], message: string) {
   const queryClient = useQueryClient();
@@ -61,6 +61,7 @@ export function useBranches() {
 export function useUsers() {
   return {
     ...useQuery({ queryKey: ["admin-center", "users"], queryFn: getUsers }),
-    create: useToastMutation(createUser, [["admin-center", "users"], ["admin-center", "dashboard"], ["admin-center", "audit-logs"]], "User created")
+    create: useToastMutation(createUser, [["admin-center", "users"], ["admin-center", "dashboard"], ["admin-center", "audit-logs"]], "User created with default password"),
+    resetPassword: useToastMutation(resetUserPassword, [["admin-center", "users"], ["admin-center", "audit-logs"]], "Password reset to default")
   };
 }

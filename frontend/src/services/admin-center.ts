@@ -59,6 +59,10 @@ export async function getUsers() {
   return (await apiClient.get<AdminUser[]>("/users")).data;
 }
 
-export async function createUser(payload: { name: string; email: string; mobile: string; password: string; role: AuthRole }) {
+export async function createUser(payload: { name: string; email: string; mobile: string; role: Exclude<AuthRole, "ADMIN" | "GUEST"> }) {
   return (await apiClient.post<AdminUser>("/users", payload)).data;
+}
+
+export async function resetUserPassword(id: string) {
+  return (await apiClient.post<{ message: string }>(`/users/${id}/reset-password`)).data;
 }

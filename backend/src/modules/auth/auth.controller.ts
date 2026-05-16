@@ -47,5 +47,18 @@ export const authController = {
     } catch (error) {
       next(error);
     }
+  },
+
+  async changePassword(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      if (!req.user) {
+        res.status(401).json({ message: "Unauthorized" });
+        return;
+      }
+      validateRequest(req);
+      res.json(await authService.changePassword(req.user.id, req.body));
+    } catch (error) {
+      next(error);
+    }
   }
 };

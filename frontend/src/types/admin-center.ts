@@ -87,6 +87,7 @@ export type AdminUser = {
   mobileVerified: boolean;
   instituteId?: string | null;
   branchId?: string | null;
+  roleMetadata?: Record<string, unknown> | null;
   roleOnboardingStatus?: string;
   createdAt: string;
   updatedAt: string;

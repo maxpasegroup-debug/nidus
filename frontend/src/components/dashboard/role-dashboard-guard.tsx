@@ -19,7 +19,7 @@ export function RoleDashboardGuard({
   role,
   children
 }: {
-  role: AuthRole;
+  role: AuthRole | AuthRole[];
   children: ReactNode;
 }) {
   const router = useRouter();
@@ -31,14 +31,14 @@ export function RoleDashboardGuard({
       return;
     }
 
-    const allowedRoles = compatibleRoles[role] ?? [role];
+    const allowedRoles = Array.isArray(role) ? role : compatibleRoles[role] ?? [role];
 
     if (!isLoading && user && !allowedRoles.includes(user.role)) {
       router.replace(roleDashboardPath[user.role]);
     }
   }, [isLoading, role, router, user]);
 
-  const allowedRoles = compatibleRoles[role] ?? [role];
+  const allowedRoles = Array.isArray(role) ? role : compatibleRoles[role] ?? [role];
 
   if (isLoading || !user || !allowedRoles.includes(user.role)) {
     return <DashboardSkeleton />;

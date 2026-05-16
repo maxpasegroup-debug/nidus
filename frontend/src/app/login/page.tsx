@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { useAuth } from "@/components/providers/auth-provider";
 
 export default function LoginPage() {
-  const { login, isLoading } = useAuth();
+  const { login } = useAuth();
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -60,7 +60,7 @@ export default function LoginPage() {
           <form className="space-y-5" onSubmit={handleSubmit}>
             <Input label="Email or mobile" type="text" placeholder="officer@nidus.mil" value={identifier} onChange={(event) => setIdentifier(event.target.value)} required />
             <Input label="Password" type="password" placeholder="Enter secure password" value={password} onChange={(event) => setPassword(event.target.value)} minLength={8} required />
-            <Button type="submit" className="w-full" disabled={isSubmitting || isLoading}>
+            <Button type="submit" className="w-full" disabled={isSubmitting}>
               {isSubmitting ? "Authenticating..." : "Access Platform"}
             </Button>
           </form>
