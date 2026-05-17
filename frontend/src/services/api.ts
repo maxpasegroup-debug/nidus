@@ -1,9 +1,16 @@
 import axios, { AxiosError, type AxiosInstance } from "axios";
 
-export const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://api.nidusacademy.com/api";
+function resolveApiUrl() {
+  const configuredUrl = process.env.NEXT_PUBLIC_API_URL?.trim();
+  if (configuredUrl) return configuredUrl;
+  if (typeof window !== "undefined") return window.location.origin;
+  return "";
+}
+
+export const API_URL = resolveApiUrl();
 
 export const apiClient: AxiosInstance = axios.create({
-  baseURL: API_URL.endsWith("/api") ? API_URL : `${API_URL.replace(/\/+$/, "")}/api`,
+  baseURL: API_URL ? (API_URL.endsWith("/api") ? API_URL : `${API_URL.replace(/\/+$/, "")}/api`) : "/api",
   withCredentials: true,
   headers: {
     Accept: "application/json, text/plain",
