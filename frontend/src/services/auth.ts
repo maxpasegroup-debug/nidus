@@ -1,4 +1,4 @@
-import { apiClient, clearStoredToken, getStoredRefreshToken, storeAuthTokens } from "@/services/api";
+import { apiClient, clearStoredToken, getStoredRefreshToken, storeAuthTokens, storeToken } from "@/services/api";
 
 export type AuthRole = "ADMIN" | "GUEST" | "STUDENT" | "PARENT" | "TEACHER" | "DIRECTOR" | "TELECALLER" | "MARKETING_COORDINATOR";
 
@@ -31,7 +31,7 @@ export type AuthSession = {
 export type AuthResponse = {
   success: true;
   accessToken: string;
-  refreshToken: string;
+  refreshToken?: string;
   user: AuthUser;
 };
 
@@ -85,10 +85,22 @@ function normalizeUser(value: unknown): AuthUser | undefined {
   };
 }
 
-function completeAuth(payload: unknown): AuthResponse {
-  if (!isRecord(payload) || payload.success !== true || typeof payload.accessToken !== "string" || typeof payload.refreshToken !== "string") {
+function unwrapAuthPayload(payload: unknown): unknown {
+  if (!isRecord(payload)) return payload;
+  if (isRecord(payload.data) && (typeof payload.data.accessToken === "string" || typeof payload.data.token === "string")) return payload.data;
+  if (isRecord(payload.result) && (typeof payload.result.accessToken === "string" || typeof payload.result.token === "string")) return payload.result;
+  return payload;
+}
+
+function completeAuth(rawPayload: unknown): AuthResponse {
+  const payload = unwrapAuthPayload(rawPayload);
+  if (!isRecord(payload) || payload.success === false) {
     throw new Error("Authentication response is invalid.");
   }
+
+  const accessToken = typeof payload.accessToken === "string" ? payload.accessToken : typeof payload.token === "string" ? payload.token : undefined;
+  const refreshToken = typeof payload.refreshToken === "string" ? payload.refreshToken : undefined;
+  if (!accessToken) throw new Error("Authentication response is invalid.");
 
   const user = normalizeUser(payload.user);
   if (!user?.role) {
@@ -96,8 +108,13 @@ function completeAuth(payload: unknown): AuthResponse {
     throw new Error("Authentication succeeded, but the API did not return a valid user role.");
   }
 
-  storeAuthTokens(payload.accessToken, payload.refreshToken);
-  return { success: true, accessToken: payload.accessToken, refreshToken: payload.refreshToken, user };
+  if (refreshToken) {
+    storeAuthTokens(accessToken, refreshToken);
+  } else {
+    storeToken(accessToken);
+  }
+
+  return { success: true, accessToken, refreshToken, user };
 }
 
 export async function register(payload: RegisterPayload) {

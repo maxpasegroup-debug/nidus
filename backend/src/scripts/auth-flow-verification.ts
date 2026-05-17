@@ -62,8 +62,10 @@ assert.match(frontendApi, /ACCESS_TOKEN_KEY = "nidus_access_token"/, "frontend m
 assert.match(frontendApi, /REFRESH_TOKEN_KEY = "nidus_refresh_token"/, "frontend must store refresh token separately");
 assert.match(frontendApi, /Authorization", `Bearer \$\{token\}`/, "frontend must send Bearer token");
 assert.match(frontendApi, /refreshAccessToken/, "frontend must refresh expired access tokens");
-assert.match(frontendAuth, /typeof payload\.accessToken !== "string"/, "frontend auth must validate response.data.accessToken");
-assert.match(frontendAuth, /typeof payload\.refreshToken !== "string"/, "frontend auth must validate response.data.refreshToken");
+assert.match(frontendAuth, /typeof payload\.accessToken === "string"/, "frontend auth must read response.data.accessToken");
+assert.match(frontendAuth, /typeof payload\.token === "string"/, "frontend auth must tolerate the previous response.data.token contract during rollout");
+assert.match(frontendAuth, /typeof payload\.refreshToken === "string"/, "frontend auth must read response.data.refreshToken when present");
+assert.match(frontendAuth, /unwrapAuthPayload/, "frontend auth must tolerate wrapped auth responses during rollout");
 assert.doesNotMatch(frontendAuth, /access_token|sessionToken|bearerToken|findStringByKey/, "frontend must not use alternate token structures");
 
 console.log("JWT access/refresh auth flow verification checks passed.");

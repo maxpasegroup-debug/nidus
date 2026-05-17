@@ -62,8 +62,12 @@ export function storeAuthTokens(accessToken: string, refreshToken: string) {
 }
 
 export function storeToken(token: string) {
-  const refreshToken = getStoredRefreshToken();
-  if (refreshToken) storeAuthTokens(token, refreshToken);
+  const storage = browserStorage();
+  if (!storage) return;
+  storage.setItem(ACCESS_TOKEN_KEY, token);
+  storage.removeItem(LEGACY_TOKEN_KEY);
+  window.sessionStorage.removeItem(ACCESS_TOKEN_KEY);
+  window.sessionStorage.removeItem(LEGACY_TOKEN_KEY);
 }
 
 export function clearStoredToken() {

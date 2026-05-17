@@ -37,8 +37,8 @@ async function replayMutations() {
     request.onerror = () => reject(request.error);
   });
   for (const item of pending) {
-    const response = await fetch(item.url, { method: item.method, headers: item.headers, body: item.body || undefined, credentials: "include" });
-    if (response.ok) {
+    const response = await fetch(item.url, { method: item.method, headers: item.headers, body: item.body || undefined, credentials: "include" }).catch(() => undefined);
+    if (response?.ok) {
       await new Promise((resolve, reject) => {
         const tx = db.transaction(SYNC_STORE, "readwrite");
         tx.objectStore(SYNC_STORE).delete(item.id);
