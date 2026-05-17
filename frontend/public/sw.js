@@ -1,7 +1,23 @@
-const CACHE_NAME = "nidus-shell-v6";
+const CACHE_NAME = "nidus-shell-v7";
 const STATIC_ASSETS = ["/offline", "/manifest.webmanifest", "/icons/icon-192.svg", "/icons/icon-512.svg"];
 const SYNC_DB = "nidus-offline-sync";
 const SYNC_STORE = "requests";
+const NEVER_QUEUE_PATHS = ["/api/auth", "/api/payments", "/api/admin", "/api/users"];
+
+function isApiRequest(url) {
+  return url.pathname.startsWith("/api");
+}
+
+function canQueueMutation(url) {
+  return isApiRequest(url) && !NEVER_QUEUE_PATHS.some((path) => url.pathname.startsWith(path));
+}
+
+function backendUnavailableResponse() {
+  return new Response(JSON.stringify({ success: false, message: "Backend is unavailable. Please try again after the API is online." }), {
+    status: 503,
+    headers: { "Content-Type": "application/json" }
+  });
+}
 
 function openSyncDb() {
   return new Promise((resolve, reject) => {
@@ -37,6 +53,17 @@ async function replayMutations() {
     request.onerror = () => reject(request.error);
   });
   for (const item of pending) {
+    const itemUrl = new URL(item.url);
+    if (!canQueueMutation(itemUrl)) {
+      await new Promise((resolve, reject) => {
+        const tx = db.transaction(SYNC_STORE, "readwrite");
+        tx.objectStore(SYNC_STORE).delete(item.id);
+        tx.oncomplete = resolve;
+        tx.onerror = () => reject(tx.error);
+      });
+      continue;
+    }
+
     const response = await fetch(item.url, { method: item.method, headers: item.headers, body: item.body || undefined, credentials: "include" }).catch(() => undefined);
     if (response?.ok) {
       await new Promise((resolve, reject) => {
@@ -67,9 +94,13 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") {
     const requestUrl = new URL(event.request.url);
-    if (requestUrl.pathname.startsWith("/api")) {
+    if (isApiRequest(requestUrl)) {
       event.respondWith(
         fetch(event.request.clone()).catch(async () => {
+          if (!canQueueMutation(requestUrl)) {
+            return backendUnavailableResponse();
+          }
+
           await queueMutation(event.request);
           if ("sync" in self.registration) {
             await self.registration.sync.register("nidus-offline-mutations");
