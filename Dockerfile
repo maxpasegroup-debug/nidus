@@ -27,8 +27,8 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV PORT=3000
-ENV API_INTERNAL_PORT=4000
-ENV INTERNAL_API_URL=http://127.0.0.1:4000
+ENV API_INTERNAL_PORT=4001
+ENV INTERNAL_API_URL=http://127.0.0.1:4001
 
 COPY --from=build /app/package.json ./package.json
 COPY --from=build /app/package-lock.json ./package-lock.json
