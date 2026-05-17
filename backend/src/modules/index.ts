@@ -34,6 +34,10 @@ apiRouter.get("/health", (_req, res) => {
     status: healthy ? "ok" : "starting",
     service: "nidus-backend",
     timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    environment: env.NODE_ENV,
+    database: runtime.ready ? "connected" : "starting",
+    redis: env.REDIS_URL ? "configured" : "optional",
     runtime
   });
 });

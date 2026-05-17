@@ -149,7 +149,7 @@ export const paymentsService = {
     if (!orderId) return { received: true, ignored: true };
     const existing = await prisma.payment.findUnique({ where: { razorpayOrderId: orderId } });
     if (!existing) return { received: true, ignored: true };
-    const status = payload.event === "payment.failed" ? "FAILED" : payload.event === "payment.captured" ? "SUCCESS" : existing.paymentStatus;
+    const status = payload.event === "payment.failed" ? "FAILED" : ["payment.captured", "payment.authorized", "order.paid"].includes(payload.event ?? "") ? "SUCCESS" : existing.paymentStatus;
     const payment = await prisma.payment.update({
       where: { id: existing.id },
       data: {

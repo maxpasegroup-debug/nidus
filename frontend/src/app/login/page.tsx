@@ -2,15 +2,14 @@
 
 import Link from "next/link";
 import { useState, type FormEvent } from "react";
-import { useRouter } from "next/navigation";
 import { BrainCircuit, LockKeyhole } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { login } from "@/services/auth.v2";
+import { getApiErrorMessage } from "@/services/api";
 import { roleDashboardPath } from "@/lib/dashboard-data";
 
 export default function LoginPage() {
-  const router = useRouter();
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -25,12 +24,12 @@ export default function LoginPage() {
     try {
       const result = await login({ identifier, password });
       if (result.success && result.user) {
-        router.replace(roleDashboardPath[result.user.role] ?? "/dashboard");
+        window.location.assign(roleDashboardPath[result.user.role] ?? "/dashboard");
       } else {
         setError(result.message || "Login failed");
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Login failed");
+      setError(getApiErrorMessage(err));
     } finally {
       setIsSubmitting(false);
     }

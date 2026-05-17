@@ -2,15 +2,14 @@
 
 import Link from "next/link";
 import { useState, type FormEvent } from "react";
-import { useRouter } from "next/navigation";
 import { ShieldCheck, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { signup } from "@/services/auth.v2";
+import { getApiErrorMessage } from "@/services/api";
 import { roleDashboardPath } from "@/lib/dashboard-data";
 
 export default function RegisterPage() {
-  const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [mobile, setMobile] = useState("");
@@ -25,12 +24,12 @@ export default function RegisterPage() {
     try {
       const result = await signup({ name, email, mobile, password });
       if (result.success && result.user) {
-        router.replace(roleDashboardPath[result.user.role] ?? "/dashboard");
+        window.location.assign(roleDashboardPath[result.user.role] ?? "/dashboard");
       } else {
         setError(result.message || "Registration failed");
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Registration failed");
+      setError(getApiErrorMessage(err));
     } finally {
       setIsSubmitting(false);
     }

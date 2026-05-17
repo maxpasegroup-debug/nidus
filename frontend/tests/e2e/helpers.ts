@@ -11,22 +11,54 @@ const betaUser = {
   createdAt: new Date().toISOString(),
   updatedAt: new Date().toISOString()
 };
-const authResponse = { success: true, token: "mock-jwt-token", user: betaUser };
+const authResponse = { success: true, user: betaUser };
 
 async function json(route: Route, payload: unknown, status = 200) {
+  if (route.request().method() === "OPTIONS") {
+    await route.fulfill({
+      status: 204,
+      headers: {
+        "access-control-allow-origin": "http://127.0.0.1:3000",
+        "access-control-allow-credentials": "true",
+        "access-control-allow-methods": "GET,POST,PUT,PATCH,DELETE,OPTIONS",
+        "access-control-allow-headers": "Content-Type, Authorization"
+      }
+    });
+    return;
+  }
+
   await route.fulfill({
     status,
     contentType: "application/json",
+    headers: {
+      "access-control-allow-origin": "http://127.0.0.1:3000",
+      "access-control-allow-credentials": "true"
+    },
     body: JSON.stringify(payload)
   });
 }
 
 export async function mockPublicApi(page: Page, authenticated = false) {
-  await page.route("**/api/auth/me", (route) => authenticated ? json(route, betaUser) : json(route, { message: "Unauthorized" }, 401));
-  await page.route("**/api/auth/login", (route) => json(route, authResponse));
-  await page.route("**/api/auth/signup", (route) => json(route, { ...authResponse, user: { ...betaUser, role: "GUEST", emailVerified: true } }, 201));
-  await page.route("**/api/auth/forgot-password/send-otp", (route) => json(route, { message: "Reset instructions sent" }));
-  await page.route("**/api/auth/logout", (route) => json(route, { message: "Logged out" }));
+  let isAuthenticated = authenticated;
+  let currentUser = betaUser;
+  await page.route("**/api/auth/me", (route) => isAuthenticated ? json(route, { success: true, user: currentUser }) : json(route, { message: "Unauthorized" }, 401));
+  await page.route("**/api/auth/login", (route) => {
+    isAuthenticated = true;
+    currentUser = betaUser;
+    return json(route, authResponse);
+  });
+  await page.route("**/api/auth/signup", (route) => {
+    isAuthenticated = true;
+    currentUser = { ...betaUser, role: "GUEST" };
+    return json(route, { ...authResponse, user: { ...currentUser, emailVerified: true } }, 201);
+  });
+  await page.route("**/api/auth/forgot-password", (route) => json(route, { success: true, message: "Reset link sent to email" }));
+  await page.route("**/api/auth/forgot-password/send-otp", (route) => json(route, { success: true, message: "Reset link sent to email" }));
+  await page.route("**/api/auth/reset-password", (route) => json(route, { success: true, message: "Password reset successful. Please login." }));
+  await page.route("**/api/auth/logout", (route) => {
+    isAuthenticated = false;
+    return json(route, { message: "Logged out" });
+  });
   await page.route("**/api/tests**", (route) => json(route, { tests: [{ id: "test-1", title: "NDA Beta Mock", description: "Public beta CBT smoke test", examType: "NDA", category: "Math", duration: 30, totalMarks: 100, isLive: false, isMockTest: true }] }));
   await page.route("**/api/dashboard/**", (route) => {
     const url = route.request().url();
@@ -59,5 +91,6 @@ export async function mockPublicApi(page: Page, authenticated = false) {
 }
 
 export async function waitForNidusHydration(page: Page) {
-  await page.waitForFunction(() => document.documentElement.dataset.nidusHydrated === "true");
+  await page.waitForLoadState("domcontentloaded");
+  await page.locator("main").first().waitFor({ state: "visible" });
 }

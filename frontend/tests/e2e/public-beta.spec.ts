@@ -22,7 +22,7 @@ test("registration creates public guest accounts without role selection", async 
   await page.getByLabel("Password").fill("StrongPass123");
   const signupResponse = page.waitForResponse((response) => response.url().includes("/auth/signup"));
   await page.getByRole("button", { name: /join nidus/i }).click();
-  await expect((await signupResponse).json()).resolves.toMatchObject({ success: true, token: "mock-jwt-token" });
+  expect((await signupResponse).status()).toBe(201);
   await expect(page).toHaveURL(/\/dashboard\/guest/, { timeout: 10000 });
 });
 
@@ -32,7 +32,7 @@ test("forgot password has recoverable request UX", async ({ page }) => {
   await waitForNidusHydration(page);
   await page.getByLabel(/email or mobile/i).fill("beta@student.test");
   await page.getByRole("button", { name: /send/i }).click();
-  await expect(page.getByRole("status").filter({ hasText: "Password reset will be enabled after email delivery is configured." })).toBeVisible();
+  await expect(page.locator("main").getByText("Reset link sent to email")).toBeVisible();
 });
 
 test("authenticated navigation and CBT listing work on mobile", async ({ page }) => {

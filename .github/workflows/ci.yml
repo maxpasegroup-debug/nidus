@@ -50,6 +50,14 @@ jobs:
       - name: Build frontend
         run: npm run build --workspace frontend
 
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+        working-directory: frontend
+
+      - name: Run frontend E2E smoke tests
+        run: npx playwright test --project=chromium
+        working-directory: frontend
+
   deploy-staging:
     if: github.ref == 'refs/heads/staging'
     needs: build
