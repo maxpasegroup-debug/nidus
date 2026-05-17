@@ -13,15 +13,23 @@ export default function ForgotPasswordPage() {
   const { showToast } = useToast();
   const [identifier, setIdentifier] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setIsSubmitting(true);
+    setSuccessMessage("");
+    setErrorMessage("");
     try {
       const response = await forgotPassword(identifier);
-      showToast(response.message ?? "Password reset instructions sent", "success");
+      const message = response.message ?? "Password reset instructions sent";
+      setSuccessMessage(message);
+      showToast(message, "success");
     } catch (error) {
-      showToast(getApiErrorMessage(error), "error");
+      const message = getApiErrorMessage(error);
+      setErrorMessage(message);
+      showToast(message, "error");
     } finally {
       setIsSubmitting(false);
     }
@@ -33,6 +41,8 @@ export default function ForgotPasswordPage() {
         <KeyRound className="h-8 w-8 text-gold-soft" />
         <h1 className="mt-4 text-3xl font-semibold text-ink">Reset Password</h1>
         <p className="mt-2 text-sm text-muted">Enter your email or mobile and we will send a secure reset link.</p>
+        {successMessage ? <div className="mt-5 rounded-lg border border-emerald-400/40 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-100">{successMessage}</div> : null}
+        {errorMessage ? <div className="mt-5 rounded-lg border border-red-400/40 bg-red-500/10 px-4 py-3 text-sm text-red-100">{errorMessage}</div> : null}
         <form className="mt-6 space-y-4" onSubmit={submit}>
           <Input label="Email or mobile" value={identifier} onChange={(event) => setIdentifier(event.target.value)} required />
           <Button type="submit" className="w-full" disabled={isSubmitting}>{isSubmitting ? "Sending..." : "Send Reset Link"}</Button>

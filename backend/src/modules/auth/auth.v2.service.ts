@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import { prisma } from "../../config/prisma.js";
 import { env } from "../../config/env.js";
 import { Role, type User } from "../../generated/prisma/client.js";
+import { emailService } from "../../services/email.service.js";
 
 export const SUPER_ADMIN_EMAIL = "nidusacademycalicut@gmail.com";
 export const DEFAULT_ACCOUNT_PASSWORD = "123456789";
@@ -204,11 +205,13 @@ export const AuthServiceV2 = {
     if (!user) return { message: "If email exists, reset link will be sent" };
 
     const token = crypto.randomBytes(32).toString("hex");
+    await prisma.passwordReset.deleteMany({ where: { userId: user.id } });
     await prisma.passwordReset.create({
       data: { userId: user.id, token, expiresAt: new Date(Date.now() + 60 * 60 * 1000) }
     });
 
-    console.log(`Reset link: ${env.FRONTEND_APP_URL}/reset-password?token=${token}`);
+    const resetLink = `${env.FRONTEND_APP_URL}/reset-password?token=${token}`;
+    await emailService.sendPasswordResetEmail(user.email, user.name, resetLink);
     await audit({ userId: user.id, action: "PASSWORD_RESET_REQUESTED", description: "Password reset requested" });
     return { message: "Reset link sent to email" };
   },

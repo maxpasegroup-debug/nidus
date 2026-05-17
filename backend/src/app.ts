@@ -4,10 +4,12 @@ import express from "express";
 import helmet from "helmet";
 import morgan from "morgan";
 import { pinoHttp } from "pino-http";
+import swaggerUi from "swagger-ui-express";
 import type { NextFunction, Request, Response } from "express";
 import { initMonitoring } from "./config/monitoring.js";
 import { env } from "./config/env.js";
 import { apiRouter } from "./modules/index.js";
+import { swaggerSpec } from "./swagger.js";
 import { errorHandler } from "./middlewares/error-handler.js";
 import { responseFormatter } from "./middlewares/response-formatter.js";
 import { apiRateLimiter, aiRateLimiter, authRateLimiter, paymentsRateLimiter, suspiciousActivityLogger, uploadRateLimiter } from "./middlewares/security.js";
@@ -110,6 +112,7 @@ export function createApp() {
   app.get("/", (_req, res) => {
     res.send("Backend running");
   });
+  app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
   app.use((req, res, next) => {
     if (req.path === "/api/health") {

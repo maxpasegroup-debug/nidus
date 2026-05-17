@@ -1,0 +1,69 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, staging, develop]
+  pull_request:
+    branches: [main, staging, develop]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nidus?schema=public
+      JWT_SECRET: ci-only-secret-that-is-longer-than-thirty-two-characters
+      FRONTEND_APP_URL: https://app.nidusacademy.com
+      CORS_ORIGIN: https://app.nidusacademy.com
+      BACKEND_PUBLIC_URL: https://api.nidusacademy.com
+      APP_DOMAIN: app.nidusacademy.com
+      API_DOMAIN: api.nidusacademy.com
+      NODE_ENV: test
+      NEXT_PUBLIC_API_URL: https://api.nidusacademy.com
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate Prisma schema
+        run: npx prisma validate --config backend/prisma.config.ts
+
+      - name: Build backend
+        run: npm run build --workspace backend
+
+      - name: Run backend auth checks
+        run: npm run test:auth --workspace backend
+
+      - name: Run backend role checks
+        run: npm run test:roles --workspace backend
+
+      - name: Run Jest tests
+        run: npm run test --workspace backend
+
+      - name: Build frontend
+        run: npm run build --workspace frontend
+
+  deploy-staging:
+    if: github.ref == 'refs/heads/staging'
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Railway staging deploy
+        run: echo "Railway staging auto-deploys from the connected staging branch."
+
+  deploy-production:
+    if: github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Railway production deploy
+        run: echo "Railway production auto-deploys from the connected main branch."
