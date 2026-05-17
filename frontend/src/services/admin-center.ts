@@ -1,6 +1,6 @@
 import { apiClient } from "@/services/api";
 import type { AdminDashboard, AdminOperations, AdminRole, AdminUser, AuditLog, Branch, Permission, SystemSetting } from "@/types/admin-center";
-import type { AuthRole } from "@/services/auth";
+import type { AuthRole } from "@/services/auth.v2";
 
 export async function getAdminDashboard() {
   return (await apiClient.get<{ dashboard: AdminDashboard }>("/admin")).data.dashboard;

@@ -13,11 +13,10 @@ export async function scheduleRecurringJobs() {
 export function startScheduledWorker() {
   return createWorker<ScheduledJob>(queueNames.scheduled, async (job) => {
     if (job.data.task === "session-cleanup") {
-      const result = await prisma.authSession.updateMany({
-        where: { expiresAt: { lt: new Date() }, revokedAt: null },
-        data: { revokedAt: new Date(), revokeReason: "EXPIRED_CLEANUP" }
+      const result = await prisma.sessionToken.deleteMany({
+        where: { expiresAt: { lt: new Date() } }
       });
-      return { revoked: result.count };
+      return { deleted: result.count };
     }
     logger.info("Scheduled task shell executed", { task: job.data.task });
     return { status: "OK" };

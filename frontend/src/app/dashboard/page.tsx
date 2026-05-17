@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { DashboardSkeleton, SectionHeader } from "@/components/dashboard";
-import { useAuth } from "@/components/providers/auth-provider";
+import { useAuth } from "@/components/providers/auth-provider-v2";
 import { roleDashboardPath } from "@/lib/dashboard-data";
 
 export default function DashboardPage() {

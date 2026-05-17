@@ -7,7 +7,7 @@ import { useState, type FormEvent } from "react";
 import { LockKeyhole } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { resetPassword } from "@/services/auth";
+import { resetPassword } from "@/services/auth.v2";
 import { getApiErrorMessage } from "@/services/api";
 import { useToast } from "@/components/providers/toast-provider";
 
@@ -24,7 +24,7 @@ function ResetPasswordContent() {
     setIsSubmitting(true);
     try {
       const response = await resetPassword(token, password);
-      showToast(response.message, "success");
+      showToast(response.message ?? "Password reset successfully", "success");
       router.replace("/login");
     } catch (error) {
       showToast(getApiErrorMessage(error), "error");

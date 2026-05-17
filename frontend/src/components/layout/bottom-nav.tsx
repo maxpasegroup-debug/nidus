@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { getNavItems } from "@/components/layout/nav-items";
-import { useAuth } from "@/components/providers/auth-provider";
+import { useAuth } from "@/components/providers/auth-provider-v2";
 
 export function BottomNav() {
   const pathname = usePathname();

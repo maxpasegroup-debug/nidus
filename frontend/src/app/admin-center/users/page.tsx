@@ -3,7 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { KeyRound, Plus, UserRound } from "lucide-react";
 import { useUsers } from "@/hooks/use-admin-center";
-import type { AuthRole } from "@/services/auth";
+import type { AuthRole } from "@/services/auth.v2";
 
 const roles: Array<{ label: string; value: AuthRole }> = [
   { label: "Director", value: "DIRECTOR" },

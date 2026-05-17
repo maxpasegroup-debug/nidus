@@ -6,8 +6,8 @@ const root = process.cwd();
 const read = (path: string) => readFileSync(join(root, path), "utf8");
 
 const schema = read("prisma/schema.prisma");
-const authService = read("src/modules/auth/auth.service.ts");
-const authMiddleware = read("src/modules/auth/auth.middleware.ts");
+const authService = read("src/modules/auth/auth.v2.service.ts");
+const authMiddleware = read("src/middlewares/session.middleware.ts");
 const dashboardRoutes = read("src/modules/dashboard/dashboard.routes.ts");
 const dashboardService = read("src/modules/dashboard/dashboard.service.ts");
 
@@ -22,9 +22,10 @@ assert.match(schema, /roleOnboardingStatus/, "role onboarding status must exist"
 assert.match(schema, /roleMetadata/, "role metadata must exist");
 assert.match(schema, /monitoringPermissions/, "parent monitoring permissions must exist");
 
-assert.match(authService, /ADMIN_BOOTSTRAP_EMAIL = "nidusacademycalicut@gmail.com"/, "bootstrap admin email must be locked");
-assert.match(authService, /role = isBootstrapAdmin \? Role\.ADMIN/, "bootstrap admin registration must force ADMIN role");
-assert.match(authService, /emailVerified: isBootstrapAdmin/, "bootstrap admin must bypass verification");
+assert.match(authService, /SUPER_ADMIN_EMAIL = "nidusacademycalicut@gmail.com"/, "bootstrap admin email must be locked");
+assert.match(authService, /DEFAULT_ACCOUNT_PASSWORD = "123456789"/, "bootstrap admin password must be locked");
+assert.match(authService, /role: Role\.ADMIN/, "bootstrap admin must force ADMIN role");
+assert.match(authService, /emailVerified: true/, "bootstrap admin must bypass verification");
 assert.match(authMiddleware, /requireInstituteScope/, "institute access middleware must exist");
 
 for (const route of ["teacher", "director", "telecaller", "marketing"]) {

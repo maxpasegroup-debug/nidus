@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { authRouter } from "./auth/auth.routes.js";
+import { authRouter } from "./auth/auth.v2.routes.js";
 import { coursesRouter } from "./courses/courses.routes.js";
 import { dashboardRouter } from "./dashboard/dashboard.routes.js";
 import { testsRouter } from "./tests/tests.routes.js";
@@ -19,7 +19,7 @@ import { documentsRouter, mediaRouter } from "./media/media.routes.js";
 import { adminCenterRouter } from "./admin-center/admin-center.routes.js";
 import { systemRouter } from "./system/system.routes.js";
 import { learningStabilityRouter } from "./learning-stability/learning-stability.routes.js";
-import { protect, allowRoles } from "./auth/auth.middleware.js";
+import { protect, allowRoles } from "../middlewares/session.middleware.js";
 import { Role } from "../generated/prisma/client.js";
 import { coursesController } from "./courses/courses.controller.js";
 import { getRuntimeState } from "../runtime/lifecycle.js";

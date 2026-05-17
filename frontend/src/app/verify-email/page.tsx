@@ -6,7 +6,7 @@ import { Suspense, useEffect, useState, type FormEvent } from "react";
 import { MailCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { resendVerification, verifyEmail } from "@/services/auth";
+import { resendVerification, verifyEmail } from "@/services/auth.v2";
 import { getApiErrorMessage } from "@/services/api";
 import { useToast } from "@/components/providers/toast-provider";
 
@@ -32,7 +32,7 @@ function VerifyEmailContent() {
     setIsSubmitting(true);
     try {
       const response = await resendVerification(identifier);
-      showToast(response.message, "success");
+      showToast(response.message ?? "Verification request completed", "success");
     } catch (error) {
       showToast(getApiErrorMessage(error), "error");
     } finally {

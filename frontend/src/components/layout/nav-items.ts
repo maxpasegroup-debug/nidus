@@ -1,4 +1,4 @@
-import type { AuthRole } from "@/services/auth";
+import type { AuthRole } from "@/services/auth.v2";
 import { roleDashboardPath } from "@/lib/dashboard-data";
 
 export function getNavItems(role?: AuthRole) {

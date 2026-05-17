@@ -9,11 +9,8 @@
  * 🟢 You can import this file directly.
  */
 export type * from './models/User.js'
-export type * from './models/AuthVerificationToken.js'
-export type * from './models/PasswordResetToken.js'
-export type * from './models/AuthSession.js'
-export type * from './models/RefreshToken.js'
-export type * from './models/TokenBlacklist.js'
+export type * from './models/SessionToken.js'
+export type * from './models/PasswordReset.js'
 export type * from './models/ParentStudentInvitation.js'
 export type * from './models/ParentStudentLink.js'
 export type * from './models/Otp.js'

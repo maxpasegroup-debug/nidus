@@ -2,7 +2,7 @@ import { Router } from "express";
 import type { NextFunction, Response } from "express";
 import { body, validationResult } from "express-validator";
 import { Role } from "../../generated/prisma/client.js";
-import { allowRoles, protect, type AuthenticatedRequest } from "../auth/auth.middleware.js";
+import { allowRoles, protect, type AuthenticatedRequest } from "../../middlewares/session.middleware.js";
 import { learningStabilityService } from "./learning-stability.service.js";
 
 export const learningStabilityRouter = Router();

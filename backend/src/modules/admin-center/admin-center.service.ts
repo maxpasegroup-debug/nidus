@@ -1,6 +1,6 @@
 import { prisma } from "../../config/prisma.js";
 import { ensureDefaultPermissions } from "./admin-center.rbac.js";
-import { authTokenUtils } from "../auth/auth.service.js";
+import { authTokenUtils } from "../auth/auth.v2.service.js";
 import { env } from "../../config/env.js";
 import { verifyDatabaseConnection } from "../../config/prisma.js";
 import { verifyRedisConnection } from "../../config/redis.js";
@@ -103,7 +103,7 @@ export const adminCenterService = {
     ] = await Promise.all([
       verifyDatabaseConnection(),
       verifyRedisConnection().catch(() => false),
-      prisma.authSession.count({ where: { revokedAt: null, expiresAt: { gt: new Date() } } }),
+      prisma.sessionToken.count({ where: { expiresAt: { gt: new Date() } } }),
       prisma.user.count({ where: { createdAt: { gte: since24h } } }),
       prisma.testAttempt.count({ where: { startedAt: { gte: since24h } } }),
       prisma.aIRequestLog.count({ where: { createdAt: { gte: since24h } } }),
@@ -281,20 +281,14 @@ export const adminCenterService = {
       data: { isDisabled: disabled, disabledAt: disabled ? new Date() : null }
     });
     if (disabled) {
-      await prisma.authSession.updateMany({
-        where: { userId, revokedAt: null },
-        data: { revokedAt: new Date(), revokeReason: "ADMIN_DISABLED_USER" }
-      });
+      await prisma.sessionToken.deleteMany({ where: { userId } });
     }
     await authTokenUtils.audit({ userId, action: disabled ? "USER_DISABLED" : "USER_ENABLED", description: `Admin ${disabled ? "disabled" : "enabled"} user ${user.email}` });
     return { message: disabled ? "User disabled" : "User enabled" };
   },
 
   async forceLogoutUser(userId: string) {
-    await prisma.authSession.updateMany({
-      where: { userId, revokedAt: null },
-      data: { revokedAt: new Date(), revokeReason: "ADMIN_FORCE_LOGOUT" }
-    });
+    await prisma.sessionToken.deleteMany({ where: { userId } });
     await authTokenUtils.audit({ userId, action: "ADMIN_FORCE_LOGOUT", description: "Admin forced user logout" });
     return { message: "User sessions revoked" };
   },
@@ -307,10 +301,7 @@ export const adminCenterService = {
   },
 
   async revokeSession(sessionId: string) {
-    const session = await prisma.authSession.update({
-      where: { id: sessionId },
-      data: { revokedAt: new Date(), revokeReason: "ADMIN_REVOKED" }
-    });
+    const session = await prisma.sessionToken.delete({ where: { id: sessionId } });
     await authTokenUtils.audit({ userId: session.userId, action: "ADMIN_SESSION_REVOKED", description: `Admin revoked session ${sessionId}` });
     return { message: "Session revoked" };
   }

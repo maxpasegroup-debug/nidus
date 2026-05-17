@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { getNavItems } from "@/components/layout/nav-items";
-import { useAuth } from "@/components/providers/auth-provider";
+import { useAuth } from "@/components/providers/auth-provider-v2";
 
 export function Sidebar() {
   const pathname = usePathname();

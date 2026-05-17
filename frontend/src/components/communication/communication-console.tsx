@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { Bell, Mail, Megaphone, MessageSquare, Send } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { AnnouncementBanner, CommunicationEmptyState, ConversationCard, EmailLogCard, MessageBubble, NotificationCard } from "@/components/communication/communication-components";
-import { useAuth } from "@/components/providers/auth-provider";
+import { useAuth } from "@/components/providers/auth-provider-v2";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";

@@ -3,8 +3,8 @@ import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { prisma } from "../../config/prisma.js";
 import { Role } from "../../generated/prisma/client.js";
-import { allowRoles, protect } from "../auth/auth.middleware.js";
-import { DEFAULT_ACCOUNT_PASSWORD } from "../auth/auth.service.js";
+import { allowRoles, protect } from "../../middlewares/session.middleware.js";
+import { DEFAULT_ACCOUNT_PASSWORD } from "../auth/auth.v2.service.js";
 
 const createUserSchema = z.object({
   name: z.string().min(2),
@@ -109,8 +109,6 @@ usersRouter.post("/:id/reset-password", async (req, res, next) => {
       where: { id: user.id },
       data: {
         password: await bcrypt.hash(DEFAULT_ACCOUNT_PASSWORD, 12),
-        loginFailureCount: 0,
-        lockedUntil: null,
         roleMetadata: { ...metadataObject(user.roleMetadata), defaultPassword: true, passwordResetByAdminAt: new Date().toISOString() }
       }
     });

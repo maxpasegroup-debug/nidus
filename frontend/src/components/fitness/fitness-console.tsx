@@ -4,7 +4,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { Activity, CalendarDays, ClipboardCheck, Dumbbell } from "lucide-react";
 import { type FormEvent } from "react";
-import { useAuth } from "@/components/providers/auth-provider";
+import { useAuth } from "@/components/providers/auth-provider-v2";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";

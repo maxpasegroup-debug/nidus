@@ -5,67 +5,58 @@ import { join } from "node:path";
 const root = process.cwd();
 const read = (path: string) => readFileSync(join(root, path), "utf8");
 
-const routes = read("src/modules/auth/auth.routes.ts");
-const controller = read("src/modules/auth/auth.controller.ts");
-const service = read("src/modules/auth/auth.service.ts");
-const middleware = read("src/modules/auth/auth.middleware.ts");
+const routes = read("src/modules/auth/auth.v2.routes.ts");
+const controller = read("src/modules/auth/auth.v2.controller.ts");
+const service = read("src/modules/auth/auth.v2.service.ts");
+const middleware = read("src/middlewares/session.middleware.ts");
+const schema = read("prisma/schema.prisma");
 const app = read("src/app.ts");
 const server = read("src/server.ts");
 const usersRoutes = read("src/modules/users/users.routes.ts");
 const frontendApi = read("../frontend/src/services/api.ts");
-const frontendAuth = read("../frontend/src/services/auth.ts");
+const frontendAuth = read("../frontend/src/services/auth.v2.ts");
 
-assert.match(routes, /\/signup/, "JWT signup endpoint must exist");
-assert.match(routes, /\/login/, "JWT login endpoint must exist");
-assert.match(routes, /\/me/, "JWT me endpoint must exist");
-assert.match(routes, /\/logout/, "logout endpoint must exist");
-assert.match(routes, /\/refresh/, "refresh endpoint must exist");
-assert.match(routes, /\/logout-all/, "logout-all endpoint must exist");
-assert.doesNotMatch(routes, /\/csrf|\/sessions|verify-email/, "cookie/session auth endpoints must not be active");
+for (const route of ["/signup", "/register", "/login", "/me", "/logout", "/logout-all", "/forgot-password", "/reset-password"]) {
+  assert.match(routes, new RegExp(route.replace("/", "\\/")), `${route} endpoint must exist`);
+}
+assert.doesNotMatch(routes, /\/refresh|\/csrf|\/sessions/, "refresh, CSRF, and session-management auth endpoints must not be active");
 
-assert.match(controller, /success: true, accessToken: result\.accessToken, refreshToken: result\.refreshToken, user: result\.user/, "login and signup must return the stable { success, accessToken, refreshToken, user } contract");
-assert.doesNotMatch(controller, /access_token|jwt|sessionToken/, "auth controller must not return alternate token fields");
+assert.match(controller, /res\.cookie\("session", result\.sessionId, cookieOptions\)/, "login/signup must set the httpOnly session cookie");
+assert.match(controller, /res\.json\(\{ success: true, message: "Login successful", user: result\.user \}\)/, "login must return stable success + user response");
+assert.match(controller, /role: Role\.GUEST/, "public signup must create only guests");
+assert.doesNotMatch(controller, /accessToken|refreshToken|jwt|Authorization/, "controller must not expose tokens or bearer auth");
 
-assert.match(service, /bcrypt\.hash\(input\.password, 12\)/, "signup must hash passwords with bcrypt");
-assert.match(service, /bcrypt\.compare\(input\.password, user\.password\)/, "login must verify bcrypt password hashes");
-assert.match(service, /jwt\.sign\(payload, env\.JWT_SECRET/, "JWT must be signed with the configured secret");
-assert.match(service, /type: "access"/, "access token payload must be typed");
-assert.match(service, /type: "refresh"/, "refresh token payload must be typed");
-assert.match(service, /prisma\.refreshToken\.create/, "refresh tokens must be persisted");
-assert.match(service, /prisma\.tokenBlacklist\.upsert/, "logout must blacklist access tokens");
+assert.match(service, /bcrypt\.hash\(/, "passwords must be hashed with bcrypt");
+assert.match(service, /bcrypt\.compare\(/, "login must verify bcrypt password hashes");
+assert.match(service, /prisma\.sessionToken\.create/, "login must persist a server-side session");
+assert.match(service, /prisma\.sessionToken\.findUnique/, "session verification must load SessionToken");
+assert.match(service, /prisma\.sessionToken\.deleteMany/, "logout-all must remove sessions");
 assert.match(service, /SUPER_ADMIN_EMAIL = "nidusacademycalicut@gmail.com"/, "super admin email must be locked");
 assert.match(service, /DEFAULT_ACCOUNT_PASSWORD = "123456789"/, "default account password must be locked");
 assert.match(service, /async ensureSuperAdmin\(\)/, "super admin bootstrap must exist");
-assert.match(service, /role: Role\.GUEST/, "public signup must create only guests");
-assert.match(service, /password,\s+role: Role\.ADMIN/s, "existing super admin must be reset to default password and admin role");
-assert.match(service, /role: isSuperAdmin \? Role\.ADMIN : user\.role/, "bootstrap admin login must force ADMIN role");
-assert.doesNotMatch(service, /input\.password === DEFAULT_ACCOUNT_PASSWORD/, "login must not use plaintext password bypasses");
-assert.match(service, /loginFailureCount/, "login failures must be tracked");
-assert.match(service, /lockedUntil/, "temporary lockout must be tracked");
-assert.match(service, /async changePassword/, "users must be able to change password");
-assert.match(service, /tokenVersion: \{ increment: 1 \}/, "logout-all/password change must invalidate old access tokens");
+assert.match(service, /role: Role\.ADMIN/, "super admin must be enforced as ADMIN");
+assert.doesNotMatch(service, /jsonwebtoken|jwt\.sign|jwt\.verify|tokenBlacklist|RefreshToken|accessToken|refreshToken/, "active auth service must not use JWT/refresh-token complexity");
 
-assert.match(middleware, /startsWith\("Bearer "\)/, "auth middleware must require Bearer tokens");
-assert.match(middleware, /jwt\.verify\(token, env\.JWT_SECRET\)/, "auth middleware must verify JWT");
-assert.match(middleware, /isAccessTokenBlacklisted\(token\)/, "auth middleware must reject blacklisted access tokens");
-assert.match(middleware, /AuthErrorCode\.EXPIRED_TOKEN/, "auth middleware must return structured expiry errors");
-assert.doesNotMatch(middleware, /readAuthToken|authSession|lastActivityAt|sid/, "auth middleware must not depend on cookies or server sessions");
+assert.match(middleware, /sessionIdFromRequest/, "session middleware must read the session cookie");
+assert.match(middleware, /AuthServiceV2\.verify\(sessionId\)/, "session middleware must verify the server-side session");
+assert.match(middleware, /requireRole/, "RBAC middleware must exist");
+assert.doesNotMatch(middleware, /Bearer|Authorization|jwt|accessToken|refreshToken/, "session middleware must not depend on bearer tokens");
 
-assert.doesNotMatch(app, /csrfProtection/, "global CSRF middleware must not be active for Bearer JWT auth");
-assert.match(server, /authService\.ensureSuperAdmin\(\)/, "server startup must bootstrap super admin");
+assert.match(schema, /model SessionToken/, "SessionToken model must exist");
+assert.match(schema, /model PasswordReset/, "PasswordReset model must exist");
+assert.doesNotMatch(schema, /model RefreshToken|model TokenBlacklist|model AuthSession|tokenVersion/, "old JWT/session models and tokenVersion must be removed");
+
+assert.doesNotMatch(app, /csrfProtection/, "global CSRF middleware must not be active");
+assert.match(server, /AuthServiceV2\.ensureSuperAdmin\(\)/, "server startup must bootstrap super admin");
 assert.match(usersRoutes, /usersRouter\.use\(protect, allowRoles\(Role\.ADMIN\)\)/, "user management routes must be admin protected");
 assert.match(usersRoutes, /DEFAULT_ACCOUNT_PASSWORD/, "admin-created users must use default password");
 assert.match(usersRoutes, /\/:id\/reset-password/, "admin reset password endpoint must exist");
 assert.doesNotMatch(usersRoutes, /password: z\.string/, "admin user creation must not accept custom passwords");
 
-assert.match(frontendApi, /ACCESS_TOKEN_KEY = "nidus_access_token"/, "frontend must store access token separately");
-assert.match(frontendApi, /REFRESH_TOKEN_KEY = "nidus_refresh_token"/, "frontend must store refresh token separately");
-assert.match(frontendApi, /Authorization", `Bearer \$\{token\}`/, "frontend must send Bearer token");
-assert.match(frontendApi, /refreshAccessToken/, "frontend must refresh expired access tokens");
-assert.match(frontendAuth, /typeof payload\.accessToken === "string"/, "frontend auth must read response.data.accessToken");
-assert.match(frontendAuth, /typeof payload\.token === "string"/, "frontend auth must tolerate the previous response.data.token contract during rollout");
-assert.match(frontendAuth, /typeof payload\.refreshToken === "string"/, "frontend auth must read response.data.refreshToken when present");
-assert.match(frontendAuth, /unwrapAuthPayload/, "frontend auth must tolerate wrapped auth responses during rollout");
-assert.doesNotMatch(frontendAuth, /access_token|sessionToken|bearerToken|findStringByKey/, "frontend must not use alternate token structures");
+assert.match(frontendApi, /withCredentials: true/, "frontend API client must send httpOnly cookies");
+assert.doesNotMatch(frontendApi, /Authorization|ACCESS_TOKEN|REFRESH_TOKEN|localStorage\.setItem\("nidus_/, "frontend API client must not send/store auth tokens");
+assert.match(frontendAuth, /apiClient\.post(?:<[^>]+>)?\("\/auth\/login"/, "frontend login must call backend auth login");
+assert.match(frontendAuth, /apiClient\.get(?:<[^>]+>)?\("\/auth\/me"/, "frontend session restore must call /auth/me");
+assert.doesNotMatch(frontendAuth, /accessToken|refreshToken|Authorization|Bearer|localStorage/, "frontend auth service must not depend on browser-stored tokens");
 
-console.log("JWT access/refresh auth flow verification checks passed.");
+console.log("httpOnly cookie auth flow verification checks passed.");

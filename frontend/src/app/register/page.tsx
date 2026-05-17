@@ -2,24 +2,35 @@
 
 import Link from "next/link";
 import { useState, type FormEvent } from "react";
+import { useRouter } from "next/navigation";
 import { ShieldCheck, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useAuth } from "@/components/providers/auth-provider";
+import { signup } from "@/services/auth.v2";
+import { roleDashboardPath } from "@/lib/dashboard-data";
 
 export default function RegisterPage() {
-  const { register } = useAuth();
+  const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [mobile, setMobile] = useState("");
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState("");
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setIsSubmitting(true);
+    setError("");
     try {
-      await register({ name, email, mobile, password });
+      const result = await signup({ name, email, mobile, password });
+      if (result.success && result.user) {
+        router.replace(roleDashboardPath[result.user.role] ?? "/dashboard");
+      } else {
+        setError(result.message || "Registration failed");
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Registration failed");
     } finally {
       setIsSubmitting(false);
     }
@@ -55,6 +66,7 @@ export default function RegisterPage() {
             <Sparkles className="h-7 w-7 text-gold-soft" />
           </div>
           <form className="space-y-4" onSubmit={submit}>
+            {error ? <div className="rounded border border-red-400/40 bg-red-500/10 px-4 py-3 text-sm text-red-100">{error}</div> : null}
             <Input label="Full name" value={name} onChange={(event) => setName(event.target.value)} required />
             <Input label="Email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} required />
             <Input label="Mobile" value={mobile} onChange={(event) => setMobile(event.target.value)} required />

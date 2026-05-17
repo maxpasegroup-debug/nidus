@@ -1,27 +1,8 @@
 import type { ErrorRequestHandler } from "express";
 import { captureException } from "../config/monitoring.js";
 import { logger } from "../utils/logger.js";
-import { AuthError } from "../types/auth.types.js";
 
 export const errorHandler: ErrorRequestHandler = (error, req, res, _next) => {
-  if (error instanceof AuthError) {
-    logger.error("Auth request failed", {
-      statusCode: error.statusCode,
-      code: error.code,
-      method: req.method,
-      path: req.path,
-      ip: req.ip,
-      error: error.message
-    });
-
-    res.status(error.statusCode).json({
-      success: false,
-      code: error.code,
-      message: error.message
-    });
-    return;
-  }
-
   if (error instanceof Error) {
     const statusCode =
       error.message.includes("Invalid credentials") ||

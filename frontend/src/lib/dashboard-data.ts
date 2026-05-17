@@ -1,4 +1,4 @@
-import type { AuthRole } from "@/services/auth";
+import type { AuthRole } from "@/services/auth.v2";
 
 export const roleDashboardPath: Record<AuthRole, string> = {
   ADMIN: "/dashboard/admin",

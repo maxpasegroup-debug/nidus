@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { body } from "express-validator";
 import { Role } from "../../generated/prisma/client.js";
-import { allowRoles, protect } from "../auth/auth.middleware.js";
+import { allowRoles, protect } from "../../middlewares/session.middleware.js";
 import { coursesController } from "./courses.controller.js";
 
 export const coursesRouter = Router();

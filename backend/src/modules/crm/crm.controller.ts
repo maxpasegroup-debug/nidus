@@ -1,6 +1,6 @@
 import type { NextFunction, Request, Response } from "express";
 import { validationResult } from "express-validator";
-import type { AuthenticatedRequest } from "../auth/auth.middleware.js";
+import type { AuthenticatedRequest } from "../../middlewares/session.middleware.js";
 import { crmService } from "./crm.service.js";
 import type { LeadStatus } from "../../generated/prisma/client.js";
 

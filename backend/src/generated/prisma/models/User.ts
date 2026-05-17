@@ -28,12 +28,10 @@ export type AggregateUser = {
 
 export type UserAvgAggregateOutputType = {
   loginFailureCount: number | null
-  tokenVersion: number | null
 }
 
 export type UserSumAggregateOutputType = {
   loginFailureCount: number | null
-  tokenVersion: number | null
 }
 
 export type UserMinAggregateOutputType = {
@@ -55,7 +53,6 @@ export type UserMinAggregateOutputType = {
   loginFailureCount: number | null
   lockedUntil: Date | null
   lastLoginAt: Date | null
-  tokenVersion: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -79,7 +76,6 @@ export type UserMaxAggregateOutputType = {
   loginFailureCount: number | null
   lockedUntil: Date | null
   lastLoginAt: Date | null
-  tokenVersion: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -104,7 +100,6 @@ export type UserCountAggregateOutputType = {
   loginFailureCount: number
   lockedUntil: number
   lastLoginAt: number
-  tokenVersion: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -113,12 +108,10 @@ export type UserCountAggregateOutputType = {
 
 export type UserAvgAggregateInputType = {
   loginFailureCount?: true
-  tokenVersion?: true
 }
 
 export type UserSumAggregateInputType = {
   loginFailureCount?: true
-  tokenVersion?: true
 }
 
 export type UserMinAggregateInputType = {
@@ -140,7 +133,6 @@ export type UserMinAggregateInputType = {
   loginFailureCount?: true
   lockedUntil?: true
   lastLoginAt?: true
-  tokenVersion?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -164,7 +156,6 @@ export type UserMaxAggregateInputType = {
   loginFailureCount?: true
   lockedUntil?: true
   lastLoginAt?: true
-  tokenVersion?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -189,7 +180,6 @@ export type UserCountAggregateInputType = {
   loginFailureCount?: true
   lockedUntil?: true
   lastLoginAt?: true
-  tokenVersion?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -301,7 +291,6 @@ export type UserGroupByOutputType = {
   loginFailureCount: number
   lockedUntil: Date | null
   lastLoginAt: Date | null
-  tokenVersion: number
   createdAt: Date
   updatedAt: Date
   _count: UserCountAggregateOutputType | null
@@ -349,7 +338,6 @@ export type UserWhereInput = {
   loginFailureCount?: Prisma.IntFilter<"User"> | number
   lockedUntil?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   lastLoginAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
-  tokenVersion?: Prisma.IntFilter<"User"> | number
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   enrollments?: Prisma.EnrollmentListRelationFilter
@@ -408,11 +396,8 @@ export type UserWhereInput = {
   institute?: Prisma.XOR<Prisma.InstituteNullableScalarRelationFilter, Prisma.InstituteWhereInput> | null
   branch?: Prisma.XOR<Prisma.BranchNullableScalarRelationFilter, Prisma.BranchWhereInput> | null
   auditLogs?: Prisma.AuditLogListRelationFilter
-  authVerificationTokens?: Prisma.AuthVerificationTokenListRelationFilter
-  passwordResetTokens?: Prisma.PasswordResetTokenListRelationFilter
-  authSessions?: Prisma.AuthSessionListRelationFilter
-  refreshTokens?: Prisma.RefreshTokenListRelationFilter
-  tokenBlacklist?: Prisma.TokenBlacklistListRelationFilter
+  sessionTokens?: Prisma.SessionTokenListRelationFilter
+  passwordResets?: Prisma.PasswordResetListRelationFilter
   parentInvitationsSent?: Prisma.ParentStudentInvitationListRelationFilter
   parentInvitationsReceived?: Prisma.ParentStudentInvitationListRelationFilter
   parentLinks?: Prisma.ParentStudentLinkListRelationFilter
@@ -439,7 +424,6 @@ export type UserOrderByWithRelationInput = {
   loginFailureCount?: Prisma.SortOrder
   lockedUntil?: Prisma.SortOrderInput | Prisma.SortOrder
   lastLoginAt?: Prisma.SortOrderInput | Prisma.SortOrder
-  tokenVersion?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   enrollments?: Prisma.EnrollmentOrderByRelationAggregateInput
@@ -498,11 +482,8 @@ export type UserOrderByWithRelationInput = {
   institute?: Prisma.InstituteOrderByWithRelationInput
   branch?: Prisma.BranchOrderByWithRelationInput
   auditLogs?: Prisma.AuditLogOrderByRelationAggregateInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenOrderByRelationAggregateInput
-  passwordResetTokens?: Prisma.PasswordResetTokenOrderByRelationAggregateInput
-  authSessions?: Prisma.AuthSessionOrderByRelationAggregateInput
-  refreshTokens?: Prisma.RefreshTokenOrderByRelationAggregateInput
-  tokenBlacklist?: Prisma.TokenBlacklistOrderByRelationAggregateInput
+  sessionTokens?: Prisma.SessionTokenOrderByRelationAggregateInput
+  passwordResets?: Prisma.PasswordResetOrderByRelationAggregateInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationOrderByRelationAggregateInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationOrderByRelationAggregateInput
   parentLinks?: Prisma.ParentStudentLinkOrderByRelationAggregateInput
@@ -532,7 +513,6 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   loginFailureCount?: Prisma.IntFilter<"User"> | number
   lockedUntil?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   lastLoginAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
-  tokenVersion?: Prisma.IntFilter<"User"> | number
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   enrollments?: Prisma.EnrollmentListRelationFilter
@@ -591,11 +571,8 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   institute?: Prisma.XOR<Prisma.InstituteNullableScalarRelationFilter, Prisma.InstituteWhereInput> | null
   branch?: Prisma.XOR<Prisma.BranchNullableScalarRelationFilter, Prisma.BranchWhereInput> | null
   auditLogs?: Prisma.AuditLogListRelationFilter
-  authVerificationTokens?: Prisma.AuthVerificationTokenListRelationFilter
-  passwordResetTokens?: Prisma.PasswordResetTokenListRelationFilter
-  authSessions?: Prisma.AuthSessionListRelationFilter
-  refreshTokens?: Prisma.RefreshTokenListRelationFilter
-  tokenBlacklist?: Prisma.TokenBlacklistListRelationFilter
+  sessionTokens?: Prisma.SessionTokenListRelationFilter
+  passwordResets?: Prisma.PasswordResetListRelationFilter
   parentInvitationsSent?: Prisma.ParentStudentInvitationListRelationFilter
   parentInvitationsReceived?: Prisma.ParentStudentInvitationListRelationFilter
   parentLinks?: Prisma.ParentStudentLinkListRelationFilter
@@ -622,7 +599,6 @@ export type UserOrderByWithAggregationInput = {
   loginFailureCount?: Prisma.SortOrder
   lockedUntil?: Prisma.SortOrderInput | Prisma.SortOrder
   lastLoginAt?: Prisma.SortOrderInput | Prisma.SortOrder
-  tokenVersion?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.UserCountOrderByAggregateInput
@@ -655,7 +631,6 @@ export type UserScalarWhereWithAggregatesInput = {
   loginFailureCount?: Prisma.IntWithAggregatesFilter<"User"> | number
   lockedUntil?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
   lastLoginAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
-  tokenVersion?: Prisma.IntWithAggregatesFilter<"User"> | number
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
 }
@@ -678,7 +653,6 @@ export type UserCreateInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
@@ -737,11 +711,8 @@ export type UserCreateInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutParentInput
@@ -768,7 +739,6 @@ export type UserUncheckedCreateInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
@@ -825,11 +795,8 @@ export type UserUncheckedCreateInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutParentInput
@@ -854,7 +821,6 @@ export type UserUpdateInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
@@ -913,11 +879,8 @@ export type UserUpdateInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutParentNestedInput
@@ -944,7 +907,6 @@ export type UserUncheckedUpdateInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
@@ -1001,11 +963,8 @@ export type UserUncheckedUpdateInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutParentNestedInput
@@ -1032,7 +991,6 @@ export type UserCreateManyInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1055,7 +1013,6 @@ export type UserUpdateManyMutationInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1080,7 +1037,6 @@ export type UserUncheckedUpdateManyInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1105,14 +1061,12 @@ export type UserCountOrderByAggregateInput = {
   loginFailureCount?: Prisma.SortOrder
   lockedUntil?: Prisma.SortOrder
   lastLoginAt?: Prisma.SortOrder
-  tokenVersion?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type UserAvgOrderByAggregateInput = {
   loginFailureCount?: Prisma.SortOrder
-  tokenVersion?: Prisma.SortOrder
 }
 
 export type UserMaxOrderByAggregateInput = {
@@ -1134,7 +1088,6 @@ export type UserMaxOrderByAggregateInput = {
   loginFailureCount?: Prisma.SortOrder
   lockedUntil?: Prisma.SortOrder
   lastLoginAt?: Prisma.SortOrder
-  tokenVersion?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -1158,14 +1111,12 @@ export type UserMinOrderByAggregateInput = {
   loginFailureCount?: Prisma.SortOrder
   lockedUntil?: Prisma.SortOrder
   lastLoginAt?: Prisma.SortOrder
-  tokenVersion?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type UserSumOrderByAggregateInput = {
   loginFailureCount?: Prisma.SortOrder
-  tokenVersion?: Prisma.SortOrder
 }
 
 export type UserScalarRelationFilter = {
@@ -1220,76 +1171,32 @@ export type NullableStringFieldUpdateOperationsInput = {
   set?: string | null
 }
 
-export type UserCreateNestedOneWithoutAuthVerificationTokensInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutAuthVerificationTokensInput, Prisma.UserUncheckedCreateWithoutAuthVerificationTokensInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAuthVerificationTokensInput
+export type UserCreateNestedOneWithoutSessionTokensInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutSessionTokensInput, Prisma.UserUncheckedCreateWithoutSessionTokensInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSessionTokensInput
   connect?: Prisma.UserWhereUniqueInput
 }
 
-export type UserUpdateOneRequiredWithoutAuthVerificationTokensNestedInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutAuthVerificationTokensInput, Prisma.UserUncheckedCreateWithoutAuthVerificationTokensInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAuthVerificationTokensInput
-  upsert?: Prisma.UserUpsertWithoutAuthVerificationTokensInput
+export type UserUpdateOneRequiredWithoutSessionTokensNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutSessionTokensInput, Prisma.UserUncheckedCreateWithoutSessionTokensInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSessionTokensInput
+  upsert?: Prisma.UserUpsertWithoutSessionTokensInput
   connect?: Prisma.UserWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutAuthVerificationTokensInput, Prisma.UserUpdateWithoutAuthVerificationTokensInput>, Prisma.UserUncheckedUpdateWithoutAuthVerificationTokensInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutSessionTokensInput, Prisma.UserUpdateWithoutSessionTokensInput>, Prisma.UserUncheckedUpdateWithoutSessionTokensInput>
 }
 
-export type UserCreateNestedOneWithoutPasswordResetTokensInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutPasswordResetTokensInput, Prisma.UserUncheckedCreateWithoutPasswordResetTokensInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutPasswordResetTokensInput
-  connect?: Prisma.UserWhereUniqueInput
-}
-
-export type UserUpdateOneRequiredWithoutPasswordResetTokensNestedInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutPasswordResetTokensInput, Prisma.UserUncheckedCreateWithoutPasswordResetTokensInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutPasswordResetTokensInput
-  upsert?: Prisma.UserUpsertWithoutPasswordResetTokensInput
-  connect?: Prisma.UserWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutPasswordResetTokensInput, Prisma.UserUpdateWithoutPasswordResetTokensInput>, Prisma.UserUncheckedUpdateWithoutPasswordResetTokensInput>
-}
-
-export type UserCreateNestedOneWithoutAuthSessionsInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutAuthSessionsInput, Prisma.UserUncheckedCreateWithoutAuthSessionsInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAuthSessionsInput
+export type UserCreateNestedOneWithoutPasswordResetsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutPasswordResetsInput, Prisma.UserUncheckedCreateWithoutPasswordResetsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutPasswordResetsInput
   connect?: Prisma.UserWhereUniqueInput
 }
 
-export type UserUpdateOneRequiredWithoutAuthSessionsNestedInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutAuthSessionsInput, Prisma.UserUncheckedCreateWithoutAuthSessionsInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAuthSessionsInput
-  upsert?: Prisma.UserUpsertWithoutAuthSessionsInput
+export type UserUpdateOneRequiredWithoutPasswordResetsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutPasswordResetsInput, Prisma.UserUncheckedCreateWithoutPasswordResetsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutPasswordResetsInput
+  upsert?: Prisma.UserUpsertWithoutPasswordResetsInput
   connect?: Prisma.UserWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutAuthSessionsInput, Prisma.UserUpdateWithoutAuthSessionsInput>, Prisma.UserUncheckedUpdateWithoutAuthSessionsInput>
-}
-
-export type UserCreateNestedOneWithoutRefreshTokensInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutRefreshTokensInput, Prisma.UserUncheckedCreateWithoutRefreshTokensInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutRefreshTokensInput
-  connect?: Prisma.UserWhereUniqueInput
-}
-
-export type UserUpdateOneRequiredWithoutRefreshTokensNestedInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutRefreshTokensInput, Prisma.UserUncheckedCreateWithoutRefreshTokensInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutRefreshTokensInput
-  upsert?: Prisma.UserUpsertWithoutRefreshTokensInput
-  connect?: Prisma.UserWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutRefreshTokensInput, Prisma.UserUpdateWithoutRefreshTokensInput>, Prisma.UserUncheckedUpdateWithoutRefreshTokensInput>
-}
-
-export type UserCreateNestedOneWithoutTokenBlacklistInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutTokenBlacklistInput, Prisma.UserUncheckedCreateWithoutTokenBlacklistInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutTokenBlacklistInput
-  connect?: Prisma.UserWhereUniqueInput
-}
-
-export type UserUpdateOneWithoutTokenBlacklistNestedInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutTokenBlacklistInput, Prisma.UserUncheckedCreateWithoutTokenBlacklistInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutTokenBlacklistInput
-  upsert?: Prisma.UserUpsertWithoutTokenBlacklistInput
-  disconnect?: Prisma.UserWhereInput | boolean
-  delete?: Prisma.UserWhereInput | boolean
-  connect?: Prisma.UserWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutTokenBlacklistInput, Prisma.UserUpdateWithoutTokenBlacklistInput>, Prisma.UserUncheckedUpdateWithoutTokenBlacklistInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutPasswordResetsInput, Prisma.UserUpdateWithoutPasswordResetsInput>, Prisma.UserUncheckedUpdateWithoutPasswordResetsInput>
 }
 
 export type UserCreateNestedOneWithoutParentInvitationsSentInput = {
@@ -2208,7 +2115,7 @@ export type UserUncheckedUpdateManyWithoutInstituteNestedInput = {
   deleteMany?: Prisma.UserScalarWhereInput | Prisma.UserScalarWhereInput[]
 }
 
-export type UserCreateWithoutAuthVerificationTokensInput = {
+export type UserCreateWithoutSessionTokensInput = {
   id?: string
   name: string
   email: string
@@ -2226,7 +2133,6 @@ export type UserCreateWithoutAuthVerificationTokensInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
@@ -2285,17 +2191,14 @@ export type UserCreateWithoutAuthVerificationTokensInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutParentInput
   studentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutStudentInput
 }
 
-export type UserUncheckedCreateWithoutAuthVerificationTokensInput = {
+export type UserUncheckedCreateWithoutSessionTokensInput = {
   id?: string
   name: string
   email: string
@@ -2315,7 +2218,6 @@ export type UserUncheckedCreateWithoutAuthVerificationTokensInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
@@ -2372,33 +2274,30 @@ export type UserUncheckedCreateWithoutAuthVerificationTokensInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutParentInput
   studentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutStudentInput
 }
 
-export type UserCreateOrConnectWithoutAuthVerificationTokensInput = {
+export type UserCreateOrConnectWithoutSessionTokensInput = {
   where: Prisma.UserWhereUniqueInput
-  create: Prisma.XOR<Prisma.UserCreateWithoutAuthVerificationTokensInput, Prisma.UserUncheckedCreateWithoutAuthVerificationTokensInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutSessionTokensInput, Prisma.UserUncheckedCreateWithoutSessionTokensInput>
 }
 
-export type UserUpsertWithoutAuthVerificationTokensInput = {
-  update: Prisma.XOR<Prisma.UserUpdateWithoutAuthVerificationTokensInput, Prisma.UserUncheckedUpdateWithoutAuthVerificationTokensInput>
-  create: Prisma.XOR<Prisma.UserCreateWithoutAuthVerificationTokensInput, Prisma.UserUncheckedCreateWithoutAuthVerificationTokensInput>
+export type UserUpsertWithoutSessionTokensInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutSessionTokensInput, Prisma.UserUncheckedUpdateWithoutSessionTokensInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutSessionTokensInput, Prisma.UserUncheckedCreateWithoutSessionTokensInput>
   where?: Prisma.UserWhereInput
 }
 
-export type UserUpdateToOneWithWhereWithoutAuthVerificationTokensInput = {
+export type UserUpdateToOneWithWhereWithoutSessionTokensInput = {
   where?: Prisma.UserWhereInput
-  data: Prisma.XOR<Prisma.UserUpdateWithoutAuthVerificationTokensInput, Prisma.UserUncheckedUpdateWithoutAuthVerificationTokensInput>
+  data: Prisma.XOR<Prisma.UserUpdateWithoutSessionTokensInput, Prisma.UserUncheckedUpdateWithoutSessionTokensInput>
 }
 
-export type UserUpdateWithoutAuthVerificationTokensInput = {
+export type UserUpdateWithoutSessionTokensInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2416,7 +2315,6 @@ export type UserUpdateWithoutAuthVerificationTokensInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
@@ -2475,17 +2373,14 @@ export type UserUpdateWithoutAuthVerificationTokensInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutParentNestedInput
   studentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutStudentNestedInput
 }
 
-export type UserUncheckedUpdateWithoutAuthVerificationTokensInput = {
+export type UserUncheckedUpdateWithoutSessionTokensInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2505,7 +2400,6 @@ export type UserUncheckedUpdateWithoutAuthVerificationTokensInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
@@ -2562,17 +2456,14 @@ export type UserUncheckedUpdateWithoutAuthVerificationTokensInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutParentNestedInput
   studentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutStudentNestedInput
 }
 
-export type UserCreateWithoutPasswordResetTokensInput = {
+export type UserCreateWithoutPasswordResetsInput = {
   id?: string
   name: string
   email: string
@@ -2590,7 +2481,6 @@ export type UserCreateWithoutPasswordResetTokensInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
@@ -2649,17 +2539,14 @@ export type UserCreateWithoutPasswordResetTokensInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutParentInput
   studentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutStudentInput
 }
 
-export type UserUncheckedCreateWithoutPasswordResetTokensInput = {
+export type UserUncheckedCreateWithoutPasswordResetsInput = {
   id?: string
   name: string
   email: string
@@ -2679,7 +2566,6 @@ export type UserUncheckedCreateWithoutPasswordResetTokensInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
@@ -2736,33 +2622,30 @@ export type UserUncheckedCreateWithoutPasswordResetTokensInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutParentInput
   studentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutStudentInput
 }
 
-export type UserCreateOrConnectWithoutPasswordResetTokensInput = {
+export type UserCreateOrConnectWithoutPasswordResetsInput = {
   where: Prisma.UserWhereUniqueInput
-  create: Prisma.XOR<Prisma.UserCreateWithoutPasswordResetTokensInput, Prisma.UserUncheckedCreateWithoutPasswordResetTokensInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutPasswordResetsInput, Prisma.UserUncheckedCreateWithoutPasswordResetsInput>
 }
 
-export type UserUpsertWithoutPasswordResetTokensInput = {
-  update: Prisma.XOR<Prisma.UserUpdateWithoutPasswordResetTokensInput, Prisma.UserUncheckedUpdateWithoutPasswordResetTokensInput>
-  create: Prisma.XOR<Prisma.UserCreateWithoutPasswordResetTokensInput, Prisma.UserUncheckedCreateWithoutPasswordResetTokensInput>
+export type UserUpsertWithoutPasswordResetsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutPasswordResetsInput, Prisma.UserUncheckedUpdateWithoutPasswordResetsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutPasswordResetsInput, Prisma.UserUncheckedCreateWithoutPasswordResetsInput>
   where?: Prisma.UserWhereInput
 }
 
-export type UserUpdateToOneWithWhereWithoutPasswordResetTokensInput = {
+export type UserUpdateToOneWithWhereWithoutPasswordResetsInput = {
   where?: Prisma.UserWhereInput
-  data: Prisma.XOR<Prisma.UserUpdateWithoutPasswordResetTokensInput, Prisma.UserUncheckedUpdateWithoutPasswordResetTokensInput>
+  data: Prisma.XOR<Prisma.UserUpdateWithoutPasswordResetsInput, Prisma.UserUncheckedUpdateWithoutPasswordResetsInput>
 }
 
-export type UserUpdateWithoutPasswordResetTokensInput = {
+export type UserUpdateWithoutPasswordResetsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2780,7 +2663,6 @@ export type UserUpdateWithoutPasswordResetTokensInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
@@ -2839,17 +2721,14 @@ export type UserUpdateWithoutPasswordResetTokensInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutParentNestedInput
   studentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutStudentNestedInput
 }
 
-export type UserUncheckedUpdateWithoutPasswordResetTokensInput = {
+export type UserUncheckedUpdateWithoutPasswordResetsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2869,7 +2748,6 @@ export type UserUncheckedUpdateWithoutPasswordResetTokensInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
@@ -2926,1102 +2804,7 @@ export type UserUncheckedUpdateWithoutPasswordResetTokensInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedUpdateManyWithoutUserNestedInput
-  parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
-  parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutStudentNestedInput
-  parentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutParentNestedInput
-  studentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutStudentNestedInput
-}
-
-export type UserCreateWithoutAuthSessionsInput = {
-  id?: string
-  name: string
-  email: string
-  mobile: string
-  password: string
-  role?: $Enums.Role
-  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  roleOnboardingStatus?: string
-  roleActivatedAt?: Date | string | null
-  lastRoleActivityAt?: Date | string | null
-  emailVerified?: boolean
-  mobileVerified?: boolean
-  isDisabled?: boolean
-  disabledAt?: Date | string | null
-  loginFailureCount?: number
-  lockedUntil?: Date | string | null
-  lastLoginAt?: Date | string | null
-  tokenVersion?: number
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
-  testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
-  psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
-  olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
-  studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
-  performanceAnalytics?: Prisma.PerformanceAnalyticsCreateNestedOneWithoutUserInput
-  revisionSchedules?: Prisma.RevisionScheduleCreateNestedManyWithoutUserInput
-  lectureProgress?: Prisma.LectureProgressCreateNestedManyWithoutUserInput
-  attendanceRecords?: Prisma.AttendanceCreateNestedManyWithoutUserInput
-  markedAttendance?: Prisma.AttendanceCreateNestedManyWithoutMarkerInput
-  facultyProfile?: Prisma.FacultyCreateNestedOneWithoutUserInput
-  hostelAllocations?: Prisma.HostelAllocationCreateNestedManyWithoutStudentInput
-  inOutEntries?: Prisma.InOutEntryCreateNestedManyWithoutStudentInput
-  hostelLeaves?: Prisma.HostelLeaveCreateNestedManyWithoutStudentInput
-  approvedHostelLeaves?: Prisma.HostelLeaveCreateNestedManyWithoutApproverInput
-  disciplineRecords?: Prisma.DisciplineRecordCreateNestedManyWithoutStudentInput
-  recordedDiscipline?: Prisma.DisciplineRecordCreateNestedManyWithoutRecorderInput
-  paradePerformances?: Prisma.ParadePerformanceCreateNestedManyWithoutStudentInput
-  assignedLeads?: Prisma.LeadCreateNestedManyWithoutAssigneeInput
-  followUpsCreated?: Prisma.FollowUpCreateNestedManyWithoutCreatorInput
-  admissions?: Prisma.AdmissionCreateNestedManyWithoutStudentInput
-  referralsMade?: Prisma.ReferralCreateNestedManyWithoutReferrerInput
-  referralsReceived?: Prisma.ReferralCreateNestedManyWithoutReferredInput
-  payments?: Prisma.PaymentCreateNestedManyWithoutUserInput
-  collectedPayments?: Prisma.PaymentCreateNestedManyWithoutCollectorInput
-  verifiedPayments?: Prisma.PaymentCreateNestedManyWithoutVerifierInput
-  subscriptions?: Prisma.SubscriptionCreateNestedManyWithoutUserInput
-  feeInstallments?: Prisma.FeeInstallmentCreateNestedManyWithoutStudentInput
-  invoices?: Prisma.InvoiceCreateNestedManyWithoutStudentInput
-  approvalRequestsCreated?: Prisma.ApprovalRequestCreateNestedManyWithoutRequesterInput
-  approvalRequestsReviewed?: Prisma.ApprovalRequestCreateNestedManyWithoutReviewerInput
-  scholarships?: Prisma.ScholarshipDiscountCreateNestedManyWithoutStudentInput
-  scholarshipReviewActions?: Prisma.ScholarshipDiscountCreateNestedManyWithoutApproverInput
-  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
-  messageThreads?: Prisma.MessageThreadCreateNestedManyWithoutCreatorInput
-  sentMessages?: Prisma.MessageCreateNestedManyWithoutSenderInput
-  receivedMessages?: Prisma.MessageCreateNestedManyWithoutReceiverInput
-  communicationAnnouncements?: Prisma.AnnouncementCreateNestedManyWithoutCreatorInput
-  aiInterviewSessions?: Prisma.AIInterviewSessionCreateNestedManyWithoutUserInput
-  doubtQueries?: Prisma.DoubtQueryCreateNestedManyWithoutUserInput
-  aiRecommendations?: Prisma.AIRecommendationCreateNestedManyWithoutUserInput
-  officerPotential?: Prisma.OfficerPotentialCreateNestedOneWithoutUserInput
-  fitnessProfile?: Prisma.FitnessProfileCreateNestedOneWithoutUserInput
-  ptAttendances?: Prisma.PTAttendanceCreateNestedManyWithoutStudentInput
-  physicalEligibilities?: Prisma.PhysicalEligibilityCreateNestedManyWithoutUserInput
-  dailyFitnessLogs?: Prisma.DailyFitnessLogCreateNestedManyWithoutUserInput
-  quizBattleParticipants?: Prisma.QuizBattleParticipantCreateNestedManyWithoutUserInput
-  leaderboard?: Prisma.LeaderboardCreateNestedOneWithoutUserInput
-  mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
-  mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
-  documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
-  adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
-  roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutUserInput
-  institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
-  branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
-  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistCreateNestedManyWithoutUserInput
-  parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
-  parentInvitationsReceived?: Prisma.ParentStudentInvitationCreateNestedManyWithoutStudentInput
-  parentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutParentInput
-  studentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutStudentInput
-}
-
-export type UserUncheckedCreateWithoutAuthSessionsInput = {
-  id?: string
-  name: string
-  email: string
-  mobile: string
-  password: string
-  role?: $Enums.Role
-  instituteId?: string | null
-  branchId?: string | null
-  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  roleOnboardingStatus?: string
-  roleActivatedAt?: Date | string | null
-  lastRoleActivityAt?: Date | string | null
-  emailVerified?: boolean
-  mobileVerified?: boolean
-  isDisabled?: boolean
-  disabledAt?: Date | string | null
-  loginFailureCount?: number
-  lockedUntil?: Date | string | null
-  lastLoginAt?: Date | string | null
-  tokenVersion?: number
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
-  testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
-  psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
-  olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
-  studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
-  performanceAnalytics?: Prisma.PerformanceAnalyticsUncheckedCreateNestedOneWithoutUserInput
-  revisionSchedules?: Prisma.RevisionScheduleUncheckedCreateNestedManyWithoutUserInput
-  lectureProgress?: Prisma.LectureProgressUncheckedCreateNestedManyWithoutUserInput
-  attendanceRecords?: Prisma.AttendanceUncheckedCreateNestedManyWithoutUserInput
-  markedAttendance?: Prisma.AttendanceUncheckedCreateNestedManyWithoutMarkerInput
-  facultyProfile?: Prisma.FacultyUncheckedCreateNestedOneWithoutUserInput
-  hostelAllocations?: Prisma.HostelAllocationUncheckedCreateNestedManyWithoutStudentInput
-  inOutEntries?: Prisma.InOutEntryUncheckedCreateNestedManyWithoutStudentInput
-  hostelLeaves?: Prisma.HostelLeaveUncheckedCreateNestedManyWithoutStudentInput
-  approvedHostelLeaves?: Prisma.HostelLeaveUncheckedCreateNestedManyWithoutApproverInput
-  disciplineRecords?: Prisma.DisciplineRecordUncheckedCreateNestedManyWithoutStudentInput
-  recordedDiscipline?: Prisma.DisciplineRecordUncheckedCreateNestedManyWithoutRecorderInput
-  paradePerformances?: Prisma.ParadePerformanceUncheckedCreateNestedManyWithoutStudentInput
-  assignedLeads?: Prisma.LeadUncheckedCreateNestedManyWithoutAssigneeInput
-  followUpsCreated?: Prisma.FollowUpUncheckedCreateNestedManyWithoutCreatorInput
-  admissions?: Prisma.AdmissionUncheckedCreateNestedManyWithoutStudentInput
-  referralsMade?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferrerInput
-  referralsReceived?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferredInput
-  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutUserInput
-  collectedPayments?: Prisma.PaymentUncheckedCreateNestedManyWithoutCollectorInput
-  verifiedPayments?: Prisma.PaymentUncheckedCreateNestedManyWithoutVerifierInput
-  subscriptions?: Prisma.SubscriptionUncheckedCreateNestedManyWithoutUserInput
-  feeInstallments?: Prisma.FeeInstallmentUncheckedCreateNestedManyWithoutStudentInput
-  invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutStudentInput
-  approvalRequestsCreated?: Prisma.ApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
-  approvalRequestsReviewed?: Prisma.ApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
-  scholarships?: Prisma.ScholarshipDiscountUncheckedCreateNestedManyWithoutStudentInput
-  scholarshipReviewActions?: Prisma.ScholarshipDiscountUncheckedCreateNestedManyWithoutApproverInput
-  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
-  messageThreads?: Prisma.MessageThreadUncheckedCreateNestedManyWithoutCreatorInput
-  sentMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutSenderInput
-  receivedMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutReceiverInput
-  communicationAnnouncements?: Prisma.AnnouncementUncheckedCreateNestedManyWithoutCreatorInput
-  aiInterviewSessions?: Prisma.AIInterviewSessionUncheckedCreateNestedManyWithoutUserInput
-  doubtQueries?: Prisma.DoubtQueryUncheckedCreateNestedManyWithoutUserInput
-  aiRecommendations?: Prisma.AIRecommendationUncheckedCreateNestedManyWithoutUserInput
-  officerPotential?: Prisma.OfficerPotentialUncheckedCreateNestedOneWithoutUserInput
-  fitnessProfile?: Prisma.FitnessProfileUncheckedCreateNestedOneWithoutUserInput
-  ptAttendances?: Prisma.PTAttendanceUncheckedCreateNestedManyWithoutStudentInput
-  physicalEligibilities?: Prisma.PhysicalEligibilityUncheckedCreateNestedManyWithoutUserInput
-  dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedCreateNestedManyWithoutUserInput
-  quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedCreateNestedManyWithoutUserInput
-  leaderboard?: Prisma.LeaderboardUncheckedCreateNestedOneWithoutUserInput
-  mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
-  mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
-  documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
-  adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
-  roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
-  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedCreateNestedManyWithoutUserInput
-  parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
-  parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutStudentInput
-  parentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutParentInput
-  studentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutStudentInput
-}
-
-export type UserCreateOrConnectWithoutAuthSessionsInput = {
-  where: Prisma.UserWhereUniqueInput
-  create: Prisma.XOR<Prisma.UserCreateWithoutAuthSessionsInput, Prisma.UserUncheckedCreateWithoutAuthSessionsInput>
-}
-
-export type UserUpsertWithoutAuthSessionsInput = {
-  update: Prisma.XOR<Prisma.UserUpdateWithoutAuthSessionsInput, Prisma.UserUncheckedUpdateWithoutAuthSessionsInput>
-  create: Prisma.XOR<Prisma.UserCreateWithoutAuthSessionsInput, Prisma.UserUncheckedCreateWithoutAuthSessionsInput>
-  where?: Prisma.UserWhereInput
-}
-
-export type UserUpdateToOneWithWhereWithoutAuthSessionsInput = {
-  where?: Prisma.UserWhereInput
-  data: Prisma.XOR<Prisma.UserUpdateWithoutAuthSessionsInput, Prisma.UserUncheckedUpdateWithoutAuthSessionsInput>
-}
-
-export type UserUpdateWithoutAuthSessionsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  mobile?: Prisma.StringFieldUpdateOperationsInput | string
-  password?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
-  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
-  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  disabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
-  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
-  testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
-  psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
-  olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
-  studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
-  performanceAnalytics?: Prisma.PerformanceAnalyticsUpdateOneWithoutUserNestedInput
-  revisionSchedules?: Prisma.RevisionScheduleUpdateManyWithoutUserNestedInput
-  lectureProgress?: Prisma.LectureProgressUpdateManyWithoutUserNestedInput
-  attendanceRecords?: Prisma.AttendanceUpdateManyWithoutUserNestedInput
-  markedAttendance?: Prisma.AttendanceUpdateManyWithoutMarkerNestedInput
-  facultyProfile?: Prisma.FacultyUpdateOneWithoutUserNestedInput
-  hostelAllocations?: Prisma.HostelAllocationUpdateManyWithoutStudentNestedInput
-  inOutEntries?: Prisma.InOutEntryUpdateManyWithoutStudentNestedInput
-  hostelLeaves?: Prisma.HostelLeaveUpdateManyWithoutStudentNestedInput
-  approvedHostelLeaves?: Prisma.HostelLeaveUpdateManyWithoutApproverNestedInput
-  disciplineRecords?: Prisma.DisciplineRecordUpdateManyWithoutStudentNestedInput
-  recordedDiscipline?: Prisma.DisciplineRecordUpdateManyWithoutRecorderNestedInput
-  paradePerformances?: Prisma.ParadePerformanceUpdateManyWithoutStudentNestedInput
-  assignedLeads?: Prisma.LeadUpdateManyWithoutAssigneeNestedInput
-  followUpsCreated?: Prisma.FollowUpUpdateManyWithoutCreatorNestedInput
-  admissions?: Prisma.AdmissionUpdateManyWithoutStudentNestedInput
-  referralsMade?: Prisma.ReferralUpdateManyWithoutReferrerNestedInput
-  referralsReceived?: Prisma.ReferralUpdateManyWithoutReferredNestedInput
-  payments?: Prisma.PaymentUpdateManyWithoutUserNestedInput
-  collectedPayments?: Prisma.PaymentUpdateManyWithoutCollectorNestedInput
-  verifiedPayments?: Prisma.PaymentUpdateManyWithoutVerifierNestedInput
-  subscriptions?: Prisma.SubscriptionUpdateManyWithoutUserNestedInput
-  feeInstallments?: Prisma.FeeInstallmentUpdateManyWithoutStudentNestedInput
-  invoices?: Prisma.InvoiceUpdateManyWithoutStudentNestedInput
-  approvalRequestsCreated?: Prisma.ApprovalRequestUpdateManyWithoutRequesterNestedInput
-  approvalRequestsReviewed?: Prisma.ApprovalRequestUpdateManyWithoutReviewerNestedInput
-  scholarships?: Prisma.ScholarshipDiscountUpdateManyWithoutStudentNestedInput
-  scholarshipReviewActions?: Prisma.ScholarshipDiscountUpdateManyWithoutApproverNestedInput
-  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
-  messageThreads?: Prisma.MessageThreadUpdateManyWithoutCreatorNestedInput
-  sentMessages?: Prisma.MessageUpdateManyWithoutSenderNestedInput
-  receivedMessages?: Prisma.MessageUpdateManyWithoutReceiverNestedInput
-  communicationAnnouncements?: Prisma.AnnouncementUpdateManyWithoutCreatorNestedInput
-  aiInterviewSessions?: Prisma.AIInterviewSessionUpdateManyWithoutUserNestedInput
-  doubtQueries?: Prisma.DoubtQueryUpdateManyWithoutUserNestedInput
-  aiRecommendations?: Prisma.AIRecommendationUpdateManyWithoutUserNestedInput
-  officerPotential?: Prisma.OfficerPotentialUpdateOneWithoutUserNestedInput
-  fitnessProfile?: Prisma.FitnessProfileUpdateOneWithoutUserNestedInput
-  ptAttendances?: Prisma.PTAttendanceUpdateManyWithoutStudentNestedInput
-  physicalEligibilities?: Prisma.PhysicalEligibilityUpdateManyWithoutUserNestedInput
-  dailyFitnessLogs?: Prisma.DailyFitnessLogUpdateManyWithoutUserNestedInput
-  quizBattleParticipants?: Prisma.QuizBattleParticipantUpdateManyWithoutUserNestedInput
-  leaderboard?: Prisma.LeaderboardUpdateOneWithoutUserNestedInput
-  mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
-  mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
-  documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
-  adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
-  roleActivities?: Prisma.RoleActivityUpdateManyWithoutUserNestedInput
-  institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
-  branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
-  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUpdateManyWithoutUserNestedInput
-  parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
-  parentInvitationsReceived?: Prisma.ParentStudentInvitationUpdateManyWithoutStudentNestedInput
-  parentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutParentNestedInput
-  studentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutStudentNestedInput
-}
-
-export type UserUncheckedUpdateWithoutAuthSessionsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  mobile?: Prisma.StringFieldUpdateOperationsInput | string
-  password?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
-  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
-  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  disabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
-  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
-  testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
-  psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
-  olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
-  studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
-  performanceAnalytics?: Prisma.PerformanceAnalyticsUncheckedUpdateOneWithoutUserNestedInput
-  revisionSchedules?: Prisma.RevisionScheduleUncheckedUpdateManyWithoutUserNestedInput
-  lectureProgress?: Prisma.LectureProgressUncheckedUpdateManyWithoutUserNestedInput
-  attendanceRecords?: Prisma.AttendanceUncheckedUpdateManyWithoutUserNestedInput
-  markedAttendance?: Prisma.AttendanceUncheckedUpdateManyWithoutMarkerNestedInput
-  facultyProfile?: Prisma.FacultyUncheckedUpdateOneWithoutUserNestedInput
-  hostelAllocations?: Prisma.HostelAllocationUncheckedUpdateManyWithoutStudentNestedInput
-  inOutEntries?: Prisma.InOutEntryUncheckedUpdateManyWithoutStudentNestedInput
-  hostelLeaves?: Prisma.HostelLeaveUncheckedUpdateManyWithoutStudentNestedInput
-  approvedHostelLeaves?: Prisma.HostelLeaveUncheckedUpdateManyWithoutApproverNestedInput
-  disciplineRecords?: Prisma.DisciplineRecordUncheckedUpdateManyWithoutStudentNestedInput
-  recordedDiscipline?: Prisma.DisciplineRecordUncheckedUpdateManyWithoutRecorderNestedInput
-  paradePerformances?: Prisma.ParadePerformanceUncheckedUpdateManyWithoutStudentNestedInput
-  assignedLeads?: Prisma.LeadUncheckedUpdateManyWithoutAssigneeNestedInput
-  followUpsCreated?: Prisma.FollowUpUncheckedUpdateManyWithoutCreatorNestedInput
-  admissions?: Prisma.AdmissionUncheckedUpdateManyWithoutStudentNestedInput
-  referralsMade?: Prisma.ReferralUncheckedUpdateManyWithoutReferrerNestedInput
-  referralsReceived?: Prisma.ReferralUncheckedUpdateManyWithoutReferredNestedInput
-  payments?: Prisma.PaymentUncheckedUpdateManyWithoutUserNestedInput
-  collectedPayments?: Prisma.PaymentUncheckedUpdateManyWithoutCollectorNestedInput
-  verifiedPayments?: Prisma.PaymentUncheckedUpdateManyWithoutVerifierNestedInput
-  subscriptions?: Prisma.SubscriptionUncheckedUpdateManyWithoutUserNestedInput
-  feeInstallments?: Prisma.FeeInstallmentUncheckedUpdateManyWithoutStudentNestedInput
-  invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutStudentNestedInput
-  approvalRequestsCreated?: Prisma.ApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
-  approvalRequestsReviewed?: Prisma.ApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
-  scholarships?: Prisma.ScholarshipDiscountUncheckedUpdateManyWithoutStudentNestedInput
-  scholarshipReviewActions?: Prisma.ScholarshipDiscountUncheckedUpdateManyWithoutApproverNestedInput
-  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
-  messageThreads?: Prisma.MessageThreadUncheckedUpdateManyWithoutCreatorNestedInput
-  sentMessages?: Prisma.MessageUncheckedUpdateManyWithoutSenderNestedInput
-  receivedMessages?: Prisma.MessageUncheckedUpdateManyWithoutReceiverNestedInput
-  communicationAnnouncements?: Prisma.AnnouncementUncheckedUpdateManyWithoutCreatorNestedInput
-  aiInterviewSessions?: Prisma.AIInterviewSessionUncheckedUpdateManyWithoutUserNestedInput
-  doubtQueries?: Prisma.DoubtQueryUncheckedUpdateManyWithoutUserNestedInput
-  aiRecommendations?: Prisma.AIRecommendationUncheckedUpdateManyWithoutUserNestedInput
-  officerPotential?: Prisma.OfficerPotentialUncheckedUpdateOneWithoutUserNestedInput
-  fitnessProfile?: Prisma.FitnessProfileUncheckedUpdateOneWithoutUserNestedInput
-  ptAttendances?: Prisma.PTAttendanceUncheckedUpdateManyWithoutStudentNestedInput
-  physicalEligibilities?: Prisma.PhysicalEligibilityUncheckedUpdateManyWithoutUserNestedInput
-  dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedUpdateManyWithoutUserNestedInput
-  quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedUpdateManyWithoutUserNestedInput
-  leaderboard?: Prisma.LeaderboardUncheckedUpdateOneWithoutUserNestedInput
-  mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
-  mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
-  documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
-  adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
-  roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
-  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedUpdateManyWithoutUserNestedInput
-  parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
-  parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutStudentNestedInput
-  parentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutParentNestedInput
-  studentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutStudentNestedInput
-}
-
-export type UserCreateWithoutRefreshTokensInput = {
-  id?: string
-  name: string
-  email: string
-  mobile: string
-  password: string
-  role?: $Enums.Role
-  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  roleOnboardingStatus?: string
-  roleActivatedAt?: Date | string | null
-  lastRoleActivityAt?: Date | string | null
-  emailVerified?: boolean
-  mobileVerified?: boolean
-  isDisabled?: boolean
-  disabledAt?: Date | string | null
-  loginFailureCount?: number
-  lockedUntil?: Date | string | null
-  lastLoginAt?: Date | string | null
-  tokenVersion?: number
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
-  testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
-  psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
-  olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
-  studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
-  performanceAnalytics?: Prisma.PerformanceAnalyticsCreateNestedOneWithoutUserInput
-  revisionSchedules?: Prisma.RevisionScheduleCreateNestedManyWithoutUserInput
-  lectureProgress?: Prisma.LectureProgressCreateNestedManyWithoutUserInput
-  attendanceRecords?: Prisma.AttendanceCreateNestedManyWithoutUserInput
-  markedAttendance?: Prisma.AttendanceCreateNestedManyWithoutMarkerInput
-  facultyProfile?: Prisma.FacultyCreateNestedOneWithoutUserInput
-  hostelAllocations?: Prisma.HostelAllocationCreateNestedManyWithoutStudentInput
-  inOutEntries?: Prisma.InOutEntryCreateNestedManyWithoutStudentInput
-  hostelLeaves?: Prisma.HostelLeaveCreateNestedManyWithoutStudentInput
-  approvedHostelLeaves?: Prisma.HostelLeaveCreateNestedManyWithoutApproverInput
-  disciplineRecords?: Prisma.DisciplineRecordCreateNestedManyWithoutStudentInput
-  recordedDiscipline?: Prisma.DisciplineRecordCreateNestedManyWithoutRecorderInput
-  paradePerformances?: Prisma.ParadePerformanceCreateNestedManyWithoutStudentInput
-  assignedLeads?: Prisma.LeadCreateNestedManyWithoutAssigneeInput
-  followUpsCreated?: Prisma.FollowUpCreateNestedManyWithoutCreatorInput
-  admissions?: Prisma.AdmissionCreateNestedManyWithoutStudentInput
-  referralsMade?: Prisma.ReferralCreateNestedManyWithoutReferrerInput
-  referralsReceived?: Prisma.ReferralCreateNestedManyWithoutReferredInput
-  payments?: Prisma.PaymentCreateNestedManyWithoutUserInput
-  collectedPayments?: Prisma.PaymentCreateNestedManyWithoutCollectorInput
-  verifiedPayments?: Prisma.PaymentCreateNestedManyWithoutVerifierInput
-  subscriptions?: Prisma.SubscriptionCreateNestedManyWithoutUserInput
-  feeInstallments?: Prisma.FeeInstallmentCreateNestedManyWithoutStudentInput
-  invoices?: Prisma.InvoiceCreateNestedManyWithoutStudentInput
-  approvalRequestsCreated?: Prisma.ApprovalRequestCreateNestedManyWithoutRequesterInput
-  approvalRequestsReviewed?: Prisma.ApprovalRequestCreateNestedManyWithoutReviewerInput
-  scholarships?: Prisma.ScholarshipDiscountCreateNestedManyWithoutStudentInput
-  scholarshipReviewActions?: Prisma.ScholarshipDiscountCreateNestedManyWithoutApproverInput
-  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
-  messageThreads?: Prisma.MessageThreadCreateNestedManyWithoutCreatorInput
-  sentMessages?: Prisma.MessageCreateNestedManyWithoutSenderInput
-  receivedMessages?: Prisma.MessageCreateNestedManyWithoutReceiverInput
-  communicationAnnouncements?: Prisma.AnnouncementCreateNestedManyWithoutCreatorInput
-  aiInterviewSessions?: Prisma.AIInterviewSessionCreateNestedManyWithoutUserInput
-  doubtQueries?: Prisma.DoubtQueryCreateNestedManyWithoutUserInput
-  aiRecommendations?: Prisma.AIRecommendationCreateNestedManyWithoutUserInput
-  officerPotential?: Prisma.OfficerPotentialCreateNestedOneWithoutUserInput
-  fitnessProfile?: Prisma.FitnessProfileCreateNestedOneWithoutUserInput
-  ptAttendances?: Prisma.PTAttendanceCreateNestedManyWithoutStudentInput
-  physicalEligibilities?: Prisma.PhysicalEligibilityCreateNestedManyWithoutUserInput
-  dailyFitnessLogs?: Prisma.DailyFitnessLogCreateNestedManyWithoutUserInput
-  quizBattleParticipants?: Prisma.QuizBattleParticipantCreateNestedManyWithoutUserInput
-  leaderboard?: Prisma.LeaderboardCreateNestedOneWithoutUserInput
-  mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
-  mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
-  documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
-  adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
-  roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutUserInput
-  institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
-  branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
-  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistCreateNestedManyWithoutUserInput
-  parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
-  parentInvitationsReceived?: Prisma.ParentStudentInvitationCreateNestedManyWithoutStudentInput
-  parentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutParentInput
-  studentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutStudentInput
-}
-
-export type UserUncheckedCreateWithoutRefreshTokensInput = {
-  id?: string
-  name: string
-  email: string
-  mobile: string
-  password: string
-  role?: $Enums.Role
-  instituteId?: string | null
-  branchId?: string | null
-  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  roleOnboardingStatus?: string
-  roleActivatedAt?: Date | string | null
-  lastRoleActivityAt?: Date | string | null
-  emailVerified?: boolean
-  mobileVerified?: boolean
-  isDisabled?: boolean
-  disabledAt?: Date | string | null
-  loginFailureCount?: number
-  lockedUntil?: Date | string | null
-  lastLoginAt?: Date | string | null
-  tokenVersion?: number
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
-  testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
-  psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
-  olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
-  studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
-  performanceAnalytics?: Prisma.PerformanceAnalyticsUncheckedCreateNestedOneWithoutUserInput
-  revisionSchedules?: Prisma.RevisionScheduleUncheckedCreateNestedManyWithoutUserInput
-  lectureProgress?: Prisma.LectureProgressUncheckedCreateNestedManyWithoutUserInput
-  attendanceRecords?: Prisma.AttendanceUncheckedCreateNestedManyWithoutUserInput
-  markedAttendance?: Prisma.AttendanceUncheckedCreateNestedManyWithoutMarkerInput
-  facultyProfile?: Prisma.FacultyUncheckedCreateNestedOneWithoutUserInput
-  hostelAllocations?: Prisma.HostelAllocationUncheckedCreateNestedManyWithoutStudentInput
-  inOutEntries?: Prisma.InOutEntryUncheckedCreateNestedManyWithoutStudentInput
-  hostelLeaves?: Prisma.HostelLeaveUncheckedCreateNestedManyWithoutStudentInput
-  approvedHostelLeaves?: Prisma.HostelLeaveUncheckedCreateNestedManyWithoutApproverInput
-  disciplineRecords?: Prisma.DisciplineRecordUncheckedCreateNestedManyWithoutStudentInput
-  recordedDiscipline?: Prisma.DisciplineRecordUncheckedCreateNestedManyWithoutRecorderInput
-  paradePerformances?: Prisma.ParadePerformanceUncheckedCreateNestedManyWithoutStudentInput
-  assignedLeads?: Prisma.LeadUncheckedCreateNestedManyWithoutAssigneeInput
-  followUpsCreated?: Prisma.FollowUpUncheckedCreateNestedManyWithoutCreatorInput
-  admissions?: Prisma.AdmissionUncheckedCreateNestedManyWithoutStudentInput
-  referralsMade?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferrerInput
-  referralsReceived?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferredInput
-  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutUserInput
-  collectedPayments?: Prisma.PaymentUncheckedCreateNestedManyWithoutCollectorInput
-  verifiedPayments?: Prisma.PaymentUncheckedCreateNestedManyWithoutVerifierInput
-  subscriptions?: Prisma.SubscriptionUncheckedCreateNestedManyWithoutUserInput
-  feeInstallments?: Prisma.FeeInstallmentUncheckedCreateNestedManyWithoutStudentInput
-  invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutStudentInput
-  approvalRequestsCreated?: Prisma.ApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
-  approvalRequestsReviewed?: Prisma.ApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
-  scholarships?: Prisma.ScholarshipDiscountUncheckedCreateNestedManyWithoutStudentInput
-  scholarshipReviewActions?: Prisma.ScholarshipDiscountUncheckedCreateNestedManyWithoutApproverInput
-  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
-  messageThreads?: Prisma.MessageThreadUncheckedCreateNestedManyWithoutCreatorInput
-  sentMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutSenderInput
-  receivedMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutReceiverInput
-  communicationAnnouncements?: Prisma.AnnouncementUncheckedCreateNestedManyWithoutCreatorInput
-  aiInterviewSessions?: Prisma.AIInterviewSessionUncheckedCreateNestedManyWithoutUserInput
-  doubtQueries?: Prisma.DoubtQueryUncheckedCreateNestedManyWithoutUserInput
-  aiRecommendations?: Prisma.AIRecommendationUncheckedCreateNestedManyWithoutUserInput
-  officerPotential?: Prisma.OfficerPotentialUncheckedCreateNestedOneWithoutUserInput
-  fitnessProfile?: Prisma.FitnessProfileUncheckedCreateNestedOneWithoutUserInput
-  ptAttendances?: Prisma.PTAttendanceUncheckedCreateNestedManyWithoutStudentInput
-  physicalEligibilities?: Prisma.PhysicalEligibilityUncheckedCreateNestedManyWithoutUserInput
-  dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedCreateNestedManyWithoutUserInput
-  quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedCreateNestedManyWithoutUserInput
-  leaderboard?: Prisma.LeaderboardUncheckedCreateNestedOneWithoutUserInput
-  mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
-  mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
-  documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
-  adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
-  roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
-  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedCreateNestedManyWithoutUserInput
-  parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
-  parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutStudentInput
-  parentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutParentInput
-  studentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutStudentInput
-}
-
-export type UserCreateOrConnectWithoutRefreshTokensInput = {
-  where: Prisma.UserWhereUniqueInput
-  create: Prisma.XOR<Prisma.UserCreateWithoutRefreshTokensInput, Prisma.UserUncheckedCreateWithoutRefreshTokensInput>
-}
-
-export type UserUpsertWithoutRefreshTokensInput = {
-  update: Prisma.XOR<Prisma.UserUpdateWithoutRefreshTokensInput, Prisma.UserUncheckedUpdateWithoutRefreshTokensInput>
-  create: Prisma.XOR<Prisma.UserCreateWithoutRefreshTokensInput, Prisma.UserUncheckedCreateWithoutRefreshTokensInput>
-  where?: Prisma.UserWhereInput
-}
-
-export type UserUpdateToOneWithWhereWithoutRefreshTokensInput = {
-  where?: Prisma.UserWhereInput
-  data: Prisma.XOR<Prisma.UserUpdateWithoutRefreshTokensInput, Prisma.UserUncheckedUpdateWithoutRefreshTokensInput>
-}
-
-export type UserUpdateWithoutRefreshTokensInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  mobile?: Prisma.StringFieldUpdateOperationsInput | string
-  password?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
-  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
-  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  disabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
-  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
-  testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
-  psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
-  olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
-  studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
-  performanceAnalytics?: Prisma.PerformanceAnalyticsUpdateOneWithoutUserNestedInput
-  revisionSchedules?: Prisma.RevisionScheduleUpdateManyWithoutUserNestedInput
-  lectureProgress?: Prisma.LectureProgressUpdateManyWithoutUserNestedInput
-  attendanceRecords?: Prisma.AttendanceUpdateManyWithoutUserNestedInput
-  markedAttendance?: Prisma.AttendanceUpdateManyWithoutMarkerNestedInput
-  facultyProfile?: Prisma.FacultyUpdateOneWithoutUserNestedInput
-  hostelAllocations?: Prisma.HostelAllocationUpdateManyWithoutStudentNestedInput
-  inOutEntries?: Prisma.InOutEntryUpdateManyWithoutStudentNestedInput
-  hostelLeaves?: Prisma.HostelLeaveUpdateManyWithoutStudentNestedInput
-  approvedHostelLeaves?: Prisma.HostelLeaveUpdateManyWithoutApproverNestedInput
-  disciplineRecords?: Prisma.DisciplineRecordUpdateManyWithoutStudentNestedInput
-  recordedDiscipline?: Prisma.DisciplineRecordUpdateManyWithoutRecorderNestedInput
-  paradePerformances?: Prisma.ParadePerformanceUpdateManyWithoutStudentNestedInput
-  assignedLeads?: Prisma.LeadUpdateManyWithoutAssigneeNestedInput
-  followUpsCreated?: Prisma.FollowUpUpdateManyWithoutCreatorNestedInput
-  admissions?: Prisma.AdmissionUpdateManyWithoutStudentNestedInput
-  referralsMade?: Prisma.ReferralUpdateManyWithoutReferrerNestedInput
-  referralsReceived?: Prisma.ReferralUpdateManyWithoutReferredNestedInput
-  payments?: Prisma.PaymentUpdateManyWithoutUserNestedInput
-  collectedPayments?: Prisma.PaymentUpdateManyWithoutCollectorNestedInput
-  verifiedPayments?: Prisma.PaymentUpdateManyWithoutVerifierNestedInput
-  subscriptions?: Prisma.SubscriptionUpdateManyWithoutUserNestedInput
-  feeInstallments?: Prisma.FeeInstallmentUpdateManyWithoutStudentNestedInput
-  invoices?: Prisma.InvoiceUpdateManyWithoutStudentNestedInput
-  approvalRequestsCreated?: Prisma.ApprovalRequestUpdateManyWithoutRequesterNestedInput
-  approvalRequestsReviewed?: Prisma.ApprovalRequestUpdateManyWithoutReviewerNestedInput
-  scholarships?: Prisma.ScholarshipDiscountUpdateManyWithoutStudentNestedInput
-  scholarshipReviewActions?: Prisma.ScholarshipDiscountUpdateManyWithoutApproverNestedInput
-  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
-  messageThreads?: Prisma.MessageThreadUpdateManyWithoutCreatorNestedInput
-  sentMessages?: Prisma.MessageUpdateManyWithoutSenderNestedInput
-  receivedMessages?: Prisma.MessageUpdateManyWithoutReceiverNestedInput
-  communicationAnnouncements?: Prisma.AnnouncementUpdateManyWithoutCreatorNestedInput
-  aiInterviewSessions?: Prisma.AIInterviewSessionUpdateManyWithoutUserNestedInput
-  doubtQueries?: Prisma.DoubtQueryUpdateManyWithoutUserNestedInput
-  aiRecommendations?: Prisma.AIRecommendationUpdateManyWithoutUserNestedInput
-  officerPotential?: Prisma.OfficerPotentialUpdateOneWithoutUserNestedInput
-  fitnessProfile?: Prisma.FitnessProfileUpdateOneWithoutUserNestedInput
-  ptAttendances?: Prisma.PTAttendanceUpdateManyWithoutStudentNestedInput
-  physicalEligibilities?: Prisma.PhysicalEligibilityUpdateManyWithoutUserNestedInput
-  dailyFitnessLogs?: Prisma.DailyFitnessLogUpdateManyWithoutUserNestedInput
-  quizBattleParticipants?: Prisma.QuizBattleParticipantUpdateManyWithoutUserNestedInput
-  leaderboard?: Prisma.LeaderboardUpdateOneWithoutUserNestedInput
-  mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
-  mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
-  documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
-  adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
-  roleActivities?: Prisma.RoleActivityUpdateManyWithoutUserNestedInput
-  institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
-  branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
-  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUpdateManyWithoutUserNestedInput
-  parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
-  parentInvitationsReceived?: Prisma.ParentStudentInvitationUpdateManyWithoutStudentNestedInput
-  parentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutParentNestedInput
-  studentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutStudentNestedInput
-}
-
-export type UserUncheckedUpdateWithoutRefreshTokensInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  mobile?: Prisma.StringFieldUpdateOperationsInput | string
-  password?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
-  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
-  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  disabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
-  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
-  testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
-  psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
-  olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
-  studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
-  performanceAnalytics?: Prisma.PerformanceAnalyticsUncheckedUpdateOneWithoutUserNestedInput
-  revisionSchedules?: Prisma.RevisionScheduleUncheckedUpdateManyWithoutUserNestedInput
-  lectureProgress?: Prisma.LectureProgressUncheckedUpdateManyWithoutUserNestedInput
-  attendanceRecords?: Prisma.AttendanceUncheckedUpdateManyWithoutUserNestedInput
-  markedAttendance?: Prisma.AttendanceUncheckedUpdateManyWithoutMarkerNestedInput
-  facultyProfile?: Prisma.FacultyUncheckedUpdateOneWithoutUserNestedInput
-  hostelAllocations?: Prisma.HostelAllocationUncheckedUpdateManyWithoutStudentNestedInput
-  inOutEntries?: Prisma.InOutEntryUncheckedUpdateManyWithoutStudentNestedInput
-  hostelLeaves?: Prisma.HostelLeaveUncheckedUpdateManyWithoutStudentNestedInput
-  approvedHostelLeaves?: Prisma.HostelLeaveUncheckedUpdateManyWithoutApproverNestedInput
-  disciplineRecords?: Prisma.DisciplineRecordUncheckedUpdateManyWithoutStudentNestedInput
-  recordedDiscipline?: Prisma.DisciplineRecordUncheckedUpdateManyWithoutRecorderNestedInput
-  paradePerformances?: Prisma.ParadePerformanceUncheckedUpdateManyWithoutStudentNestedInput
-  assignedLeads?: Prisma.LeadUncheckedUpdateManyWithoutAssigneeNestedInput
-  followUpsCreated?: Prisma.FollowUpUncheckedUpdateManyWithoutCreatorNestedInput
-  admissions?: Prisma.AdmissionUncheckedUpdateManyWithoutStudentNestedInput
-  referralsMade?: Prisma.ReferralUncheckedUpdateManyWithoutReferrerNestedInput
-  referralsReceived?: Prisma.ReferralUncheckedUpdateManyWithoutReferredNestedInput
-  payments?: Prisma.PaymentUncheckedUpdateManyWithoutUserNestedInput
-  collectedPayments?: Prisma.PaymentUncheckedUpdateManyWithoutCollectorNestedInput
-  verifiedPayments?: Prisma.PaymentUncheckedUpdateManyWithoutVerifierNestedInput
-  subscriptions?: Prisma.SubscriptionUncheckedUpdateManyWithoutUserNestedInput
-  feeInstallments?: Prisma.FeeInstallmentUncheckedUpdateManyWithoutStudentNestedInput
-  invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutStudentNestedInput
-  approvalRequestsCreated?: Prisma.ApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
-  approvalRequestsReviewed?: Prisma.ApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
-  scholarships?: Prisma.ScholarshipDiscountUncheckedUpdateManyWithoutStudentNestedInput
-  scholarshipReviewActions?: Prisma.ScholarshipDiscountUncheckedUpdateManyWithoutApproverNestedInput
-  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
-  messageThreads?: Prisma.MessageThreadUncheckedUpdateManyWithoutCreatorNestedInput
-  sentMessages?: Prisma.MessageUncheckedUpdateManyWithoutSenderNestedInput
-  receivedMessages?: Prisma.MessageUncheckedUpdateManyWithoutReceiverNestedInput
-  communicationAnnouncements?: Prisma.AnnouncementUncheckedUpdateManyWithoutCreatorNestedInput
-  aiInterviewSessions?: Prisma.AIInterviewSessionUncheckedUpdateManyWithoutUserNestedInput
-  doubtQueries?: Prisma.DoubtQueryUncheckedUpdateManyWithoutUserNestedInput
-  aiRecommendations?: Prisma.AIRecommendationUncheckedUpdateManyWithoutUserNestedInput
-  officerPotential?: Prisma.OfficerPotentialUncheckedUpdateOneWithoutUserNestedInput
-  fitnessProfile?: Prisma.FitnessProfileUncheckedUpdateOneWithoutUserNestedInput
-  ptAttendances?: Prisma.PTAttendanceUncheckedUpdateManyWithoutStudentNestedInput
-  physicalEligibilities?: Prisma.PhysicalEligibilityUncheckedUpdateManyWithoutUserNestedInput
-  dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedUpdateManyWithoutUserNestedInput
-  quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedUpdateManyWithoutUserNestedInput
-  leaderboard?: Prisma.LeaderboardUncheckedUpdateOneWithoutUserNestedInput
-  mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
-  mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
-  documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
-  adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
-  roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
-  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedUpdateManyWithoutUserNestedInput
-  parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
-  parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutStudentNestedInput
-  parentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutParentNestedInput
-  studentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutStudentNestedInput
-}
-
-export type UserCreateWithoutTokenBlacklistInput = {
-  id?: string
-  name: string
-  email: string
-  mobile: string
-  password: string
-  role?: $Enums.Role
-  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  roleOnboardingStatus?: string
-  roleActivatedAt?: Date | string | null
-  lastRoleActivityAt?: Date | string | null
-  emailVerified?: boolean
-  mobileVerified?: boolean
-  isDisabled?: boolean
-  disabledAt?: Date | string | null
-  loginFailureCount?: number
-  lockedUntil?: Date | string | null
-  lastLoginAt?: Date | string | null
-  tokenVersion?: number
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
-  testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
-  psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
-  olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
-  studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
-  performanceAnalytics?: Prisma.PerformanceAnalyticsCreateNestedOneWithoutUserInput
-  revisionSchedules?: Prisma.RevisionScheduleCreateNestedManyWithoutUserInput
-  lectureProgress?: Prisma.LectureProgressCreateNestedManyWithoutUserInput
-  attendanceRecords?: Prisma.AttendanceCreateNestedManyWithoutUserInput
-  markedAttendance?: Prisma.AttendanceCreateNestedManyWithoutMarkerInput
-  facultyProfile?: Prisma.FacultyCreateNestedOneWithoutUserInput
-  hostelAllocations?: Prisma.HostelAllocationCreateNestedManyWithoutStudentInput
-  inOutEntries?: Prisma.InOutEntryCreateNestedManyWithoutStudentInput
-  hostelLeaves?: Prisma.HostelLeaveCreateNestedManyWithoutStudentInput
-  approvedHostelLeaves?: Prisma.HostelLeaveCreateNestedManyWithoutApproverInput
-  disciplineRecords?: Prisma.DisciplineRecordCreateNestedManyWithoutStudentInput
-  recordedDiscipline?: Prisma.DisciplineRecordCreateNestedManyWithoutRecorderInput
-  paradePerformances?: Prisma.ParadePerformanceCreateNestedManyWithoutStudentInput
-  assignedLeads?: Prisma.LeadCreateNestedManyWithoutAssigneeInput
-  followUpsCreated?: Prisma.FollowUpCreateNestedManyWithoutCreatorInput
-  admissions?: Prisma.AdmissionCreateNestedManyWithoutStudentInput
-  referralsMade?: Prisma.ReferralCreateNestedManyWithoutReferrerInput
-  referralsReceived?: Prisma.ReferralCreateNestedManyWithoutReferredInput
-  payments?: Prisma.PaymentCreateNestedManyWithoutUserInput
-  collectedPayments?: Prisma.PaymentCreateNestedManyWithoutCollectorInput
-  verifiedPayments?: Prisma.PaymentCreateNestedManyWithoutVerifierInput
-  subscriptions?: Prisma.SubscriptionCreateNestedManyWithoutUserInput
-  feeInstallments?: Prisma.FeeInstallmentCreateNestedManyWithoutStudentInput
-  invoices?: Prisma.InvoiceCreateNestedManyWithoutStudentInput
-  approvalRequestsCreated?: Prisma.ApprovalRequestCreateNestedManyWithoutRequesterInput
-  approvalRequestsReviewed?: Prisma.ApprovalRequestCreateNestedManyWithoutReviewerInput
-  scholarships?: Prisma.ScholarshipDiscountCreateNestedManyWithoutStudentInput
-  scholarshipReviewActions?: Prisma.ScholarshipDiscountCreateNestedManyWithoutApproverInput
-  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
-  messageThreads?: Prisma.MessageThreadCreateNestedManyWithoutCreatorInput
-  sentMessages?: Prisma.MessageCreateNestedManyWithoutSenderInput
-  receivedMessages?: Prisma.MessageCreateNestedManyWithoutReceiverInput
-  communicationAnnouncements?: Prisma.AnnouncementCreateNestedManyWithoutCreatorInput
-  aiInterviewSessions?: Prisma.AIInterviewSessionCreateNestedManyWithoutUserInput
-  doubtQueries?: Prisma.DoubtQueryCreateNestedManyWithoutUserInput
-  aiRecommendations?: Prisma.AIRecommendationCreateNestedManyWithoutUserInput
-  officerPotential?: Prisma.OfficerPotentialCreateNestedOneWithoutUserInput
-  fitnessProfile?: Prisma.FitnessProfileCreateNestedOneWithoutUserInput
-  ptAttendances?: Prisma.PTAttendanceCreateNestedManyWithoutStudentInput
-  physicalEligibilities?: Prisma.PhysicalEligibilityCreateNestedManyWithoutUserInput
-  dailyFitnessLogs?: Prisma.DailyFitnessLogCreateNestedManyWithoutUserInput
-  quizBattleParticipants?: Prisma.QuizBattleParticipantCreateNestedManyWithoutUserInput
-  leaderboard?: Prisma.LeaderboardCreateNestedOneWithoutUserInput
-  mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
-  mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
-  documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
-  adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
-  roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutUserInput
-  institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
-  branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
-  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
-  parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
-  parentInvitationsReceived?: Prisma.ParentStudentInvitationCreateNestedManyWithoutStudentInput
-  parentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutParentInput
-  studentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutStudentInput
-}
-
-export type UserUncheckedCreateWithoutTokenBlacklistInput = {
-  id?: string
-  name: string
-  email: string
-  mobile: string
-  password: string
-  role?: $Enums.Role
-  instituteId?: string | null
-  branchId?: string | null
-  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  roleOnboardingStatus?: string
-  roleActivatedAt?: Date | string | null
-  lastRoleActivityAt?: Date | string | null
-  emailVerified?: boolean
-  mobileVerified?: boolean
-  isDisabled?: boolean
-  disabledAt?: Date | string | null
-  loginFailureCount?: number
-  lockedUntil?: Date | string | null
-  lastLoginAt?: Date | string | null
-  tokenVersion?: number
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
-  testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
-  psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
-  olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
-  studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
-  performanceAnalytics?: Prisma.PerformanceAnalyticsUncheckedCreateNestedOneWithoutUserInput
-  revisionSchedules?: Prisma.RevisionScheduleUncheckedCreateNestedManyWithoutUserInput
-  lectureProgress?: Prisma.LectureProgressUncheckedCreateNestedManyWithoutUserInput
-  attendanceRecords?: Prisma.AttendanceUncheckedCreateNestedManyWithoutUserInput
-  markedAttendance?: Prisma.AttendanceUncheckedCreateNestedManyWithoutMarkerInput
-  facultyProfile?: Prisma.FacultyUncheckedCreateNestedOneWithoutUserInput
-  hostelAllocations?: Prisma.HostelAllocationUncheckedCreateNestedManyWithoutStudentInput
-  inOutEntries?: Prisma.InOutEntryUncheckedCreateNestedManyWithoutStudentInput
-  hostelLeaves?: Prisma.HostelLeaveUncheckedCreateNestedManyWithoutStudentInput
-  approvedHostelLeaves?: Prisma.HostelLeaveUncheckedCreateNestedManyWithoutApproverInput
-  disciplineRecords?: Prisma.DisciplineRecordUncheckedCreateNestedManyWithoutStudentInput
-  recordedDiscipline?: Prisma.DisciplineRecordUncheckedCreateNestedManyWithoutRecorderInput
-  paradePerformances?: Prisma.ParadePerformanceUncheckedCreateNestedManyWithoutStudentInput
-  assignedLeads?: Prisma.LeadUncheckedCreateNestedManyWithoutAssigneeInput
-  followUpsCreated?: Prisma.FollowUpUncheckedCreateNestedManyWithoutCreatorInput
-  admissions?: Prisma.AdmissionUncheckedCreateNestedManyWithoutStudentInput
-  referralsMade?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferrerInput
-  referralsReceived?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferredInput
-  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutUserInput
-  collectedPayments?: Prisma.PaymentUncheckedCreateNestedManyWithoutCollectorInput
-  verifiedPayments?: Prisma.PaymentUncheckedCreateNestedManyWithoutVerifierInput
-  subscriptions?: Prisma.SubscriptionUncheckedCreateNestedManyWithoutUserInput
-  feeInstallments?: Prisma.FeeInstallmentUncheckedCreateNestedManyWithoutStudentInput
-  invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutStudentInput
-  approvalRequestsCreated?: Prisma.ApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
-  approvalRequestsReviewed?: Prisma.ApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
-  scholarships?: Prisma.ScholarshipDiscountUncheckedCreateNestedManyWithoutStudentInput
-  scholarshipReviewActions?: Prisma.ScholarshipDiscountUncheckedCreateNestedManyWithoutApproverInput
-  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
-  messageThreads?: Prisma.MessageThreadUncheckedCreateNestedManyWithoutCreatorInput
-  sentMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutSenderInput
-  receivedMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutReceiverInput
-  communicationAnnouncements?: Prisma.AnnouncementUncheckedCreateNestedManyWithoutCreatorInput
-  aiInterviewSessions?: Prisma.AIInterviewSessionUncheckedCreateNestedManyWithoutUserInput
-  doubtQueries?: Prisma.DoubtQueryUncheckedCreateNestedManyWithoutUserInput
-  aiRecommendations?: Prisma.AIRecommendationUncheckedCreateNestedManyWithoutUserInput
-  officerPotential?: Prisma.OfficerPotentialUncheckedCreateNestedOneWithoutUserInput
-  fitnessProfile?: Prisma.FitnessProfileUncheckedCreateNestedOneWithoutUserInput
-  ptAttendances?: Prisma.PTAttendanceUncheckedCreateNestedManyWithoutStudentInput
-  physicalEligibilities?: Prisma.PhysicalEligibilityUncheckedCreateNestedManyWithoutUserInput
-  dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedCreateNestedManyWithoutUserInput
-  quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedCreateNestedManyWithoutUserInput
-  leaderboard?: Prisma.LeaderboardUncheckedCreateNestedOneWithoutUserInput
-  mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
-  mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
-  documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
-  adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
-  roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
-  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
-  parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
-  parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutStudentInput
-  parentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutParentInput
-  studentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutStudentInput
-}
-
-export type UserCreateOrConnectWithoutTokenBlacklistInput = {
-  where: Prisma.UserWhereUniqueInput
-  create: Prisma.XOR<Prisma.UserCreateWithoutTokenBlacklistInput, Prisma.UserUncheckedCreateWithoutTokenBlacklistInput>
-}
-
-export type UserUpsertWithoutTokenBlacklistInput = {
-  update: Prisma.XOR<Prisma.UserUpdateWithoutTokenBlacklistInput, Prisma.UserUncheckedUpdateWithoutTokenBlacklistInput>
-  create: Prisma.XOR<Prisma.UserCreateWithoutTokenBlacklistInput, Prisma.UserUncheckedCreateWithoutTokenBlacklistInput>
-  where?: Prisma.UserWhereInput
-}
-
-export type UserUpdateToOneWithWhereWithoutTokenBlacklistInput = {
-  where?: Prisma.UserWhereInput
-  data: Prisma.XOR<Prisma.UserUpdateWithoutTokenBlacklistInput, Prisma.UserUncheckedUpdateWithoutTokenBlacklistInput>
-}
-
-export type UserUpdateWithoutTokenBlacklistInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  mobile?: Prisma.StringFieldUpdateOperationsInput | string
-  password?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
-  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
-  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  disabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
-  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
-  testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
-  psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
-  olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
-  studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
-  performanceAnalytics?: Prisma.PerformanceAnalyticsUpdateOneWithoutUserNestedInput
-  revisionSchedules?: Prisma.RevisionScheduleUpdateManyWithoutUserNestedInput
-  lectureProgress?: Prisma.LectureProgressUpdateManyWithoutUserNestedInput
-  attendanceRecords?: Prisma.AttendanceUpdateManyWithoutUserNestedInput
-  markedAttendance?: Prisma.AttendanceUpdateManyWithoutMarkerNestedInput
-  facultyProfile?: Prisma.FacultyUpdateOneWithoutUserNestedInput
-  hostelAllocations?: Prisma.HostelAllocationUpdateManyWithoutStudentNestedInput
-  inOutEntries?: Prisma.InOutEntryUpdateManyWithoutStudentNestedInput
-  hostelLeaves?: Prisma.HostelLeaveUpdateManyWithoutStudentNestedInput
-  approvedHostelLeaves?: Prisma.HostelLeaveUpdateManyWithoutApproverNestedInput
-  disciplineRecords?: Prisma.DisciplineRecordUpdateManyWithoutStudentNestedInput
-  recordedDiscipline?: Prisma.DisciplineRecordUpdateManyWithoutRecorderNestedInput
-  paradePerformances?: Prisma.ParadePerformanceUpdateManyWithoutStudentNestedInput
-  assignedLeads?: Prisma.LeadUpdateManyWithoutAssigneeNestedInput
-  followUpsCreated?: Prisma.FollowUpUpdateManyWithoutCreatorNestedInput
-  admissions?: Prisma.AdmissionUpdateManyWithoutStudentNestedInput
-  referralsMade?: Prisma.ReferralUpdateManyWithoutReferrerNestedInput
-  referralsReceived?: Prisma.ReferralUpdateManyWithoutReferredNestedInput
-  payments?: Prisma.PaymentUpdateManyWithoutUserNestedInput
-  collectedPayments?: Prisma.PaymentUpdateManyWithoutCollectorNestedInput
-  verifiedPayments?: Prisma.PaymentUpdateManyWithoutVerifierNestedInput
-  subscriptions?: Prisma.SubscriptionUpdateManyWithoutUserNestedInput
-  feeInstallments?: Prisma.FeeInstallmentUpdateManyWithoutStudentNestedInput
-  invoices?: Prisma.InvoiceUpdateManyWithoutStudentNestedInput
-  approvalRequestsCreated?: Prisma.ApprovalRequestUpdateManyWithoutRequesterNestedInput
-  approvalRequestsReviewed?: Prisma.ApprovalRequestUpdateManyWithoutReviewerNestedInput
-  scholarships?: Prisma.ScholarshipDiscountUpdateManyWithoutStudentNestedInput
-  scholarshipReviewActions?: Prisma.ScholarshipDiscountUpdateManyWithoutApproverNestedInput
-  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
-  messageThreads?: Prisma.MessageThreadUpdateManyWithoutCreatorNestedInput
-  sentMessages?: Prisma.MessageUpdateManyWithoutSenderNestedInput
-  receivedMessages?: Prisma.MessageUpdateManyWithoutReceiverNestedInput
-  communicationAnnouncements?: Prisma.AnnouncementUpdateManyWithoutCreatorNestedInput
-  aiInterviewSessions?: Prisma.AIInterviewSessionUpdateManyWithoutUserNestedInput
-  doubtQueries?: Prisma.DoubtQueryUpdateManyWithoutUserNestedInput
-  aiRecommendations?: Prisma.AIRecommendationUpdateManyWithoutUserNestedInput
-  officerPotential?: Prisma.OfficerPotentialUpdateOneWithoutUserNestedInput
-  fitnessProfile?: Prisma.FitnessProfileUpdateOneWithoutUserNestedInput
-  ptAttendances?: Prisma.PTAttendanceUpdateManyWithoutStudentNestedInput
-  physicalEligibilities?: Prisma.PhysicalEligibilityUpdateManyWithoutUserNestedInput
-  dailyFitnessLogs?: Prisma.DailyFitnessLogUpdateManyWithoutUserNestedInput
-  quizBattleParticipants?: Prisma.QuizBattleParticipantUpdateManyWithoutUserNestedInput
-  leaderboard?: Prisma.LeaderboardUpdateOneWithoutUserNestedInput
-  mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
-  mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
-  documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
-  adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
-  roleActivities?: Prisma.RoleActivityUpdateManyWithoutUserNestedInput
-  institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
-  branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
-  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
-  parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
-  parentInvitationsReceived?: Prisma.ParentStudentInvitationUpdateManyWithoutStudentNestedInput
-  parentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutParentNestedInput
-  studentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutStudentNestedInput
-}
-
-export type UserUncheckedUpdateWithoutTokenBlacklistInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  mobile?: Prisma.StringFieldUpdateOperationsInput | string
-  password?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
-  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
-  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  disabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
-  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
-  testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
-  psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
-  olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
-  studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
-  performanceAnalytics?: Prisma.PerformanceAnalyticsUncheckedUpdateOneWithoutUserNestedInput
-  revisionSchedules?: Prisma.RevisionScheduleUncheckedUpdateManyWithoutUserNestedInput
-  lectureProgress?: Prisma.LectureProgressUncheckedUpdateManyWithoutUserNestedInput
-  attendanceRecords?: Prisma.AttendanceUncheckedUpdateManyWithoutUserNestedInput
-  markedAttendance?: Prisma.AttendanceUncheckedUpdateManyWithoutMarkerNestedInput
-  facultyProfile?: Prisma.FacultyUncheckedUpdateOneWithoutUserNestedInput
-  hostelAllocations?: Prisma.HostelAllocationUncheckedUpdateManyWithoutStudentNestedInput
-  inOutEntries?: Prisma.InOutEntryUncheckedUpdateManyWithoutStudentNestedInput
-  hostelLeaves?: Prisma.HostelLeaveUncheckedUpdateManyWithoutStudentNestedInput
-  approvedHostelLeaves?: Prisma.HostelLeaveUncheckedUpdateManyWithoutApproverNestedInput
-  disciplineRecords?: Prisma.DisciplineRecordUncheckedUpdateManyWithoutStudentNestedInput
-  recordedDiscipline?: Prisma.DisciplineRecordUncheckedUpdateManyWithoutRecorderNestedInput
-  paradePerformances?: Prisma.ParadePerformanceUncheckedUpdateManyWithoutStudentNestedInput
-  assignedLeads?: Prisma.LeadUncheckedUpdateManyWithoutAssigneeNestedInput
-  followUpsCreated?: Prisma.FollowUpUncheckedUpdateManyWithoutCreatorNestedInput
-  admissions?: Prisma.AdmissionUncheckedUpdateManyWithoutStudentNestedInput
-  referralsMade?: Prisma.ReferralUncheckedUpdateManyWithoutReferrerNestedInput
-  referralsReceived?: Prisma.ReferralUncheckedUpdateManyWithoutReferredNestedInput
-  payments?: Prisma.PaymentUncheckedUpdateManyWithoutUserNestedInput
-  collectedPayments?: Prisma.PaymentUncheckedUpdateManyWithoutCollectorNestedInput
-  verifiedPayments?: Prisma.PaymentUncheckedUpdateManyWithoutVerifierNestedInput
-  subscriptions?: Prisma.SubscriptionUncheckedUpdateManyWithoutUserNestedInput
-  feeInstallments?: Prisma.FeeInstallmentUncheckedUpdateManyWithoutStudentNestedInput
-  invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutStudentNestedInput
-  approvalRequestsCreated?: Prisma.ApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
-  approvalRequestsReviewed?: Prisma.ApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
-  scholarships?: Prisma.ScholarshipDiscountUncheckedUpdateManyWithoutStudentNestedInput
-  scholarshipReviewActions?: Prisma.ScholarshipDiscountUncheckedUpdateManyWithoutApproverNestedInput
-  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
-  messageThreads?: Prisma.MessageThreadUncheckedUpdateManyWithoutCreatorNestedInput
-  sentMessages?: Prisma.MessageUncheckedUpdateManyWithoutSenderNestedInput
-  receivedMessages?: Prisma.MessageUncheckedUpdateManyWithoutReceiverNestedInput
-  communicationAnnouncements?: Prisma.AnnouncementUncheckedUpdateManyWithoutCreatorNestedInput
-  aiInterviewSessions?: Prisma.AIInterviewSessionUncheckedUpdateManyWithoutUserNestedInput
-  doubtQueries?: Prisma.DoubtQueryUncheckedUpdateManyWithoutUserNestedInput
-  aiRecommendations?: Prisma.AIRecommendationUncheckedUpdateManyWithoutUserNestedInput
-  officerPotential?: Prisma.OfficerPotentialUncheckedUpdateOneWithoutUserNestedInput
-  fitnessProfile?: Prisma.FitnessProfileUncheckedUpdateOneWithoutUserNestedInput
-  ptAttendances?: Prisma.PTAttendanceUncheckedUpdateManyWithoutStudentNestedInput
-  physicalEligibilities?: Prisma.PhysicalEligibilityUncheckedUpdateManyWithoutUserNestedInput
-  dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedUpdateManyWithoutUserNestedInput
-  quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedUpdateManyWithoutUserNestedInput
-  leaderboard?: Prisma.LeaderboardUncheckedUpdateOneWithoutUserNestedInput
-  mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
-  mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
-  documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
-  adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
-  roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
-  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutParentNestedInput
@@ -4046,7 +2829,6 @@ export type UserCreateWithoutParentInvitationsSentInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
@@ -4105,11 +2887,8 @@ export type UserCreateWithoutParentInvitationsSentInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutParentInput
   studentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutStudentInput
@@ -4135,7 +2914,6 @@ export type UserUncheckedCreateWithoutParentInvitationsSentInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
@@ -4192,11 +2970,8 @@ export type UserUncheckedCreateWithoutParentInvitationsSentInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutParentInput
   studentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutStudentInput
@@ -4225,7 +3000,6 @@ export type UserCreateWithoutParentInvitationsReceivedInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
@@ -4284,11 +3058,8 @@ export type UserCreateWithoutParentInvitationsReceivedInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
   parentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutParentInput
   studentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutStudentInput
@@ -4314,7 +3085,6 @@ export type UserUncheckedCreateWithoutParentInvitationsReceivedInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
@@ -4371,11 +3141,8 @@ export type UserUncheckedCreateWithoutParentInvitationsReceivedInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutParentInput
   studentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutStudentInput
@@ -4415,7 +3182,6 @@ export type UserUpdateWithoutParentInvitationsSentInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
@@ -4474,11 +3240,8 @@ export type UserUpdateWithoutParentInvitationsSentInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutParentNestedInput
   studentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutStudentNestedInput
@@ -4504,7 +3267,6 @@ export type UserUncheckedUpdateWithoutParentInvitationsSentInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
@@ -4561,11 +3323,8 @@ export type UserUncheckedUpdateWithoutParentInvitationsSentInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutParentNestedInput
   studentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutStudentNestedInput
@@ -4600,7 +3359,6 @@ export type UserUpdateWithoutParentInvitationsReceivedInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
@@ -4659,11 +3417,8 @@ export type UserUpdateWithoutParentInvitationsReceivedInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutParentNestedInput
   studentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutStudentNestedInput
@@ -4689,7 +3444,6 @@ export type UserUncheckedUpdateWithoutParentInvitationsReceivedInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
@@ -4746,11 +3500,8 @@ export type UserUncheckedUpdateWithoutParentInvitationsReceivedInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutParentNestedInput
   studentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutStudentNestedInput
@@ -4774,7 +3525,6 @@ export type UserCreateWithoutParentLinksInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
@@ -4833,11 +3583,8 @@ export type UserCreateWithoutParentLinksInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationCreateNestedManyWithoutStudentInput
   studentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutStudentInput
@@ -4863,7 +3610,6 @@ export type UserUncheckedCreateWithoutParentLinksInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
@@ -4920,11 +3666,8 @@ export type UserUncheckedCreateWithoutParentLinksInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutStudentInput
   studentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutStudentInput
@@ -4953,7 +3696,6 @@ export type UserCreateWithoutStudentLinksInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
@@ -5012,11 +3754,8 @@ export type UserCreateWithoutStudentLinksInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutParentInput
@@ -5042,7 +3781,6 @@ export type UserUncheckedCreateWithoutStudentLinksInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
@@ -5099,11 +3837,8 @@ export type UserUncheckedCreateWithoutStudentLinksInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutParentInput
@@ -5143,7 +3878,6 @@ export type UserUpdateWithoutParentLinksInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
@@ -5202,11 +3936,8 @@ export type UserUpdateWithoutParentLinksInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUpdateManyWithoutStudentNestedInput
   studentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutStudentNestedInput
@@ -5232,7 +3963,6 @@ export type UserUncheckedUpdateWithoutParentLinksInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
@@ -5289,11 +4019,8 @@ export type UserUncheckedUpdateWithoutParentLinksInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutStudentNestedInput
   studentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutStudentNestedInput
@@ -5328,7 +4055,6 @@ export type UserUpdateWithoutStudentLinksInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
@@ -5387,11 +4113,8 @@ export type UserUpdateWithoutStudentLinksInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutParentNestedInput
@@ -5417,7 +4140,6 @@ export type UserUncheckedUpdateWithoutStudentLinksInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
@@ -5474,11 +4196,8 @@ export type UserUncheckedUpdateWithoutStudentLinksInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutParentNestedInput
@@ -5502,7 +4221,6 @@ export type UserCreateWithoutEnrollmentsInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
@@ -5560,11 +4278,8 @@ export type UserCreateWithoutEnrollmentsInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutParentInput
@@ -5591,7 +4306,6 @@ export type UserUncheckedCreateWithoutEnrollmentsInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
@@ -5647,11 +4361,8 @@ export type UserUncheckedCreateWithoutEnrollmentsInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutParentInput
@@ -5692,7 +4403,6 @@ export type UserUpdateWithoutEnrollmentsInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
@@ -5750,11 +4460,8 @@ export type UserUpdateWithoutEnrollmentsInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutParentNestedInput
@@ -5781,7 +4488,6 @@ export type UserUncheckedUpdateWithoutEnrollmentsInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
@@ -5837,11 +4543,8 @@ export type UserUncheckedUpdateWithoutEnrollmentsInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutParentNestedInput
@@ -5866,7 +4569,6 @@ export type UserCreateWithoutTestAttemptsInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
@@ -5924,11 +4626,8 @@ export type UserCreateWithoutTestAttemptsInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutParentInput
@@ -5955,7 +4654,6 @@ export type UserUncheckedCreateWithoutTestAttemptsInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
@@ -6011,11 +4709,8 @@ export type UserUncheckedCreateWithoutTestAttemptsInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutParentInput
@@ -6056,7 +4751,6 @@ export type UserUpdateWithoutTestAttemptsInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
@@ -6114,11 +4808,8 @@ export type UserUpdateWithoutTestAttemptsInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutParentNestedInput
@@ -6145,7 +4836,6 @@ export type UserUncheckedUpdateWithoutTestAttemptsInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
@@ -6201,11 +4891,8 @@ export type UserUncheckedUpdateWithoutTestAttemptsInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutParentNestedInput
@@ -6230,7 +4917,6 @@ export type UserCreateWithoutPsychometricAttemptsInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
@@ -6288,11 +4974,8 @@ export type UserCreateWithoutPsychometricAttemptsInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutParentInput
@@ -6319,7 +5002,6 @@ export type UserUncheckedCreateWithoutPsychometricAttemptsInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
@@ -6375,11 +5057,8 @@ export type UserUncheckedCreateWithoutPsychometricAttemptsInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutParentInput
@@ -6420,7 +5099,6 @@ export type UserUpdateWithoutPsychometricAttemptsInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
@@ -6478,11 +5156,8 @@ export type UserUpdateWithoutPsychometricAttemptsInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutParentNestedInput
@@ -6509,7 +5184,6 @@ export type UserUncheckedUpdateWithoutPsychometricAttemptsInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
@@ -6565,11 +5239,8 @@ export type UserUncheckedUpdateWithoutPsychometricAttemptsInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutParentNestedInput
@@ -6594,7 +5265,6 @@ export type UserCreateWithoutOlqScoreInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
@@ -6652,11 +5322,8 @@ export type UserCreateWithoutOlqScoreInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutParentInput
@@ -6683,7 +5350,6 @@ export type UserUncheckedCreateWithoutOlqScoreInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
@@ -6739,11 +5405,8 @@ export type UserUncheckedCreateWithoutOlqScoreInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutParentInput
@@ -6784,7 +5447,6 @@ export type UserUpdateWithoutOlqScoreInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
@@ -6842,11 +5504,8 @@ export type UserUpdateWithoutOlqScoreInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutParentNestedInput
@@ -6873,7 +5532,6 @@ export type UserUncheckedUpdateWithoutOlqScoreInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
@@ -6929,11 +5587,8 @@ export type UserUncheckedUpdateWithoutOlqScoreInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutParentNestedInput
@@ -6958,7 +5613,6 @@ export type UserCreateWithoutStudyPlansInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
@@ -7016,11 +5670,8 @@ export type UserCreateWithoutStudyPlansInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutParentInput
@@ -7047,7 +5698,6 @@ export type UserUncheckedCreateWithoutStudyPlansInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
@@ -7103,11 +5753,8 @@ export type UserUncheckedCreateWithoutStudyPlansInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutParentInput
@@ -7148,7 +5795,6 @@ export type UserUpdateWithoutStudyPlansInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
@@ -7206,11 +5852,8 @@ export type UserUpdateWithoutStudyPlansInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutParentNestedInput
@@ -7237,7 +5880,6 @@ export type UserUncheckedUpdateWithoutStudyPlansInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
@@ -7293,11 +5935,8 @@ export type UserUncheckedUpdateWithoutStudyPlansInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutParentNestedInput
@@ -7322,7 +5961,6 @@ export type UserCreateWithoutPerformanceAnalyticsInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
@@ -7380,11 +6018,8 @@ export type UserCreateWithoutPerformanceAnalyticsInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutParentInput
@@ -7411,7 +6046,6 @@ export type UserUncheckedCreateWithoutPerformanceAnalyticsInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
@@ -7467,11 +6101,8 @@ export type UserUncheckedCreateWithoutPerformanceAnalyticsInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutParentInput
@@ -7512,7 +6143,6 @@ export type UserUpdateWithoutPerformanceAnalyticsInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
@@ -7570,11 +6200,8 @@ export type UserUpdateWithoutPerformanceAnalyticsInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutParentNestedInput
@@ -7601,7 +6228,6 @@ export type UserUncheckedUpdateWithoutPerformanceAnalyticsInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
@@ -7657,11 +6283,8 @@ export type UserUncheckedUpdateWithoutPerformanceAnalyticsInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutParentNestedInput
@@ -7686,7 +6309,6 @@ export type UserCreateWithoutRevisionSchedulesInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
@@ -7744,11 +6366,8 @@ export type UserCreateWithoutRevisionSchedulesInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutParentInput
@@ -7775,7 +6394,6 @@ export type UserUncheckedCreateWithoutRevisionSchedulesInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
@@ -7831,11 +6449,8 @@ export type UserUncheckedCreateWithoutRevisionSchedulesInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutParentInput
@@ -7876,7 +6491,6 @@ export type UserUpdateWithoutRevisionSchedulesInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
@@ -7934,11 +6548,8 @@ export type UserUpdateWithoutRevisionSchedulesInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutParentNestedInput
@@ -7965,7 +6576,6 @@ export type UserUncheckedUpdateWithoutRevisionSchedulesInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
@@ -8021,11 +6631,8 @@ export type UserUncheckedUpdateWithoutRevisionSchedulesInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutParentNestedInput
@@ -8050,7 +6657,6 @@ export type UserCreateWithoutLectureProgressInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
@@ -8108,11 +6714,8 @@ export type UserCreateWithoutLectureProgressInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutParentInput
@@ -8139,7 +6742,6 @@ export type UserUncheckedCreateWithoutLectureProgressInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
@@ -8195,11 +6797,8 @@ export type UserUncheckedCreateWithoutLectureProgressInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutParentInput
@@ -8240,7 +6839,6 @@ export type UserUpdateWithoutLectureProgressInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
@@ -8298,11 +6896,8 @@ export type UserUpdateWithoutLectureProgressInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutParentNestedInput
@@ -8329,7 +6924,6 @@ export type UserUncheckedUpdateWithoutLectureProgressInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
@@ -8385,11 +6979,8 @@ export type UserUncheckedUpdateWithoutLectureProgressInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutParentNestedInput
@@ -8414,7 +7005,6 @@ export type UserCreateWithoutAttendanceRecordsInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
@@ -8472,11 +7062,8 @@ export type UserCreateWithoutAttendanceRecordsInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutParentInput
@@ -8503,7 +7090,6 @@ export type UserUncheckedCreateWithoutAttendanceRecordsInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
@@ -8559,11 +7145,8 @@ export type UserUncheckedCreateWithoutAttendanceRecordsInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutParentInput
@@ -8593,7 +7176,6 @@ export type UserCreateWithoutMarkedAttendanceInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
@@ -8651,11 +7233,8 @@ export type UserCreateWithoutMarkedAttendanceInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutParentInput
@@ -8682,7 +7261,6 @@ export type UserUncheckedCreateWithoutMarkedAttendanceInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
@@ -8738,11 +7316,8 @@ export type UserUncheckedCreateWithoutMarkedAttendanceInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutParentInput
@@ -8783,7 +7358,6 @@ export type UserUpdateWithoutAttendanceRecordsInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
@@ -8841,11 +7415,8 @@ export type UserUpdateWithoutAttendanceRecordsInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutParentNestedInput
@@ -8872,7 +7443,6 @@ export type UserUncheckedUpdateWithoutAttendanceRecordsInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
@@ -8928,11 +7498,8 @@ export type UserUncheckedUpdateWithoutAttendanceRecordsInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutParentNestedInput
@@ -8968,7 +7535,6 @@ export type UserUpdateWithoutMarkedAttendanceInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
@@ -9026,11 +7592,8 @@ export type UserUpdateWithoutMarkedAttendanceInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutParentNestedInput
@@ -9057,7 +7620,6 @@ export type UserUncheckedUpdateWithoutMarkedAttendanceInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
@@ -9113,11 +7675,8 @@ export type UserUncheckedUpdateWithoutMarkedAttendanceInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutParentNestedInput
@@ -9142,7 +7701,6 @@ export type UserCreateWithoutFacultyProfileInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
@@ -9200,11 +7758,8 @@ export type UserCreateWithoutFacultyProfileInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutParentInput
@@ -9231,7 +7786,6 @@ export type UserUncheckedCreateWithoutFacultyProfileInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
@@ -9287,11 +7841,8 @@ export type UserUncheckedCreateWithoutFacultyProfileInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutParentInput
@@ -9332,7 +7883,6 @@ export type UserUpdateWithoutFacultyProfileInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
@@ -9390,11 +7940,8 @@ export type UserUpdateWithoutFacultyProfileInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutParentNestedInput
@@ -9421,7 +7968,6 @@ export type UserUncheckedUpdateWithoutFacultyProfileInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
@@ -9477,11 +8023,8 @@ export type UserUncheckedUpdateWithoutFacultyProfileInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutParentNestedInput
@@ -9506,7 +8049,6 @@ export type UserCreateWithoutCommunicationAnnouncementsInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
@@ -9564,11 +8106,8 @@ export type UserCreateWithoutCommunicationAnnouncementsInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutParentInput
@@ -9595,7 +8134,6 @@ export type UserUncheckedCreateWithoutCommunicationAnnouncementsInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
@@ -9651,11 +8189,8 @@ export type UserUncheckedCreateWithoutCommunicationAnnouncementsInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutParentInput
@@ -9696,7 +8231,6 @@ export type UserUpdateWithoutCommunicationAnnouncementsInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
@@ -9754,11 +8288,8 @@ export type UserUpdateWithoutCommunicationAnnouncementsInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutParentNestedInput
@@ -9785,7 +8316,6 @@ export type UserUncheckedUpdateWithoutCommunicationAnnouncementsInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
@@ -9841,11 +8371,8 @@ export type UserUncheckedUpdateWithoutCommunicationAnnouncementsInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutParentNestedInput
@@ -9870,7 +8397,6 @@ export type UserCreateWithoutHostelAllocationsInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
@@ -9928,11 +8454,8 @@ export type UserCreateWithoutHostelAllocationsInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutParentInput
@@ -9959,7 +8482,6 @@ export type UserUncheckedCreateWithoutHostelAllocationsInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
@@ -10015,11 +8537,8 @@ export type UserUncheckedCreateWithoutHostelAllocationsInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutParentInput
@@ -10060,7 +8579,6 @@ export type UserUpdateWithoutHostelAllocationsInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
@@ -10118,11 +8636,8 @@ export type UserUpdateWithoutHostelAllocationsInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutParentNestedInput
@@ -10149,7 +8664,6 @@ export type UserUncheckedUpdateWithoutHostelAllocationsInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
@@ -10205,11 +8719,8 @@ export type UserUncheckedUpdateWithoutHostelAllocationsInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutParentNestedInput
@@ -10234,7 +8745,6 @@ export type UserCreateWithoutInOutEntriesInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
@@ -10292,11 +8802,8 @@ export type UserCreateWithoutInOutEntriesInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutParentInput
@@ -10323,7 +8830,6 @@ export type UserUncheckedCreateWithoutInOutEntriesInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
@@ -10379,11 +8885,8 @@ export type UserUncheckedCreateWithoutInOutEntriesInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutParentInput
@@ -10424,7 +8927,6 @@ export type UserUpdateWithoutInOutEntriesInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
@@ -10482,11 +8984,8 @@ export type UserUpdateWithoutInOutEntriesInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutParentNestedInput
@@ -10513,7 +9012,6 @@ export type UserUncheckedUpdateWithoutInOutEntriesInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
@@ -10569,11 +9067,8 @@ export type UserUncheckedUpdateWithoutInOutEntriesInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutParentNestedInput
@@ -10598,7 +9093,6 @@ export type UserCreateWithoutHostelLeavesInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
@@ -10656,11 +9150,8 @@ export type UserCreateWithoutHostelLeavesInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutParentInput
@@ -10687,7 +9178,6 @@ export type UserUncheckedCreateWithoutHostelLeavesInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
@@ -10743,11 +9233,8 @@ export type UserUncheckedCreateWithoutHostelLeavesInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutParentInput
@@ -10777,7 +9264,6 @@ export type UserCreateWithoutApprovedHostelLeavesInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
@@ -10835,11 +9321,8 @@ export type UserCreateWithoutApprovedHostelLeavesInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutParentInput
@@ -10866,7 +9349,6 @@ export type UserUncheckedCreateWithoutApprovedHostelLeavesInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
@@ -10922,11 +9404,8 @@ export type UserUncheckedCreateWithoutApprovedHostelLeavesInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutParentInput
@@ -10967,7 +9446,6 @@ export type UserUpdateWithoutHostelLeavesInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
@@ -11025,11 +9503,8 @@ export type UserUpdateWithoutHostelLeavesInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutParentNestedInput
@@ -11056,7 +9531,6 @@ export type UserUncheckedUpdateWithoutHostelLeavesInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
@@ -11112,11 +9586,8 @@ export type UserUncheckedUpdateWithoutHostelLeavesInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutParentNestedInput
@@ -11152,7 +9623,6 @@ export type UserUpdateWithoutApprovedHostelLeavesInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
@@ -11210,11 +9680,8 @@ export type UserUpdateWithoutApprovedHostelLeavesInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutParentNestedInput
@@ -11241,7 +9708,6 @@ export type UserUncheckedUpdateWithoutApprovedHostelLeavesInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
@@ -11297,11 +9763,8 @@ export type UserUncheckedUpdateWithoutApprovedHostelLeavesInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutParentNestedInput
@@ -11326,7 +9789,6 @@ export type UserCreateWithoutDisciplineRecordsInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
@@ -11384,11 +9846,8 @@ export type UserCreateWithoutDisciplineRecordsInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutParentInput
@@ -11415,7 +9874,6 @@ export type UserUncheckedCreateWithoutDisciplineRecordsInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
@@ -11471,11 +9929,8 @@ export type UserUncheckedCreateWithoutDisciplineRecordsInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutParentInput
@@ -11505,7 +9960,6 @@ export type UserCreateWithoutRecordedDisciplineInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
@@ -11563,11 +10017,8 @@ export type UserCreateWithoutRecordedDisciplineInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutParentInput
@@ -11594,7 +10045,6 @@ export type UserUncheckedCreateWithoutRecordedDisciplineInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
@@ -11650,11 +10100,8 @@ export type UserUncheckedCreateWithoutRecordedDisciplineInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutParentInput
@@ -11695,7 +10142,6 @@ export type UserUpdateWithoutDisciplineRecordsInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
@@ -11753,11 +10199,8 @@ export type UserUpdateWithoutDisciplineRecordsInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutParentNestedInput
@@ -11784,7 +10227,6 @@ export type UserUncheckedUpdateWithoutDisciplineRecordsInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
@@ -11840,11 +10282,8 @@ export type UserUncheckedUpdateWithoutDisciplineRecordsInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutParentNestedInput
@@ -11880,7 +10319,6 @@ export type UserUpdateWithoutRecordedDisciplineInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
@@ -11938,11 +10376,8 @@ export type UserUpdateWithoutRecordedDisciplineInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutParentNestedInput
@@ -11969,7 +10404,6 @@ export type UserUncheckedUpdateWithoutRecordedDisciplineInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
@@ -12025,11 +10459,8 @@ export type UserUncheckedUpdateWithoutRecordedDisciplineInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutParentNestedInput
@@ -12054,7 +10485,6 @@ export type UserCreateWithoutParadePerformancesInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
@@ -12112,11 +10542,8 @@ export type UserCreateWithoutParadePerformancesInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutParentInput
@@ -12143,7 +10570,6 @@ export type UserUncheckedCreateWithoutParadePerformancesInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
@@ -12199,11 +10625,8 @@ export type UserUncheckedCreateWithoutParadePerformancesInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutParentInput
@@ -12244,7 +10667,6 @@ export type UserUpdateWithoutParadePerformancesInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
@@ -12302,11 +10724,8 @@ export type UserUpdateWithoutParadePerformancesInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutParentNestedInput
@@ -12333,7 +10752,6 @@ export type UserUncheckedUpdateWithoutParadePerformancesInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
@@ -12389,11 +10807,8 @@ export type UserUncheckedUpdateWithoutParadePerformancesInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutParentNestedInput
@@ -12418,7 +10833,6 @@ export type UserCreateWithoutAssignedLeadsInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
@@ -12476,11 +10890,8 @@ export type UserCreateWithoutAssignedLeadsInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutParentInput
@@ -12507,7 +10918,6 @@ export type UserUncheckedCreateWithoutAssignedLeadsInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
@@ -12563,11 +10973,8 @@ export type UserUncheckedCreateWithoutAssignedLeadsInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutParentInput
@@ -12608,7 +11015,6 @@ export type UserUpdateWithoutAssignedLeadsInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
@@ -12666,11 +11072,8 @@ export type UserUpdateWithoutAssignedLeadsInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutParentNestedInput
@@ -12697,7 +11100,6 @@ export type UserUncheckedUpdateWithoutAssignedLeadsInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
@@ -12753,11 +11155,8 @@ export type UserUncheckedUpdateWithoutAssignedLeadsInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutParentNestedInput
@@ -12782,7 +11181,6 @@ export type UserCreateWithoutFollowUpsCreatedInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
@@ -12840,11 +11238,8 @@ export type UserCreateWithoutFollowUpsCreatedInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutParentInput
@@ -12871,7 +11266,6 @@ export type UserUncheckedCreateWithoutFollowUpsCreatedInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
@@ -12927,11 +11321,8 @@ export type UserUncheckedCreateWithoutFollowUpsCreatedInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutParentInput
@@ -12972,7 +11363,6 @@ export type UserUpdateWithoutFollowUpsCreatedInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
@@ -13030,11 +11420,8 @@ export type UserUpdateWithoutFollowUpsCreatedInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutParentNestedInput
@@ -13061,7 +11448,6 @@ export type UserUncheckedUpdateWithoutFollowUpsCreatedInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
@@ -13117,11 +11503,8 @@ export type UserUncheckedUpdateWithoutFollowUpsCreatedInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutParentNestedInput
@@ -13146,7 +11529,6 @@ export type UserCreateWithoutAdmissionsInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
@@ -13204,11 +11586,8 @@ export type UserCreateWithoutAdmissionsInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutParentInput
@@ -13235,7 +11614,6 @@ export type UserUncheckedCreateWithoutAdmissionsInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
@@ -13291,11 +11669,8 @@ export type UserUncheckedCreateWithoutAdmissionsInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutParentInput
@@ -13336,7 +11711,6 @@ export type UserUpdateWithoutAdmissionsInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
@@ -13394,11 +11768,8 @@ export type UserUpdateWithoutAdmissionsInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutParentNestedInput
@@ -13425,7 +11796,6 @@ export type UserUncheckedUpdateWithoutAdmissionsInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
@@ -13481,11 +11851,8 @@ export type UserUncheckedUpdateWithoutAdmissionsInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutParentNestedInput
@@ -13510,7 +11877,6 @@ export type UserCreateWithoutReferralsMadeInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
@@ -13568,11 +11934,8 @@ export type UserCreateWithoutReferralsMadeInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutParentInput
@@ -13599,7 +11962,6 @@ export type UserUncheckedCreateWithoutReferralsMadeInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
@@ -13655,11 +12017,8 @@ export type UserUncheckedCreateWithoutReferralsMadeInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutParentInput
@@ -13689,7 +12048,6 @@ export type UserCreateWithoutReferralsReceivedInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
@@ -13747,11 +12105,8 @@ export type UserCreateWithoutReferralsReceivedInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutParentInput
@@ -13778,7 +12133,6 @@ export type UserUncheckedCreateWithoutReferralsReceivedInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
@@ -13834,11 +12188,8 @@ export type UserUncheckedCreateWithoutReferralsReceivedInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutParentInput
@@ -13879,7 +12230,6 @@ export type UserUpdateWithoutReferralsMadeInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
@@ -13937,11 +12287,8 @@ export type UserUpdateWithoutReferralsMadeInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutParentNestedInput
@@ -13968,7 +12315,6 @@ export type UserUncheckedUpdateWithoutReferralsMadeInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
@@ -14024,11 +12370,8 @@ export type UserUncheckedUpdateWithoutReferralsMadeInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutParentNestedInput
@@ -14064,7 +12407,6 @@ export type UserUpdateWithoutReferralsReceivedInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
@@ -14122,11 +12464,8 @@ export type UserUpdateWithoutReferralsReceivedInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutParentNestedInput
@@ -14153,7 +12492,6 @@ export type UserUncheckedUpdateWithoutReferralsReceivedInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
@@ -14209,11 +12547,8 @@ export type UserUncheckedUpdateWithoutReferralsReceivedInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutParentNestedInput
@@ -14238,7 +12573,6 @@ export type UserCreateWithoutPaymentsInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
@@ -14296,11 +12630,8 @@ export type UserCreateWithoutPaymentsInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutParentInput
@@ -14327,7 +12658,6 @@ export type UserUncheckedCreateWithoutPaymentsInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
@@ -14383,11 +12713,8 @@ export type UserUncheckedCreateWithoutPaymentsInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutParentInput
@@ -14417,7 +12744,6 @@ export type UserCreateWithoutCollectedPaymentsInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
@@ -14475,11 +12801,8 @@ export type UserCreateWithoutCollectedPaymentsInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutParentInput
@@ -14506,7 +12829,6 @@ export type UserUncheckedCreateWithoutCollectedPaymentsInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
@@ -14562,11 +12884,8 @@ export type UserUncheckedCreateWithoutCollectedPaymentsInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutParentInput
@@ -14596,7 +12915,6 @@ export type UserCreateWithoutVerifiedPaymentsInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
@@ -14654,11 +12972,8 @@ export type UserCreateWithoutVerifiedPaymentsInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutParentInput
@@ -14685,7 +13000,6 @@ export type UserUncheckedCreateWithoutVerifiedPaymentsInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
@@ -14741,11 +13055,8 @@ export type UserUncheckedCreateWithoutVerifiedPaymentsInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutParentInput
@@ -14786,7 +13097,6 @@ export type UserUpdateWithoutPaymentsInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
@@ -14844,11 +13154,8 @@ export type UserUpdateWithoutPaymentsInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutParentNestedInput
@@ -14875,7 +13182,6 @@ export type UserUncheckedUpdateWithoutPaymentsInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
@@ -14931,11 +13237,8 @@ export type UserUncheckedUpdateWithoutPaymentsInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutParentNestedInput
@@ -14971,7 +13274,6 @@ export type UserUpdateWithoutCollectedPaymentsInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
@@ -15029,11 +13331,8 @@ export type UserUpdateWithoutCollectedPaymentsInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutParentNestedInput
@@ -15060,7 +13359,6 @@ export type UserUncheckedUpdateWithoutCollectedPaymentsInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
@@ -15116,11 +13414,8 @@ export type UserUncheckedUpdateWithoutCollectedPaymentsInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutParentNestedInput
@@ -15156,7 +13451,6 @@ export type UserUpdateWithoutVerifiedPaymentsInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
@@ -15214,11 +13508,8 @@ export type UserUpdateWithoutVerifiedPaymentsInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutParentNestedInput
@@ -15245,7 +13536,6 @@ export type UserUncheckedUpdateWithoutVerifiedPaymentsInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
@@ -15301,11 +13591,8 @@ export type UserUncheckedUpdateWithoutVerifiedPaymentsInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutParentNestedInput
@@ -15330,7 +13617,6 @@ export type UserCreateWithoutSubscriptionsInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
@@ -15388,11 +13674,8 @@ export type UserCreateWithoutSubscriptionsInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutParentInput
@@ -15419,7 +13702,6 @@ export type UserUncheckedCreateWithoutSubscriptionsInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
@@ -15475,11 +13757,8 @@ export type UserUncheckedCreateWithoutSubscriptionsInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutParentInput
@@ -15520,7 +13799,6 @@ export type UserUpdateWithoutSubscriptionsInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
@@ -15578,11 +13856,8 @@ export type UserUpdateWithoutSubscriptionsInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutParentNestedInput
@@ -15609,7 +13884,6 @@ export type UserUncheckedUpdateWithoutSubscriptionsInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
@@ -15665,11 +13939,8 @@ export type UserUncheckedUpdateWithoutSubscriptionsInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutParentNestedInput
@@ -15694,7 +13965,6 @@ export type UserCreateWithoutFeeInstallmentsInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
@@ -15752,11 +14022,8 @@ export type UserCreateWithoutFeeInstallmentsInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutParentInput
@@ -15783,7 +14050,6 @@ export type UserUncheckedCreateWithoutFeeInstallmentsInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
@@ -15839,11 +14105,8 @@ export type UserUncheckedCreateWithoutFeeInstallmentsInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutParentInput
@@ -15884,7 +14147,6 @@ export type UserUpdateWithoutFeeInstallmentsInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
@@ -15942,11 +14204,8 @@ export type UserUpdateWithoutFeeInstallmentsInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutParentNestedInput
@@ -15973,7 +14232,6 @@ export type UserUncheckedUpdateWithoutFeeInstallmentsInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
@@ -16029,11 +14287,8 @@ export type UserUncheckedUpdateWithoutFeeInstallmentsInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutParentNestedInput
@@ -16058,7 +14313,6 @@ export type UserCreateWithoutInvoicesInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
@@ -16116,11 +14370,8 @@ export type UserCreateWithoutInvoicesInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutParentInput
@@ -16147,7 +14398,6 @@ export type UserUncheckedCreateWithoutInvoicesInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
@@ -16203,11 +14453,8 @@ export type UserUncheckedCreateWithoutInvoicesInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutParentInput
@@ -16248,7 +14495,6 @@ export type UserUpdateWithoutInvoicesInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
@@ -16306,11 +14552,8 @@ export type UserUpdateWithoutInvoicesInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutParentNestedInput
@@ -16337,7 +14580,6 @@ export type UserUncheckedUpdateWithoutInvoicesInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
@@ -16393,11 +14635,8 @@ export type UserUncheckedUpdateWithoutInvoicesInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutParentNestedInput
@@ -16422,7 +14661,6 @@ export type UserCreateWithoutApprovalRequestsCreatedInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
@@ -16480,11 +14718,8 @@ export type UserCreateWithoutApprovalRequestsCreatedInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutParentInput
@@ -16511,7 +14746,6 @@ export type UserUncheckedCreateWithoutApprovalRequestsCreatedInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
@@ -16567,11 +14801,8 @@ export type UserUncheckedCreateWithoutApprovalRequestsCreatedInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutParentInput
@@ -16601,7 +14832,6 @@ export type UserCreateWithoutApprovalRequestsReviewedInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
@@ -16659,11 +14889,8 @@ export type UserCreateWithoutApprovalRequestsReviewedInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutParentInput
@@ -16690,7 +14917,6 @@ export type UserUncheckedCreateWithoutApprovalRequestsReviewedInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
@@ -16746,11 +14972,8 @@ export type UserUncheckedCreateWithoutApprovalRequestsReviewedInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutParentInput
@@ -16791,7 +15014,6 @@ export type UserUpdateWithoutApprovalRequestsCreatedInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
@@ -16849,11 +15071,8 @@ export type UserUpdateWithoutApprovalRequestsCreatedInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutParentNestedInput
@@ -16880,7 +15099,6 @@ export type UserUncheckedUpdateWithoutApprovalRequestsCreatedInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
@@ -16936,11 +15154,8 @@ export type UserUncheckedUpdateWithoutApprovalRequestsCreatedInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutParentNestedInput
@@ -16976,7 +15191,6 @@ export type UserUpdateWithoutApprovalRequestsReviewedInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
@@ -17034,11 +15248,8 @@ export type UserUpdateWithoutApprovalRequestsReviewedInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutParentNestedInput
@@ -17065,7 +15276,6 @@ export type UserUncheckedUpdateWithoutApprovalRequestsReviewedInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
@@ -17121,11 +15331,8 @@ export type UserUncheckedUpdateWithoutApprovalRequestsReviewedInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutParentNestedInput
@@ -17150,7 +15357,6 @@ export type UserCreateWithoutScholarshipsInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
@@ -17208,11 +15414,8 @@ export type UserCreateWithoutScholarshipsInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutParentInput
@@ -17239,7 +15442,6 @@ export type UserUncheckedCreateWithoutScholarshipsInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
@@ -17295,11 +15497,8 @@ export type UserUncheckedCreateWithoutScholarshipsInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutParentInput
@@ -17329,7 +15528,6 @@ export type UserCreateWithoutScholarshipReviewActionsInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
@@ -17387,11 +15585,8 @@ export type UserCreateWithoutScholarshipReviewActionsInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutParentInput
@@ -17418,7 +15613,6 @@ export type UserUncheckedCreateWithoutScholarshipReviewActionsInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
@@ -17474,11 +15668,8 @@ export type UserUncheckedCreateWithoutScholarshipReviewActionsInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutParentInput
@@ -17519,7 +15710,6 @@ export type UserUpdateWithoutScholarshipsInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
@@ -17577,11 +15767,8 @@ export type UserUpdateWithoutScholarshipsInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutParentNestedInput
@@ -17608,7 +15795,6 @@ export type UserUncheckedUpdateWithoutScholarshipsInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
@@ -17664,11 +15850,8 @@ export type UserUncheckedUpdateWithoutScholarshipsInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutParentNestedInput
@@ -17704,7 +15887,6 @@ export type UserUpdateWithoutScholarshipReviewActionsInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
@@ -17762,11 +15944,8 @@ export type UserUpdateWithoutScholarshipReviewActionsInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutParentNestedInput
@@ -17793,7 +15972,6 @@ export type UserUncheckedUpdateWithoutScholarshipReviewActionsInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
@@ -17849,11 +16027,8 @@ export type UserUncheckedUpdateWithoutScholarshipReviewActionsInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutParentNestedInput
@@ -17878,7 +16053,6 @@ export type UserCreateWithoutNotificationsInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
@@ -17936,11 +16110,8 @@ export type UserCreateWithoutNotificationsInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutParentInput
@@ -17967,7 +16138,6 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
@@ -18023,11 +16193,8 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutParentInput
@@ -18068,7 +16235,6 @@ export type UserUpdateWithoutNotificationsInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
@@ -18126,11 +16292,8 @@ export type UserUpdateWithoutNotificationsInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutParentNestedInput
@@ -18157,7 +16320,6 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
@@ -18213,11 +16375,8 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutParentNestedInput
@@ -18242,7 +16401,6 @@ export type UserCreateWithoutMessageThreadsInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
@@ -18300,11 +16458,8 @@ export type UserCreateWithoutMessageThreadsInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutParentInput
@@ -18331,7 +16486,6 @@ export type UserUncheckedCreateWithoutMessageThreadsInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
@@ -18387,11 +16541,8 @@ export type UserUncheckedCreateWithoutMessageThreadsInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutParentInput
@@ -18432,7 +16583,6 @@ export type UserUpdateWithoutMessageThreadsInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
@@ -18490,11 +16640,8 @@ export type UserUpdateWithoutMessageThreadsInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutParentNestedInput
@@ -18521,7 +16668,6 @@ export type UserUncheckedUpdateWithoutMessageThreadsInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
@@ -18577,11 +16723,8 @@ export type UserUncheckedUpdateWithoutMessageThreadsInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutParentNestedInput
@@ -18606,7 +16749,6 @@ export type UserCreateWithoutSentMessagesInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
@@ -18664,11 +16806,8 @@ export type UserCreateWithoutSentMessagesInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutParentInput
@@ -18695,7 +16834,6 @@ export type UserUncheckedCreateWithoutSentMessagesInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
@@ -18751,11 +16889,8 @@ export type UserUncheckedCreateWithoutSentMessagesInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutParentInput
@@ -18785,7 +16920,6 @@ export type UserCreateWithoutReceivedMessagesInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
@@ -18843,11 +16977,8 @@ export type UserCreateWithoutReceivedMessagesInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutParentInput
@@ -18874,7 +17005,6 @@ export type UserUncheckedCreateWithoutReceivedMessagesInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
@@ -18930,11 +17060,8 @@ export type UserUncheckedCreateWithoutReceivedMessagesInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutParentInput
@@ -18975,7 +17102,6 @@ export type UserUpdateWithoutSentMessagesInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
@@ -19033,11 +17159,8 @@ export type UserUpdateWithoutSentMessagesInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutParentNestedInput
@@ -19064,7 +17187,6 @@ export type UserUncheckedUpdateWithoutSentMessagesInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
@@ -19120,11 +17242,8 @@ export type UserUncheckedUpdateWithoutSentMessagesInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutParentNestedInput
@@ -19160,7 +17279,6 @@ export type UserUpdateWithoutReceivedMessagesInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
@@ -19218,11 +17336,8 @@ export type UserUpdateWithoutReceivedMessagesInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutParentNestedInput
@@ -19249,7 +17364,6 @@ export type UserUncheckedUpdateWithoutReceivedMessagesInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
@@ -19305,11 +17419,8 @@ export type UserUncheckedUpdateWithoutReceivedMessagesInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutParentNestedInput
@@ -19334,7 +17445,6 @@ export type UserCreateWithoutAiInterviewSessionsInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
@@ -19392,11 +17502,8 @@ export type UserCreateWithoutAiInterviewSessionsInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutParentInput
@@ -19423,7 +17530,6 @@ export type UserUncheckedCreateWithoutAiInterviewSessionsInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
@@ -19479,11 +17585,8 @@ export type UserUncheckedCreateWithoutAiInterviewSessionsInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutParentInput
@@ -19524,7 +17627,6 @@ export type UserUpdateWithoutAiInterviewSessionsInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
@@ -19582,11 +17684,8 @@ export type UserUpdateWithoutAiInterviewSessionsInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutParentNestedInput
@@ -19613,7 +17712,6 @@ export type UserUncheckedUpdateWithoutAiInterviewSessionsInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
@@ -19669,11 +17767,8 @@ export type UserUncheckedUpdateWithoutAiInterviewSessionsInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutParentNestedInput
@@ -19698,7 +17793,6 @@ export type UserCreateWithoutDoubtQueriesInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
@@ -19756,11 +17850,8 @@ export type UserCreateWithoutDoubtQueriesInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutParentInput
@@ -19787,7 +17878,6 @@ export type UserUncheckedCreateWithoutDoubtQueriesInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
@@ -19843,11 +17933,8 @@ export type UserUncheckedCreateWithoutDoubtQueriesInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutParentInput
@@ -19888,7 +17975,6 @@ export type UserUpdateWithoutDoubtQueriesInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
@@ -19946,11 +18032,8 @@ export type UserUpdateWithoutDoubtQueriesInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutParentNestedInput
@@ -19977,7 +18060,6 @@ export type UserUncheckedUpdateWithoutDoubtQueriesInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
@@ -20033,11 +18115,8 @@ export type UserUncheckedUpdateWithoutDoubtQueriesInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutParentNestedInput
@@ -20062,7 +18141,6 @@ export type UserCreateWithoutAiRecommendationsInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
@@ -20120,11 +18198,8 @@ export type UserCreateWithoutAiRecommendationsInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutParentInput
@@ -20151,7 +18226,6 @@ export type UserUncheckedCreateWithoutAiRecommendationsInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
@@ -20207,11 +18281,8 @@ export type UserUncheckedCreateWithoutAiRecommendationsInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutParentInput
@@ -20252,7 +18323,6 @@ export type UserUpdateWithoutAiRecommendationsInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
@@ -20310,11 +18380,8 @@ export type UserUpdateWithoutAiRecommendationsInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutParentNestedInput
@@ -20341,7 +18408,6 @@ export type UserUncheckedUpdateWithoutAiRecommendationsInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
@@ -20397,11 +18463,8 @@ export type UserUncheckedUpdateWithoutAiRecommendationsInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutParentNestedInput
@@ -20426,7 +18489,6 @@ export type UserCreateWithoutOfficerPotentialInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
@@ -20484,11 +18546,8 @@ export type UserCreateWithoutOfficerPotentialInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutParentInput
@@ -20515,7 +18574,6 @@ export type UserUncheckedCreateWithoutOfficerPotentialInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
@@ -20571,11 +18629,8 @@ export type UserUncheckedCreateWithoutOfficerPotentialInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutParentInput
@@ -20616,7 +18671,6 @@ export type UserUpdateWithoutOfficerPotentialInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
@@ -20674,11 +18728,8 @@ export type UserUpdateWithoutOfficerPotentialInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutParentNestedInput
@@ -20705,7 +18756,6 @@ export type UserUncheckedUpdateWithoutOfficerPotentialInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
@@ -20761,11 +18811,8 @@ export type UserUncheckedUpdateWithoutOfficerPotentialInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutParentNestedInput
@@ -20790,7 +18837,6 @@ export type UserCreateWithoutFitnessProfileInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
@@ -20848,11 +18894,8 @@ export type UserCreateWithoutFitnessProfileInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutParentInput
@@ -20879,7 +18922,6 @@ export type UserUncheckedCreateWithoutFitnessProfileInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
@@ -20935,11 +18977,8 @@ export type UserUncheckedCreateWithoutFitnessProfileInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutParentInput
@@ -20980,7 +19019,6 @@ export type UserUpdateWithoutFitnessProfileInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
@@ -21038,11 +19076,8 @@ export type UserUpdateWithoutFitnessProfileInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutParentNestedInput
@@ -21069,7 +19104,6 @@ export type UserUncheckedUpdateWithoutFitnessProfileInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
@@ -21125,11 +19159,8 @@ export type UserUncheckedUpdateWithoutFitnessProfileInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutParentNestedInput
@@ -21154,7 +19185,6 @@ export type UserCreateWithoutPtAttendancesInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
@@ -21212,11 +19242,8 @@ export type UserCreateWithoutPtAttendancesInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutParentInput
@@ -21243,7 +19270,6 @@ export type UserUncheckedCreateWithoutPtAttendancesInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
@@ -21299,11 +19325,8 @@ export type UserUncheckedCreateWithoutPtAttendancesInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutParentInput
@@ -21344,7 +19367,6 @@ export type UserUpdateWithoutPtAttendancesInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
@@ -21402,11 +19424,8 @@ export type UserUpdateWithoutPtAttendancesInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutParentNestedInput
@@ -21433,7 +19452,6 @@ export type UserUncheckedUpdateWithoutPtAttendancesInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
@@ -21489,11 +19507,8 @@ export type UserUncheckedUpdateWithoutPtAttendancesInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutParentNestedInput
@@ -21518,7 +19533,6 @@ export type UserCreateWithoutPhysicalEligibilitiesInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
@@ -21576,11 +19590,8 @@ export type UserCreateWithoutPhysicalEligibilitiesInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutParentInput
@@ -21607,7 +19618,6 @@ export type UserUncheckedCreateWithoutPhysicalEligibilitiesInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
@@ -21663,11 +19673,8 @@ export type UserUncheckedCreateWithoutPhysicalEligibilitiesInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutParentInput
@@ -21708,7 +19715,6 @@ export type UserUpdateWithoutPhysicalEligibilitiesInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
@@ -21766,11 +19772,8 @@ export type UserUpdateWithoutPhysicalEligibilitiesInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutParentNestedInput
@@ -21797,7 +19800,6 @@ export type UserUncheckedUpdateWithoutPhysicalEligibilitiesInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
@@ -21853,11 +19855,8 @@ export type UserUncheckedUpdateWithoutPhysicalEligibilitiesInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutParentNestedInput
@@ -21882,7 +19881,6 @@ export type UserCreateWithoutDailyFitnessLogsInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
@@ -21940,11 +19938,8 @@ export type UserCreateWithoutDailyFitnessLogsInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutParentInput
@@ -21971,7 +19966,6 @@ export type UserUncheckedCreateWithoutDailyFitnessLogsInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
@@ -22027,11 +20021,8 @@ export type UserUncheckedCreateWithoutDailyFitnessLogsInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutParentInput
@@ -22072,7 +20063,6 @@ export type UserUpdateWithoutDailyFitnessLogsInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
@@ -22130,11 +20120,8 @@ export type UserUpdateWithoutDailyFitnessLogsInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutParentNestedInput
@@ -22161,7 +20148,6 @@ export type UserUncheckedUpdateWithoutDailyFitnessLogsInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
@@ -22217,11 +20203,8 @@ export type UserUncheckedUpdateWithoutDailyFitnessLogsInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutParentNestedInput
@@ -22246,7 +20229,6 @@ export type UserCreateWithoutQuizBattleParticipantsInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
@@ -22304,11 +20286,8 @@ export type UserCreateWithoutQuizBattleParticipantsInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutParentInput
@@ -22335,7 +20314,6 @@ export type UserUncheckedCreateWithoutQuizBattleParticipantsInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
@@ -22391,11 +20369,8 @@ export type UserUncheckedCreateWithoutQuizBattleParticipantsInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutParentInput
@@ -22436,7 +20411,6 @@ export type UserUpdateWithoutQuizBattleParticipantsInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
@@ -22494,11 +20468,8 @@ export type UserUpdateWithoutQuizBattleParticipantsInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutParentNestedInput
@@ -22525,7 +20496,6 @@ export type UserUncheckedUpdateWithoutQuizBattleParticipantsInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
@@ -22581,11 +20551,8 @@ export type UserUncheckedUpdateWithoutQuizBattleParticipantsInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutParentNestedInput
@@ -22610,7 +20577,6 @@ export type UserCreateWithoutLeaderboardInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
@@ -22668,11 +20634,8 @@ export type UserCreateWithoutLeaderboardInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutParentInput
@@ -22699,7 +20662,6 @@ export type UserUncheckedCreateWithoutLeaderboardInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
@@ -22755,11 +20717,8 @@ export type UserUncheckedCreateWithoutLeaderboardInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutParentInput
@@ -22800,7 +20759,6 @@ export type UserUpdateWithoutLeaderboardInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
@@ -22858,11 +20816,8 @@ export type UserUpdateWithoutLeaderboardInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutParentNestedInput
@@ -22889,7 +20844,6 @@ export type UserUncheckedUpdateWithoutLeaderboardInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
@@ -22945,11 +20899,8 @@ export type UserUncheckedUpdateWithoutLeaderboardInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutParentNestedInput
@@ -22974,7 +20925,6 @@ export type UserCreateWithoutMediaFoldersInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
@@ -23032,11 +20982,8 @@ export type UserCreateWithoutMediaFoldersInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutParentInput
@@ -23063,7 +21010,6 @@ export type UserUncheckedCreateWithoutMediaFoldersInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
@@ -23119,11 +21065,8 @@ export type UserUncheckedCreateWithoutMediaFoldersInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutParentInput
@@ -23164,7 +21107,6 @@ export type UserUpdateWithoutMediaFoldersInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
@@ -23222,11 +21164,8 @@ export type UserUpdateWithoutMediaFoldersInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutParentNestedInput
@@ -23253,7 +21192,6 @@ export type UserUncheckedUpdateWithoutMediaFoldersInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
@@ -23309,11 +21247,8 @@ export type UserUncheckedUpdateWithoutMediaFoldersInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutParentNestedInput
@@ -23338,7 +21273,6 @@ export type UserCreateWithoutMediaFilesInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
@@ -23396,11 +21330,8 @@ export type UserCreateWithoutMediaFilesInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutParentInput
@@ -23427,7 +21358,6 @@ export type UserUncheckedCreateWithoutMediaFilesInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
@@ -23483,11 +21413,8 @@ export type UserUncheckedCreateWithoutMediaFilesInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutParentInput
@@ -23528,7 +21455,6 @@ export type UserUpdateWithoutMediaFilesInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
@@ -23586,11 +21512,8 @@ export type UserUpdateWithoutMediaFilesInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutParentNestedInput
@@ -23617,7 +21540,6 @@ export type UserUncheckedUpdateWithoutMediaFilesInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
@@ -23673,11 +21595,8 @@ export type UserUncheckedUpdateWithoutMediaFilesInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutParentNestedInput
@@ -23702,7 +21621,6 @@ export type UserCreateWithoutDocumentsInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
@@ -23760,11 +21678,8 @@ export type UserCreateWithoutDocumentsInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutParentInput
@@ -23791,7 +21706,6 @@ export type UserUncheckedCreateWithoutDocumentsInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
@@ -23847,11 +21761,8 @@ export type UserUncheckedCreateWithoutDocumentsInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutParentInput
@@ -23892,7 +21803,6 @@ export type UserUpdateWithoutDocumentsInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
@@ -23950,11 +21860,8 @@ export type UserUpdateWithoutDocumentsInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutParentNestedInput
@@ -23981,7 +21888,6 @@ export type UserUncheckedUpdateWithoutDocumentsInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
@@ -24037,11 +21943,8 @@ export type UserUncheckedUpdateWithoutDocumentsInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutParentNestedInput
@@ -24066,7 +21969,6 @@ export type UserCreateWithoutAdminRolesInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
@@ -24124,11 +22026,8 @@ export type UserCreateWithoutAdminRolesInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutParentInput
@@ -24155,7 +22054,6 @@ export type UserUncheckedCreateWithoutAdminRolesInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
@@ -24211,11 +22109,8 @@ export type UserUncheckedCreateWithoutAdminRolesInput = {
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutParentInput
@@ -24256,7 +22151,6 @@ export type UserUpdateWithoutAdminRolesInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
@@ -24314,11 +22208,8 @@ export type UserUpdateWithoutAdminRolesInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutParentNestedInput
@@ -24345,7 +22236,6 @@ export type UserUncheckedUpdateWithoutAdminRolesInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
@@ -24401,11 +22291,8 @@ export type UserUncheckedUpdateWithoutAdminRolesInput = {
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutParentNestedInput
@@ -24430,7 +22317,6 @@ export type UserCreateWithoutRoleActivitiesInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
@@ -24488,11 +22374,8 @@ export type UserCreateWithoutRoleActivitiesInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutParentInput
@@ -24519,7 +22402,6 @@ export type UserUncheckedCreateWithoutRoleActivitiesInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
@@ -24575,11 +22457,8 @@ export type UserUncheckedCreateWithoutRoleActivitiesInput = {
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutParentInput
@@ -24620,7 +22499,6 @@ export type UserUpdateWithoutRoleActivitiesInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
@@ -24678,11 +22556,8 @@ export type UserUpdateWithoutRoleActivitiesInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutParentNestedInput
@@ -24709,7 +22584,6 @@ export type UserUncheckedUpdateWithoutRoleActivitiesInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
@@ -24765,11 +22639,8 @@ export type UserUncheckedUpdateWithoutRoleActivitiesInput = {
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutParentNestedInput
@@ -24794,7 +22665,6 @@ export type UserCreateWithoutAuditLogsInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
@@ -24852,11 +22722,8 @@ export type UserCreateWithoutAuditLogsInput = {
   roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutUserInput
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutParentInput
@@ -24883,7 +22750,6 @@ export type UserUncheckedCreateWithoutAuditLogsInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
@@ -24939,11 +22805,8 @@ export type UserUncheckedCreateWithoutAuditLogsInput = {
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutParentInput
@@ -24984,7 +22847,6 @@ export type UserUpdateWithoutAuditLogsInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
@@ -25042,11 +22904,8 @@ export type UserUpdateWithoutAuditLogsInput = {
   roleActivities?: Prisma.RoleActivityUpdateManyWithoutUserNestedInput
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutParentNestedInput
@@ -25073,7 +22932,6 @@ export type UserUncheckedUpdateWithoutAuditLogsInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
@@ -25129,11 +22987,8 @@ export type UserUncheckedUpdateWithoutAuditLogsInput = {
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutParentNestedInput
@@ -25158,7 +23013,6 @@ export type UserCreateWithoutBranchInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
@@ -25216,11 +23070,8 @@ export type UserCreateWithoutBranchInput = {
   roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutUserInput
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutParentInput
@@ -25246,7 +23097,6 @@ export type UserUncheckedCreateWithoutBranchInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
@@ -25303,11 +23153,8 @@ export type UserUncheckedCreateWithoutBranchInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutParentInput
@@ -25363,7 +23210,6 @@ export type UserScalarWhereInput = {
   loginFailureCount?: Prisma.IntFilter<"User"> | number
   lockedUntil?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   lastLoginAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
-  tokenVersion?: Prisma.IntFilter<"User"> | number
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
 }
@@ -25386,7 +23232,6 @@ export type UserCreateWithoutInstituteInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
@@ -25444,11 +23289,8 @@ export type UserCreateWithoutInstituteInput = {
   roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutUserInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutParentInput
@@ -25474,7 +23316,6 @@ export type UserUncheckedCreateWithoutInstituteInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
@@ -25531,11 +23372,8 @@ export type UserUncheckedCreateWithoutInstituteInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedCreateNestedManyWithoutUserInput
+  sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutStudentInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutParentInput
@@ -25587,7 +23425,6 @@ export type UserCreateManyBranchInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -25610,7 +23447,6 @@ export type UserUpdateWithoutBranchInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
@@ -25668,11 +23504,8 @@ export type UserUpdateWithoutBranchInput = {
   roleActivities?: Prisma.RoleActivityUpdateManyWithoutUserNestedInput
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutParentNestedInput
@@ -25698,7 +23531,6 @@ export type UserUncheckedUpdateWithoutBranchInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
@@ -25755,11 +23587,8 @@ export type UserUncheckedUpdateWithoutBranchInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutParentNestedInput
@@ -25785,7 +23614,6 @@ export type UserUncheckedUpdateManyWithoutBranchInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -25809,7 +23637,6 @@ export type UserCreateManyInstituteInput = {
   loginFailureCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
-  tokenVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -25832,7 +23659,6 @@ export type UserUpdateWithoutInstituteInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
@@ -25890,11 +23716,8 @@ export type UserUpdateWithoutInstituteInput = {
   roleActivities?: Prisma.RoleActivityUpdateManyWithoutUserNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutParentNestedInput
@@ -25920,7 +23743,6 @@ export type UserUncheckedUpdateWithoutInstituteInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
@@ -25977,11 +23799,8 @@ export type UserUncheckedUpdateWithoutInstituteInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
-  authVerificationTokens?: Prisma.AuthVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
-  tokenBlacklist?: Prisma.TokenBlacklistUncheckedUpdateManyWithoutUserNestedInput
+  sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutStudentNestedInput
   parentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutParentNestedInput
@@ -26007,7 +23826,6 @@ export type UserUncheckedUpdateManyWithoutInstituteInput = {
   loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -26066,11 +23884,8 @@ export type UserCountOutputType = {
   adminRoles: number
   roleActivities: number
   auditLogs: number
-  authVerificationTokens: number
-  passwordResetTokens: number
-  authSessions: number
-  refreshTokens: number
-  tokenBlacklist: number
+  sessionTokens: number
+  passwordResets: number
   parentInvitationsSent: number
   parentInvitationsReceived: number
   parentLinks: number
@@ -26126,11 +23941,8 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   adminRoles?: boolean | UserCountOutputTypeCountAdminRolesArgs
   roleActivities?: boolean | UserCountOutputTypeCountRoleActivitiesArgs
   auditLogs?: boolean | UserCountOutputTypeCountAuditLogsArgs
-  authVerificationTokens?: boolean | UserCountOutputTypeCountAuthVerificationTokensArgs
-  passwordResetTokens?: boolean | UserCountOutputTypeCountPasswordResetTokensArgs
-  authSessions?: boolean | UserCountOutputTypeCountAuthSessionsArgs
-  refreshTokens?: boolean | UserCountOutputTypeCountRefreshTokensArgs
-  tokenBlacklist?: boolean | UserCountOutputTypeCountTokenBlacklistArgs
+  sessionTokens?: boolean | UserCountOutputTypeCountSessionTokensArgs
+  passwordResets?: boolean | UserCountOutputTypeCountPasswordResetsArgs
   parentInvitationsSent?: boolean | UserCountOutputTypeCountParentInvitationsSentArgs
   parentInvitationsReceived?: boolean | UserCountOutputTypeCountParentInvitationsReceivedArgs
   parentLinks?: boolean | UserCountOutputTypeCountParentLinksArgs
@@ -26486,36 +24298,15 @@ export type UserCountOutputTypeCountAuditLogsArgs<ExtArgs extends runtime.Types.
 /**
  * UserCountOutputType without action
  */
-export type UserCountOutputTypeCountAuthVerificationTokensArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.AuthVerificationTokenWhereInput
+export type UserCountOutputTypeCountSessionTokensArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SessionTokenWhereInput
 }
 
 /**
  * UserCountOutputType without action
  */
-export type UserCountOutputTypeCountPasswordResetTokensArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.PasswordResetTokenWhereInput
-}
-
-/**
- * UserCountOutputType without action
- */
-export type UserCountOutputTypeCountAuthSessionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.AuthSessionWhereInput
-}
-
-/**
- * UserCountOutputType without action
- */
-export type UserCountOutputTypeCountRefreshTokensArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.RefreshTokenWhereInput
-}
-
-/**
- * UserCountOutputType without action
- */
-export type UserCountOutputTypeCountTokenBlacklistArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.TokenBlacklistWhereInput
+export type UserCountOutputTypeCountPasswordResetsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PasswordResetWhereInput
 }
 
 /**
@@ -26567,7 +24358,6 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   loginFailureCount?: boolean
   lockedUntil?: boolean
   lastLoginAt?: boolean
-  tokenVersion?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   enrollments?: boolean | Prisma.User$enrollmentsArgs<ExtArgs>
@@ -26626,11 +24416,8 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   institute?: boolean | Prisma.User$instituteArgs<ExtArgs>
   branch?: boolean | Prisma.User$branchArgs<ExtArgs>
   auditLogs?: boolean | Prisma.User$auditLogsArgs<ExtArgs>
-  authVerificationTokens?: boolean | Prisma.User$authVerificationTokensArgs<ExtArgs>
-  passwordResetTokens?: boolean | Prisma.User$passwordResetTokensArgs<ExtArgs>
-  authSessions?: boolean | Prisma.User$authSessionsArgs<ExtArgs>
-  refreshTokens?: boolean | Prisma.User$refreshTokensArgs<ExtArgs>
-  tokenBlacklist?: boolean | Prisma.User$tokenBlacklistArgs<ExtArgs>
+  sessionTokens?: boolean | Prisma.User$sessionTokensArgs<ExtArgs>
+  passwordResets?: boolean | Prisma.User$passwordResetsArgs<ExtArgs>
   parentInvitationsSent?: boolean | Prisma.User$parentInvitationsSentArgs<ExtArgs>
   parentInvitationsReceived?: boolean | Prisma.User$parentInvitationsReceivedArgs<ExtArgs>
   parentLinks?: boolean | Prisma.User$parentLinksArgs<ExtArgs>
@@ -26658,7 +24445,6 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   loginFailureCount?: boolean
   lockedUntil?: boolean
   lastLoginAt?: boolean
-  tokenVersion?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   institute?: boolean | Prisma.User$instituteArgs<ExtArgs>
@@ -26685,7 +24471,6 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   loginFailureCount?: boolean
   lockedUntil?: boolean
   lastLoginAt?: boolean
-  tokenVersion?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   institute?: boolean | Prisma.User$instituteArgs<ExtArgs>
@@ -26712,12 +24497,11 @@ export type UserSelectScalar = {
   loginFailureCount?: boolean
   lockedUntil?: boolean
   lastLoginAt?: boolean
-  tokenVersion?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "email" | "mobile" | "password" | "role" | "instituteId" | "branchId" | "roleMetadata" | "roleOnboardingStatus" | "roleActivatedAt" | "lastRoleActivityAt" | "emailVerified" | "mobileVerified" | "isDisabled" | "disabledAt" | "loginFailureCount" | "lockedUntil" | "lastLoginAt" | "tokenVersion" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "email" | "mobile" | "password" | "role" | "instituteId" | "branchId" | "roleMetadata" | "roleOnboardingStatus" | "roleActivatedAt" | "lastRoleActivityAt" | "emailVerified" | "mobileVerified" | "isDisabled" | "disabledAt" | "loginFailureCount" | "lockedUntil" | "lastLoginAt" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   enrollments?: boolean | Prisma.User$enrollmentsArgs<ExtArgs>
   testAttempts?: boolean | Prisma.User$testAttemptsArgs<ExtArgs>
@@ -26775,11 +24559,8 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   institute?: boolean | Prisma.User$instituteArgs<ExtArgs>
   branch?: boolean | Prisma.User$branchArgs<ExtArgs>
   auditLogs?: boolean | Prisma.User$auditLogsArgs<ExtArgs>
-  authVerificationTokens?: boolean | Prisma.User$authVerificationTokensArgs<ExtArgs>
-  passwordResetTokens?: boolean | Prisma.User$passwordResetTokensArgs<ExtArgs>
-  authSessions?: boolean | Prisma.User$authSessionsArgs<ExtArgs>
-  refreshTokens?: boolean | Prisma.User$refreshTokensArgs<ExtArgs>
-  tokenBlacklist?: boolean | Prisma.User$tokenBlacklistArgs<ExtArgs>
+  sessionTokens?: boolean | Prisma.User$sessionTokensArgs<ExtArgs>
+  passwordResets?: boolean | Prisma.User$passwordResetsArgs<ExtArgs>
   parentInvitationsSent?: boolean | Prisma.User$parentInvitationsSentArgs<ExtArgs>
   parentInvitationsReceived?: boolean | Prisma.User$parentInvitationsReceivedArgs<ExtArgs>
   parentLinks?: boolean | Prisma.User$parentLinksArgs<ExtArgs>
@@ -26854,11 +24635,8 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     institute: Prisma.$InstitutePayload<ExtArgs> | null
     branch: Prisma.$BranchPayload<ExtArgs> | null
     auditLogs: Prisma.$AuditLogPayload<ExtArgs>[]
-    authVerificationTokens: Prisma.$AuthVerificationTokenPayload<ExtArgs>[]
-    passwordResetTokens: Prisma.$PasswordResetTokenPayload<ExtArgs>[]
-    authSessions: Prisma.$AuthSessionPayload<ExtArgs>[]
-    refreshTokens: Prisma.$RefreshTokenPayload<ExtArgs>[]
-    tokenBlacklist: Prisma.$TokenBlacklistPayload<ExtArgs>[]
+    sessionTokens: Prisma.$SessionTokenPayload<ExtArgs>[]
+    passwordResets: Prisma.$PasswordResetPayload<ExtArgs>[]
     parentInvitationsSent: Prisma.$ParentStudentInvitationPayload<ExtArgs>[]
     parentInvitationsReceived: Prisma.$ParentStudentInvitationPayload<ExtArgs>[]
     parentLinks: Prisma.$ParentStudentLinkPayload<ExtArgs>[]
@@ -26884,7 +24662,6 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     loginFailureCount: number
     lockedUntil: Date | null
     lastLoginAt: Date | null
-    tokenVersion: number
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["user"]>
@@ -27337,11 +25114,8 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   institute<T extends Prisma.User$instituteArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$instituteArgs<ExtArgs>>): Prisma.Prisma__InstituteClient<runtime.Types.Result.GetResult<Prisma.$InstitutePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   branch<T extends Prisma.User$branchArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$branchArgs<ExtArgs>>): Prisma.Prisma__BranchClient<runtime.Types.Result.GetResult<Prisma.$BranchPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   auditLogs<T extends Prisma.User$auditLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$auditLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  authVerificationTokens<T extends Prisma.User$authVerificationTokensArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$authVerificationTokensArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AuthVerificationTokenPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  passwordResetTokens<T extends Prisma.User$passwordResetTokensArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$passwordResetTokensArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PasswordResetTokenPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  authSessions<T extends Prisma.User$authSessionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$authSessionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AuthSessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  refreshTokens<T extends Prisma.User$refreshTokensArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$refreshTokensArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RefreshTokenPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  tokenBlacklist<T extends Prisma.User$tokenBlacklistArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$tokenBlacklistArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TokenBlacklistPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  sessionTokens<T extends Prisma.User$sessionTokensArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$sessionTokensArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SessionTokenPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  passwordResets<T extends Prisma.User$passwordResetsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$passwordResetsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PasswordResetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   parentInvitationsSent<T extends Prisma.User$parentInvitationsSentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$parentInvitationsSentArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ParentStudentInvitationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   parentInvitationsReceived<T extends Prisma.User$parentInvitationsReceivedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$parentInvitationsReceivedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ParentStudentInvitationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   parentLinks<T extends Prisma.User$parentLinksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$parentLinksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ParentStudentLinkPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -27394,7 +25168,6 @@ export interface UserFieldRefs {
   readonly loginFailureCount: Prisma.FieldRef<"User", 'Int'>
   readonly lockedUntil: Prisma.FieldRef<"User", 'DateTime'>
   readonly lastLoginAt: Prisma.FieldRef<"User", 'DateTime'>
-  readonly tokenVersion: Prisma.FieldRef<"User", 'Int'>
   readonly createdAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"User", 'DateTime'>
 }
@@ -29102,123 +26875,51 @@ export type User$auditLogsArgs<ExtArgs extends runtime.Types.Extensions.Internal
 }
 
 /**
- * User.authVerificationTokens
+ * User.sessionTokens
  */
-export type User$authVerificationTokensArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type User$sessionTokensArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the AuthVerificationToken
+   * Select specific fields to fetch from the SessionToken
    */
-  select?: Prisma.AuthVerificationTokenSelect<ExtArgs> | null
+  select?: Prisma.SessionTokenSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the AuthVerificationToken
+   * Omit specific fields from the SessionToken
    */
-  omit?: Prisma.AuthVerificationTokenOmit<ExtArgs> | null
+  omit?: Prisma.SessionTokenOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.AuthVerificationTokenInclude<ExtArgs> | null
-  where?: Prisma.AuthVerificationTokenWhereInput
-  orderBy?: Prisma.AuthVerificationTokenOrderByWithRelationInput | Prisma.AuthVerificationTokenOrderByWithRelationInput[]
-  cursor?: Prisma.AuthVerificationTokenWhereUniqueInput
+  include?: Prisma.SessionTokenInclude<ExtArgs> | null
+  where?: Prisma.SessionTokenWhereInput
+  orderBy?: Prisma.SessionTokenOrderByWithRelationInput | Prisma.SessionTokenOrderByWithRelationInput[]
+  cursor?: Prisma.SessionTokenWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.AuthVerificationTokenScalarFieldEnum | Prisma.AuthVerificationTokenScalarFieldEnum[]
+  distinct?: Prisma.SessionTokenScalarFieldEnum | Prisma.SessionTokenScalarFieldEnum[]
 }
 
 /**
- * User.passwordResetTokens
+ * User.passwordResets
  */
-export type User$passwordResetTokensArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type User$passwordResetsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the PasswordResetToken
+   * Select specific fields to fetch from the PasswordReset
    */
-  select?: Prisma.PasswordResetTokenSelect<ExtArgs> | null
+  select?: Prisma.PasswordResetSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the PasswordResetToken
+   * Omit specific fields from the PasswordReset
    */
-  omit?: Prisma.PasswordResetTokenOmit<ExtArgs> | null
+  omit?: Prisma.PasswordResetOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.PasswordResetTokenInclude<ExtArgs> | null
-  where?: Prisma.PasswordResetTokenWhereInput
-  orderBy?: Prisma.PasswordResetTokenOrderByWithRelationInput | Prisma.PasswordResetTokenOrderByWithRelationInput[]
-  cursor?: Prisma.PasswordResetTokenWhereUniqueInput
+  include?: Prisma.PasswordResetInclude<ExtArgs> | null
+  where?: Prisma.PasswordResetWhereInput
+  orderBy?: Prisma.PasswordResetOrderByWithRelationInput | Prisma.PasswordResetOrderByWithRelationInput[]
+  cursor?: Prisma.PasswordResetWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.PasswordResetTokenScalarFieldEnum | Prisma.PasswordResetTokenScalarFieldEnum[]
-}
-
-/**
- * User.authSessions
- */
-export type User$authSessionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the AuthSession
-   */
-  select?: Prisma.AuthSessionSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the AuthSession
-   */
-  omit?: Prisma.AuthSessionOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.AuthSessionInclude<ExtArgs> | null
-  where?: Prisma.AuthSessionWhereInput
-  orderBy?: Prisma.AuthSessionOrderByWithRelationInput | Prisma.AuthSessionOrderByWithRelationInput[]
-  cursor?: Prisma.AuthSessionWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.AuthSessionScalarFieldEnum | Prisma.AuthSessionScalarFieldEnum[]
-}
-
-/**
- * User.refreshTokens
- */
-export type User$refreshTokensArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the RefreshToken
-   */
-  select?: Prisma.RefreshTokenSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the RefreshToken
-   */
-  omit?: Prisma.RefreshTokenOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.RefreshTokenInclude<ExtArgs> | null
-  where?: Prisma.RefreshTokenWhereInput
-  orderBy?: Prisma.RefreshTokenOrderByWithRelationInput | Prisma.RefreshTokenOrderByWithRelationInput[]
-  cursor?: Prisma.RefreshTokenWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.RefreshTokenScalarFieldEnum | Prisma.RefreshTokenScalarFieldEnum[]
-}
-
-/**
- * User.tokenBlacklist
- */
-export type User$tokenBlacklistArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the TokenBlacklist
-   */
-  select?: Prisma.TokenBlacklistSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the TokenBlacklist
-   */
-  omit?: Prisma.TokenBlacklistOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.TokenBlacklistInclude<ExtArgs> | null
-  where?: Prisma.TokenBlacklistWhereInput
-  orderBy?: Prisma.TokenBlacklistOrderByWithRelationInput | Prisma.TokenBlacklistOrderByWithRelationInput[]
-  cursor?: Prisma.TokenBlacklistWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.TokenBlacklistScalarFieldEnum | Prisma.TokenBlacklistScalarFieldEnum[]
+  distinct?: Prisma.PasswordResetScalarFieldEnum | Prisma.PasswordResetScalarFieldEnum[]
 }
 
 /**

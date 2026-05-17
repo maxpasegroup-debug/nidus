@@ -8,7 +8,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { useAuth } from "@/components/providers/auth-provider";
+import { useAuth } from "@/components/providers/auth-provider-v2";
 import { DisciplineRecordCard, EmptyState, HostelCard, LeaveRequestCard, LoadingSkeleton, OccupancyChart, ParadeScoreCard, RoomCard } from "@/components/hostel/hostel-components";
 import { useAllocations, useDiscipline, useHostelLeave, useHostels, useInOut, useMessMenu, useParadePerformance, useRooms } from "@/hooks/use-hostel";
 

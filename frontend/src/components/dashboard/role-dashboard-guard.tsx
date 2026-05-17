@@ -3,9 +3,9 @@
 import { useEffect, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { DashboardSkeleton } from "@/components/dashboard/skeletons";
-import { useAuth } from "@/components/providers/auth-provider";
+import { useAuth } from "@/components/providers/auth-provider-v2";
 import { roleDashboardPath } from "@/lib/dashboard-data";
-import type { AuthRole } from "@/services/auth";
+import type { AuthRole } from "@/services/auth.v2";
 
 const compatibleRoles: Partial<Record<AuthRole, AuthRole[]>> = {
   ADMIN: ["ADMIN"],

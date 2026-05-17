@@ -385,11 +385,8 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 export const ModelName = {
   User: 'User',
-  AuthVerificationToken: 'AuthVerificationToken',
-  PasswordResetToken: 'PasswordResetToken',
-  AuthSession: 'AuthSession',
-  RefreshToken: 'RefreshToken',
-  TokenBlacklist: 'TokenBlacklist',
+  SessionToken: 'SessionToken',
+  PasswordReset: 'PasswordReset',
   ParentStudentInvitation: 'ParentStudentInvitation',
   ParentStudentLink: 'ParentStudentLink',
   Otp: 'Otp',
@@ -507,7 +504,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "authVerificationToken" | "passwordResetToken" | "authSession" | "refreshToken" | "tokenBlacklist" | "parentStudentInvitation" | "parentStudentLink" | "otp" | "course" | "module" | "lesson" | "enrollment" | "test" | "question" | "testAttempt" | "cBTAnswerState" | "cBTIntegrityEvent" | "answer" | "psychometricTest" | "psychometricQuestion" | "psychometricAttempt" | "psychometricAnswer" | "oLQScore" | "studyPlan" | "performanceAnalytics" | "revisionSchedule" | "liveClass" | "recordedLecture" | "lectureProgress" | "lecturePlaybackEvent" | "attendance" | "timetable" | "faculty" | "classroom" | "payroll" | "announcement" | "hostel" | "room" | "hostelAllocation" | "inOutEntry" | "hostelLeave" | "messMenu" | "disciplineRecord" | "paradePerformance" | "lead" | "followUp" | "admission" | "counsellingBooking" | "referral" | "payment" | "subscription" | "feeInstallment" | "invoice" | "feePlan" | "paymentTransactionLog" | "approvalRequest" | "scholarshipDiscount" | "financeDocument" | "notification" | "messageThread" | "message" | "emailLog" | "pushNotification" | "aIInterviewSession" | "aIInterviewQuestion" | "doubtQuery" | "aIRecommendation" | "aITutorSession" | "aITutorMessage" | "aITutorFeedback" | "aIResponseCache" | "learningTopicInsight" | "revisionQueueItem" | "cBTIntelligenceReport" | "contentIngestionJob" | "generatedContentAsset" | "offlineSyncEvent" | "learningAnalyticsSnapshot" | "dailyIntelligenceIssue" | "contentModerationItem" | "officerPotential" | "fitnessProfile" | "pTSchedule" | "pTAttendance" | "physicalEligibility" | "dailyFitnessLog" | "pYQCategory" | "pYQQuestion" | "currentAffair" | "currentAffairQuiz" | "quizBattle" | "quizBattleParticipant" | "leaderboard" | "mediaFolder" | "mediaFile" | "document" | "adminRole" | "permission" | "rolePermission" | "userRole" | "roleActivity" | "systemSetting" | "auditLog" | "queueJobLog" | "aIRequestLog" | "branch" | "institute"
+    modelProps: "user" | "sessionToken" | "passwordReset" | "parentStudentInvitation" | "parentStudentLink" | "otp" | "course" | "module" | "lesson" | "enrollment" | "test" | "question" | "testAttempt" | "cBTAnswerState" | "cBTIntegrityEvent" | "answer" | "psychometricTest" | "psychometricQuestion" | "psychometricAttempt" | "psychometricAnswer" | "oLQScore" | "studyPlan" | "performanceAnalytics" | "revisionSchedule" | "liveClass" | "recordedLecture" | "lectureProgress" | "lecturePlaybackEvent" | "attendance" | "timetable" | "faculty" | "classroom" | "payroll" | "announcement" | "hostel" | "room" | "hostelAllocation" | "inOutEntry" | "hostelLeave" | "messMenu" | "disciplineRecord" | "paradePerformance" | "lead" | "followUp" | "admission" | "counsellingBooking" | "referral" | "payment" | "subscription" | "feeInstallment" | "invoice" | "feePlan" | "paymentTransactionLog" | "approvalRequest" | "scholarshipDiscount" | "financeDocument" | "notification" | "messageThread" | "message" | "emailLog" | "pushNotification" | "aIInterviewSession" | "aIInterviewQuestion" | "doubtQuery" | "aIRecommendation" | "aITutorSession" | "aITutorMessage" | "aITutorFeedback" | "aIResponseCache" | "learningTopicInsight" | "revisionQueueItem" | "cBTIntelligenceReport" | "contentIngestionJob" | "generatedContentAsset" | "offlineSyncEvent" | "learningAnalyticsSnapshot" | "dailyIntelligenceIssue" | "contentModerationItem" | "officerPotential" | "fitnessProfile" | "pTSchedule" | "pTAttendance" | "physicalEligibility" | "dailyFitnessLog" | "pYQCategory" | "pYQQuestion" | "currentAffair" | "currentAffairQuiz" | "quizBattle" | "quizBattleParticipant" | "leaderboard" | "mediaFolder" | "mediaFile" | "document" | "adminRole" | "permission" | "rolePermission" | "userRole" | "roleActivity" | "systemSetting" | "auditLog" | "queueJobLog" | "aIRequestLog" | "branch" | "institute"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -585,373 +582,151 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    AuthVerificationToken: {
-      payload: Prisma.$AuthVerificationTokenPayload<ExtArgs>
-      fields: Prisma.AuthVerificationTokenFieldRefs
+    SessionToken: {
+      payload: Prisma.$SessionTokenPayload<ExtArgs>
+      fields: Prisma.SessionTokenFieldRefs
       operations: {
         findUnique: {
-          args: Prisma.AuthVerificationTokenFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuthVerificationTokenPayload> | null
+          args: Prisma.SessionTokenFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SessionTokenPayload> | null
         }
         findUniqueOrThrow: {
-          args: Prisma.AuthVerificationTokenFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuthVerificationTokenPayload>
+          args: Prisma.SessionTokenFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SessionTokenPayload>
         }
         findFirst: {
-          args: Prisma.AuthVerificationTokenFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuthVerificationTokenPayload> | null
+          args: Prisma.SessionTokenFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SessionTokenPayload> | null
         }
         findFirstOrThrow: {
-          args: Prisma.AuthVerificationTokenFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuthVerificationTokenPayload>
+          args: Prisma.SessionTokenFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SessionTokenPayload>
         }
         findMany: {
-          args: Prisma.AuthVerificationTokenFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuthVerificationTokenPayload>[]
+          args: Prisma.SessionTokenFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SessionTokenPayload>[]
         }
         create: {
-          args: Prisma.AuthVerificationTokenCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuthVerificationTokenPayload>
+          args: Prisma.SessionTokenCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SessionTokenPayload>
         }
         createMany: {
-          args: Prisma.AuthVerificationTokenCreateManyArgs<ExtArgs>
+          args: Prisma.SessionTokenCreateManyArgs<ExtArgs>
           result: BatchPayload
         }
         createManyAndReturn: {
-          args: Prisma.AuthVerificationTokenCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuthVerificationTokenPayload>[]
+          args: Prisma.SessionTokenCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SessionTokenPayload>[]
         }
         delete: {
-          args: Prisma.AuthVerificationTokenDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuthVerificationTokenPayload>
+          args: Prisma.SessionTokenDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SessionTokenPayload>
         }
         update: {
-          args: Prisma.AuthVerificationTokenUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuthVerificationTokenPayload>
+          args: Prisma.SessionTokenUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SessionTokenPayload>
         }
         deleteMany: {
-          args: Prisma.AuthVerificationTokenDeleteManyArgs<ExtArgs>
+          args: Prisma.SessionTokenDeleteManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateMany: {
-          args: Prisma.AuthVerificationTokenUpdateManyArgs<ExtArgs>
+          args: Prisma.SessionTokenUpdateManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateManyAndReturn: {
-          args: Prisma.AuthVerificationTokenUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuthVerificationTokenPayload>[]
+          args: Prisma.SessionTokenUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SessionTokenPayload>[]
         }
         upsert: {
-          args: Prisma.AuthVerificationTokenUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuthVerificationTokenPayload>
+          args: Prisma.SessionTokenUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SessionTokenPayload>
         }
         aggregate: {
-          args: Prisma.AuthVerificationTokenAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateAuthVerificationToken>
+          args: Prisma.SessionTokenAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSessionToken>
         }
         groupBy: {
-          args: Prisma.AuthVerificationTokenGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AuthVerificationTokenGroupByOutputType>[]
+          args: Prisma.SessionTokenGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SessionTokenGroupByOutputType>[]
         }
         count: {
-          args: Prisma.AuthVerificationTokenCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AuthVerificationTokenCountAggregateOutputType> | number
+          args: Prisma.SessionTokenCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SessionTokenCountAggregateOutputType> | number
         }
       }
     }
-    PasswordResetToken: {
-      payload: Prisma.$PasswordResetTokenPayload<ExtArgs>
-      fields: Prisma.PasswordResetTokenFieldRefs
+    PasswordReset: {
+      payload: Prisma.$PasswordResetPayload<ExtArgs>
+      fields: Prisma.PasswordResetFieldRefs
       operations: {
         findUnique: {
-          args: Prisma.PasswordResetTokenFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PasswordResetTokenPayload> | null
+          args: Prisma.PasswordResetFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PasswordResetPayload> | null
         }
         findUniqueOrThrow: {
-          args: Prisma.PasswordResetTokenFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PasswordResetTokenPayload>
+          args: Prisma.PasswordResetFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PasswordResetPayload>
         }
         findFirst: {
-          args: Prisma.PasswordResetTokenFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PasswordResetTokenPayload> | null
+          args: Prisma.PasswordResetFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PasswordResetPayload> | null
         }
         findFirstOrThrow: {
-          args: Prisma.PasswordResetTokenFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PasswordResetTokenPayload>
+          args: Prisma.PasswordResetFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PasswordResetPayload>
         }
         findMany: {
-          args: Prisma.PasswordResetTokenFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PasswordResetTokenPayload>[]
+          args: Prisma.PasswordResetFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PasswordResetPayload>[]
         }
         create: {
-          args: Prisma.PasswordResetTokenCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PasswordResetTokenPayload>
+          args: Prisma.PasswordResetCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PasswordResetPayload>
         }
         createMany: {
-          args: Prisma.PasswordResetTokenCreateManyArgs<ExtArgs>
+          args: Prisma.PasswordResetCreateManyArgs<ExtArgs>
           result: BatchPayload
         }
         createManyAndReturn: {
-          args: Prisma.PasswordResetTokenCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PasswordResetTokenPayload>[]
+          args: Prisma.PasswordResetCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PasswordResetPayload>[]
         }
         delete: {
-          args: Prisma.PasswordResetTokenDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PasswordResetTokenPayload>
+          args: Prisma.PasswordResetDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PasswordResetPayload>
         }
         update: {
-          args: Prisma.PasswordResetTokenUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PasswordResetTokenPayload>
+          args: Prisma.PasswordResetUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PasswordResetPayload>
         }
         deleteMany: {
-          args: Prisma.PasswordResetTokenDeleteManyArgs<ExtArgs>
+          args: Prisma.PasswordResetDeleteManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateMany: {
-          args: Prisma.PasswordResetTokenUpdateManyArgs<ExtArgs>
+          args: Prisma.PasswordResetUpdateManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateManyAndReturn: {
-          args: Prisma.PasswordResetTokenUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PasswordResetTokenPayload>[]
+          args: Prisma.PasswordResetUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PasswordResetPayload>[]
         }
         upsert: {
-          args: Prisma.PasswordResetTokenUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PasswordResetTokenPayload>
+          args: Prisma.PasswordResetUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PasswordResetPayload>
         }
         aggregate: {
-          args: Prisma.PasswordResetTokenAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregatePasswordResetToken>
+          args: Prisma.PasswordResetAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePasswordReset>
         }
         groupBy: {
-          args: Prisma.PasswordResetTokenGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.PasswordResetTokenGroupByOutputType>[]
+          args: Prisma.PasswordResetGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PasswordResetGroupByOutputType>[]
         }
         count: {
-          args: Prisma.PasswordResetTokenCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.PasswordResetTokenCountAggregateOutputType> | number
-        }
-      }
-    }
-    AuthSession: {
-      payload: Prisma.$AuthSessionPayload<ExtArgs>
-      fields: Prisma.AuthSessionFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.AuthSessionFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuthSessionPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.AuthSessionFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuthSessionPayload>
-        }
-        findFirst: {
-          args: Prisma.AuthSessionFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuthSessionPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.AuthSessionFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuthSessionPayload>
-        }
-        findMany: {
-          args: Prisma.AuthSessionFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuthSessionPayload>[]
-        }
-        create: {
-          args: Prisma.AuthSessionCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuthSessionPayload>
-        }
-        createMany: {
-          args: Prisma.AuthSessionCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.AuthSessionCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuthSessionPayload>[]
-        }
-        delete: {
-          args: Prisma.AuthSessionDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuthSessionPayload>
-        }
-        update: {
-          args: Prisma.AuthSessionUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuthSessionPayload>
-        }
-        deleteMany: {
-          args: Prisma.AuthSessionDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.AuthSessionUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.AuthSessionUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuthSessionPayload>[]
-        }
-        upsert: {
-          args: Prisma.AuthSessionUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuthSessionPayload>
-        }
-        aggregate: {
-          args: Prisma.AuthSessionAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateAuthSession>
-        }
-        groupBy: {
-          args: Prisma.AuthSessionGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AuthSessionGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.AuthSessionCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AuthSessionCountAggregateOutputType> | number
-        }
-      }
-    }
-    RefreshToken: {
-      payload: Prisma.$RefreshTokenPayload<ExtArgs>
-      fields: Prisma.RefreshTokenFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.RefreshTokenFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$RefreshTokenPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.RefreshTokenFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$RefreshTokenPayload>
-        }
-        findFirst: {
-          args: Prisma.RefreshTokenFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$RefreshTokenPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.RefreshTokenFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$RefreshTokenPayload>
-        }
-        findMany: {
-          args: Prisma.RefreshTokenFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$RefreshTokenPayload>[]
-        }
-        create: {
-          args: Prisma.RefreshTokenCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$RefreshTokenPayload>
-        }
-        createMany: {
-          args: Prisma.RefreshTokenCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.RefreshTokenCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$RefreshTokenPayload>[]
-        }
-        delete: {
-          args: Prisma.RefreshTokenDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$RefreshTokenPayload>
-        }
-        update: {
-          args: Prisma.RefreshTokenUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$RefreshTokenPayload>
-        }
-        deleteMany: {
-          args: Prisma.RefreshTokenDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.RefreshTokenUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.RefreshTokenUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$RefreshTokenPayload>[]
-        }
-        upsert: {
-          args: Prisma.RefreshTokenUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$RefreshTokenPayload>
-        }
-        aggregate: {
-          args: Prisma.RefreshTokenAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateRefreshToken>
-        }
-        groupBy: {
-          args: Prisma.RefreshTokenGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.RefreshTokenGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.RefreshTokenCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.RefreshTokenCountAggregateOutputType> | number
-        }
-      }
-    }
-    TokenBlacklist: {
-      payload: Prisma.$TokenBlacklistPayload<ExtArgs>
-      fields: Prisma.TokenBlacklistFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.TokenBlacklistFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TokenBlacklistPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.TokenBlacklistFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TokenBlacklistPayload>
-        }
-        findFirst: {
-          args: Prisma.TokenBlacklistFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TokenBlacklistPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.TokenBlacklistFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TokenBlacklistPayload>
-        }
-        findMany: {
-          args: Prisma.TokenBlacklistFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TokenBlacklistPayload>[]
-        }
-        create: {
-          args: Prisma.TokenBlacklistCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TokenBlacklistPayload>
-        }
-        createMany: {
-          args: Prisma.TokenBlacklistCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.TokenBlacklistCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TokenBlacklistPayload>[]
-        }
-        delete: {
-          args: Prisma.TokenBlacklistDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TokenBlacklistPayload>
-        }
-        update: {
-          args: Prisma.TokenBlacklistUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TokenBlacklistPayload>
-        }
-        deleteMany: {
-          args: Prisma.TokenBlacklistDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.TokenBlacklistUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.TokenBlacklistUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TokenBlacklistPayload>[]
-        }
-        upsert: {
-          args: Prisma.TokenBlacklistUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TokenBlacklistPayload>
-        }
-        aggregate: {
-          args: Prisma.TokenBlacklistAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateTokenBlacklist>
-        }
-        groupBy: {
-          args: Prisma.TokenBlacklistGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.TokenBlacklistGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.TokenBlacklistCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.TokenBlacklistCountAggregateOutputType> | number
+          args: Prisma.PasswordResetCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PasswordResetCountAggregateOutputType> | number
         }
       }
     }
@@ -8562,7 +8337,6 @@ export const UserScalarFieldEnum = {
   loginFailureCount: 'loginFailureCount',
   lockedUntil: 'lockedUntil',
   lastLoginAt: 'lastLoginAt',
-  tokenVersion: 'tokenVersion',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -8570,72 +8344,29 @@ export const UserScalarFieldEnum = {
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
 
 
-export const AuthVerificationTokenScalarFieldEnum = {
+export const SessionTokenScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
-  tokenHash: 'tokenHash',
-  purpose: 'purpose',
+  sessionId: 'sessionId',
   expiresAt: 'expiresAt',
-  consumedAt: 'consumedAt',
-  createdAt: 'createdAt'
-} as const
-
-export type AuthVerificationTokenScalarFieldEnum = (typeof AuthVerificationTokenScalarFieldEnum)[keyof typeof AuthVerificationTokenScalarFieldEnum]
-
-
-export const PasswordResetTokenScalarFieldEnum = {
-  id: 'id',
-  userId: 'userId',
-  tokenHash: 'tokenHash',
-  expiresAt: 'expiresAt',
-  consumedAt: 'consumedAt',
-  createdAt: 'createdAt'
-} as const
-
-export type PasswordResetTokenScalarFieldEnum = (typeof PasswordResetTokenScalarFieldEnum)[keyof typeof PasswordResetTokenScalarFieldEnum]
-
-
-export const AuthSessionScalarFieldEnum = {
-  id: 'id',
-  userId: 'userId',
-  refreshTokenHash: 'refreshTokenHash',
-  device: 'device',
-  browser: 'browser',
   ipAddress: 'ipAddress',
   userAgent: 'userAgent',
-  loginAt: 'loginAt',
-  lastActivityAt: 'lastActivityAt',
-  expiresAt: 'expiresAt',
-  revokedAt: 'revokedAt',
-  revokeReason: 'revokeReason'
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
-export type AuthSessionScalarFieldEnum = (typeof AuthSessionScalarFieldEnum)[keyof typeof AuthSessionScalarFieldEnum]
+export type SessionTokenScalarFieldEnum = (typeof SessionTokenScalarFieldEnum)[keyof typeof SessionTokenScalarFieldEnum]
 
 
-export const RefreshTokenScalarFieldEnum = {
+export const PasswordResetScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
-  tokenHash: 'tokenHash',
-  jti: 'jti',
-  expiresAt: 'expiresAt',
-  revokedAt: 'revokedAt',
-  createdAt: 'createdAt'
-} as const
-
-export type RefreshTokenScalarFieldEnum = (typeof RefreshTokenScalarFieldEnum)[keyof typeof RefreshTokenScalarFieldEnum]
-
-
-export const TokenBlacklistScalarFieldEnum = {
-  id: 'id',
-  userId: 'userId',
-  tokenHash: 'tokenHash',
-  jti: 'jti',
+  token: 'token',
   expiresAt: 'expiresAt',
   createdAt: 'createdAt'
 } as const
 
-export type TokenBlacklistScalarFieldEnum = (typeof TokenBlacklistScalarFieldEnum)[keyof typeof TokenBlacklistScalarFieldEnum]
+export type PasswordResetScalarFieldEnum = (typeof PasswordResetScalarFieldEnum)[keyof typeof PasswordResetScalarFieldEnum]
 
 
 export const ParentStudentInvitationScalarFieldEnum = {
@@ -10460,11 +10191,8 @@ export type PrismaClientOptions = ({
 }
 export type GlobalOmitConfig = {
   user?: Prisma.UserOmit
-  authVerificationToken?: Prisma.AuthVerificationTokenOmit
-  passwordResetToken?: Prisma.PasswordResetTokenOmit
-  authSession?: Prisma.AuthSessionOmit
-  refreshToken?: Prisma.RefreshTokenOmit
-  tokenBlacklist?: Prisma.TokenBlacklistOmit
+  sessionToken?: Prisma.SessionTokenOmit
+  passwordReset?: Prisma.PasswordResetOmit
   parentStudentInvitation?: Prisma.ParentStudentInvitationOmit
   parentStudentLink?: Prisma.ParentStudentLinkOmit
   otp?: Prisma.OtpOmit

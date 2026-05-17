@@ -7,7 +7,7 @@ import { useMemo, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { useAuth } from "@/components/providers/auth-provider";
+import { useAuth } from "@/components/providers/auth-provider-v2";
 import { FeeInstallmentCard, FinanceEmptyState, InvoiceCard, PaymentCard, PaymentStatusBadge, RevenueChart, SubscriptionCard } from "@/components/payments/payment-components";
 import { useFees, useInvoices, usePayments, useSubscriptions } from "@/hooks/use-payments";
 import { openRazorpayCheckout } from "@/services/razorpay";

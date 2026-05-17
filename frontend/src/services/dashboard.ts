@@ -1,5 +1,5 @@
 import { apiClient } from "@/services/api";
-import type { AuthRole, AuthUser } from "@/services/auth";
+import type { AuthRole, AuthUser } from "@/services/auth.v2";
 
 type DashboardResponse<T> = {
   role: AuthRole;

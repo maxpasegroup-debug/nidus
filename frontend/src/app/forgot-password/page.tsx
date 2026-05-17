@@ -5,7 +5,7 @@ import { useState, type FormEvent } from "react";
 import { KeyRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { forgotPassword } from "@/services/auth";
+import { forgotPassword } from "@/services/auth.v2";
 import { getApiErrorMessage } from "@/services/api";
 import { useToast } from "@/components/providers/toast-provider";
 
@@ -19,7 +19,7 @@ export default function ForgotPasswordPage() {
     setIsSubmitting(true);
     try {
       const response = await forgotPassword(identifier);
-      showToast(response.message, "success");
+      showToast(response.message ?? "Password reset instructions sent", "success");
     } catch (error) {
       showToast(getApiErrorMessage(error), "error");
     } finally {

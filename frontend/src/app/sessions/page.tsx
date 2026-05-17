@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { MonitorSmartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { getSessions, logoutAll, revokeSession, type AuthSession } from "@/services/auth";
+import { getSessions, logoutAll, revokeSession, type AuthSession } from "@/services/auth.v2";
 import { getApiErrorMessage } from "@/services/api";
 import { useToast } from "@/components/providers/toast-provider";
 

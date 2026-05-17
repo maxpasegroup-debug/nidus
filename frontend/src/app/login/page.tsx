@@ -2,24 +2,35 @@
 
 import Link from "next/link";
 import { useState, type FormEvent } from "react";
+import { useRouter } from "next/navigation";
 import { BrainCircuit, LockKeyhole } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useAuth } from "@/components/providers/auth-provider";
+import { login } from "@/services/auth.v2";
+import { roleDashboardPath } from "@/lib/dashboard-data";
 
 export default function LoginPage() {
-  const { login } = useAuth();
+  const router = useRouter();
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState("");
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!identifier.trim() || password.length < 8) return;
     setIsSubmitting(true);
+    setError("");
 
     try {
-      await login({ identifier, password });
+      const result = await login({ identifier, password });
+      if (result.success && result.user) {
+        router.replace(roleDashboardPath[result.user.role] ?? "/dashboard");
+      } else {
+        setError(result.message || "Login failed");
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Login failed");
     } finally {
       setIsSubmitting(false);
     }
@@ -58,6 +69,7 @@ export default function LoginPage() {
           </div>
 
           <form className="space-y-5" onSubmit={handleSubmit}>
+            {error ? <div className="rounded border border-red-400/40 bg-red-500/10 px-4 py-3 text-sm text-red-100">{error}</div> : null}
             <Input label="Email or mobile" type="text" placeholder="officer@nidus.mil" value={identifier} onChange={(event) => setIdentifier(event.target.value)} required />
             <Input label="Password" type="password" placeholder="Enter secure password" value={password} onChange={(event) => setPassword(event.target.value)} minLength={8} required />
             <Button type="submit" className="w-full" disabled={isSubmitting}>

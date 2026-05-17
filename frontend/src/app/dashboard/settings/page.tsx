@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/providers/toast-provider";
 import { getApiErrorMessage } from "@/services/api";
-import { changePassword } from "@/services/auth";
+import { changePassword } from "@/services/auth.v2";
 
 export default function DashboardSettingsPage() {
   const { showToast } = useToast();
@@ -26,7 +26,7 @@ export default function DashboardSettingsPage() {
     setIsSubmitting(true);
     try {
       const response = await changePassword({ currentPassword, newPassword });
-      showToast(response.message, "success");
+      showToast(response.message ?? "Password changed successfully", "success");
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");

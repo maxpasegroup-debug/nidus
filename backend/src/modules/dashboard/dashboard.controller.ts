@@ -1,5 +1,5 @@
 import type { Response, NextFunction } from "express";
-import type { AuthenticatedRequest } from "../auth/auth.middleware.js";
+import type { AuthenticatedRequest } from "../../middlewares/session.middleware.js";
 import { dashboardService } from "./dashboard.service.js";
 
 function getAuthenticatedUser(req: AuthenticatedRequest) {

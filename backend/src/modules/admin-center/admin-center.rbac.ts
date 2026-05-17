@@ -1,7 +1,7 @@
 import type { NextFunction, Response } from "express";
 import { prisma } from "../../config/prisma.js";
 import { Role } from "../../generated/prisma/client.js";
-import type { AuthenticatedRequest } from "../auth/auth.middleware.js";
+import type { AuthenticatedRequest } from "../../middlewares/session.middleware.js";
 
 export const defaultPermissions = [
   { module: "admin", action: "read", name: "View admin center" },

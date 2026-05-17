@@ -6,7 +6,7 @@ import { verifyDatabaseConnection } from "./config/prisma.js";
 import { startInfrastructureWorkers, stopInfrastructureWorkers } from "./queues/index.js";
 import { logger } from "./utils/logger.js";
 import { markRuntimeDegraded, markRuntimeReady, markRuntimeShuttingDown } from "./runtime/lifecycle.js";
-import { authService } from "./modules/auth/auth.service.js";
+import { AuthServiceV2 } from "./modules/auth/auth.v2.service.js";
 
 const app = createApp();
 const PORT = Number(process.env.PORT || env.PORT || 8080);
@@ -14,7 +14,7 @@ const PORT = Number(process.env.PORT || env.PORT || 8080);
 async function startupChecks() {
   const databaseConnected = await verifyDatabaseConnection();
   if (!databaseConnected) throw new Error("Database startup validation failed");
-  await authService.ensureSuperAdmin();
+  await AuthServiceV2.ensureSuperAdmin();
   await verifyRedisConnection();
   assertCloudinaryReady();
   if (env.PROCESS_ROLE !== "web") await startInfrastructureWorkers();

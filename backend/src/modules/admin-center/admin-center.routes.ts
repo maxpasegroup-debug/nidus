@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { body } from "express-validator";
-import { protect } from "../auth/auth.middleware.js";
+import { protect } from "../../middlewares/session.middleware.js";
 import { adminCenterController } from "./admin-center.controller.js";
 import { auditAction, requirePermission } from "./admin-center.rbac.js";
 

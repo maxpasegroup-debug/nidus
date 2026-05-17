@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/components/providers/auth-provider";
+import { useAuth } from "@/components/providers/auth-provider-v2";
 import { Bell, ChevronDown } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";

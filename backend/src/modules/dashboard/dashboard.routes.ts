@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { Role } from "../../generated/prisma/client.js";
-import { allowRoles, protect } from "../auth/auth.middleware.js";
+import { allowRoles, protect } from "../../middlewares/session.middleware.js";
 import { dashboardController } from "./dashboard.controller.js";
 
 export const dashboardRouter = Router();
