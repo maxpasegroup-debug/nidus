@@ -110,7 +110,11 @@ export function createApp() {
   app.use("/api", apiRateLimiter);
 
   app.get("/", (_req, res) => {
-    res.send("Backend running");
+    res.json({
+      service: "nidus-backend",
+      status: "ok",
+      apiBase: "/api"
+    });
   });
   app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
