@@ -5,7 +5,7 @@ import { dirname, join } from "node:path";
 const projectRoot = existsSync(join(process.cwd(), "node_modules", "next", "package.json"))
   ? process.cwd()
   : dirname(process.cwd());
-const internalApiUrl = process.env.INTERNAL_API_URL || "http://127.0.0.1:4000";
+const internalApiUrl = process.env.INTERNAL_API_URL || "http://127.0.0.1:4001";
 
 const csp = [
   "default-src 'self'",
