@@ -69,8 +69,8 @@ export function FinanceConsole({ view }: { view: FinanceView }) {
       <section className="flex flex-col justify-between gap-4 border-b border-white/10 pb-5 lg:flex-row lg:items-end">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-gold">NIDUS Finance Command</p>
-          <h1 className="mt-3 text-3xl font-black text-white md:text-5xl">Payment, Subscription & Fee Management</h1>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-muted">Enterprise payment operations with Razorpay checkout, installments, subscriptions, invoices and revenue intelligence.</p>
+          <h1 className="mt-3 text-3xl font-black text-white md:text-5xl">Fees, Payments & Finance</h1>
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-muted">Simple academy finance for fee collection, pending dues, Razorpay, manual payments, subscriptions, invoices, receipts and revenue reports.</p>
         </div>
         <div className="flex flex-wrap gap-2">{links.map(([href, label, Icon]) => <Link key={href} href={href} className="inline-flex h-10 items-center gap-2 rounded border border-white/10 px-3 text-sm text-ink transition hover:border-gold/50 hover:text-gold"><Icon className="h-4 w-4" />{label}</Link>)}</div>
       </section>

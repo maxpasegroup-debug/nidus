@@ -33,7 +33,9 @@ const dailyActions = [
   { title: "Plan monthly test", description: "Create the next monthly exam or aptitude practice set.", href: "/tests" },
   { title: "Review progress reports", description: "See growth scores and next actions for students.", href: "/progress-reports" },
   { title: "Check admissions", description: "Review leads, counselling, and new admissions.", href: "/crm/admissions" },
-  { title: "Open audit logs", description: "Inspect recent admin, auth, and role activity.", href: "/admin-center/audit-logs" }
+  { title: "Open audit logs", description: "Inspect recent admin, auth, and role activity.", href: "/admin-center/audit-logs" },
+  { title: "Ask NIDUS", description: "Open AI boss view for pending work and academy next actions.", href: "/nidus-ai" },
+  { title: "Operations hub", description: "Open finance, campus, reporting, and production controls.", href: "/operations-hub" }
 ];
 
 export default function AdminDashboardPage() {

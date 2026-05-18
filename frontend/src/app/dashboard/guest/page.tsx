@@ -16,6 +16,15 @@ import { Button } from "@/components/ui/button";
 import { PageHero } from "@/components/layout/page-hero";
 import { useGuestDashboard } from "@/hooks/use-dashboard";
 
+const guestPrograms = [
+  { title: "Free recorded lessons", description: "Preview course videos before joining the full academy program.", href: "/recorded-lectures" },
+  { title: "Free mock tests", description: "Try sample tests and understand the exam practice format.", href: "/tests" },
+  { title: "Psychometric preview", description: "Experience officer-readiness and OLQ-style assessments.", href: "/psychometric" },
+  { title: "Live programs", description: "Join public webinars, demos, and orientation sessions.", href: "/live-classes" },
+  { title: "Course catalog", description: "Compare NDA, CDS, AFCAT, SSB, AISSEE, RIMC and RMS programs.", href: "/courses" },
+  { title: "Counselling request", description: "Ask the academy team to guide you to the right program.", href: "/crm/counselling" }
+];
+
 export default function GuestDashboardPage() {
   const { data, isLoading, error, refetch, isFetching } = useGuestDashboard();
 
@@ -40,8 +49,8 @@ export default function GuestDashboardPage() {
     <motion.div className="space-y-8" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
       <PageHero
         eyebrow="Guest Access"
-        title="Explore NIDUS training pathways"
-        description="Preview defence exam courses, demo videos, free mock tests, announcements, and upgrade options before joining the full command environment."
+        title="Try NIDUS before joining"
+        description="A simple guest area for demo recorded courses, free mock tests, psychometric previews, live programs, counselling requests, and upgrade paths."
         actions={<Button type="button" onClick={() => refetch()} disabled={isFetching} variant="secondary">{isFetching ? "Refreshing..." : "Refresh dashboard"}</Button>}
         stats={[
           { value: String(data.featuredCourses.length), label: "featured courses" },
@@ -54,6 +63,11 @@ export default function GuestDashboardPage() {
         <StatCard label="Featured Courses" value={String(data.featuredCourses.length)} note={data.featuredCourses[0]?.title ?? "No featured courses"} />
         <StatCard label="Free Mock Tests" value={String(data.freeTests.length)} note={data.freeTests[0]?.title ?? "No free tests"} />
         <StatCard label="Announcements" value={String(data.latestNews.length)} note="Latest exam and academy updates" />
+      </section>
+
+      <SectionHeader eyebrow="Guest Facilities" title="What guests can access" />
+      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        {guestPrograms.map((program) => <QuickActionCard key={program.title} title={program.title} description={program.description} href={program.href} />)}
       </section>
 
       <SectionHeader eyebrow="Explore Courses" title="Defence exam information" action="NDA, CDS, AFCAT, SSB, AISSEE, RIMC" />
@@ -70,9 +84,9 @@ export default function GuestDashboardPage() {
       </section>
 
       <section className="grid gap-4 md:grid-cols-3">
-        <QuickActionCard title="Try free mock test" description="Start a sample test without unlocking the full course." href="/tests" />
-        <QuickActionCard title="Explore course catalog" description="Compare preparation tracks and batch formats." href="/courses" />
-        <QuickActionCard title="Request counselling" description="Book a discovery call before upgrading." href="/crm/counselling" />
+        <QuickActionCard title="Create full account" description="Move from guest preview to full student dashboard." href="/register" />
+        <QuickActionCard title="Ask NIDUS preview" description="See how NIDUS AI supports planning and recommendations." href="/nidus-ai" />
+        <QuickActionCard title="View progress report sample" description="Understand how monthly growth will be reported." href="/progress-reports" />
       </section>
 
       {data.featuredCourses.length === 0 ? (

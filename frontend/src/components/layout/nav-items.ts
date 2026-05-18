@@ -9,6 +9,8 @@ export function getNavItems(role?: AuthRole) {
     { label: "Tests", href: "/tests" },
     { label: "Reports", href: "/progress-reports" },
     { label: "Staff HR", href: "/staff-hr" },
+    { label: "NIDUS AI", href: "/nidus-ai" },
+    { label: "Ops Hub", href: "/operations-hub" },
     { label: "PYQ", href: "/pyq-bank" },
     { label: "Battles", href: "/quiz-battles" },
     { label: "SSB", href: "/psychometric" },

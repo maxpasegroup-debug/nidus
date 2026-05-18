@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { AnnouncementCard, ProgressCard, QuickActionCard, SectionHeader, StatCard } from "@/components/dashboard";
 import { PageHero } from "@/components/layout/page-hero";
+import { Button } from "@/components/ui/button";
 
 const reportSections = [
   { title: "Academic Score", description: "Subject marks, accuracy, rank, weak topics, and improvement from last month.", tag: "Marks" },
@@ -27,6 +28,7 @@ export default function ProgressReportsPage() {
         eyebrow="Growth & Progress Reports"
         title="Monthly hybrid progress report"
         description="A clear report system for academic marks, aptitude, attendance, discipline, psychometric growth, teacher remarks, and NIDUS AI action plans."
+        actions={<Button type="button" variant="secondary" onClick={() => window.print()}>Print report</Button>}
         stats={[
           { value: "6", label: "report sections" },
           { value: "30d", label: "monthly cycle" },
@@ -71,6 +73,13 @@ export default function ProgressReportsPage() {
         <QuickActionCard title="Monthly tests" description="Create and run tests that feed academic and aptitude scores." href="/tests" />
         <QuickActionCard title="Psychometric tests" description="Use OLQ and psychometric attempts for officer-readiness growth." href="/psychometric" />
         <QuickActionCard title="Performance analytics" description="Open AI analytics for weak topics and recommendations." href="/performance-analytics" />
+      </section>
+
+      <SectionHeader eyebrow="Production Report" title="Parent and director ready output" />
+      <section className="grid gap-4 md:grid-cols-3">
+        <AnnouncementCard title="Parent view" description="Simple language for marks, attendance, discipline, teacher remarks, and next actions." tag="Parent" />
+        <AnnouncementCard title="Director view" description="Batch-wise growth, weak areas, high performers, and institutional action plan." tag="Director" />
+        <AnnouncementCard title="Export path" description="Print-ready layout is available now; PDF/download automation can plug into this module." tag="Export" />
       </section>
     </motion.div>
   );
