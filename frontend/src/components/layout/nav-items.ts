@@ -8,6 +8,7 @@ export function getNavItems(role?: AuthRole) {
     { label: "Courses", href: "/courses" },
     { label: "Tests", href: "/tests" },
     { label: "Reports", href: "/progress-reports" },
+    { label: "Staff HR", href: "/staff-hr" },
     { label: "PYQ", href: "/pyq-bank" },
     { label: "Battles", href: "/quiz-battles" },
     { label: "SSB", href: "/psychometric" },

@@ -23,7 +23,7 @@ const commandModules = [
   { title: "Progress Reports", description: "Review academic, aptitude, attendance, discipline, and AI growth reports.", href: "/progress-reports" },
   { title: "Admissions & CRM", description: "Track enquiries, calls, counselling, admissions, and follow-up ownership.", href: "/crm" },
   { title: "Fees & Finance", description: "Monitor fee collection, invoices, subscriptions, due amounts, and approvals.", href: "/payments" },
-  { title: "Staff & HR", description: "Onboard employees, assign roles, and manage staff documents in folders.", href: "/documents" },
+  { title: "Staff & HR", description: "Onboard employees, assign roles, and manage staff documents in folders.", href: "/staff-hr" },
   { title: "Admin Settings", description: "Control roles, permissions, branches, audit logs, and production operations.", href: "/admin-center" }
 ];
 
