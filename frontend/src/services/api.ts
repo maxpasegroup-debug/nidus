@@ -1,9 +1,9 @@
 import axios, { AxiosError, type AxiosInstance } from "axios";
 
 function resolveApiUrl() {
+  if (typeof window !== "undefined") return "";
   const configuredUrl = process.env.NEXT_PUBLIC_API_URL?.trim();
   if (configuredUrl) return configuredUrl;
-  if (typeof window !== "undefined") return window.location.origin;
   return "";
 }
 
