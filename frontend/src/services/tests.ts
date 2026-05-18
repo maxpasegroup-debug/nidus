@@ -7,6 +7,17 @@ export type TestFilters = {
   topic?: string;
 };
 
+export type TestPayload = {
+  title: string;
+  description: string;
+  examType: string;
+  category: string;
+  duration: number;
+  totalMarks: number;
+  isMockTest?: boolean;
+  isLive?: boolean;
+};
+
 export type SubmitTestPayload = {
   attemptId: string;
   answers: Array<{ questionId: string; selectedAnswer: string }>;
@@ -23,6 +34,11 @@ export type AutosavePayload = {
 export async function getTests(filters: TestFilters = {}) {
   const response = await apiClient.get<{ tests: Test[] }>("/tests", { params: filters });
   return response.data.tests;
+}
+
+export async function createTest(payload: TestPayload) {
+  const response = await apiClient.post<{ test: Test }>("/tests", payload);
+  return response.data.test;
 }
 
 export async function getTestDetails(id: string) {

@@ -4,7 +4,6 @@ import { motion } from "framer-motion";
 import {
   ActivityTimeline,
   AnnouncementCard,
-  AttendanceCard,
   DashboardError,
   DashboardSkeleton,
   ProgressCard,
@@ -13,10 +12,29 @@ import {
   SectionHeader,
   StatCard
 } from "@/components/dashboard";
-import { PerformanceChart } from "@/components/charts/performance-chart";
 import { Button } from "@/components/ui/button";
 import { PageHero } from "@/components/layout/page-hero";
 import { useAdminDashboard } from "@/hooks/use-dashboard";
+
+const commandModules = [
+  { title: "Students & Learning", description: "Students, batches, course progress, attendance, and parent-ready updates.", href: "/admin-center/users" },
+  { title: "Course Management", description: "Create courses, upload lessons, attach PDFs, and manage recorded learning.", href: "/courses" },
+  { title: "Tests & Monthly Exams", description: "Plan monthly tests, aptitude practice, mock exams, and leaderboards.", href: "/tests" },
+  { title: "Progress Reports", description: "Review academic, aptitude, attendance, discipline, and AI growth reports.", href: "/progress-reports" },
+  { title: "Admissions & CRM", description: "Track enquiries, calls, counselling, admissions, and follow-up ownership.", href: "/crm" },
+  { title: "Fees & Finance", description: "Monitor fee collection, invoices, subscriptions, due amounts, and approvals.", href: "/payments" },
+  { title: "Staff & HR", description: "Onboard employees, assign roles, and manage staff documents in folders.", href: "/documents" },
+  { title: "Admin Settings", description: "Control roles, permissions, branches, audit logs, and production operations.", href: "/admin-center" }
+];
+
+const dailyActions = [
+  { title: "Add student or staff", description: "Create academy users and assign the right dashboard role.", href: "/admin-center/users" },
+  { title: "Create course", description: "Open the LMS builder for a new online or hybrid course.", href: "/courses" },
+  { title: "Plan monthly test", description: "Create the next monthly exam or aptitude practice set.", href: "/tests" },
+  { title: "Review progress reports", description: "See growth scores and next actions for students.", href: "/progress-reports" },
+  { title: "Check admissions", description: "Review leads, counselling, and new admissions.", href: "/crm/admissions" },
+  { title: "Open audit logs", description: "Inspect recent admin, auth, and role activity.", href: "/admin-center/audit-logs" }
+];
 
 export default function AdminDashboardPage() {
   const { data, isLoading, error, refetch, isFetching } = useAdminDashboard();
@@ -37,88 +55,72 @@ export default function AdminDashboardPage() {
     );
   }
 
-  const chartData = data.attendanceAnalytics.trend.map((item) => ({
-    label: item.month,
-    score: item.attendance,
-    attendance: item.attendance
-  }));
+  const facultyShare = data.staffSummary.totalStaff > 0 ? Math.round((data.staffSummary.faculty / data.staffSummary.totalStaff) * 100) : 0;
 
   return (
     <RoleDashboardGuard role="ADMIN">
-    <motion.div className="space-y-8" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-      <PageHero
-        eyebrow="NIDUS Command Center"
-        title="Welcome to the Control Panel"
-        description="Executive visibility across admissions, academy operations, revenue, staff readiness, and role onboarding."
-        actions={<Button type="button" onClick={() => refetch()} disabled={isFetching} variant="secondary">{isFetching ? "Refreshing..." : "Refresh"}</Button>}
-        stats={[
-          { value: String(data.totalStudents), label: "students" },
-          { value: `${data.attendanceAnalytics.average}%`, label: "attendance" },
-          { value: String(data.staffSummary.totalStaff), label: "staff strength" },
-          { value: `${data.hostelStats.occupancyPercentage}%`, label: "hostel occupancy" }
-        ]}
-      />
+      <motion.div className="space-y-8" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+        <PageHero
+          eyebrow="Academy Command Centre"
+          title="Simple management dashboard"
+          description="A clear control room for students, courses, tests, admissions, fees, staff, progress reports, and NIDUS AI support."
+          actions={<Button type="button" onClick={() => refetch()} disabled={isFetching} variant="secondary">{isFetching ? "Refreshing..." : "Refresh dashboard"}</Button>}
+          stats={[
+            { value: String(data.totalStudents), label: "students" },
+            { value: `${data.attendanceAnalytics.average}%`, label: "attendance" },
+            { value: String(data.staffSummary.totalStaff), label: "staff" }
+          ]}
+        />
 
-      <section className="grid gap-4 md:grid-cols-3">
-        <div className="premium-surface rounded-lg p-5">
-          <p className="text-xs uppercase tracking-[0.2em] text-gold-soft">Operational Summary</p>
-          <h2 className="mt-3 text-2xl font-semibold text-ink">Academy pulse is live</h2>
-          <p className="mt-2 text-sm leading-6 text-muted">Admissions, attendance, revenue, and staff coverage are available from one control surface.</p>
-        </div>
-        <div className="premium-surface rounded-lg p-5">
-          <p className="text-xs uppercase tracking-[0.2em] text-gold-soft">Role Onboarding</p>
-          <h2 className="mt-3 text-2xl font-semibold text-ink">Internal access is admin-led</h2>
-          <p className="mt-2 text-sm leading-6 text-muted">Directors, teachers, students, parents, telecallers, and marketing users are created from Admin Center.</p>
-        </div>
-        <div className="premium-surface rounded-lg p-5">
-          <p className="text-xs uppercase tracking-[0.2em] text-gold-soft">Security</p>
-          <h2 className="mt-3 text-2xl font-semibold text-ink">JWT command access</h2>
-          <p className="mt-2 text-sm leading-6 text-muted">Bearer-token login, protected dashboards, and password reset controls remain centralized.</p>
-        </div>
-      </section>
+        <section className="grid gap-4 md:grid-cols-4">
+          <StatCard label="Students" value={String(data.totalStudents)} note="Total learners in the academy" />
+          <StatCard label="Admissions" value={String(data.recentAdmissions.length)} note="Recent admission activity" />
+          <StatCard label="Revenue" value={`Rs ${Math.round(data.totalRevenue.amount / 100000)}L`} note={`${data.totalRevenue.quarter} collection view`} />
+          <StatCard label="Staff" value={String(data.staffSummary.totalStaff)} note={`${data.staffSummary.faculty} teachers and ${data.staffSummary.operations} operations`} />
+        </section>
 
-      <section className="grid gap-4 md:grid-cols-4">
-        <StatCard label="Total Students" value={String(data.totalStudents)} note="Registered student users" />
-        <StatCard label="Attendance" value={`${data.attendanceAnalytics.average}%`} note="Average attendance analytics" />
-        <StatCard label="Revenue" value={`Rs ${Math.round(data.totalRevenue.amount / 100000)}L`} note={`${data.totalRevenue.quarter} collected revenue`} />
-        <StatCard label="Staff" value={String(data.staffSummary.totalStaff)} note="Faculty, mentors and operations team" />
-      </section>
+        <SectionHeader eyebrow="Main Areas" title="What management can control" />
+        <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          {commandModules.map((module) => (
+            <QuickActionCard key={module.title} title={module.title} description={module.description} href={module.href} />
+          ))}
+        </section>
 
-      <section className="grid gap-4 lg:grid-cols-[1.35fr_0.9fr]">
-        <PerformanceChart title="Graphs and reports" data={chartData} />
-        <div className="space-y-4">
-          <AttendanceCard title="Attendance analytics" present={data.attendanceAnalytics.presentToday} total={data.attendanceAnalytics.totalMarked} />
-          <ProgressCard title="Hostel occupancy" value={data.hostelStats.occupancyPercentage} label={`${data.hostelStats.occupiedBeds}/${data.hostelStats.totalBeds} beds occupied`} />
-          <ProgressCard title="Faculty coverage" value={Math.round((data.staffSummary.faculty / data.staffSummary.totalStaff) * 100)} label="Faculty share of staff" />
-        </div>
-      </section>
+        <section className="grid gap-4 lg:grid-cols-[1fr_0.85fr]">
+          <div className="premium-surface rounded-lg p-5">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-gold-soft">Ask NIDUS</p>
+            <h2 className="mt-3 text-2xl font-semibold text-ink">Today&apos;s management focus</h2>
+            <div className="mt-5 grid gap-3">
+              {[
+                "Check students with low attendance before monthly tests.",
+                "Review open admissions follow-ups and counselling outcomes.",
+                "Confirm teachers have uploaded this week&apos;s lesson material.",
+                "Generate progress reports for parents before the weekend."
+              ].map((item) => (
+                <div key={item} className="rounded border border-white/10 bg-navy-deep/55 p-4 text-sm leading-6 text-muted">{item}</div>
+              ))}
+            </div>
+          </div>
+          <div className="space-y-4">
+            <ProgressCard title="Hostel occupancy" value={data.hostelStats.occupancyPercentage} label={`${data.hostelStats.occupiedBeds}/${data.hostelStats.totalBeds} beds occupied`} />
+            <ProgressCard title="Teacher coverage" value={facultyShare} label="Faculty share of staff" />
+            <ActivityTimeline title="Recent admissions" items={data.recentAdmissions.map((user) => `${user.name} joined as ${user.role}`)} />
+          </div>
+        </section>
 
-      <section className="grid gap-4 lg:grid-cols-3">
-        <ActivityTimeline title="Recent admissions" items={data.recentAdmissions.map((user) => `${user.name} joined as ${user.role}`)} />
-        <AnnouncementCard title="Notifications panel" description={`${data.recentAdmissions.length} recent admissions loaded from backend.`} tag="Ops" />
-        <AnnouncementCard title="Staff overview" description={`${data.staffSummary.faculty} faculty, ${data.staffSummary.mentors} mentors, ${data.staffSummary.operations} operations staff.`} tag="Staff" />
-      </section>
+        <SectionHeader eyebrow="Quick Actions" title="Common daily work" />
+        <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {dailyActions.map((action) => (
+            <QuickActionCard key={action.title} title={action.title} description={action.description} href={action.href} />
+          ))}
+        </section>
 
-      <SectionHeader eyebrow="Management" title="Quick management shortcuts" />
-      <section className="grid gap-4 md:grid-cols-3">
-        <QuickActionCard title="Admissions" description="Review new applications and lead source reports." href="/crm/admissions" />
-        <QuickActionCard title="Courses" description="Manage modules, tests, batches and faculty ownership." href="/courses" />
-        <QuickActionCard title="Reports" description="Open executive controls, audit logs, and system settings." href="/admin-center" />
-      </section>
-
-      <SectionHeader eyebrow="Phase 6A Controls" title="Final role and institute operations" />
-      <section className="grid gap-4 md:grid-cols-3">
-        <QuickActionCard title="Role management" description="Manage ADMIN, GUEST, STUDENT, PARENT, TEACHER, DIRECTOR, TELECALLER and MARKETING roles." href="/admin-center/roles" />
-        <QuickActionCard title="Permission management" description="Review module permissions and guarded access policies." href="/admin-center/permissions" />
-        <QuickActionCard title="Institute management" description="Manage institutes, branches, and director scope." href="/admin-center/branches" />
-        <QuickActionCard title="Director management" description="Audit executive access and branch-specific command scope." href="/dashboard/director" />
-        <QuickActionCard title="Telecaller management" description="Monitor lead pipeline ownership and callback activity." href="/dashboard/telecaller" />
-        <QuickActionCard title="Marketing team management" description="Track campaigns, attribution, and Daily Intelligence sharing." href="/dashboard/marketing" />
-        <QuickActionCard title="Activity audit logs" description="Inspect role activity, auth events, and admin actions." href="/admin-center/audit-logs" />
-        <QuickActionCard title="Role analytics" description="Review role adoption, onboarding status, and access posture." href="/admin-center" />
-        <QuickActionCard title="Onboarding approvals" description="Activate staff and student account readiness workflows." href="/admin-center/settings" />
-      </section>
-    </motion.div>
+        <section className="grid gap-4 md:grid-cols-3">
+          <AnnouncementCard title="LMS ready for management" description="Course catalog, media library, live classes, and recorded lectures are grouped for easy academy use." tag="LMS" />
+          <AnnouncementCard title="Monthly growth system" description="Tests, analytics, psychometric signals, attendance, and teacher remarks feed the progress report view." tag="Reports" />
+          <AnnouncementCard title="Role dashboards" description="Director, teacher, student, parent, telecaller, marketing, guest, and admin dashboards remain separate and simpler." tag="Roles" />
+        </section>
+      </motion.div>
     </RoleDashboardGuard>
   );
 }

@@ -5,12 +5,14 @@ import { useRouter } from "next/navigation";
 import { useToast } from "@/components/providers/toast-provider";
 import { getApiErrorMessage } from "@/services/api";
 import {
+  createTest,
   getResult,
   getTestDetails,
   getTests,
   startTest,
   submitTest,
   type SubmitTestPayload,
+  type TestPayload,
   type TestFilters
 } from "@/services/tests";
 
@@ -40,6 +42,20 @@ export function useStartTest() {
       localStorage.removeItem(`nidus_attempt_${attempt.id}`);
       showToast("Test started", "success");
       router.push(`/test-attempt/${attempt.id}`);
+    },
+    onError: (error) => showToast(getApiErrorMessage(error), "error")
+  });
+}
+
+export function useCreateTest() {
+  const queryClient = useQueryClient();
+  const { showToast } = useToast();
+
+  return useMutation({
+    mutationFn: (payload: TestPayload) => createTest(payload),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["tests"] });
+      showToast("Test plan created successfully", "success");
     },
     onError: (error) => showToast(getApiErrorMessage(error), "error")
   });

@@ -7,6 +7,18 @@ export type CourseFilters = {
   examType?: string;
 };
 
+export type CoursePayload = {
+  title: string;
+  slug: string;
+  description: string;
+  thumbnail: string;
+  category: string;
+  examType: string;
+  duration: string;
+  price: number;
+  isPremium?: boolean;
+};
+
 export async function getCourses(filters: CourseFilters = {}) {
   const response = await apiClient.get<{ courses: Course[] }>("/courses", {
     params: filters
@@ -24,6 +36,11 @@ export async function enrollCourse(courseId: string) {
     courseId
   });
   return response.data.enrollment;
+}
+
+export async function createCourse(payload: CoursePayload) {
+  const response = await apiClient.post<{ course: Course }>("/courses", payload);
+  return response.data.course;
 }
 
 export async function getMyCourses() {

@@ -3,10 +3,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getApiErrorMessage } from "@/services/api";
 import {
+  createCourse,
   enrollCourse,
   getCourseDetails,
   getCourses,
   getMyCourses,
+  type CoursePayload,
   type CourseFilters
 } from "@/services/courses";
 import { useToast } from "@/components/providers/toast-provider";
@@ -35,6 +37,22 @@ export function useEnrollCourse() {
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["my-courses"] });
       showToast("Enrollment successful", "success");
+    },
+    onError: (error) => {
+      showToast(getApiErrorMessage(error), "error");
+    }
+  });
+}
+
+export function useCreateCourse() {
+  const queryClient = useQueryClient();
+  const { showToast } = useToast();
+
+  return useMutation({
+    mutationFn: (payload: CoursePayload) => createCourse(payload),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["courses"] });
+      showToast("Course created successfully", "success");
     },
     onError: (error) => {
       showToast(getApiErrorMessage(error), "error");
