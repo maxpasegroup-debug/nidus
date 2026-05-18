@@ -24,7 +24,7 @@ export default function LoginPage() {
     try {
       const result = await login({ identifier, password });
       if (result.success && result.user) {
-        window.location.assign(roleDashboardPath[result.user.role] ?? "/dashboard");
+        window.location.assign(result.user.mustChangePassword ? "/dashboard/settings?mustChangePassword=1" : roleDashboardPath[result.user.role] ?? "/dashboard");
       } else {
         setError(result.message || "Login failed");
       }

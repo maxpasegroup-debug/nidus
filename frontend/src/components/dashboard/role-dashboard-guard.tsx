@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, type ReactNode } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { DashboardSkeleton } from "@/components/dashboard/skeletons";
 import { useAuth } from "@/components/providers/auth-provider-v2";
 import { roleDashboardPath } from "@/lib/dashboard-data";
@@ -23,6 +23,7 @@ export function RoleDashboardGuard({
   children: ReactNode;
 }) {
   const router = useRouter();
+  const pathname = usePathname();
   const { user, isLoading } = useAuth();
 
   useEffect(() => {
@@ -33,10 +34,15 @@ export function RoleDashboardGuard({
 
     const allowedRoles = Array.isArray(role) ? role : compatibleRoles[role] ?? [role];
 
+    if (!isLoading && user?.mustChangePassword && pathname !== "/dashboard/settings") {
+      router.replace("/dashboard/settings?mustChangePassword=1");
+      return;
+    }
+
     if (!isLoading && user && !allowedRoles.includes(user.role)) {
       router.replace(roleDashboardPath[user.role]);
     }
-  }, [isLoading, role, router, user]);
+  }, [isLoading, pathname, role, router, user]);
 
   const allowedRoles = Array.isArray(role) ? role : compatibleRoles[role] ?? [role];
 

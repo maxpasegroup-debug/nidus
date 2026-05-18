@@ -23,7 +23,10 @@ export async function callOpenAIJson<T extends JsonValue>(instructions: string, 
     await prisma.aIResponseCache.update({ where: { id: cached.id }, data: { hitCount: { increment: 1 } } }).catch(() => undefined);
     return cached.response as T;
   }
-  if (!env.OPENAI_API_KEY) return fallback;
+  if (!env.OPENAI_API_KEY) {
+    if (env.NODE_ENV === "production") throw new Error("OPENAI_API_KEY is required for AI features in production");
+    return fallback;
+  }
   const started = Date.now();
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), env.AI_REQUEST_TIMEOUT_MS);

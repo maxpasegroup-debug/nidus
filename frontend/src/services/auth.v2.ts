@@ -28,17 +28,17 @@ export type AuthUser = {
   mobileVerified?: boolean;
   roleMetadata?: Record<string, unknown> | null;
   roleOnboardingStatus?: string;
+  mustChangePassword?: boolean;
   createdAt?: string;
   updatedAt?: string;
 };
 
 export type AuthSession = {
   id: string;
-  device?: string;
-  browser?: string;
   ipAddress?: string;
-  loginAt: string;
-  lastActivityAt: string;
+  userAgent?: string;
+  createdAt: string;
+  updatedAt: string;
   expiresAt: string;
 };
 
@@ -118,11 +118,13 @@ export async function verifyForgotPassword(_identifier: string, _otp: string) {
 }
 
 export async function getSessions(): Promise<AuthSession[]> {
-  return [];
+  const response = await apiClient.get<{ success: boolean; sessions: AuthSession[] }>("/auth/sessions");
+  return response.data.sessions;
 }
 
-export async function revokeSession(_id: string) {
-  return { message: "Session revoked locally" };
+export async function revokeSession(id: string) {
+  const response = await apiClient.delete<AuthResponse>(`/auth/sessions/${id}`);
+  return response.data;
 }
 
 export async function inviteParentLink(_studentId: string) {

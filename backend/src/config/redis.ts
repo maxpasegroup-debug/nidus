@@ -60,7 +60,10 @@ export function isRedisReady() {
 
 export async function verifyRedisConnection() {
   const client = getRedis();
-  if (!client) return false;
+  if (!client) {
+    if (env.REDIS_REQUIRED) throw new Error("REDIS_URL is required when REDIS_REQUIRED=true");
+    return false;
+  }
   try {
     await withTimeout(client.ping());
     redisReady = true;

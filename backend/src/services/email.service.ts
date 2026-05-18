@@ -2,7 +2,13 @@ import { Resend } from "resend";
 import { env } from "../config/env.js";
 import { logger } from "../utils/logger.js";
 
-const resend = new Resend(env.RESEND_API_KEY || undefined);
+let resend: Resend | undefined;
+
+function getResendClient() {
+  if (!env.RESEND_API_KEY) return undefined;
+  resend ??= new Resend(env.RESEND_API_KEY);
+  return resend;
+}
 
 type EmailResult = {
   success: boolean;
@@ -13,12 +19,18 @@ type EmailResult = {
 export const emailService = {
   async sendPasswordResetEmail(email: string, name: string, resetLink: string): Promise<EmailResult> {
     if (!env.RESEND_API_KEY) {
+      if (env.NODE_ENV === "production") {
+        throw new Error("RESEND_API_KEY is required to send password reset emails in production");
+      }
       logger.warn("RESEND_API_KEY not configured. Password reset email logged only.", { email, resetLink });
       return { success: true, messageId: "logged-only" };
     }
 
     try {
-      const result = await resend.emails.send({
+      const client = getResendClient();
+      if (!client) return { success: true, messageId: "logged-only" };
+
+      const result = await client.emails.send({
         from: env.RESEND_FROM_EMAIL,
         to: email,
         subject: "Reset Your NIDUS Academy Password",
@@ -54,12 +66,18 @@ export const emailService = {
 
   async sendWelcomeEmail(email: string, name: string): Promise<EmailResult> {
     if (!env.RESEND_API_KEY) {
+      if (env.NODE_ENV === "production") {
+        throw new Error("RESEND_API_KEY is required to send welcome emails in production");
+      }
       logger.info("RESEND_API_KEY not configured. Welcome email logged only.", { email });
       return { success: true, messageId: "logged-only" };
     }
 
     try {
-      const result = await resend.emails.send({
+      const client = getResendClient();
+      if (!client) return { success: true, messageId: "logged-only" };
+
+      const result = await client.emails.send({
         from: env.RESEND_FROM_EMAIL,
         to: email,
         subject: "Welcome to NIDUS Academy",

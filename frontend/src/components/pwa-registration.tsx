@@ -11,6 +11,17 @@ export function PwaRegistration() {
       return;
     }
 
+    const pwaEnabled = process.env.NEXT_PUBLIC_ENABLE_PWA === "true";
+    if (!pwaEnabled) {
+      navigator.serviceWorker
+        .getRegistrations()
+        .then((registrations) => Promise.all(registrations.map((registration) => registration.unregister())))
+        .then(() => caches.keys())
+        .then((keys) => Promise.all(keys.filter((key) => key.startsWith("nidus-")).map((key) => caches.delete(key))))
+        .catch(() => undefined);
+      return;
+    }
+
     let refreshing = false;
 
     navigator.serviceWorker.addEventListener("controllerchange", () => {

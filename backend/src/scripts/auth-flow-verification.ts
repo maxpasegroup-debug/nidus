@@ -16,10 +16,10 @@ const usersRoutes = read("src/modules/users/users.routes.ts");
 const frontendApi = read("../frontend/src/services/api.ts");
 const frontendAuth = read("../frontend/src/services/auth.v2.ts");
 
-for (const route of ["/signup", "/register", "/login", "/me", "/logout", "/logout-all", "/forgot-password", "/reset-password"]) {
+for (const route of ["/signup", "/register", "/login", "/me", "/logout", "/logout-all", "/sessions", "/forgot-password", "/reset-password"]) {
   assert.match(routes, new RegExp(route.replace("/", "\\/")), `${route} endpoint must exist`);
 }
-assert.doesNotMatch(routes, /\/refresh|\/csrf|\/sessions/, "refresh, CSRF, and session-management auth endpoints must not be active");
+assert.doesNotMatch(routes, /\/refresh|\/csrf/, "refresh and CSRF auth endpoints must not be active");
 
 assert.match(controller, /res\.cookie\("session", result\.sessionId, cookieOptions\)/, "login/signup must set the httpOnly session cookie");
 assert.match(controller, /res\.json\(\{ success: true, message: "Login successful", user: result\.user \}\)/, "login must return stable success + user response");
@@ -31,10 +31,14 @@ assert.match(service, /bcrypt\.compare\(/, "login must verify bcrypt password ha
 assert.match(service, /prisma\.sessionToken\.create/, "login must persist a server-side session");
 assert.match(service, /prisma\.sessionToken\.findUnique/, "session verification must load SessionToken");
 assert.match(service, /prisma\.sessionToken\.deleteMany/, "logout-all must remove sessions");
+assert.match(service, /loginFailureCount/, "login lockout must track failed attempts");
+assert.match(service, /lockedUntil/, "login lockout must set and check account lock windows");
+assert.match(service, /mustChangePassword/, "safe user responses must flag default-password accounts");
 assert.match(service, /SUPER_ADMIN_EMAIL = "nidusacademycalicut@gmail.com"/, "super admin email must be locked");
 assert.match(service, /DEFAULT_ACCOUNT_PASSWORD = "123456789"/, "default account password must be locked");
 assert.match(service, /async ensureSuperAdmin\(\)/, "super admin bootstrap must exist");
 assert.match(service, /role: Role\.ADMIN/, "super admin must be enforced as ADMIN");
+assert.doesNotMatch(service, /where: \{ id: existing\.id \},\s*data: \{\s*password/s, "super admin bootstrap must not reset an existing rotated password");
 assert.doesNotMatch(service, /jsonwebtoken|jwt\.sign|jwt\.verify|tokenBlacklist|RefreshToken|accessToken|refreshToken/, "active auth service must not use JWT/refresh-token complexity");
 
 assert.match(middleware, /sessionIdFromRequest/, "session middleware must read the session cookie");
@@ -57,6 +61,7 @@ assert.match(frontendApi, /withCredentials: true/, "frontend API client must sen
 assert.doesNotMatch(frontendApi, /Authorization|ACCESS_TOKEN|REFRESH_TOKEN|localStorage\.setItem\("nidus_/, "frontend API client must not send/store auth tokens");
 assert.match(frontendAuth, /apiClient\.post(?:<[^>]+>)?\("\/auth\/login"/, "frontend login must call backend auth login");
 assert.match(frontendAuth, /apiClient\.get(?:<[^>]+>)?\("\/auth\/me"/, "frontend session restore must call /auth/me");
+assert.match(frontendAuth, /apiClient\.get[\s\S]*"\/auth\/sessions"/, "frontend session management must call /auth/sessions");
 assert.doesNotMatch(frontendAuth, /accessToken|refreshToken|Authorization|Bearer|localStorage/, "frontend auth service must not depend on browser-stored tokens");
 
 console.log("httpOnly cookie auth flow verification checks passed.");

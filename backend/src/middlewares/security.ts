@@ -88,3 +88,27 @@ export function suspiciousActivityLogger(req: Request, _res: Response, next: Nex
 
   next();
 }
+
+export function requireSafeContentType(req: Request, res: Response, next: NextFunction) {
+  if (!req.path.startsWith("/api") || ["GET", "HEAD", "OPTIONS"].includes(req.method)) {
+    next();
+    return;
+  }
+
+  if (req.path === "/api/payments/webhook") {
+    next();
+    return;
+  }
+
+  const contentType = req.headers["content-type"] ?? "";
+  const allowed =
+    typeof contentType === "string" &&
+    (contentType.includes("application/json") || contentType.includes("multipart/form-data"));
+
+  if (!allowed) {
+    res.status(415).json({ success: false, message: "Unsupported content type", code: 415 });
+    return;
+  }
+
+  next();
+}

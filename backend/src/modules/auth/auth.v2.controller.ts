@@ -90,6 +90,31 @@ export const authControllerV2 = {
     res.json({ success: true, user: req.user });
   },
 
+  async sessions(req: AuthenticatedRequest, res: Response) {
+    try {
+      if (!req.user) {
+        res.status(401).json({ success: false, message: "Not authenticated" });
+        return;
+      }
+      res.json({ success: true, sessions: await AuthServiceV2.listSessions(req.user.id) });
+    } catch (error) {
+      res.status(500).json({ success: false, message: error instanceof Error ? error.message : "Could not load sessions" });
+    }
+  },
+
+  async revokeSession(req: AuthenticatedRequest, res: Response) {
+    try {
+      if (!req.user) {
+        res.status(401).json({ success: false, message: "Not authenticated" });
+        return;
+      }
+      const sessionTokenId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+      res.json({ success: true, ...(await AuthServiceV2.revokeSession(req.user.id, sessionTokenId)) });
+    } catch (error) {
+      res.status(400).json({ success: false, message: error instanceof Error ? error.message : "Could not revoke session" });
+    }
+  },
+
   async changePassword(req: AuthenticatedRequest, res: Response) {
     try {
       const { currentPassword, newPassword } = req.body as { currentPassword?: string; newPassword?: string };

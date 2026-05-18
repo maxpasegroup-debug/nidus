@@ -9,7 +9,7 @@ import { logger } from "../../utils/logger.js";
 
 export const systemRouter = Router();
 
-const STATUS_TIMEOUT_MS = 900;
+const STATUS_TIMEOUT_MS = 3500;
 
 async function probe<T>(name: string, operation: () => Promise<T> | T, fallback: T, timeoutMs = STATUS_TIMEOUT_MS): Promise<T> {
   let timeout: NodeJS.Timeout | undefined;
@@ -44,6 +44,7 @@ systemRouter.get("/status", async (_req, res) => {
   ]);
 
   const queueAvailable = redisConnected || isRedisReady();
+  const queueStatus = queueAvailable ? "available" : env.REDIS_REQUIRED ? "degraded" : "not_configured";
   const operational = databaseConnected && (!env.REDIS_REQUIRED || redisConnected);
   const response = {
     status: operational ? "ok" : "degraded",
@@ -55,13 +56,16 @@ systemRouter.get("/status", async (_req, res) => {
     runtime: getRuntimeState(),
     database: databaseConnected ? "connected" : "degraded",
     redis: redisConnected ? "connected" : cacheConfig.mode === "memory-fallback" ? "not_configured" : "degraded",
-    queue: queueAvailable ? "available" : "degraded",
+    queue: queueStatus,
     cloudinary: cloudinaryReady ? "ready" : "not_configured",
     checks: {
       database: databaseConnected ? "CONNECTED" : "DEGRADED",
       cache: redisConnected ? "REDIS_CONNECTED" : cacheConfig.mode,
-      queue: queueAvailable ? "AVAILABLE" : "DEGRADED",
+      queue: queueStatus.toUpperCase(),
       cloudinary: cloudinaryReady ? "READY" : "NOT_CONFIGURED",
+      email: env.RESEND_API_KEY ? "CONFIGURED" : "NOT_CONFIGURED",
+      payments: env.RAZORPAY_KEY_ID && env.RAZORPAY_KEY_SECRET && env.RAZORPAY_WEBHOOK_SECRET ? "CONFIGURED" : "NOT_CONFIGURED",
+      ai: env.OPENAI_API_KEY ? "CONFIGURED" : "NOT_CONFIGURED",
       sentry: sentryConfigured ? "CONFIGURED" : "DISABLED",
       backups: prismaBackupConfig.provider,
       maintenanceMode: env.MAINTENANCE_MODE

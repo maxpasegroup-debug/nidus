@@ -23,6 +23,9 @@ export const resendService = {
 
   async sendEmailNow(payload: EmailPayload) {
     if (!env.RESEND_API_KEY) {
+      if (env.NODE_ENV === "production") {
+        throw new Error("RESEND_API_KEY is required to send emails in production");
+      }
       logger.warn("Resend API key missing; email skipped", { recipient: payload.recipient, subject: payload.subject });
       return { status: "SKIPPED_NO_API_KEY" };
     }

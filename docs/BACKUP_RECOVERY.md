@@ -11,13 +11,20 @@ pg_dump "$DATABASE_URL" --format=custom --file="nidus-YYYY-MM-DD.dump"
 
 Store dumps outside Railway in the configured backup target. Keep daily backups for 14 days, weekly backups for 8 weeks, and monthly backups for 12 months.
 
+To execute a local dump from a trusted environment with `pg_dump` installed:
+
+```bash
+npm run backup:database --workspace backend -- --execute
+```
+
 ## Database Restore
 
 1. Pause public traffic or enable `MAINTENANCE_MODE=true`.
 2. Restore into a fresh PostgreSQL instance first.
 3. Run `pg_restore --clean --if-exists --dbname="$DATABASE_URL" nidus-YYYY-MM-DD.dump`.
 4. Run `npx prisma migrate status --config backend/prisma.config.ts`.
-5. Run backend smoke checks before moving traffic.
+5. Run `npm run db:readiness --workspace backend`.
+6. Run backend smoke checks before moving traffic.
 
 ## Media Backup
 

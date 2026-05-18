@@ -127,6 +127,10 @@ export const adminCenterService = {
         queueAvailable: isQueueAvailable(),
         redisRequired: env.REDIS_REQUIRED,
         maintenanceMode: env.MAINTENANCE_MODE,
+        cloudinaryConfigured: Boolean(env.CLOUDINARY_CLOUD_NAME && env.CLOUDINARY_API_KEY && env.CLOUDINARY_API_SECRET),
+        resendConfigured: Boolean(env.RESEND_API_KEY),
+        razorpayConfigured: Boolean(env.RAZORPAY_KEY_ID && env.RAZORPAY_KEY_SECRET && env.RAZORPAY_WEBHOOK_SECRET),
+        openAiConfigured: Boolean(env.OPENAI_API_KEY),
         sentryConfigured: Boolean(env.SENTRY_DSN),
         backupTargetConfigured: Boolean(env.BACKUP_BUCKET)
       },

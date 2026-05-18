@@ -53,8 +53,8 @@ export default function SessionsPage() {
               <div className="flex items-center gap-3">
                 <MonitorSmartphone className="h-5 w-5 text-gold" />
                 <div>
-                  <p className="font-semibold text-white">{session.device} - {session.browser}</p>
-                  <p className="text-sm text-muted">{session.ipAddress ?? "Unknown IP"} · Last active {new Date(session.lastActivityAt).toLocaleString()}</p>
+                  <p className="font-semibold text-white">{session.userAgent || "Unknown device"}</p>
+                  <p className="text-sm text-muted">{session.ipAddress ?? "Unknown IP"} - Last active {new Date(session.updatedAt).toLocaleString()}</p>
                 </div>
               </div>
               <Button size="sm" variant="secondary" onClick={() => revoke(session.id)}>Revoke</Button>

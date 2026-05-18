@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
+import { useRouter } from "next/navigation";
 import { KeyRound } from "lucide-react";
 import { RoleDashboardGuard } from "@/components/dashboard";
 import { Button } from "@/components/ui/button";
@@ -10,11 +11,17 @@ import { getApiErrorMessage } from "@/services/api";
 import { changePassword } from "@/services/auth.v2";
 
 export default function DashboardSettingsPage() {
+  const router = useRouter();
   const { showToast } = useToast();
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [mustChangePassword, setMustChangePassword] = useState(false);
+
+  useEffect(() => {
+    setMustChangePassword(new URLSearchParams(window.location.search).get("mustChangePassword") === "1");
+  }, []);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -30,6 +37,7 @@ export default function DashboardSettingsPage() {
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
+      router.replace("/login");
     } catch (error) {
       showToast(getApiErrorMessage(error), "error");
     } finally {
@@ -51,6 +59,12 @@ export default function DashboardSettingsPage() {
                 <h1 className="mt-2 text-3xl font-semibold text-ink">Change Password</h1>
               </div>
             </div>
+
+            {mustChangePassword ? (
+              <div className="mt-6 rounded border border-gold/30 bg-gold/10 px-4 py-3 text-sm text-gold-soft">
+                This account is using a default password. Change it now to continue using the platform securely.
+              </div>
+            ) : null}
 
             <form className="mt-6 space-y-4" onSubmit={submit}>
               <Input label="Current password" type="password" value={currentPassword} onChange={(event) => setCurrentPassword(event.target.value)} required />

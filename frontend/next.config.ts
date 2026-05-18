@@ -5,15 +5,16 @@ import { dirname, join } from "node:path";
 const projectRoot = existsSync(join(process.cwd(), "node_modules", "next", "package.json"))
   ? process.cwd()
   : dirname(process.cwd());
-const internalApiUrl = process.env.INTERNAL_API_URL || "http://127.0.0.1:4001";
+const internalApiUrl = process.env.INTERNAL_API_URL || process.env.API_PROXY_TARGET || "http://127.0.0.1:8080";
+const isProduction = process.env.NODE_ENV === "production";
 
 const csp = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+  `script-src 'self' 'unsafe-inline'${isProduction ? "" : " 'unsafe-eval'"}`,
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https://res.cloudinary.com https://images.unsplash.com",
   "font-src 'self' data:",
-  "connect-src 'self' https: http://127.0.0.1:5000",
+  `connect-src 'self' https:${isProduction ? "" : " http://127.0.0.1:8080 http://127.0.0.1:5000"}`,
   "media-src 'self' blob: https://res.cloudinary.com",
   "frame-ancestors 'none'",
   "base-uri 'self'",

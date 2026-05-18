@@ -3,11 +3,12 @@
 ## DNS
 
 - `api.nidusacademy.com` must be added as a custom domain on the Railway backend service.
-- `app.nidusacademy.com` must be added as a custom domain on the Railway frontend service.
+- `nidusacademy.com` and `nidusacademy.in` must be added as custom domains on the Railway frontend service.
 - Registrar DNS should use CNAME records pointing to the Railway-provided domains.
 - Verify with:
   - `nslookup api.nidusacademy.com`
-  - `nslookup app.nidusacademy.com`
+  - `nslookup nidusacademy.com`
+  - `nslookup nidusacademy.in`
   - `curl https://api.nidusacademy.com/api/health`
 
 ## Railway
@@ -19,10 +20,10 @@ Backend required variables:
 - `NODE_ENV=production`
 - `DATABASE_URL`
 - `JWT_SECRET`
-- `FRONTEND_APP_URL=https://app.nidusacademy.com`
-- `CORS_ORIGIN=https://app.nidusacademy.com`
+- `FRONTEND_APP_URL=https://nidusacademy.com`
+- `CORS_ORIGIN=https://nidusacademy.com`
 - `API_DOMAIN=api.nidusacademy.com`
-- `APP_DOMAIN=app.nidusacademy.com`
+- `APP_DOMAIN=nidusacademy.com`
 - `BACKEND_PUBLIC_URL=https://api.nidusacademy.com`
 - `RESEND_API_KEY`
 - `RAZORPAY_KEY_ID`
@@ -36,7 +37,9 @@ Backend required variables:
 
 Frontend required variables:
 
-- `NEXT_PUBLIC_API_URL=https://api.nidusacademy.com`
+- `NEXT_PUBLIC_API_URL=` blank, so the browser uses same-origin `/api`
+- `INTERNAL_API_URL=<Railway backend URL>`
+- `NEXT_PUBLIC_ENABLE_PWA=false`
 - `NODE_ENV=production`
 
 ## Razorpay

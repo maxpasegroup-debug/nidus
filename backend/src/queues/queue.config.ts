@@ -1,6 +1,6 @@
 import { Queue, Worker, QueueEvents, type JobsOptions, type Processor } from "bullmq";
 import { env } from "../config/env.js";
-import { getRedis } from "../config/redis.js";
+import { getRedis, isRedisReady } from "../config/redis.js";
 import { prisma } from "../config/prisma.js";
 import { logger } from "../utils/logger.js";
 
@@ -22,7 +22,7 @@ export function queueConnection() {
 }
 
 export function isQueueAvailable() {
-  return Boolean(queueConnection());
+  return Boolean(queueConnection() && isRedisReady());
 }
 
 export function getQueue(name: QueueName) {

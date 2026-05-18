@@ -6,6 +6,8 @@
 - Use a strong `JWT_SECRET` with at least 32 random characters.
 - Set exact `CORS_ORIGIN`; do not use `*`.
 - Confirm `/api/admin` returns `401` without a token.
+- Confirm mutating `/api` routes reject non-JSON/non-multipart content with `415`.
+- Confirm frontend production CSP does not include `unsafe-eval`.
 - Confirm rate limiting returns `429` under excessive auth/API requests.
 - Keep Cloudinary, Razorpay, Brevo, OpenAI keys in Railway variables only.
 - Rotate credentials after staff changes.
@@ -13,6 +15,13 @@
 ## Database
 
 - Run `npx prisma migrate deploy` before release.
+- Run `npm run prisma:migrate:deploy`.
+- Run `npm run bootstrap:production`.
+- Run `npm run db:readiness`.
+- Run `npm run queue:readiness`.
+- Run `npm run integrations:readiness`.
+- Run `npm run security:readiness`.
+- Run `npm run backup:database --workspace backend`.
 - Confirm `/api/system/status` reports database `CONNECTED`.
 - Enable Railway PostgreSQL backups.
 - Test restore process quarterly.
