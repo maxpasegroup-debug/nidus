@@ -10,6 +10,7 @@ import { EmptyState } from "@/components/courses/empty-state";
 import { useAuth } from "@/components/providers/auth-provider-v2";
 import { useCreateTest, useTests } from "@/hooks/use-tests";
 import { getApiErrorMessage } from "@/services/api";
+import type { TestPayload } from "@/services/tests";
 
 const monthlyPlan = [
   { title: "Week 1", description: "Subject practice test with topic-level correction.", tag: "Practice" },
@@ -25,8 +26,10 @@ export default function TestsPage() {
   const [topic, setTopic] = useState("");
   const { data: tests = [], isLoading, error } = useTests({ search, examType, topic });
   const createTest = useCreateTest();
+  const [aiPrompt, setAiPrompt] = useState("");
+  const [draftQuestions, setDraftQuestions] = useState<NonNullable<TestPayload["questions"]>>([]);
   const examTypes = useMemo(() => Array.from(new Set(tests.map((test) => test.examType))), [tests]);
-  const isAdmin = user?.role === "ADMIN";
+  const canCreateTests = user?.role === "ADMIN" || user?.role === "TEACHER";
   const liveTests = tests.filter((test) => test.isLive).length;
   const mockTests = tests.filter((test) => test.isMockTest).length;
 
@@ -47,6 +50,59 @@ export default function TestsPage() {
       },
       {
         onSuccess: () => form.reset()
+      }
+    );
+  }
+
+  function generateDraftFromPrompt() {
+    const prompt = aiPrompt.trim();
+    if (!prompt) return;
+    const lines = prompt.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+    const topic = lines[0]?.replace(/^(create|make|generate)\s+/i, "").slice(0, 70) || "Teacher generated topic";
+    const requestedCount = Math.min(30, Math.max(5, Number(prompt.match(/(\d+)\s*(mcq|question|questions)/i)?.[1] ?? 10)));
+    const sourceLines = lines.length > 1 ? lines : [topic];
+    const nextQuestions = Array.from({ length: requestedCount }).map((_, index) => {
+      const source = sourceLines[index % sourceLines.length];
+      return {
+        questionText: `Q${index + 1}. ${source}?`,
+        optionA: "Option A",
+        optionB: "Option B",
+        optionC: "Option C",
+        optionD: "Option D",
+        correctAnswer: "A",
+        explanation: "Teacher should review and edit this explanation before publishing.",
+        marks: 1,
+        negativeMarks: 0,
+        difficultyLevel: /hard|advanced/i.test(prompt) ? "HARD" : /easy|basic/i.test(prompt) ? "EASY" : "MEDIUM",
+        topic
+      };
+    });
+    setDraftQuestions(nextQuestions);
+  }
+
+  function handlePublishAiDraft(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const data = new FormData(form);
+    const publishAt = String(data.get("publishAt") ?? "");
+    createTest.mutate(
+      {
+        title: String(data.get("title") ?? "NIDUS generated test"),
+        description: `${String(data.get("description") ?? "Generated from teacher prompt.")}${publishAt ? ` Scheduled for ${publishAt}.` : ""}`,
+        examType: String(data.get("examType") ?? "NIDUS"),
+        category: "Teacher Generated",
+        duration: Number(data.get("duration") ?? 45),
+        totalMarks: draftQuestions.reduce((sum, question) => sum + question.marks, 0),
+        isMockTest: true,
+        isLive: Boolean(publishAt),
+        questions: draftQuestions
+      },
+      {
+        onSuccess: () => {
+          form.reset();
+          setAiPrompt("");
+          setDraftQuestions([]);
+        }
       }
     );
   }
@@ -75,10 +131,54 @@ export default function TestsPage() {
         ))}
       </section>
 
-      {isAdmin ? (
+      {canCreateTests ? (
+        <section className="grid gap-4 lg:grid-cols-[1fr_0.9fr]">
+          <div className="rounded-lg border border-gold/20 bg-gold/10 p-5">
+            <SectionHeader eyebrow="Teacher Exam Studio" title="Type or paste, then NIDUS arranges the test" action="Teacher/Admin" />
+            <textarea
+              value={aiPrompt}
+              onChange={(event) => setAiPrompt(event.target.value)}
+              className="min-h-44 w-full rounded border border-white/12 bg-navy-deep/80 p-4 text-sm leading-6 text-white outline-none placeholder:text-muted focus:border-gold"
+              placeholder="Example: Create a 50 mark NDA Maths test on Trigonometry. Include 20 MCQs, medium difficulty, answer key and explanation. Or paste questions from ChatGPT here."
+            />
+            <div className="mt-4 flex flex-wrap gap-3">
+              <Button type="button" onClick={generateDraftFromPrompt} variant="secondary">Generate draft</Button>
+              <Button type="button" onClick={() => setDraftQuestions([])} variant="secondary">Clear draft</Button>
+            </div>
+            <p className="mt-3 text-xs leading-5 text-muted">NIDUS arranges the teacher prompt into test questions. Teacher must review the draft before publishing.</p>
+          </div>
+          <form onSubmit={handlePublishAiDraft} className="rounded-lg border border-white/10 bg-white/[0.055] p-5">
+            <SectionHeader eyebrow="Publish Settings" title="Review, set time, publish" action={`${draftQuestions.length} questions`} />
+            <div className="grid gap-3 md:grid-cols-2">
+              <Input name="title" label="Test title" placeholder="Trigonometry Monthly Test" required />
+              <Input name="examType" label="Exam type" placeholder="NDA" required />
+              <Input name="duration" label="Timer minutes" type="number" min="1" defaultValue={45} required />
+              <Input name="publishAt" label="Publish date and time" type="datetime-local" />
+              <Input name="description" label="Teacher note" placeholder="Generated from NIDUS prompt and reviewed by teacher." className="md:col-span-2" />
+            </div>
+            <Button type="submit" className="mt-5 w-full" disabled={draftQuestions.length === 0 || createTest.isPending}>{createTest.isPending ? "Publishing..." : "Publish generated test"}</Button>
+          </form>
+          {draftQuestions.length ? (
+            <div className="lg:col-span-2 rounded-lg border border-white/10 bg-white/[0.045] p-5">
+              <SectionHeader eyebrow="Draft Preview" title="Questions NIDUS arranged" action="Review before publishing" />
+              <div className="grid max-h-80 gap-3 overflow-y-auto pr-1 md:grid-cols-2">
+                {draftQuestions.slice(0, 12).map((question, index) => (
+                  <div key={`${question.questionText}-${index}`} className="rounded border border-white/10 bg-navy-deep/55 p-4">
+                    <p className="text-sm font-semibold text-ink">{question.questionText}</p>
+                    <p className="mt-2 text-xs text-muted">A. {question.optionA} | B. {question.optionB} | C. {question.optionC} | D. {question.optionD}</p>
+                    <p className="mt-2 text-xs text-gold-soft">Answer: {question.correctAnswer} | {question.difficultyLevel}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : null}
+        </section>
+      ) : null}
+
+      {canCreateTests ? (
         <section className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
           <form onSubmit={handleCreateTest} className="rounded-lg border border-white/10 bg-white/[0.055] p-5">
-            <SectionHeader eyebrow="Exam Planner" title="Create test shell" action="Admin only" />
+            <SectionHeader eyebrow="Exam Planner" title="Create blank test shell" action="Teacher/Admin" />
             <div className="grid gap-3 md:grid-cols-2">
               <Input name="title" label="Test title" placeholder="May NDA Mathematics Test" required />
               <Input name="examType" label="Exam type" placeholder="NDA" required />

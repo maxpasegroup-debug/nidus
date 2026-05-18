@@ -21,6 +21,7 @@ const teacherWorkflow = [
   { title: "Mark attendance", description: "Present, absent, or late. Keep it quick after class starts.", href: "/discipline" },
   { title: "Upload notes", description: "Add PDF notes, assignments, answer keys, and recorded classes.", href: "/media-library" },
   { title: "Create practice test", description: "Make a simple subject test or monthly practice test.", href: "/tests" },
+  { title: "Host live class", description: "Schedule Google Meet or Zoom style online classes.", href: "/live-classes" },
   { title: "Students needing help", description: "Find students with low marks, low attendance, or missed work.", href: "/performance-analytics" },
   { title: "Message parent", description: "Send a simple update about progress, attendance, or concern.", href: "/messages" }
 ];

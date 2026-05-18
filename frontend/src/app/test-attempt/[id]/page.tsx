@@ -36,6 +36,8 @@ export default function TestAttemptPage() {
 
   const questions: Question[] = useMemo(() => attempt?.test?.questions ?? [], [attempt]);
   const activeQuestion = questions[current];
+  const answeredIndexes = useMemo(() => new Set(questions.map((question, index) => (answers[question.id] ? index : -1)).filter((index) => index >= 0)), [answers, questions]);
+  const skippedIndexes = useMemo(() => new Set(questions.map((question, index) => (!answers[question.id] && !review.has(index) ? index : -1)).filter((index) => index >= 0)), [answers, questions, review]);
 
   useEffect(() => {
     if (!attemptId) return;
@@ -113,6 +115,12 @@ export default function TestAttemptPage() {
     });
   }
 
+  function skipQuestion() {
+    setSkippedMode(true);
+    setCurrent((value) => Math.min(questions.length - 1, value + 1));
+    showToast("Question skipped. It is saved in the sidebar.", "info");
+  }
+
   async function reviewSkipped() {
     const plan = await getReviewPlan(attemptId).catch(() => null);
     const nextId = plan?.aiReviewOrder[0] ?? questions.find((question) => !answers[question.id])?.id;
@@ -139,19 +147,21 @@ export default function TestAttemptPage() {
         <div className="flex flex-wrap gap-3">
           <Button type="button" variant="secondary" onClick={() => setCurrent((value) => Math.max(0, value - 1))}>Previous</Button>
           <Button type="button" onClick={() => setCurrent((value) => Math.min(questions.length - 1, value + 1))}>Next</Button>
+          <Button type="button" variant="secondary" onClick={skipQuestion}>Skip</Button>
           <Button type="button" variant="secondary" onClick={toggleReview}>Mark for review</Button>
           <Button type="button" variant="secondary" onClick={() => activeQuestion && setConfidence((value) => ({ ...value, [activeQuestion.id]: value[activeQuestion.id] === "LOW" ? "HIGH" : "LOW" }))}>Confidence</Button>
           <Button type="button" variant="secondary" onClick={reviewSkipped}>Review skipped</Button>
           <Button type="button" onClick={() => setIsModalOpen(true)}>Submit Test</Button>
         </div>
       </main>
-      <aside className="space-y-4">
+      <aside className="space-y-4 lg:sticky lg:top-24 lg:self-start">
         <TimerCard minutes={attempt.test.duration} onExpire={submit} />
         <OMRPalette
           total={questions.length}
           activeIndex={current}
-          answered={new Set(questions.map((question, index) => (answers[question.id] ? index : -1)).filter((index) => index >= 0))}
+          answered={answeredIndexes}
           marked={review}
+          skipped={skippedIndexes}
           onSelect={setCurrent}
         />
       </aside>

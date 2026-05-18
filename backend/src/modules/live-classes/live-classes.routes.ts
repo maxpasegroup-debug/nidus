@@ -24,9 +24,9 @@ function liveValidators(optional = false) {
 }
 
 liveClassesRouter.get("/", liveClassesController.listLiveClasses);
-liveClassesRouter.post("/", protect, allowRoles(Role.ADMIN), liveValidators(), liveClassesController.createLiveClass);
-liveClassesRouter.put("/:id", protect, allowRoles(Role.ADMIN), liveValidators(true), liveClassesController.updateLiveClass);
-liveClassesRouter.delete("/:id", protect, allowRoles(Role.ADMIN), liveClassesController.deleteLiveClass);
+liveClassesRouter.post("/", protect, allowRoles(Role.ADMIN, Role.TEACHER), liveValidators(), liveClassesController.createLiveClass);
+liveClassesRouter.put("/:id", protect, allowRoles(Role.ADMIN, Role.TEACHER), liveValidators(true), liveClassesController.updateLiveClass);
+liveClassesRouter.delete("/:id", protect, allowRoles(Role.ADMIN, Role.TEACHER), liveClassesController.deleteLiveClass);
 
 recordedLecturesRouter.get("/", liveClassesController.listLectures);
 recordedLecturesRouter.get("/:id", liveClassesController.lectureDetails);

@@ -27,6 +27,7 @@ export function TimerCard({ minutes, onExpire }: { minutes: number; onExpire: ()
     <div className="rounded-lg border border-gold/25 bg-gold/10 p-4 text-center">
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gold">Time Left</p>
       <p className="mt-2 text-3xl font-semibold text-gold-soft">{minutesPart}:{secondsPart}</p>
+      <p className="mt-2 text-xs text-muted">Timer stays on the side while you answer.</p>
     </div>
   );
 }
