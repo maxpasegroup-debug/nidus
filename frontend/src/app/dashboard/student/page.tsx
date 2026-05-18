@@ -25,7 +25,7 @@ const studentActions = [
   { title: "Attempt test", description: "Start a mock test, monthly test, or practice set.", href: "/tests" },
   { title: "See progress report", description: "Review your monthly growth score and next actions.", href: "/progress-reports" },
   { title: "Ask NIDUS", description: "Use AI study planner for what to do next.", href: "/ai-study-planner" },
-  { title: "Practice SSB", description: "Open psychometric and officer-readiness activities.", href: "/psychometric" },
+  { title: "Aptitude / psychometric", description: "Take monthly IQ, EQ, OLQ and officer-readiness tests.", href: "/psychometric" },
   { title: "Check leaderboard", description: "See rank, momentum, and batch competition.", href: "/leaderboard" }
 ];
 
@@ -88,7 +88,7 @@ export default function StudentDashboardPage() {
 
         <section className="grid gap-4 md:grid-cols-3">
           <AnnouncementCard title="Next test" description={data.upcomingTests[0]?.date ?? "Your next test date will appear here."} tag="Exam" />
-          <AnnouncementCard title="Progress report" description="Monthly report combines tests, attendance, course progress, aptitude, and teacher remarks." tag="Report" />
+          <AnnouncementCard title="Progress report" description="Monthly report combines tests, attendance, course progress, aptitude/IQ, EQ, psychometric growth, and teacher remarks." tag="Report" />
           <AnnouncementCard title="Parent visibility" description="Parents can see your progress, attendance, fees, and important remarks." tag="Parent" />
         </section>
 

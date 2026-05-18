@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 
 const reportSections = [
   { title: "Academic Score", description: "Subject marks, accuracy, rank, weak topics, and improvement from last month.", tag: "Marks" },
-  { title: "Aptitude Growth", description: "Reasoning, verbal ability, numerical ability, awareness, and decision making.", tag: "Aptitude" },
+  { title: "Aptitude / IQ Growth", description: "Reasoning, numerical ability, verbal ability, awareness, speed, and accuracy.", tag: "IQ" },
+  { title: "EQ / Behaviour Growth", description: "Confidence, emotional stability, cooperation, responsibility, and social adaptability.", tag: "EQ" },
   { title: "Attendance & Discipline", description: "Class attendance, PT attendance, discipline remarks, and punctuality signals.", tag: "Conduct" },
   { title: "OLQ / Psychometric", description: "Leadership, confidence, initiative, social adaptability, responsibility, and stability.", tag: "OLQ" },
   { title: "Teacher Remarks", description: "Simple teacher comments, classroom behaviour, effort level, and next learning target.", tag: "Teacher" },
@@ -16,7 +17,7 @@ const reportSections = [
 
 const monthlyTimeline = [
   "Week 1: subject practice and lesson completion review.",
-  "Week 2: aptitude test and weak-topic coaching.",
+  "Week 2: aptitude, IQ/EQ, and psychometric tracking.",
   "Week 3: full mock exam with leaderboard update.",
   "Week 4: progress report, parent view, and action plan."
 ];
@@ -27,10 +28,10 @@ export default function ProgressReportsPage() {
       <PageHero
         eyebrow="Growth & Progress Reports"
         title="Monthly hybrid progress report"
-        description="A clear report system for academic marks, aptitude, attendance, discipline, psychometric growth, teacher remarks, and NIDUS AI action plans."
+        description="A clear report system for academic marks, aptitude/IQ, EQ behaviour, attendance, discipline, psychometric growth, teacher remarks, and NIDUS AI action plans."
         actions={<Button type="button" variant="secondary" onClick={() => window.print()}>Print report</Button>}
         stats={[
-          { value: "6", label: "report sections" },
+          { value: "7", label: "report sections" },
           { value: "30d", label: "monthly cycle" },
           { value: "360", label: "growth view" }
         ]}
@@ -38,7 +39,7 @@ export default function ProgressReportsPage() {
 
       <section className="grid gap-4 md:grid-cols-4">
         <StatCard label="Academic Growth" value="82%" note="Marks, accuracy and subject progress" />
-        <StatCard label="Aptitude Growth" value="76%" note="Reasoning and decision-making score" />
+        <StatCard label="Aptitude / IQ" value="76%" note="Reasoning, speed and accuracy" />
         <StatCard label="Attendance" value="91%" note="Class and PT participation" />
         <StatCard label="Officer Readiness" value="78%" note="OLQ, discipline and confidence signals" />
       </section>
@@ -71,7 +72,7 @@ export default function ProgressReportsPage() {
       <SectionHeader eyebrow="Actions" title="Where progress data comes from" />
       <section className="grid gap-4 md:grid-cols-3">
         <QuickActionCard title="Monthly tests" description="Create and run tests that feed academic and aptitude scores." href="/tests" />
-        <QuickActionCard title="Psychometric tests" description="Use OLQ and psychometric attempts for officer-readiness growth." href="/psychometric" />
+        <QuickActionCard title="Aptitude and psychometric tests" description="Use IQ, EQ, OLQ and psychometric attempts for growth tracking." href="/psychometric" />
         <QuickActionCard title="Performance analytics" description="Open AI analytics for weak topics and recommendations." href="/performance-analytics" />
       </section>
 

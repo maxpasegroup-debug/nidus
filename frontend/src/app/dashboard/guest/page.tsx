@@ -19,7 +19,7 @@ import { useGuestDashboard } from "@/hooks/use-dashboard";
 const guestPrograms = [
   { title: "Free recorded lessons", description: "Preview course videos before joining the full academy program.", href: "/recorded-lectures" },
   { title: "Free mock tests", description: "Try sample tests and understand the exam practice format.", href: "/tests" },
-  { title: "Psychometric preview", description: "Experience officer-readiness and OLQ-style assessments.", href: "/psychometric" },
+  { title: "Aptitude and psychometric tests", description: "Try IQ, EQ, OLQ and officer-readiness assessments.", href: "/psychometric" },
   { title: "Live programs", description: "Join public webinars, demos, and orientation sessions.", href: "/live-classes" },
   { title: "Course catalog", description: "Compare NDA, CDS, AFCAT, SSB, AISSEE, RIMC and RMS programs.", href: "/courses" },
   { title: "Counselling request", description: "Ask the academy team to guide you to the right program.", href: "/crm/counselling" }

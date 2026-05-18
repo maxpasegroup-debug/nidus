@@ -17,12 +17,12 @@ import { PageHero } from "@/components/layout/page-hero";
 import { useTeacherDashboard } from "@/hooks/use-dashboard";
 
 const teacherWorkflow = [
-  { title: "Plan today's lesson", description: "Write the topic, class objective, homework, and materials needed.", href: "/documents" },
-  { title: "Mark attendance", description: "Record present, absent, and late students for the class.", href: "/discipline" },
-  { title: "Upload study material", description: "Add notes, PDFs, recorded lessons, worksheets, and answer keys.", href: "/media-library" },
-  { title: "Create or review test", description: "Prepare CBT tests, monthly practice, and weak-topic correction sets.", href: "/tests" },
-  { title: "Check weak students", description: "See students needing extra attention before the next monthly test.", href: "/performance-analytics" },
-  { title: "Send parent update", description: "Share remarks, progress, and attendance concerns.", href: "/messages" }
+  { title: "Plan today's lesson", description: "Subject, topic, class goal, homework, and next class note.", href: "/documents" },
+  { title: "Mark attendance", description: "Present, absent, or late. Keep it quick after class starts.", href: "/discipline" },
+  { title: "Upload notes", description: "Add PDF notes, assignments, answer keys, and recorded classes.", href: "/media-library" },
+  { title: "Create practice test", description: "Make a simple subject test or monthly practice test.", href: "/tests" },
+  { title: "Students needing help", description: "Find students with low marks, low attendance, or missed work.", href: "/performance-analytics" },
+  { title: "Message parent", description: "Send a simple update about progress, attendance, or concern.", href: "/messages" }
 ];
 
 export default function TeacherDashboardPage() {
@@ -42,18 +42,18 @@ export default function TeacherDashboardPage() {
           stats={[
             { value: String(data.subjects.length), label: "subjects" },
             { value: `${data.classPerformance.attendance}%`, label: "attendance" },
-            { value: String(data.classPerformance.weakStudentCount), label: "students need support" }
+            { value: String(data.classPerformance.weakStudentCount), label: "need help" }
           ]}
         />
 
         <section className="grid gap-4 md:grid-cols-4">
-          <StatCard label="Class Average" value={`${data.classPerformance.averageScore}%`} note="Current academic score" />
+          <StatCard label="Class Score" value={`${data.classPerformance.averageScore}%`} note="Average student performance" />
           <StatCard label="Attendance" value={`${data.classPerformance.attendance}%`} note="Latest class attendance" />
-          <StatCard label="Pending Review" value={String(data.contentOps.pendingReviews)} note="Materials and tests to check" />
-          <StatCard label="CBT Drafts" value={String(data.contentOps.cbtDrafts)} note="Tests awaiting publish" />
+          <StatCard label="To Check" value={String(data.contentOps.pendingReviews)} note="Notes, work, or tests to review" />
+          <StatCard label="Test Drafts" value={String(data.contentOps.cbtDrafts)} note="Tests waiting to publish" />
         </section>
 
-        <SectionHeader eyebrow="Daily Work" title="Teacher actions in simple English" />
+        <SectionHeader eyebrow="Today" title="Teacher actions" />
         <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {teacherWorkflow.map((item) => (
             <QuickActionCard key={item.title} title={item.title} description={item.description} href={item.href} />
@@ -71,16 +71,16 @@ export default function TeacherDashboardPage() {
             </div>
           </div>
           <div className="space-y-4">
-            <ProgressCard title="Class performance" value={data.classPerformance.averageScore} label="Academic readiness" />
-            <ProgressCard title="Attendance marking" value={data.classPerformance.attendance} label="Class participation" />
-            <ActivityTimeline title="Weak student alerts" items={data.weakStudentAlerts} />
+            <ProgressCard title="Class score" value={data.classPerformance.averageScore} label="Average student performance" />
+            <ProgressCard title="Attendance" value={data.classPerformance.attendance} label="Class participation" />
+            <ActivityTimeline title="Students needing help" items={data.weakStudentAlerts} />
           </div>
         </section>
 
         <SectionHeader eyebrow="Subjects" title="Assigned subjects and facilities" action={data.subjects.join(" | ")} />
         <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
           {data.subjects.map((subject) => (
-            <AnnouncementCard key={subject} title={subject} description="Lesson plan, notes, attendance, test review, and student remarks." tag="Subject" />
+            <AnnouncementCard key={subject} title={subject} description="Plan lessons, upload notes, mark attendance, create tests, and add student remarks." tag="Subject" />
           ))}
         </section>
 
