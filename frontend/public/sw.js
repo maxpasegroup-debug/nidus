@@ -1,150 +1,19 @@
-const CACHE_NAME = "nidus-shell-v7";
-const STATIC_ASSETS = ["/offline", "/manifest.webmanifest", "/icons/icon-192.svg", "/icons/icon-512.svg"];
-const SYNC_DB = "nidus-offline-sync";
-const SYNC_STORE = "requests";
-const NEVER_QUEUE_PATHS = ["/api/auth", "/api/payments", "/api/admin", "/api/users"];
-
-function isApiRequest(url) {
-  return url.pathname.startsWith("/api");
-}
-
-function canQueueMutation(url) {
-  return isApiRequest(url) && !NEVER_QUEUE_PATHS.some((path) => url.pathname.startsWith(path));
-}
-
-function backendUnavailableResponse() {
-  return new Response(JSON.stringify({ success: false, message: "Backend is unavailable. Please try again after the API is online." }), {
-    status: 503,
-    headers: { "Content-Type": "application/json" }
-  });
-}
-
-function openSyncDb() {
-  return new Promise((resolve, reject) => {
-    const request = indexedDB.open(SYNC_DB, 1);
-    request.onupgradeneeded = () => request.result.createObjectStore(SYNC_STORE, { keyPath: "id", autoIncrement: true });
-    request.onsuccess = () => resolve(request.result);
-    request.onerror = () => reject(request.error);
-  });
-}
-
-async function queueMutation(request) {
-  const clone = request.clone();
-  const body = await clone.text();
-  const headers = {};
-  clone.headers.forEach((value, key) => {
-    if (!["authorization", "cookie"].includes(key.toLowerCase())) headers[key] = value;
-  });
-  const db = await openSyncDb();
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction(SYNC_STORE, "readwrite");
-    tx.objectStore(SYNC_STORE).add({ url: clone.url, method: clone.method, headers, body, createdAt: Date.now() });
-    tx.oncomplete = resolve;
-    tx.onerror = () => reject(tx.error);
-  });
-}
-
-async function replayMutations() {
-  const db = await openSyncDb();
-  const pending = await new Promise((resolve, reject) => {
-    const tx = db.transaction(SYNC_STORE, "readonly");
-    const request = tx.objectStore(SYNC_STORE).getAll();
-    request.onsuccess = () => resolve(request.result);
-    request.onerror = () => reject(request.error);
-  });
-  for (const item of pending) {
-    const itemUrl = new URL(item.url);
-    if (!canQueueMutation(itemUrl)) {
-      await new Promise((resolve, reject) => {
-        const tx = db.transaction(SYNC_STORE, "readwrite");
-        tx.objectStore(SYNC_STORE).delete(item.id);
-        tx.oncomplete = resolve;
-        tx.onerror = () => reject(tx.error);
-      });
-      continue;
-    }
-
-    const response = await fetch(item.url, { method: item.method, headers: item.headers, body: item.body || undefined, credentials: "include" }).catch(() => undefined);
-    if (response?.ok) {
-      await new Promise((resolve, reject) => {
-        const tx = db.transaction(SYNC_STORE, "readwrite");
-        tx.objectStore(SYNC_STORE).delete(item.id);
-        tx.oncomplete = resolve;
-        tx.onerror = () => reject(tx.error);
-      });
-    }
-  }
-}
+const NIDUS_CACHE_PREFIX = "nidus-";
 
 self.addEventListener("install", (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(STATIC_ASSETS))
-  );
+  self.skipWaiting();
+  event.waitUntil(Promise.resolve());
 });
 
 self.addEventListener("activate", (event) => {
   event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key)))
-    )
-  );
-  self.clients.claim();
-});
-
-self.addEventListener("fetch", (event) => {
-  if (event.request.method !== "GET") {
-    const requestUrl = new URL(event.request.url);
-    if (isApiRequest(requestUrl)) {
-      event.respondWith(
-        fetch(event.request.clone()).catch(async () => {
-          if (!canQueueMutation(requestUrl)) {
-            return backendUnavailableResponse();
-          }
-
-          await queueMutation(event.request);
-          if ("sync" in self.registration) {
-            await self.registration.sync.register("nidus-offline-mutations");
-          }
-          return new Response(JSON.stringify({ queued: true, message: "Queued for sync" }), { status: 202, headers: { "Content-Type": "application/json" } });
-        })
-      );
-    }
-    return;
-  }
-
-  const requestUrl = new URL(event.request.url);
-
-  if (requestUrl.pathname.startsWith("/api")) {
-    event.respondWith(fetch(event.request).catch(() => new Response(JSON.stringify({ message: "Offline" }), { status: 503, headers: { "Content-Type": "application/json" } })));
-    return;
-  }
-
-  if (event.request.mode === "navigate") {
-    event.respondWith(fetch(event.request).catch(() => caches.match("/offline")));
-    return;
-  }
-
-  event.respondWith(
-    fetch(event.request)
-      .then((response) => {
-        if (response.ok) {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
-        }
-        return response;
+    caches
+      .keys()
+      .then((keys) => Promise.all(keys.filter((key) => key.startsWith(NIDUS_CACHE_PREFIX)).map((key) => caches.delete(key))))
+      .then(() => self.registration.unregister())
+      .then(() => self.clients.matchAll({ type: "window", includeUncontrolled: true }))
+      .then((clients) => {
+        for (const client of clients) client.navigate(client.url);
       })
-      .catch(() => caches.match(event.request).then((cached) => cached || caches.match("/offline")))
   );
-});
-
-self.addEventListener("sync", (event) => {
-  if (event.tag === "nidus-offline-mutations") {
-    event.waitUntil(replayMutations());
-  }
-});
-
-self.addEventListener("message", (event) => {
-  if (event.data?.type === "SKIP_WAITING") {
-    self.skipWaiting();
-  }
 });
