@@ -17,25 +17,46 @@ import { PageHero } from "@/components/layout/page-hero";
 import { useAdminDashboard } from "@/hooks/use-dashboard";
 
 const commandModules = [
-  { title: "Students & Learning", description: "Students, batches, course progress, attendance, and parent-ready updates.", href: "/admin-center/users" },
-  { title: "Course Management", description: "Create courses, upload lessons, attach PDFs, and manage recorded learning.", href: "/courses" },
-  { title: "Tests & Monthly Exams", description: "Plan monthly tests, aptitude practice, mock exams, and leaderboards.", href: "/tests" },
-  { title: "Progress Reports", description: "Review academic, aptitude, attendance, discipline, and AI growth reports.", href: "/progress-reports" },
-  { title: "Admissions & CRM", description: "Track enquiries, calls, counselling, admissions, and follow-up ownership.", href: "/crm" },
-  { title: "Fees & Finance", description: "Monitor fee collection, invoices, subscriptions, due amounts, and approvals.", href: "/payments" },
-  { title: "Staff & HR", description: "Onboard employees, assign roles, and manage staff documents in folders.", href: "/staff-hr" },
-  { title: "Admin Settings", description: "Control roles, permissions, branches, audit logs, and production operations.", href: "/admin-center" }
+  { title: "Today", description: "Daily classes, pending fees, admissions follow-ups, tests, staff tasks, and alerts.", href: "/operations-hub" },
+  { title: "Academic Department", description: "Manage classes, subjects, teachers, attendance, exams, materials, and progress.", href: "/courses" },
+  { title: "Admission Cell", description: "Handle leads, enquiries, calls, counselling, onboarding, documents, and collections.", href: "/crm" },
+  { title: "HR Department", description: "Add employees, assign roles, manage onboarding, folders, contracts, and reviews.", href: "/admin-center/users" },
+  { title: "Programs & Fees", description: "Foundation, defence entrance, specialized modules, fee plans, and instalments.", href: "/payments" },
+  { title: "Classes & Content", description: "Schedule live classes, add recorded lessons, upload PDFs, notes, and assignments.", href: "/live-classes" },
+  { title: "Exams & Progress", description: "Host exams, set timing, generate questions with NIDUS AI, and track reports.", href: "/tests" },
+  { title: "Finance", description: "Fee collection, pending dues, invoices, receipts, refunds, and approvals.", href: "/payments" },
+  { title: "NIDUS AI", description: "Ask what is pending, generate work, create exams, and guide staff actions.", href: "/nidus-ai" },
+  { title: "Reports", description: "Admission, fee, attendance, test, staff, and student progress reports.", href: "/progress-reports" },
+  { title: "Settings", description: "Users, roles, permissions, branches, audit logs, and academy controls.", href: "/admin-center" }
 ];
 
 const dailyActions = [
-  { title: "Add student or staff", description: "Create academy users and assign the right dashboard role.", href: "/admin-center/users" },
-  { title: "Create course", description: "Open the LMS builder for a new online or hybrid course.", href: "/courses" },
-  { title: "Plan monthly test", description: "Create the next monthly exam or aptitude practice set.", href: "/tests" },
-  { title: "Review progress reports", description: "See growth scores and next actions for students.", href: "/progress-reports" },
-  { title: "Check admissions", description: "Review leads, counselling, and new admissions.", href: "/crm/admissions" },
-  { title: "Open audit logs", description: "Inspect recent admin, auth, and role activity.", href: "/admin-center/audit-logs" },
-  { title: "Ask NIDUS", description: "Open AI boss view for pending work and academy next actions.", href: "/nidus-ai" },
-  { title: "Operations hub", description: "Open finance, campus, reporting, and production controls.", href: "/operations-hub" }
+  { title: "Add employee", description: "Create a teacher, director, telecaller, or marketing staff login.", href: "/admin-center/users" },
+  { title: "Add student or parent", description: "Create learner and parent accounts with the correct dashboard.", href: "/admin-center/users" },
+  { title: "Create course", description: "Add a regular, live, recorded, or hybrid course.", href: "/courses" },
+  { title: "Upload material", description: "Add notes, PDFs, recordings, assignments, and class resources.", href: "/courses" },
+  { title: "Schedule live class", description: "Plan an online class for a batch with teacher access.", href: "/live-classes" },
+  { title: "Host exam", description: "Generate questions, set time, publish exam, and track attempts.", href: "/tests" },
+  { title: "Collect fee", description: "Open fee collection, invoices, pending dues, and receipts.", href: "/payments" },
+  { title: "Ask NIDUS", description: "Get pending work, exam ideas, reports, and staff next actions.", href: "/nidus-ai" }
+];
+
+const programTracks = [
+  {
+    title: "Foundation & Long-Term Programs",
+    description: "Mission 2028, After Plus One, Foundation NDA / Civil Services, and yearly plans.",
+    tag: "Track 1"
+  },
+  {
+    title: "Defence Entrance & Academic Preparation",
+    description: "AISSEE, RIMC, NDA crash course, CDS, AFCAT, INET, and school entry preparation.",
+    tag: "Track 2"
+  },
+  {
+    title: "Specialized Modules",
+    description: "Agniveer test series, physical test, AFMC preparation, and SSB interview guidance.",
+    tag: "Track 3"
+  }
 ];
 
 export default function AdminDashboardPage() {
@@ -63,9 +84,9 @@ export default function AdminDashboardPage() {
     <RoleDashboardGuard role="ADMIN">
       <motion.div className="space-y-8" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
         <PageHero
-          eyebrow="Academy Command Centre"
+          eyebrow="NIDUS Academy Admin"
           title="Simple management dashboard"
-          description="A clear control room for students, courses, tests, admissions, fees, staff, progress reports, and NIDUS AI support."
+          description="Three clear departments for daily work: Academic Department, Admission Cell, and HR Department. All hybrid tools stay inside simple menus."
           actions={<Button type="button" onClick={() => refetch()} disabled={isFetching} variant="secondary">{isFetching ? "Refreshing..." : "Refresh dashboard"}</Button>}
           stats={[
             { value: String(data.totalStudents), label: "students" },
@@ -81,8 +102,8 @@ export default function AdminDashboardPage() {
           <StatCard label="Staff" value={String(data.staffSummary.totalStaff)} note={`${data.staffSummary.faculty} teachers and ${data.staffSummary.operations} operations`} />
         </section>
 
-        <SectionHeader eyebrow="Main Areas" title="What management can control" />
-        <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <SectionHeader eyebrow="Admin Menu" title="Choose the work area" />
+        <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {commandModules.map((module) => (
             <QuickActionCard key={module.title} title={module.title} description={module.description} href={module.href} />
           ))}
@@ -94,10 +115,10 @@ export default function AdminDashboardPage() {
             <h2 className="mt-3 text-2xl font-semibold text-ink">Today&apos;s management focus</h2>
             <div className="mt-5 grid gap-3">
               {[
-                "Check students with low attendance before monthly tests.",
-                "Review open admissions follow-ups and counselling outcomes.",
-                "Confirm teachers have uploaded this week&apos;s lesson material.",
-                "Generate progress reports for parents before the weekend."
+                "Check today&apos;s classes, absentees, pending fees, and admissions follow-ups.",
+                "Confirm teachers have uploaded notes, recordings, or assignments for active batches.",
+                "Prepare the next monthly test, aptitude test, or psychometric growth check.",
+                "Review progress reports and send clear actions to teachers, parents, and students."
               ].map((item) => (
                 <div key={item} className="rounded border border-white/10 bg-navy-deep/55 p-4 text-sm leading-6 text-muted">{item}</div>
               ))}
@@ -117,10 +138,11 @@ export default function AdminDashboardPage() {
           ))}
         </section>
 
+        <SectionHeader eyebrow="Programs" title="Three channels of NIDUS programs" />
         <section className="grid gap-4 md:grid-cols-3">
-          <AnnouncementCard title="LMS ready for management" description="Course catalog, media library, live classes, and recorded lectures are grouped for easy academy use." tag="LMS" />
-          <AnnouncementCard title="Monthly growth system" description="Tests, analytics, psychometric signals, attendance, and teacher remarks feed the progress report view." tag="Reports" />
-          <AnnouncementCard title="Role dashboards" description="Director, teacher, student, parent, telecaller, marketing, guest, and admin dashboards remain separate and simpler." tag="Roles" />
+          {programTracks.map((track) => (
+            <AnnouncementCard key={track.title} title={track.title} description={track.description} tag={track.tag} />
+          ))}
         </section>
       </motion.div>
     </RoleDashboardGuard>
