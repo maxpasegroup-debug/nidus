@@ -8,7 +8,7 @@ import { PublicNavbar } from "@/components/marketing/public-navbar";
 import { Sidebar } from "@/components/layout/sidebar";
 import { TopNavbar } from "@/components/layout/top-navbar";
 
-const publicRoutes = new Set(["/", "/login", "/register", "/contact"]);
+const publicRoutes = new Set(["/", "/login", "/register", "/contact", "/nidus-ai-ecosystem"]);
 
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
@@ -16,7 +16,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   if (isPublicRoute) {
     return (
-      <div className="min-h-screen overflow-x-hidden bg-navy-deep text-ink">
+      <div className="min-h-screen overflow-x-hidden bg-[#f6f7fb] text-[#111827]">
         <PublicNavbar />
         <main id="main-content">{children}</main>
         <PublicFooter />
