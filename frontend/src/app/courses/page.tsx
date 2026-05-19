@@ -110,7 +110,7 @@ export default function CoursesPage() {
       {!isLoading && !error ? (
         <>
           <SectionHeader eyebrow="Featured" title="Premium course formations" />
-          {featured.length > 0 ? <RecommendedCourses courses={featured} /> : <EmptyState title="No featured courses" description="Featured courses will appear after seeding." />}
+          {featured.length > 0 ? <RecommendedCourses courses={featured} /> : <EmptyState title="No featured courses" description="Featured courses will appear after they are created and marked premium." />}
 
           <SectionHeader eyebrow="Catalog" title="All courses" action={`${courses.length} courses available`} />
           {courses.length > 0 ? (

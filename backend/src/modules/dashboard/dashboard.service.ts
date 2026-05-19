@@ -6,13 +6,32 @@ type DashboardUser = {
   role: Role;
 };
 
-const performanceSeries = [
-  { month: "Jan", score: 62, attendance: 84 },
-  { month: "Feb", score: 68, attendance: 88 },
-  { month: "Mar", score: 73, attendance: 91 },
-  { month: "Apr", score: 78, attendance: 93 },
-  { month: "May", score: 84, attendance: 96 }
-];
+const paidStatuses = ["SUCCESS", "PAID", "VERIFIED", "CAPTURED"];
+const staffRoles: Role[] = ["ADMIN", "DIRECTOR", "TEACHER", "TELECALLER", "MARKETING_COORDINATOR"];
+
+function percentage(part: number, total: number) {
+  return total > 0 ? Math.round((part / total) * 100) : 0;
+}
+
+function monthLabel(date: Date) {
+  return date.toLocaleString("en-US", { month: "short" });
+}
+
+function attendanceStatus(status: string) {
+  return status.trim().toUpperCase();
+}
+
+function buildAttendanceTrend(rows: Array<{ date: Date; status: string }>) {
+  const grouped = new Map<string, { present: number; total: number }>();
+  for (const row of rows) {
+    const key = monthLabel(row.date);
+    const current = grouped.get(key) ?? { present: 0, total: 0 };
+    current.total += 1;
+    if (attendanceStatus(row.status) === "PRESENT") current.present += 1;
+    grouped.set(key, current);
+  }
+  return Array.from(grouped.entries()).map(([month, value]) => ({ month, attendance: percentage(value.present, value.total) }));
+}
 
 export const dashboardService = {
   async getStudentDashboard(user: DashboardUser) {
@@ -21,44 +40,54 @@ export const dashboardService = {
       select: { id: true, name: true, email: true, mobile: true, role: true }
     });
 
+    const [enrollments, liveTests, attendanceRows, leaderboard, studentCount, recommendations, fitness, lectureProgress, attempts] = await Promise.all([
+      prisma.enrollment.findMany({
+        where: { userId: user.id },
+        orderBy: { enrolledAt: "desc" },
+        include: { course: { include: { modules: { orderBy: { order: "asc" }, include: { lessons: { orderBy: { order: "asc" }, take: 1 } } } } } }
+      }),
+      prisma.test.findMany({ where: { isLive: true }, orderBy: { createdAt: "desc" }, take: 5, include: { _count: { select: { questions: true } } } }),
+      prisma.attendance.findMany({ where: { userId: user.id }, orderBy: { date: "asc" } }),
+      prisma.leaderboard.findUnique({ where: { userId: user.id } }),
+      prisma.user.count({ where: { role: "STUDENT" } }),
+      prisma.aIRecommendation.findMany({ where: { userId: user.id }, orderBy: { createdAt: "desc" }, take: 5 }),
+      prisma.fitnessProfile.findUnique({ where: { userId: user.id } }),
+      prisma.lectureProgress.findMany({ where: { userId: user.id }, orderBy: { updatedAt: "desc" }, take: 4, include: { lecture: { select: { title: true } } } }),
+      prisma.testAttempt.findMany({ where: { userId: user.id }, orderBy: { startedAt: "desc" }, take: 4, include: { test: { select: { title: true } } } })
+    ]);
+    const present = attendanceRows.filter((row) => attendanceStatus(row.status) === "PRESENT").length;
+    const recentActivities = [
+      ...attempts.map((attempt) => `Attempted ${attempt.test.title}`),
+      ...lectureProgress.map((progress) => `${progress.completed ? "Completed" : "Watched"} ${progress.lecture.title}`)
+    ].slice(0, 6);
+
     return {
       profile,
-      enrolledCourses: [
-        { id: "nda-foundation", title: "NDA Foundation", progress: 76, nextLesson: "Trigonometry drills" },
-        { id: "ssb-screening", title: "SSB Screening", progress: 58, nextLesson: "OIR practice set" },
-        { id: "current-affairs", title: "Current Affairs", progress: 82, nextLesson: "Defence briefing" }
-      ],
-      upcomingTests: [
-        { id: "test-nda-math-01", title: "NDA Mathematics Mock", date: "2026-05-10", durationMinutes: 120 },
-        { id: "test-gk-brief-02", title: "Current Affairs Weekly", date: "2026-05-12", durationMinutes: 45 }
-      ],
+      enrolledCourses: enrollments.map((enrollment) => ({
+        id: enrollment.course.id,
+        title: enrollment.course.title,
+        progress: enrollment.progress,
+        nextLesson: enrollment.course.modules[0]?.lessons[0]?.title ?? "No lesson added"
+      })),
+      upcomingTests: liveTests.map((test) => ({ id: test.id, title: test.title, date: test.createdAt.toISOString(), durationMinutes: test.duration })),
       attendance: {
-        percentage: 92,
-        present: 46,
-        total: 50,
-        trend: performanceSeries.map(({ month, attendance }) => ({ month, attendance }))
+        percentage: percentage(present, attendanceRows.length),
+        present,
+        total: attendanceRows.length,
+        trend: buildAttendanceTrend(attendanceRows)
       },
       leaderboardRank: {
-        rank: 12,
-        percentile: 92,
-        batch: "NDA Alpha"
+        rank: leaderboard?.rank ?? 0,
+        percentile: leaderboard?.rank && studentCount ? percentage(studentCount - leaderboard.rank + 1, studentCount) : 0,
+        batch: "No batch assigned"
       },
-      aiRecommendations: [
-        "Revise trigonometry identities before the next mock test.",
-        "Attempt two OIR practice sets for SSB screening.",
-        "Read today's maritime security current affairs brief."
-      ],
+      aiRecommendations: recommendations.map((item) => item.recommendation),
       fitnessProgress: {
-        score: 64,
-        streakDays: 9,
-        focus: "Endurance and agility"
+        score: Math.round(fitness?.staminaScore ?? 0),
+        streakDays: await prisma.dailyFitnessLog.count({ where: { userId: user.id } }),
+        focus: fitness?.fitnessLevel ?? "No fitness profile"
       },
-      recentActivities: [
-        "Completed NDA mathematics mock test",
-        "Joined current affairs live briefing",
-        "AI study plan updated",
-        "Fitness tracker streak continued"
-      ]
+      recentActivities
     };
   },
 
@@ -73,101 +102,108 @@ export const dashboardService = {
       await prisma.parentStudentLink.update({ where: { id: link.id }, data: { lastViewedAt: new Date() } }).catch(() => undefined);
     }
 
+    const studentId = linkedStudent?.id;
+    const [attempts, attendanceRows, fees, notifications, discipline] = await Promise.all([
+      studentId ? prisma.testAttempt.findMany({ where: { userId: studentId, submittedAt: { not: null } }, orderBy: { submittedAt: "asc" }, take: 12 }) : [],
+      studentId ? prisma.attendance.findMany({ where: { userId: studentId }, orderBy: { date: "asc" } }) : [],
+      studentId ? prisma.feeInstallment.findMany({ where: { studentId }, orderBy: { dueDate: "asc" } }) : [],
+      prisma.notification.findMany({ where: { userId: user.id }, orderBy: { createdAt: "desc" }, take: 5 }),
+      studentId ? prisma.disciplineRecord.findMany({ where: { studentId }, orderBy: { createdAt: "desc" }, take: 5 }) : []
+    ]);
+    const present = attendanceRows.filter((row) => attendanceStatus(row.status) === "PRESENT").length;
+    const averageScore = attempts.length ? Math.round(attempts.reduce((sum, attempt) => sum + attempt.score, 0) / attempts.length) : 0;
+    const firstScore = attempts[0]?.score ?? 0;
+    const lastScore = attempts.at(-1)?.score ?? 0;
+    const dueFees = fees.filter((fee) => fee.paidStatus !== "PAID");
+
     return {
       parentId: user.id,
       linkedStudent,
       monitoringPermissions: link?.monitoringPermissions ?? null,
       studentPerformance: {
-        averageScore: 84,
-        improvement: 7,
-        trend: performanceSeries
+        averageScore,
+        improvement: attempts.length > 1 ? Math.round(lastScore - firstScore) : 0,
+        trend: attempts.map((attempt) => ({ month: monthLabel(attempt.startedAt), score: Math.round(attempt.score) }))
       },
       attendance: {
-        percentage: 92,
-        present: 44,
-        total: 48
+        percentage: percentage(present, attendanceRows.length),
+        present,
+        total: attendanceRows.length
       },
       feeStatus: {
-        status: "PAID",
-        dueAmount: 0,
-        nextDueDate: "2026-06-05"
+        status: dueFees.length ? "PENDING" : fees.length ? "PAID" : "NO_FEE_PLAN",
+        dueAmount: dueFees.reduce((sum, fee) => sum + (fee.dueAmount || fee.amount - fee.paidAmount), 0),
+        nextDueDate: dueFees[0]?.dueDate.toISOString() ?? ""
       },
-      notifications: [
-        "Weekly performance report is ready.",
-        "Counselling slot recommended for SSB preparation.",
-        "Attendance improved by 4% this week."
-      ],
+      notifications: notifications.map((notification) => notification.title),
       disciplineScore: {
-        grade: "A",
-        score: 94,
-        notes: "No active discipline concerns."
+        grade: discipline.length ? "REVIEW" : "NO_RECORDS",
+        score: discipline.length ? 0 : 100,
+        notes: discipline[0]?.description ?? "No discipline records found."
       }
     };
   },
 
   async getAdminDashboard() {
-    const [totalStudents, recentAdmissions] = await Promise.all([
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const [totalStudents, recentAdmissions, revenue, attendanceToday, staffCounts, hostelRooms] = await Promise.all([
       prisma.user.count({ where: { role: "STUDENT" } }),
-      prisma.user.findMany({
+      prisma.admission.findMany({
         take: 5,
         orderBy: { createdAt: "desc" },
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          mobile: true,
-          role: true,
-          createdAt: true
-        }
-      })
+        include: { student: { select: { id: true, name: true, email: true, mobile: true, role: true, createdAt: true } } }
+      }),
+      prisma.payment.aggregate({ where: { paymentStatus: { in: paidStatuses } }, _sum: { amount: true } }),
+      prisma.attendance.findMany({ where: { date: { gte: today } } }),
+      prisma.user.groupBy({ by: ["role"], where: { role: { in: staffRoles } }, _count: { role: true } }),
+      prisma.room.aggregate({ _sum: { occupiedCount: true, capacity: true } })
     ]);
+    const presentToday = attendanceToday.filter((row) => attendanceStatus(row.status) === "PRESENT").length;
+    const staffMap = new Map(staffCounts.map((item) => [item.role, item._count.role]));
+    const faculty = staffMap.get("TEACHER") ?? 0;
+    const totalStaff = staffCounts.reduce((sum, item) => sum + item._count.role, 0);
+    const occupiedBeds = hostelRooms._sum.occupiedCount ?? 0;
+    const totalBeds = hostelRooms._sum.capacity ?? 0;
 
     return {
       totalStudents,
       totalRevenue: {
-        amount: 6800000,
+        amount: revenue._sum.amount ?? 0,
         currency: "INR",
-        quarter: "Q2"
+        quarter: `FY ${new Date().getFullYear()}`
       },
       attendanceAnalytics: {
-        average: 89,
-        presentToday: 1128,
-        totalMarked: 1248,
-        trend: performanceSeries.map(({ month, attendance }) => ({ month, attendance }))
+        average: percentage(presentToday, attendanceToday.length),
+        presentToday,
+        totalMarked: attendanceToday.length,
+        trend: buildAttendanceTrend(attendanceToday)
       },
-      recentAdmissions,
+      recentAdmissions: recentAdmissions.map((admission) => admission.student),
       staffSummary: {
-        totalStaff: 86,
-        faculty: 42,
-        mentors: 18,
-        operations: 26
+        totalStaff,
+        faculty,
+        mentors: 0,
+        operations: totalStaff - faculty
       },
       hostelStats: {
-        occupancyPercentage: 78,
-        occupiedBeds: 312,
-        totalBeds: 400
+        occupancyPercentage: percentage(occupiedBeds, totalBeds),
+        occupiedBeds,
+        totalBeds
       }
     };
   },
 
   async getGuestDashboard() {
+    const [courses, tests, announcements] = await Promise.all([
+      prisma.course.findMany({ orderBy: { createdAt: "desc" }, take: 4 }),
+      prisma.test.findMany({ where: { isLive: true }, orderBy: { createdAt: "desc" }, take: 3, include: { _count: { select: { questions: true } } } }),
+      prisma.announcement.findMany({ orderBy: { createdAt: "desc" }, take: 5 })
+    ]);
     return {
-      featuredCourses: [
-        { id: "nda", title: "NDA Foundation", duration: "24 weeks", level: "Beginner" },
-        { id: "cds", title: "CDS Officer Track", duration: "18 weeks", level: "Intermediate" },
-        { id: "afcat", title: "AFCAT Accelerator", duration: "12 weeks", level: "Intermediate" },
-        { id: "ssb", title: "SSB Interview Lab", duration: "8 weeks", level: "Advanced" }
-      ],
-      freeTests: [
-        { id: "nda-sample", title: "NDA Sample Mock", questions: 30 },
-        { id: "afcat-reasoning", title: "AFCAT Reasoning Drill", questions: 25 },
-        { id: "ssb-oir", title: "SSB OIR Practice", questions: 40 }
-      ],
-      latestNews: [
-        "NDA preparation batch opens this month.",
-        "Free AFCAT reasoning mock test is available.",
-        "SSB psychology demo class added to guest access."
-      ]
+      featuredCourses: courses.map((course) => ({ id: course.id, title: course.title, duration: course.duration, level: course.category })),
+      freeTests: tests.map((test) => ({ id: test.id, title: test.title, questions: test._count.questions })),
+      latestNews: announcements.map((announcement) => announcement.title)
     };
   },
 
@@ -177,29 +213,41 @@ export const dashboardService = {
       select: { id: true, name: true, email: true, mobile: true, role: true, instituteId: true, branchId: true }
     });
 
+    const [attendanceRows, attempts, lectures, documents, tests, recommendations] = await Promise.all([
+      prisma.attendance.findMany({ orderBy: { date: "desc" }, take: 200 }),
+      prisma.testAttempt.findMany({ where: { submittedAt: { not: null } }, orderBy: { submittedAt: "desc" }, take: 100 }),
+      prisma.recordedLecture.count(),
+      prisma.document.count(),
+      prisma.test.count(),
+      prisma.aIRecommendation.findMany({ where: { userId: user.id }, orderBy: { createdAt: "desc" }, take: 5 })
+    ]);
+    const present = attendanceRows.filter((row) => attendanceStatus(row.status) === "PRESENT").length;
+    const averageScore = attempts.length ? Math.round(attempts.reduce((sum, attempt) => sum + attempt.score, 0) / attempts.length) : 0;
+    const weakAttempts = attempts.filter((attempt) => attempt.score < 50);
+
     return {
       profile,
       subjects: ["Maths", "English", "GK", "Reasoning", "Current Affairs", "Physics", "Chemistry", "Biology", "SSB", "Fitness/PT"],
-      classPerformance: { averageScore: 78, attendance: 91, weakStudentCount: 14, assignmentsDue: 6 },
+      classPerformance: { averageScore, attendance: percentage(present, attendanceRows.length), weakStudentCount: attempts.filter((attempt) => attempt.score < 50).length, assignmentsDue: 0 },
       contentOps: {
-        lectureUploads: 18,
-        notesUploads: 34,
-        pendingReviews: 5,
-        cbtDrafts: 4
+        lectureUploads: lectures,
+        notesUploads: documents,
+        pendingReviews: 0,
+        cbtDrafts: tests
       },
       modules: [
-        { title: "Subject assignment", status: "Active", metric: "10 subjects mapped" },
-        { title: "Lecture uploads", status: "Ready", metric: "Cloud media enabled" },
-        { title: "Notes uploads", status: "Ready", metric: "PDF/document library" },
-        { title: "Assignment management", status: "Active", metric: "6 due this week" },
-        { title: "Attendance marking", status: "Active", metric: "91% class average" },
-        { title: "CBT/test management", status: "Active", metric: "4 drafts" },
-        { title: "Weak student alerts", status: "Review", metric: "14 alerts" },
+        { title: "Subject assignment", status: "Ready", metric: "Configure through staff profiles" },
+        { title: "Lecture uploads", status: lectures ? "Active" : "No data", metric: `${lectures} uploaded lectures` },
+        { title: "Notes uploads", status: documents ? "Active" : "No data", metric: `${documents} uploaded documents` },
+        { title: "Assignment management", status: "Ready", metric: "No assignment records yet" },
+        { title: "Attendance marking", status: attendanceRows.length ? "Active" : "No data", metric: `${percentage(present, attendanceRows.length)}% from marked records` },
+        { title: "CBT/test management", status: tests ? "Active" : "No data", metric: `${tests} tests created` },
+        { title: "Weak student alerts", status: weakAttempts.length ? "Review" : "No alerts", metric: `${weakAttempts.length} low-score attempts` },
         { title: "Parent communication", status: "Ready", metric: "Messages linked" },
         { title: "AI recommendations", status: "Shell", metric: "Learning engine connected" }
       ],
-      weakStudentAlerts: ["Algebra accuracy below 55% for NDA Alpha", "Current affairs quiz drop in Bravo batch", "Fitness/PT attendance requires follow-up"],
-      aiRecommendations: ["Assign remedial trigonometry set to NDA Alpha.", "Schedule a short GK recap before Friday CBT.", "Send parent update for students with two missed sessions."]
+      weakStudentAlerts: weakAttempts.slice(0, 5).map((attempt) => `Low score needs review: ${Math.round(attempt.score)}`),
+      aiRecommendations: recommendations.map((item) => item.recommendation)
     };
   },
 
@@ -209,56 +257,76 @@ export const dashboardService = {
       select: { instituteId: true, branchId: true }
     });
     const scopedWhere = user.role === "DIRECTOR" ? { instituteId: director?.instituteId ?? undefined, branchId: director?.branchId ?? undefined } : {};
-    const [students, leads, admissions, teachers] = await Promise.all([
+    const [students, leads, admissions, teachers, attendanceRows, completedAttempts, totalAttempts, collected, pending, facultyReviewDue] = await Promise.all([
       prisma.user.count({ where: { role: "STUDENT", ...scopedWhere } }),
       prisma.lead.count(),
       prisma.admission.count(),
-      prisma.user.count({ where: { role: "TEACHER", ...scopedWhere } })
+      prisma.user.count({ where: { role: "TEACHER", ...scopedWhere } }),
+      prisma.attendance.findMany({ orderBy: { date: "desc" }, take: 500 }),
+      prisma.testAttempt.count({ where: { submittedAt: { not: null } } }),
+      prisma.testAttempt.count(),
+      prisma.payment.aggregate({ where: { paymentStatus: { in: paidStatuses } }, _sum: { amount: true } }),
+      prisma.feeInstallment.aggregate({ where: { paidStatus: { not: "PAID" } }, _sum: { dueAmount: true, amount: true } }),
+      prisma.faculty.count({ where: { status: { not: "ACTIVE" } } })
     ]);
+    const present = attendanceRows.filter((row) => attendanceStatus(row.status) === "PRESENT").length;
+    const collectedAmount = collected._sum.amount ?? 0;
+    const pendingAmount = pending._sum.dueAmount ?? pending._sum.amount ?? 0;
 
     return {
       scope: { instituteId: director?.instituteId ?? null, branchId: director?.branchId ?? null },
-      instituteAnalytics: { students, teachers, attendance: 89, cbtCompletion: 74 },
+      instituteAnalytics: { students, teachers, attendance: percentage(present, attendanceRows.length), cbtCompletion: percentage(completedAttempts, totalAttempts) },
       admissionsAnalytics: { leads, admissions, conversionRate: leads ? Math.round((admissions / leads) * 100) : 0 },
-      revenueAnalytics: { collected: 6800000, pending: 940000, forecast: 8200000 },
-      facultyAnalytics: { active: teachers, utilization: 82, reviewDue: 7 },
-      riskAlerts: ["Admission conversion below target in one branch", "CBT completion dip for Current Affairs", "Faculty review backlog requires action"],
-      executiveInsights: ["Revenue trend remains positive for Q2.", "CBT completion needs director review.", "Parent engagement improved after weekly reporting."],
-      growthForecast: performanceSeries.map(({ month, score }) => ({ month, forecast: score + 12 }))
+      revenueAnalytics: { collected: collectedAmount, pending: pendingAmount, forecast: collectedAmount + pendingAmount },
+      facultyAnalytics: { active: teachers, utilization: teachers ? 100 : 0, reviewDue: facultyReviewDue },
+      riskAlerts: [],
+      executiveInsights: [],
+      growthForecast: []
     };
   },
 
   async getTelecallerDashboard(user: DashboardUser) {
-    const [assignedLeads, followUps, counselling] = await Promise.all([
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const [assignedLeads, followUps, counselling, leadStatusCounts, callbacksToday, overdueFollowUps] = await Promise.all([
       prisma.lead.count({ where: { assignedTo: user.role === "TELECALLER" ? user.id : undefined } }),
       prisma.followUp.count({ where: { createdBy: user.role === "TELECALLER" ? user.id : undefined } }),
-      prisma.counsellingBooking.count()
+      prisma.counsellingBooking.count(),
+      prisma.lead.groupBy({ by: ["status"], _count: { status: true } }),
+      prisma.followUp.count({ where: { followUpDate: { gte: today, lt: tomorrow }, createdBy: user.role === "TELECALLER" ? user.id : undefined } }),
+      prisma.followUp.count({ where: { followUpDate: { lt: today }, status: { not: "COMPLETED" }, createdBy: user.role === "TELECALLER" ? user.id : undefined } })
     ]);
+    const leadMap = new Map(leadStatusCounts.map((item) => [item.status, item._count.status]));
+    const enrolled = leadMap.get("ENROLLED") ?? 0;
+    const totalLeads = leadStatusCounts.reduce((sum, item) => sum + item._count.status, 0);
 
     return {
-      leadPipeline: { new: 42, contacted: 31, counselling: 18, enrolled: 9, lost: 6, assignedLeads },
-      scheduling: { callbacksToday: 12, counselling, overdueFollowUps: 4 },
-      performance: { callsToday: 64, conversionRate: 18, averageResponseTime: "11m", notesAdded: followUps },
+      leadPipeline: { new: leadMap.get("NEW") ?? 0, contacted: leadMap.get("CONTACTED") ?? 0, counselling: leadMap.get("COUNSELLING") ?? 0, enrolled, lost: leadMap.get("LOST") ?? 0, assignedLeads },
+      scheduling: { callbacksToday, counselling, overdueFollowUps },
+      performance: { callsToday: followUps, conversionRate: percentage(enrolled, totalLeads), averageResponseTime: "No data", notesAdded: followUps },
       modules: ["Lead pipeline", "Enquiry tracking", "Callback scheduling", "Counselling scheduling", "Follow-up tracking", "Lead notes", "Conversion analytics", "AI call-script suggestions", "WhatsApp integration"],
-      aiCallScripts: ["Open with NDA batch deadline and free diagnostic test.", "Use parent outcome framing for AISSEE enquiries.", "Offer SSB demo class for officer-track leads."],
-      whatsappShell: { status: "Configured shell", templates: 5, pendingOptIns: 17 }
+      aiCallScripts: [],
+      whatsappShell: { status: "Not connected", templates: 0, pendingOptIns: 0 }
     };
   },
 
   async getMarketingDashboard(_user: DashboardUser) {
+    const [leads, admissions, sourceCounts, announcements] = await Promise.all([
+      prisma.lead.count(),
+      prisma.admission.count(),
+      prisma.lead.groupBy({ by: ["source"], _count: { source: true } }),
+      prisma.announcement.count()
+    ]);
     return {
-      campaignTracking: { activeCampaigns: 7, leadsGenerated: 286, costPerLead: 138, roi: 3.4 },
-      attribution: [
-        { channel: "Google Ads", leads: 94, conversion: 14 },
-        { channel: "Instagram", leads: 76, conversion: 9 },
-        { channel: "Webinars", leads: 58, conversion: 21 },
-        { channel: "Daily Intelligence", leads: 38, conversion: 11 }
-      ],
-      webinarRegistrations: { upcoming: 3, registered: 420, attendedLast: 166 },
-      landingPageAnalytics: { visitors: 12840, conversionRate: 4.8, topPage: "NDA Foundation" },
-      roiAnalytics: performanceSeries.map(({ month, score }) => ({ month, roi: Number((score / 25).toFixed(1)) })),
-      publishingShell: { contentQueue: 9, dailyIntelligenceShares: 22, socialPosts: 14 },
-      socialCampaignAnalytics: { reach: 186000, engagement: 7.2, enquiries: 118 }
+      campaignTracking: { activeCampaigns: 0, leadsGenerated: leads, costPerLead: 0, roi: admissions },
+      attribution: sourceCounts.map((item) => ({ channel: item.source, leads: item._count.source, conversion: 0 })),
+      webinarRegistrations: { upcoming: 0, registered: 0, attendedLast: 0 },
+      landingPageAnalytics: { visitors: 0, conversionRate: percentage(admissions, leads), topPage: "" },
+      roiAnalytics: [],
+      publishingShell: { contentQueue: 0, dailyIntelligenceShares: announcements, socialPosts: 0 },
+      socialCampaignAnalytics: { reach: 0, engagement: 0, enquiries: leads }
     };
   }
 };

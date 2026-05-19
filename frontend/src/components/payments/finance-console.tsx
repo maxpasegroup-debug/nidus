@@ -112,9 +112,9 @@ export function FinanceConsole({ view }: { view: FinanceView }) {
 
       {view === "subscriptions" ? (
         <section className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-3">{["Officer Prep Pro", "Academy Elite", "Command Premium"].map((plan, index) => <Card key={plan} className="p-5"><h3 className="font-bold text-white">{plan}</h3><p className="mt-2 text-2xl font-black text-gold">Rs {[4999, 8999, 14999][index]}</p><p className="mt-2 text-sm text-muted">Premium classes, test analytics and priority counselling.</p><button className="mt-4 rounded border border-gold/35 px-3 py-2 text-sm text-gold">Upgrade</button></Card>)}</div>
           <Card className="p-5"><h2 className="mb-4 text-xl font-bold text-white">Create Subscription</h2><form onSubmit={(event: FormEvent<HTMLFormElement>) => { event.preventDefault(); const form = event.currentTarget; subscriptions.create.mutate({ userId: value(form, "userId") || user?.id || "", planName: value(form, "planName"), startDate: value(form, "startDate"), endDate: value(form, "endDate"), status: value(form, "status"), amount: Number(value(form, "amount")) }); }}><Grid><Input name="userId" label="User ID" defaultValue={user?.id} /><Input name="planName" label="Plan Name" required /><Input name="startDate" label="Start Date" type="date" required /><Input name="endDate" label="End Date" type="date" required /><Input name="status" label="Status" defaultValue="ACTIVE" required /><Input name="amount" label="Amount" type="number" required /></Grid><div className="mt-4"><Button size="sm">Save Plan</Button></div></form></Card>
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">{subscriptionData.map((item) => <SubscriptionCard key={item.id} subscription={item} />)}</div>
+          {!subscriptionData.length ? <FinanceEmptyState title="No subscriptions yet" note="Saved subscription plans will appear here." /> : null}
         </section>
       ) : null}
 
@@ -128,7 +128,7 @@ export function FinanceConsole({ view }: { view: FinanceView }) {
 
       {view === "invoices" ? (
         <section className="space-y-4">
-          <Card className="p-5"><h2 className="mb-4 text-xl font-bold text-white">Generate Invoice</h2><form onSubmit={(event: FormEvent<HTMLFormElement>) => { event.preventDefault(); const form = event.currentTarget; invoices.generate.mutate({ studentId: value(form, "studentId"), amount: Number(value(form, "amount")), status: value(form, "status") }); }}><Grid><Input name="studentId" label="Student ID" required /><Input name="amount" label="Amount" type="number" required /><Input name="status" label="Status" defaultValue="GENERATED" /><Input label="PDF Download" value="Placeholder enabled" readOnly /></Grid><div className="mt-4"><Button size="sm">Generate Invoice</Button></div></form></Card>
+          <Card className="p-5"><h2 className="mb-4 text-xl font-bold text-white">Generate Invoice</h2><form onSubmit={(event: FormEvent<HTMLFormElement>) => { event.preventDefault(); const form = event.currentTarget; invoices.generate.mutate({ studentId: value(form, "studentId"), amount: Number(value(form, "amount")), status: value(form, "status") }); }}><Grid><Input name="studentId" label="Student ID" required /><Input name="amount" label="Amount" type="number" required /><Input name="status" label="Status" defaultValue="GENERATED" /></Grid><div className="mt-4"><Button size="sm">Generate Invoice</Button></div></form></Card>
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">{invoiceData.map((item) => <InvoiceCard key={item.id} invoice={item} />)}</div>
         </section>
       ) : null}

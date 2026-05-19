@@ -33,15 +33,15 @@ export default function ProgressReportsPage() {
         stats={[
           { value: "7", label: "report sections" },
           { value: "30d", label: "monthly cycle" },
-          { value: "360", label: "growth view" }
+          { value: "Live", label: "growth view" }
         ]}
       />
 
       <section className="grid gap-4 md:grid-cols-4">
-        <StatCard label="Academic Growth" value="82%" note="Marks, accuracy and subject progress" />
-        <StatCard label="Aptitude / IQ" value="76%" note="Reasoning, speed and accuracy" />
-        <StatCard label="Attendance" value="91%" note="Class and PT participation" />
-        <StatCard label="Officer Readiness" value="78%" note="OLQ, discipline and confidence signals" />
+        <StatCard label="Academic Growth" value="0%" note="Appears after monthly tests are submitted" />
+        <StatCard label="Aptitude / IQ" value="0%" note="Appears after aptitude attempts are submitted" />
+        <StatCard label="Attendance" value="0%" note="Appears after attendance is marked" />
+        <StatCard label="Officer Readiness" value="0%" note="Appears after OLQ and psychometric tests" />
       </section>
 
       <SectionHeader eyebrow="Report Format" title="What the academy can show every month" />
@@ -62,10 +62,10 @@ export default function ProgressReportsPage() {
           </div>
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
-          <ProgressCard title="Subject score" value={82} label="Monthly academic readiness" />
-          <ProgressCard title="Speed and accuracy" value={74} label="Timed test efficiency" />
-          <ProgressCard title="Consistency" value={88} label="Practice and attendance stability" />
-          <ProgressCard title="Improvement" value={69} label="Growth from previous month" />
+          <ProgressCard title="Subject score" value={0} label="Waiting for submitted test results" />
+          <ProgressCard title="Speed and accuracy" value={0} label="Waiting for timed test attempts" />
+          <ProgressCard title="Consistency" value={0} label="Waiting for attendance and practice data" />
+          <ProgressCard title="Improvement" value={0} label="Waiting for previous month comparison" />
         </div>
       </section>
 

@@ -12,7 +12,7 @@ export function enqueueAI(payload: AIJob) {
 
 export function startAIWorker() {
   return createWorker<AIJob>(queueNames.ai, async (job) => {
-    logger.info("AI queued task placeholder executed", { feature: job.data.feature });
+  logger.info("AI queued task recorded", { feature: job.data.feature });
     return { status: "PROCESSED", feature: job.data.feature };
   });
 }

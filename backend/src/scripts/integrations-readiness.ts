@@ -38,7 +38,7 @@ if (env.NODE_ENV === "production") {
 
 if (readiness.cloudinary.configured) {
   assert.equal(assertCloudinaryReady(), true, "Cloudinary config should be ready");
-  const signed = signedMediaUrl("nidus/readiness-placeholder", "image/png");
+  const signed = signedMediaUrl("nidus/readiness-check", "image/png");
   assert.ok(signed.includes(cloudinaryConfig.cloudName), "signed media URL should include the configured Cloudinary cloud");
 
   if (executeNetworkChecks) {

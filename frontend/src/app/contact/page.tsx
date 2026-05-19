@@ -10,14 +10,14 @@ export default function ContactPage() {
           <p className="text-xs font-semibold uppercase tracking-[0.3em] text-gold-soft">Contact NIDUS</p>
           <h1 className="mt-5 text-4xl font-semibold leading-tight text-ink sm:text-6xl">Bring elite defence training to your academy.</h1>
           <p className="mt-6 max-w-xl text-base leading-8 text-muted">
-            Speak with the NIDUS team about academy deployment, student onboarding, AI features, and management demo access.
+            Speak with the NIDUS team about academy deployment, student onboarding, AI features, and management access.
           </p>
           <div className="mt-8 grid gap-4">
             {[
               [Mail, "admissions@nidus.defence", "Email"],
               [Phone, "+91 90000 00000", "Phone"],
               [MapPin, "India / Railway Cloud", "Deployment"],
-              [Building2, "Academy demos and institutional onboarding", "Programs"]
+              [Building2, "Academy onboarding and institutional setup", "Programs"]
             ].map(([Icon, value, label]) => (
               <div key={String(label)} className="flex items-center gap-4 rounded border border-white/10 bg-white/7 p-4 backdrop-blur-xl">
                 <div className="rounded bg-gold/12 p-3 text-gold-soft"><Icon className="h-5 w-5" /></div>
@@ -33,7 +33,7 @@ export default function ContactPage() {
         <form className="relative overflow-hidden rounded-lg border border-gold/25 bg-white/[0.075] p-6 shadow-[0_40px_120px_rgba(0,0,0,0.42)] backdrop-blur-2xl sm:p-8">
           <div className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-gold/12 blur-3xl" />
           <div className="relative">
-            <h2 className="text-2xl font-semibold text-ink">Request academy demo</h2>
+            <h2 className="text-2xl font-semibold text-ink">Contact the academy team</h2>
             <p className="mt-2 text-sm text-muted">This public contact surface is ready to connect with Resend or CRM lead capture.</p>
             <div className="mt-6 grid gap-4 sm:grid-cols-2">
               <input className="rounded border border-white/12 bg-white/6 px-4 py-3 text-sm text-white outline-none focus:border-gold" placeholder="Full name" />

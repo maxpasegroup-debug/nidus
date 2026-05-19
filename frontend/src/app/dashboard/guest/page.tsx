@@ -18,9 +18,9 @@ import { useGuestDashboard } from "@/hooks/use-dashboard";
 
 const guestPrograms = [
   { title: "Free recorded lessons", description: "Preview course videos before joining the full academy program.", href: "/recorded-lectures" },
-  { title: "Free mock tests", description: "Try sample tests and understand the exam practice format.", href: "/tests" },
+  { title: "Free mock tests", description: "Try published public tests and understand the exam practice format.", href: "/tests" },
   { title: "Aptitude and psychometric tests", description: "Try IQ, EQ, OLQ and officer-readiness assessments.", href: "/psychometric" },
-  { title: "Live programs", description: "Join public webinars, demos, and orientation sessions.", href: "/live-classes" },
+  { title: "Live programs", description: "Join public webinars and orientation sessions.", href: "/live-classes" },
   { title: "Course catalog", description: "Compare NDA, CDS, AFCAT, SSB, AISSEE, RIMC and RMS programs.", href: "/courses" },
   { title: "Counselling request", description: "Ask the academy team to guide you to the right program.", href: "/crm/counselling" }
 ];
@@ -50,7 +50,7 @@ export default function GuestDashboardPage() {
       <PageHero
         eyebrow="Guest Access"
         title="Try NIDUS before joining"
-        description="A simple guest area for demo recorded courses, free mock tests, psychometric previews, live programs, counselling requests, and upgrade paths."
+        description="A simple guest area for public recorded courses, free mock tests, psychometric previews, live programs, counselling requests, and upgrade paths."
         actions={<Button type="button" onClick={() => refetch()} disabled={isFetching} variant="secondary">{isFetching ? "Refreshing..." : "Refresh dashboard"}</Button>}
         stats={[
           { value: String(data.featuredCourses.length), label: "featured courses" },
@@ -86,7 +86,7 @@ export default function GuestDashboardPage() {
       <section className="grid gap-4 md:grid-cols-3">
         <QuickActionCard title="Create full account" description="Move from guest preview to full student dashboard." href="/register" />
         <QuickActionCard title="Ask NIDUS preview" description="See how NIDUS AI supports planning and recommendations." href="/nidus-ai" />
-        <QuickActionCard title="View progress report sample" description="Understand how monthly growth will be reported." href="/progress-reports" />
+        <QuickActionCard title="View progress report format" description="Understand how monthly growth will be reported." href="/progress-reports" />
       </section>
 
       {data.featuredCourses.length === 0 ? (

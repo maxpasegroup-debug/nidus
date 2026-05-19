@@ -28,7 +28,6 @@
     "queue:readiness": "npm run queue:readiness --workspace backend",
     "integrations:readiness": "npm run integrations:readiness --workspace backend",
     "security:readiness": "npm run security:readiness --workspace backend",
-    "seed:demo": "npm run seed:demo --workspace backend",
     "prisma:migrate:deploy": "npm run prisma:migrate:deploy --workspace backend"
   }
 }

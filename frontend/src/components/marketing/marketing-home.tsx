@@ -57,16 +57,16 @@ const featureGroups: Array<{ title: string; icon: LucideIcon; copy: string }> = 
 ];
 
 const mentorSignals = [
-  ["Interview confidence", "86%"],
-  ["OLQ development", "78%"],
-  ["Mock test accuracy", "91%"],
-  ["Physical consistency", "72%"]
+  ["Interview confidence", "No data"],
+  ["OLQ development", "No data"],
+  ["Mock test accuracy", "No data"],
+  ["Physical consistency", "No data"]
 ];
 
 const stories = [
-  { name: "Aarav Singh", rank: "Recommended, NDA", quote: "The interview drills trained me to answer with structure, ownership, and calm under pressure.", score: "AIR 42" },
-  { name: "Meera Nair", rank: "AFCAT Selected", quote: "My lectures, mocks, recommendations, and mentor notes finally worked like one mission plan.", score: "AFCAT 96%" },
-  { name: "Rohan Verma", rank: "SSB Conference Out", quote: "The OLQ tracker made improvement visible every week. It changed the way I trained.", score: "SSB Ready" }
+  { name: "Disciplined Preparation", rank: "Outcome area", quote: "Structured classes, tests, attendance, and revision can be managed from one place.", score: "Academics" },
+  { name: "Officer Readiness", rank: "Outcome area", quote: "Psychometric, OLQ, interview, and progress tracking support long-term growth.", score: "SSB" },
+  { name: "Academy Control", rank: "Outcome area", quote: "Admissions, HR, finance, reports, and communication stay connected for management.", score: "Operations" }
 ];
 
 const faculty = [
@@ -78,10 +78,10 @@ const faculty = [
 
 const appScreens = ["Mock Test", "AI Mentor", "Live Class", "Parent View"];
 const missionStats = [
-  ["8", "Defence pathways"],
-  ["15+", "Academy modules"],
-  ["24/7", "AI mentor layer"],
-  ["360", "Officer readiness view"]
+  ["Ready", "Defence pathways"],
+  ["Built-in", "Academy modules"],
+  ["AI", "Mentor layer"],
+  ["Live", "Officer readiness view"]
 ];
 
 function Reveal({ children, className = "", delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
@@ -174,7 +174,7 @@ function HeroVisual() {
                   <div key={label}>
                     <div className="flex justify-between text-sm text-ink"><span>{label}</span><span className="text-gold-soft">{value}</span></div>
                     <div className="mt-2 h-2 overflow-hidden rounded-full bg-white/10">
-                      <motion.div initial={{ width: 0 }} animate={{ width: value }} transition={{ delay: 0.8, duration: 1.2 }} className="h-full rounded-full bg-gold" />
+                      <motion.div initial={{ width: 0 }} animate={{ width: value.endsWith("%") ? value : "0%" }} transition={{ delay: 0.8, duration: 1.2 }} className="h-full rounded-full bg-gold" />
                     </div>
                   </div>
                 ))}
@@ -212,7 +212,7 @@ export function MarketingHome() {
             <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.26 }} className="mt-9 flex flex-col gap-3 sm:flex-row">
               <PrimaryCta href="/register">Start Your Mission <ArrowRight className="h-4 w-4" /></PrimaryCta>
               <SecondaryCta href="#ai-platform">Explore Academy <ChevronRight className="h-4 w-4" /></SecondaryCta>
-              <SecondaryCta href="/contact">Join Live Demo <Video className="h-4 w-4" /></SecondaryCta>
+              <SecondaryCta href="/contact">Contact Academy <Video className="h-4 w-4" /></SecondaryCta>
             </motion.div>
             <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.34 }} className="mt-8 flex flex-wrap gap-2">
               {["NDA", "CDS", "AFCAT", "SSB", "AISSEE", "RIMC", "RMS"].map((item) => (
@@ -384,7 +384,7 @@ export function MarketingHome() {
               <div className="h-full rounded-[1.5rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.08),rgba(255,255,255,0.02))] p-5">
                 <Activity className="h-7 w-7 text-gold-soft" />
                 <p className="mt-8 text-xs uppercase tracking-[0.22em] text-gold-soft">Readiness</p>
-                <h3 className="mt-3 text-5xl font-semibold text-ink">91%</h3>
+                <h3 className="mt-3 text-5xl font-semibold text-ink">Live</h3>
                 <div className="mt-8 space-y-3">
                   {mentorSignals.slice(0, 3).map(([label, value]) => <div key={label} className="rounded border border-white/10 bg-white/7 p-3 text-sm text-muted">{label}: <span className="text-gold-soft">{value}</span></div>)}
                 </div>
@@ -395,7 +395,7 @@ export function MarketingHome() {
       </section>
 
       <section id="success" className="px-4 py-24 sm:px-6 lg:px-8">
-        <SectionTitle eyebrow="Success Stories" title="Built for aspirants who think like officers." copy="Cinematic success cards show the outcome NIDUS is designed to produce: disciplined preparation, higher confidence, and measurable readiness." />
+        <SectionTitle eyebrow="Outcome Areas" title="Built for aspirants who think like officers." copy="These cards describe the outcomes NIDUS is designed to support once real academy data is added." />
         <Reveal className="mx-auto mt-14 grid max-w-7xl gap-4 md:grid-cols-3">
           {stories.map((story) => (
             <GlowCard key={story.name} className="p-6">

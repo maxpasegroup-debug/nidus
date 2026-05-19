@@ -3,7 +3,7 @@ type OLQMap = Record<string, number>;
 export const psychometricAiService = {
   analyzePersonality(answers: Array<{ answerText?: string | null; selectedOption?: string | null }>) {
     const responseCount = answers.filter((answer) => answer.answerText || answer.selectedOption).length;
-    return `AI placeholder: candidate produced ${responseCount} meaningful responses. Future OpenAI analysis will evaluate themes, emotional tone, leadership cues, and officer-like qualities.`;
+    return `Candidate produced ${responseCount} meaningful responses. Connect OpenAI analysis to add deeper behavioural evidence, emotional tone, leadership cues, and officer-like qualities.`;
   },
 
   generateOLQInsights(scores: OLQMap) {
@@ -18,7 +18,7 @@ export const psychometricAiService = {
       officerReadinessScore: average,
       strengths,
       weaknesses,
-      summary: `AI placeholder: OLQ readiness score is ${average}. Future model integration will produce deeper behavioural evidence and interview recommendations.`
+      summary: `OLQ readiness score is ${average}. Connect OpenAI analysis to add deeper behavioural evidence and interview recommendations.`
     };
   },
 

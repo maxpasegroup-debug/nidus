@@ -34,7 +34,7 @@ export const aiPlannerAiService = {
   analyzeWeakTopics(topics: string[]) {
     return topics.map((topic) => ({
       topic,
-      reason: `AI placeholder: ${topic} shows lower accuracy or inconsistent revision cadence.`,
+      reason: `${topic} needs review based on the selected weak-topic list.`,
       action: `Schedule two revision cycles and one timed practice set for ${topic}.`
     }));
   },
