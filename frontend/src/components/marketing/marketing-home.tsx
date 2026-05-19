@@ -83,13 +83,18 @@ function SecondaryCta({ href, children }: { href: string; children: React.ReactN
   );
 }
 
-function LogoMark() {
+function MotivationalPhoto() {
   return (
-    <div className="relative mx-auto grid h-44 w-44 place-items-center rounded-full border border-[#263a8f]/20 bg-white/75 shadow-[0_24px_70px_rgba(38,58,143,0.18)] backdrop-blur-2xl">
-      <div className="absolute inset-3 rounded-full border border-[#c9a646]/35" />
-      <div className="absolute inset-8 rounded-full bg-[#263a8f]/8" />
-      <ShieldCheck className="relative h-16 w-16 text-[#263a8f]" />
-      <div className="absolute -bottom-3 rounded bg-[#263a8f] px-5 py-2 text-lg font-black tracking-[0.16em] text-white shadow-lg">NIDUS</div>
+    <div className="relative overflow-hidden rounded-lg border border-white/80 bg-white/60 shadow-[0_24px_80px_rgba(19,35,72,0.14)] backdrop-blur-2xl">
+      <div className="aspect-[4/3] bg-[linear-gradient(180deg,rgba(17,24,39,0.04),rgba(17,24,39,0.44)),url('https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=1400&q=85')] bg-cover bg-center" />
+      <div className="absolute left-4 right-4 top-4 flex items-center justify-between gap-3">
+        <span className="rounded-full border border-white/70 bg-white/78 px-3 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#263a8f] shadow-sm backdrop-blur-xl">Dream. Train. Achieve.</span>
+        <span className="rounded-full border border-[#c9a646]/40 bg-[#fff8dd]/86 px-3 py-2 text-xs font-semibold text-[#7c6418] shadow-sm backdrop-blur-xl">AI Powered</span>
+      </div>
+      <div className="absolute bottom-4 left-4 right-4 rounded-lg border border-white/65 bg-white/72 p-4 shadow-sm backdrop-blur-2xl">
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#263a8f]">Student Motivation</p>
+        <p className="mt-2 text-lg font-semibold leading-snug text-[#111827]">Every disciplined day moves you closer to uniform.</p>
+      </div>
     </div>
   );
 }
@@ -129,14 +134,13 @@ export function MarketingHome() {
             <div className="absolute -inset-8 rounded-full bg-[#263a8f]/10 blur-3xl" />
             <GlassCard className="relative overflow-hidden p-5">
               <div className="relative min-h-[31rem] overflow-hidden rounded-lg border border-white/80 bg-white/60">
-                <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?auto=format&fit=crop&w=1400&q=85')] bg-cover bg-center opacity-20" />
-                <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.40),rgba(255,255,255,0.90))]" />
-                <div className="relative flex min-h-[31rem] flex-col justify-between p-6">
+                <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(38,58,143,0.08),rgba(201,166,70,0.12),rgba(255,255,255,0.55))]" />
+                <div className="relative flex min-h-[31rem] flex-col justify-between gap-5 p-5 sm:p-6">
                   <div className="flex items-center justify-between">
                     <span className="rounded-full border border-[#c9a646]/40 bg-[#fff8dd]/80 px-3 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#8a6d17]">Nurturing dreams into success</span>
                     <Medal className="h-7 w-7 text-[#c9a646]" />
                   </div>
-                  <LogoMark />
+                  <MotivationalPhoto />
                   <div className="grid gap-3">
                     {[
                       ["AI study plan", BrainCircuit],
