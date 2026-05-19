@@ -1,32 +1,55 @@
 import type { AuthRole } from "@/services/auth.v2";
 import { roleDashboardPath } from "@/lib/dashboard-data";
 
+const sharedLearningMenu = [
+  { label: "Home", href: "/" },
+  { label: "Dashboard", href: "/dashboard" },
+  { label: "Courses", href: "/courses" },
+  { label: "Tests", href: "/tests" },
+  { label: "Reports", href: "/progress-reports" },
+  { label: "NIDUS AI", href: "/nidus-ai" },
+  { label: "Live", href: "/live-classes" },
+  { label: "Media", href: "/media-library" },
+  { label: "Docs", href: "/documents" },
+  { label: "Messages", href: "/messages" },
+  { label: "Settings", href: "/dashboard/settings" }
+];
+
 export function getNavItems(role?: AuthRole) {
-  return [
-    { label: "Home", href: "/" },
-    { label: "Dashboard", href: role ? roleDashboardPath[role] : "/dashboard" },
-    { label: "Courses", href: "/courses" },
-    { label: "Tests", href: "/tests" },
-    { label: "Reports", href: "/progress-reports" },
-    { label: "Staff HR", href: "/staff-hr" },
-    { label: "NIDUS AI", href: "/nidus-ai" },
-    { label: "Ops Hub", href: "/operations-hub" },
-    { label: "PYQ", href: "/pyq-bank" },
-    { label: "Battles", href: "/quiz-battles" },
-    { label: "SSB", href: "/psychometric" },
-    { label: "AI Plan", href: "/ai-study-planner" },
-    { label: "AI Interview", href: "/ai-interview" },
-    { label: "Live", href: "/live-classes" },
-    { label: "Media", href: "/media-library" },
-    { label: "Docs", href: "/documents" },
-    { label: "Fitness", href: "/fitness" },
-    { label: "My Courses", href: "/my-courses" },
-    { label: "CRM", href: "/crm" },
-    { label: "Admin", href: "/admin-center" },
-    { label: "Settings", href: "/dashboard/settings" },
-    { label: "Payments", href: "/payments" },
-    { label: "Messages", href: "/messages" },
-    { label: "Hostel", href: "/hostel" },
-    { label: "Mess", href: "/mess-menu" }
-  ];
+  if (role === "ADMIN") {
+    return [
+      { label: "Dashboard", href: "/dashboard/admin" },
+      { label: "Today", href: "/operations-hub" },
+      { label: "Academic Department", href: "/courses" },
+      { label: "Admission Cell", href: "/crm" },
+      { label: "HR Department", href: "/admin-center/users" },
+      { label: "Programs & Fees", href: "/fees" },
+      { label: "Classes & Content", href: "/live-classes" },
+      { label: "Exams & Progress", href: "/tests" },
+      { label: "Finance", href: "/payments" },
+      { label: "NIDUS AI", href: "/nidus-ai" },
+      { label: "Reports", href: "/progress-reports" },
+      { label: "Messages", href: "/messages" },
+      { label: "Settings", href: "/admin-center" }
+    ];
+  }
+
+  if (role === "DIRECTOR") {
+    return [
+      { label: "Dashboard", href: "/dashboard/director" },
+      { label: "Today", href: "/operations-hub" },
+      { label: "Academic Department", href: "/courses" },
+      { label: "Admission Cell", href: "/crm" },
+      { label: "HR Department", href: "/staff-hr" },
+      { label: "Classes & Content", href: "/live-classes" },
+      { label: "Exams & Progress", href: "/tests" },
+      { label: "Finance", href: "/payments" },
+      { label: "NIDUS AI", href: "/nidus-ai" },
+      { label: "Reports", href: "/progress-reports" },
+      { label: "Messages", href: "/messages" },
+      { label: "Settings", href: "/dashboard/settings" }
+    ];
+  }
+
+  return sharedLearningMenu.map((item) => (item.label === "Dashboard" ? { ...item, href: role ? roleDashboardPath[role] : "/dashboard" } : item));
 }
