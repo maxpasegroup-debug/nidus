@@ -24,7 +24,7 @@ export function PublicCta({ href, children, variant = "primary", className = "" 
   };
 
   return (
-    <Link href={href} className={`inline-flex min-h-12 items-center justify-center gap-2 rounded px-5 py-3 text-sm font-semibold transition hover:-translate-y-0.5 ${styles[variant]} ${className}`}>
+    <Link href={href} className={`inline-flex min-h-12 w-full items-center justify-center gap-2 rounded px-5 py-3 text-sm font-semibold transition hover:-translate-y-0.5 sm:w-auto ${styles[variant]} ${className}`}>
       {children}
     </Link>
   );
@@ -72,5 +72,23 @@ export function AssistantOrbit({ message }: { message: string }) {
         {message}
       </div>
     </div>
+  );
+}
+
+export function PublicNextStepBand({ title, text, primaryHref, primaryLabel, secondaryHref, secondaryLabel }: { title: string; text: string; primaryHref: string; primaryLabel: string; secondaryHref: string; secondaryLabel: string }) {
+  return (
+    <section className="px-4 pb-[calc(5rem+env(safe-area-inset-bottom))] pt-4 sm:px-6 lg:px-8">
+      <div className="mx-auto flex max-w-7xl flex-col gap-5 rounded-[1.25rem] border border-[#263a8f]/10 bg-white p-5 shadow-[0_22px_60px_rgba(19,35,72,0.08)] sm:p-6 md:flex-row md:items-center md:justify-between">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#263a8f]">Next Step</p>
+          <h2 className="mt-2 text-2xl font-semibold text-[#111827]">{title}</h2>
+          <p className="mt-2 max-w-2xl text-sm leading-7 text-[#536072]">{text}</p>
+        </div>
+        <div className="flex flex-col gap-3 sm:flex-row">
+          <PublicCta href={primaryHref}>{primaryLabel}</PublicCta>
+          <PublicCta href={secondaryHref} variant="secondary">{secondaryLabel}</PublicCta>
+        </div>
+      </div>
+    </section>
   );
 }

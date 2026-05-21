@@ -55,7 +55,7 @@ export default function JoinPage() {
         <div className="relative mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
           <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#263a8f]">Join NIDUS</p>
-            <h1 className="mt-5 text-5xl font-semibold leading-[0.98] sm:text-7xl">Meet your NIDUS AI Assistant.</h1>
+            <h1 className="mt-5 text-4xl font-semibold leading-[0.98] sm:text-7xl">Meet your NIDUS AI Assistant.</h1>
             <p className="mt-6 max-w-xl text-base leading-8 text-[#536072] sm:text-lg">Share a few basic details. The assistant will prepare your application message and connect you to NIDUS Academy on WhatsApp for immediate support.</p>
 
             <AssistantOrbit message={assistantMessage} />
@@ -86,17 +86,17 @@ export default function JoinPage() {
 
             <form onSubmit={onSubmit} className="mt-7 grid gap-4">
               <div className="grid gap-4 md:grid-cols-2">
-                <Field label="Student name" value={form.studentName} onChange={(value) => updateField("studentName", value)} required />
-                <Field label="Parent name" value={form.parentName} onChange={(value) => updateField("parentName", value)} />
-                <Field label="Phone number" value={form.phone} onChange={(value) => updateField("phone", value)} required />
-                <Field label="Class / qualification" value={form.qualification} onChange={(value) => updateField("qualification", value)} required />
+                <Field label="Student name" value={form.studentName} onChange={(value) => updateField("studentName", value)} autoComplete="name" required />
+                <Field label="Parent name" value={form.parentName} onChange={(value) => updateField("parentName", value)} autoComplete="name" />
+                <Field label="Phone number" value={form.phone} onChange={(value) => updateField("phone", value)} autoComplete="tel" inputMode="tel" required />
+                <Field label="Class / qualification" value={form.qualification} onChange={(value) => updateField("qualification", value)} autoComplete="organization-title" required />
                 <label className="grid gap-2 text-sm font-semibold text-[#111827]">
                   Interested program
                   <select value={form.program} onChange={(event) => updateField("program", event.target.value)} className="h-12 rounded border border-[#263a8f]/15 bg-white px-3 text-sm font-medium text-[#111827] outline-none focus:border-[#263a8f]">
                     {programs.map((program) => <option key={program}>{program}</option>)}
                   </select>
                 </label>
-                <Field label="Location" value={form.location} onChange={(value) => updateField("location", value)} />
+                <Field label="Location" value={form.location} onChange={(value) => updateField("location", value)} autoComplete="address-level2" />
                 <Field label="Preferred counselling time" value={form.counsellingTime} onChange={(value) => updateField("counsellingTime", value)} className="md:col-span-2" />
               </div>
 
@@ -158,11 +158,11 @@ export default function JoinPage() {
   );
 }
 
-function Field({ label, value, onChange, required = false, className = "" }: { label: string; value: string; onChange: (value: string) => void; required?: boolean; className?: string }) {
+function Field({ label, value, onChange, required = false, className = "", autoComplete, inputMode }: { label: string; value: string; onChange: (value: string) => void; required?: boolean; className?: string; autoComplete?: string; inputMode?: "text" | "tel" }) {
   return (
     <label className={`grid gap-2 text-sm font-semibold text-[#111827] ${className}`}>
       {label}
-      <input required={required} value={value} onChange={(event) => onChange(event.target.value)} className="h-12 rounded border border-[#263a8f]/15 bg-white px-3 text-sm font-medium text-[#111827] outline-none focus:border-[#263a8f]" />
+      <input required={required} value={value} onChange={(event) => onChange(event.target.value)} autoComplete={autoComplete} inputMode={inputMode} className="h-12 rounded border border-[#263a8f]/15 bg-white px-3 text-sm font-medium text-[#111827] outline-none focus:border-[#263a8f]" />
     </label>
   );
 }

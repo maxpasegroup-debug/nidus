@@ -4,7 +4,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight, BrainCircuit, ClipboardCheck, Compass, HeartPulse, ShieldCheck, Sparkles, Target, Trophy, Users } from "lucide-react";
 import { assessmentCatalog } from "@/components/assessments/assessment-catalog";
-import { PublicCta, PublicFeatureCard, PublicMetricPanel, PublicSectionIntro } from "@/components/marketing/public-branding";
+import { PublicCta, PublicFeatureCard, PublicMetricPanel, PublicNextStepBand, PublicSectionIntro } from "@/components/marketing/public-branding";
 
 const categories = [
   {
@@ -54,7 +54,7 @@ export default function PsychometricPage() {
         <div className="relative mx-auto grid max-w-7xl gap-12 lg:grid-cols-[1fr_28rem] lg:items-center">
           <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#263a8f]">NIDUS Assessment Lab</p>
-            <h1 className="mt-5 max-w-4xl text-5xl font-semibold leading-[0.98] text-[#111827] sm:text-7xl">Defence psychology made simple, visual, and actionable.</h1>
+            <h1 className="mt-5 max-w-4xl text-4xl font-semibold leading-[0.98] text-[#111827] sm:text-7xl">Defence psychology made simple, visual, and actionable.</h1>
             <p className="mt-6 max-w-2xl text-base leading-8 text-[#536072] sm:text-lg">A clean assessment ecosystem for officer readiness, OLQ, discipline, focus, leadership, confidence, career fit, and NIDUS Guru transformation signals.</p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <PublicCta href="#assessment-categories">
@@ -91,7 +91,7 @@ export default function PsychometricPage() {
                     {assessments.map((assessment) => {
                       if (!assessment) return null;
                       const Icon = assessment.icon;
-                      const href = assessment.access === "PREMIUM" ? "/subscriptions" : "/join";
+                      const href = "/join";
                       return (
                         <Link key={assessment.id} href={href} className="group rounded-lg border border-[#263a8f]/10 bg-[#f8fafc] p-4 transition hover:-translate-y-1 hover:border-[#c9a646]/50 hover:bg-white hover:shadow-[0_18px_42px_rgba(19,35,72,0.10)]">
                           <div className="flex items-start justify-between gap-3">
@@ -131,6 +131,14 @@ export default function PsychometricPage() {
           })}
         </div>
       </section>
+      <PublicNextStepBand
+        title="Start with the right assessment path."
+        text="Share your goal with the NIDUS AI Assistant and the team can guide you to free, core, or premium assessments."
+        primaryHref="/join"
+        primaryLabel="Get Assessment Guidance"
+        secondaryHref="/guru"
+        secondaryLabel="Explore NIDUS Guru"
+      />
     </div>
   );
 }

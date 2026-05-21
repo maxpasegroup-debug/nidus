@@ -4,7 +4,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight, BookOpenCheck, Dumbbell, GraduationCap, Landmark, Medal, MessageCircle, Plane, Radar, ShieldCheck, Target, Users } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { PublicCta, PublicMetricPanel, PublicSectionIntro } from "@/components/marketing/public-branding";
+import { PublicCta, PublicMetricPanel, PublicNextStepBand, PublicSectionIntro } from "@/components/marketing/public-branding";
 
 const programCategories: Array<{
   title: string;
@@ -89,7 +89,7 @@ export default function ProgramsPage() {
         <div className="relative mx-auto grid max-w-7xl gap-12 lg:grid-cols-[1fr_28rem] lg:items-center">
           <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#263a8f]">Defence Career Programs</p>
-            <h1 className="mt-5 max-w-4xl text-5xl font-semibold leading-[0.98] text-[#111827] sm:text-7xl">Choose your mission. Train for your future in uniform.</h1>
+            <h1 className="mt-5 max-w-4xl text-4xl font-semibold leading-[0.98] text-[#111827] sm:text-7xl">Choose your mission. Train for your future in uniform.</h1>
             <p className="mt-6 max-w-2xl text-base leading-8 text-[#536072] sm:text-lg">NIDUS Academy organizes defence preparation into clear pathways for entrance exams, SSB, foundation training, physical discipline, and leadership growth.</p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <PublicCta href="#program-categories">
@@ -146,6 +146,14 @@ export default function ProgramsPage() {
           </div>
         </div>
       </section>
+      <PublicNextStepBand
+        title="Need help choosing the right defence pathway?"
+        text="The NIDUS AI Assistant can collect your basic details and connect you to the academy team on WhatsApp."
+        primaryHref="/join"
+        primaryLabel="Talk to Assistant"
+        secondaryHref="/psychometric"
+        secondaryLabel="Try Assessments"
+      />
     </div>
   );
 }
