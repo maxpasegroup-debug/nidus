@@ -307,9 +307,9 @@ export function MarketingHome() {
               <span className="block text-[#263a8f]">Build your future in uniform.</span>
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <PrimaryCta href="#programs">Explore Programs <ArrowRight className="h-4 w-4" /></PrimaryCta>
-              <PrimaryCta href="/register">Join NIDUS <Medal className="h-4 w-4" /></PrimaryCta>
-              <SecondaryCta href="#nidus-guru">Explore NIDUS Guru <Sparkles className="h-4 w-4" /></SecondaryCta>
+              <PrimaryCta href="/programs">Explore Programs <ArrowRight className="h-4 w-4" /></PrimaryCta>
+              <PrimaryCta href="/join">Join NIDUS <Medal className="h-4 w-4" /></PrimaryCta>
+              <SecondaryCta href="/guru">Explore NIDUS Guru <Sparkles className="h-4 w-4" /></SecondaryCta>
             </div>
           </motion.div>
 
@@ -520,7 +520,7 @@ export function MarketingHome() {
               Join Kerala&apos;s modern defence preparation ecosystem and train for leadership, discipline, and success.
             </p>
             <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-              <PrimaryCta href="/register">Apply Now <ArrowRight className="h-4 w-4" /></PrimaryCta>
+              <PrimaryCta href="/join">Apply Now <ArrowRight className="h-4 w-4" /></PrimaryCta>
               <SecondaryCta href="/crm/counselling">Book Counselling</SecondaryCta>
             </div>
           </div>

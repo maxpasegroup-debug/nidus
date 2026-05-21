@@ -5,10 +5,10 @@ import { useEffect, useState } from "react";
 import { Menu, ShieldCheck, Sparkles, X } from "lucide-react";
 
 const navItems = [
-  ["Programs", "/#programs"],
-  ["NIDUS Guru", "/#nidus-guru"],
-  ["Assessments", "/#psychometric-tests"],
-  ["Join NIDUS", "/#admissions"]
+  ["Programs", "/programs"],
+  ["NIDUS Guru", "/guru"],
+  ["Assessments", "/psychometric"],
+  ["Join NIDUS", "/join"]
 ] as const;
 
 export function PublicNavbar() {

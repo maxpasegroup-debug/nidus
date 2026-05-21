@@ -8,7 +8,7 @@ import { PublicNavbar } from "@/components/marketing/public-navbar";
 import { Sidebar } from "@/components/layout/sidebar";
 import { TopNavbar } from "@/components/layout/top-navbar";
 
-const publicRoutes = new Set(["/", "/login", "/register", "/contact", "/nidus-ai-ecosystem", "/guru"]);
+const publicRoutes = new Set(["/", "/login", "/register", "/contact", "/nidus-ai-ecosystem", "/programs", "/guru", "/psychometric", "/join"]);
 
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
