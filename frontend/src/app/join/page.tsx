@@ -2,7 +2,8 @@
 
 import { FormEvent, useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowRight, Bot, MessageCircle, Phone, ShieldCheck, Sparkles } from "lucide-react";
+import { ArrowRight, CheckCircle2, ClipboardList, MessageCircle, Phone, ShieldCheck, Sparkles } from "lucide-react";
+import { AssistantOrbit, PublicCta } from "@/components/marketing/public-branding";
 
 const programs = ["NDA", "CDS", "AFCAT", "SSB", "Foundation", "AISSEE / RIMC", "NIDUS Guru", "Not sure"];
 
@@ -16,6 +17,12 @@ const initialForm = {
   counsellingTime: ""
 };
 
+const assistantSteps = [
+  "Collect basic details",
+  "Prepare application message",
+  "Connect on WhatsApp"
+];
+
 export default function JoinPage() {
   const [form, setForm] = useState(initialForm);
   const [submitted, setSubmitted] = useState(false);
@@ -25,6 +32,12 @@ export default function JoinPage() {
   }, [form]);
 
   const whatsappHref = `https://wa.me/919969594411?text=${encodeURIComponent(whatsappMessage)}`;
+  const completedFields = Object.entries(form).filter(([, value]) => value.trim().length > 0).length;
+  const assistantMessage = submitted
+    ? "Thank you. Your WhatsApp application is ready for immediate NIDUS support."
+    : completedFields > 3
+      ? "Good. I have enough details to prepare your NIDUS application message."
+      : "Hi, I am your NIDUS AI Assistant. I will help you start your defence journey.";
 
   function updateField(field: keyof typeof form, value: string) {
     setForm((current) => ({ ...current, [field]: value }));
@@ -45,16 +58,18 @@ export default function JoinPage() {
             <h1 className="mt-5 text-5xl font-semibold leading-[0.98] sm:text-7xl">Meet your NIDUS AI Assistant.</h1>
             <p className="mt-6 max-w-xl text-base leading-8 text-[#536072] sm:text-lg">Share a few basic details. The assistant will prepare your application message and connect you to NIDUS Academy on WhatsApp for immediate support.</p>
 
-            <div className="relative mt-10 h-72 max-w-md">
-              <div className="absolute inset-0 rounded-full bg-[#263a8f]/10 blur-3xl" />
-              <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 18, ease: "linear" }} className="absolute left-1/2 top-1/2 h-64 w-64 -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#263a8f]/20" />
-              <motion.div animate={{ rotate: -360 }} transition={{ repeat: Infinity, duration: 12, ease: "linear" }} className="absolute left-1/2 top-1/2 h-48 w-48 -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#c9a646]/30" />
-              <motion.div animate={{ scale: [1, 1.04, 1] }} transition={{ repeat: Infinity, duration: 3 }} className="absolute left-1/2 top-1/2 grid h-36 w-36 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-[#111827] text-white shadow-[0_24px_80px_rgba(17,24,39,0.25)]">
-                <Bot className="h-12 w-12 text-[#e9d27d]" />
-              </motion.div>
-              <div className="absolute bottom-0 left-0 right-0 rounded-[1.25rem] border border-white/80 bg-white/80 p-4 text-sm font-semibold text-[#263a8f] shadow-[0_18px_50px_rgba(19,35,72,0.12)] backdrop-blur-xl">
-                Hi, I am your NIDUS AI Assistant. I will help you start your defence journey.
-              </div>
+            <AssistantOrbit message={assistantMessage} />
+
+            <div className="mt-8 grid gap-3">
+              {assistantSteps.map((step, index) => {
+                const active = submitted ? true : index === 0 || (completedFields > 3 && index === 1);
+                return (
+                  <div key={step} className={`flex items-center gap-3 rounded-lg border px-4 py-3 text-sm font-semibold ${active ? "border-[#263a8f]/18 bg-white/75 text-[#263a8f]" : "border-[#263a8f]/8 bg-white/40 text-[#536072]"}`}>
+                    <span className={`grid h-7 w-7 place-items-center rounded-full ${active ? "bg-[#263a8f] text-white" : "bg-[#263a8f]/7 text-[#263a8f]"}`}>{active ? <CheckCircle2 className="h-4 w-4" /> : index + 1}</span>
+                    {step}
+                  </div>
+                );
+              })}
             </div>
           </motion.div>
 
@@ -97,6 +112,9 @@ export default function JoinPage() {
                   <a href={whatsappHref} target="_blank" rel="noreferrer" className="mt-4 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded bg-[#25d366] px-5 py-3 text-sm font-semibold text-white shadow-[0_16px_36px_rgba(37,211,102,0.24)] transition hover:-translate-y-0.5 sm:w-auto">
                     Send on WhatsApp <ArrowRight className="h-4 w-4" />
                   </a>
+                  <button type="button" onClick={() => setSubmitted(false)} className="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded border border-[#263a8f]/15 bg-white px-4 py-2 text-sm font-semibold text-[#263a8f] transition hover:border-[#c9a646]/60 sm:ml-3 sm:mt-4 sm:w-auto">
+                    Edit Details
+                  </button>
                 </div>
               ) : (
                 <button type="submit" className="inline-flex min-h-12 items-center justify-center gap-2 rounded bg-[#263a8f] px-5 py-3 text-sm font-semibold text-white shadow-[0_18px_40px_rgba(38,58,143,0.26)] transition hover:-translate-y-0.5 hover:bg-[#1f2f75]">
@@ -104,6 +122,14 @@ export default function JoinPage() {
                 </button>
               )}
             </form>
+
+            <div className="mt-6 rounded-lg border border-[#263a8f]/10 bg-[#f8fafc] p-4">
+              <div className="flex items-center gap-2 text-sm font-semibold text-[#111827]">
+                <ClipboardList className="h-4 w-4 text-[#263a8f]" />
+                WhatsApp message preview
+              </div>
+              <pre className="mt-3 max-h-56 overflow-auto whitespace-pre-wrap rounded border border-[#263a8f]/8 bg-white p-3 text-xs leading-6 text-[#536072]">{whatsappMessage}</pre>
+            </div>
 
             <div className="mt-6 grid gap-3 sm:grid-cols-3">
               {[
@@ -119,6 +145,11 @@ export default function JoinPage() {
                   </div>
                 );
               })}
+            </div>
+            <div className="mt-5">
+              <PublicCta href="/programs" variant="secondary" className="w-full sm:w-auto">
+                Review Programs First
+              </PublicCta>
             </div>
           </motion.div>
         </div>

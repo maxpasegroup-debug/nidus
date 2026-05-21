@@ -4,6 +4,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight, BookOpenCheck, Dumbbell, GraduationCap, Landmark, Medal, MessageCircle, Plane, Radar, ShieldCheck, Target, Users } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { PublicCta, PublicMetricPanel, PublicSectionIntro } from "@/components/marketing/public-branding";
 
 const programCategories: Array<{
   title: string;
@@ -73,6 +74,13 @@ const pathwayStrip: Array<{ label: string; icon: LucideIcon }> = [
   { label: "INET", icon: Radar }
 ];
 
+const heroMetrics: Array<[string, string]> = [
+  ["Entrance", "academic command"],
+  ["SSB", "officer qualities"],
+  ["PT", "physical discipline"],
+  ["Profile", "assessment map"]
+];
+
 export default function ProgramsPage() {
   return (
     <div className="bg-[#f6f7fb] pt-20 text-[#111827]">
@@ -84,28 +92,15 @@ export default function ProgramsPage() {
             <h1 className="mt-5 max-w-4xl text-5xl font-semibold leading-[0.98] text-[#111827] sm:text-7xl">Choose your mission. Train for your future in uniform.</h1>
             <p className="mt-6 max-w-2xl text-base leading-8 text-[#536072] sm:text-lg">NIDUS Academy organizes defence preparation into clear pathways for entrance exams, SSB, foundation training, physical discipline, and leadership growth.</p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Link href="#program-categories" className="inline-flex min-h-12 items-center justify-center gap-2 rounded bg-[#263a8f] px-5 py-3 text-sm font-semibold text-white shadow-[0_18px_40px_rgba(38,58,143,0.26)] transition hover:-translate-y-0.5 hover:bg-[#1f2f75]">
+              <PublicCta href="#program-categories">
                 Explore Programs <ArrowRight className="h-4 w-4" />
-              </Link>
-              <Link href="/join" className="inline-flex min-h-12 items-center justify-center gap-2 rounded border border-[#263a8f]/20 bg-white/70 px-5 py-3 text-sm font-semibold text-[#263a8f] shadow-[0_12px_30px_rgba(38,58,143,0.10)] transition hover:-translate-y-0.5 hover:border-[#c9a646]/60">
+              </PublicCta>
+              <PublicCta href="/join" variant="secondary">
                 Join NIDUS
-              </Link>
+              </PublicCta>
             </div>
           </motion.div>
-          <motion.div initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.7 }} className="rounded-[1.5rem] border border-white/80 bg-white/70 p-5 shadow-[0_28px_90px_rgba(19,35,72,0.14)] backdrop-blur-2xl">
-            <div className="rounded-[1.1rem] bg-[#111827] p-6 text-white">
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#e9d27d]">Integrated Campus</p>
-              <h2 className="mt-4 text-3xl font-semibold">Entrance + SSB + Fitness + Mindset</h2>
-              <div className="mt-6 grid gap-3">
-                {["Academic command", "Officer-like qualities", "Physical discipline", "Assessment profile"].map((item) => (
-                  <div key={item} className="flex items-center justify-between rounded-2xl border border-white/12 bg-white/[0.06] p-4">
-                    <span className="text-sm font-semibold">{item}</span>
-                    <span className="h-2 w-2 rounded-full bg-[#e9d27d]" />
-                  </div>
-                ))}
-              </div>
-            </div>
-          </motion.div>
+          <PublicMetricPanel eyebrow="Integrated Campus" title="Entrance + SSB + Fitness + Mindset" metrics={heroMetrics} />
         </div>
       </section>
 
@@ -122,11 +117,7 @@ export default function ProgramsPage() {
 
       <section id="program-categories" className="px-4 py-20 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
-          <div className="max-w-3xl">
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#263a8f]">Program Categories</p>
-            <h2 className="mt-4 text-4xl font-semibold leading-tight sm:text-5xl">Simple paths for serious aspirants.</h2>
-            <p className="mt-4 text-sm leading-7 text-[#536072]">This is the current public program architecture. We can add exact batches, fees, schedules, and duration once the final program plan is shared.</p>
-          </div>
+          <PublicSectionIntro eyebrow="Program Categories" title="Simple paths for serious aspirants." text="This is the current public program architecture. We can add exact batches, fees, schedules, and duration once the final program plan is shared." />
           <div className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
             {programCategories.map(({ title, subtitle, idealFor, outcomes, icon: Icon, tone }, index) => (
               <motion.article key={title} initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.25 }} transition={{ delay: index * 0.04 }} whileHover={{ y: -5 }} className="overflow-hidden rounded-[1.25rem] border border-[#263a8f]/10 bg-white shadow-[0_24px_70px_rgba(19,35,72,0.09)]">

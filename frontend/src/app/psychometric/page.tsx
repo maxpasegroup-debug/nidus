@@ -4,6 +4,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight, BrainCircuit, ClipboardCheck, Compass, HeartPulse, ShieldCheck, Sparkles, Target, Trophy, Users } from "lucide-react";
 import { assessmentCatalog } from "@/components/assessments/assessment-catalog";
+import { PublicCta, PublicFeatureCard, PublicMetricPanel, PublicSectionIntro } from "@/components/marketing/public-branding";
 
 const categories = [
   {
@@ -32,7 +33,7 @@ const categories = [
   }
 ];
 
-const stats = [
+const stats: Array<[string, string]> = [
   ["15", "profile assessments"],
   ["5", "free entry tests"],
   ["4", "clear categories"],
@@ -56,38 +57,21 @@ export default function PsychometricPage() {
             <h1 className="mt-5 max-w-4xl text-5xl font-semibold leading-[0.98] text-[#111827] sm:text-7xl">Defence psychology made simple, visual, and actionable.</h1>
             <p className="mt-6 max-w-2xl text-base leading-8 text-[#536072] sm:text-lg">A clean assessment ecosystem for officer readiness, OLQ, discipline, focus, leadership, confidence, career fit, and NIDUS Guru transformation signals.</p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Link href="#assessment-categories" className="inline-flex min-h-12 items-center justify-center gap-2 rounded bg-[#263a8f] px-5 py-3 text-sm font-semibold text-white shadow-[0_18px_40px_rgba(38,58,143,0.26)] transition hover:-translate-y-0.5 hover:bg-[#1f2f75]">
+              <PublicCta href="#assessment-categories">
                 Explore Assessments <ArrowRight className="h-4 w-4" />
-              </Link>
-              <Link href="/join" className="inline-flex min-h-12 items-center justify-center gap-2 rounded border border-[#263a8f]/20 bg-white/70 px-5 py-3 text-sm font-semibold text-[#263a8f] shadow-[0_12px_30px_rgba(38,58,143,0.10)] transition hover:-translate-y-0.5 hover:border-[#c9a646]/60">
+              </PublicCta>
+              <PublicCta href="/join" variant="secondary">
                 Get Guidance
-              </Link>
+              </PublicCta>
             </div>
           </motion.div>
-          <motion.div initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.7 }} className="rounded-[1.5rem] border border-white/80 bg-white/70 p-5 shadow-[0_28px_90px_rgba(19,35,72,0.14)] backdrop-blur-2xl">
-            <div className="rounded-[1.1rem] bg-[#111827] p-6 text-white">
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#e9d27d]">Profile Engine</p>
-              <h2 className="mt-4 text-3xl font-semibold">One student. Fifteen signals. One defence profile.</h2>
-              <div className="mt-6 grid grid-cols-2 gap-3">
-                {stats.map(([value, label]) => (
-                  <div key={label} className="rounded-2xl border border-white/12 bg-white/[0.06] p-4">
-                    <p className="text-2xl font-semibold text-[#e9d27d]">{value}</p>
-                    <p className="mt-1 text-xs font-semibold uppercase tracking-[0.13em] text-white/70">{label}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </motion.div>
+          <PublicMetricPanel eyebrow="Profile Engine" title="One student. Fifteen signals. One defence profile." metrics={stats} />
         </div>
       </section>
 
       <section id="assessment-categories" className="px-4 py-20 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
-          <div className="max-w-3xl">
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#263a8f]">Assessment Categories</p>
-            <h2 className="mt-4 text-4xl font-semibold leading-tight sm:text-5xl">Organized like a mission map, not a test dump.</h2>
-            <p className="mt-4 text-sm leading-7 text-[#536072]">Each category has a clear purpose, visible access level, and report direction so students and parents understand what to take next.</p>
-          </div>
+          <PublicSectionIntro eyebrow="Assessment Categories" title="Organized like a mission map, not a test dump." text="Each category has a clear purpose, visible access level, and report direction so students and parents understand what to take next." />
           <div className="mt-10 grid gap-6">
             {categories.map(({ title, subtitle, ids, icon: CategoryIcon }, index) => {
               const assessments = ids.map((id) => assessmentCatalog.find((assessment) => assessment.id === id)).filter(Boolean);
@@ -142,11 +126,7 @@ export default function PsychometricPage() {
           ].map(([Icon, title, text]) => {
             const CardIcon = Icon as typeof BrainCircuit;
             return (
-              <div key={String(title)} className="rounded-lg border border-white/12 bg-white/[0.06] p-5">
-                <CardIcon className="h-6 w-6 text-[#e9d27d]" />
-                <h3 className="mt-4 text-lg font-semibold">{String(title)}</h3>
-                <p className="mt-2 text-sm leading-6 text-white/68">{String(text)}</p>
-              </div>
+              <PublicFeatureCard key={String(title)} icon={CardIcon} title={String(title)} text={String(text)} />
             );
           })}
         </div>
