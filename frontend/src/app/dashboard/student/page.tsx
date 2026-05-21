@@ -61,6 +61,34 @@ export default function StudentDashboardPage() {
   const assessments = buildAssessmentProgress(data.recentActivities.length);
   const completedAssessments = assessments.filter((assessment) => assessment.status === "COMPLETED");
   const reportReadyCount = completedAssessments.length;
+  const nextAssessment = assessments.find((assessment) => assessment.status === "IN_PROGRESS") ?? assessments.find((assessment) => assessment.status === "NOT_STARTED");
+  const guruRecommendation = assessments.find((assessment) => assessment.id === "dream-addiction-index") ?? assessments.find((assessment) => assessment.id === "focus-strength");
+  const nextBestActions = [
+    {
+      title: nextAssessment ? nextAssessment.actionLabel : "Review Reports",
+      description: nextAssessment ? `${nextAssessment.title}: ${nextAssessment.nextStep}` : "Open your completed assessment reports and compare strengths.",
+      href: nextAssessment?.href ?? "/psychometric",
+      tag: "Assessment"
+    },
+    {
+      title: "Open Digital Profile",
+      description: `Current Defence Potential Score is ${defencePotentialScore}/100 with ${profileCompletion}% profile completion.`,
+      href: "/digital-profile",
+      tag: "Profile"
+    },
+    {
+      title: "Start Guru Mission",
+      description: guruRecommendation ? `${guruRecommendation.relatedGuruQuest}: ${guruRecommendation.nextStep}` : "Start a focus, discipline, confidence, or life direction quest.",
+      href: "/guru",
+      tag: "Guru"
+    },
+    {
+      title: activeCourse ? "Continue Learning" : "Choose Learning Path",
+      description: activeCourse ? `Continue ${activeCourse.title}. Next lesson: ${activeCourse.nextLesson}.` : "Enroll in a course to activate academic performance signals.",
+      href: activeCourse ? "/my-courses" : "/courses",
+      tag: "Learning"
+    }
+  ];
 
   return (
     <RoleDashboardGuard role="STUDENT">
@@ -77,6 +105,7 @@ export default function StudentDashboardPage() {
           ]}
         />
 
+        <SectionHeader eyebrow="Digital Profile Summary" title="Your defence readiness command view" action={`${profileCompletion}% complete`} />
         <section className="grid gap-4 md:grid-cols-4">
           <StatCard label="Digital Profile" value={`${defencePotentialScore}/100`} note={`${profileCompletion}% profile completion`} />
           <StatCard label="Upcoming Tests" value={String(data.upcomingTests.length)} note={data.upcomingTests[0]?.title ?? "No test scheduled"} />
@@ -97,6 +126,14 @@ export default function StudentDashboardPage() {
           </div>
         </section>
 
+        <SectionHeader eyebrow="Next Best Action" title="What to do now" action="Action engine" />
+        <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          {nextBestActions.map((action) => (
+            <QuickActionCard key={action.title} title={action.title} description={action.description} href={action.href} />
+          ))}
+        </section>
+
+        <SectionHeader eyebrow="Assessments" title="Build your 15-part officer profile" action={`${completedAssessments.length}/15 completed`} />
         <section className="premium-surface rounded-lg p-5">
           <div className="grid gap-5 lg:grid-cols-[1fr_auto] lg:items-center">
             <div>
@@ -123,6 +160,7 @@ export default function StudentDashboardPage() {
           </div>
         </section>
 
+        <SectionHeader eyebrow="Learning" title="Courses, tests, attendance, and consistency" action={activeCourse?.title ?? "No active course"} />
         <section className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
           <PerformanceChart title="Attendance and consistency" data={chartData} />
           <div className="space-y-4">
@@ -130,6 +168,32 @@ export default function StudentDashboardPage() {
             <ProgressCard title="Course progress" value={activeCourse?.progress ?? 0} label={activeCourse?.nextLesson ?? "Enroll in a course"} />
             <ProgressCard title="Fitness progress" value={data.fitnessProgress.score} label={`${data.fitnessProgress.focus}, ${data.fitnessProgress.streakDays} day streak`} />
           </div>
+        </section>
+
+        <SectionHeader eyebrow="NIDUS Guru" title="Mindset, focus, and discipline missions" action={guruRecommendation?.relatedGuruQuest ?? "Start quest"} />
+        <section className="grid gap-4 lg:grid-cols-[0.85fr_1.15fr]">
+          <div className="premium-surface rounded-lg p-5">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-gold-soft">Recommended Quest</p>
+            <h2 className="mt-3 text-2xl font-semibold text-ink">{guruRecommendation?.relatedGuruQuest ?? "Dream Addiction"}</h2>
+            <p className="mt-3 text-sm leading-7 text-muted">
+              {guruRecommendation?.nextStep ?? "Start a mission that converts ambition into disciplined daily action."}
+            </p>
+            <div className="mt-5">
+              <Button href="/guru" variant="secondary">Open NIDUS Guru</Button>
+            </div>
+          </div>
+          <div className="grid gap-4 md:grid-cols-3">
+            <AnnouncementCard title="Dream Addiction Index" description="Measures distraction, goal obsession, productivity behaviour, and ambition intensity." tag="Guru" />
+            <AnnouncementCard title="Focus Reset" description="Builds attention span, mental endurance, and digital discipline." tag="Focus" />
+            <AnnouncementCard title="Life OS" description="Builds habits, routine strength, execution, and daily systems." tag="Habits" />
+          </div>
+        </section>
+
+        <SectionHeader eyebrow="Physical & Discipline" title="Training signals that shape your profile" action={`${data.fitnessProgress.streakDays} day streak`} />
+        <section className="grid gap-4 md:grid-cols-3">
+          <ProgressCard title="Attendance Discipline" value={data.attendance.percentage} label={`${data.attendance.present}/${data.attendance.total} sessions marked`} />
+          <ProgressCard title="Fitness Readiness" value={data.fitnessProgress.score} label={data.fitnessProgress.focus} />
+          <AnnouncementCard title="Warrior Fitness Mindset" description="Complete the fitness mindset assessment and connect it with PT logs for a stronger training profile." tag="Training" />
         </section>
 
         <section className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
@@ -148,7 +212,7 @@ export default function StudentDashboardPage() {
           {studentActions.map((action) => <QuickActionCard key={action.title} title={action.title} description={action.description} href={action.href} />)}
         </section>
 
-        <SectionHeader eyebrow="Assessments" title="Complete your 15-part defence profile" action={`${completedAssessments.length}/15 completed`} />
+        <SectionHeader eyebrow="Assessment Grid" title="Complete every mission card" action={`${reportReadyCount} reports ready`} />
         <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {assessments.map((assessment) => (
             <AssessmentMissionCard key={assessment.id} assessment={assessment} compact />

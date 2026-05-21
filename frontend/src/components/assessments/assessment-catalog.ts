@@ -39,6 +39,7 @@ export type AssessmentProgress = AssessmentDefinition & {
   reportStatus: string;
   actionLabel: string;
   href: string;
+  accessNote: string;
 };
 
 export type AssessmentReport = {
@@ -52,6 +53,25 @@ export type AssessmentReport = {
   parentSummary: string;
   counsellingPrompt: string;
 };
+
+export const recommendedAssessmentPath = [
+  "officer-readiness",
+  "defence-career-fit",
+  "discipline-index",
+  "leadership-dna",
+  "dream-addiction-index"
+];
+
+export const assessmentAccessStrategy = [
+  { feature: "Officer Readiness", guest: "Preview", student: "Full", premium: "Full + report" },
+  { feature: "Discipline Index", guest: "Preview", student: "Full", premium: "Full + report" },
+  { feature: "Leadership DNA", guest: "Preview", student: "Full", premium: "Full + report" },
+  { feature: "Dream Addiction Index", guest: "Preview", student: "Full", premium: "Full + Guru plan" },
+  { feature: "Defence Career Fit", guest: "Preview", student: "Full", premium: "Full + counselling" },
+  { feature: "OLQ Analyzer", guest: "Locked", student: "Basic", premium: "Full" },
+  { feature: "SSB Psychology Simulator", guest: "Locked", student: "Locked", premium: "Premium" },
+  { feature: "AI Report", guest: "Locked", student: "Basic", premium: "Full" }
+];
 
 export const assessmentCatalog: AssessmentDefinition[] = [
   {
@@ -221,21 +241,39 @@ export const assessmentCatalog: AssessmentDefinition[] = [
   }
 ];
 
-export function buildAssessmentProgress(activityCount = 0): AssessmentProgress[] {
+function accessNoteFor(assessment: AssessmentDefinition, mode: "guest" | "student" | "premium") {
+  if (mode === "premium") {
+    if (assessment.access === "PREMIUM") return "Premium AI report";
+    if (assessment.id === "dream-addiction-index" || assessment.id === "focus-strength") return "Full + Guru plan";
+    if (assessment.id === "defence-career-fit") return "Full + counselling";
+    return "Full + report";
+  }
+
+  if (mode === "guest") return assessment.access === "FREE" ? "Preview result" : "Create account to unlock";
+  if (assessment.access === "PREMIUM") return "Premium locked";
+  if (assessment.access === "CORE") return "Basic analysis";
+  return "Full assessment";
+}
+
+export function buildAssessmentProgress(activityCount = 0, mode: "guest" | "student" | "premium" = "student"): AssessmentProgress[] {
   return assessmentCatalog.map((assessment, index) => {
     const isPremiumLocked = assessment.access === "PREMIUM";
-    const completed = !isPremiumLocked && index < Math.min(activityCount, 4);
-    const inProgress = !isPremiumLocked && !completed && index === Math.min(activityCount, 4);
+    const isGuestLocked = mode === "guest" && assessment.access !== "FREE";
+    const completed = !isPremiumLocked && !isGuestLocked && index < Math.min(activityCount, 4);
+    const inProgress = !isPremiumLocked && !isGuestLocked && !completed && index === Math.min(activityCount, 4);
     const score = completed ? Math.min(96, 72 + index * 3) : null;
-    const status: AssessmentStatus = isPremiumLocked ? "LOCKED" : completed ? "COMPLETED" : inProgress ? "IN_PROGRESS" : "NOT_STARTED";
+    const status: AssessmentStatus = isPremiumLocked || isGuestLocked ? "LOCKED" : completed ? "COMPLETED" : inProgress ? "IN_PROGRESS" : "NOT_STARTED";
+    const startHref = assessment.id === "dream-addiction-index" || assessment.id === "focus-strength" ? "/guru" : "/psychometric";
+    const lockedHref = mode === "guest" ? "/register" : "/subscriptions";
 
     return {
       ...assessment,
       status,
       score,
-      reportStatus: completed ? "Report ready" : isPremiumLocked ? "Premium locked" : inProgress ? "Continue to generate report" : "Report pending",
-      actionLabel: completed ? "View Report" : isPremiumLocked ? "Unlock Premium" : inProgress ? "Continue" : "Start Assessment",
-      href: completed ? `/assessment-reports/${assessment.id}` : isPremiumLocked ? "/subscriptions" : assessment.id === "dream-addiction-index" || assessment.id === "focus-strength" ? "/guru" : "/psychometric"
+      reportStatus: completed ? "Report ready" : isPremiumLocked ? "Premium locked" : isGuestLocked ? "Create account to unlock" : inProgress ? "Continue to generate report" : "Report pending",
+      actionLabel: completed ? "View Report" : isPremiumLocked ? "Unlock Premium" : isGuestLocked ? "Create Account" : inProgress ? "Continue" : mode === "guest" ? "Start Preview" : "Start Assessment",
+      href: completed ? `/assessment-reports/${assessment.id}` : isPremiumLocked || isGuestLocked ? lockedHref : startHref,
+      accessNote: accessNoteFor(assessment, mode)
     };
   });
 }

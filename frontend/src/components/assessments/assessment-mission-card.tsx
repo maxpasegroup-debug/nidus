@@ -70,6 +70,10 @@ export function AssessmentMissionCard({ assessment, compact = false }: { assessm
           <span className="text-muted">Guru Link</span>
           <span className="text-right font-semibold text-gold-soft">{assessment.relatedGuruQuest}</span>
         </div>
+        <div className="flex items-center justify-between gap-4 text-sm">
+          <span className="text-muted">Access</span>
+          <span className="text-right font-semibold text-white">{assessment.accessNote}</span>
+        </div>
       </div>
 
       <p className="mt-4 text-sm leading-6 text-muted">{assessment.nextStep}</p>
@@ -80,4 +84,3 @@ export function AssessmentMissionCard({ assessment, compact = false }: { assessm
     </motion.article>
   );
 }
-
