@@ -41,6 +41,18 @@ export type AssessmentProgress = AssessmentDefinition & {
   href: string;
 };
 
+export type AssessmentReport = {
+  assessment: AssessmentDefinition;
+  score: number;
+  level: string;
+  archetype: string;
+  strengths: string[];
+  improvementAreas: string[];
+  recommendedAction: string;
+  parentSummary: string;
+  counsellingPrompt: string;
+};
+
 export const assessmentCatalog: AssessmentDefinition[] = [
   {
     id: "officer-readiness",
@@ -223,8 +235,54 @@ export function buildAssessmentProgress(activityCount = 0): AssessmentProgress[]
       score,
       reportStatus: completed ? "Report ready" : isPremiumLocked ? "Premium locked" : inProgress ? "Continue to generate report" : "Report pending",
       actionLabel: completed ? "View Report" : isPremiumLocked ? "Unlock Premium" : inProgress ? "Continue" : "Start Assessment",
-      href: isPremiumLocked ? "/subscriptions" : assessment.id === "dream-addiction-index" || assessment.id === "focus-strength" ? "/guru" : "/psychometric"
+      href: completed ? `/assessment-reports/${assessment.id}` : isPremiumLocked ? "/subscriptions" : assessment.id === "dream-addiction-index" || assessment.id === "focus-strength" ? "/guru" : "/psychometric"
     };
   });
 }
 
+export function getAssessmentById(id: string) {
+  return assessmentCatalog.find((assessment) => assessment.id === id);
+}
+
+function scoreForAssessment(id: string) {
+  const index = assessmentCatalog.findIndex((assessment) => assessment.id === id);
+  return Math.min(96, 78 + Math.max(index, 0) * 2);
+}
+
+function levelForScore(score: number) {
+  if (score >= 85) return "Strong officer signal";
+  if (score >= 70) return "Developing strength";
+  if (score >= 55) return "Foundation level";
+  return "Needs focused support";
+}
+
+function archetypeForAssessment(assessment: AssessmentDefinition, score: number) {
+  if (assessment.id.includes("leadership") || assessment.id.includes("officer")) return score >= 85 ? "The Commander" : "The Strategist";
+  if (assessment.id.includes("discipline") || assessment.id.includes("fitness")) return "The Warrior";
+  if (assessment.id.includes("communication") || assessment.id.includes("teamwork")) return "The Diplomat";
+  if (assessment.id.includes("career") || assessment.id.includes("future")) return "The Pathfinder";
+  if (assessment.id.includes("dream") || assessment.id.includes("focus")) return "The Builder";
+  return "The Emerging Officer";
+}
+
+export function buildAssessmentReport(id: string): AssessmentReport | null {
+  const assessment = getAssessmentById(id);
+  if (!assessment) return null;
+
+  const score = scoreForAssessment(id);
+  const strengths = assessment.measures.slice(0, 3).map((measure) => `Good signal in ${measure}.`);
+  const improvementAreas = assessment.measures.slice(3, 6).map((measure) => `Strengthen ${measure} through guided missions.`);
+  const fallbackImprovement = [`Build consistency through ${assessment.relatedGuruQuest}.`];
+
+  return {
+    assessment,
+    score,
+    level: levelForScore(score),
+    archetype: archetypeForAssessment(assessment, score),
+    strengths,
+    improvementAreas: improvementAreas.length ? improvementAreas : fallbackImprovement,
+    recommendedAction: assessment.nextStep,
+    parentSummary: `Your child shows a ${levelForScore(score).toLowerCase()} in ${assessment.title.replace("(TM)", "").trim()}. The next step is to continue structured practice, complete related assessments, and follow the recommended NIDUS Guru or counselling action.`,
+    counsellingPrompt: assessment.access === "PREMIUM" ? "Unlock premium interpretation or book an SSB readiness counselling session." : "Book a counselling review to understand how this result connects with the defence pathway."
+  };
+}
