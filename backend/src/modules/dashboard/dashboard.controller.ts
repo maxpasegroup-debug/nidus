@@ -29,9 +29,9 @@ export const dashboardController = {
     }
   },
 
-  async admin(_req: AuthenticatedRequest, res: Response, next: NextFunction) {
+  async admin(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
-      const data = await dashboardService.getAdminDashboard();
+      const data = await dashboardService.getAdminDashboard(getAuthenticatedUser(req));
       res.json({ role: "ADMIN", data });
     } catch (error) {
       next(error);

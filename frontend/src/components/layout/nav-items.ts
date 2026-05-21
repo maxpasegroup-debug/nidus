@@ -15,6 +15,17 @@ const sharedLearningMenu = [
   { label: "Settings", href: "/dashboard/settings" }
 ];
 
+const learnerGuruMenu = [
+  { label: "Dashboard", href: "/dashboard" },
+  { label: "Learning", href: "/courses" },
+  { label: "Tests", href: "/tests" },
+  { label: "NIDUS Guru", href: "/guru" },
+  { label: "Profile", href: "/dashboard/settings" },
+  { label: "Progress", href: "/progress-reports" },
+  { label: "Live", href: "/live-classes" },
+  { label: "Messages", href: "/messages" }
+];
+
 export function getNavItems(role?: AuthRole) {
   if (role === "ADMIN") {
     return [
@@ -49,6 +60,10 @@ export function getNavItems(role?: AuthRole) {
       { label: "Messages", href: "/messages" },
       { label: "Settings", href: "/dashboard/settings" }
     ];
+  }
+
+  if (role === "GUEST" || role === "STUDENT" || role === "PARENT") {
+    return learnerGuruMenu.map((item) => (item.label === "Dashboard" ? { ...item, href: roleDashboardPath[role] } : item));
   }
 
   return sharedLearningMenu.map((item) => (item.label === "Dashboard" ? { ...item, href: role ? roleDashboardPath[role] : "/dashboard" } : item));

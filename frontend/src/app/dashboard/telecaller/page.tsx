@@ -18,14 +18,16 @@ export default function TelecallerDashboardPage() {
 
   if (isLoading) return <RoleDashboardGuard role="TELECALLER"><DashboardSkeleton /></RoleDashboardGuard>;
   if (error || !data) return <RoleDashboardGuard role="TELECALLER"><DashboardError error={error} onRefresh={() => refetch()} /></RoleDashboardGuard>;
+  const isLeadSupport = data.customDashboard.dashboardTemplate === "LEAD_SUPPORT";
+  const focusAreas = data.customDashboard.focusAreas.length ? data.customDashboard.focusAreas : ["New leads", "Follow-ups", "Counselling", "Admissions"];
 
   return (
     <RoleDashboardGuard role="TELECALLER">
       <motion.div className="space-y-8" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
         <PageHero
-          eyebrow="Admissions Workbench"
-          title="Calls, follow-ups, and admissions"
-          description="A simple CRM dashboard for daily calls, pending follow-ups, counselling bookings, admission movement, and Ask NIDUS call support."
+          eyebrow={isLeadSupport ? "Student Support & Lead Dashboard" : "Admissions Workbench"}
+          title={isLeadSupport ? "Lead management and support desk" : "Calls, follow-ups, and admissions"}
+          description={isLeadSupport ? "Manage new enquiries, callbacks, parent communication, support tickets, and admission handovers from one focused CRM dashboard." : "A simple CRM dashboard for daily calls, pending follow-ups, counselling bookings, admission movement, and Ask NIDUS call support."}
           actions={<Button type="button" onClick={() => refetch()} disabled={isFetching} variant="secondary">{isFetching ? "Refreshing..." : "Refresh"}</Button>}
           stats={[
             { value: String(data.leadPipeline.assignedLeads), label: "assigned leads" },
@@ -66,6 +68,13 @@ export default function TelecallerDashboardPage() {
           <QuickActionCard title="Open leads" description="Call, update status, and add lead notes." href="/crm/leads" />
           <QuickActionCard title="Book counselling" description="Schedule counselling and parent discussion." href="/crm/counselling" />
           <QuickActionCard title="Admissions list" description="Check admitted students and pending cases." href="/crm/admissions" />
+        </section>
+
+        <SectionHeader eyebrow="Personal Desk" title="Pinned support priorities" action={data.customDashboard.department} />
+        <section className="grid gap-4 md:grid-cols-4">
+          {focusAreas.map((area) => (
+            <AnnouncementCard key={area} title={area} description="Pinned to this dashboard for daily tracking and closure." tag={data.customDashboard.designation || "Support"} />
+          ))}
         </section>
 
         <ActivityTimeline title="CRM facilities" items={data.modules} />

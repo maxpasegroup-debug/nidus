@@ -79,14 +79,15 @@ export default function AdminDashboardPage() {
   }
 
   const facultyShare = data.staffSummary.totalStaff > 0 ? Math.round((data.staffSummary.faculty / data.staffSummary.totalStaff) * 100) : 0;
+  const isOperationsAdmin = data.customDashboard.dashboardTemplate === "ADMIN_OPERATIONS";
 
   return (
     <RoleDashboardGuard role="ADMIN">
       <motion.div className="space-y-8" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
         <PageHero
           eyebrow="NIDUS Academy Admin"
-          title="Simple management dashboard"
-          description="Three clear departments for daily work: Academic Department, Admission Cell, and HR Department. All hybrid tools stay inside simple menus."
+          title={isOperationsAdmin ? "Administration operations desk" : "Simple management dashboard"}
+          description={isOperationsAdmin ? "Manage student records, documents, fees, staff records, notices, and daily office work from one operations dashboard." : "Three clear departments for daily work: Academic Department, Admission Cell, and HR Department. All hybrid tools stay inside simple menus."}
           actions={<Button type="button" onClick={() => refetch()} disabled={isFetching} variant="secondary">{isFetching ? "Refreshing..." : "Refresh dashboard"}</Button>}
           stats={[
             { value: String(data.totalStudents), label: "students" },
@@ -108,6 +109,17 @@ export default function AdminDashboardPage() {
             <QuickActionCard key={module.title} title={module.title} description={module.description} href={module.href} />
           ))}
         </section>
+
+        {isOperationsAdmin ? (
+          <>
+            <SectionHeader eyebrow="Personal Desk" title="Administration priorities" action={data.customDashboard.department} />
+            <section className="grid gap-4 md:grid-cols-4">
+              {data.customDashboard.focusAreas.map((area) => (
+                <AnnouncementCard key={area} title={area} description="Pinned for daily administration follow-up and closure." tag={data.customDashboard.designation} />
+              ))}
+            </section>
+          </>
+        ) : null}
 
         <section className="grid gap-4 lg:grid-cols-[1fr_0.85fr]">
           <div className="premium-surface rounded-lg p-5">

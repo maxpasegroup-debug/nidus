@@ -21,6 +21,25 @@ function attendanceStatus(status: string) {
   return status.trim().toUpperCase();
 }
 
+function metadataObject(value: unknown) {
+  return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
+}
+
+function stringArray(value: unknown, fallback: string[] = []) {
+  return Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : fallback;
+}
+
+function staffDashboard(metadata: Record<string, unknown>, fallbackTemplate: string) {
+  return {
+    designation: typeof metadata.designation === "string" ? metadata.designation : "",
+    department: typeof metadata.department === "string" ? metadata.department : "",
+    dashboardTemplate: typeof metadata.dashboardTemplate === "string" ? metadata.dashboardTemplate : fallbackTemplate,
+    subject: typeof metadata.subject === "string" ? metadata.subject : null,
+    focusAreas: stringArray(metadata.focusAreas),
+    permissions: stringArray(metadata.permissions)
+  };
+}
+
 function buildAttendanceTrend(rows: Array<{ date: Date; status: string }>) {
   const grouped = new Map<string, { present: number; total: number }>();
   for (const row of rows) {
@@ -144,7 +163,11 @@ export const dashboardService = {
     };
   },
 
-  async getAdminDashboard() {
+  async getAdminDashboard(user?: DashboardUser) {
+    const currentUser = user
+      ? await prisma.user.findUnique({ where: { id: user.id }, select: { roleMetadata: true } })
+      : null;
+    const customDashboard = staffDashboard(metadataObject(currentUser?.roleMetadata), "ADMIN_OPERATIONS");
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const [totalStudents, recentAdmissions, revenue, attendanceToday, staffCounts, hostelRooms] = await Promise.all([
@@ -190,7 +213,8 @@ export const dashboardService = {
         occupancyPercentage: percentage(occupiedBeds, totalBeds),
         occupiedBeds,
         totalBeds
-      }
+      },
+      customDashboard
     };
   },
 
@@ -210,8 +234,10 @@ export const dashboardService = {
   async getTeacherDashboard(user: DashboardUser) {
     const profile = await prisma.user.findUnique({
       where: { id: user.id },
-      select: { id: true, name: true, email: true, mobile: true, role: true, instituteId: true, branchId: true }
+      select: { id: true, name: true, email: true, mobile: true, role: true, instituteId: true, branchId: true, roleMetadata: true }
     });
+    const customDashboard = staffDashboard(metadataObject(profile?.roleMetadata), "SUBJECT_FACULTY");
+    const subject = customDashboard.subject;
 
     const [attendanceRows, attempts, lectures, documents, tests, recommendations] = await Promise.all([
       prisma.attendance.findMany({ orderBy: { date: "desc" }, take: 200 }),
@@ -227,7 +253,8 @@ export const dashboardService = {
 
     return {
       profile,
-      subjects: ["Maths", "English", "GK", "Reasoning", "Current Affairs", "Physics", "Chemistry", "Biology", "SSB", "Fitness/PT"],
+      customDashboard,
+      subjects: subject ? [subject] : customDashboard.dashboardTemplate === "ACADEMIC_HEAD" ? ["GK", "English", "Maths", "Biology", "Chemistry", "Physical Training"] : ["Maths", "English", "GK", "Reasoning", "Current Affairs", "Physics", "Chemistry", "Biology", "SSB", "Fitness/PT"],
       classPerformance: { averageScore, attendance: percentage(present, attendanceRows.length), weakStudentCount: attempts.filter((attempt) => attempt.score < 50).length, assignmentsDue: 0 },
       contentOps: {
         lectureUploads: lectures,
@@ -236,7 +263,7 @@ export const dashboardService = {
         cbtDrafts: tests
       },
       modules: [
-        { title: "Subject assignment", status: "Ready", metric: "Configure through staff profiles" },
+        { title: customDashboard.designation || "Subject assignment", status: "Ready", metric: customDashboard.department || "Configure through staff profiles" },
         { title: "Lecture uploads", status: lectures ? "Active" : "No data", metric: `${lectures} uploaded lectures` },
         { title: "Notes uploads", status: documents ? "Active" : "No data", metric: `${documents} uploaded documents` },
         { title: "Assignment management", status: "Ready", metric: "No assignment records yet" },
@@ -254,8 +281,9 @@ export const dashboardService = {
   async getDirectorDashboard(user: DashboardUser) {
     const director = await prisma.user.findUnique({
       where: { id: user.id },
-      select: { instituteId: true, branchId: true }
+      select: { instituteId: true, branchId: true, roleMetadata: true }
     });
+    const customDashboard = staffDashboard(metadataObject(director?.roleMetadata), "EXECUTIVE_COMMAND");
     const scopedWhere = user.role === "DIRECTOR" ? { instituteId: director?.instituteId ?? undefined, branchId: director?.branchId ?? undefined } : {};
     const [students, leads, admissions, teachers, attendanceRows, completedAttempts, totalAttempts, collected, pending, facultyReviewDue] = await Promise.all([
       prisma.user.count({ where: { role: "STUDENT", ...scopedWhere } }),
@@ -279,13 +307,16 @@ export const dashboardService = {
       admissionsAnalytics: { leads, admissions, conversionRate: leads ? Math.round((admissions / leads) * 100) : 0 },
       revenueAnalytics: { collected: collectedAmount, pending: pendingAmount, forecast: collectedAmount + pendingAmount },
       facultyAnalytics: { active: teachers, utilization: teachers ? 100 : 0, reviewDue: facultyReviewDue },
-      riskAlerts: [],
-      executiveInsights: [],
+      customDashboard,
+      riskAlerts: customDashboard.focusAreas.length ? customDashboard.focusAreas.map((item) => `Track ${item.toLowerCase()} in today's review.`) : [],
+      executiveInsights: customDashboard.permissions.length ? customDashboard.permissions.map((item) => `Access enabled: ${item.replace(/_/g, " ")}.`) : [],
       growthForecast: []
     };
   },
 
   async getTelecallerDashboard(user: DashboardUser) {
+    const telecaller = await prisma.user.findUnique({ where: { id: user.id }, select: { roleMetadata: true } });
+    const customDashboard = staffDashboard(metadataObject(telecaller?.roleMetadata), "LEAD_SUPPORT");
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const tomorrow = new Date(today);
@@ -306,6 +337,7 @@ export const dashboardService = {
       leadPipeline: { new: leadMap.get("NEW") ?? 0, contacted: leadMap.get("CONTACTED") ?? 0, counselling: leadMap.get("COUNSELLING") ?? 0, enrolled, lost: leadMap.get("LOST") ?? 0, assignedLeads },
       scheduling: { callbacksToday, counselling, overdueFollowUps },
       performance: { callsToday: followUps, conversionRate: percentage(enrolled, totalLeads), averageResponseTime: "No data", notesAdded: followUps },
+      customDashboard,
       modules: ["Lead pipeline", "Enquiry tracking", "Callback scheduling", "Counselling scheduling", "Follow-up tracking", "Lead notes", "Conversion analytics", "AI call-script suggestions", "WhatsApp integration"],
       aiCallScripts: [],
       whatsappShell: { status: "Not connected", templates: 0, pendingOptIns: 0 }

@@ -87,6 +87,7 @@ export type AdminDashboardData = {
     occupiedBeds: number;
     totalBeds: number;
   };
+  customDashboard: StaffDashboardProfile;
 };
 
 export type GuestDashboardData = {
@@ -97,6 +98,7 @@ export type GuestDashboardData = {
 
 export type TeacherDashboardData = {
   profile: (Pick<AuthUser, "id" | "name" | "email" | "mobile" | "role"> & { instituteId?: string | null; branchId?: string | null }) | null;
+  customDashboard: StaffDashboardProfile;
   subjects: string[];
   classPerformance: { averageScore: number; attendance: number; weakStudentCount: number; assignmentsDue: number };
   contentOps: { lectureUploads: number; notesUploads: number; pendingReviews: number; cbtDrafts: number };
@@ -107,6 +109,7 @@ export type TeacherDashboardData = {
 
 export type DirectorDashboardData = {
   scope: { instituteId: string | null; branchId: string | null };
+  customDashboard: StaffDashboardProfile;
   instituteAnalytics: { students: number; teachers: number; attendance: number; cbtCompletion: number };
   admissionsAnalytics: { leads: number; admissions: number; conversionRate: number };
   revenueAnalytics: { collected: number; pending: number; forecast: number };
@@ -120,9 +123,19 @@ export type TelecallerDashboardData = {
   leadPipeline: { new: number; contacted: number; counselling: number; enrolled: number; lost: number; assignedLeads: number };
   scheduling: { callbacksToday: number; counselling: number; overdueFollowUps: number };
   performance: { callsToday: number; conversionRate: number; averageResponseTime: string; notesAdded: number };
+  customDashboard: StaffDashboardProfile;
   modules: string[];
   aiCallScripts: string[];
   whatsappShell: { status: string; templates: number; pendingOptIns: number };
+};
+
+export type StaffDashboardProfile = {
+  designation: string;
+  department: string;
+  dashboardTemplate: string;
+  subject: string | null;
+  focusAreas: string[];
+  permissions: string[];
 };
 
 export type MarketingDashboardData = {

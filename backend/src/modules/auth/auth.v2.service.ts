@@ -25,6 +25,7 @@ function safeUser(user: SafeUser) {
     emailVerified: user.emailVerified,
     instituteId: user.instituteId,
     branchId: user.branchId,
+    roleMetadata: metadata,
     mustChangePassword: metadata.defaultPassword === true
   };
 }

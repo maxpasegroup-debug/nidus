@@ -14,6 +14,7 @@ export default function DirectorDashboardPage() {
   if (error || !data) return <RoleDashboardGuard role="DIRECTOR"><DashboardError error={error} onRefresh={() => refetch()} /></RoleDashboardGuard>;
 
   const chartData = data.growthForecast.map((item) => ({ label: item.month, score: item.forecast, attendance: data.instituteAnalytics.attendance }));
+  const focusAreas = data.customDashboard.focusAreas.length ? data.customDashboard.focusAreas : ["Admissions", "Revenue", "Academics", "Staff"];
 
   return (
     <RoleDashboardGuard role="DIRECTOR">
@@ -21,7 +22,7 @@ export default function DirectorDashboardPage() {
         <PageHero
           eyebrow="Director Control Room"
           title="Institution performance and decisions"
-          description="A clear executive dashboard for admissions, revenue, students, teachers, attendance, risk alerts, growth forecast, and Ask NIDUS institution summary."
+          description={`A clear executive dashboard for ${focusAreas.join(", ").toLowerCase()}, risk alerts, growth forecast, and Ask NIDUS institution summary.`}
           actions={<Button type="button" onClick={() => refetch()} disabled={isFetching} variant="secondary">{isFetching ? "Refreshing..." : "Refresh"}</Button>}
           stats={[
             { value: String(data.instituteAnalytics.students), label: "students" },
@@ -60,6 +61,13 @@ export default function DirectorDashboardPage() {
             <AnnouncementCard title="Teacher review" description={`${data.facultyAnalytics.reviewDue} teacher reviews need attention.`} tag="Staff" />
             <AnnouncementCard title="Student performance" description="Use progress reports to inspect monthly growth and risk students." tag="Reports" />
           </div>
+        </section>
+
+        <SectionHeader eyebrow="Personal Command" title={`${data.customDashboard.designation || "Director"} focus areas`} action={data.customDashboard.department} />
+        <section className="grid gap-4 md:grid-cols-4">
+          {focusAreas.map((area) => (
+            <AnnouncementCard key={area} title={area} description="Pinned to this director dashboard for daily review and decision making." tag="Focus" />
+          ))}
         </section>
 
         <SectionHeader eyebrow="Executive Actions" title="Control important areas" />

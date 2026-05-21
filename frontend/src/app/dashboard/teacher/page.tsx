@@ -26,22 +26,70 @@ const teacherWorkflow = [
   { title: "Message parent", description: "Send a simple update about progress, attendance, or concern.", href: "/messages" }
 ];
 
+const academicHeadWorkflow = [
+  { title: "Review batches", description: "Check batch progress, attendance, tests, and syllabus status.", href: "/courses" },
+  { title: "Faculty coverage", description: "Confirm assigned faculty, replacement needs, and class continuity.", href: "/staff-hr" },
+  { title: "Weak students", description: "Open low-score, low-attendance, and missed-test student lists.", href: "/performance-analytics" },
+  { title: "Test planning", description: "Create or review weekly, monthly, and subject-wise tests.", href: "/tests" },
+  { title: "Academic reports", description: "Prepare progress reports for directors, parents, and faculty.", href: "/progress-reports" },
+  { title: "Class content", description: "Review notes, recordings, assignments, and study material uploads.", href: "/media-library" }
+];
+
+const physicalWorkflow = [
+  { title: "PT schedule", description: "Plan drills, runs, warmups, and physical test sessions.", href: "/fitness/pt-schedule" },
+  { title: "Mark PT attendance", description: "Record attendance and remarks for physical sessions.", href: "/fitness/logs" },
+  { title: "Fitness eligibility", description: "Review physical eligibility, stamina, BMI, and readiness.", href: "/fitness/eligibility" },
+  { title: "Daily fitness logs", description: "Track training output, workout duration, and student progress.", href: "/fitness" },
+  { title: "Parade performance", description: "Monitor discipline, drill quality, and performance records.", href: "/parade-performance" },
+  { title: "Student concerns", description: "Flag injury, low stamina, or repeated absence concerns.", href: "/messages" }
+];
+
+function dashboardCopy(template: string, subject?: string | null) {
+  if (template === "ACADEMIC_HEAD") {
+    return {
+      eyebrow: "Academic Head Dashboard",
+      title: "Academic operations workbench",
+      description: "Monitor faculty coverage, batch progress, tests, attendance, weak students, and academic reporting from one focused dashboard.",
+      workflow: academicHeadWorkflow
+    };
+  }
+
+  if (template === "PHYSICAL_INSTRUCTOR") {
+    return {
+      eyebrow: "Physical Instructor Dashboard",
+      title: "Training and fitness command",
+      description: "Plan PT sessions, mark physical attendance, track fitness readiness, record remarks, and surface students needing intervention.",
+      workflow: physicalWorkflow
+    };
+  }
+
+  return {
+    eyebrow: `${subject ?? "Subject"} Faculty Dashboard`,
+    title: `${subject ?? "Subject"} classroom workbench`,
+    description: "Plan lessons, mark attendance, upload materials, review tests, support weak students, and keep subject progress moving cleanly.",
+    workflow: teacherWorkflow
+  };
+}
+
 export default function TeacherDashboardPage() {
   const { data, isLoading, error, refetch, isFetching } = useTeacherDashboard();
 
   if (isLoading) return <RoleDashboardGuard role="TEACHER"><DashboardSkeleton /></RoleDashboardGuard>;
   if (error || !data) return <RoleDashboardGuard role="TEACHER"><DashboardError error={error} onRefresh={() => refetch()} /></RoleDashboardGuard>;
+  const custom = data.customDashboard;
+  const copy = dashboardCopy(custom.dashboardTemplate, custom.subject);
+  const focusAreas = custom.focusAreas.length ? custom.focusAreas : data.subjects;
 
   return (
     <RoleDashboardGuard role="TEACHER">
       <motion.div className="space-y-8" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
         <PageHero
-          eyebrow="Teacher Dashboard"
-          title="Simple classroom workbench"
-          description="Plan lessons, mark attendance, upload materials, review tests, support weak students, and ask NIDUS for the next best action."
+          eyebrow={copy.eyebrow}
+          title={copy.title}
+          description={copy.description}
           actions={<Button type="button" onClick={() => refetch()} disabled={isFetching} variant="secondary">{isFetching ? "Refreshing..." : "Refresh"}</Button>}
           stats={[
-            { value: String(data.subjects.length), label: "subjects" },
+            { value: String(data.subjects.length), label: custom.dashboardTemplate === "ACADEMIC_HEAD" ? "coverage areas" : "subjects" },
             { value: `${data.classPerformance.attendance}%`, label: "attendance" },
             { value: String(data.classPerformance.weakStudentCount), label: "need help" }
           ]}
@@ -56,7 +104,7 @@ export default function TeacherDashboardPage() {
 
         <SectionHeader eyebrow="Today" title="Teacher actions" />
         <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {teacherWorkflow.map((item) => (
+          {copy.workflow.map((item) => (
             <QuickActionCard key={item.title} title={item.title} description={item.description} href={item.href} />
           ))}
         </section>
@@ -80,8 +128,8 @@ export default function TeacherDashboardPage() {
 
         <SectionHeader eyebrow="Subjects" title="Assigned subjects and facilities" action={data.subjects.join(" | ")} />
         <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-          {data.subjects.map((subject) => (
-            <AnnouncementCard key={subject} title={subject} description="Plan lessons, upload notes, mark attendance, create tests, and add student remarks." tag="Subject" />
+          {focusAreas.map((subject) => (
+            <AnnouncementCard key={subject} title={subject} description="Plan, track, review, and close the work assigned to this dashboard." tag={custom.designation || "Staff"} />
           ))}
         </section>
 

@@ -1,6 +1,7 @@
 import { prisma } from "../config/prisma.js";
 import { AuthServiceV2 } from "../modules/auth/auth.v2.service.js";
 import { ensureDefaultPermissions } from "../modules/admin-center/admin-center.rbac.js";
+import { ensureNidusTeam } from "./nidus-team.js";
 
 const defaultSettings = [
   { key: "app.name", value: "NIDUS", category: "app" },
@@ -27,6 +28,7 @@ async function ensureDefaultSettings() {
 await AuthServiceV2.ensureSuperAdmin();
 await ensureDefaultPermissions();
 await ensureDefaultSettings();
+const team = await ensureNidusTeam();
 
 const [users, permissions, settings] = await Promise.all([
   prisma.user.count(),
@@ -34,5 +36,5 @@ const [users, permissions, settings] = await Promise.all([
   prisma.systemSetting.count()
 ]);
 
-console.log(JSON.stringify({ bootstrapped: true, users, permissions, settings }));
+console.log(JSON.stringify({ bootstrapped: true, users, permissions, settings, teamUsers: team.length }));
 await prisma.$disconnect();
