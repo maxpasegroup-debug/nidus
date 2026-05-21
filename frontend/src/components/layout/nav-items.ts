@@ -17,11 +17,13 @@ const sharedLearningMenu = [
 
 const learnerGuruMenu = [
   { label: "Dashboard", href: "/dashboard" },
+  { label: "Digital Profile", href: "/digital-profile" },
   { label: "Learning", href: "/courses" },
-  { label: "Tests", href: "/tests" },
+  { label: "Assessments", href: "/psychometric" },
   { label: "NIDUS Guru", href: "/guru" },
   { label: "Profile", href: "/dashboard/settings" },
   { label: "Progress", href: "/progress-reports" },
+  { label: "Mock Tests", href: "/tests" },
   { label: "Live", href: "/live-classes" },
   { label: "Messages", href: "/messages" }
 ];

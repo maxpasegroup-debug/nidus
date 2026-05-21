@@ -7,7 +7,7 @@ import { Menu, ShieldCheck, Sparkles, X } from "lucide-react";
 const navItems = [
   ["Programs", "/#programs"],
   ["NIDUS Guru", "/#nidus-guru"],
-  ["Psychometric Tests", "/#psychometric-tests"],
+  ["Assessments", "/#psychometric-tests"],
   ["Join NIDUS", "/#admissions"]
 ] as const;
 
@@ -50,7 +50,7 @@ export function PublicNavbar() {
             >
               {label === "NIDUS Guru" ? <Sparkles className="h-4 w-4 text-[#b89b4d]" /> : null}
               {label}
-              {label === "Psychometric Tests" ? <span className="ml-1 rounded-full bg-[#fff8dd] px-2 py-0.5 text-[0.62rem] font-bold text-[#7c6418]">FREE</span> : null}
+              {label === "Assessments" ? <span className="ml-1 rounded-full bg-[#fff8dd] px-2 py-0.5 text-[0.62rem] font-bold text-[#7c6418]">FREE</span> : null}
             </Link>
           ))}
         </nav>
@@ -82,7 +82,7 @@ export function PublicNavbar() {
               >
                 {label}
                 {label === "NIDUS Guru" ? <Sparkles className="h-4 w-4 text-[#b89b4d]" /> : null}
-                {label === "Psychometric Tests" ? <span className="ml-2 rounded-full bg-[#fff8dd] px-2 py-0.5 text-[0.62rem] font-bold text-[#7c6418]">FREE</span> : null}
+                {label === "Assessments" ? <span className="ml-2 rounded-full bg-[#fff8dd] px-2 py-0.5 text-[0.62rem] font-bold text-[#7c6418]">FREE</span> : null}
               </Link>
             ))}
             <div className="mt-2 grid gap-3">

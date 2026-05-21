@@ -15,17 +15,20 @@ import {
   StatCard
 } from "@/components/dashboard";
 import { PerformanceChart } from "@/components/charts/performance-chart";
+import { AssessmentMissionCard } from "@/components/assessments/assessment-mission-card";
+import { buildAssessmentProgress } from "@/components/assessments/assessment-catalog";
 import { PageHero } from "@/components/layout/page-hero";
 import { useAuth } from "@/components/providers/auth-provider-v2";
 import { Button } from "@/components/ui/button";
 import { useStudentDashboard } from "@/hooks/use-dashboard";
 
 const studentActions = [
+  { title: "Digital Profile", description: "Open your complete hybrid profile across learning, training, assessments, discipline, fitness and Guru.", href: "/digital-profile" },
   { title: "Continue course", description: "Open your enrolled lessons and complete today's study target.", href: "/my-courses" },
   { title: "Attempt test", description: "Start a mock test, monthly test, or practice set.", href: "/tests" },
   { title: "See progress report", description: "Review your monthly growth score and next actions.", href: "/progress-reports" },
   { title: "Ask NIDUS", description: "Use AI study planner for what to do next.", href: "/ai-study-planner" },
-  { title: "Aptitude / psychometric", description: "Take monthly IQ, EQ, OLQ and officer-readiness tests.", href: "/psychometric" },
+  { title: "Assessments", description: "Take officer readiness, OLQ, leadership, discipline, focus, and career-fit assessments.", href: "/psychometric" },
   { title: "Check leaderboard", description: "See rank, momentum, and batch competition.", href: "/leaderboard" }
 ];
 
@@ -38,6 +41,26 @@ export default function StudentDashboardPage() {
 
   const chartData = data.attendance.trend.map((item) => ({ label: item.month, score: item.attendance, attendance: item.attendance }));
   const activeCourse = data.enrolledCourses[0];
+  const profileCompletion = Math.round(([
+    data.profile?.name,
+    data.profile?.email,
+    data.enrolledCourses.length > 0,
+    data.attendance.total > 0,
+    data.upcomingTests.length > 0,
+    data.fitnessProgress.score > 0,
+    data.aiRecommendations.length > 0,
+    data.recentActivities.length > 0
+  ].filter(Boolean).length / 8) * 100);
+  const defencePotentialScore = Math.max(0, Math.min(100, Math.round(([
+    activeCourse?.progress ?? 0,
+    data.attendance.percentage,
+    data.fitnessProgress.score,
+    data.upcomingTests.length ? 54 : 30,
+    Math.min(100, data.recentActivities.length * 16)
+  ].reduce((sum, value) => sum + value, 0)) / 5)));
+  const assessments = buildAssessmentProgress(data.recentActivities.length);
+  const completedAssessments = assessments.filter((assessment) => assessment.status === "COMPLETED");
+  const reportReadyCount = completedAssessments.length;
 
   return (
     <RoleDashboardGuard role="STUDENT">
@@ -55,10 +78,49 @@ export default function StudentDashboardPage() {
         />
 
         <section className="grid gap-4 md:grid-cols-4">
-          <StatCard label="Current Course" value={activeCourse ? `${activeCourse.progress}%` : "0"} note={activeCourse?.title ?? "No active course"} />
+          <StatCard label="Digital Profile" value={`${defencePotentialScore}/100`} note={`${profileCompletion}% profile completion`} />
           <StatCard label="Upcoming Tests" value={String(data.upcomingTests.length)} note={data.upcomingTests[0]?.title ?? "No test scheduled"} />
           <StatCard label="Attendance" value={`${data.attendance.percentage}%`} note={`${data.attendance.present}/${data.attendance.total} sessions`} />
           <StatCard label="Leaderboard" value={`#${data.leaderboardRank.rank}`} note={`Top ${100 - data.leaderboardRank.percentile}%`} />
+        </section>
+
+        <section className="premium-surface rounded-lg p-5">
+          <div className="grid gap-5 lg:grid-cols-[1fr_auto] lg:items-center">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-gold-soft">Digital Hybrid Profile</p>
+              <h2 className="mt-3 text-2xl font-semibold text-ink">Your complete defence readiness identity is now live.</h2>
+              <p className="mt-3 max-w-3xl text-sm leading-7 text-muted">
+                This connects your learning, assessments, discipline, physical training, NIDUS Guru journey, and progress report into one evolving student profile.
+              </p>
+            </div>
+            <Button href="/digital-profile" variant="secondary">Open Digital Profile</Button>
+          </div>
+        </section>
+
+        <section className="premium-surface rounded-lg p-5">
+          <div className="grid gap-5 lg:grid-cols-[1fr_auto] lg:items-center">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-gold-soft">Assessment Ecosystem</p>
+              <h2 className="mt-3 text-2xl font-semibold text-ink">15 defence assessments with report generation states.</h2>
+              <p className="mt-3 max-w-3xl text-sm leading-7 text-muted">
+                Complete Officer Readiness, OLQ, career fit, discipline, focus, leadership, confidence, SSB psychology, and Guru-linked assessments to strengthen your Digital Profile.
+              </p>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-3 lg:w-[27rem]">
+              <div className="rounded border border-white/10 bg-navy-deep/55 p-4">
+                <p className="text-2xl font-semibold text-gold-soft">{completedAssessments.length}/15</p>
+                <p className="mt-1 text-xs text-muted">completed</p>
+              </div>
+              <div className="rounded border border-white/10 bg-navy-deep/55 p-4">
+                <p className="text-2xl font-semibold text-gold-soft">{reportReadyCount}</p>
+                <p className="mt-1 text-xs text-muted">reports ready</p>
+              </div>
+              <div className="rounded border border-white/10 bg-navy-deep/55 p-4">
+                <p className="text-2xl font-semibold text-gold-soft">{Math.round((completedAssessments.length / assessments.length) * 100)}%</p>
+                <p className="mt-1 text-xs text-muted">assessment profile</p>
+              </div>
+            </div>
+          </div>
         </section>
 
         <section className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
@@ -84,6 +146,13 @@ export default function StudentDashboardPage() {
         <SectionHeader eyebrow="Quick Actions" title="Daily student work" />
         <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {studentActions.map((action) => <QuickActionCard key={action.title} title={action.title} description={action.description} href={action.href} />)}
+        </section>
+
+        <SectionHeader eyebrow="Assessments" title="Complete your 15-part defence profile" action={`${completedAssessments.length}/15 completed`} />
+        <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {assessments.map((assessment) => (
+            <AssessmentMissionCard key={assessment.id} assessment={assessment} compact />
+          ))}
         </section>
 
         <section className="grid gap-4 md:grid-cols-3">

@@ -78,12 +78,108 @@ const whyNidus: Array<{ title: string; text: string; icon: LucideIcon }> = [
 
 const guruQuests = ["Dream Addiction(TM)", "Student Power", "Life OS", "Warrior Discipline", "Focus Reset"];
 
-const psychometricTests = [
-  "Officer Readiness Test",
+const assessmentTiers = [
+  {
+    title: "Free Viral Assessments",
+    text: "Built for signups, curiosity, sharing, and first counselling intent.",
+    badge: "FREE",
+    tone: "border-[#c9a646]/30 bg-[#fff8dd]/70 text-[#7c6418]"
+  },
+  {
+    title: "Core Defence Assessments",
+    text: "Deeper evaluation for OLQ, confidence, teamwork, emotion, and mindset.",
+    badge: "CORE",
+    tone: "border-[#263a8f]/20 bg-[#263a8f]/7 text-[#263a8f]"
+  },
+  {
+    title: "Premium AI Reports",
+    text: "Advanced SSB, interview, personality, and defence intelligence reports.",
+    badge: "PREMIUM",
+    tone: "border-[#111827]/20 bg-[#111827]/7 text-[#111827]"
+  }
+];
+
+const assessmentCards: Array<{
+  title: string;
+  subtitle: string;
+  badge: string;
+  href: string;
+  icon: LucideIcon;
+  featured?: boolean;
+}> = [
+  {
+    title: "Officer Readiness Test(TM)",
+    subtitle: "Discover whether you think, lead, and act like a future officer.",
+    badge: "FLAGSHIP FREE",
+    href: "/psychometric",
+    icon: ShieldCheck,
+    featured: true
+  },
+  {
+    title: "Discipline Index(TM)",
+    subtitle: "Scan routine discipline, consistency, punctuality, focus, and execution.",
+    badge: "FREE",
+    href: "/psychometric",
+    icon: ClipboardCheck
+  },
+  {
+    title: "Leadership DNA Test(TM)",
+    subtitle: "Find your command style, teamwork pattern, influence, and decision profile.",
+    badge: "FREE",
+    href: "/psychometric",
+    icon: Trophy
+  },
+  {
+    title: "Dream Addiction Index(TM)",
+    subtitle: "Measure distraction, ambition intensity, productivity, and goal obsession.",
+    badge: "GURU LINKED",
+    href: "/guru",
+    icon: Sparkles
+  },
+  {
+    title: "Defence Career Fit Test(TM)",
+    subtitle: "Explore Army, Navy, Air Force, technical, combat, and leadership pathways.",
+    badge: "FREE",
+    href: "/psychometric",
+    icon: Plane
+  },
+  {
+    title: "OLQ Analyzer(TM)",
+    subtitle: "Analyze officer-like qualities, initiative, courage, responsibility, and adaptability.",
+    badge: "CORE",
+    href: "/psychometric/olq-report",
+    icon: Radar
+  },
+  {
+    title: "Focus Strength Index(TM)",
+    subtitle: "Understand attention span, distraction levels, focus capacity, and mental endurance.",
+    badge: "GURU LINKED",
+    href: "/guru",
+    icon: Target
+  },
+  {
+    title: "SSB Psychology Simulator(TM)",
+    subtitle: "Premium behavioural interpretation inspired by TAT, WAT, SRT, and SD patterns.",
+    badge: "PREMIUM",
+    href: "/subscriptions",
+    icon: BrainCircuit
+  }
+];
+
+const assessmentPath = [
+  "Officer Readiness",
+  "Defence Career Fit",
+  "Discipline Index",
   "Leadership DNA",
-  "Discipline Score",
-  "Focus Strength Assessment",
-  "Defence Career Fit Test"
+  "Dream Addiction Index"
+];
+
+const resultArchetypes = [
+  "The Commander",
+  "The Strategist",
+  "The Warrior",
+  "The Diplomat",
+  "The Builder"
 ];
 
 function GlassCard({ children, className = "" }: { children: React.ReactNode; className?: string }) {
@@ -287,18 +383,76 @@ export function MarketingHome() {
       </section>
 
       <section id="psychometric-tests" className="px-4 py-20 sm:px-6 lg:px-8">
-        <SectionTitle eyebrow="Free Assessments" title="Free Defence Psychometric Tests" text="Lead-generation friendly test previews for officer readiness, discipline, focus, leadership, and defence career fit." />
-        <div className="mx-auto mt-12 grid max-w-7xl gap-4 md:grid-cols-2 xl:grid-cols-5">
-          {psychometricTests.map((test) => (
-            <GlassCard key={test} className="p-5">
-              <div className="flex items-center justify-between">
-                <Radar className="h-6 w-6 text-[#263a8f]" />
-                <span className="rounded-full bg-[#fff8dd] px-3 py-1 text-xs font-semibold text-[#7c6418]">FREE</span>
-              </div>
-              <h3 className="mt-5 min-h-14 text-lg font-semibold leading-tight text-[#111827]">{test}</h3>
-              <Link href="/psychometric" className="mt-5 inline-flex min-h-10 items-center justify-center rounded bg-[#263a8f] px-4 py-2 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-[#1f2f75]">Start Test</Link>
+        <SectionTitle eyebrow="Assessments" title="NIDUS Defence Assessment Ecosystem" text="Tactical mission-style assessments designed to generate signups, reveal officer potential, recommend Guru quests, and guide admissions counselling." />
+
+        <div className="mx-auto mt-10 grid max-w-7xl gap-4 lg:grid-cols-3">
+          {assessmentTiers.map((tier) => (
+            <GlassCard key={tier.title} className="p-5">
+              <span className={`rounded-full border px-3 py-1 text-xs font-semibold ${tier.tone}`}>{tier.badge}</span>
+              <h3 className="mt-5 text-xl font-semibold text-[#111827]">{tier.title}</h3>
+              <p className="mt-3 text-sm leading-6 text-[#536072]">{tier.text}</p>
             </GlassCard>
           ))}
+        </div>
+
+        <div className="mx-auto mt-8 grid max-w-7xl gap-4 md:grid-cols-2 xl:grid-cols-4">
+          {assessmentCards.map(({ title, subtitle, badge, href, icon: Icon, featured }) => (
+            <motion.article
+              key={title}
+              whileHover={{ y: -5 }}
+              className={`rounded-lg border p-5 shadow-[0_24px_70px_rgba(19,35,72,0.10)] backdrop-blur-2xl ${
+                featured
+                  ? "border-[#c9a646]/35 bg-[linear-gradient(135deg,#0b1424,#263a8f_54%,#c9a646)] text-white"
+                  : "border-white/70 bg-white/70 text-[#111827]"
+              }`}
+            >
+              <div className="flex items-center justify-between gap-3">
+                <div className={`grid h-11 w-11 place-items-center rounded ${featured ? "bg-white/14 text-[#f5df9c]" : "bg-[#263a8f]/10 text-[#263a8f]"}`}>
+                  <Icon className="h-5 w-5" />
+                </div>
+                <span className={`rounded-full px-3 py-1 text-[0.68rem] font-bold ${featured ? "bg-white/14 text-[#f5df9c]" : "bg-[#fff8dd] text-[#7c6418]"}`}>{badge}</span>
+              </div>
+              <h3 className="mt-5 min-h-14 text-xl font-semibold leading-tight">{title}</h3>
+              <p className={`mt-3 min-h-20 text-sm leading-6 ${featured ? "text-white/76" : "text-[#536072]"}`}>{subtitle}</p>
+              <Link href={href} className={`mt-5 inline-flex min-h-10 items-center justify-center rounded px-4 py-2 text-sm font-semibold transition hover:-translate-y-0.5 ${featured ? "bg-white text-[#263a8f] hover:bg-[#fff8dd]" : "bg-[#263a8f] text-white hover:bg-[#1f2f75]"}`}>
+                {featured ? "Start Flagship Test" : badge === "PREMIUM" ? "Unlock Report" : "Start Assessment"}
+              </Link>
+            </motion.article>
+          ))}
+        </div>
+
+        <div className="mx-auto mt-8 grid max-w-7xl gap-4 lg:grid-cols-[1fr_0.9fr_0.9fr]">
+          <GlassCard className="p-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#263a8f]">Recommended Path</p>
+            <h3 className="mt-3 text-2xl font-semibold text-[#111827]">Start with Officer Readiness. Then go deeper.</h3>
+            <div className="mt-5 grid gap-3">
+              {assessmentPath.map((item, index) => (
+                <div key={item} className="flex items-center gap-3 rounded border border-[#263a8f]/10 bg-[#263a8f]/5 p-3 text-sm font-semibold text-[#263a8f]">
+                  <span className="grid h-7 w-7 place-items-center rounded bg-white text-xs text-[#7c6418]">{index + 1}</span>
+                  {item}
+                </div>
+              ))}
+            </div>
+          </GlassCard>
+
+          <GlassCard className="p-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#263a8f]">Shareable Output</p>
+            <h3 className="mt-3 text-2xl font-semibold text-[#111827]">NIDUS Defence Potential Score(TM)</h3>
+            <p className="mt-4 text-sm leading-7 text-[#536072]">Each free assessment can return a score, an archetype, and the next best action: Guru quest, counselling, or premium report.</p>
+            <div className="mt-5 rounded-lg border border-[#c9a646]/25 bg-[#fff8dd] p-4">
+              <p className="text-sm font-semibold text-[#7c6418]">Example: 82/100 - Emerging Officer Personality</p>
+            </div>
+          </GlassCard>
+
+          <GlassCard className="p-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#263a8f]">Result Archetypes</p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              {resultArchetypes.map((item) => (
+                <span key={item} className="rounded-full border border-[#263a8f]/10 bg-white/76 px-3 py-2 text-xs font-semibold text-[#263a8f]">{item}</span>
+              ))}
+            </div>
+            <p className="mt-5 text-sm leading-7 text-[#536072]">Archetypes make results more memorable, parent-friendly, and shareable.</p>
+          </GlassCard>
         </div>
       </section>
 
