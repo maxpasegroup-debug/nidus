@@ -18,6 +18,7 @@ import { PerformanceChart } from "@/components/charts/performance-chart";
 import { AssessmentMissionCard } from "@/components/assessments/assessment-mission-card";
 import { buildAssessmentProgress } from "@/components/assessments/assessment-catalog";
 import { PageHero } from "@/components/layout/page-hero";
+import { NidusAiCommandPanel } from "@/components/nidus-ai/nidus-ai-command-panel";
 import { useAuth } from "@/components/providers/auth-provider-v2";
 import { Button } from "@/components/ui/button";
 import { useStudentDashboard } from "@/hooks/use-dashboard";
@@ -63,6 +64,33 @@ export default function StudentDashboardPage() {
   const reportReadyCount = completedAssessments.length;
   const nextAssessment = assessments.find((assessment) => assessment.status === "IN_PROGRESS") ?? assessments.find((assessment) => assessment.status === "NOT_STARTED");
   const guruRecommendation = assessments.find((assessment) => assessment.id === "dream-addiction-index") ?? assessments.find((assessment) => assessment.id === "focus-strength");
+  const aiProfileAccuracy = Math.round((completedAssessments.length / assessments.length) * 100);
+  const nidusAiCommands = [
+    {
+      title: nextAssessment ? nextAssessment.title : "Review completed reports",
+      description: nextAssessment ? nextAssessment.nextStep : "Compare your completed AI reports and strengthen the digital profile.",
+      href: nextAssessment?.href ?? "/assessment-reports/officer-readiness",
+      tag: "Assessment"
+    },
+    {
+      title: "Update Digital Profile",
+      description: `Assessment intelligence is ${aiProfileAccuracy}% complete and linked to your readiness identity.`,
+      href: "/digital-profile",
+      tag: "Profile"
+    },
+    {
+      title: guruRecommendation?.relatedGuruQuest ?? "Start Guru Mission",
+      description: guruRecommendation?.nextStep ?? "Move from report insight to a guided transformation mission.",
+      href: "/guru",
+      tag: "Guru"
+    },
+    {
+      title: "Counselling action plan",
+      description: "Send your pathway details to NIDUS support and convert AI guidance into a human plan.",
+      href: "/join",
+      tag: "Counselling"
+    }
+  ];
   const nextBestActions = [
     {
       title: nextAssessment ? nextAssessment.actionLabel : "Review Reports",
@@ -132,6 +160,12 @@ export default function StudentDashboardPage() {
             <QuickActionCard key={action.title} title={action.title} description={action.description} href={action.href} />
           ))}
         </section>
+
+        <NidusAiCommandPanel
+          title="NIDUS AI is managing your next step"
+          description="Assessment reports, Guru missions, learning progress, and counselling are now connected into one action layer."
+          commands={nidusAiCommands}
+        />
 
         <SectionHeader eyebrow="Assessments" title="Build your 15-part officer profile" action={`${completedAssessments.length}/15 completed`} />
         <section className="premium-surface rounded-lg p-5">

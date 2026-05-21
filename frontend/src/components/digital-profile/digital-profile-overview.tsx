@@ -16,8 +16,10 @@ import {
   UserRound
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { buildAssessmentProgress } from "@/components/assessments/assessment-catalog";
 import { AnnouncementCard, ProgressCard, SectionHeader, StatCard } from "@/components/dashboard";
 import { PageHero } from "@/components/layout/page-hero";
+import { NidusAiCommandPanel } from "@/components/nidus-ai/nidus-ai-command-panel";
 import type { StudentDashboardData } from "@/services/dashboard";
 import type { AuthUser } from "@/services/auth.v2";
 
@@ -84,6 +86,37 @@ export function DigitalProfileOverview({ data, user }: { data: StudentDashboardD
   const readinessBand = getReadinessBand(defencePotentialScore);
   const archetype = getArchetype(defencePotentialScore);
   const targetExam = activeCourse?.title?.match(/NDA|CDS|AFCAT|SSB|AISSEE|RIMC|INET/i)?.[0]?.toUpperCase() ?? "Defence Career";
+  const assessments = buildAssessmentProgress(data.recentActivities.length);
+  const completedAssessments = assessments.filter((assessment) => assessment.status === "COMPLETED");
+  const nextAssessment = assessments.find((assessment) => assessment.status === "IN_PROGRESS") ?? assessments.find((assessment) => assessment.status === "NOT_STARTED");
+  const assessmentAccuracy = clampScore((completedAssessments.length / assessments.length) * 100);
+  const reportSignal = completedAssessments[0] ?? assessments[0];
+  const aiCommands = [
+    {
+      title: nextAssessment ? nextAssessment.title : "Review AI reports",
+      description: nextAssessment ? nextAssessment.nextStep : "Use completed interpretations to compare readiness patterns.",
+      href: nextAssessment?.href ?? "/psychometric",
+      tag: "Assessment"
+    },
+    {
+      title: "Open report intelligence",
+      description: reportSignal ? `${reportSignal.reportName} feeds your hybrid profile and next action plan.` : "Reports will appear after assessments.",
+      href: reportSignal?.href ?? "/psychometric",
+      tag: "Profile"
+    },
+    {
+      title: reportSignal?.relatedGuruQuest ?? "Start Guru quest",
+      description: reportSignal?.nextStep ?? "Use Guru missions to turn assessment insights into daily action.",
+      href: "/guru",
+      tag: "Guru"
+    },
+    {
+      title: "Counselling review",
+      description: "Share your profile with NIDUS support for pathway guidance.",
+      href: "/join",
+      tag: "Counselling"
+    }
+  ];
 
   const profileAreas: ProfileArea[] = [
     {
@@ -180,7 +213,14 @@ export function DigitalProfileOverview({ data, user }: { data: StudentDashboardD
         <StatCard label="Profile Completion" value={`${profileCompletion}%`} note="Hybrid profile data connected" />
         <StatCard label="Readiness Band" value={readinessBand} note={`Archetype: ${archetype}`} />
         <StatCard label="Connected Systems" value="8" note="Learning, training, assessments, Guru and reports" />
+        <StatCard label="AI Report Accuracy" value={`${assessmentAccuracy}%`} note={`${completedAssessments.length}/15 assessment reports connected`} />
       </section>
+
+      <NidusAiCommandPanel
+        title="NIDUS AI profile control"
+        description="Your assessment reports now feed this digital profile, then NIDUS AI recommends the next assessment, Guru mission, and counselling action."
+        commands={aiCommands}
+      />
 
       <section className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
         <div className="space-y-4">
@@ -201,7 +241,7 @@ export function DigitalProfileOverview({ data, user }: { data: StudentDashboardD
               `Your current readiness band is ${readinessBand}.`,
               activeCourse ? `Learning profile is active through ${activeCourse.title}.` : "Learning profile needs course enrollment to become fully active.",
               data.attendance.total ? `Discipline profile is based on ${data.attendance.total} attendance records.` : "Discipline profile will strengthen after attendance records are added.",
-              "Assessment profile will become detailed once the full 15-assessment ecosystem is completed.",
+              `Assessment profile is ${assessmentAccuracy}% complete through ${completedAssessments.length}/15 AI report signals.`,
               "NIDUS Guru will add focus, confidence, life direction, and habit transformation signals."
             ].map((item) => (
               <div key={item} className="rounded border border-white/10 bg-navy-deep/55 p-4 text-sm leading-6 text-muted">{item}</div>
