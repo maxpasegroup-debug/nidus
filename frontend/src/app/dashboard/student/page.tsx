@@ -59,12 +59,14 @@ export default function StudentDashboardPage() {
     data.upcomingTests.length ? 54 : 30,
     Math.min(100, data.recentActivities.length * 16)
   ].reduce((sum, value) => sum + value, 0)) / 5)));
-  const assessments = buildAssessmentProgress(data.recentActivities.length);
+  const assessmentProfile = data.assessmentProfile;
+  const assessments = buildAssessmentProgress(data.recentActivities.length, "student", assessmentProfile?.completed ?? []);
   const completedAssessments = assessments.filter((assessment) => assessment.status === "COMPLETED");
-  const reportReadyCount = completedAssessments.length;
+  const totalAssessments = assessmentProfile?.totalAssessments ?? assessments.length;
+  const reportReadyCount = assessmentProfile?.reportReadyCount ?? completedAssessments.length;
   const nextAssessment = assessments.find((assessment) => assessment.status === "IN_PROGRESS") ?? assessments.find((assessment) => assessment.status === "NOT_STARTED");
   const guruRecommendation = assessments.find((assessment) => assessment.id === "dream-addiction-index") ?? assessments.find((assessment) => assessment.id === "focus-strength");
-  const aiProfileAccuracy = Math.round((completedAssessments.length / assessments.length) * 100);
+  const aiProfileAccuracy = assessmentProfile?.profileAccuracy ?? Math.round((completedAssessments.length / assessments.length) * 100);
   const nidusAiCommands = [
     {
       title: nextAssessment ? nextAssessment.title : "Review completed reports",
@@ -167,19 +169,19 @@ export default function StudentDashboardPage() {
           commands={nidusAiCommands}
         />
 
-        <SectionHeader eyebrow="Assessments" title="Build your 15-part officer profile" action={`${completedAssessments.length}/15 completed`} />
+        <SectionHeader eyebrow="Assessments" title="Build your 15-part officer profile" action={`${completedAssessments.length}/${totalAssessments} completed`} />
         <section className="premium-surface rounded-lg p-5">
           <div className="grid gap-5 lg:grid-cols-[1fr_auto] lg:items-center">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-gold-soft">Assessment Ecosystem</p>
               <h2 className="mt-3 text-2xl font-semibold text-ink">15 defence assessments with report generation states.</h2>
               <p className="mt-3 max-w-3xl text-sm leading-7 text-muted">
-                Complete Officer Readiness, OLQ, career fit, discipline, focus, leadership, confidence, SSB psychology, and Guru-linked assessments to strengthen your Digital Profile.
+                Completed assessment reports now feed your Digital Profile, NIDUS AI interpretation, Guru recommendations, and counselling path.
               </p>
             </div>
             <div className="grid gap-3 sm:grid-cols-3 lg:w-[27rem]">
               <div className="rounded border border-white/10 bg-navy-deep/55 p-4">
-                <p className="text-2xl font-semibold text-gold-soft">{completedAssessments.length}/15</p>
+                <p className="text-2xl font-semibold text-gold-soft">{completedAssessments.length}/{totalAssessments}</p>
                 <p className="mt-1 text-xs text-muted">completed</p>
               </div>
               <div className="rounded border border-white/10 bg-navy-deep/55 p-4">
@@ -187,7 +189,7 @@ export default function StudentDashboardPage() {
                 <p className="mt-1 text-xs text-muted">reports ready</p>
               </div>
               <div className="rounded border border-white/10 bg-navy-deep/55 p-4">
-                <p className="text-2xl font-semibold text-gold-soft">{Math.round((completedAssessments.length / assessments.length) * 100)}%</p>
+                <p className="text-2xl font-semibold text-gold-soft">{aiProfileAccuracy}%</p>
                 <p className="mt-1 text-xs text-muted">assessment profile</p>
               </div>
             </div>

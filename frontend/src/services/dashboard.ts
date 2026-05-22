@@ -33,6 +33,28 @@ export type StudentDashboardData = {
     streakDays: number;
     focus: string;
   };
+  assessmentProfile?: {
+    totalAssessments: number;
+    completedCount: number;
+    reportReadyCount: number;
+    profileAccuracy: number;
+    averageScore: number;
+    readinessBand: string;
+    strongestSignal: { title: string; score: number; attemptId: string } | null;
+    latestReport: { title: string; score: number; attemptId: string; completedAt: string } | null;
+    completed: Array<{
+      id: string;
+      title: string;
+      type: string;
+      score: number;
+      completedAt: string;
+      attemptId: string;
+      reportHref: string;
+      pdfHref: string;
+      readinessBand: string;
+      remark: string;
+    }>;
+  };
   recentActivities: string[];
 };
 

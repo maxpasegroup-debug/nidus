@@ -52,6 +52,61 @@ function buildAttendanceTrend(rows: Array<{ date: Date; status: string }>) {
   return Array.from(grouped.entries()).map(([month, value]) => ({ month, attendance: percentage(value.present, value.total) }));
 }
 
+function readinessBand(score: number) {
+  if (score >= 85) return "Strong officer signal";
+  if (score >= 70) return "Developing officer potential";
+  if (score >= 50) return "Foundation stage";
+  return "Needs guided support";
+}
+
+function buildAssessmentProfile(
+  attempts: Array<{
+    id: string;
+    testId: string;
+    score: number;
+    completedAt: Date | null;
+    overallRemark: string | null;
+    test: { id: string; title: string; type: string };
+  }>
+) {
+  const latestByTest = new Map<string, (typeof attempts)[number]>();
+  for (const attempt of attempts) {
+    if (!latestByTest.has(attempt.testId)) latestByTest.set(attempt.testId, attempt);
+  }
+
+  const completed = Array.from(latestByTest.values());
+  const averageScore = completed.length ? Math.round(completed.reduce((sum, attempt) => sum + attempt.score, 0) / completed.length) : 0;
+  const strongest = [...completed].sort((a, b) => b.score - a.score)[0] ?? null;
+  const latest = completed[0] ?? null;
+
+  return {
+    totalAssessments: 15,
+    completedCount: completed.length,
+    reportReadyCount: completed.length,
+    profileAccuracy: percentage(completed.length, 15),
+    averageScore,
+    readinessBand: readinessBand(averageScore),
+    strongestSignal: strongest
+      ? { title: strongest.test.title, score: Math.round(strongest.score), attemptId: strongest.id }
+      : null,
+    latestReport: latest
+      ? { title: latest.test.title, score: Math.round(latest.score), attemptId: latest.id, completedAt: latest.completedAt?.toISOString() ?? "" }
+      : null,
+    completed: completed.map((attempt) => ({
+      id: attempt.test.id,
+      title: attempt.test.title,
+      type: attempt.test.type,
+      score: Math.round(attempt.score),
+      completedAt: attempt.completedAt?.toISOString() ?? "",
+      attemptId: attempt.id,
+      reportHref: `/psychometric/results/${attempt.id}`,
+      pdfHref: `/psychometric/results/${attempt.id}/pdf`,
+      readinessBand: readinessBand(attempt.score),
+      remark: attempt.overallRemark ?? ""
+    }))
+  };
+}
+
 export const dashboardService = {
   async getStudentDashboard(user: DashboardUser) {
     const profile = await prisma.user.findUnique({
@@ -59,7 +114,7 @@ export const dashboardService = {
       select: { id: true, name: true, email: true, mobile: true, role: true }
     });
 
-    const [enrollments, liveTests, attendanceRows, leaderboard, studentCount, recommendations, fitness, lectureProgress, attempts] = await Promise.all([
+    const [enrollments, liveTests, attendanceRows, leaderboard, studentCount, recommendations, fitness, lectureProgress, attempts, psychometricAttempts] = await Promise.all([
       prisma.enrollment.findMany({
         where: { userId: user.id },
         orderBy: { enrolledAt: "desc" },
@@ -72,10 +127,17 @@ export const dashboardService = {
       prisma.aIRecommendation.findMany({ where: { userId: user.id }, orderBy: { createdAt: "desc" }, take: 5 }),
       prisma.fitnessProfile.findUnique({ where: { userId: user.id } }),
       prisma.lectureProgress.findMany({ where: { userId: user.id }, orderBy: { updatedAt: "desc" }, take: 4, include: { lecture: { select: { title: true } } } }),
-      prisma.testAttempt.findMany({ where: { userId: user.id }, orderBy: { startedAt: "desc" }, take: 4, include: { test: { select: { title: true } } } })
+      prisma.testAttempt.findMany({ where: { userId: user.id }, orderBy: { startedAt: "desc" }, take: 4, include: { test: { select: { title: true } } } }),
+      prisma.psychometricAttempt.findMany({
+        where: { userId: user.id, completedAt: { not: null } },
+        orderBy: { completedAt: "desc" },
+        include: { test: { select: { id: true, title: true, type: true } } }
+      })
     ]);
     const present = attendanceRows.filter((row) => attendanceStatus(row.status) === "PRESENT").length;
+    const assessmentProfile = buildAssessmentProfile(psychometricAttempts);
     const recentActivities = [
+      ...assessmentProfile.completed.slice(0, 3).map((attempt) => `Completed ${attempt.title}`),
       ...attempts.map((attempt) => `Attempted ${attempt.test.title}`),
       ...lectureProgress.map((progress) => `${progress.completed ? "Completed" : "Watched"} ${progress.lecture.title}`)
     ].slice(0, 6);
@@ -106,6 +168,7 @@ export const dashboardService = {
         streakDays: await prisma.dailyFitnessLog.count({ where: { userId: user.id } }),
         focus: fitness?.fitnessLevel ?? "No fitness profile"
       },
+      assessmentProfile,
       recentActivities
     };
   },

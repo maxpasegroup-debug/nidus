@@ -1,3 +1,4 @@
+import PDFDocument from "pdfkit";
 import { prisma } from "../../config/prisma.js";
 import { psychometricAiService } from "./psychometric-ai.service.js";
 
@@ -277,6 +278,107 @@ function buildStructuredReport(attempt: { test: { title: string; type: string };
   };
 }
 
+function safeFilename(value: string) {
+  const cleaned = value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+  return cleaned || "psychometric-report";
+}
+
+function collectPdf(doc: PDFKit.PDFDocument) {
+  return new Promise<Buffer>((resolve, reject) => {
+    const chunks: Buffer[] = [];
+    doc.on("data", (chunk: Buffer) => chunks.push(chunk));
+    doc.on("end", () => resolve(Buffer.concat(chunks)));
+    doc.on("error", reject);
+  });
+}
+
+function addPdfSection(doc: PDFKit.PDFDocument, title: string, body: string | string[]) {
+  doc.moveDown(0.8);
+  doc.fontSize(13).fillColor("#111827").font("Helvetica-Bold").text(title);
+  doc.moveDown(0.35);
+  doc.fontSize(10).fillColor("#374151").font("Helvetica");
+  const lines = Array.isArray(body) ? body : [body];
+  for (const line of lines) {
+    doc.text(Array.isArray(body) ? `- ${line}` : line, { lineGap: 3 });
+  }
+}
+
+function drawScoreCard(doc: PDFKit.PDFDocument, label: string, value: string, x: number, y: number, width: number) {
+  doc.roundedRect(x, y, width, 64, 10).fillAndStroke("#f8fafc", "#e5e7eb");
+  doc.fillColor("#6b7280").fontSize(8).font("Helvetica-Bold").text(label.toUpperCase(), x + 14, y + 13, { width: width - 28 });
+  doc.fillColor("#111827").fontSize(17).font("Helvetica-Bold").text(value, x + 14, y + 30, { width: width - 28 });
+}
+
+function writeAssessmentPdf(result: Awaited<ReturnType<typeof psychometricService.result>>) {
+  const doc = new PDFDocument({ size: "A4", margin: 44, bufferPages: true });
+  const buffer = collectPdf(doc);
+  const { attempt, report, scoring, recommendations } = result;
+  const generatedAt = new Date().toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
+
+  doc.rect(0, 0, doc.page.width, 118).fill("#07111f");
+  doc.fillColor("#c9a646").fontSize(10).font("Helvetica-Bold").text("NIDUS ACADEMY", 44, 34, { characterSpacing: 1.4 });
+  doc.fillColor("#ffffff").fontSize(22).font("Helvetica-Bold").text(`${attempt.test.title} Report`, 44, 52, { width: 370 });
+  doc.fillColor("#d1d5db").fontSize(10).font("Helvetica").text(`Generated on ${generatedAt}`, 44, 82);
+  doc.fillColor("#f8fafc").fontSize(28).font("Helvetica-Bold").text(`${report.score}/100`, 442, 40, { width: 90, align: "right" });
+  doc.fillColor("#c9a646").fontSize(9).font("Helvetica-Bold").text(report.level, 342, 76, { width: 190, align: "right" });
+
+  const cardY = 146;
+  drawScoreCard(doc, "Overall score", `${scoring.score}/100`, 44, cardY, 150);
+  drawScoreCard(doc, "Response quality", `${scoring.qualityScore}/100`, 216, cardY, 150);
+  drawScoreCard(doc, "Completion", `${scoring.answered}/${scoring.totalQuestions}`, 388, cardY, 150);
+  doc.y = cardY + 80;
+
+  addPdfSection(doc, "Simple interpretation", report.simpleMeaning);
+  addPdfSection(doc, "Strengths", report.strengths);
+  addPdfSection(doc, "Improvement areas", report.improvementAreas);
+
+  doc.moveDown(0.8);
+  doc.fontSize(13).fillColor("#111827").font("Helvetica-Bold").text("Dimension scores");
+  doc.moveDown(0.35);
+  for (const dimension of report.dimensionScores) {
+    const x = 44;
+    const y = doc.y + 3;
+    const barWidth = 270;
+    const scoreWidth = Math.max(3, Math.round((dimension.score / 100) * barWidth));
+    doc.fillColor("#374151").fontSize(9).font("Helvetica").text(dimension.label, x, y, { width: 160 });
+    doc.roundedRect(x + 174, y + 2, barWidth, 8, 4).fill("#e5e7eb");
+    doc.roundedRect(x + 174, y + 2, scoreWidth, 8, 4).fill(dimension.score >= 70 ? "#1f7a4d" : dimension.score >= 50 ? "#c9a646" : "#b91c1c");
+    doc.fillColor("#111827").fontSize(9).font("Helvetica-Bold").text(`${dimension.score}`, x + 454, y - 1, { width: 42, align: "right" });
+    doc.moveDown(0.65);
+    if (doc.y > 720) doc.addPage();
+  }
+
+  addPdfSection(doc, "Behaviour pattern", report.behaviourPattern);
+  addPdfSection(doc, "Officer readiness signal", report.officerReadinessSignal);
+  addPdfSection(doc, "Parent summary", report.parentSummary);
+  addPdfSection(doc, "Counsellor summary", report.counsellorSummary);
+  addPdfSection(doc, "Recommended next test", report.recommendedNextTest);
+  addPdfSection(doc, "Recommended NIDUS Guru quest", report.recommendedGuruQuest);
+  addPdfSection(doc, "Counselling action", report.counsellingAction);
+  addPdfSection(doc, "Seven day action plan", report.sevenDayActionPlan);
+  addPdfSection(doc, "NIDUS AI recommendations", recommendations);
+
+  if (report.answerSignals.length) {
+    addPdfSection(
+      doc,
+      "Response signals",
+      report.answerSignals.slice(0, 12).map((signal) => `${signal.dimensionLabel}: ${signal.interpretation}`)
+    );
+  }
+
+  const pages = doc.bufferedPageRange();
+  for (let index = 0; index < pages.count; index += 1) {
+    doc.switchToPage(index);
+    doc.fillColor("#9ca3af").fontSize(8).font("Helvetica").text(`NIDUS Psychometric Report | Page ${index + 1} of ${pages.count}`, 44, 806, {
+      width: 494,
+      align: "center"
+    });
+  }
+
+  doc.end();
+  return buffer;
+}
+
 export const psychometricService = {
   async listTests() {
     return prisma.psychometricTest.findMany({
@@ -373,6 +475,15 @@ export const psychometricService = {
         strongestDimensions: scoring.strongestDimensions,
         weakestDimensions: scoring.weakestDimensions
       }
+    };
+  },
+
+  async resultPdf(userId: string, attemptId: string) {
+    const result = await this.result(userId, attemptId);
+    const buffer = await writeAssessmentPdf(result);
+    return {
+      buffer,
+      filename: `nidus-${safeFilename(result.attempt.test.title)}-${result.attempt.id}.pdf`
     };
   },
 

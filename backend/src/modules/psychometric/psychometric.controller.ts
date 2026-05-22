@@ -67,6 +67,17 @@ export const psychometricController = {
     }
   },
 
+  async resultPdf(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      const report = await psychometricService.resultPdf(userId(req), param(req, "attemptId"));
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader("Content-Disposition", `attachment; filename="${report.filename}"`);
+      res.send(report.buffer);
+    } catch (error) {
+      next(error);
+    }
+  },
+
   async olqReport(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
       const report = await psychometricService.olqReport(userId(req));

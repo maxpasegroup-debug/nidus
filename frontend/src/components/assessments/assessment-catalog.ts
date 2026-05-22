@@ -39,7 +39,21 @@ export type AssessmentProgress = AssessmentDefinition & {
   reportStatus: string;
   actionLabel: string;
   href: string;
+  attemptId?: string;
+  completedAt?: string;
+  pdfHref?: string;
+  readinessBand?: string;
   accessNote: string;
+};
+
+export type CompletedAssessmentSignal = {
+  id: string;
+  score: number;
+  attemptId: string;
+  completedAt?: string;
+  reportHref?: string;
+  pdfHref?: string;
+  readinessBand?: string;
 };
 
 export type AssessmentReport = {
@@ -255,24 +269,32 @@ function accessNoteFor(assessment: AssessmentDefinition, mode: "guest" | "studen
   return "Full assessment";
 }
 
-export function buildAssessmentProgress(activityCount = 0, mode: "guest" | "student" | "premium" = "student"): AssessmentProgress[] {
+export function buildAssessmentProgress(activityCount = 0, mode: "guest" | "student" | "premium" = "student", completedSignals: CompletedAssessmentSignal[] = []): AssessmentProgress[] {
+  const completedById = new Map(completedSignals.map((signal) => [signal.id, signal]));
+  const useRealSignals = completedSignals.length > 0;
+
   return assessmentCatalog.map((assessment, index) => {
     const isPremiumLocked = assessment.access === "PREMIUM";
     const isGuestLocked = mode === "guest" && assessment.access !== "FREE";
-    const completed = !isPremiumLocked && !isGuestLocked && index < Math.min(activityCount, 4);
+    const completedSignal = completedById.get(assessment.id);
+    const completed = Boolean(completedSignal) || (!useRealSignals && !isPremiumLocked && !isGuestLocked && index < Math.min(activityCount, 4));
     const inProgress = !isPremiumLocked && !isGuestLocked && !completed && index === Math.min(activityCount, 4);
-    const score = completed ? Math.min(96, 72 + index * 3) : null;
+    const score = completedSignal?.score ?? (completed ? Math.min(96, 72 + index * 3) : null);
     const status: AssessmentStatus = isPremiumLocked || isGuestLocked ? "LOCKED" : completed ? "COMPLETED" : inProgress ? "IN_PROGRESS" : "NOT_STARTED";
-    const startHref = assessment.id === "dream-addiction-index" || assessment.id === "focus-strength" ? "/guru" : "/psychometric";
+    const startHref = `/psychometric/${assessment.id}`;
     const lockedHref = mode === "guest" ? "/register" : "/subscriptions";
 
     return {
       ...assessment,
       status,
       score,
-      reportStatus: completed ? "Report ready" : isPremiumLocked ? "Premium locked" : isGuestLocked ? "Create account to unlock" : inProgress ? "Continue to generate report" : "Report pending",
+      reportStatus: completed ? completedSignal?.readinessBand ?? "Report ready" : isPremiumLocked ? "Premium locked" : isGuestLocked ? "Create account to unlock" : inProgress ? "Continue to generate report" : "Report pending",
       actionLabel: completed ? "View Report" : isPremiumLocked ? "Unlock Premium" : isGuestLocked ? "Create Account" : inProgress ? "Continue" : mode === "guest" ? "Start Preview" : "Start Assessment",
-      href: completed ? `/assessment-reports/${assessment.id}` : isPremiumLocked || isGuestLocked ? lockedHref : startHref,
+      href: completed ? completedSignal?.reportHref ?? `/assessment-reports/${assessment.id}` : isPremiumLocked || isGuestLocked ? lockedHref : startHref,
+      attemptId: completedSignal?.attemptId,
+      completedAt: completedSignal?.completedAt,
+      pdfHref: completedSignal?.pdfHref,
+      readinessBand: completedSignal?.readinessBand,
       accessNote: accessNoteFor(assessment, mode)
     };
   });

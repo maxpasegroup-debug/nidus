@@ -42,12 +42,13 @@ function average(values: number[]) {
 }
 
 function getProfileCompletion(data: StudentDashboardData) {
+  const assessmentProfile = data.assessmentProfile;
   const checks = [
     data.profile?.name,
     data.profile?.email,
     data.enrolledCourses.length > 0,
     data.attendance.total > 0,
-    data.upcomingTests.length > 0,
+    Boolean(assessmentProfile?.completedCount),
     data.fitnessProgress.score > 0,
     data.aiRecommendations.length > 0,
     data.recentActivities.length > 0
@@ -58,7 +59,7 @@ function getProfileCompletion(data: StudentDashboardData) {
 
 function getDefencePotentialScore(data: StudentDashboardData) {
   const learningScore = data.enrolledCourses.length ? average(data.enrolledCourses.map((course) => course.progress)) : 0;
-  const assessmentSignal = data.upcomingTests.length ? 54 : 30;
+  const assessmentSignal = data.assessmentProfile?.averageScore ?? (data.upcomingTests.length ? 54 : 30);
   const engagementSignal = Math.min(100, data.recentActivities.length * 16);
 
   return clampScore(average([learningScore, data.attendance.percentage, data.fitnessProgress.score, assessmentSignal, engagementSignal]));
@@ -86,11 +87,12 @@ export function DigitalProfileOverview({ data, user }: { data: StudentDashboardD
   const readinessBand = getReadinessBand(defencePotentialScore);
   const archetype = getArchetype(defencePotentialScore);
   const targetExam = activeCourse?.title?.match(/NDA|CDS|AFCAT|SSB|AISSEE|RIMC|INET/i)?.[0]?.toUpperCase() ?? "Defence Career";
-  const assessments = buildAssessmentProgress(data.recentActivities.length);
+  const assessmentProfile = data.assessmentProfile;
+  const assessments = buildAssessmentProgress(data.recentActivities.length, "student", assessmentProfile?.completed ?? []);
   const completedAssessments = assessments.filter((assessment) => assessment.status === "COMPLETED");
   const nextAssessment = assessments.find((assessment) => assessment.status === "IN_PROGRESS") ?? assessments.find((assessment) => assessment.status === "NOT_STARTED");
-  const assessmentAccuracy = clampScore((completedAssessments.length / assessments.length) * 100);
-  const reportSignal = completedAssessments[0] ?? assessments[0];
+  const assessmentAccuracy = assessmentProfile?.profileAccuracy ?? clampScore((completedAssessments.length / assessments.length) * 100);
+  const reportSignal = completedAssessments.find((assessment) => assessment.attemptId === assessmentProfile?.latestReport?.attemptId) ?? completedAssessments[0] ?? assessments[0];
   const aiCommands = [
     {
       title: nextAssessment ? nextAssessment.title : "Review AI reports",
@@ -145,8 +147,10 @@ export function DigitalProfileOverview({ data, user }: { data: StudentDashboardD
     },
     {
       title: "Assessment Profile",
-      value: `${data.upcomingTests.length}`,
-      description: "Assessment ecosystem connects officer readiness, OLQ, leadership, discipline, focus, and career fit.",
+      value: `${assessmentProfile?.completedCount ?? completedAssessments.length}/${assessmentProfile?.totalAssessments ?? assessments.length}`,
+      description: assessmentProfile?.latestReport
+        ? `Latest report: ${assessmentProfile.latestReport.title} (${assessmentProfile.latestReport.score}/100).`
+        : "Assessment ecosystem connects officer readiness, OLQ, leadership, discipline, focus, and career fit.",
       icon: ClipboardCheck,
       href: "/psychometric",
       tag: "Assessments"
@@ -213,7 +217,7 @@ export function DigitalProfileOverview({ data, user }: { data: StudentDashboardD
         <StatCard label="Profile Completion" value={`${profileCompletion}%`} note="Hybrid profile data connected" />
         <StatCard label="Readiness Band" value={readinessBand} note={`Archetype: ${archetype}`} />
         <StatCard label="Connected Systems" value="8" note="Learning, training, assessments, Guru and reports" />
-        <StatCard label="AI Report Accuracy" value={`${assessmentAccuracy}%`} note={`${completedAssessments.length}/15 assessment reports connected`} />
+        <StatCard label="AI Report Accuracy" value={`${assessmentAccuracy}%`} note={`${assessmentProfile?.completedCount ?? completedAssessments.length}/${assessmentProfile?.totalAssessments ?? assessments.length} assessment reports connected`} />
       </section>
 
       <NidusAiCommandPanel
@@ -221,6 +225,30 @@ export function DigitalProfileOverview({ data, user }: { data: StudentDashboardD
         description="Your assessment reports now feed this digital profile, then NIDUS AI recommends the next assessment, Guru mission, and counselling action."
         commands={aiCommands}
       />
+
+      <SectionHeader eyebrow="Assessment Intelligence" title="Reports connected to this profile" action={`${assessmentProfile?.reportReadyCount ?? completedAssessments.length} ready`} />
+      <section className="grid gap-4 md:grid-cols-3">
+        {completedAssessments.length ? completedAssessments.slice(0, 6).map((assessment) => (
+          <Link key={assessment.id} href={assessment.href} className="rounded-lg border border-white/10 bg-white/[0.055] p-5 transition hover:-translate-y-1 hover:border-gold/35 hover:bg-white/[0.075]">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-gold-soft">{assessment.readinessBand ?? "Report ready"}</p>
+                <h3 className="mt-3 text-lg font-semibold leading-tight text-white">{assessment.title}</h3>
+              </div>
+              <span className="rounded border border-gold/25 bg-gold/10 px-3 py-1 text-sm font-semibold text-gold">{assessment.score ?? 0}/100</span>
+            </div>
+            <p className="mt-4 text-sm leading-6 text-muted">{assessment.reportName} is now feeding your hybrid profile and next action plan.</p>
+            <span className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-gold">
+              Open report <ArrowRight className="h-4 w-4" />
+            </span>
+          </Link>
+        )) : (
+          <div className="rounded-lg border border-white/10 bg-white/[0.055] p-5 md:col-span-3">
+            <p className="text-sm font-semibold text-white">No completed assessment report is connected yet.</p>
+            <p className="mt-2 text-sm leading-6 text-muted">Complete one psychometric assessment to activate live report intelligence in this Digital Profile.</p>
+          </div>
+        )}
+      </section>
 
       <section className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
         <div className="space-y-4">
@@ -241,7 +269,8 @@ export function DigitalProfileOverview({ data, user }: { data: StudentDashboardD
               `Your current readiness band is ${readinessBand}.`,
               activeCourse ? `Learning profile is active through ${activeCourse.title}.` : "Learning profile needs course enrollment to become fully active.",
               data.attendance.total ? `Discipline profile is based on ${data.attendance.total} attendance records.` : "Discipline profile will strengthen after attendance records are added.",
-              `Assessment profile is ${assessmentAccuracy}% complete through ${completedAssessments.length}/15 AI report signals.`,
+              `Assessment profile is ${assessmentAccuracy}% complete through ${assessmentProfile?.completedCount ?? completedAssessments.length}/${assessmentProfile?.totalAssessments ?? assessments.length} AI report signals.`,
+              assessmentProfile?.strongestSignal ? `Strongest assessment signal: ${assessmentProfile.strongestSignal.title} at ${assessmentProfile.strongestSignal.score}/100.` : "Strongest assessment signal will appear after the first completed report.",
               "NIDUS Guru will add focus, confidence, life direction, and habit transformation signals."
             ].map((item) => (
               <div key={item} className="rounded border border-white/10 bg-navy-deep/55 p-4 text-sm leading-6 text-muted">{item}</div>
@@ -269,7 +298,7 @@ export function DigitalProfileOverview({ data, user }: { data: StudentDashboardD
 
       <SectionHeader eyebrow="Next Actions" title="Make this profile more accurate" />
       <section className="grid gap-4 md:grid-cols-3">
-        <AnnouncementCard title="Complete Officer Readiness" description="Adds officer mindset, discipline, leadership, courage and responsibility signals." tag="Assessment" />
+        <AnnouncementCard title={nextAssessment?.title ?? "Complete Officer Readiness"} description={nextAssessment?.nextStep ?? "Adds officer mindset, discipline, leadership, courage and responsibility signals."} tag="Assessment" />
         <AnnouncementCard title="Start Dream Addiction Index" description="Connects focus, distraction, ambition intensity and Guru quest recommendations." tag="Guru" />
         <AnnouncementCard title="Build physical profile" description="Fitness and PT signals will improve the training layer of the hybrid profile." tag="Training" />
       </section>

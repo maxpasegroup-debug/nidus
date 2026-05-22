@@ -29,6 +29,11 @@ export async function getPsychometricResults(attemptId: string) {
   return response.data;
 }
 
+export async function downloadPsychometricReportPdf(attemptId: string) {
+  const response = await apiClient.get<Blob>(`/psychometric/results/${attemptId}/pdf`, { responseType: "blob" });
+  return response.data;
+}
+
 export async function getOLQReport() {
   const response = await apiClient.get<OLQReport>("/psychometric/olq-report");
   return response.data;
