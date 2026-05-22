@@ -12,10 +12,15 @@ export type NidusQuestionSignal = {
 };
 
 export type NidusGeneratedReport = {
+  reportVersion?: string;
   score: number;
   level: string;
+  executiveSummary?: string;
   simpleMeaning: string;
+  percentileContext?: string;
+  reportConfidence?: string;
   dimensionScores?: Array<{ dimension: string; label: string; score: number; answered: number; total: number }>;
+  dimensionInsights?: Array<{ dimension: string; label: string; score: number; interpretation: string; action: string }>;
   strengths: string[];
   improvementAreas: string[];
   behaviourPattern: string;
@@ -25,7 +30,15 @@ export type NidusGeneratedReport = {
   recommendedNextTest: string;
   recommendedGuruQuest: string;
   counsellingAction: string;
+  integritySignals?: string[];
+  riskReview?: string[];
+  parentGuidance?: string[];
   sevenDayActionPlan?: string[];
+  thirtyDayPlan?: string[];
+  ninetyDayPlan?: string[];
+  mentorReviewChecklist?: string[];
+  mentorNotes?: string[];
+  disclaimer?: string;
   answerSignals: Array<{
     question: string;
     answer: string;
@@ -241,6 +254,21 @@ function scoreMeaning(score: number) {
   return "This result is an early diagnostic. It helps NIDUS identify where guidance should begin.";
 }
 
+function percentileContext(score: number) {
+  if (score >= 90) return "Top readiness band inside the NIDUS benchmark model.";
+  if (score >= 80) return "High readiness band with strong training potential.";
+  if (score >= 65) return "Developing readiness band where routine and pressure practice will decide progress.";
+  if (score >= 50) return "Foundation band that can improve through structured guidance.";
+  return "Support band that needs guided habits, confidence building, and mentor review.";
+}
+
+function reportConfidence(answered: number, totalQuestions?: number) {
+  const completion = totalQuestions ? Math.round((answered / totalQuestions) * 100) : 0;
+  if (completion >= 90 && answered >= 30) return "High confidence: enough responses were captured for dependable training guidance.";
+  if (completion >= 70 && answered >= 20) return "Moderate confidence: useful report, with room to sharpen through another assessment.";
+  return "Early confidence: use this as a starting signal and complete more responses for higher accuracy.";
+}
+
 function interpretationForAnswer(answer: string, dimension: NidusAssessmentDimension) {
   const lower = answer.toLowerCase();
   if (lower.includes("strongest") || lower.includes("take command") || lower.includes("protect") || lower.includes("restart")) {
@@ -275,11 +303,25 @@ export function nidusGenerateReport(data: PsychometricResult): NidusGeneratedRep
   const recommendations = data.recommendations.length ? data.recommendations : ["Complete one more assessment to sharpen your profile."];
   const backendStrongest = data.scoring?.strongestDimensions?.map((item) => `${item.label}: ${item.score}/100`) ?? [];
   const backendWeakest = data.scoring?.weakestDimensions?.map((item) => `${item.label}: ${item.score}/100`) ?? [];
+  const dimensionScores = data.scoring?.dimensionScores;
+  const developmentLabel = data.scoring?.weakestDimensions?.[0]?.label ?? traitCopy[dominantDimension];
 
   return {
+    reportVersion: "2.0-international",
     score,
     level: data.scoring?.readinessBand ?? scoreLevel(score),
+    executiveSummary: `${data.attempt.test.title} produced a ${data.scoring?.readinessBand?.toLowerCase() ?? scoreLevel(score).toLowerCase()} with ${score}/100 overall readiness. The main visible pattern is ${traitCopy[dominantDimension]}, and the next focus is structured practice.`,
     simpleMeaning: scoreMeaning(score),
+    percentileContext: percentileContext(score),
+    reportConfidence: reportConfidence(answered.length, data.scoring?.totalQuestions),
+    dimensionScores,
+    dimensionInsights: dimensionScores?.map((dimension) => ({
+      dimension: dimension.dimension,
+      label: dimension.label,
+      score: dimension.score,
+      interpretation: dimension.score >= 75 ? `${dimension.label} is a strong readiness signal.` : `${dimension.label} needs structured repetition and feedback.`,
+      action: dimension.score >= 75 ? `Use ${dimension.label.toLowerCase()} in group tasks and interview practice.` : `Train ${dimension.label.toLowerCase()} through one measurable daily mission.`
+    })),
     strengths: [
       backendStrongest.length ? `Strongest dimensions: ${backendStrongest.join(", ")}.` : `Primary signal: ${traitCopy[dominantDimension]}.`,
       recommendations[0],
@@ -296,6 +338,45 @@ export function nidusGenerateReport(data: PsychometricResult): NidusGeneratedRep
     recommendedNextTest: nextTestByDimension[dominantDimension],
     recommendedGuruQuest: guruQuestByDimension[dominantDimension],
     counsellingAction: score >= 70 ? "Book a review to convert this strength into a defence pathway plan." : "Book counselling to identify the first improvement mission and assessment path.",
+    integritySignals: ["No major response-integrity concern detected."],
+    riskReview: [
+      data.scoring?.riskIndicators?.length ? `Low-score dimensions requiring review: ${data.scoring.riskIndicators.join(", ")}.` : "No critical low-score dimension was detected from the answered items.",
+      "Use this report with mentor review before high-stakes decisions."
+    ],
+    parentGuidance: [
+      `Discuss ${developmentLabel} calmly and convert it into one weekly routine target.`,
+      "Compare only with the student's next retake trend, not with other students."
+    ],
+    sevenDayActionPlan: [
+      `Day 1: Review the ${data.attempt.test.title} report and identify the strongest signal.`,
+      `Day 2: Start ${guruQuestByDimension[dominantDimension]} for one focused action.`,
+      "Day 3: Complete one distraction-free timed study block.",
+      "Day 4: Complete one physical or discipline action.",
+      `Day 5: Schedule ${nextTestByDimension[dominantDimension]}.`,
+      "Day 6: Discuss the summary with a mentor.",
+      "Day 7: Update the digital profile and choose the next mission."
+    ],
+    thirtyDayPlan: [
+      `Week 1: Build one routine connected to ${developmentLabel}.`,
+      "Week 2: Add timed study, physical discipline, and communication practice.",
+      `Week 3: Practice situations linked to ${nextTestByDimension[dominantDimension]}.`,
+      "Week 4: Retake or complete the next assessment to compare improvement."
+    ],
+    ninetyDayPlan: [
+      "Month 1: Build routine stability, distraction control, and basic confidence.",
+      "Month 2: Add pressure practice, group discussion exposure, and fitness consistency.",
+      "Month 3: Review trend reports and prepare a pathway counselling plan."
+    ],
+    mentorReviewChecklist: [
+      "Review response integrity and completion before counselling.",
+      "Discuss the strongest signal and the weakest development area.",
+      `Assign ${guruQuestByDimension[dominantDimension]} and schedule a seven-day follow-up.`
+    ],
+    mentorNotes: [
+      `Primary training focus: ${developmentLabel}.`,
+      "Judge growth by trend, effort, and behaviour change rather than one score alone."
+    ],
+    disclaimer: "This report is an educational and training-guidance interpretation. It is not a medical, clinical, psychiatric, or final SSB selection diagnosis.",
     answerSignals: signals
   };
 }

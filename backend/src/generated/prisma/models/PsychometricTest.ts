@@ -41,7 +41,11 @@ export type PsychometricTestMinAggregateOutputType = {
   description: string | null
   duration: number | null
   instructions: string | null
+  access: string | null
+  category: string | null
+  isActive: boolean | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type PsychometricTestMaxAggregateOutputType = {
@@ -51,7 +55,11 @@ export type PsychometricTestMaxAggregateOutputType = {
   description: string | null
   duration: number | null
   instructions: string | null
+  access: string | null
+  category: string | null
+  isActive: boolean | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type PsychometricTestCountAggregateOutputType = {
@@ -61,7 +69,11 @@ export type PsychometricTestCountAggregateOutputType = {
   description: number
   duration: number
   instructions: number
+  access: number
+  category: number
+  isActive: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -81,7 +93,11 @@ export type PsychometricTestMinAggregateInputType = {
   description?: true
   duration?: true
   instructions?: true
+  access?: true
+  category?: true
+  isActive?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type PsychometricTestMaxAggregateInputType = {
@@ -91,7 +107,11 @@ export type PsychometricTestMaxAggregateInputType = {
   description?: true
   duration?: true
   instructions?: true
+  access?: true
+  category?: true
+  isActive?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type PsychometricTestCountAggregateInputType = {
@@ -101,7 +121,11 @@ export type PsychometricTestCountAggregateInputType = {
   description?: true
   duration?: true
   instructions?: true
+  access?: true
+  category?: true
+  isActive?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -198,7 +222,11 @@ export type PsychometricTestGroupByOutputType = {
   description: string
   duration: number
   instructions: string
+  access: string
+  category: string
+  isActive: boolean
   createdAt: Date
+  updatedAt: Date
   _count: PsychometricTestCountAggregateOutputType | null
   _avg: PsychometricTestAvgAggregateOutputType | null
   _sum: PsychometricTestSumAggregateOutputType | null
@@ -231,7 +259,11 @@ export type PsychometricTestWhereInput = {
   description?: Prisma.StringFilter<"PsychometricTest"> | string
   duration?: Prisma.IntFilter<"PsychometricTest"> | number
   instructions?: Prisma.StringFilter<"PsychometricTest"> | string
+  access?: Prisma.StringFilter<"PsychometricTest"> | string
+  category?: Prisma.StringFilter<"PsychometricTest"> | string
+  isActive?: Prisma.BoolFilter<"PsychometricTest"> | boolean
   createdAt?: Prisma.DateTimeFilter<"PsychometricTest"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"PsychometricTest"> | Date | string
   questions?: Prisma.PsychometricQuestionListRelationFilter
   attempts?: Prisma.PsychometricAttemptListRelationFilter
 }
@@ -243,7 +275,11 @@ export type PsychometricTestOrderByWithRelationInput = {
   description?: Prisma.SortOrder
   duration?: Prisma.SortOrder
   instructions?: Prisma.SortOrder
+  access?: Prisma.SortOrder
+  category?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   questions?: Prisma.PsychometricQuestionOrderByRelationAggregateInput
   attempts?: Prisma.PsychometricAttemptOrderByRelationAggregateInput
 }
@@ -258,7 +294,11 @@ export type PsychometricTestWhereUniqueInput = Prisma.AtLeast<{
   description?: Prisma.StringFilter<"PsychometricTest"> | string
   duration?: Prisma.IntFilter<"PsychometricTest"> | number
   instructions?: Prisma.StringFilter<"PsychometricTest"> | string
+  access?: Prisma.StringFilter<"PsychometricTest"> | string
+  category?: Prisma.StringFilter<"PsychometricTest"> | string
+  isActive?: Prisma.BoolFilter<"PsychometricTest"> | boolean
   createdAt?: Prisma.DateTimeFilter<"PsychometricTest"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"PsychometricTest"> | Date | string
   questions?: Prisma.PsychometricQuestionListRelationFilter
   attempts?: Prisma.PsychometricAttemptListRelationFilter
 }, "id">
@@ -270,7 +310,11 @@ export type PsychometricTestOrderByWithAggregationInput = {
   description?: Prisma.SortOrder
   duration?: Prisma.SortOrder
   instructions?: Prisma.SortOrder
+  access?: Prisma.SortOrder
+  category?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.PsychometricTestCountOrderByAggregateInput
   _avg?: Prisma.PsychometricTestAvgOrderByAggregateInput
   _max?: Prisma.PsychometricTestMaxOrderByAggregateInput
@@ -288,7 +332,11 @@ export type PsychometricTestScalarWhereWithAggregatesInput = {
   description?: Prisma.StringWithAggregatesFilter<"PsychometricTest"> | string
   duration?: Prisma.IntWithAggregatesFilter<"PsychometricTest"> | number
   instructions?: Prisma.StringWithAggregatesFilter<"PsychometricTest"> | string
+  access?: Prisma.StringWithAggregatesFilter<"PsychometricTest"> | string
+  category?: Prisma.StringWithAggregatesFilter<"PsychometricTest"> | string
+  isActive?: Prisma.BoolWithAggregatesFilter<"PsychometricTest"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"PsychometricTest"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"PsychometricTest"> | Date | string
 }
 
 export type PsychometricTestCreateInput = {
@@ -298,7 +346,11 @@ export type PsychometricTestCreateInput = {
   description: string
   duration: number
   instructions: string
+  access?: string
+  category?: string
+  isActive?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
   questions?: Prisma.PsychometricQuestionCreateNestedManyWithoutTestInput
   attempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutTestInput
 }
@@ -310,7 +362,11 @@ export type PsychometricTestUncheckedCreateInput = {
   description: string
   duration: number
   instructions: string
+  access?: string
+  category?: string
+  isActive?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
   questions?: Prisma.PsychometricQuestionUncheckedCreateNestedManyWithoutTestInput
   attempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutTestInput
 }
@@ -322,7 +378,11 @@ export type PsychometricTestUpdateInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   duration?: Prisma.IntFieldUpdateOperationsInput | number
   instructions?: Prisma.StringFieldUpdateOperationsInput | string
+  access?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   questions?: Prisma.PsychometricQuestionUpdateManyWithoutTestNestedInput
   attempts?: Prisma.PsychometricAttemptUpdateManyWithoutTestNestedInput
 }
@@ -334,7 +394,11 @@ export type PsychometricTestUncheckedUpdateInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   duration?: Prisma.IntFieldUpdateOperationsInput | number
   instructions?: Prisma.StringFieldUpdateOperationsInput | string
+  access?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   questions?: Prisma.PsychometricQuestionUncheckedUpdateManyWithoutTestNestedInput
   attempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutTestNestedInput
 }
@@ -346,7 +410,11 @@ export type PsychometricTestCreateManyInput = {
   description: string
   duration: number
   instructions: string
+  access?: string
+  category?: string
+  isActive?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type PsychometricTestUpdateManyMutationInput = {
@@ -356,7 +424,11 @@ export type PsychometricTestUpdateManyMutationInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   duration?: Prisma.IntFieldUpdateOperationsInput | number
   instructions?: Prisma.StringFieldUpdateOperationsInput | string
+  access?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PsychometricTestUncheckedUpdateManyInput = {
@@ -366,7 +438,11 @@ export type PsychometricTestUncheckedUpdateManyInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   duration?: Prisma.IntFieldUpdateOperationsInput | number
   instructions?: Prisma.StringFieldUpdateOperationsInput | string
+  access?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PsychometricTestCountOrderByAggregateInput = {
@@ -376,7 +452,11 @@ export type PsychometricTestCountOrderByAggregateInput = {
   description?: Prisma.SortOrder
   duration?: Prisma.SortOrder
   instructions?: Prisma.SortOrder
+  access?: Prisma.SortOrder
+  category?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type PsychometricTestAvgOrderByAggregateInput = {
@@ -390,7 +470,11 @@ export type PsychometricTestMaxOrderByAggregateInput = {
   description?: Prisma.SortOrder
   duration?: Prisma.SortOrder
   instructions?: Prisma.SortOrder
+  access?: Prisma.SortOrder
+  category?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type PsychometricTestMinOrderByAggregateInput = {
@@ -400,7 +484,11 @@ export type PsychometricTestMinOrderByAggregateInput = {
   description?: Prisma.SortOrder
   duration?: Prisma.SortOrder
   instructions?: Prisma.SortOrder
+  access?: Prisma.SortOrder
+  category?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type PsychometricTestSumOrderByAggregateInput = {
@@ -447,7 +535,11 @@ export type PsychometricTestCreateWithoutQuestionsInput = {
   description: string
   duration: number
   instructions: string
+  access?: string
+  category?: string
+  isActive?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
   attempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutTestInput
 }
 
@@ -458,7 +550,11 @@ export type PsychometricTestUncheckedCreateWithoutQuestionsInput = {
   description: string
   duration: number
   instructions: string
+  access?: string
+  category?: string
+  isActive?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
   attempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutTestInput
 }
 
@@ -485,7 +581,11 @@ export type PsychometricTestUpdateWithoutQuestionsInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   duration?: Prisma.IntFieldUpdateOperationsInput | number
   instructions?: Prisma.StringFieldUpdateOperationsInput | string
+  access?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   attempts?: Prisma.PsychometricAttemptUpdateManyWithoutTestNestedInput
 }
 
@@ -496,7 +596,11 @@ export type PsychometricTestUncheckedUpdateWithoutQuestionsInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   duration?: Prisma.IntFieldUpdateOperationsInput | number
   instructions?: Prisma.StringFieldUpdateOperationsInput | string
+  access?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   attempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutTestNestedInput
 }
 
@@ -507,7 +611,11 @@ export type PsychometricTestCreateWithoutAttemptsInput = {
   description: string
   duration: number
   instructions: string
+  access?: string
+  category?: string
+  isActive?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
   questions?: Prisma.PsychometricQuestionCreateNestedManyWithoutTestInput
 }
 
@@ -518,7 +626,11 @@ export type PsychometricTestUncheckedCreateWithoutAttemptsInput = {
   description: string
   duration: number
   instructions: string
+  access?: string
+  category?: string
+  isActive?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
   questions?: Prisma.PsychometricQuestionUncheckedCreateNestedManyWithoutTestInput
 }
 
@@ -545,7 +657,11 @@ export type PsychometricTestUpdateWithoutAttemptsInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   duration?: Prisma.IntFieldUpdateOperationsInput | number
   instructions?: Prisma.StringFieldUpdateOperationsInput | string
+  access?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   questions?: Prisma.PsychometricQuestionUpdateManyWithoutTestNestedInput
 }
 
@@ -556,7 +672,11 @@ export type PsychometricTestUncheckedUpdateWithoutAttemptsInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   duration?: Prisma.IntFieldUpdateOperationsInput | number
   instructions?: Prisma.StringFieldUpdateOperationsInput | string
+  access?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   questions?: Prisma.PsychometricQuestionUncheckedUpdateManyWithoutTestNestedInput
 }
 
@@ -607,7 +727,11 @@ export type PsychometricTestSelect<ExtArgs extends runtime.Types.Extensions.Inte
   description?: boolean
   duration?: boolean
   instructions?: boolean
+  access?: boolean
+  category?: boolean
+  isActive?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   questions?: boolean | Prisma.PsychometricTest$questionsArgs<ExtArgs>
   attempts?: boolean | Prisma.PsychometricTest$attemptsArgs<ExtArgs>
   _count?: boolean | Prisma.PsychometricTestCountOutputTypeDefaultArgs<ExtArgs>
@@ -620,7 +744,11 @@ export type PsychometricTestSelectCreateManyAndReturn<ExtArgs extends runtime.Ty
   description?: boolean
   duration?: boolean
   instructions?: boolean
+  access?: boolean
+  category?: boolean
+  isActive?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }, ExtArgs["result"]["psychometricTest"]>
 
 export type PsychometricTestSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -630,7 +758,11 @@ export type PsychometricTestSelectUpdateManyAndReturn<ExtArgs extends runtime.Ty
   description?: boolean
   duration?: boolean
   instructions?: boolean
+  access?: boolean
+  category?: boolean
+  isActive?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }, ExtArgs["result"]["psychometricTest"]>
 
 export type PsychometricTestSelectScalar = {
@@ -640,10 +772,14 @@ export type PsychometricTestSelectScalar = {
   description?: boolean
   duration?: boolean
   instructions?: boolean
+  access?: boolean
+  category?: boolean
+  isActive?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type PsychometricTestOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "type" | "description" | "duration" | "instructions" | "createdAt", ExtArgs["result"]["psychometricTest"]>
+export type PsychometricTestOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "type" | "description" | "duration" | "instructions" | "access" | "category" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["psychometricTest"]>
 export type PsychometricTestInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   questions?: boolean | Prisma.PsychometricTest$questionsArgs<ExtArgs>
   attempts?: boolean | Prisma.PsychometricTest$attemptsArgs<ExtArgs>
@@ -665,7 +801,11 @@ export type $PsychometricTestPayload<ExtArgs extends runtime.Types.Extensions.In
     description: string
     duration: number
     instructions: string
+    access: string
+    category: string
+    isActive: boolean
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["psychometricTest"]>
   composites: {}
 }
@@ -1097,7 +1237,11 @@ export interface PsychometricTestFieldRefs {
   readonly description: Prisma.FieldRef<"PsychometricTest", 'String'>
   readonly duration: Prisma.FieldRef<"PsychometricTest", 'Int'>
   readonly instructions: Prisma.FieldRef<"PsychometricTest", 'String'>
+  readonly access: Prisma.FieldRef<"PsychometricTest", 'String'>
+  readonly category: Prisma.FieldRef<"PsychometricTest", 'String'>
+  readonly isActive: Prisma.FieldRef<"PsychometricTest", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"PsychometricTest", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"PsychometricTest", 'DateTime'>
 }
     
 

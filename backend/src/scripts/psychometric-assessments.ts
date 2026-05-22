@@ -289,6 +289,19 @@ function slug(value: string) {
   return value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 }
 
+function accessForAssessment(id: string) {
+  if (["officer-readiness", "defence-career-fit", "discipline-index", "focus-strength", "leadership-dna", "dream-addiction-index"].includes(id)) return "FREE";
+  if (id === "ssb-psychology-simulator") return "PREMIUM";
+  return "CORE";
+}
+
+function categoryForAssessment(id: string) {
+  if (["officer-readiness", "olq-analyzer", "defence-mindset-scan", "ssb-psychology-simulator"].includes(id)) return "OFFICER_READINESS";
+  if (["defence-career-fit", "future-readiness"].includes(id)) return "CAREER_FIT";
+  if (["leadership-dna", "confidence-index", "command-communication", "teamwork-group-dynamics"].includes(id)) return "LEADERSHIP_PERSONALITY";
+  return "DISCIPLINE_FOCUS";
+}
+
 function buildOptions(assessment: SeedAssessment, dimension: Dimension, questionIndex: number) {
   const label = dimensionLabels[dimension];
   const context = `${assessment.title.replace("(TM)", "").trim()} - ${label} scenario ${questionIndex + 1}`;
@@ -328,7 +341,10 @@ export async function ensurePsychometricAssessments() {
         type: assessment.type,
         description: assessment.description,
         duration: assessment.duration,
-        instructions: assessment.instructions
+        instructions: assessment.instructions,
+        access: accessForAssessment(assessment.id),
+        category: categoryForAssessment(assessment.id),
+        isActive: true
       },
       create: {
         id: assessment.id,
@@ -336,7 +352,10 @@ export async function ensurePsychometricAssessments() {
         type: assessment.type,
         description: assessment.description,
         duration: assessment.duration,
-        instructions: assessment.instructions
+        instructions: assessment.instructions,
+        access: accessForAssessment(assessment.id),
+        category: categoryForAssessment(assessment.id),
+        isActive: true
       }
     });
 

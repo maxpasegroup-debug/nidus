@@ -137,6 +137,11 @@ export type PsychometricQuestion = Prisma.PsychometricQuestionModel
  */
 export type PsychometricAttempt = Prisma.PsychometricAttemptModel
 /**
+ * Model PsychometricReport
+ * 
+ */
+export type PsychometricReport = Prisma.PsychometricReportModel
+/**
  * Model PsychometricAnswer
  * 
  */

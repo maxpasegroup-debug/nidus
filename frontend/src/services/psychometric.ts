@@ -1,14 +1,40 @@
 import { apiClient } from "@/services/api";
-import type { OLQReport, PsychometricAdminOverview, PsychometricAttempt, PsychometricReportHistory, PsychometricResult, PsychometricTest } from "@/types/psychometric";
+import type { OLQReport, PsychometricAdminOverview, PsychometricAttempt, PsychometricAttemptHistory, PsychometricQuestion, PsychometricReadiness, PsychometricReportHistory, PsychometricResult, PsychometricTest } from "@/types/psychometric";
 
 export async function getPsychometricTests() {
   const response = await apiClient.get<{ tests: PsychometricTest[] }>("/psychometric/tests");
   return response.data.tests;
 }
 
+export async function getAdminPsychometricTests() {
+  const response = await apiClient.get<{ tests: PsychometricTest[] }>("/psychometric/admin/tests");
+  return response.data.tests;
+}
+
 export async function getPsychometricTest(id: string) {
   const response = await apiClient.get<{ test: PsychometricTest }>(`/psychometric/tests/${id}`);
   return response.data.test;
+}
+
+export async function updateAdminPsychometricTest(payload: {
+  id: string;
+  data: Partial<Pick<PsychometricTest, "title" | "description" | "duration" | "instructions" | "access" | "category" | "isActive">>;
+}) {
+  const response = await apiClient.patch<{ test: PsychometricTest }>(`/psychometric/admin/tests/${payload.id}`, payload.data);
+  return response.data.test;
+}
+
+export async function updateAdminPsychometricQuestion(payload: {
+  id: string;
+  data: Partial<Pick<PsychometricQuestion, "questionText" | "questionType" | "options" | "order">>;
+}) {
+  const response = await apiClient.patch<{ question: PsychometricQuestion }>(`/psychometric/admin/questions/${payload.id}`, payload.data);
+  return response.data.question;
+}
+
+export async function getPsychometricAttemptHistory(testId: string) {
+  const response = await apiClient.get<PsychometricAttemptHistory>(`/psychometric/tests/${testId}/history`);
+  return response.data;
 }
 
 export async function startPsychometricTest(testId: string) {
@@ -36,6 +62,11 @@ export async function getPsychometricReportHistory() {
 
 export async function getPsychometricAdminOverview() {
   const response = await apiClient.get<PsychometricAdminOverview>("/psychometric/admin/overview");
+  return response.data;
+}
+
+export async function getPsychometricReadiness() {
+  const response = await apiClient.get<PsychometricReadiness>("/psychometric/admin/readiness");
   return response.data;
 }
 

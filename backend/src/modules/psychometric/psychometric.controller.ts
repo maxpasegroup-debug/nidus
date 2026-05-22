@@ -44,10 +44,39 @@ export const psychometricController = {
     }
   },
 
+  async adminTests(_req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      const tests = await psychometricService.adminTests();
+      res.json({ tests });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async updateTest(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      assertValid(req);
+      const test = await psychometricService.updateTest(param(req, "id"), req.body);
+      res.json({ test });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async updateQuestion(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      assertValid(req);
+      const question = await psychometricService.updateQuestion(param(req, "id"), req.body);
+      res.json({ question });
+    } catch (error) {
+      next(error);
+    }
+  },
+
   async start(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
       assertValid(req);
-      const attempt = await psychometricService.start(userId(req), req.body.testId);
+      const attempt = await psychometricService.start(userId(req), req.body.testId, userRole(req));
       res.status(201).json({ attempt });
     } catch (error) {
       next(error);
@@ -93,10 +122,28 @@ export const psychometricController = {
     }
   },
 
+  async history(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      const history = await psychometricService.history(userId(req), param(req, "id"));
+      res.json(history);
+    } catch (error) {
+      next(error);
+    }
+  },
+
   async adminOverview(_req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
       const overview = await psychometricService.adminOverview();
       res.json(overview);
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async adminReadiness(_req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      const readiness = await psychometricService.adminReadiness();
+      res.json(readiness);
     } catch (error) {
       next(error);
     }

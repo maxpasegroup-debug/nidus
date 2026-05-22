@@ -6,17 +6,26 @@ import { useToast } from "@/components/providers/toast-provider";
 import { getApiErrorMessage } from "@/services/api";
 import {
   getPsychometricAdminOverview,
+  getPsychometricAttemptHistory,
+  getPsychometricReadiness,
   getPsychometricReportHistory,
   getOLQReport,
+  getAdminPsychometricTests,
   getPsychometricResults,
   getPsychometricTest,
   getPsychometricTests,
   startPsychometricTest,
-  submitPsychometric
+  submitPsychometric,
+  updateAdminPsychometricQuestion,
+  updateAdminPsychometricTest
 } from "@/services/psychometric";
 
 export function usePsychometricTests() {
   return useQuery({ queryKey: ["psychometric", "tests"], queryFn: getPsychometricTests });
+}
+
+export function useAdminPsychometricTests() {
+  return useQuery({ queryKey: ["psychometric", "admin", "tests"], queryFn: getAdminPsychometricTests });
 }
 
 export function usePsychometricAttempt(id: string) {
@@ -24,6 +33,14 @@ export function usePsychometricAttempt(id: string) {
     queryKey: ["psychometric", "test", id],
     queryFn: () => getPsychometricTest(id),
     enabled: Boolean(id)
+  });
+}
+
+export function usePsychometricAttemptHistory(testId: string) {
+  return useQuery({
+    queryKey: ["psychometric", "history", testId],
+    queryFn: () => getPsychometricAttemptHistory(testId),
+    enabled: Boolean(testId)
   });
 }
 
@@ -56,6 +73,33 @@ export function useSubmitPsychometric() {
   });
 }
 
+export function useUpdateAdminPsychometricTest() {
+  const queryClient = useQueryClient();
+  const { showToast } = useToast();
+  return useMutation({
+    mutationFn: updateAdminPsychometricTest,
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["psychometric", "admin", "tests"] });
+      await queryClient.invalidateQueries({ queryKey: ["psychometric", "tests"] });
+      showToast("Assessment settings updated", "success");
+    },
+    onError: (error) => showToast(getApiErrorMessage(error), "error")
+  });
+}
+
+export function useUpdateAdminPsychometricQuestion() {
+  const queryClient = useQueryClient();
+  const { showToast } = useToast();
+  return useMutation({
+    mutationFn: updateAdminPsychometricQuestion,
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["psychometric", "admin", "tests"] });
+      showToast("Question updated", "success");
+    },
+    onError: (error) => showToast(getApiErrorMessage(error), "error")
+  });
+}
+
 export function usePsychometricResults(attemptId: string) {
   return useQuery({
     queryKey: ["psychometric", "results", attemptId],
@@ -70,6 +114,10 @@ export function usePsychometricReportHistory() {
 
 export function usePsychometricAdminOverview() {
   return useQuery({ queryKey: ["psychometric", "admin-overview"], queryFn: getPsychometricAdminOverview });
+}
+
+export function usePsychometricReadiness() {
+  return useQuery({ queryKey: ["psychometric", "admin-readiness"], queryFn: getPsychometricReadiness });
 }
 
 export function useOLQReport() {

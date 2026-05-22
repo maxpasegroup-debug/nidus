@@ -403,6 +403,7 @@ export const ModelName = {
   PsychometricTest: 'PsychometricTest',
   PsychometricQuestion: 'PsychometricQuestion',
   PsychometricAttempt: 'PsychometricAttempt',
+  PsychometricReport: 'PsychometricReport',
   PsychometricAnswer: 'PsychometricAnswer',
   OLQScore: 'OLQScore',
   StudyPlan: 'StudyPlan',
@@ -504,7 +505,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "sessionToken" | "passwordReset" | "parentStudentInvitation" | "parentStudentLink" | "otp" | "course" | "module" | "lesson" | "enrollment" | "test" | "question" | "testAttempt" | "cBTAnswerState" | "cBTIntegrityEvent" | "answer" | "psychometricTest" | "psychometricQuestion" | "psychometricAttempt" | "psychometricAnswer" | "oLQScore" | "studyPlan" | "performanceAnalytics" | "revisionSchedule" | "liveClass" | "recordedLecture" | "lectureProgress" | "lecturePlaybackEvent" | "attendance" | "timetable" | "faculty" | "classroom" | "payroll" | "announcement" | "hostel" | "room" | "hostelAllocation" | "inOutEntry" | "hostelLeave" | "messMenu" | "disciplineRecord" | "paradePerformance" | "lead" | "followUp" | "admission" | "counsellingBooking" | "referral" | "payment" | "subscription" | "feeInstallment" | "invoice" | "feePlan" | "paymentTransactionLog" | "approvalRequest" | "scholarshipDiscount" | "financeDocument" | "notification" | "messageThread" | "message" | "emailLog" | "pushNotification" | "aIInterviewSession" | "aIInterviewQuestion" | "doubtQuery" | "aIRecommendation" | "aITutorSession" | "aITutorMessage" | "aITutorFeedback" | "aIResponseCache" | "learningTopicInsight" | "revisionQueueItem" | "cBTIntelligenceReport" | "contentIngestionJob" | "generatedContentAsset" | "offlineSyncEvent" | "learningAnalyticsSnapshot" | "dailyIntelligenceIssue" | "contentModerationItem" | "officerPotential" | "fitnessProfile" | "pTSchedule" | "pTAttendance" | "physicalEligibility" | "dailyFitnessLog" | "pYQCategory" | "pYQQuestion" | "currentAffair" | "currentAffairQuiz" | "quizBattle" | "quizBattleParticipant" | "leaderboard" | "mediaFolder" | "mediaFile" | "document" | "adminRole" | "permission" | "rolePermission" | "userRole" | "roleActivity" | "systemSetting" | "auditLog" | "queueJobLog" | "aIRequestLog" | "branch" | "institute"
+    modelProps: "user" | "sessionToken" | "passwordReset" | "parentStudentInvitation" | "parentStudentLink" | "otp" | "course" | "module" | "lesson" | "enrollment" | "test" | "question" | "testAttempt" | "cBTAnswerState" | "cBTIntegrityEvent" | "answer" | "psychometricTest" | "psychometricQuestion" | "psychometricAttempt" | "psychometricReport" | "psychometricAnswer" | "oLQScore" | "studyPlan" | "performanceAnalytics" | "revisionSchedule" | "liveClass" | "recordedLecture" | "lectureProgress" | "lecturePlaybackEvent" | "attendance" | "timetable" | "faculty" | "classroom" | "payroll" | "announcement" | "hostel" | "room" | "hostelAllocation" | "inOutEntry" | "hostelLeave" | "messMenu" | "disciplineRecord" | "paradePerformance" | "lead" | "followUp" | "admission" | "counsellingBooking" | "referral" | "payment" | "subscription" | "feeInstallment" | "invoice" | "feePlan" | "paymentTransactionLog" | "approvalRequest" | "scholarshipDiscount" | "financeDocument" | "notification" | "messageThread" | "message" | "emailLog" | "pushNotification" | "aIInterviewSession" | "aIInterviewQuestion" | "doubtQuery" | "aIRecommendation" | "aITutorSession" | "aITutorMessage" | "aITutorFeedback" | "aIResponseCache" | "learningTopicInsight" | "revisionQueueItem" | "cBTIntelligenceReport" | "contentIngestionJob" | "generatedContentAsset" | "offlineSyncEvent" | "learningAnalyticsSnapshot" | "dailyIntelligenceIssue" | "contentModerationItem" | "officerPotential" | "fitnessProfile" | "pTSchedule" | "pTAttendance" | "physicalEligibility" | "dailyFitnessLog" | "pYQCategory" | "pYQQuestion" | "currentAffair" | "currentAffairQuiz" | "quizBattle" | "quizBattleParticipant" | "leaderboard" | "mediaFolder" | "mediaFile" | "document" | "adminRole" | "permission" | "rolePermission" | "userRole" | "roleActivity" | "systemSetting" | "auditLog" | "queueJobLog" | "aIRequestLog" | "branch" | "institute"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1911,6 +1912,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.PsychometricAttemptCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.PsychometricAttemptCountAggregateOutputType> | number
+        }
+      }
+    }
+    PsychometricReport: {
+      payload: Prisma.$PsychometricReportPayload<ExtArgs>
+      fields: Prisma.PsychometricReportFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PsychometricReportFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PsychometricReportPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PsychometricReportFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PsychometricReportPayload>
+        }
+        findFirst: {
+          args: Prisma.PsychometricReportFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PsychometricReportPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PsychometricReportFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PsychometricReportPayload>
+        }
+        findMany: {
+          args: Prisma.PsychometricReportFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PsychometricReportPayload>[]
+        }
+        create: {
+          args: Prisma.PsychometricReportCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PsychometricReportPayload>
+        }
+        createMany: {
+          args: Prisma.PsychometricReportCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.PsychometricReportCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PsychometricReportPayload>[]
+        }
+        delete: {
+          args: Prisma.PsychometricReportDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PsychometricReportPayload>
+        }
+        update: {
+          args: Prisma.PsychometricReportUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PsychometricReportPayload>
+        }
+        deleteMany: {
+          args: Prisma.PsychometricReportDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PsychometricReportUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.PsychometricReportUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PsychometricReportPayload>[]
+        }
+        upsert: {
+          args: Prisma.PsychometricReportUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PsychometricReportPayload>
+        }
+        aggregate: {
+          args: Prisma.PsychometricReportAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePsychometricReport>
+        }
+        groupBy: {
+          args: Prisma.PsychometricReportGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PsychometricReportGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PsychometricReportCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PsychometricReportCountAggregateOutputType> | number
         }
       }
     }
@@ -8563,7 +8638,11 @@ export const PsychometricTestScalarFieldEnum = {
   description: 'description',
   duration: 'duration',
   instructions: 'instructions',
-  createdAt: 'createdAt'
+  access: 'access',
+  category: 'category',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type PsychometricTestScalarFieldEnum = (typeof PsychometricTestScalarFieldEnum)[keyof typeof PsychometricTestScalarFieldEnum]
@@ -8594,6 +8673,24 @@ export const PsychometricAttemptScalarFieldEnum = {
 } as const
 
 export type PsychometricAttemptScalarFieldEnum = (typeof PsychometricAttemptScalarFieldEnum)[keyof typeof PsychometricAttemptScalarFieldEnum]
+
+
+export const PsychometricReportScalarFieldEnum = {
+  id: 'id',
+  attemptId: 'attemptId',
+  userId: 'userId',
+  testId: 'testId',
+  score: 'score',
+  readinessBand: 'readinessBand',
+  report: 'report',
+  scoring: 'scoring',
+  recommendations: 'recommendations',
+  integritySignals: 'integritySignals',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PsychometricReportScalarFieldEnum = (typeof PsychometricReportScalarFieldEnum)[keyof typeof PsychometricReportScalarFieldEnum]
 
 
 export const PsychometricAnswerScalarFieldEnum = {
@@ -10209,6 +10306,7 @@ export type GlobalOmitConfig = {
   psychometricTest?: Prisma.PsychometricTestOmit
   psychometricQuestion?: Prisma.PsychometricQuestionOmit
   psychometricAttempt?: Prisma.PsychometricAttemptOmit
+  psychometricReport?: Prisma.PsychometricReportOmit
   psychometricAnswer?: Prisma.PsychometricAnswerOmit
   oLQScore?: Prisma.OLQScoreOmit
   studyPlan?: Prisma.StudyPlanOmit

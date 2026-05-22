@@ -1,11 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { Activity, AlertTriangle, ArrowRight, BarChart3, FileText, ShieldCheck, Users } from "lucide-react";
+import { Activity, AlertTriangle, ArrowRight, BarChart3, CheckCircle2, FileText, ShieldCheck, Users } from "lucide-react";
 import { AnnouncementCard, DashboardError, DashboardSkeleton, ProgressCard, RoleDashboardGuard, SectionHeader, StatCard } from "@/components/dashboard";
 import { PageHero } from "@/components/layout/page-hero";
 import { Button } from "@/components/ui/button";
-import { usePsychometricAdminOverview } from "@/hooks/use-psychometric";
+import { usePsychometricAdminOverview, usePsychometricReadiness } from "@/hooks/use-psychometric";
 
 function formatDate(value: string) {
   if (!value) return "Date pending";
@@ -14,6 +14,7 @@ function formatDate(value: string) {
 
 export default function PsychometricAdminPage() {
   const { data, isLoading, error, refetch, isFetching } = usePsychometricAdminOverview();
+  const readiness = usePsychometricReadiness();
 
   if (isLoading) return <RoleDashboardGuard role={["ADMIN", "DIRECTOR"]}><DashboardSkeleton /></RoleDashboardGuard>;
   if (error || !data) return <RoleDashboardGuard role={["ADMIN", "DIRECTOR"]}><DashboardError error={error} onRefresh={() => refetch()} /></RoleDashboardGuard>;
@@ -39,6 +40,57 @@ export default function PsychometricAdminPage() {
           <StatCard label="Attempts" value={String(data.summary.totalAttempts)} note={`${data.summary.completionRate}% completion rate`} />
           <StatCard label="Average Score" value={`${data.summary.averageScore}/100`} note={data.summary.readinessBand} />
           <StatCard label="Needs Review" value={String(data.summary.lowScoreCount)} note="Scores below 55" />
+        </section>
+
+        <section className="premium-surface rounded-lg p-5">
+          <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-gold-soft">Production Readiness</p>
+              <h2 className="mt-3 text-2xl font-semibold text-ink">Assessment release health</h2>
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-muted">
+                Verifies catalog count, active status, 30-question minimum, access tier mix, and durable report snapshot coverage.
+              </p>
+            </div>
+            <div className="rounded border border-gold/25 bg-gold/10 px-4 py-3 text-right">
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-gold-soft">{readiness.data?.status ?? "Checking"}</p>
+              <p className="mt-1 text-3xl font-semibold text-gold">{readiness.data ? `${readiness.data.readinessScore}/100` : "--"}</p>
+            </div>
+          </div>
+          {readiness.data ? (
+            <div className="mt-5 grid gap-4 lg:grid-cols-[0.85fr_1.15fr]">
+              <div className="grid gap-3 sm:grid-cols-2">
+                {[
+                  ["Catalog", `${readiness.data.summary.totalAssessments}/${readiness.data.expectedAssessments}`],
+                  ["Active", `${readiness.data.summary.activeAssessments}/${readiness.data.summary.totalAssessments}`],
+                  ["30+ Questions", `${readiness.data.summary.questionReadyAssessments}/${readiness.data.summary.totalAssessments}`],
+                  ["Snapshot Cover", `${readiness.data.summary.reportSnapshotCoverage}%`]
+                ].map(([label, value]) => (
+                  <div key={label} className="rounded border border-white/10 bg-navy-deep/55 p-4">
+                    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted">{label}</p>
+                    <p className="mt-2 text-xl font-semibold text-white">{value}</p>
+                  </div>
+                ))}
+              </div>
+              <div className="rounded border border-white/10 bg-navy-deep/55 p-4">
+                <p className="text-sm font-semibold text-white">Release issues</p>
+                <div className="mt-3 grid gap-2">
+                  {readiness.data.issues.length ? readiness.data.issues.map((issue) => (
+                    <div key={issue} className="flex items-start gap-3 rounded border border-amber-300/20 bg-amber-300/10 px-3 py-2 text-sm leading-6 text-amber-100">
+                      <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+                      <span>{issue}</span>
+                    </div>
+                  )) : (
+                    <div className="flex items-start gap-3 rounded border border-emerald-300/20 bg-emerald-300/10 px-3 py-2 text-sm leading-6 text-emerald-100">
+                      <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />
+                      <span>All release checks are clear.</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          ) : (
+            <p className="mt-5 text-sm leading-6 text-muted">{readiness.isLoading ? "Checking readiness..." : "Readiness check unavailable."}</p>
+          )}
         </section>
 
         <section className="grid gap-4 lg:grid-cols-[0.85fr_1.15fr]">
@@ -117,7 +169,11 @@ export default function PsychometricAdminPage() {
           )}
         </section>
 
-        <section className="grid gap-4 md:grid-cols-3">
+        <section className="grid gap-4 md:grid-cols-4">
+          <Link href="/psychometric/admin/manage" className="flex min-h-14 items-center justify-between rounded border border-gold/20 bg-gold/10 px-4 py-3 text-sm font-semibold text-gold transition hover:-translate-y-0.5 hover:bg-gold/15">
+            <span className="flex items-center gap-3"><BarChart3 className="h-5 w-5" /> Manage Assessments</span>
+            <ArrowRight className="h-4 w-4" />
+          </Link>
           <Link href="/dashboard/admin" className="flex min-h-14 items-center justify-between rounded border border-gold/20 bg-gold/10 px-4 py-3 text-sm font-semibold text-gold transition hover:-translate-y-0.5 hover:bg-gold/15">
             <span className="flex items-center gap-3"><Users className="h-5 w-5" /> Admin Dashboard</span>
             <ArrowRight className="h-4 w-4" />

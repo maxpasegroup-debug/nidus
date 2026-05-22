@@ -35,11 +35,27 @@ export function NidusAiReportView({ report }: { report: NidusGeneratedReport }) 
       </section>
 
       <ReportCard title="What This Means">
+        {report.executiveSummary ? <p className="mt-3 text-sm leading-7 text-white">{report.executiveSummary}</p> : null}
         <p className="mt-3 text-sm leading-7 text-muted">{report.simpleMeaning}</p>
         <div className="mt-4 rounded border border-gold/20 bg-gold/10 p-4 text-sm leading-7 text-gold-soft">
           {report.behaviourPattern}
         </div>
       </ReportCard>
+
+      {(report.percentileContext || report.reportConfidence) ? (
+        <section className="grid gap-4 lg:grid-cols-2">
+          {report.percentileContext ? (
+            <ReportCard title="Benchmark Context">
+              <p className="mt-3 text-sm leading-7 text-muted">{report.percentileContext}</p>
+            </ReportCard>
+          ) : null}
+          {report.reportConfidence ? (
+            <ReportCard title="Report Confidence">
+              <p className="mt-3 text-sm leading-7 text-muted">{report.reportConfidence}</p>
+            </ReportCard>
+          ) : null}
+        </section>
+      ) : null}
 
       <section className="grid gap-4 lg:grid-cols-2">
         <ReportCard title="Strength Pattern">
@@ -62,6 +78,16 @@ export function NidusAiReportView({ report }: { report: NidusGeneratedReport }) 
         <p className="mt-3 text-sm leading-7 text-muted">{report.officerReadinessSignal}</p>
       </ReportCard>
 
+      {report.integritySignals?.length ? (
+        <ReportCard title="Response Integrity">
+          <div className="mt-4 space-y-3">
+            {report.integritySignals.map((item) => (
+              <div key={item} className="rounded border border-gold/20 bg-gold/10 px-4 py-3 text-sm leading-6 text-gold-soft">{item}</div>
+            ))}
+          </div>
+        </ReportCard>
+      ) : null}
+
       {report.dimensionScores?.length ? (
         <ReportCard title="Dimension Scores">
           <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
@@ -75,6 +101,23 @@ export function NidusAiReportView({ report }: { report: NidusGeneratedReport }) 
                   <div className="h-full rounded-full bg-gold" style={{ width: `${dimension.score}%` }} />
                 </div>
                 <p className="mt-2 text-xs text-muted">{dimension.answered}/{dimension.total} responses</p>
+              </div>
+            ))}
+          </div>
+        </ReportCard>
+      ) : null}
+
+      {report.dimensionInsights?.length ? (
+        <ReportCard title="Dimension Insights">
+          <div className="mt-4 grid gap-3 lg:grid-cols-2">
+            {report.dimensionInsights.map((dimension) => (
+              <div key={dimension.dimension} className="rounded border border-white/10 bg-white/[0.035] p-4">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-sm font-semibold text-white">{dimension.label}</p>
+                  <p className="text-sm font-semibold text-gold-soft">{dimension.score}/100</p>
+                </div>
+                <p className="mt-3 text-sm leading-6 text-muted">{dimension.interpretation}</p>
+                <p className="mt-3 rounded border border-gold/20 bg-gold/10 px-3 py-2 text-sm leading-6 text-gold-soft">{dimension.action}</p>
               </div>
             ))}
           </div>
@@ -100,6 +143,13 @@ export function NidusAiReportView({ report }: { report: NidusGeneratedReport }) 
         <ReportCard title="Parent / Counsellor Summary">
           <p className="mt-3 text-sm leading-7 text-muted">{report.parentSummary}</p>
           {report.counsellorSummary ? <p className="mt-4 rounded border border-gold/20 bg-gold/10 p-4 text-sm leading-7 text-gold-soft">{report.counsellorSummary}</p> : null}
+          {report.parentGuidance?.length ? (
+            <div className="mt-4 space-y-2">
+              {report.parentGuidance.map((item) => (
+                <p key={item} className="rounded border border-white/10 bg-white/[0.035] px-4 py-3 text-sm leading-6 text-muted">{item}</p>
+              ))}
+            </div>
+          ) : null}
         </ReportCard>
         <ReportCard title="Next Best Action">
           <div className="mt-4 space-y-3">
@@ -124,6 +174,67 @@ export function NidusAiReportView({ report }: { report: NidusGeneratedReport }) 
               <div key={item} className="rounded border border-white/10 bg-white/[0.035] px-4 py-3 text-sm leading-6 text-muted">{item}</div>
             ))}
           </div>
+        </ReportCard>
+      ) : null}
+
+      {(report.thirtyDayPlan?.length || report.ninetyDayPlan?.length) ? (
+        <section className="grid gap-4 lg:grid-cols-2">
+          {report.thirtyDayPlan?.length ? (
+            <ReportCard title="30-Day Training Plan">
+              <div className="mt-4 space-y-3">
+                {report.thirtyDayPlan.map((item) => (
+                  <div key={item} className="rounded border border-white/10 bg-white/[0.035] px-4 py-3 text-sm leading-6 text-muted">{item}</div>
+                ))}
+              </div>
+            </ReportCard>
+          ) : null}
+          {report.ninetyDayPlan?.length ? (
+            <ReportCard title="90-Day Roadmap">
+              <div className="mt-4 space-y-3">
+                {report.ninetyDayPlan.map((item) => (
+                  <div key={item} className="rounded border border-white/10 bg-white/[0.035] px-4 py-3 text-sm leading-6 text-muted">{item}</div>
+                ))}
+              </div>
+            </ReportCard>
+          ) : null}
+        </section>
+      ) : null}
+
+      {(report.riskReview?.length || report.mentorReviewChecklist?.length || report.mentorNotes?.length) ? (
+        <section className="grid gap-4 lg:grid-cols-3">
+          {report.riskReview?.length ? (
+            <ReportCard title="Risk Review">
+              <div className="mt-4 space-y-3">
+                {report.riskReview.map((item) => (
+                  <div key={item} className="rounded border border-white/10 bg-white/[0.035] px-4 py-3 text-sm leading-6 text-muted">{item}</div>
+                ))}
+              </div>
+            </ReportCard>
+          ) : null}
+          {report.mentorReviewChecklist?.length ? (
+            <ReportCard title="Mentor Checklist">
+              <div className="mt-4 space-y-3">
+                {report.mentorReviewChecklist.map((item) => (
+                  <div key={item} className="rounded border border-white/10 bg-white/[0.035] px-4 py-3 text-sm leading-6 text-muted">{item}</div>
+                ))}
+              </div>
+            </ReportCard>
+          ) : null}
+          {report.mentorNotes?.length ? (
+            <ReportCard title="Mentor Notes">
+              <div className="mt-4 space-y-3">
+                {report.mentorNotes.map((item) => (
+                  <div key={item} className="rounded border border-white/10 bg-white/[0.035] px-4 py-3 text-sm leading-6 text-muted">{item}</div>
+                ))}
+              </div>
+            </ReportCard>
+          ) : null}
+        </section>
+      ) : null}
+
+      {report.disclaimer ? (
+        <ReportCard title="Educational Disclaimer">
+          <p className="mt-3 text-sm leading-7 text-muted">{report.disclaimer}</p>
         </ReportCard>
       ) : null}
     </div>

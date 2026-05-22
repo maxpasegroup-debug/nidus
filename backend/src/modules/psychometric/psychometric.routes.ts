@@ -8,6 +8,36 @@ export const psychometricRouter = Router();
 
 psychometricRouter.get("/tests", psychometricController.list);
 psychometricRouter.get("/admin/overview", protect, allowRoles(Role.ADMIN, Role.DIRECTOR), psychometricController.adminOverview);
+psychometricRouter.get("/admin/readiness", protect, allowRoles(Role.ADMIN, Role.DIRECTOR), psychometricController.adminReadiness);
+psychometricRouter.get("/admin/tests", protect, allowRoles(Role.ADMIN, Role.DIRECTOR), psychometricController.adminTests);
+psychometricRouter.patch(
+  "/admin/tests/:id",
+  protect,
+  allowRoles(Role.ADMIN, Role.DIRECTOR),
+  [
+    body("title").optional().isString(),
+    body("description").optional().isString(),
+    body("duration").optional().isInt({ min: 5, max: 180 }),
+    body("instructions").optional().isString(),
+    body("access").optional().isIn(["FREE", "CORE", "PREMIUM"]),
+    body("category").optional().isString(),
+    body("isActive").optional().isBoolean()
+  ],
+  psychometricController.updateTest
+);
+psychometricRouter.patch(
+  "/admin/questions/:id",
+  protect,
+  allowRoles(Role.ADMIN, Role.DIRECTOR),
+  [
+    body("questionText").optional().isString(),
+    body("questionType").optional().isString(),
+    body("options").optional().isArray({ min: 2 }),
+    body("order").optional().isInt({ min: 1 })
+  ],
+  psychometricController.updateQuestion
+);
+psychometricRouter.get("/tests/:id/history", protect, allowRoles(Role.STUDENT, Role.GUEST, Role.ADMIN), psychometricController.history);
 psychometricRouter.get("/tests/:id", psychometricController.details);
 psychometricRouter.get("/reports", protect, allowRoles(Role.STUDENT, Role.GUEST, Role.ADMIN), psychometricController.reports);
 psychometricRouter.post(

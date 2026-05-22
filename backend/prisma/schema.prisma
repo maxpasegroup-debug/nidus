@@ -385,9 +385,13 @@ model PsychometricTest {
   description  String
   duration     Int
   instructions String
+  access       String                 @default("CORE")
+  category     String                 @default("GENERAL")
+  isActive     Boolean                @default(true)
   questions    PsychometricQuestion[]
   attempts     PsychometricAttempt[]
   createdAt    DateTime               @default(now())
+  updatedAt    DateTime               @updatedAt
 }
 
 model PsychometricQuestion {
@@ -416,9 +420,30 @@ model PsychometricAttempt {
   user          User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
   test          PsychometricTest      @relation(fields: [testId], references: [id], onDelete: Cascade)
   answers       PsychometricAnswer[]
+  reportSnapshot PsychometricReport?
 
   @@index([userId])
   @@index([testId])
+}
+
+model PsychometricReport {
+  id               String             @id @default(cuid())
+  attemptId        String             @unique
+  userId           String
+  testId           String
+  score            Float
+  readinessBand    String
+  report           Json
+  scoring          Json
+  recommendations  Json
+  integritySignals Json
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  attempt          PsychometricAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([testId])
+  @@index([createdAt])
 }
 
 model PsychometricAnswer {

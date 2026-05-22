@@ -15,9 +15,13 @@ export type PsychometricTest = {
   description: string;
   duration: number;
   instructions: string;
+  access?: "FREE" | "CORE" | "PREMIUM";
+  category?: string;
+  isActive?: boolean;
+  updatedAt?: string;
   createdAt: string;
   questions?: PsychometricQuestion[];
-  _count?: { questions: number };
+  _count?: { questions: number; attempts?: number };
 };
 
 export type PsychometricAttempt = {
@@ -44,10 +48,15 @@ export type PsychometricResult = {
   };
   recommendations: string[];
   report?: {
+    reportVersion?: string;
     score: number;
     level: string;
+    executiveSummary?: string;
     simpleMeaning: string;
+    percentileContext?: string;
+    reportConfidence?: string;
     dimensionScores: Array<{ dimension: string; label: string; score: number; answered: number; total: number }>;
+    dimensionInsights?: Array<{ dimension: string; label: string; score: number; interpretation: string; action: string }>;
     strengths: string[];
     improvementAreas: string[];
     behaviourPattern: string;
@@ -57,7 +66,15 @@ export type PsychometricResult = {
     recommendedNextTest: string;
     recommendedGuruQuest: string;
     counsellingAction: string;
+    integritySignals?: string[];
+    riskReview?: string[];
+    parentGuidance?: string[];
     sevenDayActionPlan: string[];
+    thirtyDayPlan?: string[];
+    ninetyDayPlan?: string[];
+    mentorReviewChecklist?: string[];
+    mentorNotes?: string[];
+    disclaimer?: string;
     answerSignals: Array<{
       question: string;
       answer: string;
@@ -109,6 +126,25 @@ export type PsychometricReportHistory = {
   }>;
 };
 
+export type PsychometricAttemptHistory = {
+  testId: string;
+  attempts: number;
+  latestScore: number;
+  bestScore: number;
+  improvement: number;
+  trend: Array<{
+    attemptId: string;
+    attemptNumber: number;
+    score: number;
+    readinessBand: string;
+    completedAt: string;
+    reportHref: string;
+    pdfHref: string;
+    answerCount: number;
+    snapshotReady: boolean;
+  }>;
+};
+
 export type PsychometricAdminOverview = {
   summary: {
     totalAssessments: number;
@@ -143,6 +179,37 @@ export type PsychometricAdminOverview = {
     answerCount: number;
     reportHref: string;
     pdfHref: string;
+  }>;
+};
+
+export type PsychometricReadiness = {
+  generatedAt: string;
+  status: "READY" | "WATCH" | "NEEDS_FIX";
+  minimumQuestions: number;
+  expectedAssessments: number;
+  readinessScore: number;
+  summary: {
+    totalAssessments: number;
+    activeAssessments: number;
+    questionReadyAssessments: number;
+    totalAttempts: number;
+    completedAttempts: number;
+    reportSnapshots: number;
+    reportSnapshotCoverage: number;
+    accessMix: Record<"FREE" | "CORE" | "PREMIUM", number>;
+    categoryMix: Record<string, number>;
+  };
+  issues: string[];
+  checks: Array<{
+    id: string;
+    title: string;
+    access: "FREE" | "CORE" | "PREMIUM";
+    category: string;
+    isActive: boolean;
+    questionCount: number;
+    attemptCount: number;
+    questionReady: boolean;
+    productionReady: boolean;
   }>;
 };
 

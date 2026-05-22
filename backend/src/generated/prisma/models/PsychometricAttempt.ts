@@ -243,6 +243,7 @@ export type PsychometricAttemptWhereInput = {
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   test?: Prisma.XOR<Prisma.PsychometricTestScalarRelationFilter, Prisma.PsychometricTestWhereInput>
   answers?: Prisma.PsychometricAnswerListRelationFilter
+  reportSnapshot?: Prisma.XOR<Prisma.PsychometricReportNullableScalarRelationFilter, Prisma.PsychometricReportWhereInput> | null
 }
 
 export type PsychometricAttemptOrderByWithRelationInput = {
@@ -257,6 +258,7 @@ export type PsychometricAttemptOrderByWithRelationInput = {
   user?: Prisma.UserOrderByWithRelationInput
   test?: Prisma.PsychometricTestOrderByWithRelationInput
   answers?: Prisma.PsychometricAnswerOrderByRelationAggregateInput
+  reportSnapshot?: Prisma.PsychometricReportOrderByWithRelationInput
 }
 
 export type PsychometricAttemptWhereUniqueInput = Prisma.AtLeast<{
@@ -274,6 +276,7 @@ export type PsychometricAttemptWhereUniqueInput = Prisma.AtLeast<{
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   test?: Prisma.XOR<Prisma.PsychometricTestScalarRelationFilter, Prisma.PsychometricTestWhereInput>
   answers?: Prisma.PsychometricAnswerListRelationFilter
+  reportSnapshot?: Prisma.XOR<Prisma.PsychometricReportNullableScalarRelationFilter, Prisma.PsychometricReportWhereInput> | null
 }, "id">
 
 export type PsychometricAttemptOrderByWithAggregationInput = {
@@ -316,6 +319,7 @@ export type PsychometricAttemptCreateInput = {
   user: Prisma.UserCreateNestedOneWithoutPsychometricAttemptsInput
   test: Prisma.PsychometricTestCreateNestedOneWithoutAttemptsInput
   answers?: Prisma.PsychometricAnswerCreateNestedManyWithoutAttemptInput
+  reportSnapshot?: Prisma.PsychometricReportCreateNestedOneWithoutAttemptInput
 }
 
 export type PsychometricAttemptUncheckedCreateInput = {
@@ -328,6 +332,7 @@ export type PsychometricAttemptUncheckedCreateInput = {
   aiAnalysis?: string | null
   overallRemark?: string | null
   answers?: Prisma.PsychometricAnswerUncheckedCreateNestedManyWithoutAttemptInput
+  reportSnapshot?: Prisma.PsychometricReportUncheckedCreateNestedOneWithoutAttemptInput
 }
 
 export type PsychometricAttemptUpdateInput = {
@@ -340,6 +345,7 @@ export type PsychometricAttemptUpdateInput = {
   user?: Prisma.UserUpdateOneRequiredWithoutPsychometricAttemptsNestedInput
   test?: Prisma.PsychometricTestUpdateOneRequiredWithoutAttemptsNestedInput
   answers?: Prisma.PsychometricAnswerUpdateManyWithoutAttemptNestedInput
+  reportSnapshot?: Prisma.PsychometricReportUpdateOneWithoutAttemptNestedInput
 }
 
 export type PsychometricAttemptUncheckedUpdateInput = {
@@ -352,6 +358,7 @@ export type PsychometricAttemptUncheckedUpdateInput = {
   aiAnalysis?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   overallRemark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   answers?: Prisma.PsychometricAnswerUncheckedUpdateManyWithoutAttemptNestedInput
+  reportSnapshot?: Prisma.PsychometricReportUncheckedUpdateOneWithoutAttemptNestedInput
 }
 
 export type PsychometricAttemptCreateManyInput = {
@@ -525,6 +532,20 @@ export type PsychometricAttemptUncheckedUpdateManyWithoutTestNestedInput = {
   deleteMany?: Prisma.PsychometricAttemptScalarWhereInput | Prisma.PsychometricAttemptScalarWhereInput[]
 }
 
+export type PsychometricAttemptCreateNestedOneWithoutReportSnapshotInput = {
+  create?: Prisma.XOR<Prisma.PsychometricAttemptCreateWithoutReportSnapshotInput, Prisma.PsychometricAttemptUncheckedCreateWithoutReportSnapshotInput>
+  connectOrCreate?: Prisma.PsychometricAttemptCreateOrConnectWithoutReportSnapshotInput
+  connect?: Prisma.PsychometricAttemptWhereUniqueInput
+}
+
+export type PsychometricAttemptUpdateOneRequiredWithoutReportSnapshotNestedInput = {
+  create?: Prisma.XOR<Prisma.PsychometricAttemptCreateWithoutReportSnapshotInput, Prisma.PsychometricAttemptUncheckedCreateWithoutReportSnapshotInput>
+  connectOrCreate?: Prisma.PsychometricAttemptCreateOrConnectWithoutReportSnapshotInput
+  upsert?: Prisma.PsychometricAttemptUpsertWithoutReportSnapshotInput
+  connect?: Prisma.PsychometricAttemptWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.PsychometricAttemptUpdateToOneWithWhereWithoutReportSnapshotInput, Prisma.PsychometricAttemptUpdateWithoutReportSnapshotInput>, Prisma.PsychometricAttemptUncheckedUpdateWithoutReportSnapshotInput>
+}
+
 export type PsychometricAttemptCreateNestedOneWithoutAnswersInput = {
   create?: Prisma.XOR<Prisma.PsychometricAttemptCreateWithoutAnswersInput, Prisma.PsychometricAttemptUncheckedCreateWithoutAnswersInput>
   connectOrCreate?: Prisma.PsychometricAttemptCreateOrConnectWithoutAnswersInput
@@ -548,6 +569,7 @@ export type PsychometricAttemptCreateWithoutUserInput = {
   overallRemark?: string | null
   test: Prisma.PsychometricTestCreateNestedOneWithoutAttemptsInput
   answers?: Prisma.PsychometricAnswerCreateNestedManyWithoutAttemptInput
+  reportSnapshot?: Prisma.PsychometricReportCreateNestedOneWithoutAttemptInput
 }
 
 export type PsychometricAttemptUncheckedCreateWithoutUserInput = {
@@ -559,6 +581,7 @@ export type PsychometricAttemptUncheckedCreateWithoutUserInput = {
   aiAnalysis?: string | null
   overallRemark?: string | null
   answers?: Prisma.PsychometricAnswerUncheckedCreateNestedManyWithoutAttemptInput
+  reportSnapshot?: Prisma.PsychometricReportUncheckedCreateNestedOneWithoutAttemptInput
 }
 
 export type PsychometricAttemptCreateOrConnectWithoutUserInput = {
@@ -610,6 +633,7 @@ export type PsychometricAttemptCreateWithoutTestInput = {
   overallRemark?: string | null
   user: Prisma.UserCreateNestedOneWithoutPsychometricAttemptsInput
   answers?: Prisma.PsychometricAnswerCreateNestedManyWithoutAttemptInput
+  reportSnapshot?: Prisma.PsychometricReportCreateNestedOneWithoutAttemptInput
 }
 
 export type PsychometricAttemptUncheckedCreateWithoutTestInput = {
@@ -621,6 +645,7 @@ export type PsychometricAttemptUncheckedCreateWithoutTestInput = {
   aiAnalysis?: string | null
   overallRemark?: string | null
   answers?: Prisma.PsychometricAnswerUncheckedCreateNestedManyWithoutAttemptInput
+  reportSnapshot?: Prisma.PsychometricReportUncheckedCreateNestedOneWithoutAttemptInput
 }
 
 export type PsychometricAttemptCreateOrConnectWithoutTestInput = {
@@ -649,6 +674,70 @@ export type PsychometricAttemptUpdateManyWithWhereWithoutTestInput = {
   data: Prisma.XOR<Prisma.PsychometricAttemptUpdateManyMutationInput, Prisma.PsychometricAttemptUncheckedUpdateManyWithoutTestInput>
 }
 
+export type PsychometricAttemptCreateWithoutReportSnapshotInput = {
+  id?: string
+  startedAt?: Date | string
+  completedAt?: Date | string | null
+  score?: number
+  aiAnalysis?: string | null
+  overallRemark?: string | null
+  user: Prisma.UserCreateNestedOneWithoutPsychometricAttemptsInput
+  test: Prisma.PsychometricTestCreateNestedOneWithoutAttemptsInput
+  answers?: Prisma.PsychometricAnswerCreateNestedManyWithoutAttemptInput
+}
+
+export type PsychometricAttemptUncheckedCreateWithoutReportSnapshotInput = {
+  id?: string
+  userId: string
+  testId: string
+  startedAt?: Date | string
+  completedAt?: Date | string | null
+  score?: number
+  aiAnalysis?: string | null
+  overallRemark?: string | null
+  answers?: Prisma.PsychometricAnswerUncheckedCreateNestedManyWithoutAttemptInput
+}
+
+export type PsychometricAttemptCreateOrConnectWithoutReportSnapshotInput = {
+  where: Prisma.PsychometricAttemptWhereUniqueInput
+  create: Prisma.XOR<Prisma.PsychometricAttemptCreateWithoutReportSnapshotInput, Prisma.PsychometricAttemptUncheckedCreateWithoutReportSnapshotInput>
+}
+
+export type PsychometricAttemptUpsertWithoutReportSnapshotInput = {
+  update: Prisma.XOR<Prisma.PsychometricAttemptUpdateWithoutReportSnapshotInput, Prisma.PsychometricAttemptUncheckedUpdateWithoutReportSnapshotInput>
+  create: Prisma.XOR<Prisma.PsychometricAttemptCreateWithoutReportSnapshotInput, Prisma.PsychometricAttemptUncheckedCreateWithoutReportSnapshotInput>
+  where?: Prisma.PsychometricAttemptWhereInput
+}
+
+export type PsychometricAttemptUpdateToOneWithWhereWithoutReportSnapshotInput = {
+  where?: Prisma.PsychometricAttemptWhereInput
+  data: Prisma.XOR<Prisma.PsychometricAttemptUpdateWithoutReportSnapshotInput, Prisma.PsychometricAttemptUncheckedUpdateWithoutReportSnapshotInput>
+}
+
+export type PsychometricAttemptUpdateWithoutReportSnapshotInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  score?: Prisma.FloatFieldUpdateOperationsInput | number
+  aiAnalysis?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  overallRemark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  user?: Prisma.UserUpdateOneRequiredWithoutPsychometricAttemptsNestedInput
+  test?: Prisma.PsychometricTestUpdateOneRequiredWithoutAttemptsNestedInput
+  answers?: Prisma.PsychometricAnswerUpdateManyWithoutAttemptNestedInput
+}
+
+export type PsychometricAttemptUncheckedUpdateWithoutReportSnapshotInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  testId?: Prisma.StringFieldUpdateOperationsInput | string
+  startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  score?: Prisma.FloatFieldUpdateOperationsInput | number
+  aiAnalysis?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  overallRemark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  answers?: Prisma.PsychometricAnswerUncheckedUpdateManyWithoutAttemptNestedInput
+}
+
 export type PsychometricAttemptCreateWithoutAnswersInput = {
   id?: string
   startedAt?: Date | string
@@ -658,6 +747,7 @@ export type PsychometricAttemptCreateWithoutAnswersInput = {
   overallRemark?: string | null
   user: Prisma.UserCreateNestedOneWithoutPsychometricAttemptsInput
   test: Prisma.PsychometricTestCreateNestedOneWithoutAttemptsInput
+  reportSnapshot?: Prisma.PsychometricReportCreateNestedOneWithoutAttemptInput
 }
 
 export type PsychometricAttemptUncheckedCreateWithoutAnswersInput = {
@@ -669,6 +759,7 @@ export type PsychometricAttemptUncheckedCreateWithoutAnswersInput = {
   score?: number
   aiAnalysis?: string | null
   overallRemark?: string | null
+  reportSnapshot?: Prisma.PsychometricReportUncheckedCreateNestedOneWithoutAttemptInput
 }
 
 export type PsychometricAttemptCreateOrConnectWithoutAnswersInput = {
@@ -696,6 +787,7 @@ export type PsychometricAttemptUpdateWithoutAnswersInput = {
   overallRemark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   user?: Prisma.UserUpdateOneRequiredWithoutPsychometricAttemptsNestedInput
   test?: Prisma.PsychometricTestUpdateOneRequiredWithoutAttemptsNestedInput
+  reportSnapshot?: Prisma.PsychometricReportUpdateOneWithoutAttemptNestedInput
 }
 
 export type PsychometricAttemptUncheckedUpdateWithoutAnswersInput = {
@@ -707,6 +799,7 @@ export type PsychometricAttemptUncheckedUpdateWithoutAnswersInput = {
   score?: Prisma.FloatFieldUpdateOperationsInput | number
   aiAnalysis?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   overallRemark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reportSnapshot?: Prisma.PsychometricReportUncheckedUpdateOneWithoutAttemptNestedInput
 }
 
 export type PsychometricAttemptCreateManyUserInput = {
@@ -728,6 +821,7 @@ export type PsychometricAttemptUpdateWithoutUserInput = {
   overallRemark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   test?: Prisma.PsychometricTestUpdateOneRequiredWithoutAttemptsNestedInput
   answers?: Prisma.PsychometricAnswerUpdateManyWithoutAttemptNestedInput
+  reportSnapshot?: Prisma.PsychometricReportUpdateOneWithoutAttemptNestedInput
 }
 
 export type PsychometricAttemptUncheckedUpdateWithoutUserInput = {
@@ -739,6 +833,7 @@ export type PsychometricAttemptUncheckedUpdateWithoutUserInput = {
   aiAnalysis?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   overallRemark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   answers?: Prisma.PsychometricAnswerUncheckedUpdateManyWithoutAttemptNestedInput
+  reportSnapshot?: Prisma.PsychometricReportUncheckedUpdateOneWithoutAttemptNestedInput
 }
 
 export type PsychometricAttemptUncheckedUpdateManyWithoutUserInput = {
@@ -770,6 +865,7 @@ export type PsychometricAttemptUpdateWithoutTestInput = {
   overallRemark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   user?: Prisma.UserUpdateOneRequiredWithoutPsychometricAttemptsNestedInput
   answers?: Prisma.PsychometricAnswerUpdateManyWithoutAttemptNestedInput
+  reportSnapshot?: Prisma.PsychometricReportUpdateOneWithoutAttemptNestedInput
 }
 
 export type PsychometricAttemptUncheckedUpdateWithoutTestInput = {
@@ -781,6 +877,7 @@ export type PsychometricAttemptUncheckedUpdateWithoutTestInput = {
   aiAnalysis?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   overallRemark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   answers?: Prisma.PsychometricAnswerUncheckedUpdateManyWithoutAttemptNestedInput
+  reportSnapshot?: Prisma.PsychometricReportUncheckedUpdateOneWithoutAttemptNestedInput
 }
 
 export type PsychometricAttemptUncheckedUpdateManyWithoutTestInput = {
@@ -836,6 +933,7 @@ export type PsychometricAttemptSelect<ExtArgs extends runtime.Types.Extensions.I
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   test?: boolean | Prisma.PsychometricTestDefaultArgs<ExtArgs>
   answers?: boolean | Prisma.PsychometricAttempt$answersArgs<ExtArgs>
+  reportSnapshot?: boolean | Prisma.PsychometricAttempt$reportSnapshotArgs<ExtArgs>
   _count?: boolean | Prisma.PsychometricAttemptCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["psychometricAttempt"]>
 
@@ -881,6 +979,7 @@ export type PsychometricAttemptInclude<ExtArgs extends runtime.Types.Extensions.
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   test?: boolean | Prisma.PsychometricTestDefaultArgs<ExtArgs>
   answers?: boolean | Prisma.PsychometricAttempt$answersArgs<ExtArgs>
+  reportSnapshot?: boolean | Prisma.PsychometricAttempt$reportSnapshotArgs<ExtArgs>
   _count?: boolean | Prisma.PsychometricAttemptCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type PsychometricAttemptIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -898,6 +997,7 @@ export type $PsychometricAttemptPayload<ExtArgs extends runtime.Types.Extensions
     user: Prisma.$UserPayload<ExtArgs>
     test: Prisma.$PsychometricTestPayload<ExtArgs>
     answers: Prisma.$PsychometricAnswerPayload<ExtArgs>[]
+    reportSnapshot: Prisma.$PsychometricReportPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1305,6 +1405,7 @@ export interface Prisma__PsychometricAttemptClient<T, Null = never, ExtArgs exte
   user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   test<T extends Prisma.PsychometricTestDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PsychometricTestDefaultArgs<ExtArgs>>): Prisma.Prisma__PsychometricTestClient<runtime.Types.Result.GetResult<Prisma.$PsychometricTestPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   answers<T extends Prisma.PsychometricAttempt$answersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PsychometricAttempt$answersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PsychometricAnswerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  reportSnapshot<T extends Prisma.PsychometricAttempt$reportSnapshotArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PsychometricAttempt$reportSnapshotArgs<ExtArgs>>): Prisma.Prisma__PsychometricReportClient<runtime.Types.Result.GetResult<Prisma.$PsychometricReportPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1764,6 +1865,25 @@ export type PsychometricAttempt$answersArgs<ExtArgs extends runtime.Types.Extens
   take?: number
   skip?: number
   distinct?: Prisma.PsychometricAnswerScalarFieldEnum | Prisma.PsychometricAnswerScalarFieldEnum[]
+}
+
+/**
+ * PsychometricAttempt.reportSnapshot
+ */
+export type PsychometricAttempt$reportSnapshotArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the PsychometricReport
+   */
+  select?: Prisma.PsychometricReportSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the PsychometricReport
+   */
+  omit?: Prisma.PsychometricReportOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PsychometricReportInclude<ExtArgs> | null
+  where?: Prisma.PsychometricReportWhereInput
 }
 
 /**

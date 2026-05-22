@@ -70,6 +70,7 @@ export const ModelName = {
   PsychometricTest: 'PsychometricTest',
   PsychometricQuestion: 'PsychometricQuestion',
   PsychometricAttempt: 'PsychometricAttempt',
+  PsychometricReport: 'PsychometricReport',
   PsychometricAnswer: 'PsychometricAnswer',
   OLQScore: 'OLQScore',
   StudyPlan: 'StudyPlan',
@@ -420,7 +421,11 @@ export const PsychometricTestScalarFieldEnum = {
   description: 'description',
   duration: 'duration',
   instructions: 'instructions',
-  createdAt: 'createdAt'
+  access: 'access',
+  category: 'category',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type PsychometricTestScalarFieldEnum = (typeof PsychometricTestScalarFieldEnum)[keyof typeof PsychometricTestScalarFieldEnum]
@@ -451,6 +456,24 @@ export const PsychometricAttemptScalarFieldEnum = {
 } as const
 
 export type PsychometricAttemptScalarFieldEnum = (typeof PsychometricAttemptScalarFieldEnum)[keyof typeof PsychometricAttemptScalarFieldEnum]
+
+
+export const PsychometricReportScalarFieldEnum = {
+  id: 'id',
+  attemptId: 'attemptId',
+  userId: 'userId',
+  testId: 'testId',
+  score: 'score',
+  readinessBand: 'readinessBand',
+  report: 'report',
+  scoring: 'scoring',
+  recommendations: 'recommendations',
+  integritySignals: 'integritySignals',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PsychometricReportScalarFieldEnum = (typeof PsychometricReportScalarFieldEnum)[keyof typeof PsychometricReportScalarFieldEnum]
 
 
 export const PsychometricAnswerScalarFieldEnum = {
