@@ -7,7 +7,9 @@ import { psychometricController } from "./psychometric.controller.js";
 export const psychometricRouter = Router();
 
 psychometricRouter.get("/tests", psychometricController.list);
+psychometricRouter.get("/admin/overview", protect, allowRoles(Role.ADMIN, Role.DIRECTOR), psychometricController.adminOverview);
 psychometricRouter.get("/tests/:id", psychometricController.details);
+psychometricRouter.get("/reports", protect, allowRoles(Role.STUDENT, Role.GUEST, Role.ADMIN), psychometricController.reports);
 psychometricRouter.post(
   "/start",
   protect,
@@ -25,7 +27,7 @@ psychometricRouter.post(
   ],
   psychometricController.submit
 );
-psychometricRouter.get("/results/:attemptId", protect, allowRoles(Role.STUDENT, Role.GUEST, Role.ADMIN), psychometricController.result);
-psychometricRouter.get("/results/:attemptId/pdf", protect, allowRoles(Role.STUDENT, Role.GUEST, Role.ADMIN), psychometricController.resultPdf);
+psychometricRouter.get("/results/:attemptId", protect, allowRoles(Role.STUDENT, Role.GUEST, Role.ADMIN, Role.DIRECTOR), psychometricController.result);
+psychometricRouter.get("/results/:attemptId/pdf", protect, allowRoles(Role.STUDENT, Role.GUEST, Role.ADMIN, Role.DIRECTOR), psychometricController.resultPdf);
 psychometricRouter.get("/olq-report", protect, allowRoles(Role.STUDENT, Role.GUEST, Role.ADMIN), psychometricController.olqReport);
 psychometricRouter.get("/intelligence", protect, allowRoles(Role.STUDENT, Role.GUEST, Role.TEACHER, Role.ADMIN), psychometricController.intelligence);

@@ -1,5 +1,6 @@
 import type { NextFunction, Request, Response } from "express";
 import { validationResult } from "express-validator";
+import type { Role } from "../../generated/prisma/client.js";
 import type { AuthenticatedRequest } from "../../middlewares/session.middleware.js";
 import { psychometricService } from "./psychometric.service.js";
 
@@ -17,6 +18,11 @@ function param(req: Request, key: string) {
 function userId(req: AuthenticatedRequest) {
   if (!req.user) throw new Error("Unauthorized");
   return req.user.id;
+}
+
+function userRole(req: AuthenticatedRequest): Role {
+  if (!req.user) throw new Error("Unauthorized");
+  return req.user.role;
 }
 
 export const psychometricController = {
@@ -60,7 +66,7 @@ export const psychometricController = {
 
   async result(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
-      const result = await psychometricService.result(userId(req), param(req, "attemptId"));
+      const result = await psychometricService.result(userId(req), param(req, "attemptId"), userRole(req));
       res.json(result);
     } catch (error) {
       next(error);
@@ -69,10 +75,28 @@ export const psychometricController = {
 
   async resultPdf(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
-      const report = await psychometricService.resultPdf(userId(req), param(req, "attemptId"));
+      const report = await psychometricService.resultPdf(userId(req), param(req, "attemptId"), userRole(req));
       res.setHeader("Content-Type", "application/pdf");
       res.setHeader("Content-Disposition", `attachment; filename="${report.filename}"`);
       res.send(report.buffer);
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async reports(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      const reports = await psychometricService.reports(userId(req));
+      res.json(reports);
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async adminOverview(_req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      const overview = await psychometricService.adminOverview();
+      res.json(overview);
     } catch (error) {
       next(error);
     }

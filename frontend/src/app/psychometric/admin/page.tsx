@@ -1,0 +1,137 @@
+"use client";
+
+import Link from "next/link";
+import { Activity, AlertTriangle, ArrowRight, BarChart3, FileText, ShieldCheck, Users } from "lucide-react";
+import { AnnouncementCard, DashboardError, DashboardSkeleton, ProgressCard, RoleDashboardGuard, SectionHeader, StatCard } from "@/components/dashboard";
+import { PageHero } from "@/components/layout/page-hero";
+import { Button } from "@/components/ui/button";
+import { usePsychometricAdminOverview } from "@/hooks/use-psychometric";
+
+function formatDate(value: string) {
+  if (!value) return "Date pending";
+  return new Intl.DateTimeFormat("en-IN", { day: "2-digit", month: "short", year: "numeric" }).format(new Date(value));
+}
+
+export default function PsychometricAdminPage() {
+  const { data, isLoading, error, refetch, isFetching } = usePsychometricAdminOverview();
+
+  if (isLoading) return <RoleDashboardGuard role={["ADMIN", "DIRECTOR"]}><DashboardSkeleton /></RoleDashboardGuard>;
+  if (error || !data) return <RoleDashboardGuard role={["ADMIN", "DIRECTOR"]}><DashboardError error={error} onRefresh={() => refetch()} /></RoleDashboardGuard>;
+
+  return (
+    <RoleDashboardGuard role={["ADMIN", "DIRECTOR"]}>
+      <div className="space-y-8">
+        <PageHero
+          eyebrow="Assessment Command"
+          title="Psychometric ecosystem performance"
+          description="Track assessment adoption, completed reports, low-score signals, student engagement, and the reports that need counselling attention."
+          actions={<Button type="button" variant="secondary" onClick={() => refetch()} disabled={isFetching}>{isFetching ? "Refreshing..." : "Refresh"}</Button>}
+          stats={[
+            { value: String(data.summary.completedReports), label: "reports ready" },
+            { value: `${data.summary.adoptionRate}%`, label: "student adoption" },
+            { value: `${data.summary.averageScore}/100`, label: data.summary.readinessBand }
+          ]}
+        />
+
+        <section className="grid gap-4 md:grid-cols-5">
+          <StatCard label="Assessments" value={String(data.summary.totalAssessments)} note="Seeded psychometric ecosystem" />
+          <StatCard label="Active Students" value={String(data.summary.activeStudents)} note={`${data.summary.totalStudents} total students`} />
+          <StatCard label="Attempts" value={String(data.summary.totalAttempts)} note={`${data.summary.completionRate}% completion rate`} />
+          <StatCard label="Average Score" value={`${data.summary.averageScore}/100`} note={data.summary.readinessBand} />
+          <StatCard label="Needs Review" value={String(data.summary.lowScoreCount)} note="Scores below 55" />
+        </section>
+
+        <section className="grid gap-4 lg:grid-cols-[0.85fr_1.15fr]">
+          <div className="space-y-4">
+            <ProgressCard title="Adoption Rate" value={data.summary.adoptionRate} label={`${data.summary.activeStudents}/${data.summary.totalStudents} students have completed reports`} />
+            <ProgressCard title="Report Completion" value={data.summary.completionRate} label={`${data.summary.completedReports}/${data.summary.totalAttempts} attempts completed`} />
+            <ProgressCard title="Readiness Average" value={data.summary.averageScore} label={data.summary.readinessBand} />
+          </div>
+          <div className="premium-surface rounded-lg p-5">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-gold-soft">NIDUS AI Operations Summary</p>
+                <h2 className="mt-3 text-2xl font-semibold text-ink">Counselling and adoption signals</h2>
+              </div>
+              <BarChart3 className="h-6 w-6 text-gold" />
+            </div>
+            <div className="mt-5 grid gap-3">
+              {[
+                `${data.summary.completedReports} completed assessment reports are available for review.`,
+                `${data.summary.lowScoreCount} reports are below 55 and should be checked for counselling or mentor follow-up.`,
+                `Average assessment readiness is ${data.summary.averageScore}/100, classified as ${data.summary.readinessBand.toLowerCase()}.`,
+                `${data.summary.adoptionRate}% of students have at least one completed psychometric report.`
+              ].map((item) => (
+                <div key={item} className="rounded border border-white/10 bg-navy-deep/55 p-4 text-sm leading-6 text-muted">{item}</div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <SectionHeader eyebrow="Top Assessments" title="Most used psychometric tests" action={`${data.topAssessments.length} active`} />
+        <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          {data.topAssessments.length ? data.topAssessments.map((assessment) => (
+            <AnnouncementCard
+              key={assessment.testId}
+              title={assessment.title}
+              description={`${assessment.attempts} completed reports with ${assessment.averageScore}/100 average score.`}
+              tag={assessment.type}
+            />
+          )) : (
+            <AnnouncementCard title="No assessment usage yet" description="Completed student reports will appear here after the first submission." tag="Pending" />
+          )}
+        </section>
+
+        <SectionHeader eyebrow="Recent Reports" title="Reports needing visibility" action={`${data.recentReports.length} latest`} />
+        <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {data.recentReports.length ? data.recentReports.map((report) => (
+            <article key={report.attemptId} className="flex h-full flex-col rounded-lg border border-white/10 bg-white/[0.055] p-5 shadow-[0_24px_70px_rgba(0,0,0,0.20)]">
+              <div className="flex items-start justify-between gap-3">
+                <div className="grid h-11 w-11 place-items-center rounded border border-gold/25 bg-gold/10 text-gold">
+                  {report.score < 55 ? <AlertTriangle className="h-5 w-5" /> : <FileText className="h-5 w-5" />}
+                </div>
+                <span className="rounded border border-gold/25 bg-gold/10 px-3 py-1 text-sm font-semibold text-gold">{report.score}/100</span>
+              </div>
+              <p className="mt-5 text-sm font-semibold text-gold-soft">{report.studentName}</p>
+              <h3 className="mt-2 text-lg font-semibold leading-tight text-white">{report.title}</h3>
+              <p className="mt-2 text-xs font-semibold uppercase tracking-[0.16em] text-gold-soft">{report.readinessBand}</p>
+              <div className="mt-5 grid gap-2 rounded border border-white/10 bg-navy-deep/45 p-4 text-sm">
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-muted">Completed</span>
+                  <span className="font-semibold text-white">{formatDate(report.completedAt)}</span>
+                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-muted">Answers</span>
+                  <span className="font-semibold text-white">{report.answerCount}</span>
+                </div>
+              </div>
+              <Link href={report.reportHref} className="mt-5 inline-flex min-h-11 items-center justify-center gap-2 rounded border border-gold/30 bg-gold/10 px-4 py-3 text-sm font-semibold text-gold transition hover:-translate-y-0.5 hover:bg-gold/15">
+                Open Report <ArrowRight className="h-4 w-4" />
+              </Link>
+            </article>
+          )) : (
+            <div className="rounded-lg border border-white/10 bg-white/[0.055] p-5 md:col-span-2 xl:col-span-3">
+              <p className="text-sm font-semibold text-white">No completed reports yet.</p>
+              <p className="mt-2 text-sm leading-6 text-muted">Ask students to start Officer Readiness, Discipline Index, Leadership DNA, or Dream Addiction Index.</p>
+            </div>
+          )}
+        </section>
+
+        <section className="grid gap-4 md:grid-cols-3">
+          <Link href="/dashboard/admin" className="flex min-h-14 items-center justify-between rounded border border-gold/20 bg-gold/10 px-4 py-3 text-sm font-semibold text-gold transition hover:-translate-y-0.5 hover:bg-gold/15">
+            <span className="flex items-center gap-3"><Users className="h-5 w-5" /> Admin Dashboard</span>
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+          <Link href="/progress-reports" className="flex min-h-14 items-center justify-between rounded border border-gold/20 bg-gold/10 px-4 py-3 text-sm font-semibold text-gold transition hover:-translate-y-0.5 hover:bg-gold/15">
+            <span className="flex items-center gap-3"><Activity className="h-5 w-5" /> Progress Reports</span>
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+          <Link href="/psychometric" className="flex min-h-14 items-center justify-between rounded border border-gold/20 bg-gold/10 px-4 py-3 text-sm font-semibold text-gold transition hover:-translate-y-0.5 hover:bg-gold/15">
+            <span className="flex items-center gap-3"><ShieldCheck className="h-5 w-5" /> Assessment Catalog</span>
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+        </section>
+      </div>
+    </RoleDashboardGuard>
+  );
+}

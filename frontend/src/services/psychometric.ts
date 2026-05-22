@@ -1,5 +1,5 @@
 import { apiClient } from "@/services/api";
-import type { OLQReport, PsychometricAttempt, PsychometricResult, PsychometricTest } from "@/types/psychometric";
+import type { OLQReport, PsychometricAdminOverview, PsychometricAttempt, PsychometricReportHistory, PsychometricResult, PsychometricTest } from "@/types/psychometric";
 
 export async function getPsychometricTests() {
   const response = await apiClient.get<{ tests: PsychometricTest[] }>("/psychometric/tests");
@@ -26,6 +26,16 @@ export async function submitPsychometric(payload: {
 
 export async function getPsychometricResults(attemptId: string) {
   const response = await apiClient.get<PsychometricResult>(`/psychometric/results/${attemptId}`);
+  return response.data;
+}
+
+export async function getPsychometricReportHistory() {
+  const response = await apiClient.get<PsychometricReportHistory>("/psychometric/reports");
+  return response.data;
+}
+
+export async function getPsychometricAdminOverview() {
+  const response = await apiClient.get<PsychometricAdminOverview>("/psychometric/admin/overview");
   return response.data;
 }
 

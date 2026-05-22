@@ -58,6 +58,8 @@ export type StudentDashboardData = {
   recentActivities: string[];
 };
 
+export type AssessmentProfileData = NonNullable<StudentDashboardData["assessmentProfile"]>;
+
 export type ParentDashboardData = {
   linkedStudent: Pick<AuthUser, "id" | "name" | "email" | "mobile"> | null;
   monitoringPermissions?: Record<string, boolean> | null;
@@ -82,6 +84,7 @@ export type ParentDashboardData = {
     score: number;
     notes: string;
   };
+  assessmentProfile?: AssessmentProfileData;
 };
 
 export type AdminDashboardData = {

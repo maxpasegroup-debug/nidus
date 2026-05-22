@@ -200,6 +200,9 @@ export function DigitalProfileOverview({ data, user }: { data: StudentDashboardD
             <Link href="/psychometric" className="inline-flex min-h-11 items-center justify-center gap-2 rounded border border-gold/30 bg-gold/10 px-4 py-3 text-sm font-semibold text-gold transition hover:-translate-y-0.5 hover:bg-gold/15">
               Complete Assessments <ArrowRight className="h-4 w-4" />
             </Link>
+            <Link href="/psychometric/reports" className="inline-flex min-h-11 items-center justify-center gap-2 rounded border border-gold/30 bg-gold/10 px-4 py-3 text-sm font-semibold text-gold transition hover:-translate-y-0.5 hover:bg-gold/15">
+              Report Vault <ClipboardCheck className="h-4 w-4" />
+            </Link>
             <Link href="/guru" className="inline-flex min-h-11 items-center justify-center gap-2 rounded border border-white/10 bg-white/5 px-4 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-white/10">
               Start Guru Quest <Sparkles className="h-4 w-4" />
             </Link>

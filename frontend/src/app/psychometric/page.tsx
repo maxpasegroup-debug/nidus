@@ -60,8 +60,8 @@ export default function PsychometricPage() {
               <PublicCta href="#assessment-categories">
                 Explore Assessments <ArrowRight className="h-4 w-4" />
               </PublicCta>
-              <PublicCta href="/join" variant="secondary">
-                Get Guidance
+              <PublicCta href="/psychometric/reports" variant="secondary">
+                My Reports
               </PublicCta>
             </div>
           </motion.div>

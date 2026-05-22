@@ -30,6 +30,7 @@ const studentActions = [
   { title: "See progress report", description: "Review your monthly growth score and next actions.", href: "/progress-reports" },
   { title: "Ask NIDUS", description: "Use AI study planner for what to do next.", href: "/ai-study-planner" },
   { title: "Assessments", description: "Take officer readiness, OLQ, leadership, discipline, focus, and career-fit assessments.", href: "/psychometric" },
+  { title: "Assessment Reports", description: "Open completed psychometric reports and download PDFs.", href: "/psychometric/reports" },
   { title: "Check leaderboard", description: "See rank, momentum, and batch competition.", href: "/leaderboard" }
 ];
 

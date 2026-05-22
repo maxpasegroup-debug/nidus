@@ -12,17 +12,19 @@ import {
   getTelecallerDashboard
 } from "@/services/dashboard";
 
-export function useStudentDashboard() {
+export function useStudentDashboard(enabled = true) {
   return useQuery({
     queryKey: ["dashboard", "student"],
-    queryFn: getStudentDashboard
+    queryFn: getStudentDashboard,
+    enabled
   });
 }
 
-export function useParentDashboard() {
+export function useParentDashboard(enabled = true) {
   return useQuery({
     queryKey: ["dashboard", "parent"],
-    queryFn: getParentDashboard
+    queryFn: getParentDashboard,
+    enabled
   });
 }
 

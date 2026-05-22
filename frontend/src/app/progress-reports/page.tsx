@@ -13,8 +13,8 @@ import { PerformanceChart } from "@/components/charts/performance-chart";
 import { PageHero } from "@/components/layout/page-hero";
 import { useAuth } from "@/components/providers/auth-provider-v2";
 import { Button } from "@/components/ui/button";
-import { useStudentDashboard } from "@/hooks/use-dashboard";
-import type { StudentDashboardData } from "@/services/dashboard";
+import { useParentDashboard, useStudentDashboard } from "@/hooks/use-dashboard";
+import type { AssessmentProfileData, ParentDashboardData, StudentDashboardData } from "@/services/dashboard";
 
 const assessmentSignals = [
   { title: "Officer Readiness", description: "Officer mindset, leadership, discipline, initiative, courage, and responsibility.", tag: "Flagship" },
@@ -66,7 +66,7 @@ function getProfileCompletion(data?: StudentDashboardData) {
     data.profile?.email,
     data.enrolledCourses.length > 0,
     data.attendance.total > 0,
-    data.upcomingTests.length > 0,
+    Boolean(data.assessmentProfile?.completedCount),
     data.fitnessProgress.score > 0,
     data.aiRecommendations.length > 0,
     data.recentActivities.length > 0
@@ -78,7 +78,7 @@ function getProfileCompletion(data?: StudentDashboardData) {
 function getDefencePotentialScore(data?: StudentDashboardData) {
   if (!data) return 0;
   const learningScore = data.enrolledCourses.length ? average(data.enrolledCourses.map((course) => course.progress)) : 0;
-  const assessmentSignal = data.upcomingTests.length ? 54 : 30;
+  const assessmentSignal = data.assessmentProfile?.averageScore ?? (data.upcomingTests.length ? 54 : 30);
   const engagementSignal = Math.min(100, data.recentActivities.length * 16);
 
   return clampScore(average([learningScore, data.attendance.percentage, data.fitnessProgress.score, assessmentSignal, engagementSignal]));
@@ -99,23 +99,48 @@ function getBand(score: number) {
   return "Data needed";
 }
 
+function getParentDefenceScore(data?: ParentDashboardData) {
+  if (!data) return 0;
+  return clampScore(average([
+    data.studentPerformance.averageScore,
+    data.attendance.percentage,
+    data.disciplineScore.score,
+    data.assessmentProfile?.averageScore ?? 0
+  ]));
+}
+
 export default function ProgressReportsPage() {
   const { user } = useAuth();
-  const { data, isLoading, refetch, isFetching } = useStudentDashboard();
   const isStudent = user?.role === "STUDENT";
+  const isParent = user?.role === "PARENT";
+  const studentDashboard = useStudentDashboard(isStudent);
+  const parentDashboard = useParentDashboard(isParent);
+  const data = studentDashboard.data;
+  const parentData = parentDashboard.data;
   const usableData = isStudent ? data : undefined;
+  const parentAssessmentProfile = isParent ? parentData?.assessmentProfile : undefined;
   const activeCourse = usableData?.enrolledCourses[0];
   const profileCompletion = getProfileCompletion(usableData);
-  const defencePotentialScore = getDefencePotentialScore(usableData);
+  const defencePotentialScore = isParent ? getParentDefenceScore(parentData) : getDefencePotentialScore(usableData);
   const archetype = getArchetype(defencePotentialScore);
   const band = getBand(defencePotentialScore);
-  const learningScore = activeCourse?.progress ?? 0;
-  const attendanceScore = usableData?.attendance.percentage ?? 0;
+  const learningScore = activeCourse?.progress ?? parentData?.studentPerformance.averageScore ?? 0;
+  const attendanceScore = usableData?.attendance.percentage ?? parentData?.attendance.percentage ?? 0;
   const fitnessScore = usableData?.fitnessProgress.score ?? 0;
-  const assessmentScore = usableData?.upcomingTests.length ? 54 : 0;
+  const assessmentProfile: AssessmentProfileData | undefined = usableData?.assessmentProfile ?? parentAssessmentProfile;
+  const assessmentScore = assessmentProfile?.averageScore ?? 0;
+  const assessmentAccuracy = assessmentProfile?.profileAccuracy ?? 0;
+  const assessmentSummary = assessmentProfile?.latestReport
+    ? `${assessmentProfile.latestReport.title} is the latest completed assessment report.`
+    : "Complete the first assessment to activate report intelligence.";
   const chartData = usableData?.attendance.trend.length
     ? usableData.attendance.trend.map((item) => ({ label: item.month, score: defencePotentialScore, attendance: item.attendance }))
+    : parentData?.studentPerformance.trend.length
+      ? parentData.studentPerformance.trend.map((item) => ({ label: item.month, score: item.score ?? defencePotentialScore, attendance: parentData.attendance.percentage }))
     : fallbackTrend;
+  const isLoading = isStudent ? studentDashboard.isLoading : isParent ? parentDashboard.isLoading : false;
+  const isFetching = isStudent ? studentDashboard.isFetching : parentDashboard.isFetching;
+  const refetch = isStudent ? studentDashboard.refetch : parentDashboard.refetch;
 
   return (
     <motion.div className="space-y-8" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
@@ -126,7 +151,8 @@ export default function ProgressReportsPage() {
         actions={
           <div className="flex flex-col gap-3 sm:flex-row">
             <Button type="button" variant="secondary" onClick={() => window.print()}>Print report</Button>
-            {isStudent ? <Button type="button" onClick={() => refetch()} disabled={isFetching}>{isFetching ? "Refreshing..." : "Refresh profile"}</Button> : null}
+            {isStudent ? <Button href="/psychometric/reports" variant="secondary">Assessment Reports</Button> : null}
+            {(isStudent || isParent) ? <Button type="button" onClick={() => refetch()} disabled={isFetching}>{isFetching ? "Refreshing..." : "Refresh profile"}</Button> : null}
           </div>
         }
         stats={[
@@ -136,7 +162,7 @@ export default function ProgressReportsPage() {
         ]}
       />
 
-      {!isStudent ? (
+      {!isStudent && !isParent ? (
         <section className="rounded-lg border border-gold/20 bg-gold/10 p-5">
           <p className="text-sm leading-7 text-gold-soft">This hybrid report framework is student-data aware. Open it from a student account to see live learning, attendance, fitness, and readiness signals.</p>
         </section>
@@ -144,8 +170,9 @@ export default function ProgressReportsPage() {
 
       <section className="grid gap-4 md:grid-cols-4">
         <StatCard label="Defence Potential" value={`${defencePotentialScore}/100`} note={band} />
-        <StatCard label="Academic Progress" value={`${learningScore}%`} note={activeCourse?.title ?? "No active course"} />
-        <StatCard label="Attendance Discipline" value={`${attendanceScore}%`} note={usableData ? `${usableData.attendance.present}/${usableData.attendance.total} sessions` : "Student signal pending"} />
+        <StatCard label="Academic Progress" value={`${learningScore}%`} note={activeCourse?.title ?? parentData?.linkedStudent?.name ?? "No active course"} />
+        <StatCard label="Assessment Profile" value={`${assessmentAccuracy}%`} note={assessmentProfile ? `${assessmentProfile.completedCount}/${assessmentProfile.totalAssessments} reports connected` : "No report connected"} />
+        <StatCard label="Attendance Discipline" value={`${attendanceScore}%`} note={usableData ? `${usableData.attendance.present}/${usableData.attendance.total} sessions` : parentData ? `${parentData.attendance.present}/${parentData.attendance.total} sessions` : "Student signal pending"} />
         <StatCard label="Physical Profile" value={`${fitnessScore}%`} note={usableData?.fitnessProgress.focus ?? "Fitness signal pending"} />
       </section>
 
@@ -153,7 +180,7 @@ export default function ProgressReportsPage() {
         <PerformanceChart title="Hybrid growth signal" data={chartData} />
         <div className="space-y-4">
           <ProgressCard title="Learning Layer" value={learningScore} label={activeCourse?.nextLesson ?? "Course progress pending"} />
-          <ProgressCard title="Assessment Layer" value={assessmentScore} label={assessmentScore ? "Assessment activity detected" : "Complete the first assessment"} />
+          <ProgressCard title="Assessment Layer" value={assessmentScore} label={assessmentSummary} />
           <ProgressCard title="Discipline Layer" value={attendanceScore} label="Attendance and consistency signal" />
           <ProgressCard title="Training Layer" value={fitnessScore} label={usableData?.fitnessProgress.focus ?? "Fitness profile pending"} />
         </div>
@@ -174,9 +201,10 @@ export default function ProgressReportsPage() {
             {[
               `Defence Potential Score: ${defencePotentialScore}/100 (${band}).`,
               `Current archetype: ${archetype}.`,
-              activeCourse ? `Academic signal is connected through ${activeCourse.title}.` : "Academic signal needs active course and submitted tests.",
-              usableData?.attendance.total ? `Discipline signal is based on ${usableData.attendance.total} attendance records.` : "Discipline signal will improve after attendance records are marked.",
-              "Assessment intelligence will become detailed after the full 15-assessment ecosystem is completed.",
+              activeCourse ? `Academic signal is connected through ${activeCourse.title}.` : parentData ? `Academic signal is ${parentData.studentPerformance.averageScore}% for ${parentData.linkedStudent?.name ?? "the linked student"}.` : "Academic signal needs active course and submitted tests.",
+              usableData?.attendance.total ? `Discipline signal is based on ${usableData.attendance.total} attendance records.` : parentData?.attendance.total ? `Discipline signal is based on ${parentData.attendance.total} attendance records.` : "Discipline signal will improve after attendance records are marked.",
+              assessmentProfile ? `Assessment intelligence is ${assessmentProfile.profileAccuracy}% complete through ${assessmentProfile.completedCount}/${assessmentProfile.totalAssessments} connected reports.` : "Assessment intelligence will become detailed after the first report is completed.",
+              assessmentProfile?.strongestSignal ? `Strongest assessment signal: ${assessmentProfile.strongestSignal.title} at ${assessmentProfile.strongestSignal.score}/100.` : "Strongest assessment signal is pending.",
               "Parent summary and faculty remarks are report-ready and can connect to real mentor notes in the next backend phase."
             ].map((item) => (
               <div key={item} className="rounded border border-white/10 bg-navy-deep/55 p-4 text-sm leading-6 text-muted">{item}</div>
@@ -193,7 +221,7 @@ export default function ProgressReportsPage() {
       <section className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
         <ActivityTimeline title="Monthly hybrid report cycle" items={monthlyTimeline} />
         <div className="grid gap-4 md:grid-cols-2">
-          <AnnouncementCard title="Parent Summary" description="Your child shows a developing defence profile. The next focus areas are assessment completion, discipline consistency, and guided practice." tag="Parent" />
+          <AnnouncementCard title="Parent Summary" description={assessmentProfile ? `Assessment profile is ${assessmentProfile.profileAccuracy}% complete. Latest report: ${assessmentProfile.latestReport?.title ?? "No latest report"}.` : "Your child shows a developing defence profile. The next focus areas are assessment completion, discipline consistency, and guided practice."} tag="Parent" />
           <AnnouncementCard title="Faculty Remark Slot" description="Faculty remarks can be connected here for classroom effort, subject growth, behaviour, and next learning target." tag="Faculty" />
           <AnnouncementCard title="AI / Mentor Recommendation" description="Complete Officer Readiness, Discipline Index, and Dream Addiction Index to unlock better recommendations." tag="Action" />
           <AnnouncementCard title="Export Ready" description="This layout is print-ready now. PDF automation can connect later without changing the visible report structure." tag="Export" />
@@ -204,8 +232,8 @@ export default function ProgressReportsPage() {
       <section className="grid gap-4 md:grid-cols-4">
         <QuickActionCard title="Digital Profile" description="Open the full hybrid student profile with connected readiness layers." href="/digital-profile" />
         <QuickActionCard title="Assessments" description="Complete officer readiness, OLQ, discipline, focus and leadership assessments." href="/psychometric" />
+        <QuickActionCard title="Assessment Reports" description="Open completed AI reports and downloadable PDFs." href="/psychometric/reports" />
         <QuickActionCard title="NIDUS Guru" description="Start focus, discipline, Dream Addiction and Life OS transformation quests." href="/guru" />
-        <QuickActionCard title="Monthly Tests" description="Attempt CBT and monthly tests to strengthen academic performance data." href="/tests" />
       </section>
 
       {isLoading && isStudent ? (

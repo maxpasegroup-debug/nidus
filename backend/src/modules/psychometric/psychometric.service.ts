@@ -1,5 +1,6 @@
 import PDFDocument from "pdfkit";
 import { prisma } from "../../config/prisma.js";
+import type { Role } from "../../generated/prisma/client.js";
 import { psychometricAiService } from "./psychometric-ai.service.js";
 
 type SubmitAnswer = {
@@ -114,6 +115,8 @@ const guruQuestByDimension: Record<string, string> = {
   dreamDrive: "Dream Addiction"
 };
 
+const staffResultRoles: Role[] = ["ADMIN", "DIRECTOR"];
+
 function camelDimension(value: string) {
   return value.replace(/-([a-z])/g, (_match, letter: string) => letter.toUpperCase());
 }
@@ -146,6 +149,10 @@ function readinessBand(score: number) {
   if (score >= 70) return "Developing officer potential";
   if (score >= 50) return "Foundation stage";
   return "Needs guided support";
+}
+
+function percentage(part: number, total: number) {
+  return total > 0 ? Math.round((part / total) * 100) : 0;
 }
 
 function buildScoring(answers: SubmitAnswer[], questions: QuestionForScoring[]) {
@@ -379,6 +386,62 @@ function writeAssessmentPdf(result: Awaited<ReturnType<typeof psychometricServic
   return buffer;
 }
 
+function compactReportSummary(
+  attempts: Array<{
+    id: string;
+    testId: string;
+    score: number;
+    completedAt: Date | null;
+    overallRemark: string | null;
+    aiAnalysis: string | null;
+    test: { id: string; title: string; type: string; description: string };
+    answers: Array<{ score: number }>;
+  }>,
+  totalAssessments: number
+) {
+  const latestByTest = new Map<string, (typeof attempts)[number]>();
+  for (const attempt of attempts) {
+    if (!latestByTest.has(attempt.testId)) latestByTest.set(attempt.testId, attempt);
+  }
+
+  const reports = Array.from(latestByTest.values());
+  const averageScore = reports.length ? Math.round(reports.reduce((sum, item) => sum + item.score, 0) / reports.length) : 0;
+  const strongestReport = [...reports].sort((a, b) => b.score - a.score)[0] ?? null;
+  const latestReport = reports[0] ?? null;
+
+  return {
+    summary: {
+      totalAssessments,
+      completedCount: reports.length,
+      reportReadyCount: reports.length,
+      profileAccuracy: totalAssessments ? Math.round((reports.length / totalAssessments) * 100) : 0,
+      averageScore,
+      readinessBand: readinessBand(averageScore),
+      strongestReport: strongestReport
+        ? { attemptId: strongestReport.id, title: strongestReport.test.title, score: Math.round(strongestReport.score), readinessBand: readinessBand(strongestReport.score) }
+        : null,
+      latestReport: latestReport
+        ? { attemptId: latestReport.id, title: latestReport.test.title, score: Math.round(latestReport.score), completedAt: latestReport.completedAt?.toISOString() ?? "" }
+        : null
+    },
+    reports: reports.map((attempt) => ({
+      attemptId: attempt.id,
+      testId: attempt.test.id,
+      title: attempt.test.title,
+      type: attempt.test.type,
+      description: attempt.test.description,
+      score: Math.round(attempt.score),
+      readinessBand: readinessBand(attempt.score),
+      completedAt: attempt.completedAt?.toISOString() ?? "",
+      answerCount: attempt.answers.length,
+      reportHref: `/psychometric/results/${attempt.id}`,
+      pdfHref: `/psychometric/results/${attempt.id}/pdf`,
+      aiAnalysis: attempt.aiAnalysis,
+      overallRemark: attempt.overallRemark
+    }))
+  };
+}
+
 export const psychometricService = {
   async listTests() {
     return prisma.psychometricTest.findMany({
@@ -446,9 +509,9 @@ export const psychometricService = {
     });
   },
 
-  async result(userId: string, attemptId: string) {
+  async result(userId: string, attemptId: string, role?: Role) {
     const attempt = await prisma.psychometricAttempt.findFirst({
-      where: { id: attemptId, userId },
+      where: { id: attemptId, ...(role && staffResultRoles.includes(role) ? {} : { userId }) },
       include: { test: { include: includeQuestions }, answers: { include: { question: true } } }
     });
     if (!attempt) throw new Error("Psychometric result not found");
@@ -478,12 +541,93 @@ export const psychometricService = {
     };
   },
 
-  async resultPdf(userId: string, attemptId: string) {
-    const result = await this.result(userId, attemptId);
+  async resultPdf(userId: string, attemptId: string, role?: Role) {
+    const result = await this.result(userId, attemptId, role);
     const buffer = await writeAssessmentPdf(result);
     return {
       buffer,
       filename: `nidus-${safeFilename(result.attempt.test.title)}-${result.attempt.id}.pdf`
+    };
+  },
+
+  async reports(userId: string) {
+    const [totalAssessments, attempts] = await Promise.all([
+      prisma.psychometricTest.count(),
+      prisma.psychometricAttempt.findMany({
+        where: { userId, completedAt: { not: null } },
+        orderBy: { completedAt: "desc" },
+        include: {
+          test: { select: { id: true, title: true, type: true, description: true } },
+          answers: { select: { score: true } }
+        }
+      })
+    ]);
+
+    return compactReportSummary(attempts, totalAssessments || 15);
+  },
+
+  async adminOverview() {
+    const [totalAssessments, totalStudents, completedAttempts, allAttempts] = await Promise.all([
+      prisma.psychometricTest.count(),
+      prisma.user.count({ where: { role: "STUDENT" } }),
+      prisma.psychometricAttempt.findMany({
+        where: { completedAt: { not: null } },
+        orderBy: { completedAt: "desc" },
+        take: 60,
+        include: {
+          test: { select: { id: true, title: true, type: true } },
+          user: { select: { id: true, name: true, email: true, role: true } },
+          answers: { select: { id: true } }
+        }
+      }),
+      prisma.psychometricAttempt.count()
+    ]);
+    const completedCount = completedAttempts.length;
+    const averageScore = completedCount ? Math.round(completedAttempts.reduce((sum, attempt) => sum + attempt.score, 0) / completedCount) : 0;
+    const lowScoreCount = completedAttempts.filter((attempt) => attempt.score < 55).length;
+    const activeStudentIds = new Set(completedAttempts.map((attempt) => attempt.userId));
+    const testMap = new Map<string, { title: string; type: string; attempts: number; averageScore: number; totalScore: number }>();
+
+    for (const attempt of completedAttempts) {
+      const current = testMap.get(attempt.testId) ?? { title: attempt.test.title, type: attempt.test.type, attempts: 0, averageScore: 0, totalScore: 0 };
+      current.attempts += 1;
+      current.totalScore += attempt.score;
+      current.averageScore = Math.round(current.totalScore / current.attempts);
+      testMap.set(attempt.testId, current);
+    }
+
+    return {
+      summary: {
+        totalAssessments: totalAssessments || 15,
+        totalStudents,
+        totalAttempts: allAttempts,
+        completedReports: completedCount,
+        activeStudents: activeStudentIds.size,
+        adoptionRate: percentage(activeStudentIds.size, totalStudents),
+        completionRate: percentage(completedCount, Math.max(allAttempts, 1)),
+        averageScore,
+        readinessBand: readinessBand(averageScore),
+        lowScoreCount
+      },
+      topAssessments: Array.from(testMap.entries())
+        .map(([testId, value]) => ({ testId, title: value.title, type: value.type, attempts: value.attempts, averageScore: value.averageScore }))
+        .sort((a, b) => b.attempts - a.attempts)
+        .slice(0, 8),
+      recentReports: completedAttempts.slice(0, 12).map((attempt) => ({
+        attemptId: attempt.id,
+        studentId: attempt.user.id,
+        studentName: attempt.user.name,
+        studentEmail: attempt.user.email,
+        testId: attempt.test.id,
+        title: attempt.test.title,
+        type: attempt.test.type,
+        score: Math.round(attempt.score),
+        readinessBand: readinessBand(attempt.score),
+        completedAt: attempt.completedAt?.toISOString() ?? "",
+        answerCount: attempt.answers.length,
+        reportHref: `/psychometric/results/${attempt.id}`,
+        pdfHref: `/psychometric/results/${attempt.id}/pdf`
+      }))
     };
   },
 

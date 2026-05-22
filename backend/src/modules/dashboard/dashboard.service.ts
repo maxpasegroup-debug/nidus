@@ -185,12 +185,19 @@ export const dashboardService = {
     }
 
     const studentId = linkedStudent?.id;
-    const [attempts, attendanceRows, fees, notifications, discipline] = await Promise.all([
+    const [attempts, attendanceRows, fees, notifications, discipline, psychometricAttempts] = await Promise.all([
       studentId ? prisma.testAttempt.findMany({ where: { userId: studentId, submittedAt: { not: null } }, orderBy: { submittedAt: "asc" }, take: 12 }) : [],
       studentId ? prisma.attendance.findMany({ where: { userId: studentId }, orderBy: { date: "asc" } }) : [],
       studentId ? prisma.feeInstallment.findMany({ where: { studentId }, orderBy: { dueDate: "asc" } }) : [],
       prisma.notification.findMany({ where: { userId: user.id }, orderBy: { createdAt: "desc" }, take: 5 }),
-      studentId ? prisma.disciplineRecord.findMany({ where: { studentId }, orderBy: { createdAt: "desc" }, take: 5 }) : []
+      studentId ? prisma.disciplineRecord.findMany({ where: { studentId }, orderBy: { createdAt: "desc" }, take: 5 }) : [],
+      studentId
+        ? prisma.psychometricAttempt.findMany({
+            where: { userId: studentId, completedAt: { not: null } },
+            orderBy: { completedAt: "desc" },
+            include: { test: { select: { id: true, title: true, type: true } } }
+          })
+        : []
     ]);
     const present = attendanceRows.filter((row) => attendanceStatus(row.status) === "PRESENT").length;
     const averageScore = attempts.length ? Math.round(attempts.reduce((sum, attempt) => sum + attempt.score, 0) / attempts.length) : 0;
@@ -222,7 +229,8 @@ export const dashboardService = {
         grade: discipline.length ? "REVIEW" : "NO_RECORDS",
         score: discipline.length ? 0 : 100,
         notes: discipline[0]?.description ?? "No discipline records found."
-      }
+      },
+      assessmentProfile: buildAssessmentProfile(psychometricAttempts)
     };
   },
 

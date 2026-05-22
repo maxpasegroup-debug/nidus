@@ -71,8 +71,9 @@ export default function DirectorDashboardPage() {
         </section>
 
         <SectionHeader eyebrow="Executive Actions" title="Control important areas" />
-        <section className="grid gap-4 md:grid-cols-3">
+        <section className="grid gap-4 md:grid-cols-4">
           <QuickActionCard title="Admissions analytics" description="Inspect lead, counselling, and admission movement." href="/crm/admissions" />
+          <QuickActionCard title="Assessment command" description="Review psychometric adoption, report volume, and risk signals." href="/psychometric/admin" />
           <QuickActionCard title="Progress reports" description="Review monthly growth and risk students." href="/progress-reports" />
           <QuickActionCard title="Staff and HR" description="Review team structure, roles, and staff documents." href="/staff-hr" />
         </section>

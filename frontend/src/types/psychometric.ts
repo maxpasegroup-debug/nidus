@@ -81,6 +81,71 @@ export type PsychometricResult = {
   };
 };
 
+export type PsychometricReportHistory = {
+  summary: {
+    totalAssessments: number;
+    completedCount: number;
+    reportReadyCount: number;
+    profileAccuracy: number;
+    averageScore: number;
+    readinessBand: string;
+    strongestReport: { attemptId: string; title: string; score: number; readinessBand: string } | null;
+    latestReport: { attemptId: string; title: string; score: number; completedAt: string } | null;
+  };
+  reports: Array<{
+    attemptId: string;
+    testId: string;
+    title: string;
+    type: string;
+    description: string;
+    score: number;
+    readinessBand: string;
+    completedAt: string;
+    answerCount: number;
+    reportHref: string;
+    pdfHref: string;
+    aiAnalysis?: string | null;
+    overallRemark?: string | null;
+  }>;
+};
+
+export type PsychometricAdminOverview = {
+  summary: {
+    totalAssessments: number;
+    totalStudents: number;
+    totalAttempts: number;
+    completedReports: number;
+    activeStudents: number;
+    adoptionRate: number;
+    completionRate: number;
+    averageScore: number;
+    readinessBand: string;
+    lowScoreCount: number;
+  };
+  topAssessments: Array<{
+    testId: string;
+    title: string;
+    type: string;
+    attempts: number;
+    averageScore: number;
+  }>;
+  recentReports: Array<{
+    attemptId: string;
+    studentId: string;
+    studentName: string;
+    studentEmail: string;
+    testId: string;
+    title: string;
+    type: string;
+    score: number;
+    readinessBand: string;
+    completedAt: string;
+    answerCount: number;
+    reportHref: string;
+    pdfHref: string;
+  }>;
+};
+
 export type OLQReport = {
   score: Record<string, number | string>;
   insights: {

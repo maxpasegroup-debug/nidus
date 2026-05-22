@@ -24,6 +24,7 @@ const commandModules = [
   { title: "Programs & Fees", description: "Foundation, defence entrance, specialized modules, fee plans, and instalments.", href: "/payments" },
   { title: "Classes & Content", description: "Schedule live classes, add recorded lessons, upload PDFs, notes, and assignments.", href: "/live-classes" },
   { title: "Exams & Progress", description: "Host exams, set timing, generate questions with NIDUS AI, and track reports.", href: "/tests" },
+  { title: "Assessment Command", description: "Track psychometric adoption, completed reports, and counselling risk signals.", href: "/psychometric/admin" },
   { title: "Finance", description: "Fee collection, pending dues, invoices, receipts, refunds, and approvals.", href: "/payments" },
   { title: "NIDUS AI", description: "Ask what is pending, generate work, create exams, and guide staff actions.", href: "/nidus-ai" },
   { title: "Reports", description: "Admission, fee, attendance, test, staff, and student progress reports.", href: "/progress-reports" },
@@ -37,6 +38,7 @@ const dailyActions = [
   { title: "Upload material", description: "Add notes, PDFs, recordings, assignments, and class resources.", href: "/courses" },
   { title: "Schedule live class", description: "Plan an online class for a batch with teacher access.", href: "/live-classes" },
   { title: "Host exam", description: "Generate questions, set time, publish exam, and track attempts.", href: "/tests" },
+  { title: "Review assessments", description: "Open psychometric report adoption, risk signals, and recent reports.", href: "/psychometric/admin" },
   { title: "Collect fee", description: "Open fee collection, invoices, pending dues, and receipts.", href: "/payments" },
   { title: "Ask NIDUS", description: "Get pending work, exam ideas, reports, and staff next actions.", href: "/nidus-ai" }
 ];

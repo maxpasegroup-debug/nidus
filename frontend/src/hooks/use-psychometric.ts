@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { useToast } from "@/components/providers/toast-provider";
 import { getApiErrorMessage } from "@/services/api";
 import {
+  getPsychometricAdminOverview,
+  getPsychometricReportHistory,
   getOLQReport,
   getPsychometricResults,
   getPsychometricTest,
@@ -60,6 +62,14 @@ export function usePsychometricResults(attemptId: string) {
     queryFn: () => getPsychometricResults(attemptId),
     enabled: Boolean(attemptId)
   });
+}
+
+export function usePsychometricReportHistory() {
+  return useQuery({ queryKey: ["psychometric", "reports"], queryFn: getPsychometricReportHistory });
+}
+
+export function usePsychometricAdminOverview() {
+  return useQuery({ queryKey: ["psychometric", "admin-overview"], queryFn: getPsychometricAdminOverview });
 }
 
 export function useOLQReport() {
