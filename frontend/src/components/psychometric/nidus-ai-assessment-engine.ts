@@ -15,18 +15,23 @@ export type NidusGeneratedReport = {
   score: number;
   level: string;
   simpleMeaning: string;
+  dimensionScores?: Array<{ dimension: string; label: string; score: number; answered: number; total: number }>;
   strengths: string[];
   improvementAreas: string[];
   behaviourPattern: string;
   officerReadinessSignal: string;
   parentSummary: string;
+  counsellorSummary?: string;
   recommendedNextTest: string;
   recommendedGuruQuest: string;
   counsellingAction: string;
+  sevenDayActionPlan?: string[];
   answerSignals: Array<{
     question: string;
     answer: string;
-    dimension: NidusAssessmentDimension;
+    dimension: string;
+    dimensionLabel?: string;
+    score?: number;
     interpretation: string;
   }>;
 };
@@ -248,6 +253,8 @@ function interpretationForAnswer(answer: string, dimension: NidusAssessmentDimen
 }
 
 export function nidusGenerateReport(data: PsychometricResult): NidusGeneratedReport {
+  if (data.report) return data.report;
+
   const answered = data.attempt.answers.filter((answer) => answer.answerText || answer.selectedOption);
   const signals = answered.map((answer) => {
     const dimension = inferDimension(answer.question);
@@ -264,24 +271,26 @@ export function nidusGenerateReport(data: PsychometricResult): NidusGeneratedRep
     return acc;
   }, {} as Record<NidusAssessmentDimension, number>);
   const dominantDimension = (Object.entries(dimensionCounts).sort((a, b) => b[1] - a[1])[0]?.[0] as NidusAssessmentDimension | undefined) ?? "discipline";
-  const score = data.attempt.score;
+  const score = Math.round(data.scoring?.score ?? data.attempt.score);
   const recommendations = data.recommendations.length ? data.recommendations : ["Complete one more assessment to sharpen your profile."];
+  const backendStrongest = data.scoring?.strongestDimensions?.map((item) => `${item.label}: ${item.score}/100`) ?? [];
+  const backendWeakest = data.scoring?.weakestDimensions?.map((item) => `${item.label}: ${item.score}/100`) ?? [];
 
   return {
     score,
-    level: scoreLevel(score),
+    level: data.scoring?.readinessBand ?? scoreLevel(score),
     simpleMeaning: scoreMeaning(score),
     strengths: [
-      `Primary signal: ${traitCopy[dominantDimension]}.`,
+      backendStrongest.length ? `Strongest dimensions: ${backendStrongest.join(", ")}.` : `Primary signal: ${traitCopy[dominantDimension]}.`,
       recommendations[0],
-      score >= 70 ? "The result shows usable readiness for guided advancement." : "The result gives a clear starting point for improvement."
+      data.scoring ? `Quality score ${data.scoring.qualityScore}/100 with ${data.scoring.completionScore}% completion.` : score >= 70 ? "The result shows usable readiness for guided advancement." : "The result gives a clear starting point for improvement."
     ],
     improvementAreas: [
-      `Build repeatable practice around ${traitCopy[dominantDimension]}.`,
+      backendWeakest.length ? `Development dimensions: ${backendWeakest.join(", ")}.` : `Build repeatable practice around ${traitCopy[dominantDimension]}.`,
       "Complete related assessments to improve report accuracy.",
       "Follow one NIDUS Guru mission for the next 7 days."
     ],
-    behaviourPattern: `Your answers currently point most strongly toward ${traitCopy[dominantDimension]}. NIDUS AI will refine this as more assessments are completed.`,
+    behaviourPattern: data.scoring ? `NIDUS AI scored ${data.scoring.answered}/${data.scoring.totalQuestions} responses across dimension-wise readiness signals.` : `Your answers currently point most strongly toward ${traitCopy[dominantDimension]}. NIDUS AI will refine this as more assessments are completed.`,
     officerReadinessSignal: score >= 70 ? "Positive officer-readiness signal with scope for structured sharpening." : "Early officer-readiness signal that needs routine, confidence, and guided practice.",
     parentSummary: `The student has completed ${answered.length} response${answered.length === 1 ? "" : "s"} in ${data.attempt.test.title}. The current score is ${score}, which indicates ${scoreLevel(score).toLowerCase()}. The next step is structured practice, one related assessment, and counselling review if needed.`,
     recommendedNextTest: nextTestByDimension[dominantDimension],

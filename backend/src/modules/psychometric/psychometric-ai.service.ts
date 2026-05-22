@@ -1,9 +1,21 @@
 type OLQMap = Record<string, number>;
 
+type DimensionScore = {
+  dimension: string;
+  label: string;
+  score: number;
+  answered: number;
+  total: number;
+};
+
 export const psychometricAiService = {
-  analyzePersonality(answers: Array<{ answerText?: string | null; selectedOption?: string | null }>) {
+  analyzePersonality(answers: Array<{ answerText?: string | null; selectedOption?: string | null }>, dimensionScores: DimensionScore[] = []) {
     const responseCount = answers.filter((answer) => answer.answerText || answer.selectedOption).length;
-    return `Candidate produced ${responseCount} meaningful responses. Connect OpenAI analysis to add deeper behavioural evidence, emotional tone, leadership cues, and officer-like qualities.`;
+    const strengths = dimensionScores.filter((item) => item.score >= 75).map((item) => item.label);
+    const development = dimensionScores.filter((item) => item.score > 0 && item.score < 60).map((item) => item.label);
+    const strengthText = strengths.length ? ` Strong signals: ${strengths.join(", ")}.` : "";
+    const developmentText = development.length ? ` Development areas: ${development.join(", ")}.` : "";
+    return `NIDUS AI reviewed ${responseCount} meaningful responses and generated dimension-wise assessment intelligence.${strengthText}${developmentText}`;
   },
 
   generateOLQInsights(scores: OLQMap) {

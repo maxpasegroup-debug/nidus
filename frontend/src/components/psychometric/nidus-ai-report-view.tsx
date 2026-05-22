@@ -62,11 +62,30 @@ export function NidusAiReportView({ report }: { report: NidusGeneratedReport }) 
         <p className="mt-3 text-sm leading-7 text-muted">{report.officerReadinessSignal}</p>
       </ReportCard>
 
+      {report.dimensionScores?.length ? (
+        <ReportCard title="Dimension Scores">
+          <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            {report.dimensionScores.map((dimension) => (
+              <div key={dimension.dimension} className="rounded border border-white/10 bg-white/[0.035] p-4">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-sm font-semibold text-white">{dimension.label}</p>
+                  <p className="text-sm font-semibold text-gold-soft">{dimension.score}/100</p>
+                </div>
+                <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/10">
+                  <div className="h-full rounded-full bg-gold" style={{ width: `${dimension.score}%` }} />
+                </div>
+                <p className="mt-2 text-xs text-muted">{dimension.answered}/{dimension.total} responses</p>
+              </div>
+            ))}
+          </div>
+        </ReportCard>
+      ) : null}
+
       <ReportCard title="Answer Interpretation">
         <div className="mt-4 space-y-3">
           {report.answerSignals.length ? report.answerSignals.map((signal, index) => (
             <div key={`${signal.question}-${index}`} className="rounded border border-white/10 bg-white/[0.035] p-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-gold">{signal.dimension}</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-gold">{signal.dimensionLabel ?? signal.dimension}</p>
               <p className="mt-2 text-sm font-semibold leading-6 text-white">{signal.question}</p>
               <p className="mt-2 text-sm leading-6 text-muted">{signal.answer}</p>
               <p className="mt-3 text-sm leading-6 text-gold-soft">{signal.interpretation}</p>
@@ -80,6 +99,7 @@ export function NidusAiReportView({ report }: { report: NidusGeneratedReport }) 
       <section className="grid gap-4 lg:grid-cols-[1fr_0.8fr]">
         <ReportCard title="Parent / Counsellor Summary">
           <p className="mt-3 text-sm leading-7 text-muted">{report.parentSummary}</p>
+          {report.counsellorSummary ? <p className="mt-4 rounded border border-gold/20 bg-gold/10 p-4 text-sm leading-7 text-gold-soft">{report.counsellorSummary}</p> : null}
         </ReportCard>
         <ReportCard title="Next Best Action">
           <div className="mt-4 space-y-3">
@@ -96,6 +116,16 @@ export function NidusAiReportView({ report }: { report: NidusGeneratedReport }) 
           <p className="mt-4 text-sm leading-7 text-muted">{report.counsellingAction}</p>
         </ReportCard>
       </section>
+
+      {report.sevenDayActionPlan?.length ? (
+        <ReportCard title="7-Day Action Plan">
+          <div className="mt-4 grid gap-3 md:grid-cols-2">
+            {report.sevenDayActionPlan.map((item) => (
+              <div key={item} className="rounded border border-white/10 bg-white/[0.035] px-4 py-3 text-sm leading-6 text-muted">{item}</div>
+            ))}
+          </div>
+        </ReportCard>
+      ) : null}
     </div>
   );
 }

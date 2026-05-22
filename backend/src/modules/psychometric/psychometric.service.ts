@@ -7,6 +7,22 @@ type SubmitAnswer = {
   selectedOption?: string;
 };
 
+type QuestionForScoring = {
+  id: string;
+  testId: string;
+  options: unknown;
+};
+
+type DimensionScore = {
+  dimension: string;
+  label: string;
+  score: number;
+  answered: number;
+  total: number;
+};
+
+type ScoringResult = ReturnType<typeof buildScoring>;
+
 const includeQuestions = {
   questions: { orderBy: { order: "asc" as const } }
 };
@@ -29,8 +45,236 @@ const olqKeys = [
   "emotionalStability"
 ] as const;
 
-function scoreAnswers(answers: SubmitAnswer[]) {
-  return Math.min(100, Math.round(answers.filter((answer) => answer.answerText || answer.selectedOption).length * 18));
+const dimensionLabels: Record<string, string> = {
+  leadership: "Leadership",
+  discipline: "Discipline",
+  focus: "Focus",
+  confidence: "Confidence",
+  pressure: "Pressure Handling",
+  future: "Future Readiness",
+  teamwork: "Teamwork",
+  emotional: "Emotional Stability",
+  fitness: "Physical Mindset",
+  communication: "Communication",
+  reasoning: "Reasoning",
+  careerFit: "Career Fit",
+  serviceMindset: "Service Mindset",
+  dreamDrive: "Dream Drive"
+};
+
+const olqDimensionMap: Partial<Record<keyof typeof dimensionLabels, (typeof olqKeys)[number][]>> = {
+  leadership: ["initiative", "abilityToInfluence", "organizingAbility"],
+  discipline: ["determination", "senseOfResponsibility", "stamina"],
+  focus: ["effectiveIntelligence", "reasoningAbility", "determination"],
+  confidence: ["selfConfidence", "liveliness", "courage"],
+  pressure: ["speedOfDecision", "courage", "emotionalStability"],
+  future: ["determination", "senseOfResponsibility", "initiative"],
+  teamwork: ["cooperation", "socialAdaptability", "abilityToInfluence"],
+  emotional: ["emotionalStability", "selfConfidence", "liveliness"],
+  fitness: ["stamina", "determination", "courage"],
+  communication: ["abilityToInfluence", "socialAdaptability", "selfConfidence"],
+  reasoning: ["effectiveIntelligence", "reasoningAbility", "organizingAbility"],
+  careerFit: ["effectiveIntelligence", "organizingAbility", "senseOfResponsibility"],
+  serviceMindset: ["senseOfResponsibility", "courage", "stamina"],
+  dreamDrive: ["determination", "initiative", "stamina"]
+};
+
+const nextTestByDimension: Record<string, string> = {
+  leadership: "Leadership DNA Test",
+  discipline: "Discipline Index",
+  focus: "Focus Strength Index",
+  confidence: "Confidence Index",
+  pressure: "SSB Psychology Simulator",
+  future: "Future Readiness Index",
+  teamwork: "Teamwork & Group Dynamics Test",
+  emotional: "Emotional Stability Index",
+  fitness: "Warrior Fitness Mindset",
+  communication: "Command Communication Index",
+  reasoning: "OLQ Analyzer",
+  careerFit: "Defence Career Fit Test",
+  serviceMindset: "Defence Mindset Scan",
+  dreamDrive: "Dream Addiction Index"
+};
+
+const guruQuestByDimension: Record<string, string> = {
+  leadership: "Student Power",
+  discipline: "Life OS",
+  focus: "Focus Reset",
+  confidence: "Confidence Sprint",
+  pressure: "Warrior Discipline",
+  future: "Future Direction",
+  teamwork: "Communication Quest",
+  emotional: "Mind Calm Protocol",
+  fitness: "Fitness & Energy",
+  communication: "Social & Communication",
+  reasoning: "Student Power",
+  careerFit: "Future & Career",
+  serviceMindset: "Warrior Discipline",
+  dreamDrive: "Dream Addiction"
+};
+
+function camelDimension(value: string) {
+  return value.replace(/-([a-z])/g, (_match, letter: string) => letter.toUpperCase());
+}
+
+function dimensionFromQuestion(question: Pick<QuestionForScoring, "id" | "testId">) {
+  const withoutTest = question.id.startsWith(`${question.testId}-`) ? question.id.slice(question.testId.length + 1) : question.id;
+  const withoutIndex = withoutTest.replace(/-\d+$/, "");
+  return camelDimension(withoutIndex);
+}
+
+function normalizeOptions(options: unknown) {
+  return Array.isArray(options) ? options.map((option) => String(option)) : [];
+}
+
+function answerValue(answer: SubmitAnswer) {
+  return answer.selectedOption ?? answer.answerText ?? "";
+}
+
+function scoreAnswer(answer: SubmitAnswer, question?: QuestionForScoring) {
+  const selected = answerValue(answer).trim();
+  if (!selected) return 0;
+  const options = normalizeOptions(question?.options);
+  const optionIndex = options.findIndex((option) => option.trim() === selected);
+  if (optionIndex >= 0) return [10, 8, 5, 2][optionIndex] ?? 4;
+  return Math.min(8, Math.max(5, Math.round(selected.length / 18)));
+}
+
+function readinessBand(score: number) {
+  if (score >= 85) return "Strong officer signal";
+  if (score >= 70) return "Developing officer potential";
+  if (score >= 50) return "Foundation stage";
+  return "Needs guided support";
+}
+
+function buildScoring(answers: SubmitAnswer[], questions: QuestionForScoring[]) {
+  const questionMap = new Map(questions.map((question) => [question.id, question]));
+  const totalQuestions = questions.length;
+  const answeredRows = answers
+    .map((answer) => {
+      const question = questionMap.get(answer.questionId);
+      const score = scoreAnswer(answer, question);
+      const dimension = question ? dimensionFromQuestion(question) : "general";
+      return { answer, question, score, dimension };
+    })
+    .filter((row) => row.score > 0);
+  const answered = answeredRows.length;
+  const qualityScore = answered ? Math.round((answeredRows.reduce((sum, row) => sum + row.score, 0) / answered) * 10) : 0;
+  const completionScore = totalQuestions ? Math.round((answered / totalQuestions) * 100) : 0;
+  const overallScore = Math.min(100, Math.round(qualityScore * 0.85 + completionScore * 0.15));
+
+  const allDimensions = Array.from(new Set(questions.map((question) => dimensionFromQuestion(question))));
+  const dimensionScores: DimensionScore[] = allDimensions.map((dimension) => {
+    const total = questions.filter((question) => dimensionFromQuestion(question) === dimension).length;
+    const rows = answeredRows.filter((row) => row.dimension === dimension);
+    return {
+      dimension,
+      label: dimensionLabels[dimension] ?? dimension,
+      score: rows.length ? Math.round((rows.reduce((sum, row) => sum + row.score, 0) / rows.length) * 10) : 0,
+      answered: rows.length,
+      total
+    };
+  });
+  const riskIndicators = dimensionScores.filter((item) => item.score > 0 && item.score < 55).map((item) => item.label);
+  const strongestDimensions = [...dimensionScores].filter((item) => item.score > 0).sort((a, b) => b.score - a.score).slice(0, 3);
+  const weakestDimensions = [...dimensionScores].filter((item) => item.score > 0).sort((a, b) => a.score - b.score).slice(0, 3);
+
+  return {
+    score: overallScore,
+    qualityScore,
+    completionScore,
+    answered,
+    totalQuestions,
+    readinessBand: readinessBand(overallScore),
+    dimensionScores,
+    riskIndicators,
+    strongestDimensions,
+    weakestDimensions,
+    answerRows: answeredRows
+  };
+}
+
+function olqDataFromDimensions(dimensionScores: DimensionScore[]) {
+  const base: Partial<Record<(typeof olqKeys)[number], number>> = {};
+  for (const key of olqKeys) base[key] = 55;
+
+  for (const dimensionScore of dimensionScores) {
+    const keys = olqDimensionMap[dimensionScore.dimension as keyof typeof dimensionLabels] ?? [];
+    for (const key of keys) {
+      base[key] = Math.max(base[key] ?? 55, Math.max(40, Math.min(95, dimensionScore.score)));
+    }
+  }
+
+  return base as Record<(typeof olqKeys)[number], number>;
+}
+
+function meaningForScore(score: number) {
+  if (score >= 85) return "The student shows a strong readiness signal. The priority is now consistency, pressure practice, and leadership exposure.";
+  if (score >= 70) return "The student shows developing officer potential with clear strengths and trainable improvement areas.";
+  if (score >= 50) return "The student is at foundation stage. The result gives a practical starting point for habit, confidence, and focus building.";
+  return "The student needs guided support. This result is useful because it identifies where NIDUS should begin intervention.";
+}
+
+function buildStructuredReport(attempt: { test: { title: string; type: string }; answers: Array<{ answerText?: string | null; selectedOption?: string | null; question: { questionText: string; id: string; testId: string } }> }, scoring: ScoringResult, recommendations: string[]) {
+  const strongest = scoring.strongestDimensions;
+  const weakest = scoring.weakestDimensions;
+  const dominant = strongest[0] ?? scoring.dimensionScores.find((item) => item.score > 0) ?? scoring.dimensionScores[0];
+  const development = weakest[0] ?? dominant;
+  const nextTest = dominant ? nextTestByDimension[dominant.dimension] ?? "Officer Readiness Test" : "Officer Readiness Test";
+  const guruQuest = development ? guruQuestByDimension[development.dimension] ?? "Life OS" : "Life OS";
+  const answerSignals = attempt.answers
+    .filter((answer) => answer.answerText || answer.selectedOption)
+    .map((answer) => {
+      const dimension = dimensionFromQuestion(answer.question);
+      const selectedAnswer = answer.selectedOption ?? answer.answerText ?? "";
+      const matchedDimension = scoring.dimensionScores.find((item) => item.dimension === dimension);
+      return {
+        question: answer.question.questionText,
+        answer: selectedAnswer,
+        dimension,
+        dimensionLabel: matchedDimension?.label ?? dimension,
+        score: matchedDimension?.score ?? 0,
+        interpretation: matchedDimension && matchedDimension.score >= 75
+          ? `Strong signal in ${matchedDimension.label}. This response supports readiness.`
+          : matchedDimension && matchedDimension.score < 55
+            ? `Development signal in ${matchedDimension.label}. This should be trained through guided missions.`
+            : `Balanced signal in ${matchedDimension?.label ?? dimension}. NIDUS AI will refine this through more responses.`
+      };
+    });
+
+  return {
+    score: scoring.score,
+    level: scoring.readinessBand,
+    simpleMeaning: meaningForScore(scoring.score),
+    dimensionScores: scoring.dimensionScores,
+    strengths: [
+      strongest.length ? `Strongest dimensions: ${strongest.map((item) => `${item.label} ${item.score}/100`).join(", ")}.` : "More responses are needed to identify strong dimensions.",
+      recommendations[0] ?? "Continue structured practice.",
+      `Quality score ${scoring.qualityScore}/100 with ${scoring.completionScore}% completion.`
+    ],
+    improvementAreas: [
+      weakest.length ? `Development dimensions: ${weakest.map((item) => `${item.label} ${item.score}/100`).join(", ")}.` : "Complete more responses to identify improvement areas.",
+      scoring.riskIndicators.length ? `Risk indicators: ${scoring.riskIndicators.join(", ")}.` : "No major low-score risk indicator was detected from answered items.",
+      "Complete related assessments to improve report accuracy."
+    ],
+    behaviourPattern: `NIDUS AI evaluated ${scoring.answered}/${scoring.totalQuestions} responses across ${scoring.dimensionScores.length} dimensions in ${attempt.test.title}.`,
+    officerReadinessSignal: scoring.score >= 70 ? "Positive officer-readiness signal with scope for structured sharpening." : "Officer-readiness is developing and needs guided routine, confidence, focus, and pressure practice.",
+    parentSummary: `The student completed ${scoring.answered}/${scoring.totalQuestions} responses in ${attempt.test.title}. The score is ${scoring.score}/100, classified as ${scoring.readinessBand.toLowerCase()}. Recommended next step: ${nextTest} and ${guruQuest}.`,
+    counsellorSummary: `Review ${development?.label ?? "the weakest dimension"} first, then connect the student to ${guruQuest} and follow up through ${nextTest}.`,
+    recommendedNextTest: nextTest,
+    recommendedGuruQuest: guruQuest,
+    counsellingAction: scoring.score >= 70 ? "Book a review to convert this strength into a defence pathway plan." : "Book counselling to identify the first improvement mission and assessment path.",
+    sevenDayActionPlan: [
+      `Day 1: Review the ${attempt.test.title} report and note the strongest dimension.`,
+      `Day 2: Start the ${guruQuest} mission for one focused action.`,
+      "Day 3: Practice one timed study or response block without distraction.",
+      "Day 4: Complete one physical or discipline task even if motivation is low.",
+      `Day 5: Take or schedule ${nextTest}.`,
+      "Day 6: Discuss the parent/counsellor summary with a mentor.",
+      "Day 7: Update the digital profile and choose the next mission."
+    ],
+    answerSignals
+  };
 }
 
 export const psychometricService = {
@@ -58,28 +302,34 @@ export const psychometricService = {
   async submit(userId: string, attemptId: string, answers: SubmitAnswer[]) {
     const attempt = await prisma.psychometricAttempt.findFirst({
       where: { id: attemptId, userId },
-      include: { test: true }
+      include: { test: { include: includeQuestions } }
     });
     if (!attempt) throw new Error("Psychometric attempt not found");
     if (attempt.completedAt) throw new Error("Attempt already completed");
 
-    const score = scoreAnswers(answers);
-    const answerRows = answers.map((answer) => ({
+    const scoring = buildScoring(answers, attempt.test.questions);
+    const answerRows = answers.map((answer) => {
+      const question = attempt.test.questions.find((item) => item.id === answer.questionId);
+      const score = scoreAnswer(answer, question);
+      return {
       attemptId,
       questionId: answer.questionId,
       answerText: answer.answerText,
       selectedOption: answer.selectedOption,
-      score: answer.answerText || answer.selectedOption ? Math.min(10, Math.max(4, score / 10)) : 0
-    }));
+        score
+      };
+    });
 
     await prisma.psychometricAnswer.createMany({ data: answerRows, skipDuplicates: true });
     const savedAnswers = await prisma.psychometricAnswer.findMany({ where: { attemptId } });
-    const aiAnalysis = psychometricAiService.analyzePersonality(savedAnswers);
-    const overallRemark = score >= 75 ? "Strong officer readiness indicators" : score >= 55 ? "Developing profile with focused improvement areas" : "Needs structured mentoring and response practice";
+    const aiAnalysis = psychometricAiService.analyzePersonality(savedAnswers, scoring.dimensionScores);
+    const strongest = scoring.strongestDimensions.map((item) => `${item.label} ${item.score}`).join(", ") || "Awaiting more responses";
+    const weakest = scoring.weakestDimensions.map((item) => `${item.label} ${item.score}`).join(", ") || "Awaiting more responses";
+    const risks = scoring.riskIndicators.length ? ` Risk indicators: ${scoring.riskIndicators.join(", ")}.` : "";
+    const overallRemark = `${scoring.readinessBand}. Strongest: ${strongest}. Development focus: ${weakest}.${risks}`;
 
     if (attempt.test.type === "OLQ") {
-      const base = Math.max(45, Math.min(92, score));
-      const olqData = Object.fromEntries(olqKeys.map((key, index) => [key, Math.max(40, Math.min(95, base + ((index % 5) - 2) * 4))]));
+      const olqData = olqDataFromDimensions(scoring.dimensionScores);
       await prisma.oLQScore.upsert({
         where: { userId },
         create: { userId, ...olqData },
@@ -89,7 +339,7 @@ export const psychometricService = {
 
     return prisma.psychometricAttempt.update({
       where: { id: attemptId },
-      data: { score, aiAnalysis, overallRemark, completedAt: new Date() },
+      data: { score: scoring.score, aiAnalysis, overallRemark, completedAt: new Date() },
       include: { test: true, answers: { include: { question: true } } }
     });
   },
@@ -97,11 +347,33 @@ export const psychometricService = {
   async result(userId: string, attemptId: string) {
     const attempt = await prisma.psychometricAttempt.findFirst({
       where: { id: attemptId, userId },
-      include: { test: true, answers: { include: { question: true } } }
+      include: { test: { include: includeQuestions }, answers: { include: { question: true } } }
     });
     if (!attempt) throw new Error("Psychometric result not found");
-    const recommendations = psychometricAiService.generateRecommendations(attempt.test.type, []);
-    return { attempt, recommendations };
+    const scoring = buildScoring(
+      attempt.answers.map((answer) => ({ questionId: answer.questionId, answerText: answer.answerText ?? undefined, selectedOption: answer.selectedOption ?? undefined })),
+      attempt.test.questions
+    );
+    const weakAreas = scoring.weakestDimensions.map((item) => item.label);
+    const recommendations = psychometricAiService.generateRecommendations(attempt.test.type, weakAreas);
+    const report = buildStructuredReport(attempt, scoring, recommendations);
+    return {
+      attempt,
+      recommendations,
+      report,
+      scoring: {
+        score: scoring.score,
+        qualityScore: scoring.qualityScore,
+        completionScore: scoring.completionScore,
+        answered: scoring.answered,
+        totalQuestions: scoring.totalQuestions,
+        readinessBand: scoring.readinessBand,
+        dimensionScores: scoring.dimensionScores,
+        riskIndicators: scoring.riskIndicators,
+        strongestDimensions: scoring.strongestDimensions,
+        weakestDimensions: scoring.weakestDimensions
+      }
+    };
   },
 
   async olqReport(userId: string) {

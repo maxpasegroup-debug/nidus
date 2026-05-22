@@ -16,6 +16,7 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:migrate:deploy": "prisma migrate deploy",
     "bootstrap:production": "tsx src/scripts/production-bootstrap.ts",
+    "seed:psychometric": "tsx src/scripts/psychometric-assessments.ts",
     "seed:nidus-team": "tsx src/scripts/nidus-team.ts",
     "db:readiness": "tsx src/scripts/database-readiness.ts",
     "queue:readiness": "tsx src/scripts/queue-readiness.ts",
