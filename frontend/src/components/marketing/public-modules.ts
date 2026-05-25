@@ -1,4 +1,4 @@
-import { BrainCircuit, Dumbbell, GraduationCap, Landmark, Medal, MessageCircle, Plane, ShieldCheck, Sparkles, Target, Trophy, Zap } from "lucide-react";
+import { BrainCircuit, Dumbbell, GraduationCap, Medal, MessageCircle, Plane, ShieldCheck, Sparkles, Target, Zap } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 export type PublicTile = {
@@ -8,6 +8,18 @@ export type PublicTile = {
   href: string;
   image: string;
   icon: LucideIcon;
+};
+
+export type GuruQuest = PublicTile & {
+  tagline: string;
+  promise: string;
+  trainer: string;
+  trainerRole: string;
+  missionCount: string;
+  tags: string[];
+  focus: string[];
+  missions: string[];
+  tone: string;
 };
 
 const wikiImage = (fileName: string, width = 900) => `https://commons.wikimedia.org/wiki/Special:FilePath/${fileName}?width=${width}`;
@@ -34,13 +46,75 @@ export const topRankExams: PublicTile[] = [
   { slug: "aissee", title: "AISSEE", subtitle: "Sainik School entrance practice for younger aspirants.", href: "/toprank/aissee", image: publicImages.cadets, icon: GraduationCap }
 ];
 
-export const guruRecordedQuests: PublicTile[] = [
-  { slug: "dream-addiction", title: "Dream Addiction", subtitle: "Turn ambition into a daily obsession for growth.", href: "/guru/quests/dream-addiction", image: publicImages.hero, icon: Sparkles },
-  { slug: "focus-reset", title: "Focus Reset", subtitle: "Reduce distraction and rebuild concentration.", href: "/guru/quests/focus-reset", image: publicImages.drdo, icon: Target },
-  { slug: "confidence-builder", title: "Confidence Builder", subtitle: "Build self-belief, speaking comfort, and courage.", href: "/guru/quests/confidence-builder", image: publicImages.cadets, icon: Trophy },
-  { slug: "warrior-discipline", title: "Warrior Discipline", subtitle: "Create routine, consistency, and action habits.", href: "/guru/quests/warrior-discipline", image: publicImages.army, icon: ShieldCheck },
-  { slug: "student-power", title: "Student Power", subtitle: "A simple student system for study, energy, and direction.", href: "/guru/quests/student-power", image: publicImages.navy, icon: Zap },
-  { slug: "life-os", title: "Life OS", subtitle: "Upgrade habits, planning, and daily decision making.", href: "/guru/quests/life-os", image: publicImages.customs, icon: BrainCircuit }
+export const guruRecordedQuests: GuruQuest[] = [
+  {
+    slug: "dream-addiction",
+    title: "Dream Addiction™",
+    subtitle: "Replace Distractions With Ambition.",
+    tagline: "Replace Distractions With Ambition.",
+    promise: "Identify distraction patterns, understand emotional triggers, and convert ambition into a mission mindset.",
+    href: "/guru/quests/dream-addiction",
+    image: publicImages.hero,
+    icon: Sparkles,
+    trainer: "NIDUS Transformation Mentor",
+    trainerRole: "Dream systems, identity and student performance",
+    missionCount: "2 parts / 12 missions",
+    tags: ["Dopamine Awareness", "Ambition Systems", "Mission Mindset"],
+    focus: ["dopamine awareness", "distraction patterns", "self-analysis", "digital addictions", "procrastination", "emotional triggers", "dream obsession", "productive habits"],
+    missions: ["Part 1: Know Your Addictions™", "Digital Distraction Audit", "Emotional Trigger Map", "Procrastination Pattern Reset", "Part 2: Upgrade Your Addictions™", "Future Identity Builder", "Dream Obsession System", "Daily Mission Loop"],
+    tone: "from-[#071d36] via-[#314832] to-[#b9913f]"
+  },
+  {
+    slug: "focus-reset",
+    title: "Focus Reset™",
+    subtitle: "Defeat Distractions. Build Deep Focus.",
+    tagline: "Defeat Distractions. Build Deep Focus.",
+    promise: "Rebuild attention, create digital discipline, and train the mind for study focus and consistency.",
+    href: "/guru/quests/focus-reset",
+    image: publicImages.drdo,
+    icon: Target,
+    trainer: "NIDUS Focus Coach",
+    trainerRole: "Attention, study rhythm and deep work systems",
+    missionCount: "8 missions",
+    tags: ["Concentration", "Digital Discipline", "Deep Work"],
+    focus: ["concentration", "attention rebuilding", "digital discipline", "study focus", "consistency", "deep work systems"],
+    missions: ["Attention Baseline", "Distraction Removal Protocol", "Deep Study Sprint", "Phone Boundary Mission", "Focus Recovery Reflection", "Consistency Loop", "Study Environment Reset", "Deep Focus Challenge"],
+    tone: "from-[#071d36] via-[#234b63] to-[#6e8faf]"
+  },
+  {
+    slug: "warrior-discipline",
+    title: "Warrior Discipline™",
+    subtitle: "Build Unstoppable Habits & Discipline.",
+    tagline: "Build Unstoppable Habits & Discipline.",
+    promise: "Create routine, execution rhythm, self-control and momentum through simple daily missions.",
+    href: "/guru/quests/warrior-discipline",
+    image: publicImages.army,
+    icon: ShieldCheck,
+    trainer: "NIDUS Discipline Mentor",
+    trainerRole: "Routine, execution and discipline psychology",
+    missionCount: "10 missions",
+    tags: ["Routine", "Execution", "Momentum"],
+    focus: ["routine", "execution", "consistency", "self-control", "momentum", "discipline psychology"],
+    missions: ["Discipline Identity", "Morning Command Routine", "Execution Before Motivation", "Self-Control Drill", "Momentum Tracker", "No-Excuse Reflection", "Routine Repair", "Habit Chain", "Pressure Day Mission", "Discipline Review"],
+    tone: "from-[#071d36] via-[#3f4a32] to-[#8a7442]"
+  },
+  {
+    slug: "active-learning-transformation",
+    title: "Active Learning Transformation™",
+    subtitle: "Learn. Reflect. Apply. Repeat. Transform.",
+    tagline: "Learn. Reflect. Apply. Repeat. Transform.",
+    promise: "The foundational onboarding quest that teaches students how NIDUS Guru turns learning into action and transformation.",
+    href: "/guru/quests/active-learning-transformation",
+    image: publicImages.cadets,
+    icon: BrainCircuit,
+    trainer: "NIDUS Active Learning Guide",
+    trainerRole: "Transformation systems, reflection and performance psychology",
+    missionCount: "6 missions",
+    tags: ["Onboarding", "Reflection", "Action Learning"],
+    focus: ["passive learning vs active learning", "mission systems", "reflection systems", "action-based learning", "consistency loops", "performance psychology"],
+    missions: ["Why Passive Learning Fails", "The Active Learning Loop", "Mission-Based Growth", "Reflection System", "Action Challenge Design", "Transformation Rhythm"],
+    tone: "from-[#f7f3ea] via-[#dce9f3] to-[#b9913f]"
+  }
 ];
 
 export const academyMenuItems = [
