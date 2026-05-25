@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import {
   ArrowRight,
   BrainCircuit,
+  CheckCircle2,
   ClipboardCheck,
   Dumbbell,
   GraduationCap,
@@ -12,6 +13,7 @@ import {
   Medal,
   MessageCircle,
   Plane,
+  Radar,
   ShieldCheck,
   Sparkles,
   Target,
@@ -21,7 +23,7 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
-const photos = {
+const img = {
   hero: "https://commons.wikimedia.org/wiki/Special:FilePath/Indian%20Armed%20Forces%20-%20Republic%20day%20parade%202024.jpg",
   army: "https://commons.wikimedia.org/wiki/Special:FilePath/Indian%20Army%20contingent%20Republic%20Day%20parade%202023%20Img5.jpg",
   cadets: "https://commons.wikimedia.org/wiki/Special:FilePath/Ncc%20cadets%20in%20India%20during%20parade.jpg",
@@ -31,88 +33,72 @@ const photos = {
   customs: "https://commons.wikimedia.org/wiki/Special:FilePath/Customs%20%26%20Central%20Officer%20on%20Republic%20Day.jpg",
   drdo: "https://commons.wikimedia.org/wiki/Special:FilePath/Tata%20DRDO%20whap.jpg",
   republic: "https://commons.wikimedia.org/wiki/Special:FilePath/Indian%20soldiers%20at%20the%20Republic%20day%20parade.jpg",
-  final: "https://commons.wikimedia.org/wiki/Special:FilePath/Para%20contingent%20republic%20day%202022.jpg"
+  para: "https://commons.wikimedia.org/wiki/Special:FilePath/Para%20contingent%20republic%20day%202022.jpg"
 };
 
-const pathways: Array<{ label: string; href: string; icon: LucideIcon }> = [
-  { label: "NDA", href: "/programs/nda-crash-course", icon: ShieldCheck },
-  { label: "CDS", href: "/programs/cds-afcat-inet", icon: Medal },
-  { label: "AFCAT", href: "/programs/cds-afcat-inet", icon: Plane },
-  { label: "SSB", href: "/programs/ssb-interview-guidance", icon: MessageCircle },
-  { label: "AISSEE", href: "/programs/aissee-class-6", icon: GraduationCap },
-  { label: "RIMC", href: "/programs/rimc", icon: Landmark },
-  { label: "Agniveer", href: "/programs/agniveer-full-program", icon: Dumbbell }
-];
+const trustBadges = ["AI-Powered Learning", "Mentor Support", "Adaptive Training", "Online + Offline"];
 
-const campusTiles = [
-  { title: "Indian Army Discipline", text: "Parade, routine, courage, and ground confidence.", image: photos.army, icon: ShieldCheck },
-  { title: "Indian Naval Academy Path", text: "Ezhimala-style officer ambition and naval discipline.", image: photos.navy, icon: Landmark },
-  { title: "Indian Air Force Ambition", text: "Aviation dreams, speed, accuracy, and technical readiness.", image: photos.airforce, icon: Plane },
-  { title: "Customs & Civil Services", text: "Uniformed public-service careers beyond defence entries.", image: photos.customs, icon: GraduationCap },
-  { title: "AI Performance Profile", text: "Readiness score, assessments, reports, and next missions.", image: photos.drdo, icon: BrainCircuit }
-];
+const why = [
+  ["AI-Powered Performance Training", "A profile, roadmap, mock intelligence, and revision loop.", BrainCircuit],
+  ["Real Mentor Support", "Guidance from people who understand student pressure and defence ambition.", Users],
+  ["Defence Career Ecosystem", "Academy, physical training, SSB, assessments, and reports together.", ShieldCheck],
+  ["Active Learning Transformation", "Students move through missions, tests, feedback, and daily discipline.", Zap]
+] as const;
 
 const programs = [
-  { title: "Foundation & Long-Term", label: "After 10th / Plus One", href: "/programs/mission-2028-after-10th", image: photos.cadets, icon: ShieldCheck },
-  { title: "Defence Entrance", label: "NDA / CDS / AFCAT / INET", href: "/programs/nda-crash-course", image: photos.republic, icon: Medal },
-  { title: "Specialized Modules", label: "Agniveer / AFMC / SSB", href: "/programs/ssb-interview-guidance", image: photos.airforceMarch, icon: Target }
-];
+  ["NDA", "Officer entrance preparation with TOPRANK adaptive training.", "/programs/nda-crash-course", img.army, ShieldCheck],
+  ["CDS", "Graduate-level officer preparation with smart revision.", "/programs/cds-afcat-inet", img.republic, Medal],
+  ["AFCAT", "Air Force ambition, speed practice, and interview direction.", "/programs/cds-afcat-inet", img.airforce, Plane],
+  ["SSB", "OLQ, psychology, interview, and group confidence.", "/programs/ssb-interview-guidance", img.navy, MessageCircle],
+  ["AISSEE", "Early defence school pathway for young aspirants.", "/programs/aissee-class-6", img.cadets, GraduationCap],
+  ["Agniveer", "Written exam and physical readiness together.", "/programs/agniveer-full-program", img.airforceMarch, Dumbbell]
+] as const;
 
-const aiSignals = [
-  ["Officer Readiness", "82%", ShieldCheck],
-  ["Discipline Index", "Daily", Zap],
-  ["SSB Mission", "Active", Users],
-  ["Next Action", "Train", Target]
-];
+const atmosphere = [
+  ["Physical Training", img.para, Dumbbell],
+  ["Cadet Discipline", img.cadets, ShieldCheck],
+  ["Classroom Focus", img.drdo, GraduationCap],
+  ["Officer Parade", img.republic, Medal],
+  ["Leadership", img.navy, Users],
+  ["Air Power", img.airforce, Plane]
+] as const;
 
-const assessments: Array<{ title: string; badge: string; href: string; icon: LucideIcon; image: string }> = [
-  { title: "Officer Readiness", badge: "Free", href: "/psychometric", icon: ShieldCheck, image: photos.army },
-  { title: "Leadership DNA", badge: "Free", href: "/psychometric", icon: Trophy, image: photos.navy },
-  { title: "Defence Career Fit", badge: "Free", href: "/psychometric", icon: Plane, image: photos.airforce },
-  { title: "Customs & Services Fit", badge: "Free", href: "/psychometric/olq-report", icon: BrainCircuit, image: photos.customs }
-];
+const guru = [
+  ["Assessments", "Know your strengths before the journey starts.", "/psychometric", ClipboardCheck],
+  ["Personal Transformation", "Build focus, confidence, and discipline.", "/guru", Sparkles],
+  ["Dream Addiction", "Turn ambition into daily action.", "/guru#quests", Target]
+] as const;
 
-const guruQuests = ["Dream Addiction", "Focus Reset", "Warrior Discipline", "Student Power"];
-
-function PrimaryCta({ href, children }: { href: string; children: React.ReactNode }) {
+function Cta({ href, children, variant = "primary" }: { href: string; children: React.ReactNode; variant?: "primary" | "secondary" | "dark" }) {
+  const styles = {
+    primary: "bg-[#f0d78a] text-[#0b1424] shadow-[0_18px_44px_rgba(240,215,138,0.26)] hover:bg-white",
+    secondary: "border border-white/18 bg-white/12 text-white shadow-[0_14px_36px_rgba(0,0,0,0.16)] backdrop-blur-xl hover:bg-white/18",
+    dark: "bg-[#263a8f] text-white shadow-[0_18px_42px_rgba(38,58,143,0.22)] hover:bg-[#1f2f75]"
+  };
   return (
-    <Link href={href} className="inline-flex min-h-12 items-center justify-center gap-2 rounded bg-[#263a8f] px-5 py-3 text-sm font-semibold text-white shadow-[0_18px_40px_rgba(38,58,143,0.22)] transition hover:-translate-y-0.5 hover:bg-[#1f2f75]">
+    <Link href={href} className={`inline-flex min-h-12 items-center justify-center gap-2 rounded px-5 py-3 text-sm font-semibold transition hover:-translate-y-0.5 ${styles[variant]}`}>
       {children}
     </Link>
   );
 }
 
-function SecondaryCta({ href, children }: { href: string; children: React.ReactNode }) {
-  return (
-    <Link href={href} className="inline-flex min-h-12 items-center justify-center gap-2 rounded border border-[#263a8f]/18 bg-white/82 px-5 py-3 text-sm font-semibold text-[#263a8f] shadow-[0_12px_30px_rgba(38,58,143,0.10)] backdrop-blur-xl transition hover:-translate-y-0.5 hover:border-[#c9a646]/55 hover:text-[#111827]">
-      {children}
-    </Link>
-  );
-}
-
-function SectionTitle({ eyebrow, title, text }: { eyebrow: string; title: string; text: string }) {
+function SectionIntro({ eyebrow, title, text, light = false }: { eyebrow: string; title: string; text: string; light?: boolean }) {
   return (
     <div className="max-w-3xl">
-      <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#263a8f]">{eyebrow}</p>
-      <h2 className="mt-4 text-3xl font-semibold leading-tight text-[#111827] sm:text-5xl">{title}</h2>
-      <p className="mt-4 max-w-2xl text-sm leading-7 text-[#536072]">{text}</p>
+      <p className={`text-xs font-semibold uppercase tracking-[0.24em] ${light ? "text-[#f0d78a]" : "text-[#263a8f]"}`}>{eyebrow}</p>
+      <h2 className={`mt-4 text-3xl font-semibold leading-tight sm:text-5xl ${light ? "text-white" : "text-[#111827]"}`}>{title}</h2>
+      <p className={`mt-4 max-w-2xl text-sm leading-7 ${light ? "text-white/72" : "text-[#536072]"}`}>{text}</p>
     </div>
   );
 }
 
-function PhotoCard({ title, text, image, icon: Icon, className = "" }: { title: string; text: string; image: string; icon: LucideIcon; className?: string }) {
+function PhotoPanel({ title, image, icon: Icon, className = "" }: { title: string; image: string; icon: LucideIcon; className?: string }) {
   return (
-    <motion.article whileHover={{ y: -5 }} className={`group overflow-hidden rounded-lg border border-[#263a8f]/10 bg-white shadow-[0_24px_70px_rgba(19,35,72,0.10)] ${className}`}>
-      <div className="relative aspect-[16/10] overflow-hidden bg-[#e8edf7]">
-        <div className="absolute inset-0 bg-cover bg-center transition duration-700 group-hover:scale-105" style={{ backgroundImage: `url('${image}')` }} />
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.05),rgba(17,24,39,0.42))]" />
-        <div className="absolute bottom-4 left-4 grid h-11 w-11 place-items-center rounded border border-white/40 bg-white/76 text-[#263a8f] backdrop-blur-xl">
-          <Icon className="h-5 w-5" />
-        </div>
-      </div>
-      <div className="p-5">
-        <h3 className="text-2xl font-semibold leading-tight text-[#111827]">{title}</h3>
-        <p className="mt-2 text-sm leading-6 text-[#536072]">{text}</p>
+    <motion.article whileHover={{ y: -5 }} className={`group relative min-h-72 overflow-hidden rounded-lg border border-white/14 bg-[#111827] shadow-[0_26px_80px_rgba(6,12,24,0.20)] ${className}`}>
+      <div className="absolute inset-0 bg-cover bg-center transition duration-700 group-hover:scale-105" style={{ backgroundImage: `linear-gradient(180deg,rgba(8,13,24,0.05),rgba(8,13,24,0.72)),url('${image}')` }} />
+      <div className="relative flex min-h-72 flex-col justify-between p-5 text-white">
+        <Icon className="h-7 w-7 text-[#f0d78a]" />
+        <h3 className="text-2xl font-semibold leading-tight">{title}</h3>
       </div>
     </motion.article>
   );
@@ -120,34 +106,34 @@ function PhotoCard({ title, text, image, icon: Icon, className = "" }: { title: 
 
 function HeroVisual() {
   return (
-    <motion.div initial={{ opacity: 0, scale: 0.96, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} transition={{ delay: 0.12, duration: 0.65 }} className="relative">
-      <div className="absolute -inset-8 rounded-full bg-[#c9a646]/18 blur-3xl" />
-      <div className="relative overflow-hidden rounded-lg border border-white/80 bg-white/80 p-3 shadow-[0_28px_90px_rgba(19,35,72,0.14)] backdrop-blur-2xl">
-        <div className="relative min-h-[28rem] overflow-hidden rounded bg-[#e9edf7]">
-          <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url('${photos.cadets}')` }} />
-          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.04),rgba(17,24,39,0.46))]" />
-          <div className="absolute left-4 right-4 top-4 flex items-center justify-between gap-3">
-            <span className="rounded-full border border-white/70 bg-white/82 px-3 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#263a8f] backdrop-blur-xl">AI Mission Board</span>
-            <span className="rounded-full border border-[#c9a646]/40 bg-[#fff8dd]/88 px-3 py-2 text-xs font-semibold text-[#7c6418] backdrop-blur-xl">Officer Ready</span>
-          </div>
-          <div className="absolute bottom-4 left-4 right-4 rounded-lg border border-white/70 bg-white/86 p-4 text-[#111827] shadow-sm backdrop-blur-2xl">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#263a8f]">Readiness Score</p>
-            <div className="mt-2 flex items-end gap-2">
-              <span className="text-5xl font-semibold leading-none">82</span>
-              <span className="pb-1 text-lg font-semibold text-[#536072]">/100</span>
+    <motion.div initial={{ opacity: 0, scale: 0.96, y: 18 }} animate={{ opacity: 1, scale: 1, y: 0 }} transition={{ delay: 0.12, duration: 0.7 }} className="relative">
+      <div className="absolute -inset-8 rounded-full bg-[#f0d78a]/16 blur-3xl" />
+      <div className="relative grid gap-3">
+        <div className="relative min-h-[34rem] overflow-hidden rounded-lg border border-white/16 bg-[#111827] shadow-[0_36px_110px_rgba(0,0,0,0.32)]">
+          <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `linear-gradient(90deg,rgba(5,10,20,0.12),rgba(5,10,20,0.76)),url('${img.army}')` }} />
+          <div className="relative flex min-h-[34rem] flex-col justify-between p-5 text-white sm:p-6">
+            <div className="flex items-center justify-between gap-3">
+              <span className="rounded-full border border-[#f0d78a]/35 bg-[#f0d78a]/12 px-3 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-[#f0d78a] backdrop-blur-xl">TOPRANK AI Engine</span>
+              <span className="rounded-full border border-white/18 bg-white/12 px-3 py-2 text-xs font-semibold uppercase tracking-[0.16em] backdrop-blur-xl">Academy Powered</span>
             </div>
-            <p className="mt-2 text-sm leading-6 text-[#536072]">Today: speed, accuracy, discipline, and confidence.</p>
+            <div className="max-w-sm rounded-lg border border-white/16 bg-white/12 p-5 backdrop-blur-xl">
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#f0d78a]">Officer Readiness</p>
+              <div className="mt-3 flex items-end gap-3">
+                <span className="text-7xl font-semibold leading-none">82</span>
+                <span className="pb-2 text-xl font-semibold text-white/72">/100</span>
+              </div>
+              <p className="mt-4 text-sm leading-6 text-white/76">Today&apos;s mission: speed, accuracy, discipline, and confidence.</p>
+            </div>
           </div>
         </div>
-        <div className="mt-3 grid gap-3 sm:grid-cols-3">
+        <div className="grid gap-3 sm:grid-cols-3">
           {[
-            ["Army", photos.army],
-            ["Navy", photos.navy],
-            ["Air Force", photos.airforce]
+            ["Cadets", img.cadets],
+            ["Air Force", img.airforce],
+            ["Mentor Loop", img.navy]
           ].map(([label, image]) => (
-            <div key={label} className="relative h-28 overflow-hidden rounded bg-cover bg-center" style={{ backgroundImage: `url('${image}')` }}>
-              <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent,rgba(17,24,39,0.50))]" />
-              <span className="absolute bottom-3 left-3 rounded bg-white/78 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-[#263a8f] backdrop-blur-xl">{label}</span>
+            <div key={label} className="relative h-32 overflow-hidden rounded border border-white/12 bg-cover bg-center shadow-[0_16px_44px_rgba(5,10,20,0.18)]" style={{ backgroundImage: `linear-gradient(180deg,rgba(5,10,20,0.04),rgba(5,10,20,0.64)),url('${image}')` }}>
+              <span className="absolute bottom-3 left-3 rounded bg-white/14 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-white backdrop-blur-xl">{label}</span>
             </div>
           ))}
         </div>
@@ -156,183 +142,154 @@ function HeroVisual() {
   );
 }
 
-function MissionStrip() {
-  return (
-    <section className="border-y border-[#263a8f]/10 bg-white/82 px-4 py-5 backdrop-blur-xl sm:px-6 lg:px-8">
-      <div className="mx-auto grid max-w-7xl grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-7">
-        {pathways.map(({ label, href, icon: Icon }) => (
-          <Link key={label} href={href} className="group flex min-h-14 items-center justify-center gap-2 rounded border border-[#263a8f]/10 bg-white px-3 py-3 text-sm font-semibold text-[#263a8f] shadow-sm transition hover:-translate-y-0.5 hover:border-[#c9a646]/50 hover:bg-[#fff8dd]">
-            <Icon className="h-4 w-4 text-[#c9a646] transition group-hover:scale-110" />
-            {label}
-          </Link>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function AiPerformancePanel() {
-  return (
-    <section className="px-4 py-20 sm:px-6 lg:px-8">
-      <div className="mx-auto grid max-w-7xl gap-8 rounded-lg border border-[#263a8f]/10 bg-white p-5 shadow-[0_28px_90px_rgba(19,35,72,0.10)] sm:p-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
-        <div className="relative min-h-[24rem] overflow-hidden rounded bg-[#eef2f9]">
-          <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url('${photos.drdo}')` }} />
-          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(255,255,255,0.12),rgba(255,255,255,0.78))]" />
-          <div className="absolute bottom-5 left-5 right-5 rounded-lg border border-white/70 bg-white/84 p-4 backdrop-blur-2xl">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#263a8f]">NIDUS AI Performance Engine</p>
-            <h3 className="mt-2 text-2xl font-semibold">One profile. One mission roadmap.</h3>
-          </div>
-        </div>
-        <div>
-          <SectionTitle eyebrow="AI Campus Layer" title="Assessment, learning, training, and reports connected." text="NIDUS AI turns the student journey into a clear readiness profile with next actions." />
-          <div className="mt-6 grid gap-3 sm:grid-cols-2">
-            {aiSignals.map(([title, value, Icon]) => {
-              const SignalIcon = Icon as LucideIcon;
-              return (
-                <motion.div key={String(title)} whileHover={{ y: -3 }} className="rounded border border-[#263a8f]/10 bg-[#f8fafc] p-4">
-                  <SignalIcon className="h-5 w-5 text-[#263a8f]" />
-                  <p className="mt-5 text-3xl font-semibold text-[#111827]">{String(value)}</p>
-                  <p className="mt-1 text-xs font-semibold uppercase tracking-[0.16em] text-[#536072]">{String(title)}</p>
-                </motion.div>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
 export function MarketingHome() {
   return (
-    <main className="bg-[#f6f7fb] text-[#111827]">
-      <section className="relative overflow-hidden px-4 pb-16 pt-28 sm:px-6 lg:px-8">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgba(38,58,143,0.16),transparent_28rem),radial-gradient(circle_at_84%_12%,rgba(201,166,70,0.22),transparent_24rem),linear-gradient(180deg,#ffffff_0%,#f6f7fb_88%)]" />
-        <div className="absolute inset-x-0 top-0 h-[42rem] bg-cover bg-center opacity-55" style={{ backgroundImage: `linear-gradient(180deg,rgba(255,255,255,0.62),rgba(246,247,251,0.96)),url('${photos.hero}')` }} />
-        <div className="relative mx-auto grid min-h-[calc(100vh-7rem)] max-w-7xl gap-12 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
+    <main className="bg-[#f6f3ec] text-[#111827]">
+      <section className="relative min-h-screen overflow-hidden bg-[#0b1424] px-4 pb-14 pt-28 text-white sm:px-6 lg:px-8">
+        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `linear-gradient(90deg,rgba(5,10,20,0.88),rgba(5,10,20,0.46),rgba(5,10,20,0.78)),url('${img.hero}')` }} />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_22%,rgba(240,215,138,0.22),transparent_24rem),radial-gradient(circle_at_82%_18%,rgba(38,58,143,0.28),transparent_26rem)]" />
+        <div className="relative mx-auto grid min-h-[calc(100vh-7rem)] max-w-7xl gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
           <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
-            <div className="inline-flex items-center gap-2 rounded-full border border-[#263a8f]/15 bg-white/78 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-[#263a8f] shadow-sm backdrop-blur-xl">
-              <ShieldCheck className="h-4 w-4 text-[#c9a646]" />
-              India&apos;s First Integrated AI-Powered Defence Career Campus
-            </div>
-            <h1 className="mt-7 max-w-5xl text-5xl font-semibold leading-[0.98] text-[#111827] sm:text-7xl">
-              From aspirant to officer material.
+            <p className="inline-flex rounded-full border border-[#f0d78a]/35 bg-[#f0d78a]/12 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-[#f0d78a] backdrop-blur-xl">
+              AI-Powered Defence Career & Performance Ecosystem
+            </p>
+            <h1 className="mt-7 max-w-4xl text-6xl font-semibold leading-[0.88] sm:text-8xl">
+              FROM ASPIRANT
+              <span className="block text-[#f0d78a]">TO OFFICER.</span>
             </h1>
-            <p className="mt-6 max-w-2xl text-lg font-semibold leading-8 text-[#536072] sm:text-2xl">
-              Academics. Physical training. SSB. Psychometrics. AI performance coaching.
+            <p className="mt-7 max-w-2xl text-lg font-semibold leading-8 text-white/82 sm:text-2xl">
+              AI-powered defence career and performance ecosystem for NDA, CDS, AFCAT, SSB and beyond.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <PrimaryCta href="/join">Join NIDUS <Medal className="h-4 w-4" /></PrimaryCta>
-              <SecondaryCta href="/programs">Explore Academy <ArrowRight className="h-4 w-4" /></SecondaryCta>
-              <SecondaryCta href="/psychometric">Start Free Assessment</SecondaryCta>
+              <Cta href="/psychometric">Start Free <ArrowRight className="h-4 w-4" /></Cta>
+              <Cta href="/programs" variant="secondary">Explore Academy</Cta>
+              <Cta href="/guru" variant="secondary">Explore NIDUS Guru</Cta>
+            </div>
+            <div className="mt-10 flex flex-wrap gap-2">
+              {trustBadges.map((badge) => (
+                <span key={badge} className="rounded-full border border-white/14 bg-white/10 px-3 py-2 text-xs font-semibold text-white/82 backdrop-blur-xl">
+                  {badge}
+                </span>
+              ))}
             </div>
           </motion.div>
           <HeroVisual />
         </div>
       </section>
 
-      <MissionStrip />
+      <section className="px-4 py-20 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl">
+          <SectionIntro eyebrow="Why NIDUS" title="A performance campus, not a tuition website." text="NIDUS connects academy training, AI intelligence, mentor guidance, and active student transformation." />
+          <div className="mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            {why.map(([title, text, Icon]) => (
+              <motion.article key={title} whileHover={{ y: -4 }} className="rounded-lg border border-[#263a8f]/10 bg-white p-5 shadow-[0_18px_60px_rgba(19,35,72,0.08)]">
+                <Icon className="h-6 w-6 text-[#263a8f]" />
+                <h3 className="mt-5 text-lg font-semibold">{title}</h3>
+                <p className="mt-3 text-sm leading-6 text-[#536072]">{text}</p>
+              </motion.article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="px-4 pb-20 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl">
+          <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+            <SectionIntro eyebrow="Academy Programs" title="Choose your defence path." text="TOPRANK AI Performance Engine lives inside NIDUS Academy to make every path smarter." />
+            <Cta href="/programs" variant="dark">View Academy <ArrowRight className="h-4 w-4" /></Cta>
+          </div>
+          <div className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+            {programs.map(([title, text, href, image, Icon]) => (
+              <Link key={title} href={href} className="group relative min-h-[23rem] overflow-hidden rounded-lg border border-white/20 bg-[#111827] shadow-[0_26px_80px_rgba(19,35,72,0.16)]">
+                <div className="absolute inset-0 bg-cover bg-center transition duration-700 group-hover:scale-105" style={{ backgroundImage: `linear-gradient(180deg,rgba(5,10,20,0.06),rgba(5,10,20,0.80)),url('${image}')` }} />
+                <div className="relative flex min-h-[23rem] flex-col justify-between p-5 text-white">
+                  <Icon className="h-7 w-7 text-[#f0d78a]" />
+                  <div>
+                    <h3 className="text-4xl font-semibold leading-tight">{title}</h3>
+                    <p className="mt-3 text-sm leading-6 text-white/76">{text}</p>
+                    <span className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-[#f0d78a]">Explore <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" /></span>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="relative overflow-hidden bg-[#0b1424] px-4 py-20 text-white sm:px-6 lg:px-8">
+        <div className="absolute inset-0 bg-cover bg-center opacity-24" style={{ backgroundImage: `url('${img.drdo}')` }} />
+        <div className="absolute inset-0 bg-[linear-gradient(90deg,#0b1424_0%,rgba(11,20,36,0.92)_54%,rgba(11,20,36,0.72)_100%)]" />
+        <div className="relative mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+          <SectionIntro eyebrow="TOPRANK AI Performance Engine" title="The adaptive training system inside Academy." text="Profiling, diagnostics, AI roadmap, adaptive learning, revision system, mock intelligence, and mentor loop." light />
+          <div className="grid gap-4 sm:grid-cols-2">
+            {["Profiling", "Diagnostics", "AI Roadmap", "Mock Intelligence", "Revision System", "Mentor Loop"].map((item, index) => (
+              <motion.div key={item} whileHover={{ y: -4 }} className="rounded-lg border border-white/10 bg-white/[0.07] p-5 backdrop-blur-2xl">
+                <span className="text-3xl font-semibold text-[#f0d78a]">{String(index + 1).padStart(2, "0")}</span>
+                <p className="mt-5 text-lg font-semibold">{item}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
 
       <section className="px-4 py-20 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
-          <SectionTitle eyebrow="Integrated Campus" title="A real defence training ecosystem." text="Bright, visual, and easy to understand: classroom, ground training, SSB, aviation dreams, and AI performance guidance." />
+          <SectionIntro eyebrow="Training Atmosphere" title="Students should feel the discipline before they join." text="Realistic visual signals of training, teamwork, parade discipline, and officer ambition." />
           <div className="mt-10 grid gap-4 lg:grid-cols-6">
-            {campusTiles.map((tile, index) => (
-              <PhotoCard key={tile.title} title={tile.title} text={tile.text} image={tile.image} icon={tile.icon} className={index < 2 ? "lg:col-span-3" : "lg:col-span-2"} />
+            {atmosphere.map(([title, image, Icon], index) => (
+              <PhotoPanel key={title} title={title} image={image} icon={Icon} className={index < 2 ? "lg:col-span-3" : "lg:col-span-2"} />
             ))}
           </div>
         </div>
       </section>
 
-      <section id="programs" className="px-4 pb-20 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-7xl">
-          <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-            <SectionTitle eyebrow="Academy Programs" title="Choose the mission path." text="Visual program doors for foundation, entrance, and specialized defence preparation." />
-            <Link href="/programs" className="inline-flex min-h-12 items-center justify-center gap-2 rounded bg-[#263a8f] px-5 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-[#1f2f75]">
-              View All Programs <ArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
-          <div className="mt-10 grid gap-5 lg:grid-cols-3">
-            {programs.map(({ title, label, href, image, icon: Icon }) => (
-              <Link key={title} href={href} className="group overflow-hidden rounded-lg border border-[#263a8f]/10 bg-white shadow-[0_24px_70px_rgba(19,35,72,0.10)] transition hover:-translate-y-1">
-                <div className="relative aspect-[16/10] overflow-hidden bg-[#e8edf7]">
-                  <div className="absolute inset-0 bg-cover bg-center transition duration-700 group-hover:scale-105" style={{ backgroundImage: `url('${image}')` }} />
-                  <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.02),rgba(17,24,39,0.42))]" />
-                  <Icon className="absolute bottom-4 left-4 h-7 w-7 text-white" />
-                </div>
-                <div className="p-5">
-                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#263a8f]">{label}</p>
-                  <h3 className="mt-3 text-2xl font-semibold">{title}</h3>
-                  <span className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[#263a8f]">
-                    Explore <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
-                  </span>
-                </div>
+      <section id="guru" className="bg-[#fbf7ef] px-4 py-20 sm:px-6 lg:px-8">
+        <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
+          <SectionIntro eyebrow="NIDUS Guru" title="Know yourself. Transform daily." text="A cleaner personal growth layer for assessments, transformation, and Dream Addiction." />
+          <div className="grid gap-4 md:grid-cols-3">
+            {guru.map(([title, text, href, Icon]) => (
+              <Link key={title} href={href} className="group rounded-lg border border-[#6f744e]/12 bg-white p-5 shadow-[0_18px_60px_rgba(48,54,35,0.10)] transition hover:-translate-y-1">
+                <Icon className="h-6 w-6 text-[#6f744e]" />
+                <h3 className="mt-8 text-2xl font-semibold">{title}</h3>
+                <p className="mt-3 min-h-16 text-sm leading-6 text-[#5d6653]">{text}</p>
+                <span className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-[#6f744e]">Explore <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" /></span>
               </Link>
             ))}
           </div>
         </div>
       </section>
 
-      <AiPerformancePanel />
-
-      <section id="psychometric-tests" className="px-4 py-20 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-7xl">
-          <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-            <SectionTitle eyebrow="Assessments" title="Start with a defence potential scan." text="Free and premium assessment cards with real visual energy, not empty placeholders." />
-            <PrimaryCta href="/psychometric">Start Assessment <ClipboardCheck className="h-4 w-4" /></PrimaryCta>
-          </div>
-          <div className="mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            {assessments.map(({ title, badge, href, icon: Icon, image }) => (
-              <Link key={title} href={href} className="group overflow-hidden rounded-lg border border-[#263a8f]/10 bg-white shadow-[0_20px_60px_rgba(19,35,72,0.09)] transition hover:-translate-y-1">
-                <div className="relative aspect-[4/3] overflow-hidden bg-[#e8edf7]">
-                  <div className="absolute inset-0 bg-cover bg-center transition duration-700 group-hover:scale-105" style={{ backgroundImage: `url('${image}')` }} />
-                  <div className="absolute left-4 top-4 rounded-full bg-white/82 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-[#263a8f] backdrop-blur-xl">{badge}</div>
-                </div>
-                <div className="p-5">
-                  <Icon className="h-5 w-5 text-[#c9a646]" />
-                  <h3 className="mt-4 text-xl font-semibold">{title}</h3>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section id="nidus-guru" className="relative overflow-hidden bg-[#fbf7ef] px-4 py-20 sm:px-6 lg:px-8">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_18%,rgba(111,116,78,0.14),transparent_24rem),radial-gradient(circle_at_82%_14%,rgba(240,215,138,0.24),transparent_22rem)]" />
-        <div className="relative mx-auto grid max-w-7xl gap-8 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
+      <section className="px-4 py-20 sm:px-6 lg:px-8">
+        <div className="mx-auto grid max-w-7xl gap-8 rounded-lg border border-[#263a8f]/10 bg-white p-6 shadow-[0_26px_80px_rgba(19,35,72,0.10)] lg:grid-cols-[1fr_0.8fr] lg:items-center">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#6f744e]">NIDUS Guru</p>
-            <h2 className="mt-4 text-4xl font-semibold leading-tight text-[#181915] sm:text-5xl">Transform Your Mind. Transform Your Future.</h2>
-            <p className="mt-5 max-w-xl text-sm leading-7 text-[#5d6653]">A lighter transformation layer for focus, confidence, discipline, and youth growth missions.</p>
-            <div className="mt-7">
-              <Link href="/guru" className="inline-flex min-h-12 items-center justify-center gap-2 rounded bg-[#181915] px-5 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-[#2f3324]">
-                Explore NIDUS Guru <Sparkles className="h-4 w-4" />
-              </Link>
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#263a8f]">Free Assessments</p>
+            <h2 className="mt-4 text-4xl font-semibold leading-tight sm:text-6xl">Discover your strengths before your journey begins.</h2>
+            <p className="mt-5 max-w-2xl text-sm leading-7 text-[#536072]">Psychometric analysis, personality, confidence, career intelligence, and leadership analysis in simple language.</p>
+            <div className="mt-8">
+              <Cta href="/psychometric" variant="dark">Start Free Assessment <ClipboardCheck className="h-4 w-4" /></Cta>
             </div>
           </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            {guruQuests.map((quest, index) => (
-              <div key={quest} className="rounded-lg border border-[#6f744e]/12 bg-white/78 p-5 shadow-[0_18px_50px_rgba(48,54,35,0.08)] backdrop-blur-xl">
-                <span className="rounded-full bg-[#181915]/8 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-[#6f744e]">Quest {index + 1}</span>
-                <h3 className="mt-8 text-2xl font-semibold text-[#181915]">{quest}</h3>
+          <div className="grid gap-3">
+            {["Psychometric Analysis", "Personality", "Confidence", "Career Intelligence", "Leadership Analysis"].map((item) => (
+              <div key={item} className="flex items-center gap-3 rounded border border-[#263a8f]/10 bg-[#f8fafc] p-4 text-sm font-semibold text-[#111827]">
+                <CheckCircle2 className="h-4 w-4 text-[#138a5b]" />
+                {item}
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      <section id="admissions" className="relative overflow-hidden px-4 py-24 sm:px-6 lg:px-8">
-          <div className="absolute inset-0 bg-cover bg-center opacity-55" style={{ backgroundImage: `linear-gradient(180deg,rgba(255,255,255,0.68),rgba(246,247,251,0.94)),url('${photos.final}')` }} />
+      <section className="relative overflow-hidden bg-[#0b1424] px-4 py-24 text-white sm:px-6 lg:px-8">
+        <div className="absolute inset-0 bg-cover bg-center opacity-54" style={{ backgroundImage: `url('${img.para}')` }} />
+        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(5,10,20,0.92),rgba(5,10,20,0.58),rgba(5,10,20,0.84))]" />
         <div className="relative mx-auto max-w-4xl text-center">
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#263a8f]">Join NIDUS</p>
-          <h2 className="mt-4 text-4xl font-semibold leading-tight text-[#111827] sm:text-6xl">Your uniform journey starts here.</h2>
-          <p className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-[#536072]">
-            Enter a bright, disciplined academy ecosystem built for leadership, intelligence, and selection confidence.
-          </p>
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#f0d78a]">Final Call</p>
+          <h2 className="mt-4 text-5xl font-semibold leading-tight sm:text-7xl">Your Uniform Journey Starts Here.</h2>
           <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-            <PrimaryCta href="/join">Apply Now <ArrowRight className="h-4 w-4" /></PrimaryCta>
-            <SecondaryCta href="/programs">Explore Academy</SecondaryCta>
+            <Cta href="/join">Join NIDUS</Cta>
+            <Cta href="/psychometric" variant="secondary">Start Free</Cta>
+            <Cta href="/join" variant="secondary">Talk to Mentor</Cta>
           </div>
         </div>
       </section>
