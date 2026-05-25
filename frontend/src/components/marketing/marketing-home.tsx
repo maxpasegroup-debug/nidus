@@ -1,289 +1,185 @@
 import Link from "next/link";
-import Image from "next/image";
-import {
-  ArrowRight,
-  BrainCircuit,
-  CheckCircle2,
-  ClipboardCheck,
-  Dumbbell,
-  GraduationCap,
-  Landmark,
-  Medal,
-  MessageCircle,
-  Plane,
-  Radar,
-  ShieldCheck,
-  Sparkles,
-  Target,
-  Trophy,
-  Users,
-  Zap
-} from "lucide-react";
-import type { LucideIcon } from "lucide-react";
-import { publicImages as img } from "@/components/marketing/public-modules";
+import { ArrowRight, BrainCircuit, ClipboardCheck, GraduationCap, ShieldCheck, Sparkles, Target } from "lucide-react";
 
-const trustBadges = ["AI-Powered Learning", "Mentor Support", "Adaptive Training", "Online + Offline"];
+const exams = ["NDA", "CDS", "AFCAT", "SSB", "AISSEE", "RIMC", "Agniveer", "INET", "Physical Training", "Interview Guidance"];
 
-const why = [
-  ["AI-Powered Performance Training", "A profile, roadmap, mock intelligence, and revision loop.", BrainCircuit],
-  ["Real Mentor Support", "Guidance from people who understand student pressure and defence ambition.", Users],
-  ["Defence Career Ecosystem", "Academy, physical training, SSB, assessments, and reports together.", ShieldCheck],
-  ["Active Learning Transformation", "Students move through missions, tests, feedback, and daily discipline.", Zap]
+const modules = [
+  {
+    label: "Academy",
+    title: "Defence Career Campus",
+    text: "Classroom training, physical discipline, SSB guidance and mentor support for serious defence aspirants.",
+    href: "/programs",
+    cta: "Explore Academy",
+    icon: GraduationCap,
+    className: "from-[#260a3f] via-[#2d104f] to-[#470c2f]"
+  },
+  {
+    label: "Top Rank",
+    title: "AI Exam Practice Arena",
+    text: "Practice NDA, CDS, AFCAT and SSB with profiling, diagnostics, speed training and rank-readiness reports.",
+    href: "/toprank",
+    cta: "Enter Top Rank",
+    icon: BrainCircuit,
+    className: "from-[#063848] via-[#0b3d5c] to-[#102554]"
+  },
+  {
+    label: "NIDUS Guru",
+    title: "Personal Transformation Quests",
+    text: "Recorded quests for focus, confidence, discipline, dream clarity and student growth. New quests release soon.",
+    href: "/guru",
+    cta: "Explore Quests",
+    icon: Sparkles,
+    className: "from-[#082927] via-[#103b36] to-[#233115]"
+  }
 ] as const;
 
-const programs = [
-  ["NDA", "Officer entrance preparation with TOPRANK adaptive training.", "/programs/nda-crash-course", img.army, ShieldCheck],
-  ["CDS", "Graduate-level officer preparation with smart revision.", "/programs/cds-afcat-inet", img.republic, Medal],
-  ["AFCAT", "Air Force ambition, speed practice, and interview direction.", "/programs/cds-afcat-inet", img.airforce, Plane],
-  ["SSB", "OLQ, psychology, interview, and group confidence.", "/programs/ssb-interview-guidance", img.navy, MessageCircle],
-  ["AISSEE", "Early defence school pathway for young aspirants.", "/programs/aissee-class-6", img.cadets, GraduationCap],
-  ["Agniveer", "Written exam and physical readiness together.", "/programs/agniveer-full-program", img.airforceMarch, Dumbbell]
-] as const;
-
-const atmosphere = [
-  ["Physical Training", img.para, Dumbbell],
-  ["Cadet Discipline", img.cadets, ShieldCheck],
-  ["Classroom Focus", img.drdo, GraduationCap],
-  ["Officer Parade", img.republic, Medal],
-  ["Leadership", img.navy, Users],
-  ["Air Power", img.airforce, Plane]
-] as const;
-
-const guru = [
-  ["Assessments", "Know your strengths before the journey starts.", "/psychometric", ClipboardCheck],
-  ["Personal Transformation", "Build focus, confidence, and discipline.", "/guru", Sparkles],
-  ["Dream Addiction", "Turn ambition into daily action.", "/guru#quests", Target]
-] as const;
-
-function Cta({ href, children, variant = "primary" }: { href: string; children: React.ReactNode; variant?: "primary" | "secondary" | "dark" }) {
-  const styles = {
-    primary: "bg-[#f0d78a] text-[#0b1424] shadow-[0_18px_44px_rgba(240,215,138,0.26)] hover:bg-white",
-    secondary: "border border-white/18 bg-white/12 text-white shadow-[0_14px_36px_rgba(0,0,0,0.16)] backdrop-blur-xl hover:bg-white/18",
-    dark: "bg-[#263a8f] text-white shadow-[0_18px_42px_rgba(38,58,143,0.22)] hover:bg-[#1f2f75]"
-  };
+function PillButton({ href, children, variant = "solid" }: { href: string; children: React.ReactNode; variant?: "solid" | "ghost" }) {
   return (
-    <Link href={href} className={`inline-flex min-h-12 items-center justify-center gap-2 rounded px-5 py-3 text-sm font-semibold transition hover:-translate-y-0.5 ${styles[variant]}`}>
+    <Link
+      href={href}
+      className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold transition hover:-translate-y-0.5 ${
+        variant === "solid" ? "bg-white/22 text-white shadow-[0_18px_46px_rgba(10,18,40,0.20)] hover:bg-white/30" : "border border-white/22 bg-white/8 text-white hover:bg-white/14"
+      }`}
+    >
       {children}
     </Link>
   );
 }
 
-function SectionIntro({ eyebrow, title, text, light = false }: { eyebrow: string; title: string; text: string; light?: boolean }) {
+function ModuleBand({ module }: { module: (typeof modules)[number] }) {
+  const Icon = module.icon;
   return (
-    <div className="max-w-3xl">
-      <p className={`text-xs font-semibold uppercase tracking-[0.24em] ${light ? "text-[#f0d78a]" : "text-[#263a8f]"}`}>{eyebrow}</p>
-      <h2 className={`mt-4 text-3xl font-semibold leading-tight sm:text-5xl ${light ? "text-white" : "text-[#111827]"}`}>{title}</h2>
-      <p className={`mt-4 max-w-2xl text-sm leading-7 ${light ? "text-white/72" : "text-[#536072]"}`}>{text}</p>
-    </div>
+    <section className={`bg-gradient-to-r ${module.className} px-4 py-24 text-center text-white sm:px-6 lg:px-8`}>
+      <div className="mx-auto max-w-4xl">
+        <span className="inline-flex items-center gap-2 rounded-full border border-white/24 bg-[#071024]/42 px-5 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white/76 shadow-inner shadow-white/5">
+          <Icon className="h-4 w-4" />
+          {module.label}
+        </span>
+        <h2 className="mt-8 text-5xl font-semibold leading-[1.02] tracking-normal text-white sm:text-7xl">{module.title}</h2>
+        <p className="mx-auto mt-6 max-w-2xl text-base leading-8 text-white/76 sm:text-xl">{module.text}</p>
+        <div className="mt-8">
+          <PillButton href={module.href}>
+            {module.cta} <ArrowRight className="h-4 w-4" />
+          </PillButton>
+        </div>
+      </div>
+    </section>
   );
 }
 
-function PhotoPanel({ title, image, icon: Icon, className = "" }: { title: string; image: string; icon: LucideIcon; className?: string }) {
-  return (
-    <article className={`group relative min-h-72 overflow-hidden rounded-lg border border-white/14 bg-[#111827] shadow-[0_26px_80px_rgba(6,12,24,0.20)] transition hover:-translate-y-1 ${className}`}>
-      <Image src={image} alt="" fill sizes="(min-width: 1024px) 33vw, 100vw" className="object-cover transition duration-700 group-hover:scale-105" />
-      <div className="absolute inset-0 bg-gradient-to-b from-[#080d180d] to-[#080d18b8]" />
-      <div className="relative flex min-h-72 flex-col justify-between p-5 text-white">
-        <Icon className="h-7 w-7 text-[#f0d78a]" />
-        <h3 className="text-2xl font-semibold leading-tight">{title}</h3>
-      </div>
-    </article>
-  );
-}
+function ExamStream() {
+  const stream = [...exams, ...exams, ...exams];
 
-function HeroVisual() {
   return (
-    <div className="relative">
-      <div className="absolute -inset-8 rounded-full bg-[#f0d78a]/16 blur-3xl" />
-      <div className="relative grid gap-3">
-        <div className="relative min-h-[34rem] overflow-hidden rounded-lg border border-white/16 bg-[#111827] shadow-[0_36px_110px_rgba(0,0,0,0.32)]">
-          <Image src={img.army} alt="" fill priority sizes="(min-width: 1024px) 50vw, 100vw" className="object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#050a141f] to-[#050a14c2]" />
-          <div className="relative flex min-h-[34rem] flex-col justify-between p-5 text-white sm:p-6">
-            <div className="flex items-center justify-between gap-3">
-              <span className="rounded-full border border-[#f0d78a]/35 bg-[#f0d78a]/12 px-3 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-[#f0d78a] backdrop-blur-xl">TOPRANK AI Engine</span>
-              <span className="rounded-full border border-white/18 bg-white/12 px-3 py-2 text-xs font-semibold uppercase tracking-[0.16em] backdrop-blur-xl">Academy Powered</span>
-            </div>
-            <div className="max-w-sm rounded-lg border border-white/16 bg-white/12 p-5 backdrop-blur-xl">
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#f0d78a]">Officer Readiness</p>
-              <div className="mt-3 flex items-end gap-3">
-                <span className="text-7xl font-semibold leading-none">82</span>
-                <span className="pb-2 text-xl font-semibold text-white/72">/100</span>
-              </div>
-              <p className="mt-4 text-sm leading-6 text-white/76">Today&apos;s mission: speed, accuracy, discipline, and confidence.</p>
-            </div>
-          </div>
-        </div>
-        <div className="grid gap-3 sm:grid-cols-3">
-          {[ 
-            ["Cadets", img.cadets],
-            ["Air Force", img.airforce],
-            ["Mentor Loop", img.navy]
-          ].map(([label, image]) => (
-            <div key={label} className="relative h-32 overflow-hidden rounded border border-white/12 bg-[#111827] shadow-[0_16px_44px_rgba(5,10,20,0.18)]">
-              <Image src={image} alt="" fill sizes="(min-width: 640px) 16vw, 100vw" className="object-cover" />
-              <div className="absolute inset-0 bg-gradient-to-b from-[#050a140a] to-[#050a14a3]" />
-              <span className="absolute bottom-3 left-3 rounded bg-white/14 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-white backdrop-blur-xl">{label}</span>
-            </div>
-          ))}
-        </div>
+    <section className="overflow-hidden bg-[#070711] py-8 text-white">
+      <div className="flex w-max animate-[nidus-marquee_34s_linear_infinite] items-center gap-14 whitespace-nowrap">
+        {stream.map((exam, index) => (
+          <span key={`${exam}-${index}`} className="text-3xl font-black uppercase tracking-normal text-white sm:text-5xl">
+            {exam}
+          </span>
+        ))}
       </div>
-    </div>
+    </section>
   );
 }
 
 export function MarketingHome() {
   return (
-    <main className="bg-[#f6f3ec] text-[#111827]">
-      <section className="relative min-h-screen overflow-hidden bg-[#0b1424] px-4 pb-14 pt-28 text-white sm:px-6 lg:px-8">
-        <Image src={img.hero} alt="" fill priority sizes="100vw" className="object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#050a14e0] via-[#050a1475] to-[#050a14c7]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_22%,rgba(240,215,138,0.22),transparent_24rem),radial-gradient(circle_at_82%_18%,rgba(38,58,143,0.28),transparent_26rem)]" />
-        <div className="relative mx-auto grid min-h-[calc(100vh-7rem)] max-w-7xl gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
-          <div>
-            <p className="inline-flex rounded-full border border-[#f0d78a]/35 bg-[#f0d78a]/12 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-[#f0d78a] backdrop-blur-xl">
-              AI-Powered Defence Career & Performance Ecosystem
-            </p>
-            <h1 className="mt-7 max-w-4xl text-6xl font-semibold leading-[0.88] sm:text-8xl">
-              FROM ASPIRANT
-              <span className="block text-[#f0d78a]">TO OFFICER.</span>
-            </h1>
-            <p className="mt-7 max-w-2xl text-lg font-semibold leading-8 text-white/82 sm:text-2xl">
-              AI-powered defence career and performance ecosystem for NDA, CDS, AFCAT, SSB and beyond.
-            </p>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Cta href="/start-free">Start Free <ArrowRight className="h-4 w-4" /></Cta>
-              <Cta href="/programs" variant="secondary">Explore Academy</Cta>
-              <Cta href="/guru" variant="secondary">Explore NIDUS Guru</Cta>
-            </div>
-            <div className="mt-10 flex flex-wrap gap-2">
-              {trustBadges.map((badge) => (
-                <span key={badge} className="rounded-full border border-white/14 bg-white/10 px-3 py-2 text-xs font-semibold text-white/82 backdrop-blur-xl">
-                  {badge}
-                </span>
-              ))}
-            </div>
-          </div>
-          <HeroVisual />
-        </div>
-      </section>
+    <main className="bg-[#f4f6fb] text-[#111827]">
+      <style>{`
+        @keyframes nidus-marquee {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-33.333%); }
+        }
+      `}</style>
 
-      <section className="px-4 py-20 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-7xl">
-          <SectionIntro eyebrow="Why NIDUS" title="A performance campus, not a tuition website." text="NIDUS connects academy training, AI intelligence, mentor guidance, and active student transformation." />
-          <div className="mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            {why.map(([title, text, Icon]) => (
-              <article key={title} className="rounded-lg border border-[#263a8f]/10 bg-white p-5 shadow-[0_18px_60px_rgba(19,35,72,0.08)] transition hover:-translate-y-1">
-                <Icon className="h-6 w-6 text-[#263a8f]" />
-                <h3 className="mt-5 text-lg font-semibold">{title}</h3>
-                <p className="mt-3 text-sm leading-6 text-[#536072]">{text}</p>
-              </article>
-            ))}
+      <section className="relative overflow-hidden bg-[radial-gradient(circle_at_18%_10%,rgba(255,153,51,0.22),transparent_28rem),radial-gradient(circle_at_86%_14%,rgba(71,123,255,0.38),transparent_30rem),linear-gradient(135deg,#160725_0%,#273d68_46%,#6fb5ff_100%)] px-4 pb-24 pt-32 text-center text-white sm:px-6 lg:px-8">
+        <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#587fc7]/48 to-transparent" />
+        <div className="relative mx-auto max-w-5xl">
+          <p className="mx-auto inline-flex rounded-full border border-white/18 bg-white/10 px-5 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white/76 backdrop-blur-xl">
+            India&apos;s AI-Powered Defence Career Campus
+          </p>
+          <h1 className="mx-auto mt-10 max-w-5xl text-5xl font-semibold leading-[1.02] tracking-normal text-white sm:text-7xl lg:text-8xl">
+            From Aspirant to Officer.
+          </h1>
+          <p className="mx-auto mt-7 max-w-3xl text-base font-semibold leading-8 text-white/78 sm:text-2xl">
+            NDA, CDS, AFCAT, SSB, AISSEE and Agniveer training with academy discipline, AI guidance and mentor support.
+          </p>
+          <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
+            <PillButton href="/start-free">
+              Start Free <ArrowRight className="h-4 w-4" />
+            </PillButton>
+            <PillButton href="/programs" variant="ghost">Explore Academy</PillButton>
           </div>
         </div>
       </section>
 
-      <section className="px-4 pb-20 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-7xl">
-          <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-            <SectionIntro eyebrow="Academy Programs" title="Choose your defence path." text="Academy programs build the base. Top Rank gives the exam practice arena." />
-            <Cta href="/programs" variant="dark">View Academy <ArrowRight className="h-4 w-4" /></Cta>
-          </div>
-          <div className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-            {programs.map(([title, text, href, image, Icon]) => (
-              <Link key={title} href={href} className="group relative min-h-[23rem] overflow-hidden rounded-lg border border-white/20 bg-[#111827] shadow-[0_26px_80px_rgba(19,35,72,0.16)]">
-                <Image src={image} alt="" fill sizes="(min-width: 1280px) 33vw, (min-width: 768px) 50vw, 100vw" className="object-cover transition duration-700 group-hover:scale-105" />
-                <div className="absolute inset-0 bg-gradient-to-b from-[#050a140f] to-[#050a14cc]" />
-                <div className="relative flex min-h-[23rem] flex-col justify-between p-5 text-white">
-                  <Icon className="h-7 w-7 text-[#f0d78a]" />
-                  <div>
-                    <h3 className="text-4xl font-semibold leading-tight">{title}</h3>
-                    <p className="mt-3 text-sm leading-6 text-white/76">{text}</p>
-                    <span className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-[#f0d78a]">Explore <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" /></span>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
+      <ExamStream />
 
-      <section className="relative overflow-hidden bg-[#0b1424] px-4 py-20 text-white sm:px-6 lg:px-8">
-        <Image src={img.drdo} alt="" fill sizes="100vw" className="object-cover opacity-25" />
-        <div className="absolute inset-0 bg-[linear-gradient(90deg,#0b1424_0%,rgba(11,20,36,0.92)_54%,rgba(11,20,36,0.72)_100%)]" />
-        <div className="relative mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
-          <SectionIntro eyebrow="Top Rank" title="A separate AI practice arena for serious exam preparation." text="Profiling, diagnostics, AI roadmap, adaptive learning, revision system, mock intelligence, and mentor loop." light />
-          <div className="grid gap-4 sm:grid-cols-2">
-            {["Profiling", "Diagnostics", "AI Roadmap", "Mock Intelligence", "Revision System", "Mentor Loop"].map((item, index) => (
-              <div key={item} className="rounded-lg border border-white/10 bg-white/[0.07] p-5 backdrop-blur-2xl transition hover:-translate-y-1">
-                <span className="text-3xl font-semibold text-[#f0d78a]">{String(index + 1).padStart(2, "0")}</span>
-                <p className="mt-5 text-lg font-semibold">{item}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      {modules.map((module) => (
+        <ModuleBand key={module.label} module={module} />
+      ))}
 
-      <section className="px-4 py-20 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-7xl">
-          <SectionIntro eyebrow="Training Atmosphere" title="Students should feel the discipline before they join." text="Realistic visual signals of training, teamwork, parade discipline, and officer ambition." />
-          <div className="mt-10 grid gap-4 lg:grid-cols-6">
-            {atmosphere.map(([title, image, Icon], index) => (
-              <PhotoPanel key={title} title={title} image={image} icon={Icon} className={index < 2 ? "lg:col-span-3" : "lg:col-span-2"} />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section id="guru" className="bg-[#fbf7ef] px-4 py-20 sm:px-6 lg:px-8">
-        <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
-          <SectionIntro eyebrow="NIDUS Guru" title="Know yourself. Transform daily." text="A cleaner personal growth layer for assessments, transformation, and Dream Addiction." />
-          <div className="grid gap-4 md:grid-cols-3">
-            {guru.map(([title, text, href, Icon]) => (
-              <Link key={title} href={href} className="group rounded-lg border border-[#6f744e]/12 bg-white p-5 shadow-[0_18px_60px_rgba(48,54,35,0.10)] transition hover:-translate-y-1">
-                <Icon className="h-6 w-6 text-[#6f744e]" />
-                <h3 className="mt-8 text-2xl font-semibold">{title}</h3>
-                <p className="mt-3 min-h-16 text-sm leading-6 text-[#5d6653]">{text}</p>
-                <span className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-[#6f744e]">Explore <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" /></span>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="px-4 py-20 sm:px-6 lg:px-8">
-        <div className="mx-auto grid max-w-7xl gap-8 rounded-lg border border-[#263a8f]/10 bg-white p-6 shadow-[0_26px_80px_rgba(19,35,72,0.10)] lg:grid-cols-[1fr_0.8fr] lg:items-center">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#263a8f]">Free Assessments</p>
-            <h2 className="mt-4 text-4xl font-semibold leading-tight sm:text-6xl">Discover your strengths before your journey begins.</h2>
-            <p className="mt-5 max-w-2xl text-sm leading-7 text-[#536072]">Psychometric analysis, personality, confidence, career intelligence, and leadership analysis in simple language.</p>
-            <div className="mt-8">
-              <Cta href="/start-free" variant="dark">Start Free <ClipboardCheck className="h-4 w-4" /></Cta>
-            </div>
-          </div>
-          <div className="grid gap-3">
-            {["Psychometric Analysis", "Personality", "Confidence", "Career Intelligence", "Leadership Analysis"].map((item) => (
-              <div key={item} className="flex items-center gap-3 rounded border border-[#263a8f]/10 bg-[#f8fafc] p-4 text-sm font-semibold text-[#111827]">
-                <CheckCircle2 className="h-4 w-4 text-[#138a5b]" />
-                {item}
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="relative overflow-hidden bg-[#0b1424] px-4 py-24 text-white sm:px-6 lg:px-8">
-        <Image src={img.para} alt="" fill sizes="100vw" className="object-cover opacity-55" />
-        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(5,10,20,0.92),rgba(5,10,20,0.58),rgba(5,10,20,0.84))]" />
-        <div className="relative mx-auto max-w-4xl text-center">
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#f0d78a]">Final Call</p>
-          <h2 className="mt-4 text-5xl font-semibold leading-tight sm:text-7xl">Your Uniform Journey Starts Here.</h2>
+      <section className="bg-[#e4f1ff] px-4 py-24 text-center sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-3xl">
+          <span className="inline-flex items-center gap-2 rounded-full border border-[#263a8f]/14 bg-white/62 px-5 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#263a8f]">
+            <ClipboardCheck className="h-4 w-4" />
+            Free Assessment
+          </span>
+          <h2 className="mt-8 text-4xl font-semibold leading-tight text-[#071024] sm:text-6xl">Discover your strengths before your journey begins.</h2>
+          <p className="mx-auto mt-5 max-w-xl text-base leading-8 text-[#334155]">
+            Start with a simple AI-guided profile and understand your readiness, confidence and defence career fit.
+          </p>
           <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-            <Cta href="/join">Join NIDUS</Cta>
-            <Cta href="/start-free" variant="secondary">Start Free</Cta>
-            <Cta href="/join" variant="secondary">Talk to Mentor</Cta>
+            <Link href="/start-free" className="inline-flex min-h-11 items-center justify-center gap-2 rounded bg-[#4948f5] px-5 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-[#3533d6]">
+              Get Started <ArrowRight className="h-4 w-4" />
+            </Link>
+            <Link href="/join" className="inline-flex min-h-11 items-center justify-center gap-2 rounded px-5 py-3 text-sm font-semibold text-[#071024] transition hover:-translate-y-0.5">
+              Talk to Mentor <ArrowRight className="h-4 w-4" />
+            </Link>
           </div>
         </div>
+      </section>
+
+      <section className="bg-[#171923] px-4 py-20 text-white sm:px-6 lg:px-8">
+        <div className="mx-auto grid max-w-6xl gap-10 md:grid-cols-[1fr_1.4fr]">
+          <div>
+            <div className="grid h-10 w-10 place-items-center rounded-full bg-[#6aa7ff] text-white">
+              <ShieldCheck className="h-5 w-5" />
+            </div>
+            <p className="mt-6 max-w-sm text-sm leading-7 text-white/68">NIDUS Academy is built for parents and students who want a clear defence training path.</p>
+          </div>
+          <div className="grid gap-8 sm:grid-cols-3">
+            <div>
+              <h3 className="text-sm font-semibold">Academy</h3>
+              <div className="mt-5 grid gap-3 text-sm text-white/66">
+                <Link href="/programs">Programs</Link>
+                <Link href="/toprank">Top Rank</Link>
+                <Link href="/join">Join NIDUS</Link>
+              </div>
+            </div>
+            <div>
+              <h3 className="text-sm font-semibold">Student</h3>
+              <div className="mt-5 grid gap-3 text-sm text-white/66">
+                <Link href="/start-free">Start Free</Link>
+                <Link href="/psychometric">Assessments</Link>
+                <Link href="/guru">NIDUS Guru</Link>
+              </div>
+            </div>
+            <div>
+              <h3 className="text-sm font-semibold">Support</h3>
+              <div className="mt-5 grid gap-3 text-sm text-white/66">
+                <Link href="/contact">Contact</Link>
+                <Link href="/privacy-policy">Privacy</Link>
+                <Link href="/terms-and-conditions">Terms</Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="sr-only">
+        <Target />
       </section>
     </main>
   );
