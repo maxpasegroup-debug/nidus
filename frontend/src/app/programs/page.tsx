@@ -62,10 +62,10 @@ export default function ProgramsPage() {
         </div>
       </section>
 
-      <section className="border-y border-[#263a8f]/10 bg-[#111827] px-4 py-6 text-white sm:px-6 lg:px-8">
+      <section className="border-y border-[#263a8f]/10 bg-white/82 px-4 py-6 text-[#263a8f] backdrop-blur-xl sm:px-6 lg:px-8">
         <div className="mx-auto grid max-w-7xl gap-3 sm:grid-cols-2 lg:grid-cols-5">
           {["NDA", "AISSEE", "RIMC", "Agniveer", "SSB"].map((label) => (
-            <a key={label} href="#program-categories" className="flex items-center justify-center gap-2 rounded border border-white/10 bg-white/[0.06] px-4 py-3 text-sm font-semibold transition hover:-translate-y-0.5 hover:border-[#c9a646]/60 hover:text-[#f3d981]">
+            <a key={label} href="#program-categories" className="flex items-center justify-center gap-2 rounded border border-[#263a8f]/10 bg-white px-4 py-3 text-sm font-semibold shadow-sm transition hover:-translate-y-0.5 hover:border-[#c9a646]/60 hover:bg-[#fff8dd]">
               <ShieldCheck className="h-4 w-4" />
               {label}
             </a>
@@ -116,15 +116,15 @@ export default function ProgramsPage() {
         </div>
       </section>
 
-      <section className="bg-[#111827] px-4 py-20 text-white sm:px-6 lg:px-8">
+      <section className="bg-white px-4 py-20 text-[#111827] sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
-          <PublicSectionIntro eyebrow="Why NIDUS" title="Built like a performance campus, not a brochure course." text="The public promise is backed by academy operations: tests, attendance, reports, mentorship, physical training, and AI-supported guidance." light />
+          <PublicSectionIntro eyebrow="Why NIDUS" title="Built like a real training campus." text="Classes, physical training, tests, reports, mentoring, and AI guidance work together." />
           <div className="mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             {trustSignals.map(({ title, text, icon: Icon }) => (
-              <article key={title} className="rounded border border-white/10 bg-white/[0.06] p-5 transition hover:-translate-y-1 hover:border-[#c9a646]/50">
-                <Icon className="h-6 w-6 text-[#f3d981]" />
+              <article key={title} className="rounded border border-[#263a8f]/10 bg-[#f8fafc] p-5 transition hover:-translate-y-1 hover:border-[#c9a646]/50 hover:bg-white">
+                <Icon className="h-6 w-6 text-[#263a8f]" />
                 <h3 className="mt-5 text-lg font-semibold">{title}</h3>
-                <p className="mt-3 text-sm leading-7 text-white/70">{text}</p>
+                <p className="mt-3 text-sm leading-7 text-[#536072]">{text}</p>
               </article>
             ))}
           </div>

@@ -24,8 +24,8 @@ const guestPrograms = [
   { title: "NIDUS Guru quests", description: "Start transformation quests for focus, discipline, confidence, and future readiness.", href: "/guru" },
   { title: "Assessments", description: "Try officer readiness, leadership, discipline, focus, and career-fit assessments.", href: "/psychometric" },
   { title: "Live programs", description: "Join public webinars and orientation sessions.", href: "/live-classes" },
-  { title: "Course catalog", description: "Compare NDA, CDS, AFCAT, SSB, AISSEE, RIMC and RMS programs.", href: "/courses" },
-  { title: "Counselling request", description: "Ask the academy team to guide you to the right program.", href: "/crm/counselling" }
+  { title: "Academy programs", description: "Compare NDA, CDS, AFCAT, SSB, AISSEE, RIMC and Agniveer programs.", href: "/programs" },
+  { title: "Apply to physical academy", description: "Send your details for admission guidance and counselling.", href: "/join" }
 ];
 
 export default function GuestDashboardPage() {
@@ -58,8 +58,8 @@ export default function GuestDashboardPage() {
     <motion.div className="space-y-8" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
       <PageHero
         eyebrow="Guest Access"
-        title="Try NIDUS before joining"
-        description="A simple guest area for public recorded courses, free mock tests, psychometric previews, live programs, counselling requests, and upgrade paths."
+        title="Explore NIDUS as a guest"
+        description="See academy programs, NIDUS Guru, assessments, TOPRANK training, reports, and the physical academy application path."
         actions={<Button type="button" onClick={() => refetch()} disabled={isFetching} variant="secondary">{isFetching ? "Refreshing..." : "Refresh dashboard"}</Button>}
         stats={[
           { value: String(data.featuredCourses.length), label: "featured courses" },
@@ -67,6 +67,20 @@ export default function GuestDashboardPage() {
           { value: String(data.latestNews.length), label: "latest briefs" }
         ]}
       />
+
+      <section className="rounded-lg border border-gold/25 bg-[linear-gradient(135deg,rgba(255,255,255,0.10),rgba(212,175,55,0.12))] p-5 shadow-[0_24px_70px_rgba(0,0,0,0.18)]">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-gold-soft">Physical Academy Admission</p>
+            <h2 className="mt-3 text-2xl font-semibold text-white">Apply to NIDUS Physical Academy</h2>
+            <p className="mt-2 max-w-2xl text-sm leading-7 text-muted">Share your details. The academy team will guide you about programs, batches, fees, counselling, and the right defence pathway.</p>
+          </div>
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <QuickActionCard title="Apply Now" description="Start the admission enquiry." href="/join" />
+            <QuickActionCard title="Explore Academy" description="See all public programs." href="/programs" />
+          </div>
+        </div>
+      </section>
 
       <section className="grid gap-4 md:grid-cols-3">
         <StatCard label="Featured Courses" value={String(data.featuredCourses.length)} note={data.featuredCourses[0]?.title ?? "No featured courses"} />
@@ -124,9 +138,9 @@ export default function GuestDashboardPage() {
       </section>
 
       <section className="grid gap-4 md:grid-cols-3">
-        <QuickActionCard title="Create full account" description="Move from guest preview to full student dashboard." href="/register" />
+        <QuickActionCard title="Create free account" description="Move from guest preview to full student dashboard." href="/register" />
         <QuickActionCard title="Start NIDUS Guru" description="Explore transformation quests for focus, discipline, and confidence." href="/guru" />
-        <QuickActionCard title="View progress report format" description="Understand how monthly growth will be reported." href="/progress-reports" />
+        <QuickActionCard title="Apply to physical academy" description="Request counselling and admission support." href="/join" />
       </section>
 
       {data.featuredCourses.length === 0 ? (

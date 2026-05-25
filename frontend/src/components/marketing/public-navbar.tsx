@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Menu, ShieldCheck, Sparkles, X } from "lucide-react";
+import { ClipboardCheck, Menu, ShieldCheck, Sparkles, X } from "lucide-react";
 
 const navItems = [
   ["Academy", "/programs"],
   ["NIDUS Guru", "/guru"],
+  ["Assessments", "/psychometric"],
   ["Login / Signup", "/login"]
 ] as const;
 
@@ -34,7 +35,7 @@ export function PublicNavbar() {
           </span>
         </Link>
 
-        <nav className="hidden items-center gap-4 lg:flex">
+        <nav className="hidden items-center gap-3 lg:flex">
           {navItems.map(([label, href]) => (
             <Link
               key={href}
@@ -42,15 +43,21 @@ export function PublicNavbar() {
               className={
                 label === "NIDUS Guru"
                   ? "inline-flex items-center gap-2 rounded-full border border-[#b89b4d]/35 bg-[#fff8dd]/80 px-4 py-2 text-sm font-semibold text-[#5f5428] shadow-[0_14px_34px_rgba(184,155,77,0.18)] transition hover:-translate-y-0.5 hover:border-[#87905b]/50 hover:bg-white"
+                  : label === "Assessments"
+                    ? "inline-flex items-center gap-2 rounded-full border border-[#138a5b]/20 bg-[#eaf7ef]/80 px-4 py-2 text-sm font-semibold text-[#14613f] transition hover:-translate-y-0.5 hover:bg-white"
                   : label === "Login / Signup"
-                    ? "rounded bg-[#263a8f] px-4 py-2 text-sm font-semibold text-white shadow-[0_14px_36px_rgba(38,58,143,0.22)] transition hover:-translate-y-0.5 hover:bg-[#1f2f75]"
+                    ? "rounded border border-[#263a8f]/18 bg-white px-4 py-2 text-sm font-semibold text-[#263a8f] shadow-sm transition hover:-translate-y-0.5 hover:border-[#c9a646]/60"
                   : "text-sm font-medium text-[#536072] transition hover:text-[#263a8f]"
               }
             >
               {label === "NIDUS Guru" ? <Sparkles className="h-4 w-4 text-[#b89b4d]" /> : null}
+              {label === "Assessments" ? <ClipboardCheck className="h-4 w-4 text-[#138a5b]" /> : null}
               {label}
             </Link>
           ))}
+          <Link href="/join" className="rounded bg-[#263a8f] px-4 py-2 text-sm font-semibold text-white shadow-[0_14px_36px_rgba(38,58,143,0.22)] transition hover:-translate-y-0.5 hover:bg-[#1f2f75]">
+            Join NIDUS
+          </Link>
         </nav>
 
         <button type="button" className="rounded border border-[#263a8f]/15 bg-white/70 p-2 text-[#263a8f] lg:hidden" onClick={() => setOpen((value) => !value)} aria-label="Toggle public navigation">
@@ -69,15 +76,21 @@ export function PublicNavbar() {
                 className={
                   label === "NIDUS Guru"
                     ? "flex items-center justify-between rounded-2xl border border-[#b89b4d]/35 bg-[#fff8dd] px-4 py-4 text-sm font-semibold text-[#5f5428] shadow-sm"
+                    : label === "Assessments"
+                      ? "flex items-center justify-between rounded-2xl border border-[#138a5b]/20 bg-[#eaf7ef] px-4 py-4 text-sm font-semibold text-[#14613f]"
                     : label === "Login / Signup"
-                      ? "rounded bg-[#263a8f] px-4 py-4 text-center text-sm font-semibold text-white shadow-sm"
+                      ? "rounded border border-[#263a8f]/15 bg-white px-4 py-4 text-center text-sm font-semibold text-[#263a8f] shadow-sm"
                     : "rounded px-3 py-3 text-sm font-medium text-[#536072] transition hover:bg-[#263a8f]/6 hover:text-[#263a8f]"
                 }
               >
                 {label}
                 {label === "NIDUS Guru" ? <Sparkles className="h-4 w-4 text-[#b89b4d]" /> : null}
+                {label === "Assessments" ? <ClipboardCheck className="h-4 w-4 text-[#138a5b]" /> : null}
               </Link>
             ))}
+            <Link href="/join" onClick={() => setOpen(false)} className="rounded bg-[#263a8f] px-4 py-4 text-center text-sm font-semibold text-white shadow-sm">
+              Join NIDUS
+            </Link>
           </nav>
         </div>
       ) : null}
