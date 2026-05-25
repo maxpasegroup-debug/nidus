@@ -1,7 +1,5 @@
-"use client";
-
 import Link from "next/link";
-import { motion } from "framer-motion";
+import Image from "next/image";
 import {
   ArrowRight,
   BrainCircuit,
@@ -22,19 +20,7 @@ import {
   Zap
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-
-const img = {
-  hero: "https://commons.wikimedia.org/wiki/Special:FilePath/Indian%20Armed%20Forces%20-%20Republic%20day%20parade%202024.jpg",
-  army: "https://commons.wikimedia.org/wiki/Special:FilePath/Indian%20Army%20contingent%20Republic%20Day%20parade%202023%20Img5.jpg",
-  cadets: "https://commons.wikimedia.org/wiki/Special:FilePath/Ncc%20cadets%20in%20India%20during%20parade.jpg",
-  navy: "https://commons.wikimedia.org/wiki/Special:FilePath/Passing%20out%20Parade%20Spring%20Term%202017%20held%20at%20Indian%20Naval%20Academy%2C%20Ezhimala%20%287%29.jpg",
-  airforce: "https://commons.wikimedia.org/wiki/Special:FilePath/Indian%20Air%20Force%20Rafale%20fighter.jpg",
-  airforceMarch: "https://commons.wikimedia.org/wiki/Special:FilePath/Indian%20Air%20Force%20Marching%20Contingent.jpg",
-  customs: "https://commons.wikimedia.org/wiki/Special:FilePath/Customs%20%26%20Central%20Officer%20on%20Republic%20Day.jpg",
-  drdo: "https://commons.wikimedia.org/wiki/Special:FilePath/Tata%20DRDO%20whap.jpg",
-  republic: "https://commons.wikimedia.org/wiki/Special:FilePath/Indian%20soldiers%20at%20the%20Republic%20day%20parade.jpg",
-  para: "https://commons.wikimedia.org/wiki/Special:FilePath/Para%20contingent%20republic%20day%202022.jpg"
-};
+import { publicImages as img } from "@/components/marketing/public-modules";
 
 const trustBadges = ["AI-Powered Learning", "Mentor Support", "Adaptive Training", "Online + Offline"];
 
@@ -94,23 +80,25 @@ function SectionIntro({ eyebrow, title, text, light = false }: { eyebrow: string
 
 function PhotoPanel({ title, image, icon: Icon, className = "" }: { title: string; image: string; icon: LucideIcon; className?: string }) {
   return (
-    <motion.article whileHover={{ y: -5 }} className={`group relative min-h-72 overflow-hidden rounded-lg border border-white/14 bg-[#111827] shadow-[0_26px_80px_rgba(6,12,24,0.20)] ${className}`}>
-      <div className="absolute inset-0 bg-cover bg-center transition duration-700 group-hover:scale-105" style={{ backgroundImage: `linear-gradient(180deg,rgba(8,13,24,0.05),rgba(8,13,24,0.72)),url('${image}')` }} />
+    <article className={`group relative min-h-72 overflow-hidden rounded-lg border border-white/14 bg-[#111827] shadow-[0_26px_80px_rgba(6,12,24,0.20)] transition hover:-translate-y-1 ${className}`}>
+      <Image src={image} alt="" fill sizes="(min-width: 1024px) 33vw, 100vw" className="object-cover transition duration-700 group-hover:scale-105" />
+      <div className="absolute inset-0 bg-gradient-to-b from-[#080d180d] to-[#080d18b8]" />
       <div className="relative flex min-h-72 flex-col justify-between p-5 text-white">
         <Icon className="h-7 w-7 text-[#f0d78a]" />
         <h3 className="text-2xl font-semibold leading-tight">{title}</h3>
       </div>
-    </motion.article>
+    </article>
   );
 }
 
 function HeroVisual() {
   return (
-    <motion.div initial={{ opacity: 0, scale: 0.96, y: 18 }} animate={{ opacity: 1, scale: 1, y: 0 }} transition={{ delay: 0.12, duration: 0.7 }} className="relative">
+    <div className="relative">
       <div className="absolute -inset-8 rounded-full bg-[#f0d78a]/16 blur-3xl" />
       <div className="relative grid gap-3">
         <div className="relative min-h-[34rem] overflow-hidden rounded-lg border border-white/16 bg-[#111827] shadow-[0_36px_110px_rgba(0,0,0,0.32)]">
-          <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `linear-gradient(90deg,rgba(5,10,20,0.12),rgba(5,10,20,0.76)),url('${img.army}')` }} />
+          <Image src={img.army} alt="" fill priority sizes="(min-width: 1024px) 50vw, 100vw" className="object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#050a141f] to-[#050a14c2]" />
           <div className="relative flex min-h-[34rem] flex-col justify-between p-5 text-white sm:p-6">
             <div className="flex items-center justify-between gap-3">
               <span className="rounded-full border border-[#f0d78a]/35 bg-[#f0d78a]/12 px-3 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-[#f0d78a] backdrop-blur-xl">TOPRANK AI Engine</span>
@@ -127,18 +115,20 @@ function HeroVisual() {
           </div>
         </div>
         <div className="grid gap-3 sm:grid-cols-3">
-          {[
+          {[ 
             ["Cadets", img.cadets],
             ["Air Force", img.airforce],
             ["Mentor Loop", img.navy]
           ].map(([label, image]) => (
-            <div key={label} className="relative h-32 overflow-hidden rounded border border-white/12 bg-cover bg-center shadow-[0_16px_44px_rgba(5,10,20,0.18)]" style={{ backgroundImage: `linear-gradient(180deg,rgba(5,10,20,0.04),rgba(5,10,20,0.64)),url('${image}')` }}>
+            <div key={label} className="relative h-32 overflow-hidden rounded border border-white/12 bg-[#111827] shadow-[0_16px_44px_rgba(5,10,20,0.18)]">
+              <Image src={image} alt="" fill sizes="(min-width: 640px) 16vw, 100vw" className="object-cover" />
+              <div className="absolute inset-0 bg-gradient-to-b from-[#050a140a] to-[#050a14a3]" />
               <span className="absolute bottom-3 left-3 rounded bg-white/14 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-white backdrop-blur-xl">{label}</span>
             </div>
           ))}
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }
 
@@ -146,10 +136,11 @@ export function MarketingHome() {
   return (
     <main className="bg-[#f6f3ec] text-[#111827]">
       <section className="relative min-h-screen overflow-hidden bg-[#0b1424] px-4 pb-14 pt-28 text-white sm:px-6 lg:px-8">
-        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `linear-gradient(90deg,rgba(5,10,20,0.88),rgba(5,10,20,0.46),rgba(5,10,20,0.78)),url('${img.hero}')` }} />
+        <Image src={img.hero} alt="" fill priority sizes="100vw" className="object-cover" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#050a14e0] via-[#050a1475] to-[#050a14c7]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_22%,rgba(240,215,138,0.22),transparent_24rem),radial-gradient(circle_at_82%_18%,rgba(38,58,143,0.28),transparent_26rem)]" />
         <div className="relative mx-auto grid min-h-[calc(100vh-7rem)] max-w-7xl gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
-          <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
+          <div>
             <p className="inline-flex rounded-full border border-[#f0d78a]/35 bg-[#f0d78a]/12 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-[#f0d78a] backdrop-blur-xl">
               AI-Powered Defence Career & Performance Ecosystem
             </p>
@@ -172,7 +163,7 @@ export function MarketingHome() {
                 </span>
               ))}
             </div>
-          </motion.div>
+          </div>
           <HeroVisual />
         </div>
       </section>
@@ -182,11 +173,11 @@ export function MarketingHome() {
           <SectionIntro eyebrow="Why NIDUS" title="A performance campus, not a tuition website." text="NIDUS connects academy training, AI intelligence, mentor guidance, and active student transformation." />
           <div className="mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             {why.map(([title, text, Icon]) => (
-              <motion.article key={title} whileHover={{ y: -4 }} className="rounded-lg border border-[#263a8f]/10 bg-white p-5 shadow-[0_18px_60px_rgba(19,35,72,0.08)]">
+              <article key={title} className="rounded-lg border border-[#263a8f]/10 bg-white p-5 shadow-[0_18px_60px_rgba(19,35,72,0.08)] transition hover:-translate-y-1">
                 <Icon className="h-6 w-6 text-[#263a8f]" />
                 <h3 className="mt-5 text-lg font-semibold">{title}</h3>
                 <p className="mt-3 text-sm leading-6 text-[#536072]">{text}</p>
-              </motion.article>
+              </article>
             ))}
           </div>
         </div>
@@ -201,7 +192,8 @@ export function MarketingHome() {
           <div className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
             {programs.map(([title, text, href, image, Icon]) => (
               <Link key={title} href={href} className="group relative min-h-[23rem] overflow-hidden rounded-lg border border-white/20 bg-[#111827] shadow-[0_26px_80px_rgba(19,35,72,0.16)]">
-                <div className="absolute inset-0 bg-cover bg-center transition duration-700 group-hover:scale-105" style={{ backgroundImage: `linear-gradient(180deg,rgba(5,10,20,0.06),rgba(5,10,20,0.80)),url('${image}')` }} />
+                <Image src={image} alt="" fill sizes="(min-width: 1280px) 33vw, (min-width: 768px) 50vw, 100vw" className="object-cover transition duration-700 group-hover:scale-105" />
+                <div className="absolute inset-0 bg-gradient-to-b from-[#050a140f] to-[#050a14cc]" />
                 <div className="relative flex min-h-[23rem] flex-col justify-between p-5 text-white">
                   <Icon className="h-7 w-7 text-[#f0d78a]" />
                   <div>
@@ -217,16 +209,16 @@ export function MarketingHome() {
       </section>
 
       <section className="relative overflow-hidden bg-[#0b1424] px-4 py-20 text-white sm:px-6 lg:px-8">
-        <div className="absolute inset-0 bg-cover bg-center opacity-24" style={{ backgroundImage: `url('${img.drdo}')` }} />
+        <Image src={img.drdo} alt="" fill sizes="100vw" className="object-cover opacity-25" />
         <div className="absolute inset-0 bg-[linear-gradient(90deg,#0b1424_0%,rgba(11,20,36,0.92)_54%,rgba(11,20,36,0.72)_100%)]" />
         <div className="relative mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
           <SectionIntro eyebrow="Top Rank" title="A separate AI practice arena for serious exam preparation." text="Profiling, diagnostics, AI roadmap, adaptive learning, revision system, mock intelligence, and mentor loop." light />
           <div className="grid gap-4 sm:grid-cols-2">
             {["Profiling", "Diagnostics", "AI Roadmap", "Mock Intelligence", "Revision System", "Mentor Loop"].map((item, index) => (
-              <motion.div key={item} whileHover={{ y: -4 }} className="rounded-lg border border-white/10 bg-white/[0.07] p-5 backdrop-blur-2xl">
+              <div key={item} className="rounded-lg border border-white/10 bg-white/[0.07] p-5 backdrop-blur-2xl transition hover:-translate-y-1">
                 <span className="text-3xl font-semibold text-[#f0d78a]">{String(index + 1).padStart(2, "0")}</span>
                 <p className="mt-5 text-lg font-semibold">{item}</p>
-              </motion.div>
+              </div>
             ))}
           </div>
         </div>
@@ -281,7 +273,7 @@ export function MarketingHome() {
       </section>
 
       <section className="relative overflow-hidden bg-[#0b1424] px-4 py-24 text-white sm:px-6 lg:px-8">
-        <div className="absolute inset-0 bg-cover bg-center opacity-54" style={{ backgroundImage: `url('${img.para}')` }} />
+        <Image src={img.para} alt="" fill sizes="100vw" className="object-cover opacity-55" />
         <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(5,10,20,0.92),rgba(5,10,20,0.58),rgba(5,10,20,0.84))]" />
         <div className="relative mx-auto max-w-4xl text-center">
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#f0d78a]">Final Call</p>

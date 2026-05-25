@@ -10,17 +10,19 @@ export type PublicTile = {
   icon: LucideIcon;
 };
 
+const wikiImage = (fileName: string, width = 900) => `https://commons.wikimedia.org/wiki/Special:FilePath/${fileName}?width=${width}`;
+
 export const publicImages = {
-  hero: "https://commons.wikimedia.org/wiki/Special:FilePath/Indian%20Armed%20Forces%20-%20Republic%20day%20parade%202024.jpg",
-  army: "https://commons.wikimedia.org/wiki/Special:FilePath/Indian%20Army%20contingent%20Republic%20Day%20parade%202023%20Img5.jpg",
-  cadets: "https://commons.wikimedia.org/wiki/Special:FilePath/Ncc%20cadets%20in%20India%20during%20parade.jpg",
-  navy: "https://commons.wikimedia.org/wiki/Special:FilePath/Passing%20out%20Parade%20Spring%20Term%202017%20held%20at%20Indian%20Naval%20Academy%2C%20Ezhimala%20%287%29.jpg",
-  airforce: "https://commons.wikimedia.org/wiki/Special:FilePath/Indian%20Air%20Force%20Rafale%20fighter.jpg",
-  airforceMarch: "https://commons.wikimedia.org/wiki/Special:FilePath/Indian%20Air%20Force%20Marching%20Contingent.jpg",
-  customs: "https://commons.wikimedia.org/wiki/Special:FilePath/Customs%20%26%20Central%20Officer%20on%20Republic%20Day.jpg",
-  drdo: "https://commons.wikimedia.org/wiki/Special:FilePath/Tata%20DRDO%20whap.jpg",
-  republic: "https://commons.wikimedia.org/wiki/Special:FilePath/Indian%20soldiers%20at%20the%20Republic%20day%20parade.jpg",
-  para: "https://commons.wikimedia.org/wiki/Special:FilePath/Para%20contingent%20republic%20day%202022.jpg"
+  hero: wikiImage("Indian%20Armed%20Forces%20-%20Republic%20day%20parade%202024.jpg", 1600),
+  army: wikiImage("Indian%20Army%20contingent%20Republic%20Day%20parade%202023%20Img5.jpg", 1000),
+  cadets: wikiImage("Ncc%20cadets%20in%20India%20during%20parade.jpg", 800),
+  navy: wikiImage("Passing%20out%20Parade%20Spring%20Term%202017%20held%20at%20Indian%20Naval%20Academy%2C%20Ezhimala%20%287%29.jpg", 900),
+  airforce: wikiImage("Indian%20Air%20Force%20Rafale%20fighter.jpg", 900),
+  airforceMarch: wikiImage("Indian%20Air%20Force%20Marching%20Contingent.jpg", 800),
+  customs: wikiImage("Customs%20%26%20Central%20Officer%20on%20Republic%20Day.jpg", 800),
+  drdo: wikiImage("Tata%20DRDO%20whap.jpg", 900),
+  republic: wikiImage("Indian%20soldiers%20at%20the%20Republic%20day%20parade.jpg", 900),
+  para: wikiImage("Para%20contingent%20republic%20day%202022.jpg", 900)
 };
 
 export const topRankExams: PublicTile[] = [
