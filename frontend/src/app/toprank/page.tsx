@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, BrainCircuit, Radar, ShieldCheck } from "lucide-react";
+import { ArrowRight, BrainCircuit, CheckCircle2, LockKeyhole, Radar, ShieldCheck } from "lucide-react";
 import { ProgramEnquiryForm } from "@/components/academy/program-enquiry-form";
 import { topRankExams } from "@/components/marketing/public-modules";
 
@@ -12,7 +12,7 @@ export default function TopRankPage() {
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#3f4a32]">TOPRANK</p>
             <h1 className="mt-5 max-w-4xl text-5xl font-semibold leading-[0.95] text-[#071d36] sm:text-7xl">AI exam practice arena for defence aspirants.</h1>
-            <p className="mt-6 max-w-2xl text-base leading-8 text-[#64748b]">Practice with profiling, diagnostics, adaptive revision, mock intelligence, and mentor-ready reports.</p>
+            <p className="mt-6 max-w-2xl text-base leading-8 text-[#64748b]">Choose an exam arena, create your NIDUS account, and enter structured AI-guided training through your dashboard. NDA is live now; the next defence exam routes are being opened in stages.</p>
             <div className="mt-8">
               <Link href="#exams" className="inline-flex min-h-12 items-center justify-center gap-2 rounded border border-[#b58b35]/45 bg-[linear-gradient(135deg,#fff3bf_0%,#e7c873_34%,#b9913f_72%,#8a6426_100%)] px-5 py-3 text-sm font-semibold text-[#071d36] shadow-[0_16px_36px_rgba(185,145,63,0.24)] transition hover:-translate-y-0.5 hover:brightness-105">
                 Choose Exam <ArrowRight className="h-4 w-4" />
@@ -41,14 +41,18 @@ export default function TopRankPage() {
             <h2 className="mt-4 text-3xl font-semibold leading-tight text-[#071d36] sm:text-5xl">Pick one exam. Enter the arena.</h2>
           </div>
           <div className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-            {topRankExams.map(({ title, subtitle, href, image, icon: Icon }) => (
+            {topRankExams.map(({ title, subtitle, href, image, icon: Icon, status, dashboardNote }) => (
               <Link key={title} href={href} className="group overflow-hidden rounded-lg border border-[#071d36]/10 bg-white shadow-[0_24px_70px_rgba(7,29,54,0.10)] transition hover:-translate-y-1 hover:border-[#b9913f]/45">
                 <div className="relative aspect-[16/10] bg-cover bg-center" style={{ backgroundImage: `linear-gradient(180deg,rgba(5,10,20,0.03),rgba(5,10,20,0.50)),url('${image}')` }}>
                   <Icon className="absolute bottom-4 left-4 h-7 w-7 text-white" />
+                  <span className="absolute right-4 top-4 rounded-full border border-white/70 bg-white/90 px-3 py-1 text-[0.68rem] font-bold uppercase tracking-[0.14em] text-[#071d36]">
+                    {status === "live" ? "Live" : "Staged"}
+                  </span>
                 </div>
                 <div className="p-5">
                   <h3 className="text-3xl font-semibold">{title}</h3>
                   <p className="mt-2 min-h-12 text-sm leading-6 text-[#64748b]">{subtitle}</p>
+                  <p className="mt-3 min-h-12 text-xs leading-5 text-[#3f4a32]">{dashboardNote}</p>
                   <span className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-[#071d36]">
                     Open Arena <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
                   </span>
@@ -56,6 +60,25 @@ export default function TopRankPage() {
               </Link>
             ))}
           </div>
+        </div>
+      </section>
+
+      <section className="px-4 pb-16 sm:px-6 lg:px-8">
+        <div className="mx-auto grid max-w-7xl gap-4 md:grid-cols-3">
+          {[
+            ["1. Choose", "Open the exam arena and understand the training path.", CheckCircle2],
+            ["2. Sign in", "Create a NIDUS account or log in to access your dashboard.", LockKeyhole],
+            ["3. Train", "Start NDA training now, with other arenas opening in sequence.", BrainCircuit]
+          ].map(([title, text, StepIcon]) => {
+            const Icon = StepIcon as typeof CheckCircle2;
+            return (
+              <article key={String(title)} className="rounded-lg border border-[#071d36]/10 bg-white p-5 shadow-[0_18px_60px_rgba(7,29,54,0.08)]">
+                <Icon className="h-6 w-6 text-[#b9913f]" />
+                <h3 className="mt-4 text-xl font-semibold text-[#071d36]">{String(title)}</h3>
+                <p className="mt-3 text-sm leading-7 text-[#64748b]">{String(text)}</p>
+              </article>
+            );
+          })}
         </div>
       </section>
 
