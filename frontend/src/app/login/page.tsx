@@ -14,7 +14,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
-  const fieldClass = "border-[#071d36]/14 bg-white text-[#071d36] placeholder:text-[#64748b]/70 focus:border-[#b9913f] focus:bg-white focus:ring-[#b9913f]/25";
+  const fieldClass = "!border-[#071d36]/14 !bg-white !text-[#071d36] placeholder:!text-[#64748b]/70 focus:!border-[#b9913f] focus:!bg-white focus:!ring-[#b9913f]/25";
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
