@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { ChevronDown, Menu, ShieldCheck, Sparkles, X } from "lucide-react";
-import { academyMenuItems, guruMenuItems, topRankMenuItems } from "@/components/marketing/public-modules";
+import { academyMenuItems } from "@/components/marketing/public-modules";
 
 function Dropdown({ label, items, highlighted = false }: { label: string; items: readonly (readonly [string, string])[]; highlighted?: boolean }) {
   return (
@@ -50,8 +50,13 @@ export function PublicNavbar() {
 
         <nav className="hidden items-center gap-2 lg:flex">
           <Dropdown label="Academy" items={academyMenuItems} />
-          <Dropdown label="Top Rank" items={topRankMenuItems} />
-          <Dropdown label="NIDUS Guru" items={guruMenuItems} highlighted />
+          <Link href="/toprank" className="inline-flex min-h-10 items-center rounded-full px-4 py-2 text-sm font-semibold text-[#263a8f] transition hover:-translate-y-0.5 hover:bg-white/70">
+            Top Rank
+          </Link>
+          <Link href="/guru" className="inline-flex min-h-10 items-center gap-2 rounded-full border border-[#c9a646]/35 bg-[#fff8dd]/80 px-4 py-2 text-sm font-semibold text-[#5f5428] transition hover:-translate-y-0.5">
+            <Sparkles className="h-4 w-4 text-[#b28a2e]" />
+            NIDUS Guru
+          </Link>
         </nav>
 
         <div className="hidden items-center gap-3 lg:flex">
@@ -72,8 +77,8 @@ export function PublicNavbar() {
         <div className="border-t border-[#263a8f]/10 bg-white/96 px-4 py-4 backdrop-blur-2xl lg:hidden">
           <nav className="mx-auto grid max-w-7xl gap-3">
             <MobileGroup title="Academy" items={academyMenuItems} onClick={() => setOpen(false)} />
-            <MobileGroup title="Top Rank" items={topRankMenuItems} onClick={() => setOpen(false)} />
-            <MobileGroup title="NIDUS Guru" items={guruMenuItems} onClick={() => setOpen(false)} />
+            <Link href="/toprank" onClick={() => setOpen(false)} className="rounded border border-[#263a8f]/10 bg-[#f8fafc] px-4 py-4 text-sm font-semibold text-[#263a8f]">Top Rank</Link>
+            <Link href="/guru" onClick={() => setOpen(false)} className="rounded border border-[#c9a646]/25 bg-[#fff8dd] px-4 py-4 text-sm font-semibold text-[#5f5428]">NIDUS Guru</Link>
             <Link href="/start-free" onClick={() => setOpen(false)} className="rounded bg-[#263a8f] px-4 py-4 text-center text-sm font-semibold text-white shadow-sm">Start Free</Link>
             <Link href="/login" onClick={() => setOpen(false)} className="rounded border border-[#263a8f]/15 bg-white px-4 py-4 text-center text-sm font-semibold text-[#263a8f] shadow-sm">Login</Link>
           </nav>

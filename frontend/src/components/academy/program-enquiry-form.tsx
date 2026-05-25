@@ -69,7 +69,7 @@ export function ProgramEnquiryForm({ programTitle, source = "Academy Program Pag
 
       <div className="mt-5 grid gap-4 sm:grid-cols-2">
         <Field label="Name" value={form.fullName} onChange={(value) => update("fullName", value)} required />
-        <Field label="Phone" value={form.mobile} onChange={(value) => update("mobile", value)} required inputMode="tel" />
+        <Field label="WhatsApp number" value={form.mobile} onChange={(value) => update("mobile", value)} required inputMode="tel" />
         <Field label="Email" value={form.email} onChange={(value) => update("email", value)} required type="email" />
         <Field label="Student Class" value={form.studentClass} onChange={(value) => update("studentClass", value)} required />
         <label className="grid gap-2 text-sm font-semibold text-[#111827] sm:col-span-2">
