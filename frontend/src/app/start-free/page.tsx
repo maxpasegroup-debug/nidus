@@ -58,25 +58,25 @@ export default function StartFreePage() {
   }
 
   return (
-    <div className="bg-[#f6f3ec] pt-20 text-[#111827]">
+    <div className="bg-[#f7f3ea] pt-20 text-[#101827]">
       <section className="relative overflow-hidden px-4 py-20 sm:px-6 lg:px-8">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_12%,rgba(38,58,143,0.16),transparent_28rem),radial-gradient(circle_at_82%_12%,rgba(201,166,70,0.22),transparent_24rem),linear-gradient(180deg,#ffffff_0%,#f6f3ec_100%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_12%,rgba(185,145,63,0.15),transparent_28rem),radial-gradient(circle_at_82%_12%,rgba(110,143,175,0.18),transparent_24rem),linear-gradient(180deg,#fffdf8_0%,#f7f3ea_100%)]" />
         <div className="relative mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#263a8f]">Start Free</p>
-            <h1 className="mt-5 text-5xl font-semibold leading-[0.95] sm:text-7xl">Let NIDUS AI guide your first step.</h1>
-            <p className="mt-6 max-w-2xl text-base leading-8 text-[#536072]">Share basic details. NIDUS AI acts like a mentor and helps you begin with assessments, Top Rank, Guru quests, or academy counselling.</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#3f4a32]">Start Free</p>
+            <h1 className="mt-5 text-5xl font-semibold leading-[0.95] text-[#071d36] sm:text-7xl">Let NIDUS AI guide your first step.</h1>
+            <p className="mt-6 max-w-2xl text-base leading-8 text-[#64748b]">Share basic details. NIDUS AI acts like a mentor and helps you begin with assessments, Top Rank, Guru quests, or academy counselling.</p>
             <AssistantOrbit message={mentorMessage} />
           </div>
 
-          <form onSubmit={submit} className="rounded-lg border border-[#263a8f]/10 bg-white/86 p-5 shadow-[0_28px_90px_rgba(19,35,72,0.12)] backdrop-blur-2xl sm:p-7">
+          <form onSubmit={submit} className="rounded-lg border border-[#071d36]/10 bg-white/86 p-5 shadow-[0_28px_90px_rgba(7,29,54,0.10)] backdrop-blur-2xl sm:p-7">
             <div className="flex items-center gap-3">
-              <div className="grid h-12 w-12 place-items-center rounded bg-[#263a8f]/8 text-[#263a8f]">
+              <div className="grid h-12 w-12 place-items-center rounded bg-[#f7f3ea] text-[#3f4a32]">
                 <Sparkles className="h-6 w-6" />
               </div>
               <div>
-                <h2 className="text-2xl font-semibold">Free Onboarding</h2>
-                <p className="text-sm text-[#536072]">Your details reach the lead management dashboard.</p>
+                <h2 className="text-2xl font-semibold text-[#071d36]">Free Onboarding</h2>
+                <p className="text-sm text-[#64748b]">Your details reach the lead management dashboard.</p>
               </div>
             </div>
 
@@ -91,24 +91,24 @@ export default function StartFreePage() {
               <Field label="WhatsApp number" value={form.whatsapp} onChange={(value) => update("whatsapp", value)} required inputMode="tel" />
               <Field label="Email" value={form.email} onChange={(value) => update("email", value)} required type="email" />
               <Field label="Class / qualification" value={form.className} onChange={(value) => update("className", value)} required />
-              <label className="grid gap-2 text-sm font-semibold text-[#111827] sm:col-span-2">
+              <label className="grid gap-2 text-sm font-semibold text-[#071d36] sm:col-span-2">
                 Goal
-                <select value={form.goal} onChange={(event) => update("goal", event.target.value)} className="h-12 rounded border border-[#263a8f]/15 bg-white px-3 text-sm font-medium text-[#111827] outline-none focus:border-[#263a8f]">
+                <select value={form.goal} onChange={(event) => update("goal", event.target.value)} className="h-12 rounded border border-[#071d36]/14 bg-white px-3 text-sm font-medium text-[#101827] outline-none focus:border-[#3f4a32]">
                   {goals.map((goal) => <option key={goal}>{goal}</option>)}
                 </select>
               </label>
-              <label className="grid gap-2 text-sm font-semibold text-[#111827] sm:col-span-2">
+              <label className="grid gap-2 text-sm font-semibold text-[#071d36] sm:col-span-2">
                 Message
-                <textarea value={form.message} onChange={(event) => update("message", event.target.value)} className="min-h-28 rounded border border-[#263a8f]/15 bg-white px-3 py-3 text-sm font-medium text-[#111827] outline-none focus:border-[#263a8f]" placeholder="Tell NIDUS AI what you want help with." />
+                <textarea value={form.message} onChange={(event) => update("message", event.target.value)} className="min-h-28 rounded border border-[#071d36]/14 bg-white px-3 py-3 text-sm font-medium text-[#101827] outline-none focus:border-[#3f4a32]" placeholder="Tell NIDUS AI what you want help with." />
               </label>
             </div>
 
-            <button type="submit" disabled={isSubmitting} className="mt-5 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded bg-[#263a8f] px-5 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 disabled:opacity-70">
+            <button type="submit" disabled={isSubmitting} className="mt-5 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded bg-[#071d36] px-5 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 disabled:opacity-70">
               {isSubmitting ? "Saving..." : "Start Free"} <ArrowRight className="h-4 w-4" />
             </button>
 
             <div className="mt-5 grid gap-3 sm:grid-cols-2">
-              <Link href="/psychometric" className="inline-flex min-h-11 items-center justify-center gap-2 rounded border border-[#263a8f]/15 bg-[#f8fafc] px-4 py-2 text-sm font-semibold text-[#263a8f]">
+              <Link href="/psychometric" className="inline-flex min-h-11 items-center justify-center gap-2 rounded border border-[#071d36]/14 bg-[#f7f3ea] px-4 py-2 text-sm font-semibold text-[#071d36]">
                 <ShieldCheck className="h-4 w-4" /> Free Assessment
               </Link>
               <Link href="/join" className="inline-flex min-h-11 items-center justify-center gap-2 rounded border border-[#25d366]/25 bg-[#eafff1] px-4 py-2 text-sm font-semibold text-[#178f45]">
@@ -124,9 +124,9 @@ export default function StartFreePage() {
 
 function Field({ label, value, onChange, required, type = "text", inputMode }: { label: string; value: string; onChange: (value: string) => void; required?: boolean; type?: string; inputMode?: "tel" | "text" }) {
   return (
-    <label className="grid gap-2 text-sm font-semibold text-[#111827]">
+    <label className="grid gap-2 text-sm font-semibold text-[#071d36]">
       {label}
-      <input type={type} required={required} value={value} onChange={(event) => onChange(event.target.value)} inputMode={inputMode} className="h-12 rounded border border-[#263a8f]/15 bg-white px-3 text-sm font-medium text-[#111827] outline-none focus:border-[#263a8f]" />
+      <input type={type} required={required} value={value} onChange={(event) => onChange(event.target.value)} inputMode={inputMode} className="h-12 rounded border border-[#071d36]/14 bg-white px-3 text-sm font-medium text-[#101827] outline-none focus:border-[#3f4a32]" />
     </label>
   );
 }

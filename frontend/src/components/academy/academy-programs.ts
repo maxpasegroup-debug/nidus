@@ -27,7 +27,7 @@ export const academyCategories = [
         summary: "A disciplined long-range pathway that starts early and builds academics, stamina, confidence, and officer mindset.",
         benefits: ["Early NDA direction", "School-to-defence roadmap", "Discipline and study rhythm", "Parent-visible progress"],
         careerOpportunities: ["NDA", "Defence foundation", "Leadership-oriented higher studies"],
-        imageTone: "from-[#0b1424] via-[#263a8f] to-[#c9a646]"
+        imageTone: "from-[#071d36] via-[#3f4a32] to-[#b9913f]"
       },
       {
         slug: "after-plus-one-program",
@@ -99,7 +99,7 @@ export const academyCategories = [
         summary: "A premium preparation track for one of India&apos;s most respected defence school pathways.",
         benefits: ["RIMC exam focus", "Interview confidence", "Academic discipline", "Parent guidance"],
         careerOpportunities: ["RIMC", "NDA pathway", "Military leadership education"],
-        imageTone: "from-[#111827] via-[#3f4f5f] to-[#c9a646]"
+        imageTone: "from-[#071d36] via-[#3f4a32] to-[#b9913f]"
       },
       {
         slug: "nda-crash-course",
@@ -110,7 +110,7 @@ export const academyCategories = [
         summary: "A high-pressure NDA revision track for students who need clarity, speed, and exam confidence.",
         benefits: ["Fast revision", "Mock intelligence", "Speed and accuracy", "Exam strategy"],
         careerOpportunities: ["NDA Army", "NDA Navy", "NDA Air Force", "Naval Academy"],
-        imageTone: "from-[#0b1424] via-[#263a8f] to-[#8b7427]"
+        imageTone: "from-[#071d36] via-[#6e8faf] to-[#b9913f]"
       },
       {
         slug: "cds-afcat-inet",
@@ -149,7 +149,7 @@ export const academyCategories = [
         summary: "A practical physical-readiness module for discipline, stamina, and selection confidence.",
         benefits: ["Running routine", "Strength discipline", "Attendance tracking", "Energy and confidence"],
         careerOpportunities: ["Agniveer physical test", "Uniformed services fitness"],
-        imageTone: "from-[#101820] via-[#465947] to-[#c9a646]"
+        imageTone: "from-[#071d36] via-[#3f4a32] to-[#b9913f]"
       },
       {
         slug: "agniveer-full-program",

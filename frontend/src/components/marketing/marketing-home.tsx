@@ -11,7 +11,7 @@ const modules = [
     href: "/programs",
     cta: "Explore Academy",
     icon: GraduationCap,
-    className: "from-[#061B34] via-[#123C8C] to-[#3b4f2c]"
+    className: "bg-[#f7f3ea] text-[#101827]"
   },
   {
     label: "Top Rank",
@@ -20,7 +20,7 @@ const modules = [
     href: "/toprank",
     cta: "Enter Top Rank",
     icon: BrainCircuit,
-    className: "from-[#061B34] via-[#123C8C] to-[#6F7F96]"
+    className: "bg-[#dce9f3] text-[#101827]"
   },
   {
     label: "NIDUS Guru",
@@ -29,7 +29,7 @@ const modules = [
     href: "/guru",
     cta: "Explore Quests",
     icon: Sparkles,
-    className: "from-[#F8F4EA] via-[#efe1bb] to-[#D6A842] text-[#061B34]"
+    className: "bg-white text-[#101827]"
   }
 ] as const;
 
@@ -38,7 +38,7 @@ function PillButton({ href, children, variant = "solid" }: { href: string; child
     <Link
       href={href}
       className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold transition hover:-translate-y-0.5 ${
-        variant === "solid" ? "bg-[#D6A842] text-[#061B34] shadow-[0_18px_46px_rgba(214,168,66,0.24)] hover:bg-[#F2C766]" : "border border-[#F2C766]/42 bg-white/8 text-white hover:bg-white/14"
+        variant === "solid" ? "bg-[#071d36] text-white shadow-[0_18px_46px_rgba(7,29,54,0.16)] hover:bg-[#0d2a4b]" : "border border-[#071d36]/14 bg-white/70 text-[#071d36] hover:bg-white"
       }`}
     >
       {children}
@@ -49,14 +49,14 @@ function PillButton({ href, children, variant = "solid" }: { href: string; child
 function ModuleBand({ module }: { module: (typeof modules)[number] }) {
   const Icon = module.icon;
   return (
-    <section className={`bg-gradient-to-r ${module.className} px-4 py-24 text-center text-white sm:px-6 lg:px-8`}>
+    <section className={`${module.className} border-t border-[#071d36]/8 px-4 py-24 text-center sm:px-6 lg:px-8`}>
       <div className="mx-auto max-w-4xl">
-        <span className="inline-flex items-center gap-2 rounded-full border border-[#F2C766]/34 bg-[#061B34]/46 px-5 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white/78 shadow-inner shadow-white/5">
+        <span className="inline-flex items-center gap-2 rounded-full border border-[#b9913f]/24 bg-white/70 px-5 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#3f4a32] shadow-sm">
           <Icon className="h-4 w-4" />
           {module.label}
         </span>
-        <h2 className="mt-8 text-5xl font-semibold leading-[1.02] tracking-normal sm:text-7xl">{module.title}</h2>
-        <p className="mx-auto mt-6 max-w-2xl text-base leading-8 opacity-80 sm:text-xl">{module.text}</p>
+        <h2 className="mt-8 text-5xl font-semibold leading-[1.02] tracking-normal text-[#071d36] sm:text-7xl">{module.title}</h2>
+        <p className="mx-auto mt-6 max-w-2xl text-base leading-8 text-[#64748b] sm:text-xl">{module.text}</p>
         <div className="mt-8">
           <PillButton href={module.href}>
             {module.cta} <ArrowRight className="h-4 w-4" />
@@ -71,7 +71,7 @@ function ExamStream() {
   const stream = [...exams, ...exams, ...exams];
 
   return (
-    <section className="overflow-hidden bg-[#061B34] py-8 text-white">
+    <section className="overflow-hidden bg-[#071d36] py-8 text-white">
       <div className="flex w-max animate-[nidus-marquee_34s_linear_infinite] items-center gap-14 whitespace-nowrap">
         {stream.map((exam, index) => (
           <span key={`${exam}-${index}`} className="text-3xl font-black uppercase tracking-normal text-[#F8F4EA] sm:text-5xl">
@@ -85,7 +85,7 @@ function ExamStream() {
 
 export function MarketingHome() {
   return (
-    <main className="bg-[#F8F4EA] text-[#101827]">
+    <main className="bg-[#f7f3ea] text-[#101827]">
       <style>{`
         @keyframes nidus-marquee {
           0% { transform: translateX(0); }
@@ -93,16 +93,16 @@ export function MarketingHome() {
         }
       `}</style>
 
-      <section className="relative overflow-hidden bg-[radial-gradient(circle_at_18%_10%,rgba(242,199,102,0.28),transparent_28rem),radial-gradient(circle_at_86%_14%,rgba(18,60,140,0.48),transparent_30rem),linear-gradient(135deg,#061B34_0%,#123C8C_54%,#6F7F96_100%)] px-4 pb-24 pt-32 text-center text-white sm:px-6 lg:px-8">
-        <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#123C8C]/46 to-transparent" />
+      <section className="relative overflow-hidden bg-[radial-gradient(circle_at_18%_10%,rgba(185,145,63,0.22),transparent_28rem),radial-gradient(circle_at_86%_14%,rgba(110,143,175,0.22),transparent_30rem),linear-gradient(135deg,#fbf8f1_0%,#f7f3ea_58%,#dce9f3_100%)] px-4 pb-24 pt-32 text-center text-[#101827] sm:px-6 lg:px-8">
+        <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#f7f3ea] to-transparent" />
         <div className="relative mx-auto max-w-5xl">
-          <p className="mx-auto inline-flex rounded-full border border-[#F2C766]/34 bg-[#061B34]/22 px-5 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#F8F4EA]/82 backdrop-blur-xl">
+          <p className="mx-auto inline-flex rounded-full border border-[#b9913f]/24 bg-white/62 px-5 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#3f4a32] backdrop-blur-xl">
             India&apos;s AI-Powered Defence Career Campus
           </p>
-          <h1 className="mx-auto mt-10 max-w-5xl text-5xl font-semibold leading-[1.02] tracking-normal text-white sm:text-7xl lg:text-8xl">
+          <h1 className="mx-auto mt-10 max-w-5xl text-5xl font-semibold leading-[1.02] tracking-normal text-[#071d36] sm:text-7xl lg:text-8xl">
             From Aspirant to Officer.
           </h1>
-          <p className="mx-auto mt-7 max-w-3xl text-base font-semibold leading-8 text-white/78 sm:text-2xl">
+          <p className="mx-auto mt-7 max-w-3xl text-base font-semibold leading-8 text-[#40516a] sm:text-2xl">
             NDA, CDS, AFCAT, SSB, AISSEE and Agniveer training with academy discipline, AI guidance and mentor support.
           </p>
           <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
@@ -120,7 +120,7 @@ export function MarketingHome() {
         <ModuleBand key={module.label} module={module} />
       ))}
 
-      <section className="bg-[#F8F4EA] px-4 py-24 text-center sm:px-6 lg:px-8">
+      <section className="bg-[#f7f3ea] px-4 py-24 text-center sm:px-6 lg:px-8">
         <div className="mx-auto max-w-3xl">
           <span className="inline-flex items-center gap-2 rounded-full border border-[#D6A842]/30 bg-white/70 px-5 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#123C8C]">
             <ClipboardCheck className="h-4 w-4" />
@@ -141,7 +141,7 @@ export function MarketingHome() {
         </div>
       </section>
 
-      <section className="bg-[#061B34] px-4 py-20 text-white sm:px-6 lg:px-8">
+      <section className="bg-[#071d36] px-4 py-20 text-white sm:px-6 lg:px-8">
         <div className="mx-auto grid max-w-6xl gap-10 md:grid-cols-[1fr_1.4fr]">
           <div>
             <div className="grid h-10 w-10 place-items-center rounded-full bg-[#D6A842] text-[#061B34]">

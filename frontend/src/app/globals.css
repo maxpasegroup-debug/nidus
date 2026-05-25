@@ -1,17 +1,20 @@
 @import "tailwindcss";
 
 @theme {
-  --color-navy: #0b1f3a;
-  --color-navy-deep: #06111f;
-  --color-gold: #c9a646;
-  --color-gold-soft: #f2d675;
-  --color-ink: #eef4ff;
-  --color-muted: #9fb0c7;
-  --color-glass: rgba(255, 255, 255, 0.07);
+  --color-navy: #071d36;
+  --color-navy-deep: #041120;
+  --color-olive: #3f4a32;
+  --color-gold: #b9913f;
+  --color-gold-soft: #e7c873;
+  --color-ivory: #f7f3ea;
+  --color-air: #dce9f3;
+  --color-ink: #101827;
+  --color-muted: #64748b;
+  --color-glass: rgba(255, 255, 255, 0.72);
 }
 
 :root {
-  color-scheme: dark;
+  color-scheme: light;
   --nav-height: 72px;
   --sidebar-width: 272px;
   scroll-padding-top: calc(var(--nav-height) + 1rem);
@@ -26,10 +29,10 @@ body {
   min-height: 100vh;
   overflow-x: hidden;
   background:
-    radial-gradient(circle at 15% 8%, rgba(201, 166, 70, 0.18), transparent 28rem),
-    radial-gradient(circle at 88% 18%, rgba(59, 130, 246, 0.18), transparent 26rem),
-    linear-gradient(135deg, #06111f 0%, #0b1f3a 48%, #020713 100%);
-  color: #eef4ff;
+    radial-gradient(circle at 12% 8%, rgba(185, 145, 63, 0.14), transparent 30rem),
+    radial-gradient(circle at 88% 16%, rgba(110, 143, 175, 0.18), transparent 28rem),
+    linear-gradient(135deg, #fbf8f1 0%, #f7f3ea 46%, #eef4f8 100%);
+  color: #101827;
   font-family: Arial, Helvetica, sans-serif;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -59,7 +62,7 @@ a:focus-visible,
 input:focus-visible,
 select:focus-visible,
 textarea:focus-visible {
-  outline: 2px solid #f2d675;
+  outline: 2px solid #b9913f;
 }
 
 button {
@@ -102,20 +105,20 @@ svg {
 }
 
 ::selection {
-  background: rgba(201, 166, 70, 0.35);
+  background: rgba(185, 145, 63, 0.28);
 }
 
 .premium-surface {
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.105), rgba(255, 255, 255, 0.042));
-  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.28);
+  border: 1px solid rgba(7, 29, 54, 0.1);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.86), rgba(247, 243, 234, 0.68));
+  box-shadow: 0 24px 80px rgba(7, 29, 54, 0.1);
   backdrop-filter: blur(18px);
 }
 
 .subtle-grid {
   background-image:
-    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+    linear-gradient(rgba(7, 29, 54, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(7, 29, 54, 0.045) 1px, transparent 1px);
   background-size: 48px 48px;
 }
 
