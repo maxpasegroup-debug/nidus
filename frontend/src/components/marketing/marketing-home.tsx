@@ -22,18 +22,16 @@ import {
 import type { LucideIcon } from "lucide-react";
 
 const photos = {
-  hero: "https://images.unsplash.com/photo-1523580846011-d3a5bc25702b?auto=format&fit=crop&w=2400&q=85",
-  cadets: "https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=1600&q=85",
-  classroom: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1600&q=85",
-  training: "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=1600&q=85",
-  aircraft: "https://images.unsplash.com/photo-1540962351504-03099e0a754b?auto=format&fit=crop&w=1600&q=85",
-  command: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1600&q=85",
-  leadership: "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=1600&q=85",
-  parade: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1800&q=85",
-  campus: "https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=1800&q=85",
-  focus: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=1600&q=85",
-  support: "https://images.unsplash.com/photo-1573497491208-6b1acb260507?auto=format&fit=crop&w=1600&q=85",
-  sunrise: "https://images.unsplash.com/photo-1493246507139-91e8fad9978e?auto=format&fit=crop&w=2200&q=85"
+  hero: "https://commons.wikimedia.org/wiki/Special:FilePath/Indian%20Armed%20Forces%20-%20Republic%20day%20parade%202024.jpg",
+  army: "https://commons.wikimedia.org/wiki/Special:FilePath/Indian%20Army%20contingent%20Republic%20Day%20parade%202023%20Img5.jpg",
+  cadets: "https://commons.wikimedia.org/wiki/Special:FilePath/Ncc%20cadets%20in%20India%20during%20parade.jpg",
+  navy: "https://commons.wikimedia.org/wiki/Special:FilePath/Passing%20out%20Parade%20Spring%20Term%202017%20held%20at%20Indian%20Naval%20Academy%2C%20Ezhimala%20%287%29.jpg",
+  airforce: "https://commons.wikimedia.org/wiki/Special:FilePath/Indian%20Air%20Force%20Rafale%20fighter.jpg",
+  airforceMarch: "https://commons.wikimedia.org/wiki/Special:FilePath/Indian%20Air%20Force%20Marching%20Contingent.jpg",
+  customs: "https://commons.wikimedia.org/wiki/Special:FilePath/Customs%20%26%20Central%20Officer%20on%20Republic%20Day.jpg",
+  drdo: "https://commons.wikimedia.org/wiki/Special:FilePath/Tata%20DRDO%20whap.jpg",
+  republic: "https://commons.wikimedia.org/wiki/Special:FilePath/Indian%20soldiers%20at%20the%20Republic%20day%20parade.jpg",
+  final: "https://commons.wikimedia.org/wiki/Special:FilePath/Para%20contingent%20republic%20day%202022.jpg"
 };
 
 const pathways: Array<{ label: string; href: string; icon: LucideIcon }> = [
@@ -47,17 +45,17 @@ const pathways: Array<{ label: string; href: string; icon: LucideIcon }> = [
 ];
 
 const campusTiles = [
-  { title: "Academic Command", text: "Defence entrance classes, tests, and revision rhythm.", image: photos.classroom, icon: GraduationCap },
-  { title: "Physical Discipline", text: "Daily energy, stamina, posture, and field confidence.", image: photos.training, icon: Dumbbell },
-  { title: "SSB & Leadership", text: "Communication, group behaviour, OLQ, and interview readiness.", image: photos.leadership, icon: MessageCircle },
-  { title: "Aviation & Uniform Dreams", text: "Army, Navy, Air Force, technical, and leadership pathways.", image: photos.aircraft, icon: Plane },
-  { title: "AI Performance Profile", text: "Readiness score, assessments, reports, and next missions.", image: photos.command, icon: BrainCircuit }
+  { title: "Indian Army Discipline", text: "Parade, routine, courage, and ground confidence.", image: photos.army, icon: ShieldCheck },
+  { title: "Indian Naval Academy Path", text: "Ezhimala-style officer ambition and naval discipline.", image: photos.navy, icon: Landmark },
+  { title: "Indian Air Force Ambition", text: "Aviation dreams, speed, accuracy, and technical readiness.", image: photos.airforce, icon: Plane },
+  { title: "Customs & Civil Services", text: "Uniformed public-service careers beyond defence entries.", image: photos.customs, icon: GraduationCap },
+  { title: "AI Performance Profile", text: "Readiness score, assessments, reports, and next missions.", image: photos.drdo, icon: BrainCircuit }
 ];
 
 const programs = [
-  { title: "Foundation & Long-Term", label: "After 10th / Plus One", href: "/programs/mission-2028-after-10th", image: photos.campus, icon: ShieldCheck },
-  { title: "Defence Entrance", label: "NDA / CDS / AFCAT / INET", href: "/programs/nda-crash-course", image: photos.parade, icon: Medal },
-  { title: "Specialized Modules", label: "Agniveer / AFMC / SSB", href: "/programs/ssb-interview-guidance", image: photos.training, icon: Target }
+  { title: "Foundation & Long-Term", label: "After 10th / Plus One", href: "/programs/mission-2028-after-10th", image: photos.cadets, icon: ShieldCheck },
+  { title: "Defence Entrance", label: "NDA / CDS / AFCAT / INET", href: "/programs/nda-crash-course", image: photos.republic, icon: Medal },
+  { title: "Specialized Modules", label: "Agniveer / AFMC / SSB", href: "/programs/ssb-interview-guidance", image: photos.airforceMarch, icon: Target }
 ];
 
 const aiSignals = [
@@ -68,10 +66,10 @@ const aiSignals = [
 ];
 
 const assessments: Array<{ title: string; badge: string; href: string; icon: LucideIcon; image: string }> = [
-  { title: "Officer Readiness", badge: "Free", href: "/psychometric", icon: ShieldCheck, image: photos.cadets },
-  { title: "Leadership DNA", badge: "Free", href: "/psychometric", icon: Trophy, image: photos.leadership },
-  { title: "Defence Career Fit", badge: "Free", href: "/psychometric", icon: Plane, image: photos.aircraft },
-  { title: "SSB Psychology", badge: "Premium", href: "/psychometric/olq-report", icon: BrainCircuit, image: photos.focus }
+  { title: "Officer Readiness", badge: "Free", href: "/psychometric", icon: ShieldCheck, image: photos.army },
+  { title: "Leadership DNA", badge: "Free", href: "/psychometric", icon: Trophy, image: photos.navy },
+  { title: "Defence Career Fit", badge: "Free", href: "/psychometric", icon: Plane, image: photos.airforce },
+  { title: "Customs & Services Fit", badge: "Free", href: "/psychometric/olq-report", icon: BrainCircuit, image: photos.customs }
 ];
 
 const guruQuests = ["Dream Addiction", "Focus Reset", "Warrior Discipline", "Student Power"];
@@ -143,9 +141,9 @@ function HeroVisual() {
         </div>
         <div className="mt-3 grid gap-3 sm:grid-cols-3">
           {[
-            ["Physical", photos.training],
-            ["Aviation", photos.aircraft],
-            ["SSB", photos.leadership]
+            ["Army", photos.army],
+            ["Navy", photos.navy],
+            ["Air Force", photos.airforce]
           ].map(([label, image]) => (
             <div key={label} className="relative h-28 overflow-hidden rounded bg-cover bg-center" style={{ backgroundImage: `url('${image}')` }}>
               <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent,rgba(17,24,39,0.50))]" />
@@ -178,7 +176,7 @@ function AiPerformancePanel() {
     <section className="px-4 py-20 sm:px-6 lg:px-8">
       <div className="mx-auto grid max-w-7xl gap-8 rounded-lg border border-[#263a8f]/10 bg-white p-5 shadow-[0_28px_90px_rgba(19,35,72,0.10)] sm:p-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
         <div className="relative min-h-[24rem] overflow-hidden rounded bg-[#eef2f9]">
-          <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url('${photos.command}')` }} />
+          <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url('${photos.drdo}')` }} />
           <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(255,255,255,0.12),rgba(255,255,255,0.78))]" />
           <div className="absolute bottom-5 left-5 right-5 rounded-lg border border-white/70 bg-white/84 p-4 backdrop-blur-2xl">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#263a8f]">NIDUS AI Performance Engine</p>
@@ -325,7 +323,7 @@ export function MarketingHome() {
       </section>
 
       <section id="admissions" className="relative overflow-hidden px-4 py-24 sm:px-6 lg:px-8">
-        <div className="absolute inset-0 bg-cover bg-center opacity-55" style={{ backgroundImage: `linear-gradient(180deg,rgba(255,255,255,0.68),rgba(246,247,251,0.94)),url('${photos.sunrise}')` }} />
+          <div className="absolute inset-0 bg-cover bg-center opacity-55" style={{ backgroundImage: `linear-gradient(180deg,rgba(255,255,255,0.68),rgba(246,247,251,0.94)),url('${photos.final}')` }} />
         <div className="relative mx-auto max-w-4xl text-center">
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#263a8f]">Join NIDUS</p>
           <h2 className="mt-4 text-4xl font-semibold leading-tight text-[#111827] sm:text-6xl">Your uniform journey starts here.</h2>
