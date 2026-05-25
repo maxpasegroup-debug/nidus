@@ -28,6 +28,15 @@ const learnerGuruMenu = [
   { label: "Messages", href: "/messages" }
 ];
 
+const guestJourneyMenu = [
+  { label: "My Journey", href: "/dashboard/guest" },
+  { label: "TOPRANK", href: "/toprank" },
+  { label: "NIDUS Guru", href: "/guru" },
+  { label: "Academy Programs", href: "/programs" },
+  { label: "Assessments", href: "/psychometric" },
+  { label: "Profile", href: "/dashboard/settings" }
+];
+
 const facultyMenu = [
   { label: "Dashboard", href: "/dashboard/teacher" },
   { label: "My Classes", href: "/courses" },
@@ -88,7 +97,11 @@ export function getNavItems(role?: AuthRole) {
     ];
   }
 
-  if (role === "GUEST" || role === "STUDENT" || role === "PARENT") {
+  if (role === "GUEST") {
+    return guestJourneyMenu;
+  }
+
+  if (role === "STUDENT" || role === "PARENT") {
     return learnerGuruMenu.map((item) => (item.label === "Dashboard" ? { ...item, href: roleDashboardPath[role] } : item));
   }
 
