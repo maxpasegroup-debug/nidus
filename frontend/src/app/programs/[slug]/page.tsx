@@ -6,11 +6,23 @@ import { ProgramEnquiryForm } from "@/components/academy/program-enquiry-form";
 import { PublicCta } from "@/components/marketing/public-branding";
 
 export function generateStaticParams() {
-  return academyPrograms.map((program) => ({ slug: program.slug }));
+  return [
+    ...academyPrograms.map((program) => ({ slug: program.slug })),
+    { slug: "nda" },
+    { slug: "cds" },
+    { slug: "afcat" },
+    { slug: "ssb" },
+    { slug: "aissee" },
+    { slug: "agniveer" },
+    { slug: "foundation-programs" },
+    { slug: "physical-training" },
+    { slug: "interview-guidance" }
+  ];
 }
 
-export function generateMetadata({ params }: { params: { slug: string } }) {
-  const program = getAcademyProgram(params.slug);
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const program = getAcademyProgram(slug);
   return {
     title: program ? `${program.title} | NIDUS Academy` : "Program | NIDUS Academy",
     description: program?.summary ?? "NIDUS Academy defence career program"
@@ -24,8 +36,9 @@ const detailBlocks = [
   { title: "Active Learning System", text: "Classes, missions, tests, reports, and feedback loops keep the student moving with clarity.", icon: ClipboardCheck }
 ];
 
-export default function ProgramDetailPage({ params }: { params: { slug: string } }) {
-  const program = getAcademyProgram(params.slug);
+export default async function ProgramDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const program = getAcademyProgram(slug);
   if (!program) notFound();
 
   return (

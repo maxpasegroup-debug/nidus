@@ -8,16 +8,18 @@ export function generateStaticParams() {
   return topRankExams.map((exam) => ({ slug: exam.slug }));
 }
 
-export function generateMetadata({ params }: { params: { slug: string } }) {
-  const exam = getTopRankExam(params.slug);
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const exam = getTopRankExam(slug);
   return {
     title: exam ? `${exam.title} TOPRANK Arena | NIDUS` : "TOPRANK Arena | NIDUS",
     description: exam?.subtitle ?? "NIDUS TOPRANK exam practice arena"
   };
 }
 
-export default function TopRankArenaPage({ params }: { params: { slug: string } }) {
-  const exam = getTopRankExam(params.slug);
+export default async function TopRankArenaPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const exam = getTopRankExam(slug);
   if (!exam) notFound();
   const Icon = exam.icon;
 

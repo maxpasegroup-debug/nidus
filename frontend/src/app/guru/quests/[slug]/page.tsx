@@ -7,8 +7,9 @@ export function generateStaticParams() {
   return guruRecordedQuests.map((quest) => ({ slug: quest.slug }));
 }
 
-export function generateMetadata({ params }: { params: { slug: string } }) {
-  const quest = getGuruQuest(params.slug);
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const quest = getGuruQuest(slug);
   return {
     title: quest ? `${quest.title} | NIDUS Guru` : "NIDUS Guru Quest",
     description: quest?.promise ?? "NIDUS Guru active learning transformation quest"
@@ -25,8 +26,9 @@ const experience = [
   ["Progress Tracking", "Simple completion and consistency visibility."]
 ] as const;
 
-export default function GuruQuestPage({ params }: { params: { slug: string } }) {
-  const quest = getGuruQuest(params.slug);
+export default async function GuruQuestPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const quest = getGuruQuest(slug);
   if (!quest) notFound();
   const Icon = quest.icon;
 

@@ -190,6 +190,21 @@ export const academyCategories = [
 
 export const academyPrograms = academyCategories.flatMap((category) => category.programs.map((program) => ({ ...program, category: category.title })));
 
+const academyProgramAliases: Record<string, string> = {
+  nda: "nda-crash-course",
+  cds: "cds-afcat-inet",
+  afcat: "cds-afcat-inet",
+  inet: "cds-afcat-inet",
+  ssb: "ssb-interview-guidance",
+  aissee: "aissee-class-6",
+  agniveer: "agniveer-full-program",
+  foundation: "mission-2028-after-10th",
+  "foundation-programs": "mission-2028-after-10th",
+  "physical-training": "agniveer-physical-training",
+  "interview-guidance": "ssb-interview-guidance"
+};
+
 export function getAcademyProgram(slug: string) {
-  return academyPrograms.find((program) => program.slug === slug);
+  const normalizedSlug = academyProgramAliases[slug] ?? slug;
+  return academyPrograms.find((program) => program.slug === normalizedSlug);
 }
