@@ -57,7 +57,11 @@ const envSchema = z.object({
   OPENAI_API_KEY: z.string().default(""),
   CLOUDINARY_CLOUD_NAME: z.string().default(""),
   CLOUDINARY_API_KEY: z.string().default(""),
-  CLOUDINARY_API_SECRET: z.string().default("")
+  CLOUDINARY_API_SECRET: z.string().default(""),
+  CAREER7_BASE_URL: z.string().default(""),
+  CAREER7_NIDUS_TENANT_ID: z.string().default("nidus-top-rank"),
+  CAREER7_BRIDGE_SECRET: z.string().default(""),
+  CAREER7_ALLOWED_EXAMS: z.string().default("nda-army,nda-navy,nda-air-force,nda-naval-academy")
 }).superRefine((env, ctx) => {
   if (env.NODE_ENV !== "production") return;
 
@@ -82,6 +86,14 @@ const envSchema = z.object({
       code: z.ZodIssueCode.custom,
       message: "JWT_SECRET must be at least 32 characters",
       path: ["JWT_SECRET"]
+    });
+  }
+
+  if (env.CAREER7_BASE_URL && !env.CAREER7_BRIDGE_SECRET) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "CAREER7_BRIDGE_SECRET is required when CAREER7_BASE_URL is configured",
+      path: ["CAREER7_BRIDGE_SECRET"]
     });
   }
 });

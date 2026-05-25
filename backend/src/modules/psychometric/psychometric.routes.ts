@@ -8,6 +8,7 @@ export const psychometricRouter = Router();
 
 psychometricRouter.get("/tests", psychometricController.list);
 psychometricRouter.get("/admin/overview", protect, allowRoles(Role.ADMIN, Role.DIRECTOR), psychometricController.adminOverview);
+psychometricRouter.get("/admin/analytics", protect, allowRoles(Role.ADMIN, Role.DIRECTOR), psychometricController.adminAnalytics);
 psychometricRouter.get("/admin/readiness", protect, allowRoles(Role.ADMIN, Role.DIRECTOR), psychometricController.adminReadiness);
 psychometricRouter.get("/admin/tests", protect, allowRoles(Role.ADMIN, Role.DIRECTOR), psychometricController.adminTests);
 psychometricRouter.patch(

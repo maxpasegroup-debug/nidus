@@ -14,6 +14,7 @@ import {
 } from "@/components/dashboard";
 import { Button } from "@/components/ui/button";
 import { PageHero } from "@/components/layout/page-hero";
+import { ToprankLaunchCard } from "@/components/toprank/toprank-launch-card";
 import { useAdminDashboard } from "@/hooks/use-dashboard";
 
 const commandModules = [
@@ -111,6 +112,8 @@ export default function AdminDashboardPage() {
             <QuickActionCard key={module.title} title={module.title} description={module.description} href={module.href} />
           ))}
         </section>
+
+        <ToprankLaunchCard adminLinks />
 
         {isOperationsAdmin ? (
           <>

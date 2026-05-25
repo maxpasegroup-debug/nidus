@@ -28,6 +28,30 @@ const learnerGuruMenu = [
   { label: "Messages", href: "/messages" }
 ];
 
+const facultyMenu = [
+  { label: "Dashboard", href: "/dashboard/teacher" },
+  { label: "My Classes", href: "/courses" },
+  { label: "Students", href: "/performance-analytics" },
+  { label: "Attendance", href: "/discipline" },
+  { label: "CBT & Tests", href: "/tests" },
+  { label: "Question Bank", href: "/pyq-bank" },
+  { label: "Assignments", href: "/documents" },
+  { label: "Study Materials", href: "/media-library" },
+  { label: "Live Classes", href: "/live-classes" },
+  { label: "Performance Analytics", href: "/performance-analytics" },
+  { label: "Psychometric Reports", href: "/psychometric/reports" },
+  { label: "NIDUS Guru", href: "/guru" },
+  { label: "Communication Center", href: "/messages" },
+  { label: "Timetable", href: "/sessions" },
+  { label: "Tasks & Approvals", href: "/operations-hub" },
+  { label: "Events & Camps", href: "/announcements" },
+  { label: "Leave Management", href: "/staff-hr" },
+  { label: "Doubt Support", href: "/ai-doubt-solver" },
+  { label: "Counselling Notes", href: "/progress-reports" },
+  { label: "My Reports", href: "/progress-reports" },
+  { label: "Profile & Settings", href: "/dashboard/settings" }
+];
+
 export function getNavItems(role?: AuthRole) {
   if (role === "ADMIN") {
     return [
@@ -66,6 +90,10 @@ export function getNavItems(role?: AuthRole) {
 
   if (role === "GUEST" || role === "STUDENT" || role === "PARENT") {
     return learnerGuruMenu.map((item) => (item.label === "Dashboard" ? { ...item, href: roleDashboardPath[role] } : item));
+  }
+
+  if (role === "TEACHER") {
+    return facultyMenu;
   }
 
   return sharedLearningMenu.map((item) => (item.label === "Dashboard" ? { ...item, href: role ? roleDashboardPath[role] : "/dashboard" } : item));

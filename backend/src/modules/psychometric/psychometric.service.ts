@@ -409,6 +409,21 @@ function parentGuidanceFor(scoring: ScoringResult, development?: DimensionScore)
   ];
 }
 
+function dimensionScoresFromSnapshot(snapshot?: { scoring: Prisma.JsonValue; report: Prisma.JsonValue } | null): DimensionScore[] {
+  const scoring = snapshot?.scoring as { dimensionScores?: DimensionScore[] } | undefined;
+  const report = snapshot?.report as { dimensionScores?: DimensionScore[] } | undefined;
+  const dimensions = Array.isArray(scoring?.dimensionScores) ? scoring.dimensionScores : Array.isArray(report?.dimensionScores) ? report.dimensionScores : [];
+  return dimensions
+    .filter((item) => item && typeof item.dimension === "string" && typeof item.label === "string" && typeof item.score === "number")
+    .map((item) => ({
+      dimension: item.dimension,
+      label: item.label,
+      score: Math.round(item.score),
+      answered: Number(item.answered ?? 0),
+      total: Number(item.total ?? 0)
+    }));
+}
+
 function buildStructuredReport(attempt: { startedAt?: Date; completedAt?: Date | null; test: { title: string; type: string; duration?: number }; answers: Array<{ answerText?: string | null; selectedOption?: string | null; question: { questionText: string; id: string; testId: string } }> }, scoring: ScoringResult, recommendations: string[]) {
   const strongest = scoring.strongestDimensions;
   const weakest = scoring.weakestDimensions;
@@ -1085,6 +1100,115 @@ export const psychometricService = {
         questionReady: test._count.questions >= minimumQuestions,
         productionReady: test.isActive && test._count.questions >= minimumQuestions
       }))
+    };
+  },
+
+  async adminAnalytics() {
+    const [attempts, totalAttempts, completedAttempts] = await Promise.all([
+      prisma.psychometricAttempt.findMany({
+        where: { completedAt: { not: null } },
+        orderBy: { completedAt: "desc" },
+        take: 250,
+        include: {
+          test: { select: { id: true, title: true, type: true, access: true, category: true } },
+          user: { select: { id: true, name: true, email: true } },
+          answers: { select: { id: true } },
+          reportSnapshot: true
+        }
+      }),
+      prisma.psychometricAttempt.count(),
+      prisma.psychometricAttempt.count({ where: { completedAt: { not: null } } })
+    ]);
+
+    const bandMap = new Map<string, number>();
+    const accessMap = new Map<string, { attempts: number; scoreTotal: number }>();
+    const categoryMap = new Map<string, { attempts: number; scoreTotal: number }>();
+    const dimensionMap = new Map<string, { label: string; attempts: number; scoreTotal: number }>();
+    const dailyMap = new Map<string, { attempts: number; scoreTotal: number }>();
+
+    for (const attempt of attempts) {
+      const band = attempt.reportSnapshot?.readinessBand ?? readinessBand(attempt.score);
+      bandMap.set(band, (bandMap.get(band) ?? 0) + 1);
+
+      const access = accessForTest(attempt.test.id, attempt.test.access);
+      const accessCurrent = accessMap.get(access) ?? { attempts: 0, scoreTotal: 0 };
+      accessCurrent.attempts += 1;
+      accessCurrent.scoreTotal += attempt.score;
+      accessMap.set(access, accessCurrent);
+
+      const category = attempt.test.category || "GENERAL";
+      const categoryCurrent = categoryMap.get(category) ?? { attempts: 0, scoreTotal: 0 };
+      categoryCurrent.attempts += 1;
+      categoryCurrent.scoreTotal += attempt.score;
+      categoryMap.set(category, categoryCurrent);
+
+      const dayKey = attempt.completedAt?.toISOString().slice(0, 10) ?? "pending";
+      const dailyCurrent = dailyMap.get(dayKey) ?? { attempts: 0, scoreTotal: 0 };
+      dailyCurrent.attempts += 1;
+      dailyCurrent.scoreTotal += attempt.score;
+      dailyMap.set(dayKey, dailyCurrent);
+
+      for (const dimension of dimensionScoresFromSnapshot(attempt.reportSnapshot)) {
+        const current = dimensionMap.get(dimension.dimension) ?? { label: dimension.label, attempts: 0, scoreTotal: 0 };
+        current.attempts += 1;
+        current.scoreTotal += dimension.score;
+        dimensionMap.set(dimension.dimension, current);
+      }
+    }
+
+    const mapToPerformance = (entries: Map<string, { attempts: number; scoreTotal: number }>) =>
+      Array.from(entries.entries())
+        .map(([key, value]) => ({
+          key,
+          attempts: value.attempts,
+          averageScore: value.attempts ? Math.round(value.scoreTotal / value.attempts) : 0
+        }))
+        .sort((a, b) => b.attempts - a.attempts);
+
+    return {
+      generatedAt: new Date().toISOString(),
+      sampleSize: attempts.length,
+      summary: {
+        totalAttempts,
+        completedAttempts,
+        completionRate: percentage(completedAttempts, Math.max(totalAttempts, 1)),
+        lowScoreReports: attempts.filter((attempt) => attempt.score < 55).length,
+        highReadinessReports: attempts.filter((attempt) => attempt.score >= 80).length
+      },
+      readinessBands: Array.from(bandMap.entries()).map(([band, count]) => ({ band, count })).sort((a, b) => b.count - a.count),
+      accessPerformance: mapToPerformance(accessMap),
+      categoryPerformance: mapToPerformance(categoryMap),
+      dimensionAverages: Array.from(dimensionMap.entries())
+        .map(([dimension, value]) => ({
+          dimension,
+          label: value.label,
+          attempts: value.attempts,
+          averageScore: value.attempts ? Math.round(value.scoreTotal / value.attempts) : 0
+        }))
+        .sort((a, b) => a.averageScore - b.averageScore),
+      dailyTrend: Array.from(dailyMap.entries())
+        .map(([date, value]) => ({
+          date,
+          attempts: value.attempts,
+          averageScore: value.attempts ? Math.round(value.scoreTotal / value.attempts) : 0
+        }))
+        .sort((a, b) => a.date.localeCompare(b.date))
+        .slice(-21),
+      counsellingPriority: attempts
+        .filter((attempt) => attempt.score < 60)
+        .slice(0, 12)
+        .map((attempt) => ({
+          attemptId: attempt.id,
+          studentId: attempt.user.id,
+          studentName: attempt.user.name,
+          studentEmail: attempt.user.email,
+          testTitle: attempt.test.title,
+          score: Math.round(attempt.score),
+          readinessBand: attempt.reportSnapshot?.readinessBand ?? readinessBand(attempt.score),
+          completedAt: attempt.completedAt?.toISOString() ?? "",
+          answerCount: attempt.answers.length,
+          reportHref: `/psychometric/results/${attempt.id}`
+        }))
     };
   },
 

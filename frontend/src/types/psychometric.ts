@@ -213,6 +213,35 @@ export type PsychometricReadiness = {
   }>;
 };
 
+export type PsychometricAnalytics = {
+  generatedAt: string;
+  sampleSize: number;
+  summary: {
+    totalAttempts: number;
+    completedAttempts: number;
+    completionRate: number;
+    lowScoreReports: number;
+    highReadinessReports: number;
+  };
+  readinessBands: Array<{ band: string; count: number }>;
+  accessPerformance: Array<{ key: string; attempts: number; averageScore: number }>;
+  categoryPerformance: Array<{ key: string; attempts: number; averageScore: number }>;
+  dimensionAverages: Array<{ dimension: string; label: string; attempts: number; averageScore: number }>;
+  dailyTrend: Array<{ date: string; attempts: number; averageScore: number }>;
+  counsellingPriority: Array<{
+    attemptId: string;
+    studentId: string;
+    studentName: string;
+    studentEmail: string;
+    testTitle: string;
+    score: number;
+    readinessBand: string;
+    completedAt: string;
+    answerCount: number;
+    reportHref: string;
+  }>;
+};
+
 export type OLQReport = {
   score: Record<string, number | string>;
   insights: {

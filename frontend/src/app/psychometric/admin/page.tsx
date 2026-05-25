@@ -5,7 +5,7 @@ import { Activity, AlertTriangle, ArrowRight, BarChart3, CheckCircle2, FileText,
 import { AnnouncementCard, DashboardError, DashboardSkeleton, ProgressCard, RoleDashboardGuard, SectionHeader, StatCard } from "@/components/dashboard";
 import { PageHero } from "@/components/layout/page-hero";
 import { Button } from "@/components/ui/button";
-import { usePsychometricAdminOverview, usePsychometricReadiness } from "@/hooks/use-psychometric";
+import { usePsychometricAdminOverview, usePsychometricAnalytics, usePsychometricReadiness } from "@/hooks/use-psychometric";
 
 function formatDate(value: string) {
   if (!value) return "Date pending";
@@ -14,6 +14,7 @@ function formatDate(value: string) {
 
 export default function PsychometricAdminPage() {
   const { data, isLoading, error, refetch, isFetching } = usePsychometricAdminOverview();
+  const analytics = usePsychometricAnalytics();
   const readiness = usePsychometricReadiness();
 
   if (isLoading) return <RoleDashboardGuard role={["ADMIN", "DIRECTOR"]}><DashboardSkeleton /></RoleDashboardGuard>;
@@ -119,6 +120,62 @@ export default function PsychometricAdminPage() {
             </div>
           </div>
         </section>
+
+        {analytics.data ? (
+          <section className="grid gap-4 xl:grid-cols-[1fr_1fr_1.2fr]">
+            <div className="premium-surface rounded-lg p-5">
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-gold-soft">Readiness Bands</p>
+              <h2 className="mt-3 text-xl font-semibold text-ink">Student distribution</h2>
+              <div className="mt-5 space-y-3">
+                {analytics.data.readinessBands.length ? analytics.data.readinessBands.map((band) => (
+                  <div key={band.band} className="rounded border border-white/10 bg-navy-deep/55 p-4">
+                    <div className="flex items-center justify-between gap-3 text-sm">
+                      <span className="font-semibold text-white">{band.band}</span>
+                      <span className="text-gold-soft">{band.count}</span>
+                    </div>
+                  </div>
+                )) : <p className="text-sm leading-6 text-muted">No completed reports yet.</p>}
+              </div>
+            </div>
+
+            <div className="premium-surface rounded-lg p-5">
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-gold-soft">Dimension Analytics</p>
+              <h2 className="mt-3 text-xl font-semibold text-ink">Weakest average signals</h2>
+              <div className="mt-5 space-y-3">
+                {analytics.data.dimensionAverages.slice(0, 6).map((dimension) => (
+                  <div key={dimension.dimension} className="rounded border border-white/10 bg-navy-deep/55 p-4">
+                    <div className="flex items-center justify-between gap-3 text-sm">
+                      <span className="font-semibold text-white">{dimension.label}</span>
+                      <span className="text-gold-soft">{dimension.averageScore}/100</span>
+                    </div>
+                    <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/10">
+                      <div className="h-full rounded-full bg-gold" style={{ width: `${dimension.averageScore}%` }} />
+                    </div>
+                  </div>
+                ))}
+                {!analytics.data.dimensionAverages.length ? <p className="text-sm leading-6 text-muted">Dimension averages will appear after report snapshots are generated.</p> : null}
+              </div>
+            </div>
+
+            <div className="premium-surface rounded-lg p-5">
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-gold-soft">Counselling Priority</p>
+              <h2 className="mt-3 text-xl font-semibold text-ink">Reports needing action</h2>
+              <div className="mt-5 space-y-3">
+                {analytics.data.counsellingPriority.length ? analytics.data.counsellingPriority.slice(0, 5).map((report) => (
+                  <Link key={report.attemptId} href={report.reportHref} className="block rounded border border-white/10 bg-navy-deep/55 p-4 transition hover:-translate-y-0.5 hover:border-gold/30">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="text-sm font-semibold text-white">{report.studentName}</p>
+                        <p className="mt-1 text-xs leading-5 text-muted">{report.testTitle}</p>
+                      </div>
+                      <span className="rounded border border-amber-300/20 bg-amber-300/10 px-2 py-1 text-xs font-semibold text-amber-100">{report.score}/100</span>
+                    </div>
+                  </Link>
+                )) : <p className="text-sm leading-6 text-muted">No low-score counselling priorities in the current sample.</p>}
+              </div>
+            </div>
+          </section>
+        ) : null}
 
         <SectionHeader eyebrow="Top Assessments" title="Most used psychometric tests" action={`${data.topAssessments.length} active`} />
         <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">

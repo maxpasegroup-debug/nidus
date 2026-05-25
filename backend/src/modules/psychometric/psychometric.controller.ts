@@ -140,6 +140,15 @@ export const psychometricController = {
     }
   },
 
+  async adminAnalytics(_req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      const analytics = await psychometricService.adminAnalytics();
+      res.json(analytics);
+    } catch (error) {
+      next(error);
+    }
+  },
+
   async adminReadiness(_req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
       const readiness = await psychometricService.adminReadiness();

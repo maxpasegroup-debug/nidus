@@ -5,6 +5,7 @@ import { ActivityTimeline, AnnouncementCard, DashboardError, DashboardSkeleton, 
 import { PerformanceChart } from "@/components/charts/performance-chart";
 import { Button } from "@/components/ui/button";
 import { PageHero } from "@/components/layout/page-hero";
+import { ToprankLaunchCard } from "@/components/toprank/toprank-launch-card";
 import { useDirectorDashboard } from "@/hooks/use-dashboard";
 
 export default function DirectorDashboardPage() {
@@ -77,6 +78,8 @@ export default function DirectorDashboardPage() {
           <QuickActionCard title="Progress reports" description="Review monthly growth and risk students." href="/progress-reports" />
           <QuickActionCard title="Staff and HR" description="Review team structure, roles, and staff documents." href="/staff-hr" />
         </section>
+
+        <ToprankLaunchCard adminLinks />
       </motion.div>
     </RoleDashboardGuard>
   );

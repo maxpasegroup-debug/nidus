@@ -20,6 +20,7 @@ import { buildAssessmentProgress } from "@/components/assessments/assessment-cat
 import { PageHero } from "@/components/layout/page-hero";
 import { NidusAiCommandPanel } from "@/components/nidus-ai/nidus-ai-command-panel";
 import { useAuth } from "@/components/providers/auth-provider-v2";
+import { ToprankLaunchCard } from "@/components/toprank/toprank-launch-card";
 import { Button } from "@/components/ui/button";
 import { useStudentDashboard } from "@/hooks/use-dashboard";
 
@@ -163,6 +164,8 @@ export default function StudentDashboardPage() {
             <QuickActionCard key={action.title} title={action.title} description={action.description} href={action.href} />
           ))}
         </section>
+
+        <ToprankLaunchCard />
 
         <NidusAiCommandPanel
           title="NIDUS AI is managing your next step"

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { KeyRound } from "lucide-react";
 import { RoleDashboardGuard } from "@/components/dashboard";
 import { Button } from "@/components/ui/button";
+import { FacultyManualCard } from "@/components/faculty/faculty-manual-card";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/providers/toast-provider";
 import { getApiErrorMessage } from "@/services/api";
@@ -48,7 +49,7 @@ export default function DashboardSettingsPage() {
   return (
     <RoleDashboardGuard role={["ADMIN", "DIRECTOR", "TEACHER", "STUDENT", "PARENT", "TELECALLER", "MARKETING_COORDINATOR", "GUEST"]}>
       <main className="min-h-screen px-4 py-6 sm:px-6 lg:px-8">
-        <section className="mx-auto max-w-3xl">
+        <section className="mx-auto max-w-5xl space-y-6">
           <div className="premium-surface rounded-lg p-6">
             <div className="flex items-center gap-3">
               <div className="rounded bg-gold/15 p-3 text-gold-soft">
@@ -73,6 +74,7 @@ export default function DashboardSettingsPage() {
               <Button type="submit" disabled={isSubmitting}>{isSubmitting ? "Updating..." : "Update Password"}</Button>
             </form>
           </div>
+          <FacultyManualCard />
         </section>
       </main>
     </RoleDashboardGuard>

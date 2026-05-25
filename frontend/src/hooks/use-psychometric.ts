@@ -6,6 +6,7 @@ import { useToast } from "@/components/providers/toast-provider";
 import { getApiErrorMessage } from "@/services/api";
 import {
   getPsychometricAdminOverview,
+  getPsychometricAnalytics,
   getPsychometricAttemptHistory,
   getPsychometricReadiness,
   getPsychometricReportHistory,
@@ -114,6 +115,10 @@ export function usePsychometricReportHistory() {
 
 export function usePsychometricAdminOverview() {
   return useQuery({ queryKey: ["psychometric", "admin-overview"], queryFn: getPsychometricAdminOverview });
+}
+
+export function usePsychometricAnalytics() {
+  return useQuery({ queryKey: ["psychometric", "admin-analytics"], queryFn: getPsychometricAnalytics });
 }
 
 export function usePsychometricReadiness() {
