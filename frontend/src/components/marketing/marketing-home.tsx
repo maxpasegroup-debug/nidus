@@ -6,8 +6,8 @@ const exams = ["NDA", "CDS", "AFCAT", "SSB", "AISSEE", "RIMC", "Agniveer", "INET
 const modules = [
   {
     label: "Academy",
-    title: "Defence Career Campus",
-    text: "Classroom training, physical discipline, SSB guidance and mentor support for serious defence aspirants.",
+    title: "Defence Training Academy",
+    text: "Clear coaching, discipline, physical training and mentor support for students who dream of a career in uniform.",
     href: "/programs",
     cta: "Explore Academy",
     icon: GraduationCap,
@@ -15,8 +15,8 @@ const modules = [
   },
   {
     label: "Top Rank",
-    title: "AI Exam Practice Arena",
-    text: "Practice NDA, CDS, AFCAT and SSB with profiling, diagnostics, speed training and rank-readiness reports.",
+    title: "Exam Practice With Guidance",
+    text: "Practice important defence exams step by step. Know what to study, where you are weak, and what to do next.",
     href: "/toprank",
     cta: "Enter Top Rank",
     icon: BrainCircuit,
@@ -24,8 +24,8 @@ const modules = [
   },
   {
     label: "NIDUS Guru",
-    title: "Personal Transformation Quests",
-    text: "Recorded quests for focus, confidence, discipline, dream clarity and student growth. New quests release soon.",
+    title: "Focus and Discipline Quests",
+    text: "Simple transformation quests that help students reduce distractions, build confidence and stay consistent.",
     href: "/guru",
     cta: "Explore Quests",
     icon: Sparkles,
@@ -97,13 +97,13 @@ export function MarketingHome() {
         <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#f7f3ea] to-transparent" />
         <div className="relative mx-auto max-w-5xl">
           <p className="mx-auto inline-flex rounded-full border border-[#b9913f]/24 bg-white/62 px-5 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#3f4a32] backdrop-blur-xl">
-            India&apos;s AI-Powered Defence Career Campus
+            Kerala&apos;s Integrated Defence Career Campus
           </p>
           <h1 className="mx-auto mt-10 max-w-5xl text-5xl font-semibold leading-[1.02] tracking-normal text-[#071d36] sm:text-7xl lg:text-8xl">
             From Aspirant to Officer.
           </h1>
           <p className="mx-auto mt-7 max-w-3xl text-base font-semibold leading-8 text-[#40516a] sm:text-2xl">
-            NDA, CDS, AFCAT, SSB, AISSEE and Agniveer training with academy discipline, AI guidance and mentor support.
+            Coaching, physical training, exam practice and personal guidance for NDA, CDS, AFCAT, SSB, AISSEE and Agniveer aspirants.
           </p>
           <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <PillButton href="/start-free">
@@ -126,9 +126,9 @@ export function MarketingHome() {
             <ClipboardCheck className="h-4 w-4" />
             Free Assessment
           </span>
-          <h2 className="mt-8 text-4xl font-semibold leading-tight text-[#061B34] sm:text-6xl">Discover your strengths before your journey begins.</h2>
+          <h2 className="mt-8 text-4xl font-semibold leading-tight text-[#061B34] sm:text-6xl">Know your strengths before you begin.</h2>
           <p className="mx-auto mt-5 max-w-xl text-base leading-8 text-[#40516a]">
-            Start with a simple AI-guided profile and understand your readiness, confidence and defence career fit.
+            Start with a simple free profile. Understand your confidence, discipline and best defence career direction.
           </p>
           <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
             <Link href="/start-free" className="inline-flex min-h-11 items-center justify-center gap-2 rounded border border-[#b58b35]/45 bg-[linear-gradient(135deg,#fff3bf_0%,#e7c873_34%,#b9913f_72%,#8a6426_100%)] px-5 py-3 text-sm font-semibold text-[#071d36] shadow-[0_18px_42px_rgba(185,145,63,0.24)] transition hover:-translate-y-0.5 hover:brightness-105">
