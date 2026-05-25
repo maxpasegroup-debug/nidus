@@ -103,7 +103,7 @@ export default function StartFreePage() {
               </label>
             </div>
 
-            <button type="submit" disabled={isSubmitting} className="mt-5 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded bg-[#071d36] px-5 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 disabled:opacity-70">
+            <button type="submit" disabled={isSubmitting} className="mt-5 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded border border-[#b58b35]/45 bg-[linear-gradient(135deg,#fff3bf_0%,#e7c873_34%,#b9913f_72%,#8a6426_100%)] px-5 py-3 text-sm font-semibold text-[#071d36] transition hover:-translate-y-0.5 hover:brightness-105 disabled:opacity-70">
               {isSubmitting ? "Saving..." : "Start Free"} <ArrowRight className="h-4 w-4" />
             </button>
 

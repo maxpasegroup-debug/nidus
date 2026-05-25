@@ -18,7 +18,7 @@ export function PublicSectionIntro({ eyebrow, title, text, centered = false, lig
 
 export function PublicCta({ href, children, variant = "primary", className = "" }: { href: string; children: ReactNode; variant?: "primary" | "secondary" | "whatsapp"; className?: string }) {
   const styles = {
-    primary: "bg-[#071d36] text-white shadow-[0_18px_40px_rgba(7,29,54,0.18)] hover:bg-[#0d2a4b]",
+    primary: "border border-[#b58b35]/45 bg-[linear-gradient(135deg,#fff3bf_0%,#e7c873_34%,#b9913f_72%,#8a6426_100%)] text-[#071d36] shadow-[0_18px_40px_rgba(185,145,63,0.24)] hover:brightness-105",
     secondary: "border border-[#071d36]/14 bg-white/76 text-[#071d36] shadow-[0_12px_30px_rgba(7,29,54,0.08)] hover:border-[#b9913f]/55",
     whatsapp: "bg-[#25d366] text-white shadow-[0_16px_36px_rgba(37,211,102,0.24)] hover:bg-[#20bd5a]"
   };

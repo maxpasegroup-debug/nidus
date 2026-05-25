@@ -38,7 +38,7 @@ function PillButton({ href, children, variant = "solid" }: { href: string; child
     <Link
       href={href}
       className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold transition hover:-translate-y-0.5 ${
-        variant === "solid" ? "bg-[#071d36] text-white shadow-[0_18px_46px_rgba(7,29,54,0.16)] hover:bg-[#0d2a4b]" : "border border-[#071d36]/14 bg-white/70 text-[#071d36] hover:bg-white"
+        variant === "solid" ? "border border-[#b58b35]/45 bg-[linear-gradient(135deg,#fff3bf_0%,#e7c873_34%,#b9913f_72%,#8a6426_100%)] text-[#071d36] shadow-[0_18px_46px_rgba(185,145,63,0.24)] hover:brightness-105" : "border border-[#071d36]/14 bg-white/76 text-[#071d36] shadow-sm hover:bg-white"
       }`}
     >
       {children}
@@ -131,7 +131,7 @@ export function MarketingHome() {
             Start with a simple AI-guided profile and understand your readiness, confidence and defence career fit.
           </p>
           <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-            <Link href="/start-free" className="inline-flex min-h-11 items-center justify-center gap-2 rounded bg-[#D6A842] px-5 py-3 text-sm font-semibold text-[#061B34] transition hover:-translate-y-0.5 hover:bg-[#F2C766]">
+            <Link href="/start-free" className="inline-flex min-h-11 items-center justify-center gap-2 rounded border border-[#b58b35]/45 bg-[linear-gradient(135deg,#fff3bf_0%,#e7c873_34%,#b9913f_72%,#8a6426_100%)] px-5 py-3 text-sm font-semibold text-[#071d36] shadow-[0_18px_42px_rgba(185,145,63,0.24)] transition hover:-translate-y-0.5 hover:brightness-105">
               Get Started <ArrowRight className="h-4 w-4" />
             </Link>
             <Link href="/join" className="inline-flex min-h-11 items-center justify-center gap-2 rounded px-5 py-3 text-sm font-semibold text-[#061B34] transition hover:-translate-y-0.5">
@@ -144,7 +144,7 @@ export function MarketingHome() {
       <section className="bg-[#071d36] px-4 py-20 text-white sm:px-6 lg:px-8">
         <div className="mx-auto grid max-w-6xl gap-10 md:grid-cols-[1fr_1.4fr]">
           <div>
-            <div className="grid h-10 w-10 place-items-center rounded-full bg-[#D6A842] text-[#061B34]">
+            <div className="grid h-10 w-10 place-items-center rounded-full bg-[linear-gradient(135deg,#fff3bf,#b9913f_70%,#8a6426)] text-[#071d36]">
               <ShieldCheck className="h-5 w-5" />
             </div>
             <p className="mt-6 max-w-sm text-sm leading-7 text-white/68">NIDUS Academy is built for parents and students who want a clear defence training path.</p>

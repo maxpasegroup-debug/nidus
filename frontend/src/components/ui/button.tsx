@@ -13,7 +13,7 @@ const baseClasses =
   "inline-flex items-center justify-center rounded border font-semibold transition duration-200 hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-gold/60 disabled:cursor-not-allowed disabled:opacity-50";
 
 const variants = {
-  primary: "border-[#071d36] bg-[#071d36] text-white shadow-[0_14px_34px_rgba(7,29,54,0.16)] hover:bg-[#0d2a4b]",
+  primary: "border-[#b58b35]/45 bg-[linear-gradient(135deg,#fff3bf_0%,#e7c873_34%,#b9913f_72%,#8a6426_100%)] text-[#071d36] shadow-[0_14px_34px_rgba(185,145,63,0.24)] hover:brightness-105",
   secondary: "border-[#071d36]/18 bg-white/70 text-[#071d36] hover:border-[#b9913f]/60 hover:bg-white"
 };
 

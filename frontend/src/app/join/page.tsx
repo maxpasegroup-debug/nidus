@@ -141,7 +141,7 @@ export default function JoinPage() {
                   </button>
                 </div>
               ) : (
-                <button type="submit" className="inline-flex min-h-12 items-center justify-center gap-2 rounded bg-[#071d36] px-5 py-3 text-sm font-semibold text-white shadow-[0_18px_40px_rgba(7,29,54,0.18)] transition hover:-translate-y-0.5 hover:bg-[#0d2a4b]">
+                <button type="submit" className="inline-flex min-h-12 items-center justify-center gap-2 rounded border border-[#b58b35]/45 bg-[linear-gradient(135deg,#fff3bf_0%,#e7c873_34%,#b9913f_72%,#8a6426_100%)] px-5 py-3 text-sm font-semibold text-[#071d36] shadow-[0_18px_40px_rgba(185,145,63,0.24)] transition hover:-translate-y-0.5 hover:brightness-105">
                   {isSubmitting ? "Saving Details..." : "Prepare WhatsApp Application"} <ArrowRight className="h-4 w-4" />
                 </button>
               )}

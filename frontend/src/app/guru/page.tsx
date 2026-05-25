@@ -26,7 +26,7 @@ export default function GuruPage() {
               Immersive active learning quests designed to help students build focus, discipline, consistency, confidence, and performance.
             </p>
             <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-              <Link href="#quests" className="inline-flex min-h-12 items-center justify-center gap-2 rounded bg-[#b9913f] px-5 py-3 text-sm font-semibold text-[#071d36] shadow-[0_18px_40px_rgba(185,145,63,0.20)] transition hover:-translate-y-0.5 hover:bg-[#e7c873]">
+              <Link href="#quests" className="inline-flex min-h-12 items-center justify-center gap-2 rounded border border-[#b58b35]/45 bg-[linear-gradient(135deg,#fff3bf_0%,#e7c873_34%,#b9913f_72%,#8a6426_100%)] px-5 py-3 text-sm font-semibold text-[#071d36] shadow-[0_18px_40px_rgba(185,145,63,0.24)] transition hover:-translate-y-0.5 hover:brightness-105">
                 Explore Quests <ArrowRight className="h-4 w-4" />
               </Link>
               <Link href="/start-free" className="inline-flex min-h-12 items-center justify-center rounded border border-[#071d36]/14 bg-white/76 px-5 py-3 text-sm font-semibold text-[#071d36] shadow-sm transition hover:-translate-y-0.5 hover:bg-white">
@@ -125,7 +125,7 @@ export default function GuruPage() {
             <h2 className="mt-4 text-2xl font-semibold text-[#071d36]">Transformation quests release one by one.</h2>
             <p className="mt-2 text-sm leading-6 text-[#64748b]">Join free to begin onboarding and receive quest release updates.</p>
           </div>
-          <Link href="/start-free" className="inline-flex min-h-12 items-center justify-center gap-2 rounded bg-[#b9913f] px-5 py-3 text-sm font-semibold text-[#071d36] transition hover:-translate-y-0.5 hover:bg-[#e7c873]">
+          <Link href="/start-free" className="inline-flex min-h-12 items-center justify-center gap-2 rounded border border-[#b58b35]/45 bg-[linear-gradient(135deg,#fff3bf_0%,#e7c873_34%,#b9913f_72%,#8a6426_100%)] px-5 py-3 text-sm font-semibold text-[#071d36] transition hover:-translate-y-0.5 hover:brightness-105">
             Start Free <ArrowRight className="h-4 w-4" />
           </Link>
         </div>

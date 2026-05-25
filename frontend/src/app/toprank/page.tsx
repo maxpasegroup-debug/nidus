@@ -14,7 +14,7 @@ export default function TopRankPage() {
             <h1 className="mt-5 max-w-4xl text-5xl font-semibold leading-[0.95] text-[#071d36] sm:text-7xl">AI exam practice arena for defence aspirants.</h1>
             <p className="mt-6 max-w-2xl text-base leading-8 text-[#64748b]">Practice with profiling, diagnostics, adaptive revision, mock intelligence, and mentor-ready reports.</p>
             <div className="mt-8">
-              <Link href="#exams" className="inline-flex min-h-12 items-center justify-center gap-2 rounded bg-[#071d36] px-5 py-3 text-sm font-semibold text-white shadow-[0_16px_36px_rgba(7,29,54,0.18)] transition hover:-translate-y-0.5">
+              <Link href="#exams" className="inline-flex min-h-12 items-center justify-center gap-2 rounded border border-[#b58b35]/45 bg-[linear-gradient(135deg,#fff3bf_0%,#e7c873_34%,#b9913f_72%,#8a6426_100%)] px-5 py-3 text-sm font-semibold text-[#071d36] shadow-[0_16px_36px_rgba(185,145,63,0.24)] transition hover:-translate-y-0.5 hover:brightness-105">
                 Choose Exam <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
