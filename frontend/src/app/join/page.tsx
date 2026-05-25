@@ -4,6 +4,9 @@ import { FormEvent, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowRight, CheckCircle2, ClipboardList, MessageCircle, Phone, ShieldCheck, Sparkles } from "lucide-react";
 import { AssistantOrbit, PublicCta } from "@/components/marketing/public-branding";
+import { useToast } from "@/components/providers/toast-provider";
+import { getApiErrorMessage } from "@/services/api";
+import { createPublicLead } from "@/services/crm";
 
 const programs = ["NDA", "CDS", "AFCAT", "SSB", "Foundation", "AISSEE / RIMC", "NIDUS Guru", "Not sure"];
 
@@ -11,6 +14,7 @@ const initialForm = {
   studentName: "",
   parentName: "",
   phone: "",
+  email: "",
   qualification: "",
   program: "NDA",
   location: "",
@@ -24,11 +28,13 @@ const assistantSteps = [
 ];
 
 export default function JoinPage() {
+  const { showToast } = useToast();
   const [form, setForm] = useState(initialForm);
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const whatsappMessage = useMemo(() => {
-    return `Hello NIDUS Academy,\n\nI am interested in joining NIDUS Academy.\n\nStudent Name: ${form.studentName || "-"}\nParent Name: ${form.parentName || "-"}\nPhone: ${form.phone || "-"}\nClass/Qualification: ${form.qualification || "-"}\nInterested Program: ${form.program || "-"}\nLocation: ${form.location || "-"}\nPreferred Counselling Time: ${form.counsellingTime || "-"}\n\nPlease guide me with admission details and counselling support.`;
+    return `Hello NIDUS Academy,\n\nI am interested in joining NIDUS Academy.\n\nStudent Name: ${form.studentName || "-"}\nParent Name: ${form.parentName || "-"}\nPhone: ${form.phone || "-"}\nEmail: ${form.email || "-"}\nClass/Qualification: ${form.qualification || "-"}\nInterested Program: ${form.program || "-"}\nLocation: ${form.location || "-"}\nPreferred Counselling Time: ${form.counsellingTime || "-"}\n\nPlease guide me with admission details and counselling support.`;
   }, [form]);
 
   const whatsappHref = `https://wa.me/919969594411?text=${encodeURIComponent(whatsappMessage)}`;
@@ -43,9 +49,26 @@ export default function JoinPage() {
     setForm((current) => ({ ...current, [field]: value }));
   }
 
-  function onSubmit(event: FormEvent<HTMLFormElement>) {
+  async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setSubmitted(true);
+    setIsSubmitting(true);
+    try {
+      await createPublicLead({
+        fullName: form.studentName,
+        mobile: form.phone,
+        email: form.email,
+        studentClass: form.qualification,
+        targetExam: form.program,
+        source: "Join Page AI Assistant",
+        message: `Parent: ${form.parentName || "-"}\nLocation: ${form.location || "-"}\nPreferred counselling time: ${form.counsellingTime || "-"}`
+      });
+      setSubmitted(true);
+      showToast("Application details saved. WhatsApp message is ready.", "success");
+    } catch (error) {
+      showToast(getApiErrorMessage(error), "error");
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -89,6 +112,7 @@ export default function JoinPage() {
                 <Field label="Student name" value={form.studentName} onChange={(value) => updateField("studentName", value)} autoComplete="name" required />
                 <Field label="Parent name" value={form.parentName} onChange={(value) => updateField("parentName", value)} autoComplete="name" />
                 <Field label="Phone number" value={form.phone} onChange={(value) => updateField("phone", value)} autoComplete="tel" inputMode="tel" required />
+                <Field label="Email" value={form.email} onChange={(value) => updateField("email", value)} autoComplete="email" type="email" required />
                 <Field label="Class / qualification" value={form.qualification} onChange={(value) => updateField("qualification", value)} autoComplete="organization-title" required />
                 <label className="grid gap-2 text-sm font-semibold text-[#111827]">
                   Interested program
@@ -118,7 +142,7 @@ export default function JoinPage() {
                 </div>
               ) : (
                 <button type="submit" className="inline-flex min-h-12 items-center justify-center gap-2 rounded bg-[#263a8f] px-5 py-3 text-sm font-semibold text-white shadow-[0_18px_40px_rgba(38,58,143,0.26)] transition hover:-translate-y-0.5 hover:bg-[#1f2f75]">
-                  Prepare WhatsApp Application <ArrowRight className="h-4 w-4" />
+                  {isSubmitting ? "Saving Details..." : "Prepare WhatsApp Application"} <ArrowRight className="h-4 w-4" />
                 </button>
               )}
             </form>
@@ -158,11 +182,11 @@ export default function JoinPage() {
   );
 }
 
-function Field({ label, value, onChange, required = false, className = "", autoComplete, inputMode }: { label: string; value: string; onChange: (value: string) => void; required?: boolean; className?: string; autoComplete?: string; inputMode?: "text" | "tel" }) {
+function Field({ label, value, onChange, required = false, className = "", autoComplete, inputMode, type = "text" }: { label: string; value: string; onChange: (value: string) => void; required?: boolean; className?: string; autoComplete?: string; inputMode?: "text" | "tel"; type?: string }) {
   return (
     <label className={`grid gap-2 text-sm font-semibold text-[#111827] ${className}`}>
       {label}
-      <input required={required} value={value} onChange={(event) => onChange(event.target.value)} autoComplete={autoComplete} inputMode={inputMode} className="h-12 rounded border border-[#263a8f]/15 bg-white px-3 text-sm font-medium text-[#111827] outline-none focus:border-[#263a8f]" />
+      <input type={type} required={required} value={value} onChange={(event) => onChange(event.target.value)} autoComplete={autoComplete} inputMode={inputMode} className="h-12 rounded border border-[#263a8f]/15 bg-white px-3 text-sm font-medium text-[#111827] outline-none focus:border-[#263a8f]" />
     </label>
   );
 }

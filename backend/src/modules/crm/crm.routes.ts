@@ -10,6 +10,20 @@ const crmRoles = [protect, allowRoles(Role.ADMIN, Role.DIRECTOR, Role.TELECALLER
 const approvalRoles = [protect, allowRoles(Role.ADMIN, Role.DIRECTOR)];
 const leadStatuses = ["NEW", "CONTACTED", "COUNSELLING", "ENROLLED", "LOST"];
 
+crmRouter.post(
+  "/public-leads",
+  [
+    body("fullName").trim().notEmpty(),
+    body("mobile").trim().isLength({ min: 7 }),
+    body("email").isEmail().normalizeEmail(),
+    body("targetExam").trim().notEmpty(),
+    body("source").trim().notEmpty(),
+    body("studentClass").optional().trim(),
+    body("message").optional().trim()
+  ],
+  crmController.createPublicLead
+);
+
 crmRouter.get("/leads", ...crmRoles, [query("status").optional().isIn(leadStatuses), query("search").optional().trim()], crmController.leads);
 crmRouter.post("/leads", ...crmRoles, [body("fullName").trim().notEmpty(), body("mobile").trim().isLength({ min: 7 }), body("email").isEmail().normalizeEmail(), body("targetExam").trim().notEmpty(), body("source").trim().notEmpty(), body("status").optional().isIn(leadStatuses), body("assignedTo").optional({ nullable: true }).trim(), body("notes").optional().trim()], crmController.createLead);
 crmRouter.put("/leads/:id", ...crmRoles, [body("fullName").optional().trim().notEmpty(), body("mobile").optional().trim().isLength({ min: 7 }), body("email").optional().isEmail().normalizeEmail(), body("targetExam").optional().trim().notEmpty(), body("source").optional().trim().notEmpty(), body("status").optional().isIn(leadStatuses), body("assignedTo").optional({ nullable: true }).trim(), body("notes").optional().trim()], crmController.updateLead);

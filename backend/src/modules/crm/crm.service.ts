@@ -33,6 +33,25 @@ export const crmService = {
   createLead(input: { fullName: string; mobile: string; email: string; targetExam: string; source: string; status?: LeadStatus; assignedTo?: string; notes?: string }) {
     return prisma.lead.create({ data: { ...input, status: input.status ?? "NEW" }, include: leadInclude });
   },
+  createPublicLead(input: { fullName: string; mobile: string; email: string; targetExam: string; source: string; studentClass?: string; message?: string }) {
+    const notes = [
+      input.studentClass ? `Student Class: ${input.studentClass}` : "",
+      input.message ? `Message: ${input.message}` : "",
+      "Public website enquiry. Follow up quickly."
+    ].filter(Boolean).join("\n");
+    return prisma.lead.create({
+      data: {
+        fullName: input.fullName,
+        mobile: input.mobile,
+        email: input.email,
+        targetExam: input.targetExam,
+        source: input.source,
+        status: "NEW",
+        notes
+      },
+      include: leadInclude
+    });
+  },
   updateLead(id: string, input: Partial<{ fullName: string; mobile: string; email: string; targetExam: string; source: string; status: LeadStatus; assignedTo: string | null; notes: string }>) {
     return prisma.lead.update({ where: { id }, data: input, include: leadInclude });
   },

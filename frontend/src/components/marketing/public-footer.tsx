@@ -2,10 +2,32 @@ import Link from "next/link";
 import { ShieldCheck } from "lucide-react";
 
 const columns = [
-  ["Programs", ["Foundation", "Defence Entrance", "Specialized Modules", "SSB"]],
-  ["Learning", ["Live Classes", "Recorded Courses", "Monthly Tests", "Progress Reports"]],
-  ["AI Advantage", ["NIDUS AI", "Study Planner", "Exam Support", "Interview Practice"]],
-  ["Access", ["Admissions", "Student Login", "Parent View", "Contact"]]
+  {
+    title: "Academy",
+    links: [
+      ["Programs", "/programs"],
+      ["Join NIDUS", "/join"],
+      ["Contact", "/contact"]
+    ]
+  },
+  {
+    title: "NIDUS Guru",
+    links: [
+      ["Guru Ecosystem", "/guru"],
+      ["Assessments", "/psychometric"],
+      ["Login / Signup", "/login"]
+    ]
+  },
+  {
+    title: "Legal",
+    links: [
+      ["Privacy Policy", "/privacy-policy"],
+      ["Terms & Conditions", "/terms-and-conditions"],
+      ["Refund Policy", "/refund-policy"],
+      ["Cancellation Policy", "/cancellation-policy"],
+      ["Disclaimer", "/disclaimer"]
+    ]
+  }
 ] as const;
 
 export function PublicFooter() {
@@ -23,22 +45,27 @@ export function PublicFooter() {
             </span>
           </Link>
           <p className="mt-5 max-w-md text-sm leading-7 text-[#536072]">
-            A premium AI-powered defence preparation academy for aspirants, parents, teachers, and academy leadership.
+            A premium AI-powered defence career ecosystem for aspirants, parents, mentors, and academy leadership.
           </p>
+          <p className="mt-4 text-sm font-semibold text-[#263a8f]">WhatsApp: +91 99695 94411</p>
         </div>
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {columns.map(([title, links]) => (
-            <div key={title}>
-              <h3 className="text-sm font-semibold text-[#111827]">{title}</h3>
+        <div className="grid gap-6 sm:grid-cols-3">
+          {columns.map((column) => (
+            <div key={column.title}>
+              <h3 className="text-sm font-semibold text-[#111827]">{column.title}</h3>
               <div className="mt-4 grid gap-3">
-                {links.map((item) => <span key={item} className="text-sm text-[#536072]">{item}</span>)}
+                {column.links.map(([label, href]) => (
+                  <Link key={href} href={href} className="text-sm text-[#536072] transition hover:text-[#263a8f]">
+                    {label}
+                  </Link>
+                ))}
               </div>
             </div>
           ))}
         </div>
       </div>
       <div className="mx-auto mt-10 flex max-w-7xl flex-col gap-3 border-t border-[#263a8f]/10 pt-6 text-xs text-[#536072] sm:flex-row sm:items-center sm:justify-between">
-        <p>Copyright {new Date().getFullYear()} NIDUS Defence Training Platform.</p>
+        <p>Copyright {new Date().getFullYear()} NIDUS Academy.</p>
         <p>Built for discipline, intelligence, and officer mindset.</p>
       </div>
     </footer>

@@ -40,13 +40,13 @@ const programs = [
 ];
 
 const pathways: Array<{ label: string; href: string; icon: LucideIcon }> = [
-  { label: "NDA", href: "/courses", icon: ShieldCheck },
-  { label: "CDS", href: "/courses", icon: Medal },
-  { label: "AFCAT", href: "/courses", icon: Plane },
-  { label: "SSB", href: "/courses", icon: MessageCircle },
-  { label: "AISSEE", href: "/courses", icon: GraduationCap },
-  { label: "RIMC", href: "/courses", icon: Landmark },
-  { label: "INET", href: "/courses", icon: Radar }
+  { label: "NDA", href: "/programs/nda-crash-course", icon: ShieldCheck },
+  { label: "CDS", href: "/programs/cds-afcat-inet", icon: Medal },
+  { label: "AFCAT", href: "/programs/cds-afcat-inet", icon: Plane },
+  { label: "SSB", href: "/programs/ssb-interview-guidance", icon: MessageCircle },
+  { label: "AISSEE", href: "/programs/aissee-class-6", icon: GraduationCap },
+  { label: "RIMC", href: "/programs/rimc", icon: Landmark },
+  { label: "INET", href: "/programs/cds-afcat-inet", icon: Radar }
 ];
 
 const missionCards = [
@@ -521,7 +521,7 @@ export function MarketingHome() {
             </p>
             <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
               <PrimaryCta href="/join">Apply Now <ArrowRight className="h-4 w-4" /></PrimaryCta>
-              <SecondaryCta href="/crm/counselling">Book Counselling</SecondaryCta>
+              <SecondaryCta href="/join">Book Counselling</SecondaryCta>
             </div>
           </div>
         </GlassCard>

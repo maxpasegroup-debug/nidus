@@ -5,10 +5,9 @@ import { useEffect, useState } from "react";
 import { Menu, ShieldCheck, Sparkles, X } from "lucide-react";
 
 const navItems = [
-  ["Programs", "/programs"],
+  ["Academy", "/programs"],
   ["NIDUS Guru", "/guru"],
-  ["Assessments", "/psychometric"],
-  ["Join NIDUS", "/join"]
+  ["Login / Signup", "/login"]
 ] as const;
 
 export function PublicNavbar() {
@@ -35,7 +34,7 @@ export function PublicNavbar() {
           </span>
         </Link>
 
-        <nav className="hidden items-center gap-6 lg:flex">
+        <nav className="hidden items-center gap-4 lg:flex">
           {navItems.map(([label, href]) => (
             <Link
               key={href}
@@ -43,21 +42,16 @@ export function PublicNavbar() {
               className={
                 label === "NIDUS Guru"
                   ? "inline-flex items-center gap-2 rounded-full border border-[#b89b4d]/35 bg-[#fff8dd]/80 px-4 py-2 text-sm font-semibold text-[#5f5428] shadow-[0_14px_34px_rgba(184,155,77,0.18)] transition hover:-translate-y-0.5 hover:border-[#87905b]/50 hover:bg-white"
-                  : label === "Join NIDUS"
+                  : label === "Login / Signup"
                     ? "rounded bg-[#263a8f] px-4 py-2 text-sm font-semibold text-white shadow-[0_14px_36px_rgba(38,58,143,0.22)] transition hover:-translate-y-0.5 hover:bg-[#1f2f75]"
                   : "text-sm font-medium text-[#536072] transition hover:text-[#263a8f]"
               }
             >
               {label === "NIDUS Guru" ? <Sparkles className="h-4 w-4 text-[#b89b4d]" /> : null}
               {label}
-              {label === "Assessments" ? <span className="ml-1 rounded-full bg-[#fff8dd] px-2 py-0.5 text-[0.62rem] font-bold text-[#7c6418]">FREE</span> : null}
             </Link>
           ))}
         </nav>
-
-        <div className="hidden items-center gap-3 lg:flex">
-          <Link href="/login" className="rounded border border-[#263a8f]/15 bg-white/60 px-4 py-2 text-sm font-semibold text-[#263a8f] transition hover:border-[#263a8f]/35">Login / Signup</Link>
-        </div>
 
         <button type="button" className="rounded border border-[#263a8f]/15 bg-white/70 p-2 text-[#263a8f] lg:hidden" onClick={() => setOpen((value) => !value)} aria-label="Toggle public navigation">
           {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -75,19 +69,15 @@ export function PublicNavbar() {
                 className={
                   label === "NIDUS Guru"
                     ? "flex items-center justify-between rounded-2xl border border-[#b89b4d]/35 bg-[#fff8dd] px-4 py-4 text-sm font-semibold text-[#5f5428] shadow-sm"
-                    : label === "Join NIDUS"
+                    : label === "Login / Signup"
                       ? "rounded bg-[#263a8f] px-4 py-4 text-center text-sm font-semibold text-white shadow-sm"
                     : "rounded px-3 py-3 text-sm font-medium text-[#536072] transition hover:bg-[#263a8f]/6 hover:text-[#263a8f]"
                 }
               >
                 {label}
                 {label === "NIDUS Guru" ? <Sparkles className="h-4 w-4 text-[#b89b4d]" /> : null}
-                {label === "Assessments" ? <span className="ml-2 rounded-full bg-[#fff8dd] px-2 py-0.5 text-[0.62rem] font-bold text-[#7c6418]">FREE</span> : null}
               </Link>
             ))}
-            <div className="mt-2 grid gap-3">
-              <Link href="/login" onClick={() => setOpen(false)} className="rounded border border-[#263a8f]/15 px-4 py-3 text-center text-sm font-semibold text-[#263a8f]">Login / Signup</Link>
-            </div>
           </nav>
         </div>
       ) : null}

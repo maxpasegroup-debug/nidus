@@ -6,12 +6,12 @@ import { Bot } from "lucide-react";
 import type { ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
 
-export function PublicSectionIntro({ eyebrow, title, text, centered = false }: { eyebrow: string; title: string; text: string; centered?: boolean }) {
+export function PublicSectionIntro({ eyebrow, title, text, centered = false, light = false }: { eyebrow: string; title: string; text: string; centered?: boolean; light?: boolean }) {
   return (
     <div className={centered ? "mx-auto max-w-3xl text-center" : "max-w-3xl"}>
-      <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#263a8f]">{eyebrow}</p>
-      <h2 className="mt-4 text-4xl font-semibold leading-tight text-[#111827] sm:text-5xl">{title}</h2>
-      <p className="mt-4 text-sm leading-7 text-[#536072]">{text}</p>
+      <p className={`text-xs font-semibold uppercase tracking-[0.24em] ${light ? "text-[#f3d981]" : "text-[#263a8f]"}`}>{eyebrow}</p>
+      <h2 className={`mt-4 text-4xl font-semibold leading-tight sm:text-5xl ${light ? "text-white" : "text-[#111827]"}`}>{title}</h2>
+      <p className={`mt-4 text-sm leading-7 ${light ? "text-white/72" : "text-[#536072]"}`}>{text}</p>
     </div>
   );
 }

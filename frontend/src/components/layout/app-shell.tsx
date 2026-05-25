@@ -8,11 +8,28 @@ import { PublicNavbar } from "@/components/marketing/public-navbar";
 import { Sidebar } from "@/components/layout/sidebar";
 import { TopNavbar } from "@/components/layout/top-navbar";
 
-const publicRoutes = new Set(["/", "/login", "/register", "/contact", "/nidus-ai-ecosystem", "/programs", "/guru", "/psychometric", "/join"]);
+const publicRoutes = new Set([
+  "/",
+  "/login",
+  "/register",
+  "/contact",
+  "/nidus-ai-ecosystem",
+  "/programs",
+  "/guru",
+  "/psychometric",
+  "/join",
+  "/privacy-policy",
+  "/terms-and-conditions",
+  "/refund-policy",
+  "/cancellation-policy",
+  "/disclaimer"
+]);
+
+const publicPrefixes = ["/programs/"];
 
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const isPublicRoute = pathname ? publicRoutes.has(pathname) : false;
+  const isPublicRoute = pathname ? publicRoutes.has(pathname) || publicPrefixes.some((prefix) => pathname.startsWith(prefix)) : false;
 
   if (isPublicRoute) {
     return (

@@ -34,6 +34,9 @@ export const crmController = {
   async createLead(req: Request, res: Response, next: NextFunction) {
     try { assertValid(req); res.status(201).json({ lead: await crmService.createLead(req.body) }); } catch (error) { next(error); }
   },
+  async createPublicLead(req: Request, res: Response, next: NextFunction) {
+    try { assertValid(req); res.status(201).json({ lead: await crmService.createPublicLead(req.body) }); } catch (error) { next(error); }
+  },
   async updateLead(req: Request, res: Response, next: NextFunction) {
     try { assertValid(req); res.json({ lead: await crmService.updateLead(param(req, "id"), req.body) }); } catch (error) { next(error); }
   },
