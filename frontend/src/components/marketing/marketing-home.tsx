@@ -161,7 +161,7 @@ export function MarketingHome() {
               AI-powered defence career and performance ecosystem for NDA, CDS, AFCAT, SSB and beyond.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Cta href="/psychometric">Start Free <ArrowRight className="h-4 w-4" /></Cta>
+              <Cta href="/start-free">Start Free <ArrowRight className="h-4 w-4" /></Cta>
               <Cta href="/programs" variant="secondary">Explore Academy</Cta>
               <Cta href="/guru" variant="secondary">Explore NIDUS Guru</Cta>
             </div>
@@ -195,7 +195,7 @@ export function MarketingHome() {
       <section className="px-4 pb-20 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
           <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-            <SectionIntro eyebrow="Academy Programs" title="Choose your defence path." text="TOPRANK AI Performance Engine lives inside NIDUS Academy to make every path smarter." />
+            <SectionIntro eyebrow="Academy Programs" title="Choose your defence path." text="Academy programs build the base. Top Rank gives the exam practice arena." />
             <Cta href="/programs" variant="dark">View Academy <ArrowRight className="h-4 w-4" /></Cta>
           </div>
           <div className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
@@ -220,7 +220,7 @@ export function MarketingHome() {
         <div className="absolute inset-0 bg-cover bg-center opacity-24" style={{ backgroundImage: `url('${img.drdo}')` }} />
         <div className="absolute inset-0 bg-[linear-gradient(90deg,#0b1424_0%,rgba(11,20,36,0.92)_54%,rgba(11,20,36,0.72)_100%)]" />
         <div className="relative mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
-          <SectionIntro eyebrow="TOPRANK AI Performance Engine" title="The adaptive training system inside Academy." text="Profiling, diagnostics, AI roadmap, adaptive learning, revision system, mock intelligence, and mentor loop." light />
+          <SectionIntro eyebrow="Top Rank" title="A separate AI practice arena for serious exam preparation." text="Profiling, diagnostics, AI roadmap, adaptive learning, revision system, mock intelligence, and mentor loop." light />
           <div className="grid gap-4 sm:grid-cols-2">
             {["Profiling", "Diagnostics", "AI Roadmap", "Mock Intelligence", "Revision System", "Mentor Loop"].map((item, index) => (
               <motion.div key={item} whileHover={{ y: -4 }} className="rounded-lg border border-white/10 bg-white/[0.07] p-5 backdrop-blur-2xl">
@@ -266,7 +266,7 @@ export function MarketingHome() {
             <h2 className="mt-4 text-4xl font-semibold leading-tight sm:text-6xl">Discover your strengths before your journey begins.</h2>
             <p className="mt-5 max-w-2xl text-sm leading-7 text-[#536072]">Psychometric analysis, personality, confidence, career intelligence, and leadership analysis in simple language.</p>
             <div className="mt-8">
-              <Cta href="/psychometric" variant="dark">Start Free Assessment <ClipboardCheck className="h-4 w-4" /></Cta>
+              <Cta href="/start-free" variant="dark">Start Free <ClipboardCheck className="h-4 w-4" /></Cta>
             </div>
           </div>
           <div className="grid gap-3">
@@ -288,7 +288,7 @@ export function MarketingHome() {
           <h2 className="mt-4 text-5xl font-semibold leading-tight sm:text-7xl">Your Uniform Journey Starts Here.</h2>
           <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
             <Cta href="/join">Join NIDUS</Cta>
-            <Cta href="/psychometric" variant="secondary">Start Free</Cta>
+            <Cta href="/start-free" variant="secondary">Start Free</Cta>
             <Cta href="/join" variant="secondary">Talk to Mentor</Cta>
           </div>
         </div>
