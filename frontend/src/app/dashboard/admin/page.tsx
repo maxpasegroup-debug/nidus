@@ -21,6 +21,7 @@ const commandModules = [
   { title: "Today", description: "Daily classes, pending fees, admissions follow-ups, tests, staff tasks, and alerts.", href: "/operations-hub" },
   { title: "Academic Department", description: "Manage classes, subjects, teachers, attendance, exams, materials, and progress.", href: "/courses" },
   { title: "Admission Cell", description: "Handle leads, enquiries, calls, counselling, onboarding, documents, and collections.", href: "/crm" },
+  { title: "Sales Booster", description: "Plan NIDUS campaigns for Academy, TOPRANK, Guru and assessments from one AI-assisted workspace.", href: "/dashboard/marketing" },
   { title: "HR Department", description: "Add employees, assign roles, manage onboarding, folders, contracts, and reviews.", href: "/admin-center/users" },
   { title: "Programs & Fees", description: "Foundation, defence entrance, specialized modules, fee plans, and instalments.", href: "/payments" },
   { title: "Classes & Content", description: "Schedule live classes, add recorded lessons, upload PDFs, notes, and assignments.", href: "/live-classes" },
@@ -40,6 +41,7 @@ const dailyActions = [
   { title: "Schedule live class", description: "Plan an online class for a batch with teacher access.", href: "/live-classes" },
   { title: "Host exam", description: "Generate questions, set time, publish exam, and track attempts.", href: "/tests" },
   { title: "Review assessments", description: "Open psychometric report adoption, risk signals, and recent reports.", href: "/psychometric/admin" },
+  { title: "Open Sales Booster", description: "Create the next admissions, TOPRANK, Guru, or assessment campaign.", href: "/dashboard/marketing" },
   { title: "Collect fee", description: "Open fee collection, invoices, pending dues, and receipts.", href: "/payments" },
   { title: "Ask NIDUS", description: "Get pending work, exam ideas, reports, and staff next actions.", href: "/nidus-ai" }
 ];

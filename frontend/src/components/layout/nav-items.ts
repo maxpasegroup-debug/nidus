@@ -61,6 +61,17 @@ const facultyMenu = [
   { label: "Profile & Settings", href: "/dashboard/settings" }
 ];
 
+const salesBoosterMenu = [
+  { label: "Sales Booster", href: "/dashboard/marketing" },
+  { label: "Campaign Builder", href: "/dashboard/marketing" },
+  { label: "Lead CRM", href: "/crm/leads" },
+  { label: "Creatives", href: "/media-library" },
+  { label: "WhatsApp Center", href: "/messages" },
+  { label: "Analytics", href: "/performance-analytics" },
+  { label: "Reports", href: "/progress-reports" },
+  { label: "Settings", href: "/dashboard/settings" }
+];
+
 export function getNavItems(role?: AuthRole) {
   if (role === "ADMIN") {
     return [
@@ -68,6 +79,7 @@ export function getNavItems(role?: AuthRole) {
       { label: "Today", href: "/operations-hub" },
       { label: "Academic Department", href: "/courses" },
       { label: "Admission Cell", href: "/crm" },
+      { label: "Sales Booster", href: "/dashboard/marketing" },
       { label: "HR Department", href: "/admin-center/users" },
       { label: "Programs & Fees", href: "/fees" },
       { label: "Classes & Content", href: "/live-classes" },
@@ -86,6 +98,7 @@ export function getNavItems(role?: AuthRole) {
       { label: "Today", href: "/operations-hub" },
       { label: "Academic Department", href: "/courses" },
       { label: "Admission Cell", href: "/crm" },
+      { label: "Sales Booster", href: "/dashboard/marketing" },
       { label: "HR Department", href: "/staff-hr" },
       { label: "Classes & Content", href: "/live-classes" },
       { label: "Exams & Progress", href: "/tests" },
@@ -107,6 +120,10 @@ export function getNavItems(role?: AuthRole) {
 
   if (role === "TEACHER") {
     return facultyMenu;
+  }
+
+  if (role === "MARKETING_COORDINATOR") {
+    return salesBoosterMenu;
   }
 
   return sharedLearningMenu.map((item) => (item.label === "Dashboard" ? { ...item, href: role ? roleDashboardPath[role] : "/dashboard" } : item));

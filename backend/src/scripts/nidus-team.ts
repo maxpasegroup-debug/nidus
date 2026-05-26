@@ -179,6 +179,17 @@ export const nidusTeamMembers: TeamMemberSeed[] = [
     dashboardTemplate: "LEAD_SUPPORT",
     permissions: ["manage_leads", "schedule_followups", "record_support_tickets", "handover_admissions"],
     focusAreas: ["New enquiries", "Follow-ups", "Parent communication", "Student support"]
+  },
+  {
+    name: "Sales Booster",
+    email: "fortuneconnect@nidusacademy.in",
+    mobile: "+919000001015",
+    role: Role.MARKETING_COORDINATOR,
+    designation: "AI Sales & Marketing Automation",
+    department: "Admissions Growth",
+    dashboardTemplate: "SALES_BOOSTER",
+    permissions: ["plan_campaigns", "review_creatives", "manage_campaign_leads", "prepare_whatsapp_followups", "review_campaign_reports"],
+    focusAreas: ["Academy promotions", "TOPRANK subscriptions", "NIDUS Guru campaigns", "Assessment lead magnets", "WhatsApp follow-up"]
   }
 ];
 
