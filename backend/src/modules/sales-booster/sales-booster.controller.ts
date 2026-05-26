@@ -87,6 +87,40 @@ export const salesBoosterController = {
     }
   },
 
+  async audience(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      res.json({ audience: await salesBoosterService.audience(requester(req)) });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async addAudienceContact(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      assertValid(req);
+      res.status(201).json({ contact: await salesBoosterService.addAudienceContact(requester(req), req.body) });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async importLeadsToAudience(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      res.json(await salesBoosterService.importLeadsToAudience(requester(req), typeof req.body?.segment === "string" ? req.body.segment : "CRM Leads"));
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async broadcastWhatsApp(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      assertValid(req);
+      res.json(await salesBoosterService.broadcastWhatsApp(requester(req), req.body));
+    } catch (error) {
+      next(error);
+    }
+  },
+
   async runCampaign(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
       res.json({ campaign: await salesBoosterService.runCampaign(requester(req), param(req, "id")) });

@@ -118,6 +118,27 @@ export type SalesBoosterCampaignReport = {
   snapshots: SalesBoosterMetricSnapshot[];
 };
 
+export type SalesBoosterAudienceContact = {
+  id: string;
+  fullName: string;
+  phone: string;
+  email?: string | null;
+  segment: string;
+  source: string;
+  interest?: string | null;
+  optIn: boolean;
+  whatsappStatus: string;
+  lastContactedAt?: string | null;
+  notes?: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type SalesBoosterAudience = {
+  contacts: SalesBoosterAudienceContact[];
+  segments: Record<string, number>;
+};
+
 export async function getSalesBoosterCampaigns() {
   const response = await apiClient.get<{ campaigns: SalesBoosterCampaign[] }>("/sales-booster/campaigns");
   return response.data.campaigns;
@@ -136,6 +157,11 @@ export async function getSalesBoosterConnectors() {
 export async function getScheduledSalesBoosterCampaigns() {
   const response = await apiClient.get<{ campaigns: SalesBoosterCampaign[] }>("/sales-booster/scheduled");
   return response.data.campaigns;
+}
+
+export async function getSalesBoosterAudience() {
+  const response = await apiClient.get<{ audience: SalesBoosterAudience }>("/sales-booster/audience");
+  return response.data.audience;
 }
 
 export async function getSalesBoosterAnalytics() {
@@ -204,4 +230,28 @@ export async function addSalesBoosterMetricSnapshot(payload: {
   const { id, ...body } = payload;
   const response = await apiClient.post<{ snapshot: SalesBoosterMetricSnapshot }>(`/sales-booster/campaigns/${id}/metrics`, body);
   return response.data.snapshot;
+}
+
+export async function addSalesBoosterAudienceContact(payload: {
+  fullName: string;
+  phone: string;
+  email?: string;
+  segment?: string;
+  source?: string;
+  interest?: string;
+  optIn?: boolean;
+  notes?: string;
+}) {
+  const response = await apiClient.post<{ contact: SalesBoosterAudienceContact }>("/sales-booster/audience", payload);
+  return response.data.contact;
+}
+
+export async function importSalesBoosterLeadsToAudience(segment = "CRM Leads") {
+  const response = await apiClient.post<{ imported: number; segment: string }>("/sales-booster/audience/import-leads", { segment });
+  return response.data;
+}
+
+export async function broadcastSalesBoosterWhatsApp(payload: { segment?: string; templateName?: string }) {
+  const response = await apiClient.post<{ selectedContacts: number; result: { channel: string; status: string; message: string } }>("/sales-booster/whatsapp/broadcast", payload);
+  return response.data;
 }

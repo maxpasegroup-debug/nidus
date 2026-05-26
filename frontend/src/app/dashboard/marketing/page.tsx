@@ -7,7 +7,7 @@ import { ActivityTimeline, DashboardError, DashboardSkeleton, ProgressCard, Quic
 import { useAuth } from "@/components/providers/auth-provider-v2";
 import { Button } from "@/components/ui/button";
 import { useMarketingDashboard } from "@/hooks/use-dashboard";
-import { useAddSalesBoosterMetricSnapshot, useCreateSalesBoosterCampaign, useRunDueSalesBoosterCampaigns, useRunSalesBoosterCampaign, useSalesBoosterAnalytics, useSalesBoosterCampaigns, useSalesBoosterConnectors, useSalesBoosterSummary, useScheduleSalesBoosterCampaign, useScheduledSalesBoosterCampaigns, useUpdateSalesBoosterStatus } from "@/hooks/use-sales-booster";
+import { useAddSalesBoosterAudienceContact, useAddSalesBoosterMetricSnapshot, useBroadcastSalesBoosterWhatsApp, useCreateSalesBoosterCampaign, useImportSalesBoosterLeadsToAudience, useRunDueSalesBoosterCampaigns, useRunSalesBoosterCampaign, useSalesBoosterAnalytics, useSalesBoosterAudience, useSalesBoosterCampaigns, useSalesBoosterConnectors, useSalesBoosterSummary, useScheduleSalesBoosterCampaign, useScheduledSalesBoosterCampaigns, useUpdateSalesBoosterStatus } from "@/hooks/use-sales-booster";
 import type { SalesBoosterCampaign, SalesBoosterDraft } from "@/services/sales-booster";
 
 const campaignTracks = [
@@ -62,12 +62,16 @@ export default function MarketingDashboardPage() {
   const connectors = useSalesBoosterConnectors();
   const analytics = useSalesBoosterAnalytics();
   const scheduledCampaigns = useScheduledSalesBoosterCampaigns();
+  const audience = useSalesBoosterAudience();
   const createCampaign = useCreateSalesBoosterCampaign();
   const updateStatus = useUpdateSalesBoosterStatus();
   const runCampaign = useRunSalesBoosterCampaign();
   const scheduleCampaign = useScheduleSalesBoosterCampaign();
   const runDueCampaigns = useRunDueSalesBoosterCampaigns();
   const addMetrics = useAddSalesBoosterMetricSnapshot();
+  const addAudienceContact = useAddSalesBoosterAudienceContact();
+  const importLeads = useImportSalesBoosterLeadsToAudience();
+  const broadcastWhatsApp = useBroadcastSalesBoosterWhatsApp();
   const [selectedTrack, setSelectedTrack] = useState(campaignTracks[0].title);
   const [goal, setGoal] = useState("Generate NDA admissions campaign for Kerala students with a parent-friendly message and WhatsApp follow-up.");
   const [creativeName, setCreativeName] = useState("No creative selected");
@@ -82,6 +86,11 @@ export default function MarketingDashboardPage() {
   const [scheduleCampaignId, setScheduleCampaignId] = useState("");
   const [scheduledAt, setScheduledAt] = useState("");
   const [scheduleNote, setScheduleNote] = useState("Run after creative review and WhatsApp template approval.");
+  const [audienceName, setAudienceName] = useState("");
+  const [audiencePhone, setAudiencePhone] = useState("");
+  const [audienceSegment, setAudienceSegment] = useState("Academy Admissions");
+  const [broadcastSegment, setBroadcastSegment] = useState("Academy Admissions");
+  const [templateName, setTemplateName] = useState("nidus_campaign_followup");
   const draft = useMemo(() => buildCampaignDraft(goal, selectedTrack), [goal, selectedTrack]);
   const savedCampaigns = campaigns.data ?? [];
   const boosterSummary = summary.data;
@@ -92,6 +101,8 @@ export default function MarketingDashboardPage() {
   const runReadyCampaigns = savedCampaigns.filter((campaign) => campaign.approvalStatus === "RUN_READY");
   const activeScheduleCampaignId = scheduleCampaignId || runReadyCampaigns[0]?.id || "";
   const scheduled = scheduledCampaigns.data ?? [];
+  const audienceData = audience.data;
+  const audienceContacts = audienceData?.contacts ?? [];
 
   function saveCampaign(status: "DRAFT" | "SUBMITTED" = "DRAFT") {
     createCampaign.mutate({
@@ -131,6 +142,24 @@ export default function MarketingDashboardPage() {
       id: activeScheduleCampaignId,
       scheduledAt: new Date(scheduledAt).toISOString(),
       scheduleNote
+    });
+  }
+
+  function saveAudienceContact() {
+    if (!audienceName.trim() || !audiencePhone.trim()) return;
+    addAudienceContact.mutate({
+      fullName: audienceName,
+      phone: audiencePhone,
+      segment: audienceSegment,
+      source: "Sales Booster",
+      interest: selectedTrack,
+      optIn: true,
+      notes: "Added from Sales Booster WhatsApp Center."
+    }, {
+      onSuccess: () => {
+        setAudienceName("");
+        setAudiencePhone("");
+      }
     });
   }
 
@@ -226,6 +255,76 @@ export default function MarketingDashboardPage() {
               )) : (
                 <div className="rounded border border-white/10 bg-navy-deep/55 p-4 text-sm leading-6 text-muted">No campaign is scheduled yet. Approve a campaign as run-ready, then schedule it here.</div>
               )}
+            </div>
+          </div>
+        </section>
+
+        <section className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
+          <div className="rounded-lg border border-[#071d36]/10 bg-white p-5 shadow-[0_18px_60px_rgba(7,29,54,0.08)]">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#3f4a32]">Phase 6 WhatsApp Center</p>
+                <h2 className="mt-3 text-3xl font-semibold text-[#071d36]">Opt-in lead follow-up</h2>
+                <p className="mt-2 text-sm leading-7 text-[#64748b]">Build approved WhatsApp audiences from CRM leads or manual opt-ins, then send Meta-approved template broadcasts through the backend connector.</p>
+              </div>
+              <MessageCircle className="h-7 w-7 text-[#b9913f]" />
+            </div>
+            <div className="mt-5 grid gap-3 md:grid-cols-2">
+              <label>
+                <span className="text-sm font-semibold text-[#071d36]">Name</span>
+                <input value={audienceName} onChange={(event) => setAudienceName(event.target.value)} className="mt-2 h-11 w-full rounded border border-[#071d36]/10 bg-[#f7f3ea] px-3 text-sm text-[#071d36] outline-none focus:border-[#b9913f]" />
+              </label>
+              <label>
+                <span className="text-sm font-semibold text-[#071d36]">WhatsApp number</span>
+                <input value={audiencePhone} onChange={(event) => setAudiencePhone(event.target.value)} className="mt-2 h-11 w-full rounded border border-[#071d36]/10 bg-[#f7f3ea] px-3 text-sm text-[#071d36] outline-none focus:border-[#b9913f]" placeholder="919969594411" />
+              </label>
+              <label>
+                <span className="text-sm font-semibold text-[#071d36]">Segment</span>
+                <select value={audienceSegment} onChange={(event) => setAudienceSegment(event.target.value)} className="mt-2 h-11 w-full rounded border border-[#071d36]/10 bg-[#f7f3ea] px-3 text-sm text-[#071d36] outline-none focus:border-[#b9913f]">
+                  {campaignTracks.map((track) => <option key={track.title}>{track.title}</option>)}
+                  <option>CRM Leads</option>
+                </select>
+              </label>
+              <div className="flex items-end">
+                <Button type="button" onClick={saveAudienceContact} disabled={addAudienceContact.isPending || !audienceName || !audiencePhone}>
+                  {addAudienceContact.isPending ? "Saving..." : "Add Opt-in"}
+                </Button>
+              </div>
+            </div>
+            <div className="mt-5 grid gap-3 sm:grid-cols-2">
+              <Button type="button" variant="secondary" onClick={() => importLeads.mutate("CRM Leads")} disabled={importLeads.isPending}>
+                {importLeads.isPending ? "Importing..." : "Import CRM Leads"}
+              </Button>
+              <div className="rounded border border-[#071d36]/10 bg-[#f7f3ea] p-3 text-sm font-semibold text-[#071d36]">
+                {audienceContacts.length} opt-in contact(s) ready
+              </div>
+            </div>
+          </div>
+
+          <div className="rounded-lg border border-white/10 bg-white/[0.055] p-5 shadow-[0_24px_70px_rgba(0,0,0,0.18)]">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-gold-soft">Template Broadcast</p>
+            <h2 className="mt-3 text-2xl font-semibold text-white">Send approved follow-up</h2>
+            <div className="mt-5 grid gap-3">
+              <label>
+                <span className="text-sm font-semibold text-white">Audience segment</span>
+                <select value={broadcastSegment} onChange={(event) => setBroadcastSegment(event.target.value)} className="mt-2 h-11 w-full rounded border border-white/12 bg-navy-deep px-3 text-sm text-white outline-none focus:border-gold">
+                  {Object.keys(audienceData?.segments ?? {}).length ? Object.keys(audienceData?.segments ?? {}).map((segment) => <option key={segment}>{segment}</option>) : campaignTracks.map((track) => <option key={track.title}>{track.title}</option>)}
+                </select>
+              </label>
+              <label>
+                <span className="text-sm font-semibold text-white">Approved template name</span>
+                <input value={templateName} onChange={(event) => setTemplateName(event.target.value)} className="mt-2 h-11 w-full rounded border border-white/12 bg-navy-deep px-3 text-sm text-white outline-none focus:border-gold" />
+              </label>
+              <Button type="button" onClick={() => broadcastWhatsApp.mutate({ segment: broadcastSegment, templateName })} disabled={broadcastWhatsApp.isPending || !audienceContacts.length}>
+                {broadcastWhatsApp.isPending ? "Sending..." : "Send WhatsApp Broadcast"}
+              </Button>
+              <div className="grid gap-2">
+                {audienceContacts.slice(0, 5).map((contact) => (
+                  <div key={contact.id} className="rounded border border-white/10 bg-navy-deep/55 p-3 text-sm text-muted">
+                    <span className="font-semibold text-white">{contact.fullName}</span> · {contact.segment} · {contact.whatsappStatus}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </section>

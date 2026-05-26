@@ -37,6 +37,22 @@ type ScheduleInput = {
   scheduleNote?: string;
 };
 
+type AudienceContactInput = {
+  fullName: string;
+  phone: string;
+  email?: string;
+  segment?: string;
+  source?: string;
+  interest?: string;
+  optIn?: boolean;
+  notes?: string;
+};
+
+type BroadcastInput = {
+  segment?: string;
+  templateName?: string;
+};
+
 const campaignInclude = {
   createdBy: { select: { id: true, name: true, email: true, role: true } },
   approvedBy: { select: { id: true, name: true, email: true, role: true } }
@@ -76,6 +92,10 @@ function sumMetrics(metrics: Array<{ reach: number; impressions: number; clicks:
     spend: acc.spend + item.spend,
     revenue: acc.revenue + item.revenue
   }), { reach: 0, impressions: 0, clicks: 0, leads: 0, admissions: 0, spend: 0, revenue: 0 });
+}
+
+function cleanPhone(phone: string) {
+  return phone.replace(/[^\d]/g, "");
 }
 
 async function assertCampaignAccess(requester: Requester, campaign: { createdById: string }) {
@@ -175,6 +195,107 @@ export const salesBoosterService = {
 
   async connectorStatus() {
     return salesBoosterConnectors.status();
+  },
+
+  async audience(requester: Requester) {
+    const contacts = await prisma.salesBoosterAudienceContact.findMany({
+      where: requester.role === Role.MARKETING_COORDINATOR ? { createdById: requester.id } : undefined,
+      orderBy: { updatedAt: "desc" },
+      take: 500
+    });
+    const segments = contacts.reduce<Record<string, number>>((acc, contact) => {
+      acc[contact.segment] = (acc[contact.segment] ?? 0) + 1;
+      return acc;
+    }, {});
+    return { contacts, segments };
+  },
+
+  async addAudienceContact(requester: Requester, input: AudienceContactInput) {
+    const phone = cleanPhone(input.phone);
+    if (phone.length < 8) throw new Error("A valid WhatsApp number is required.");
+    const segment = input.segment?.trim() || "General";
+    return prisma.salesBoosterAudienceContact.upsert({
+      where: { phone_segment: { phone, segment } },
+      update: {
+        fullName: input.fullName,
+        email: input.email,
+        source: input.source ?? "Manual",
+        interest: input.interest,
+        optIn: input.optIn ?? true,
+        notes: input.notes,
+        whatsappStatus: input.optIn === false ? "OPTED_OUT" : "READY"
+      },
+      create: {
+        fullName: input.fullName,
+        phone,
+        email: input.email,
+        segment,
+        source: input.source ?? "Manual",
+        interest: input.interest,
+        optIn: input.optIn ?? true,
+        notes: input.notes,
+        whatsappStatus: input.optIn === false ? "OPTED_OUT" : "READY",
+        createdById: requester.id
+      }
+    });
+  },
+
+  async importLeadsToAudience(requester: Requester, segment = "CRM Leads") {
+    const leads = await prisma.lead.findMany({
+      where: { mobile: { not: "" } },
+      orderBy: { createdAt: "desc" },
+      take: 250
+    });
+    let imported = 0;
+    for (const lead of leads) {
+      const phone = cleanPhone(lead.mobile);
+      if (phone.length < 8) continue;
+      await prisma.salesBoosterAudienceContact.upsert({
+        where: { phone_segment: { phone, segment } },
+        update: {
+          fullName: lead.fullName,
+          email: lead.email,
+          source: `CRM: ${lead.source}`,
+          interest: lead.targetExam,
+          optIn: true,
+          whatsappStatus: "READY"
+        },
+        create: {
+          fullName: lead.fullName,
+          phone,
+          email: lead.email,
+          segment,
+          source: `CRM: ${lead.source}`,
+          interest: lead.targetExam,
+          optIn: true,
+          whatsappStatus: "READY",
+          createdById: requester.id
+        }
+      });
+      imported += 1;
+    }
+    return { imported, segment };
+  },
+
+  async broadcastWhatsApp(requester: Requester, input: BroadcastInput) {
+    const contacts = await prisma.salesBoosterAudienceContact.findMany({
+      where: {
+        ...(requester.role === Role.MARKETING_COORDINATOR ? { createdById: requester.id } : {}),
+        ...(input.segment ? { segment: input.segment } : {}),
+        optIn: true,
+        whatsappStatus: { in: ["READY", "QUEUED", "SENT"] }
+      },
+      orderBy: { updatedAt: "desc" },
+      take: 100
+    });
+    const result = await salesBoosterConnectors.whatsappBroadcast(contacts.map((contact) => contact.phone), input.templateName);
+    if (result.status === "QUEUED") {
+      await prisma.salesBoosterAudienceContact.updateMany({
+        where: { id: { in: contacts.map((contact) => contact.id) } },
+        data: { whatsappStatus: "QUEUED", lastContactedAt: new Date() }
+      });
+    }
+    return { result, selectedContacts: contacts.length };
   },
 
   async runCampaign(requester: Requester, id: string) {

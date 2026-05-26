@@ -127,6 +127,7 @@ model User {
   auditLogs AuditLog[]
   salesBoosterCampaignsCreated SalesBoosterCampaign[] @relation("SalesBoosterCampaignCreator")
   salesBoosterCampaignsApproved SalesBoosterCampaign[] @relation("SalesBoosterCampaignApprover")
+  salesBoosterAudienceContacts SalesBoosterAudienceContact[] @relation("SalesBoosterAudienceContactCreator")
   sessionTokens SessionToken[]
   passwordResets PasswordReset[]
   parentInvitationsSent ParentStudentInvitation[] @relation("ParentInvitationParent")
@@ -1908,6 +1909,30 @@ model SalesBoosterMetricSnapshot {
   @@index([campaignId])
   @@index([platform])
   @@index([capturedAt])
+}
+
+model SalesBoosterAudienceContact {
+  id              String   @id @default(cuid())
+  fullName        String
+  phone           String
+  email           String?
+  segment         String   @default("General")
+  source          String   @default("Manual")
+  interest        String?
+  optIn           Boolean  @default(true)
+  whatsappStatus  String   @default("READY")
+  lastContactedAt DateTime?
+  notes           String?
+  createdById     String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  createdBy       User?    @relation("SalesBoosterAudienceContactCreator", fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@unique([phone, segment])
+  @@index([segment])
+  @@index([source])
+  @@index([optIn])
+  @@index([whatsappStatus])
 }
 
 model Branch {

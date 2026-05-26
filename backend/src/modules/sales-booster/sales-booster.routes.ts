@@ -14,6 +14,37 @@ salesBoosterRouter.get("/summary", ...salesBoosterRoles, salesBoosterController.
 salesBoosterRouter.get("/analytics", ...salesBoosterRoles, salesBoosterController.analytics);
 salesBoosterRouter.get("/connectors", ...salesBoosterRoles, salesBoosterController.connectorStatus);
 salesBoosterRouter.get("/scheduled", ...salesBoosterRoles, salesBoosterController.scheduledCampaigns);
+salesBoosterRouter.get("/audience", ...salesBoosterRoles, salesBoosterController.audience);
+salesBoosterRouter.post(
+  "/audience",
+  ...salesBoosterRoles,
+  [
+    body("fullName").trim().notEmpty(),
+    body("phone").trim().notEmpty(),
+    body("email").optional({ nullable: true }).trim().isEmail(),
+    body("segment").optional({ nullable: true }).trim(),
+    body("source").optional({ nullable: true }).trim(),
+    body("interest").optional({ nullable: true }).trim(),
+    body("optIn").optional().isBoolean(),
+    body("notes").optional({ nullable: true }).trim()
+  ],
+  salesBoosterController.addAudienceContact
+);
+salesBoosterRouter.post(
+  "/audience/import-leads",
+  ...salesBoosterRoles,
+  [body("segment").optional({ nullable: true }).trim()],
+  salesBoosterController.importLeadsToAudience
+);
+salesBoosterRouter.post(
+  "/whatsapp/broadcast",
+  ...salesBoosterRoles,
+  [
+    body("segment").optional({ nullable: true }).trim(),
+    body("templateName").optional({ nullable: true }).trim()
+  ],
+  salesBoosterController.broadcastWhatsApp
+);
 salesBoosterRouter.post(
   "/campaigns",
   ...salesBoosterRoles,

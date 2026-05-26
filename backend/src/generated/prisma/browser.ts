@@ -548,6 +548,11 @@ export type SalesBoosterCampaign = Prisma.SalesBoosterCampaignModel
  */
 export type SalesBoosterMetricSnapshot = Prisma.SalesBoosterMetricSnapshotModel
 /**
+ * Model SalesBoosterAudienceContact
+ * 
+ */
+export type SalesBoosterAudienceContact = Prisma.SalesBoosterAudienceContactModel
+/**
  * Model Branch
  * 
  */

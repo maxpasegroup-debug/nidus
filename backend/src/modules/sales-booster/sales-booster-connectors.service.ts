@@ -154,6 +154,41 @@ async function runWhatsApp(campaign: ConnectorCampaign): Promise<ConnectorResult
   return { channel: "WhatsApp", status: "QUEUED", message: `WhatsApp template queued for ${results.length} opted-in recipient(s).`, details: { recipients: results.length } };
 }
 
+async function sendWhatsAppTemplate(recipients: string[], templateName = env.SALESBOOSTER_WHATSAPP_TEMPLATE_NAME): Promise<ConnectorResult> {
+  if (!env.SALESBOOSTER_WHATSAPP_ACCESS_TOKEN || !env.SALESBOOSTER_WHATSAPP_PHONE_NUMBER_ID) {
+    return { channel: "WhatsApp", status: "NOT_CONFIGURED", message: "WhatsApp Cloud API token/phone number id not configured." };
+  }
+  const cleanRecipients = recipients.map((item) => item.trim()).filter(Boolean);
+  if (!cleanRecipients.length) {
+    return { channel: "WhatsApp", status: "SKIPPED", message: "No opted-in WhatsApp recipients selected." };
+  }
+
+  const results = [];
+  for (const recipient of cleanRecipients.slice(0, 100)) {
+    const response = await fetch(`${graphBaseUrl}/${env.SALESBOOSTER_WHATSAPP_PHONE_NUMBER_ID}/messages`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${env.SALESBOOSTER_WHATSAPP_ACCESS_TOKEN}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        messaging_product: "whatsapp",
+        to: recipient,
+        type: "template",
+        template: {
+          name: templateName,
+          language: { code: "en" }
+        }
+      })
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(typeof data?.error?.message === "string" ? data.error.message : `WhatsApp HTTP ${response.status}`);
+    results.push(data);
+  }
+
+  return { channel: "WhatsApp", status: "QUEUED", message: `WhatsApp template queued for ${results.length} opted-in recipient(s).`, details: { recipients: results.length, templateName } };
+}
+
 async function safeRun(channel: string, fn: () => Promise<ConnectorResult>): Promise<ConnectorResult> {
   try {
     return await fn();
@@ -182,6 +217,10 @@ export const salesBoosterConnectors = {
     if (selected.has("YouTube")) tasks.push(safeRun("YouTube", () => runYouTube(campaign)));
     if (selected.has("WhatsApp")) tasks.push(safeRun("WhatsApp", () => runWhatsApp(campaign)));
     return Promise.all(tasks);
+  },
+
+  async whatsappBroadcast(recipients: string[], templateName?: string) {
+    return safeRun("WhatsApp", () => sendWhatsAppTemplate(recipients, templateName));
   }
 };
 

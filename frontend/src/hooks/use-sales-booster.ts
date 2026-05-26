@@ -5,13 +5,17 @@ import { useToast } from "@/components/providers/toast-provider";
 import { getApiErrorMessage } from "@/services/api";
 import {
   addSalesBoosterMetricSnapshot,
+  addSalesBoosterAudienceContact,
+  broadcastSalesBoosterWhatsApp,
   createSalesBoosterCampaign,
+  getSalesBoosterAudience,
   getSalesBoosterAnalytics,
   getSalesBoosterConnectors,
   getSalesBoosterCampaigns,
   getSalesBoosterCampaignReport,
   getSalesBoosterSummary,
   getScheduledSalesBoosterCampaigns,
+  importSalesBoosterLeadsToAudience,
   runSalesBoosterCampaign,
   runDueSalesBoosterCampaigns,
   scheduleSalesBoosterCampaign,
@@ -36,6 +40,10 @@ export function useSalesBoosterAnalytics() {
 
 export function useScheduledSalesBoosterCampaigns() {
   return useQuery({ queryKey: ["sales-booster", "scheduled"], queryFn: getScheduledSalesBoosterCampaigns });
+}
+
+export function useSalesBoosterAudience() {
+  return useQuery({ queryKey: ["sales-booster", "audience"], queryFn: getSalesBoosterAudience });
 }
 
 export function useSalesBoosterCampaignReport(id?: string) {
@@ -142,6 +150,45 @@ export function useAddSalesBoosterMetricSnapshot() {
         queryClient.invalidateQueries({ queryKey: ["sales-booster", "campaign-report", variables.id] })
       ]);
       showToast("Campaign metrics saved.", "success");
+    },
+    onError: (error) => showToast(getApiErrorMessage(error), "error")
+  });
+}
+
+export function useAddSalesBoosterAudienceContact() {
+  const queryClient = useQueryClient();
+  const { showToast } = useToast();
+  return useMutation({
+    mutationFn: addSalesBoosterAudienceContact,
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["sales-booster", "audience"] });
+      showToast("Audience contact saved.", "success");
+    },
+    onError: (error) => showToast(getApiErrorMessage(error), "error")
+  });
+}
+
+export function useImportSalesBoosterLeadsToAudience() {
+  const queryClient = useQueryClient();
+  const { showToast } = useToast();
+  return useMutation({
+    mutationFn: importSalesBoosterLeadsToAudience,
+    onSuccess: async (result) => {
+      await queryClient.invalidateQueries({ queryKey: ["sales-booster", "audience"] });
+      showToast(`${result.imported} CRM leads imported to ${result.segment}.`, "success");
+    },
+    onError: (error) => showToast(getApiErrorMessage(error), "error")
+  });
+}
+
+export function useBroadcastSalesBoosterWhatsApp() {
+  const queryClient = useQueryClient();
+  const { showToast } = useToast();
+  return useMutation({
+    mutationFn: broadcastSalesBoosterWhatsApp,
+    onSuccess: async (result) => {
+      await queryClient.invalidateQueries({ queryKey: ["sales-booster", "audience"] });
+      showToast(`${result.result.status}: ${result.result.message}`, result.result.status === "FAILED" ? "error" : "success");
     },
     onError: (error) => showToast(getApiErrorMessage(error), "error")
   });

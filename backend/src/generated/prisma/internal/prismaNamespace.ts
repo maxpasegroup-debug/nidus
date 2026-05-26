@@ -490,6 +490,7 @@ export const ModelName = {
   AIRequestLog: 'AIRequestLog',
   SalesBoosterCampaign: 'SalesBoosterCampaign',
   SalesBoosterMetricSnapshot: 'SalesBoosterMetricSnapshot',
+  SalesBoosterAudienceContact: 'SalesBoosterAudienceContact',
   Branch: 'Branch',
   Institute: 'Institute'
 } as const
@@ -507,7 +508,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "sessionToken" | "passwordReset" | "parentStudentInvitation" | "parentStudentLink" | "otp" | "course" | "module" | "lesson" | "enrollment" | "test" | "question" | "testAttempt" | "cBTAnswerState" | "cBTIntegrityEvent" | "answer" | "psychometricTest" | "psychometricQuestion" | "psychometricAttempt" | "psychometricReport" | "psychometricAnswer" | "oLQScore" | "studyPlan" | "performanceAnalytics" | "revisionSchedule" | "liveClass" | "recordedLecture" | "lectureProgress" | "lecturePlaybackEvent" | "attendance" | "timetable" | "faculty" | "classroom" | "payroll" | "announcement" | "hostel" | "room" | "hostelAllocation" | "inOutEntry" | "hostelLeave" | "messMenu" | "disciplineRecord" | "paradePerformance" | "lead" | "followUp" | "admission" | "counsellingBooking" | "referral" | "payment" | "subscription" | "feeInstallment" | "invoice" | "feePlan" | "paymentTransactionLog" | "approvalRequest" | "scholarshipDiscount" | "financeDocument" | "notification" | "messageThread" | "message" | "emailLog" | "pushNotification" | "aIInterviewSession" | "aIInterviewQuestion" | "doubtQuery" | "aIRecommendation" | "aITutorSession" | "aITutorMessage" | "aITutorFeedback" | "aIResponseCache" | "learningTopicInsight" | "revisionQueueItem" | "cBTIntelligenceReport" | "contentIngestionJob" | "generatedContentAsset" | "offlineSyncEvent" | "learningAnalyticsSnapshot" | "dailyIntelligenceIssue" | "contentModerationItem" | "officerPotential" | "fitnessProfile" | "pTSchedule" | "pTAttendance" | "physicalEligibility" | "dailyFitnessLog" | "pYQCategory" | "pYQQuestion" | "currentAffair" | "currentAffairQuiz" | "quizBattle" | "quizBattleParticipant" | "leaderboard" | "mediaFolder" | "mediaFile" | "document" | "adminRole" | "permission" | "rolePermission" | "userRole" | "roleActivity" | "systemSetting" | "auditLog" | "queueJobLog" | "aIRequestLog" | "salesBoosterCampaign" | "salesBoosterMetricSnapshot" | "branch" | "institute"
+    modelProps: "user" | "sessionToken" | "passwordReset" | "parentStudentInvitation" | "parentStudentLink" | "otp" | "course" | "module" | "lesson" | "enrollment" | "test" | "question" | "testAttempt" | "cBTAnswerState" | "cBTIntegrityEvent" | "answer" | "psychometricTest" | "psychometricQuestion" | "psychometricAttempt" | "psychometricReport" | "psychometricAnswer" | "oLQScore" | "studyPlan" | "performanceAnalytics" | "revisionSchedule" | "liveClass" | "recordedLecture" | "lectureProgress" | "lecturePlaybackEvent" | "attendance" | "timetable" | "faculty" | "classroom" | "payroll" | "announcement" | "hostel" | "room" | "hostelAllocation" | "inOutEntry" | "hostelLeave" | "messMenu" | "disciplineRecord" | "paradePerformance" | "lead" | "followUp" | "admission" | "counsellingBooking" | "referral" | "payment" | "subscription" | "feeInstallment" | "invoice" | "feePlan" | "paymentTransactionLog" | "approvalRequest" | "scholarshipDiscount" | "financeDocument" | "notification" | "messageThread" | "message" | "emailLog" | "pushNotification" | "aIInterviewSession" | "aIInterviewQuestion" | "doubtQuery" | "aIRecommendation" | "aITutorSession" | "aITutorMessage" | "aITutorFeedback" | "aIResponseCache" | "learningTopicInsight" | "revisionQueueItem" | "cBTIntelligenceReport" | "contentIngestionJob" | "generatedContentAsset" | "offlineSyncEvent" | "learningAnalyticsSnapshot" | "dailyIntelligenceIssue" | "contentModerationItem" | "officerPotential" | "fitnessProfile" | "pTSchedule" | "pTAttendance" | "physicalEligibility" | "dailyFitnessLog" | "pYQCategory" | "pYQQuestion" | "currentAffair" | "currentAffairQuiz" | "quizBattle" | "quizBattleParticipant" | "leaderboard" | "mediaFolder" | "mediaFile" | "document" | "adminRole" | "permission" | "rolePermission" | "userRole" | "roleActivity" | "systemSetting" | "auditLog" | "queueJobLog" | "aIRequestLog" | "salesBoosterCampaign" | "salesBoosterMetricSnapshot" | "salesBoosterAudienceContact" | "branch" | "institute"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -8355,6 +8356,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    SalesBoosterAudienceContact: {
+      payload: Prisma.$SalesBoosterAudienceContactPayload<ExtArgs>
+      fields: Prisma.SalesBoosterAudienceContactFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SalesBoosterAudienceContactFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SalesBoosterAudienceContactPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SalesBoosterAudienceContactFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SalesBoosterAudienceContactPayload>
+        }
+        findFirst: {
+          args: Prisma.SalesBoosterAudienceContactFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SalesBoosterAudienceContactPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SalesBoosterAudienceContactFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SalesBoosterAudienceContactPayload>
+        }
+        findMany: {
+          args: Prisma.SalesBoosterAudienceContactFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SalesBoosterAudienceContactPayload>[]
+        }
+        create: {
+          args: Prisma.SalesBoosterAudienceContactCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SalesBoosterAudienceContactPayload>
+        }
+        createMany: {
+          args: Prisma.SalesBoosterAudienceContactCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.SalesBoosterAudienceContactCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SalesBoosterAudienceContactPayload>[]
+        }
+        delete: {
+          args: Prisma.SalesBoosterAudienceContactDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SalesBoosterAudienceContactPayload>
+        }
+        update: {
+          args: Prisma.SalesBoosterAudienceContactUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SalesBoosterAudienceContactPayload>
+        }
+        deleteMany: {
+          args: Prisma.SalesBoosterAudienceContactDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SalesBoosterAudienceContactUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.SalesBoosterAudienceContactUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SalesBoosterAudienceContactPayload>[]
+        }
+        upsert: {
+          args: Prisma.SalesBoosterAudienceContactUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SalesBoosterAudienceContactPayload>
+        }
+        aggregate: {
+          args: Prisma.SalesBoosterAudienceContactAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSalesBoosterAudienceContact>
+        }
+        groupBy: {
+          args: Prisma.SalesBoosterAudienceContactGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SalesBoosterAudienceContactGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SalesBoosterAudienceContactCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SalesBoosterAudienceContactCountAggregateOutputType> | number
+        }
+      }
+    }
     Branch: {
       payload: Prisma.$BranchPayload<ExtArgs>
       fields: Prisma.BranchFieldRefs
@@ -10132,6 +10207,26 @@ export const SalesBoosterMetricSnapshotScalarFieldEnum = {
 export type SalesBoosterMetricSnapshotScalarFieldEnum = (typeof SalesBoosterMetricSnapshotScalarFieldEnum)[keyof typeof SalesBoosterMetricSnapshotScalarFieldEnum]
 
 
+export const SalesBoosterAudienceContactScalarFieldEnum = {
+  id: 'id',
+  fullName: 'fullName',
+  phone: 'phone',
+  email: 'email',
+  segment: 'segment',
+  source: 'source',
+  interest: 'interest',
+  optIn: 'optIn',
+  whatsappStatus: 'whatsappStatus',
+  lastContactedAt: 'lastContactedAt',
+  notes: 'notes',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SalesBoosterAudienceContactScalarFieldEnum = (typeof SalesBoosterAudienceContactScalarFieldEnum)[keyof typeof SalesBoosterAudienceContactScalarFieldEnum]
+
+
 export const BranchScalarFieldEnum = {
   id: 'id',
   instituteId: 'instituteId',
@@ -10591,6 +10686,7 @@ export type GlobalOmitConfig = {
   aIRequestLog?: Prisma.AIRequestLogOmit
   salesBoosterCampaign?: Prisma.SalesBoosterCampaignOmit
   salesBoosterMetricSnapshot?: Prisma.SalesBoosterMetricSnapshotOmit
+  salesBoosterAudienceContact?: Prisma.SalesBoosterAudienceContactOmit
   branch?: Prisma.BranchOmit
   institute?: Prisma.InstituteOmit
 }
