@@ -95,6 +95,31 @@ export const salesBoosterController = {
     }
   },
 
+  async scheduleCampaign(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      assertValid(req);
+      res.json({ campaign: await salesBoosterService.scheduleCampaign(requester(req), param(req, "id"), req.body) });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async scheduledCampaigns(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      res.json({ campaigns: await salesBoosterService.scheduledCampaigns(requester(req)) });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async runDueCampaigns(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      res.json(await salesBoosterService.runDueCampaigns(requester(req)));
+    } catch (error) {
+      next(error);
+    }
+  },
+
   async addMetricSnapshot(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
       assertValid(req);

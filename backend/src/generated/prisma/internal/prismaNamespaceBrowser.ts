@@ -1738,6 +1738,9 @@ export const SalesBoosterCampaignScalarFieldEnum = {
   approvedAt: 'approvedAt',
   queuedAt: 'queuedAt',
   lastRunAt: 'lastRunAt',
+  scheduledAt: 'scheduledAt',
+  scheduleStatus: 'scheduleStatus',
+  scheduleNote: 'scheduleNote',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

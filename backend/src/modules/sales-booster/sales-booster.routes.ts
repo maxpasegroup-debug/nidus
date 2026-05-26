@@ -13,6 +13,7 @@ salesBoosterRouter.get("/campaigns", ...salesBoosterRoles, salesBoosterControlle
 salesBoosterRouter.get("/summary", ...salesBoosterRoles, salesBoosterController.summary);
 salesBoosterRouter.get("/analytics", ...salesBoosterRoles, salesBoosterController.analytics);
 salesBoosterRouter.get("/connectors", ...salesBoosterRoles, salesBoosterController.connectorStatus);
+salesBoosterRouter.get("/scheduled", ...salesBoosterRoles, salesBoosterController.scheduledCampaigns);
 salesBoosterRouter.post(
   "/campaigns",
   ...salesBoosterRoles,
@@ -52,6 +53,16 @@ salesBoosterRouter.patch(
 );
 salesBoosterRouter.delete("/campaigns/:id", ...salesBoosterRoles, salesBoosterController.deleteCampaign);
 salesBoosterRouter.post("/campaigns/:id/run", ...salesBoosterRoles, salesBoosterController.runCampaign);
+salesBoosterRouter.post("/scheduled/run-due", ...salesBoosterRoles, salesBoosterController.runDueCampaigns);
+salesBoosterRouter.patch(
+  "/campaigns/:id/schedule",
+  ...salesBoosterRoles,
+  [
+    body("scheduledAt").isISO8601(),
+    body("scheduleNote").optional({ nullable: true }).trim()
+  ],
+  salesBoosterController.scheduleCampaign
+);
 salesBoosterRouter.get("/campaigns/:id/report", ...salesBoosterRoles, salesBoosterController.campaignReport);
 salesBoosterRouter.post(
   "/campaigns/:id/metrics",

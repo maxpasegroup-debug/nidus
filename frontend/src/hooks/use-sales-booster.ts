@@ -11,7 +11,10 @@ import {
   getSalesBoosterCampaigns,
   getSalesBoosterCampaignReport,
   getSalesBoosterSummary,
+  getScheduledSalesBoosterCampaigns,
   runSalesBoosterCampaign,
+  runDueSalesBoosterCampaigns,
+  scheduleSalesBoosterCampaign,
   updateSalesBoosterStatus
 } from "@/services/sales-booster";
 
@@ -29,6 +32,10 @@ export function useSalesBoosterConnectors() {
 
 export function useSalesBoosterAnalytics() {
   return useQuery({ queryKey: ["sales-booster", "analytics"], queryFn: getSalesBoosterAnalytics });
+}
+
+export function useScheduledSalesBoosterCampaigns() {
+  return useQuery({ queryKey: ["sales-booster", "scheduled"], queryFn: getScheduledSalesBoosterCampaigns });
 }
 
 export function useSalesBoosterCampaignReport(id?: string) {
@@ -85,6 +92,40 @@ export function useRunSalesBoosterCampaign() {
         queryClient.invalidateQueries({ queryKey: ["sales-booster", "analytics"] })
       ]);
       showToast("Sales Booster connector run completed.", "success");
+    },
+    onError: (error) => showToast(getApiErrorMessage(error), "error")
+  });
+}
+
+export function useScheduleSalesBoosterCampaign() {
+  const queryClient = useQueryClient();
+  const { showToast } = useToast();
+  return useMutation({
+    mutationFn: scheduleSalesBoosterCampaign,
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["sales-booster", "campaigns"] }),
+        queryClient.invalidateQueries({ queryKey: ["sales-booster", "scheduled"] }),
+        queryClient.invalidateQueries({ queryKey: ["sales-booster", "summary"] })
+      ]);
+      showToast("Campaign scheduled.", "success");
+    },
+    onError: (error) => showToast(getApiErrorMessage(error), "error")
+  });
+}
+
+export function useRunDueSalesBoosterCampaigns() {
+  const queryClient = useQueryClient();
+  const { showToast } = useToast();
+  return useMutation({
+    mutationFn: runDueSalesBoosterCampaigns,
+    onSuccess: async (result) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["sales-booster", "campaigns"] }),
+        queryClient.invalidateQueries({ queryKey: ["sales-booster", "scheduled"] }),
+        queryClient.invalidateQueries({ queryKey: ["sales-booster", "analytics"] })
+      ]);
+      showToast(`Due campaigns processed: ${result.executed} executed, ${result.failed} failed.`, result.failed ? "error" : "success");
     },
     onError: (error) => showToast(getApiErrorMessage(error), "error")
   });

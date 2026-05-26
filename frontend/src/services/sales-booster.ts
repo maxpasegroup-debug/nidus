@@ -27,6 +27,9 @@ export type SalesBoosterCampaign = {
   approvedAt?: string | null;
   queuedAt?: string | null;
   lastRunAt?: string | null;
+  scheduledAt?: string | null;
+  scheduleStatus?: string | null;
+  scheduleNote?: string | null;
   createdAt: string;
   updatedAt: string;
   createdBy?: { id: string; name: string; email: string; role: string };
@@ -130,6 +133,11 @@ export async function getSalesBoosterConnectors() {
   return response.data.connectors;
 }
 
+export async function getScheduledSalesBoosterCampaigns() {
+  const response = await apiClient.get<{ campaigns: SalesBoosterCampaign[] }>("/sales-booster/scheduled");
+  return response.data.campaigns;
+}
+
 export async function getSalesBoosterAnalytics() {
   const response = await apiClient.get<{ analytics: SalesBoosterAnalytics }>("/sales-booster/analytics");
   return response.data.analytics;
@@ -168,6 +176,17 @@ export async function updateSalesBoosterStatus(payload: {
 export async function runSalesBoosterCampaign(id: string) {
   const response = await apiClient.post<{ campaign: SalesBoosterCampaign }>(`/sales-booster/campaigns/${id}/run`);
   return response.data.campaign;
+}
+
+export async function scheduleSalesBoosterCampaign(payload: { id: string; scheduledAt: string; scheduleNote?: string }) {
+  const { id, ...body } = payload;
+  const response = await apiClient.patch<{ campaign: SalesBoosterCampaign }>(`/sales-booster/campaigns/${id}/schedule`, body);
+  return response.data.campaign;
+}
+
+export async function runDueSalesBoosterCampaigns() {
+  const response = await apiClient.post<{ due: number; executed: number; failed: number; results: Array<{ id: string; status: string; message?: string }> }>("/sales-booster/scheduled/run-due");
+  return response.data;
 }
 
 export async function addSalesBoosterMetricSnapshot(payload: {

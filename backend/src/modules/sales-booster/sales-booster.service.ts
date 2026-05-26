@@ -32,6 +32,11 @@ type MetricInput = {
   capturedAt?: string;
 };
 
+type ScheduleInput = {
+  scheduledAt: string;
+  scheduleNote?: string;
+};
+
 const campaignInclude = {
   createdBy: { select: { id: true, name: true, email: true, role: true } },
   approvedBy: { select: { id: true, name: true, email: true, role: true } }
@@ -71,6 +76,12 @@ function sumMetrics(metrics: Array<{ reach: number; impressions: number; clicks:
     spend: acc.spend + item.spend,
     revenue: acc.revenue + item.revenue
   }), { reach: 0, impressions: 0, clicks: 0, leads: 0, admissions: 0, spend: 0, revenue: 0 });
+}
+
+async function assertCampaignAccess(requester: Requester, campaign: { createdById: string }) {
+  if (requester.role === Role.MARKETING_COORDINATOR && campaign.createdById !== requester.id) {
+    throw new Error("You can only manage your own Sales Booster campaigns.");
+  }
 }
 
 export const salesBoosterService = {
@@ -171,9 +182,7 @@ export const salesBoosterService = {
       where: { id },
       include: campaignInclude
     });
-    if (requester.role === Role.MARKETING_COORDINATOR && campaign.createdById !== requester.id) {
-      throw new Error("You can only run your own Sales Booster campaigns.");
-    }
+    await assertCampaignAccess(requester, campaign);
     if (campaign.approvalStatus !== "RUN_READY") {
       throw new Error("Campaign must be approved and marked run-ready before API execution.");
     }
@@ -187,11 +196,89 @@ export const salesBoosterService = {
       where: { id },
       data: {
         runStatus,
+        scheduleStatus: "EXECUTED",
         connectorResults: results as unknown as Prisma.InputJsonValue,
         lastRunAt: new Date()
       },
       include: campaignInclude
     });
+  },
+
+  async scheduleCampaign(requester: Requester, id: string, input: ScheduleInput) {
+    const campaign = await prisma.salesBoosterCampaign.findUniqueOrThrow({ where: { id } });
+    await assertCampaignAccess(requester, campaign);
+    if (campaign.approvalStatus !== "RUN_READY") {
+      throw new Error("Only run-ready campaigns can be scheduled.");
+    }
+    const scheduledAt = new Date(input.scheduledAt);
+    if (Number.isNaN(scheduledAt.getTime())) {
+      throw new Error("Invalid schedule date.");
+    }
+
+    return prisma.salesBoosterCampaign.update({
+      where: { id },
+      data: {
+        scheduledAt,
+        scheduleNote: input.scheduleNote,
+        scheduleStatus: scheduledAt <= new Date() ? "DUE" : "SCHEDULED",
+        queuedAt: scheduledAt
+      },
+      include: campaignInclude
+    });
+  },
+
+  async scheduledCampaigns(requester: Requester) {
+    const now = new Date();
+    const campaigns = await prisma.salesBoosterCampaign.findMany({
+      where: {
+        ...(requester.role === Role.MARKETING_COORDINATOR ? { createdById: requester.id } : {}),
+        scheduleStatus: { in: ["SCHEDULED", "DUE"] }
+      },
+      include: campaignInclude,
+      orderBy: { scheduledAt: "asc" }
+    });
+
+    const dueIds = campaigns
+      .filter((campaign) => campaign.scheduleStatus === "SCHEDULED" && campaign.scheduledAt && campaign.scheduledAt <= now)
+      .map((campaign) => campaign.id);
+
+    if (dueIds.length) {
+      await prisma.salesBoosterCampaign.updateMany({
+        where: { id: { in: dueIds } },
+        data: { scheduleStatus: "DUE" }
+      });
+    }
+
+    return campaigns.map((campaign) => ({
+      ...campaign,
+      scheduleStatus: dueIds.includes(campaign.id) ? "DUE" : campaign.scheduleStatus
+    }));
+  },
+
+  async runDueCampaigns(requester: Requester) {
+    const dueCampaigns = await this.scheduledCampaigns(requester);
+    const executable = dueCampaigns.filter((campaign) => campaign.scheduleStatus === "DUE" && campaign.approvalStatus === "RUN_READY");
+    const results = [];
+
+    for (const campaign of executable.slice(0, 10)) {
+      try {
+        results.push({ id: campaign.id, status: "EXECUTED", campaign: await this.runCampaign(requester, campaign.id) });
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "Campaign execution failed";
+        await prisma.salesBoosterCampaign.update({
+          where: { id: campaign.id },
+          data: { scheduleStatus: "FAILED", runStatus: "SCHEDULED_RUN_FAILED", reviewNote: message }
+        });
+        results.push({ id: campaign.id, status: "FAILED", message });
+      }
+    }
+
+    return {
+      due: dueCampaigns.filter((campaign) => campaign.scheduleStatus === "DUE").length,
+      executed: results.filter((result) => result.status === "EXECUTED").length,
+      failed: results.filter((result) => result.status === "FAILED").length,
+      results
+    };
   },
 
   async addMetricSnapshot(requester: Requester, id: string, input: MetricInput) {

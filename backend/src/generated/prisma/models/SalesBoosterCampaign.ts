@@ -40,6 +40,9 @@ export type SalesBoosterCampaignMinAggregateOutputType = {
   approvedAt: Date | null
   queuedAt: Date | null
   lastRunAt: Date | null
+  scheduledAt: Date | null
+  scheduleStatus: string | null
+  scheduleNote: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -60,6 +63,9 @@ export type SalesBoosterCampaignMaxAggregateOutputType = {
   approvedAt: Date | null
   queuedAt: Date | null
   lastRunAt: Date | null
+  scheduledAt: Date | null
+  scheduleStatus: string | null
+  scheduleNote: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -83,6 +89,9 @@ export type SalesBoosterCampaignCountAggregateOutputType = {
   approvedAt: number
   queuedAt: number
   lastRunAt: number
+  scheduledAt: number
+  scheduleStatus: number
+  scheduleNote: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -105,6 +114,9 @@ export type SalesBoosterCampaignMinAggregateInputType = {
   approvedAt?: true
   queuedAt?: true
   lastRunAt?: true
+  scheduledAt?: true
+  scheduleStatus?: true
+  scheduleNote?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -125,6 +137,9 @@ export type SalesBoosterCampaignMaxAggregateInputType = {
   approvedAt?: true
   queuedAt?: true
   lastRunAt?: true
+  scheduledAt?: true
+  scheduleStatus?: true
+  scheduleNote?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -148,6 +163,9 @@ export type SalesBoosterCampaignCountAggregateInputType = {
   approvedAt?: true
   queuedAt?: true
   lastRunAt?: true
+  scheduledAt?: true
+  scheduleStatus?: true
+  scheduleNote?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -244,6 +262,9 @@ export type SalesBoosterCampaignGroupByOutputType = {
   approvedAt: Date | null
   queuedAt: Date | null
   lastRunAt: Date | null
+  scheduledAt: Date | null
+  scheduleStatus: string
+  scheduleNote: string | null
   createdAt: Date
   updatedAt: Date
   _count: SalesBoosterCampaignCountAggregateOutputType | null
@@ -288,6 +309,9 @@ export type SalesBoosterCampaignWhereInput = {
   approvedAt?: Prisma.DateTimeNullableFilter<"SalesBoosterCampaign"> | Date | string | null
   queuedAt?: Prisma.DateTimeNullableFilter<"SalesBoosterCampaign"> | Date | string | null
   lastRunAt?: Prisma.DateTimeNullableFilter<"SalesBoosterCampaign"> | Date | string | null
+  scheduledAt?: Prisma.DateTimeNullableFilter<"SalesBoosterCampaign"> | Date | string | null
+  scheduleStatus?: Prisma.StringFilter<"SalesBoosterCampaign"> | string
+  scheduleNote?: Prisma.StringNullableFilter<"SalesBoosterCampaign"> | string | null
   createdAt?: Prisma.DateTimeFilter<"SalesBoosterCampaign"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"SalesBoosterCampaign"> | Date | string
   createdBy?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -314,6 +338,9 @@ export type SalesBoosterCampaignOrderByWithRelationInput = {
   approvedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   queuedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   lastRunAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  scheduledAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  scheduleStatus?: Prisma.SortOrder
+  scheduleNote?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   createdBy?: Prisma.UserOrderByWithRelationInput
@@ -343,6 +370,9 @@ export type SalesBoosterCampaignWhereUniqueInput = Prisma.AtLeast<{
   approvedAt?: Prisma.DateTimeNullableFilter<"SalesBoosterCampaign"> | Date | string | null
   queuedAt?: Prisma.DateTimeNullableFilter<"SalesBoosterCampaign"> | Date | string | null
   lastRunAt?: Prisma.DateTimeNullableFilter<"SalesBoosterCampaign"> | Date | string | null
+  scheduledAt?: Prisma.DateTimeNullableFilter<"SalesBoosterCampaign"> | Date | string | null
+  scheduleStatus?: Prisma.StringFilter<"SalesBoosterCampaign"> | string
+  scheduleNote?: Prisma.StringNullableFilter<"SalesBoosterCampaign"> | string | null
   createdAt?: Prisma.DateTimeFilter<"SalesBoosterCampaign"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"SalesBoosterCampaign"> | Date | string
   createdBy?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -369,6 +399,9 @@ export type SalesBoosterCampaignOrderByWithAggregationInput = {
   approvedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   queuedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   lastRunAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  scheduledAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  scheduleStatus?: Prisma.SortOrder
+  scheduleNote?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.SalesBoosterCampaignCountOrderByAggregateInput
@@ -398,6 +431,9 @@ export type SalesBoosterCampaignScalarWhereWithAggregatesInput = {
   approvedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"SalesBoosterCampaign"> | Date | string | null
   queuedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"SalesBoosterCampaign"> | Date | string | null
   lastRunAt?: Prisma.DateTimeNullableWithAggregatesFilter<"SalesBoosterCampaign"> | Date | string | null
+  scheduledAt?: Prisma.DateTimeNullableWithAggregatesFilter<"SalesBoosterCampaign"> | Date | string | null
+  scheduleStatus?: Prisma.StringWithAggregatesFilter<"SalesBoosterCampaign"> | string
+  scheduleNote?: Prisma.StringNullableWithAggregatesFilter<"SalesBoosterCampaign"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"SalesBoosterCampaign"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"SalesBoosterCampaign"> | Date | string
 }
@@ -419,6 +455,9 @@ export type SalesBoosterCampaignCreateInput = {
   approvedAt?: Date | string | null
   queuedAt?: Date | string | null
   lastRunAt?: Date | string | null
+  scheduledAt?: Date | string | null
+  scheduleStatus?: string
+  scheduleNote?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   createdBy: Prisma.UserCreateNestedOneWithoutSalesBoosterCampaignsCreatedInput
@@ -445,6 +484,9 @@ export type SalesBoosterCampaignUncheckedCreateInput = {
   approvedAt?: Date | string | null
   queuedAt?: Date | string | null
   lastRunAt?: Date | string | null
+  scheduledAt?: Date | string | null
+  scheduleStatus?: string
+  scheduleNote?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   metricSnapshots?: Prisma.SalesBoosterMetricSnapshotUncheckedCreateNestedManyWithoutCampaignInput
@@ -467,6 +509,9 @@ export type SalesBoosterCampaignUpdateInput = {
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   queuedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastRunAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  scheduleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  scheduleNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdBy?: Prisma.UserUpdateOneRequiredWithoutSalesBoosterCampaignsCreatedNestedInput
@@ -493,6 +538,9 @@ export type SalesBoosterCampaignUncheckedUpdateInput = {
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   queuedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastRunAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  scheduleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  scheduleNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   metricSnapshots?: Prisma.SalesBoosterMetricSnapshotUncheckedUpdateManyWithoutCampaignNestedInput
@@ -517,6 +565,9 @@ export type SalesBoosterCampaignCreateManyInput = {
   approvedAt?: Date | string | null
   queuedAt?: Date | string | null
   lastRunAt?: Date | string | null
+  scheduledAt?: Date | string | null
+  scheduleStatus?: string
+  scheduleNote?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -538,6 +589,9 @@ export type SalesBoosterCampaignUpdateManyMutationInput = {
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   queuedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastRunAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  scheduleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  scheduleNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -561,6 +615,9 @@ export type SalesBoosterCampaignUncheckedUpdateManyInput = {
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   queuedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastRunAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  scheduleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  scheduleNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -594,6 +651,9 @@ export type SalesBoosterCampaignCountOrderByAggregateInput = {
   approvedAt?: Prisma.SortOrder
   queuedAt?: Prisma.SortOrder
   lastRunAt?: Prisma.SortOrder
+  scheduledAt?: Prisma.SortOrder
+  scheduleStatus?: Prisma.SortOrder
+  scheduleNote?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -614,6 +674,9 @@ export type SalesBoosterCampaignMaxOrderByAggregateInput = {
   approvedAt?: Prisma.SortOrder
   queuedAt?: Prisma.SortOrder
   lastRunAt?: Prisma.SortOrder
+  scheduledAt?: Prisma.SortOrder
+  scheduleStatus?: Prisma.SortOrder
+  scheduleNote?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -634,6 +697,9 @@ export type SalesBoosterCampaignMinOrderByAggregateInput = {
   approvedAt?: Prisma.SortOrder
   queuedAt?: Prisma.SortOrder
   lastRunAt?: Prisma.SortOrder
+  scheduledAt?: Prisma.SortOrder
+  scheduleStatus?: Prisma.SortOrder
+  scheduleNote?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -758,6 +824,9 @@ export type SalesBoosterCampaignCreateWithoutCreatedByInput = {
   approvedAt?: Date | string | null
   queuedAt?: Date | string | null
   lastRunAt?: Date | string | null
+  scheduledAt?: Date | string | null
+  scheduleStatus?: string
+  scheduleNote?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   approvedBy?: Prisma.UserCreateNestedOneWithoutSalesBoosterCampaignsApprovedInput
@@ -782,6 +851,9 @@ export type SalesBoosterCampaignUncheckedCreateWithoutCreatedByInput = {
   approvedAt?: Date | string | null
   queuedAt?: Date | string | null
   lastRunAt?: Date | string | null
+  scheduledAt?: Date | string | null
+  scheduleStatus?: string
+  scheduleNote?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   metricSnapshots?: Prisma.SalesBoosterMetricSnapshotUncheckedCreateNestedManyWithoutCampaignInput
@@ -814,6 +886,9 @@ export type SalesBoosterCampaignCreateWithoutApprovedByInput = {
   approvedAt?: Date | string | null
   queuedAt?: Date | string | null
   lastRunAt?: Date | string | null
+  scheduledAt?: Date | string | null
+  scheduleStatus?: string
+  scheduleNote?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   createdBy: Prisma.UserCreateNestedOneWithoutSalesBoosterCampaignsCreatedInput
@@ -838,6 +913,9 @@ export type SalesBoosterCampaignUncheckedCreateWithoutApprovedByInput = {
   approvedAt?: Date | string | null
   queuedAt?: Date | string | null
   lastRunAt?: Date | string | null
+  scheduledAt?: Date | string | null
+  scheduleStatus?: string
+  scheduleNote?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   metricSnapshots?: Prisma.SalesBoosterMetricSnapshotUncheckedCreateNestedManyWithoutCampaignInput
@@ -891,6 +969,9 @@ export type SalesBoosterCampaignScalarWhereInput = {
   approvedAt?: Prisma.DateTimeNullableFilter<"SalesBoosterCampaign"> | Date | string | null
   queuedAt?: Prisma.DateTimeNullableFilter<"SalesBoosterCampaign"> | Date | string | null
   lastRunAt?: Prisma.DateTimeNullableFilter<"SalesBoosterCampaign"> | Date | string | null
+  scheduledAt?: Prisma.DateTimeNullableFilter<"SalesBoosterCampaign"> | Date | string | null
+  scheduleStatus?: Prisma.StringFilter<"SalesBoosterCampaign"> | string
+  scheduleNote?: Prisma.StringNullableFilter<"SalesBoosterCampaign"> | string | null
   createdAt?: Prisma.DateTimeFilter<"SalesBoosterCampaign"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"SalesBoosterCampaign"> | Date | string
 }
@@ -928,6 +1009,9 @@ export type SalesBoosterCampaignCreateWithoutMetricSnapshotsInput = {
   approvedAt?: Date | string | null
   queuedAt?: Date | string | null
   lastRunAt?: Date | string | null
+  scheduledAt?: Date | string | null
+  scheduleStatus?: string
+  scheduleNote?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   createdBy: Prisma.UserCreateNestedOneWithoutSalesBoosterCampaignsCreatedInput
@@ -953,6 +1037,9 @@ export type SalesBoosterCampaignUncheckedCreateWithoutMetricSnapshotsInput = {
   approvedAt?: Date | string | null
   queuedAt?: Date | string | null
   lastRunAt?: Date | string | null
+  scheduledAt?: Date | string | null
+  scheduleStatus?: string
+  scheduleNote?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -990,6 +1077,9 @@ export type SalesBoosterCampaignUpdateWithoutMetricSnapshotsInput = {
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   queuedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastRunAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  scheduleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  scheduleNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdBy?: Prisma.UserUpdateOneRequiredWithoutSalesBoosterCampaignsCreatedNestedInput
@@ -1015,6 +1105,9 @@ export type SalesBoosterCampaignUncheckedUpdateWithoutMetricSnapshotsInput = {
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   queuedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastRunAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  scheduleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  scheduleNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1037,6 +1130,9 @@ export type SalesBoosterCampaignCreateManyCreatedByInput = {
   approvedAt?: Date | string | null
   queuedAt?: Date | string | null
   lastRunAt?: Date | string | null
+  scheduledAt?: Date | string | null
+  scheduleStatus?: string
+  scheduleNote?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1059,6 +1155,9 @@ export type SalesBoosterCampaignCreateManyApprovedByInput = {
   approvedAt?: Date | string | null
   queuedAt?: Date | string | null
   lastRunAt?: Date | string | null
+  scheduledAt?: Date | string | null
+  scheduleStatus?: string
+  scheduleNote?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1080,6 +1179,9 @@ export type SalesBoosterCampaignUpdateWithoutCreatedByInput = {
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   queuedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastRunAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  scheduleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  scheduleNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   approvedBy?: Prisma.UserUpdateOneWithoutSalesBoosterCampaignsApprovedNestedInput
@@ -1104,6 +1206,9 @@ export type SalesBoosterCampaignUncheckedUpdateWithoutCreatedByInput = {
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   queuedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastRunAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  scheduleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  scheduleNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   metricSnapshots?: Prisma.SalesBoosterMetricSnapshotUncheckedUpdateManyWithoutCampaignNestedInput
@@ -1127,6 +1232,9 @@ export type SalesBoosterCampaignUncheckedUpdateManyWithoutCreatedByInput = {
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   queuedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastRunAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  scheduleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  scheduleNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1148,6 +1256,9 @@ export type SalesBoosterCampaignUpdateWithoutApprovedByInput = {
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   queuedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastRunAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  scheduleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  scheduleNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdBy?: Prisma.UserUpdateOneRequiredWithoutSalesBoosterCampaignsCreatedNestedInput
@@ -1172,6 +1283,9 @@ export type SalesBoosterCampaignUncheckedUpdateWithoutApprovedByInput = {
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   queuedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastRunAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  scheduleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  scheduleNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   metricSnapshots?: Prisma.SalesBoosterMetricSnapshotUncheckedUpdateManyWithoutCampaignNestedInput
@@ -1195,6 +1309,9 @@ export type SalesBoosterCampaignUncheckedUpdateManyWithoutApprovedByInput = {
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   queuedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastRunAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  scheduleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  scheduleNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1249,6 +1366,9 @@ export type SalesBoosterCampaignSelect<ExtArgs extends runtime.Types.Extensions.
   approvedAt?: boolean
   queuedAt?: boolean
   lastRunAt?: boolean
+  scheduledAt?: boolean
+  scheduleStatus?: boolean
+  scheduleNote?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   createdBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -1276,6 +1396,9 @@ export type SalesBoosterCampaignSelectCreateManyAndReturn<ExtArgs extends runtim
   approvedAt?: boolean
   queuedAt?: boolean
   lastRunAt?: boolean
+  scheduledAt?: boolean
+  scheduleStatus?: boolean
+  scheduleNote?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   createdBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -1301,6 +1424,9 @@ export type SalesBoosterCampaignSelectUpdateManyAndReturn<ExtArgs extends runtim
   approvedAt?: boolean
   queuedAt?: boolean
   lastRunAt?: boolean
+  scheduledAt?: boolean
+  scheduleStatus?: boolean
+  scheduleNote?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   createdBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -1326,11 +1452,14 @@ export type SalesBoosterCampaignSelectScalar = {
   approvedAt?: boolean
   queuedAt?: boolean
   lastRunAt?: boolean
+  scheduledAt?: boolean
+  scheduleStatus?: boolean
+  scheduleNote?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type SalesBoosterCampaignOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "track" | "goal" | "creativeName" | "creativeType" | "channels" | "aiDraft" | "approvalStatus" | "runStatus" | "reviewNote" | "connectorResults" | "createdById" | "approvedById" | "submittedAt" | "approvedAt" | "queuedAt" | "lastRunAt" | "createdAt" | "updatedAt", ExtArgs["result"]["salesBoosterCampaign"]>
+export type SalesBoosterCampaignOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "track" | "goal" | "creativeName" | "creativeType" | "channels" | "aiDraft" | "approvalStatus" | "runStatus" | "reviewNote" | "connectorResults" | "createdById" | "approvedById" | "submittedAt" | "approvedAt" | "queuedAt" | "lastRunAt" | "scheduledAt" | "scheduleStatus" | "scheduleNote" | "createdAt" | "updatedAt", ExtArgs["result"]["salesBoosterCampaign"]>
 export type SalesBoosterCampaignInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   createdBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   approvedBy?: boolean | Prisma.SalesBoosterCampaign$approvedByArgs<ExtArgs>
@@ -1372,6 +1501,9 @@ export type $SalesBoosterCampaignPayload<ExtArgs extends runtime.Types.Extension
     approvedAt: Date | null
     queuedAt: Date | null
     lastRunAt: Date | null
+    scheduledAt: Date | null
+    scheduleStatus: string
+    scheduleNote: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["salesBoosterCampaign"]>
@@ -1818,6 +1950,9 @@ export interface SalesBoosterCampaignFieldRefs {
   readonly approvedAt: Prisma.FieldRef<"SalesBoosterCampaign", 'DateTime'>
   readonly queuedAt: Prisma.FieldRef<"SalesBoosterCampaign", 'DateTime'>
   readonly lastRunAt: Prisma.FieldRef<"SalesBoosterCampaign", 'DateTime'>
+  readonly scheduledAt: Prisma.FieldRef<"SalesBoosterCampaign", 'DateTime'>
+  readonly scheduleStatus: Prisma.FieldRef<"SalesBoosterCampaign", 'String'>
+  readonly scheduleNote: Prisma.FieldRef<"SalesBoosterCampaign", 'String'>
   readonly createdAt: Prisma.FieldRef<"SalesBoosterCampaign", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"SalesBoosterCampaign", 'DateTime'>
 }

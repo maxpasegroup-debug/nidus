@@ -2,12 +2,12 @@
 
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { BarChart3, Bot, CheckCircle2, Clapperboard, FileUp, Megaphone, MessageCircle, PlayCircle, Send, Sparkles, Target, Users } from "lucide-react";
+import { BarChart3, Bot, CalendarClock, CheckCircle2, Clapperboard, FileUp, Megaphone, MessageCircle, PlayCircle, Send, Sparkles, Target, Users } from "lucide-react";
 import { ActivityTimeline, DashboardError, DashboardSkeleton, ProgressCard, QuickActionCard, RoleDashboardGuard, SectionHeader, StatCard } from "@/components/dashboard";
 import { useAuth } from "@/components/providers/auth-provider-v2";
 import { Button } from "@/components/ui/button";
 import { useMarketingDashboard } from "@/hooks/use-dashboard";
-import { useAddSalesBoosterMetricSnapshot, useCreateSalesBoosterCampaign, useRunSalesBoosterCampaign, useSalesBoosterAnalytics, useSalesBoosterCampaigns, useSalesBoosterConnectors, useSalesBoosterSummary, useUpdateSalesBoosterStatus } from "@/hooks/use-sales-booster";
+import { useAddSalesBoosterMetricSnapshot, useCreateSalesBoosterCampaign, useRunDueSalesBoosterCampaigns, useRunSalesBoosterCampaign, useSalesBoosterAnalytics, useSalesBoosterCampaigns, useSalesBoosterConnectors, useSalesBoosterSummary, useScheduleSalesBoosterCampaign, useScheduledSalesBoosterCampaigns, useUpdateSalesBoosterStatus } from "@/hooks/use-sales-booster";
 import type { SalesBoosterCampaign, SalesBoosterDraft } from "@/services/sales-booster";
 
 const campaignTracks = [
@@ -61,9 +61,12 @@ export default function MarketingDashboardPage() {
   const summary = useSalesBoosterSummary();
   const connectors = useSalesBoosterConnectors();
   const analytics = useSalesBoosterAnalytics();
+  const scheduledCampaigns = useScheduledSalesBoosterCampaigns();
   const createCampaign = useCreateSalesBoosterCampaign();
   const updateStatus = useUpdateSalesBoosterStatus();
   const runCampaign = useRunSalesBoosterCampaign();
+  const scheduleCampaign = useScheduleSalesBoosterCampaign();
+  const runDueCampaigns = useRunDueSalesBoosterCampaigns();
   const addMetrics = useAddSalesBoosterMetricSnapshot();
   const [selectedTrack, setSelectedTrack] = useState(campaignTracks[0].title);
   const [goal, setGoal] = useState("Generate NDA admissions campaign for Kerala students with a parent-friendly message and WhatsApp follow-up.");
@@ -76,6 +79,9 @@ export default function MarketingDashboardPage() {
   const [metricLeads, setMetricLeads] = useState("0");
   const [metricSpend, setMetricSpend] = useState("0");
   const [metricRevenue, setMetricRevenue] = useState("0");
+  const [scheduleCampaignId, setScheduleCampaignId] = useState("");
+  const [scheduledAt, setScheduledAt] = useState("");
+  const [scheduleNote, setScheduleNote] = useState("Run after creative review and WhatsApp template approval.");
   const draft = useMemo(() => buildCampaignDraft(goal, selectedTrack), [goal, selectedTrack]);
   const savedCampaigns = campaigns.data ?? [];
   const boosterSummary = summary.data;
@@ -83,6 +89,9 @@ export default function MarketingDashboardPage() {
   const connectorStatus = connectors.data ?? boosterSummary?.connectorStatus ?? {};
   const canApprove = user?.role === "ADMIN" || user?.role === "DIRECTOR";
   const activeMetricCampaignId = metricCampaignId || savedCampaigns[0]?.id || "";
+  const runReadyCampaigns = savedCampaigns.filter((campaign) => campaign.approvalStatus === "RUN_READY");
+  const activeScheduleCampaignId = scheduleCampaignId || runReadyCampaigns[0]?.id || "";
+  const scheduled = scheduledCampaigns.data ?? [];
 
   function saveCampaign(status: "DRAFT" | "SUBMITTED" = "DRAFT") {
     createCampaign.mutate({
@@ -113,6 +122,15 @@ export default function MarketingDashboardPage() {
       spend: Number(metricSpend) || 0,
       revenue: Number(metricRevenue) || 0,
       notes: "Manual Sales Booster Phase 4 metric snapshot."
+    });
+  }
+
+  function saveSchedule() {
+    if (!activeScheduleCampaignId || !scheduledAt) return;
+    scheduleCampaign.mutate({
+      id: activeScheduleCampaignId,
+      scheduledAt: new Date(scheduledAt).toISOString(),
+      scheduleNote
     });
   }
 
@@ -150,7 +168,66 @@ export default function MarketingDashboardPage() {
           <StatCard label="Saved Campaigns" value={String(boosterSummary?.totalCampaigns ?? savedCampaigns.length)} note="Sales Booster records" />
           <StatCard label="Tracked Leads" value={String(boosterAnalytics?.summary.leads ?? data.campaignTracking.leadsGenerated)} note={`CPL Rs ${boosterAnalytics?.summary.cpl ?? 0}`} />
           <StatCard label="Revenue Signal" value={`Rs ${Math.round(boosterAnalytics?.summary.revenue ?? 0).toLocaleString()}`} note={`ROI ${boosterAnalytics?.summary.roi ?? 0}%`} />
-          <StatCard label="Connectors" value={String(Object.values(connectorStatus).filter(Boolean).length)} note="configured external APIs" />
+          <StatCard label="Scheduled" value={String(scheduled.length)} note={`${scheduled.filter((campaign) => campaign.scheduleStatus === "DUE").length} due now`} />
+        </section>
+
+        <section className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
+          <div className="rounded-lg border border-[#071d36]/10 bg-white p-5 shadow-[0_18px_60px_rgba(7,29,54,0.08)]">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#3f4a32]">Phase 5 Automation</p>
+                <h2 className="mt-3 text-3xl font-semibold text-[#071d36]">Schedule approved campaigns</h2>
+                <p className="mt-2 text-sm leading-7 text-[#64748b]">Queue run-ready campaigns for a specific date and process due campaigns through the protected connector layer.</p>
+              </div>
+              <CalendarClock className="h-7 w-7 text-[#b9913f]" />
+            </div>
+            <div className="mt-5 grid gap-3">
+              <label>
+                <span className="text-sm font-semibold text-[#071d36]">Run-ready campaign</span>
+                <select value={activeScheduleCampaignId} onChange={(event) => setScheduleCampaignId(event.target.value)} className="mt-2 h-11 w-full rounded border border-[#071d36]/10 bg-[#f7f3ea] px-3 text-sm text-[#071d36] outline-none focus:border-[#b9913f]">
+                  {runReadyCampaigns.length ? runReadyCampaigns.map((campaign) => <option key={campaign.id} value={campaign.id}>{campaign.title}</option>) : <option>No run-ready campaign</option>}
+                </select>
+              </label>
+              <label>
+                <span className="text-sm font-semibold text-[#071d36]">Schedule date and time</span>
+                <input type="datetime-local" value={scheduledAt} onChange={(event) => setScheduledAt(event.target.value)} className="mt-2 h-11 w-full rounded border border-[#071d36]/10 bg-[#f7f3ea] px-3 text-sm text-[#071d36] outline-none focus:border-[#b9913f]" />
+              </label>
+              <label>
+                <span className="text-sm font-semibold text-[#071d36]">Execution note</span>
+                <textarea value={scheduleNote} onChange={(event) => setScheduleNote(event.target.value)} className="mt-2 min-h-24 w-full rounded border border-[#071d36]/10 bg-[#f7f3ea] px-3 py-2 text-sm leading-6 text-[#071d36] outline-none focus:border-[#b9913f]" />
+              </label>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <Button type="button" onClick={saveSchedule} disabled={!activeScheduleCampaignId || !scheduledAt || scheduleCampaign.isPending}>
+                  {scheduleCampaign.isPending ? "Scheduling..." : "Schedule Campaign"}
+                </Button>
+                <Button type="button" variant="secondary" onClick={() => runDueCampaigns.mutate()} disabled={runDueCampaigns.isPending || !scheduled.length}>
+                  {runDueCampaigns.isPending ? "Processing..." : "Run Due"}
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          <div className="rounded-lg border border-white/10 bg-white/[0.055] p-5 shadow-[0_24px_70px_rgba(0,0,0,0.18)]">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-gold-soft">Automation Queue</p>
+            <h2 className="mt-3 text-2xl font-semibold text-white">Scheduled campaign runs</h2>
+            <div className="mt-5 grid gap-3">
+              {scheduled.length ? scheduled.slice(0, 6).map((campaign) => (
+                <div key={campaign.id} className="rounded border border-white/10 bg-navy-deep/55 p-4">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                      <p className="font-semibold text-white">{campaign.title}</p>
+                      <p className="mt-1 text-xs font-semibold uppercase tracking-[0.16em] text-gold-soft">{campaign.track}</p>
+                    </div>
+                    <span className="rounded border border-gold/25 bg-gold/10 px-3 py-1 text-xs font-semibold text-gold">{campaign.scheduleStatus}</span>
+                  </div>
+                  <p className="mt-3 text-sm leading-6 text-muted">{campaign.scheduledAt ? new Date(campaign.scheduledAt).toLocaleString() : "No schedule time"}</p>
+                  {campaign.scheduleNote ? <p className="mt-2 text-xs leading-5 text-muted">{campaign.scheduleNote}</p> : null}
+                </div>
+              )) : (
+                <div className="rounded border border-white/10 bg-navy-deep/55 p-4 text-sm leading-6 text-muted">No campaign is scheduled yet. Approve a campaign as run-ready, then schedule it here.</div>
+              )}
+            </div>
+          </div>
         </section>
 
         <section className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
