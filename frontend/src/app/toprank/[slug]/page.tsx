@@ -37,10 +37,10 @@ export default async function TopRankArenaPage({ params }: { params: Promise<{ s
               <p className="mt-6 max-w-2xl text-base leading-8 text-[#64748b]">{exam.subtitle}</p>
               <p className="mt-4 max-w-2xl text-sm leading-7 text-[#071d36]">{exam.whatItIs}</p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <Link href={isLive ? "/login" : "#enquire"} className="inline-flex min-h-12 items-center justify-center gap-2 rounded border border-[#b58b35]/45 bg-[linear-gradient(135deg,#fff3bf_0%,#e7c873_34%,#b9913f_72%,#8a6426_100%)] px-5 py-3 text-sm font-semibold text-[#071d36] transition hover:-translate-y-0.5 hover:brightness-105">
+                <Link href={isLive ? "/start-free?intent=toprank&program=TOPRANK%20NDA" : "#enquire"} className="inline-flex min-h-12 items-center justify-center gap-2 rounded border border-[#b58b35]/45 bg-[linear-gradient(135deg,#fff3bf_0%,#e7c873_34%,#b9913f_72%,#8a6426_100%)] px-5 py-3 text-sm font-semibold text-[#071d36] transition hover:-translate-y-0.5 hover:brightness-105">
                   {isLive ? `Start ${exam.title} Training` : "Join Guidance List"} <ArrowRight className="h-4 w-4" />
                 </Link>
-                <Link href={isLive ? "/register" : "/start-free"} className="inline-flex min-h-12 items-center justify-center gap-2 rounded border border-[#071d36]/14 bg-white px-5 py-3 text-sm font-semibold text-[#071d36] transition hover:-translate-y-0.5">
+                <Link href={isLive ? "/login" : "/start-free?intent=toprank"} className="inline-flex min-h-12 items-center justify-center gap-2 rounded border border-[#071d36]/14 bg-white px-5 py-3 text-sm font-semibold text-[#071d36] transition hover:-translate-y-0.5">
                   {isLive ? "Create Free Account" : "Start Free"}
                 </Link>
               </div>

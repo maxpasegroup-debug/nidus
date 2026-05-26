@@ -45,7 +45,7 @@ export default function PsychometricDetailsPage() {
           </div>
           <div className="mt-4 grid gap-3 md:grid-cols-3">
             <Button href="/psychometric" variant="secondary">Skip For Now</Button>
-            <Button href="/join" variant="secondary">Ask NIDUS AI Which Test</Button>
+            <Button href="/start-free?intent=assessment" variant="secondary">Ask NIDUS AI Which Test</Button>
             <Button href="/digital-profile" variant="secondary">View Digital Profile</Button>
           </div>
         </section>

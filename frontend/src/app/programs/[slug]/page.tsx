@@ -59,7 +59,7 @@ export default async function ProgramDetailPage({ params }: { params: Promise<{ 
                 <PublicCta href="#enquire">
                   Enquire Now <ArrowRight className="h-4 w-4" />
                 </PublicCta>
-                <PublicCta href="/join" variant="secondary">
+                <PublicCta href={`/start-free?intent=academy&program=${encodeURIComponent(program.title)}`} variant="secondary">
                   Talk to Assistant
                 </PublicCta>
               </div>

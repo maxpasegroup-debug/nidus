@@ -45,7 +45,7 @@ export default function ProgramsPage() {
               <PublicCta href="#program-categories">
                 Explore Academy <ArrowRight className="h-4 w-4" />
               </PublicCta>
-              <PublicCta href="/join" variant="secondary">
+              <PublicCta href="/start-free?intent=academy" variant="secondary">
                 Enquire Now
               </PublicCta>
             </div>
@@ -155,7 +155,7 @@ export default function ProgramsPage() {
       <PublicNextStepBand
         title="Your uniform journey starts with one clear conversation."
         text="Start with NIDUS AI Assistant or explore NIDUS Guru for assessments, TOPRANK exam coaching, and transformation quests."
-        primaryHref="/join"
+        primaryHref="/start-free?intent=academy"
         primaryLabel="Join NIDUS"
         secondaryHref="/guru"
         secondaryLabel="Explore NIDUS Guru"

@@ -45,7 +45,7 @@ export default async function GuruQuestPage({ params }: { params: Promise<{ slug
               <p className="mt-5 text-2xl font-semibold text-[#071d36]">{quest.tagline}</p>
               <p className="mt-5 max-w-2xl text-base leading-8 text-[#64748b]">{quest.promise}</p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <Link href="/start-free" className="inline-flex min-h-12 items-center justify-center gap-2 rounded border border-[#b58b35]/45 bg-[linear-gradient(135deg,#fff3bf_0%,#e7c873_34%,#b9913f_72%,#8a6426_100%)] px-5 py-3 text-sm font-semibold text-[#071d36] transition hover:-translate-y-0.5 hover:brightness-105">
+                <Link href="/start-free?intent=guru" className="inline-flex min-h-12 items-center justify-center gap-2 rounded border border-[#b58b35]/45 bg-[linear-gradient(135deg,#fff3bf_0%,#e7c873_34%,#b9913f_72%,#8a6426_100%)] px-5 py-3 text-sm font-semibold text-[#071d36] transition hover:-translate-y-0.5 hover:brightness-105">
                   Notify Me <ArrowRight className="h-4 w-4" />
                 </Link>
                 <Link href="/psychometric" className="inline-flex min-h-12 items-center justify-center gap-2 rounded border border-[#071d36]/14 bg-white px-5 py-3 text-sm font-semibold text-[#071d36] transition hover:-translate-y-0.5">
@@ -135,7 +135,7 @@ export default async function GuruQuestPage({ params }: { params: Promise<{ slug
             <h2 className="mt-4 text-2xl font-semibold text-[#071d36]">Progress opens with the first mission release.</h2>
             <p className="mt-2 text-sm leading-6 text-[#64748b]">Future-ready for video sessions, AI mentor, streaks, journaling, reflections, and community.</p>
           </div>
-          <Link href="/start-free" className="inline-flex min-h-12 items-center justify-center gap-2 rounded border border-[#b58b35]/45 bg-[linear-gradient(135deg,#fff3bf_0%,#e7c873_34%,#b9913f_72%,#8a6426_100%)] px-5 py-3 text-sm font-semibold text-[#071d36] transition hover:-translate-y-0.5 hover:brightness-105">
+          <Link href="/start-free?intent=guru" className="inline-flex min-h-12 items-center justify-center gap-2 rounded border border-[#b58b35]/45 bg-[linear-gradient(135deg,#fff3bf_0%,#e7c873_34%,#b9913f_72%,#8a6426_100%)] px-5 py-3 text-sm font-semibold text-[#071d36] transition hover:-translate-y-0.5 hover:brightness-105">
             Start Free <ArrowRight className="h-4 w-4" />
           </Link>
         </div>

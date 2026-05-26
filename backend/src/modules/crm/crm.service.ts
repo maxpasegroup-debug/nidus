@@ -33,17 +33,41 @@ export const crmService = {
   createLead(input: { fullName: string; mobile: string; email: string; targetExam: string; source: string; status?: LeadStatus; assignedTo?: string; notes?: string }) {
     return prisma.lead.create({ data: { ...input, status: input.status ?? "NEW" }, include: leadInclude });
   },
-  createPublicLead(input: { fullName: string; mobile: string; email: string; targetExam: string; source: string; studentClass?: string; message?: string }) {
+  async createPublicLead(input: { fullName: string; mobile: string; email: string; targetExam: string; source: string; studentClass?: string; message?: string }) {
+    const email = input.email.trim().toLowerCase();
+    const mobile = input.mobile.trim();
     const notes = [
       input.studentClass ? `Student Class: ${input.studentClass}` : "",
       input.message ? `Message: ${input.message}` : "",
       "Public website enquiry. Follow up quickly."
     ].filter(Boolean).join("\n");
+    const existing = await prisma.lead.findFirst({
+      where: { OR: [{ email }, { mobile }] },
+      orderBy: { createdAt: "desc" }
+    });
+
+    if (existing) {
+      const previousNotes = existing.notes ? `${existing.notes}\n\n` : "";
+      return prisma.lead.update({
+        where: { id: existing.id },
+        data: {
+          fullName: input.fullName,
+          mobile,
+          email,
+          targetExam: input.targetExam,
+          source: input.source,
+          status: existing.status === "LOST" ? "NEW" : existing.status,
+          notes: `${previousNotes}[${new Date().toISOString()}] ${notes}`
+        },
+        include: leadInclude
+      });
+    }
+
     return prisma.lead.create({
       data: {
         fullName: input.fullName,
-        mobile: input.mobile,
-        email: input.email,
+        mobile,
+        email,
         targetExam: input.targetExam,
         source: input.source,
         status: "NEW",

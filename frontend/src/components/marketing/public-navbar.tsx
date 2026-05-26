@@ -68,7 +68,7 @@ export function PublicNavbar() {
         </nav>
 
         <div className="hidden items-center gap-2 lg:flex">
-          <Link href="/start-free" className="inline-flex min-h-10 items-center justify-center rounded-full border border-[#b58b35]/45 bg-[linear-gradient(135deg,#fff3bf_0%,#e7c873_34%,#b9913f_72%,#8a6426_100%)] px-4 py-2 text-sm font-semibold text-[#071D36] shadow-[0_14px_34px_rgba(185,145,63,0.22)] transition hover:brightness-105">
+          <Link href="/start-free?intent=general" className="inline-flex min-h-10 items-center justify-center rounded-full border border-[#b58b35]/45 bg-[linear-gradient(135deg,#fff3bf_0%,#e7c873_34%,#b9913f_72%,#8a6426_100%)] px-4 py-2 text-sm font-semibold text-[#071D36] shadow-[0_14px_34px_rgba(185,145,63,0.22)] transition hover:brightness-105">
             Start Free
           </Link>
           <Link href="/login" className="inline-flex min-h-10 items-center justify-center gap-2 rounded-full border border-[#b58b35]/45 bg-[linear-gradient(135deg,#fff3bf_0%,#e7c873_34%,#b9913f_72%,#8a6426_100%)] px-4 py-2 text-sm font-semibold text-[#071D36] shadow-[0_14px_34px_rgba(185,145,63,0.22)] transition hover:brightness-105">
@@ -92,7 +92,7 @@ export function PublicNavbar() {
             ))}
             <Link href="/toprank" onClick={() => setOpen(false)} className="rounded px-3 py-3 text-sm font-semibold text-[#071D36] hover:bg-white">Top Rank</Link>
             <Link href="/guru" onClick={() => setOpen(false)} className="rounded px-3 py-3 text-sm font-semibold text-[#071D36] hover:bg-white">NIDUS Guru</Link>
-            <Link href="/start-free" onClick={() => setOpen(false)} className="mt-2 rounded-full border border-[#b58b35]/45 bg-[linear-gradient(135deg,#fff3bf_0%,#e7c873_34%,#b9913f_72%,#8a6426_100%)] px-4 py-3 text-center text-sm font-semibold text-[#071D36]">Start Free</Link>
+            <Link href="/start-free?intent=general" onClick={() => setOpen(false)} className="mt-2 rounded-full border border-[#b58b35]/45 bg-[linear-gradient(135deg,#fff3bf_0%,#e7c873_34%,#b9913f_72%,#8a6426_100%)] px-4 py-3 text-center text-sm font-semibold text-[#071D36]">Start Free</Link>
             <Link href="/login" onClick={() => setOpen(false)} className="rounded-full border border-[#b58b35]/45 bg-[linear-gradient(135deg,#fff3bf_0%,#e7c873_34%,#b9913f_72%,#8a6426_100%)] px-4 py-3 text-center text-sm font-semibold text-[#071D36]">Login</Link>
           </nav>
         </div>

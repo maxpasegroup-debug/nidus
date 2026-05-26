@@ -106,7 +106,7 @@ export function MarketingHome() {
             Coaching, physical training, exam practice and personal guidance for NDA, CDS, AFCAT, SSB, AISSEE and Agniveer aspirants.
           </p>
           <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <PillButton href="/start-free">
+            <PillButton href="/start-free?intent=general">
               Start Free <ArrowRight className="h-4 w-4" />
             </PillButton>
             <PillButton href="/programs" variant="ghost">Explore Academy</PillButton>
@@ -131,10 +131,10 @@ export function MarketingHome() {
             Start with a simple free profile. Understand your confidence, discipline and best defence career direction.
           </p>
           <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-            <Link href="/start-free" className="inline-flex min-h-11 items-center justify-center gap-2 rounded border border-[#b58b35]/45 bg-[linear-gradient(135deg,#fff3bf_0%,#e7c873_34%,#b9913f_72%,#8a6426_100%)] px-5 py-3 text-sm font-semibold text-[#071d36] shadow-[0_18px_42px_rgba(185,145,63,0.24)] transition hover:-translate-y-0.5 hover:brightness-105">
+            <Link href="/start-free?intent=assessment" className="inline-flex min-h-11 items-center justify-center gap-2 rounded border border-[#b58b35]/45 bg-[linear-gradient(135deg,#fff3bf_0%,#e7c873_34%,#b9913f_72%,#8a6426_100%)] px-5 py-3 text-sm font-semibold text-[#071d36] shadow-[0_18px_42px_rgba(185,145,63,0.24)] transition hover:-translate-y-0.5 hover:brightness-105">
               Get Started <ArrowRight className="h-4 w-4" />
             </Link>
-            <Link href="/join" className="inline-flex min-h-11 items-center justify-center gap-2 rounded px-5 py-3 text-sm font-semibold text-[#061B34] transition hover:-translate-y-0.5">
+            <Link href="/start-free?intent=counselling" className="inline-flex min-h-11 items-center justify-center gap-2 rounded px-5 py-3 text-sm font-semibold text-[#061B34] transition hover:-translate-y-0.5">
               Talk to Mentor <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
@@ -155,13 +155,13 @@ export function MarketingHome() {
               <div className="mt-5 grid gap-3 text-sm text-white/66">
                 <Link href="/programs">Programs</Link>
                 <Link href="/toprank">Top Rank</Link>
-                <Link href="/join">Join NIDUS</Link>
+                <Link href="/start-free?intent=academy">Join NIDUS</Link>
               </div>
             </div>
             <div>
               <h3 className="text-sm font-semibold">Student</h3>
               <div className="mt-5 grid gap-3 text-sm text-white/66">
-                <Link href="/start-free">Start Free</Link>
+                <Link href="/start-free?intent=general">Start Free</Link>
                 <Link href="/psychometric">Assessments</Link>
                 <Link href="/guru">NIDUS Guru</Link>
               </div>
