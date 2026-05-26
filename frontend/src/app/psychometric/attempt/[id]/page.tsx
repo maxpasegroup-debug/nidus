@@ -8,8 +8,19 @@ import { EmptyState } from "@/components/courses/empty-state";
 import { NidusAiOrbit } from "@/components/nidus-ai/nidus-ai-orbit";
 import { nidusAnswerChoices, nidusOptionalGuidance, nidusProfileAccuracy, nidusQuestionPrompt } from "@/components/psychometric/nidus-ai-assessment-engine";
 import { TimerBox } from "@/components/psychometric/timer-box";
-import { useSubmitPsychometric } from "@/hooks/use-psychometric";
+import { usePsychometricActiveAttempt, useSubmitPsychometric } from "@/hooks/use-psychometric";
+import { getApiErrorMessage } from "@/services/api";
 import type { PsychometricAttempt, PsychometricQuestion } from "@/types/psychometric";
+
+function readCachedAttempt(attemptId: string) {
+  if (typeof window === "undefined") return null;
+  try {
+    const attempt = JSON.parse(localStorage.getItem("nidus_psychometric_attempt") ?? "null") as (PsychometricAttempt & { test: PsychometricAttempt["test"] & { questions: PsychometricQuestion[] } }) | null;
+    return attempt?.id === attemptId ? attempt : null;
+  } catch {
+    return null;
+  }
+}
 
 export default function PsychometricAttemptPage() {
   const params = useParams<{ id: string }>();
@@ -17,11 +28,12 @@ export default function PsychometricAttemptPage() {
   const submitMutation = useSubmitPsychometric();
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [currentIndex, setCurrentIndex] = useState(0);
-  const attempt = useMemo<(PsychometricAttempt & { test: PsychometricAttempt["test"] & { questions: PsychometricQuestion[] } }) | null>(() => {
-    if (typeof window === "undefined") return null;
-    return JSON.parse(localStorage.getItem("nidus_psychometric_attempt") ?? "null");
-  }, []);
+  const cachedAttempt = useMemo(() => readCachedAttempt(attemptId), [attemptId]);
+  const { data: fetchedAttempt, isLoading, error } = usePsychometricActiveAttempt(attemptId, !cachedAttempt);
+  const attempt = cachedAttempt ?? fetchedAttempt ?? null;
 
+  if (isLoading) return <div className="h-96 animate-pulse rounded-lg bg-white/[0.06]" />;
+  if (error) return <EmptyState title="Assessment not loaded" description={getApiErrorMessage(error)} />;
   if (!attempt) return <EmptyState title="Assessment not loaded" description="Start an assessment from the psychometric page." />;
   const questions = attempt.test.questions ?? [];
   const currentQuestion = questions[currentIndex];

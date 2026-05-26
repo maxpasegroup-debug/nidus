@@ -8,6 +8,7 @@ import {
   getPsychometricAdminOverview,
   getPsychometricAnalytics,
   getPsychometricAttemptHistory,
+  getPsychometricActiveAttempt,
   getPsychometricReadiness,
   getPsychometricReportHistory,
   getOLQReport,
@@ -42,6 +43,14 @@ export function usePsychometricAttemptHistory(testId: string) {
     queryKey: ["psychometric", "history", testId],
     queryFn: () => getPsychometricAttemptHistory(testId),
     enabled: Boolean(testId)
+  });
+}
+
+export function usePsychometricActiveAttempt(attemptId: string, enabled = true) {
+  return useQuery({
+    queryKey: ["psychometric", "active-attempt", attemptId],
+    queryFn: () => getPsychometricActiveAttempt(attemptId),
+    enabled: Boolean(attemptId) && enabled
   });
 }
 

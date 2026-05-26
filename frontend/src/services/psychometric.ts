@@ -42,6 +42,11 @@ export async function startPsychometricTest(testId: string) {
   return response.data.attempt;
 }
 
+export async function getPsychometricActiveAttempt(attemptId: string) {
+  const response = await apiClient.get<{ attempt: PsychometricAttempt }>(`/psychometric/attempts/${attemptId}`);
+  return response.data.attempt;
+}
+
 export async function submitPsychometric(payload: {
   attemptId: string;
   answers: Array<{ questionId: string; answerText?: string; selectedOption?: string }>;

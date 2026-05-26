@@ -83,6 +83,15 @@ export const psychometricController = {
     }
   },
 
+  async activeAttempt(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      const attempt = await psychometricService.activeAttempt(userId(req), param(req, "attemptId"));
+      res.json({ attempt });
+    } catch (error) {
+      next(error);
+    }
+  },
+
   async submit(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
       assertValid(req);

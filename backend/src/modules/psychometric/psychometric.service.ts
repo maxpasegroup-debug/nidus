@@ -815,6 +815,17 @@ export const psychometricService = {
     return { ...attempt, test };
   },
 
+  async activeAttempt(userId: string, attemptId: string) {
+    const attempt = await prisma.psychometricAttempt.findFirst({
+      where: { id: attemptId, userId },
+      include: { test: { include: includeQuestions } }
+    });
+    if (!attempt) throw new Error("Psychometric attempt not found");
+    if (attempt.completedAt) throw new Error("Assessment already submitted. Open the result report instead.");
+    if (isAttemptExpired(attempt)) throw new Error("Assessment attempt expired. Please start a fresh attempt.");
+    return { ...attempt, test: { ...attempt.test, access: accessForTest(attempt.test.id, attempt.test.access) } };
+  },
+
   async submit(userId: string, attemptId: string, answers: SubmitAnswer[]) {
     const attempt = await prisma.psychometricAttempt.findFirst({
       where: { id: attemptId, userId },

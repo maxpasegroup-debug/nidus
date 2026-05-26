@@ -48,6 +48,7 @@ psychometricRouter.post(
   [body("testId").notEmpty().withMessage("Test id is required")],
   psychometricController.start
 );
+psychometricRouter.get("/attempts/:attemptId", protect, allowRoles(Role.STUDENT, Role.GUEST, Role.ADMIN), psychometricController.activeAttempt);
 psychometricRouter.post(
   "/submit",
   protect,
