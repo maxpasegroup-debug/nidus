@@ -562,6 +562,11 @@ export type QueueJobLog = Prisma.QueueJobLogModel
  */
 export type AIRequestLog = Prisma.AIRequestLogModel
 /**
+ * Model SalesBoosterCampaign
+ * 
+ */
+export type SalesBoosterCampaign = Prisma.SalesBoosterCampaignModel
+/**
  * Model Branch
  * 
  */

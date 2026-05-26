@@ -155,6 +155,7 @@ export const ModelName = {
   AuditLog: 'AuditLog',
   QueueJobLog: 'QueueJobLog',
   AIRequestLog: 'AIRequestLog',
+  SalesBoosterCampaign: 'SalesBoosterCampaign',
   Branch: 'Branch',
   Institute: 'Institute'
 } as const
@@ -1715,6 +1716,30 @@ export const AIRequestLogScalarFieldEnum = {
 } as const
 
 export type AIRequestLogScalarFieldEnum = (typeof AIRequestLogScalarFieldEnum)[keyof typeof AIRequestLogScalarFieldEnum]
+
+
+export const SalesBoosterCampaignScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  track: 'track',
+  goal: 'goal',
+  creativeName: 'creativeName',
+  creativeType: 'creativeType',
+  channels: 'channels',
+  aiDraft: 'aiDraft',
+  approvalStatus: 'approvalStatus',
+  runStatus: 'runStatus',
+  reviewNote: 'reviewNote',
+  createdById: 'createdById',
+  approvedById: 'approvedById',
+  submittedAt: 'submittedAt',
+  approvedAt: 'approvedAt',
+  queuedAt: 'queuedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SalesBoosterCampaignScalarFieldEnum = (typeof SalesBoosterCampaignScalarFieldEnum)[keyof typeof SalesBoosterCampaignScalarFieldEnum]
 
 
 export const BranchScalarFieldEnum = {

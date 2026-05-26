@@ -396,6 +396,8 @@ export type UserWhereInput = {
   institute?: Prisma.XOR<Prisma.InstituteNullableScalarRelationFilter, Prisma.InstituteWhereInput> | null
   branch?: Prisma.XOR<Prisma.BranchNullableScalarRelationFilter, Prisma.BranchWhereInput> | null
   auditLogs?: Prisma.AuditLogListRelationFilter
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignListRelationFilter
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignListRelationFilter
   sessionTokens?: Prisma.SessionTokenListRelationFilter
   passwordResets?: Prisma.PasswordResetListRelationFilter
   parentInvitationsSent?: Prisma.ParentStudentInvitationListRelationFilter
@@ -482,6 +484,8 @@ export type UserOrderByWithRelationInput = {
   institute?: Prisma.InstituteOrderByWithRelationInput
   branch?: Prisma.BranchOrderByWithRelationInput
   auditLogs?: Prisma.AuditLogOrderByRelationAggregateInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignOrderByRelationAggregateInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignOrderByRelationAggregateInput
   sessionTokens?: Prisma.SessionTokenOrderByRelationAggregateInput
   passwordResets?: Prisma.PasswordResetOrderByRelationAggregateInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationOrderByRelationAggregateInput
@@ -571,6 +575,8 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   institute?: Prisma.XOR<Prisma.InstituteNullableScalarRelationFilter, Prisma.InstituteWhereInput> | null
   branch?: Prisma.XOR<Prisma.BranchNullableScalarRelationFilter, Prisma.BranchWhereInput> | null
   auditLogs?: Prisma.AuditLogListRelationFilter
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignListRelationFilter
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignListRelationFilter
   sessionTokens?: Prisma.SessionTokenListRelationFilter
   passwordResets?: Prisma.PasswordResetListRelationFilter
   parentInvitationsSent?: Prisma.ParentStudentInvitationListRelationFilter
@@ -711,6 +717,8 @@ export type UserCreateInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
@@ -795,6 +803,8 @@ export type UserUncheckedCreateInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
@@ -879,6 +889,8 @@ export type UserUpdateInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
@@ -963,6 +975,8 @@ export type UserUncheckedUpdateInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
@@ -2031,6 +2045,36 @@ export type UserUpdateOneWithoutAuditLogsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutAuditLogsInput, Prisma.UserUpdateWithoutAuditLogsInput>, Prisma.UserUncheckedUpdateWithoutAuditLogsInput>
 }
 
+export type UserCreateNestedOneWithoutSalesBoosterCampaignsCreatedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutSalesBoosterCampaignsCreatedInput, Prisma.UserUncheckedCreateWithoutSalesBoosterCampaignsCreatedInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSalesBoosterCampaignsCreatedInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserCreateNestedOneWithoutSalesBoosterCampaignsApprovedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutSalesBoosterCampaignsApprovedInput, Prisma.UserUncheckedCreateWithoutSalesBoosterCampaignsApprovedInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSalesBoosterCampaignsApprovedInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutSalesBoosterCampaignsCreatedNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutSalesBoosterCampaignsCreatedInput, Prisma.UserUncheckedCreateWithoutSalesBoosterCampaignsCreatedInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSalesBoosterCampaignsCreatedInput
+  upsert?: Prisma.UserUpsertWithoutSalesBoosterCampaignsCreatedInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutSalesBoosterCampaignsCreatedInput, Prisma.UserUpdateWithoutSalesBoosterCampaignsCreatedInput>, Prisma.UserUncheckedUpdateWithoutSalesBoosterCampaignsCreatedInput>
+}
+
+export type UserUpdateOneWithoutSalesBoosterCampaignsApprovedNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutSalesBoosterCampaignsApprovedInput, Prisma.UserUncheckedCreateWithoutSalesBoosterCampaignsApprovedInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSalesBoosterCampaignsApprovedInput
+  upsert?: Prisma.UserUpsertWithoutSalesBoosterCampaignsApprovedInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutSalesBoosterCampaignsApprovedInput, Prisma.UserUpdateWithoutSalesBoosterCampaignsApprovedInput>, Prisma.UserUncheckedUpdateWithoutSalesBoosterCampaignsApprovedInput>
+}
+
 export type UserCreateNestedManyWithoutBranchInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutBranchInput, Prisma.UserUncheckedCreateWithoutBranchInput> | Prisma.UserCreateWithoutBranchInput[] | Prisma.UserUncheckedCreateWithoutBranchInput[]
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutBranchInput | Prisma.UserCreateOrConnectWithoutBranchInput[]
@@ -2191,6 +2235,8 @@ export type UserCreateWithoutSessionTokensInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutApprovedByInput
   passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationCreateNestedManyWithoutStudentInput
@@ -2274,6 +2320,8 @@ export type UserUncheckedCreateWithoutSessionTokensInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutApprovedByInput
   passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutStudentInput
@@ -2373,6 +2421,8 @@ export type UserUpdateWithoutSessionTokensInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUpdateManyWithoutApprovedByNestedInput
   passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUpdateManyWithoutStudentNestedInput
@@ -2456,6 +2506,8 @@ export type UserUncheckedUpdateWithoutSessionTokensInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutApprovedByNestedInput
   passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutStudentNestedInput
@@ -2539,6 +2591,8 @@ export type UserCreateWithoutPasswordResetsInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationCreateNestedManyWithoutStudentInput
@@ -2622,6 +2676,8 @@ export type UserUncheckedCreateWithoutPasswordResetsInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutStudentInput
@@ -2721,6 +2777,8 @@ export type UserUpdateWithoutPasswordResetsInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUpdateManyWithoutStudentNestedInput
@@ -2804,6 +2862,8 @@ export type UserUncheckedUpdateWithoutPasswordResetsInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutStudentNestedInput
@@ -2887,6 +2947,8 @@ export type UserCreateWithoutParentInvitationsSentInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationCreateNestedManyWithoutStudentInput
@@ -2970,6 +3032,8 @@ export type UserUncheckedCreateWithoutParentInvitationsSentInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutStudentInput
@@ -3058,6 +3122,8 @@ export type UserCreateWithoutParentInvitationsReceivedInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
@@ -3141,6 +3207,8 @@ export type UserUncheckedCreateWithoutParentInvitationsReceivedInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
@@ -3240,6 +3308,8 @@ export type UserUpdateWithoutParentInvitationsSentInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUpdateManyWithoutStudentNestedInput
@@ -3323,6 +3393,8 @@ export type UserUncheckedUpdateWithoutParentInvitationsSentInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutStudentNestedInput
@@ -3417,6 +3489,8 @@ export type UserUpdateWithoutParentInvitationsReceivedInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
@@ -3500,6 +3574,8 @@ export type UserUncheckedUpdateWithoutParentInvitationsReceivedInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
@@ -3583,6 +3659,8 @@ export type UserCreateWithoutParentLinksInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
@@ -3666,6 +3744,8 @@ export type UserUncheckedCreateWithoutParentLinksInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
@@ -3754,6 +3834,8 @@ export type UserCreateWithoutStudentLinksInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
@@ -3837,6 +3919,8 @@ export type UserUncheckedCreateWithoutStudentLinksInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
@@ -3936,6 +4020,8 @@ export type UserUpdateWithoutParentLinksInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
@@ -4019,6 +4105,8 @@ export type UserUncheckedUpdateWithoutParentLinksInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
@@ -4113,6 +4201,8 @@ export type UserUpdateWithoutStudentLinksInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
@@ -4196,6 +4286,8 @@ export type UserUncheckedUpdateWithoutStudentLinksInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
@@ -4278,6 +4370,8 @@ export type UserCreateWithoutEnrollmentsInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
@@ -4361,6 +4455,8 @@ export type UserUncheckedCreateWithoutEnrollmentsInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
@@ -4460,6 +4556,8 @@ export type UserUpdateWithoutEnrollmentsInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
@@ -4543,6 +4641,8 @@ export type UserUncheckedUpdateWithoutEnrollmentsInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
@@ -4626,6 +4726,8 @@ export type UserCreateWithoutTestAttemptsInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
@@ -4709,6 +4811,8 @@ export type UserUncheckedCreateWithoutTestAttemptsInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
@@ -4808,6 +4912,8 @@ export type UserUpdateWithoutTestAttemptsInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
@@ -4891,6 +4997,8 @@ export type UserUncheckedUpdateWithoutTestAttemptsInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
@@ -4974,6 +5082,8 @@ export type UserCreateWithoutPsychometricAttemptsInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
@@ -5057,6 +5167,8 @@ export type UserUncheckedCreateWithoutPsychometricAttemptsInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
@@ -5156,6 +5268,8 @@ export type UserUpdateWithoutPsychometricAttemptsInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
@@ -5239,6 +5353,8 @@ export type UserUncheckedUpdateWithoutPsychometricAttemptsInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
@@ -5322,6 +5438,8 @@ export type UserCreateWithoutOlqScoreInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
@@ -5405,6 +5523,8 @@ export type UserUncheckedCreateWithoutOlqScoreInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
@@ -5504,6 +5624,8 @@ export type UserUpdateWithoutOlqScoreInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
@@ -5587,6 +5709,8 @@ export type UserUncheckedUpdateWithoutOlqScoreInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
@@ -5670,6 +5794,8 @@ export type UserCreateWithoutStudyPlansInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
@@ -5753,6 +5879,8 @@ export type UserUncheckedCreateWithoutStudyPlansInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
@@ -5852,6 +5980,8 @@ export type UserUpdateWithoutStudyPlansInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
@@ -5935,6 +6065,8 @@ export type UserUncheckedUpdateWithoutStudyPlansInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
@@ -6018,6 +6150,8 @@ export type UserCreateWithoutPerformanceAnalyticsInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
@@ -6101,6 +6235,8 @@ export type UserUncheckedCreateWithoutPerformanceAnalyticsInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
@@ -6200,6 +6336,8 @@ export type UserUpdateWithoutPerformanceAnalyticsInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
@@ -6283,6 +6421,8 @@ export type UserUncheckedUpdateWithoutPerformanceAnalyticsInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
@@ -6366,6 +6506,8 @@ export type UserCreateWithoutRevisionSchedulesInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
@@ -6449,6 +6591,8 @@ export type UserUncheckedCreateWithoutRevisionSchedulesInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
@@ -6548,6 +6692,8 @@ export type UserUpdateWithoutRevisionSchedulesInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
@@ -6631,6 +6777,8 @@ export type UserUncheckedUpdateWithoutRevisionSchedulesInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
@@ -6714,6 +6862,8 @@ export type UserCreateWithoutLectureProgressInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
@@ -6797,6 +6947,8 @@ export type UserUncheckedCreateWithoutLectureProgressInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
@@ -6896,6 +7048,8 @@ export type UserUpdateWithoutLectureProgressInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
@@ -6979,6 +7133,8 @@ export type UserUncheckedUpdateWithoutLectureProgressInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
@@ -7062,6 +7218,8 @@ export type UserCreateWithoutAttendanceRecordsInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
@@ -7145,6 +7303,8 @@ export type UserUncheckedCreateWithoutAttendanceRecordsInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
@@ -7233,6 +7393,8 @@ export type UserCreateWithoutMarkedAttendanceInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
@@ -7316,6 +7478,8 @@ export type UserUncheckedCreateWithoutMarkedAttendanceInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
@@ -7415,6 +7579,8 @@ export type UserUpdateWithoutAttendanceRecordsInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
@@ -7498,6 +7664,8 @@ export type UserUncheckedUpdateWithoutAttendanceRecordsInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
@@ -7592,6 +7760,8 @@ export type UserUpdateWithoutMarkedAttendanceInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
@@ -7675,6 +7845,8 @@ export type UserUncheckedUpdateWithoutMarkedAttendanceInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
@@ -7758,6 +7930,8 @@ export type UserCreateWithoutFacultyProfileInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
@@ -7841,6 +8015,8 @@ export type UserUncheckedCreateWithoutFacultyProfileInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
@@ -7940,6 +8116,8 @@ export type UserUpdateWithoutFacultyProfileInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
@@ -8023,6 +8201,8 @@ export type UserUncheckedUpdateWithoutFacultyProfileInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
@@ -8106,6 +8286,8 @@ export type UserCreateWithoutCommunicationAnnouncementsInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
@@ -8189,6 +8371,8 @@ export type UserUncheckedCreateWithoutCommunicationAnnouncementsInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
@@ -8288,6 +8472,8 @@ export type UserUpdateWithoutCommunicationAnnouncementsInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
@@ -8371,6 +8557,8 @@ export type UserUncheckedUpdateWithoutCommunicationAnnouncementsInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
@@ -8454,6 +8642,8 @@ export type UserCreateWithoutHostelAllocationsInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
@@ -8537,6 +8727,8 @@ export type UserUncheckedCreateWithoutHostelAllocationsInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
@@ -8636,6 +8828,8 @@ export type UserUpdateWithoutHostelAllocationsInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
@@ -8719,6 +8913,8 @@ export type UserUncheckedUpdateWithoutHostelAllocationsInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
@@ -8802,6 +8998,8 @@ export type UserCreateWithoutInOutEntriesInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
@@ -8885,6 +9083,8 @@ export type UserUncheckedCreateWithoutInOutEntriesInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
@@ -8984,6 +9184,8 @@ export type UserUpdateWithoutInOutEntriesInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
@@ -9067,6 +9269,8 @@ export type UserUncheckedUpdateWithoutInOutEntriesInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
@@ -9150,6 +9354,8 @@ export type UserCreateWithoutHostelLeavesInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
@@ -9233,6 +9439,8 @@ export type UserUncheckedCreateWithoutHostelLeavesInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
@@ -9321,6 +9529,8 @@ export type UserCreateWithoutApprovedHostelLeavesInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
@@ -9404,6 +9614,8 @@ export type UserUncheckedCreateWithoutApprovedHostelLeavesInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
@@ -9503,6 +9715,8 @@ export type UserUpdateWithoutHostelLeavesInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
@@ -9586,6 +9800,8 @@ export type UserUncheckedUpdateWithoutHostelLeavesInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
@@ -9680,6 +9896,8 @@ export type UserUpdateWithoutApprovedHostelLeavesInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
@@ -9763,6 +9981,8 @@ export type UserUncheckedUpdateWithoutApprovedHostelLeavesInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
@@ -9846,6 +10066,8 @@ export type UserCreateWithoutDisciplineRecordsInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
@@ -9929,6 +10151,8 @@ export type UserUncheckedCreateWithoutDisciplineRecordsInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
@@ -10017,6 +10241,8 @@ export type UserCreateWithoutRecordedDisciplineInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
@@ -10100,6 +10326,8 @@ export type UserUncheckedCreateWithoutRecordedDisciplineInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
@@ -10199,6 +10427,8 @@ export type UserUpdateWithoutDisciplineRecordsInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
@@ -10282,6 +10512,8 @@ export type UserUncheckedUpdateWithoutDisciplineRecordsInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
@@ -10376,6 +10608,8 @@ export type UserUpdateWithoutRecordedDisciplineInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
@@ -10459,6 +10693,8 @@ export type UserUncheckedUpdateWithoutRecordedDisciplineInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
@@ -10542,6 +10778,8 @@ export type UserCreateWithoutParadePerformancesInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
@@ -10625,6 +10863,8 @@ export type UserUncheckedCreateWithoutParadePerformancesInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
@@ -10724,6 +10964,8 @@ export type UserUpdateWithoutParadePerformancesInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
@@ -10807,6 +11049,8 @@ export type UserUncheckedUpdateWithoutParadePerformancesInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
@@ -10890,6 +11134,8 @@ export type UserCreateWithoutAssignedLeadsInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
@@ -10973,6 +11219,8 @@ export type UserUncheckedCreateWithoutAssignedLeadsInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
@@ -11072,6 +11320,8 @@ export type UserUpdateWithoutAssignedLeadsInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
@@ -11155,6 +11405,8 @@ export type UserUncheckedUpdateWithoutAssignedLeadsInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
@@ -11238,6 +11490,8 @@ export type UserCreateWithoutFollowUpsCreatedInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
@@ -11321,6 +11575,8 @@ export type UserUncheckedCreateWithoutFollowUpsCreatedInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
@@ -11420,6 +11676,8 @@ export type UserUpdateWithoutFollowUpsCreatedInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
@@ -11503,6 +11761,8 @@ export type UserUncheckedUpdateWithoutFollowUpsCreatedInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
@@ -11586,6 +11846,8 @@ export type UserCreateWithoutAdmissionsInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
@@ -11669,6 +11931,8 @@ export type UserUncheckedCreateWithoutAdmissionsInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
@@ -11768,6 +12032,8 @@ export type UserUpdateWithoutAdmissionsInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
@@ -11851,6 +12117,8 @@ export type UserUncheckedUpdateWithoutAdmissionsInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
@@ -11934,6 +12202,8 @@ export type UserCreateWithoutReferralsMadeInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
@@ -12017,6 +12287,8 @@ export type UserUncheckedCreateWithoutReferralsMadeInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
@@ -12105,6 +12377,8 @@ export type UserCreateWithoutReferralsReceivedInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
@@ -12188,6 +12462,8 @@ export type UserUncheckedCreateWithoutReferralsReceivedInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
@@ -12287,6 +12563,8 @@ export type UserUpdateWithoutReferralsMadeInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
@@ -12370,6 +12648,8 @@ export type UserUncheckedUpdateWithoutReferralsMadeInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
@@ -12464,6 +12744,8 @@ export type UserUpdateWithoutReferralsReceivedInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
@@ -12547,6 +12829,8 @@ export type UserUncheckedUpdateWithoutReferralsReceivedInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
@@ -12630,6 +12914,8 @@ export type UserCreateWithoutPaymentsInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
@@ -12713,6 +12999,8 @@ export type UserUncheckedCreateWithoutPaymentsInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
@@ -12801,6 +13089,8 @@ export type UserCreateWithoutCollectedPaymentsInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
@@ -12884,6 +13174,8 @@ export type UserUncheckedCreateWithoutCollectedPaymentsInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
@@ -12972,6 +13264,8 @@ export type UserCreateWithoutVerifiedPaymentsInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
@@ -13055,6 +13349,8 @@ export type UserUncheckedCreateWithoutVerifiedPaymentsInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
@@ -13154,6 +13450,8 @@ export type UserUpdateWithoutPaymentsInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
@@ -13237,6 +13535,8 @@ export type UserUncheckedUpdateWithoutPaymentsInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
@@ -13331,6 +13631,8 @@ export type UserUpdateWithoutCollectedPaymentsInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
@@ -13414,6 +13716,8 @@ export type UserUncheckedUpdateWithoutCollectedPaymentsInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
@@ -13508,6 +13812,8 @@ export type UserUpdateWithoutVerifiedPaymentsInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
@@ -13591,6 +13897,8 @@ export type UserUncheckedUpdateWithoutVerifiedPaymentsInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
@@ -13674,6 +13982,8 @@ export type UserCreateWithoutSubscriptionsInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
@@ -13757,6 +14067,8 @@ export type UserUncheckedCreateWithoutSubscriptionsInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
@@ -13856,6 +14168,8 @@ export type UserUpdateWithoutSubscriptionsInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
@@ -13939,6 +14253,8 @@ export type UserUncheckedUpdateWithoutSubscriptionsInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
@@ -14022,6 +14338,8 @@ export type UserCreateWithoutFeeInstallmentsInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
@@ -14105,6 +14423,8 @@ export type UserUncheckedCreateWithoutFeeInstallmentsInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
@@ -14204,6 +14524,8 @@ export type UserUpdateWithoutFeeInstallmentsInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
@@ -14287,6 +14609,8 @@ export type UserUncheckedUpdateWithoutFeeInstallmentsInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
@@ -14370,6 +14694,8 @@ export type UserCreateWithoutInvoicesInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
@@ -14453,6 +14779,8 @@ export type UserUncheckedCreateWithoutInvoicesInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
@@ -14552,6 +14880,8 @@ export type UserUpdateWithoutInvoicesInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
@@ -14635,6 +14965,8 @@ export type UserUncheckedUpdateWithoutInvoicesInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
@@ -14718,6 +15050,8 @@ export type UserCreateWithoutApprovalRequestsCreatedInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
@@ -14801,6 +15135,8 @@ export type UserUncheckedCreateWithoutApprovalRequestsCreatedInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
@@ -14889,6 +15225,8 @@ export type UserCreateWithoutApprovalRequestsReviewedInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
@@ -14972,6 +15310,8 @@ export type UserUncheckedCreateWithoutApprovalRequestsReviewedInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
@@ -15071,6 +15411,8 @@ export type UserUpdateWithoutApprovalRequestsCreatedInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
@@ -15154,6 +15496,8 @@ export type UserUncheckedUpdateWithoutApprovalRequestsCreatedInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
@@ -15248,6 +15592,8 @@ export type UserUpdateWithoutApprovalRequestsReviewedInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
@@ -15331,6 +15677,8 @@ export type UserUncheckedUpdateWithoutApprovalRequestsReviewedInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
@@ -15414,6 +15762,8 @@ export type UserCreateWithoutScholarshipsInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
@@ -15497,6 +15847,8 @@ export type UserUncheckedCreateWithoutScholarshipsInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
@@ -15585,6 +15937,8 @@ export type UserCreateWithoutScholarshipReviewActionsInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
@@ -15668,6 +16022,8 @@ export type UserUncheckedCreateWithoutScholarshipReviewActionsInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
@@ -15767,6 +16123,8 @@ export type UserUpdateWithoutScholarshipsInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
@@ -15850,6 +16208,8 @@ export type UserUncheckedUpdateWithoutScholarshipsInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
@@ -15944,6 +16304,8 @@ export type UserUpdateWithoutScholarshipReviewActionsInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
@@ -16027,6 +16389,8 @@ export type UserUncheckedUpdateWithoutScholarshipReviewActionsInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
@@ -16110,6 +16474,8 @@ export type UserCreateWithoutNotificationsInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
@@ -16193,6 +16559,8 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
@@ -16292,6 +16660,8 @@ export type UserUpdateWithoutNotificationsInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
@@ -16375,6 +16745,8 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
@@ -16458,6 +16830,8 @@ export type UserCreateWithoutMessageThreadsInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
@@ -16541,6 +16915,8 @@ export type UserUncheckedCreateWithoutMessageThreadsInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
@@ -16640,6 +17016,8 @@ export type UserUpdateWithoutMessageThreadsInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
@@ -16723,6 +17101,8 @@ export type UserUncheckedUpdateWithoutMessageThreadsInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
@@ -16806,6 +17186,8 @@ export type UserCreateWithoutSentMessagesInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
@@ -16889,6 +17271,8 @@ export type UserUncheckedCreateWithoutSentMessagesInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
@@ -16977,6 +17361,8 @@ export type UserCreateWithoutReceivedMessagesInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
@@ -17060,6 +17446,8 @@ export type UserUncheckedCreateWithoutReceivedMessagesInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
@@ -17159,6 +17547,8 @@ export type UserUpdateWithoutSentMessagesInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
@@ -17242,6 +17632,8 @@ export type UserUncheckedUpdateWithoutSentMessagesInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
@@ -17336,6 +17728,8 @@ export type UserUpdateWithoutReceivedMessagesInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
@@ -17419,6 +17813,8 @@ export type UserUncheckedUpdateWithoutReceivedMessagesInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
@@ -17502,6 +17898,8 @@ export type UserCreateWithoutAiInterviewSessionsInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
@@ -17585,6 +17983,8 @@ export type UserUncheckedCreateWithoutAiInterviewSessionsInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
@@ -17684,6 +18084,8 @@ export type UserUpdateWithoutAiInterviewSessionsInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
@@ -17767,6 +18169,8 @@ export type UserUncheckedUpdateWithoutAiInterviewSessionsInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
@@ -17850,6 +18254,8 @@ export type UserCreateWithoutDoubtQueriesInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
@@ -17933,6 +18339,8 @@ export type UserUncheckedCreateWithoutDoubtQueriesInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
@@ -18032,6 +18440,8 @@ export type UserUpdateWithoutDoubtQueriesInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
@@ -18115,6 +18525,8 @@ export type UserUncheckedUpdateWithoutDoubtQueriesInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
@@ -18198,6 +18610,8 @@ export type UserCreateWithoutAiRecommendationsInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
@@ -18281,6 +18695,8 @@ export type UserUncheckedCreateWithoutAiRecommendationsInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
@@ -18380,6 +18796,8 @@ export type UserUpdateWithoutAiRecommendationsInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
@@ -18463,6 +18881,8 @@ export type UserUncheckedUpdateWithoutAiRecommendationsInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
@@ -18546,6 +18966,8 @@ export type UserCreateWithoutOfficerPotentialInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
@@ -18629,6 +19051,8 @@ export type UserUncheckedCreateWithoutOfficerPotentialInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
@@ -18728,6 +19152,8 @@ export type UserUpdateWithoutOfficerPotentialInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
@@ -18811,6 +19237,8 @@ export type UserUncheckedUpdateWithoutOfficerPotentialInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
@@ -18894,6 +19322,8 @@ export type UserCreateWithoutFitnessProfileInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
@@ -18977,6 +19407,8 @@ export type UserUncheckedCreateWithoutFitnessProfileInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
@@ -19076,6 +19508,8 @@ export type UserUpdateWithoutFitnessProfileInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
@@ -19159,6 +19593,8 @@ export type UserUncheckedUpdateWithoutFitnessProfileInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
@@ -19242,6 +19678,8 @@ export type UserCreateWithoutPtAttendancesInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
@@ -19325,6 +19763,8 @@ export type UserUncheckedCreateWithoutPtAttendancesInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
@@ -19424,6 +19864,8 @@ export type UserUpdateWithoutPtAttendancesInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
@@ -19507,6 +19949,8 @@ export type UserUncheckedUpdateWithoutPtAttendancesInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
@@ -19590,6 +20034,8 @@ export type UserCreateWithoutPhysicalEligibilitiesInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
@@ -19673,6 +20119,8 @@ export type UserUncheckedCreateWithoutPhysicalEligibilitiesInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
@@ -19772,6 +20220,8 @@ export type UserUpdateWithoutPhysicalEligibilitiesInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
@@ -19855,6 +20305,8 @@ export type UserUncheckedUpdateWithoutPhysicalEligibilitiesInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
@@ -19938,6 +20390,8 @@ export type UserCreateWithoutDailyFitnessLogsInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
@@ -20021,6 +20475,8 @@ export type UserUncheckedCreateWithoutDailyFitnessLogsInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
@@ -20120,6 +20576,8 @@ export type UserUpdateWithoutDailyFitnessLogsInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
@@ -20203,6 +20661,8 @@ export type UserUncheckedUpdateWithoutDailyFitnessLogsInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
@@ -20286,6 +20746,8 @@ export type UserCreateWithoutQuizBattleParticipantsInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
@@ -20369,6 +20831,8 @@ export type UserUncheckedCreateWithoutQuizBattleParticipantsInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
@@ -20468,6 +20932,8 @@ export type UserUpdateWithoutQuizBattleParticipantsInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
@@ -20551,6 +21017,8 @@ export type UserUncheckedUpdateWithoutQuizBattleParticipantsInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
@@ -20634,6 +21102,8 @@ export type UserCreateWithoutLeaderboardInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
@@ -20717,6 +21187,8 @@ export type UserUncheckedCreateWithoutLeaderboardInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
@@ -20816,6 +21288,8 @@ export type UserUpdateWithoutLeaderboardInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
@@ -20899,6 +21373,8 @@ export type UserUncheckedUpdateWithoutLeaderboardInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
@@ -20982,6 +21458,8 @@ export type UserCreateWithoutMediaFoldersInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
@@ -21065,6 +21543,8 @@ export type UserUncheckedCreateWithoutMediaFoldersInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
@@ -21164,6 +21644,8 @@ export type UserUpdateWithoutMediaFoldersInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
@@ -21247,6 +21729,8 @@ export type UserUncheckedUpdateWithoutMediaFoldersInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
@@ -21330,6 +21814,8 @@ export type UserCreateWithoutMediaFilesInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
@@ -21413,6 +21899,8 @@ export type UserUncheckedCreateWithoutMediaFilesInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
@@ -21512,6 +22000,8 @@ export type UserUpdateWithoutMediaFilesInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
@@ -21595,6 +22085,8 @@ export type UserUncheckedUpdateWithoutMediaFilesInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
@@ -21678,6 +22170,8 @@ export type UserCreateWithoutDocumentsInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
@@ -21761,6 +22255,8 @@ export type UserUncheckedCreateWithoutDocumentsInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
@@ -21860,6 +22356,8 @@ export type UserUpdateWithoutDocumentsInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
@@ -21943,6 +22441,8 @@ export type UserUncheckedUpdateWithoutDocumentsInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
@@ -22026,6 +22526,8 @@ export type UserCreateWithoutAdminRolesInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
@@ -22109,6 +22611,8 @@ export type UserUncheckedCreateWithoutAdminRolesInput = {
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
@@ -22208,6 +22712,8 @@ export type UserUpdateWithoutAdminRolesInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
@@ -22291,6 +22797,8 @@ export type UserUncheckedUpdateWithoutAdminRolesInput = {
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
@@ -22374,6 +22882,8 @@ export type UserCreateWithoutRoleActivitiesInput = {
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
@@ -22457,6 +22967,8 @@ export type UserUncheckedCreateWithoutRoleActivitiesInput = {
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
@@ -22556,6 +23068,8 @@ export type UserUpdateWithoutRoleActivitiesInput = {
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
@@ -22639,6 +23153,8 @@ export type UserUncheckedUpdateWithoutRoleActivitiesInput = {
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
@@ -22722,6 +23238,8 @@ export type UserCreateWithoutAuditLogsInput = {
   roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutUserInput
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
@@ -22805,6 +23323,8 @@ export type UserUncheckedCreateWithoutAuditLogsInput = {
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
@@ -22904,6 +23424,8 @@ export type UserUpdateWithoutAuditLogsInput = {
   roleActivities?: Prisma.RoleActivityUpdateManyWithoutUserNestedInput
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
@@ -22987,6 +23509,720 @@ export type UserUncheckedUpdateWithoutAuditLogsInput = {
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutApprovedByNestedInput
+  sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
+  parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
+  parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutStudentNestedInput
+  parentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutParentNestedInput
+  studentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutStudentNestedInput
+}
+
+export type UserCreateWithoutSalesBoosterCampaignsCreatedInput = {
+  id?: string
+  name: string
+  email: string
+  mobile: string
+  password: string
+  role?: $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
+  emailVerified?: boolean
+  mobileVerified?: boolean
+  isDisabled?: boolean
+  disabledAt?: Date | string | null
+  loginFailureCount?: number
+  lockedUntil?: Date | string | null
+  lastLoginAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
+  testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
+  psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
+  olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
+  studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
+  performanceAnalytics?: Prisma.PerformanceAnalyticsCreateNestedOneWithoutUserInput
+  revisionSchedules?: Prisma.RevisionScheduleCreateNestedManyWithoutUserInput
+  lectureProgress?: Prisma.LectureProgressCreateNestedManyWithoutUserInput
+  attendanceRecords?: Prisma.AttendanceCreateNestedManyWithoutUserInput
+  markedAttendance?: Prisma.AttendanceCreateNestedManyWithoutMarkerInput
+  facultyProfile?: Prisma.FacultyCreateNestedOneWithoutUserInput
+  hostelAllocations?: Prisma.HostelAllocationCreateNestedManyWithoutStudentInput
+  inOutEntries?: Prisma.InOutEntryCreateNestedManyWithoutStudentInput
+  hostelLeaves?: Prisma.HostelLeaveCreateNestedManyWithoutStudentInput
+  approvedHostelLeaves?: Prisma.HostelLeaveCreateNestedManyWithoutApproverInput
+  disciplineRecords?: Prisma.DisciplineRecordCreateNestedManyWithoutStudentInput
+  recordedDiscipline?: Prisma.DisciplineRecordCreateNestedManyWithoutRecorderInput
+  paradePerformances?: Prisma.ParadePerformanceCreateNestedManyWithoutStudentInput
+  assignedLeads?: Prisma.LeadCreateNestedManyWithoutAssigneeInput
+  followUpsCreated?: Prisma.FollowUpCreateNestedManyWithoutCreatorInput
+  admissions?: Prisma.AdmissionCreateNestedManyWithoutStudentInput
+  referralsMade?: Prisma.ReferralCreateNestedManyWithoutReferrerInput
+  referralsReceived?: Prisma.ReferralCreateNestedManyWithoutReferredInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutUserInput
+  collectedPayments?: Prisma.PaymentCreateNestedManyWithoutCollectorInput
+  verifiedPayments?: Prisma.PaymentCreateNestedManyWithoutVerifierInput
+  subscriptions?: Prisma.SubscriptionCreateNestedManyWithoutUserInput
+  feeInstallments?: Prisma.FeeInstallmentCreateNestedManyWithoutStudentInput
+  invoices?: Prisma.InvoiceCreateNestedManyWithoutStudentInput
+  approvalRequestsCreated?: Prisma.ApprovalRequestCreateNestedManyWithoutRequesterInput
+  approvalRequestsReviewed?: Prisma.ApprovalRequestCreateNestedManyWithoutReviewerInput
+  scholarships?: Prisma.ScholarshipDiscountCreateNestedManyWithoutStudentInput
+  scholarshipReviewActions?: Prisma.ScholarshipDiscountCreateNestedManyWithoutApproverInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  messageThreads?: Prisma.MessageThreadCreateNestedManyWithoutCreatorInput
+  sentMessages?: Prisma.MessageCreateNestedManyWithoutSenderInput
+  receivedMessages?: Prisma.MessageCreateNestedManyWithoutReceiverInput
+  communicationAnnouncements?: Prisma.AnnouncementCreateNestedManyWithoutCreatorInput
+  aiInterviewSessions?: Prisma.AIInterviewSessionCreateNestedManyWithoutUserInput
+  doubtQueries?: Prisma.DoubtQueryCreateNestedManyWithoutUserInput
+  aiRecommendations?: Prisma.AIRecommendationCreateNestedManyWithoutUserInput
+  officerPotential?: Prisma.OfficerPotentialCreateNestedOneWithoutUserInput
+  fitnessProfile?: Prisma.FitnessProfileCreateNestedOneWithoutUserInput
+  ptAttendances?: Prisma.PTAttendanceCreateNestedManyWithoutStudentInput
+  physicalEligibilities?: Prisma.PhysicalEligibilityCreateNestedManyWithoutUserInput
+  dailyFitnessLogs?: Prisma.DailyFitnessLogCreateNestedManyWithoutUserInput
+  quizBattleParticipants?: Prisma.QuizBattleParticipantCreateNestedManyWithoutUserInput
+  leaderboard?: Prisma.LeaderboardCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutUserInput
+  institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
+  branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutApprovedByInput
+  sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
+  parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
+  parentInvitationsReceived?: Prisma.ParentStudentInvitationCreateNestedManyWithoutStudentInput
+  parentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutParentInput
+  studentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutStudentInput
+}
+
+export type UserUncheckedCreateWithoutSalesBoosterCampaignsCreatedInput = {
+  id?: string
+  name: string
+  email: string
+  mobile: string
+  password: string
+  role?: $Enums.Role
+  instituteId?: string | null
+  branchId?: string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
+  emailVerified?: boolean
+  mobileVerified?: boolean
+  isDisabled?: boolean
+  disabledAt?: Date | string | null
+  loginFailureCount?: number
+  lockedUntil?: Date | string | null
+  lastLoginAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
+  testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
+  psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
+  olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
+  studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
+  performanceAnalytics?: Prisma.PerformanceAnalyticsUncheckedCreateNestedOneWithoutUserInput
+  revisionSchedules?: Prisma.RevisionScheduleUncheckedCreateNestedManyWithoutUserInput
+  lectureProgress?: Prisma.LectureProgressUncheckedCreateNestedManyWithoutUserInput
+  attendanceRecords?: Prisma.AttendanceUncheckedCreateNestedManyWithoutUserInput
+  markedAttendance?: Prisma.AttendanceUncheckedCreateNestedManyWithoutMarkerInput
+  facultyProfile?: Prisma.FacultyUncheckedCreateNestedOneWithoutUserInput
+  hostelAllocations?: Prisma.HostelAllocationUncheckedCreateNestedManyWithoutStudentInput
+  inOutEntries?: Prisma.InOutEntryUncheckedCreateNestedManyWithoutStudentInput
+  hostelLeaves?: Prisma.HostelLeaveUncheckedCreateNestedManyWithoutStudentInput
+  approvedHostelLeaves?: Prisma.HostelLeaveUncheckedCreateNestedManyWithoutApproverInput
+  disciplineRecords?: Prisma.DisciplineRecordUncheckedCreateNestedManyWithoutStudentInput
+  recordedDiscipline?: Prisma.DisciplineRecordUncheckedCreateNestedManyWithoutRecorderInput
+  paradePerformances?: Prisma.ParadePerformanceUncheckedCreateNestedManyWithoutStudentInput
+  assignedLeads?: Prisma.LeadUncheckedCreateNestedManyWithoutAssigneeInput
+  followUpsCreated?: Prisma.FollowUpUncheckedCreateNestedManyWithoutCreatorInput
+  admissions?: Prisma.AdmissionUncheckedCreateNestedManyWithoutStudentInput
+  referralsMade?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferrerInput
+  referralsReceived?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferredInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutUserInput
+  collectedPayments?: Prisma.PaymentUncheckedCreateNestedManyWithoutCollectorInput
+  verifiedPayments?: Prisma.PaymentUncheckedCreateNestedManyWithoutVerifierInput
+  subscriptions?: Prisma.SubscriptionUncheckedCreateNestedManyWithoutUserInput
+  feeInstallments?: Prisma.FeeInstallmentUncheckedCreateNestedManyWithoutStudentInput
+  invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutStudentInput
+  approvalRequestsCreated?: Prisma.ApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
+  approvalRequestsReviewed?: Prisma.ApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
+  scholarships?: Prisma.ScholarshipDiscountUncheckedCreateNestedManyWithoutStudentInput
+  scholarshipReviewActions?: Prisma.ScholarshipDiscountUncheckedCreateNestedManyWithoutApproverInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  messageThreads?: Prisma.MessageThreadUncheckedCreateNestedManyWithoutCreatorInput
+  sentMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutSenderInput
+  receivedMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutReceiverInput
+  communicationAnnouncements?: Prisma.AnnouncementUncheckedCreateNestedManyWithoutCreatorInput
+  aiInterviewSessions?: Prisma.AIInterviewSessionUncheckedCreateNestedManyWithoutUserInput
+  doubtQueries?: Prisma.DoubtQueryUncheckedCreateNestedManyWithoutUserInput
+  aiRecommendations?: Prisma.AIRecommendationUncheckedCreateNestedManyWithoutUserInput
+  officerPotential?: Prisma.OfficerPotentialUncheckedCreateNestedOneWithoutUserInput
+  fitnessProfile?: Prisma.FitnessProfileUncheckedCreateNestedOneWithoutUserInput
+  ptAttendances?: Prisma.PTAttendanceUncheckedCreateNestedManyWithoutStudentInput
+  physicalEligibilities?: Prisma.PhysicalEligibilityUncheckedCreateNestedManyWithoutUserInput
+  dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedCreateNestedManyWithoutUserInput
+  quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedCreateNestedManyWithoutUserInput
+  leaderboard?: Prisma.LeaderboardUncheckedCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutApprovedByInput
+  sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
+  parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
+  parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutStudentInput
+  parentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutParentInput
+  studentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutStudentInput
+}
+
+export type UserCreateOrConnectWithoutSalesBoosterCampaignsCreatedInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutSalesBoosterCampaignsCreatedInput, Prisma.UserUncheckedCreateWithoutSalesBoosterCampaignsCreatedInput>
+}
+
+export type UserCreateWithoutSalesBoosterCampaignsApprovedInput = {
+  id?: string
+  name: string
+  email: string
+  mobile: string
+  password: string
+  role?: $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
+  emailVerified?: boolean
+  mobileVerified?: boolean
+  isDisabled?: boolean
+  disabledAt?: Date | string | null
+  loginFailureCount?: number
+  lockedUntil?: Date | string | null
+  lastLoginAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
+  testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
+  psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
+  olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
+  studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
+  performanceAnalytics?: Prisma.PerformanceAnalyticsCreateNestedOneWithoutUserInput
+  revisionSchedules?: Prisma.RevisionScheduleCreateNestedManyWithoutUserInput
+  lectureProgress?: Prisma.LectureProgressCreateNestedManyWithoutUserInput
+  attendanceRecords?: Prisma.AttendanceCreateNestedManyWithoutUserInput
+  markedAttendance?: Prisma.AttendanceCreateNestedManyWithoutMarkerInput
+  facultyProfile?: Prisma.FacultyCreateNestedOneWithoutUserInput
+  hostelAllocations?: Prisma.HostelAllocationCreateNestedManyWithoutStudentInput
+  inOutEntries?: Prisma.InOutEntryCreateNestedManyWithoutStudentInput
+  hostelLeaves?: Prisma.HostelLeaveCreateNestedManyWithoutStudentInput
+  approvedHostelLeaves?: Prisma.HostelLeaveCreateNestedManyWithoutApproverInput
+  disciplineRecords?: Prisma.DisciplineRecordCreateNestedManyWithoutStudentInput
+  recordedDiscipline?: Prisma.DisciplineRecordCreateNestedManyWithoutRecorderInput
+  paradePerformances?: Prisma.ParadePerformanceCreateNestedManyWithoutStudentInput
+  assignedLeads?: Prisma.LeadCreateNestedManyWithoutAssigneeInput
+  followUpsCreated?: Prisma.FollowUpCreateNestedManyWithoutCreatorInput
+  admissions?: Prisma.AdmissionCreateNestedManyWithoutStudentInput
+  referralsMade?: Prisma.ReferralCreateNestedManyWithoutReferrerInput
+  referralsReceived?: Prisma.ReferralCreateNestedManyWithoutReferredInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutUserInput
+  collectedPayments?: Prisma.PaymentCreateNestedManyWithoutCollectorInput
+  verifiedPayments?: Prisma.PaymentCreateNestedManyWithoutVerifierInput
+  subscriptions?: Prisma.SubscriptionCreateNestedManyWithoutUserInput
+  feeInstallments?: Prisma.FeeInstallmentCreateNestedManyWithoutStudentInput
+  invoices?: Prisma.InvoiceCreateNestedManyWithoutStudentInput
+  approvalRequestsCreated?: Prisma.ApprovalRequestCreateNestedManyWithoutRequesterInput
+  approvalRequestsReviewed?: Prisma.ApprovalRequestCreateNestedManyWithoutReviewerInput
+  scholarships?: Prisma.ScholarshipDiscountCreateNestedManyWithoutStudentInput
+  scholarshipReviewActions?: Prisma.ScholarshipDiscountCreateNestedManyWithoutApproverInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  messageThreads?: Prisma.MessageThreadCreateNestedManyWithoutCreatorInput
+  sentMessages?: Prisma.MessageCreateNestedManyWithoutSenderInput
+  receivedMessages?: Prisma.MessageCreateNestedManyWithoutReceiverInput
+  communicationAnnouncements?: Prisma.AnnouncementCreateNestedManyWithoutCreatorInput
+  aiInterviewSessions?: Prisma.AIInterviewSessionCreateNestedManyWithoutUserInput
+  doubtQueries?: Prisma.DoubtQueryCreateNestedManyWithoutUserInput
+  aiRecommendations?: Prisma.AIRecommendationCreateNestedManyWithoutUserInput
+  officerPotential?: Prisma.OfficerPotentialCreateNestedOneWithoutUserInput
+  fitnessProfile?: Prisma.FitnessProfileCreateNestedOneWithoutUserInput
+  ptAttendances?: Prisma.PTAttendanceCreateNestedManyWithoutStudentInput
+  physicalEligibilities?: Prisma.PhysicalEligibilityCreateNestedManyWithoutUserInput
+  dailyFitnessLogs?: Prisma.DailyFitnessLogCreateNestedManyWithoutUserInput
+  quizBattleParticipants?: Prisma.QuizBattleParticipantCreateNestedManyWithoutUserInput
+  leaderboard?: Prisma.LeaderboardCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutUserInput
+  institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
+  branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutCreatedByInput
+  sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
+  parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
+  parentInvitationsReceived?: Prisma.ParentStudentInvitationCreateNestedManyWithoutStudentInput
+  parentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutParentInput
+  studentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutStudentInput
+}
+
+export type UserUncheckedCreateWithoutSalesBoosterCampaignsApprovedInput = {
+  id?: string
+  name: string
+  email: string
+  mobile: string
+  password: string
+  role?: $Enums.Role
+  instituteId?: string | null
+  branchId?: string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
+  emailVerified?: boolean
+  mobileVerified?: boolean
+  isDisabled?: boolean
+  disabledAt?: Date | string | null
+  loginFailureCount?: number
+  lockedUntil?: Date | string | null
+  lastLoginAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
+  testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
+  psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
+  olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
+  studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
+  performanceAnalytics?: Prisma.PerformanceAnalyticsUncheckedCreateNestedOneWithoutUserInput
+  revisionSchedules?: Prisma.RevisionScheduleUncheckedCreateNestedManyWithoutUserInput
+  lectureProgress?: Prisma.LectureProgressUncheckedCreateNestedManyWithoutUserInput
+  attendanceRecords?: Prisma.AttendanceUncheckedCreateNestedManyWithoutUserInput
+  markedAttendance?: Prisma.AttendanceUncheckedCreateNestedManyWithoutMarkerInput
+  facultyProfile?: Prisma.FacultyUncheckedCreateNestedOneWithoutUserInput
+  hostelAllocations?: Prisma.HostelAllocationUncheckedCreateNestedManyWithoutStudentInput
+  inOutEntries?: Prisma.InOutEntryUncheckedCreateNestedManyWithoutStudentInput
+  hostelLeaves?: Prisma.HostelLeaveUncheckedCreateNestedManyWithoutStudentInput
+  approvedHostelLeaves?: Prisma.HostelLeaveUncheckedCreateNestedManyWithoutApproverInput
+  disciplineRecords?: Prisma.DisciplineRecordUncheckedCreateNestedManyWithoutStudentInput
+  recordedDiscipline?: Prisma.DisciplineRecordUncheckedCreateNestedManyWithoutRecorderInput
+  paradePerformances?: Prisma.ParadePerformanceUncheckedCreateNestedManyWithoutStudentInput
+  assignedLeads?: Prisma.LeadUncheckedCreateNestedManyWithoutAssigneeInput
+  followUpsCreated?: Prisma.FollowUpUncheckedCreateNestedManyWithoutCreatorInput
+  admissions?: Prisma.AdmissionUncheckedCreateNestedManyWithoutStudentInput
+  referralsMade?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferrerInput
+  referralsReceived?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferredInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutUserInput
+  collectedPayments?: Prisma.PaymentUncheckedCreateNestedManyWithoutCollectorInput
+  verifiedPayments?: Prisma.PaymentUncheckedCreateNestedManyWithoutVerifierInput
+  subscriptions?: Prisma.SubscriptionUncheckedCreateNestedManyWithoutUserInput
+  feeInstallments?: Prisma.FeeInstallmentUncheckedCreateNestedManyWithoutStudentInput
+  invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutStudentInput
+  approvalRequestsCreated?: Prisma.ApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
+  approvalRequestsReviewed?: Prisma.ApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
+  scholarships?: Prisma.ScholarshipDiscountUncheckedCreateNestedManyWithoutStudentInput
+  scholarshipReviewActions?: Prisma.ScholarshipDiscountUncheckedCreateNestedManyWithoutApproverInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  messageThreads?: Prisma.MessageThreadUncheckedCreateNestedManyWithoutCreatorInput
+  sentMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutSenderInput
+  receivedMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutReceiverInput
+  communicationAnnouncements?: Prisma.AnnouncementUncheckedCreateNestedManyWithoutCreatorInput
+  aiInterviewSessions?: Prisma.AIInterviewSessionUncheckedCreateNestedManyWithoutUserInput
+  doubtQueries?: Prisma.DoubtQueryUncheckedCreateNestedManyWithoutUserInput
+  aiRecommendations?: Prisma.AIRecommendationUncheckedCreateNestedManyWithoutUserInput
+  officerPotential?: Prisma.OfficerPotentialUncheckedCreateNestedOneWithoutUserInput
+  fitnessProfile?: Prisma.FitnessProfileUncheckedCreateNestedOneWithoutUserInput
+  ptAttendances?: Prisma.PTAttendanceUncheckedCreateNestedManyWithoutStudentInput
+  physicalEligibilities?: Prisma.PhysicalEligibilityUncheckedCreateNestedManyWithoutUserInput
+  dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedCreateNestedManyWithoutUserInput
+  quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedCreateNestedManyWithoutUserInput
+  leaderboard?: Prisma.LeaderboardUncheckedCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutCreatedByInput
+  sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
+  parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
+  parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutStudentInput
+  parentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutParentInput
+  studentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutStudentInput
+}
+
+export type UserCreateOrConnectWithoutSalesBoosterCampaignsApprovedInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutSalesBoosterCampaignsApprovedInput, Prisma.UserUncheckedCreateWithoutSalesBoosterCampaignsApprovedInput>
+}
+
+export type UserUpsertWithoutSalesBoosterCampaignsCreatedInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutSalesBoosterCampaignsCreatedInput, Prisma.UserUncheckedUpdateWithoutSalesBoosterCampaignsCreatedInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutSalesBoosterCampaignsCreatedInput, Prisma.UserUncheckedCreateWithoutSalesBoosterCampaignsCreatedInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutSalesBoosterCampaignsCreatedInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutSalesBoosterCampaignsCreatedInput, Prisma.UserUncheckedUpdateWithoutSalesBoosterCampaignsCreatedInput>
+}
+
+export type UserUpdateWithoutSalesBoosterCampaignsCreatedInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  disabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
+  testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
+  psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
+  olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
+  studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
+  performanceAnalytics?: Prisma.PerformanceAnalyticsUpdateOneWithoutUserNestedInput
+  revisionSchedules?: Prisma.RevisionScheduleUpdateManyWithoutUserNestedInput
+  lectureProgress?: Prisma.LectureProgressUpdateManyWithoutUserNestedInput
+  attendanceRecords?: Prisma.AttendanceUpdateManyWithoutUserNestedInput
+  markedAttendance?: Prisma.AttendanceUpdateManyWithoutMarkerNestedInput
+  facultyProfile?: Prisma.FacultyUpdateOneWithoutUserNestedInput
+  hostelAllocations?: Prisma.HostelAllocationUpdateManyWithoutStudentNestedInput
+  inOutEntries?: Prisma.InOutEntryUpdateManyWithoutStudentNestedInput
+  hostelLeaves?: Prisma.HostelLeaveUpdateManyWithoutStudentNestedInput
+  approvedHostelLeaves?: Prisma.HostelLeaveUpdateManyWithoutApproverNestedInput
+  disciplineRecords?: Prisma.DisciplineRecordUpdateManyWithoutStudentNestedInput
+  recordedDiscipline?: Prisma.DisciplineRecordUpdateManyWithoutRecorderNestedInput
+  paradePerformances?: Prisma.ParadePerformanceUpdateManyWithoutStudentNestedInput
+  assignedLeads?: Prisma.LeadUpdateManyWithoutAssigneeNestedInput
+  followUpsCreated?: Prisma.FollowUpUpdateManyWithoutCreatorNestedInput
+  admissions?: Prisma.AdmissionUpdateManyWithoutStudentNestedInput
+  referralsMade?: Prisma.ReferralUpdateManyWithoutReferrerNestedInput
+  referralsReceived?: Prisma.ReferralUpdateManyWithoutReferredNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutUserNestedInput
+  collectedPayments?: Prisma.PaymentUpdateManyWithoutCollectorNestedInput
+  verifiedPayments?: Prisma.PaymentUpdateManyWithoutVerifierNestedInput
+  subscriptions?: Prisma.SubscriptionUpdateManyWithoutUserNestedInput
+  feeInstallments?: Prisma.FeeInstallmentUpdateManyWithoutStudentNestedInput
+  invoices?: Prisma.InvoiceUpdateManyWithoutStudentNestedInput
+  approvalRequestsCreated?: Prisma.ApprovalRequestUpdateManyWithoutRequesterNestedInput
+  approvalRequestsReviewed?: Prisma.ApprovalRequestUpdateManyWithoutReviewerNestedInput
+  scholarships?: Prisma.ScholarshipDiscountUpdateManyWithoutStudentNestedInput
+  scholarshipReviewActions?: Prisma.ScholarshipDiscountUpdateManyWithoutApproverNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  messageThreads?: Prisma.MessageThreadUpdateManyWithoutCreatorNestedInput
+  sentMessages?: Prisma.MessageUpdateManyWithoutSenderNestedInput
+  receivedMessages?: Prisma.MessageUpdateManyWithoutReceiverNestedInput
+  communicationAnnouncements?: Prisma.AnnouncementUpdateManyWithoutCreatorNestedInput
+  aiInterviewSessions?: Prisma.AIInterviewSessionUpdateManyWithoutUserNestedInput
+  doubtQueries?: Prisma.DoubtQueryUpdateManyWithoutUserNestedInput
+  aiRecommendations?: Prisma.AIRecommendationUpdateManyWithoutUserNestedInput
+  officerPotential?: Prisma.OfficerPotentialUpdateOneWithoutUserNestedInput
+  fitnessProfile?: Prisma.FitnessProfileUpdateOneWithoutUserNestedInput
+  ptAttendances?: Prisma.PTAttendanceUpdateManyWithoutStudentNestedInput
+  physicalEligibilities?: Prisma.PhysicalEligibilityUpdateManyWithoutUserNestedInput
+  dailyFitnessLogs?: Prisma.DailyFitnessLogUpdateManyWithoutUserNestedInput
+  quizBattleParticipants?: Prisma.QuizBattleParticipantUpdateManyWithoutUserNestedInput
+  leaderboard?: Prisma.LeaderboardUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUpdateManyWithoutUserNestedInput
+  institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
+  branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUpdateManyWithoutApprovedByNestedInput
+  sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
+  parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
+  parentInvitationsReceived?: Prisma.ParentStudentInvitationUpdateManyWithoutStudentNestedInput
+  parentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutParentNestedInput
+  studentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutStudentNestedInput
+}
+
+export type UserUncheckedUpdateWithoutSalesBoosterCampaignsCreatedInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  disabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
+  testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
+  psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
+  olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
+  studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
+  performanceAnalytics?: Prisma.PerformanceAnalyticsUncheckedUpdateOneWithoutUserNestedInput
+  revisionSchedules?: Prisma.RevisionScheduleUncheckedUpdateManyWithoutUserNestedInput
+  lectureProgress?: Prisma.LectureProgressUncheckedUpdateManyWithoutUserNestedInput
+  attendanceRecords?: Prisma.AttendanceUncheckedUpdateManyWithoutUserNestedInput
+  markedAttendance?: Prisma.AttendanceUncheckedUpdateManyWithoutMarkerNestedInput
+  facultyProfile?: Prisma.FacultyUncheckedUpdateOneWithoutUserNestedInput
+  hostelAllocations?: Prisma.HostelAllocationUncheckedUpdateManyWithoutStudentNestedInput
+  inOutEntries?: Prisma.InOutEntryUncheckedUpdateManyWithoutStudentNestedInput
+  hostelLeaves?: Prisma.HostelLeaveUncheckedUpdateManyWithoutStudentNestedInput
+  approvedHostelLeaves?: Prisma.HostelLeaveUncheckedUpdateManyWithoutApproverNestedInput
+  disciplineRecords?: Prisma.DisciplineRecordUncheckedUpdateManyWithoutStudentNestedInput
+  recordedDiscipline?: Prisma.DisciplineRecordUncheckedUpdateManyWithoutRecorderNestedInput
+  paradePerformances?: Prisma.ParadePerformanceUncheckedUpdateManyWithoutStudentNestedInput
+  assignedLeads?: Prisma.LeadUncheckedUpdateManyWithoutAssigneeNestedInput
+  followUpsCreated?: Prisma.FollowUpUncheckedUpdateManyWithoutCreatorNestedInput
+  admissions?: Prisma.AdmissionUncheckedUpdateManyWithoutStudentNestedInput
+  referralsMade?: Prisma.ReferralUncheckedUpdateManyWithoutReferrerNestedInput
+  referralsReceived?: Prisma.ReferralUncheckedUpdateManyWithoutReferredNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutUserNestedInput
+  collectedPayments?: Prisma.PaymentUncheckedUpdateManyWithoutCollectorNestedInput
+  verifiedPayments?: Prisma.PaymentUncheckedUpdateManyWithoutVerifierNestedInput
+  subscriptions?: Prisma.SubscriptionUncheckedUpdateManyWithoutUserNestedInput
+  feeInstallments?: Prisma.FeeInstallmentUncheckedUpdateManyWithoutStudentNestedInput
+  invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutStudentNestedInput
+  approvalRequestsCreated?: Prisma.ApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
+  approvalRequestsReviewed?: Prisma.ApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
+  scholarships?: Prisma.ScholarshipDiscountUncheckedUpdateManyWithoutStudentNestedInput
+  scholarshipReviewActions?: Prisma.ScholarshipDiscountUncheckedUpdateManyWithoutApproverNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  messageThreads?: Prisma.MessageThreadUncheckedUpdateManyWithoutCreatorNestedInput
+  sentMessages?: Prisma.MessageUncheckedUpdateManyWithoutSenderNestedInput
+  receivedMessages?: Prisma.MessageUncheckedUpdateManyWithoutReceiverNestedInput
+  communicationAnnouncements?: Prisma.AnnouncementUncheckedUpdateManyWithoutCreatorNestedInput
+  aiInterviewSessions?: Prisma.AIInterviewSessionUncheckedUpdateManyWithoutUserNestedInput
+  doubtQueries?: Prisma.DoubtQueryUncheckedUpdateManyWithoutUserNestedInput
+  aiRecommendations?: Prisma.AIRecommendationUncheckedUpdateManyWithoutUserNestedInput
+  officerPotential?: Prisma.OfficerPotentialUncheckedUpdateOneWithoutUserNestedInput
+  fitnessProfile?: Prisma.FitnessProfileUncheckedUpdateOneWithoutUserNestedInput
+  ptAttendances?: Prisma.PTAttendanceUncheckedUpdateManyWithoutStudentNestedInput
+  physicalEligibilities?: Prisma.PhysicalEligibilityUncheckedUpdateManyWithoutUserNestedInput
+  dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedUpdateManyWithoutUserNestedInput
+  quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedUpdateManyWithoutUserNestedInput
+  leaderboard?: Prisma.LeaderboardUncheckedUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutApprovedByNestedInput
+  sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
+  parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
+  parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutStudentNestedInput
+  parentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutParentNestedInput
+  studentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutStudentNestedInput
+}
+
+export type UserUpsertWithoutSalesBoosterCampaignsApprovedInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutSalesBoosterCampaignsApprovedInput, Prisma.UserUncheckedUpdateWithoutSalesBoosterCampaignsApprovedInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutSalesBoosterCampaignsApprovedInput, Prisma.UserUncheckedCreateWithoutSalesBoosterCampaignsApprovedInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutSalesBoosterCampaignsApprovedInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutSalesBoosterCampaignsApprovedInput, Prisma.UserUncheckedUpdateWithoutSalesBoosterCampaignsApprovedInput>
+}
+
+export type UserUpdateWithoutSalesBoosterCampaignsApprovedInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  disabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
+  testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
+  psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
+  olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
+  studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
+  performanceAnalytics?: Prisma.PerformanceAnalyticsUpdateOneWithoutUserNestedInput
+  revisionSchedules?: Prisma.RevisionScheduleUpdateManyWithoutUserNestedInput
+  lectureProgress?: Prisma.LectureProgressUpdateManyWithoutUserNestedInput
+  attendanceRecords?: Prisma.AttendanceUpdateManyWithoutUserNestedInput
+  markedAttendance?: Prisma.AttendanceUpdateManyWithoutMarkerNestedInput
+  facultyProfile?: Prisma.FacultyUpdateOneWithoutUserNestedInput
+  hostelAllocations?: Prisma.HostelAllocationUpdateManyWithoutStudentNestedInput
+  inOutEntries?: Prisma.InOutEntryUpdateManyWithoutStudentNestedInput
+  hostelLeaves?: Prisma.HostelLeaveUpdateManyWithoutStudentNestedInput
+  approvedHostelLeaves?: Prisma.HostelLeaveUpdateManyWithoutApproverNestedInput
+  disciplineRecords?: Prisma.DisciplineRecordUpdateManyWithoutStudentNestedInput
+  recordedDiscipline?: Prisma.DisciplineRecordUpdateManyWithoutRecorderNestedInput
+  paradePerformances?: Prisma.ParadePerformanceUpdateManyWithoutStudentNestedInput
+  assignedLeads?: Prisma.LeadUpdateManyWithoutAssigneeNestedInput
+  followUpsCreated?: Prisma.FollowUpUpdateManyWithoutCreatorNestedInput
+  admissions?: Prisma.AdmissionUpdateManyWithoutStudentNestedInput
+  referralsMade?: Prisma.ReferralUpdateManyWithoutReferrerNestedInput
+  referralsReceived?: Prisma.ReferralUpdateManyWithoutReferredNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutUserNestedInput
+  collectedPayments?: Prisma.PaymentUpdateManyWithoutCollectorNestedInput
+  verifiedPayments?: Prisma.PaymentUpdateManyWithoutVerifierNestedInput
+  subscriptions?: Prisma.SubscriptionUpdateManyWithoutUserNestedInput
+  feeInstallments?: Prisma.FeeInstallmentUpdateManyWithoutStudentNestedInput
+  invoices?: Prisma.InvoiceUpdateManyWithoutStudentNestedInput
+  approvalRequestsCreated?: Prisma.ApprovalRequestUpdateManyWithoutRequesterNestedInput
+  approvalRequestsReviewed?: Prisma.ApprovalRequestUpdateManyWithoutReviewerNestedInput
+  scholarships?: Prisma.ScholarshipDiscountUpdateManyWithoutStudentNestedInput
+  scholarshipReviewActions?: Prisma.ScholarshipDiscountUpdateManyWithoutApproverNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  messageThreads?: Prisma.MessageThreadUpdateManyWithoutCreatorNestedInput
+  sentMessages?: Prisma.MessageUpdateManyWithoutSenderNestedInput
+  receivedMessages?: Prisma.MessageUpdateManyWithoutReceiverNestedInput
+  communicationAnnouncements?: Prisma.AnnouncementUpdateManyWithoutCreatorNestedInput
+  aiInterviewSessions?: Prisma.AIInterviewSessionUpdateManyWithoutUserNestedInput
+  doubtQueries?: Prisma.DoubtQueryUpdateManyWithoutUserNestedInput
+  aiRecommendations?: Prisma.AIRecommendationUpdateManyWithoutUserNestedInput
+  officerPotential?: Prisma.OfficerPotentialUpdateOneWithoutUserNestedInput
+  fitnessProfile?: Prisma.FitnessProfileUpdateOneWithoutUserNestedInput
+  ptAttendances?: Prisma.PTAttendanceUpdateManyWithoutStudentNestedInput
+  physicalEligibilities?: Prisma.PhysicalEligibilityUpdateManyWithoutUserNestedInput
+  dailyFitnessLogs?: Prisma.DailyFitnessLogUpdateManyWithoutUserNestedInput
+  quizBattleParticipants?: Prisma.QuizBattleParticipantUpdateManyWithoutUserNestedInput
+  leaderboard?: Prisma.LeaderboardUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUpdateManyWithoutUserNestedInput
+  institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
+  branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUpdateManyWithoutCreatedByNestedInput
+  sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
+  parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
+  parentInvitationsReceived?: Prisma.ParentStudentInvitationUpdateManyWithoutStudentNestedInput
+  parentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutParentNestedInput
+  studentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutStudentNestedInput
+}
+
+export type UserUncheckedUpdateWithoutSalesBoosterCampaignsApprovedInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  disabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
+  testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
+  psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
+  olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
+  studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
+  performanceAnalytics?: Prisma.PerformanceAnalyticsUncheckedUpdateOneWithoutUserNestedInput
+  revisionSchedules?: Prisma.RevisionScheduleUncheckedUpdateManyWithoutUserNestedInput
+  lectureProgress?: Prisma.LectureProgressUncheckedUpdateManyWithoutUserNestedInput
+  attendanceRecords?: Prisma.AttendanceUncheckedUpdateManyWithoutUserNestedInput
+  markedAttendance?: Prisma.AttendanceUncheckedUpdateManyWithoutMarkerNestedInput
+  facultyProfile?: Prisma.FacultyUncheckedUpdateOneWithoutUserNestedInput
+  hostelAllocations?: Prisma.HostelAllocationUncheckedUpdateManyWithoutStudentNestedInput
+  inOutEntries?: Prisma.InOutEntryUncheckedUpdateManyWithoutStudentNestedInput
+  hostelLeaves?: Prisma.HostelLeaveUncheckedUpdateManyWithoutStudentNestedInput
+  approvedHostelLeaves?: Prisma.HostelLeaveUncheckedUpdateManyWithoutApproverNestedInput
+  disciplineRecords?: Prisma.DisciplineRecordUncheckedUpdateManyWithoutStudentNestedInput
+  recordedDiscipline?: Prisma.DisciplineRecordUncheckedUpdateManyWithoutRecorderNestedInput
+  paradePerformances?: Prisma.ParadePerformanceUncheckedUpdateManyWithoutStudentNestedInput
+  assignedLeads?: Prisma.LeadUncheckedUpdateManyWithoutAssigneeNestedInput
+  followUpsCreated?: Prisma.FollowUpUncheckedUpdateManyWithoutCreatorNestedInput
+  admissions?: Prisma.AdmissionUncheckedUpdateManyWithoutStudentNestedInput
+  referralsMade?: Prisma.ReferralUncheckedUpdateManyWithoutReferrerNestedInput
+  referralsReceived?: Prisma.ReferralUncheckedUpdateManyWithoutReferredNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutUserNestedInput
+  collectedPayments?: Prisma.PaymentUncheckedUpdateManyWithoutCollectorNestedInput
+  verifiedPayments?: Prisma.PaymentUncheckedUpdateManyWithoutVerifierNestedInput
+  subscriptions?: Prisma.SubscriptionUncheckedUpdateManyWithoutUserNestedInput
+  feeInstallments?: Prisma.FeeInstallmentUncheckedUpdateManyWithoutStudentNestedInput
+  invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutStudentNestedInput
+  approvalRequestsCreated?: Prisma.ApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
+  approvalRequestsReviewed?: Prisma.ApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
+  scholarships?: Prisma.ScholarshipDiscountUncheckedUpdateManyWithoutStudentNestedInput
+  scholarshipReviewActions?: Prisma.ScholarshipDiscountUncheckedUpdateManyWithoutApproverNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  messageThreads?: Prisma.MessageThreadUncheckedUpdateManyWithoutCreatorNestedInput
+  sentMessages?: Prisma.MessageUncheckedUpdateManyWithoutSenderNestedInput
+  receivedMessages?: Prisma.MessageUncheckedUpdateManyWithoutReceiverNestedInput
+  communicationAnnouncements?: Prisma.AnnouncementUncheckedUpdateManyWithoutCreatorNestedInput
+  aiInterviewSessions?: Prisma.AIInterviewSessionUncheckedUpdateManyWithoutUserNestedInput
+  doubtQueries?: Prisma.DoubtQueryUncheckedUpdateManyWithoutUserNestedInput
+  aiRecommendations?: Prisma.AIRecommendationUncheckedUpdateManyWithoutUserNestedInput
+  officerPotential?: Prisma.OfficerPotentialUncheckedUpdateOneWithoutUserNestedInput
+  fitnessProfile?: Prisma.FitnessProfileUncheckedUpdateOneWithoutUserNestedInput
+  ptAttendances?: Prisma.PTAttendanceUncheckedUpdateManyWithoutStudentNestedInput
+  physicalEligibilities?: Prisma.PhysicalEligibilityUncheckedUpdateManyWithoutUserNestedInput
+  dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedUpdateManyWithoutUserNestedInput
+  quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedUpdateManyWithoutUserNestedInput
+  leaderboard?: Prisma.LeaderboardUncheckedUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutCreatedByNestedInput
   sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
@@ -23070,6 +24306,8 @@ export type UserCreateWithoutBranchInput = {
   roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutUserInput
   institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
@@ -23153,6 +24391,8 @@ export type UserUncheckedCreateWithoutBranchInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
@@ -23289,6 +24529,8 @@ export type UserCreateWithoutInstituteInput = {
   roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutUserInput
   branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
@@ -23372,6 +24614,8 @@ export type UserUncheckedCreateWithoutInstituteInput = {
   adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutApprovedByInput
   sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
@@ -23504,6 +24748,8 @@ export type UserUpdateWithoutBranchInput = {
   roleActivities?: Prisma.RoleActivityUpdateManyWithoutUserNestedInput
   institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
@@ -23587,6 +24833,8 @@ export type UserUncheckedUpdateWithoutBranchInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
@@ -23716,6 +24964,8 @@ export type UserUpdateWithoutInstituteInput = {
   roleActivities?: Prisma.RoleActivityUpdateManyWithoutUserNestedInput
   branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
@@ -23799,6 +25049,8 @@ export type UserUncheckedUpdateWithoutInstituteInput = {
   adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutApprovedByNestedInput
   sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
   parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
@@ -23884,6 +25136,8 @@ export type UserCountOutputType = {
   adminRoles: number
   roleActivities: number
   auditLogs: number
+  salesBoosterCampaignsCreated: number
+  salesBoosterCampaignsApproved: number
   sessionTokens: number
   passwordResets: number
   parentInvitationsSent: number
@@ -23941,6 +25195,8 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   adminRoles?: boolean | UserCountOutputTypeCountAdminRolesArgs
   roleActivities?: boolean | UserCountOutputTypeCountRoleActivitiesArgs
   auditLogs?: boolean | UserCountOutputTypeCountAuditLogsArgs
+  salesBoosterCampaignsCreated?: boolean | UserCountOutputTypeCountSalesBoosterCampaignsCreatedArgs
+  salesBoosterCampaignsApproved?: boolean | UserCountOutputTypeCountSalesBoosterCampaignsApprovedArgs
   sessionTokens?: boolean | UserCountOutputTypeCountSessionTokensArgs
   passwordResets?: boolean | UserCountOutputTypeCountPasswordResetsArgs
   parentInvitationsSent?: boolean | UserCountOutputTypeCountParentInvitationsSentArgs
@@ -24298,6 +25554,20 @@ export type UserCountOutputTypeCountAuditLogsArgs<ExtArgs extends runtime.Types.
 /**
  * UserCountOutputType without action
  */
+export type UserCountOutputTypeCountSalesBoosterCampaignsCreatedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SalesBoosterCampaignWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountSalesBoosterCampaignsApprovedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SalesBoosterCampaignWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
 export type UserCountOutputTypeCountSessionTokensArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.SessionTokenWhereInput
 }
@@ -24416,6 +25686,8 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   institute?: boolean | Prisma.User$instituteArgs<ExtArgs>
   branch?: boolean | Prisma.User$branchArgs<ExtArgs>
   auditLogs?: boolean | Prisma.User$auditLogsArgs<ExtArgs>
+  salesBoosterCampaignsCreated?: boolean | Prisma.User$salesBoosterCampaignsCreatedArgs<ExtArgs>
+  salesBoosterCampaignsApproved?: boolean | Prisma.User$salesBoosterCampaignsApprovedArgs<ExtArgs>
   sessionTokens?: boolean | Prisma.User$sessionTokensArgs<ExtArgs>
   passwordResets?: boolean | Prisma.User$passwordResetsArgs<ExtArgs>
   parentInvitationsSent?: boolean | Prisma.User$parentInvitationsSentArgs<ExtArgs>
@@ -24559,6 +25831,8 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   institute?: boolean | Prisma.User$instituteArgs<ExtArgs>
   branch?: boolean | Prisma.User$branchArgs<ExtArgs>
   auditLogs?: boolean | Prisma.User$auditLogsArgs<ExtArgs>
+  salesBoosterCampaignsCreated?: boolean | Prisma.User$salesBoosterCampaignsCreatedArgs<ExtArgs>
+  salesBoosterCampaignsApproved?: boolean | Prisma.User$salesBoosterCampaignsApprovedArgs<ExtArgs>
   sessionTokens?: boolean | Prisma.User$sessionTokensArgs<ExtArgs>
   passwordResets?: boolean | Prisma.User$passwordResetsArgs<ExtArgs>
   parentInvitationsSent?: boolean | Prisma.User$parentInvitationsSentArgs<ExtArgs>
@@ -24635,6 +25909,8 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     institute: Prisma.$InstitutePayload<ExtArgs> | null
     branch: Prisma.$BranchPayload<ExtArgs> | null
     auditLogs: Prisma.$AuditLogPayload<ExtArgs>[]
+    salesBoosterCampaignsCreated: Prisma.$SalesBoosterCampaignPayload<ExtArgs>[]
+    salesBoosterCampaignsApproved: Prisma.$SalesBoosterCampaignPayload<ExtArgs>[]
     sessionTokens: Prisma.$SessionTokenPayload<ExtArgs>[]
     passwordResets: Prisma.$PasswordResetPayload<ExtArgs>[]
     parentInvitationsSent: Prisma.$ParentStudentInvitationPayload<ExtArgs>[]
@@ -25114,6 +26390,8 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   institute<T extends Prisma.User$instituteArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$instituteArgs<ExtArgs>>): Prisma.Prisma__InstituteClient<runtime.Types.Result.GetResult<Prisma.$InstitutePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   branch<T extends Prisma.User$branchArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$branchArgs<ExtArgs>>): Prisma.Prisma__BranchClient<runtime.Types.Result.GetResult<Prisma.$BranchPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   auditLogs<T extends Prisma.User$auditLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$auditLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  salesBoosterCampaignsCreated<T extends Prisma.User$salesBoosterCampaignsCreatedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$salesBoosterCampaignsCreatedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SalesBoosterCampaignPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  salesBoosterCampaignsApproved<T extends Prisma.User$salesBoosterCampaignsApprovedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$salesBoosterCampaignsApprovedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SalesBoosterCampaignPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   sessionTokens<T extends Prisma.User$sessionTokensArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$sessionTokensArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SessionTokenPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   passwordResets<T extends Prisma.User$passwordResetsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$passwordResetsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PasswordResetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   parentInvitationsSent<T extends Prisma.User$parentInvitationsSentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$parentInvitationsSentArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ParentStudentInvitationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -26872,6 +28150,54 @@ export type User$auditLogsArgs<ExtArgs extends runtime.Types.Extensions.Internal
   take?: number
   skip?: number
   distinct?: Prisma.AuditLogScalarFieldEnum | Prisma.AuditLogScalarFieldEnum[]
+}
+
+/**
+ * User.salesBoosterCampaignsCreated
+ */
+export type User$salesBoosterCampaignsCreatedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the SalesBoosterCampaign
+   */
+  select?: Prisma.SalesBoosterCampaignSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the SalesBoosterCampaign
+   */
+  omit?: Prisma.SalesBoosterCampaignOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SalesBoosterCampaignInclude<ExtArgs> | null
+  where?: Prisma.SalesBoosterCampaignWhereInput
+  orderBy?: Prisma.SalesBoosterCampaignOrderByWithRelationInput | Prisma.SalesBoosterCampaignOrderByWithRelationInput[]
+  cursor?: Prisma.SalesBoosterCampaignWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.SalesBoosterCampaignScalarFieldEnum | Prisma.SalesBoosterCampaignScalarFieldEnum[]
+}
+
+/**
+ * User.salesBoosterCampaignsApproved
+ */
+export type User$salesBoosterCampaignsApprovedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the SalesBoosterCampaign
+   */
+  select?: Prisma.SalesBoosterCampaignSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the SalesBoosterCampaign
+   */
+  omit?: Prisma.SalesBoosterCampaignOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SalesBoosterCampaignInclude<ExtArgs> | null
+  where?: Prisma.SalesBoosterCampaignWhereInput
+  orderBy?: Prisma.SalesBoosterCampaignOrderByWithRelationInput | Prisma.SalesBoosterCampaignOrderByWithRelationInput[]
+  cursor?: Prisma.SalesBoosterCampaignWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.SalesBoosterCampaignScalarFieldEnum | Prisma.SalesBoosterCampaignScalarFieldEnum[]
 }
 
 /**

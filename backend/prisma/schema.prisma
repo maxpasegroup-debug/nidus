@@ -125,6 +125,8 @@ model User {
   institute Institute? @relation(fields: [instituteId], references: [id], onDelete: SetNull)
   branch Branch? @relation(fields: [branchId], references: [id], onDelete: SetNull)
   auditLogs AuditLog[]
+  salesBoosterCampaignsCreated SalesBoosterCampaign[] @relation("SalesBoosterCampaignCreator")
+  salesBoosterCampaignsApproved SalesBoosterCampaign[] @relation("SalesBoosterCampaignApprover")
   sessionTokens SessionToken[]
   passwordResets PasswordReset[]
   parentInvitationsSent ParentStudentInvitation[] @relation("ParentInvitationParent")
@@ -1847,6 +1849,35 @@ model AIRequestLog {
 
   @@index([feature])
   @@index([status])
+  @@index([createdAt])
+}
+
+model SalesBoosterCampaign {
+  id             String   @id @default(cuid())
+  title          String
+  track          String
+  goal           String
+  creativeName   String?
+  creativeType   String?
+  channels       Json
+  aiDraft        Json
+  approvalStatus String   @default("DRAFT")
+  runStatus      String   @default("API_NOT_CONNECTED")
+  reviewNote     String?
+  createdById    String
+  approvedById   String?
+  submittedAt    DateTime?
+  approvedAt     DateTime?
+  queuedAt       DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  createdBy      User     @relation("SalesBoosterCampaignCreator", fields: [createdById], references: [id], onDelete: Cascade)
+  approvedBy     User?    @relation("SalesBoosterCampaignApprover", fields: [approvedById], references: [id], onDelete: SetNull)
+
+  @@index([track])
+  @@index([approvalStatus])
+  @@index([runStatus])
+  @@index([createdById])
   @@index([createdAt])
 }
 
