@@ -35,10 +35,10 @@ export function FinanceConsole({ view }: { view: FinanceView }) {
   const subscriptions = useSubscriptions();
   const fees = useFees();
   const invoices = useInvoices();
-  const paymentData = payments.data ?? [];
-  const subscriptionData = subscriptions.data ?? [];
-  const feeData = fees.data ?? [];
-  const invoiceData = invoices.data ?? [];
+  const paymentData = useMemo(() => payments.data ?? [], [payments.data]);
+  const subscriptionData = useMemo(() => subscriptions.data ?? [], [subscriptions.data]);
+  const feeData = useMemo(() => fees.data ?? [], [fees.data]);
+  const invoiceData = useMemo(() => invoices.data ?? [], [invoices.data]);
   const analytics = payments.analytics.data;
   const revenue = paymentData.filter((item) => item.paymentStatus === "SUCCESS").reduce((sum, item) => sum + item.amount, 0);
   const feePaid = feeData.filter((item) => item.paidStatus === "PAID").reduce((sum, item) => sum + item.amount, 0);

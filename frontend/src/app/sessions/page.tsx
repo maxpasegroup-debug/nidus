@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { MonitorSmartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -13,7 +13,7 @@ export default function SessionsPage() {
   const [sessions, setSessions] = useState<AuthSession[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  async function load() {
+  const load = useCallback(async () => {
     setIsLoading(true);
     try {
       setSessions(await getSessions());
@@ -22,9 +22,9 @@ export default function SessionsPage() {
     } finally {
       setIsLoading(false);
     }
-  }
+  }, [showToast]);
 
-  useEffect(() => { void load(); }, []);
+  useEffect(() => { void load(); }, [load]);
 
   async function revoke(id: string) {
     await revokeSession(id);

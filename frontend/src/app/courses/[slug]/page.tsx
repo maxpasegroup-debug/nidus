@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Image from "next/image";
 import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { CourseSkeletonGrid, EmptyState } from "@/components/courses/empty-state";
@@ -29,7 +30,7 @@ export default function CourseDetailsPage() {
     <motion.div className="space-y-8" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
       <section className="overflow-hidden rounded-lg border border-gold/20 bg-white/[0.055] backdrop-blur-xl">
         <div className="relative h-72">
-          <img src={course.thumbnail} alt={course.title} className="h-full w-full object-cover" />
+          <Image src={course.thumbnail} alt={course.title} fill sizes="100vw" className="object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-navy-deep via-navy-deep/40 to-transparent" />
           <div className="absolute bottom-6 left-6 right-6">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-gold">{course.examType}</p>

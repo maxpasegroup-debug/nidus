@@ -1,11 +1,14 @@
 import Link from "next/link";
+import Image from "next/image";
 import type { LiveClass } from "@/types/live-class";
 import { CountdownTimer } from "./countdown-timer";
 
 export function LiveClassCard({ item }: { item: LiveClass }) {
   return (
     <Link href={`/live-classes/${item.id}`} className="group overflow-hidden rounded-lg border border-white/10 bg-white/[0.055] backdrop-blur-xl transition hover:-translate-y-1 hover:border-gold/35">
-      <img src={item.thumbnail} alt={item.title} className="h-44 w-full object-cover transition group-hover:scale-105" />
+      <div className="relative h-44 w-full overflow-hidden">
+        <Image src={item.thumbnail} alt={item.title} fill sizes="(min-width: 768px) 33vw, 100vw" className="object-cover transition group-hover:scale-105" />
+      </div>
       <div className="p-5">
         <div className="flex justify-between gap-3">
           <span className="rounded border border-gold/25 bg-gold/10 px-3 py-1 text-xs text-gold">{item.examType}</span>

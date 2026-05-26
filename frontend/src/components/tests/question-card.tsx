@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import type { Question } from "@/types/test";
 
 const options = ["A", "B", "C", "D"] as const;
@@ -21,7 +22,7 @@ export function QuestionCard({
         <span className="rounded border border-white/10 bg-white/[0.05] px-3 py-1 text-muted">+{question.marks} / -{question.negativeMarks}</span>
       </div>
       <h2 className="mt-5 text-xl font-semibold leading-8 text-white">{question.questionText}</h2>
-      {question.questionImage ? <img src={question.questionImage} alt="" className="mt-4 max-h-64 rounded border border-white/10 object-contain" /> : null}
+      {question.questionImage ? <Image src={question.questionImage} alt="" width={900} height={360} unoptimized className="mt-4 max-h-64 w-auto rounded border border-white/10 object-contain" /> : null}
       <div className="mt-6 grid gap-3">
         {options.map((option) => {
           const text = question[`option${option}` as keyof Question] as string;

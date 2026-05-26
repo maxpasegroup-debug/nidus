@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -67,7 +68,7 @@ export default function PsychometricAttemptPage() {
         </div>
         <NidusAiOrbit message={nidusQuestionPrompt(currentQuestion, attempt.test)} mood={selectedAnswer ? "thinking" : "asking"} />
         <div className="rounded-lg border border-white/10 bg-white/[0.055] p-5 backdrop-blur-xl">
-          {currentQuestion.imageUrl ? <img src={currentQuestion.imageUrl} alt="" className="mb-4 max-h-72 rounded object-cover" /> : null}
+          {currentQuestion.imageUrl ? <Image src={currentQuestion.imageUrl} alt="" width={900} height={420} unoptimized className="mb-4 max-h-72 w-auto rounded object-cover" /> : null}
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gold">Question {currentIndex + 1} of {questions.length}</p>
           <h2 className="mt-3 text-2xl font-semibold leading-8 text-white">{currentQuestion.questionText}</h2>
           {Array.isArray(currentQuestion.options) ? (

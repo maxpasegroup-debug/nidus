@@ -43,12 +43,12 @@ export function CRMConsole({ view }: { view: CRMView }) {
   const admissions = useAdmissions();
   const counselling = useCounselling();
   const referrals = useReferrals();
-  const leadData = leads.data ?? [];
-  const followupData = followups.data ?? [];
-  const admissionData = admissions.data ?? [];
-  const counsellingData = counselling.data ?? [];
-  const referralData = referrals.data ?? [];
-  const approvalData = admissions.approvals.data ?? [];
+  const leadData = useMemo(() => leads.data ?? [], [leads.data]);
+  const followupData = useMemo(() => followups.data ?? [], [followups.data]);
+  const admissionData = useMemo(() => admissions.data ?? [], [admissions.data]);
+  const counsellingData = useMemo(() => counselling.data ?? [], [counselling.data]);
+  const referralData = useMemo(() => referrals.data ?? [], [referrals.data]);
+  const approvalData = useMemo(() => admissions.approvals.data ?? [], [admissions.approvals.data]);
 
   useEffect(() => setMounted(true), []);
 

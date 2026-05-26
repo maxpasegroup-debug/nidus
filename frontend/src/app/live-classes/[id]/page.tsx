@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/courses/empty-state";
@@ -12,7 +13,9 @@ export default function LiveClassDetailsPage() {
   if (!item) return <EmptyState title="Live class not found" description="Return to live classes and choose a scheduled session." />;
   return (
     <div className="overflow-hidden rounded-lg border border-gold/20 bg-white/[0.055] backdrop-blur-xl">
-      <img src={item.thumbnail} alt={item.title} className="h-80 w-full object-cover" />
+      <div className="relative h-80 w-full">
+        <Image src={item.thumbnail} alt={item.title} fill sizes="100vw" className="object-cover" />
+      </div>
       <div className="p-6">
         <p className="text-xs font-semibold uppercase tracking-[0.22em] text-gold">{item.examType}</p>
         <h1 className="mt-3 text-4xl font-semibold text-white">{item.title}</h1>

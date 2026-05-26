@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Image from "next/image";
 import Link from "next/link";
 import type { Course } from "@/types/course";
 import { ProgressBar } from "@/components/courses/progress-bar";
@@ -19,10 +20,12 @@ export function CourseCard({
         className="group flex h-full flex-col overflow-hidden rounded-lg border border-white/10 bg-white/[0.065] shadow-[0_24px_80px_rgba(0,0,0,0.28)] backdrop-blur-xl transition hover:border-gold/35"
       >
         <div className="relative h-44 overflow-hidden">
-          <img
+          <Image
             src={course.thumbnail}
             alt={course.title}
-            className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+            fill
+            sizes="(min-width: 1280px) 33vw, (min-width: 768px) 50vw, 100vw"
+            className="object-cover transition duration-500 group-hover:scale-105"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-navy-deep via-transparent to-transparent" />
           <span className="absolute left-4 top-4 rounded border border-gold/30 bg-navy-deep/70 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-gold">
