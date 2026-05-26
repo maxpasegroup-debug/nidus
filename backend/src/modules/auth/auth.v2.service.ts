@@ -117,7 +117,7 @@ export const AuthServiceV2 = {
       paymentBypass: true,
       allServicesAccess: true,
       subscriptionTier: "signature_identity",
-      defaultPassword: true,
+      defaultPassword: false,
       note: "Seeded NIDUS test account. Enable only for demos, QA, staging or controlled internal testing."
     };
 

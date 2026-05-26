@@ -88,9 +88,9 @@ export default function AdminDashboardPage() {
     <RoleDashboardGuard role="ADMIN">
       <motion.div className="space-y-8" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
         <PageHero
-          eyebrow="NIDUS Academy Admin"
-          title={isOperationsAdmin ? "Administration operations desk" : "Simple management dashboard"}
-          description={isOperationsAdmin ? "Manage student records, documents, fees, staff records, notices, and daily office work from one operations dashboard." : "Three clear departments for daily work: Academic Department, Admission Cell, and HR Department. All hybrid tools stay inside simple menus."}
+          eyebrow="NIDUS Academy CEO Dashboard"
+          title={isOperationsAdmin ? "CEO operations command" : "Management command dashboard"}
+          description={isOperationsAdmin ? "Review admissions, finance, staff, academy operations, student records, documents, notices, and daily closure from one executive dashboard." : "Three clear departments for daily work: Academic Department, Admission Cell, and HR Department. All hybrid tools stay inside simple menus."}
           actions={<Button type="button" onClick={() => refetch()} disabled={isFetching} variant="secondary">{isFetching ? "Refreshing..." : "Refresh dashboard"}</Button>}
           stats={[
             { value: String(data.totalStudents), label: "students" },
@@ -106,7 +106,7 @@ export default function AdminDashboardPage() {
           <StatCard label="Staff" value={String(data.staffSummary.totalStaff)} note={`${data.staffSummary.faculty} teachers and ${data.staffSummary.operations} operations`} />
         </section>
 
-        <SectionHeader eyebrow="Admin Menu" title="Choose the work area" />
+        <SectionHeader eyebrow="CEO Menu" title="Choose the work area" />
         <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {commandModules.map((module) => (
             <QuickActionCard key={module.title} title={module.title} description={module.description} href={module.href} />

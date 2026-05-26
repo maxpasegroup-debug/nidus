@@ -13,7 +13,7 @@ export function Input({ label, error, id, className = "", ...props }: InputProps
       <span className="text-sm font-medium text-ink">{label}</span>
       <input
         id={inputId}
-        className={`mt-2 h-12 w-full rounded border border-white/12 bg-white/6 px-4 text-sm text-white outline-none transition placeholder:text-muted/60 focus:border-gold focus:bg-white/10 focus:ring-2 focus:ring-gold/20 ${className}`}
+        className={`mt-2 h-12 w-full rounded border border-[#071d36]/15 bg-white px-4 text-sm text-[#071d36] outline-none transition placeholder:text-[#64748b] focus:border-[#b9913f] focus:bg-white focus:ring-2 focus:ring-[#b9913f]/20 ${className}`}
         aria-invalid={error ? true : undefined}
         aria-describedby={error ? `${inputId}-error` : undefined}
         {...props}

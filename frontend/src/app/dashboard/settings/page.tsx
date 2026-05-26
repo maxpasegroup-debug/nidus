@@ -2,10 +2,9 @@
 
 import { useEffect, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { KeyRound } from "lucide-react";
+import { Eye, EyeOff, KeyRound } from "lucide-react";
 import { RoleDashboardGuard } from "@/components/dashboard";
 import { Button } from "@/components/ui/button";
-import { FacultyManualCard } from "@/components/faculty/faculty-manual-card";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/providers/toast-provider";
 import { getApiErrorMessage } from "@/services/api";
@@ -17,6 +16,7 @@ export default function DashboardSettingsPage() {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPasswords, setShowPasswords] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [mustChangePassword, setMustChangePassword] = useState(false);
 
@@ -68,13 +68,18 @@ export default function DashboardSettingsPage() {
             ) : null}
 
             <form className="mt-6 space-y-4" onSubmit={submit}>
-              <Input label="Current password" type="password" value={currentPassword} onChange={(event) => setCurrentPassword(event.target.value)} required />
-              <Input label="New password" type="password" value={newPassword} onChange={(event) => setNewPassword(event.target.value)} minLength={8} required />
-              <Input label="Confirm new password" type="password" value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} minLength={8} required />
+              <div className="flex justify-end">
+                <button type="button" onClick={() => setShowPasswords((current) => !current)} className="inline-flex items-center gap-2 rounded border border-[#071d36]/15 bg-white px-3 py-2 text-sm font-semibold text-[#071d36] transition hover:border-[#b9913f]/60">
+                  {showPasswords ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  {showPasswords ? "Hide passwords" : "Show passwords"}
+                </button>
+              </div>
+              <Input label="Current password" type={showPasswords ? "text" : "password"} value={currentPassword} onChange={(event) => setCurrentPassword(event.target.value)} required />
+              <Input label="New password" type={showPasswords ? "text" : "password"} value={newPassword} onChange={(event) => setNewPassword(event.target.value)} minLength={8} required />
+              <Input label="Confirm new password" type={showPasswords ? "text" : "password"} value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} minLength={8} required />
               <Button type="submit" disabled={isSubmitting}>{isSubmitting ? "Updating..." : "Update Password"}</Button>
             </form>
           </div>
-          <FacultyManualCard />
         </section>
       </main>
     </RoleDashboardGuard>

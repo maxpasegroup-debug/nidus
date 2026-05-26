@@ -64,7 +64,7 @@ const facultyMenu = [
 export function getNavItems(role?: AuthRole) {
   if (role === "ADMIN") {
     return [
-      { label: "Dashboard", href: "/dashboard/admin" },
+      { label: "CEO Dashboard", href: "/dashboard/admin" },
       { label: "Today", href: "/operations-hub" },
       { label: "Academic Department", href: "/courses" },
       { label: "Admission Cell", href: "/crm" },
@@ -76,7 +76,7 @@ export function getNavItems(role?: AuthRole) {
       { label: "NIDUS AI", href: "/nidus-ai" },
       { label: "Reports", href: "/progress-reports" },
       { label: "Messages", href: "/messages" },
-      { label: "Settings", href: "/admin-center" }
+      { label: "CEO Control", href: "/admin-center" }
     ];
   }
 

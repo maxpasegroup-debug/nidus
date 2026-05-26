@@ -12,13 +12,6 @@ import { useCreateTest, useTests } from "@/hooks/use-tests";
 import { getApiErrorMessage } from "@/services/api";
 import type { TestPayload } from "@/services/tests";
 
-const monthlyPlan = [
-  { title: "Week 1", description: "Subject practice test with topic-level correction.", tag: "Practice" },
-  { title: "Week 2", description: "Aptitude test covering reasoning, verbal, and numerical skills.", tag: "Aptitude" },
-  { title: "Week 3", description: "Timed mock exam with rank and accuracy tracking.", tag: "Mock" },
-  { title: "Week 4", description: "Growth report review with teacher remarks and AI action plan.", tag: "Report" }
-];
-
 export default function TestsPage() {
   const { user } = useAuth();
   const [search, setSearch] = useState("");
@@ -122,13 +115,6 @@ export default function TestsPage() {
         <StatCard label="Mock Tests" value={String(mockTests)} note="Timed exam practice" />
         <StatCard label="Live Tests" value={String(liveTests)} note="Scheduled academy tests" />
         <StatCard label="Exam Tracks" value={String(examTypes.length)} note="Distinct exam categories" />
-      </section>
-
-      <SectionHeader eyebrow="Monthly Plan" title="Professional testing rhythm" />
-      <section className="grid gap-4 md:grid-cols-4">
-        {monthlyPlan.map((item) => (
-          <AnnouncementCard key={item.title} title={item.title} description={item.description} tag={item.tag} />
-        ))}
       </section>
 
       {canCreateTests ? (

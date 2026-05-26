@@ -39,7 +39,7 @@ export const publicImages = {
   army: wikiImage("Indian%20Army%20contingent%20Republic%20Day%20parade%202023%20Img5.jpg", 1000),
   cadets: wikiImage("Ncc%20cadets%20in%20India%20during%20parade.jpg", 800),
   navy: wikiImage("Passing%20out%20Parade%20Spring%20Term%202017%20held%20at%20Indian%20Naval%20Academy%2C%20Ezhimala%20%287%29.jpg", 900),
-  airforce: wikiImage("Indian%20Air%20Force%20Rafale%20fighter.jpg", 900),
+  airforce: wikiImage("IAFRafale.jpg", 900),
   airforceMarch: wikiImage("Indian%20Air%20Force%20Marching%20Contingent.jpg", 800),
   customs: wikiImage("Customs%20%26%20Central%20Officer%20on%20Republic%20Day.jpg", 800),
   drdo: wikiImage("Tata%20DRDO%20whap.jpg", 900),

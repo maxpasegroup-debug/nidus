@@ -13,7 +13,6 @@ import {
   StatCard
 } from "@/components/dashboard";
 import { Button } from "@/components/ui/button";
-import { FacultyManualCard } from "@/components/faculty/faculty-manual-card";
 import { PageHero } from "@/components/layout/page-hero";
 import { useTeacherDashboard } from "@/hooks/use-dashboard";
 
@@ -139,8 +138,6 @@ export default function TeacherDashboardPage() {
             <AnnouncementCard key={module.title} title={module.title} description={module.metric} tag={module.status} />
           ))}
         </section>
-
-        <FacultyManualCard />
       </motion.div>
     </RoleDashboardGuard>
   );

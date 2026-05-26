@@ -325,7 +325,7 @@ export const dashboardService = {
     return {
       profile,
       customDashboard,
-      subjects: subject ? [subject] : customDashboard.dashboardTemplate === "ACADEMIC_HEAD" ? ["GK", "English", "Maths", "Biology", "Chemistry", "Physical Training"] : ["Maths", "English", "GK", "Reasoning", "Current Affairs", "Physics", "Chemistry", "Biology", "SSB", "Fitness/PT"],
+      subjects: subject ? [subject] : customDashboard.focusAreas,
       classPerformance: { averageScore, attendance: percentage(present, attendanceRows.length), weakStudentCount: attempts.filter((attempt) => attempt.score < 50).length, assignmentsDue: 0 },
       contentOps: {
         lectureUploads: lectures,
@@ -341,8 +341,8 @@ export const dashboardService = {
         { title: "Attendance marking", status: attendanceRows.length ? "Active" : "No data", metric: `${percentage(present, attendanceRows.length)}% from marked records` },
         { title: "CBT/test management", status: tests ? "Active" : "No data", metric: `${tests} tests created` },
         { title: "Weak student alerts", status: weakAttempts.length ? "Review" : "No alerts", metric: `${weakAttempts.length} low-score attempts` },
-        { title: "Parent communication", status: "Ready", metric: "Messages linked" },
-        { title: "AI recommendations", status: "Shell", metric: "Learning engine connected" }
+        { title: "Parent communication", status: "Ready", metric: "Messages module available" },
+        { title: "AI recommendations", status: recommendations.length ? "Active" : "No data", metric: recommendations.length ? `${recommendations.length} recommendations` : "No recommendations yet" }
       ],
       weakStudentAlerts: weakAttempts.slice(0, 5).map((attempt) => `Low score needs review: ${Math.round(attempt.score)}`),
       aiRecommendations: recommendations.map((item) => item.recommendation)

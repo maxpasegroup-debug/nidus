@@ -32,9 +32,9 @@ export default function AdminCenterPage() {
     <main className="min-h-screen px-4 py-6 sm:px-6 lg:px-8">
       <section className="mx-auto max-w-7xl">
         <div>
-          <p className="text-xs uppercase tracking-[0.28em] text-gold-soft">Admin Command Center</p>
-          <h1 className="mt-3 text-3xl font-semibold text-ink sm:text-4xl">Control Center</h1>
-          <p className="mt-2 text-sm text-muted">System governance, security posture, branch operations, and command activity.</p>
+          <p className="text-xs uppercase tracking-[0.28em] text-gold-soft">CEO Control Center</p>
+          <h1 className="mt-3 text-3xl font-semibold text-ink sm:text-4xl">Executive Control Center</h1>
+          <p className="mt-2 text-sm text-muted">System governance, security posture, branch operations, employee access, and command activity.</p>
         </div>
 
         {dashboard.isLoading && <div className="mt-6 grid gap-4 md:grid-cols-4">{Array.from({ length: 4 }).map((_, index) => <div key={index} className="h-36 animate-pulse rounded-lg bg-white/10" />)}</div>}
