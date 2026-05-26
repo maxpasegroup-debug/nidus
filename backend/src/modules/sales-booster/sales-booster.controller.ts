@@ -36,6 +36,14 @@ export const salesBoosterController = {
     }
   },
 
+  async analytics(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      res.json({ analytics: await salesBoosterService.analytics(requester(req)) });
+    } catch (error) {
+      next(error);
+    }
+  },
+
   async createCampaign(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
       assertValid(req);
@@ -82,6 +90,23 @@ export const salesBoosterController = {
   async runCampaign(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
       res.json({ campaign: await salesBoosterService.runCampaign(requester(req), param(req, "id")) });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async addMetricSnapshot(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      assertValid(req);
+      res.status(201).json({ snapshot: await salesBoosterService.addMetricSnapshot(requester(req), param(req, "id"), req.body) });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async campaignReport(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      res.json({ report: await salesBoosterService.report(requester(req), param(req, "id")) });
     } catch (error) {
       next(error);
     }

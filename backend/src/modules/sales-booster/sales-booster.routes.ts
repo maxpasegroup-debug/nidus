@@ -11,6 +11,7 @@ const approvalStatuses = ["DRAFT", "SUBMITTED", "APPROVED", "NEEDS_REVISION", "R
 
 salesBoosterRouter.get("/campaigns", ...salesBoosterRoles, salesBoosterController.campaigns);
 salesBoosterRouter.get("/summary", ...salesBoosterRoles, salesBoosterController.summary);
+salesBoosterRouter.get("/analytics", ...salesBoosterRoles, salesBoosterController.analytics);
 salesBoosterRouter.get("/connectors", ...salesBoosterRoles, salesBoosterController.connectorStatus);
 salesBoosterRouter.post(
   "/campaigns",
@@ -51,3 +52,21 @@ salesBoosterRouter.patch(
 );
 salesBoosterRouter.delete("/campaigns/:id", ...salesBoosterRoles, salesBoosterController.deleteCampaign);
 salesBoosterRouter.post("/campaigns/:id/run", ...salesBoosterRoles, salesBoosterController.runCampaign);
+salesBoosterRouter.get("/campaigns/:id/report", ...salesBoosterRoles, salesBoosterController.campaignReport);
+salesBoosterRouter.post(
+  "/campaigns/:id/metrics",
+  ...salesBoosterRoles,
+  [
+    body("platform").trim().notEmpty(),
+    body("reach").optional().isInt({ min: 0 }),
+    body("impressions").optional().isInt({ min: 0 }),
+    body("clicks").optional().isInt({ min: 0 }),
+    body("leads").optional().isInt({ min: 0 }),
+    body("admissions").optional().isInt({ min: 0 }),
+    body("spend").optional().isFloat({ min: 0 }),
+    body("revenue").optional().isFloat({ min: 0 }),
+    body("notes").optional({ nullable: true }).trim(),
+    body("capturedAt").optional().isISO8601()
+  ],
+  salesBoosterController.addMetricSnapshot
+);

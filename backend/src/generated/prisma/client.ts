@@ -567,6 +567,11 @@ export type AIRequestLog = Prisma.AIRequestLogModel
  */
 export type SalesBoosterCampaign = Prisma.SalesBoosterCampaignModel
 /**
+ * Model SalesBoosterMetricSnapshot
+ * 
+ */
+export type SalesBoosterMetricSnapshot = Prisma.SalesBoosterMetricSnapshotModel
+/**
  * Model Branch
  * 
  */

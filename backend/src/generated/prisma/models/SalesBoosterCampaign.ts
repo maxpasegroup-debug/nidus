@@ -292,6 +292,7 @@ export type SalesBoosterCampaignWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"SalesBoosterCampaign"> | Date | string
   createdBy?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   approvedBy?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  metricSnapshots?: Prisma.SalesBoosterMetricSnapshotListRelationFilter
 }
 
 export type SalesBoosterCampaignOrderByWithRelationInput = {
@@ -317,6 +318,7 @@ export type SalesBoosterCampaignOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   createdBy?: Prisma.UserOrderByWithRelationInput
   approvedBy?: Prisma.UserOrderByWithRelationInput
+  metricSnapshots?: Prisma.SalesBoosterMetricSnapshotOrderByRelationAggregateInput
 }
 
 export type SalesBoosterCampaignWhereUniqueInput = Prisma.AtLeast<{
@@ -345,6 +347,7 @@ export type SalesBoosterCampaignWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"SalesBoosterCampaign"> | Date | string
   createdBy?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   approvedBy?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  metricSnapshots?: Prisma.SalesBoosterMetricSnapshotListRelationFilter
 }, "id">
 
 export type SalesBoosterCampaignOrderByWithAggregationInput = {
@@ -420,6 +423,7 @@ export type SalesBoosterCampaignCreateInput = {
   updatedAt?: Date | string
   createdBy: Prisma.UserCreateNestedOneWithoutSalesBoosterCampaignsCreatedInput
   approvedBy?: Prisma.UserCreateNestedOneWithoutSalesBoosterCampaignsApprovedInput
+  metricSnapshots?: Prisma.SalesBoosterMetricSnapshotCreateNestedManyWithoutCampaignInput
 }
 
 export type SalesBoosterCampaignUncheckedCreateInput = {
@@ -443,6 +447,7 @@ export type SalesBoosterCampaignUncheckedCreateInput = {
   lastRunAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  metricSnapshots?: Prisma.SalesBoosterMetricSnapshotUncheckedCreateNestedManyWithoutCampaignInput
 }
 
 export type SalesBoosterCampaignUpdateInput = {
@@ -466,6 +471,7 @@ export type SalesBoosterCampaignUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdBy?: Prisma.UserUpdateOneRequiredWithoutSalesBoosterCampaignsCreatedNestedInput
   approvedBy?: Prisma.UserUpdateOneWithoutSalesBoosterCampaignsApprovedNestedInput
+  metricSnapshots?: Prisma.SalesBoosterMetricSnapshotUpdateManyWithoutCampaignNestedInput
 }
 
 export type SalesBoosterCampaignUncheckedUpdateInput = {
@@ -489,6 +495,7 @@ export type SalesBoosterCampaignUncheckedUpdateInput = {
   lastRunAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  metricSnapshots?: Prisma.SalesBoosterMetricSnapshotUncheckedUpdateManyWithoutCampaignNestedInput
 }
 
 export type SalesBoosterCampaignCreateManyInput = {
@@ -631,6 +638,11 @@ export type SalesBoosterCampaignMinOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
 }
 
+export type SalesBoosterCampaignScalarRelationFilter = {
+  is?: Prisma.SalesBoosterCampaignWhereInput
+  isNot?: Prisma.SalesBoosterCampaignWhereInput
+}
+
 export type SalesBoosterCampaignCreateNestedManyWithoutCreatedByInput = {
   create?: Prisma.XOR<Prisma.SalesBoosterCampaignCreateWithoutCreatedByInput, Prisma.SalesBoosterCampaignUncheckedCreateWithoutCreatedByInput> | Prisma.SalesBoosterCampaignCreateWithoutCreatedByInput[] | Prisma.SalesBoosterCampaignUncheckedCreateWithoutCreatedByInput[]
   connectOrCreate?: Prisma.SalesBoosterCampaignCreateOrConnectWithoutCreatedByInput | Prisma.SalesBoosterCampaignCreateOrConnectWithoutCreatedByInput[]
@@ -715,6 +727,20 @@ export type SalesBoosterCampaignUncheckedUpdateManyWithoutApprovedByNestedInput 
   deleteMany?: Prisma.SalesBoosterCampaignScalarWhereInput | Prisma.SalesBoosterCampaignScalarWhereInput[]
 }
 
+export type SalesBoosterCampaignCreateNestedOneWithoutMetricSnapshotsInput = {
+  create?: Prisma.XOR<Prisma.SalesBoosterCampaignCreateWithoutMetricSnapshotsInput, Prisma.SalesBoosterCampaignUncheckedCreateWithoutMetricSnapshotsInput>
+  connectOrCreate?: Prisma.SalesBoosterCampaignCreateOrConnectWithoutMetricSnapshotsInput
+  connect?: Prisma.SalesBoosterCampaignWhereUniqueInput
+}
+
+export type SalesBoosterCampaignUpdateOneRequiredWithoutMetricSnapshotsNestedInput = {
+  create?: Prisma.XOR<Prisma.SalesBoosterCampaignCreateWithoutMetricSnapshotsInput, Prisma.SalesBoosterCampaignUncheckedCreateWithoutMetricSnapshotsInput>
+  connectOrCreate?: Prisma.SalesBoosterCampaignCreateOrConnectWithoutMetricSnapshotsInput
+  upsert?: Prisma.SalesBoosterCampaignUpsertWithoutMetricSnapshotsInput
+  connect?: Prisma.SalesBoosterCampaignWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.SalesBoosterCampaignUpdateToOneWithWhereWithoutMetricSnapshotsInput, Prisma.SalesBoosterCampaignUpdateWithoutMetricSnapshotsInput>, Prisma.SalesBoosterCampaignUncheckedUpdateWithoutMetricSnapshotsInput>
+}
+
 export type SalesBoosterCampaignCreateWithoutCreatedByInput = {
   id?: string
   title: string
@@ -735,6 +761,7 @@ export type SalesBoosterCampaignCreateWithoutCreatedByInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   approvedBy?: Prisma.UserCreateNestedOneWithoutSalesBoosterCampaignsApprovedInput
+  metricSnapshots?: Prisma.SalesBoosterMetricSnapshotCreateNestedManyWithoutCampaignInput
 }
 
 export type SalesBoosterCampaignUncheckedCreateWithoutCreatedByInput = {
@@ -757,6 +784,7 @@ export type SalesBoosterCampaignUncheckedCreateWithoutCreatedByInput = {
   lastRunAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  metricSnapshots?: Prisma.SalesBoosterMetricSnapshotUncheckedCreateNestedManyWithoutCampaignInput
 }
 
 export type SalesBoosterCampaignCreateOrConnectWithoutCreatedByInput = {
@@ -789,6 +817,7 @@ export type SalesBoosterCampaignCreateWithoutApprovedByInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   createdBy: Prisma.UserCreateNestedOneWithoutSalesBoosterCampaignsCreatedInput
+  metricSnapshots?: Prisma.SalesBoosterMetricSnapshotCreateNestedManyWithoutCampaignInput
 }
 
 export type SalesBoosterCampaignUncheckedCreateWithoutApprovedByInput = {
@@ -811,6 +840,7 @@ export type SalesBoosterCampaignUncheckedCreateWithoutApprovedByInput = {
   lastRunAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  metricSnapshots?: Prisma.SalesBoosterMetricSnapshotUncheckedCreateNestedManyWithoutCampaignInput
 }
 
 export type SalesBoosterCampaignCreateOrConnectWithoutApprovedByInput = {
@@ -881,6 +911,114 @@ export type SalesBoosterCampaignUpdateManyWithWhereWithoutApprovedByInput = {
   data: Prisma.XOR<Prisma.SalesBoosterCampaignUpdateManyMutationInput, Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutApprovedByInput>
 }
 
+export type SalesBoosterCampaignCreateWithoutMetricSnapshotsInput = {
+  id?: string
+  title: string
+  track: string
+  goal: string
+  creativeName?: string | null
+  creativeType?: string | null
+  channels: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  aiDraft: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  approvalStatus?: string
+  runStatus?: string
+  reviewNote?: string | null
+  connectorResults?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  submittedAt?: Date | string | null
+  approvedAt?: Date | string | null
+  queuedAt?: Date | string | null
+  lastRunAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  createdBy: Prisma.UserCreateNestedOneWithoutSalesBoosterCampaignsCreatedInput
+  approvedBy?: Prisma.UserCreateNestedOneWithoutSalesBoosterCampaignsApprovedInput
+}
+
+export type SalesBoosterCampaignUncheckedCreateWithoutMetricSnapshotsInput = {
+  id?: string
+  title: string
+  track: string
+  goal: string
+  creativeName?: string | null
+  creativeType?: string | null
+  channels: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  aiDraft: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  approvalStatus?: string
+  runStatus?: string
+  reviewNote?: string | null
+  connectorResults?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdById: string
+  approvedById?: string | null
+  submittedAt?: Date | string | null
+  approvedAt?: Date | string | null
+  queuedAt?: Date | string | null
+  lastRunAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type SalesBoosterCampaignCreateOrConnectWithoutMetricSnapshotsInput = {
+  where: Prisma.SalesBoosterCampaignWhereUniqueInput
+  create: Prisma.XOR<Prisma.SalesBoosterCampaignCreateWithoutMetricSnapshotsInput, Prisma.SalesBoosterCampaignUncheckedCreateWithoutMetricSnapshotsInput>
+}
+
+export type SalesBoosterCampaignUpsertWithoutMetricSnapshotsInput = {
+  update: Prisma.XOR<Prisma.SalesBoosterCampaignUpdateWithoutMetricSnapshotsInput, Prisma.SalesBoosterCampaignUncheckedUpdateWithoutMetricSnapshotsInput>
+  create: Prisma.XOR<Prisma.SalesBoosterCampaignCreateWithoutMetricSnapshotsInput, Prisma.SalesBoosterCampaignUncheckedCreateWithoutMetricSnapshotsInput>
+  where?: Prisma.SalesBoosterCampaignWhereInput
+}
+
+export type SalesBoosterCampaignUpdateToOneWithWhereWithoutMetricSnapshotsInput = {
+  where?: Prisma.SalesBoosterCampaignWhereInput
+  data: Prisma.XOR<Prisma.SalesBoosterCampaignUpdateWithoutMetricSnapshotsInput, Prisma.SalesBoosterCampaignUncheckedUpdateWithoutMetricSnapshotsInput>
+}
+
+export type SalesBoosterCampaignUpdateWithoutMetricSnapshotsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  track?: Prisma.StringFieldUpdateOperationsInput | string
+  goal?: Prisma.StringFieldUpdateOperationsInput | string
+  creativeName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  creativeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  channels?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  aiDraft?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  approvalStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  runStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  reviewNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  connectorResults?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  queuedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRunAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdBy?: Prisma.UserUpdateOneRequiredWithoutSalesBoosterCampaignsCreatedNestedInput
+  approvedBy?: Prisma.UserUpdateOneWithoutSalesBoosterCampaignsApprovedNestedInput
+}
+
+export type SalesBoosterCampaignUncheckedUpdateWithoutMetricSnapshotsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  track?: Prisma.StringFieldUpdateOperationsInput | string
+  goal?: Prisma.StringFieldUpdateOperationsInput | string
+  creativeName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  creativeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  channels?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  aiDraft?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  approvalStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  runStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  reviewNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  connectorResults?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdById?: Prisma.StringFieldUpdateOperationsInput | string
+  approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  queuedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRunAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
 export type SalesBoosterCampaignCreateManyCreatedByInput = {
   id?: string
   title: string
@@ -945,6 +1083,7 @@ export type SalesBoosterCampaignUpdateWithoutCreatedByInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   approvedBy?: Prisma.UserUpdateOneWithoutSalesBoosterCampaignsApprovedNestedInput
+  metricSnapshots?: Prisma.SalesBoosterMetricSnapshotUpdateManyWithoutCampaignNestedInput
 }
 
 export type SalesBoosterCampaignUncheckedUpdateWithoutCreatedByInput = {
@@ -967,6 +1106,7 @@ export type SalesBoosterCampaignUncheckedUpdateWithoutCreatedByInput = {
   lastRunAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  metricSnapshots?: Prisma.SalesBoosterMetricSnapshotUncheckedUpdateManyWithoutCampaignNestedInput
 }
 
 export type SalesBoosterCampaignUncheckedUpdateManyWithoutCreatedByInput = {
@@ -1011,6 +1151,7 @@ export type SalesBoosterCampaignUpdateWithoutApprovedByInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdBy?: Prisma.UserUpdateOneRequiredWithoutSalesBoosterCampaignsCreatedNestedInput
+  metricSnapshots?: Prisma.SalesBoosterMetricSnapshotUpdateManyWithoutCampaignNestedInput
 }
 
 export type SalesBoosterCampaignUncheckedUpdateWithoutApprovedByInput = {
@@ -1033,6 +1174,7 @@ export type SalesBoosterCampaignUncheckedUpdateWithoutApprovedByInput = {
   lastRunAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  metricSnapshots?: Prisma.SalesBoosterMetricSnapshotUncheckedUpdateManyWithoutCampaignNestedInput
 }
 
 export type SalesBoosterCampaignUncheckedUpdateManyWithoutApprovedByInput = {
@@ -1058,6 +1200,35 @@ export type SalesBoosterCampaignUncheckedUpdateManyWithoutApprovedByInput = {
 }
 
 
+/**
+ * Count Type SalesBoosterCampaignCountOutputType
+ */
+
+export type SalesBoosterCampaignCountOutputType = {
+  metricSnapshots: number
+}
+
+export type SalesBoosterCampaignCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  metricSnapshots?: boolean | SalesBoosterCampaignCountOutputTypeCountMetricSnapshotsArgs
+}
+
+/**
+ * SalesBoosterCampaignCountOutputType without action
+ */
+export type SalesBoosterCampaignCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the SalesBoosterCampaignCountOutputType
+   */
+  select?: Prisma.SalesBoosterCampaignCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * SalesBoosterCampaignCountOutputType without action
+ */
+export type SalesBoosterCampaignCountOutputTypeCountMetricSnapshotsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SalesBoosterMetricSnapshotWhereInput
+}
+
 
 export type SalesBoosterCampaignSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1082,6 +1253,8 @@ export type SalesBoosterCampaignSelect<ExtArgs extends runtime.Types.Extensions.
   updatedAt?: boolean
   createdBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   approvedBy?: boolean | Prisma.SalesBoosterCampaign$approvedByArgs<ExtArgs>
+  metricSnapshots?: boolean | Prisma.SalesBoosterCampaign$metricSnapshotsArgs<ExtArgs>
+  _count?: boolean | Prisma.SalesBoosterCampaignCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["salesBoosterCampaign"]>
 
 export type SalesBoosterCampaignSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1161,6 +1334,8 @@ export type SalesBoosterCampaignOmit<ExtArgs extends runtime.Types.Extensions.In
 export type SalesBoosterCampaignInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   createdBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   approvedBy?: boolean | Prisma.SalesBoosterCampaign$approvedByArgs<ExtArgs>
+  metricSnapshots?: boolean | Prisma.SalesBoosterCampaign$metricSnapshotsArgs<ExtArgs>
+  _count?: boolean | Prisma.SalesBoosterCampaignCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type SalesBoosterCampaignIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   createdBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -1176,6 +1351,7 @@ export type $SalesBoosterCampaignPayload<ExtArgs extends runtime.Types.Extension
   objects: {
     createdBy: Prisma.$UserPayload<ExtArgs>
     approvedBy: Prisma.$UserPayload<ExtArgs> | null
+    metricSnapshots: Prisma.$SalesBoosterMetricSnapshotPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1594,6 +1770,7 @@ export interface Prisma__SalesBoosterCampaignClient<T, Null = never, ExtArgs ext
   readonly [Symbol.toStringTag]: "PrismaPromise"
   createdBy<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   approvedBy<T extends Prisma.SalesBoosterCampaign$approvedByArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SalesBoosterCampaign$approvedByArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  metricSnapshots<T extends Prisma.SalesBoosterCampaign$metricSnapshotsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SalesBoosterCampaign$metricSnapshotsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SalesBoosterMetricSnapshotPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2060,6 +2237,30 @@ export type SalesBoosterCampaign$approvedByArgs<ExtArgs extends runtime.Types.Ex
    */
   include?: Prisma.UserInclude<ExtArgs> | null
   where?: Prisma.UserWhereInput
+}
+
+/**
+ * SalesBoosterCampaign.metricSnapshots
+ */
+export type SalesBoosterCampaign$metricSnapshotsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the SalesBoosterMetricSnapshot
+   */
+  select?: Prisma.SalesBoosterMetricSnapshotSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the SalesBoosterMetricSnapshot
+   */
+  omit?: Prisma.SalesBoosterMetricSnapshotOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SalesBoosterMetricSnapshotInclude<ExtArgs> | null
+  where?: Prisma.SalesBoosterMetricSnapshotWhereInput
+  orderBy?: Prisma.SalesBoosterMetricSnapshotOrderByWithRelationInput | Prisma.SalesBoosterMetricSnapshotOrderByWithRelationInput[]
+  cursor?: Prisma.SalesBoosterMetricSnapshotWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.SalesBoosterMetricSnapshotScalarFieldEnum | Prisma.SalesBoosterMetricSnapshotScalarFieldEnum[]
 }
 
 /**

@@ -1875,12 +1875,34 @@ model SalesBoosterCampaign {
   updatedAt      DateTime @updatedAt
   createdBy      User     @relation("SalesBoosterCampaignCreator", fields: [createdById], references: [id], onDelete: Cascade)
   approvedBy     User?    @relation("SalesBoosterCampaignApprover", fields: [approvedById], references: [id], onDelete: SetNull)
+  metricSnapshots SalesBoosterMetricSnapshot[]
 
   @@index([track])
   @@index([approvalStatus])
   @@index([runStatus])
   @@index([createdById])
   @@index([createdAt])
+}
+
+model SalesBoosterMetricSnapshot {
+  id          String   @id @default(cuid())
+  campaignId  String
+  platform    String
+  reach       Int      @default(0)
+  impressions Int      @default(0)
+  clicks      Int      @default(0)
+  leads       Int      @default(0)
+  admissions  Int      @default(0)
+  spend       Float    @default(0)
+  revenue     Float    @default(0)
+  notes       String?
+  capturedAt  DateTime @default(now())
+  createdAt   DateTime @default(now())
+  campaign    SalesBoosterCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@index([campaignId])
+  @@index([platform])
+  @@index([capturedAt])
 }
 
 model Branch {
