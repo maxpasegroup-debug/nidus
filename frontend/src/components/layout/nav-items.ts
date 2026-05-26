@@ -17,24 +17,24 @@ const sharedLearningMenu = [
 
 const learnerGuruMenu = [
   { label: "Dashboard", href: "/dashboard" },
+  { label: "TOPRANK", href: "/dashboard/toprank" },
+  { label: "NIDUS Guru", href: "/dashboard/nidus-guru" },
+  { label: "Academy Programs", href: "/dashboard/academy" },
+  { label: "Assessments", href: "/dashboard/assessments" },
   { label: "Digital Profile", href: "/digital-profile" },
   { label: "Learning", href: "/courses" },
-  { label: "Assessments", href: "/psychometric" },
-  { label: "NIDUS Guru", href: "/guru" },
-  { label: "Profile", href: "/dashboard/settings" },
   { label: "Progress", href: "/progress-reports" },
   { label: "Mock Tests", href: "/tests" },
-  { label: "Live", href: "/live-classes" },
-  { label: "Messages", href: "/messages" }
+  { label: "Live", href: "/live-classes" }
 ];
 
 const guestJourneyMenu = [
   { label: "My Journey", href: "/dashboard/guest" },
-  { label: "TOPRANK", href: "/toprank" },
-  { label: "NIDUS Guru", href: "/guru" },
-  { label: "Academy Programs", href: "/programs" },
-  { label: "Assessments", href: "/psychometric" },
-  { label: "Profile", href: "/dashboard/settings" }
+  { label: "TOPRANK", href: "/dashboard/toprank" },
+  { label: "NIDUS Guru", href: "/dashboard/nidus-guru" },
+  { label: "Academy Programs", href: "/dashboard/academy" },
+  { label: "Assessments", href: "/dashboard/assessments" },
+  { label: "Digital Profile", href: "/digital-profile" }
 ];
 
 const facultyMenu = [

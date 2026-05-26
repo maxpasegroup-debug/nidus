@@ -12,34 +12,35 @@ import {
 import { assessmentCatalog, recommendedAssessmentPath } from "@/components/assessments/assessment-catalog";
 import { academyMenuItems, guruRecordedQuests, topRankExams } from "@/components/marketing/public-modules";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/components/providers/auth-provider-v2";
 import { useGuestDashboard } from "@/hooks/use-dashboard";
 
 const journeyModules = [
   {
     title: "TOPRANK",
     description: "Preview NDA training and understand how exam practice opens from the student dashboard.",
-    href: "/toprank",
+    href: "/dashboard/toprank",
     icon: BrainCircuit,
     action: "Open TOPRANK"
   },
   {
     title: "NIDUS Guru",
     description: "Explore focus, discipline and personal transformation quests planned for students.",
-    href: "/guru",
+    href: "/dashboard/nidus-guru",
     icon: Sparkles,
     action: "Explore Quests"
   },
   {
     title: "Academy Programs",
     description: "See all defence programs and apply for the physical academy.",
-    href: "/programs",
+    href: "/dashboard/academy",
     icon: GraduationCap,
     action: "View Programs"
   },
   {
     title: "Assessments",
     description: "Start free readiness and personality assessments before choosing a path.",
-    href: "/psychometric",
+    href: "/dashboard/assessments",
     icon: ClipboardCheck,
     action: "Start Assessment"
   },
@@ -52,8 +53,8 @@ const journeyModules = [
   },
   {
     title: "Profile",
-    description: "Update your guest account details and password.",
-    href: "/dashboard/settings",
+    description: "Build a recruiter-ready digital profile and shareable portfolio.",
+    href: "/digital-profile",
     icon: UserRound,
     action: "Open Profile"
   }
@@ -66,7 +67,8 @@ const freeAssessmentPreview = recommendedAssessmentPath
   .slice(0, 5);
 
 export default function GuestDashboardPage() {
-  const { data, isLoading, error, refetch, isFetching } = useGuestDashboard();
+  const { user } = useAuth();
+  const { data, isLoading, error, refetch } = useGuestDashboard();
 
   if (isLoading) {
     return (
@@ -93,19 +95,19 @@ export default function GuestDashboardPage() {
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#3f4a32]">My Journey</p>
               <h1 className="mt-4 max-w-4xl text-4xl font-semibold leading-tight text-[#071d36] sm:text-6xl">
-                Start your NIDUS journey as a guest.
+                Welcome{user?.name ? `, ${user.name}` : ""}.
               </h1>
               <p className="mt-5 max-w-2xl text-base leading-8 text-[#40516a]">
                 Explore academy programs, try free assessments, preview TOPRANK and NIDUS Guru, then apply to the physical academy when you are ready.
               </p>
               <div className="mt-7 flex flex-col gap-3 sm:flex-row">
                 <Button href="/join">Apply Now <ArrowRight className="h-4 w-4" /></Button>
-                <Button href="/psychometric" variant="secondary">Start Free Assessment</Button>
+                <Button href="/dashboard/assessments" variant="secondary">Start Free Assessment</Button>
               </div>
             </div>
             <div className="rounded-lg border border-[#071d36]/10 bg-white/80 p-5 shadow-[0_18px_60px_rgba(7,29,54,0.08)] backdrop-blur-xl">
               <ShieldCheck className="h-7 w-7 text-[#b9913f]" />
-              <h2 className="mt-4 text-2xl font-semibold text-[#071d36]">Guest access is active</h2>
+              <h2 className="mt-4 text-2xl font-semibold text-[#071d36]">Your journey is active</h2>
               <div className="mt-5 grid gap-3 text-sm">
                 <StatusRow label="Free assessments" value="Available" />
                 <StatusRow label="Academy application" value="Available" />
@@ -141,7 +143,7 @@ export default function GuestDashboardPage() {
           <Panel eyebrow="TOPRANK" title="NDA training preview">
             <div className="grid gap-3">
               {topRankExams.slice(0, 4).map((exam) => (
-                <Link key={exam.slug} href={exam.href} className="flex items-center justify-between gap-3 rounded border border-[#071d36]/10 bg-[#f7f3ea] px-4 py-3 text-sm font-semibold text-[#071d36] transition hover:border-[#b9913f]/45 hover:bg-white">
+                <Link key={exam.slug} href="/dashboard/toprank" className="flex items-center justify-between gap-3 rounded border border-[#071d36]/10 bg-[#f7f3ea] px-4 py-3 text-sm font-semibold text-[#071d36] transition hover:border-[#b9913f]/45 hover:bg-white">
                   <span>{exam.title}</span>
                   <span className="text-xs uppercase tracking-[0.16em] text-[#3f4a32]">{exam.status === "live" ? "NDA live" : "Preview"}</span>
                 </Link>
@@ -153,7 +155,7 @@ export default function GuestDashboardPage() {
           <Panel eyebrow="NIDUS Guru" title="Transformation quests">
             <div className="grid gap-3">
               {guruRecordedQuests.map((quest) => (
-                <Link key={quest.slug} href={quest.href} className="rounded border border-[#071d36]/10 bg-[#f7f3ea] px-4 py-3 transition hover:border-[#b9913f]/45 hover:bg-white">
+                <Link key={quest.slug} href="/dashboard/nidus-guru" className="rounded border border-[#071d36]/10 bg-[#f7f3ea] px-4 py-3 transition hover:border-[#b9913f]/45 hover:bg-white">
                   <p className="text-sm font-semibold text-[#071d36]">{quest.title}</p>
                   <p className="mt-1 text-xs leading-5 text-[#64748b]">{quest.subtitle}</p>
                 </Link>
@@ -165,21 +167,21 @@ export default function GuestDashboardPage() {
         <section className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
           <Panel eyebrow="Academy Programs" title="Choose the right defence path">
             <div className="grid gap-3 sm:grid-cols-2">
-              {academyPreview.map(([label, href]) => (
-                <Link key={label} href={href} className="rounded border border-[#071d36]/10 bg-[#f7f3ea] px-4 py-3 text-sm font-semibold text-[#071d36] transition hover:border-[#b9913f]/45 hover:bg-white">
+              {academyPreview.map(([label]) => (
+                <Link key={label} href="/dashboard/academy" className="rounded border border-[#071d36]/10 bg-[#f7f3ea] px-4 py-3 text-sm font-semibold text-[#071d36] transition hover:border-[#b9913f]/45 hover:bg-white">
                   {label}
                 </Link>
               ))}
             </div>
             <div className="mt-5">
-              <Button href="/programs" variant="secondary">View All Programs</Button>
+              <Button href="/dashboard/academy" variant="secondary">View All Programs</Button>
             </div>
           </Panel>
 
           <Panel eyebrow="Assessments" title="Start with free profile tests">
             <div className="grid gap-3 sm:grid-cols-2">
               {freeAssessmentPreview.map((assessment) => (
-                <Link key={assessment.id} href={`/psychometric/${assessment.id}`} className="rounded border border-[#071d36]/10 bg-[#f7f3ea] px-4 py-3 transition hover:border-[#b9913f]/45 hover:bg-white">
+                <Link key={assessment.id} href="/dashboard/assessments" className="rounded border border-[#071d36]/10 bg-[#f7f3ea] px-4 py-3 transition hover:border-[#b9913f]/45 hover:bg-white">
                   <p className="text-sm font-semibold text-[#071d36]">{assessment.title}</p>
                   <p className="mt-1 text-xs leading-5 text-[#64748b]">{assessment.subtitle}</p>
                 </Link>
@@ -197,7 +199,7 @@ export default function GuestDashboardPage() {
             </div>
             <div className="flex flex-col gap-3 sm:flex-row">
               <Button href="/join">Apply Now</Button>
-              <Button href="/start-free" variant="secondary">Start Free</Button>
+              <Button href="/digital-profile" variant="secondary">View Digital Profile</Button>
             </div>
           </div>
         </section>

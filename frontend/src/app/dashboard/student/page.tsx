@@ -85,7 +85,7 @@ export default function StudentDashboardPage() {
     {
       title: guruRecommendation?.relatedGuruQuest ?? "Start Guru Mission",
       description: guruRecommendation?.nextStep ?? "Move from report insight to a guided transformation mission.",
-      href: "/guru",
+      href: "/dashboard/nidus-guru",
       tag: "Guru"
     },
     {
@@ -111,7 +111,7 @@ export default function StudentDashboardPage() {
     {
       title: "Start Guru Mission",
       description: guruRecommendation ? `${guruRecommendation.relatedGuruQuest}: ${guruRecommendation.nextStep}` : "Start a focus, discipline, confidence, or life direction quest.",
-      href: "/guru",
+      href: "/dashboard/nidus-guru",
       tag: "Guru"
     },
     {
@@ -219,7 +219,7 @@ export default function StudentDashboardPage() {
               {guruRecommendation?.nextStep ?? "Start a mission that converts ambition into disciplined daily action."}
             </p>
             <div className="mt-5">
-              <Button href="/guru" variant="secondary">Open NIDUS Guru</Button>
+              <Button href="/dashboard/nidus-guru" variant="secondary">Open NIDUS Guru</Button>
             </div>
           </div>
           <div className="grid gap-4 md:grid-cols-3">
