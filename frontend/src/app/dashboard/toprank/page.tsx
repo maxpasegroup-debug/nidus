@@ -8,25 +8,36 @@ import { topRankExams, type TopRankExam } from "@/components/marketing/public-mo
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/components/providers/auth-provider-v2";
 import { useToast } from "@/components/providers/toast-provider";
+import { useSubscriptions } from "@/hooks/use-payments";
 import { createPaymentOrder, verifyPayment } from "@/services/payments";
 import { openRazorpayCheckout } from "@/services/razorpay";
+import { createToprankSession } from "@/services/toprank";
 
-const TOPRANK_MONTHLY_AMOUNT = 2999;
+const TOPRANK_MONTHLY_BASE_AMOUNT = 2999;
+const TOPRANK_GST_RATE = 0.18;
+const TOPRANK_MONTHLY_PAYABLE_AMOUNT = Number((TOPRANK_MONTHLY_BASE_AMOUNT * (1 + TOPRANK_GST_RATE)).toFixed(2));
 
 export default function DashboardToprankPage() {
   const { user } = useAuth();
   const { showToast } = useToast();
+  const subscriptions = useSubscriptions();
   const [selectedExam, setSelectedExam] = useState<TopRankExam | null>(null);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [launchingExam, setLaunchingExam] = useState<string | null>(null);
   const hasTestAccess = user?.roleMetadata?.testAccess === true && user.roleMetadata?.paymentBypass === true;
+  const hasToprankSubscription = (subscriptions.data ?? []).some((item) => {
+    const active = ["ACTIVE", "PAID", "SUCCESS", "VERIFIED"].includes(item.status.toUpperCase());
+    return active && item.planName.toLowerCase().includes("toprank") && new Date(item.endDate) >= new Date();
+  });
+  const hasToprankAccess = hasTestAccess || hasToprankSubscription;
 
-  async function startToprankPayment(exam: TopRankExam) {
+  async function startToprankPayment() {
     if (!user) {
       showToast("Please login or start free before activating TOPRANK.", "error");
       return;
     }
-    if (hasTestAccess) {
-      showToast("Test access is already active for TOPRANK.", "success");
+    if (hasToprankAccess) {
+      showToast("TOPRANK access is already active.", "success");
       return;
     }
     if (user.role !== "STUDENT") {
@@ -37,10 +48,9 @@ export default function DashboardToprankPage() {
     setCheckoutLoading(true);
     try {
       const order = await createPaymentOrder({
-        amount: TOPRANK_MONTHLY_AMOUNT,
+        amount: TOPRANK_MONTHLY_PAYABLE_AMOUNT,
         product: "TOPRANK_MONTHLY",
-        paymentMethod: "TOPRANK_MONTHLY",
-        examSlug: exam.slug
+        paymentMethod: "TOPRANK_MONTHLY"
       });
       await openRazorpayCheckout(
         order,
@@ -54,7 +64,7 @@ export default function DashboardToprankPage() {
               paymentMethod: "RAZORPAY"
             });
             if (result.verified) {
-              showToast("TOPRANK activated for 30 days.", "success");
+              showToast("TOPRANK activated for 30 days across all exam arenas.", "success");
               window.location.assign("/dashboard/toprank");
             } else {
               showToast("Payment verification failed. Please contact support.", "error");
@@ -72,6 +82,29 @@ export default function DashboardToprankPage() {
     }
   }
 
+  async function startExamCoaching(exam: TopRankExam) {
+    if (!hasToprankAccess) {
+      setSelectedExam(exam);
+      showToast("Subscribe once to unlock the full TOPRANK arena.", "info");
+      return;
+    }
+    if (exam.slug !== "nda") {
+      setSelectedExam(exam);
+      showToast(`${exam.title} arena is unlocked. Live AI launch will appear as this exam route is connected.`, "info");
+      return;
+    }
+
+    setLaunchingExam(exam.slug);
+    try {
+      const { launchUrl } = await createToprankSession("nda-army");
+      window.location.assign(launchUrl);
+    } catch (error) {
+      showToast(error instanceof Error ? error.message : "Unable to start TOPRANK coaching.", "error");
+    } finally {
+      setLaunchingExam(null);
+    }
+  }
+
   return (
     <RoleDashboardGuard role={["GUEST", "STUDENT", "PARENT"]}>
       <div className="space-y-8">
@@ -79,27 +112,45 @@ export default function DashboardToprankPage() {
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#3f4a32]">TOPRANK Exam Ecosystem</p>
           <h1 className="mt-4 max-w-4xl text-4xl font-semibold leading-tight text-[#071d36] sm:text-6xl">Choose your exam. Train for top ranks.</h1>
           <p className="mt-5 max-w-3xl text-base leading-8 text-[#40516a]">
-            TOPRANK is the primary exam training system inside NIDUS. It is built around active learning practice, regular examination loops, profiling and mentoring instead of passive learning.
+            Subscribe once and unlock the TOPRANK arena for all exam tracks. Train with active learning practice, regular exam loops, profiling and 24x7 AI trainer guidance.
           </p>
+          <div className="mt-6 grid gap-4 lg:grid-cols-[1fr_auto] lg:items-center">
+            <div className="rounded border border-[#b9913f]/35 bg-white/80 p-5">
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#3f4a32]">Single TOPRANK Subscription</p>
+              <p className="mt-2 text-4xl font-semibold text-[#071d36]">Rs 2,999 <span className="text-base font-medium text-[#64748b]">+ GST / month</span></p>
+              <p className="mt-2 text-sm text-[#64748b]">Payable today: Rs {TOPRANK_MONTHLY_PAYABLE_AMOUNT.toLocaleString("en-IN")} for 30 days access.</p>
+            </div>
+            <Button type="button" onClick={() => void startToprankPayment()} disabled={checkoutLoading || hasToprankAccess} className="w-full lg:w-auto">
+              <CreditCard className="h-4 w-4" />
+              {hasToprankAccess ? "Access Active" : checkoutLoading ? "Opening Razorpay..." : "Subscribe Once"}
+            </Button>
+          </div>
         </section>
 
         <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
           {topRankExams.map((exam) => {
             const Icon = exam.icon;
             return (
-              <button key={exam.slug} type="button" onClick={() => setSelectedExam(exam)} className="group overflow-hidden rounded-lg border border-[#071d36]/10 bg-white text-left shadow-[0_18px_60px_rgba(7,29,54,0.08)] transition hover:-translate-y-1 hover:border-[#b9913f]/45">
-                <div className="relative aspect-[16/9] bg-cover bg-center" style={{ backgroundImage: `linear-gradient(180deg,rgba(5,10,20,0.06),rgba(5,10,20,0.55)),url('${exam.image}')` }}>
+              <article key={exam.slug} className="group overflow-hidden rounded-lg border border-[#071d36]/10 bg-white text-left shadow-[0_18px_60px_rgba(7,29,54,0.08)] transition hover:-translate-y-1 hover:border-[#b9913f]/45">
+                <button type="button" onClick={() => setSelectedExam(exam)} className="block w-full text-left">
+                  <div className="relative aspect-[16/9] bg-cover bg-center" style={{ backgroundImage: `linear-gradient(180deg,rgba(5,10,20,0.06),rgba(5,10,20,0.55)),url('${exam.image}')` }}>
                   <Icon className="absolute bottom-4 left-4 h-7 w-7 text-white" />
                   <span className="absolute right-4 top-4 rounded-full bg-white/90 px-3 py-1 text-[0.68rem] font-bold uppercase tracking-[0.14em] text-[#071d36]">{exam.status === "live" ? "Live" : "Preview"}</span>
-                </div>
+                  </div>
+                </button>
                 <div className="p-5">
                   <h2 className="text-3xl font-semibold text-[#071d36]">{exam.title}</h2>
                   <p className="mt-2 min-h-14 text-sm leading-6 text-[#64748b]">{exam.subtitle}</p>
                   <span className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-[#071d36]">
-                    View Training Plan <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
+                    {hasToprankAccess ? "Start Exam Coaching" : "View Training Plan"} <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
                   </span>
+                  {hasToprankAccess ? (
+                    <Button type="button" size="sm" onClick={() => void startExamCoaching(exam)} disabled={launchingExam === exam.slug} className="mt-4 w-full">
+                      {launchingExam === exam.slug ? "Starting..." : "Start Coaching"}
+                    </Button>
+                  ) : null}
                 </div>
-              </button>
+              </article>
             );
           })}
         </section>
@@ -144,23 +195,24 @@ export default function DashboardToprankPage() {
                         <p className="text-sm text-[#64748b]">30 days of live exam coaching access</p>
                       </div>
                     </div>
-                    <p className="mt-5 text-4xl font-semibold text-[#071d36]">Rs 2,999 <span className="text-base font-medium text-[#64748b]">/ month</span></p>
+                    <p className="mt-5 text-4xl font-semibold text-[#071d36]">Rs 2,999 <span className="text-base font-medium text-[#64748b]">+ GST / month</span></p>
+                    <p className="mt-2 text-sm font-semibold text-[#3f4a32]">One subscription unlocks TOPRANK access for every exam arena.</p>
                     <p className="mt-4 text-sm leading-7 text-[#64748b]">Includes 24x7 AI Trainer, active learning practice, regular examination loop, profiling activation, revision guidance and mission-based performance improvement.</p>
-                    <Button type="button" onClick={() => void startToprankPayment(selectedExam)} disabled={checkoutLoading} className="mt-5 w-full">
+                    <Button type="button" onClick={() => hasToprankAccess ? void startExamCoaching(selectedExam) : void startToprankPayment()} disabled={checkoutLoading || launchingExam === selectedExam.slug} className="mt-5 w-full">
                       <CreditCard className="h-4 w-4" />
-                      {hasTestAccess ? "Test Access Active" : checkoutLoading ? "Opening Razorpay..." : user?.role === "STUDENT" ? "Pay and Activate" : "Apply for Student Access"}
+                      {hasToprankAccess ? launchingExam === selectedExam.slug ? "Starting..." : "Start Exam Coaching" : checkoutLoading ? "Opening Razorpay..." : user?.role === "STUDENT" ? "Subscribe and Unlock" : "Apply for Student Access"}
                     </Button>
                   </article>
                   <div className="rounded border border-[#071d36]/10 bg-[#f7f3ea] p-5">
                     <h4 className="font-semibold text-[#071d36]">What happens after payment?</h4>
                     <div className="mt-4 space-y-3 text-sm leading-6 text-[#64748b]">
                       <p>1. Razorpay verifies the payment securely.</p>
-                      <p>2. Your selected exam gets TOPRANK access for 30 days.</p>
-                      <p>3. Training opens with profiling, practice loops and AI trainer guidance.</p>
+                      <p>2. TOPRANK arena unlocks for all exams for 30 days.</p>
+                      <p>3. Choose an exam and continue coaching from inside the arena.</p>
                     </div>
                   </div>
                 </div>
-                <p className="mt-4 text-sm leading-6 text-[#64748b]">No confusing tiers. One focused plan for students who want daily exam training and rank-focused improvement.</p>
+                <p className="mt-4 text-sm leading-6 text-[#64748b]">No exam-wise payments. One focused subscription for students who want daily exam training and rank-focused improvement.</p>
               </div>
 
               <div className="mt-6 flex flex-col gap-3 sm:flex-row">

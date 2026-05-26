@@ -9,7 +9,9 @@ const paymentInclude = { user: { select: userSelect }, course: true, installment
 const manualMethods = new Set(["CASH", "UPI", "BANK_TRANSFER", "CHEQUE", "OFFICE_COLLECTION"]);
 const financeAdminRoles = new Set<Role>([Role.ADMIN, Role.DIRECTOR]);
 const TOPRANK_MONTHLY_PRODUCT = "TOPRANK_MONTHLY";
-const TOPRANK_MONTHLY_AMOUNT = 2999;
+const TOPRANK_MONTHLY_BASE_AMOUNT = 2999;
+const TOPRANK_GST_RATE = 0.18;
+const TOPRANK_MONTHLY_AMOUNT = Number((TOPRANK_MONTHLY_BASE_AMOUNT * (1 + TOPRANK_GST_RATE)).toFixed(2));
 const TOPRANK_MONTHLY_DAYS = 30;
 
 type Requester = { id: string; role: Role; instituteId?: string | null; branchId?: string | null };
@@ -42,11 +44,12 @@ function parseRemarks(remarks?: string | null) {
   }
 }
 
-function toprankRemarks(examSlug?: string) {
+function toprankRemarks() {
   return JSON.stringify({
     product: TOPRANK_MONTHLY_PRODUCT,
-    examSlug: examSlug || "nda",
     planName: "TOPRANK AI Trainer Monthly",
+    baseAmount: TOPRANK_MONTHLY_BASE_AMOUNT,
+    gstRate: TOPRANK_GST_RATE,
     durationDays: TOPRANK_MONTHLY_DAYS
   });
 }
@@ -98,11 +101,10 @@ async function activateToprankSubscription(payment: Payment) {
 
   const startDate = new Date();
   const endDate = new Date(startDate.getTime() + TOPRANK_MONTHLY_DAYS * 24 * 60 * 60 * 1000);
-  const examSlug = typeof remarks.examSlug === "string" ? remarks.examSlug : "nda";
   const subscription = await prisma.subscription.create({
     data: {
       userId: payment.userId,
-      planName: `TOPRANK AI Trainer Monthly - ${examSlug.toUpperCase()}`,
+      planName: "TOPRANK AI Trainer Monthly",
       startDate,
       endDate,
       status: "ACTIVE",
@@ -117,8 +119,8 @@ async function activateToprankSubscription(payment: Payment) {
       reconciledAt: new Date()
     }
   }).catch(() => undefined);
-  await logPayment(payment.id, "TOPRANK_30_DAY_ACCESS_ACTIVATED", payment.userId, undefined, "ACTIVE", { subscriptionId: subscription.id, examSlug });
-  await enqueueNotification({ title: "TOPRANK activated", body: "Your 30-day TOPRANK AI Trainer access is now live.", targetAudience: payment.userId });
+  await logPayment(payment.id, "TOPRANK_30_DAY_ACCESS_ACTIVATED", payment.userId, undefined, "ACTIVE", { subscriptionId: subscription.id, accessScope: "all_exams" });
+  await enqueueNotification({ title: "TOPRANK activated", body: "Your 30-day TOPRANK AI Trainer access is now live for all exam arenas.", targetAudience: payment.userId });
 }
 
 async function reconcileFeePlan(feePlanId: string) {
@@ -157,7 +159,7 @@ export const paymentsService = {
         paymentStatus: "CREATED",
         paymentMethod: isToprankOrder ? TOPRANK_MONTHLY_PRODUCT : input.paymentMethod ?? "RAZORPAY",
         paymentMode: "ONLINE",
-        remarks: isToprankOrder ? toprankRemarks(input.examSlug) : undefined
+        remarks: isToprankOrder ? toprankRemarks() : undefined
       },
       include: paymentInclude
     });

@@ -67,7 +67,7 @@ describe("Career7 TOPRANK bridge", () => {
   it("frontend posts to the backend session route and redirects from launchUrl", () => {
     expect(frontendService).toContain('apiClient.post<{ launchUrl: string }>("/toprank/session"');
     expect(launchCard).toContain("window.location.assign(launchUrl)");
-    expect(launchCard).toContain("Start NDA Mission");
+    expect(launchCard).toContain("Start Exam Coaching");
     expect(studentDashboard).toContain("<ToprankLaunchCard");
   });
 });

@@ -48,10 +48,10 @@ export function ToprankLaunchCard({ adminLinks = false }: { adminLinks?: boolean
               <BrainCircuit className="h-6 w-6" />
             </div>
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-gold-soft">NDA Mission Engine</p>
-              <h2 className="mt-2 text-2xl font-semibold text-ink">TOPRANK NDA AI Training</h2>
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-gold-soft">TOPRANK Mission Engine</p>
+              <h2 className="mt-2 text-2xl font-semibold text-ink">TOPRANK Exam Coaching</h2>
               <p className="mt-3 max-w-2xl text-sm leading-7 text-muted">
-                Personal NDA performance coach for speed, accuracy, memory, discipline, and rank readiness.
+                One active TOPRANK subscription unlocks the exam coaching arena. Start your current mission route and continue daily practice.
               </p>
             </div>
           </div>
@@ -72,7 +72,7 @@ export function ToprankLaunchCard({ adminLinks = false }: { adminLinks?: boolean
             <div className="flex items-end">
               <Button type="button" onClick={launchMission} disabled={isLaunching} className="w-full sm:w-auto">
                 <ExternalLink className="h-4 w-4" />
-                {isLaunching ? "Launching..." : "Start NDA Mission"}
+                {isLaunching ? "Launching..." : "Start Exam Coaching"}
               </Button>
             </div>
           </div>
@@ -80,7 +80,7 @@ export function ToprankLaunchCard({ adminLinks = false }: { adminLinks?: boolean
           {adminLinks ? (
             <div className="mt-4 flex flex-wrap gap-2">
               <Button type="button" variant="secondary" size="sm" onClick={() => launchAdmin("admin")} disabled={Boolean(adminTarget)}>
-                {adminTarget === "admin" ? "Opening..." : "TOPRANK NDA Admin"}
+                {adminTarget === "admin" ? "Opening..." : "TOPRANK Admin"}
               </Button>
               <Button type="button" variant="secondary" size="sm" onClick={() => launchAdmin("ops")} disabled={Boolean(adminTarget)}>
                 {adminTarget === "ops" ? "Opening..." : "TOPRANK Ops"}
