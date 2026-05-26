@@ -69,5 +69,21 @@ export const salesBoosterController = {
     } catch (error) {
       next(error);
     }
+  },
+
+  async connectorStatus(_req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      res.json({ connectors: await salesBoosterService.connectorStatus() });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async runCampaign(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      res.json({ campaign: await salesBoosterService.runCampaign(requester(req), param(req, "id")) });
+    } catch (error) {
+      next(error);
+    }
   }
 };

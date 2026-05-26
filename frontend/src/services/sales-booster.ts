@@ -22,9 +22,11 @@ export type SalesBoosterCampaign = {
   approvalStatus: SalesBoosterApprovalStatus;
   runStatus: string;
   reviewNote?: string | null;
+  connectorResults?: Array<{ channel: string; status: string; message: string; externalId?: string }> | null;
   submittedAt?: string | null;
   approvedAt?: string | null;
   queuedAt?: string | null;
+  lastRunAt?: string | null;
   createdAt: string;
   updatedAt: string;
   createdBy?: { id: string; name: string; email: string; role: string };
@@ -36,6 +38,7 @@ export type SalesBoosterSummary = {
   statusCounts: Record<string, number>;
   trackCounts: Record<string, number>;
   runReady: number;
+  connectorStatus?: Record<string, boolean>;
   apiConnected: boolean;
   nextIntegration: string;
 };
@@ -48,6 +51,11 @@ export async function getSalesBoosterCampaigns() {
 export async function getSalesBoosterSummary() {
   const response = await apiClient.get<{ summary: SalesBoosterSummary }>("/sales-booster/summary");
   return response.data.summary;
+}
+
+export async function getSalesBoosterConnectors() {
+  const response = await apiClient.get<{ connectors: Record<string, boolean> }>("/sales-booster/connectors");
+  return response.data.connectors;
 }
 
 export async function createSalesBoosterCampaign(payload: {
@@ -72,5 +80,10 @@ export async function updateSalesBoosterStatus(payload: {
     approvalStatus: payload.approvalStatus,
     reviewNote: payload.reviewNote
   });
+  return response.data.campaign;
+}
+
+export async function runSalesBoosterCampaign(id: string) {
+  const response = await apiClient.post<{ campaign: SalesBoosterCampaign }>(`/sales-booster/campaigns/${id}/run`);
   return response.data.campaign;
 }

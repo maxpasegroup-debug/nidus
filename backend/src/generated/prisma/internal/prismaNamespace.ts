@@ -10021,11 +10021,13 @@ export const SalesBoosterCampaignScalarFieldEnum = {
   approvalStatus: 'approvalStatus',
   runStatus: 'runStatus',
   reviewNote: 'reviewNote',
+  connectorResults: 'connectorResults',
   createdById: 'createdById',
   approvedById: 'approvedById',
   submittedAt: 'submittedAt',
   approvedAt: 'approvedAt',
   queuedAt: 'queuedAt',
+  lastRunAt: 'lastRunAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

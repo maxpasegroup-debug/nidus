@@ -1864,11 +1864,13 @@ model SalesBoosterCampaign {
   approvalStatus String   @default("DRAFT")
   runStatus      String   @default("API_NOT_CONNECTED")
   reviewNote     String?
+  connectorResults Json?
   createdById    String
   approvedById   String?
   submittedAt    DateTime?
   approvedAt     DateTime?
   queuedAt       DateTime?
+  lastRunAt       DateTime?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
   createdBy      User     @relation("SalesBoosterCampaignCreator", fields: [createdById], references: [id], onDelete: Cascade)

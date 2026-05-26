@@ -62,7 +62,18 @@ const envSchema = z.object({
   CAREER7_BASE_URL: z.string().default(""),
   CAREER7_NIDUS_TENANT_ID: z.string().default("nidus-top-rank"),
   CAREER7_BRIDGE_SECRET: z.string().default(""),
-  CAREER7_ALLOWED_EXAMS: z.string().default("nda-army,nda-navy,nda-air-force,nda-naval-academy")
+  CAREER7_ALLOWED_EXAMS: z.string().default("nda-army,nda-navy,nda-air-force,nda-naval-academy"),
+  SALESBOOSTER_META_ACCESS_TOKEN: z.string().default(""),
+  SALESBOOSTER_META_PAGE_ID: z.string().default(""),
+  SALESBOOSTER_INSTAGRAM_USER_ID: z.string().default(""),
+  SALESBOOSTER_THREADS_ACCESS_TOKEN: z.string().default(""),
+  SALESBOOSTER_THREADS_USER_ID: z.string().default(""),
+  SALESBOOSTER_YOUTUBE_ACCESS_TOKEN: z.string().default(""),
+  SALESBOOSTER_YOUTUBE_CHANNEL_ID: z.string().default(""),
+  SALESBOOSTER_WHATSAPP_ACCESS_TOKEN: z.string().default(""),
+  SALESBOOSTER_WHATSAPP_PHONE_NUMBER_ID: z.string().default(""),
+  SALESBOOSTER_WHATSAPP_TEMPLATE_NAME: z.string().default("nidus_campaign_followup"),
+  SALESBOOSTER_DEFAULT_WHATSAPP_RECIPIENTS: z.string().default("")
 }).superRefine((env, ctx) => {
   if (env.NODE_ENV !== "production") return;
 

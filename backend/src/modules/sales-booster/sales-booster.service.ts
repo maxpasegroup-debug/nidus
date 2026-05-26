@@ -1,5 +1,6 @@
 import { Prisma, Role } from "../../generated/prisma/client.js";
 import { prisma } from "../../config/prisma.js";
+import { salesBoosterConnectors } from "./sales-booster-connectors.service.js";
 
 type Requester = { id: string; role: Role };
 
@@ -123,6 +124,38 @@ export const salesBoosterService = {
     return { message: "Sales Booster campaign deleted" };
   },
 
+  async connectorStatus() {
+    return salesBoosterConnectors.status();
+  },
+
+  async runCampaign(requester: Requester, id: string) {
+    const campaign = await prisma.salesBoosterCampaign.findUniqueOrThrow({
+      where: { id },
+      include: campaignInclude
+    });
+    if (requester.role === Role.MARKETING_COORDINATOR && campaign.createdById !== requester.id) {
+      throw new Error("You can only run your own Sales Booster campaigns.");
+    }
+    if (campaign.approvalStatus !== "RUN_READY") {
+      throw new Error("Campaign must be approved and marked run-ready before API execution.");
+    }
+
+    const results = await salesBoosterConnectors.run(campaign);
+    const hasPosted = results.some((result) => result.status === "POSTED" || result.status === "QUEUED");
+    const hasFailed = results.some((result) => result.status === "FAILED");
+    const runStatus = hasFailed ? "PARTIAL_OR_FAILED" : hasPosted ? "EXECUTED_OR_QUEUED" : "NOT_EXECUTED";
+
+    return prisma.salesBoosterCampaign.update({
+      where: { id },
+      data: {
+        runStatus,
+        connectorResults: results as unknown as Prisma.InputJsonValue,
+        lastRunAt: new Date()
+      },
+      include: campaignInclude
+    });
+  },
+
   async summary(requester: Requester) {
     const campaigns = await this.campaigns(requester);
     const statusCounts = campaigns.reduce<Record<string, number>>((acc, campaign) => {
@@ -139,7 +172,8 @@ export const salesBoosterService = {
       statusCounts,
       trackCounts,
       runReady: campaigns.filter((campaign) => campaign.approvalStatus === "RUN_READY").length,
-      apiConnected: false,
+      connectorStatus: salesBoosterConnectors.status(),
+      apiConnected: Object.values(salesBoosterConnectors.status()).some(Boolean),
       nextIntegration: "Meta, WhatsApp Cloud API, YouTube and Threads connectors"
     };
   }

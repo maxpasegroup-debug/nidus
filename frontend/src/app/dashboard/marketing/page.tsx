@@ -7,7 +7,7 @@ import { ActivityTimeline, DashboardError, DashboardSkeleton, ProgressCard, Quic
 import { useAuth } from "@/components/providers/auth-provider-v2";
 import { Button } from "@/components/ui/button";
 import { useMarketingDashboard } from "@/hooks/use-dashboard";
-import { useCreateSalesBoosterCampaign, useSalesBoosterCampaigns, useSalesBoosterSummary, useUpdateSalesBoosterStatus } from "@/hooks/use-sales-booster";
+import { useCreateSalesBoosterCampaign, useRunSalesBoosterCampaign, useSalesBoosterCampaigns, useSalesBoosterConnectors, useSalesBoosterSummary, useUpdateSalesBoosterStatus } from "@/hooks/use-sales-booster";
 import type { SalesBoosterCampaign, SalesBoosterDraft } from "@/services/sales-booster";
 
 const campaignTracks = [
@@ -59,8 +59,10 @@ export default function MarketingDashboardPage() {
   const { data, isLoading, error, refetch, isFetching } = useMarketingDashboard();
   const campaigns = useSalesBoosterCampaigns();
   const summary = useSalesBoosterSummary();
+  const connectors = useSalesBoosterConnectors();
   const createCampaign = useCreateSalesBoosterCampaign();
   const updateStatus = useUpdateSalesBoosterStatus();
+  const runCampaign = useRunSalesBoosterCampaign();
   const [selectedTrack, setSelectedTrack] = useState(campaignTracks[0].title);
   const [goal, setGoal] = useState("Generate NDA admissions campaign for Kerala students with a parent-friendly message and WhatsApp follow-up.");
   const [creativeName, setCreativeName] = useState("No creative selected");
@@ -68,6 +70,7 @@ export default function MarketingDashboardPage() {
   const draft = useMemo(() => buildCampaignDraft(goal, selectedTrack), [goal, selectedTrack]);
   const savedCampaigns = campaigns.data ?? [];
   const boosterSummary = summary.data;
+  const connectorStatus = connectors.data ?? boosterSummary?.connectorStatus ?? {};
   const canApprove = user?.role === "ADMIN" || user?.role === "DIRECTOR";
 
   function saveCampaign(status: "DRAFT" | "SUBMITTED" = "DRAFT") {
@@ -121,7 +124,7 @@ export default function MarketingDashboardPage() {
           <StatCard label="Saved Campaigns" value={String(boosterSummary?.totalCampaigns ?? savedCampaigns.length)} note="Sales Booster records" />
           <StatCard label="Leads Generated" value={String(data.campaignTracking.leadsGenerated)} note="from existing CRM signals" />
           <StatCard label="Social Reach" value={`${Math.round(data.socialCampaignAnalytics.reach / 1000)}K`} note={`${data.socialCampaignAnalytics.enquiries} enquiries`} />
-          <StatCard label="Run Ready" value={String(boosterSummary?.runReady ?? 0)} note="approved for API connection" />
+          <StatCard label="Connectors" value={String(Object.values(connectorStatus).filter(Boolean).length)} note="configured external APIs" />
         </section>
 
         <section className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
@@ -206,8 +209,23 @@ export default function MarketingDashboardPage() {
                     <Button size="sm" type="button" variant="secondary" onClick={() => updateStatus.mutate({ id: campaign.id, approvalStatus: "NEEDS_REVISION", reviewNote: "Revise campaign before approval." })} disabled={updateStatus.isPending}>Revise</Button>
                   </>
                 ) : null}
-                {campaign.approvalStatus === "RUN_READY" ? <Button size="sm" type="button" variant="secondary" disabled>API Run Pending</Button> : null}
+                {campaign.approvalStatus === "RUN_READY" ? (
+                  <Button size="sm" type="button" variant="secondary" onClick={() => runCampaign.mutate(campaign.id)} disabled={runCampaign.isPending}>
+                    {runCampaign.isPending ? "Running..." : "Run Connectors"}
+                  </Button>
+                ) : null}
               </div>
+              {campaign.connectorResults?.length ? (
+                <div className="mt-4 grid gap-2">
+                  {campaign.connectorResults.map((result) => (
+                    <div key={`${campaign.id}-${result.channel}`} className="rounded border border-white/10 bg-navy-deep/45 p-3 text-xs leading-5 text-muted">
+                      <span className="font-semibold text-gold">{result.channel}: {result.status}</span>
+                      <br />
+                      {result.message}
+                    </div>
+                  ))}
+                </div>
+              ) : null}
             </article>
           )) : (
             <div className="rounded-lg border border-white/10 bg-white/[0.055] p-5 lg:col-span-3">
@@ -238,7 +256,7 @@ export default function MarketingDashboardPage() {
                 <div key={title} className="flex items-start gap-3 rounded border border-white/10 bg-navy-deep/55 p-4">
                   <PlayCircle className="mt-0.5 h-5 w-5 shrink-0 text-gold" />
                   <div>
-                    <p className="font-semibold text-white">{title}</p>
+                    <p className="font-semibold text-white">{title} <span className="ml-2 text-xs font-semibold text-gold">{connectorStatus[title] ? "Connected" : "Not configured"}</span></p>
                     <p className="mt-1 text-sm leading-6 text-muted">{text}</p>
                   </div>
                 </div>
@@ -266,8 +284,8 @@ export default function MarketingDashboardPage() {
         </section>
 
         <section className="grid gap-4 md:grid-cols-3">
-          <StatCard label="Phase 2 Scope" value="Persisted" note="campaign records, review states and approval history" />
-          <StatCard label="External APIs" value="Phase 3" note="Meta, YouTube, Threads and WhatsApp not called yet" />
+          <StatCard label="Phase 3 Scope" value="Connectors" note="safe external API run layer added" />
+          <StatCard label="External APIs" value={boosterSummary?.apiConnected ? "Configured" : "Awaiting Keys"} note="Meta, YouTube, Threads and WhatsApp checked server-side" />
           <StatCard label="Lead Safety" value="Opt-in" note="bulk WhatsApp must use approved templates" />
         </section>
 

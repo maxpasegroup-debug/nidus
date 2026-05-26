@@ -11,6 +11,7 @@ const approvalStatuses = ["DRAFT", "SUBMITTED", "APPROVED", "NEEDS_REVISION", "R
 
 salesBoosterRouter.get("/campaigns", ...salesBoosterRoles, salesBoosterController.campaigns);
 salesBoosterRouter.get("/summary", ...salesBoosterRoles, salesBoosterController.summary);
+salesBoosterRouter.get("/connectors", ...salesBoosterRoles, salesBoosterController.connectorStatus);
 salesBoosterRouter.post(
   "/campaigns",
   ...salesBoosterRoles,
@@ -49,3 +50,4 @@ salesBoosterRouter.patch(
   salesBoosterController.updateStatus
 );
 salesBoosterRouter.delete("/campaigns/:id", ...salesBoosterRoles, salesBoosterController.deleteCampaign);
+salesBoosterRouter.post("/campaigns/:id/run", ...salesBoosterRoles, salesBoosterController.runCampaign);
