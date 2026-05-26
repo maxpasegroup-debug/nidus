@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ArrowRight, BrainCircuit, CheckCircle2, ClipboardCheck, LockKeyhole, Target } from "lucide-react";
+import { ArrowLeft, BrainCircuit, CheckCircle2, ClipboardCheck, LockKeyhole, Target } from "lucide-react";
 import { ProgramEnquiryForm } from "@/components/academy/program-enquiry-form";
 import { getTopRankExam, topRankExams } from "@/components/marketing/public-modules";
+import { ToprankPublicCta } from "@/components/toprank/toprank-public-cta";
 
 export function generateStaticParams() {
   return topRankExams.map((exam) => ({ slug: exam.slug }));
@@ -36,14 +37,7 @@ export default async function TopRankArenaPage({ params }: { params: Promise<{ s
               <h1 className="mt-5 text-5xl font-semibold leading-[0.95] text-[#071d36] sm:text-7xl">{exam.title} Practice Arena</h1>
               <p className="mt-6 max-w-2xl text-base leading-8 text-[#64748b]">{exam.subtitle}</p>
               <p className="mt-4 max-w-2xl text-sm leading-7 text-[#071d36]">{exam.whatItIs}</p>
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <Link href={isLive ? "/start-free?intent=toprank&program=TOPRANK%20NDA" : "#enquire"} className="inline-flex min-h-12 items-center justify-center gap-2 rounded border border-[#b58b35]/45 bg-[linear-gradient(135deg,#fff3bf_0%,#e7c873_34%,#b9913f_72%,#8a6426_100%)] px-5 py-3 text-sm font-semibold text-[#071d36] transition hover:-translate-y-0.5 hover:brightness-105">
-                  {isLive ? `Start ${exam.title} Training` : "Join Guidance List"} <ArrowRight className="h-4 w-4" />
-                </Link>
-                <Link href={isLive ? "/login" : "/start-free?intent=toprank"} className="inline-flex min-h-12 items-center justify-center gap-2 rounded border border-[#071d36]/14 bg-white px-5 py-3 text-sm font-semibold text-[#071d36] transition hover:-translate-y-0.5">
-                  {isLive ? "Create Free Account" : "Start Free"}
-                </Link>
-              </div>
+              <ToprankPublicCta examTitle={exam.title} isLive={isLive} />
             </div>
             <div className="overflow-hidden rounded-lg border border-white/70 bg-white p-3 shadow-[0_28px_90px_rgba(7,29,54,0.12)]">
               <div className="relative min-h-[28rem] rounded bg-cover bg-center" style={{ backgroundImage: `linear-gradient(180deg,rgba(5,10,20,0.04),rgba(5,10,20,0.54)),url('${exam.image}')` }}>
