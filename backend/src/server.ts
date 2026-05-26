@@ -15,6 +15,7 @@ async function startupChecks() {
   const databaseConnected = await verifyDatabaseConnection();
   if (!databaseConnected) throw new Error("Database startup validation failed");
   await AuthServiceV2.ensureSuperAdmin();
+  await AuthServiceV2.ensureTestAccount();
   await verifyRedisConnection();
   assertCloudinaryReady();
   if (env.PROCESS_ROLE !== "web") await startInfrastructureWorkers();

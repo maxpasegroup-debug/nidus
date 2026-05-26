@@ -17,6 +17,7 @@ const plans = [
 export default function DashboardToprankPage() {
   const { user } = useAuth();
   const [selectedExam, setSelectedExam] = useState<TopRankExam | null>(null);
+  const hasTestAccess = user?.roleMetadata?.testAccess === true && user.roleMetadata?.paymentBypass === true;
 
   return (
     <RoleDashboardGuard role={["GUEST", "STUDENT", "PARENT"]}>
@@ -85,9 +86,9 @@ export default function DashboardToprankPage() {
                       <h4 className="text-lg font-semibold text-[#071d36]">{plan.name}</h4>
                       <p className="mt-2 text-2xl font-semibold text-[#3f4a32]">{plan.price}</p>
                       <p className="mt-3 min-h-24 text-sm leading-6 text-[#64748b]">{plan.text}</p>
-                      <Button href={user?.role === "STUDENT" ? "/subscriptions" : "/join"} className="mt-4 w-full">
+                      <Button href={hasTestAccess ? "/dashboard/student" : user?.role === "STUDENT" ? "/subscriptions" : "/join"} className="mt-4 w-full">
                         <CreditCard className="h-4 w-4" />
-                        {user?.role === "STUDENT" ? "Continue to Payment" : "Apply for Student Access"}
+                        {hasTestAccess ? "Test Access Active" : user?.role === "STUDENT" ? "Continue to Payment" : "Apply for Student Access"}
                       </Button>
                     </article>
                   ))}

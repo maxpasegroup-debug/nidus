@@ -58,6 +58,7 @@ const envSchema = z.object({
   CLOUDINARY_CLOUD_NAME: z.string().default(""),
   CLOUDINARY_API_KEY: z.string().default(""),
   CLOUDINARY_API_SECRET: z.string().default(""),
+  ENABLE_TEST_ACCOUNT: envBoolean(false),
   CAREER7_BASE_URL: z.string().default(""),
   CAREER7_NIDUS_TENANT_ID: z.string().default("nidus-top-rank"),
   CAREER7_BRIDGE_SECRET: z.string().default(""),

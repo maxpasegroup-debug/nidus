@@ -16,6 +16,10 @@ type NidusUser = {
 const activeSubscriptionStatuses = ["ACTIVE", "PAID", "SUCCESS", "VERIFIED"];
 const bridgeTtlSeconds = 180;
 
+function metadataObject(value: unknown) {
+  return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
+}
+
 export function allowedCareer7Exams() {
   const configured = env.CAREER7_ALLOWED_EXAMS.split(",").map((item) => item.trim()).filter(Boolean);
   return configured.length ? configured : [...allowedToprankExams];
@@ -40,6 +44,15 @@ function bridgeSignature(payload: string) {
 }
 
 async function userSubscriptionTier(userId: string) {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { roleMetadata: true }
+  });
+  const metadata = metadataObject(user?.roleMetadata);
+  if (metadata.testAccess === true && metadata.paymentBypass === true) {
+    return typeof metadata.subscriptionTier === "string" ? metadata.subscriptionTier : "signature_identity";
+  }
+
   const subscription = await prisma.subscription.findFirst({
     where: {
       userId,

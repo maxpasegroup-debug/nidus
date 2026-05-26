@@ -47,6 +47,15 @@ describe("Career7 TOPRANK bridge", () => {
     expect(service).toContain("mapSubscriptionPlanToCareer7Tier");
   });
 
+  it("supports a gated NIDUS test account without exposing payment bypass secrets to frontend", () => {
+    expect(envConfig).toContain("ENABLE_TEST_ACCOUNT");
+    expect(read("src/modules/auth/auth.v2.service.ts")).toContain("test@nidusacademy.in");
+    expect(service).toContain("paymentBypass");
+    expect(service).toContain("signature_identity");
+    expect(frontendService).not.toContain("TEST_ACCOUNT_PASSWORD");
+    expect(launchCard).not.toContain("TEST_ACCOUNT_PASSWORD");
+  });
+
   it("signs bridge requests and never returns bridge secret", () => {
     expect(service).toContain('createHmac("sha256", env.CAREER7_BRIDGE_SECRET)');
     expect(service).toContain('"x-nidus-signature"');

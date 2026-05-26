@@ -7,6 +7,9 @@ import { emailService } from "../../services/email.service.js";
 
 export const SUPER_ADMIN_EMAIL = "nidusacademycalicut@gmail.com";
 export const DEFAULT_ACCOUNT_PASSWORD = "123456789";
+export const TEST_ACCOUNT_EMAIL = "test@nidusacademy.in";
+export const TEST_ACCOUNT_PASSWORD = "123456789";
+const TEST_ACCOUNT_MOBILE = "+910000000045";
 const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 
 type SafeUser = Pick<User, "id" | "name" | "email" | "role" | "emailVerified" | "instituteId" | "branchId" | "roleMetadata">;
@@ -90,6 +93,73 @@ export const AuthServiceV2 = {
         roleActivatedAt: existing.roleActivatedAt ?? new Date(),
         lastRoleActivityAt: new Date(),
         roleMetadata: { ...metadataObject(existing.roleMetadata), superAdmin: true }
+      }
+    });
+    return safeUser(user);
+  },
+
+  async ensureTestAccount() {
+    if (!env.ENABLE_TEST_ACCOUNT) return null;
+
+    const password = await bcrypt.hash(TEST_ACCOUNT_PASSWORD, 12);
+    const now = new Date();
+    const existing = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { email: TEST_ACCOUNT_EMAIL },
+          { mobile: TEST_ACCOUNT_MOBILE }
+        ]
+      }
+    });
+
+    const testMetadata = {
+      testAccess: true,
+      paymentBypass: true,
+      allServicesAccess: true,
+      subscriptionTier: "signature_identity",
+      defaultPassword: true,
+      note: "Seeded NIDUS test account. Enable only for demos, QA, staging or controlled internal testing."
+    };
+
+    if (!existing) {
+      const user = await prisma.user.create({
+        data: {
+          name: "NIDUS Test Student",
+          email: TEST_ACCOUNT_EMAIL,
+          mobile: TEST_ACCOUNT_MOBILE,
+          password,
+          role: Role.STUDENT,
+          emailVerified: true,
+          mobileVerified: true,
+          isDisabled: false,
+          roleOnboardingStatus: "ACTIVE",
+          roleActivatedAt: now,
+          lastRoleActivityAt: now,
+          roleMetadata: testMetadata
+        }
+      });
+      await audit({ userId: user.id, action: "TEST_ACCOUNT_BOOTSTRAP", description: "Bootstrapped controlled test student account" });
+      return safeUser(user);
+    }
+
+    const user = await prisma.user.update({
+      where: { id: existing.id },
+      data: {
+        name: existing.name || "NIDUS Test Student",
+        email: TEST_ACCOUNT_EMAIL,
+        mobile: TEST_ACCOUNT_MOBILE,
+        password,
+        role: Role.STUDENT,
+        emailVerified: true,
+        mobileVerified: true,
+        isDisabled: false,
+        disabledAt: null,
+        roleOnboardingStatus: "ACTIVE",
+        roleActivatedAt: existing.roleActivatedAt ?? now,
+        lastRoleActivityAt: now,
+        loginFailureCount: 0,
+        lockedUntil: null,
+        roleMetadata: { ...metadataObject(existing.roleMetadata), ...testMetadata }
       }
     });
     return safeUser(user);
