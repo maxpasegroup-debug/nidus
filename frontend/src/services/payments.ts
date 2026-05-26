@@ -1,7 +1,7 @@
 import { apiClient } from "@/services/api";
 import type { FeeInstallment, FeePlan, Invoice, Payment, PaymentAnalytics, RazorpayOrderResponse, Subscription } from "@/types/payments";
 
-export async function createPaymentOrder(payload: { userId?: string; courseId?: string; amount: number; currency?: string; paymentMethod?: string }) {
+export async function createPaymentOrder(payload: { userId?: string; courseId?: string; amount: number; currency?: string; paymentMethod?: string; product?: string; examSlug?: string }) {
   return (await apiClient.post<RazorpayOrderResponse>("/payments/create-order", payload)).data;
 }
 export async function verifyPayment(payload: { razorpayOrderId: string; razorpayPaymentId: string; razorpaySignature: string; paymentMethod?: string }) {

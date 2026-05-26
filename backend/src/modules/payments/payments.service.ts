@@ -8,6 +8,9 @@ const userSelect = { id: true, name: true, email: true, mobile: true, role: true
 const paymentInclude = { user: { select: userSelect }, course: true, installment: true, invoice: true, collector: { select: userSelect } } as const;
 const manualMethods = new Set(["CASH", "UPI", "BANK_TRANSFER", "CHEQUE", "OFFICE_COLLECTION"]);
 const financeAdminRoles = new Set<Role>([Role.ADMIN, Role.DIRECTOR]);
+const TOPRANK_MONTHLY_PRODUCT = "TOPRANK_MONTHLY";
+const TOPRANK_MONTHLY_AMOUNT = 2999;
+const TOPRANK_MONTHLY_DAYS = 30;
 
 type Requester = { id: string; role: Role; instituteId?: string | null; branchId?: string | null };
 
@@ -27,6 +30,30 @@ function assertDirectorScope(requester: Requester, target?: { instituteId?: stri
 
 function receiptNumber(prefix = "RCPT") {
   return `NIDUS-${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 7).toUpperCase()}`;
+}
+
+function parseRemarks(remarks?: string | null) {
+  if (!remarks) return {};
+  try {
+    const parsed = JSON.parse(remarks) as unknown;
+    return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed as Record<string, unknown> : {};
+  } catch (_error) {
+    return {};
+  }
+}
+
+function toprankRemarks(examSlug?: string) {
+  return JSON.stringify({
+    product: TOPRANK_MONTHLY_PRODUCT,
+    examSlug: examSlug || "nda",
+    planName: "TOPRANK AI Trainer Monthly",
+    durationDays: TOPRANK_MONTHLY_DAYS
+  });
+}
+
+function isToprankPayment(payment: Pick<Payment, "paymentMethod" | "remarks">) {
+  const remarks = parseRemarks(payment.remarks);
+  return payment.paymentMethod === TOPRANK_MONTHLY_PRODUCT || remarks.product === TOPRANK_MONTHLY_PRODUCT;
 }
 
 async function logPayment(paymentId: string, event: string, actorId?: string, statusFrom?: string | null, statusTo?: string | null, metadata?: unknown) {
@@ -64,6 +91,36 @@ async function applyPaymentToInstallment(payment: Payment) {
   if (installment.feePlanId) await reconcileFeePlan(installment.feePlanId);
 }
 
+async function activateToprankSubscription(payment: Payment) {
+  if (payment.paymentStatus !== "SUCCESS" || !isToprankPayment(payment)) return;
+  const remarks = parseRemarks(payment.remarks);
+  if (typeof remarks.activatedSubscriptionId === "string") return;
+
+  const startDate = new Date();
+  const endDate = new Date(startDate.getTime() + TOPRANK_MONTHLY_DAYS * 24 * 60 * 60 * 1000);
+  const examSlug = typeof remarks.examSlug === "string" ? remarks.examSlug : "nda";
+  const subscription = await prisma.subscription.create({
+    data: {
+      userId: payment.userId,
+      planName: `TOPRANK AI Trainer Monthly - ${examSlug.toUpperCase()}`,
+      startDate,
+      endDate,
+      status: "ACTIVE",
+      amount: TOPRANK_MONTHLY_AMOUNT
+    }
+  });
+
+  await prisma.payment.update({
+    where: { id: payment.id },
+    data: {
+      remarks: JSON.stringify({ ...remarks, activatedSubscriptionId: subscription.id, accessEndsAt: endDate.toISOString() }),
+      reconciledAt: new Date()
+    }
+  }).catch(() => undefined);
+  await logPayment(payment.id, "TOPRANK_30_DAY_ACCESS_ACTIVATED", payment.userId, undefined, "ACTIVE", { subscriptionId: subscription.id, examSlug });
+  await enqueueNotification({ title: "TOPRANK activated", body: "Your 30-day TOPRANK AI Trainer access is now live.", targetAudience: payment.userId });
+}
+
 async function reconcileFeePlan(feePlanId: string) {
   const installments = await prisma.feeInstallment.findMany({ where: { feePlanId } });
   const paidAmount = installments.reduce((sum, item) => sum + item.paidAmount, 0);
@@ -79,11 +136,14 @@ async function reconcileFeePlan(feePlanId: string) {
 }
 
 export const paymentsService = {
-  async createOrder(requester: Requester, input: { userId?: string; courseId?: string; admissionId?: string; feeInstallmentId?: string; invoiceId?: string; amount: number; currency?: string; paymentMethod?: string }) {
+  async createOrder(requester: Requester, input: { userId?: string; courseId?: string; admissionId?: string; feeInstallmentId?: string; invoiceId?: string; amount: number; currency?: string; paymentMethod?: string; product?: string; examSlug?: string }) {
     const userId = scopedUser(requester, input.userId) ?? requester.id;
     const currency = input.currency ?? "INR";
+    const isToprankOrder = input.product === TOPRANK_MONTHLY_PRODUCT || input.paymentMethod === TOPRANK_MONTHLY_PRODUCT;
+    const amount = isToprankOrder ? TOPRANK_MONTHLY_AMOUNT : input.amount;
+    if (isToprankOrder && input.amount !== TOPRANK_MONTHLY_AMOUNT) throw new Error("Invalid TOPRANK monthly amount");
     const localReceipt = `nidus_${Date.now()}`;
-    const order = await razorpayService.createOrder({ amount: input.amount, currency, receipt: localReceipt });
+    const order = await razorpayService.createOrder({ amount, currency, receipt: localReceipt });
     const payment = await prisma.payment.create({
       data: {
         userId,
@@ -91,12 +151,13 @@ export const paymentsService = {
         admissionId: input.admissionId || undefined,
         feeInstallmentId: input.feeInstallmentId || undefined,
         invoiceId: input.invoiceId || undefined,
-        amount: input.amount,
+        amount,
         currency,
         razorpayOrderId: order.id,
         paymentStatus: "CREATED",
-        paymentMethod: input.paymentMethod ?? "RAZORPAY",
-        paymentMode: "ONLINE"
+        paymentMethod: isToprankOrder ? TOPRANK_MONTHLY_PRODUCT : input.paymentMethod ?? "RAZORPAY",
+        paymentMode: "ONLINE",
+        remarks: isToprankOrder ? toprankRemarks(input.examSlug) : undefined
       },
       include: paymentInclude
     });
@@ -128,6 +189,7 @@ export const paymentsService = {
     await logPayment(payment.id, verified ? "PAYMENT_VERIFIED" : "PAYMENT_FAILED", requester.id, existing.paymentStatus, payment.paymentStatus);
     if (verified) {
       await applyPaymentToInstallment(payment);
+      await activateToprankSubscription(payment);
       await queueFinanceDocument({
         ownerId: payment.userId,
         documentType: "PAYMENT_RECEIPT",
@@ -162,6 +224,7 @@ export const paymentsService = {
     });
     await logPayment(payment.id, "RAZORPAY_WEBHOOK", undefined, existing.paymentStatus, payment.paymentStatus, { event: payload.event });
     await applyPaymentToInstallment(payment);
+    await activateToprankSubscription(payment);
     return { received: true, paymentId: payment.id, status: payment.paymentStatus };
   },
 
