@@ -409,8 +409,12 @@ export const dashboardService = {
       scheduling: { callbacksToday, counselling, overdueFollowUps },
       performance: { callsToday: followUps, conversionRate: percentage(enrolled, totalLeads), averageResponseTime: "No data", notesAdded: followUps },
       customDashboard,
-      modules: ["Lead pipeline", "Enquiry tracking", "Callback scheduling", "Counselling scheduling", "Follow-up tracking", "Lead notes", "Conversion analytics", "AI call-script suggestions", "WhatsApp integration"],
-      aiCallScripts: [],
+      modules: ["Call new leads", "Add call note", "Mark interested", "Book counselling", "Call again later", "Send confirmed admission to Administration", "Check messages", "View simple reports"],
+      aiCallScripts: [
+        "Hello, I am calling from NIDUS Academy. You enquired about defence training. May I know which program you are interested in?",
+        "If the parent is interested, open Counselling and book a convenient time.",
+        "If admission is confirmed, open Send to Admin and hand over the case for fees and documents."
+      ],
       whatsappShell: { status: "Not connected", templates: 0, pendingOptIns: 0 }
     };
   },

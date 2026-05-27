@@ -14,54 +14,27 @@ import {
 } from "@/components/dashboard";
 import { Button } from "@/components/ui/button";
 import { PageHero } from "@/components/layout/page-hero";
-import { ToprankLaunchCard } from "@/components/toprank/toprank-launch-card";
 import { useAdminDashboard } from "@/hooks/use-dashboard";
 
 const commandModules = [
-  { title: "Today", description: "Daily classes, pending fees, admissions follow-ups, tests, staff tasks, and alerts.", href: "/operations-hub" },
-  { title: "Academic Department", description: "Manage classes, subjects, teachers, attendance, exams, materials, and progress.", href: "/courses" },
-  { title: "Admission Cell", description: "Handle leads, enquiries, calls, counselling, onboarding, documents, and collections.", href: "/crm" },
-  { title: "Sales Booster", description: "Plan NIDUS campaigns for Academy, TOPRANK, Guru and assessments from one AI-assisted workspace.", href: "/dashboard/marketing" },
-  { title: "HR Department", description: "Add employees, assign roles, manage onboarding, folders, contracts, and reviews.", href: "/admin-center/users" },
-  { title: "Programs & Fees", description: "Foundation, defence entrance, specialized modules, fee plans, and instalments.", href: "/payments" },
-  { title: "Classes & Content", description: "Schedule live classes, add recorded lessons, upload PDFs, notes, and assignments.", href: "/live-classes" },
-  { title: "Exams & Progress", description: "Host exams, set timing, generate questions with NIDUS AI, and track reports.", href: "/tests" },
-  { title: "Assessment Command", description: "Track psychometric adoption, completed reports, and counselling risk signals.", href: "/psychometric/admin" },
-  { title: "Finance", description: "Fee collection, pending dues, invoices, receipts, refunds, and approvals.", href: "/payments" },
-  { title: "NIDUS AI", description: "Ask what is pending, generate work, create exams, and guide staff actions.", href: "/nidus-ai" },
-  { title: "Reports", description: "Admission, fee, attendance, test, staff, and student progress reports.", href: "/progress-reports" },
-  { title: "Settings", description: "Users, roles, permissions, branches, audit logs, and academy controls.", href: "/admin-center" }
+  { title: "Admission Handover", description: "Receive confirmed admissions from Student Support and continue the official admission process.", href: "/crm/admissions" },
+  { title: "Student Records", description: "Create, update, and verify student and parent account records.", href: "/admin-center/users" },
+  { title: "Fee Follow-up", description: "Check fee status, pending dues, invoices, receipts, and manual payment updates.", href: "/payments" },
+  { title: "Documents", description: "Collect and manage student documents, ID proofs, forms, and academy files.", href: "/documents" },
+  { title: "Notices", description: "Send academy notices, reminders, updates, and parent communication.", href: "/announcements" },
+  { title: "Staff Records", description: "Review employee records, leave, onboarding status, and basic HR documents.", href: "/staff-hr" },
+  { title: "Daily Operations", description: "Check pending operational work, approvals, branch tasks, and closing items.", href: "/operations-hub" },
+  { title: "Reports", description: "Open admission, fee, attendance, student, and staff reports.", href: "/progress-reports" },
+  { title: "Settings", description: "Manage users, roles, permissions, branches, and system controls.", href: "/admin-center" }
 ];
 
 const dailyActions = [
-  { title: "Add employee", description: "Create a teacher, director, telecaller, or marketing staff login.", href: "/admin-center/users" },
-  { title: "Add student or parent", description: "Create learner and parent accounts with the correct dashboard.", href: "/admin-center/users" },
-  { title: "Create course", description: "Add a regular, live, recorded, or hybrid course.", href: "/courses" },
-  { title: "Upload material", description: "Add notes, PDFs, recordings, assignments, and class resources.", href: "/courses" },
-  { title: "Schedule live class", description: "Plan an online class for a batch with teacher access.", href: "/live-classes" },
-  { title: "Host exam", description: "Generate questions, set time, publish exam, and track attempts.", href: "/tests" },
-  { title: "Review assessments", description: "Open psychometric report adoption, risk signals, and recent reports.", href: "/psychometric/admin" },
-  { title: "Open Sales Booster", description: "Create the next admissions, TOPRANK, Guru, or assessment campaign.", href: "/dashboard/marketing" },
-  { title: "Collect fee", description: "Open fee collection, invoices, pending dues, and receipts.", href: "/payments" },
-  { title: "Ask NIDUS", description: "Get pending work, exam ideas, reports, and staff next actions.", href: "/nidus-ai" }
-];
-
-const programTracks = [
-  {
-    title: "Foundation & Long-Term Programs",
-    description: "Mission 2028, After Plus One, Foundation NDA / Civil Services, and yearly plans.",
-    tag: "Track 1"
-  },
-  {
-    title: "Defence Entrance & Academic Preparation",
-    description: "AISSEE, RIMC, NDA crash course, CDS, AFCAT, INET, and school entry preparation.",
-    tag: "Track 2"
-  },
-  {
-    title: "Specialized Modules",
-    description: "Agniveer test series, physical test, AFMC preparation, and SSB interview guidance.",
-    tag: "Track 3"
-  }
+  { title: "Take admission handover", description: "Open confirmed cases sent by Student Support.", href: "/crm/admissions" },
+  { title: "Create student account", description: "Create or update the student/parent login.", href: "/admin-center/users" },
+  { title: "Collect or verify fee", description: "Update payment, invoice, receipt, or due amount.", href: "/payments" },
+  { title: "Upload documents", description: "Attach forms, ID proof, certificates, and admission files.", href: "/documents" },
+  { title: "Send notice", description: "Send reminders or parent-facing academy communication.", href: "/announcements" },
+  { title: "Message team", description: "Coordinate with Student Support, Directors, or faculty.", href: "/messages" }
 ];
 
 export default function AdminDashboardPage() {
@@ -90,9 +63,9 @@ export default function AdminDashboardPage() {
     <RoleDashboardGuard role="ADMIN">
       <motion.div className="space-y-8" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
         <PageHero
-          eyebrow="NIDUS Academy CEO Dashboard"
-          title={isOperationsAdmin ? "CEO operations command" : "Management command dashboard"}
-          description={isOperationsAdmin ? "Review admissions, finance, staff, academy operations, student records, documents, notices, and daily closure from one executive dashboard." : "Three clear departments for daily work: Academic Department, Admission Cell, and HR Department. All hybrid tools stay inside simple menus."}
+          eyebrow="Administration Dashboard"
+          title={isOperationsAdmin ? "Admissions, fees, records, and documents" : "Administration operations"}
+          description={isOperationsAdmin ? "Receive confirmed admissions from Student Support, complete student records, collect fees, manage documents, send notices, and close daily administration work." : "A focused operations desk for student records, fees, documents, notices, staff records, and admission handover."}
           actions={<Button type="button" onClick={() => refetch()} disabled={isFetching} variant="secondary">{isFetching ? "Refreshing..." : "Refresh dashboard"}</Button>}
           stats={[
             { value: String(data.totalStudents), label: "students" },
@@ -108,14 +81,12 @@ export default function AdminDashboardPage() {
           <StatCard label="Staff" value={String(data.staffSummary.totalStaff)} note={`${data.staffSummary.faculty} teachers and ${data.staffSummary.operations} operations`} />
         </section>
 
-        <SectionHeader eyebrow="CEO Menu" title="Choose the work area" />
+        <SectionHeader eyebrow="Administration Menu" title="Choose the work area" />
         <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {commandModules.map((module) => (
             <QuickActionCard key={module.title} title={module.title} description={module.description} href={module.href} />
           ))}
         </section>
-
-        <ToprankLaunchCard adminLinks />
 
         {isOperationsAdmin ? (
           <>
@@ -134,10 +105,10 @@ export default function AdminDashboardPage() {
             <h2 className="mt-3 text-2xl font-semibold text-ink">Today&apos;s management focus</h2>
             <div className="mt-5 grid gap-3">
               {[
-                "Check today&apos;s classes, absentees, pending fees, and admissions follow-ups.",
-                "Confirm teachers have uploaded notes, recordings, or assignments for active batches.",
-                "Prepare the next monthly test, aptitude test, or psychometric growth check.",
-                "Review progress reports and send clear actions to teachers, parents, and students."
+                "Check confirmed admissions sent by Student Support.",
+                "Complete student records, parent details, and document status.",
+                "Review pending fees, receipts, invoices, and manual payment updates.",
+                "Send notices or messages for missing documents, fees, or admission steps."
               ].map((item) => (
                 <div key={item} className="rounded border border-white/10 bg-navy-deep/55 p-4 text-sm leading-6 text-muted">{item}</div>
               ))}
@@ -150,17 +121,10 @@ export default function AdminDashboardPage() {
           </div>
         </section>
 
-        <SectionHeader eyebrow="Quick Actions" title="Common daily work" />
+        <SectionHeader eyebrow="Daily Work" title="Common administration tasks" />
         <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {dailyActions.map((action) => (
             <QuickActionCard key={action.title} title={action.title} description={action.description} href={action.href} />
-          ))}
-        </section>
-
-        <SectionHeader eyebrow="Programs" title="Three channels of NIDUS programs" />
-        <section className="grid gap-4 md:grid-cols-3">
-          {programTracks.map((track) => (
-            <AnnouncementCard key={track.title} title={track.title} description={track.description} tag={track.tag} />
           ))}
         </section>
       </motion.div>

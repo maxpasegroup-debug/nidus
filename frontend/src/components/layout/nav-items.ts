@@ -16,7 +16,7 @@ const sharedLearningMenu = [
 ];
 
 const learnerGuruMenu = [
-  { label: "Dashboard", href: "/dashboard" },
+  { label: "My Journey", href: "/dashboard" },
   { label: "TOPRANK", href: "/dashboard/toprank" },
   { label: "NIDUS Guru", href: "/dashboard/nidus-guru" },
   { label: "Academy Programs", href: "/dashboard/academy" },
@@ -26,6 +26,16 @@ const learnerGuruMenu = [
   { label: "Progress", href: "/progress-reports" },
   { label: "Mock Tests", href: "/tests" },
   { label: "Live", href: "/live-classes" }
+];
+
+const parentMenu = [
+  { label: "Parent View", href: "/dashboard/parent" },
+  { label: "Progress", href: "/progress-reports" },
+  { label: "Assessments", href: "/dashboard/assessments" },
+  { label: "Digital Profile", href: "/digital-profile" },
+  { label: "Fees", href: "/payments" },
+  { label: "Messages", href: "/messages" },
+  { label: "Settings", href: "/dashboard/settings" }
 ];
 
 const guestJourneyMenu = [
@@ -72,50 +82,62 @@ const salesBoosterMenu = [
   { label: "Settings", href: "/dashboard/settings" }
 ];
 
+const telecallerMenu = [
+  { label: "My Calls", href: "/dashboard/telecaller" },
+  { label: "New Leads", href: "/crm/leads" },
+  { label: "Follow-ups", href: "/crm/followups" },
+  { label: "Counselling", href: "/crm/counselling" },
+  { label: "Send to Admin", href: "/crm/admissions" },
+  { label: "Messages", href: "/messages" },
+  { label: "Reports", href: "/progress-reports" },
+  { label: "Settings", href: "/dashboard/settings" }
+];
+
+const adminOperationsMenu = [
+  { label: "Administration", href: "/dashboard/admin" },
+  { label: "Admission Handover", href: "/crm/admissions" },
+  { label: "Student Records", href: "/admin-center/users" },
+  { label: "Fee Follow-up", href: "/payments" },
+  { label: "Documents", href: "/documents" },
+  { label: "Notices", href: "/announcements" },
+  { label: "Staff Records", href: "/staff-hr" },
+  { label: "Reports", href: "/progress-reports" },
+  { label: "Messages", href: "/messages" },
+  { label: "Settings", href: "/admin-center" }
+];
+
+const directorMenu = [
+  { label: "Director Desk", href: "/dashboard/director" },
+  { label: "Today", href: "/operations-hub" },
+  { label: "Admissions", href: "/crm" },
+  { label: "Academics", href: "/courses" },
+  { label: "Finance", href: "/payments" },
+  { label: "Staff & HR", href: "/staff-hr" },
+  { label: "Assessment Command", href: "/psychometric/admin" },
+  { label: "Reports", href: "/progress-reports" },
+  { label: "NIDUS AI", href: "/nidus-ai" },
+  { label: "Settings", href: "/dashboard/settings" }
+];
+
 export function getNavItems(role?: AuthRole) {
   if (role === "ADMIN") {
-    return [
-      { label: "CEO Dashboard", href: "/dashboard/admin" },
-      { label: "Today", href: "/operations-hub" },
-      { label: "Academic Department", href: "/courses" },
-      { label: "Admission Cell", href: "/crm" },
-      { label: "Sales Booster", href: "/dashboard/marketing" },
-      { label: "HR Department", href: "/admin-center/users" },
-      { label: "Programs & Fees", href: "/fees" },
-      { label: "Classes & Content", href: "/live-classes" },
-      { label: "Exams & Progress", href: "/tests" },
-      { label: "Finance", href: "/payments" },
-      { label: "NIDUS AI", href: "/nidus-ai" },
-      { label: "Reports", href: "/progress-reports" },
-      { label: "Messages", href: "/messages" },
-      { label: "CEO Control", href: "/admin-center" }
-    ];
+    return adminOperationsMenu;
   }
 
   if (role === "DIRECTOR") {
-    return [
-      { label: "Dashboard", href: "/dashboard/director" },
-      { label: "Today", href: "/operations-hub" },
-      { label: "Academic Department", href: "/courses" },
-      { label: "Admission Cell", href: "/crm" },
-      { label: "Sales Booster", href: "/dashboard/marketing" },
-      { label: "HR Department", href: "/staff-hr" },
-      { label: "Classes & Content", href: "/live-classes" },
-      { label: "Exams & Progress", href: "/tests" },
-      { label: "Finance", href: "/payments" },
-      { label: "NIDUS AI", href: "/nidus-ai" },
-      { label: "Reports", href: "/progress-reports" },
-      { label: "Messages", href: "/messages" },
-      { label: "Settings", href: "/dashboard/settings" }
-    ];
+    return directorMenu;
   }
 
   if (role === "GUEST") {
     return guestJourneyMenu;
   }
 
-  if (role === "STUDENT" || role === "PARENT") {
-    return learnerGuruMenu.map((item) => (item.label === "Dashboard" ? { ...item, href: roleDashboardPath[role] } : item));
+  if (role === "STUDENT") {
+    return learnerGuruMenu.map((item) => (item.label === "My Journey" ? { ...item, href: roleDashboardPath[role] } : item));
+  }
+
+  if (role === "PARENT") {
+    return parentMenu;
   }
 
   if (role === "TEACHER") {
@@ -124,6 +146,10 @@ export function getNavItems(role?: AuthRole) {
 
   if (role === "MARKETING_COORDINATOR") {
     return salesBoosterMenu;
+  }
+
+  if (role === "TELECALLER") {
+    return telecallerMenu;
   }
 
   return sharedLearningMenu.map((item) => (item.label === "Dashboard" ? { ...item, href: role ? roleDashboardPath[role] : "/dashboard" } : item));
