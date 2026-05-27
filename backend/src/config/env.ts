@@ -67,6 +67,7 @@ const envSchema = z.object({
   SALESBOOSTER_META_PAGE_ID: z.string().default(""),
   SALESBOOSTER_META_AD_ACCOUNT_ID: z.string().default(""),
   SALESBOOSTER_META_LEAD_FORM_ID: z.string().default(""),
+  SALESBOOSTER_META_WEBHOOK_VERIFY_TOKEN: z.string().default("nidus-sales-booster-webhook"),
   SALESBOOSTER_META_DAILY_BUDGET_INR: z.coerce.number().int().positive().default(500),
   SALESBOOSTER_META_TARGET_COUNTRIES: z.string().default("IN"),
   SALESBOOSTER_INSTAGRAM_USER_ID: z.string().default(""),
@@ -80,6 +81,7 @@ const envSchema = z.object({
   SALESBOOSTER_WHATSAPP_TEMPLATE_NAME: z.string().default("nidus_campaign_followup"),
   SALESBOOSTER_WHATSAPP_TEMPLATE_NAMES: z.string().default("nidus_campaign_followup,nidus_admission_alert,nidus_counselling_reminder,nidus_assessment_followup"),
   SALESBOOSTER_WHATSAPP_TEMPLATE_LANGUAGE: z.string().default("en"),
+  SALESBOOSTER_WHATSAPP_WEBHOOK_VERIFY_TOKEN: z.string().default("nidus-whatsapp-webhook"),
   SALESBOOSTER_DEFAULT_WHATSAPP_RECIPIENTS: z.string().default("")
 }).superRefine((env, ctx) => {
   if (env.NODE_ENV !== "production") return;

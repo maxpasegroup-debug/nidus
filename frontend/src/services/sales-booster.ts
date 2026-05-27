@@ -117,6 +117,35 @@ export type SalesBoosterAnalytics = {
   topCampaigns: SalesBoosterAnalyticsCampaign[];
 };
 
+export type SalesBoosterConversionReport = {
+  totals: {
+    campaigns: number;
+    leads: number;
+    admissions: number;
+    spend: number;
+    revenue: number;
+    conversionRate: number;
+    cpl: number;
+    cpa: number;
+    roi: number;
+  };
+  campaigns: Array<{
+    id: string;
+    title: string;
+    track: string;
+    approvalStatus: string;
+    runStatus: string;
+    leads: number;
+    admissions: number;
+    revenue: number;
+    spend: number;
+    cpl: number;
+    cpa: number;
+    conversionRate: number;
+    roi: number;
+  }>;
+};
+
 export type SalesBoosterCampaignReport = {
   campaign: SalesBoosterCampaign & { metricSnapshots: SalesBoosterMetricSnapshot[] };
   leadSource: string;
@@ -206,6 +235,11 @@ export async function getSalesBoosterAudience() {
 export async function getSalesBoosterAnalytics() {
   const response = await apiClient.get<{ analytics: SalesBoosterAnalytics }>("/sales-booster/analytics");
   return response.data.analytics;
+}
+
+export async function getSalesBoosterConversionReport() {
+  const response = await apiClient.get<{ report: SalesBoosterConversionReport }>("/sales-booster/conversion-report");
+  return response.data.report;
 }
 
 export async function getSalesBoosterCampaignReport(id: string) {

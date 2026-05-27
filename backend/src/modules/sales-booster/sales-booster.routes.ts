@@ -10,9 +10,14 @@ export const salesBoosterRouter = Router();
 const salesBoosterRoles = [protect, allowRoles(Role.ADMIN, Role.DIRECTOR, Role.MARKETING_COORDINATOR)];
 const approvalStatuses = ["DRAFT", "SUBMITTED", "APPROVED", "NEEDS_REVISION", "REJECTED", "RUN_READY"];
 
+salesBoosterRouter.get("/webhooks/meta", salesBoosterController.verifyMetaWebhook);
+salesBoosterRouter.post("/webhooks/meta", salesBoosterController.metaWebhook);
+salesBoosterRouter.get("/webhooks/whatsapp", salesBoosterController.verifyWhatsAppWebhook);
+salesBoosterRouter.post("/webhooks/whatsapp", salesBoosterController.whatsAppWebhook);
 salesBoosterRouter.get("/campaigns", ...salesBoosterRoles, salesBoosterController.campaigns);
 salesBoosterRouter.get("/summary", ...salesBoosterRoles, salesBoosterController.summary);
 salesBoosterRouter.get("/analytics", ...salesBoosterRoles, salesBoosterController.analytics);
+salesBoosterRouter.get("/conversion-report", ...salesBoosterRoles, salesBoosterController.conversionReport);
 salesBoosterRouter.get("/connectors", ...salesBoosterRoles, salesBoosterController.connectorStatus);
 salesBoosterRouter.get("/whatsapp/templates", ...salesBoosterRoles, salesBoosterController.whatsappTemplates);
 salesBoosterRouter.get("/scheduled", ...salesBoosterRoles, salesBoosterController.scheduledCampaigns);

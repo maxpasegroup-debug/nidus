@@ -8,7 +8,7 @@ import { ActivityTimeline, DashboardError, DashboardSkeleton, ProgressCard, Quic
 import { useAuth } from "@/components/providers/auth-provider-v2";
 import { Button } from "@/components/ui/button";
 import { useMarketingDashboard } from "@/hooks/use-dashboard";
-import { useAddSalesBoosterAudienceContact, useAddSalesBoosterMetricSnapshot, useAttachSalesBoosterCreative, useBroadcastSalesBoosterWhatsApp, useCreateSalesBoosterCampaign, useGenerateSalesBoosterCampaignDraft, useImportSalesBoosterLeadsToAudience, useRunDueSalesBoosterCampaigns, useRunSalesBoosterCampaign, useSalesBoosterAnalytics, useSalesBoosterAudience, useSalesBoosterCampaigns, useSalesBoosterConnectors, useSalesBoosterSummary, useSalesBoosterWhatsAppTemplates, useScheduleSalesBoosterCampaign, useScheduledSalesBoosterCampaigns, useSyncSalesBoosterCampaignAnalytics, useUpdateSalesBoosterStatus, useUploadSalesBoosterCreative } from "@/hooks/use-sales-booster";
+import { useAddSalesBoosterAudienceContact, useAddSalesBoosterMetricSnapshot, useAttachSalesBoosterCreative, useBroadcastSalesBoosterWhatsApp, useCreateSalesBoosterCampaign, useGenerateSalesBoosterCampaignDraft, useImportSalesBoosterLeadsToAudience, useRunDueSalesBoosterCampaigns, useRunSalesBoosterCampaign, useSalesBoosterAnalytics, useSalesBoosterAudience, useSalesBoosterCampaigns, useSalesBoosterConnectors, useSalesBoosterConversionReport, useSalesBoosterSummary, useSalesBoosterWhatsAppTemplates, useScheduleSalesBoosterCampaign, useScheduledSalesBoosterCampaigns, useSyncSalesBoosterCampaignAnalytics, useUpdateSalesBoosterStatus, useUploadSalesBoosterCreative } from "@/hooks/use-sales-booster";
 import type { SalesBoosterCampaign, SalesBoosterCreative, SalesBoosterDraft } from "@/services/sales-booster";
 
 const campaignTracks = [
@@ -77,6 +77,7 @@ export default function MarketingDashboardPage() {
   const connectors = useSalesBoosterConnectors();
   const whatsappTemplates = useSalesBoosterWhatsAppTemplates();
   const analytics = useSalesBoosterAnalytics();
+  const conversionReport = useSalesBoosterConversionReport();
   const scheduledCampaigns = useScheduledSalesBoosterCampaigns();
   const audience = useSalesBoosterAudience();
   const createCampaign = useCreateSalesBoosterCampaign();
@@ -122,6 +123,7 @@ export default function MarketingDashboardPage() {
   const savedCampaigns = campaigns.data ?? [];
   const boosterSummary = summary.data;
   const boosterAnalytics = analytics.data;
+  const conversion = conversionReport.data;
   const connectorStatus = connectors.data ?? boosterSummary?.connectorStatus ?? {};
   const canApprove = user?.role === "ADMIN" || user?.role === "DIRECTOR";
   const activeMetricCampaignId = metricCampaignId || savedCampaigns[0]?.id || "";
@@ -443,6 +445,24 @@ export default function MarketingDashboardPage() {
                 <p className="mt-2 text-2xl font-semibold text-[#071d36]">Rs {Math.round(boosterAnalytics?.summary.revenue ?? 0).toLocaleString()}</p>
               </div>
             </div>
+            <div className="mt-4 grid gap-3 md:grid-cols-4">
+              <div className="rounded border border-[#b9913f]/25 bg-[#fff7de] p-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#3f4a32]">CRM Leads</p>
+                <p className="mt-2 text-2xl font-semibold text-[#071d36]">{conversion?.totals.leads ?? 0}</p>
+              </div>
+              <div className="rounded border border-[#b9913f]/25 bg-[#fff7de] p-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#3f4a32]">Admissions</p>
+                <p className="mt-2 text-2xl font-semibold text-[#071d36]">{conversion?.totals.admissions ?? 0}</p>
+              </div>
+              <div className="rounded border border-[#b9913f]/25 bg-[#fff7de] p-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#3f4a32]">Conversion</p>
+                <p className="mt-2 text-2xl font-semibold text-[#071d36]">{conversion?.totals.conversionRate ?? 0}%</p>
+              </div>
+              <div className="rounded border border-[#b9913f]/25 bg-[#fff7de] p-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#3f4a32]">Cost / Admission</p>
+                <p className="mt-2 text-2xl font-semibold text-[#071d36]">Rs {Math.round(conversion?.totals.cpa ?? 0).toLocaleString()}</p>
+              </div>
+            </div>
             <div className="mt-5 flex flex-wrap gap-3">
               <Button type="button" onClick={() => activeMetricCampaignId && syncAnalytics.mutate(activeMetricCampaignId)} disabled={!activeMetricCampaignId || syncAnalytics.isPending}>
                 {syncAnalytics.isPending ? "Syncing..." : "Sync Live Analytics"}
@@ -450,7 +470,7 @@ export default function MarketingDashboardPage() {
               <p className="text-sm leading-6 text-[#64748b]">Uses connector IDs from Facebook, Instagram, Meta Ads and YouTube runs.</p>
             </div>
             <div className="mt-5 grid gap-3">
-              {(boosterAnalytics?.topCampaigns ?? []).length ? boosterAnalytics?.topCampaigns.map((campaign) => (
+              {(conversion?.campaigns ?? []).length ? conversion?.campaigns.slice(0, 5).map((campaign) => (
                 <div key={campaign.id} className="rounded border border-[#071d36]/10 bg-white p-4">
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div>
@@ -458,8 +478,8 @@ export default function MarketingDashboardPage() {
                       <p className="mt-1 text-xs font-semibold uppercase tracking-[0.16em] text-[#3f4a32]">{campaign.track}</p>
                     </div>
                     <div className="text-right text-sm text-[#40516a]">
-                      <p>{campaign.leads} leads</p>
-                      <p>CPL Rs {campaign.cpl} | CTR {campaign.ctr}%</p>
+                      <p>{campaign.leads} leads - {campaign.admissions} admissions</p>
+                      <p>CPL Rs {campaign.cpl} | CPA Rs {campaign.cpa} | {campaign.conversionRate}%</p>
                     </div>
                   </div>
                 </div>

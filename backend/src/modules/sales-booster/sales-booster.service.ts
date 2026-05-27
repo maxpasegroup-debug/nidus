@@ -1,4 +1,5 @@
 import { Prisma, Role } from "../../generated/prisma/client.js";
+import { env } from "../../config/env.js";
 import { prisma } from "../../config/prisma.js";
 import { mediaService } from "../media/media.service.js";
 import { salesBoosterAIService } from "./sales-booster-ai.service.js";
@@ -72,6 +73,21 @@ type GenerateCampaignInput = {
   channels?: string[];
 };
 
+type MetaLeadPayload = {
+  leadgen_id?: string;
+  form_id?: string;
+  ad_id?: string;
+  campaign_id?: string;
+  created_time?: number;
+};
+
+type WebhookVerification = {
+  mode?: string;
+  token?: string;
+  challenge?: string;
+  provider: "meta" | "whatsapp";
+};
+
 const campaignInclude = {
   createdBy: { select: { id: true, name: true, email: true, role: true } },
   approvedBy: { select: { id: true, name: true, email: true, role: true } }
@@ -117,6 +133,78 @@ function cleanPhone(phone: string) {
   return phone.replace(/[^\d]/g, "");
 }
 
+function localLeadEmail(phone: string, provider: string) {
+  return `${cleanPhone(phone) || "lead"}@${provider}.nidus.local`;
+}
+
+function fieldValue(fields: Array<{ name?: string; values?: string[] }>, names: string[]) {
+  const lower = new Set(names.map((name) => name.toLowerCase()));
+  const item = fields.find((field) => lower.has(String(field.name ?? "").toLowerCase()));
+  return item?.values?.[0] ?? "";
+}
+
+function metaLeadSource(input: MetaLeadPayload, campaignId?: string) {
+  return `Sales Booster Meta Lead${campaignId ? `: ${campaignId}` : ""}${input.form_id ? ` / Form ${input.form_id}` : ""}${input.ad_id ? ` / Ad ${input.ad_id}` : ""}`;
+}
+
+function webhookToken(provider: "meta" | "whatsapp") {
+  return provider === "meta" ? env.SALESBOOSTER_META_WEBHOOK_VERIFY_TOKEN : env.SALESBOOSTER_WHATSAPP_WEBHOOK_VERIFY_TOKEN;
+}
+
+async function findCampaignByExternalIds(ids: string[]) {
+  const cleanIds = ids.filter(Boolean);
+  if (!cleanIds.length) return null;
+  const campaigns = await prisma.salesBoosterCampaign.findMany({
+    where: { connectorResults: { not: Prisma.JsonNull } },
+    orderBy: { updatedAt: "desc" },
+    take: 100
+  });
+  return campaigns.find((campaign) => cleanIds.some((id) => JSON.stringify(campaign.connectorResults ?? "").includes(id))) ?? null;
+}
+
+async function upsertSalesLead(input: { fullName: string; mobile: string; email?: string; targetExam: string; source: string; notes: string }) {
+  const mobile = cleanPhone(input.mobile);
+  const email = (input.email || localLeadEmail(mobile, "salesbooster")).trim().toLowerCase();
+  const existing = await prisma.lead.findFirst({
+    where: { OR: [{ mobile }, { email }] },
+    orderBy: { createdAt: "desc" }
+  });
+  if (existing) {
+    return prisma.lead.update({
+      where: { id: existing.id },
+      data: {
+        fullName: input.fullName || existing.fullName,
+        mobile: mobile || existing.mobile,
+        email,
+        targetExam: input.targetExam || existing.targetExam,
+        source: input.source,
+        status: existing.status === "LOST" ? "NEW" : existing.status,
+        notes: `${existing.notes ? `${existing.notes}\n\n` : ""}[${new Date().toISOString()}] ${input.notes}`
+      }
+    });
+  }
+  return prisma.lead.create({
+    data: {
+      fullName: input.fullName || "Sales Booster Lead",
+      mobile,
+      email,
+      targetExam: input.targetExam || "NIDUS Academy",
+      source: input.source,
+      status: "NEW",
+      notes: input.notes
+    }
+  });
+}
+
+async function fallbackActorId() {
+  const admin = await prisma.user.findFirst({
+    where: { role: { in: [Role.ADMIN, Role.DIRECTOR, Role.MARKETING_COORDINATOR] } },
+    orderBy: { email: "asc" }
+  });
+  if (!admin) throw new Error("No staff user found for automated Sales Booster follow-up creation.");
+  return admin.id;
+}
+
 async function assertCampaignAccess(requester: Requester, campaign: { createdById: string }) {
   if (requester.role === Role.MARKETING_COORDINATOR && campaign.createdById !== requester.id) {
     throw new Error("You can only manage your own Sales Booster campaigns.");
@@ -131,6 +219,13 @@ function creativeTypeFor(mimeType: string) {
 }
 
 export const salesBoosterService = {
+  verifyWebhook(input: WebhookVerification) {
+    if (input.mode !== "subscribe" || input.token !== webhookToken(input.provider) || !input.challenge) {
+      throw new Error("Webhook verification failed.");
+    }
+    return input.challenge;
+  },
+
   async generateCampaignDraft(_requester: Requester, input: GenerateCampaignInput) {
     return salesBoosterAIService.generateCampaign({
       track: input.track,
@@ -283,6 +378,106 @@ export const salesBoosterService = {
 
   async whatsappTemplates() {
     return salesBoosterConnectors.whatsappTemplates();
+  },
+
+  async processMetaWebhook(payload: unknown) {
+    const body = payload as { entry?: Array<{ changes?: Array<{ field?: string; value?: MetaLeadPayload }> }> };
+    const changes = body.entry?.flatMap((entry) => entry.changes ?? []) ?? [];
+    const leadChanges = changes.filter((change) => change.field === "leadgen" && change.value?.leadgen_id);
+    const processed = [];
+    for (const change of leadChanges) {
+      const value = change.value ?? {};
+      const campaign = await findCampaignByExternalIds([value.campaign_id ?? "", value.ad_id ?? ""]);
+      let leadFields: Array<{ name?: string; values?: string[] }> = [];
+      if (env.SALESBOOSTER_META_ACCESS_TOKEN && value.leadgen_id) {
+        const response = await fetch(`https://graph.facebook.com/v21.0/${value.leadgen_id}?access_token=${encodeURIComponent(env.SALESBOOSTER_META_ACCESS_TOKEN)}`);
+        const data = await response.json().catch(() => ({}));
+        if (response.ok && Array.isArray(data.field_data)) {
+          leadFields = data.field_data;
+        }
+      }
+      const phone = fieldValue(leadFields, ["phone_number", "phone", "mobile", "whatsapp_number"]);
+      const email = fieldValue(leadFields, ["email"]);
+      const fullName = fieldValue(leadFields, ["full_name", "name", "first_name"]);
+      const targetExam = fieldValue(leadFields, ["course", "exam", "program"]) || campaign?.track || "NIDUS Academy";
+      const lead = await upsertSalesLead({
+        fullName: fullName || "Meta Lead",
+        mobile: phone || value.leadgen_id || "",
+        email: email || undefined,
+        targetExam,
+        source: metaLeadSource(value, campaign?.id),
+        notes: `Meta Lead Ads webhook captured.\nLeadgen ID: ${value.leadgen_id ?? "unknown"}\nCampaign: ${campaign?.title ?? value.campaign_id ?? "unknown"}`
+      });
+      await prisma.salesBoosterAudienceContact.upsert({
+        where: { phone_segment: { phone: cleanPhone(phone || lead.mobile), segment: campaign?.track ?? "Meta Leads" } },
+        update: {
+          fullName: lead.fullName,
+          email: lead.email,
+          source: "Meta Lead Ads",
+          interest: lead.targetExam,
+          optIn: true,
+          whatsappStatus: "READY",
+          notes: `Captured from Meta lead form ${value.form_id ?? ""}`.trim()
+        },
+        create: {
+          fullName: lead.fullName,
+          phone: cleanPhone(phone || lead.mobile),
+          email: lead.email,
+          segment: campaign?.track ?? "Meta Leads",
+          source: "Meta Lead Ads",
+          interest: lead.targetExam,
+          optIn: true,
+          whatsappStatus: "READY",
+          notes: `Captured from Meta lead form ${value.form_id ?? ""}`.trim()
+        }
+      });
+      processed.push({ leadId: lead.id, campaignId: campaign?.id ?? null, leadgenId: value.leadgen_id });
+    }
+    return { received: leadChanges.length, processed };
+  },
+
+  async processWhatsAppWebhook(payload: unknown) {
+    const body = payload as {
+      entry?: Array<{ changes?: Array<{ value?: { messages?: Array<{ from?: string; text?: { body?: string }; button?: { text?: string }; interactive?: { button_reply?: { title?: string } } }>; contacts?: Array<{ wa_id?: string; profile?: { name?: string } }> } }> }>;
+    };
+    const changes = body.entry?.flatMap((entry) => entry.changes ?? []) ?? [];
+    const processed = [];
+    for (const change of changes) {
+      const messages = change.value?.messages ?? [];
+      const contacts = change.value?.contacts ?? [];
+      for (const message of messages) {
+        const phone = cleanPhone(message.from ?? "");
+        if (!phone) continue;
+        const contact = contacts.find((item) => cleanPhone(item.wa_id ?? "") === phone);
+        const replyText = message.text?.body ?? message.button?.text ?? message.interactive?.button_reply?.title ?? "WhatsApp reply";
+        const audience = await prisma.salesBoosterAudienceContact.findFirst({ where: { phone }, orderBy: { updatedAt: "desc" } });
+        const lead = await upsertSalesLead({
+          fullName: contact?.profile?.name ?? audience?.fullName ?? "WhatsApp Lead",
+          mobile: phone,
+          email: audience?.email ?? undefined,
+          targetExam: audience?.interest ?? audience?.segment ?? "NIDUS Academy",
+          source: `Sales Booster WhatsApp Reply${audience?.segment ? `: ${audience.segment}` : ""}`,
+          notes: `Incoming WhatsApp reply: ${replyText}`
+        });
+        await prisma.followUp.create({
+          data: {
+            leadId: lead.id,
+            followUpDate: new Date(Date.now() + 2 * 60 * 60 * 1000),
+            remarks: `Reply received on WhatsApp: ${replyText}`,
+            status: "PENDING",
+            createdBy: audience?.createdById ?? lead.assignedTo ?? await fallbackActorId()
+          }
+        }).catch(() => undefined);
+        if (audience) {
+          await prisma.salesBoosterAudienceContact.update({
+            where: { id: audience.id },
+            data: { whatsappStatus: "REPLIED", lastContactedAt: new Date(), notes: `${audience.notes ? `${audience.notes}\n` : ""}Reply: ${replyText}` }
+          });
+        }
+        processed.push({ leadId: lead.id, phone, replyText });
+      }
+    }
+    return { received: processed.length, processed };
   },
 
   async audience(requester: Requester) {
@@ -649,6 +844,74 @@ export const salesBoosterService = {
         roi: metricTotals.spend > 0 ? Math.round(((totalRevenue - metricTotals.spend) / metricTotals.spend) * 10000) / 100 : 0
       },
       snapshots: campaign.metricSnapshots
+    };
+  },
+
+  async conversionReport(requester: Requester) {
+    const campaigns = await prisma.salesBoosterCampaign.findMany({
+      where: requester.role === Role.MARKETING_COORDINATOR ? { createdById: requester.id } : undefined,
+      orderBy: { updatedAt: "desc" },
+      include: { ...campaignInclude, metricSnapshots: true }
+    });
+    const rows = [];
+    for (const campaign of campaigns) {
+      const [leads, admissions] = await Promise.all([
+        prisma.lead.findMany({
+          where: {
+            OR: [
+              { source: { contains: campaign.id, mode: "insensitive" } },
+              { source: { contains: campaign.track, mode: "insensitive" } }
+            ]
+          },
+          orderBy: { createdAt: "desc" }
+        }),
+        prisma.admission.findMany({
+          where: {
+            lead: {
+              OR: [
+                { source: { contains: campaign.id, mode: "insensitive" } },
+                { source: { contains: campaign.track, mode: "insensitive" } }
+              ]
+            }
+          }
+        })
+      ]);
+      const metrics = sumMetrics(campaign.metricSnapshots);
+      const leadCount = Math.max(metrics.leads, leads.length);
+      const admissionCount = Math.max(metrics.admissions, admissions.length);
+      const revenue = Math.max(metrics.revenue, admissions.reduce((sum, admission) => sum + admission.paidAmount, 0));
+      rows.push({
+        id: campaign.id,
+        title: campaign.title,
+        track: campaign.track,
+        approvalStatus: campaign.approvalStatus,
+        runStatus: campaign.runStatus,
+        leads: leadCount,
+        admissions: admissionCount,
+        revenue,
+        spend: metrics.spend,
+        cpl: safeCurrency(metrics.spend, leadCount),
+        cpa: safeCurrency(metrics.spend, admissionCount),
+        conversionRate: safePercent(admissionCount, leadCount),
+        roi: metrics.spend > 0 ? Math.round(((revenue - metrics.spend) / metrics.spend) * 10000) / 100 : 0
+      });
+    }
+    const totals = rows.reduce((acc, row) => ({
+      campaigns: acc.campaigns + 1,
+      leads: acc.leads + row.leads,
+      admissions: acc.admissions + row.admissions,
+      spend: acc.spend + row.spend,
+      revenue: acc.revenue + row.revenue
+    }), { campaigns: 0, leads: 0, admissions: 0, spend: 0, revenue: 0 });
+    return {
+      totals: {
+        ...totals,
+        conversionRate: safePercent(totals.admissions, totals.leads),
+        cpl: safeCurrency(totals.spend, totals.leads),
+        cpa: safeCurrency(totals.spend, totals.admissions),
+        roi: totals.spend > 0 ? Math.round(((totals.revenue - totals.spend) / totals.spend) * 10000) / 100 : 0
+      },
+      campaigns: rows.sort((a, b) => b.leads - a.leads)
     };
   },
 

@@ -20,6 +20,50 @@ function requester(req: AuthenticatedRequest) {
 }
 
 export const salesBoosterController = {
+  verifyMetaWebhook(req: Request, res: Response, next: NextFunction) {
+    try {
+      const challenge = salesBoosterService.verifyWebhook({
+        provider: "meta",
+        mode: typeof req.query["hub.mode"] === "string" ? req.query["hub.mode"] : undefined,
+        token: typeof req.query["hub.verify_token"] === "string" ? req.query["hub.verify_token"] : undefined,
+        challenge: typeof req.query["hub.challenge"] === "string" ? req.query["hub.challenge"] : undefined
+      });
+      res.status(200).send(challenge);
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  verifyWhatsAppWebhook(req: Request, res: Response, next: NextFunction) {
+    try {
+      const challenge = salesBoosterService.verifyWebhook({
+        provider: "whatsapp",
+        mode: typeof req.query["hub.mode"] === "string" ? req.query["hub.mode"] : undefined,
+        token: typeof req.query["hub.verify_token"] === "string" ? req.query["hub.verify_token"] : undefined,
+        challenge: typeof req.query["hub.challenge"] === "string" ? req.query["hub.challenge"] : undefined
+      });
+      res.status(200).send(challenge);
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async metaWebhook(req: Request, res: Response, next: NextFunction) {
+    try {
+      res.json(await salesBoosterService.processMetaWebhook(req.body));
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async whatsAppWebhook(req: Request, res: Response, next: NextFunction) {
+    try {
+      res.json(await salesBoosterService.processWhatsAppWebhook(req.body));
+    } catch (error) {
+      next(error);
+    }
+  },
+
   async generateCampaignDraft(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
       assertValid(req);
@@ -48,6 +92,14 @@ export const salesBoosterController = {
   async analytics(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
       res.json({ analytics: await salesBoosterService.analytics(requester(req)) });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async conversionReport(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      res.json({ report: await salesBoosterService.conversionReport(requester(req)) });
     } catch (error) {
       next(error);
     }

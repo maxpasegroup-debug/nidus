@@ -13,6 +13,7 @@ import {
   getSalesBoosterAudience,
   getSalesBoosterAnalytics,
   getSalesBoosterConnectors,
+  getSalesBoosterConversionReport,
   getSalesBoosterCampaigns,
   getSalesBoosterCampaignReport,
   getSalesBoosterSummary,
@@ -45,6 +46,10 @@ export function useSalesBoosterWhatsAppTemplates() {
 
 export function useSalesBoosterAnalytics() {
   return useQuery({ queryKey: ["sales-booster", "analytics"], queryFn: getSalesBoosterAnalytics });
+}
+
+export function useSalesBoosterConversionReport() {
+  return useQuery({ queryKey: ["sales-booster", "conversion-report"], queryFn: getSalesBoosterConversionReport });
 }
 
 export function useScheduledSalesBoosterCampaigns() {
