@@ -201,17 +201,26 @@ async function runThreads(campaign: ConnectorCampaign): Promise<ConnectorResult>
   if (!env.SALESBOOSTER_THREADS_ACCESS_TOKEN || !env.SALESBOOSTER_THREADS_USER_ID) {
     return { channel: "Threads", status: "NOT_CONFIGURED", message: "Threads user id/access token not configured." };
   }
-  const create = await postForm(`${graphBaseUrl}/${env.SALESBOOSTER_THREADS_USER_ID}/threads`, {
+  const payload: Record<string, string> = {
     access_token: env.SALESBOOSTER_THREADS_ACCESS_TOKEN,
     media_type: "TEXT",
     text: campaignMessage(campaign)
-  });
+  };
+  if (hasMediaUrl(campaign) && isImageCreative(campaign)) {
+    payload.media_type = "IMAGE";
+    payload.image_url = mediaUrl(campaign);
+  }
+  if (hasMediaUrl(campaign) && isVideoCreative(campaign)) {
+    payload.media_type = "VIDEO";
+    payload.video_url = mediaUrl(campaign);
+  }
+  const create = await postForm(`${graphBaseUrl}/${env.SALESBOOSTER_THREADS_USER_ID}/threads`, payload);
   if (!create.id) throw new Error("Threads creation id missing.");
   const publish = await postForm(`${graphBaseUrl}/${env.SALESBOOSTER_THREADS_USER_ID}/threads_publish`, {
     access_token: env.SALESBOOSTER_THREADS_ACCESS_TOKEN,
     creation_id: create.id
   });
-  return { channel: "Threads", status: "POSTED", message: "Threads post published.", externalId: publish.id, details: { containerId: create.id } };
+  return { channel: "Threads", status: "POSTED", message: `${payload.media_type === "TEXT" ? "Threads text post" : `Threads ${payload.media_type.toLowerCase()} post`} published.`, externalId: publish.id, details: { containerId: create.id, mediaType: payload.media_type } };
 }
 
 async function runYouTube(campaign: ConnectorCampaign): Promise<ConnectorResult> {
@@ -219,9 +228,67 @@ async function runYouTube(campaign: ConnectorCampaign): Promise<ConnectorResult>
     return { channel: "YouTube", status: "NOT_CONFIGURED", message: "YouTube channel/access token not configured." };
   }
   if (!hasMediaUrl(campaign)) {
-    return { channel: "YouTube", status: "SKIPPED", message: "YouTube upload requires a stored video asset URL or resumable upload stream." };
+    return { channel: "YouTube", status: "SKIPPED", message: "YouTube upload requires an attached public video creative URL." };
   }
-  return { channel: "YouTube", status: "QUEUED", message: "YouTube credentials are configured; video upload is queued for resumable upload worker phase.", details: { channelId: env.SALESBOOSTER_YOUTUBE_CHANNEL_ID } };
+  if (!isVideoCreative(campaign)) {
+    return { channel: "YouTube", status: "SKIPPED", message: "YouTube publishing requires a video creative. Attach an MP4/MOV/WebM file." };
+  }
+  const videoResponse = await fetch(mediaUrl(campaign));
+  if (!videoResponse.ok) throw new Error(`Unable to fetch video creative: HTTP ${videoResponse.status}`);
+  const contentType = videoResponse.headers.get("content-type") || "video/mp4";
+  const contentLength = videoResponse.headers.get("content-length") || undefined;
+  const draft = draftObject(campaign.aiDraft);
+  const channelCopies = Array.isArray(draft.channelCopies) ? draft.channelCopies as Array<Record<string, unknown>> : [];
+  const youtubeCopy = channelCopies.find((copy) => String(copy.channel).toLowerCase() === "youtube");
+  const title = String(youtubeCopy?.headline ?? campaign.title).slice(0, 100);
+  const description = [
+    String(youtubeCopy?.caption ?? draft.caption ?? campaign.goal),
+    "",
+    String(draft.cta ? `CTA: ${draft.cta}` : "Start Free with NIDUS Academy")
+  ].join("\n").trim();
+  const tags = Array.isArray(draft.hashtags) ? draft.hashtags.map((tag) => String(tag).replace(/^#/, "")).slice(0, 12) : ["NIDUS Academy", "Defence Career"];
+  const initResponse = await fetch("https://www.googleapis.com/upload/youtube/v3/videos?uploadType=resumable&part=snippet,status", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${env.SALESBOOSTER_YOUTUBE_ACCESS_TOKEN}`,
+      "Content-Type": "application/json; charset=UTF-8",
+      "X-Upload-Content-Type": contentType,
+      ...(contentLength ? { "X-Upload-Content-Length": contentLength } : {})
+    },
+    body: JSON.stringify({
+      snippet: {
+        title,
+        description,
+        tags,
+        categoryId: "27",
+        channelId: env.SALESBOOSTER_YOUTUBE_CHANNEL_ID
+      },
+      status: {
+        privacyStatus: env.SALESBOOSTER_YOUTUBE_PRIVACY_STATUS,
+        selfDeclaredMadeForKids: false
+      }
+    })
+  });
+  if (!initResponse.ok) {
+    const errorText = await initResponse.text().catch(() => "");
+    throw new Error(`YouTube upload session failed: HTTP ${initResponse.status} ${errorText}`);
+  }
+  const uploadUrl = initResponse.headers.get("location");
+  if (!uploadUrl) throw new Error("YouTube resumable upload URL missing.");
+  const bytes = await videoResponse.arrayBuffer();
+  const uploadResponse = await fetch(uploadUrl, {
+    method: "PUT",
+    headers: {
+      "Content-Type": contentType,
+      "Content-Length": String(bytes.byteLength)
+    },
+    body: Buffer.from(bytes)
+  });
+  const data = await uploadResponse.json().catch(() => ({}));
+  if (!uploadResponse.ok) {
+    throw new Error(typeof data?.error?.message === "string" ? data.error.message : `YouTube upload failed: HTTP ${uploadResponse.status}`);
+  }
+  return { channel: "YouTube", status: "POSTED", message: `YouTube video uploaded as ${env.SALESBOOSTER_YOUTUBE_PRIVACY_STATUS}.`, externalId: typeof data?.id === "string" ? data.id : undefined, details: { channelId: env.SALESBOOSTER_YOUTUBE_CHANNEL_ID, privacyStatus: env.SALESBOOSTER_YOUTUBE_PRIVACY_STATUS } };
 }
 
 async function runWhatsApp(campaign: ConnectorCampaign): Promise<ConnectorResult> {

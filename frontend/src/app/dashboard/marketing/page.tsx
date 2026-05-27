@@ -22,8 +22,8 @@ const channels = [
   ["Facebook", "Posts, lead ads, admissions campaigns"],
   ["Instagram", "Reels, posters, stories, enquiry pushes"],
   ["Meta Ads", "Paused lead campaign shells for Ads Manager review"],
-  ["Threads", "Short campaign threads and announcements"],
-  ["YouTube", "Shorts, video uploads, titles and descriptions"],
+  ["Threads", "Text, image and video campaign posts"],
+  ["YouTube", "Video uploads with AI title, description and tags"],
   ["WhatsApp", "Template follow-ups, counsellor routing, broadcasts"]
 ];
 

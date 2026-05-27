@@ -74,6 +74,7 @@ const envSchema = z.object({
   SALESBOOSTER_THREADS_USER_ID: z.string().default(""),
   SALESBOOSTER_YOUTUBE_ACCESS_TOKEN: z.string().default(""),
   SALESBOOSTER_YOUTUBE_CHANNEL_ID: z.string().default(""),
+  SALESBOOSTER_YOUTUBE_PRIVACY_STATUS: z.enum(["private", "unlisted", "public"]).default("unlisted"),
   SALESBOOSTER_WHATSAPP_ACCESS_TOKEN: z.string().default(""),
   SALESBOOSTER_WHATSAPP_PHONE_NUMBER_ID: z.string().default(""),
   SALESBOOSTER_WHATSAPP_TEMPLATE_NAME: z.string().default("nidus_campaign_followup"),
