@@ -128,6 +128,7 @@ salesBoosterRouter.patch(
   salesBoosterController.scheduleCampaign
 );
 salesBoosterRouter.get("/campaigns/:id/report", ...salesBoosterRoles, salesBoosterController.campaignReport);
+salesBoosterRouter.post("/campaigns/:id/analytics/sync", ...salesBoosterRoles, salesBoosterController.syncCampaignAnalytics);
 salesBoosterRouter.post(
   "/campaigns/:id/metrics",
   ...salesBoosterRoles,

@@ -565,6 +565,41 @@ export const salesBoosterService = {
     });
   },
 
+  async syncCampaignAnalytics(requester: Requester, id: string) {
+    const campaign = await prisma.salesBoosterCampaign.findUniqueOrThrow({
+      where: { id },
+      include: campaignInclude
+    });
+    await assertCampaignAccess(requester, campaign);
+    const snapshots = await salesBoosterConnectors.syncAnalytics(campaign);
+    const attributedLeads = await prisma.lead.count({ where: { source: { contains: campaign.id, mode: "insensitive" } } });
+    const admissions = await prisma.admission.findMany({ where: { lead: { source: { contains: campaign.id, mode: "insensitive" } } } });
+    const attributedRevenue = admissions.reduce((sum, admission) => sum + admission.paidAmount, 0);
+    const saved = [];
+    for (const snapshot of snapshots) {
+      saved.push(await prisma.salesBoosterMetricSnapshot.create({
+        data: {
+          campaignId: id,
+          platform: snapshot.platform,
+          reach: snapshot.reach ?? 0,
+          impressions: snapshot.impressions ?? 0,
+          clicks: snapshot.clicks ?? 0,
+          leads: Math.max(snapshot.leads ?? 0, attributedLeads),
+          admissions: admissions.length,
+          spend: snapshot.spend ?? 0,
+          revenue: Math.max(snapshot.revenue ?? 0, attributedRevenue),
+          notes: snapshot.notes,
+          capturedAt: new Date()
+        }
+      }));
+    }
+    return {
+      synced: saved.length,
+      snapshots: saved,
+      message: saved.length ? "Campaign analytics synced." : "No connector analytics available yet. Run connectors first or add manual metrics."
+    };
+  },
+
   async report(requester: Requester, id: string) {
     const campaign = await prisma.salesBoosterCampaign.findUniqueOrThrow({
       where: { id },

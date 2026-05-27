@@ -198,6 +198,14 @@ export const salesBoosterController = {
     }
   },
 
+  async syncCampaignAnalytics(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      res.json(await salesBoosterService.syncCampaignAnalytics(requester(req), param(req, "id")));
+    } catch (error) {
+      next(error);
+    }
+  },
+
   async campaignReport(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
       res.json({ report: await salesBoosterService.report(requester(req), param(req, "id")) });

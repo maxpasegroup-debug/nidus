@@ -309,6 +309,11 @@ export async function addSalesBoosterMetricSnapshot(payload: {
   return response.data.snapshot;
 }
 
+export async function syncSalesBoosterCampaignAnalytics(id: string) {
+  const response = await apiClient.post<{ synced: number; message: string; snapshots: SalesBoosterMetricSnapshot[] }>(`/sales-booster/campaigns/${id}/analytics/sync`);
+  return response.data;
+}
+
 export async function addSalesBoosterAudienceContact(payload: {
   fullName: string;
   phone: string;

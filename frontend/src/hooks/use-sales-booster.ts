@@ -22,6 +22,7 @@ import {
   runSalesBoosterCampaign,
   runDueSalesBoosterCampaigns,
   scheduleSalesBoosterCampaign,
+  syncSalesBoosterCampaignAnalytics,
   updateSalesBoosterStatus,
   uploadSalesBoosterCreative
 } from "@/services/sales-booster";
@@ -192,6 +193,22 @@ export function useAddSalesBoosterMetricSnapshot() {
         queryClient.invalidateQueries({ queryKey: ["sales-booster", "campaign-report", variables.id] })
       ]);
       showToast("Campaign metrics saved.", "success");
+    },
+    onError: (error) => showToast(getApiErrorMessage(error), "error")
+  });
+}
+
+export function useSyncSalesBoosterCampaignAnalytics() {
+  const queryClient = useQueryClient();
+  const { showToast } = useToast();
+  return useMutation({
+    mutationFn: syncSalesBoosterCampaignAnalytics,
+    onSuccess: async (result, campaignId) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["sales-booster", "analytics"] }),
+        queryClient.invalidateQueries({ queryKey: ["sales-booster", "campaign-report", campaignId] })
+      ]);
+      showToast(result.message, result.synced ? "success" : "info");
     },
     onError: (error) => showToast(getApiErrorMessage(error), "error")
   });

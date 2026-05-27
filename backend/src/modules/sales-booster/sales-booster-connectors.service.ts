@@ -20,6 +20,18 @@ type ConnectorResult = {
   details?: Record<string, unknown>;
 };
 
+type ConnectorMetricSnapshot = {
+  platform: string;
+  reach?: number;
+  impressions?: number;
+  clicks?: number;
+  leads?: number;
+  spend?: number;
+  revenue?: number;
+  notes?: string;
+  externalId?: string;
+};
+
 const graphBaseUrl = "https://graph.facebook.com/v21.0";
 
 function draftObject(value: unknown) {
@@ -28,6 +40,33 @@ function draftObject(value: unknown) {
 
 function channelsFor(value: unknown) {
   return Array.isArray(value) ? value.map(String) : [];
+}
+
+function connectorResultsFor(value: unknown) {
+  return Array.isArray(value) ? value.filter((item): item is ConnectorResult => Boolean(item && typeof item === "object" && "channel" in item)) : [];
+}
+
+function numberFrom(value: unknown) {
+  const next = Number(value ?? 0);
+  return Number.isFinite(next) ? next : 0;
+}
+
+function insightValue(data: unknown, metricNames: string[]) {
+  const items = Array.isArray(data) ? data as Array<Record<string, unknown>> : [];
+  for (const name of metricNames) {
+    const metric = items.find((item) => item.name === name);
+    const values = Array.isArray(metric?.values) ? metric.values as Array<Record<string, unknown>> : [];
+    const latest = values[values.length - 1];
+    if (latest && "value" in latest) return numberFrom(latest.value);
+  }
+  return 0;
+}
+
+function leadActions(actions: unknown) {
+  const items = Array.isArray(actions) ? actions as Array<Record<string, unknown>> : [];
+  return items
+    .filter((item) => /lead/i.test(String(item.action_type ?? "")))
+    .reduce((sum, item) => sum + numberFrom(item.value), 0);
 }
 
 function campaignMessage(campaign: ConnectorCampaign) {
@@ -59,6 +98,13 @@ async function postForm(url: string, payload: Record<string, string>) {
   const data = await response.json().catch(() => ({}));
   if (!response.ok) throw new Error(typeof data?.error?.message === "string" ? data.error.message : `HTTP ${response.status}`);
   return data as { id?: string };
+}
+
+async function getJson(url: string, token: string) {
+  const response = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(typeof data?.error?.message === "string" ? data.error.message : `HTTP ${response.status}`);
+  return data as Record<string, unknown>;
 }
 
 function isImageCreative(campaign: ConnectorCampaign) {
@@ -415,7 +461,77 @@ export const salesBoosterConnectors = {
 
   async whatsappBroadcast(recipients: string[], templateName?: string) {
     return safeRun("WhatsApp", () => sendWhatsAppTemplate(recipients, templateName));
+  },
+
+  async syncAnalytics(campaign: ConnectorCampaign & { connectorResults?: unknown }) {
+    const snapshots: ConnectorMetricSnapshot[] = [];
+    const results = connectorResultsFor(campaign.connectorResults);
+
+    for (const result of results) {
+      try {
+        if (result.channel === "Facebook" && result.externalId && env.SALESBOOSTER_META_ACCESS_TOKEN) {
+          const data = await getJson(`${graphBaseUrl}/${result.externalId}/insights?metric=post_impressions,post_impressions_unique,post_clicks&access_token=${encodeURIComponent(env.SALESBOOSTER_META_ACCESS_TOKEN)}`, env.SALESBOOSTER_META_ACCESS_TOKEN);
+          snapshots.push({
+            platform: "Facebook",
+            reach: insightValue(data.data, ["post_impressions_unique"]),
+            impressions: insightValue(data.data, ["post_impressions"]),
+            clicks: insightValue(data.data, ["post_clicks"]),
+            notes: "Auto-synced from Facebook post insights.",
+            externalId: result.externalId
+          });
+        }
+        if (result.channel === "Instagram" && result.externalId && env.SALESBOOSTER_META_ACCESS_TOKEN) {
+          const data = await getJson(`${graphBaseUrl}/${result.externalId}/insights?metric=impressions,reach,likes,comments,saves,shares&access_token=${encodeURIComponent(env.SALESBOOSTER_META_ACCESS_TOKEN)}`, env.SALESBOOSTER_META_ACCESS_TOKEN);
+          const engagementClicks = insightValue(data.data, ["likes"]) + insightValue(data.data, ["comments"]) + insightValue(data.data, ["saves"]) + insightValue(data.data, ["shares"]);
+          snapshots.push({
+            platform: "Instagram",
+            reach: insightValue(data.data, ["reach"]),
+            impressions: insightValue(data.data, ["impressions"]),
+            clicks: engagementClicks,
+            notes: "Auto-synced from Instagram media insights. Clicks represent engagement actions.",
+            externalId: result.externalId
+          });
+        }
+        if (result.channel === "Meta Ads" && result.details?.campaignId && env.SALESBOOSTER_META_ACCESS_TOKEN) {
+          const campaignId = String(result.details.campaignId);
+          const data = await getJson(`${graphBaseUrl}/${campaignId}/insights?fields=impressions,reach,clicks,spend,actions&access_token=${encodeURIComponent(env.SALESBOOSTER_META_ACCESS_TOKEN)}`, env.SALESBOOSTER_META_ACCESS_TOKEN);
+          const rows = Array.isArray(data.data) ? data.data as Array<Record<string, unknown>> : [];
+          const row = rows[0] ?? {};
+          snapshots.push({
+            platform: "Meta Ads",
+            reach: numberFrom(row.reach),
+            impressions: numberFrom(row.impressions),
+            clicks: numberFrom(row.clicks),
+            spend: numberFrom(row.spend),
+            leads: leadActions(row.actions),
+            notes: "Auto-synced from Meta Ads insights.",
+            externalId: campaignId
+          });
+        }
+        if (result.channel === "YouTube" && result.externalId && env.SALESBOOSTER_YOUTUBE_ACCESS_TOKEN) {
+          const data = await getJson(`https://www.googleapis.com/youtube/v3/videos?part=statistics&id=${encodeURIComponent(result.externalId)}`, env.SALESBOOSTER_YOUTUBE_ACCESS_TOKEN);
+          const items = Array.isArray(data.items) ? data.items as Array<Record<string, unknown>> : [];
+          const stats = (items[0]?.statistics ?? {}) as Record<string, unknown>;
+          snapshots.push({
+            platform: "YouTube",
+            reach: numberFrom(stats.viewCount),
+            impressions: numberFrom(stats.viewCount),
+            clicks: numberFrom(stats.likeCount) + numberFrom(stats.commentCount),
+            notes: "Auto-synced from YouTube video statistics. Clicks represent likes plus comments.",
+            externalId: result.externalId
+          });
+        }
+      } catch (error) {
+        snapshots.push({
+          platform: result.channel,
+          notes: `Analytics sync failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+          externalId: result.externalId
+        });
+      }
+    }
+
+    return snapshots;
   }
 };
 
-export type { ConnectorResult };
+export type { ConnectorResult, ConnectorMetricSnapshot };

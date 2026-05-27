@@ -8,7 +8,7 @@ import { ActivityTimeline, DashboardError, DashboardSkeleton, ProgressCard, Quic
 import { useAuth } from "@/components/providers/auth-provider-v2";
 import { Button } from "@/components/ui/button";
 import { useMarketingDashboard } from "@/hooks/use-dashboard";
-import { useAddSalesBoosterAudienceContact, useAddSalesBoosterMetricSnapshot, useAttachSalesBoosterCreative, useBroadcastSalesBoosterWhatsApp, useCreateSalesBoosterCampaign, useGenerateSalesBoosterCampaignDraft, useImportSalesBoosterLeadsToAudience, useRunDueSalesBoosterCampaigns, useRunSalesBoosterCampaign, useSalesBoosterAnalytics, useSalesBoosterAudience, useSalesBoosterCampaigns, useSalesBoosterConnectors, useSalesBoosterSummary, useSalesBoosterWhatsAppTemplates, useScheduleSalesBoosterCampaign, useScheduledSalesBoosterCampaigns, useUpdateSalesBoosterStatus, useUploadSalesBoosterCreative } from "@/hooks/use-sales-booster";
+import { useAddSalesBoosterAudienceContact, useAddSalesBoosterMetricSnapshot, useAttachSalesBoosterCreative, useBroadcastSalesBoosterWhatsApp, useCreateSalesBoosterCampaign, useGenerateSalesBoosterCampaignDraft, useImportSalesBoosterLeadsToAudience, useRunDueSalesBoosterCampaigns, useRunSalesBoosterCampaign, useSalesBoosterAnalytics, useSalesBoosterAudience, useSalesBoosterCampaigns, useSalesBoosterConnectors, useSalesBoosterSummary, useSalesBoosterWhatsAppTemplates, useScheduleSalesBoosterCampaign, useScheduledSalesBoosterCampaigns, useSyncSalesBoosterCampaignAnalytics, useUpdateSalesBoosterStatus, useUploadSalesBoosterCreative } from "@/hooks/use-sales-booster";
 import type { SalesBoosterCampaign, SalesBoosterCreative, SalesBoosterDraft } from "@/services/sales-booster";
 
 const campaignTracks = [
@@ -88,6 +88,7 @@ export default function MarketingDashboardPage() {
   const scheduleCampaign = useScheduleSalesBoosterCampaign();
   const runDueCampaigns = useRunDueSalesBoosterCampaigns();
   const addMetrics = useAddSalesBoosterMetricSnapshot();
+  const syncAnalytics = useSyncSalesBoosterCampaignAnalytics();
   const addAudienceContact = useAddSalesBoosterAudienceContact();
   const importLeads = useImportSalesBoosterLeadsToAudience();
   const broadcastWhatsApp = useBroadcastSalesBoosterWhatsApp();
@@ -424,7 +425,7 @@ export default function MarketingDashboardPage() {
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#3f4a32]">Phase 4 Analytics</p>
                 <h2 className="mt-3 text-3xl font-semibold text-[#071d36]">Campaign reporting and attribution</h2>
-                <p className="mt-2 text-sm leading-7 text-[#64748b]">Track reach, clicks, spend, leads, admissions and revenue against every Sales Booster campaign. CRM lead attribution is read from campaign source tags.</p>
+                <p className="mt-2 text-sm leading-7 text-[#64748b]">Pull reach, clicks, spend, leads, admissions and revenue from connected platforms. Manual entry remains available when APIs are not configured.</p>
               </div>
               <BarChart3 className="h-7 w-7 text-[#b9913f]" />
             </div>
@@ -441,6 +442,12 @@ export default function MarketingDashboardPage() {
                 <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#3f4a32]">Revenue</p>
                 <p className="mt-2 text-2xl font-semibold text-[#071d36]">Rs {Math.round(boosterAnalytics?.summary.revenue ?? 0).toLocaleString()}</p>
               </div>
+            </div>
+            <div className="mt-5 flex flex-wrap gap-3">
+              <Button type="button" onClick={() => activeMetricCampaignId && syncAnalytics.mutate(activeMetricCampaignId)} disabled={!activeMetricCampaignId || syncAnalytics.isPending}>
+                {syncAnalytics.isPending ? "Syncing..." : "Sync Live Analytics"}
+              </Button>
+              <p className="text-sm leading-6 text-[#64748b]">Uses connector IDs from Facebook, Instagram, Meta Ads and YouTube runs.</p>
             </div>
             <div className="mt-5 grid gap-3">
               {(boosterAnalytics?.topCampaigns ?? []).length ? boosterAnalytics?.topCampaigns.map((campaign) => (
@@ -463,8 +470,8 @@ export default function MarketingDashboardPage() {
           </div>
 
           <div className="rounded-lg border border-white/10 bg-white/[0.055] p-5 shadow-[0_24px_70px_rgba(0,0,0,0.18)]">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-gold-soft">Manual Metric Snapshot</p>
-            <h2 className="mt-3 text-2xl font-semibold text-white">Add performance data</h2>
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-gold-soft">Metric Snapshot</p>
+            <h2 className="mt-3 text-2xl font-semibold text-white">Manual fallback data</h2>
             <div className="mt-5 grid gap-3">
               <label>
                 <span className="text-sm font-semibold text-white">Campaign</span>
