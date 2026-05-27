@@ -1,3 +1,4 @@
+import { Role } from "../../generated/prisma/client.js";
 import { prisma } from "../../config/prisma.js";
 
 export type TestPayload = {
@@ -5,6 +6,12 @@ export type TestPayload = {
   description: string;
   examType: string;
   category: string;
+  subject?: string;
+  topic?: string;
+  batchId?: string;
+  teacherId?: string;
+  publishAt?: string;
+  status?: string;
   duration: number;
   totalMarks: number;
   isMockTest?: boolean;
@@ -46,14 +53,73 @@ type SaveStateInput = {
   }>;
 };
 
+type Requester = {
+  id: string;
+  role: Role;
+};
+
+type DraftInput = {
+  prompt: string;
+  examType?: string;
+  subject?: string;
+  topic?: string;
+  questionCount?: number;
+  difficultyLevel?: string;
+  batchId?: string;
+};
+
+type PublishDraftInput = TestPayload & {
+  publishAt?: string;
+};
+
 const testInclude = {
   questions: {
     orderBy: { id: "asc" as const }
+  },
+  batch: {
+    select: { id: true, name: true, batchType: true, programSlug: true }
+  },
+  teacher: {
+    select: { id: true, name: true, email: true, role: true }
   },
   _count: {
     select: { attempts: true, questions: true }
   }
 };
+
+const topicSeeds = [
+  "concept clarity",
+  "application",
+  "speed accuracy",
+  "reasoning",
+  "exam trap",
+  "revision recall"
+];
+
+function normalizeCount(count?: number) {
+  return Math.min(100, Math.max(5, Number.isFinite(Number(count)) ? Number(count) : 30));
+}
+
+function inferQuestionCount(prompt: string, requested?: number) {
+  const promptCount = Number(prompt.match(/(\d+)\s*(mcq|question|questions|marks)/i)?.[1] ?? requested ?? 30);
+  return normalizeCount(promptCount);
+}
+
+function uniqueOptions(topic: string, index: number) {
+  const seed = topicSeeds[index % topicSeeds.length];
+  return [
+    `Correct ${topic} ${seed} approach`,
+    `Partially correct but incomplete ${topic} method`,
+    `Common misconception in ${topic}`,
+    `Irrelevant shortcut for this ${topic} context`
+  ];
+}
+
+function draftTitle(input: DraftInput) {
+  const subject = input.subject?.trim() || "NIDUS";
+  const topic = input.topic?.trim() || input.prompt.trim().split(/\s+/).slice(0, 6).join(" ");
+  return `${input.examType || "Academy"} ${subject} - ${topic} Test`;
+}
 
 function getTopicAnalysis(answers: Array<{ isCorrect: boolean; question: { topic: string } }>) {
   const topics = new Map<string, { correct: number; total: number }>();
@@ -117,6 +183,12 @@ export const testsService = {
         description: payload.description,
         examType: payload.examType,
         category: payload.category,
+        subject: payload.subject,
+        topic: payload.topic,
+        batchId: payload.batchId || undefined,
+        teacherId: payload.teacherId || undefined,
+        publishAt: payload.publishAt ? new Date(payload.publishAt) : undefined,
+        status: payload.status ?? "PUBLISHED",
         duration: payload.duration,
         totalMarks: payload.totalMarks,
         isMockTest: payload.isMockTest ?? true,
@@ -143,6 +215,12 @@ export const testsService = {
         description: payload.description,
         examType: payload.examType,
         category: payload.category,
+        subject: payload.subject,
+        topic: payload.topic,
+        batchId: payload.batchId,
+        teacherId: payload.teacherId,
+        publishAt: payload.publishAt ? new Date(payload.publishAt) : undefined,
+        status: payload.status,
         duration: payload.duration,
         totalMarks: payload.totalMarks,
         isMockTest: payload.isMockTest,
@@ -158,8 +236,92 @@ export const testsService = {
     return { message: "Test deleted successfully" };
   },
 
+  async generateDraft(_requester: Requester, input: DraftInput) {
+    const prompt = input.prompt.trim();
+    if (!prompt) throw new Error("Prompt is required");
+    const count = inferQuestionCount(prompt, input.questionCount);
+    const subject = input.subject?.trim() || "General Studies";
+    const topic = input.topic?.trim() || prompt.replace(/^(create|make|generate)\s+/i, "").split(/[,.]/)[0]?.slice(0, 80) || "Teacher topic";
+    const difficultyLevel = (input.difficultyLevel || (/hard|advanced/i.test(prompt) ? "HARD" : /easy|basic/i.test(prompt) ? "EASY" : "MEDIUM")).toUpperCase();
+    const questions = Array.from({ length: count }).map((_, index) => {
+      const options = uniqueOptions(topic, index);
+      return {
+        questionText: `Q${index + 1}. In ${topic}, which option best matches the expected ${input.examType || "NIDUS"} exam approach for ${topicSeeds[index % topicSeeds.length]}?`,
+        optionA: options[0],
+        optionB: options[1],
+        optionC: options[2],
+        optionD: options[3],
+        correctAnswer: "A",
+        explanation: `Review note: this draft checks ${topicSeeds[index % topicSeeds.length]} in ${topic}. Faculty should verify facts, final answer, and wording before publishing.`,
+        marks: 1,
+        negativeMarks: 0,
+        difficultyLevel,
+        topic
+      };
+    });
+
+    return {
+      title: draftTitle(input),
+      description: `AI arranged draft from faculty prompt. Faculty approval is required before students receive the test.`,
+      examType: input.examType || "NIDUS",
+      category: "Teacher Generated",
+      subject,
+      topic,
+      batchId: input.batchId,
+      duration: Math.max(15, Math.ceil(count * 1.5)),
+      totalMarks: questions.reduce((sum, question) => sum + question.marks, 0),
+      isMockTest: true,
+      isLive: false,
+      status: "DRAFT",
+      questions
+    };
+  },
+
+  async publishDraft(requester: Requester, payload: PublishDraftInput) {
+    if (!payload.questions?.length) throw new Error("At least one reviewed question is required before publishing.");
+    if (payload.batchId) {
+      const assignment = await prisma.teacherBatchAssignment.findFirst({
+        where: requester.role === Role.TEACHER ? { batchId: payload.batchId, teacherId: requester.id, status: "ACTIVE" } : { batchId: payload.batchId }
+      });
+      if (!assignment && requester.role === Role.TEACHER) {
+        throw new Error("Teacher is not assigned to this batch.");
+      }
+    }
+    return prisma.test.create({
+      data: {
+        title: payload.title,
+        description: payload.description,
+        examType: payload.examType,
+        category: payload.category,
+        subject: payload.subject,
+        topic: payload.topic,
+        batchId: payload.batchId || undefined,
+        teacherId: requester.role === Role.TEACHER ? requester.id : payload.teacherId || requester.id,
+        publishAt: payload.publishAt ? new Date(payload.publishAt) : undefined,
+        status: "PUBLISHED",
+        reviewedAt: new Date(),
+        approvedAt: new Date(),
+        approvedById: requester.id,
+        duration: payload.duration,
+        totalMarks: payload.totalMarks,
+        isMockTest: payload.isMockTest ?? true,
+        isLive: true,
+        questions: {
+          create: payload.questions
+        }
+      },
+      include: testInclude
+    });
+  },
+
   async start(userId: string, testId: string) {
     const test = await this.details(testId);
+    if (test.status !== "PUBLISHED") {
+      throw new Error("This test is not published for students yet.");
+    }
+    if (test.publishAt && test.publishAt > new Date()) {
+      throw new Error("This test will open at the scheduled time.");
+    }
 
     const attempt = await prisma.testAttempt.create({
       data: { userId, testId },

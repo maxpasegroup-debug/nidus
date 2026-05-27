@@ -68,6 +68,21 @@ export type Lesson = Prisma.LessonModel
  */
 export type Enrollment = Prisma.EnrollmentModel
 /**
+ * Model Batch
+ * 
+ */
+export type Batch = Prisma.BatchModel
+/**
+ * Model BatchStudent
+ * 
+ */
+export type BatchStudent = Prisma.BatchStudentModel
+/**
+ * Model TeacherBatchAssignment
+ * 
+ */
+export type TeacherBatchAssignment = Prisma.TeacherBatchAssignmentModel
+/**
  * Model Test
  * 
  */

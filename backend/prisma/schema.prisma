@@ -70,7 +70,11 @@ model User {
   lockedUntil     DateTime?
   lastLoginAt     DateTime?
   enrollments    Enrollment[]
+  batchEnrollments BatchStudent[]
+  teachingAssignments TeacherBatchAssignment[] @relation("TeacherBatchAssignmentTeacher")
   testAttempts   TestAttempt[]
+  testsCreated   Test[] @relation("TestTeacher")
+  testsApproved  Test[] @relation("TestApprover")
   psychometricAttempts PsychometricAttempt[]
   olqScore       OLQScore?
   studyPlans     StudyPlan[]
@@ -227,6 +231,7 @@ model Course {
   isPremium   Boolean      @default(false)
   modules     Module[]
   enrollments Enrollment[]
+  batches     Batch[]
   recordedLectures RecordedLecture[]
   admissions  Admission[]
   payments    Payment[]
@@ -273,19 +278,100 @@ model Enrollment {
   @@index([courseId])
 }
 
+model Batch {
+  id          String   @id @default(cuid())
+  name        String
+  batchType   String
+  programSlug String
+  courseId    String?
+  instituteId String?
+  branchId    String?
+  startDate   DateTime?
+  endDate     DateTime?
+  schedule    Json?
+  status      String   @default("ACTIVE")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  course      Course?  @relation(fields: [courseId], references: [id], onDelete: SetNull)
+  institute   Institute? @relation(fields: [instituteId], references: [id], onDelete: SetNull)
+  branch      Branch? @relation(fields: [branchId], references: [id], onDelete: SetNull)
+  students    BatchStudent[]
+  teachers    TeacherBatchAssignment[]
+  tests       Test[]
+
+  @@unique([name, programSlug])
+  @@index([batchType])
+  @@index([programSlug])
+  @@index([courseId])
+  @@index([status])
+  @@index([startDate])
+}
+
+model BatchStudent {
+  id        String   @id @default(cuid())
+  batchId   String
+  studentId String
+  status    String   @default("ACTIVE")
+  joinedAt  DateTime @default(now())
+  remarks   String?
+  batch     Batch    @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  student   User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([batchId, studentId])
+  @@index([batchId])
+  @@index([studentId])
+  @@index([status])
+}
+
+model TeacherBatchAssignment {
+  id        String   @id @default(cuid())
+  batchId   String
+  teacherId String
+  subject   String
+  role      String   @default("FACULTY")
+  status    String   @default("ACTIVE")
+  createdAt DateTime @default(now())
+  batch     Batch    @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  teacher   User     @relation("TeacherBatchAssignmentTeacher", fields: [teacherId], references: [id], onDelete: Cascade)
+
+  @@unique([batchId, teacherId, subject])
+  @@index([batchId])
+  @@index([teacherId])
+  @@index([subject])
+  @@index([status])
+}
+
 model Test {
   id          String        @id @default(cuid())
   title       String
   description String
   examType    String
   category    String
+  subject     String?
+  topic       String?
+  batchId     String?
+  teacherId   String?
+  publishAt   DateTime?
+  status      String        @default("PUBLISHED")
+  reviewedAt  DateTime?
+  approvedAt  DateTime?
+  approvedById String?
   duration    Int
   totalMarks  Float
   isMockTest  Boolean       @default(true)
   isLive      Boolean       @default(false)
+  batch       Batch?        @relation(fields: [batchId], references: [id], onDelete: SetNull)
+  teacher     User?         @relation("TestTeacher", fields: [teacherId], references: [id], onDelete: SetNull)
+  approvedBy  User?         @relation("TestApprover", fields: [approvedById], references: [id], onDelete: SetNull)
   questions   Question[]
   attempts    TestAttempt[]
   createdAt   DateTime      @default(now())
+
+  @@index([batchId])
+  @@index([teacherId])
+  @@index([status])
+  @@index([publishAt])
+  @@index([subject])
 }
 
 model Question {
@@ -1949,6 +2035,7 @@ model Branch {
   admissions    Admission[]
   feePlans      FeePlan[]
   payments      Payment[]
+  batches       Batch[]
 
   @@index([instituteId])
   @@index([location])
@@ -1973,6 +2060,7 @@ model Institute {
   roleActivities RoleActivity[]
   admissions    Admission[]
   feePlans      FeePlan[]
+  batches       Batch[]
 
   @@index([status])
   @@index([createdAt])

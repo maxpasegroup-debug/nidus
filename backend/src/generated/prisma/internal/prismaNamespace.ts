@@ -394,6 +394,9 @@ export const ModelName = {
   Module: 'Module',
   Lesson: 'Lesson',
   Enrollment: 'Enrollment',
+  Batch: 'Batch',
+  BatchStudent: 'BatchStudent',
+  TeacherBatchAssignment: 'TeacherBatchAssignment',
   Test: 'Test',
   Question: 'Question',
   TestAttempt: 'TestAttempt',
@@ -508,7 +511,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "sessionToken" | "passwordReset" | "parentStudentInvitation" | "parentStudentLink" | "otp" | "course" | "module" | "lesson" | "enrollment" | "test" | "question" | "testAttempt" | "cBTAnswerState" | "cBTIntegrityEvent" | "answer" | "psychometricTest" | "psychometricQuestion" | "psychometricAttempt" | "psychometricReport" | "psychometricAnswer" | "oLQScore" | "studyPlan" | "performanceAnalytics" | "revisionSchedule" | "liveClass" | "recordedLecture" | "lectureProgress" | "lecturePlaybackEvent" | "attendance" | "timetable" | "faculty" | "classroom" | "payroll" | "announcement" | "hostel" | "room" | "hostelAllocation" | "inOutEntry" | "hostelLeave" | "messMenu" | "disciplineRecord" | "paradePerformance" | "lead" | "followUp" | "admission" | "counsellingBooking" | "referral" | "payment" | "subscription" | "feeInstallment" | "invoice" | "feePlan" | "paymentTransactionLog" | "approvalRequest" | "scholarshipDiscount" | "financeDocument" | "notification" | "messageThread" | "message" | "emailLog" | "pushNotification" | "aIInterviewSession" | "aIInterviewQuestion" | "doubtQuery" | "aIRecommendation" | "aITutorSession" | "aITutorMessage" | "aITutorFeedback" | "aIResponseCache" | "learningTopicInsight" | "revisionQueueItem" | "cBTIntelligenceReport" | "contentIngestionJob" | "generatedContentAsset" | "offlineSyncEvent" | "learningAnalyticsSnapshot" | "dailyIntelligenceIssue" | "contentModerationItem" | "officerPotential" | "fitnessProfile" | "pTSchedule" | "pTAttendance" | "physicalEligibility" | "dailyFitnessLog" | "pYQCategory" | "pYQQuestion" | "currentAffair" | "currentAffairQuiz" | "quizBattle" | "quizBattleParticipant" | "leaderboard" | "mediaFolder" | "mediaFile" | "document" | "adminRole" | "permission" | "rolePermission" | "userRole" | "roleActivity" | "systemSetting" | "auditLog" | "queueJobLog" | "aIRequestLog" | "salesBoosterCampaign" | "salesBoosterMetricSnapshot" | "salesBoosterAudienceContact" | "branch" | "institute"
+    modelProps: "user" | "sessionToken" | "passwordReset" | "parentStudentInvitation" | "parentStudentLink" | "otp" | "course" | "module" | "lesson" | "enrollment" | "batch" | "batchStudent" | "teacherBatchAssignment" | "test" | "question" | "testAttempt" | "cBTAnswerState" | "cBTIntegrityEvent" | "answer" | "psychometricTest" | "psychometricQuestion" | "psychometricAttempt" | "psychometricReport" | "psychometricAnswer" | "oLQScore" | "studyPlan" | "performanceAnalytics" | "revisionSchedule" | "liveClass" | "recordedLecture" | "lectureProgress" | "lecturePlaybackEvent" | "attendance" | "timetable" | "faculty" | "classroom" | "payroll" | "announcement" | "hostel" | "room" | "hostelAllocation" | "inOutEntry" | "hostelLeave" | "messMenu" | "disciplineRecord" | "paradePerformance" | "lead" | "followUp" | "admission" | "counsellingBooking" | "referral" | "payment" | "subscription" | "feeInstallment" | "invoice" | "feePlan" | "paymentTransactionLog" | "approvalRequest" | "scholarshipDiscount" | "financeDocument" | "notification" | "messageThread" | "message" | "emailLog" | "pushNotification" | "aIInterviewSession" | "aIInterviewQuestion" | "doubtQuery" | "aIRecommendation" | "aITutorSession" | "aITutorMessage" | "aITutorFeedback" | "aIResponseCache" | "learningTopicInsight" | "revisionQueueItem" | "cBTIntelligenceReport" | "contentIngestionJob" | "generatedContentAsset" | "offlineSyncEvent" | "learningAnalyticsSnapshot" | "dailyIntelligenceIssue" | "contentModerationItem" | "officerPotential" | "fitnessProfile" | "pTSchedule" | "pTAttendance" | "physicalEligibility" | "dailyFitnessLog" | "pYQCategory" | "pYQQuestion" | "currentAffair" | "currentAffairQuiz" | "quizBattle" | "quizBattleParticipant" | "leaderboard" | "mediaFolder" | "mediaFile" | "document" | "adminRole" | "permission" | "rolePermission" | "userRole" | "roleActivity" | "systemSetting" | "auditLog" | "queueJobLog" | "aIRequestLog" | "salesBoosterCampaign" | "salesBoosterMetricSnapshot" | "salesBoosterAudienceContact" | "branch" | "institute"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1249,6 +1252,228 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.EnrollmentCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.EnrollmentCountAggregateOutputType> | number
+        }
+      }
+    }
+    Batch: {
+      payload: Prisma.$BatchPayload<ExtArgs>
+      fields: Prisma.BatchFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.BatchFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BatchPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.BatchFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BatchPayload>
+        }
+        findFirst: {
+          args: Prisma.BatchFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BatchPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.BatchFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BatchPayload>
+        }
+        findMany: {
+          args: Prisma.BatchFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BatchPayload>[]
+        }
+        create: {
+          args: Prisma.BatchCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BatchPayload>
+        }
+        createMany: {
+          args: Prisma.BatchCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.BatchCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BatchPayload>[]
+        }
+        delete: {
+          args: Prisma.BatchDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BatchPayload>
+        }
+        update: {
+          args: Prisma.BatchUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BatchPayload>
+        }
+        deleteMany: {
+          args: Prisma.BatchDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.BatchUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.BatchUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BatchPayload>[]
+        }
+        upsert: {
+          args: Prisma.BatchUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BatchPayload>
+        }
+        aggregate: {
+          args: Prisma.BatchAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateBatch>
+        }
+        groupBy: {
+          args: Prisma.BatchGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BatchGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.BatchCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BatchCountAggregateOutputType> | number
+        }
+      }
+    }
+    BatchStudent: {
+      payload: Prisma.$BatchStudentPayload<ExtArgs>
+      fields: Prisma.BatchStudentFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.BatchStudentFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BatchStudentPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.BatchStudentFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BatchStudentPayload>
+        }
+        findFirst: {
+          args: Prisma.BatchStudentFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BatchStudentPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.BatchStudentFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BatchStudentPayload>
+        }
+        findMany: {
+          args: Prisma.BatchStudentFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BatchStudentPayload>[]
+        }
+        create: {
+          args: Prisma.BatchStudentCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BatchStudentPayload>
+        }
+        createMany: {
+          args: Prisma.BatchStudentCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.BatchStudentCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BatchStudentPayload>[]
+        }
+        delete: {
+          args: Prisma.BatchStudentDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BatchStudentPayload>
+        }
+        update: {
+          args: Prisma.BatchStudentUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BatchStudentPayload>
+        }
+        deleteMany: {
+          args: Prisma.BatchStudentDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.BatchStudentUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.BatchStudentUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BatchStudentPayload>[]
+        }
+        upsert: {
+          args: Prisma.BatchStudentUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BatchStudentPayload>
+        }
+        aggregate: {
+          args: Prisma.BatchStudentAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateBatchStudent>
+        }
+        groupBy: {
+          args: Prisma.BatchStudentGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BatchStudentGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.BatchStudentCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BatchStudentCountAggregateOutputType> | number
+        }
+      }
+    }
+    TeacherBatchAssignment: {
+      payload: Prisma.$TeacherBatchAssignmentPayload<ExtArgs>
+      fields: Prisma.TeacherBatchAssignmentFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.TeacherBatchAssignmentFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TeacherBatchAssignmentPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.TeacherBatchAssignmentFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TeacherBatchAssignmentPayload>
+        }
+        findFirst: {
+          args: Prisma.TeacherBatchAssignmentFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TeacherBatchAssignmentPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.TeacherBatchAssignmentFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TeacherBatchAssignmentPayload>
+        }
+        findMany: {
+          args: Prisma.TeacherBatchAssignmentFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TeacherBatchAssignmentPayload>[]
+        }
+        create: {
+          args: Prisma.TeacherBatchAssignmentCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TeacherBatchAssignmentPayload>
+        }
+        createMany: {
+          args: Prisma.TeacherBatchAssignmentCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.TeacherBatchAssignmentCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TeacherBatchAssignmentPayload>[]
+        }
+        delete: {
+          args: Prisma.TeacherBatchAssignmentDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TeacherBatchAssignmentPayload>
+        }
+        update: {
+          args: Prisma.TeacherBatchAssignmentUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TeacherBatchAssignmentPayload>
+        }
+        deleteMany: {
+          args: Prisma.TeacherBatchAssignmentDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.TeacherBatchAssignmentUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.TeacherBatchAssignmentUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TeacherBatchAssignmentPayload>[]
+        }
+        upsert: {
+          args: Prisma.TeacherBatchAssignmentUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TeacherBatchAssignmentPayload>
+        }
+        aggregate: {
+          args: Prisma.TeacherBatchAssignmentAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateTeacherBatchAssignment>
+        }
+        groupBy: {
+          args: Prisma.TeacherBatchAssignmentGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TeacherBatchAssignmentGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.TeacherBatchAssignmentCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TeacherBatchAssignmentCountAggregateOutputType> | number
         }
       }
     }
@@ -8761,12 +8986,65 @@ export const EnrollmentScalarFieldEnum = {
 export type EnrollmentScalarFieldEnum = (typeof EnrollmentScalarFieldEnum)[keyof typeof EnrollmentScalarFieldEnum]
 
 
+export const BatchScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  batchType: 'batchType',
+  programSlug: 'programSlug',
+  courseId: 'courseId',
+  instituteId: 'instituteId',
+  branchId: 'branchId',
+  startDate: 'startDate',
+  endDate: 'endDate',
+  schedule: 'schedule',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type BatchScalarFieldEnum = (typeof BatchScalarFieldEnum)[keyof typeof BatchScalarFieldEnum]
+
+
+export const BatchStudentScalarFieldEnum = {
+  id: 'id',
+  batchId: 'batchId',
+  studentId: 'studentId',
+  status: 'status',
+  joinedAt: 'joinedAt',
+  remarks: 'remarks'
+} as const
+
+export type BatchStudentScalarFieldEnum = (typeof BatchStudentScalarFieldEnum)[keyof typeof BatchStudentScalarFieldEnum]
+
+
+export const TeacherBatchAssignmentScalarFieldEnum = {
+  id: 'id',
+  batchId: 'batchId',
+  teacherId: 'teacherId',
+  subject: 'subject',
+  role: 'role',
+  status: 'status',
+  createdAt: 'createdAt'
+} as const
+
+export type TeacherBatchAssignmentScalarFieldEnum = (typeof TeacherBatchAssignmentScalarFieldEnum)[keyof typeof TeacherBatchAssignmentScalarFieldEnum]
+
+
 export const TestScalarFieldEnum = {
   id: 'id',
   title: 'title',
   description: 'description',
   examType: 'examType',
   category: 'category',
+  subject: 'subject',
+  topic: 'topic',
+  batchId: 'batchId',
+  teacherId: 'teacherId',
+  publishAt: 'publishAt',
+  status: 'status',
+  reviewedAt: 'reviewedAt',
+  approvedAt: 'approvedAt',
+  approvedById: 'approvedById',
   duration: 'duration',
   totalMarks: 'totalMarks',
   isMockTest: 'isMockTest',
@@ -10590,6 +10868,9 @@ export type GlobalOmitConfig = {
   module?: Prisma.ModuleOmit
   lesson?: Prisma.LessonOmit
   enrollment?: Prisma.EnrollmentOmit
+  batch?: Prisma.BatchOmit
+  batchStudent?: Prisma.BatchStudentOmit
+  teacherBatchAssignment?: Prisma.TeacherBatchAssignmentOmit
   test?: Prisma.TestOmit
   question?: Prisma.QuestionOmit
   testAttempt?: Prisma.TestAttemptOmit

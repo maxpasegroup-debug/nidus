@@ -21,6 +21,11 @@ function userId(req: AuthenticatedRequest) {
   return req.user.id;
 }
 
+function requester(req: AuthenticatedRequest) {
+  if (!req.user) throw new Error("Unauthorized");
+  return req.user;
+}
+
 export const testsController = {
   async list(req: Request, res: Response, next: NextFunction) {
     try {
@@ -48,6 +53,26 @@ export const testsController = {
     try {
       assertValid(req);
       const test = await testsService.create(req.body);
+      res.status(201).json({ test });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async generateDraft(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      assertValid(req);
+      const draft = await testsService.generateDraft(requester(req), req.body);
+      res.json({ draft });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async publishDraft(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      assertValid(req);
+      const test = await testsService.publishDraft(requester(req), req.body);
       res.status(201).json({ test });
     } catch (error) {
       next(error);

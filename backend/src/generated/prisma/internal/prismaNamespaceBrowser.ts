@@ -61,6 +61,9 @@ export const ModelName = {
   Module: 'Module',
   Lesson: 'Lesson',
   Enrollment: 'Enrollment',
+  Batch: 'Batch',
+  BatchStudent: 'BatchStudent',
+  TeacherBatchAssignment: 'TeacherBatchAssignment',
   Test: 'Test',
   Question: 'Question',
   TestAttempt: 'TestAttempt',
@@ -322,12 +325,65 @@ export const EnrollmentScalarFieldEnum = {
 export type EnrollmentScalarFieldEnum = (typeof EnrollmentScalarFieldEnum)[keyof typeof EnrollmentScalarFieldEnum]
 
 
+export const BatchScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  batchType: 'batchType',
+  programSlug: 'programSlug',
+  courseId: 'courseId',
+  instituteId: 'instituteId',
+  branchId: 'branchId',
+  startDate: 'startDate',
+  endDate: 'endDate',
+  schedule: 'schedule',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type BatchScalarFieldEnum = (typeof BatchScalarFieldEnum)[keyof typeof BatchScalarFieldEnum]
+
+
+export const BatchStudentScalarFieldEnum = {
+  id: 'id',
+  batchId: 'batchId',
+  studentId: 'studentId',
+  status: 'status',
+  joinedAt: 'joinedAt',
+  remarks: 'remarks'
+} as const
+
+export type BatchStudentScalarFieldEnum = (typeof BatchStudentScalarFieldEnum)[keyof typeof BatchStudentScalarFieldEnum]
+
+
+export const TeacherBatchAssignmentScalarFieldEnum = {
+  id: 'id',
+  batchId: 'batchId',
+  teacherId: 'teacherId',
+  subject: 'subject',
+  role: 'role',
+  status: 'status',
+  createdAt: 'createdAt'
+} as const
+
+export type TeacherBatchAssignmentScalarFieldEnum = (typeof TeacherBatchAssignmentScalarFieldEnum)[keyof typeof TeacherBatchAssignmentScalarFieldEnum]
+
+
 export const TestScalarFieldEnum = {
   id: 'id',
   title: 'title',
   description: 'description',
   examType: 'examType',
   category: 'category',
+  subject: 'subject',
+  topic: 'topic',
+  batchId: 'batchId',
+  teacherId: 'teacherId',
+  publishAt: 'publishAt',
+  status: 'status',
+  reviewedAt: 'reviewedAt',
+  approvedAt: 'approvedAt',
+  approvedById: 'approvedById',
   duration: 'duration',
   totalMarks: 'totalMarks',
   isMockTest: 'isMockTest',
