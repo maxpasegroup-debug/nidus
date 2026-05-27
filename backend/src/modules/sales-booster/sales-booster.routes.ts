@@ -16,6 +16,20 @@ salesBoosterRouter.get("/analytics", ...salesBoosterRoles, salesBoosterControlle
 salesBoosterRouter.get("/connectors", ...salesBoosterRoles, salesBoosterController.connectorStatus);
 salesBoosterRouter.get("/scheduled", ...salesBoosterRoles, salesBoosterController.scheduledCampaigns);
 salesBoosterRouter.get("/audience", ...salesBoosterRoles, salesBoosterController.audience);
+salesBoosterRouter.post(
+  "/ai-generate",
+  ...salesBoosterRoles,
+  [
+    body("track").trim().notEmpty(),
+    body("goal").trim().isLength({ min: 5 }),
+    body("audience").optional({ nullable: true }).trim(),
+    body("budget").optional({ nullable: true }).trim(),
+    body("creativeName").optional({ nullable: true }).trim(),
+    body("creativeType").optional({ nullable: true }).trim(),
+    body("channels").optional().isArray()
+  ],
+  salesBoosterController.generateCampaignDraft
+);
 salesBoosterRouter.post("/creatives/upload", ...salesBoosterRoles, upload.single("file"), salesBoosterController.uploadCreative);
 salesBoosterRouter.post(
   "/audience",

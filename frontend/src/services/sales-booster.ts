@@ -8,6 +8,19 @@ export type SalesBoosterDraft = {
   audience: string;
   cta: string;
   whatsapp: string;
+  hashtags?: string[];
+  budgetSuggestion?: string;
+  targeting?: string[];
+  postingPlan?: string[];
+  channelCopies?: Array<{
+    channel: string;
+    headline: string;
+    caption: string;
+    hashtags: string[];
+    cta: string;
+    notes: string;
+  }>;
+  safetyNotes?: string[];
 };
 
 export type SalesBoosterCampaign = {
@@ -203,6 +216,19 @@ export async function createSalesBoosterCampaign(payload: {
 }) {
   const response = await apiClient.post<{ campaign: SalesBoosterCampaign }>("/sales-booster/campaigns", payload);
   return response.data.campaign;
+}
+
+export async function generateSalesBoosterCampaignDraft(payload: {
+  track: string;
+  goal: string;
+  audience?: string;
+  budget?: string;
+  creativeName?: string;
+  creativeType?: string;
+  channels?: string[];
+}) {
+  const response = await apiClient.post<{ draft: SalesBoosterDraft }>("/sales-booster/ai-generate", payload);
+  return response.data.draft;
 }
 
 export async function uploadSalesBoosterCreative(file: File) {

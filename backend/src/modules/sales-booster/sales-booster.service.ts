@@ -1,6 +1,7 @@
 import { Prisma, Role } from "../../generated/prisma/client.js";
 import { prisma } from "../../config/prisma.js";
 import { mediaService } from "../media/media.service.js";
+import { salesBoosterAIService } from "./sales-booster-ai.service.js";
 import { salesBoosterConnectors } from "./sales-booster-connectors.service.js";
 
 type Requester = { id: string; role: Role };
@@ -55,6 +56,16 @@ type AudienceContactInput = {
 type BroadcastInput = {
   segment?: string;
   templateName?: string;
+};
+
+type GenerateCampaignInput = {
+  track: string;
+  goal: string;
+  audience?: string;
+  budget?: string;
+  creativeName?: string;
+  creativeType?: string;
+  channels?: string[];
 };
 
 const campaignInclude = {
@@ -116,6 +127,18 @@ function creativeTypeFor(mimeType: string) {
 }
 
 export const salesBoosterService = {
+  async generateCampaignDraft(_requester: Requester, input: GenerateCampaignInput) {
+    return salesBoosterAIService.generateCampaign({
+      track: input.track,
+      goal: input.goal,
+      audience: input.audience,
+      budget: input.budget,
+      creativeName: input.creativeName,
+      creativeType: input.creativeType,
+      channels: input.channels
+    });
+  },
+
   async campaigns(requester: Requester) {
     return prisma.salesBoosterCampaign.findMany({
       where: requester.role === Role.MARKETING_COORDINATOR ? { createdById: requester.id } : undefined,

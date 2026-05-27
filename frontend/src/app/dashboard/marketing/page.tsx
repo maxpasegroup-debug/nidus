@@ -8,7 +8,7 @@ import { ActivityTimeline, DashboardError, DashboardSkeleton, ProgressCard, Quic
 import { useAuth } from "@/components/providers/auth-provider-v2";
 import { Button } from "@/components/ui/button";
 import { useMarketingDashboard } from "@/hooks/use-dashboard";
-import { useAddSalesBoosterAudienceContact, useAddSalesBoosterMetricSnapshot, useAttachSalesBoosterCreative, useBroadcastSalesBoosterWhatsApp, useCreateSalesBoosterCampaign, useImportSalesBoosterLeadsToAudience, useRunDueSalesBoosterCampaigns, useRunSalesBoosterCampaign, useSalesBoosterAnalytics, useSalesBoosterAudience, useSalesBoosterCampaigns, useSalesBoosterConnectors, useSalesBoosterSummary, useScheduleSalesBoosterCampaign, useScheduledSalesBoosterCampaigns, useUpdateSalesBoosterStatus, useUploadSalesBoosterCreative } from "@/hooks/use-sales-booster";
+import { useAddSalesBoosterAudienceContact, useAddSalesBoosterMetricSnapshot, useAttachSalesBoosterCreative, useBroadcastSalesBoosterWhatsApp, useCreateSalesBoosterCampaign, useGenerateSalesBoosterCampaignDraft, useImportSalesBoosterLeadsToAudience, useRunDueSalesBoosterCampaigns, useRunSalesBoosterCampaign, useSalesBoosterAnalytics, useSalesBoosterAudience, useSalesBoosterCampaigns, useSalesBoosterConnectors, useSalesBoosterSummary, useScheduleSalesBoosterCampaign, useScheduledSalesBoosterCampaigns, useUpdateSalesBoosterStatus, useUploadSalesBoosterCreative } from "@/hooks/use-sales-booster";
 import type { SalesBoosterCampaign, SalesBoosterCreative, SalesBoosterDraft } from "@/services/sales-booster";
 
 const campaignTracks = [
@@ -42,7 +42,20 @@ function buildCampaignDraft(goal: string, track: string): SalesBoosterDraft {
     caption: `${cleanGoal} Use simple parent-friendly language, highlight trust, and drive users to Start Free before counselling.`,
     audience: track === "NIDUS Guru" ? "Students aged 13-22, parents, focus and discipline interest groups" : "Kerala students, parents, NDA/CDS/AFCAT/AISSEE/Agniveer interest groups",
     cta: track === "Free Assessments" ? "Start Free Assessment" : track === "Academy Admissions" ? "Apply for Counselling" : "Start Free",
-    whatsapp: `Hello NIDUS Academy, I am interested in ${track}. Please guide me with the next step.`
+    whatsapp: `Hello NIDUS Academy, I am interested in ${track}. Please guide me with the next step.`,
+    hashtags: ["#NIDUSAcademy", "#DefenceCareer", "#StartFree"],
+    budgetSuggestion: "Start small, compare poster vs reel, then increase spend on the best CPL.",
+    targeting: ["Kerala students and parents", "Defence exam interests", "Retarget Start Free visitors"],
+    postingPlan: ["Publish poster", "Publish short video", "WhatsApp opted-in leads", "Retarget engaged audience"],
+    channelCopies: channels.map(([channel]) => ({
+      channel,
+      headline: `NIDUS ${track}`,
+      caption: cleanGoal,
+      hashtags: channel === "WhatsApp" ? [] : ["#NIDUSAcademy", "#DefenceAspirants"],
+      cta: channel === "WhatsApp" ? "Reply YES" : "Start Free",
+      notes: "Generate with AI for a full channel-specific version."
+    })),
+    safetyNotes: ["Human approval required before running.", "Avoid guaranteed selection claims."]
   };
 }
 
@@ -65,6 +78,7 @@ export default function MarketingDashboardPage() {
   const scheduledCampaigns = useScheduledSalesBoosterCampaigns();
   const audience = useSalesBoosterAudience();
   const createCampaign = useCreateSalesBoosterCampaign();
+  const generateCampaignDraft = useGenerateSalesBoosterCampaignDraft();
   const uploadCreative = useUploadSalesBoosterCreative();
   const attachCreative = useAttachSalesBoosterCreative();
   const updateStatus = useUpdateSalesBoosterStatus();
@@ -77,8 +91,11 @@ export default function MarketingDashboardPage() {
   const broadcastWhatsApp = useBroadcastSalesBoosterWhatsApp();
   const [selectedTrack, setSelectedTrack] = useState(campaignTracks[0].title);
   const [goal, setGoal] = useState("Generate NDA admissions campaign for Kerala students with a parent-friendly message and WhatsApp follow-up.");
+  const [campaignAudience, setCampaignAudience] = useState("Kerala defence aspirants, parents and students preparing for NDA/CDS/AFCAT/AISSEE.");
+  const [campaignBudget, setCampaignBudget] = useState("Rs 10,000 test budget for 7 days.");
   const [creativeName, setCreativeName] = useState("No creative selected");
   const [creative, setCreative] = useState<SalesBoosterCreative | null>(null);
+  const [aiDraft, setAiDraft] = useState<SalesBoosterDraft | null>(null);
   const [approvalStatus, setApprovalStatus] = useState("Draft ready");
   const [metricCampaignId, setMetricCampaignId] = useState("");
   const [metricPlatform, setMetricPlatform] = useState("Facebook");
@@ -95,7 +112,7 @@ export default function MarketingDashboardPage() {
   const [audienceSegment, setAudienceSegment] = useState("Academy Admissions");
   const [broadcastSegment, setBroadcastSegment] = useState("Academy Admissions");
   const [templateName, setTemplateName] = useState("nidus_campaign_followup");
-  const draft = useMemo(() => buildCampaignDraft(goal, selectedTrack), [goal, selectedTrack]);
+  const draft = useMemo(() => aiDraft ?? buildCampaignDraft(goal, selectedTrack), [aiDraft, goal, selectedTrack]);
   const savedCampaigns = campaigns.data ?? [];
   const boosterSummary = summary.data;
   const boosterAnalytics = analytics.data;
@@ -124,6 +141,23 @@ export default function MarketingDashboardPage() {
       onSuccess: (campaign) => {
         setApprovalStatus(status === "SUBMITTED" ? "Saved and submitted for approval" : "Draft saved");
         if (status === "SUBMITTED") updateStatus.mutate({ id: campaign.id, approvalStatus: "SUBMITTED", reviewNote: "Submitted from Sales Booster generator." });
+      }
+    });
+  }
+
+  function generateCampaign() {
+    generateCampaignDraft.mutate({
+      track: selectedTrack,
+      goal,
+      audience: campaignAudience,
+      budget: campaignBudget,
+      creativeName: creative?.name ?? (creativeName === "No creative selected" ? undefined : creativeName),
+      creativeType: creative?.type,
+      channels: channels.map(([title]) => title)
+    }, {
+      onSuccess: (generated) => {
+        setAiDraft(generated);
+        setApprovalStatus("AI campaign draft ready for review");
       }
     });
   }
@@ -204,7 +238,7 @@ export default function MarketingDashboardPage() {
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#3f4a32]">Sales Booster</p>
               <h1 className="mt-4 max-w-4xl text-4xl font-semibold leading-tight text-[#071d36] sm:text-6xl">One prompt to plan NIDUS campaigns.</h1>
-              <p className="mt-5 max-w-3xl text-base leading-8 text-[#40516a]">A NIDUS-only campaign command center for Academy admissions, TOPRANK, NIDUS Guru and free assessments. Phase 2 saves campaign drafts, review states and approval history before external APIs are connected.</p>
+              <p className="mt-5 max-w-3xl text-base leading-8 text-[#40516a]">A NIDUS-only campaign command center for Academy admissions, TOPRANK, NIDUS Guru and free assessments. Generate channel-wise campaign copy, review it, attach creative, then submit for approval.</p>
               <div className="mt-7 flex flex-col gap-3 sm:flex-row">
                 <Button type="button" onClick={() => saveCampaign("SUBMITTED")} disabled={createCampaign.isPending || updateStatus.isPending}>
                   {createCampaign.isPending ? "Saving..." : "Save & Submit"} <Send className="h-4 w-4" />
@@ -217,7 +251,7 @@ export default function MarketingDashboardPage() {
             <div className="rounded-lg border border-[#071d36]/10 bg-white p-5 shadow-[0_18px_60px_rgba(7,29,54,0.08)]">
               <Bot className="h-8 w-8 text-[#b9913f]" />
               <h2 className="mt-4 text-2xl font-semibold text-[#071d36]">NIDUS AI Campaign Builder</h2>
-              <p className="mt-3 text-sm leading-7 text-[#64748b]">Upload creative, write the goal, save the AI draft, submit it for approval, then connect publishing and ad APIs in the next phase.</p>
+              <p className="mt-3 text-sm leading-7 text-[#64748b]">Upload creative, write the goal, let NIDUS AI prepare campaign copy, then submit it for approval before running.</p>
               <div className="mt-5 rounded border border-[#071d36]/10 bg-[#f7f3ea] p-4 text-sm font-semibold text-[#071d36]">{approvalStatus}</div>
             </div>
           </div>
@@ -452,7 +486,7 @@ export default function MarketingDashboardPage() {
             <div className="mt-6 grid gap-4">
               <label>
                 <span className="text-sm font-semibold text-white">Campaign track</span>
-                <select value={selectedTrack} onChange={(event) => setSelectedTrack(event.target.value)} className="mt-2 h-12 w-full rounded border border-white/12 bg-navy-deep px-4 text-sm text-white outline-none focus:border-gold">
+                <select value={selectedTrack} onChange={(event) => { setSelectedTrack(event.target.value); setAiDraft(null); }} className="mt-2 h-12 w-full rounded border border-white/12 bg-navy-deep px-4 text-sm text-white outline-none focus:border-gold">
                   {campaignTracks.map((track) => <option key={track.title}>{track.title}</option>)}
                 </select>
               </label>
@@ -478,8 +512,21 @@ export default function MarketingDashboardPage() {
               ) : null}
               <label>
                 <span className="text-sm font-semibold text-white">Prompt / campaign goal</span>
-                <textarea value={goal} onChange={(event) => setGoal(event.target.value)} className="mt-2 min-h-36 w-full rounded border border-white/12 bg-navy-deep px-4 py-3 text-sm leading-6 text-white outline-none placeholder:text-muted focus:border-gold" placeholder="Example: Generate NDA admissions campaign for Kerala students with Rs 10,000 budget." />
+                <textarea value={goal} onChange={(event) => { setGoal(event.target.value); setAiDraft(null); }} className="mt-2 min-h-36 w-full rounded border border-white/12 bg-navy-deep px-4 py-3 text-sm leading-6 text-white outline-none placeholder:text-muted focus:border-gold" placeholder="Example: Generate NDA admissions campaign for Kerala students with Rs 10,000 budget." />
               </label>
+              <div className="grid gap-3 md:grid-cols-2">
+                <label>
+                  <span className="text-sm font-semibold text-white">Audience</span>
+                  <input value={campaignAudience} onChange={(event) => { setCampaignAudience(event.target.value); setAiDraft(null); }} className="mt-2 h-11 w-full rounded border border-white/12 bg-navy-deep px-3 text-sm text-white outline-none focus:border-gold" />
+                </label>
+                <label>
+                  <span className="text-sm font-semibold text-white">Budget / offer note</span>
+                  <input value={campaignBudget} onChange={(event) => { setCampaignBudget(event.target.value); setAiDraft(null); }} className="mt-2 h-11 w-full rounded border border-white/12 bg-navy-deep px-3 text-sm text-white outline-none focus:border-gold" />
+                </label>
+              </div>
+              <Button type="button" onClick={generateCampaign} disabled={generateCampaignDraft.isPending || !goal.trim()}>
+                {generateCampaignDraft.isPending ? "NIDUS AI is writing..." : "Generate AI Campaign"} <Sparkles className="h-4 w-4" />
+              </Button>
             </div>
           </div>
 
@@ -487,13 +534,48 @@ export default function MarketingDashboardPage() {
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#3f4a32]">AI Draft Review</p>
             <h2 className="mt-3 text-3xl font-semibold text-[#071d36]">{selectedTrack}</h2>
             <div className="mt-5 grid gap-3">
-              {[["Hook", draft.hook], ["Caption Direction", draft.caption], ["Audience", draft.audience], ["CTA", draft.cta], ["WhatsApp Message", draft.whatsapp]].map(([label, value]) => (
+              {[["Hook", draft.hook], ["Caption Direction", draft.caption], ["Audience", draft.audience], ["CTA", draft.cta], ["WhatsApp Message", draft.whatsapp], ["Budget Suggestion", draft.budgetSuggestion ?? "Generate with AI for budget guidance."]].map(([label, value]) => (
                 <div key={label} className="rounded border border-[#071d36]/10 bg-[#f7f3ea] p-4">
                   <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#3f4a32]">{label}</p>
                   <p className="mt-2 text-sm leading-6 text-[#40516a]">{value}</p>
                 </div>
               ))}
             </div>
+            {draft.hashtags?.length ? (
+              <div className="mt-4 flex flex-wrap gap-2">
+                {draft.hashtags.map((tag) => <span key={tag} className="rounded-full border border-[#071d36]/10 bg-[#071d36]/5 px-3 py-1 text-xs font-semibold text-[#3f4a32]">{tag}</span>)}
+              </div>
+            ) : null}
+            <div className="mt-5 grid gap-3 md:grid-cols-2">
+              <div className="rounded border border-[#071d36]/10 bg-white p-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#3f4a32]">Targeting</p>
+                <ul className="mt-3 space-y-2 text-sm leading-6 text-[#40516a]">
+                  {(draft.targeting ?? []).slice(0, 5).map((item) => <li key={item}>{item}</li>)}
+                </ul>
+              </div>
+              <div className="rounded border border-[#071d36]/10 bg-white p-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#3f4a32]">Posting Plan</p>
+                <ul className="mt-3 space-y-2 text-sm leading-6 text-[#40516a]">
+                  {(draft.postingPlan ?? []).slice(0, 5).map((item) => <li key={item}>{item}</li>)}
+                </ul>
+              </div>
+            </div>
+            {draft.channelCopies?.length ? (
+              <div className="mt-5 grid gap-3">
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#3f4a32]">Channel Copy</p>
+                {draft.channelCopies.map((copy) => (
+                  <div key={copy.channel} className="rounded border border-[#071d36]/10 bg-[#f7f3ea] p-4">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <p className="font-semibold text-[#071d36]">{copy.channel}</p>
+                      <span className="rounded border border-[#071d36]/10 bg-white px-2 py-1 text-xs font-semibold text-[#3f4a32]">{copy.cta}</span>
+                    </div>
+                    <p className="mt-2 text-sm font-semibold text-[#071d36]">{copy.headline}</p>
+                    <p className="mt-2 text-sm leading-6 text-[#40516a]">{copy.caption}</p>
+                    {copy.hashtags.length ? <p className="mt-2 text-xs text-[#3f4a32]">{copy.hashtags.join(" ")}</p> : null}
+                  </div>
+                ))}
+              </div>
+            ) : null}
             <div className="mt-5 grid gap-3 sm:grid-cols-2">
               <Button type="button" onClick={() => saveCampaign("DRAFT")} disabled={createCampaign.isPending}>
                 Save Draft <CheckCircle2 className="h-4 w-4" />

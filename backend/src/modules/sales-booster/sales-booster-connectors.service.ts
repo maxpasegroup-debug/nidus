@@ -7,6 +7,7 @@ type ConnectorCampaign = {
   goal: string;
   creativeName?: string | null;
   creativeType?: string | null;
+  creativeUrl?: string | null;
   channels: unknown;
   aiDraft: unknown;
 };
@@ -42,13 +43,13 @@ function campaignMessage(campaign: ConnectorCampaign) {
 
 function hasMediaUrl(campaign: ConnectorCampaign) {
   const draft = draftObject(campaign.aiDraft);
-  const mediaUrl = draft.mediaUrl ?? draft.creativeUrl;
+  const mediaUrl = campaign.creativeUrl ?? draft.mediaUrl ?? draft.creativeUrl;
   return typeof mediaUrl === "string" && /^https?:\/\//.test(mediaUrl);
 }
 
 function mediaUrl(campaign: ConnectorCampaign) {
   const draft = draftObject(campaign.aiDraft);
-  const media = draft.mediaUrl ?? draft.creativeUrl;
+  const media = campaign.creativeUrl ?? draft.mediaUrl ?? draft.creativeUrl;
   return typeof media === "string" ? media : "";
 }
 

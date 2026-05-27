@@ -20,6 +20,15 @@ function requester(req: AuthenticatedRequest) {
 }
 
 export const salesBoosterController = {
+  async generateCampaignDraft(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      assertValid(req);
+      res.json({ draft: await salesBoosterService.generateCampaignDraft(requester(req), req.body) });
+    } catch (error) {
+      next(error);
+    }
+  },
+
   async campaigns(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
       res.json({ campaigns: await salesBoosterService.campaigns(requester(req)) });

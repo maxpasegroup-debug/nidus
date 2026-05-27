@@ -9,6 +9,7 @@ import {
   attachSalesBoosterCreative,
   broadcastSalesBoosterWhatsApp,
   createSalesBoosterCampaign,
+  generateSalesBoosterCampaignDraft,
   getSalesBoosterAudience,
   getSalesBoosterAnalytics,
   getSalesBoosterConnectors,
@@ -69,6 +70,15 @@ export function useCreateSalesBoosterCampaign() {
       ]);
       showToast("Sales Booster campaign saved.", "success");
     },
+    onError: (error) => showToast(getApiErrorMessage(error), "error")
+  });
+}
+
+export function useGenerateSalesBoosterCampaignDraft() {
+  const { showToast } = useToast();
+  return useMutation({
+    mutationFn: generateSalesBoosterCampaignDraft,
+    onSuccess: () => showToast("AI campaign draft generated.", "success"),
     onError: (error) => showToast(getApiErrorMessage(error), "error")
   });
 }
