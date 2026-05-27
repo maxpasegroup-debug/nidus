@@ -21,6 +21,7 @@ const campaignTracks = [
 const channels = [
   ["Facebook", "Posts, lead ads, admissions campaigns"],
   ["Instagram", "Reels, posters, stories, enquiry pushes"],
+  ["Meta Ads", "Paused lead campaign shells for Ads Manager review"],
   ["Threads", "Short campaign threads and announcements"],
   ["YouTube", "Shorts, video uploads, titles and descriptions"],
   ["WhatsApp", "Template follow-ups, counsellor routing, broadcasts"]

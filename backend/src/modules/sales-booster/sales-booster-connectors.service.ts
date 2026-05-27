@@ -61,15 +61,46 @@ async function postForm(url: string, payload: Record<string, string>) {
   return data as { id?: string };
 }
 
+function isImageCreative(campaign: ConnectorCampaign) {
+  return campaign.creativeType === "image" || /\.(png|jpe?g|webp)$/i.test(mediaUrl(campaign));
+}
+
+function isVideoCreative(campaign: ConnectorCampaign) {
+  return campaign.creativeType === "video" || /\.(mp4|mov|webm)$/i.test(mediaUrl(campaign));
+}
+
+function adAccountId() {
+  const raw = env.SALESBOOSTER_META_AD_ACCOUNT_ID.trim();
+  if (!raw) return "";
+  return raw.startsWith("act_") ? raw : `act_${raw}`;
+}
+
 async function runFacebook(campaign: ConnectorCampaign): Promise<ConnectorResult> {
   if (!env.SALESBOOSTER_META_ACCESS_TOKEN || !env.SALESBOOSTER_META_PAGE_ID) {
     return { channel: "Facebook", status: "NOT_CONFIGURED", message: "Meta page id/access token not configured." };
+  }
+  if (hasMediaUrl(campaign) && isImageCreative(campaign)) {
+    const data = await postForm(`${graphBaseUrl}/${env.SALESBOOSTER_META_PAGE_ID}/photos`, {
+      access_token: env.SALESBOOSTER_META_ACCESS_TOKEN,
+      url: mediaUrl(campaign),
+      caption: campaignMessage(campaign)
+    });
+    return { channel: "Facebook", status: "POSTED", message: "Facebook photo post published.", externalId: data.id };
+  }
+  if (hasMediaUrl(campaign) && isVideoCreative(campaign)) {
+    const data = await postForm(`${graphBaseUrl}/${env.SALESBOOSTER_META_PAGE_ID}/videos`, {
+      access_token: env.SALESBOOSTER_META_ACCESS_TOKEN,
+      file_url: mediaUrl(campaign),
+      description: campaignMessage(campaign),
+      title: campaign.title
+    });
+    return { channel: "Facebook", status: "QUEUED", message: "Facebook video upload queued/published by Meta.", externalId: data.id };
   }
   const data = await postForm(`${graphBaseUrl}/${env.SALESBOOSTER_META_PAGE_ID}/feed`, {
     access_token: env.SALESBOOSTER_META_ACCESS_TOKEN,
     message: campaignMessage(campaign)
   });
-  return { channel: "Facebook", status: "POSTED", message: "Facebook page post published.", externalId: data.id };
+  return { channel: "Facebook", status: "POSTED", message: "Facebook page text post published.", externalId: data.id };
 }
 
 async function runInstagram(campaign: ConnectorCampaign): Promise<ConnectorResult> {
@@ -80,17 +111,90 @@ async function runInstagram(campaign: ConnectorCampaign): Promise<ConnectorResul
     return { channel: "Instagram", status: "SKIPPED", message: "Instagram publishing requires a public image/video URL. Current phase has only the creative filename." };
   }
   const draft = draftObject(campaign.aiDraft);
-  const container = await postForm(`${graphBaseUrl}/${env.SALESBOOSTER_INSTAGRAM_USER_ID}/media`, {
-    access_token: env.SALESBOOSTER_META_ACCESS_TOKEN,
-    image_url: mediaUrl(campaign),
-    caption: String(draft.caption ?? campaignMessage(campaign))
-  });
+  const mediaPayload: Record<string, string> = isVideoCreative(campaign)
+    ? {
+        access_token: env.SALESBOOSTER_META_ACCESS_TOKEN,
+        media_type: "REELS",
+        video_url: mediaUrl(campaign),
+        caption: String(draft.caption ?? campaignMessage(campaign))
+      }
+    : {
+        access_token: env.SALESBOOSTER_META_ACCESS_TOKEN,
+        image_url: mediaUrl(campaign),
+        caption: String(draft.caption ?? campaignMessage(campaign))
+      };
+  const container = await postForm(`${graphBaseUrl}/${env.SALESBOOSTER_INSTAGRAM_USER_ID}/media`, mediaPayload);
   if (!container.id) throw new Error("Instagram media container id missing.");
   const publish = await postForm(`${graphBaseUrl}/${env.SALESBOOSTER_INSTAGRAM_USER_ID}/media_publish`, {
     access_token: env.SALESBOOSTER_META_ACCESS_TOKEN,
     creation_id: container.id
   });
-  return { channel: "Instagram", status: "POSTED", message: "Instagram media published.", externalId: publish.id, details: { containerId: container.id } };
+  return { channel: "Instagram", status: "POSTED", message: isVideoCreative(campaign) ? "Instagram reel published." : "Instagram media published.", externalId: publish.id, details: { containerId: container.id } };
+}
+
+async function runMetaAds(campaign: ConnectorCampaign): Promise<ConnectorResult> {
+  const account = adAccountId();
+  if (!env.SALESBOOSTER_META_ACCESS_TOKEN || !env.SALESBOOSTER_META_PAGE_ID || !account) {
+    return { channel: "Meta Ads", status: "NOT_CONFIGURED", message: "Meta access token, page id, or ad account id not configured." };
+  }
+  const countries = env.SALESBOOSTER_META_TARGET_COUNTRIES.split(",").map((item) => item.trim()).filter(Boolean);
+  const dailyBudget = String(Math.max(100, env.SALESBOOSTER_META_DAILY_BUDGET_INR * 100));
+  const campaignResult = await postForm(`${graphBaseUrl}/${account}/campaigns`, {
+    access_token: env.SALESBOOSTER_META_ACCESS_TOKEN,
+    name: `NIDUS ${campaign.title}`,
+    objective: "OUTCOME_LEADS",
+    status: "PAUSED",
+    special_ad_categories: "[]"
+  });
+  if (!campaignResult.id) throw new Error("Meta campaign id missing.");
+  const adSet = await postForm(`${graphBaseUrl}/${account}/adsets`, {
+    access_token: env.SALESBOOSTER_META_ACCESS_TOKEN,
+    name: `Ad Set - ${campaign.title}`,
+    campaign_id: campaignResult.id,
+    billing_event: "IMPRESSIONS",
+    optimization_goal: "LEAD_GENERATION",
+    bid_strategy: "LOWEST_COST_WITHOUT_CAP",
+    daily_budget: dailyBudget,
+    targeting: JSON.stringify({
+      geo_locations: { countries: countries.length ? countries : ["IN"] },
+      publisher_platforms: ["facebook", "instagram"]
+    }),
+    promoted_object: JSON.stringify({ page_id: env.SALESBOOSTER_META_PAGE_ID }),
+    status: "PAUSED"
+  });
+  if (!adSet.id) throw new Error("Meta ad set id missing.");
+  const linkData: Record<string, unknown> = {
+    message: campaignMessage(campaign),
+    link: env.FRONTEND_APP_URL ? `${env.FRONTEND_APP_URL.replace(/\/$/, "")}/start-free` : "https://nidusacademy.com/start-free",
+    name: campaign.title,
+    call_to_action: env.SALESBOOSTER_META_LEAD_FORM_ID
+      ? { type: "SIGN_UP", value: { lead_gen_form_id: env.SALESBOOSTER_META_LEAD_FORM_ID } }
+      : { type: "LEARN_MORE", value: { link: env.FRONTEND_APP_URL ? `${env.FRONTEND_APP_URL.replace(/\/$/, "")}/start-free` : "https://nidusacademy.com/start-free" } }
+  };
+  if (hasMediaUrl(campaign) && isImageCreative(campaign)) linkData.picture = mediaUrl(campaign);
+  const creative = await postForm(`${graphBaseUrl}/${account}/adcreatives`, {
+    access_token: env.SALESBOOSTER_META_ACCESS_TOKEN,
+    name: `Creative - ${campaign.title}`,
+    object_story_spec: JSON.stringify({
+      page_id: env.SALESBOOSTER_META_PAGE_ID,
+      link_data: linkData
+    })
+  });
+  if (!creative.id) throw new Error("Meta ad creative id missing.");
+  const ad = await postForm(`${graphBaseUrl}/${account}/ads`, {
+    access_token: env.SALESBOOSTER_META_ACCESS_TOKEN,
+    name: `Ad - ${campaign.title}`,
+    adset_id: adSet.id,
+    creative: JSON.stringify({ creative_id: creative.id }),
+    status: "PAUSED"
+  });
+  return {
+    channel: "Meta Ads",
+    status: "QUEUED",
+    message: "Paused Meta lead campaign shell created for final review inside Meta Ads Manager.",
+    externalId: ad.id,
+    details: { campaignId: campaignResult.id, adSetId: adSet.id, creativeId: creative.id, adId: ad.id, status: "PAUSED" }
+  };
 }
 
 async function runThreads(campaign: ConnectorCampaign): Promise<ConnectorResult> {
@@ -203,6 +307,7 @@ export const salesBoosterConnectors = {
     return {
       Facebook: Boolean(env.SALESBOOSTER_META_ACCESS_TOKEN && env.SALESBOOSTER_META_PAGE_ID),
       Instagram: Boolean(env.SALESBOOSTER_META_ACCESS_TOKEN && env.SALESBOOSTER_INSTAGRAM_USER_ID),
+      "Meta Ads": Boolean(env.SALESBOOSTER_META_ACCESS_TOKEN && env.SALESBOOSTER_META_PAGE_ID && adAccountId()),
       Threads: Boolean(env.SALESBOOSTER_THREADS_ACCESS_TOKEN && env.SALESBOOSTER_THREADS_USER_ID),
       YouTube: Boolean(env.SALESBOOSTER_YOUTUBE_ACCESS_TOKEN && env.SALESBOOSTER_YOUTUBE_CHANNEL_ID),
       WhatsApp: Boolean(env.SALESBOOSTER_WHATSAPP_ACCESS_TOKEN && env.SALESBOOSTER_WHATSAPP_PHONE_NUMBER_ID)
@@ -214,6 +319,7 @@ export const salesBoosterConnectors = {
     const tasks: Array<Promise<ConnectorResult>> = [];
     if (selected.has("Facebook")) tasks.push(safeRun("Facebook", () => runFacebook(campaign)));
     if (selected.has("Instagram")) tasks.push(safeRun("Instagram", () => runInstagram(campaign)));
+    if (selected.has("Meta Ads")) tasks.push(safeRun("Meta Ads", () => runMetaAds(campaign)));
     if (selected.has("Threads")) tasks.push(safeRun("Threads", () => runThreads(campaign)));
     if (selected.has("YouTube")) tasks.push(safeRun("YouTube", () => runYouTube(campaign)));
     if (selected.has("WhatsApp")) tasks.push(safeRun("WhatsApp", () => runWhatsApp(campaign)));
