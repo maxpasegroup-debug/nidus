@@ -6,6 +6,7 @@ import { getApiErrorMessage } from "@/services/api";
 import {
   addSalesBoosterMetricSnapshot,
   addSalesBoosterAudienceContact,
+  attachSalesBoosterCreative,
   broadcastSalesBoosterWhatsApp,
   createSalesBoosterCampaign,
   getSalesBoosterAudience,
@@ -19,7 +20,8 @@ import {
   runSalesBoosterCampaign,
   runDueSalesBoosterCampaigns,
   scheduleSalesBoosterCampaign,
-  updateSalesBoosterStatus
+  updateSalesBoosterStatus,
+  uploadSalesBoosterCreative
 } from "@/services/sales-booster";
 
 export function useSalesBoosterCampaigns() {
@@ -66,6 +68,31 @@ export function useCreateSalesBoosterCampaign() {
         queryClient.invalidateQueries({ queryKey: ["sales-booster", "analytics"] })
       ]);
       showToast("Sales Booster campaign saved.", "success");
+    },
+    onError: (error) => showToast(getApiErrorMessage(error), "error")
+  });
+}
+
+export function useUploadSalesBoosterCreative() {
+  const { showToast } = useToast();
+  return useMutation({
+    mutationFn: uploadSalesBoosterCreative,
+    onSuccess: () => showToast("Creative uploaded and ready for campaign review.", "success"),
+    onError: (error) => showToast(getApiErrorMessage(error), "error")
+  });
+}
+
+export function useAttachSalesBoosterCreative() {
+  const queryClient = useQueryClient();
+  const { showToast } = useToast();
+  return useMutation({
+    mutationFn: attachSalesBoosterCreative,
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["sales-booster", "campaigns"] }),
+        queryClient.invalidateQueries({ queryKey: ["sales-booster", "summary"] })
+      ]);
+      showToast("Campaign creative updated.", "success");
     },
     onError: (error) => showToast(getApiErrorMessage(error), "error")
   });

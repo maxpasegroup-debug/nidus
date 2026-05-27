@@ -8,7 +8,8 @@ import { AnnouncementCard, QuickActionCard, SectionHeader, StatCard } from "@/co
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/courses/empty-state";
 import { useAuth } from "@/components/providers/auth-provider-v2";
-import { useCreateTest, useTests } from "@/hooks/use-tests";
+import { useAcademyBatches } from "@/hooks/use-academy";
+import { useCreateTest, useGenerateTestDraft, usePublishGeneratedTest, useTests } from "@/hooks/use-tests";
 import { getApiErrorMessage } from "@/services/api";
 import type { TestPayload } from "@/services/tests";
 
@@ -19,10 +20,14 @@ export default function TestsPage() {
   const [topic, setTopic] = useState("");
   const { data: tests = [], isLoading, error } = useTests({ search, examType, topic });
   const createTest = useCreateTest();
+  const generateDraft = useGenerateTestDraft();
+  const publishGeneratedTest = usePublishGeneratedTest();
   const [aiPrompt, setAiPrompt] = useState("");
+  const [draftTest, setDraftTest] = useState<TestPayload | null>(null);
   const [draftQuestions, setDraftQuestions] = useState<NonNullable<TestPayload["questions"]>>([]);
   const examTypes = useMemo(() => Array.from(new Set(tests.map((test) => test.examType))), [tests]);
   const canCreateTests = user?.role === "ADMIN" || user?.role === "TEACHER";
+  const { data: batches = [] } = useAcademyBatches({ status: "ACTIVE" }, canCreateTests);
   const liveTests = tests.filter((test) => test.isLive).length;
   const mockTests = tests.filter((test) => test.isMockTest).length;
 
@@ -36,6 +41,9 @@ export default function TestsPage() {
         description: String(data.get("description") ?? ""),
         examType: String(data.get("examType") ?? ""),
         category: String(data.get("category") ?? ""),
+        subject: String(data.get("subject") ?? "") || undefined,
+        topic: String(data.get("topic") ?? "") || undefined,
+        batchId: String(data.get("batchId") ?? "") || undefined,
         duration: Number(data.get("duration") ?? 60),
         totalMarks: Number(data.get("totalMarks") ?? 100),
         isMockTest: data.get("isMockTest") === "on",
@@ -50,27 +58,22 @@ export default function TestsPage() {
   function generateDraftFromPrompt() {
     const prompt = aiPrompt.trim();
     if (!prompt) return;
-    const lines = prompt.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
-    const topic = lines[0]?.replace(/^(create|make|generate)\s+/i, "").slice(0, 70) || "Teacher generated topic";
-    const requestedCount = Math.min(30, Math.max(5, Number(prompt.match(/(\d+)\s*(mcq|question|questions)/i)?.[1] ?? 10)));
-    const sourceLines = lines.length > 1 ? lines : [topic];
-    const nextQuestions = Array.from({ length: requestedCount }).map((_, index) => {
-      const source = sourceLines[index % sourceLines.length];
-      return {
-        questionText: `Q${index + 1}. ${source}?`,
-        optionA: "Option A",
-        optionB: "Option B",
-        optionC: "Option C",
-        optionD: "Option D",
-        correctAnswer: "A",
-        explanation: "Teacher should review and edit this explanation before publishing.",
-        marks: 1,
-        negativeMarks: 0,
-        difficultyLevel: /hard|advanced/i.test(prompt) ? "HARD" : /easy|basic/i.test(prompt) ? "EASY" : "MEDIUM",
-        topic
-      };
+    const requestForm = document.getElementById("teacher-ai-test-controls") as HTMLFormElement | null;
+    const data = requestForm ? new FormData(requestForm) : new FormData();
+    generateDraft.mutate({
+      prompt,
+      examType: String(data.get("draftExamType") ?? "NDA"),
+      subject: String(data.get("draftSubject") ?? "") || undefined,
+      topic: String(data.get("draftTopic") ?? "") || undefined,
+      questionCount: Number(data.get("draftQuestionCount") ?? 30),
+      difficultyLevel: String(data.get("draftDifficulty") ?? "MEDIUM"),
+      batchId: String(data.get("draftBatchId") ?? "") || undefined
+    }, {
+      onSuccess: (draft) => {
+        setDraftTest(draft);
+        setDraftQuestions(draft.questions ?? []);
+      }
     });
-    setDraftQuestions(nextQuestions);
   }
 
   function handlePublishAiDraft(event: FormEvent<HTMLFormElement>) {
@@ -78,22 +81,27 @@ export default function TestsPage() {
     const form = event.currentTarget;
     const data = new FormData(form);
     const publishAt = String(data.get("publishAt") ?? "");
-    createTest.mutate(
+    publishGeneratedTest.mutate(
       {
-        title: String(data.get("title") ?? "NIDUS generated test"),
-        description: `${String(data.get("description") ?? "Generated from teacher prompt.")}${publishAt ? ` Scheduled for ${publishAt}.` : ""}`,
-        examType: String(data.get("examType") ?? "NIDUS"),
-        category: "Teacher Generated",
+        title: String(data.get("title") ?? draftTest?.title ?? "NIDUS generated test"),
+        description: `${String(data.get("description") ?? draftTest?.description ?? "Generated from teacher prompt.")}${publishAt ? ` Scheduled for ${publishAt}.` : ""}`,
+        examType: String(data.get("examType") ?? draftTest?.examType ?? "NIDUS"),
+        category: draftTest?.category ?? "Teacher Generated",
+        subject: String(data.get("subject") ?? draftTest?.subject ?? "") || undefined,
+        topic: String(data.get("topic") ?? draftTest?.topic ?? "") || undefined,
+        batchId: String(data.get("batchId") ?? draftTest?.batchId ?? "") || undefined,
+        publishAt: publishAt || undefined,
         duration: Number(data.get("duration") ?? 45),
         totalMarks: draftQuestions.reduce((sum, question) => sum + question.marks, 0),
         isMockTest: true,
-        isLive: Boolean(publishAt),
+        isLive: true,
         questions: draftQuestions
       },
       {
         onSuccess: () => {
           form.reset();
           setAiPrompt("");
+          setDraftTest(null);
           setDraftQuestions([]);
         }
       }
@@ -121,6 +129,27 @@ export default function TestsPage() {
         <section className="grid gap-4 lg:grid-cols-[1fr_0.9fr]">
           <div className="rounded-lg border border-gold/20 bg-gold/10 p-5">
             <SectionHeader eyebrow="Teacher Exam Studio" title="Type or paste, then NIDUS arranges the test" action="Teacher/Admin" />
+            <form id="teacher-ai-test-controls" className="mb-4 grid gap-3 md:grid-cols-3">
+              <Input name="draftExamType" label="Exam" placeholder="NDA" defaultValue="NDA" />
+              <Input name="draftSubject" label="Subject" placeholder="Mathematics" />
+              <Input name="draftTopic" label="Topic" placeholder="Trigonometry" />
+              <Input name="draftQuestionCount" label="Questions" type="number" min="5" max="100" defaultValue={30} />
+              <label className="block">
+                <span className="text-sm font-medium text-ink">Difficulty</span>
+                <select name="draftDifficulty" defaultValue="MEDIUM" className="mt-2 h-12 w-full rounded border border-white/12 bg-navy-deep px-4 text-sm text-white">
+                  <option value="EASY">Easy</option>
+                  <option value="MEDIUM">Medium</option>
+                  <option value="HARD">Hard</option>
+                </select>
+              </label>
+              <label className="block">
+                <span className="text-sm font-medium text-ink">Batch</span>
+                <select name="draftBatchId" className="mt-2 h-12 w-full rounded border border-white/12 bg-navy-deep px-4 text-sm text-white">
+                  <option value="">No batch selected</option>
+                  {batches.map((batch) => <option key={batch.id} value={batch.id}>{batch.name}</option>)}
+                </select>
+              </label>
+            </form>
             <textarea
               value={aiPrompt}
               onChange={(event) => setAiPrompt(event.target.value)}
@@ -128,21 +157,30 @@ export default function TestsPage() {
               placeholder="Example: Create a 50 mark NDA Maths test on Trigonometry. Include 20 MCQs, medium difficulty, answer key and explanation. Or paste questions from ChatGPT here."
             />
             <div className="mt-4 flex flex-wrap gap-3">
-              <Button type="button" onClick={generateDraftFromPrompt} variant="secondary">Generate draft</Button>
-              <Button type="button" onClick={() => setDraftQuestions([])} variant="secondary">Clear draft</Button>
+              <Button type="button" onClick={generateDraftFromPrompt} variant="secondary" disabled={generateDraft.isPending}>{generateDraft.isPending ? "Generating..." : "Generate draft"}</Button>
+              <Button type="button" onClick={() => { setDraftQuestions([]); setDraftTest(null); }} variant="secondary">Clear draft</Button>
             </div>
             <p className="mt-3 text-xs leading-5 text-muted">NIDUS arranges the teacher prompt into test questions. Teacher must review the draft before publishing.</p>
           </div>
           <form onSubmit={handlePublishAiDraft} className="rounded-lg border border-white/10 bg-white/[0.055] p-5">
             <SectionHeader eyebrow="Publish Settings" title="Review, set time, publish" action={`${draftQuestions.length} questions`} />
             <div className="grid gap-3 md:grid-cols-2">
-              <Input name="title" label="Test title" placeholder="Trigonometry Monthly Test" required />
-              <Input name="examType" label="Exam type" placeholder="NDA" required />
-              <Input name="duration" label="Timer minutes" type="number" min="1" defaultValue={45} required />
+              <Input name="title" label="Test title" placeholder="Trigonometry Monthly Test" defaultValue={draftTest?.title ?? ""} required />
+              <Input name="examType" label="Exam type" placeholder="NDA" defaultValue={draftTest?.examType ?? "NDA"} required />
+              <Input name="subject" label="Subject" placeholder="Mathematics" defaultValue={draftTest?.subject ?? ""} />
+              <Input name="topic" label="Topic" placeholder="Trigonometry" defaultValue={draftTest?.topic ?? ""} />
+              <Input name="duration" label="Timer minutes" type="number" min="1" defaultValue={draftTest?.duration ?? 45} required />
               <Input name="publishAt" label="Publish date and time" type="datetime-local" />
+              <label className="block md:col-span-2">
+                <span className="text-sm font-medium text-ink">Publish to batch</span>
+                <select name="batchId" defaultValue={draftTest?.batchId ?? ""} className="mt-2 h-12 w-full rounded border border-white/12 bg-navy-deep px-4 text-sm text-white">
+                  <option value="">All eligible students / unassigned</option>
+                  {batches.map((batch) => <option key={batch.id} value={batch.id}>{batch.name} - {batch.programSlug}</option>)}
+                </select>
+              </label>
               <Input name="description" label="Teacher note" placeholder="Generated from NIDUS prompt and reviewed by teacher." className="md:col-span-2" />
             </div>
-            <Button type="submit" className="mt-5 w-full" disabled={draftQuestions.length === 0 || createTest.isPending}>{createTest.isPending ? "Publishing..." : "Publish generated test"}</Button>
+            <Button type="submit" className="mt-5 w-full" disabled={draftQuestions.length === 0 || publishGeneratedTest.isPending}>{publishGeneratedTest.isPending ? "Publishing..." : "Approve and publish generated test"}</Button>
           </form>
           {draftQuestions.length ? (
             <div className="lg:col-span-2 rounded-lg border border-white/10 bg-white/[0.045] p-5">
@@ -169,9 +207,18 @@ export default function TestsPage() {
               <Input name="title" label="Test title" placeholder="May NDA Mathematics Test" required />
               <Input name="examType" label="Exam type" placeholder="NDA" required />
               <Input name="category" label="Category" placeholder="Monthly Test" required />
+              <Input name="subject" label="Subject" placeholder="Mathematics" />
+              <Input name="topic" label="Topic" placeholder="Algebra" />
               <Input name="duration" label="Duration minutes" type="number" min="1" defaultValue={60} required />
               <Input name="totalMarks" label="Total marks" type="number" min="1" defaultValue={100} required />
-              <Input name="description" label="Description" placeholder="Monthly test for subject growth tracking." required />
+              <label className="block md:col-span-2">
+                <span className="text-sm font-medium text-ink">Batch</span>
+                <select name="batchId" className="mt-2 h-12 w-full rounded border border-white/12 bg-navy-deep px-4 text-sm text-white">
+                  <option value="">No batch selected</option>
+                  {batches.map((batch) => <option key={batch.id} value={batch.id}>{batch.name} - {batch.programSlug}</option>)}
+                </select>
+              </label>
+              <Input name="description" label="Description" placeholder="Monthly test for subject growth tracking." required className="md:col-span-2" />
             </div>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               <label className="flex items-center gap-3 text-sm text-muted"><input name="isMockTest" type="checkbox" className="h-4 w-4" defaultChecked /> Mock test</label>

@@ -2,6 +2,7 @@ import { Router } from "express";
 import { body } from "express-validator";
 import { Role } from "../../generated/prisma/client.js";
 import { allowRoles, protect } from "../../middlewares/session.middleware.js";
+import { upload } from "../media/media.middleware.js";
 import { salesBoosterController } from "./sales-booster.controller.js";
 
 export const salesBoosterRouter = Router();
@@ -15,6 +16,7 @@ salesBoosterRouter.get("/analytics", ...salesBoosterRoles, salesBoosterControlle
 salesBoosterRouter.get("/connectors", ...salesBoosterRoles, salesBoosterController.connectorStatus);
 salesBoosterRouter.get("/scheduled", ...salesBoosterRoles, salesBoosterController.scheduledCampaigns);
 salesBoosterRouter.get("/audience", ...salesBoosterRoles, salesBoosterController.audience);
+salesBoosterRouter.post("/creatives/upload", ...salesBoosterRoles, upload.single("file"), salesBoosterController.uploadCreative);
 salesBoosterRouter.post(
   "/audience",
   ...salesBoosterRoles,
@@ -81,6 +83,18 @@ salesBoosterRouter.patch(
     body("reviewNote").optional({ nullable: true }).trim()
   ],
   salesBoosterController.updateStatus
+);
+salesBoosterRouter.patch(
+  "/campaigns/:id/creative",
+  ...salesBoosterRoles,
+  [
+    body("creativeName").optional({ nullable: true }).trim(),
+    body("creativeType").optional({ nullable: true }).trim(),
+    body("creativeUrl").optional({ nullable: true }).isURL(),
+    body("creativeMediaId").optional({ nullable: true }).trim(),
+    body("creativeSize").optional({ nullable: true }).isInt({ min: 0 })
+  ],
+  salesBoosterController.attachCreative
 );
 salesBoosterRouter.delete("/campaigns/:id", ...salesBoosterRoles, salesBoosterController.deleteCampaign);
 salesBoosterRouter.post("/campaigns/:id/run", ...salesBoosterRoles, salesBoosterController.runCampaign);

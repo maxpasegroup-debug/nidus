@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { BarChart3, Bot, CalendarClock, CheckCircle2, Clapperboard, FileUp, Megaphone, MessageCircle, PlayCircle, Send, Sparkles, Target, Users } from "lucide-react";
@@ -7,8 +8,8 @@ import { ActivityTimeline, DashboardError, DashboardSkeleton, ProgressCard, Quic
 import { useAuth } from "@/components/providers/auth-provider-v2";
 import { Button } from "@/components/ui/button";
 import { useMarketingDashboard } from "@/hooks/use-dashboard";
-import { useAddSalesBoosterAudienceContact, useAddSalesBoosterMetricSnapshot, useBroadcastSalesBoosterWhatsApp, useCreateSalesBoosterCampaign, useImportSalesBoosterLeadsToAudience, useRunDueSalesBoosterCampaigns, useRunSalesBoosterCampaign, useSalesBoosterAnalytics, useSalesBoosterAudience, useSalesBoosterCampaigns, useSalesBoosterConnectors, useSalesBoosterSummary, useScheduleSalesBoosterCampaign, useScheduledSalesBoosterCampaigns, useUpdateSalesBoosterStatus } from "@/hooks/use-sales-booster";
-import type { SalesBoosterCampaign, SalesBoosterDraft } from "@/services/sales-booster";
+import { useAddSalesBoosterAudienceContact, useAddSalesBoosterMetricSnapshot, useAttachSalesBoosterCreative, useBroadcastSalesBoosterWhatsApp, useCreateSalesBoosterCampaign, useImportSalesBoosterLeadsToAudience, useRunDueSalesBoosterCampaigns, useRunSalesBoosterCampaign, useSalesBoosterAnalytics, useSalesBoosterAudience, useSalesBoosterCampaigns, useSalesBoosterConnectors, useSalesBoosterSummary, useScheduleSalesBoosterCampaign, useScheduledSalesBoosterCampaigns, useUpdateSalesBoosterStatus, useUploadSalesBoosterCreative } from "@/hooks/use-sales-booster";
+import type { SalesBoosterCampaign, SalesBoosterCreative, SalesBoosterDraft } from "@/services/sales-booster";
 
 const campaignTracks = [
   { title: "Academy Admissions", audience: "Parents and defence aspirants", offer: "Physical academy enquiry and counselling", color: "from-[#fff7de] to-[#eef4ef]" },
@@ -64,6 +65,8 @@ export default function MarketingDashboardPage() {
   const scheduledCampaigns = useScheduledSalesBoosterCampaigns();
   const audience = useSalesBoosterAudience();
   const createCampaign = useCreateSalesBoosterCampaign();
+  const uploadCreative = useUploadSalesBoosterCreative();
+  const attachCreative = useAttachSalesBoosterCreative();
   const updateStatus = useUpdateSalesBoosterStatus();
   const runCampaign = useRunSalesBoosterCampaign();
   const scheduleCampaign = useScheduleSalesBoosterCampaign();
@@ -75,6 +78,7 @@ export default function MarketingDashboardPage() {
   const [selectedTrack, setSelectedTrack] = useState(campaignTracks[0].title);
   const [goal, setGoal] = useState("Generate NDA admissions campaign for Kerala students with a parent-friendly message and WhatsApp follow-up.");
   const [creativeName, setCreativeName] = useState("No creative selected");
+  const [creative, setCreative] = useState<SalesBoosterCreative | null>(null);
   const [approvalStatus, setApprovalStatus] = useState("Draft ready");
   const [metricCampaignId, setMetricCampaignId] = useState("");
   const [metricPlatform, setMetricPlatform] = useState("Facebook");
@@ -109,8 +113,11 @@ export default function MarketingDashboardPage() {
       title: `${selectedTrack} Campaign`,
       track: selectedTrack,
       goal,
-      creativeName: creativeName === "No creative selected" ? undefined : creativeName,
-      creativeType: creativeName === "No creative selected" ? undefined : creativeName.split(".").pop()?.toLowerCase(),
+      creativeName: creative?.name ?? (creativeName === "No creative selected" ? undefined : creativeName),
+      creativeType: creative?.type ?? (creativeName === "No creative selected" ? undefined : creativeName.split(".").pop()?.toLowerCase()),
+      creativeUrl: creative?.url,
+      creativeMediaId: creative?.id,
+      creativeSize: creative?.size,
       channels: channels.map(([title]) => title),
       aiDraft: draft
     }, {
@@ -118,6 +125,29 @@ export default function MarketingDashboardPage() {
         setApprovalStatus(status === "SUBMITTED" ? "Saved and submitted for approval" : "Draft saved");
         if (status === "SUBMITTED") updateStatus.mutate({ id: campaign.id, approvalStatus: "SUBMITTED", reviewNote: "Submitted from Sales Booster generator." });
       }
+    });
+  }
+
+  function uploadCampaignCreative(file?: File) {
+    if (!file) return;
+    setCreativeName(file.name);
+    uploadCreative.mutate(file, {
+      onSuccess: (uploaded) => {
+        setCreative(uploaded);
+        setCreativeName(uploaded.name);
+      }
+    });
+  }
+
+  function attachCreativeToCampaign(campaignId: string) {
+    if (!creative) return;
+    attachCreative.mutate({
+      id: campaignId,
+      creativeName: creative.name,
+      creativeType: creative.type,
+      creativeUrl: creative.url,
+      creativeMediaId: creative.id,
+      creativeSize: creative.size
     });
   }
 
@@ -321,7 +351,7 @@ export default function MarketingDashboardPage() {
               <div className="grid gap-2">
                 {audienceContacts.slice(0, 5).map((contact) => (
                   <div key={contact.id} className="rounded border border-white/10 bg-navy-deep/55 p-3 text-sm text-muted">
-                    <span className="font-semibold text-white">{contact.fullName}</span> · {contact.segment} · {contact.whatsappStatus}
+                    <span className="font-semibold text-white">{contact.fullName}</span> - {contact.segment} - {contact.whatsappStatus}
                   </div>
                 ))}
               </div>
@@ -428,10 +458,24 @@ export default function MarketingDashboardPage() {
               </label>
               <label className="grid min-h-36 cursor-pointer place-items-center rounded border border-dashed border-gold/35 bg-gold/10 p-5 text-center text-gold-soft transition hover:bg-gold/15">
                 <FileUp className="h-7 w-7" />
-                <span className="mt-3 text-sm font-semibold">Upload poster or video creative</span>
+                <span className="mt-3 text-sm font-semibold">{uploadCreative.isPending ? "Uploading creative..." : "Upload poster, video or brochure"}</span>
                 <span className="mt-1 text-xs text-muted">{creativeName}</span>
-                <input type="file" accept="image/*,video/*,.pdf" className="sr-only" onChange={(event) => setCreativeName(event.target.files?.[0]?.name ?? "No creative selected")} />
+                <input type="file" accept="image/*,video/*,.pdf" className="sr-only" onChange={(event) => uploadCampaignCreative(event.target.files?.[0])} />
               </label>
+              {creative ? (
+                <div className="overflow-hidden rounded border border-white/10 bg-navy-deep/55">
+                  {creative.mimeType.startsWith("image/") ? (
+                    <Image src={creative.url} alt={creative.name} width={900} height={360} unoptimized className="h-56 w-full object-cover" />
+                  ) : creative.mimeType.startsWith("video/") ? (
+                    <video src={creative.url} className="h-56 w-full object-cover" controls />
+                  ) : (
+                    <div className="grid min-h-32 place-items-center p-4 text-center text-sm font-semibold text-gold-soft">PDF brochure uploaded: {creative.name}</div>
+                  )}
+                  <div className="p-3 text-xs leading-5 text-muted">
+                    <span className="font-semibold text-white">{creative.type.toUpperCase()}</span> - {(creative.size / 1024 / 1024).toFixed(2)} MB
+                  </div>
+                </div>
+              ) : null}
               <label>
                 <span className="text-sm font-semibold text-white">Prompt / campaign goal</span>
                 <textarea value={goal} onChange={(event) => setGoal(event.target.value)} className="mt-2 min-h-36 w-full rounded border border-white/12 bg-navy-deep px-4 py-3 text-sm leading-6 text-white outline-none placeholder:text-muted focus:border-gold" placeholder="Example: Generate NDA admissions campaign for Kerala students with Rs 10,000 budget." />
@@ -473,6 +517,22 @@ export default function MarketingDashboardPage() {
                 <span className="rounded border border-gold/25 bg-gold/10 px-3 py-1 text-xs font-semibold text-gold">{statusLabel(campaign)}</span>
               </div>
               <p className="mt-3 line-clamp-3 text-sm leading-6 text-muted">{campaign.goal}</p>
+              {campaign.creativeUrl ? (
+                <div className="mt-4 overflow-hidden rounded border border-white/10 bg-navy-deep/45">
+                  {campaign.creativeType === "image" ? (
+                    <Image src={campaign.creativeUrl} alt={campaign.creativeName ?? campaign.title} width={720} height={320} unoptimized className="h-40 w-full object-cover" />
+                  ) : campaign.creativeType === "video" ? (
+                    <video src={campaign.creativeUrl} className="h-40 w-full object-cover" controls />
+                  ) : (
+                    <div className="grid h-24 place-items-center p-3 text-center text-sm font-semibold text-gold-soft">{campaign.creativeName ?? "Creative attached"}</div>
+                  )}
+                  <p className="p-3 text-xs text-muted">{campaign.creativeName ?? "Campaign creative"}</p>
+                </div>
+              ) : creative ? (
+                <button type="button" onClick={() => attachCreativeToCampaign(campaign.id)} disabled={attachCreative.isPending} className="mt-4 w-full rounded border border-gold/30 bg-gold/10 px-3 py-2 text-sm font-semibold text-gold-soft transition hover:bg-gold/15">
+                  {attachCreative.isPending ? "Attaching..." : `Attach current creative: ${creative.name}`}
+                </button>
+              ) : null}
               <div className="mt-4 rounded border border-white/10 bg-navy-deep/50 p-4">
                 <p className="text-xs font-semibold uppercase tracking-[0.16em] text-gold-soft">AI Hook</p>
                 <p className="mt-2 text-sm leading-6 text-white">{campaign.aiDraft.hook}</p>

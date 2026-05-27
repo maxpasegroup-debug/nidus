@@ -1946,6 +1946,10 @@ model SalesBoosterCampaign {
   goal           String
   creativeName   String?
   creativeType   String?
+  creativeUrl    String?
+  creativeMediaId String?
+  creativeSize   Int?
+  creativeUploadedAt DateTime?
   channels       Json
   aiDraft        Json
   approvalStatus String   @default("DRAFT")
@@ -1970,6 +1974,7 @@ model SalesBoosterCampaign {
   @@index([track])
   @@index([approvalStatus])
   @@index([runStatus])
+  @@index([creativeMediaId])
   @@index([scheduleStatus])
   @@index([scheduledAt])
   @@index([createdById])

@@ -20,8 +20,18 @@ export type SalesBoosterCampaignModel = runtime.Types.Result.DefaultSelection<Pr
 
 export type AggregateSalesBoosterCampaign = {
   _count: SalesBoosterCampaignCountAggregateOutputType | null
+  _avg: SalesBoosterCampaignAvgAggregateOutputType | null
+  _sum: SalesBoosterCampaignSumAggregateOutputType | null
   _min: SalesBoosterCampaignMinAggregateOutputType | null
   _max: SalesBoosterCampaignMaxAggregateOutputType | null
+}
+
+export type SalesBoosterCampaignAvgAggregateOutputType = {
+  creativeSize: number | null
+}
+
+export type SalesBoosterCampaignSumAggregateOutputType = {
+  creativeSize: number | null
 }
 
 export type SalesBoosterCampaignMinAggregateOutputType = {
@@ -31,6 +41,10 @@ export type SalesBoosterCampaignMinAggregateOutputType = {
   goal: string | null
   creativeName: string | null
   creativeType: string | null
+  creativeUrl: string | null
+  creativeMediaId: string | null
+  creativeSize: number | null
+  creativeUploadedAt: Date | null
   approvalStatus: string | null
   runStatus: string | null
   reviewNote: string | null
@@ -54,6 +68,10 @@ export type SalesBoosterCampaignMaxAggregateOutputType = {
   goal: string | null
   creativeName: string | null
   creativeType: string | null
+  creativeUrl: string | null
+  creativeMediaId: string | null
+  creativeSize: number | null
+  creativeUploadedAt: Date | null
   approvalStatus: string | null
   runStatus: string | null
   reviewNote: string | null
@@ -77,6 +95,10 @@ export type SalesBoosterCampaignCountAggregateOutputType = {
   goal: number
   creativeName: number
   creativeType: number
+  creativeUrl: number
+  creativeMediaId: number
+  creativeSize: number
+  creativeUploadedAt: number
   channels: number
   aiDraft: number
   approvalStatus: number
@@ -98,6 +120,14 @@ export type SalesBoosterCampaignCountAggregateOutputType = {
 }
 
 
+export type SalesBoosterCampaignAvgAggregateInputType = {
+  creativeSize?: true
+}
+
+export type SalesBoosterCampaignSumAggregateInputType = {
+  creativeSize?: true
+}
+
 export type SalesBoosterCampaignMinAggregateInputType = {
   id?: true
   title?: true
@@ -105,6 +135,10 @@ export type SalesBoosterCampaignMinAggregateInputType = {
   goal?: true
   creativeName?: true
   creativeType?: true
+  creativeUrl?: true
+  creativeMediaId?: true
+  creativeSize?: true
+  creativeUploadedAt?: true
   approvalStatus?: true
   runStatus?: true
   reviewNote?: true
@@ -128,6 +162,10 @@ export type SalesBoosterCampaignMaxAggregateInputType = {
   goal?: true
   creativeName?: true
   creativeType?: true
+  creativeUrl?: true
+  creativeMediaId?: true
+  creativeSize?: true
+  creativeUploadedAt?: true
   approvalStatus?: true
   runStatus?: true
   reviewNote?: true
@@ -151,6 +189,10 @@ export type SalesBoosterCampaignCountAggregateInputType = {
   goal?: true
   creativeName?: true
   creativeType?: true
+  creativeUrl?: true
+  creativeMediaId?: true
+  creativeSize?: true
+  creativeUploadedAt?: true
   channels?: true
   aiDraft?: true
   approvalStatus?: true
@@ -209,6 +251,18 @@ export type SalesBoosterCampaignAggregateArgs<ExtArgs extends runtime.Types.Exte
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: SalesBoosterCampaignAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: SalesBoosterCampaignSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: SalesBoosterCampaignMinAggregateInputType
@@ -239,6 +293,8 @@ export type SalesBoosterCampaignGroupByArgs<ExtArgs extends runtime.Types.Extens
   take?: number
   skip?: number
   _count?: SalesBoosterCampaignCountAggregateInputType | true
+  _avg?: SalesBoosterCampaignAvgAggregateInputType
+  _sum?: SalesBoosterCampaignSumAggregateInputType
   _min?: SalesBoosterCampaignMinAggregateInputType
   _max?: SalesBoosterCampaignMaxAggregateInputType
 }
@@ -250,6 +306,10 @@ export type SalesBoosterCampaignGroupByOutputType = {
   goal: string
   creativeName: string | null
   creativeType: string | null
+  creativeUrl: string | null
+  creativeMediaId: string | null
+  creativeSize: number | null
+  creativeUploadedAt: Date | null
   channels: runtime.JsonValue
   aiDraft: runtime.JsonValue
   approvalStatus: string
@@ -268,6 +328,8 @@ export type SalesBoosterCampaignGroupByOutputType = {
   createdAt: Date
   updatedAt: Date
   _count: SalesBoosterCampaignCountAggregateOutputType | null
+  _avg: SalesBoosterCampaignAvgAggregateOutputType | null
+  _sum: SalesBoosterCampaignSumAggregateOutputType | null
   _min: SalesBoosterCampaignMinAggregateOutputType | null
   _max: SalesBoosterCampaignMaxAggregateOutputType | null
 }
@@ -297,6 +359,10 @@ export type SalesBoosterCampaignWhereInput = {
   goal?: Prisma.StringFilter<"SalesBoosterCampaign"> | string
   creativeName?: Prisma.StringNullableFilter<"SalesBoosterCampaign"> | string | null
   creativeType?: Prisma.StringNullableFilter<"SalesBoosterCampaign"> | string | null
+  creativeUrl?: Prisma.StringNullableFilter<"SalesBoosterCampaign"> | string | null
+  creativeMediaId?: Prisma.StringNullableFilter<"SalesBoosterCampaign"> | string | null
+  creativeSize?: Prisma.IntNullableFilter<"SalesBoosterCampaign"> | number | null
+  creativeUploadedAt?: Prisma.DateTimeNullableFilter<"SalesBoosterCampaign"> | Date | string | null
   channels?: Prisma.JsonFilter<"SalesBoosterCampaign">
   aiDraft?: Prisma.JsonFilter<"SalesBoosterCampaign">
   approvalStatus?: Prisma.StringFilter<"SalesBoosterCampaign"> | string
@@ -326,6 +392,10 @@ export type SalesBoosterCampaignOrderByWithRelationInput = {
   goal?: Prisma.SortOrder
   creativeName?: Prisma.SortOrderInput | Prisma.SortOrder
   creativeType?: Prisma.SortOrderInput | Prisma.SortOrder
+  creativeUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  creativeMediaId?: Prisma.SortOrderInput | Prisma.SortOrder
+  creativeSize?: Prisma.SortOrderInput | Prisma.SortOrder
+  creativeUploadedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   channels?: Prisma.SortOrder
   aiDraft?: Prisma.SortOrder
   approvalStatus?: Prisma.SortOrder
@@ -358,6 +428,10 @@ export type SalesBoosterCampaignWhereUniqueInput = Prisma.AtLeast<{
   goal?: Prisma.StringFilter<"SalesBoosterCampaign"> | string
   creativeName?: Prisma.StringNullableFilter<"SalesBoosterCampaign"> | string | null
   creativeType?: Prisma.StringNullableFilter<"SalesBoosterCampaign"> | string | null
+  creativeUrl?: Prisma.StringNullableFilter<"SalesBoosterCampaign"> | string | null
+  creativeMediaId?: Prisma.StringNullableFilter<"SalesBoosterCampaign"> | string | null
+  creativeSize?: Prisma.IntNullableFilter<"SalesBoosterCampaign"> | number | null
+  creativeUploadedAt?: Prisma.DateTimeNullableFilter<"SalesBoosterCampaign"> | Date | string | null
   channels?: Prisma.JsonFilter<"SalesBoosterCampaign">
   aiDraft?: Prisma.JsonFilter<"SalesBoosterCampaign">
   approvalStatus?: Prisma.StringFilter<"SalesBoosterCampaign"> | string
@@ -387,6 +461,10 @@ export type SalesBoosterCampaignOrderByWithAggregationInput = {
   goal?: Prisma.SortOrder
   creativeName?: Prisma.SortOrderInput | Prisma.SortOrder
   creativeType?: Prisma.SortOrderInput | Prisma.SortOrder
+  creativeUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  creativeMediaId?: Prisma.SortOrderInput | Prisma.SortOrder
+  creativeSize?: Prisma.SortOrderInput | Prisma.SortOrder
+  creativeUploadedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   channels?: Prisma.SortOrder
   aiDraft?: Prisma.SortOrder
   approvalStatus?: Prisma.SortOrder
@@ -405,8 +483,10 @@ export type SalesBoosterCampaignOrderByWithAggregationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.SalesBoosterCampaignCountOrderByAggregateInput
+  _avg?: Prisma.SalesBoosterCampaignAvgOrderByAggregateInput
   _max?: Prisma.SalesBoosterCampaignMaxOrderByAggregateInput
   _min?: Prisma.SalesBoosterCampaignMinOrderByAggregateInput
+  _sum?: Prisma.SalesBoosterCampaignSumOrderByAggregateInput
 }
 
 export type SalesBoosterCampaignScalarWhereWithAggregatesInput = {
@@ -419,6 +499,10 @@ export type SalesBoosterCampaignScalarWhereWithAggregatesInput = {
   goal?: Prisma.StringWithAggregatesFilter<"SalesBoosterCampaign"> | string
   creativeName?: Prisma.StringNullableWithAggregatesFilter<"SalesBoosterCampaign"> | string | null
   creativeType?: Prisma.StringNullableWithAggregatesFilter<"SalesBoosterCampaign"> | string | null
+  creativeUrl?: Prisma.StringNullableWithAggregatesFilter<"SalesBoosterCampaign"> | string | null
+  creativeMediaId?: Prisma.StringNullableWithAggregatesFilter<"SalesBoosterCampaign"> | string | null
+  creativeSize?: Prisma.IntNullableWithAggregatesFilter<"SalesBoosterCampaign"> | number | null
+  creativeUploadedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"SalesBoosterCampaign"> | Date | string | null
   channels?: Prisma.JsonWithAggregatesFilter<"SalesBoosterCampaign">
   aiDraft?: Prisma.JsonWithAggregatesFilter<"SalesBoosterCampaign">
   approvalStatus?: Prisma.StringWithAggregatesFilter<"SalesBoosterCampaign"> | string
@@ -445,6 +529,10 @@ export type SalesBoosterCampaignCreateInput = {
   goal: string
   creativeName?: string | null
   creativeType?: string | null
+  creativeUrl?: string | null
+  creativeMediaId?: string | null
+  creativeSize?: number | null
+  creativeUploadedAt?: Date | string | null
   channels: Prisma.JsonNullValueInput | runtime.InputJsonValue
   aiDraft: Prisma.JsonNullValueInput | runtime.InputJsonValue
   approvalStatus?: string
@@ -472,6 +560,10 @@ export type SalesBoosterCampaignUncheckedCreateInput = {
   goal: string
   creativeName?: string | null
   creativeType?: string | null
+  creativeUrl?: string | null
+  creativeMediaId?: string | null
+  creativeSize?: number | null
+  creativeUploadedAt?: Date | string | null
   channels: Prisma.JsonNullValueInput | runtime.InputJsonValue
   aiDraft: Prisma.JsonNullValueInput | runtime.InputJsonValue
   approvalStatus?: string
@@ -499,6 +591,10 @@ export type SalesBoosterCampaignUpdateInput = {
   goal?: Prisma.StringFieldUpdateOperationsInput | string
   creativeName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creativeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  creativeUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  creativeMediaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  creativeSize?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  creativeUploadedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   channels?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   aiDraft?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   approvalStatus?: Prisma.StringFieldUpdateOperationsInput | string
@@ -526,6 +622,10 @@ export type SalesBoosterCampaignUncheckedUpdateInput = {
   goal?: Prisma.StringFieldUpdateOperationsInput | string
   creativeName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creativeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  creativeUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  creativeMediaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  creativeSize?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  creativeUploadedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   channels?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   aiDraft?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   approvalStatus?: Prisma.StringFieldUpdateOperationsInput | string
@@ -553,6 +653,10 @@ export type SalesBoosterCampaignCreateManyInput = {
   goal: string
   creativeName?: string | null
   creativeType?: string | null
+  creativeUrl?: string | null
+  creativeMediaId?: string | null
+  creativeSize?: number | null
+  creativeUploadedAt?: Date | string | null
   channels: Prisma.JsonNullValueInput | runtime.InputJsonValue
   aiDraft: Prisma.JsonNullValueInput | runtime.InputJsonValue
   approvalStatus?: string
@@ -579,6 +683,10 @@ export type SalesBoosterCampaignUpdateManyMutationInput = {
   goal?: Prisma.StringFieldUpdateOperationsInput | string
   creativeName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creativeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  creativeUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  creativeMediaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  creativeSize?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  creativeUploadedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   channels?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   aiDraft?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   approvalStatus?: Prisma.StringFieldUpdateOperationsInput | string
@@ -603,6 +711,10 @@ export type SalesBoosterCampaignUncheckedUpdateManyInput = {
   goal?: Prisma.StringFieldUpdateOperationsInput | string
   creativeName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creativeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  creativeUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  creativeMediaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  creativeSize?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  creativeUploadedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   channels?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   aiDraft?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   approvalStatus?: Prisma.StringFieldUpdateOperationsInput | string
@@ -639,6 +751,10 @@ export type SalesBoosterCampaignCountOrderByAggregateInput = {
   goal?: Prisma.SortOrder
   creativeName?: Prisma.SortOrder
   creativeType?: Prisma.SortOrder
+  creativeUrl?: Prisma.SortOrder
+  creativeMediaId?: Prisma.SortOrder
+  creativeSize?: Prisma.SortOrder
+  creativeUploadedAt?: Prisma.SortOrder
   channels?: Prisma.SortOrder
   aiDraft?: Prisma.SortOrder
   approvalStatus?: Prisma.SortOrder
@@ -658,6 +774,10 @@ export type SalesBoosterCampaignCountOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
 }
 
+export type SalesBoosterCampaignAvgOrderByAggregateInput = {
+  creativeSize?: Prisma.SortOrder
+}
+
 export type SalesBoosterCampaignMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   title?: Prisma.SortOrder
@@ -665,6 +785,10 @@ export type SalesBoosterCampaignMaxOrderByAggregateInput = {
   goal?: Prisma.SortOrder
   creativeName?: Prisma.SortOrder
   creativeType?: Prisma.SortOrder
+  creativeUrl?: Prisma.SortOrder
+  creativeMediaId?: Prisma.SortOrder
+  creativeSize?: Prisma.SortOrder
+  creativeUploadedAt?: Prisma.SortOrder
   approvalStatus?: Prisma.SortOrder
   runStatus?: Prisma.SortOrder
   reviewNote?: Prisma.SortOrder
@@ -688,6 +812,10 @@ export type SalesBoosterCampaignMinOrderByAggregateInput = {
   goal?: Prisma.SortOrder
   creativeName?: Prisma.SortOrder
   creativeType?: Prisma.SortOrder
+  creativeUrl?: Prisma.SortOrder
+  creativeMediaId?: Prisma.SortOrder
+  creativeSize?: Prisma.SortOrder
+  creativeUploadedAt?: Prisma.SortOrder
   approvalStatus?: Prisma.SortOrder
   runStatus?: Prisma.SortOrder
   reviewNote?: Prisma.SortOrder
@@ -702,6 +830,10 @@ export type SalesBoosterCampaignMinOrderByAggregateInput = {
   scheduleNote?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type SalesBoosterCampaignSumOrderByAggregateInput = {
+  creativeSize?: Prisma.SortOrder
 }
 
 export type SalesBoosterCampaignScalarRelationFilter = {
@@ -814,6 +946,10 @@ export type SalesBoosterCampaignCreateWithoutCreatedByInput = {
   goal: string
   creativeName?: string | null
   creativeType?: string | null
+  creativeUrl?: string | null
+  creativeMediaId?: string | null
+  creativeSize?: number | null
+  creativeUploadedAt?: Date | string | null
   channels: Prisma.JsonNullValueInput | runtime.InputJsonValue
   aiDraft: Prisma.JsonNullValueInput | runtime.InputJsonValue
   approvalStatus?: string
@@ -840,6 +976,10 @@ export type SalesBoosterCampaignUncheckedCreateWithoutCreatedByInput = {
   goal: string
   creativeName?: string | null
   creativeType?: string | null
+  creativeUrl?: string | null
+  creativeMediaId?: string | null
+  creativeSize?: number | null
+  creativeUploadedAt?: Date | string | null
   channels: Prisma.JsonNullValueInput | runtime.InputJsonValue
   aiDraft: Prisma.JsonNullValueInput | runtime.InputJsonValue
   approvalStatus?: string
@@ -876,6 +1016,10 @@ export type SalesBoosterCampaignCreateWithoutApprovedByInput = {
   goal: string
   creativeName?: string | null
   creativeType?: string | null
+  creativeUrl?: string | null
+  creativeMediaId?: string | null
+  creativeSize?: number | null
+  creativeUploadedAt?: Date | string | null
   channels: Prisma.JsonNullValueInput | runtime.InputJsonValue
   aiDraft: Prisma.JsonNullValueInput | runtime.InputJsonValue
   approvalStatus?: string
@@ -902,6 +1046,10 @@ export type SalesBoosterCampaignUncheckedCreateWithoutApprovedByInput = {
   goal: string
   creativeName?: string | null
   creativeType?: string | null
+  creativeUrl?: string | null
+  creativeMediaId?: string | null
+  creativeSize?: number | null
+  creativeUploadedAt?: Date | string | null
   channels: Prisma.JsonNullValueInput | runtime.InputJsonValue
   aiDraft: Prisma.JsonNullValueInput | runtime.InputJsonValue
   approvalStatus?: string
@@ -957,6 +1105,10 @@ export type SalesBoosterCampaignScalarWhereInput = {
   goal?: Prisma.StringFilter<"SalesBoosterCampaign"> | string
   creativeName?: Prisma.StringNullableFilter<"SalesBoosterCampaign"> | string | null
   creativeType?: Prisma.StringNullableFilter<"SalesBoosterCampaign"> | string | null
+  creativeUrl?: Prisma.StringNullableFilter<"SalesBoosterCampaign"> | string | null
+  creativeMediaId?: Prisma.StringNullableFilter<"SalesBoosterCampaign"> | string | null
+  creativeSize?: Prisma.IntNullableFilter<"SalesBoosterCampaign"> | number | null
+  creativeUploadedAt?: Prisma.DateTimeNullableFilter<"SalesBoosterCampaign"> | Date | string | null
   channels?: Prisma.JsonFilter<"SalesBoosterCampaign">
   aiDraft?: Prisma.JsonFilter<"SalesBoosterCampaign">
   approvalStatus?: Prisma.StringFilter<"SalesBoosterCampaign"> | string
@@ -999,6 +1151,10 @@ export type SalesBoosterCampaignCreateWithoutMetricSnapshotsInput = {
   goal: string
   creativeName?: string | null
   creativeType?: string | null
+  creativeUrl?: string | null
+  creativeMediaId?: string | null
+  creativeSize?: number | null
+  creativeUploadedAt?: Date | string | null
   channels: Prisma.JsonNullValueInput | runtime.InputJsonValue
   aiDraft: Prisma.JsonNullValueInput | runtime.InputJsonValue
   approvalStatus?: string
@@ -1025,6 +1181,10 @@ export type SalesBoosterCampaignUncheckedCreateWithoutMetricSnapshotsInput = {
   goal: string
   creativeName?: string | null
   creativeType?: string | null
+  creativeUrl?: string | null
+  creativeMediaId?: string | null
+  creativeSize?: number | null
+  creativeUploadedAt?: Date | string | null
   channels: Prisma.JsonNullValueInput | runtime.InputJsonValue
   aiDraft: Prisma.JsonNullValueInput | runtime.InputJsonValue
   approvalStatus?: string
@@ -1067,6 +1227,10 @@ export type SalesBoosterCampaignUpdateWithoutMetricSnapshotsInput = {
   goal?: Prisma.StringFieldUpdateOperationsInput | string
   creativeName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creativeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  creativeUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  creativeMediaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  creativeSize?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  creativeUploadedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   channels?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   aiDraft?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   approvalStatus?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1093,6 +1257,10 @@ export type SalesBoosterCampaignUncheckedUpdateWithoutMetricSnapshotsInput = {
   goal?: Prisma.StringFieldUpdateOperationsInput | string
   creativeName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creativeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  creativeUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  creativeMediaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  creativeSize?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  creativeUploadedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   channels?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   aiDraft?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   approvalStatus?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1119,6 +1287,10 @@ export type SalesBoosterCampaignCreateManyCreatedByInput = {
   goal: string
   creativeName?: string | null
   creativeType?: string | null
+  creativeUrl?: string | null
+  creativeMediaId?: string | null
+  creativeSize?: number | null
+  creativeUploadedAt?: Date | string | null
   channels: Prisma.JsonNullValueInput | runtime.InputJsonValue
   aiDraft: Prisma.JsonNullValueInput | runtime.InputJsonValue
   approvalStatus?: string
@@ -1144,6 +1316,10 @@ export type SalesBoosterCampaignCreateManyApprovedByInput = {
   goal: string
   creativeName?: string | null
   creativeType?: string | null
+  creativeUrl?: string | null
+  creativeMediaId?: string | null
+  creativeSize?: number | null
+  creativeUploadedAt?: Date | string | null
   channels: Prisma.JsonNullValueInput | runtime.InputJsonValue
   aiDraft: Prisma.JsonNullValueInput | runtime.InputJsonValue
   approvalStatus?: string
@@ -1169,6 +1345,10 @@ export type SalesBoosterCampaignUpdateWithoutCreatedByInput = {
   goal?: Prisma.StringFieldUpdateOperationsInput | string
   creativeName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creativeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  creativeUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  creativeMediaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  creativeSize?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  creativeUploadedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   channels?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   aiDraft?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   approvalStatus?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1195,6 +1375,10 @@ export type SalesBoosterCampaignUncheckedUpdateWithoutCreatedByInput = {
   goal?: Prisma.StringFieldUpdateOperationsInput | string
   creativeName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creativeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  creativeUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  creativeMediaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  creativeSize?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  creativeUploadedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   channels?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   aiDraft?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   approvalStatus?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1221,6 +1405,10 @@ export type SalesBoosterCampaignUncheckedUpdateManyWithoutCreatedByInput = {
   goal?: Prisma.StringFieldUpdateOperationsInput | string
   creativeName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creativeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  creativeUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  creativeMediaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  creativeSize?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  creativeUploadedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   channels?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   aiDraft?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   approvalStatus?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1246,6 +1434,10 @@ export type SalesBoosterCampaignUpdateWithoutApprovedByInput = {
   goal?: Prisma.StringFieldUpdateOperationsInput | string
   creativeName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creativeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  creativeUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  creativeMediaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  creativeSize?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  creativeUploadedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   channels?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   aiDraft?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   approvalStatus?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1272,6 +1464,10 @@ export type SalesBoosterCampaignUncheckedUpdateWithoutApprovedByInput = {
   goal?: Prisma.StringFieldUpdateOperationsInput | string
   creativeName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creativeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  creativeUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  creativeMediaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  creativeSize?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  creativeUploadedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   channels?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   aiDraft?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   approvalStatus?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1298,6 +1494,10 @@ export type SalesBoosterCampaignUncheckedUpdateManyWithoutApprovedByInput = {
   goal?: Prisma.StringFieldUpdateOperationsInput | string
   creativeName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creativeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  creativeUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  creativeMediaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  creativeSize?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  creativeUploadedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   channels?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   aiDraft?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   approvalStatus?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1354,6 +1554,10 @@ export type SalesBoosterCampaignSelect<ExtArgs extends runtime.Types.Extensions.
   goal?: boolean
   creativeName?: boolean
   creativeType?: boolean
+  creativeUrl?: boolean
+  creativeMediaId?: boolean
+  creativeSize?: boolean
+  creativeUploadedAt?: boolean
   channels?: boolean
   aiDraft?: boolean
   approvalStatus?: boolean
@@ -1384,6 +1588,10 @@ export type SalesBoosterCampaignSelectCreateManyAndReturn<ExtArgs extends runtim
   goal?: boolean
   creativeName?: boolean
   creativeType?: boolean
+  creativeUrl?: boolean
+  creativeMediaId?: boolean
+  creativeSize?: boolean
+  creativeUploadedAt?: boolean
   channels?: boolean
   aiDraft?: boolean
   approvalStatus?: boolean
@@ -1412,6 +1620,10 @@ export type SalesBoosterCampaignSelectUpdateManyAndReturn<ExtArgs extends runtim
   goal?: boolean
   creativeName?: boolean
   creativeType?: boolean
+  creativeUrl?: boolean
+  creativeMediaId?: boolean
+  creativeSize?: boolean
+  creativeUploadedAt?: boolean
   channels?: boolean
   aiDraft?: boolean
   approvalStatus?: boolean
@@ -1440,6 +1652,10 @@ export type SalesBoosterCampaignSelectScalar = {
   goal?: boolean
   creativeName?: boolean
   creativeType?: boolean
+  creativeUrl?: boolean
+  creativeMediaId?: boolean
+  creativeSize?: boolean
+  creativeUploadedAt?: boolean
   channels?: boolean
   aiDraft?: boolean
   approvalStatus?: boolean
@@ -1459,7 +1675,7 @@ export type SalesBoosterCampaignSelectScalar = {
   updatedAt?: boolean
 }
 
-export type SalesBoosterCampaignOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "track" | "goal" | "creativeName" | "creativeType" | "channels" | "aiDraft" | "approvalStatus" | "runStatus" | "reviewNote" | "connectorResults" | "createdById" | "approvedById" | "submittedAt" | "approvedAt" | "queuedAt" | "lastRunAt" | "scheduledAt" | "scheduleStatus" | "scheduleNote" | "createdAt" | "updatedAt", ExtArgs["result"]["salesBoosterCampaign"]>
+export type SalesBoosterCampaignOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "track" | "goal" | "creativeName" | "creativeType" | "creativeUrl" | "creativeMediaId" | "creativeSize" | "creativeUploadedAt" | "channels" | "aiDraft" | "approvalStatus" | "runStatus" | "reviewNote" | "connectorResults" | "createdById" | "approvedById" | "submittedAt" | "approvedAt" | "queuedAt" | "lastRunAt" | "scheduledAt" | "scheduleStatus" | "scheduleNote" | "createdAt" | "updatedAt", ExtArgs["result"]["salesBoosterCampaign"]>
 export type SalesBoosterCampaignInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   createdBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   approvedBy?: boolean | Prisma.SalesBoosterCampaign$approvedByArgs<ExtArgs>
@@ -1489,6 +1705,10 @@ export type $SalesBoosterCampaignPayload<ExtArgs extends runtime.Types.Extension
     goal: string
     creativeName: string | null
     creativeType: string | null
+    creativeUrl: string | null
+    creativeMediaId: string | null
+    creativeSize: number | null
+    creativeUploadedAt: Date | null
     channels: runtime.JsonValue
     aiDraft: runtime.JsonValue
     approvalStatus: string
@@ -1938,6 +2158,10 @@ export interface SalesBoosterCampaignFieldRefs {
   readonly goal: Prisma.FieldRef<"SalesBoosterCampaign", 'String'>
   readonly creativeName: Prisma.FieldRef<"SalesBoosterCampaign", 'String'>
   readonly creativeType: Prisma.FieldRef<"SalesBoosterCampaign", 'String'>
+  readonly creativeUrl: Prisma.FieldRef<"SalesBoosterCampaign", 'String'>
+  readonly creativeMediaId: Prisma.FieldRef<"SalesBoosterCampaign", 'String'>
+  readonly creativeSize: Prisma.FieldRef<"SalesBoosterCampaign", 'Int'>
+  readonly creativeUploadedAt: Prisma.FieldRef<"SalesBoosterCampaign", 'DateTime'>
   readonly channels: Prisma.FieldRef<"SalesBoosterCampaign", 'Json'>
   readonly aiDraft: Prisma.FieldRef<"SalesBoosterCampaign", 'Json'>
   readonly approvalStatus: Prisma.FieldRef<"SalesBoosterCampaign", 'String'>

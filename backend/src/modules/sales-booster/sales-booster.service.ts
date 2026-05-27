@@ -1,5 +1,6 @@
 import { Prisma, Role } from "../../generated/prisma/client.js";
 import { prisma } from "../../config/prisma.js";
+import { mediaService } from "../media/media.service.js";
 import { salesBoosterConnectors } from "./sales-booster-connectors.service.js";
 
 type Requester = { id: string; role: Role };
@@ -10,6 +11,9 @@ type CampaignInput = {
   goal: string;
   creativeName?: string;
   creativeType?: string;
+  creativeUrl?: string;
+  creativeMediaId?: string;
+  creativeSize?: number;
   channels?: string[];
   aiDraft: Prisma.InputJsonValue;
 };
@@ -104,6 +108,13 @@ async function assertCampaignAccess(requester: Requester, campaign: { createdByI
   }
 }
 
+function creativeTypeFor(mimeType: string) {
+  if (mimeType.startsWith("image/")) return "image";
+  if (mimeType.startsWith("video/")) return "video";
+  if (mimeType === "application/pdf") return "brochure";
+  return mimeType;
+}
+
 export const salesBoosterService = {
   async campaigns(requester: Requester) {
     return prisma.salesBoosterCampaign.findMany({
@@ -121,6 +132,10 @@ export const salesBoosterService = {
         goal: input.goal,
         creativeName: input.creativeName,
         creativeType: input.creativeType,
+        creativeUrl: input.creativeUrl,
+        creativeMediaId: input.creativeMediaId,
+        creativeSize: input.creativeSize,
+        creativeUploadedAt: input.creativeUrl ? new Date() : undefined,
         channels: input.channels?.length ? input.channels : defaultChannels,
         aiDraft: input.aiDraft,
         approvalStatus: "DRAFT",
@@ -149,6 +164,10 @@ export const salesBoosterService = {
         goal: input.goal,
         creativeName: input.creativeName,
         creativeType: input.creativeType,
+        creativeUrl: input.creativeUrl,
+        creativeMediaId: input.creativeMediaId,
+        creativeSize: input.creativeSize,
+        creativeUploadedAt: input.creativeUrl ? new Date() : undefined,
         channels: input.channels,
         aiDraft: input.aiDraft
       },
@@ -191,6 +210,44 @@ export const salesBoosterService = {
     }
     await prisma.salesBoosterCampaign.delete({ where: { id } });
     return { message: "Sales Booster campaign deleted" };
+  },
+
+  async uploadCreative(requester: Requester, file: Express.Multer.File) {
+    if (!file) throw new Error("Creative file is required.");
+    if (!file.mimetype.startsWith("image/") && !file.mimetype.startsWith("video/") && file.mimetype !== "application/pdf") {
+      throw new Error("Upload a poster image, campaign video, reel, or PDF brochure.");
+    }
+    const mediaFile = await mediaService.uploadFile(file, undefined, requester.id);
+    return {
+      id: mediaFile.id,
+      name: mediaFile.originalName,
+      fileName: mediaFile.fileName,
+      type: creativeTypeFor(mediaFile.fileType),
+      mimeType: mediaFile.fileType,
+      size: mediaFile.fileSize,
+      url: mediaFile.cloudinaryUrl,
+      uploadedAt: mediaFile.createdAt
+    };
+  },
+
+  async attachCreative(requester: Requester, id: string, input: { creativeName?: string; creativeType?: string; creativeUrl?: string; creativeMediaId?: string; creativeSize?: number }) {
+    const campaign = await prisma.salesBoosterCampaign.findUniqueOrThrow({ where: { id } });
+    await assertCampaignAccess(requester, campaign);
+    if (!["DRAFT", "NEEDS_REVISION"].includes(campaign.approvalStatus) && !canApprove(requester.role)) {
+      throw new Error("Only draft or revision campaigns can change creative unless admin/director approves the update.");
+    }
+    return prisma.salesBoosterCampaign.update({
+      where: { id },
+      data: {
+        creativeName: input.creativeName,
+        creativeType: input.creativeType,
+        creativeUrl: input.creativeUrl,
+        creativeMediaId: input.creativeMediaId,
+        creativeSize: input.creativeSize,
+        creativeUploadedAt: input.creativeUrl ? new Date() : undefined
+      },
+      include: campaignInclude
+    });
   },
 
   async connectorStatus() {

@@ -12,6 +12,12 @@ export type TestPayload = {
   description: string;
   examType: string;
   category: string;
+  subject?: string;
+  topic?: string;
+  batchId?: string;
+  teacherId?: string;
+  publishAt?: string;
+  status?: string;
   duration: number;
   totalMarks: number;
   isMockTest?: boolean;
@@ -29,6 +35,16 @@ export type TestPayload = {
     difficultyLevel: string;
     topic: string;
   }>;
+};
+
+export type TestDraftRequest = {
+  prompt: string;
+  examType?: string;
+  subject?: string;
+  topic?: string;
+  questionCount?: number;
+  difficultyLevel?: string;
+  batchId?: string;
 };
 
 export type SubmitTestPayload = {
@@ -51,6 +67,16 @@ export async function getTests(filters: TestFilters = {}) {
 
 export async function createTest(payload: TestPayload) {
   const response = await apiClient.post<{ test: Test }>("/tests", payload);
+  return response.data.test;
+}
+
+export async function generateTestDraft(payload: TestDraftRequest) {
+  const response = await apiClient.post<{ draft: TestPayload }>("/tests/ai-draft", payload);
+  return response.data.draft;
+}
+
+export async function publishGeneratedTest(payload: TestPayload) {
+  const response = await apiClient.post<{ test: Test }>("/tests/publish-draft", payload);
   return response.data.test;
 }
 

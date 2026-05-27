@@ -21,6 +21,12 @@ export type Test = {
   description: string;
   examType: string;
   category: string;
+  subject?: string | null;
+  topic?: string | null;
+  batchId?: string | null;
+  teacherId?: string | null;
+  publishAt?: string | null;
+  status?: string | null;
   duration: number;
   totalMarks: number;
   isMockTest: boolean;

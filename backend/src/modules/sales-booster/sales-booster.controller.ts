@@ -79,6 +79,24 @@ export const salesBoosterController = {
     }
   },
 
+  async uploadCreative(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      if (!req.file) throw new Error("Creative file is required");
+      res.status(201).json({ creative: await salesBoosterService.uploadCreative(requester(req), req.file) });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async attachCreative(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      assertValid(req);
+      res.json({ campaign: await salesBoosterService.attachCreative(requester(req), param(req, "id"), req.body) });
+    } catch (error) {
+      next(error);
+    }
+  },
+
   async connectorStatus(_req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
       res.json({ connectors: await salesBoosterService.connectorStatus() });

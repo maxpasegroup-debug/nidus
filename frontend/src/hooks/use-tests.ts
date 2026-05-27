@@ -6,12 +6,15 @@ import { useToast } from "@/components/providers/toast-provider";
 import { getApiErrorMessage } from "@/services/api";
 import {
   createTest,
+  generateTestDraft,
   getResult,
   getTestDetails,
   getTests,
+  publishGeneratedTest,
   startTest,
   submitTest,
   type SubmitTestPayload,
+  type TestDraftRequest,
   type TestPayload,
   type TestFilters
 } from "@/services/tests";
@@ -56,6 +59,30 @@ export function useCreateTest() {
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["tests"] });
       showToast("Test plan created successfully", "success");
+    },
+    onError: (error) => showToast(getApiErrorMessage(error), "error")
+  });
+}
+
+export function useGenerateTestDraft() {
+  const { showToast } = useToast();
+
+  return useMutation({
+    mutationFn: (payload: TestDraftRequest) => generateTestDraft(payload),
+    onSuccess: () => showToast("Draft generated for faculty review", "success"),
+    onError: (error) => showToast(getApiErrorMessage(error), "error")
+  });
+}
+
+export function usePublishGeneratedTest() {
+  const queryClient = useQueryClient();
+  const { showToast } = useToast();
+
+  return useMutation({
+    mutationFn: (payload: TestPayload) => publishGeneratedTest(payload),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["tests"] });
+      showToast("Reviewed test published to students", "success");
     },
     onError: (error) => showToast(getApiErrorMessage(error), "error")
   });

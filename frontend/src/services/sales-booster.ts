@@ -17,6 +17,10 @@ export type SalesBoosterCampaign = {
   goal: string;
   creativeName?: string | null;
   creativeType?: string | null;
+  creativeUrl?: string | null;
+  creativeMediaId?: string | null;
+  creativeSize?: number | null;
+  creativeUploadedAt?: string | null;
   channels: string[];
   aiDraft: SalesBoosterDraft;
   approvalStatus: SalesBoosterApprovalStatus;
@@ -34,6 +38,17 @@ export type SalesBoosterCampaign = {
   updatedAt: string;
   createdBy?: { id: string; name: string; email: string; role: string };
   approvedBy?: { id: string; name: string; email: string; role: string } | null;
+};
+
+export type SalesBoosterCreative = {
+  id: string;
+  name: string;
+  fileName: string;
+  type: string;
+  mimeType: string;
+  size: number;
+  url: string;
+  uploadedAt: string;
 };
 
 export type SalesBoosterSummary = {
@@ -180,10 +195,35 @@ export async function createSalesBoosterCampaign(payload: {
   goal: string;
   creativeName?: string;
   creativeType?: string;
+  creativeUrl?: string;
+  creativeMediaId?: string;
+  creativeSize?: number;
   channels: string[];
   aiDraft: SalesBoosterDraft;
 }) {
   const response = await apiClient.post<{ campaign: SalesBoosterCampaign }>("/sales-booster/campaigns", payload);
+  return response.data.campaign;
+}
+
+export async function uploadSalesBoosterCreative(file: File) {
+  const formData = new FormData();
+  formData.append("file", file);
+  const response = await apiClient.post<{ creative: SalesBoosterCreative }>("/sales-booster/creatives/upload", formData, {
+    headers: { "Content-Type": "multipart/form-data" }
+  });
+  return response.data.creative;
+}
+
+export async function attachSalesBoosterCreative(payload: {
+  id: string;
+  creativeName?: string;
+  creativeType?: string;
+  creativeUrl?: string;
+  creativeMediaId?: string;
+  creativeSize?: number;
+}) {
+  const { id, ...body } = payload;
+  const response = await apiClient.patch<{ campaign: SalesBoosterCampaign }>(`/sales-booster/campaigns/${id}/creative`, body);
   return response.data.campaign;
 }
 
