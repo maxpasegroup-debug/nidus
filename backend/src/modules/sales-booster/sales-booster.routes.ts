@@ -18,6 +18,7 @@ salesBoosterRouter.get("/campaigns", ...salesBoosterRoles, salesBoosterControlle
 salesBoosterRouter.get("/summary", ...salesBoosterRoles, salesBoosterController.summary);
 salesBoosterRouter.get("/analytics", ...salesBoosterRoles, salesBoosterController.analytics);
 salesBoosterRouter.get("/conversion-report", ...salesBoosterRoles, salesBoosterController.conversionReport);
+salesBoosterRouter.get("/operations", ...salesBoosterRoles, salesBoosterController.operations);
 salesBoosterRouter.get("/connectors", ...salesBoosterRoles, salesBoosterController.connectorStatus);
 salesBoosterRouter.get("/whatsapp/templates", ...salesBoosterRoles, salesBoosterController.whatsappTemplates);
 salesBoosterRouter.get("/scheduled", ...salesBoosterRoles, salesBoosterController.scheduledCampaigns);

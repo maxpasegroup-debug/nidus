@@ -16,6 +16,7 @@ import {
   getSalesBoosterConversionReport,
   getSalesBoosterCampaigns,
   getSalesBoosterCampaignReport,
+  getSalesBoosterOperations,
   getSalesBoosterSummary,
   getSalesBoosterWhatsAppTemplates,
   getScheduledSalesBoosterCampaigns,
@@ -50,6 +51,10 @@ export function useSalesBoosterAnalytics() {
 
 export function useSalesBoosterConversionReport() {
   return useQuery({ queryKey: ["sales-booster", "conversion-report"], queryFn: getSalesBoosterConversionReport });
+}
+
+export function useSalesBoosterOperations() {
+  return useQuery({ queryKey: ["sales-booster", "operations"], queryFn: getSalesBoosterOperations });
 }
 
 export function useScheduledSalesBoosterCampaigns() {
@@ -195,6 +200,8 @@ export function useAddSalesBoosterMetricSnapshot() {
     onSuccess: async (_snapshot, variables) => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["sales-booster", "analytics"] }),
+        queryClient.invalidateQueries({ queryKey: ["sales-booster", "conversion-report"] }),
+        queryClient.invalidateQueries({ queryKey: ["sales-booster", "operations"] }),
         queryClient.invalidateQueries({ queryKey: ["sales-booster", "campaign-report", variables.id] })
       ]);
       showToast("Campaign metrics saved.", "success");
@@ -253,7 +260,9 @@ export function useBroadcastSalesBoosterWhatsApp() {
     onSuccess: async (result) => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["sales-booster", "audience"] }),
-        queryClient.invalidateQueries({ queryKey: ["sales-booster", "analytics"] })
+        queryClient.invalidateQueries({ queryKey: ["sales-booster", "analytics"] }),
+        queryClient.invalidateQueries({ queryKey: ["sales-booster", "conversion-report"] }),
+        queryClient.invalidateQueries({ queryKey: ["sales-booster", "operations"] })
       ]);
       showToast(`${result.result.status}: ${result.result.message}. Follow-ups: ${result.followUpsCreated ?? 0}`, result.result.status === "FAILED" ? "error" : "success");
     },

@@ -88,6 +88,12 @@ type WebhookVerification = {
   provider: "meta" | "whatsapp";
 };
 
+type SalesBoosterOpsEvent = {
+  action: string;
+  description: string;
+  userId?: string | null;
+};
+
 const campaignInclude = {
   createdBy: { select: { id: true, name: true, email: true, role: true } },
   approvedBy: { select: { id: true, name: true, email: true, role: true } }
@@ -203,6 +209,36 @@ async function fallbackActorId() {
   });
   if (!admin) throw new Error("No staff user found for automated Sales Booster follow-up creation.");
   return admin.id;
+}
+
+async function recordOpsEvent(event: SalesBoosterOpsEvent) {
+  return prisma.auditLog.create({
+    data: {
+      userId: event.userId ?? null,
+      module: "Sales Booster",
+      action: event.action,
+      description: event.description
+    }
+  }).catch(() => null);
+}
+
+async function webhookAlreadyProcessed(provider: "meta" | "whatsapp", eventId: string) {
+  const action = provider === "meta" ? "SALESBOOSTER_META_LEAD_CAPTURED" : "SALESBOOSTER_WHATSAPP_REPLY_CAPTURED";
+  const existing = await prisma.auditLog.findFirst({
+    where: {
+      module: "Sales Booster",
+      action,
+      description: { contains: eventId, mode: "insensitive" }
+    },
+    orderBy: { createdAt: "desc" }
+  });
+  return Boolean(existing);
+}
+
+function whatsappEventId(message: { id?: string; from?: string; timestamp?: string; text?: { body?: string }; button?: { text?: string }; interactive?: { button_reply?: { title?: string } } }) {
+  if (message.id) return message.id;
+  const replyText = message.text?.body ?? message.button?.text ?? message.interactive?.button_reply?.title ?? "reply";
+  return `${message.from ?? "unknown"}:${message.timestamp ?? ""}:${replyText}`;
 }
 
 async function assertCampaignAccess(requester: Requester, campaign: { createdById: string }) {
@@ -387,6 +423,10 @@ export const salesBoosterService = {
     const processed = [];
     for (const change of leadChanges) {
       const value = change.value ?? {};
+      if (value.leadgen_id && await webhookAlreadyProcessed("meta", value.leadgen_id)) {
+        processed.push({ leadId: null, campaignId: null, leadgenId: value.leadgen_id, status: "DUPLICATE_IGNORED" });
+        continue;
+      }
       const campaign = await findCampaignByExternalIds([value.campaign_id ?? "", value.ad_id ?? ""]);
       let leadFields: Array<{ name?: string; values?: string[] }> = [];
       if (env.SALESBOOSTER_META_ACCESS_TOKEN && value.leadgen_id) {
@@ -431,14 +471,18 @@ export const salesBoosterService = {
           notes: `Captured from Meta lead form ${value.form_id ?? ""}`.trim()
         }
       });
-      processed.push({ leadId: lead.id, campaignId: campaign?.id ?? null, leadgenId: value.leadgen_id });
+      await recordOpsEvent({
+        action: "SALESBOOSTER_META_LEAD_CAPTURED",
+        description: `Meta lead captured. Leadgen ID: ${value.leadgen_id ?? "unknown"} | CRM lead: ${lead.id} | Campaign: ${campaign?.id ?? value.campaign_id ?? "unmatched"}`
+      });
+      processed.push({ leadId: lead.id, campaignId: campaign?.id ?? null, leadgenId: value.leadgen_id, status: "CAPTURED" });
     }
     return { received: leadChanges.length, processed };
   },
 
   async processWhatsAppWebhook(payload: unknown) {
     const body = payload as {
-      entry?: Array<{ changes?: Array<{ value?: { messages?: Array<{ from?: string; text?: { body?: string }; button?: { text?: string }; interactive?: { button_reply?: { title?: string } } }>; contacts?: Array<{ wa_id?: string; profile?: { name?: string } }> } }> }>;
+      entry?: Array<{ changes?: Array<{ value?: { messages?: Array<{ id?: string; from?: string; timestamp?: string; text?: { body?: string }; button?: { text?: string }; interactive?: { button_reply?: { title?: string } } }>; contacts?: Array<{ wa_id?: string; profile?: { name?: string } }> } }> }>;
     };
     const changes = body.entry?.flatMap((entry) => entry.changes ?? []) ?? [];
     const processed = [];
@@ -448,6 +492,11 @@ export const salesBoosterService = {
       for (const message of messages) {
         const phone = cleanPhone(message.from ?? "");
         if (!phone) continue;
+        const eventId = whatsappEventId(message);
+        if (await webhookAlreadyProcessed("whatsapp", eventId)) {
+          processed.push({ leadId: null, phone, replyText: "Duplicate ignored", status: "DUPLICATE_IGNORED" });
+          continue;
+        }
         const contact = contacts.find((item) => cleanPhone(item.wa_id ?? "") === phone);
         const replyText = message.text?.body ?? message.button?.text ?? message.interactive?.button_reply?.title ?? "WhatsApp reply";
         const audience = await prisma.salesBoosterAudienceContact.findFirst({ where: { phone }, orderBy: { updatedAt: "desc" } });
@@ -474,10 +523,82 @@ export const salesBoosterService = {
             data: { whatsappStatus: "REPLIED", lastContactedAt: new Date(), notes: `${audience.notes ? `${audience.notes}\n` : ""}Reply: ${replyText}` }
           });
         }
-        processed.push({ leadId: lead.id, phone, replyText });
+        await recordOpsEvent({
+          action: "SALESBOOSTER_WHATSAPP_REPLY_CAPTURED",
+          description: `WhatsApp reply captured. Event: ${eventId} | CRM lead: ${lead.id} | Phone: ${phone} | Reply: ${replyText.slice(0, 120)}`
+        });
+        processed.push({ leadId: lead.id, phone, replyText, status: "CAPTURED" });
       }
     }
     return { received: processed.length, processed };
+  },
+
+  async operations(requester: Requester) {
+    const [auditLogs, recentLeads, pendingFollowUps, failedCampaigns] = await Promise.all([
+      prisma.auditLog.findMany({
+        where: { module: "Sales Booster" },
+        orderBy: { createdAt: "desc" },
+        take: 40,
+        include: { user: { select: { name: true, email: true, role: true } } }
+      }),
+      prisma.lead.findMany({
+        where: {
+          OR: [
+            { source: { contains: "Sales Booster", mode: "insensitive" } },
+            { source: { contains: "Meta Lead", mode: "insensitive" } }
+          ]
+        },
+        orderBy: { createdAt: "desc" },
+        take: requester.role === Role.MARKETING_COORDINATOR ? 25 : 40,
+        include: { followUps: true, admissions: true }
+      }),
+      prisma.followUp.count({
+        where: {
+          status: "PENDING",
+          lead: {
+            OR: [
+              { source: { contains: "Sales Booster", mode: "insensitive" } },
+              { source: { contains: "Meta Lead", mode: "insensitive" } }
+            ]
+          }
+        }
+      }),
+      prisma.salesBoosterCampaign.count({
+        where: { runStatus: { contains: "FAILED", mode: "insensitive" } }
+      })
+    ]);
+
+    const metaEvents = auditLogs.filter((log) => log.action === "SALESBOOSTER_META_LEAD_CAPTURED").length;
+    const whatsappEvents = auditLogs.filter((log) => log.action === "SALESBOOSTER_WHATSAPP_REPLY_CAPTURED").length;
+    return {
+      health: {
+        recentWebhookEvents: metaEvents + whatsappEvents,
+        metaLeadEvents: metaEvents,
+        whatsappReplyEvents: whatsappEvents,
+        recentLeads: recentLeads.length,
+        pendingFollowUps,
+        failedCampaigns
+      },
+      auditLogs: auditLogs.map((log) => ({
+        id: log.id,
+        action: log.action,
+        description: log.description,
+        createdAt: log.createdAt.toISOString(),
+        user: log.user ? { name: log.user.name, email: log.user.email, role: log.user.role } : null
+      })),
+      recentLeads: recentLeads.map((lead) => ({
+        id: lead.id,
+        fullName: lead.fullName,
+        mobile: lead.mobile,
+        email: lead.email,
+        targetExam: lead.targetExam,
+        source: lead.source,
+        status: lead.status,
+        createdAt: lead.createdAt.toISOString(),
+        followUps: lead.followUps.length,
+        admissions: lead.admissions.length
+      }))
+    };
   },
 
   async audience(requester: Requester) {

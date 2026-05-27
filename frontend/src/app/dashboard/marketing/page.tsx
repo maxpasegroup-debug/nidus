@@ -8,7 +8,7 @@ import { ActivityTimeline, DashboardError, DashboardSkeleton, ProgressCard, Quic
 import { useAuth } from "@/components/providers/auth-provider-v2";
 import { Button } from "@/components/ui/button";
 import { useMarketingDashboard } from "@/hooks/use-dashboard";
-import { useAddSalesBoosterAudienceContact, useAddSalesBoosterMetricSnapshot, useAttachSalesBoosterCreative, useBroadcastSalesBoosterWhatsApp, useCreateSalesBoosterCampaign, useGenerateSalesBoosterCampaignDraft, useImportSalesBoosterLeadsToAudience, useRunDueSalesBoosterCampaigns, useRunSalesBoosterCampaign, useSalesBoosterAnalytics, useSalesBoosterAudience, useSalesBoosterCampaigns, useSalesBoosterConnectors, useSalesBoosterConversionReport, useSalesBoosterSummary, useSalesBoosterWhatsAppTemplates, useScheduleSalesBoosterCampaign, useScheduledSalesBoosterCampaigns, useSyncSalesBoosterCampaignAnalytics, useUpdateSalesBoosterStatus, useUploadSalesBoosterCreative } from "@/hooks/use-sales-booster";
+import { useAddSalesBoosterAudienceContact, useAddSalesBoosterMetricSnapshot, useAttachSalesBoosterCreative, useBroadcastSalesBoosterWhatsApp, useCreateSalesBoosterCampaign, useGenerateSalesBoosterCampaignDraft, useImportSalesBoosterLeadsToAudience, useRunDueSalesBoosterCampaigns, useRunSalesBoosterCampaign, useSalesBoosterAnalytics, useSalesBoosterAudience, useSalesBoosterCampaigns, useSalesBoosterConnectors, useSalesBoosterConversionReport, useSalesBoosterOperations, useSalesBoosterSummary, useSalesBoosterWhatsAppTemplates, useScheduleSalesBoosterCampaign, useScheduledSalesBoosterCampaigns, useSyncSalesBoosterCampaignAnalytics, useUpdateSalesBoosterStatus, useUploadSalesBoosterCreative } from "@/hooks/use-sales-booster";
 import type { SalesBoosterCampaign, SalesBoosterCreative, SalesBoosterDraft } from "@/services/sales-booster";
 
 const campaignTracks = [
@@ -78,6 +78,7 @@ export default function MarketingDashboardPage() {
   const whatsappTemplates = useSalesBoosterWhatsAppTemplates();
   const analytics = useSalesBoosterAnalytics();
   const conversionReport = useSalesBoosterConversionReport();
+  const operations = useSalesBoosterOperations();
   const scheduledCampaigns = useScheduledSalesBoosterCampaigns();
   const audience = useSalesBoosterAudience();
   const createCampaign = useCreateSalesBoosterCampaign();
@@ -124,6 +125,7 @@ export default function MarketingDashboardPage() {
   const boosterSummary = summary.data;
   const boosterAnalytics = analytics.data;
   const conversion = conversionReport.data;
+  const ops = operations.data;
   const connectorStatus = connectors.data ?? boosterSummary?.connectorStatus ?? {};
   const canApprove = user?.role === "ADMIN" || user?.role === "DIRECTOR";
   const activeMetricCampaignId = metricCampaignId || savedCampaigns[0]?.id || "";
@@ -271,6 +273,55 @@ export default function MarketingDashboardPage() {
           <StatCard label="Tracked Leads" value={String(boosterAnalytics?.summary.leads ?? data.campaignTracking.leadsGenerated)} note={`CPL Rs ${boosterAnalytics?.summary.cpl ?? 0}`} />
           <StatCard label="Revenue Signal" value={`Rs ${Math.round(boosterAnalytics?.summary.revenue ?? 0).toLocaleString()}`} note={`ROI ${boosterAnalytics?.summary.roi ?? 0}%`} />
           <StatCard label="Scheduled" value={String(scheduled.length)} note={`${scheduled.filter((campaign) => campaign.scheduleStatus === "DUE").length} due now`} />
+        </section>
+
+        <section className="grid gap-6 xl:grid-cols-[0.85fr_1.15fr]">
+          <div className="rounded-lg border border-[#071d36]/10 bg-white p-5 shadow-[0_18px_60px_rgba(7,29,54,0.08)]">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#3f4a32]">Phase 14 Operations</p>
+            <h2 className="mt-3 text-3xl font-semibold text-[#071d36]">Live automation health</h2>
+            <p className="mt-2 text-sm leading-7 text-[#64748b]">Meta Lead Ads and WhatsApp reply webhooks are tracked with duplicate protection, CRM capture, and follow-up visibility.</p>
+            <div className="mt-5 grid gap-3 sm:grid-cols-2">
+              <div className="rounded border border-[#071d36]/10 bg-[#f7f3ea] p-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#3f4a32]">Webhook Events</p>
+                <p className="mt-2 text-2xl font-semibold text-[#071d36]">{ops?.health.recentWebhookEvents ?? 0}</p>
+              </div>
+              <div className="rounded border border-[#071d36]/10 bg-[#f7f3ea] p-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#3f4a32]">Pending Follow-ups</p>
+                <p className="mt-2 text-2xl font-semibold text-[#071d36]">{ops?.health.pendingFollowUps ?? 0}</p>
+              </div>
+              <div className="rounded border border-[#071d36]/10 bg-[#f7f3ea] p-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#3f4a32]">Recent CRM Leads</p>
+                <p className="mt-2 text-2xl font-semibold text-[#071d36]">{ops?.health.recentLeads ?? 0}</p>
+              </div>
+              <div className="rounded border border-[#071d36]/10 bg-[#f7f3ea] p-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#3f4a32]">Failed Runs</p>
+                <p className="mt-2 text-2xl font-semibold text-[#071d36]">{ops?.health.failedCampaigns ?? 0}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="rounded-lg border border-white/10 bg-white/[0.055] p-5 shadow-[0_24px_70px_rgba(0,0,0,0.18)]">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-gold-soft">Webhook Audit Trail</p>
+                <h2 className="mt-3 text-2xl font-semibold text-white">Latest captured events</h2>
+              </div>
+              <CheckCircle2 className="h-7 w-7 text-gold" />
+            </div>
+            <div className="mt-5 grid gap-3">
+              {(ops?.auditLogs ?? []).slice(0, 5).length ? ops?.auditLogs.slice(0, 5).map((log) => (
+                <div key={log.id} className="rounded border border-white/10 bg-navy-deep/55 p-4">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <p className="text-sm font-semibold text-white">{log.action.replaceAll("_", " ")}</p>
+                    <span className="text-xs font-semibold text-gold-soft">{new Date(log.createdAt).toLocaleString()}</span>
+                  </div>
+                  <p className="mt-2 text-xs leading-5 text-muted">{log.description}</p>
+                </div>
+              )) : (
+                <div className="rounded border border-white/10 bg-navy-deep/55 p-4 text-sm leading-6 text-muted">Webhook events will appear here after Meta Lead Ads or WhatsApp replies start arriving.</div>
+              )}
+            </div>
+          </div>
         </section>
 
         <section className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">

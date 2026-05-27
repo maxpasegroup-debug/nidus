@@ -105,6 +105,14 @@ export const salesBoosterController = {
     }
   },
 
+  async operations(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      res.json({ operations: await salesBoosterService.operations(requester(req)) });
+    } catch (error) {
+      next(error);
+    }
+  },
+
   async createCampaign(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
       assertValid(req);

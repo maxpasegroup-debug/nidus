@@ -146,6 +146,36 @@ export type SalesBoosterConversionReport = {
   }>;
 };
 
+export type SalesBoosterOperations = {
+  health: {
+    recentWebhookEvents: number;
+    metaLeadEvents: number;
+    whatsappReplyEvents: number;
+    recentLeads: number;
+    pendingFollowUps: number;
+    failedCampaigns: number;
+  };
+  auditLogs: Array<{
+    id: string;
+    action: string;
+    description: string;
+    createdAt: string;
+    user: { name: string; email: string; role: string } | null;
+  }>;
+  recentLeads: Array<{
+    id: string;
+    fullName: string;
+    mobile: string;
+    email: string;
+    targetExam: string;
+    source: string;
+    status: string;
+    createdAt: string;
+    followUps: number;
+    admissions: number;
+  }>;
+};
+
 export type SalesBoosterCampaignReport = {
   campaign: SalesBoosterCampaign & { metricSnapshots: SalesBoosterMetricSnapshot[] };
   leadSource: string;
@@ -240,6 +270,11 @@ export async function getSalesBoosterAnalytics() {
 export async function getSalesBoosterConversionReport() {
   const response = await apiClient.get<{ report: SalesBoosterConversionReport }>("/sales-booster/conversion-report");
   return response.data.report;
+}
+
+export async function getSalesBoosterOperations() {
+  const response = await apiClient.get<{ operations: SalesBoosterOperations }>("/sales-booster/operations");
+  return response.data.operations;
 }
 
 export async function getSalesBoosterCampaignReport(id: string) {
