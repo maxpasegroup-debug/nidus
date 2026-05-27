@@ -259,6 +259,16 @@ async function runWhatsApp(campaign: ConnectorCampaign): Promise<ConnectorResult
   return { channel: "WhatsApp", status: "QUEUED", message: `WhatsApp template queued for ${results.length} opted-in recipient(s).`, details: { recipients: results.length } };
 }
 
+function allowedWhatsAppTemplates() {
+  return env.SALESBOOSTER_WHATSAPP_TEMPLATE_NAMES.split(",").map((item) => item.trim()).filter(Boolean);
+}
+
+function resolveTemplateName(templateName?: string) {
+  const allowed = allowedWhatsAppTemplates();
+  const selected = templateName?.trim() || env.SALESBOOSTER_WHATSAPP_TEMPLATE_NAME;
+  return allowed.includes(selected) ? selected : env.SALESBOOSTER_WHATSAPP_TEMPLATE_NAME;
+}
+
 async function sendWhatsAppTemplate(recipients: string[], templateName = env.SALESBOOSTER_WHATSAPP_TEMPLATE_NAME): Promise<ConnectorResult> {
   if (!env.SALESBOOSTER_WHATSAPP_ACCESS_TOKEN || !env.SALESBOOSTER_WHATSAPP_PHONE_NUMBER_ID) {
     return { channel: "WhatsApp", status: "NOT_CONFIGURED", message: "WhatsApp Cloud API token/phone number id not configured." };
@@ -268,6 +278,7 @@ async function sendWhatsAppTemplate(recipients: string[], templateName = env.SAL
     return { channel: "WhatsApp", status: "SKIPPED", message: "No opted-in WhatsApp recipients selected." };
   }
 
+  const resolvedTemplate = resolveTemplateName(templateName);
   const results = [];
   for (const recipient of cleanRecipients.slice(0, 100)) {
     const response = await fetch(`${graphBaseUrl}/${env.SALESBOOSTER_WHATSAPP_PHONE_NUMBER_ID}/messages`, {
@@ -281,8 +292,8 @@ async function sendWhatsAppTemplate(recipients: string[], templateName = env.SAL
         to: recipient,
         type: "template",
         template: {
-          name: templateName,
-          language: { code: "en" }
+          name: resolvedTemplate,
+          language: { code: env.SALESBOOSTER_WHATSAPP_TEMPLATE_LANGUAGE }
         }
       })
     });
@@ -291,7 +302,7 @@ async function sendWhatsAppTemplate(recipients: string[], templateName = env.SAL
     results.push(data);
   }
 
-  return { channel: "WhatsApp", status: "QUEUED", message: `WhatsApp template queued for ${results.length} opted-in recipient(s).`, details: { recipients: results.length, templateName } };
+  return { channel: "WhatsApp", status: "QUEUED", message: `WhatsApp template queued for ${results.length} opted-in recipient(s).`, details: { recipients: results.length, templateName: resolvedTemplate } };
 }
 
 async function safeRun(channel: string, fn: () => Promise<ConnectorResult>): Promise<ConnectorResult> {
@@ -310,8 +321,17 @@ export const salesBoosterConnectors = {
       "Meta Ads": Boolean(env.SALESBOOSTER_META_ACCESS_TOKEN && env.SALESBOOSTER_META_PAGE_ID && adAccountId()),
       Threads: Boolean(env.SALESBOOSTER_THREADS_ACCESS_TOKEN && env.SALESBOOSTER_THREADS_USER_ID),
       YouTube: Boolean(env.SALESBOOSTER_YOUTUBE_ACCESS_TOKEN && env.SALESBOOSTER_YOUTUBE_CHANNEL_ID),
-      WhatsApp: Boolean(env.SALESBOOSTER_WHATSAPP_ACCESS_TOKEN && env.SALESBOOSTER_WHATSAPP_PHONE_NUMBER_ID)
+      WhatsApp: Boolean(env.SALESBOOSTER_WHATSAPP_ACCESS_TOKEN && env.SALESBOOSTER_WHATSAPP_PHONE_NUMBER_ID),
+      "WhatsApp Templates": allowedWhatsAppTemplates().length > 0
     };
+  },
+
+  whatsappTemplates() {
+    return allowedWhatsAppTemplates().map((name) => ({
+      name,
+      language: env.SALESBOOSTER_WHATSAPP_TEMPLATE_LANGUAGE,
+      default: name === env.SALESBOOSTER_WHATSAPP_TEMPLATE_NAME
+    }));
   },
 
   async run(campaign: ConnectorCampaign) {

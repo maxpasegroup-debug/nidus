@@ -77,6 +77,8 @@ const envSchema = z.object({
   SALESBOOSTER_WHATSAPP_ACCESS_TOKEN: z.string().default(""),
   SALESBOOSTER_WHATSAPP_PHONE_NUMBER_ID: z.string().default(""),
   SALESBOOSTER_WHATSAPP_TEMPLATE_NAME: z.string().default("nidus_campaign_followup"),
+  SALESBOOSTER_WHATSAPP_TEMPLATE_NAMES: z.string().default("nidus_campaign_followup,nidus_admission_alert,nidus_counselling_reminder,nidus_assessment_followup"),
+  SALESBOOSTER_WHATSAPP_TEMPLATE_LANGUAGE: z.string().default("en"),
   SALESBOOSTER_DEFAULT_WHATSAPP_RECIPIENTS: z.string().default("")
 }).superRefine((env, ctx) => {
   if (env.NODE_ENV !== "production") return;

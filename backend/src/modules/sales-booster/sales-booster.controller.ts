@@ -114,6 +114,14 @@ export const salesBoosterController = {
     }
   },
 
+  async whatsappTemplates(_req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      res.json({ templates: await salesBoosterService.whatsappTemplates() });
+    } catch (error) {
+      next(error);
+    }
+  },
+
   async audience(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
       res.json({ audience: await salesBoosterService.audience(requester(req)) });

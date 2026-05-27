@@ -56,6 +56,10 @@ type AudienceContactInput = {
 type BroadcastInput = {
   segment?: string;
   templateName?: string;
+  createFollowUps?: boolean;
+  followUpDate?: string;
+  counselorName?: string;
+  source?: string;
 };
 
 type GenerateCampaignInput = {
@@ -277,6 +281,10 @@ export const salesBoosterService = {
     return salesBoosterConnectors.status();
   },
 
+  async whatsappTemplates() {
+    return salesBoosterConnectors.whatsappTemplates();
+  },
+
   async audience(requester: Requester) {
     const contacts = await prisma.salesBoosterAudienceContact.findMany({
       where: requester.role === Role.MARKETING_COORDINATOR ? { createdById: requester.id } : undefined,
@@ -375,7 +383,59 @@ export const salesBoosterService = {
         data: { whatsappStatus: "QUEUED", lastContactedAt: new Date() }
       });
     }
-    return { result, selectedContacts: contacts.length };
+    const followUpDate = input.followUpDate ? new Date(input.followUpDate) : new Date(Date.now() + 24 * 60 * 60 * 1000);
+    let crmLeadsUpdated = 0;
+    let followUpsCreated = 0;
+    if (input.createFollowUps) {
+      for (const contact of contacts) {
+        const notes = [
+          `Sales Booster WhatsApp broadcast: ${input.templateName ?? "default template"}`,
+          `Segment: ${contact.segment}`,
+          input.counselorName ? `Counselor route: ${input.counselorName}` : "",
+          contact.notes ? `Audience note: ${contact.notes}` : ""
+        ].filter(Boolean).join("\n");
+        const existingLead = await prisma.lead.findFirst({
+          where: { OR: [{ mobile: contact.phone }, ...(contact.email ? [{ email: contact.email }] : [])] },
+          orderBy: { createdAt: "desc" }
+        });
+        const lead = existingLead
+          ? await prisma.lead.update({
+              where: { id: existingLead.id },
+              data: {
+                fullName: contact.fullName,
+                mobile: contact.phone,
+                email: contact.email ?? existingLead.email,
+                targetExam: contact.interest ?? existingLead.targetExam,
+                source: input.source ?? `Sales Booster WhatsApp: ${contact.segment}`,
+                status: existingLead.status === "LOST" ? "NEW" : existingLead.status,
+                notes: `${existingLead.notes ? `${existingLead.notes}\n\n` : ""}[${new Date().toISOString()}] ${notes}`
+              }
+            })
+          : await prisma.lead.create({
+              data: {
+                fullName: contact.fullName,
+                mobile: contact.phone,
+                email: contact.email ?? `${contact.phone}@whatsapp.nidus.local`,
+                targetExam: contact.interest ?? contact.segment,
+                source: input.source ?? `Sales Booster WhatsApp: ${contact.segment}`,
+                status: "CONTACTED",
+                notes
+              }
+            });
+        crmLeadsUpdated += 1;
+        await prisma.followUp.create({
+          data: {
+            leadId: lead.id,
+            followUpDate,
+            remarks: input.counselorName ? `WhatsApp follow-up routed to ${input.counselorName}.` : "WhatsApp broadcast follow-up from Sales Booster.",
+            status: "PENDING",
+            createdBy: requester.id
+          }
+        });
+        followUpsCreated += 1;
+      }
+    }
+    return { result, selectedContacts: contacts.length, crmLeadsUpdated, followUpsCreated };
   },
 
   async runCampaign(requester: Requester, id: string) {

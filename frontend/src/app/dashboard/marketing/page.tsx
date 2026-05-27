@@ -8,7 +8,7 @@ import { ActivityTimeline, DashboardError, DashboardSkeleton, ProgressCard, Quic
 import { useAuth } from "@/components/providers/auth-provider-v2";
 import { Button } from "@/components/ui/button";
 import { useMarketingDashboard } from "@/hooks/use-dashboard";
-import { useAddSalesBoosterAudienceContact, useAddSalesBoosterMetricSnapshot, useAttachSalesBoosterCreative, useBroadcastSalesBoosterWhatsApp, useCreateSalesBoosterCampaign, useGenerateSalesBoosterCampaignDraft, useImportSalesBoosterLeadsToAudience, useRunDueSalesBoosterCampaigns, useRunSalesBoosterCampaign, useSalesBoosterAnalytics, useSalesBoosterAudience, useSalesBoosterCampaigns, useSalesBoosterConnectors, useSalesBoosterSummary, useScheduleSalesBoosterCampaign, useScheduledSalesBoosterCampaigns, useUpdateSalesBoosterStatus, useUploadSalesBoosterCreative } from "@/hooks/use-sales-booster";
+import { useAddSalesBoosterAudienceContact, useAddSalesBoosterMetricSnapshot, useAttachSalesBoosterCreative, useBroadcastSalesBoosterWhatsApp, useCreateSalesBoosterCampaign, useGenerateSalesBoosterCampaignDraft, useImportSalesBoosterLeadsToAudience, useRunDueSalesBoosterCampaigns, useRunSalesBoosterCampaign, useSalesBoosterAnalytics, useSalesBoosterAudience, useSalesBoosterCampaigns, useSalesBoosterConnectors, useSalesBoosterSummary, useSalesBoosterWhatsAppTemplates, useScheduleSalesBoosterCampaign, useScheduledSalesBoosterCampaigns, useUpdateSalesBoosterStatus, useUploadSalesBoosterCreative } from "@/hooks/use-sales-booster";
 import type { SalesBoosterCampaign, SalesBoosterCreative, SalesBoosterDraft } from "@/services/sales-booster";
 
 const campaignTracks = [
@@ -75,6 +75,7 @@ export default function MarketingDashboardPage() {
   const campaigns = useSalesBoosterCampaigns();
   const summary = useSalesBoosterSummary();
   const connectors = useSalesBoosterConnectors();
+  const whatsappTemplates = useSalesBoosterWhatsAppTemplates();
   const analytics = useSalesBoosterAnalytics();
   const scheduledCampaigns = useScheduledSalesBoosterCampaigns();
   const audience = useSalesBoosterAudience();
@@ -113,6 +114,9 @@ export default function MarketingDashboardPage() {
   const [audienceSegment, setAudienceSegment] = useState("Academy Admissions");
   const [broadcastSegment, setBroadcastSegment] = useState("Academy Admissions");
   const [templateName, setTemplateName] = useState("nidus_campaign_followup");
+  const [broadcastFollowUpDate, setBroadcastFollowUpDate] = useState("");
+  const [broadcastCounselor, setBroadcastCounselor] = useState("Admissions counselor");
+  const [createBroadcastFollowUps, setCreateBroadcastFollowUps] = useState(true);
   const draft = useMemo(() => aiDraft ?? buildCampaignDraft(goal, selectedTrack), [aiDraft, goal, selectedTrack]);
   const savedCampaigns = campaigns.data ?? [];
   const boosterSummary = summary.data;
@@ -125,6 +129,7 @@ export default function MarketingDashboardPage() {
   const scheduled = scheduledCampaigns.data ?? [];
   const audienceData = audience.data;
   const audienceContacts = audienceData?.contacts ?? [];
+  const approvedTemplates = whatsappTemplates.data ?? [];
 
   function saveCampaign(status: "DRAFT" | "SUBMITTED" = "DRAFT") {
     createCampaign.mutate({
@@ -378,11 +383,30 @@ export default function MarketingDashboardPage() {
               </label>
               <label>
                 <span className="text-sm font-semibold text-white">Approved template name</span>
-                <input value={templateName} onChange={(event) => setTemplateName(event.target.value)} className="mt-2 h-11 w-full rounded border border-white/12 bg-navy-deep px-3 text-sm text-white outline-none focus:border-gold" />
+                <select value={templateName} onChange={(event) => setTemplateName(event.target.value)} className="mt-2 h-11 w-full rounded border border-white/12 bg-navy-deep px-3 text-sm text-white outline-none focus:border-gold">
+                  {approvedTemplates.length ? approvedTemplates.map((template) => <option key={template.name} value={template.name}>{template.name}{template.default ? " (default)" : ""}</option>) : <option value={templateName}>{templateName}</option>}
+                </select>
               </label>
-              <Button type="button" onClick={() => broadcastWhatsApp.mutate({ segment: broadcastSegment, templateName })} disabled={broadcastWhatsApp.isPending || !audienceContacts.length}>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <label>
+                  <span className="text-sm font-semibold text-white">Follow-up date</span>
+                  <input type="datetime-local" value={broadcastFollowUpDate} onChange={(event) => setBroadcastFollowUpDate(event.target.value)} className="mt-2 h-11 w-full rounded border border-white/12 bg-navy-deep px-3 text-sm text-white outline-none focus:border-gold" />
+                </label>
+                <label>
+                  <span className="text-sm font-semibold text-white">Counselor route</span>
+                  <input value={broadcastCounselor} onChange={(event) => setBroadcastCounselor(event.target.value)} className="mt-2 h-11 w-full rounded border border-white/12 bg-navy-deep px-3 text-sm text-white outline-none focus:border-gold" />
+                </label>
+              </div>
+              <label className="flex items-center gap-3 rounded border border-white/10 bg-navy-deep/45 p-3 text-sm font-semibold text-white">
+                <input type="checkbox" checked={createBroadcastFollowUps} onChange={(event) => setCreateBroadcastFollowUps(event.target.checked)} className="h-4 w-4" />
+                Create CRM leads and counselor follow-up tasks
+              </label>
+              <Button type="button" onClick={() => broadcastWhatsApp.mutate({ segment: broadcastSegment, templateName, createFollowUps: createBroadcastFollowUps, followUpDate: broadcastFollowUpDate ? new Date(broadcastFollowUpDate).toISOString() : undefined, counselorName: broadcastCounselor, source: `Sales Booster WhatsApp: ${broadcastSegment}` })} disabled={broadcastWhatsApp.isPending || !audienceContacts.length}>
                 {broadcastWhatsApp.isPending ? "Sending..." : "Send WhatsApp Broadcast"}
               </Button>
+              <div className="rounded border border-white/10 bg-navy-deep/45 p-3 text-xs leading-5 text-muted">
+                Only approved WhatsApp Cloud API templates are used. Bulk messages require opt-in contacts and are routed into CRM follow-ups when enabled.
+              </div>
               <div className="grid gap-2">
                 {audienceContacts.slice(0, 5).map((contact) => (
                   <div key={contact.id} className="rounded border border-white/10 bg-navy-deep/55 p-3 text-sm text-muted">

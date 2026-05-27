@@ -167,6 +167,12 @@ export type SalesBoosterAudience = {
   segments: Record<string, number>;
 };
 
+export type SalesBoosterWhatsAppTemplate = {
+  name: string;
+  language: string;
+  default: boolean;
+};
+
 export async function getSalesBoosterCampaigns() {
   const response = await apiClient.get<{ campaigns: SalesBoosterCampaign[] }>("/sales-booster/campaigns");
   return response.data.campaigns;
@@ -180,6 +186,11 @@ export async function getSalesBoosterSummary() {
 export async function getSalesBoosterConnectors() {
   const response = await apiClient.get<{ connectors: Record<string, boolean> }>("/sales-booster/connectors");
   return response.data.connectors;
+}
+
+export async function getSalesBoosterWhatsAppTemplates() {
+  const response = await apiClient.get<{ templates: SalesBoosterWhatsAppTemplate[] }>("/sales-booster/whatsapp/templates");
+  return response.data.templates;
 }
 
 export async function getScheduledSalesBoosterCampaigns() {
@@ -317,7 +328,7 @@ export async function importSalesBoosterLeadsToAudience(segment = "CRM Leads") {
   return response.data;
 }
 
-export async function broadcastSalesBoosterWhatsApp(payload: { segment?: string; templateName?: string }) {
-  const response = await apiClient.post<{ selectedContacts: number; result: { channel: string; status: string; message: string } }>("/sales-booster/whatsapp/broadcast", payload);
+export async function broadcastSalesBoosterWhatsApp(payload: { segment?: string; templateName?: string; createFollowUps?: boolean; followUpDate?: string; counselorName?: string; source?: string }) {
+  const response = await apiClient.post<{ selectedContacts: number; crmLeadsUpdated: number; followUpsCreated: number; result: { channel: string; status: string; message: string } }>("/sales-booster/whatsapp/broadcast", payload);
   return response.data;
 }

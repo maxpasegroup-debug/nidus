@@ -14,6 +14,7 @@ salesBoosterRouter.get("/campaigns", ...salesBoosterRoles, salesBoosterControlle
 salesBoosterRouter.get("/summary", ...salesBoosterRoles, salesBoosterController.summary);
 salesBoosterRouter.get("/analytics", ...salesBoosterRoles, salesBoosterController.analytics);
 salesBoosterRouter.get("/connectors", ...salesBoosterRoles, salesBoosterController.connectorStatus);
+salesBoosterRouter.get("/whatsapp/templates", ...salesBoosterRoles, salesBoosterController.whatsappTemplates);
 salesBoosterRouter.get("/scheduled", ...salesBoosterRoles, salesBoosterController.scheduledCampaigns);
 salesBoosterRouter.get("/audience", ...salesBoosterRoles, salesBoosterController.audience);
 salesBoosterRouter.post(
@@ -57,7 +58,11 @@ salesBoosterRouter.post(
   ...salesBoosterRoles,
   [
     body("segment").optional({ nullable: true }).trim(),
-    body("templateName").optional({ nullable: true }).trim()
+    body("templateName").optional({ nullable: true }).trim(),
+    body("createFollowUps").optional().isBoolean(),
+    body("followUpDate").optional({ nullable: true }).isISO8601(),
+    body("counselorName").optional({ nullable: true }).trim(),
+    body("source").optional({ nullable: true }).trim()
   ],
   salesBoosterController.broadcastWhatsApp
 );

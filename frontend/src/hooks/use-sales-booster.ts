@@ -16,6 +16,7 @@ import {
   getSalesBoosterCampaigns,
   getSalesBoosterCampaignReport,
   getSalesBoosterSummary,
+  getSalesBoosterWhatsAppTemplates,
   getScheduledSalesBoosterCampaigns,
   importSalesBoosterLeadsToAudience,
   runSalesBoosterCampaign,
@@ -35,6 +36,10 @@ export function useSalesBoosterSummary() {
 
 export function useSalesBoosterConnectors() {
   return useQuery({ queryKey: ["sales-booster", "connectors"], queryFn: getSalesBoosterConnectors });
+}
+
+export function useSalesBoosterWhatsAppTemplates() {
+  return useQuery({ queryKey: ["sales-booster", "whatsapp-templates"], queryFn: getSalesBoosterWhatsAppTemplates });
 }
 
 export function useSalesBoosterAnalytics() {
@@ -224,8 +229,11 @@ export function useBroadcastSalesBoosterWhatsApp() {
   return useMutation({
     mutationFn: broadcastSalesBoosterWhatsApp,
     onSuccess: async (result) => {
-      await queryClient.invalidateQueries({ queryKey: ["sales-booster", "audience"] });
-      showToast(`${result.result.status}: ${result.result.message}`, result.result.status === "FAILED" ? "error" : "success");
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["sales-booster", "audience"] }),
+        queryClient.invalidateQueries({ queryKey: ["sales-booster", "analytics"] })
+      ]);
+      showToast(`${result.result.status}: ${result.result.message}. Follow-ups: ${result.followUpsCreated ?? 0}`, result.result.status === "FAILED" ? "error" : "success");
     },
     onError: (error) => showToast(getApiErrorMessage(error), "error")
   });
