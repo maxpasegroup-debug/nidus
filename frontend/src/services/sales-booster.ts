@@ -176,6 +176,55 @@ export type SalesBoosterOperations = {
   }>;
 };
 
+export type SalesBoosterConnectorHealth = {
+  ready: number;
+  total: number;
+  channels: Array<{
+    channel: string;
+    connected: boolean;
+    requirements: string[];
+    nextStep: string;
+  }>;
+};
+
+export type SalesBoosterCalendar = {
+  scheduled: SalesBoosterCalendarItem[];
+  completed: SalesBoosterCalendarItem[];
+  drafts: SalesBoosterCalendarItem[];
+  all: SalesBoosterCalendarItem[];
+};
+
+export type SalesBoosterCalendarItem = {
+  id: string;
+  title: string;
+  track: string;
+  approvalStatus: string;
+  runStatus: string;
+  scheduleStatus: string;
+  scheduledAt?: string | null;
+  lastRunAt?: string | null;
+  createdAt: string;
+  owner: string;
+};
+
+export type SalesBoosterCreativeLibrary = {
+  assets: Array<{
+    campaignId: string;
+    title: string;
+    track: string;
+    creativeName?: string | null;
+    creativeType?: string | null;
+    creativeUrl?: string | null;
+    creativeSize?: number | null;
+    creativeUploadedAt?: string | null;
+    usedChannels: string[];
+    leads: number;
+    spend: number;
+    revenue: number;
+    owner: string;
+  }>;
+};
+
 export type SalesBoosterCampaignReport = {
   campaign: SalesBoosterCampaign & { metricSnapshots: SalesBoosterMetricSnapshot[] };
   leadSource: string;
@@ -247,6 +296,11 @@ export async function getSalesBoosterConnectors() {
   return response.data.connectors;
 }
 
+export async function getSalesBoosterConnectorHealth() {
+  const response = await apiClient.get<{ health: SalesBoosterConnectorHealth }>("/sales-booster/connectors/health");
+  return response.data.health;
+}
+
 export async function getSalesBoosterWhatsAppTemplates() {
   const response = await apiClient.get<{ templates: SalesBoosterWhatsAppTemplate[] }>("/sales-booster/whatsapp/templates");
   return response.data.templates;
@@ -255,6 +309,16 @@ export async function getSalesBoosterWhatsAppTemplates() {
 export async function getScheduledSalesBoosterCampaigns() {
   const response = await apiClient.get<{ campaigns: SalesBoosterCampaign[] }>("/sales-booster/scheduled");
   return response.data.campaigns;
+}
+
+export async function getSalesBoosterCalendar() {
+  const response = await apiClient.get<{ calendar: SalesBoosterCalendar }>("/sales-booster/calendar");
+  return response.data.calendar;
+}
+
+export async function getSalesBoosterCreativeLibrary() {
+  const response = await apiClient.get<{ library: SalesBoosterCreativeLibrary }>("/sales-booster/creatives/library");
+  return response.data.library;
 }
 
 export async function getSalesBoosterAudience() {
@@ -275,6 +339,10 @@ export async function getSalesBoosterConversionReport() {
 export async function getSalesBoosterOperations() {
   const response = await apiClient.get<{ operations: SalesBoosterOperations }>("/sales-booster/operations");
   return response.data.operations;
+}
+
+export function salesBoosterConversionExportUrl() {
+  return `${apiClient.defaults.baseURL ?? ""}/sales-booster/conversion-report/export.csv`;
 }
 
 export async function getSalesBoosterCampaignReport(id: string) {
@@ -399,6 +467,11 @@ export async function addSalesBoosterAudienceContact(payload: {
 
 export async function importSalesBoosterLeadsToAudience(segment = "CRM Leads") {
   const response = await apiClient.post<{ imported: number; segment: string }>("/sales-booster/audience/import-leads", { segment });
+  return response.data;
+}
+
+export async function optOutSalesBoosterAudience(payload: { phone: string; segment?: string; reason?: string }) {
+  const response = await apiClient.post<{ updated: number; phone: string }>("/sales-booster/audience/opt-out", payload);
   return response.data;
 }
 

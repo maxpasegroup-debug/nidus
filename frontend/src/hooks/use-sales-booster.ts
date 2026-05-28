@@ -12,15 +12,19 @@ import {
   generateSalesBoosterCampaignDraft,
   getSalesBoosterAudience,
   getSalesBoosterAnalytics,
+  getSalesBoosterCalendar,
+  getSalesBoosterConnectorHealth,
   getSalesBoosterConnectors,
   getSalesBoosterConversionReport,
   getSalesBoosterCampaigns,
   getSalesBoosterCampaignReport,
+  getSalesBoosterCreativeLibrary,
   getSalesBoosterOperations,
   getSalesBoosterSummary,
   getSalesBoosterWhatsAppTemplates,
   getScheduledSalesBoosterCampaigns,
   importSalesBoosterLeadsToAudience,
+  optOutSalesBoosterAudience,
   runSalesBoosterCampaign,
   runDueSalesBoosterCampaigns,
   scheduleSalesBoosterCampaign,
@@ -41,6 +45,10 @@ export function useSalesBoosterConnectors() {
   return useQuery({ queryKey: ["sales-booster", "connectors"], queryFn: getSalesBoosterConnectors });
 }
 
+export function useSalesBoosterConnectorHealth() {
+  return useQuery({ queryKey: ["sales-booster", "connector-health"], queryFn: getSalesBoosterConnectorHealth });
+}
+
 export function useSalesBoosterWhatsAppTemplates() {
   return useQuery({ queryKey: ["sales-booster", "whatsapp-templates"], queryFn: getSalesBoosterWhatsAppTemplates });
 }
@@ -59,6 +67,14 @@ export function useSalesBoosterOperations() {
 
 export function useScheduledSalesBoosterCampaigns() {
   return useQuery({ queryKey: ["sales-booster", "scheduled"], queryFn: getScheduledSalesBoosterCampaigns });
+}
+
+export function useSalesBoosterCalendar() {
+  return useQuery({ queryKey: ["sales-booster", "calendar"], queryFn: getSalesBoosterCalendar });
+}
+
+export function useSalesBoosterCreativeLibrary() {
+  return useQuery({ queryKey: ["sales-booster", "creative-library"], queryFn: getSalesBoosterCreativeLibrary });
 }
 
 export function useSalesBoosterAudience() {
@@ -82,7 +98,9 @@ export function useCreateSalesBoosterCampaign() {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["sales-booster", "campaigns"] }),
         queryClient.invalidateQueries({ queryKey: ["sales-booster", "summary"] }),
-        queryClient.invalidateQueries({ queryKey: ["sales-booster", "analytics"] })
+        queryClient.invalidateQueries({ queryKey: ["sales-booster", "analytics"] }),
+        queryClient.invalidateQueries({ queryKey: ["sales-booster", "calendar"] }),
+        queryClient.invalidateQueries({ queryKey: ["sales-booster", "creative-library"] })
       ]);
       showToast("Sales Booster campaign saved.", "success");
     },
@@ -116,7 +134,8 @@ export function useAttachSalesBoosterCreative() {
     onSuccess: async () => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["sales-booster", "campaigns"] }),
-        queryClient.invalidateQueries({ queryKey: ["sales-booster", "summary"] })
+        queryClient.invalidateQueries({ queryKey: ["sales-booster", "summary"] }),
+        queryClient.invalidateQueries({ queryKey: ["sales-booster", "creative-library"] })
       ]);
       showToast("Campaign creative updated.", "success");
     },
@@ -133,7 +152,8 @@ export function useUpdateSalesBoosterStatus() {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["sales-booster", "campaigns"] }),
         queryClient.invalidateQueries({ queryKey: ["sales-booster", "summary"] }),
-        queryClient.invalidateQueries({ queryKey: ["sales-booster", "analytics"] })
+        queryClient.invalidateQueries({ queryKey: ["sales-booster", "analytics"] }),
+        queryClient.invalidateQueries({ queryKey: ["sales-booster", "calendar"] })
       ]);
       showToast("Campaign status updated.", "success");
     },
@@ -150,7 +170,8 @@ export function useRunSalesBoosterCampaign() {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["sales-booster", "campaigns"] }),
         queryClient.invalidateQueries({ queryKey: ["sales-booster", "summary"] }),
-        queryClient.invalidateQueries({ queryKey: ["sales-booster", "analytics"] })
+        queryClient.invalidateQueries({ queryKey: ["sales-booster", "analytics"] }),
+        queryClient.invalidateQueries({ queryKey: ["sales-booster", "calendar"] })
       ]);
       showToast("Sales Booster connector run completed.", "success");
     },
@@ -167,7 +188,8 @@ export function useScheduleSalesBoosterCampaign() {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["sales-booster", "campaigns"] }),
         queryClient.invalidateQueries({ queryKey: ["sales-booster", "scheduled"] }),
-        queryClient.invalidateQueries({ queryKey: ["sales-booster", "summary"] })
+        queryClient.invalidateQueries({ queryKey: ["sales-booster", "summary"] }),
+        queryClient.invalidateQueries({ queryKey: ["sales-booster", "calendar"] })
       ]);
       showToast("Campaign scheduled.", "success");
     },
@@ -184,7 +206,8 @@ export function useRunDueSalesBoosterCampaigns() {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["sales-booster", "campaigns"] }),
         queryClient.invalidateQueries({ queryKey: ["sales-booster", "scheduled"] }),
-        queryClient.invalidateQueries({ queryKey: ["sales-booster", "analytics"] })
+        queryClient.invalidateQueries({ queryKey: ["sales-booster", "analytics"] }),
+        queryClient.invalidateQueries({ queryKey: ["sales-booster", "calendar"] })
       ]);
       showToast(`Due campaigns processed: ${result.executed} executed, ${result.failed} failed.`, result.failed ? "error" : "success");
     },
@@ -247,6 +270,22 @@ export function useImportSalesBoosterLeadsToAudience() {
     onSuccess: async (result) => {
       await queryClient.invalidateQueries({ queryKey: ["sales-booster", "audience"] });
       showToast(`${result.imported} CRM leads imported to ${result.segment}.`, "success");
+    },
+    onError: (error) => showToast(getApiErrorMessage(error), "error")
+  });
+}
+
+export function useOptOutSalesBoosterAudience() {
+  const queryClient = useQueryClient();
+  const { showToast } = useToast();
+  return useMutation({
+    mutationFn: optOutSalesBoosterAudience,
+    onSuccess: async (result) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["sales-booster", "audience"] }),
+        queryClient.invalidateQueries({ queryKey: ["sales-booster", "operations"] })
+      ]);
+      showToast(`Opt-out recorded for ${result.phone}.`, "success");
     },
     onError: (error) => showToast(getApiErrorMessage(error), "error")
   });

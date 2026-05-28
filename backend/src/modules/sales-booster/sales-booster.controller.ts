@@ -174,6 +174,14 @@ export const salesBoosterController = {
     }
   },
 
+  async connectorHealth(_req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      res.json({ health: await salesBoosterService.connectorHealth() });
+    } catch (error) {
+      next(error);
+    }
+  },
+
   async whatsappTemplates(_req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
       res.json({ templates: await salesBoosterService.whatsappTemplates() });
@@ -202,6 +210,15 @@ export const salesBoosterController = {
   async importLeadsToAudience(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
       res.json(await salesBoosterService.importLeadsToAudience(requester(req), typeof req.body?.segment === "string" ? req.body.segment : "CRM Leads"));
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async markAudienceOptOut(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      assertValid(req);
+      res.json(await salesBoosterService.markAudienceOptOut(requester(req), req.body));
     } catch (error) {
       next(error);
     }
@@ -241,6 +258,22 @@ export const salesBoosterController = {
     }
   },
 
+  async campaignCalendar(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      res.json({ calendar: await salesBoosterService.campaignCalendar(requester(req)) });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async creativeLibrary(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      res.json({ library: await salesBoosterService.creativeLibrary(requester(req)) });
+    } catch (error) {
+      next(error);
+    }
+  },
+
   async runDueCampaigns(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
       res.json(await salesBoosterService.runDueCampaigns(requester(req)));
@@ -269,6 +302,17 @@ export const salesBoosterController = {
   async campaignReport(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
       res.json({ report: await salesBoosterService.report(requester(req), param(req, "id")) });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async exportConversionCsv(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      const csv = await salesBoosterService.exportConversionCsv(requester(req));
+      res.setHeader("Content-Type", "text/csv; charset=utf-8");
+      res.setHeader("Content-Disposition", "attachment; filename=\"sales-booster-conversion-report.csv\"");
+      res.send(csv);
     } catch (error) {
       next(error);
     }

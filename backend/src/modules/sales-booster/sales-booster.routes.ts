@@ -18,10 +18,14 @@ salesBoosterRouter.get("/campaigns", ...salesBoosterRoles, salesBoosterControlle
 salesBoosterRouter.get("/summary", ...salesBoosterRoles, salesBoosterController.summary);
 salesBoosterRouter.get("/analytics", ...salesBoosterRoles, salesBoosterController.analytics);
 salesBoosterRouter.get("/conversion-report", ...salesBoosterRoles, salesBoosterController.conversionReport);
+salesBoosterRouter.get("/conversion-report/export.csv", ...salesBoosterRoles, salesBoosterController.exportConversionCsv);
 salesBoosterRouter.get("/operations", ...salesBoosterRoles, salesBoosterController.operations);
 salesBoosterRouter.get("/connectors", ...salesBoosterRoles, salesBoosterController.connectorStatus);
+salesBoosterRouter.get("/connectors/health", ...salesBoosterRoles, salesBoosterController.connectorHealth);
 salesBoosterRouter.get("/whatsapp/templates", ...salesBoosterRoles, salesBoosterController.whatsappTemplates);
 salesBoosterRouter.get("/scheduled", ...salesBoosterRoles, salesBoosterController.scheduledCampaigns);
+salesBoosterRouter.get("/calendar", ...salesBoosterRoles, salesBoosterController.campaignCalendar);
+salesBoosterRouter.get("/creatives/library", ...salesBoosterRoles, salesBoosterController.creativeLibrary);
 salesBoosterRouter.get("/audience", ...salesBoosterRoles, salesBoosterController.audience);
 salesBoosterRouter.post(
   "/ai-generate",
@@ -58,6 +62,16 @@ salesBoosterRouter.post(
   ...salesBoosterRoles,
   [body("segment").optional({ nullable: true }).trim()],
   salesBoosterController.importLeadsToAudience
+);
+salesBoosterRouter.post(
+  "/audience/opt-out",
+  ...salesBoosterRoles,
+  [
+    body("phone").trim().notEmpty(),
+    body("segment").optional({ nullable: true }).trim(),
+    body("reason").optional({ nullable: true }).trim()
+  ],
+  salesBoosterController.markAudienceOptOut
 );
 salesBoosterRouter.post(
   "/whatsapp/broadcast",

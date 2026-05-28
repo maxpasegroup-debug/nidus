@@ -63,6 +63,12 @@ type BroadcastInput = {
   source?: string;
 };
 
+type AudienceOptOutInput = {
+  phone: string;
+  segment?: string;
+  reason?: string;
+};
+
 type GenerateCampaignInput = {
   track: string;
   goal: string;
@@ -254,6 +260,15 @@ function creativeTypeFor(mimeType: string) {
   return mimeType;
 }
 
+function csvEscape(value: unknown) {
+  const text = String(value ?? "");
+  return /[",\n]/.test(text) ? `"${text.replace(/"/g, "\"\"")}"` : text;
+}
+
+function csvLine(values: unknown[]) {
+  return values.map(csvEscape).join(",");
+}
+
 export const salesBoosterService = {
   verifyWebhook(input: WebhookVerification) {
     if (input.mode !== "subscribe" || input.token !== webhookToken(input.provider) || !input.challenge) {
@@ -283,7 +298,7 @@ export const salesBoosterService = {
   },
 
   async createCampaign(requester: Requester, input: CampaignInput) {
-    return prisma.salesBoosterCampaign.create({
+    const campaign = await prisma.salesBoosterCampaign.create({
       data: {
         title: input.title,
         track: input.track,
@@ -303,6 +318,12 @@ export const salesBoosterService = {
       },
       include: campaignInclude
     });
+    await recordOpsEvent({
+      userId: requester.id,
+      action: "SALESBOOSTER_CAMPAIGN_CREATED",
+      description: `Campaign created: ${campaign.title} | Track: ${campaign.track} | ID: ${campaign.id}`
+    });
+    return campaign;
   },
 
   async updateCampaign(requester: Requester, id: string, input: Partial<CampaignInput>) {
@@ -314,7 +335,7 @@ export const salesBoosterService = {
       throw new Error("Approved or submitted campaigns cannot be edited by marketing users.");
     }
 
-    return prisma.salesBoosterCampaign.update({
+    const updated = await prisma.salesBoosterCampaign.update({
       where: { id },
       data: {
         title: input.title,
@@ -331,6 +352,12 @@ export const salesBoosterService = {
       },
       include: campaignInclude
     });
+    await recordOpsEvent({
+      userId: requester.id,
+      action: "SALESBOOSTER_CAMPAIGN_UPDATED",
+      description: `Campaign updated: ${updated.title} | ID: ${updated.id}`
+    });
+    return updated;
   },
 
   async updateStatus(requester: Requester, id: string, input: CampaignStatusInput) {
@@ -343,7 +370,7 @@ export const salesBoosterService = {
     }
 
     const now = new Date();
-    return prisma.salesBoosterCampaign.update({
+    const updated = await prisma.salesBoosterCampaign.update({
       where: { id },
       data: {
         approvalStatus: input.approvalStatus,
@@ -356,6 +383,12 @@ export const salesBoosterService = {
       },
       include: campaignInclude
     });
+    await recordOpsEvent({
+      userId: requester.id,
+      action: "SALESBOOSTER_STATUS_UPDATED",
+      description: `Campaign status changed to ${input.approvalStatus}: ${updated.title} | ID: ${updated.id}`
+    });
+    return updated;
   },
 
   async deleteCampaign(requester: Requester, id: string) {
@@ -394,7 +427,7 @@ export const salesBoosterService = {
     if (!["DRAFT", "NEEDS_REVISION"].includes(campaign.approvalStatus) && !canApprove(requester.role)) {
       throw new Error("Only draft or revision campaigns can change creative unless admin/director approves the update.");
     }
-    return prisma.salesBoosterCampaign.update({
+    const updated = await prisma.salesBoosterCampaign.update({
       where: { id },
       data: {
         creativeName: input.creativeName,
@@ -406,10 +439,49 @@ export const salesBoosterService = {
       },
       include: campaignInclude
     });
+    await recordOpsEvent({
+      userId: requester.id,
+      action: "SALESBOOSTER_CREATIVE_ATTACHED",
+      description: `Creative attached to campaign: ${updated.title} | ID: ${updated.id}`
+    });
+    return updated;
   },
 
   async connectorStatus() {
     return salesBoosterConnectors.status();
+  },
+
+  async connectorHealth() {
+    const status = salesBoosterConnectors.status();
+    const requirements: Record<string, string[]> = {
+      Facebook: ["SALESBOOSTER_META_ACCESS_TOKEN", "SALESBOOSTER_META_PAGE_ID"],
+      Instagram: ["SALESBOOSTER_META_ACCESS_TOKEN", "SALESBOOSTER_INSTAGRAM_USER_ID"],
+      "Meta Ads": ["SALESBOOSTER_META_ACCESS_TOKEN", "SALESBOOSTER_META_PAGE_ID", "SALESBOOSTER_META_AD_ACCOUNT_ID"],
+      Threads: ["SALESBOOSTER_THREADS_ACCESS_TOKEN", "SALESBOOSTER_THREADS_USER_ID"],
+      YouTube: ["SALESBOOSTER_YOUTUBE_ACCESS_TOKEN", "SALESBOOSTER_YOUTUBE_CHANNEL_ID"],
+      WhatsApp: ["SALESBOOSTER_WHATSAPP_ACCESS_TOKEN", "SALESBOOSTER_WHATSAPP_PHONE_NUMBER_ID"],
+      "WhatsApp Templates": ["SALESBOOSTER_WHATSAPP_TEMPLATE_NAMES", "approved Meta templates"]
+    };
+    const nextSteps: Record<string, string> = {
+      Facebook: "Connect a Meta page token with publishing permission.",
+      Instagram: "Connect the Instagram professional user id linked to the Meta page.",
+      "Meta Ads": "Set the Meta ad account id and keep campaigns paused for final Ads Manager review.",
+      Threads: "Set Threads user id and access token for text/image/video publishing.",
+      YouTube: "Set a valid YouTube access token and channel id.",
+      WhatsApp: "Set WhatsApp Cloud API token and phone number id.",
+      "WhatsApp Templates": "Create approved templates in Meta Business Manager before broadcast."
+    };
+    const channels = Object.entries(status).map(([channel, connected]) => ({
+      channel,
+      connected,
+      requirements: requirements[channel] ?? [],
+      nextStep: connected ? "Ready for controlled campaign execution." : nextSteps[channel] ?? "Set required credentials."
+    }));
+    return {
+      ready: channels.filter((item) => item.connected).length,
+      total: channels.length,
+      channels
+    };
   },
 
   async whatsappTemplates() {
@@ -681,6 +753,30 @@ export const salesBoosterService = {
     return { imported, segment };
   },
 
+  async markAudienceOptOut(requester: Requester, input: AudienceOptOutInput) {
+    const phone = cleanPhone(input.phone);
+    if (phone.length < 8) throw new Error("A valid WhatsApp number is required.");
+    const where = {
+      phone,
+      ...(input.segment ? { segment: input.segment } : {}),
+      ...(requester.role === Role.MARKETING_COORDINATOR ? { createdById: requester.id } : {})
+    };
+    const result = await prisma.salesBoosterAudienceContact.updateMany({
+      where,
+      data: {
+        optIn: false,
+        whatsappStatus: "OPTED_OUT",
+        notes: `Opt-out recorded${input.reason ? `: ${input.reason}` : "."}`
+      }
+    });
+    await recordOpsEvent({
+      userId: requester.id,
+      action: "SALESBOOSTER_AUDIENCE_OPT_OUT",
+      description: `Opt-out recorded for ${phone}. Segment: ${input.segment ?? "all segments"}. Updated: ${result.count}.`
+    });
+    return { updated: result.count, phone };
+  },
+
   async broadcastWhatsApp(requester: Requester, input: BroadcastInput) {
     const contacts = await prisma.salesBoosterAudienceContact.findMany({
       where: {
@@ -769,7 +865,7 @@ export const salesBoosterService = {
     const hasFailed = results.some((result) => result.status === "FAILED");
     const runStatus = hasFailed ? "PARTIAL_OR_FAILED" : hasPosted ? "EXECUTED_OR_QUEUED" : "NOT_EXECUTED";
 
-    return prisma.salesBoosterCampaign.update({
+    const updated = await prisma.salesBoosterCampaign.update({
       where: { id },
       data: {
         runStatus,
@@ -779,6 +875,12 @@ export const salesBoosterService = {
       },
       include: campaignInclude
     });
+    await recordOpsEvent({
+      userId: requester.id,
+      action: "SALESBOOSTER_CAMPAIGN_RUN",
+      description: `Campaign run completed with status ${runStatus}: ${updated.title} | ID: ${updated.id}`
+    });
+    return updated;
   },
 
   async scheduleCampaign(requester: Requester, id: string, input: ScheduleInput) {
@@ -792,7 +894,7 @@ export const salesBoosterService = {
       throw new Error("Invalid schedule date.");
     }
 
-    return prisma.salesBoosterCampaign.update({
+    const updated = await prisma.salesBoosterCampaign.update({
       where: { id },
       data: {
         scheduledAt,
@@ -802,6 +904,12 @@ export const salesBoosterService = {
       },
       include: campaignInclude
     });
+    await recordOpsEvent({
+      userId: requester.id,
+      action: "SALESBOOSTER_CAMPAIGN_SCHEDULED",
+      description: `Campaign scheduled: ${updated.title} | ${scheduledAt.toISOString()} | ID: ${updated.id}`
+    });
+    return updated;
   },
 
   async scheduledCampaigns(requester: Requester) {
@@ -830,6 +938,65 @@ export const salesBoosterService = {
       ...campaign,
       scheduleStatus: dueIds.includes(campaign.id) ? "DUE" : campaign.scheduleStatus
     }));
+  },
+
+  async campaignCalendar(requester: Requester) {
+    const campaigns = await prisma.salesBoosterCampaign.findMany({
+      where: requester.role === Role.MARKETING_COORDINATOR ? { createdById: requester.id } : undefined,
+      include: campaignInclude,
+      orderBy: [{ scheduledAt: "asc" }, { updatedAt: "desc" }],
+      take: 120
+    });
+    const items = campaigns.map((campaign) => ({
+      id: campaign.id,
+      title: campaign.title,
+      track: campaign.track,
+      approvalStatus: campaign.approvalStatus,
+      runStatus: campaign.runStatus,
+      scheduleStatus: campaign.scheduleStatus,
+      scheduledAt: campaign.scheduledAt?.toISOString() ?? null,
+      lastRunAt: campaign.lastRunAt?.toISOString() ?? null,
+      createdAt: campaign.createdAt.toISOString(),
+      owner: campaign.createdBy.name
+    }));
+    return {
+      scheduled: items.filter((item) => item.scheduleStatus === "SCHEDULED" || item.scheduleStatus === "DUE"),
+      completed: items.filter((item) => item.scheduleStatus === "EXECUTED"),
+      drafts: items.filter((item) => ["DRAFT", "SUBMITTED", "NEEDS_REVISION"].includes(item.approvalStatus)),
+      all: items
+    };
+  },
+
+  async creativeLibrary(requester: Requester) {
+    const campaigns = await prisma.salesBoosterCampaign.findMany({
+      where: {
+        ...(requester.role === Role.MARKETING_COORDINATOR ? { createdById: requester.id } : {}),
+        OR: [{ creativeUrl: { not: null } }, { creativeName: { not: null } }]
+      },
+      orderBy: { creativeUploadedAt: "desc" },
+      include: { metricSnapshots: true, createdBy: { select: { name: true, email: true, role: true } } },
+      take: 100
+    });
+    return {
+      assets: campaigns.map((campaign) => {
+        const metrics = sumMetrics(campaign.metricSnapshots);
+        return {
+          campaignId: campaign.id,
+          title: campaign.title,
+          track: campaign.track,
+          creativeName: campaign.creativeName,
+          creativeType: campaign.creativeType,
+          creativeUrl: campaign.creativeUrl,
+          creativeSize: campaign.creativeSize,
+          creativeUploadedAt: campaign.creativeUploadedAt?.toISOString() ?? null,
+          usedChannels: Array.isArray(campaign.channels) ? campaign.channels.map(String) : [],
+          leads: metrics.leads,
+          spend: metrics.spend,
+          revenue: metrics.revenue,
+          owner: campaign.createdBy.name
+        };
+      })
+    };
   },
 
   async runDueCampaigns(requester: Requester) {
@@ -1034,6 +1201,28 @@ export const salesBoosterService = {
       },
       campaigns: rows.sort((a, b) => b.leads - a.leads)
     };
+  },
+
+  async exportConversionCsv(requester: Requester) {
+    const report = await this.conversionReport(requester);
+    const lines = [
+      csvLine(["Campaign", "Track", "Status", "Run Status", "Leads", "Admissions", "Conversion Rate", "Spend", "CPL", "CPA", "Revenue", "ROI"]),
+      ...report.campaigns.map((campaign) => csvLine([
+        campaign.title,
+        campaign.track,
+        campaign.approvalStatus,
+        campaign.runStatus,
+        campaign.leads,
+        campaign.admissions,
+        `${campaign.conversionRate}%`,
+        campaign.spend,
+        campaign.cpl,
+        campaign.cpa,
+        campaign.revenue,
+        `${campaign.roi}%`
+      ]))
+    ];
+    return lines.join("\n");
   },
 
   async analytics(requester: Requester) {

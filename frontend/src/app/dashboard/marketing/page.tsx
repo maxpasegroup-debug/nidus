@@ -3,13 +3,14 @@
 import Image from "next/image";
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { BarChart3, Bot, CalendarClock, CheckCircle2, Clapperboard, FileUp, Megaphone, MessageCircle, PlayCircle, Send, Sparkles, Target, Users } from "lucide-react";
+import { BarChart3, Bot, CalendarClock, CalendarDays, CheckCircle2, Clapperboard, Download, FileUp, Megaphone, MessageCircle, PlayCircle, Send, ShieldCheck, Sparkles, Target, Users } from "lucide-react";
 import { ActivityTimeline, DashboardError, DashboardSkeleton, ProgressCard, QuickActionCard, RoleDashboardGuard, SectionHeader, StatCard } from "@/components/dashboard";
 import { useAuth } from "@/components/providers/auth-provider-v2";
 import { Button } from "@/components/ui/button";
 import { useMarketingDashboard } from "@/hooks/use-dashboard";
-import { useAddSalesBoosterAudienceContact, useAddSalesBoosterMetricSnapshot, useAttachSalesBoosterCreative, useBroadcastSalesBoosterWhatsApp, useCreateSalesBoosterCampaign, useGenerateSalesBoosterCampaignDraft, useImportSalesBoosterLeadsToAudience, useRunDueSalesBoosterCampaigns, useRunSalesBoosterCampaign, useSalesBoosterAnalytics, useSalesBoosterAudience, useSalesBoosterCampaigns, useSalesBoosterConnectors, useSalesBoosterConversionReport, useSalesBoosterOperations, useSalesBoosterSummary, useSalesBoosterWhatsAppTemplates, useScheduleSalesBoosterCampaign, useScheduledSalesBoosterCampaigns, useSyncSalesBoosterCampaignAnalytics, useUpdateSalesBoosterStatus, useUploadSalesBoosterCreative } from "@/hooks/use-sales-booster";
+import { useAddSalesBoosterAudienceContact, useAddSalesBoosterMetricSnapshot, useAttachSalesBoosterCreative, useBroadcastSalesBoosterWhatsApp, useCreateSalesBoosterCampaign, useGenerateSalesBoosterCampaignDraft, useImportSalesBoosterLeadsToAudience, useOptOutSalesBoosterAudience, useRunDueSalesBoosterCampaigns, useRunSalesBoosterCampaign, useSalesBoosterAnalytics, useSalesBoosterAudience, useSalesBoosterCalendar, useSalesBoosterCampaigns, useSalesBoosterConnectorHealth, useSalesBoosterConnectors, useSalesBoosterConversionReport, useSalesBoosterCreativeLibrary, useSalesBoosterOperations, useSalesBoosterSummary, useSalesBoosterWhatsAppTemplates, useScheduleSalesBoosterCampaign, useScheduledSalesBoosterCampaigns, useSyncSalesBoosterCampaignAnalytics, useUpdateSalesBoosterStatus, useUploadSalesBoosterCreative } from "@/hooks/use-sales-booster";
 import type { SalesBoosterCampaign, SalesBoosterCreative, SalesBoosterDraft } from "@/services/sales-booster";
+import { salesBoosterConversionExportUrl } from "@/services/sales-booster";
 
 const campaignTracks = [
   { title: "Academy Admissions", audience: "Parents and defence aspirants", offer: "Physical academy enquiry and counselling", color: "from-[#fff7de] to-[#eef4ef]" },
@@ -28,13 +29,15 @@ const channels = [
 ];
 
 const workflow = [
-  "Upload poster or ad video",
-  "Write the campaign goal",
-  "NIDUS AI prepares caption, hook, audience and budget",
-  "Save draft and submit for approval",
-  "Admin/director approves the campaign",
-  "External API run stays blocked until connector phase"
+  "Creative",
+  "Goal",
+  "AI Draft",
+  "Approval",
+  "Schedule / Run",
+  "Track"
 ];
+
+const wizardSteps = ["Creative", "Goal", "AI Draft", "Approval", "Run", "Track"];
 
 function buildCampaignDraft(goal: string, track: string): SalesBoosterDraft {
   const cleanGoal = goal.trim() || `Generate a high-intent ${track} campaign for Kerala defence aspirants.`;
@@ -75,11 +78,14 @@ export default function MarketingDashboardPage() {
   const campaigns = useSalesBoosterCampaigns();
   const summary = useSalesBoosterSummary();
   const connectors = useSalesBoosterConnectors();
+  const connectorHealth = useSalesBoosterConnectorHealth();
   const whatsappTemplates = useSalesBoosterWhatsAppTemplates();
   const analytics = useSalesBoosterAnalytics();
   const conversionReport = useSalesBoosterConversionReport();
   const operations = useSalesBoosterOperations();
   const scheduledCampaigns = useScheduledSalesBoosterCampaigns();
+  const calendar = useSalesBoosterCalendar();
+  const creativeLibrary = useSalesBoosterCreativeLibrary();
   const audience = useSalesBoosterAudience();
   const createCampaign = useCreateSalesBoosterCampaign();
   const generateCampaignDraft = useGenerateSalesBoosterCampaignDraft();
@@ -93,7 +99,9 @@ export default function MarketingDashboardPage() {
   const syncAnalytics = useSyncSalesBoosterCampaignAnalytics();
   const addAudienceContact = useAddSalesBoosterAudienceContact();
   const importLeads = useImportSalesBoosterLeadsToAudience();
+  const optOutAudience = useOptOutSalesBoosterAudience();
   const broadcastWhatsApp = useBroadcastSalesBoosterWhatsApp();
+  const [wizardStep, setWizardStep] = useState(0);
   const [selectedTrack, setSelectedTrack] = useState(campaignTracks[0].title);
   const [goal, setGoal] = useState("Generate NDA admissions campaign for Kerala students with a parent-friendly message and WhatsApp follow-up.");
   const [campaignAudience, setCampaignAudience] = useState("Kerala defence aspirants, parents and students preparing for NDA/CDS/AFCAT/AISSEE.");
@@ -120,6 +128,7 @@ export default function MarketingDashboardPage() {
   const [broadcastFollowUpDate, setBroadcastFollowUpDate] = useState("");
   const [broadcastCounselor, setBroadcastCounselor] = useState("Admissions counselor");
   const [createBroadcastFollowUps, setCreateBroadcastFollowUps] = useState(true);
+  const [optOutPhone, setOptOutPhone] = useState("");
   const draft = useMemo(() => aiDraft ?? buildCampaignDraft(goal, selectedTrack), [aiDraft, goal, selectedTrack]);
   const savedCampaigns = campaigns.data ?? [];
   const boosterSummary = summary.data;
@@ -127,6 +136,9 @@ export default function MarketingDashboardPage() {
   const conversion = conversionReport.data;
   const ops = operations.data;
   const connectorStatus = connectors.data ?? boosterSummary?.connectorStatus ?? {};
+  const health = connectorHealth.data;
+  const campaignCalendar = calendar.data;
+  const library = creativeLibrary.data;
   const canApprove = user?.role === "ADMIN" || user?.role === "DIRECTOR";
   const activeMetricCampaignId = metricCampaignId || savedCampaigns[0]?.id || "";
   const runReadyCampaigns = savedCampaigns.filter((campaign) => campaign.approvalStatus === "RUN_READY");
@@ -268,11 +280,44 @@ export default function MarketingDashboardPage() {
           </div>
         </section>
 
+        <section className="rounded-lg border border-[#071d36]/10 bg-white p-4 shadow-[0_18px_60px_rgba(7,29,54,0.08)]">
+          <div className="grid gap-3 md:grid-cols-6">
+            {wizardSteps.map((step, index) => (
+              <button key={step} type="button" onClick={() => setWizardStep(index)} className={`rounded border px-3 py-3 text-left transition ${wizardStep === index ? "border-[#b9913f] bg-[#fff7de] text-[#071d36]" : "border-[#071d36]/10 bg-[#f7f3ea] text-[#40516a] hover:border-[#b9913f]/40"}`}>
+                <span className="text-xs font-semibold uppercase tracking-[0.16em]">{String(index + 1).padStart(2, "0")}</span>
+                <span className="mt-1 block text-sm font-semibold">{step}</span>
+              </button>
+            ))}
+          </div>
+          <p className="mt-3 text-sm leading-6 text-[#64748b]">International workflow: upload creative, describe the goal, generate AI copy, approve, schedule/run, then measure lead-to-admission conversion.</p>
+        </section>
+
         <section className="grid gap-4 md:grid-cols-4">
           <StatCard label="Saved Campaigns" value={String(boosterSummary?.totalCampaigns ?? savedCampaigns.length)} note="Sales Booster records" />
           <StatCard label="Tracked Leads" value={String(boosterAnalytics?.summary.leads ?? data.campaignTracking.leadsGenerated)} note={`CPL Rs ${boosterAnalytics?.summary.cpl ?? 0}`} />
           <StatCard label="Revenue Signal" value={`Rs ${Math.round(boosterAnalytics?.summary.revenue ?? 0).toLocaleString()}`} note={`ROI ${boosterAnalytics?.summary.roi ?? 0}%`} />
           <StatCard label="Scheduled" value={String(scheduled.length)} note={`${scheduled.filter((campaign) => campaign.scheduleStatus === "DUE").length} due now`} />
+        </section>
+
+        <section className="rounded-lg border border-[#071d36]/10 bg-white p-5 shadow-[0_18px_60px_rgba(7,29,54,0.08)]">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#3f4a32]">Connector Readiness</p>
+              <h2 className="mt-3 text-3xl font-semibold text-[#071d36]">Platform health before running campaigns</h2>
+            </div>
+            <div className="rounded border border-[#b9913f]/25 bg-[#fff7de] px-4 py-3 text-sm font-semibold text-[#071d36]">{health?.ready ?? 0}/{health?.total ?? 0} ready</div>
+          </div>
+          <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+            {(health?.channels ?? []).map((channel) => (
+              <div key={channel.channel} className="rounded border border-[#071d36]/10 bg-[#f7f3ea] p-4">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="font-semibold text-[#071d36]">{channel.channel}</p>
+                  <span className={`rounded px-2 py-1 text-xs font-semibold ${channel.connected ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"}`}>{channel.connected ? "Ready" : "Setup"}</span>
+                </div>
+                <p className="mt-2 text-xs leading-5 text-[#64748b]">{channel.nextStep}</p>
+              </div>
+            ))}
+          </div>
         </section>
 
         <section className="grid gap-6 xl:grid-cols-[0.85fr_1.15fr]">
@@ -423,6 +468,21 @@ export default function MarketingDashboardPage() {
                 {audienceContacts.length} opt-in contact(s) ready
               </div>
             </div>
+            <div className="mt-5 rounded border border-[#071d36]/10 bg-[#fff7de] p-4">
+              <div className="flex items-start gap-3">
+                <ShieldCheck className="mt-0.5 h-5 w-5 text-[#b9913f]" />
+                <div>
+                  <p className="font-semibold text-[#071d36]">WhatsApp compliance</p>
+                  <p className="mt-1 text-sm leading-6 text-[#64748b]">Only opted-in contacts are selected for broadcasts. Record opt-outs immediately when a lead replies STOP or asks not to be contacted.</p>
+                </div>
+              </div>
+              <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_auto]">
+                <input value={optOutPhone} onChange={(event) => setOptOutPhone(event.target.value)} className="h-11 rounded border border-[#071d36]/10 bg-white px-3 text-sm text-[#071d36] outline-none focus:border-[#b9913f]" placeholder="Enter WhatsApp number to opt out" />
+                <Button type="button" variant="secondary" onClick={() => optOutAudience.mutate({ phone: optOutPhone, reason: "Manual opt-out from Sales Booster" }, { onSuccess: () => setOptOutPhone("") })} disabled={!optOutPhone.trim() || optOutAudience.isPending}>
+                  {optOutAudience.isPending ? "Saving..." : "Opt Out"}
+                </Button>
+              </div>
+            </div>
           </div>
 
           <div className="rounded-lg border border-white/10 bg-white/[0.055] p-5 shadow-[0_24px_70px_rgba(0,0,0,0.18)]">
@@ -518,6 +578,9 @@ export default function MarketingDashboardPage() {
               <Button type="button" onClick={() => activeMetricCampaignId && syncAnalytics.mutate(activeMetricCampaignId)} disabled={!activeMetricCampaignId || syncAnalytics.isPending}>
                 {syncAnalytics.isPending ? "Syncing..." : "Sync Live Analytics"}
               </Button>
+              <Button type="button" variant="secondary" onClick={() => window.open(salesBoosterConversionExportUrl(), "_blank")}>
+                Export CSV <Download className="h-4 w-4" />
+              </Button>
               <p className="text-sm leading-6 text-[#64748b]">Uses connector IDs from Facebook, Instagram, Meta Ads and YouTube runs.</p>
             </div>
             <div className="mt-5 grid gap-3">
@@ -573,6 +636,53 @@ export default function MarketingDashboardPage() {
               <Button type="button" onClick={saveMetrics} disabled={!activeMetricCampaignId || addMetrics.isPending}>
                 {addMetrics.isPending ? "Saving..." : "Save Metrics"}
               </Button>
+            </div>
+          </div>
+        </section>
+
+        <section className="grid gap-6 xl:grid-cols-[1fr_1fr]">
+          <div className="rounded-lg border border-[#071d36]/10 bg-white p-5 shadow-[0_18px_60px_rgba(7,29,54,0.08)]">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#3f4a32]">Campaign Calendar</p>
+                <h2 className="mt-3 text-3xl font-semibold text-[#071d36]">Scheduled and completed runs</h2>
+              </div>
+              <CalendarDays className="h-7 w-7 text-[#b9913f]" />
+            </div>
+            <div className="mt-5 grid gap-3">
+              {(campaignCalendar?.all ?? []).slice(0, 6).map((item) => (
+                <div key={item.id} className="rounded border border-[#071d36]/10 bg-[#f7f3ea] p-4">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                      <p className="font-semibold text-[#071d36]">{item.title}</p>
+                      <p className="mt-1 text-xs font-semibold uppercase tracking-[0.16em] text-[#3f4a32]">{item.track}</p>
+                    </div>
+                    <span className="rounded border border-[#071d36]/10 bg-white px-3 py-1 text-xs font-semibold text-[#3f4a32]">{item.scheduleStatus}</span>
+                  </div>
+                  <p className="mt-2 text-sm text-[#64748b]">{item.scheduledAt ? new Date(item.scheduledAt).toLocaleString() : `Created ${new Date(item.createdAt).toLocaleDateString()}`}</p>
+                </div>
+              ))}
+              {!(campaignCalendar?.all ?? []).length ? <div className="rounded border border-[#071d36]/10 bg-[#f7f3ea] p-4 text-sm text-[#64748b]">No calendar activity yet. Approved campaigns appear here after scheduling or execution.</div> : null}
+            </div>
+          </div>
+
+          <div className="rounded-lg border border-white/10 bg-white/[0.055] p-5 shadow-[0_24px_70px_rgba(0,0,0,0.18)]">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-gold-soft">Creative Library</p>
+                <h2 className="mt-3 text-2xl font-semibold text-white">Reusable campaign assets</h2>
+              </div>
+              <Clapperboard className="h-7 w-7 text-gold" />
+            </div>
+            <div className="mt-5 grid gap-3">
+              {(library?.assets ?? []).slice(0, 5).map((asset) => (
+                <div key={asset.campaignId} className="rounded border border-white/10 bg-navy-deep/55 p-4">
+                  <p className="font-semibold text-white">{asset.creativeName ?? asset.title}</p>
+                  <p className="mt-1 text-xs font-semibold uppercase tracking-[0.16em] text-gold-soft">{asset.track} - {asset.creativeType ?? "creative"}</p>
+                  <p className="mt-2 text-sm leading-6 text-muted">{asset.leads} leads | Rs {Math.round(asset.spend).toLocaleString()} spend | Rs {Math.round(asset.revenue).toLocaleString()} revenue</p>
+                </div>
+              ))}
+              {!(library?.assets ?? []).length ? <div className="rounded border border-white/10 bg-navy-deep/55 p-4 text-sm leading-6 text-muted">Uploaded campaign creatives will appear here with performance signals after metrics are captured.</div> : null}
             </div>
           </div>
         </section>

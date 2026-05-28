@@ -58,12 +58,15 @@ export function PublicNavbar() {
         </Link>
 
         <nav className="hidden items-center gap-4 lg:flex">
+          <Link href="/psychometric" className="rounded-full px-3 py-2 text-sm font-semibold text-[#071D36] transition hover:bg-[#071D36]/6 hover:text-[#B9913F]">
+            Assessments
+          </Link>
           <AcademyDropdown open={academyOpen} setOpen={setAcademyOpen} />
+          <Link href="/guru" className="rounded-full px-3 py-2 text-sm font-semibold text-[#071D36] transition hover:bg-[#071D36]/6 hover:text-[#B9913F]">
+            Nidus Guru
+          </Link>
           <Link href="/toprank" className="rounded-full px-3 py-2 text-sm font-semibold text-[#071D36] transition hover:bg-[#071D36]/6 hover:text-[#B9913F]">
             Top Rank
-          </Link>
-          <Link href="/guru" className="rounded-full px-3 py-2 text-sm font-semibold text-[#071D36] transition hover:bg-[#071D36]/6 hover:text-[#B9913F]">
-            NIDUS Guru
           </Link>
         </nav>
 
@@ -84,14 +87,15 @@ export function PublicNavbar() {
       {open ? (
         <div className="border-t border-[#071D36]/10 bg-[#f7f3ea]/98 px-4 py-4 backdrop-blur-2xl lg:hidden">
           <nav className="mx-auto grid max-w-7xl gap-2">
+            <Link href="/psychometric" onClick={() => setOpen(false)} className="rounded px-3 py-3 text-sm font-semibold text-[#071D36] hover:bg-white">Assessments</Link>
             <p className="px-3 pt-2 text-xs font-bold uppercase tracking-[0.18em] text-[#B9913F]">Academy</p>
             {academyLinks.map(([item, href]) => (
               <Link key={item} href={href} onClick={() => setOpen(false)} className="rounded px-3 py-2 text-sm font-semibold text-[#64748b] hover:bg-white hover:text-[#071D36]">
                 {item}
               </Link>
             ))}
+            <Link href="/guru" onClick={() => setOpen(false)} className="rounded px-3 py-3 text-sm font-semibold text-[#071D36] hover:bg-white">Nidus Guru</Link>
             <Link href="/toprank" onClick={() => setOpen(false)} className="rounded px-3 py-3 text-sm font-semibold text-[#071D36] hover:bg-white">Top Rank</Link>
-            <Link href="/guru" onClick={() => setOpen(false)} className="rounded px-3 py-3 text-sm font-semibold text-[#071D36] hover:bg-white">NIDUS Guru</Link>
             <Link href="/start-free?intent=general" onClick={() => setOpen(false)} className="mt-2 rounded-full border border-[#b58b35]/45 bg-[linear-gradient(135deg,#fff3bf_0%,#e7c873_34%,#b9913f_72%,#8a6426_100%)] px-4 py-3 text-center text-sm font-semibold text-[#071D36]">Start Free</Link>
             <Link href="/login" onClick={() => setOpen(false)} className="rounded-full border border-[#b58b35]/45 bg-[linear-gradient(135deg,#fff3bf_0%,#e7c873_34%,#b9913f_72%,#8a6426_100%)] px-4 py-3 text-center text-sm font-semibold text-[#071D36]">Login</Link>
           </nav>
