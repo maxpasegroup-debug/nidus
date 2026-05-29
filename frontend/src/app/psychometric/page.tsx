@@ -49,12 +49,9 @@ export default function PsychometricPage() {
           <p className="mx-auto mt-5 max-w-2xl text-base leading-8 text-[#40516a]">
             Simple tests to understand officer readiness, confidence, discipline, focus, and the right defence path.
           </p>
-          <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+          <div className="mt-8 flex justify-center">
             <Link href="#free-tests" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-[#b58b35]/45 bg-[linear-gradient(135deg,#fff3bf_0%,#e7c873_34%,#b9913f_72%,#8a6426_100%)] px-5 py-3 text-sm font-semibold text-[#071d36] shadow-[0_14px_34px_rgba(185,145,63,0.22)] transition hover:brightness-105">
               Start Free Test <ArrowRight className="h-4 w-4" />
-            </Link>
-            <Link href="/register?intent=assessment" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-[#071d36]/14 bg-white px-5 py-3 text-sm font-semibold text-[#071d36] shadow-sm transition hover:-translate-y-0.5">
-              Create Free Account
             </Link>
           </div>
         </div>
