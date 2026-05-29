@@ -37,7 +37,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await logoutApi().catch(() => undefined);
     setUser(null);
     showToast("Logged out successfully", "success");
-    router.replace("/login");
+    router.replace("/");
   }, [router, showToast]);
 
   useEffect(() => {
