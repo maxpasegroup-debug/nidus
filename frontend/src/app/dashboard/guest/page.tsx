@@ -5,15 +5,12 @@ import { useState, type FormEvent, type ReactNode } from "react";
 import { motion } from "framer-motion";
 import { ArrowRight, BrainCircuit, CalendarDays, ClipboardCheck, Crown, GraduationCap, Rocket, ShieldCheck, Sparkles, Star, Trophy, UserRound } from "lucide-react";
 import {
-  DashboardError,
-  DashboardSkeleton,
   RoleDashboardGuard
 } from "@/components/dashboard";
 import { assessmentCatalog } from "@/components/assessments/assessment-catalog";
 import { academyMenuItems, guruRecordedQuests, topRankExams } from "@/components/marketing/public-modules";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/components/providers/auth-provider-v2";
-import { useGuestDashboard } from "@/hooks/use-dashboard";
 import { createPublicLead } from "@/services/crm";
 
 const silverAssessmentIds = [
@@ -87,7 +84,6 @@ const guestMenus = [
 
 export default function GuestDashboardPage() {
   const { user } = useAuth();
-  const { data, isLoading, error, refetch } = useGuestDashboard();
   const [eventName, setEventName] = useState(user?.name ?? "");
   const [eventPhone, setEventPhone] = useState(user?.mobile ?? "");
   const [eventInterest, setEventInterest] = useState("Defence workshop");
@@ -113,22 +109,6 @@ export default function GuestDashboardPage() {
     } finally {
       setEventSubmitting(false);
     }
-  }
-
-  if (isLoading) {
-    return (
-      <RoleDashboardGuard role="GUEST">
-        <DashboardSkeleton />
-      </RoleDashboardGuard>
-    );
-  }
-
-  if (error || !data) {
-    return (
-      <RoleDashboardGuard role="GUEST">
-        <DashboardError error={error} onRefresh={() => refetch()} />
-      </RoleDashboardGuard>
-    );
   }
 
   return (
