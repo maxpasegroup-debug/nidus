@@ -7,130 +7,70 @@ export type FacultyMenuManualItem = {
 
 export const facultyMenuManual: FacultyMenuManualItem[] = [
   {
-    menu: "Dashboard",
+    menu: "My Dashboard",
     href: "/dashboard/teacher",
-    facilities: "Daily overview, assigned subjects, class score, attendance, pending reviews, AI recommendations, and quick actions.",
-    benefits: "Works as the faculty command center for the day."
+    facilities: "Simple daily view for classes, attendance, pending tests, weak students, and important academic work.",
+    benefits: "Helps teachers understand today's work without searching through many screens."
   },
   {
-    menu: "My Classes",
-    href: "/courses",
-    facilities: "Assigned batches, subjects, syllabus flow, class resources, and course progress.",
-    benefits: "Helps faculty manage teaching responsibility batch by batch."
+    menu: "Classes",
+    href: "/live-classes",
+    facilities: "Online classes, recorded classes, class schedule, uploaded recordings, and batch-wise class planning.",
+    benefits: "Keeps live and recorded teaching in one easy place."
+  },
+  {
+    menu: "Teachers",
+    href: "/staff-hr",
+    facilities: "Subject-wise teacher list, teacher workload, class coverage, pending approvals, and replacement planning.",
+    benefits: "Helps Academic Heads manage faculty without technical complexity."
   },
   {
     menu: "Students",
     href: "/performance-analytics",
-    facilities: "Student performance view, weak-student alerts, progress signals, attendance concerns, and learning patterns.",
-    benefits: "Helps identify who needs academic support or counselling follow-up."
+    facilities: "Batch-wise students, regular and crash course students, weak students, attendance issues, and performance alerts.",
+    benefits: "Helps teachers quickly find students who need support."
+  },
+  {
+    menu: "Exams & Tests",
+    href: "/tests",
+    facilities: "Create tests with timer, optional answers, MCQ or descriptive format, review AI-created questions, approve, and publish.",
+    benefits: "Makes test creation easy while keeping teacher approval in control."
   },
   {
     menu: "Attendance",
     href: "/discipline",
-    facilities: "Attendance tracking, absence patterns, discipline records, and participation visibility.",
-    benefits: "Keeps classroom discipline and daily monitoring systematic."
-  },
-  {
-    menu: "Timetable",
-    href: "/sessions",
-    facilities: "Daily sessions, class schedules, upcoming live sessions, and planned teaching slots.",
-    benefits: "Gives faculty a clear daily and weekly work plan."
-  },
-  {
-    menu: "Study Materials",
-    href: "/media-library",
-    facilities: "Upload and manage PDFs, notes, videos, answer keys, training material, and class resources.",
-    benefits: "Makes learning material available to students in an organized way."
+    facilities: "Mark present, absent, or late. View daily attendance, batch attendance, and absence concerns.",
+    benefits: "Keeps attendance work simple and fast."
   },
   {
     menu: "Assignments",
     href: "/documents",
-    facilities: "Assignment files, submission material, worksheets, circulars, and academic documents.",
-    benefits: "Supports practice, homework, accountability, and review."
+    facilities: "Create homework, upload worksheets, review submissions, and track pending corrections.",
+    benefits: "Keeps student practice and homework organized."
   },
   {
-    menu: "CBT & Tests",
+    menu: "Study Materials",
+    href: "/media-library",
+    facilities: "Upload notes, PDFs, answer keys, recorded lessons, and subject-wise resources.",
+    benefits: "Makes learning material easy for students to find."
+  },
+  {
+    menu: "NIDUS AI Professor",
     href: "/tests",
-    facilities: "Create, monitor, and review computer-based tests, practice tests, attempts, and marks.",
-    benefits: "Keeps evaluation and exam preparation consistent."
+    facilities: "Chat-style teaching assistant for class plans, question creation, test drafts, weak-area review, and study notes.",
+    benefits: "Teachers can ask in simple English and approve before anything is published."
   },
   {
-    menu: "Question Bank",
-    href: "/pyq-bank",
-    facilities: "Previous questions, reusable practice questions, topic-wise question access, and exam resources.",
-    benefits: "Helps faculty prepare better tests and revision sessions."
-  },
-  {
-    menu: "Live Classes",
-    href: "/live-classes",
-    facilities: "Schedule, start, and manage online classes and hybrid sessions.",
-    benefits: "Supports remote teaching and continuity when students are away."
-  },
-  {
-    menu: "Performance Analytics",
-    href: "/performance-analytics",
-    facilities: "Class performance, student trends, weak areas, score patterns, and intervention signals.",
-    benefits: "Turns student data into clear academic action."
-  },
-  {
-    menu: "Psychometric Reports",
-    href: "/psychometric/reports",
-    facilities: "Assessment reports, readiness scores, OLQ signals, confidence, discipline, focus, and counselling insights.",
-    benefits: "Helps faculty mentor students beyond marks."
-  },
-  {
-    menu: "NIDUS Guru",
-    href: "/guru",
-    facilities: "Transformation quests, focus missions, discipline routines, confidence missions, and growth pathways.",
-    benefits: "Supports student mindset, habits, and personal transformation."
-  },
-  {
-    menu: "Communication Center",
-    href: "/messages",
-    facilities: "Student messages, parent updates, internal communication, and follow-up conversations.",
-    benefits: "Keeps communication organized and traceable."
-  },
-  {
-    menu: "Tasks & Approvals",
-    href: "/operations-hub",
-    facilities: "Assigned work, approval requests, operational actions, and pending responsibilities.",
-    benefits: "Improves accountability and internal workflow clarity."
-  },
-  {
-    menu: "Events & Camps",
-    href: "/announcements",
-    facilities: "Camp notices, event updates, training programs, workshops, and institutional announcements.",
-    benefits: "Keeps faculty aligned with academy activities."
-  },
-  {
-    menu: "Leave Management",
-    href: "/staff-hr",
-    facilities: "Leave requests, staff records, attendance-related HR flow, and approval visibility.",
-    benefits: "Makes faculty leave and HR coordination systematic."
-  },
-  {
-    menu: "Doubt Support",
-    href: "/ai-doubt-solver",
-    facilities: "Student doubts, AI-supported explanations, faculty guidance, and concept clarification.",
-    benefits: "Helps faculty support students faster and more consistently."
-  },
-  {
-    menu: "Counselling Notes",
+    menu: "Reports",
     href: "/progress-reports",
-    facilities: "Academic observations, progress notes, intervention records, and mentor follow-up summaries.",
-    benefits: "Creates a structured memory of student support and counselling actions."
+    facilities: "Class reports, student progress, attendance reports, test reports, and downloadable summaries.",
+    benefits: "Helps teachers and Academic Heads review performance clearly."
   },
   {
-    menu: "My Reports",
-    href: "/progress-reports",
-    facilities: "Faculty-facing reports, class outcomes, student progress summaries, and review material.",
-    benefits: "Helps faculty understand their impact and prepare review meetings."
-  },
-  {
-    menu: "Profile & Settings",
+    menu: "Settings",
     href: "/dashboard/settings",
-    facilities: "Password change, account security, profile settings, and faculty application user manual.",
-    benefits: "Helps faculty manage account access and understand the platform."
+    facilities: "Profile, password, subject allocation, notification settings, and account support.",
+    benefits: "Keeps account management simple."
   }
 ];
 
