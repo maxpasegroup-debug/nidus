@@ -2026,6 +2026,251 @@ model SalesBoosterAudienceContact {
   @@index([whatsappStatus])
 }
 
+model GuruQuest {
+  id                  String   @id @default(cuid())
+  slug                String   @unique
+  title               String
+  description         String
+  duration            String
+  introduction        String
+  status              String   @default("draft")
+  locked              Boolean  @default(false)
+  unlockAfterQuestId  String?
+  certificateTitle    String?
+  sortOrder           Int      @default(0)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@index([status])
+  @@index([sortOrder])
+  @@index([unlockAfterQuestId])
+}
+
+model GuruLesson {
+  id          String   @id @default(cuid())
+  questId     String
+  title       String
+  description String
+  duration    String
+  mediaType   String   @default("audio")
+  audioUrl    String?
+  videoUrl    String?
+  documentUrl String?
+  textContent String?
+  required    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([questId])
+  @@index([sortOrder])
+}
+
+model GuruLessonCompletion {
+  id          String   @id @default(cuid())
+  userId      String
+  questId     String
+  lessonId    String
+  completedAt DateTime @default(now())
+
+  @@unique([userId, lessonId])
+  @@index([userId])
+  @@index([questId])
+  @@index([lessonId])
+}
+
+model GuruReflectionQuestion {
+  id        String   @id @default(cuid())
+  questId   String
+  prompt    String
+  type      String   @default("text")
+  options   Json?
+  required  Boolean  @default(true)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([questId])
+  @@index([sortOrder])
+}
+
+model GuruReflectionAnswer {
+  id         String   @id @default(cuid())
+  userId     String
+  questId    String
+  questionId String
+  answer     Json
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([userId, questionId])
+  @@index([userId])
+  @@index([questId])
+  @@index([questionId])
+}
+
+model GuruChallenge {
+  id               String   @id @default(cuid())
+  questId           String
+  title             String
+  description       String
+  required          Boolean  @default(true)
+  evidenceRequired  Boolean  @default(false)
+  sortOrder         Int      @default(0)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([questId])
+  @@index([sortOrder])
+}
+
+model GuruChallengeCompletion {
+  id          String   @id @default(cuid())
+  userId      String
+  questId     String
+  challengeId String
+  notes       String?
+  evidenceUrl String?
+  completedAt DateTime @default(now())
+
+  @@unique([userId, challengeId])
+  @@index([userId])
+  @@index([questId])
+  @@index([challengeId])
+}
+
+model GuruProgress {
+  id                String   @id @default(cuid())
+  userId            String
+  questId           String
+  status            String   @default("unlocked")
+  completionPercent Int      @default(0)
+  startedAt         DateTime @default(now())
+  completedAt       DateTime?
+  updatedAt         DateTime @updatedAt
+
+  @@unique([userId, questId])
+  @@index([userId])
+  @@index([questId])
+  @@index([status])
+}
+
+model GuruAchievement {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  ruleKey     String   @unique
+  iconUrl     String?
+  enabled     Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([enabled])
+}
+
+model GuruUserAchievement {
+  id            String   @id @default(cuid())
+  userId        String
+  achievementId String
+  unlockedAt    DateTime @default(now())
+
+  @@unique([userId, achievementId])
+  @@index([userId])
+  @@index([achievementId])
+}
+
+model GuruCertificate {
+  id          String   @id @default(cuid())
+  questId     String
+  title       String
+  description String
+  templateUrl String?
+  enabled     Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([questId])
+  @@index([enabled])
+}
+
+model GuruUserCertificate {
+  id             String   @id @default(cuid())
+  userId         String
+  questId        String
+  certificateId  String
+  certificateUrl String?
+  issuedAt       DateTime @default(now())
+
+  @@unique([userId, certificateId])
+  @@index([userId])
+  @@index([questId])
+  @@index([certificateId])
+}
+
+model GuruDailyMission {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  xp          Int      @default(0)
+  enabled     Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([enabled])
+  @@index([sortOrder])
+}
+
+model GuruDailyMissionCompletion {
+  id            String   @id @default(cuid())
+  userId        String
+  missionId     String
+  completedDate String
+  completedAt   DateTime @default(now())
+
+  @@unique([userId, missionId, completedDate])
+  @@index([userId])
+  @@index([missionId])
+  @@index([completedDate])
+}
+
+model GuruMentorNote {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String
+  message   String
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model GuruReflectionInsight {
+  id             String   @id @default(cuid())
+  userId         String
+  title          String
+  summary        String
+  recommendation String
+  createdAt      DateTime @default(now())
+
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model GuruXpLedger {
+  id         String   @id @default(cuid())
+  userId     String
+  sourceType String
+  sourceId   String
+  xp         Int
+  createdAt  DateTime @default(now())
+
+  @@unique([userId, sourceType, sourceId])
+  @@index([userId])
+  @@index([sourceType])
+  @@index([createdAt])
+}
+
 model Branch {
   id            String   @id @default(cuid())
   instituteId   String?

@@ -592,6 +592,91 @@ export type SalesBoosterMetricSnapshot = Prisma.SalesBoosterMetricSnapshotModel
  */
 export type SalesBoosterAudienceContact = Prisma.SalesBoosterAudienceContactModel
 /**
+ * Model GuruQuest
+ * 
+ */
+export type GuruQuest = Prisma.GuruQuestModel
+/**
+ * Model GuruLesson
+ * 
+ */
+export type GuruLesson = Prisma.GuruLessonModel
+/**
+ * Model GuruLessonCompletion
+ * 
+ */
+export type GuruLessonCompletion = Prisma.GuruLessonCompletionModel
+/**
+ * Model GuruReflectionQuestion
+ * 
+ */
+export type GuruReflectionQuestion = Prisma.GuruReflectionQuestionModel
+/**
+ * Model GuruReflectionAnswer
+ * 
+ */
+export type GuruReflectionAnswer = Prisma.GuruReflectionAnswerModel
+/**
+ * Model GuruChallenge
+ * 
+ */
+export type GuruChallenge = Prisma.GuruChallengeModel
+/**
+ * Model GuruChallengeCompletion
+ * 
+ */
+export type GuruChallengeCompletion = Prisma.GuruChallengeCompletionModel
+/**
+ * Model GuruProgress
+ * 
+ */
+export type GuruProgress = Prisma.GuruProgressModel
+/**
+ * Model GuruAchievement
+ * 
+ */
+export type GuruAchievement = Prisma.GuruAchievementModel
+/**
+ * Model GuruUserAchievement
+ * 
+ */
+export type GuruUserAchievement = Prisma.GuruUserAchievementModel
+/**
+ * Model GuruCertificate
+ * 
+ */
+export type GuruCertificate = Prisma.GuruCertificateModel
+/**
+ * Model GuruUserCertificate
+ * 
+ */
+export type GuruUserCertificate = Prisma.GuruUserCertificateModel
+/**
+ * Model GuruDailyMission
+ * 
+ */
+export type GuruDailyMission = Prisma.GuruDailyMissionModel
+/**
+ * Model GuruDailyMissionCompletion
+ * 
+ */
+export type GuruDailyMissionCompletion = Prisma.GuruDailyMissionCompletionModel
+/**
+ * Model GuruMentorNote
+ * 
+ */
+export type GuruMentorNote = Prisma.GuruMentorNoteModel
+/**
+ * Model GuruReflectionInsight
+ * 
+ */
+export type GuruReflectionInsight = Prisma.GuruReflectionInsightModel
+/**
+ * Model GuruXpLedger
+ * 
+ */
+export type GuruXpLedger = Prisma.GuruXpLedgerModel
+/**
  * Model Branch
  * 
  */

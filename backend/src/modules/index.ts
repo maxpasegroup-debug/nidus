@@ -22,6 +22,7 @@ import { learningStabilityRouter } from "./learning-stability/learning-stability
 import { toprankRouter } from "./toprank/toprank.routes.js";
 import { salesBoosterRouter } from "./sales-booster/sales-booster.routes.js";
 import { academyRouter } from "./academy/academy.routes.js";
+import { mobileGuruRouter } from "./mobile-guru/mobile-guru.routes.js";
 import { protect, allowRoles } from "../middlewares/session.middleware.js";
 import { Role } from "../generated/prisma/client.js";
 import { coursesController } from "./courses/courses.controller.js";
@@ -91,4 +92,5 @@ apiRouter.use("/academy", academyRouter);
 apiRouter.use("/learning-stability", learningStabilityRouter);
 apiRouter.use("/toprank", toprankRouter);
 apiRouter.use("/sales-booster", salesBoosterRouter);
+apiRouter.use("/mobile/guru", mobileGuruRouter);
 apiRouter.get("/my-courses", protect, allowRoles(Role.STUDENT, Role.ADMIN), coursesController.myCourses);

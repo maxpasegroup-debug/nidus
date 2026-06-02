@@ -494,6 +494,23 @@ export const ModelName = {
   SalesBoosterCampaign: 'SalesBoosterCampaign',
   SalesBoosterMetricSnapshot: 'SalesBoosterMetricSnapshot',
   SalesBoosterAudienceContact: 'SalesBoosterAudienceContact',
+  GuruQuest: 'GuruQuest',
+  GuruLesson: 'GuruLesson',
+  GuruLessonCompletion: 'GuruLessonCompletion',
+  GuruReflectionQuestion: 'GuruReflectionQuestion',
+  GuruReflectionAnswer: 'GuruReflectionAnswer',
+  GuruChallenge: 'GuruChallenge',
+  GuruChallengeCompletion: 'GuruChallengeCompletion',
+  GuruProgress: 'GuruProgress',
+  GuruAchievement: 'GuruAchievement',
+  GuruUserAchievement: 'GuruUserAchievement',
+  GuruCertificate: 'GuruCertificate',
+  GuruUserCertificate: 'GuruUserCertificate',
+  GuruDailyMission: 'GuruDailyMission',
+  GuruDailyMissionCompletion: 'GuruDailyMissionCompletion',
+  GuruMentorNote: 'GuruMentorNote',
+  GuruReflectionInsight: 'GuruReflectionInsight',
+  GuruXpLedger: 'GuruXpLedger',
   Branch: 'Branch',
   Institute: 'Institute'
 } as const
@@ -511,7 +528,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "sessionToken" | "passwordReset" | "parentStudentInvitation" | "parentStudentLink" | "otp" | "course" | "module" | "lesson" | "enrollment" | "batch" | "batchStudent" | "teacherBatchAssignment" | "test" | "question" | "testAttempt" | "cBTAnswerState" | "cBTIntegrityEvent" | "answer" | "psychometricTest" | "psychometricQuestion" | "psychometricAttempt" | "psychometricReport" | "psychometricAnswer" | "oLQScore" | "studyPlan" | "performanceAnalytics" | "revisionSchedule" | "liveClass" | "recordedLecture" | "lectureProgress" | "lecturePlaybackEvent" | "attendance" | "timetable" | "faculty" | "classroom" | "payroll" | "announcement" | "hostel" | "room" | "hostelAllocation" | "inOutEntry" | "hostelLeave" | "messMenu" | "disciplineRecord" | "paradePerformance" | "lead" | "followUp" | "admission" | "counsellingBooking" | "referral" | "payment" | "subscription" | "feeInstallment" | "invoice" | "feePlan" | "paymentTransactionLog" | "approvalRequest" | "scholarshipDiscount" | "financeDocument" | "notification" | "messageThread" | "message" | "emailLog" | "pushNotification" | "aIInterviewSession" | "aIInterviewQuestion" | "doubtQuery" | "aIRecommendation" | "aITutorSession" | "aITutorMessage" | "aITutorFeedback" | "aIResponseCache" | "learningTopicInsight" | "revisionQueueItem" | "cBTIntelligenceReport" | "contentIngestionJob" | "generatedContentAsset" | "offlineSyncEvent" | "learningAnalyticsSnapshot" | "dailyIntelligenceIssue" | "contentModerationItem" | "officerPotential" | "fitnessProfile" | "pTSchedule" | "pTAttendance" | "physicalEligibility" | "dailyFitnessLog" | "pYQCategory" | "pYQQuestion" | "currentAffair" | "currentAffairQuiz" | "quizBattle" | "quizBattleParticipant" | "leaderboard" | "mediaFolder" | "mediaFile" | "document" | "adminRole" | "permission" | "rolePermission" | "userRole" | "roleActivity" | "systemSetting" | "auditLog" | "queueJobLog" | "aIRequestLog" | "salesBoosterCampaign" | "salesBoosterMetricSnapshot" | "salesBoosterAudienceContact" | "branch" | "institute"
+    modelProps: "user" | "sessionToken" | "passwordReset" | "parentStudentInvitation" | "parentStudentLink" | "otp" | "course" | "module" | "lesson" | "enrollment" | "batch" | "batchStudent" | "teacherBatchAssignment" | "test" | "question" | "testAttempt" | "cBTAnswerState" | "cBTIntegrityEvent" | "answer" | "psychometricTest" | "psychometricQuestion" | "psychometricAttempt" | "psychometricReport" | "psychometricAnswer" | "oLQScore" | "studyPlan" | "performanceAnalytics" | "revisionSchedule" | "liveClass" | "recordedLecture" | "lectureProgress" | "lecturePlaybackEvent" | "attendance" | "timetable" | "faculty" | "classroom" | "payroll" | "announcement" | "hostel" | "room" | "hostelAllocation" | "inOutEntry" | "hostelLeave" | "messMenu" | "disciplineRecord" | "paradePerformance" | "lead" | "followUp" | "admission" | "counsellingBooking" | "referral" | "payment" | "subscription" | "feeInstallment" | "invoice" | "feePlan" | "paymentTransactionLog" | "approvalRequest" | "scholarshipDiscount" | "financeDocument" | "notification" | "messageThread" | "message" | "emailLog" | "pushNotification" | "aIInterviewSession" | "aIInterviewQuestion" | "doubtQuery" | "aIRecommendation" | "aITutorSession" | "aITutorMessage" | "aITutorFeedback" | "aIResponseCache" | "learningTopicInsight" | "revisionQueueItem" | "cBTIntelligenceReport" | "contentIngestionJob" | "generatedContentAsset" | "offlineSyncEvent" | "learningAnalyticsSnapshot" | "dailyIntelligenceIssue" | "contentModerationItem" | "officerPotential" | "fitnessProfile" | "pTSchedule" | "pTAttendance" | "physicalEligibility" | "dailyFitnessLog" | "pYQCategory" | "pYQQuestion" | "currentAffair" | "currentAffairQuiz" | "quizBattle" | "quizBattleParticipant" | "leaderboard" | "mediaFolder" | "mediaFile" | "document" | "adminRole" | "permission" | "rolePermission" | "userRole" | "roleActivity" | "systemSetting" | "auditLog" | "queueJobLog" | "aIRequestLog" | "salesBoosterCampaign" | "salesBoosterMetricSnapshot" | "salesBoosterAudienceContact" | "guruQuest" | "guruLesson" | "guruLessonCompletion" | "guruReflectionQuestion" | "guruReflectionAnswer" | "guruChallenge" | "guruChallengeCompletion" | "guruProgress" | "guruAchievement" | "guruUserAchievement" | "guruCertificate" | "guruUserCertificate" | "guruDailyMission" | "guruDailyMissionCompletion" | "guruMentorNote" | "guruReflectionInsight" | "guruXpLedger" | "branch" | "institute"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -8655,6 +8672,1264 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    GuruQuest: {
+      payload: Prisma.$GuruQuestPayload<ExtArgs>
+      fields: Prisma.GuruQuestFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.GuruQuestFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruQuestPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.GuruQuestFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruQuestPayload>
+        }
+        findFirst: {
+          args: Prisma.GuruQuestFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruQuestPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.GuruQuestFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruQuestPayload>
+        }
+        findMany: {
+          args: Prisma.GuruQuestFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruQuestPayload>[]
+        }
+        create: {
+          args: Prisma.GuruQuestCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruQuestPayload>
+        }
+        createMany: {
+          args: Prisma.GuruQuestCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.GuruQuestCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruQuestPayload>[]
+        }
+        delete: {
+          args: Prisma.GuruQuestDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruQuestPayload>
+        }
+        update: {
+          args: Prisma.GuruQuestUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruQuestPayload>
+        }
+        deleteMany: {
+          args: Prisma.GuruQuestDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.GuruQuestUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.GuruQuestUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruQuestPayload>[]
+        }
+        upsert: {
+          args: Prisma.GuruQuestUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruQuestPayload>
+        }
+        aggregate: {
+          args: Prisma.GuruQuestAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateGuruQuest>
+        }
+        groupBy: {
+          args: Prisma.GuruQuestGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GuruQuestGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.GuruQuestCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GuruQuestCountAggregateOutputType> | number
+        }
+      }
+    }
+    GuruLesson: {
+      payload: Prisma.$GuruLessonPayload<ExtArgs>
+      fields: Prisma.GuruLessonFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.GuruLessonFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruLessonPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.GuruLessonFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruLessonPayload>
+        }
+        findFirst: {
+          args: Prisma.GuruLessonFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruLessonPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.GuruLessonFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruLessonPayload>
+        }
+        findMany: {
+          args: Prisma.GuruLessonFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruLessonPayload>[]
+        }
+        create: {
+          args: Prisma.GuruLessonCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruLessonPayload>
+        }
+        createMany: {
+          args: Prisma.GuruLessonCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.GuruLessonCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruLessonPayload>[]
+        }
+        delete: {
+          args: Prisma.GuruLessonDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruLessonPayload>
+        }
+        update: {
+          args: Prisma.GuruLessonUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruLessonPayload>
+        }
+        deleteMany: {
+          args: Prisma.GuruLessonDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.GuruLessonUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.GuruLessonUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruLessonPayload>[]
+        }
+        upsert: {
+          args: Prisma.GuruLessonUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruLessonPayload>
+        }
+        aggregate: {
+          args: Prisma.GuruLessonAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateGuruLesson>
+        }
+        groupBy: {
+          args: Prisma.GuruLessonGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GuruLessonGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.GuruLessonCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GuruLessonCountAggregateOutputType> | number
+        }
+      }
+    }
+    GuruLessonCompletion: {
+      payload: Prisma.$GuruLessonCompletionPayload<ExtArgs>
+      fields: Prisma.GuruLessonCompletionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.GuruLessonCompletionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruLessonCompletionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.GuruLessonCompletionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruLessonCompletionPayload>
+        }
+        findFirst: {
+          args: Prisma.GuruLessonCompletionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruLessonCompletionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.GuruLessonCompletionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruLessonCompletionPayload>
+        }
+        findMany: {
+          args: Prisma.GuruLessonCompletionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruLessonCompletionPayload>[]
+        }
+        create: {
+          args: Prisma.GuruLessonCompletionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruLessonCompletionPayload>
+        }
+        createMany: {
+          args: Prisma.GuruLessonCompletionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.GuruLessonCompletionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruLessonCompletionPayload>[]
+        }
+        delete: {
+          args: Prisma.GuruLessonCompletionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruLessonCompletionPayload>
+        }
+        update: {
+          args: Prisma.GuruLessonCompletionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruLessonCompletionPayload>
+        }
+        deleteMany: {
+          args: Prisma.GuruLessonCompletionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.GuruLessonCompletionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.GuruLessonCompletionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruLessonCompletionPayload>[]
+        }
+        upsert: {
+          args: Prisma.GuruLessonCompletionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruLessonCompletionPayload>
+        }
+        aggregate: {
+          args: Prisma.GuruLessonCompletionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateGuruLessonCompletion>
+        }
+        groupBy: {
+          args: Prisma.GuruLessonCompletionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GuruLessonCompletionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.GuruLessonCompletionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GuruLessonCompletionCountAggregateOutputType> | number
+        }
+      }
+    }
+    GuruReflectionQuestion: {
+      payload: Prisma.$GuruReflectionQuestionPayload<ExtArgs>
+      fields: Prisma.GuruReflectionQuestionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.GuruReflectionQuestionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruReflectionQuestionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.GuruReflectionQuestionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruReflectionQuestionPayload>
+        }
+        findFirst: {
+          args: Prisma.GuruReflectionQuestionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruReflectionQuestionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.GuruReflectionQuestionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruReflectionQuestionPayload>
+        }
+        findMany: {
+          args: Prisma.GuruReflectionQuestionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruReflectionQuestionPayload>[]
+        }
+        create: {
+          args: Prisma.GuruReflectionQuestionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruReflectionQuestionPayload>
+        }
+        createMany: {
+          args: Prisma.GuruReflectionQuestionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.GuruReflectionQuestionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruReflectionQuestionPayload>[]
+        }
+        delete: {
+          args: Prisma.GuruReflectionQuestionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruReflectionQuestionPayload>
+        }
+        update: {
+          args: Prisma.GuruReflectionQuestionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruReflectionQuestionPayload>
+        }
+        deleteMany: {
+          args: Prisma.GuruReflectionQuestionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.GuruReflectionQuestionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.GuruReflectionQuestionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruReflectionQuestionPayload>[]
+        }
+        upsert: {
+          args: Prisma.GuruReflectionQuestionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruReflectionQuestionPayload>
+        }
+        aggregate: {
+          args: Prisma.GuruReflectionQuestionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateGuruReflectionQuestion>
+        }
+        groupBy: {
+          args: Prisma.GuruReflectionQuestionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GuruReflectionQuestionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.GuruReflectionQuestionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GuruReflectionQuestionCountAggregateOutputType> | number
+        }
+      }
+    }
+    GuruReflectionAnswer: {
+      payload: Prisma.$GuruReflectionAnswerPayload<ExtArgs>
+      fields: Prisma.GuruReflectionAnswerFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.GuruReflectionAnswerFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruReflectionAnswerPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.GuruReflectionAnswerFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruReflectionAnswerPayload>
+        }
+        findFirst: {
+          args: Prisma.GuruReflectionAnswerFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruReflectionAnswerPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.GuruReflectionAnswerFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruReflectionAnswerPayload>
+        }
+        findMany: {
+          args: Prisma.GuruReflectionAnswerFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruReflectionAnswerPayload>[]
+        }
+        create: {
+          args: Prisma.GuruReflectionAnswerCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruReflectionAnswerPayload>
+        }
+        createMany: {
+          args: Prisma.GuruReflectionAnswerCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.GuruReflectionAnswerCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruReflectionAnswerPayload>[]
+        }
+        delete: {
+          args: Prisma.GuruReflectionAnswerDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruReflectionAnswerPayload>
+        }
+        update: {
+          args: Prisma.GuruReflectionAnswerUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruReflectionAnswerPayload>
+        }
+        deleteMany: {
+          args: Prisma.GuruReflectionAnswerDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.GuruReflectionAnswerUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.GuruReflectionAnswerUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruReflectionAnswerPayload>[]
+        }
+        upsert: {
+          args: Prisma.GuruReflectionAnswerUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruReflectionAnswerPayload>
+        }
+        aggregate: {
+          args: Prisma.GuruReflectionAnswerAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateGuruReflectionAnswer>
+        }
+        groupBy: {
+          args: Prisma.GuruReflectionAnswerGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GuruReflectionAnswerGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.GuruReflectionAnswerCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GuruReflectionAnswerCountAggregateOutputType> | number
+        }
+      }
+    }
+    GuruChallenge: {
+      payload: Prisma.$GuruChallengePayload<ExtArgs>
+      fields: Prisma.GuruChallengeFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.GuruChallengeFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruChallengePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.GuruChallengeFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruChallengePayload>
+        }
+        findFirst: {
+          args: Prisma.GuruChallengeFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruChallengePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.GuruChallengeFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruChallengePayload>
+        }
+        findMany: {
+          args: Prisma.GuruChallengeFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruChallengePayload>[]
+        }
+        create: {
+          args: Prisma.GuruChallengeCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruChallengePayload>
+        }
+        createMany: {
+          args: Prisma.GuruChallengeCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.GuruChallengeCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruChallengePayload>[]
+        }
+        delete: {
+          args: Prisma.GuruChallengeDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruChallengePayload>
+        }
+        update: {
+          args: Prisma.GuruChallengeUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruChallengePayload>
+        }
+        deleteMany: {
+          args: Prisma.GuruChallengeDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.GuruChallengeUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.GuruChallengeUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruChallengePayload>[]
+        }
+        upsert: {
+          args: Prisma.GuruChallengeUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruChallengePayload>
+        }
+        aggregate: {
+          args: Prisma.GuruChallengeAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateGuruChallenge>
+        }
+        groupBy: {
+          args: Prisma.GuruChallengeGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GuruChallengeGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.GuruChallengeCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GuruChallengeCountAggregateOutputType> | number
+        }
+      }
+    }
+    GuruChallengeCompletion: {
+      payload: Prisma.$GuruChallengeCompletionPayload<ExtArgs>
+      fields: Prisma.GuruChallengeCompletionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.GuruChallengeCompletionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruChallengeCompletionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.GuruChallengeCompletionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruChallengeCompletionPayload>
+        }
+        findFirst: {
+          args: Prisma.GuruChallengeCompletionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruChallengeCompletionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.GuruChallengeCompletionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruChallengeCompletionPayload>
+        }
+        findMany: {
+          args: Prisma.GuruChallengeCompletionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruChallengeCompletionPayload>[]
+        }
+        create: {
+          args: Prisma.GuruChallengeCompletionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruChallengeCompletionPayload>
+        }
+        createMany: {
+          args: Prisma.GuruChallengeCompletionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.GuruChallengeCompletionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruChallengeCompletionPayload>[]
+        }
+        delete: {
+          args: Prisma.GuruChallengeCompletionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruChallengeCompletionPayload>
+        }
+        update: {
+          args: Prisma.GuruChallengeCompletionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruChallengeCompletionPayload>
+        }
+        deleteMany: {
+          args: Prisma.GuruChallengeCompletionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.GuruChallengeCompletionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.GuruChallengeCompletionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruChallengeCompletionPayload>[]
+        }
+        upsert: {
+          args: Prisma.GuruChallengeCompletionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruChallengeCompletionPayload>
+        }
+        aggregate: {
+          args: Prisma.GuruChallengeCompletionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateGuruChallengeCompletion>
+        }
+        groupBy: {
+          args: Prisma.GuruChallengeCompletionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GuruChallengeCompletionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.GuruChallengeCompletionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GuruChallengeCompletionCountAggregateOutputType> | number
+        }
+      }
+    }
+    GuruProgress: {
+      payload: Prisma.$GuruProgressPayload<ExtArgs>
+      fields: Prisma.GuruProgressFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.GuruProgressFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruProgressPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.GuruProgressFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruProgressPayload>
+        }
+        findFirst: {
+          args: Prisma.GuruProgressFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruProgressPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.GuruProgressFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruProgressPayload>
+        }
+        findMany: {
+          args: Prisma.GuruProgressFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruProgressPayload>[]
+        }
+        create: {
+          args: Prisma.GuruProgressCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruProgressPayload>
+        }
+        createMany: {
+          args: Prisma.GuruProgressCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.GuruProgressCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruProgressPayload>[]
+        }
+        delete: {
+          args: Prisma.GuruProgressDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruProgressPayload>
+        }
+        update: {
+          args: Prisma.GuruProgressUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruProgressPayload>
+        }
+        deleteMany: {
+          args: Prisma.GuruProgressDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.GuruProgressUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.GuruProgressUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruProgressPayload>[]
+        }
+        upsert: {
+          args: Prisma.GuruProgressUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruProgressPayload>
+        }
+        aggregate: {
+          args: Prisma.GuruProgressAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateGuruProgress>
+        }
+        groupBy: {
+          args: Prisma.GuruProgressGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GuruProgressGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.GuruProgressCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GuruProgressCountAggregateOutputType> | number
+        }
+      }
+    }
+    GuruAchievement: {
+      payload: Prisma.$GuruAchievementPayload<ExtArgs>
+      fields: Prisma.GuruAchievementFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.GuruAchievementFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruAchievementPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.GuruAchievementFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruAchievementPayload>
+        }
+        findFirst: {
+          args: Prisma.GuruAchievementFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruAchievementPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.GuruAchievementFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruAchievementPayload>
+        }
+        findMany: {
+          args: Prisma.GuruAchievementFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruAchievementPayload>[]
+        }
+        create: {
+          args: Prisma.GuruAchievementCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruAchievementPayload>
+        }
+        createMany: {
+          args: Prisma.GuruAchievementCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.GuruAchievementCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruAchievementPayload>[]
+        }
+        delete: {
+          args: Prisma.GuruAchievementDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruAchievementPayload>
+        }
+        update: {
+          args: Prisma.GuruAchievementUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruAchievementPayload>
+        }
+        deleteMany: {
+          args: Prisma.GuruAchievementDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.GuruAchievementUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.GuruAchievementUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruAchievementPayload>[]
+        }
+        upsert: {
+          args: Prisma.GuruAchievementUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruAchievementPayload>
+        }
+        aggregate: {
+          args: Prisma.GuruAchievementAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateGuruAchievement>
+        }
+        groupBy: {
+          args: Prisma.GuruAchievementGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GuruAchievementGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.GuruAchievementCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GuruAchievementCountAggregateOutputType> | number
+        }
+      }
+    }
+    GuruUserAchievement: {
+      payload: Prisma.$GuruUserAchievementPayload<ExtArgs>
+      fields: Prisma.GuruUserAchievementFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.GuruUserAchievementFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruUserAchievementPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.GuruUserAchievementFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruUserAchievementPayload>
+        }
+        findFirst: {
+          args: Prisma.GuruUserAchievementFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruUserAchievementPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.GuruUserAchievementFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruUserAchievementPayload>
+        }
+        findMany: {
+          args: Prisma.GuruUserAchievementFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruUserAchievementPayload>[]
+        }
+        create: {
+          args: Prisma.GuruUserAchievementCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruUserAchievementPayload>
+        }
+        createMany: {
+          args: Prisma.GuruUserAchievementCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.GuruUserAchievementCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruUserAchievementPayload>[]
+        }
+        delete: {
+          args: Prisma.GuruUserAchievementDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruUserAchievementPayload>
+        }
+        update: {
+          args: Prisma.GuruUserAchievementUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruUserAchievementPayload>
+        }
+        deleteMany: {
+          args: Prisma.GuruUserAchievementDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.GuruUserAchievementUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.GuruUserAchievementUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruUserAchievementPayload>[]
+        }
+        upsert: {
+          args: Prisma.GuruUserAchievementUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruUserAchievementPayload>
+        }
+        aggregate: {
+          args: Prisma.GuruUserAchievementAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateGuruUserAchievement>
+        }
+        groupBy: {
+          args: Prisma.GuruUserAchievementGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GuruUserAchievementGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.GuruUserAchievementCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GuruUserAchievementCountAggregateOutputType> | number
+        }
+      }
+    }
+    GuruCertificate: {
+      payload: Prisma.$GuruCertificatePayload<ExtArgs>
+      fields: Prisma.GuruCertificateFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.GuruCertificateFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruCertificatePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.GuruCertificateFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruCertificatePayload>
+        }
+        findFirst: {
+          args: Prisma.GuruCertificateFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruCertificatePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.GuruCertificateFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruCertificatePayload>
+        }
+        findMany: {
+          args: Prisma.GuruCertificateFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruCertificatePayload>[]
+        }
+        create: {
+          args: Prisma.GuruCertificateCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruCertificatePayload>
+        }
+        createMany: {
+          args: Prisma.GuruCertificateCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.GuruCertificateCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruCertificatePayload>[]
+        }
+        delete: {
+          args: Prisma.GuruCertificateDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruCertificatePayload>
+        }
+        update: {
+          args: Prisma.GuruCertificateUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruCertificatePayload>
+        }
+        deleteMany: {
+          args: Prisma.GuruCertificateDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.GuruCertificateUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.GuruCertificateUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruCertificatePayload>[]
+        }
+        upsert: {
+          args: Prisma.GuruCertificateUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruCertificatePayload>
+        }
+        aggregate: {
+          args: Prisma.GuruCertificateAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateGuruCertificate>
+        }
+        groupBy: {
+          args: Prisma.GuruCertificateGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GuruCertificateGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.GuruCertificateCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GuruCertificateCountAggregateOutputType> | number
+        }
+      }
+    }
+    GuruUserCertificate: {
+      payload: Prisma.$GuruUserCertificatePayload<ExtArgs>
+      fields: Prisma.GuruUserCertificateFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.GuruUserCertificateFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruUserCertificatePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.GuruUserCertificateFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruUserCertificatePayload>
+        }
+        findFirst: {
+          args: Prisma.GuruUserCertificateFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruUserCertificatePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.GuruUserCertificateFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruUserCertificatePayload>
+        }
+        findMany: {
+          args: Prisma.GuruUserCertificateFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruUserCertificatePayload>[]
+        }
+        create: {
+          args: Prisma.GuruUserCertificateCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruUserCertificatePayload>
+        }
+        createMany: {
+          args: Prisma.GuruUserCertificateCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.GuruUserCertificateCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruUserCertificatePayload>[]
+        }
+        delete: {
+          args: Prisma.GuruUserCertificateDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruUserCertificatePayload>
+        }
+        update: {
+          args: Prisma.GuruUserCertificateUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruUserCertificatePayload>
+        }
+        deleteMany: {
+          args: Prisma.GuruUserCertificateDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.GuruUserCertificateUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.GuruUserCertificateUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruUserCertificatePayload>[]
+        }
+        upsert: {
+          args: Prisma.GuruUserCertificateUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruUserCertificatePayload>
+        }
+        aggregate: {
+          args: Prisma.GuruUserCertificateAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateGuruUserCertificate>
+        }
+        groupBy: {
+          args: Prisma.GuruUserCertificateGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GuruUserCertificateGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.GuruUserCertificateCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GuruUserCertificateCountAggregateOutputType> | number
+        }
+      }
+    }
+    GuruDailyMission: {
+      payload: Prisma.$GuruDailyMissionPayload<ExtArgs>
+      fields: Prisma.GuruDailyMissionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.GuruDailyMissionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruDailyMissionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.GuruDailyMissionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruDailyMissionPayload>
+        }
+        findFirst: {
+          args: Prisma.GuruDailyMissionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruDailyMissionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.GuruDailyMissionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruDailyMissionPayload>
+        }
+        findMany: {
+          args: Prisma.GuruDailyMissionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruDailyMissionPayload>[]
+        }
+        create: {
+          args: Prisma.GuruDailyMissionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruDailyMissionPayload>
+        }
+        createMany: {
+          args: Prisma.GuruDailyMissionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.GuruDailyMissionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruDailyMissionPayload>[]
+        }
+        delete: {
+          args: Prisma.GuruDailyMissionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruDailyMissionPayload>
+        }
+        update: {
+          args: Prisma.GuruDailyMissionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruDailyMissionPayload>
+        }
+        deleteMany: {
+          args: Prisma.GuruDailyMissionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.GuruDailyMissionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.GuruDailyMissionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruDailyMissionPayload>[]
+        }
+        upsert: {
+          args: Prisma.GuruDailyMissionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruDailyMissionPayload>
+        }
+        aggregate: {
+          args: Prisma.GuruDailyMissionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateGuruDailyMission>
+        }
+        groupBy: {
+          args: Prisma.GuruDailyMissionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GuruDailyMissionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.GuruDailyMissionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GuruDailyMissionCountAggregateOutputType> | number
+        }
+      }
+    }
+    GuruDailyMissionCompletion: {
+      payload: Prisma.$GuruDailyMissionCompletionPayload<ExtArgs>
+      fields: Prisma.GuruDailyMissionCompletionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.GuruDailyMissionCompletionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruDailyMissionCompletionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.GuruDailyMissionCompletionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruDailyMissionCompletionPayload>
+        }
+        findFirst: {
+          args: Prisma.GuruDailyMissionCompletionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruDailyMissionCompletionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.GuruDailyMissionCompletionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruDailyMissionCompletionPayload>
+        }
+        findMany: {
+          args: Prisma.GuruDailyMissionCompletionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruDailyMissionCompletionPayload>[]
+        }
+        create: {
+          args: Prisma.GuruDailyMissionCompletionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruDailyMissionCompletionPayload>
+        }
+        createMany: {
+          args: Prisma.GuruDailyMissionCompletionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.GuruDailyMissionCompletionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruDailyMissionCompletionPayload>[]
+        }
+        delete: {
+          args: Prisma.GuruDailyMissionCompletionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruDailyMissionCompletionPayload>
+        }
+        update: {
+          args: Prisma.GuruDailyMissionCompletionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruDailyMissionCompletionPayload>
+        }
+        deleteMany: {
+          args: Prisma.GuruDailyMissionCompletionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.GuruDailyMissionCompletionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.GuruDailyMissionCompletionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruDailyMissionCompletionPayload>[]
+        }
+        upsert: {
+          args: Prisma.GuruDailyMissionCompletionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruDailyMissionCompletionPayload>
+        }
+        aggregate: {
+          args: Prisma.GuruDailyMissionCompletionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateGuruDailyMissionCompletion>
+        }
+        groupBy: {
+          args: Prisma.GuruDailyMissionCompletionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GuruDailyMissionCompletionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.GuruDailyMissionCompletionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GuruDailyMissionCompletionCountAggregateOutputType> | number
+        }
+      }
+    }
+    GuruMentorNote: {
+      payload: Prisma.$GuruMentorNotePayload<ExtArgs>
+      fields: Prisma.GuruMentorNoteFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.GuruMentorNoteFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruMentorNotePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.GuruMentorNoteFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruMentorNotePayload>
+        }
+        findFirst: {
+          args: Prisma.GuruMentorNoteFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruMentorNotePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.GuruMentorNoteFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruMentorNotePayload>
+        }
+        findMany: {
+          args: Prisma.GuruMentorNoteFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruMentorNotePayload>[]
+        }
+        create: {
+          args: Prisma.GuruMentorNoteCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruMentorNotePayload>
+        }
+        createMany: {
+          args: Prisma.GuruMentorNoteCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.GuruMentorNoteCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruMentorNotePayload>[]
+        }
+        delete: {
+          args: Prisma.GuruMentorNoteDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruMentorNotePayload>
+        }
+        update: {
+          args: Prisma.GuruMentorNoteUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruMentorNotePayload>
+        }
+        deleteMany: {
+          args: Prisma.GuruMentorNoteDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.GuruMentorNoteUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.GuruMentorNoteUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruMentorNotePayload>[]
+        }
+        upsert: {
+          args: Prisma.GuruMentorNoteUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruMentorNotePayload>
+        }
+        aggregate: {
+          args: Prisma.GuruMentorNoteAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateGuruMentorNote>
+        }
+        groupBy: {
+          args: Prisma.GuruMentorNoteGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GuruMentorNoteGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.GuruMentorNoteCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GuruMentorNoteCountAggregateOutputType> | number
+        }
+      }
+    }
+    GuruReflectionInsight: {
+      payload: Prisma.$GuruReflectionInsightPayload<ExtArgs>
+      fields: Prisma.GuruReflectionInsightFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.GuruReflectionInsightFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruReflectionInsightPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.GuruReflectionInsightFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruReflectionInsightPayload>
+        }
+        findFirst: {
+          args: Prisma.GuruReflectionInsightFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruReflectionInsightPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.GuruReflectionInsightFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruReflectionInsightPayload>
+        }
+        findMany: {
+          args: Prisma.GuruReflectionInsightFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruReflectionInsightPayload>[]
+        }
+        create: {
+          args: Prisma.GuruReflectionInsightCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruReflectionInsightPayload>
+        }
+        createMany: {
+          args: Prisma.GuruReflectionInsightCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.GuruReflectionInsightCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruReflectionInsightPayload>[]
+        }
+        delete: {
+          args: Prisma.GuruReflectionInsightDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruReflectionInsightPayload>
+        }
+        update: {
+          args: Prisma.GuruReflectionInsightUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruReflectionInsightPayload>
+        }
+        deleteMany: {
+          args: Prisma.GuruReflectionInsightDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.GuruReflectionInsightUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.GuruReflectionInsightUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruReflectionInsightPayload>[]
+        }
+        upsert: {
+          args: Prisma.GuruReflectionInsightUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruReflectionInsightPayload>
+        }
+        aggregate: {
+          args: Prisma.GuruReflectionInsightAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateGuruReflectionInsight>
+        }
+        groupBy: {
+          args: Prisma.GuruReflectionInsightGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GuruReflectionInsightGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.GuruReflectionInsightCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GuruReflectionInsightCountAggregateOutputType> | number
+        }
+      }
+    }
+    GuruXpLedger: {
+      payload: Prisma.$GuruXpLedgerPayload<ExtArgs>
+      fields: Prisma.GuruXpLedgerFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.GuruXpLedgerFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruXpLedgerPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.GuruXpLedgerFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruXpLedgerPayload>
+        }
+        findFirst: {
+          args: Prisma.GuruXpLedgerFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruXpLedgerPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.GuruXpLedgerFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruXpLedgerPayload>
+        }
+        findMany: {
+          args: Prisma.GuruXpLedgerFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruXpLedgerPayload>[]
+        }
+        create: {
+          args: Prisma.GuruXpLedgerCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruXpLedgerPayload>
+        }
+        createMany: {
+          args: Prisma.GuruXpLedgerCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.GuruXpLedgerCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruXpLedgerPayload>[]
+        }
+        delete: {
+          args: Prisma.GuruXpLedgerDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruXpLedgerPayload>
+        }
+        update: {
+          args: Prisma.GuruXpLedgerUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruXpLedgerPayload>
+        }
+        deleteMany: {
+          args: Prisma.GuruXpLedgerDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.GuruXpLedgerUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.GuruXpLedgerUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruXpLedgerPayload>[]
+        }
+        upsert: {
+          args: Prisma.GuruXpLedgerUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GuruXpLedgerPayload>
+        }
+        aggregate: {
+          args: Prisma.GuruXpLedgerAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateGuruXpLedger>
+        }
+        groupBy: {
+          args: Prisma.GuruXpLedgerGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GuruXpLedgerGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.GuruXpLedgerCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GuruXpLedgerCountAggregateOutputType> | number
+        }
+      }
+    }
     Branch: {
       payload: Prisma.$BranchPayload<ExtArgs>
       fields: Prisma.BranchFieldRefs
@@ -10509,6 +11784,236 @@ export const SalesBoosterAudienceContactScalarFieldEnum = {
 export type SalesBoosterAudienceContactScalarFieldEnum = (typeof SalesBoosterAudienceContactScalarFieldEnum)[keyof typeof SalesBoosterAudienceContactScalarFieldEnum]
 
 
+export const GuruQuestScalarFieldEnum = {
+  id: 'id',
+  slug: 'slug',
+  title: 'title',
+  description: 'description',
+  duration: 'duration',
+  introduction: 'introduction',
+  status: 'status',
+  locked: 'locked',
+  unlockAfterQuestId: 'unlockAfterQuestId',
+  certificateTitle: 'certificateTitle',
+  sortOrder: 'sortOrder',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type GuruQuestScalarFieldEnum = (typeof GuruQuestScalarFieldEnum)[keyof typeof GuruQuestScalarFieldEnum]
+
+
+export const GuruLessonScalarFieldEnum = {
+  id: 'id',
+  questId: 'questId',
+  title: 'title',
+  description: 'description',
+  duration: 'duration',
+  mediaType: 'mediaType',
+  audioUrl: 'audioUrl',
+  videoUrl: 'videoUrl',
+  documentUrl: 'documentUrl',
+  textContent: 'textContent',
+  required: 'required',
+  sortOrder: 'sortOrder',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type GuruLessonScalarFieldEnum = (typeof GuruLessonScalarFieldEnum)[keyof typeof GuruLessonScalarFieldEnum]
+
+
+export const GuruLessonCompletionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  questId: 'questId',
+  lessonId: 'lessonId',
+  completedAt: 'completedAt'
+} as const
+
+export type GuruLessonCompletionScalarFieldEnum = (typeof GuruLessonCompletionScalarFieldEnum)[keyof typeof GuruLessonCompletionScalarFieldEnum]
+
+
+export const GuruReflectionQuestionScalarFieldEnum = {
+  id: 'id',
+  questId: 'questId',
+  prompt: 'prompt',
+  type: 'type',
+  options: 'options',
+  required: 'required',
+  sortOrder: 'sortOrder',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type GuruReflectionQuestionScalarFieldEnum = (typeof GuruReflectionQuestionScalarFieldEnum)[keyof typeof GuruReflectionQuestionScalarFieldEnum]
+
+
+export const GuruReflectionAnswerScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  questId: 'questId',
+  questionId: 'questionId',
+  answer: 'answer',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type GuruReflectionAnswerScalarFieldEnum = (typeof GuruReflectionAnswerScalarFieldEnum)[keyof typeof GuruReflectionAnswerScalarFieldEnum]
+
+
+export const GuruChallengeScalarFieldEnum = {
+  id: 'id',
+  questId: 'questId',
+  title: 'title',
+  description: 'description',
+  required: 'required',
+  evidenceRequired: 'evidenceRequired',
+  sortOrder: 'sortOrder',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type GuruChallengeScalarFieldEnum = (typeof GuruChallengeScalarFieldEnum)[keyof typeof GuruChallengeScalarFieldEnum]
+
+
+export const GuruChallengeCompletionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  questId: 'questId',
+  challengeId: 'challengeId',
+  notes: 'notes',
+  evidenceUrl: 'evidenceUrl',
+  completedAt: 'completedAt'
+} as const
+
+export type GuruChallengeCompletionScalarFieldEnum = (typeof GuruChallengeCompletionScalarFieldEnum)[keyof typeof GuruChallengeCompletionScalarFieldEnum]
+
+
+export const GuruProgressScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  questId: 'questId',
+  status: 'status',
+  completionPercent: 'completionPercent',
+  startedAt: 'startedAt',
+  completedAt: 'completedAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type GuruProgressScalarFieldEnum = (typeof GuruProgressScalarFieldEnum)[keyof typeof GuruProgressScalarFieldEnum]
+
+
+export const GuruAchievementScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  description: 'description',
+  ruleKey: 'ruleKey',
+  iconUrl: 'iconUrl',
+  enabled: 'enabled',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type GuruAchievementScalarFieldEnum = (typeof GuruAchievementScalarFieldEnum)[keyof typeof GuruAchievementScalarFieldEnum]
+
+
+export const GuruUserAchievementScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  achievementId: 'achievementId',
+  unlockedAt: 'unlockedAt'
+} as const
+
+export type GuruUserAchievementScalarFieldEnum = (typeof GuruUserAchievementScalarFieldEnum)[keyof typeof GuruUserAchievementScalarFieldEnum]
+
+
+export const GuruCertificateScalarFieldEnum = {
+  id: 'id',
+  questId: 'questId',
+  title: 'title',
+  description: 'description',
+  templateUrl: 'templateUrl',
+  enabled: 'enabled',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type GuruCertificateScalarFieldEnum = (typeof GuruCertificateScalarFieldEnum)[keyof typeof GuruCertificateScalarFieldEnum]
+
+
+export const GuruUserCertificateScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  questId: 'questId',
+  certificateId: 'certificateId',
+  certificateUrl: 'certificateUrl',
+  issuedAt: 'issuedAt'
+} as const
+
+export type GuruUserCertificateScalarFieldEnum = (typeof GuruUserCertificateScalarFieldEnum)[keyof typeof GuruUserCertificateScalarFieldEnum]
+
+
+export const GuruDailyMissionScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  description: 'description',
+  xp: 'xp',
+  enabled: 'enabled',
+  sortOrder: 'sortOrder',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type GuruDailyMissionScalarFieldEnum = (typeof GuruDailyMissionScalarFieldEnum)[keyof typeof GuruDailyMissionScalarFieldEnum]
+
+
+export const GuruDailyMissionCompletionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  missionId: 'missionId',
+  completedDate: 'completedDate',
+  completedAt: 'completedAt'
+} as const
+
+export type GuruDailyMissionCompletionScalarFieldEnum = (typeof GuruDailyMissionCompletionScalarFieldEnum)[keyof typeof GuruDailyMissionCompletionScalarFieldEnum]
+
+
+export const GuruMentorNoteScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  title: 'title',
+  message: 'message',
+  createdAt: 'createdAt'
+} as const
+
+export type GuruMentorNoteScalarFieldEnum = (typeof GuruMentorNoteScalarFieldEnum)[keyof typeof GuruMentorNoteScalarFieldEnum]
+
+
+export const GuruReflectionInsightScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  title: 'title',
+  summary: 'summary',
+  recommendation: 'recommendation',
+  createdAt: 'createdAt'
+} as const
+
+export type GuruReflectionInsightScalarFieldEnum = (typeof GuruReflectionInsightScalarFieldEnum)[keyof typeof GuruReflectionInsightScalarFieldEnum]
+
+
+export const GuruXpLedgerScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  sourceType: 'sourceType',
+  sourceId: 'sourceId',
+  xp: 'xp',
+  createdAt: 'createdAt'
+} as const
+
+export type GuruXpLedgerScalarFieldEnum = (typeof GuruXpLedgerScalarFieldEnum)[keyof typeof GuruXpLedgerScalarFieldEnum]
+
+
 export const BranchScalarFieldEnum = {
   id: 'id',
   instituteId: 'instituteId',
@@ -10972,6 +12477,23 @@ export type GlobalOmitConfig = {
   salesBoosterCampaign?: Prisma.SalesBoosterCampaignOmit
   salesBoosterMetricSnapshot?: Prisma.SalesBoosterMetricSnapshotOmit
   salesBoosterAudienceContact?: Prisma.SalesBoosterAudienceContactOmit
+  guruQuest?: Prisma.GuruQuestOmit
+  guruLesson?: Prisma.GuruLessonOmit
+  guruLessonCompletion?: Prisma.GuruLessonCompletionOmit
+  guruReflectionQuestion?: Prisma.GuruReflectionQuestionOmit
+  guruReflectionAnswer?: Prisma.GuruReflectionAnswerOmit
+  guruChallenge?: Prisma.GuruChallengeOmit
+  guruChallengeCompletion?: Prisma.GuruChallengeCompletionOmit
+  guruProgress?: Prisma.GuruProgressOmit
+  guruAchievement?: Prisma.GuruAchievementOmit
+  guruUserAchievement?: Prisma.GuruUserAchievementOmit
+  guruCertificate?: Prisma.GuruCertificateOmit
+  guruUserCertificate?: Prisma.GuruUserCertificateOmit
+  guruDailyMission?: Prisma.GuruDailyMissionOmit
+  guruDailyMissionCompletion?: Prisma.GuruDailyMissionCompletionOmit
+  guruMentorNote?: Prisma.GuruMentorNoteOmit
+  guruReflectionInsight?: Prisma.GuruReflectionInsightOmit
+  guruXpLedger?: Prisma.GuruXpLedgerOmit
   branch?: Prisma.BranchOmit
   institute?: Prisma.InstituteOmit
 }

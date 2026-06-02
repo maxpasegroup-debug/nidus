@@ -161,6 +161,23 @@ export const ModelName = {
   SalesBoosterCampaign: 'SalesBoosterCampaign',
   SalesBoosterMetricSnapshot: 'SalesBoosterMetricSnapshot',
   SalesBoosterAudienceContact: 'SalesBoosterAudienceContact',
+  GuruQuest: 'GuruQuest',
+  GuruLesson: 'GuruLesson',
+  GuruLessonCompletion: 'GuruLessonCompletion',
+  GuruReflectionQuestion: 'GuruReflectionQuestion',
+  GuruReflectionAnswer: 'GuruReflectionAnswer',
+  GuruChallenge: 'GuruChallenge',
+  GuruChallengeCompletion: 'GuruChallengeCompletion',
+  GuruProgress: 'GuruProgress',
+  GuruAchievement: 'GuruAchievement',
+  GuruUserAchievement: 'GuruUserAchievement',
+  GuruCertificate: 'GuruCertificate',
+  GuruUserCertificate: 'GuruUserCertificate',
+  GuruDailyMission: 'GuruDailyMission',
+  GuruDailyMissionCompletion: 'GuruDailyMissionCompletion',
+  GuruMentorNote: 'GuruMentorNote',
+  GuruReflectionInsight: 'GuruReflectionInsight',
+  GuruXpLedger: 'GuruXpLedger',
   Branch: 'Branch',
   Institute: 'Institute'
 } as const
@@ -1846,6 +1863,236 @@ export const SalesBoosterAudienceContactScalarFieldEnum = {
 } as const
 
 export type SalesBoosterAudienceContactScalarFieldEnum = (typeof SalesBoosterAudienceContactScalarFieldEnum)[keyof typeof SalesBoosterAudienceContactScalarFieldEnum]
+
+
+export const GuruQuestScalarFieldEnum = {
+  id: 'id',
+  slug: 'slug',
+  title: 'title',
+  description: 'description',
+  duration: 'duration',
+  introduction: 'introduction',
+  status: 'status',
+  locked: 'locked',
+  unlockAfterQuestId: 'unlockAfterQuestId',
+  certificateTitle: 'certificateTitle',
+  sortOrder: 'sortOrder',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type GuruQuestScalarFieldEnum = (typeof GuruQuestScalarFieldEnum)[keyof typeof GuruQuestScalarFieldEnum]
+
+
+export const GuruLessonScalarFieldEnum = {
+  id: 'id',
+  questId: 'questId',
+  title: 'title',
+  description: 'description',
+  duration: 'duration',
+  mediaType: 'mediaType',
+  audioUrl: 'audioUrl',
+  videoUrl: 'videoUrl',
+  documentUrl: 'documentUrl',
+  textContent: 'textContent',
+  required: 'required',
+  sortOrder: 'sortOrder',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type GuruLessonScalarFieldEnum = (typeof GuruLessonScalarFieldEnum)[keyof typeof GuruLessonScalarFieldEnum]
+
+
+export const GuruLessonCompletionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  questId: 'questId',
+  lessonId: 'lessonId',
+  completedAt: 'completedAt'
+} as const
+
+export type GuruLessonCompletionScalarFieldEnum = (typeof GuruLessonCompletionScalarFieldEnum)[keyof typeof GuruLessonCompletionScalarFieldEnum]
+
+
+export const GuruReflectionQuestionScalarFieldEnum = {
+  id: 'id',
+  questId: 'questId',
+  prompt: 'prompt',
+  type: 'type',
+  options: 'options',
+  required: 'required',
+  sortOrder: 'sortOrder',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type GuruReflectionQuestionScalarFieldEnum = (typeof GuruReflectionQuestionScalarFieldEnum)[keyof typeof GuruReflectionQuestionScalarFieldEnum]
+
+
+export const GuruReflectionAnswerScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  questId: 'questId',
+  questionId: 'questionId',
+  answer: 'answer',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type GuruReflectionAnswerScalarFieldEnum = (typeof GuruReflectionAnswerScalarFieldEnum)[keyof typeof GuruReflectionAnswerScalarFieldEnum]
+
+
+export const GuruChallengeScalarFieldEnum = {
+  id: 'id',
+  questId: 'questId',
+  title: 'title',
+  description: 'description',
+  required: 'required',
+  evidenceRequired: 'evidenceRequired',
+  sortOrder: 'sortOrder',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type GuruChallengeScalarFieldEnum = (typeof GuruChallengeScalarFieldEnum)[keyof typeof GuruChallengeScalarFieldEnum]
+
+
+export const GuruChallengeCompletionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  questId: 'questId',
+  challengeId: 'challengeId',
+  notes: 'notes',
+  evidenceUrl: 'evidenceUrl',
+  completedAt: 'completedAt'
+} as const
+
+export type GuruChallengeCompletionScalarFieldEnum = (typeof GuruChallengeCompletionScalarFieldEnum)[keyof typeof GuruChallengeCompletionScalarFieldEnum]
+
+
+export const GuruProgressScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  questId: 'questId',
+  status: 'status',
+  completionPercent: 'completionPercent',
+  startedAt: 'startedAt',
+  completedAt: 'completedAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type GuruProgressScalarFieldEnum = (typeof GuruProgressScalarFieldEnum)[keyof typeof GuruProgressScalarFieldEnum]
+
+
+export const GuruAchievementScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  description: 'description',
+  ruleKey: 'ruleKey',
+  iconUrl: 'iconUrl',
+  enabled: 'enabled',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type GuruAchievementScalarFieldEnum = (typeof GuruAchievementScalarFieldEnum)[keyof typeof GuruAchievementScalarFieldEnum]
+
+
+export const GuruUserAchievementScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  achievementId: 'achievementId',
+  unlockedAt: 'unlockedAt'
+} as const
+
+export type GuruUserAchievementScalarFieldEnum = (typeof GuruUserAchievementScalarFieldEnum)[keyof typeof GuruUserAchievementScalarFieldEnum]
+
+
+export const GuruCertificateScalarFieldEnum = {
+  id: 'id',
+  questId: 'questId',
+  title: 'title',
+  description: 'description',
+  templateUrl: 'templateUrl',
+  enabled: 'enabled',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type GuruCertificateScalarFieldEnum = (typeof GuruCertificateScalarFieldEnum)[keyof typeof GuruCertificateScalarFieldEnum]
+
+
+export const GuruUserCertificateScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  questId: 'questId',
+  certificateId: 'certificateId',
+  certificateUrl: 'certificateUrl',
+  issuedAt: 'issuedAt'
+} as const
+
+export type GuruUserCertificateScalarFieldEnum = (typeof GuruUserCertificateScalarFieldEnum)[keyof typeof GuruUserCertificateScalarFieldEnum]
+
+
+export const GuruDailyMissionScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  description: 'description',
+  xp: 'xp',
+  enabled: 'enabled',
+  sortOrder: 'sortOrder',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type GuruDailyMissionScalarFieldEnum = (typeof GuruDailyMissionScalarFieldEnum)[keyof typeof GuruDailyMissionScalarFieldEnum]
+
+
+export const GuruDailyMissionCompletionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  missionId: 'missionId',
+  completedDate: 'completedDate',
+  completedAt: 'completedAt'
+} as const
+
+export type GuruDailyMissionCompletionScalarFieldEnum = (typeof GuruDailyMissionCompletionScalarFieldEnum)[keyof typeof GuruDailyMissionCompletionScalarFieldEnum]
+
+
+export const GuruMentorNoteScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  title: 'title',
+  message: 'message',
+  createdAt: 'createdAt'
+} as const
+
+export type GuruMentorNoteScalarFieldEnum = (typeof GuruMentorNoteScalarFieldEnum)[keyof typeof GuruMentorNoteScalarFieldEnum]
+
+
+export const GuruReflectionInsightScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  title: 'title',
+  summary: 'summary',
+  recommendation: 'recommendation',
+  createdAt: 'createdAt'
+} as const
+
+export type GuruReflectionInsightScalarFieldEnum = (typeof GuruReflectionInsightScalarFieldEnum)[keyof typeof GuruReflectionInsightScalarFieldEnum]
+
+
+export const GuruXpLedgerScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  sourceType: 'sourceType',
+  sourceId: 'sourceId',
+  xp: 'xp',
+  createdAt: 'createdAt'
+} as const
+
+export type GuruXpLedgerScalarFieldEnum = (typeof GuruXpLedgerScalarFieldEnum)[keyof typeof GuruXpLedgerScalarFieldEnum]
 
 
 export const BranchScalarFieldEnum = {

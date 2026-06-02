@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { motion } from "framer-motion";
-import { Activity, Building2, ClipboardList, LockKeyhole, Settings, Shield, Users } from "lucide-react";
+import { Activity, BookOpenCheck, Building2, ClipboardList, LockKeyhole, Settings, Shield, Users } from "lucide-react";
 import { AuditTimeline } from "@/components/admin-center/AuditTimeline";
 import { SystemHealthCard } from "@/components/admin-center/SystemHealthCard";
 import { useAdminDashboard } from "@/hooks/use-admin-center";
@@ -14,6 +14,7 @@ const commandLinks = [
   { href: "/admin-center/permissions", label: "Permissions", icon: LockKeyhole },
   { href: "/admin-center/settings", label: "Settings", icon: Settings },
   { href: "/admin-center/operations", label: "Operations", icon: Activity },
+  { href: "/admin-center/guru", label: "NIDUS Guru", icon: BookOpenCheck },
   { href: "/admin-center/audit-logs", label: "Audit Logs", icon: ClipboardList },
   { href: "/admin-center/branches", label: "Branches", icon: Building2 }
 ];
