@@ -59,7 +59,7 @@ export default async function ProgramDetailPage({ params }: { params: Promise<{ 
               </p>
               <div className="mt-7 flex flex-col gap-3 sm:flex-row">
                 <a href="#apply" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-[#b58b35]/45 bg-[linear-gradient(135deg,#fff3bf_0%,#e7c873_34%,#b9913f_72%,#8a6426_100%)] px-5 py-3 text-sm font-semibold text-[#071d36] shadow-[0_14px_34px_rgba(185,145,63,0.22)] transition hover:brightness-105">
-                  Apply / Enquire Now <ArrowRight className="h-4 w-4" />
+                  Apply Now <ArrowRight className="h-4 w-4" />
                 </a>
                 <Link href={`/start-free?intent=academy&program=${encodeURIComponent(program.title)}`} className="inline-flex min-h-12 items-center justify-center rounded-full border border-[#071d36]/14 bg-white px-5 py-3 text-sm font-semibold text-[#071d36] shadow-sm transition hover:-translate-y-0.5">
                   Ask NIDUS Assistant
@@ -129,7 +129,7 @@ export default async function ProgramDetailPage({ params }: { params: Promise<{ 
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#3f4a32]">Application Support</p>
             <h2 className="mt-3 text-3xl font-semibold leading-tight text-[#071d36] sm:text-5xl">Need help joining {program.title}?</h2>
             <p className="mt-5 text-sm leading-7 text-[#40516a]">
-              Fill this form. The enquiry will reach the NIDUS lead management dashboard and our team can contact you for counselling.
+              Fill this form with student details and blood group. The application will reach Administration for review and approval.
             </p>
           </div>
           <ProgramEnquiryForm programTitle={program.title} source="Academy Program Detail Page" />

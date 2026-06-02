@@ -4,14 +4,21 @@ import Link from "next/link";
 import { useMemo, useState, type FormEvent, type ReactNode } from "react";
 import { motion } from "framer-motion";
 import {
+  BarChart3,
+  BookMarked,
   BookOpen,
   CalendarCheck,
   ClipboardCheck,
   FileText,
   GraduationCap,
+  LibraryBig,
   MessageSquareText,
   PlayCircle,
   Send,
+  Target,
+  Timer,
+  Trophy,
+  Video,
   UsersRound
 } from "lucide-react";
 import {
@@ -90,6 +97,54 @@ const professorPrompts = [
   "Create homework with 10 easy, 10 medium and 5 hard questions."
 ];
 
+const classExecutionTiles = [
+  {
+    title: "20 Min Recorded Class",
+    line: "Upload or assign one short recorded class for the topic.",
+    href: "/recorded-lectures",
+    icon: Video,
+    tone: "bg-[#fff7de]"
+  },
+  {
+    title: "10 MCQ Practice",
+    line: "Give 10 questions based on that recorded class.",
+    href: "/tests",
+    icon: ClipboardCheck,
+    tone: "bg-[#edf7ee]"
+  },
+  {
+    title: "Topic Analysis",
+    line: "Check speed, time per question, first attempt and second attempt accuracy.",
+    href: "/performance-analytics",
+    icon: BarChart3,
+    tone: "bg-[#eef5ff]"
+  },
+  {
+    title: "Area to Improve",
+    line: "See which topic or question type needs correction.",
+    href: "/progress-reports",
+    icon: Target,
+    tone: "bg-[#fff2ec]"
+  },
+  {
+    title: "Saturday Mock Test",
+    line: "Run one weekly mock test with timer and marks.",
+    href: "/tests",
+    icon: Trophy,
+    tone: "bg-[#f5efff]"
+  },
+  {
+    title: "Sunday Paper Analysis",
+    line: "Host live paper analysis for maximum 2 hours.",
+    href: "/live-classes",
+    icon: Timer,
+    tone: "bg-[#eff8f8]"
+  }
+];
+
+const courseTracks = ["NDA Crash", "NDA F1", "NDA F2"];
+const subjectLibrary = ["Maths", "English", "Biology", "Social", "GK", "Current Affairs", "Chemistry", "Physics"];
+
 function dashboardCopy(template: string, designation?: string | null, subject?: string | null) {
   if (template === "ACADEMIC_HEAD") {
     return {
@@ -162,6 +217,71 @@ export default function TeacherDashboardPage() {
           <StatCard label="Materials" value={String(data.contentOps.notesUploads)} note="Uploaded study files" />
         </section>
 
+        <section className="rounded-lg border border-[#071d36]/10 bg-white p-5 shadow-[0_18px_60px_rgba(7,29,54,0.08)]">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#8a6426]">Classes</p>
+              <h2 className="mt-2 text-3xl font-semibold text-[#071d36]">Simple class execution</h2>
+              <p className="mt-2 max-w-2xl text-sm leading-7 text-[#64748b]">
+                Follow this easy class cycle: short recorded lesson, quick MCQ practice, topic analysis, improvement work, weekly mock, and live paper analysis.
+              </p>
+            </div>
+            <Button href="/live-classes">Open Classes</Button>
+          </div>
+          <div className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            {classExecutionTiles.map((tile, index) => {
+              const Icon = tile.icon;
+              return <DashboardThumbnail key={tile.title} href={tile.href} title={tile.title} line={tile.line} icon={<Icon className="h-7 w-7" />} tone={tile.tone} step={index + 1} />;
+            })}
+          </div>
+        </section>
+
+        <section className="grid gap-6 xl:grid-cols-[0.85fr_1.15fr]">
+          <div className="rounded-lg border border-[#071d36]/10 bg-white p-5 shadow-[0_18px_60px_rgba(7,29,54,0.08)]">
+            <div className="flex items-center gap-3">
+              <div className="grid h-11 w-11 place-items-center rounded bg-[#fff7de] text-[#b9913f]">
+                <LibraryBig className="h-6 w-6" />
+              </div>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8a6426]">Library</p>
+                <h2 className="text-2xl font-semibold text-[#071d36]">Course-wise access</h2>
+              </div>
+            </div>
+            <div className="mt-5 grid gap-3">
+              {courseTracks.map((course) => (
+                <Link key={course} href="/courses" className="flex items-center justify-between rounded-lg border border-[#071d36]/10 bg-[#f7f3ea] px-4 py-4 text-sm font-semibold text-[#071d36] transition hover:border-[#b9913f]/45 hover:bg-white">
+                  {course}
+                  <BookMarked className="h-4 w-4 text-[#b9913f]" />
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-lg border border-[#071d36]/10 bg-white p-5 shadow-[0_18px_60px_rgba(7,29,54,0.08)]">
+            <div className="flex items-center gap-3">
+              <div className="grid h-11 w-11 place-items-center rounded bg-[#edf7ee] text-[#3f6b45]">
+                <BookOpen className="h-6 w-6" />
+              </div>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#3f6b45]">Subjects</p>
+                <h2 className="text-2xl font-semibold text-[#071d36]">Notes, videos and photos by topic</h2>
+              </div>
+            </div>
+            <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              {subjectLibrary.map((subject) => (
+                <Link key={subject} href="/media-library" className="rounded-lg border border-[#071d36]/10 bg-[#fffdf8] p-4 transition hover:-translate-y-0.5 hover:border-[#b9913f]/45">
+                  <p className="font-semibold text-[#071d36]">{subject}</p>
+                  <p className="mt-1 text-xs leading-5 text-[#64748b]">Topic notes and referred media</p>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#8a6426]">Main Menu</p>
+          <h2 className="mt-2 text-2xl font-semibold text-[#071d36]">Daily teacher tools</h2>
+        </div>
         <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           {simpleModules.map((module) => {
             const Icon = module.icon;
@@ -282,5 +402,36 @@ function SimpleInfo({ title, items }: { title: string; items: string[] }) {
         ))}
       </div>
     </section>
+  );
+}
+
+function DashboardThumbnail({
+  href,
+  title,
+  line,
+  icon,
+  tone,
+  step
+}: {
+  href: string;
+  title: string;
+  line: string;
+  icon: ReactNode;
+  tone: string;
+  step: number;
+}) {
+  return (
+    <Link href={href} className="group rounded-lg border border-[#071d36]/10 bg-[#fffdf8] p-4 transition hover:-translate-y-1 hover:border-[#b9913f]/45 hover:bg-white">
+      <div className="flex items-start gap-4">
+        <div className={`grid h-14 w-14 shrink-0 place-items-center rounded-lg ${tone} text-[#071d36]`}>
+          {icon}
+        </div>
+        <div>
+          <span className="rounded-full bg-white px-2.5 py-1 text-[11px] font-bold text-[#8a6426] shadow-sm">Step {step}</span>
+          <h3 className="mt-3 text-lg font-semibold text-[#071d36]">{title}</h3>
+          <p className="mt-2 text-sm leading-6 text-[#64748b]">{line}</p>
+        </div>
+      </div>
+    </Link>
   );
 }
