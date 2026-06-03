@@ -16,31 +16,31 @@ export default function PsychometricDetailsPage() {
   const { data: history } = usePsychometricAttemptHistory(id);
   const startMutation = useStartPsychometric();
 
-  if (isLoading) return <div className="h-80 animate-pulse rounded-lg bg-white/[0.06]" />;
+  if (isLoading) return <div className="h-80 animate-pulse rounded-lg bg-[#071d36]/10" />;
   if (error || !test) return <EmptyState title="Unable to load assessment" description={getApiErrorMessage(error)} />;
 
   return (
     <div className="grid gap-6 lg:grid-cols-[1fr_280px]">
       <main className="space-y-6">
         <NidusAiOrbit message={nidusPlatformGuidance(test)} mood="guide" />
-        <section className="rounded-lg border border-white/10 bg-white/[0.055] p-6 backdrop-blur-xl">
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-gold">{test.type} {test.access ? `• ${test.access}` : ""}</p>
-          <h1 className="mt-3 text-4xl font-semibold text-white">{test.title}</h1>
-          <p className="mt-3 text-sm leading-7 text-muted">{test.description}</p>
+        <section className="rounded-lg border border-[#071d36]/10 bg-white/90 p-6 shadow-[0_24px_70px_rgba(7,29,54,0.10)]">
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#8a6426]">{test.type} {test.access ? `- ${test.access}` : ""}</p>
+          <h1 className="mt-3 text-4xl font-semibold text-[#071d36]">{test.title}</h1>
+          <p className="mt-3 text-sm leading-7 text-[#40516a]">{test.description}</p>
           <div className="mt-6 grid gap-3 md:grid-cols-3">
             {["AI-led questions", "Natural answers", "Guided report"].map((item) => (
-              <div key={item} className="rounded border border-white/10 bg-white/[0.035] p-3 text-sm font-semibold text-white">{item}</div>
+              <div key={item} className="rounded border border-[#071d36]/10 bg-[#fffdf8] p-3 text-sm font-semibold text-[#071d36]">{item}</div>
             ))}
           </div>
-          <p className="mt-6 rounded border border-white/10 bg-white/[0.035] p-4 text-sm leading-7 text-muted">{test.instructions}</p>
+          <p className="mt-6 rounded border border-[#071d36]/10 bg-[#fffdf8] p-4 text-sm leading-7 text-[#40516a]">{test.instructions}</p>
           <div className="mt-6 flex flex-col gap-3 sm:flex-row">
             <Button onClick={() => startMutation.mutate(test.id)} disabled={startMutation.isPending}>{startMutation.isPending ? "NIDUS AI is starting..." : "Start With NIDUS AI"}</Button>
             <Button href="/psychometric" variant="secondary">Choose Another Assessment</Button>
           </div>
-          <div className="mt-4 rounded border border-gold/20 bg-gold/10 p-4 text-sm leading-7 text-gold-soft">
+          <div className="mt-4 rounded border border-[#c89b3c]/25 bg-[#fff7de] p-4 text-sm leading-7 text-[#8a6426]">
             {nidusOptionalGuidance(0)}
           </div>
-          <div className="mt-4 rounded border border-white/10 bg-white/[0.035] p-4 text-sm leading-7 text-muted">
+          <div className="mt-4 rounded border border-[#071d36]/10 bg-[#fffdf8] p-4 text-sm leading-7 text-[#40516a]">
             Security note: attempts expire after the assessment duration plus review grace time. Repeated starts, expired attempts, and unusual response patterns are checked by NIDUS AI before report guidance.
           </div>
           <div className="mt-4 grid gap-3 md:grid-cols-3">
@@ -50,28 +50,28 @@ export default function PsychometricDetailsPage() {
           </div>
         </section>
         {history?.attempts ? (
-          <section className="rounded-lg border border-white/10 bg-white/[0.055] p-6 backdrop-blur-xl">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-gold">Retake History</p>
-            <h2 className="mt-3 text-2xl font-semibold text-white">{history.attempts} completed attempt{history.attempts === 1 ? "" : "s"}</h2>
+          <section className="rounded-lg border border-[#071d36]/10 bg-white/90 p-6 shadow-[0_24px_70px_rgba(7,29,54,0.10)]">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#8a6426]">Retake History</p>
+            <h2 className="mt-3 text-2xl font-semibold text-[#071d36]">{history.attempts} completed attempt{history.attempts === 1 ? "" : "s"}</h2>
             <div className="mt-5 grid gap-3 md:grid-cols-3">
-              <div className="rounded border border-white/10 bg-white/[0.035] p-4">
-                <p className="text-xs text-muted">Latest</p>
-                <p className="mt-2 text-xl font-semibold text-gold-soft">{history.latestScore}/100</p>
+              <div className="rounded border border-[#071d36]/10 bg-[#fffdf8] p-4">
+                <p className="text-xs text-[#64748b]">Latest</p>
+                <p className="mt-2 text-xl font-semibold text-[#8a6426]">{history.latestScore}/100</p>
               </div>
-              <div className="rounded border border-white/10 bg-white/[0.035] p-4">
-                <p className="text-xs text-muted">Best</p>
-                <p className="mt-2 text-xl font-semibold text-gold-soft">{history.bestScore}/100</p>
+              <div className="rounded border border-[#071d36]/10 bg-[#fffdf8] p-4">
+                <p className="text-xs text-[#64748b]">Best</p>
+                <p className="mt-2 text-xl font-semibold text-[#8a6426]">{history.bestScore}/100</p>
               </div>
-              <div className="rounded border border-white/10 bg-white/[0.035] p-4">
-                <p className="text-xs text-muted">Improvement</p>
-                <p className="mt-2 text-xl font-semibold text-gold-soft">{history.improvement >= 0 ? "+" : ""}{history.improvement}</p>
+              <div className="rounded border border-[#071d36]/10 bg-[#fffdf8] p-4">
+                <p className="text-xs text-[#64748b]">Improvement</p>
+                <p className="mt-2 text-xl font-semibold text-[#8a6426]">{history.improvement >= 0 ? "+" : ""}{history.improvement}</p>
               </div>
             </div>
             <div className="mt-5 grid gap-3">
               {history.trend.slice(-3).map((attempt) => (
-                <a key={attempt.attemptId} href={attempt.reportHref} className="flex items-center justify-between rounded border border-white/10 bg-white/[0.035] px-4 py-3 text-sm text-white transition hover:border-gold/40">
+                <a key={attempt.attemptId} href={attempt.reportHref} className="flex items-center justify-between rounded border border-[#071d36]/10 bg-[#fffdf8] px-4 py-3 text-sm text-[#071d36] transition hover:border-[#c89b3c]/60">
                   <span>Attempt {attempt.attemptNumber}: {attempt.readinessBand}</span>
-                  <span className="font-semibold text-gold-soft">{attempt.score}/100</span>
+                  <span className="font-semibold text-[#8a6426]">{attempt.score}/100</span>
                 </a>
               ))}
             </div>

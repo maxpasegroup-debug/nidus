@@ -263,10 +263,8 @@ function accessNoteFor(assessment: AssessmentDefinition, mode: "guest" | "studen
     return "Full + report";
   }
 
-  if (mode === "guest") return assessment.access === "FREE" ? "Preview result" : "Create account to unlock";
-  if (assessment.access === "PREMIUM") return "Premium locked";
-  if (assessment.access === "CORE") return "Basic analysis";
-  return "Full assessment";
+  if (mode === "guest") return assessment.access === "FREE" ? "Open guest access" : "Guest access enabled";
+  return "Included for students";
 }
 
 export function buildAssessmentProgress(activityCount = 0, mode: "guest" | "student" | "premium" = "student", completedSignals: CompletedAssessmentSignal[] = []): AssessmentProgress[] {
@@ -274,23 +272,20 @@ export function buildAssessmentProgress(activityCount = 0, mode: "guest" | "stud
   const useRealSignals = completedSignals.length > 0;
 
   return assessmentCatalog.map((assessment, index) => {
-    const isPremiumLocked = assessment.access === "PREMIUM";
-    const isGuestLocked = mode === "guest" && assessment.access !== "FREE";
     const completedSignal = completedById.get(assessment.id);
-    const completed = Boolean(completedSignal) || (!useRealSignals && !isPremiumLocked && !isGuestLocked && index < Math.min(activityCount, 4));
-    const inProgress = !isPremiumLocked && !isGuestLocked && !completed && index === Math.min(activityCount, 4);
+    const completed = Boolean(completedSignal) || (!useRealSignals && index < Math.min(activityCount, 4));
+    const inProgress = !completed && index === Math.min(activityCount, 4);
     const score = completedSignal?.score ?? (completed ? Math.min(96, 72 + index * 3) : null);
-    const status: AssessmentStatus = isPremiumLocked || isGuestLocked ? "LOCKED" : completed ? "COMPLETED" : inProgress ? "IN_PROGRESS" : "NOT_STARTED";
+    const status: AssessmentStatus = completed ? "COMPLETED" : inProgress ? "IN_PROGRESS" : "NOT_STARTED";
     const startHref = `/psychometric/${assessment.id}`;
-    const lockedHref = mode === "guest" ? "/register" : "/subscriptions";
 
     return {
       ...assessment,
       status,
       score,
-      reportStatus: completed ? completedSignal?.readinessBand ?? "Report ready" : isPremiumLocked ? "Premium locked" : isGuestLocked ? "Create account to unlock" : inProgress ? "Continue to generate report" : "Report pending",
-      actionLabel: completed ? "View Report" : isPremiumLocked ? "Unlock Premium" : isGuestLocked ? "Create Account" : inProgress ? "Continue" : mode === "guest" ? "Start Preview" : "Start Assessment",
-      href: completed ? completedSignal?.reportHref ?? `/assessment-reports/${assessment.id}` : isPremiumLocked || isGuestLocked ? lockedHref : startHref,
+      reportStatus: completed ? completedSignal?.readinessBand ?? "Report ready" : inProgress ? "Continue to generate report" : "Report pending",
+      actionLabel: completed ? "View Report" : inProgress ? "Continue" : "Start Assessment",
+      href: completed ? completedSignal?.reportHref ?? `/assessment-reports/${assessment.id}` : startHref,
       attemptId: completedSignal?.attemptId,
       completedAt: completedSignal?.completedAt,
       pdfHref: completedSignal?.pdfHref,

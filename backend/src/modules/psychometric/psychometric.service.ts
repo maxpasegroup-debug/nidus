@@ -32,7 +32,6 @@ const includeQuestions = {
   questions: { orderBy: { order: "asc" as const } }
 };
 
-const paidSubscriptionStatuses = ["ACTIVE", "PAID", "SUCCESS", "VERIFIED"];
 const attemptGraceMinutes = 15;
 const maxStartsPerHour = 8;
 
@@ -247,27 +246,10 @@ function roleBypass(role?: Role) {
   return role === "ADMIN" || role === "DIRECTOR";
 }
 
-async function hasPremiumAccess(userId: string) {
-  const subscription = await prisma.subscription.findFirst({
-    where: {
-      userId,
-      status: { in: paidSubscriptionStatuses },
-      endDate: { gte: new Date() }
-    },
-    orderBy: { endDate: "desc" }
-  });
-  return Boolean(subscription);
-}
-
-async function assertAssessmentAccess(userId: string, role: Role | undefined, test: { id: string; access?: string | null; isActive?: boolean }) {
+function assertAssessmentAccess(role: Role | undefined, test: { id: string; access?: string | null; isActive?: boolean }) {
   if (roleBypass(role)) return;
   if (test.isActive === false) throw new Error("Assessment is currently inactive.");
-  const access = accessForTest(test.id, test.access);
-  if (access === "FREE") return;
-  if (role === "GUEST") throw new Error("Create a student account to unlock core and premium assessments.");
-  if (access === "CORE") return;
-  if (await hasPremiumAccess(userId)) return;
-  throw new Error("Premium assessment locked. Please activate a valid subscription to start this assessment.");
+  accessForTest(test.id, test.access);
 }
 
 async function assertStartRateLimit(userId: string) {
@@ -798,7 +780,7 @@ export const psychometricService = {
 
   async start(userId: string, testId: string, role?: Role) {
     const test = await this.getTest(testId);
-    await assertAssessmentAccess(userId, role, test);
+    assertAssessmentAccess(role, test);
 
     const existingAttempt = await prisma.psychometricAttempt.findFirst({
       where: { userId, testId, completedAt: null },
