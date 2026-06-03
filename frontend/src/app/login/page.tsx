@@ -5,6 +5,7 @@ import { useState, type FormEvent } from "react";
 import { ArrowRight, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { login } from "@/services/auth.v2";
 import { getApiErrorMessage } from "@/services/api";
 import { roleDashboardPath } from "@/lib/dashboard-data";
@@ -51,7 +52,7 @@ export default function LoginPage() {
         <form className="mt-7 space-y-4" onSubmit={handleSubmit}>
           {error ? <div className="rounded border border-red-400/40 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div> : null}
           <Input label="Email or mobile" type="text" placeholder="Email or mobile number" value={identifier} onChange={(event) => setIdentifier(event.target.value)} className={fieldClass} required />
-          <Input label="Password" type="password" placeholder="Password" value={password} onChange={(event) => setPassword(event.target.value)} className={fieldClass} minLength={8} required />
+          <PasswordInput label="Password" placeholder="Password" value={password} onChange={(event) => setPassword(event.target.value)} className={fieldClass} minLength={8} required />
           <Button type="submit" className="w-full" disabled={isSubmitting}>
             {isSubmitting ? "Signing in..." : "Sign in"} <ArrowRight className="h-4 w-4" />
           </Button>

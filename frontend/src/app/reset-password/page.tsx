@@ -6,7 +6,7 @@ import { Suspense } from "react";
 import { useState, type FormEvent } from "react";
 import { LockKeyhole } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { resetPassword } from "@/services/auth.v2";
 import { getApiErrorMessage } from "@/services/api";
 import { useToast } from "@/components/providers/toast-provider";
@@ -62,8 +62,8 @@ function ResetPasswordContent() {
         {successMessage ? <div className="mt-5 rounded-lg border border-emerald-400/40 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-100">{successMessage}</div> : null}
         {errorMessage ? <div className="mt-5 rounded-lg border border-red-400/40 bg-red-500/10 px-4 py-3 text-sm text-red-100">{errorMessage}</div> : null}
         <form className="mt-6 space-y-4" onSubmit={submit}>
-          <Input label="New password" type="password" value={password} onChange={(event) => setPassword(event.target.value)} minLength={8} required />
-          <Input label="Confirm password" type="password" value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} minLength={8} required />
+          <PasswordInput label="New password" value={password} onChange={(event) => setPassword(event.target.value)} minLength={8} required />
+          <PasswordInput label="Confirm password" value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} minLength={8} required />
           <Button type="submit" className="w-full" disabled={isSubmitting || !token || Boolean(successMessage)}>{isSubmitting ? "Updating..." : "Update Password"}</Button>
         </form>
         <p className="mt-6 text-center text-sm text-muted"><Link href="/forgot-password" className="font-semibold text-gold-soft">Request a new link</Link></p>

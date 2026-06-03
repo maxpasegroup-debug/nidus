@@ -5,6 +5,7 @@ import { useState, type FormEvent } from "react";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { signup } from "@/services/auth.v2";
 import { getApiErrorMessage } from "@/services/api";
 import { roleDashboardPath } from "@/lib/dashboard-data";
@@ -54,7 +55,7 @@ export default function RegisterPage() {
           <Input label="Full name" placeholder="Student name" value={name} onChange={(event) => setName(event.target.value)} className={fieldClass} required />
           <Input label="Email" type="email" placeholder="Email address" value={email} onChange={(event) => setEmail(event.target.value)} className={fieldClass} required />
           <Input label="Mobile" placeholder="WhatsApp mobile number" value={mobile} onChange={(event) => setMobile(event.target.value)} className={fieldClass} required />
-          <Input label="Password" type="password" placeholder="Create password" value={password} onChange={(event) => setPassword(event.target.value)} className={fieldClass} minLength={8} required />
+          <PasswordInput label="Password" placeholder="Create password" value={password} onChange={(event) => setPassword(event.target.value)} className={fieldClass} minLength={8} required />
           <Button type="submit" className="w-full" disabled={isSubmitting}>
             {isSubmitting ? "Creating..." : "Start free"} <ArrowRight className="h-4 w-4" />
           </Button>
