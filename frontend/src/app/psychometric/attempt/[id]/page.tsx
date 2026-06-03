@@ -25,17 +25,42 @@ function readCachedAttempt(attemptId: string) {
 function NidusAssessmentOrb() {
   return (
     <div className="relative mx-auto grid h-24 w-24 place-items-center sm:h-28 sm:w-28">
-      <div className="absolute inset-0 rounded-full bg-fuchsia-400/30 blur-3xl" />
-      <div className="absolute inset-3 rounded-full bg-sky-400/20 blur-2xl" />
+      <div className="absolute inset-0 rounded-full bg-[#d7a642]/30 blur-3xl" />
+      <div className="absolute inset-3 rounded-full bg-[#3f4a32]/25 blur-2xl" />
       <motion.div
         animate={{ scale: [1, 1.05, 1], rotate: [0, 4, -4, 0] }}
         transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-        className="relative grid h-20 w-20 place-items-center rounded-full bg-[linear-gradient(135deg,#d56cff_0%,#f06bd9_45%,#88d8ff_100%)] shadow-[0_0_70px_rgba(213,108,255,0.55)] sm:h-24 sm:w-24"
+        className="relative grid h-20 w-20 place-items-center rounded-full border border-[#f7d37c]/35 bg-[linear-gradient(135deg,#071d36_0%,#3f4a32_52%,#d7a642_100%)] shadow-[0_0_70px_rgba(215,166,66,0.42)] sm:h-24 sm:w-24"
       >
-        <BrainCircuit className="h-8 w-8 text-white" />
+        <BrainCircuit className="h-8 w-8 text-[#fff7de]" />
       </motion.div>
     </div>
   );
+}
+
+function cleanQuestionText(value: string) {
+  return value.replace(/^.+?\s+scenario\s+\d+\s+-\s+.+?:\s*/i, "").trim();
+}
+
+function shortAnswerLabel(value: string, index: number) {
+  const normalized = value.toLowerCase();
+  if (normalized.includes("act early") || normalized.includes("take command")) return "Act early";
+  if (normalized.includes("stay steady") || normalized.includes("small plan")) return "Stay steady";
+  if (normalized.includes("need support") || normalized.includes("need time")) return "Need support";
+  if (normalized.includes("delay") || normalized.includes("avoid") || normalized.includes("lose rhythm")) return "Delay / avoid";
+  if (normalized.includes("protect one")) return "Protect focus";
+  if (normalized.includes("work in short")) return "Short blocks";
+  if (normalized.includes("checking my phone")) return "Gets distracted";
+  if (normalized.includes("switch tasks")) return "Switches tasks";
+
+  const afterColon = value.includes(":") ? value.split(":").pop() ?? value : value;
+  const cleaned = afterColon
+    .replace(/Scenario\s+\d+.*$/i, "")
+    .replace(/this is my.*$/i, "")
+    .replace(/this fits me.*$/i, "")
+    .trim();
+  const words = cleaned.split(/\s+/).filter(Boolean).slice(0, 4).join(" ");
+  return words || `Option ${String.fromCharCode(65 + index)}`;
 }
 
 export default function PsychometricAttemptPage() {
@@ -79,15 +104,19 @@ export default function PsychometricAttemptPage() {
 
   if (!currentQuestion) return <EmptyState title="No questions available" description="NIDUS AI could not find questions for this assessment." />;
 
-  const currentChoices = nidusAnswerChoices(currentQuestion);
+  const currentChoices = nidusAnswerChoices(currentQuestion).map((option, index) => ({
+    value: option,
+    label: shortAnswerLabel(option, index)
+  }));
+  const displayQuestion = cleanQuestionText(currentQuestion.questionText);
   const selectedAnswer = answers[currentQuestion.id] ?? "";
   const isLastQuestion = currentIndex === questions.length - 1;
 
   return (
-    <main className="min-h-[calc(100vh-5rem)] overflow-hidden rounded-lg border border-white/10 bg-[#060814] text-white shadow-[0_30px_90px_rgba(0,0,0,0.35)]">
+    <main className="min-h-[calc(100vh-5rem)] overflow-hidden rounded-lg border border-[#d7a642]/20 bg-[#071d36] text-white shadow-[0_30px_90px_rgba(7,29,54,0.35)]">
       <div className="relative min-h-[calc(100vh-5rem)] px-4 py-5 sm:px-8 lg:px-12">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_28%,rgba(132,54,190,0.38),transparent_24rem),radial-gradient(circle_at_18%_88%,rgba(0,117,150,0.28),transparent_25rem),linear-gradient(180deg,#210934_0%,#08091b_52%,#031927_100%)]" />
-        <div className="absolute inset-0 opacity-[0.18] [background-image:linear-gradient(rgba(255,255,255,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.08)_1px,transparent_1px)] [background-size:44px_44px]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_18%,rgba(215,166,66,0.20),transparent_22rem),radial-gradient(circle_at_18%_90%,rgba(63,74,50,0.36),transparent_26rem),linear-gradient(180deg,#071d36_0%,#061525_50%,#082622_100%)]" />
+        <div className="absolute inset-0 opacity-[0.14] [background-image:linear-gradient(rgba(247,211,124,0.14)_1px,transparent_1px),linear-gradient(90deg,rgba(247,211,124,0.14)_1px,transparent_1px)] [background-size:44px_44px]" />
         <div className="relative mx-auto max-w-5xl">
           <header className="space-y-2">
             <div className="flex items-center justify-between gap-4 text-sm font-semibold text-white/85">
@@ -95,7 +124,7 @@ export default function PsychometricAttemptPage() {
               <span>{questionProgress}%</span>
             </div>
             <div className="h-1 overflow-hidden rounded-full bg-white/15">
-              <motion.div className="h-full rounded-full bg-[linear-gradient(90deg,#c64dff,#ff6fd8,#7bdcff)]" animate={{ width: `${questionProgress}%` }} transition={{ duration: 0.35 }} />
+              <motion.div className="h-full rounded-full bg-[linear-gradient(90deg,#f8d77c,#d7a642,#3f4a32)]" animate={{ width: `${questionProgress}%` }} transition={{ duration: 0.35 }} />
             </div>
           </header>
 
@@ -111,36 +140,36 @@ export default function PsychometricAttemptPage() {
               >
                 <div className="mx-auto max-w-3xl text-center">
                   <NidusAssessmentOrb />
-                  <p className="mt-5 text-xs font-bold uppercase tracking-[0.35em] text-white/65">NIDUS AI</p>
+                  <p className="mt-5 text-xs font-bold uppercase tracking-[0.35em] text-[#f7d37c]">NIDUS AI</p>
                   <p className="mt-3 text-sm leading-6 text-white/70">{nidusQuestionPrompt(currentQuestion, attempt.test)}</p>
                   {currentQuestion.imageUrl ? <Image src={currentQuestion.imageUrl} alt="" width={900} height={420} unoptimized className="mx-auto mt-5 max-h-64 w-auto rounded-lg object-cover" /> : null}
                   <h1 className="mx-auto mt-7 max-w-2xl text-balance text-3xl font-bold leading-tight text-white sm:text-4xl">
-                    {currentQuestion.questionText}
+                    {displayQuestion}
                   </h1>
                   <p className="mt-4 text-base font-medium text-white/70">Choose what feels most true for you right now.</p>
                 </div>
 
                 {Array.isArray(currentQuestion.options) ? (
-                  <div className="mx-auto mt-8 grid max-w-3xl gap-3">
+                  <div className="mx-auto mt-8 grid max-w-2xl gap-3 sm:grid-cols-2">
                     {currentChoices.map((option, optionIndex) => (
                       <motion.button
-                        key={option}
+                        key={option.value}
                         type="button"
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: optionIndex * 0.04 }}
-                        onClick={() => update(currentQuestion.id, option)}
-                        className={`group rounded-2xl border px-5 py-4 text-left text-base font-semibold leading-7 transition hover:-translate-y-0.5 ${selectedAnswer === option ? "border-fuchsia-300 bg-white text-[#08091b] shadow-[0_0_36px_rgba(198,77,255,0.28)]" : "border-white/15 bg-white/[0.085] text-white hover:border-fuchsia-300/60 hover:bg-white/[0.13]"}`}
+                        onClick={() => update(currentQuestion.id, option.value)}
+                        className={`group flex min-h-16 items-center rounded-2xl border px-5 py-4 text-left text-base font-semibold leading-6 transition hover:-translate-y-0.5 ${selectedAnswer === option.value ? "border-[#f7d37c] bg-[#fff7de] text-[#071d36] shadow-[0_0_36px_rgba(215,166,66,0.26)]" : "border-[#f7d37c]/18 bg-white/[0.075] text-white hover:border-[#f7d37c]/65 hover:bg-white/[0.12]"}`}
                       >
-                        <span className={`mr-3 inline-grid h-7 w-7 place-items-center rounded-full text-xs ${selectedAnswer === option ? "bg-[#08091b] text-white" : "bg-white/10 text-white/75 group-hover:bg-fuchsia-300/20"}`}>{String.fromCharCode(65 + optionIndex)}</span>
-                        {option}
+                        <span className={`mr-3 inline-grid h-7 w-7 shrink-0 place-items-center rounded-full text-xs ${selectedAnswer === option.value ? "bg-[#071d36] text-[#f7d37c]" : "bg-white/10 text-white/75 group-hover:bg-[#d7a642]/20"}`}>{String.fromCharCode(65 + optionIndex)}</span>
+                        {option.label}
                       </motion.button>
                     ))}
                   </div>
                 ) : (
                   <textarea
                     value={selectedAnswer}
-                    className="mx-auto mt-8 block min-h-36 w-full max-w-3xl rounded-2xl border border-white/15 bg-white/[0.085] p-5 text-base text-white outline-none placeholder:text-white/45 focus:border-fuchsia-300"
+                    className="mx-auto mt-8 block min-h-36 w-full max-w-3xl rounded-2xl border border-[#f7d37c]/20 bg-white/[0.085] p-5 text-base text-white outline-none placeholder:text-white/45 focus:border-[#f7d37c]"
                     onChange={(event) => update(currentQuestion.id, event.target.value)}
                     placeholder="Answer naturally. NIDUS AI is reading the behaviour pattern, not judging the wording."
                   />
