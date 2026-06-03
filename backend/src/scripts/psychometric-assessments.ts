@@ -315,13 +315,15 @@ function buildOptions(assessment: SeedAssessment, dimension: Dimension, question
 }
 
 function buildQuestions(assessment: SeedAssessment) {
+  const assessmentName = assessment.title.replace("(TM)", "").trim();
   return assessment.dimensions.flatMap((dimension, dimensionIndex) =>
     dimensionQuestions[dimension].map((questionText, questionIndex) => {
       const order = dimensionIndex * 5 + questionIndex + 1;
+      const label = dimensionLabels[dimension];
       return {
         id: `${assessment.id}-${slug(dimension)}-${questionIndex + 1}`,
         testId: assessment.id,
-        questionText,
+        questionText: `${assessmentName} scenario ${order} - ${label}: ${questionText}`,
         questionType: "SINGLE_CHOICE",
         options: buildOptions(assessment, dimension, questionIndex),
         order

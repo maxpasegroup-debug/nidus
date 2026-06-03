@@ -1,15 +1,89 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, ClipboardCheck, MessageCircle, Sparkles, Target, UserRoundCheck } from "lucide-react";
+import { ArrowRight, ClipboardCheck, Compass, MessageCircle, Sparkles, Target, TrendingUp, UserRoundCheck } from "lucide-react";
 import type { NidusGeneratedReport } from "@/components/psychometric/nidus-ai-assessment-engine";
 
 function ReportCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-lg border border-white/10 bg-white/[0.055] p-5 backdrop-blur-xl">
+    <section className="rounded-lg border border-white/10 bg-[#0b1020]/92 p-5 shadow-[0_24px_70px_rgba(0,0,0,0.28)]">
       <h2 className="text-lg font-semibold text-white">{title}</h2>
       {children}
     </section>
+  );
+}
+
+function ScoreRing({ score, level }: { score: number; level: string }) {
+  return (
+    <div className="rounded-lg border border-white/10 bg-[radial-gradient(circle_at_50%_0%,rgba(198,77,255,0.22),transparent_18rem),#0b1020] p-6 text-center shadow-[0_24px_70px_rgba(0,0,0,0.30)]">
+      <div className="mx-auto grid h-44 w-44 place-items-center rounded-full" style={{ background: `conic-gradient(#f4c95d ${score * 3.6}deg, rgba(255,255,255,0.10) 0deg)` }}>
+        <div className="grid h-36 w-36 place-items-center rounded-full bg-[#070a16]">
+          <div>
+            <p className="text-5xl font-bold text-white">{score}</p>
+            <p className="mt-1 text-xs font-semibold uppercase tracking-[0.22em] text-[#f4c95d]">Score</p>
+          </div>
+        </div>
+      </div>
+      <p className="mt-5 text-lg font-semibold text-white">{level}</p>
+      <p className="mt-2 text-sm leading-6 text-white/65">NIDUS AI overall readiness interpretation</p>
+    </div>
+  );
+}
+
+function VisualDimensionGraph({ dimensions }: { dimensions: NonNullable<NidusGeneratedReport["dimensionScores"]> }) {
+  const topDimensions = [...dimensions].sort((a, b) => b.score - a.score).slice(0, 8);
+
+  return (
+    <ReportCard title="Visual Dimension Graph">
+      <div className="mt-5 space-y-4">
+        {topDimensions.map((dimension) => (
+          <div key={dimension.dimension}>
+            <div className="flex items-center justify-between gap-3 text-sm">
+              <span className="font-semibold text-white">{dimension.label}</span>
+              <span className="font-semibold text-[#f4c95d]">{dimension.score}/100</span>
+            </div>
+            <div className="mt-2 h-3 overflow-hidden rounded-full bg-white/10">
+              <div
+                className="h-full rounded-full bg-[linear-gradient(90deg,#7bdcff,#c64dff,#f4c95d)]"
+                style={{ width: `${Math.max(5, Math.min(100, dimension.score))}%` }}
+              />
+            </div>
+            <p className="mt-1 text-xs text-white/50">{dimension.answered}/{dimension.total} signals captured</p>
+          </div>
+        ))}
+      </div>
+    </ReportCard>
+  );
+}
+
+function CareerGuidancePanel({ report }: { report: NidusGeneratedReport }) {
+  const guidance: Array<[string, string, typeof Target]> = [
+    ["Best next assessment", report.recommendedNextTest, Target],
+    ["Growth quest", report.recommendedGuruQuest, Sparkles],
+    ["Counselling focus", report.counsellingAction, Compass]
+  ];
+
+  return (
+    <ReportCard title="Career Focused Guidance">
+      <div className="mt-4 grid gap-3">
+        {guidance.map(([label, value, Icon]) => {
+          const GuidanceIcon = Icon as typeof Target;
+          return (
+            <div key={String(label)} className="rounded border border-white/10 bg-white/[0.045] p-4">
+              <div className="flex items-start gap-3">
+                <div className="grid h-10 w-10 shrink-0 place-items-center rounded bg-[#f4c95d]/15 text-[#f4c95d]">
+                  <GuidanceIcon className="h-5 w-5" />
+                </div>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-white/45">{String(label)}</p>
+                  <p className="mt-2 text-sm font-semibold leading-6 text-white">{String(value)}</p>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </ReportCard>
   );
 }
 
@@ -25,13 +99,24 @@ export function NidusAiReportView({ report }: { report: NidusGeneratedReport }) 
         ].map(([label, value, Icon]) => {
           const MetricIcon = Icon as typeof ClipboardCheck;
           return (
-            <div key={String(label)} className="rounded-lg border border-white/10 bg-white/[0.055] p-4 backdrop-blur-xl">
+            <div key={String(label)} className="rounded-lg border border-white/10 bg-[#0b1020]/92 p-4 shadow-[0_18px_45px_rgba(0,0,0,0.22)]">
               <MetricIcon className="h-5 w-5 text-gold" />
               <p className="mt-4 text-xs font-semibold uppercase tracking-[0.16em] text-muted">{String(label)}</p>
               <p className="mt-2 text-lg font-semibold leading-6 text-white">{String(value)}</p>
             </div>
           );
         })}
+      </section>
+
+      <section className="grid gap-4 lg:grid-cols-[0.72fr_1.28fr]">
+        <ScoreRing score={report.score} level={report.level} />
+        {report.dimensionScores?.length ? <VisualDimensionGraph dimensions={report.dimensionScores} /> : (
+          <ReportCard title="Visual Interpretation">
+            <div className="mt-5 rounded border border-white/10 bg-white/[0.045] p-4 text-sm leading-7 text-white/70">
+              Dimension graph will appear after enough answer signals are captured.
+            </div>
+          </ReportCard>
+        )}
       </section>
 
       <ReportCard title="What This Means">
@@ -41,6 +126,30 @@ export function NidusAiReportView({ report }: { report: NidusGeneratedReport }) 
           {report.behaviourPattern}
         </div>
       </ReportCard>
+
+      <section className="grid gap-4 lg:grid-cols-[1fr_0.82fr]">
+        <ReportCard title="Interpretation Map">
+          <div className="mt-4 grid gap-3 md:grid-cols-3">
+            {[
+              ["Readiness", report.officerReadinessSignal],
+              ["Behaviour", report.behaviourPattern],
+              ["Confidence", report.reportConfidence ?? "Complete more responses to improve confidence."]
+            ].map(([title, body], index) => (
+              <div key={title} className="rounded border border-white/10 bg-white/[0.045] p-4">
+                <div className="flex items-center gap-2">
+                  <TrendingUp className="h-4 w-4 text-[#f4c95d]" />
+                  <p className="text-sm font-semibold text-white">{title}</p>
+                </div>
+                <p className="mt-3 text-sm leading-6 text-white/65">{body}</p>
+                <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-white/10">
+                  <div className="h-full rounded-full bg-[#f4c95d]" style={{ width: `${Math.max(28, report.score - index * 12)}%` }} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </ReportCard>
+        <CareerGuidancePanel report={report} />
+      </section>
 
       {(report.percentileContext || report.reportConfidence) ? (
         <section className="grid gap-4 lg:grid-cols-2">

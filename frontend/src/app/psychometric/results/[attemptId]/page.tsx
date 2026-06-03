@@ -26,7 +26,7 @@ export default function PsychometricResultPage() {
   const { showToast } = useToast();
   const [isDownloading, setIsDownloading] = useState(false);
 
-  if (isLoading) return <div className="h-96 animate-pulse rounded-lg bg-white/[0.06]" />;
+  if (isLoading) return <div className="h-96 animate-pulse rounded-lg bg-[#071d36]/10" />;
   if (error || !data) return <EmptyState title="Unable to load result" description={getApiErrorMessage(error)} />;
   const report = nidusGenerateReport(data);
 
@@ -54,10 +54,10 @@ export default function PsychometricResultPage() {
   return (
     <div className="space-y-6">
       <SectionHeader eyebrow="Psychometric Result" title={data.attempt.test.title} action={`Score ${data.attempt.score}`} />
-      <div className="flex flex-col gap-3 rounded-lg border border-white/10 bg-white/[0.04] p-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-3 rounded-lg border border-[#071d36]/10 bg-white p-4 shadow-[0_18px_45px_rgba(7,29,54,0.10)] sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p className="text-sm font-semibold text-white">Detailed NIDUS AI report is ready</p>
-          <p className="mt-1 text-sm text-muted">Download the assessment interpretation, dimension scores, counselling summary, and action plan as a PDF.</p>
+          <p className="text-sm font-semibold text-[#071d36]">Detailed NIDUS AI report is ready</p>
+          <p className="mt-1 text-sm text-[#40516a]">Download the assessment interpretation, dimension scores, counselling summary, and action plan as a PDF.</p>
         </div>
         <Button type="button" variant="secondary" onClick={handleDownloadPdf} disabled={isDownloading} className="shrink-0">
           {isDownloading ? "Preparing PDF..." : "Download PDF Report"}
