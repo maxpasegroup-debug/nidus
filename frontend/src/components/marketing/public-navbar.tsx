@@ -53,7 +53,8 @@ export function PublicNavbar() {
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link href="/" className="group flex items-center" onClick={() => setOpen(false)}>
           <span className="text-xl font-black uppercase tracking-[0.08em] text-[#071D36] transition duration-300 group-hover:tracking-[0.16em]">
-            NIDUS ACADEMY
+            <span className="sm:hidden">NIDUS</span>
+            <span className="hidden sm:inline">NIDUS ACADEMY</span>
           </span>
         </Link>
 
@@ -79,14 +80,23 @@ export function PublicNavbar() {
           </Link>
         </div>
 
-        <button type="button" className="rounded-full border border-[#071D36]/14 bg-white/70 p-2 text-[#071D36] lg:hidden" onClick={() => setOpen((value) => !value)} aria-label="Toggle public navigation">
-          {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-        </button>
+        <div className="flex items-center gap-2 lg:hidden">
+          <Link href="/login" onClick={() => setOpen(false)} className="inline-flex min-h-10 items-center justify-center rounded-full border border-[#b58b35]/45 bg-[linear-gradient(135deg,#fff3bf_0%,#e7c873_34%,#b9913f_72%,#8a6426_100%)] px-3 py-2 text-sm font-semibold text-[#071D36] shadow-[0_10px_24px_rgba(185,145,63,0.18)]">
+            Sign in
+          </Link>
+          <button type="button" className="rounded-full border border-[#071D36]/14 bg-white/70 p-2 text-[#071D36]" onClick={() => setOpen((value) => !value)} aria-label="Toggle public navigation">
+            {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
+        </div>
       </div>
 
       {open ? (
-        <div className="border-t border-[#071D36]/10 bg-[#f7f3ea]/98 px-4 py-4 backdrop-blur-2xl lg:hidden">
+        <div className="max-h-[calc(100dvh-5rem)] overflow-y-auto border-t border-[#071D36]/10 bg-[#f7f3ea]/98 px-4 py-4 backdrop-blur-2xl lg:hidden">
           <nav className="mx-auto grid max-w-7xl gap-2">
+            <div className="grid grid-cols-2 gap-2 pb-2">
+              <Link href="/start-free?intent=general" onClick={() => setOpen(false)} className="rounded-full border border-[#b58b35]/45 bg-[linear-gradient(135deg,#fff3bf_0%,#e7c873_34%,#b9913f_72%,#8a6426_100%)] px-4 py-3 text-center text-sm font-semibold text-[#071D36]">Start Free</Link>
+              <Link href="/login" onClick={() => setOpen(false)} className="rounded-full border border-[#b58b35]/45 bg-[linear-gradient(135deg,#fff3bf_0%,#e7c873_34%,#b9913f_72%,#8a6426_100%)] px-4 py-3 text-center text-sm font-semibold text-[#071D36]">Sign in</Link>
+            </div>
             <Link href="/psychometric" onClick={() => setOpen(false)} className="rounded px-3 py-3 text-sm font-semibold text-[#071D36] hover:bg-white">Assessments</Link>
             <p className="px-3 pt-2 text-xs font-bold uppercase tracking-[0.18em] text-[#B9913F]">Academy</p>
             {academyLinks.map(([item, href]) => (
@@ -96,8 +106,6 @@ export function PublicNavbar() {
             ))}
             <Link href="/guru" onClick={() => setOpen(false)} className="rounded px-3 py-3 text-sm font-semibold text-[#071D36] hover:bg-white">Nidus Guru</Link>
             <Link href="/toprank" onClick={() => setOpen(false)} className="rounded px-3 py-3 text-sm font-semibold text-[#071D36] hover:bg-white">Top Rank</Link>
-            <Link href="/start-free?intent=general" onClick={() => setOpen(false)} className="mt-2 rounded-full border border-[#b58b35]/45 bg-[linear-gradient(135deg,#fff3bf_0%,#e7c873_34%,#b9913f_72%,#8a6426_100%)] px-4 py-3 text-center text-sm font-semibold text-[#071D36]">Start Free</Link>
-            <Link href="/login" onClick={() => setOpen(false)} className="rounded-full border border-[#b58b35]/45 bg-[linear-gradient(135deg,#fff3bf_0%,#e7c873_34%,#b9913f_72%,#8a6426_100%)] px-4 py-3 text-center text-sm font-semibold text-[#071D36]">Login</Link>
           </nav>
         </div>
       ) : null}
