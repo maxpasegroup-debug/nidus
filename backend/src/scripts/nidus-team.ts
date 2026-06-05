@@ -7,12 +7,14 @@ import { Prisma, Role } from "../generated/prisma/client.js";
 type TeamMemberSeed = {
   name: string;
   email: string;
+  legacyEmail?: string;
   mobile: string;
   role: Role;
   designation: string;
   department: string;
   dashboardTemplate: string;
   subject?: string;
+  resetDefaultPassword?: boolean;
   permissions: string[];
   focusAreas: string[];
 };
@@ -159,15 +161,16 @@ export const nidusTeamMembers: TeamMemberSeed[] = [
     focusAreas: ["Chemistry concepts", "Equation practice", "Topic tests", "Lab-linked notes"]
   },
   {
-    name: "Deepthi",
-    email: "vineeshdeepthi8@gmail.com",
+    name: "Admission Cell",
+    email: "admisioncell@nidusacademy.in",
+    legacyEmail: "vineeshdeepthi8@gmail.com",
     mobile: "+919000001013",
     role: Role.ADMIN,
-    designation: "Administration",
-    department: "Administration",
+    designation: "Admission Cell",
+    department: "Admissions",
     dashboardTemplate: "ADMIN_OPERATIONS",
-    permissions: ["manage_students", "manage_documents", "manage_fees", "manage_staff_records", "send_notices"],
-    focusAreas: ["Student records", "Fee follow-up", "Documents", "Daily operations"]
+    permissions: ["manage_enquiries", "manage_applications", "manage_admissions", "manage_documents", "manage_fees", "send_notices"],
+    focusAreas: ["New enquiries", "Applications", "Admission approval", "Fees and documents"]
   },
   {
     name: "Chitra",
@@ -182,12 +185,14 @@ export const nidusTeamMembers: TeamMemberSeed[] = [
   },
   {
     name: "Sales Booster",
-    email: "fortuneconnect@nidusacademy.in",
+    email: "salesbooster@nidusacademy.in",
+    legacyEmail: "fortuneconnect@nidusacademy.in",
     mobile: "+919000001015",
     role: Role.MARKETING_COORDINATOR,
     designation: "AI Sales & Marketing Automation",
     department: "Admissions Growth",
     dashboardTemplate: "SALES_BOOSTER",
+    resetDefaultPassword: true,
     permissions: ["plan_campaigns", "review_creatives", "manage_campaign_leads", "prepare_whatsapp_followups", "review_campaign_reports"],
     focusAreas: ["Academy promotions", "TOPRANK subscriptions", "NIDUS Guru campaigns", "Assessment lead magnets", "WhatsApp follow-up"]
   }
@@ -214,7 +219,14 @@ export async function ensureNidusTeam() {
   const results = [];
 
   for (const member of nidusTeamMembers) {
-    const existing = await prisma.user.findUnique({ where: { email: member.email } });
+    const existing = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { email: member.email },
+          ...(member.legacyEmail ? [{ email: member.legacyEmail }] : [])
+        ]
+      }
+    });
     const existingMetadata = existing?.roleMetadata && typeof existing.roleMetadata === "object" && !Array.isArray(existing.roleMetadata) ? existing.roleMetadata as Prisma.InputJsonObject : {};
     const metadata: Prisma.InputJsonObject = {
       ...existingMetadata,
@@ -225,7 +237,9 @@ export async function ensureNidusTeam() {
           where: { id: existing.id },
           data: {
             name: member.name,
+            email: member.email,
             mobile: member.mobile,
+            ...(member.resetDefaultPassword ? { password } : {}),
             role: member.role,
             emailVerified: true,
             mobileVerified: true,
