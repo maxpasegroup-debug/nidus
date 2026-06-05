@@ -127,6 +127,7 @@ export type TeacherDashboardData = {
   subjects: string[];
   classPerformance: { averageScore: number; attendance: number; weakStudentCount: number; assignmentsDue: number };
   contentOps: { lectureUploads: number; notesUploads: number; pendingReviews: number; cbtDrafts: number };
+  physicalTraining?: { schedules: number; attendanceMarked: number; fitnessProfiles: number; eligibilityReviews: number; dailyLogs: number };
   modules: Array<{ title: string; status: string; metric: string }>;
   weakStudentAlerts: string[];
   aiRecommendations: string[];

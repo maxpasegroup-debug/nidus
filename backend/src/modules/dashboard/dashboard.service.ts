@@ -13,6 +13,10 @@ function percentage(part: number, total: number) {
   return total > 0 ? Math.round((part / total) * 100) : 0;
 }
 
+function clampPercentage(value: number) {
+  return Math.max(0, Math.min(100, Math.round(Number.isFinite(value) ? value : 0)));
+}
+
 function monthLabel(date: Date) {
   return date.toLocaleString("en-US", { month: "short" });
 }
@@ -200,7 +204,7 @@ export const dashboardService = {
         : []
     ]);
     const present = attendanceRows.filter((row) => attendanceStatus(row.status) === "PRESENT").length;
-    const averageScore = attempts.length ? Math.round(attempts.reduce((sum, attempt) => sum + attempt.score, 0) / attempts.length) : 0;
+    const averageScore = attempts.length ? clampPercentage(attempts.reduce((sum, attempt) => sum + attempt.score, 0) / attempts.length) : 0;
     const firstScore = attempts[0]?.score ?? 0;
     const lastScore = attempts.at(-1)?.score ?? 0;
     const dueFees = fees.filter((fee) => fee.paidStatus !== "PAID");
@@ -318,8 +322,18 @@ export const dashboardService = {
       prisma.test.count(),
       prisma.aIRecommendation.findMany({ where: { userId: user.id }, orderBy: { createdAt: "desc" }, take: 5 })
     ]);
+    const isPhysicalInstructor = customDashboard.dashboardTemplate === "PHYSICAL_INSTRUCTOR";
+    const [ptSchedules, ptAttendance, fitnessProfiles, eligibilityReviews, dailyLogs] = isPhysicalInstructor
+      ? await Promise.all([
+          prisma.pTSchedule.count(),
+          prisma.pTAttendance.count(),
+          prisma.fitnessProfile.count(),
+          prisma.physicalEligibility.count(),
+          prisma.dailyFitnessLog.count()
+        ])
+      : [0, 0, 0, 0, 0];
     const present = attendanceRows.filter((row) => attendanceStatus(row.status) === "PRESENT").length;
-    const averageScore = attempts.length ? Math.round(attempts.reduce((sum, attempt) => sum + attempt.score, 0) / attempts.length) : 0;
+    const averageScore = attempts.length ? clampPercentage(attempts.reduce((sum, attempt) => sum + attempt.score, 0) / attempts.length) : 0;
     const weakAttempts = attempts.filter((attempt) => attempt.score < 50);
 
     return {
@@ -333,6 +347,13 @@ export const dashboardService = {
         pendingReviews: 0,
         cbtDrafts: tests
       },
+      physicalTraining: isPhysicalInstructor ? {
+        schedules: ptSchedules,
+        attendanceMarked: ptAttendance,
+        fitnessProfiles,
+        eligibilityReviews,
+        dailyLogs
+      } : undefined,
       modules: [
         { title: customDashboard.designation || "Subject assignment", status: "Ready", metric: customDashboard.department || "Configure through staff profiles" },
         { title: "Lecture uploads", status: lectures ? "Active" : "No data", metric: `${lectures} uploaded lectures` },
