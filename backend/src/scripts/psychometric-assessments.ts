@@ -302,16 +302,95 @@ function categoryForAssessment(id: string) {
   return "DISCIPLINE_FOCUS";
 }
 
-function buildOptions(assessment: SeedAssessment, dimension: Dimension, questionIndex: number) {
-  const label = dimensionLabels[dimension];
-  const context = `${assessment.title.replace("(TM)", "").trim()} - ${label} scenario ${questionIndex + 1}`;
+const optionStopWords = new Set([
+  "when",
+  "what",
+  "which",
+  "where",
+  "how",
+  "does",
+  "your",
+  "you",
+  "usually",
+  "naturally",
+  "first",
+  "before",
+  "after",
+  "with",
+  "into",
+  "from",
+  "that",
+  "this",
+  "there",
+  "their",
+  "becomes",
+  "important",
+  "situation"
+]);
 
-  return [
-    `${context}: I act early, take responsibility, and convert the situation into a useful next step.`,
-    `${context}: I stay steady, understand the situation, and respond after creating a clear small plan.`,
-    `${context}: I need support or time before I respond with confidence and consistency.`,
-    `${context}: I usually delay, avoid, or lose rhythm when this situation becomes uncomfortable.`
+function optionFocus(questionText: string) {
+  const cleaned = questionText.toLowerCase();
+  if (cleaned.includes("information") && cleaned.includes("incomplete")) return "incomplete facts";
+  if (cleaned.includes("confused")) return "group confusion";
+  if (cleaned.includes("ownership")) return "ownership gap";
+  if (cleaned.includes("quieter")) return "quiet member";
+  if (cleaned.includes("teammate") && cleaned.includes("weak")) return "weak teammate";
+  if (cleaned.includes("disagree")) return "disagreement";
+  if (cleaned.includes("suggestion")) return "ignored suggestion";
+  if (cleaned.includes("phone") || cleaned.includes("distract")) return "digital distraction";
+  if (cleaned.includes("routine")) return "routine break";
+  if (cleaned.includes("deadline")) return "missed deadline";
+  if (cleaned.includes("team") && cleaned.includes("confidence")) return "team confidence";
+  if (cleaned.includes("goal")) return "goal clarity";
+  if (cleaned.includes("future")) return "future plan";
+  if (cleaned.includes("pressure")) return "pressure moment";
+  if (cleaned.includes("fitness") || cleaned.includes("training") || cleaned.includes("stamina")) return "training challenge";
+  if (cleaned.includes("speak") || cleaned.includes("voice") || cleaned.includes("communicate")) return "speaking moment";
+
+  const words = cleaned
+    .replace(/[^a-z0-9\s]/g, " ")
+    .split(/\s+/)
+    .filter((word) => word.length > 3 && !optionStopWords.has(word));
+  return words.slice(0, 2).join(" ") || "the moment";
+}
+
+function buildOptions(_assessment: SeedAssessment, dimension: Dimension, questionIndex: number) {
+  const questionText = dimensionQuestions[dimension][questionIndex] ?? dimensionLabels[dimension];
+  const focus = optionFocus(questionText);
+  const variants = [
+    [
+      `I take direct responsibility for ${focus} and move the situation forward.`,
+      `I pause, read ${focus}, and create a small practical plan.`,
+      `I ask for support before handling ${focus} with confidence.`,
+      `I avoid ${focus} until pressure or discomfort reduces.`
+    ],
+    [
+      `I step in early and organize the next action around ${focus}.`,
+      `I stay calm, understand ${focus}, and then respond clearly.`,
+      `I need more time or guidance before dealing with ${focus}.`,
+      `I lose rhythm when ${focus} becomes uncomfortable.`
+    ],
+    [
+      `I convert ${focus} into a useful action without waiting too long.`,
+      `I break ${focus} into simple steps and follow the next step.`,
+      `I depend on someone else to guide me through ${focus}.`,
+      `I delay action and hope ${focus} settles by itself.`
+    ],
+    [
+      `I choose the responsible action even when ${focus} feels difficult.`,
+      `I keep control, think through ${focus}, and respond steadily.`,
+      `I can handle ${focus} only after reassurance or extra time.`,
+      `I withdraw when ${focus} becomes stressful.`
+    ],
+    [
+      `I face ${focus} quickly and try to improve the outcome.`,
+      `I make a clear mini-plan for ${focus} before acting.`,
+      `I look for help because ${focus} lowers my confidence.`,
+      `I postpone ${focus} and return only when it feels easier.`
+    ]
   ];
+
+  return variants[questionIndex % variants.length];
 }
 
 function buildQuestions(assessment: SeedAssessment) {

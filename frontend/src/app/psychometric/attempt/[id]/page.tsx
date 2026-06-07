@@ -42,24 +42,92 @@ function cleanQuestionText(value: string) {
   return value.replace(/^.+?\s+scenario\s+\d+\s+-\s+.+?:\s*/i, "").trim();
 }
 
-function shortAnswerLabel(value: string, index: number) {
+const focusStopWords = new Set([
+  "when",
+  "what",
+  "which",
+  "where",
+  "how",
+  "does",
+  "your",
+  "you",
+  "usually",
+  "naturally",
+  "first",
+  "before",
+  "after",
+  "with",
+  "into",
+  "from",
+  "that",
+  "this",
+  "there",
+  "their",
+  "becomes",
+  "important",
+  "situation"
+]);
+
+function focusPhrase(questionText: string) {
+  const cleaned = cleanQuestionText(questionText).toLowerCase();
+  if (cleaned.includes("information") && cleaned.includes("incomplete")) return "incomplete facts";
+  if (cleaned.includes("confused")) return "group confusion";
+  if (cleaned.includes("ownership")) return "ownership";
+  if (cleaned.includes("quieter")) return "quiet member";
+  if (cleaned.includes("teammate") && cleaned.includes("weak")) return "weak teammate";
+  if (cleaned.includes("disagree")) return "disagreement";
+  if (cleaned.includes("suggestion")) return "ignored suggestion";
+  if (cleaned.includes("phone") || cleaned.includes("distract")) return "distractions";
+  if (cleaned.includes("routine")) return "routine break";
+  if (cleaned.includes("deadline")) return "missed deadline";
+  if (cleaned.includes("team") && cleaned.includes("confidence")) return "team confidence";
+  if (cleaned.includes("group")) return "group pressure";
+  if (cleaned.includes("goal")) return "goal clarity";
+  if (cleaned.includes("future")) return "future plan";
+  if (cleaned.includes("pressure")) return "pressure";
+  if (cleaned.includes("fitness") || cleaned.includes("training") || cleaned.includes("stamina")) return "training";
+  if (cleaned.includes("speak") || cleaned.includes("voice") || cleaned.includes("communicate")) return "speaking";
+
+  const words = cleaned
+    .replace(/[^a-z0-9\s]/g, " ")
+    .split(/\s+/)
+    .filter((word) => word.length > 3 && !focusStopWords.has(word));
+  return words.slice(0, 2).join(" ") || "this moment";
+}
+
+function generatedChoiceLabel(question: PsychometricQuestion, index: number) {
+  const focus = focusPhrase(question.questionText);
+  const options = [
+    `Act on ${focus}`,
+    `Plan for ${focus}`,
+    `Ask help on ${focus}`,
+    `Avoid ${focus}`
+  ];
+  return options[index] ?? `Option ${String.fromCharCode(65 + index)}`;
+}
+
+function isRepeatedSeedOption(value: string) {
   const normalized = value.toLowerCase();
-  if (normalized.includes("act early") || normalized.includes("take command")) return "Act early";
-  if (normalized.includes("stay steady") || normalized.includes("small plan")) return "Stay steady";
-  if (normalized.includes("need support") || normalized.includes("need time")) return "Need support";
-  if (normalized.includes("delay") || normalized.includes("avoid") || normalized.includes("lose rhythm")) return "Delay / avoid";
-  if (normalized.includes("protect one")) return "Protect focus";
-  if (normalized.includes("work in short")) return "Short blocks";
-  if (normalized.includes("checking my phone")) return "Gets distracted";
-  if (normalized.includes("switch tasks")) return "Switches tasks";
+  return (
+    normalized.includes("i act early") ||
+    normalized.includes("i stay steady") ||
+    normalized.includes("i need support") ||
+    normalized.includes("i usually delay") ||
+    normalized.includes("scenario") && normalized.includes("this is my")
+  );
+}
+
+function shortAnswerLabel(question: PsychometricQuestion, value: string, index: number) {
+  if (isRepeatedSeedOption(value)) return generatedChoiceLabel(question, index);
 
   const afterColon = value.includes(":") ? value.split(":").pop() ?? value : value;
   const cleaned = afterColon
     .replace(/Scenario\s+\d+.*$/i, "")
     .replace(/this is my.*$/i, "")
     .replace(/this fits me.*$/i, "")
+    .replace(/^I\s+/i, "")
     .trim();
-  const words = cleaned.split(/\s+/).filter(Boolean).slice(0, 4).join(" ");
+  const words = cleaned.split(/\s+/).filter(Boolean).slice(0, 5).join(" ");
   return words || `Option ${String.fromCharCode(65 + index)}`;
 }
 
@@ -106,7 +174,7 @@ export default function PsychometricAttemptPage() {
 
   const currentChoices = nidusAnswerChoices(currentQuestion).map((option, index) => ({
     value: option,
-    label: shortAnswerLabel(option, index)
+    label: shortAnswerLabel(currentQuestion, option, index)
   }));
   const displayQuestion = cleanQuestionText(currentQuestion.questionText);
   const selectedAnswer = answers[currentQuestion.id] ?? "";
