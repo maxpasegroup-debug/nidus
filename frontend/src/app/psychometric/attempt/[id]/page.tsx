@@ -95,14 +95,84 @@ function focusPhrase(questionText: string) {
   return words.slice(0, 2).join(" ") || "this moment";
 }
 
+function scenarioChoiceLabels(questionText: string) {
+  const cleaned = cleanQuestionText(questionText).toLowerCase();
+  if (cleaned.includes("planned routine breaks")) return ["Restart today", "Do a smaller target", "Wait for motivation", "Lose more time"];
+  if (cleaned.includes("nobody checks your work")) return ["Keep full effort", "Do only required", "Need reminders", "Quality drops"];
+  if (cleaned.includes("wake up late")) return ["Recover the day", "Do short training", "Excuse the day", "Skip routine"];
+  if (cleaned.includes("repetitive") && cleaned.includes("boring")) return ["Continue quietly", "Make it measurable", "Need excitement", "Stop midway"];
+  if (cleaned.includes("miss a deadline")) return ["Own and fix it", "Inform and replan", "Feel stuck", "Hide the delay"];
+  if (cleaned.includes("group becomes confused")) return ["Organize the group", "Clarify first step", "Support another lead", "Wait silently"];
+  if (cleaned.includes("taking ownership")) return ["Take ownership", "Share responsibility", "Wait for seniors", "Avoid pressure"];
+  if (cleaned.includes("others are louder")) return ["Speak clearly", "Pick right moment", "Keep idea inside", "Withdraw"];
+  if (cleaned.includes("losing confidence")) return ["Lift morale", "Set small target", "Stay in my role", "Lose energy"];
+  if (cleaned.includes("responsibility comes suddenly")) return ["Accept quickly", "Ask key details", "Need backup", "Feel overwhelmed"];
+  if (cleaned.includes("first 20 minutes")) return ["Stay locked in", "Reset attention", "Drift slowly", "Quit early"];
+  if (cleaned.includes("phone distracts")) return ["Keep phone away", "Use time blocks", "Check sometimes", "Keep scrolling"];
+  if (cleaned.includes("mentally heavy")) return ["Start one part", "Break into pieces", "Delay it", "Avoid fully"];
+  if (cleaned.includes("lose concentration")) return ["Return fast", "Take short reset", "Need external push", "Keep drifting"];
+  if (cleaned.includes("multiple tasks")) return ["Pick priority", "Make order list", "Jump between tasks", "Leave all pending"];
+  if (cleaned.includes("introduce yourself")) return ["Speak confidently", "Speak with nerves", "Say very little", "Avoid eye contact"];
+  if (cleaned.includes("senior questions")) return ["Answer calmly", "Explain with proof", "Doubt myself", "Become defensive"];
+  if (cleaned.includes("visible mistake")) return ["Correct openly", "Recover quietly", "Feel embarrassed", "Give up"];
+  if (cleaned.includes("without perfect preparation")) return ["Speak anyway", "Use simple points", "Stay silent", "Panic"];
+  if (cleaned.includes("others seem more capable")) return ["Learn from them", "Compete calmly", "Feel smaller", "Stop trying"];
+  if (cleaned.includes("pressure rises")) return ["Take action", "Stabilize first", "Freeze briefly", "Follow crowd"];
+  if (cleaned.includes("plan fails")) return ["Find next option", "Review facts", "Need direction", "Lose control"];
+  if (cleaned.includes("blamed") && cleaned.includes("unfairly")) return ["Stay composed", "Explain facts", "React emotionally", "Carry anger"];
+  if (cleaned.includes("information is incomplete")) return ["Decide with facts", "Ask key questions", "Wait longer", "Avoid decision"];
+  if (cleaned.includes("fear appears")) return ["Move through fear", "Use preparation", "Need reassurance", "Step back"];
+  if (cleaned.includes("future goal")) return ["Explain clearly", "Explain roughly", "Still confused", "Change often"];
+  if (cleaned.includes("goal feels far")) return ["Do today's task", "Review plan", "Only think about it", "Lose interest"];
+  if (cleaned.includes("people doubt")) return ["Stay committed", "Use doubt as fuel", "Question myself", "Drop the path"];
+  if (cleaned.includes("ambition is high")) return ["Build routine", "Start again", "Stay inconsistent", "Only dream"];
+  if (cleaned.includes("comfort and long-term")) return ["Choose progress", "Balance both", "Choose comfort", "Avoid choice"];
+  if (cleaned.includes("group members disagree")) return ["Calm the group", "Find common point", "Stay away", "Argue back"];
+  if (cleaned.includes("quieter member")) return ["Invite them", "Mention their idea", "Ignore it", "Dominate"];
+  if (cleaned.includes("teammate is weak")) return ["Help patiently", "Give small role", "Avoid them", "Get irritated"];
+  if (cleaned.includes("group ignores your suggestion")) return ["Stay useful", "Try once more", "Feel rejected", "Stop helping"];
+  if (cleaned.includes("protect morale")) return ["Encourage team", "Reduce tension", "Focus only on me", "Spread stress"];
+  if (cleaned.includes("criticizes you harshly")) return ["Listen calmly", "Take useful part", "Feel hurt", "React fast"];
+  if (cleaned.includes("anger appears")) return ["Control response", "Pause briefly", "Suppress it", "Burst out"];
+  if (cleaned.includes("plans change suddenly")) return ["Adapt quickly", "Replan slowly", "Get disturbed", "Resist change"];
+  if (cleaned.includes("embarrassment happens")) return ["Recover soon", "Laugh and move", "Think for hours", "Avoid people"];
+  if (cleaned.includes("stress builds")) return ["Use routine", "Talk and reset", "Bottle it up", "Break down"];
+  if (cleaned.includes("training becomes uncomfortable")) return ["Push safely", "Slow and continue", "Complain inside", "Stop early"];
+  if (cleaned.includes("low energy")) return ["Start warm-up", "Do light session", "Skip today", "Break routine"];
+  if (cleaned.includes("stamina is weaker")) return ["Train gradually", "Track progress", "Feel ashamed", "Avoid comparison"];
+  if (cleaned.includes("miss a workout")) return ["Resume next day", "Do make-up work", "Lose streak", "Quit week"];
+  if (cleaned.includes("training pain")) return ["Check and continue", "Adjust intensity", "Fear injury", "Stop fully"];
+  if (cleaned.includes("explain an idea")) return ["Keep it clear", "Use examples", "Speak too much", "Stay unclear"];
+  if (cleaned.includes("misunderstand your instruction")) return ["Re-explain simply", "Check their doubt", "Blame them", "Get irritated"];
+  if (cleaned.includes("persuade")) return ["Speak respectfully", "Use logic", "Force opinion", "Stay passive"];
+  if (cleaned.includes("room feels intense")) return ["Keep voice steady", "Slow down", "Lose clarity", "Go silent"];
+  if (cleaned.includes("correct someone")) return ["Correct politely", "Speak privately", "Sound harsh", "Avoid correction"];
+  if (cleaned.includes("many possible solutions")) return ["Compare options", "Pick practical one", "Get confused", "Copy others"];
+  if (cleaned.includes("first solution fails")) return ["Try another route", "Study facts again", "Need someone", "Stop trying"];
+  if (cleaned.includes("requires planning")) return ["List steps", "Set sequence", "Start randomly", "Delay planning"];
+  if (cleaned.includes("complex issue")) return ["Simplify it", "Find root cause", "Get tense", "Add confusion"];
+  if (cleaned.includes("defence role")) return ["Leadership role", "Technical role", "Field action", "Still exploring"];
+  if (cleaned.includes("field action")) return ["Action pathway", "Tech pathway", "Aviation pathway", "Leadership pathway"];
+  if (cleaned.includes("strict systems")) return ["Accept discipline", "Adjust slowly", "Feel restricted", "Resist rules"];
+  if (cleaned.includes("army, navy, air force")) return ["Match strengths", "Ask counselling", "Follow trend", "No clarity"];
+  if (cleaned.includes("mission environment")) return ["High responsibility", "Team operations", "Technical challenge", "Comfort zone"];
+  if (cleaned.includes("comfort conflicts with duty")) return ["Choose duty", "Balance both", "Need push", "Choose comfort"];
+  if (cleaned.includes("wearing a uniform")) return ["Daily discipline", "Service pride", "Only status", "Not sure"];
+  if (cleaned.includes("discipline feels strict")) return ["See purpose", "Adjust gradually", "Feel pressure", "Reject it"];
+  if (cleaned.includes("sacrifice")) return ["Accept sacrifice", "Think deeply", "Need motivation", "Avoid sacrifice"];
+  if (cleaned.includes("country") || cleaned.includes("institution needs responsibility")) return ["Step forward", "Support team", "Wait for others", "Stay back"];
+  if (cleaned.includes("dream and distraction")) return ["Dream wins", "Fight back", "Distraction wins", "Lose control"];
+  if (cleaned.includes("goal control")) return ["Guides my day", "Guides sometimes", "Only in mood", "Rarely matters"];
+  if (cleaned.includes("dopamine distractions")) return ["Block them", "Limit them", "Fall often", "Give in"];
+  if (cleaned.includes("motivational content")) return ["Act immediately", "Note one task", "Just feel inspired", "Forget later"];
+  if (cleaned.includes("future self")) return ["Protect time", "Schedule it", "Use leftover time", "Waste it"];
+
+  const focus = focusPhrase(questionText);
+  return [`Face ${focus}`, `Think it through`, `Need support`, `Step away`];
+}
+
 function generatedChoiceLabel(question: PsychometricQuestion, index: number) {
-  const focus = focusPhrase(question.questionText);
-  const options = [
-    `Act on ${focus}`,
-    `Plan for ${focus}`,
-    `Ask help on ${focus}`,
-    `Avoid ${focus}`
-  ];
+  const options = scenarioChoiceLabels(question.questionText);
   return options[index] ?? `Option ${String.fromCharCode(65 + index)}`;
 }
 
@@ -113,6 +183,26 @@ function isRepeatedSeedOption(value: string) {
     normalized.includes("i stay steady") ||
     normalized.includes("i need support") ||
     normalized.includes("i usually delay") ||
+    normalized.includes("i take direct responsibility") ||
+    normalized.includes("i pause, read") ||
+    normalized.includes("i ask for support before") ||
+    normalized.includes("i avoid") ||
+    normalized.includes("i step in early") ||
+    normalized.includes("i stay calm") ||
+    normalized.includes("i need more time") ||
+    normalized.includes("i lose rhythm") ||
+    normalized.includes("i convert") ||
+    normalized.includes("i break") ||
+    normalized.includes("i depend on someone") ||
+    normalized.includes("i delay action") ||
+    normalized.includes("i choose the responsible") ||
+    normalized.includes("i keep control") ||
+    normalized.includes("i can handle") ||
+    normalized.includes("i withdraw") ||
+    normalized.includes("i face") ||
+    normalized.includes("i make a clear mini-plan") ||
+    normalized.includes("i look for help") ||
+    normalized.includes("i postpone") ||
     normalized.includes("scenario") && normalized.includes("this is my")
   );
 }

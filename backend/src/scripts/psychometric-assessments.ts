@@ -354,8 +354,112 @@ function optionFocus(questionText: string) {
   return words.slice(0, 2).join(" ") || "the moment";
 }
 
+const dimensionOptionChoices: Partial<Record<Dimension, string[][]>> = {
+  leadership: [
+    ["Organize the group", "Clarify first step", "Support another lead", "Wait silently"],
+    ["Take ownership", "Share responsibility", "Wait for seniors", "Avoid pressure"],
+    ["Speak clearly", "Pick right moment", "Keep idea inside", "Withdraw"],
+    ["Lift morale", "Set small target", "Stay in my role", "Lose energy"],
+    ["Accept quickly", "Ask key details", "Need backup", "Feel overwhelmed"]
+  ],
+  discipline: [
+    ["Restart today", "Do a smaller target", "Wait for motivation", "Lose more time"],
+    ["Keep full effort", "Do only required", "Need reminders", "Quality drops"],
+    ["Recover the day", "Do short training", "Excuse the day", "Skip routine"],
+    ["Continue quietly", "Make it measurable", "Need excitement", "Stop midway"],
+    ["Own and fix it", "Inform and replan", "Feel stuck", "Hide the delay"]
+  ],
+  focus: [
+    ["Stay locked in", "Reset attention", "Drift slowly", "Quit early"],
+    ["Keep phone away", "Use time blocks", "Check sometimes", "Keep scrolling"],
+    ["Start one part", "Break into pieces", "Delay it", "Avoid fully"],
+    ["Return fast", "Take short reset", "Need external push", "Keep drifting"],
+    ["Pick priority", "Make order list", "Jump between tasks", "Leave all pending"]
+  ],
+  confidence: [
+    ["Speak confidently", "Speak with nerves", "Say very little", "Avoid eye contact"],
+    ["Answer calmly", "Explain with proof", "Doubt myself", "Become defensive"],
+    ["Correct openly", "Recover quietly", "Feel embarrassed", "Give up"],
+    ["Speak anyway", "Use simple points", "Stay silent", "Panic"],
+    ["Learn from them", "Compete calmly", "Feel smaller", "Stop trying"]
+  ],
+  pressure: [
+    ["Take action", "Stabilize first", "Freeze briefly", "Follow crowd"],
+    ["Find next option", "Review facts", "Need direction", "Lose control"],
+    ["Stay composed", "Explain facts", "React emotionally", "Carry anger"],
+    ["Decide with facts", "Ask key questions", "Wait longer", "Avoid decision"],
+    ["Move through fear", "Use preparation", "Need reassurance", "Step back"]
+  ],
+  future: [
+    ["Explain clearly", "Explain roughly", "Still confused", "Change often"],
+    ["Do today's task", "Review plan", "Only think about it", "Lose interest"],
+    ["Stay committed", "Use doubt as fuel", "Question myself", "Drop the path"],
+    ["Build routine", "Start again", "Stay inconsistent", "Only dream"],
+    ["Choose progress", "Balance both", "Choose comfort", "Avoid choice"]
+  ],
+  teamwork: [
+    ["Calm the group", "Find common point", "Stay away", "Argue back"],
+    ["Invite them", "Mention their idea", "Ignore it", "Dominate"],
+    ["Help patiently", "Give small role", "Avoid them", "Get irritated"],
+    ["Stay useful", "Try once more", "Feel rejected", "Stop helping"],
+    ["Encourage team", "Reduce tension", "Focus only on me", "Spread stress"]
+  ],
+  emotional: [
+    ["Listen calmly", "Take useful part", "Feel hurt", "React fast"],
+    ["Control response", "Pause briefly", "Suppress it", "Burst out"],
+    ["Adapt quickly", "Replan slowly", "Get disturbed", "Resist change"],
+    ["Recover soon", "Laugh and move", "Think for hours", "Avoid people"],
+    ["Use routine", "Talk and reset", "Bottle it up", "Break down"]
+  ],
+  fitness: [
+    ["Push safely", "Slow and continue", "Complain inside", "Stop early"],
+    ["Start warm-up", "Do light session", "Skip today", "Break routine"],
+    ["Train gradually", "Track progress", "Feel ashamed", "Avoid comparison"],
+    ["Resume next day", "Do make-up work", "Lose streak", "Quit week"],
+    ["Check and continue", "Adjust intensity", "Fear injury", "Stop fully"]
+  ],
+  communication: [
+    ["Keep it clear", "Use examples", "Speak too much", "Stay unclear"],
+    ["Re-explain simply", "Check their doubt", "Blame them", "Get irritated"],
+    ["Speak respectfully", "Use logic", "Force opinion", "Stay passive"],
+    ["Keep voice steady", "Slow down", "Lose clarity", "Go silent"],
+    ["Correct politely", "Speak privately", "Sound harsh", "Avoid correction"]
+  ],
+  reasoning: [
+    ["Compare options", "Pick practical one", "Get confused", "Copy others"],
+    ["Decide with facts", "Ask key questions", "Wait longer", "Avoid decision"],
+    ["Try another route", "Study facts again", "Need someone", "Stop trying"],
+    ["List steps", "Set sequence", "Start randomly", "Delay planning"],
+    ["Simplify it", "Find root cause", "Get tense", "Add confusion"]
+  ],
+  careerFit: [
+    ["Leadership role", "Technical role", "Field action", "Still exploring"],
+    ["Action pathway", "Tech pathway", "Aviation pathway", "Leadership pathway"],
+    ["Accept discipline", "Adjust slowly", "Feel restricted", "Resist rules"],
+    ["Match strengths", "Ask counselling", "Follow trend", "No clarity"],
+    ["High responsibility", "Team operations", "Technical challenge", "Comfort zone"]
+  ],
+  serviceMindset: [
+    ["Choose duty", "Balance both", "Need push", "Choose comfort"],
+    ["Daily discipline", "Service pride", "Only status", "Not sure"],
+    ["See purpose", "Adjust gradually", "Feel pressure", "Reject it"],
+    ["Accept sacrifice", "Think deeply", "Need motivation", "Avoid sacrifice"],
+    ["Step forward", "Support team", "Wait for others", "Stay back"]
+  ],
+  dreamDrive: [
+    ["Dream wins", "Fight back", "Distraction wins", "Lose control"],
+    ["Guides my day", "Guides sometimes", "Only in mood", "Rarely matters"],
+    ["Block them", "Limit them", "Fall often", "Give in"],
+    ["Act immediately", "Note one task", "Just feel inspired", "Forget later"],
+    ["Protect time", "Schedule it", "Use leftover time", "Waste it"]
+  ]
+};
+
 function buildOptions(_assessment: SeedAssessment, dimension: Dimension, questionIndex: number) {
   const questionText = dimensionQuestions[dimension][questionIndex] ?? dimensionLabels[dimension];
+  const directChoices = dimensionOptionChoices[dimension]?.[questionIndex];
+  if (directChoices) return directChoices;
+
   const focus = optionFocus(questionText);
   const variants = [
     [
