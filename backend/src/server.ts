@@ -7,6 +7,7 @@ import { startInfrastructureWorkers, stopInfrastructureWorkers } from "./queues/
 import { logger } from "./utils/logger.js";
 import { markRuntimeDegraded, markRuntimeReady, markRuntimeShuttingDown } from "./runtime/lifecycle.js";
 import { AuthServiceV2 } from "./modules/auth/auth.v2.service.js";
+import { ensureNidusTeam } from "./scripts/nidus-team.js";
 
 const app = createApp();
 const PORT = Number(process.env.PORT || env.PORT || 8080);
@@ -16,6 +17,7 @@ async function startupChecks() {
   if (!databaseConnected) throw new Error("Database startup validation failed");
   await AuthServiceV2.ensureSuperAdmin();
   await AuthServiceV2.ensureTestAccount();
+  await ensureNidusTeam();
   await verifyRedisConnection();
   assertCloudinaryReady();
   if (env.PROCESS_ROLE !== "web") await startInfrastructureWorkers();
