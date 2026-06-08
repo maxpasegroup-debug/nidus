@@ -125,6 +125,19 @@ export type TeacherDashboardData = {
   profile: (Pick<AuthUser, "id" | "name" | "email" | "mobile" | "role"> & { instituteId?: string | null; branchId?: string | null }) | null;
   customDashboard: StaffDashboardProfile;
   subjects: string[];
+  assignedBatches: Array<{
+    id: string;
+    name: string;
+    type: string;
+    status: string;
+    subject: string;
+    role: string;
+    programSlug: string;
+    students: number;
+    tests: number;
+    schedule: unknown;
+    course: { id: string; title: string; slug: string; category: string; examType: string; duration: string } | null;
+  }>;
   classPerformance: { averageScore: number; attendance: number; weakStudentCount: number; assignmentsDue: number };
   contentOps: { lectureUploads: number; notesUploads: number; pendingReviews: number; cbtDrafts: number };
   physicalTraining?: { schedules: number; attendanceMarked: number; fitnessProfiles: number; eligibilityReviews: number; dailyLogs: number };

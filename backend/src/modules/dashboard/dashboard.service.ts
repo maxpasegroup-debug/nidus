@@ -314,13 +314,25 @@ export const dashboardService = {
     const customDashboard = staffDashboard(metadataObject(profile?.roleMetadata), "SUBJECT_FACULTY");
     const subject = customDashboard.subject;
 
-    const [attendanceRows, attempts, lectures, documents, tests, recommendations] = await Promise.all([
+    const [attendanceRows, attempts, lectures, documents, tests, recommendations, teachingAssignments] = await Promise.all([
       prisma.attendance.findMany({ orderBy: { date: "desc" }, take: 200 }),
       prisma.testAttempt.findMany({ where: { submittedAt: { not: null } }, orderBy: { submittedAt: "desc" }, take: 100 }),
       prisma.recordedLecture.count(),
       prisma.document.count(),
       prisma.test.count(),
-      prisma.aIRecommendation.findMany({ where: { userId: user.id }, orderBy: { createdAt: "desc" }, take: 5 })
+      prisma.aIRecommendation.findMany({ where: { userId: user.id }, orderBy: { createdAt: "desc" }, take: 5 }),
+      prisma.teacherBatchAssignment.findMany({
+        where: { teacherId: user.id, status: "ACTIVE" },
+        orderBy: { createdAt: "desc" },
+        include: {
+          batch: {
+            include: {
+              course: { select: { id: true, title: true, slug: true, category: true, examType: true, duration: true } },
+              _count: { select: { students: true, tests: true } }
+            }
+          }
+        }
+      })
     ]);
     const isPhysicalInstructor = customDashboard.dashboardTemplate === "PHYSICAL_INSTRUCTOR";
     const [ptSchedules, ptAttendance, fitnessProfiles, eligibilityReviews, dailyLogs] = isPhysicalInstructor
@@ -339,7 +351,29 @@ export const dashboardService = {
     return {
       profile,
       customDashboard,
-      subjects: subject ? [subject] : customDashboard.focusAreas,
+      subjects: Array.from(new Set([...(subject ? [subject] : []), ...teachingAssignments.map((assignment) => assignment.subject), ...customDashboard.focusAreas])),
+      assignedBatches: teachingAssignments.map((assignment) => ({
+        id: assignment.batch.id,
+        name: assignment.batch.name,
+        type: assignment.batch.batchType,
+        status: assignment.batch.status,
+        subject: assignment.subject,
+        role: assignment.role,
+        programSlug: assignment.batch.programSlug,
+        students: assignment.batch._count.students,
+        tests: assignment.batch._count.tests,
+        schedule: assignment.batch.schedule,
+        course: assignment.batch.course
+          ? {
+              id: assignment.batch.course.id,
+              title: assignment.batch.course.title,
+              slug: assignment.batch.course.slug,
+              category: assignment.batch.course.category,
+              examType: assignment.batch.course.examType,
+              duration: assignment.batch.course.duration
+            }
+          : null
+      })),
       classPerformance: { averageScore, attendance: percentage(present, attendanceRows.length), weakStudentCount: attempts.filter((attempt) => attempt.score < 50).length, assignmentsDue: 0 },
       contentOps: {
         lectureUploads: lectures,
@@ -355,7 +389,7 @@ export const dashboardService = {
         dailyLogs
       } : undefined,
       modules: [
-        { title: customDashboard.designation || "Subject assignment", status: "Ready", metric: customDashboard.department || "Configure through staff profiles" },
+        { title: customDashboard.designation || "Subject assignment", status: teachingAssignments.length ? "Assigned" : "Ready", metric: teachingAssignments.length ? `${teachingAssignments.length} batch responsibilities` : customDashboard.department || "Configure through staff profiles" },
         { title: "Lecture uploads", status: lectures ? "Active" : "No data", metric: `${lectures} uploaded lectures` },
         { title: "Notes uploads", status: documents ? "Active" : "No data", metric: `${documents} uploaded documents` },
         { title: "Assignment management", status: "Ready", metric: "No assignment records yet" },
@@ -434,7 +468,7 @@ export const dashboardService = {
       aiCallScripts: [
         "Hello, I am calling from NIDUS Academy. You enquired about defence training. May I know which program you are interested in?",
         "If the parent is interested, open Counselling and book a convenient time.",
-        "If admission is confirmed, open Send to Admin and hand over the case for fees and documents."
+        "If admission is confirmed, open Send to Admission Cell and hand over the case for fees and documents."
       ],
       whatsappShell: { status: "Not connected", templates: 0, pendingOptIns: 0 }
     };

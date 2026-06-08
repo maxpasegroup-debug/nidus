@@ -29,6 +29,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { PageHero } from "@/components/layout/page-hero";
 import { useTeacherDashboard } from "@/hooks/use-dashboard";
+import type { TeacherDashboardData } from "@/services/dashboard";
 
 const simpleModules = [
   {
@@ -131,6 +132,65 @@ const physicalModules = [
     href: "/progress-reports",
     icon: FileText,
     action: "View Reports"
+  }
+];
+
+const academicHeadModules = [
+  {
+    title: "My Academic Desk",
+    line: "Today's classes, pending academic tasks, batch alerts and quick decisions.",
+    href: "/performance-analytics",
+    icon: ClipboardCheck,
+    action: "Open Desk"
+  },
+  {
+    title: "Batches",
+    line: "NDA Crash, NDA F1, NDA F2, Foundation, AISSEE, Agniveer and active batches.",
+    href: "/courses",
+    icon: UsersRound,
+    action: "Manage Batches"
+  },
+  {
+    title: "Teachers",
+    line: "Teacher allocation, subject allocation, class completion and teacher remarks.",
+    href: "/staff-hr",
+    icon: GraduationCap,
+    action: "View Teachers"
+  },
+  {
+    title: "Timetable",
+    line: "Daily timetable, weekly timetable and class schedule changes.",
+    href: "/sessions",
+    icon: CalendarCheck,
+    action: "Open Timetable"
+  },
+  {
+    title: "Syllabus Tracker",
+    line: "Subject-wise progress, completed topics, pending topics and color alerts.",
+    href: "/performance-analytics",
+    icon: BarChart3,
+    action: "Track Progress"
+  },
+  {
+    title: "Tests",
+    line: "Scheduled tests, teacher-created tests, pending approvals and results.",
+    href: "/tests",
+    icon: ClipboardCheck,
+    action: "Review Tests"
+  },
+  {
+    title: "Reports",
+    line: "Batch reports, teacher reports and student progress reports.",
+    href: "/progress-reports",
+    icon: FileText,
+    action: "Open Reports"
+  },
+  {
+    title: "NIDUS AI",
+    line: "Ask for timetable help, syllabus planning, test creation and weak-student plans.",
+    href: "/tests",
+    icon: MessageSquareText,
+    action: "Ask NIDUS"
   }
 ];
 
@@ -284,6 +344,7 @@ export default function TeacherDashboardPage() {
   const activeModules = isPhysicalInstructor ? physicalModules : simpleModules;
   const activeExecutionTiles = isPhysicalInstructor ? physicalExecutionTiles : classExecutionTiles;
   const activePrompts = isPhysicalInstructor ? physicalPrompts : professorPrompts;
+  const assignedBatches = data.assignedBatches ?? [];
 
   function handleProfessorSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -292,6 +353,121 @@ export default function TeacherDashboardPage() {
     const response = buildProfessorResponse(prompt);
     setAiHistory((items) => [{ prompt, response }, ...items].slice(0, 5));
     setAiPrompt("");
+  }
+
+  if (isAcademicHead && !isPhysicalInstructor) {
+    return (
+      <RoleDashboardGuard role="TEACHER">
+        <motion.div className="space-y-8" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+          <PageHero
+            eyebrow="Academic Head"
+            title="Academic coordination desk"
+            description="A simple dashboard to coordinate batches, teachers, timetable, syllabus progress, tests and reports from the Director's academic plan."
+            actions={<Button type="button" onClick={() => refetch()} disabled={isFetching} variant="secondary">{isFetching ? "Refreshing..." : "Refresh"}</Button>}
+            stats={[
+              { value: String(assignedBatches.length), label: "assigned batches" },
+              { value: String(new Set(assignedBatches.map((batch) => batch.programSlug)).size), label: "programs" },
+              { value: String(new Set(assignedBatches.map((batch) => batch.subject)).size), label: "subjects" }
+            ]}
+          />
+
+          <section className="rounded-lg border border-[#071d36]/10 bg-white p-5 shadow-[0_18px_60px_rgba(7,29,54,0.08)]">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#8a6426]">Academic Flow</p>
+            <h2 className="mt-2 text-2xl font-semibold text-[#071d36]">Receive plan, coordinate teachers, track completion</h2>
+            <div className="mt-5 grid gap-3 md:grid-cols-4">
+              {[
+                ["Plan Received", "Director sets programs, batches, teachers, timetable and tests."],
+                ["Coordinate", "Academic Head checks teachers, classes and batch movement."],
+                ["Track", "Syllabus and classes are marked green, orange or red."],
+                ["Report", "Academic report goes back to Directors with clear remarks."]
+              ].map(([title, text], index) => (
+                <div key={title} className="rounded-lg border border-[#071d36]/10 bg-[#fffdf8] p-4">
+                  <span className="grid h-8 w-8 place-items-center rounded-full bg-[#071d36] text-xs font-bold text-[#e7c873]">{index + 1}</span>
+                  <h3 className="mt-3 text-base font-semibold text-[#071d36]">{title}</h3>
+                  <p className="mt-2 text-sm leading-6 text-[#40516a]">{text}</p>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            {academicHeadModules.map((module) => {
+              const Icon = module.icon;
+              return (
+                <Link key={module.title} href={module.href} className="group rounded-lg border border-[#071d36]/10 bg-white p-5 shadow-[0_18px_60px_rgba(7,29,54,0.08)] transition hover:-translate-y-1 hover:border-[#b9913f]/45">
+                  <div className="grid h-12 w-12 place-items-center rounded bg-[#fff7de] text-[#b9913f]">
+                    <Icon className="h-6 w-6" />
+                  </div>
+                  <h2 className="mt-4 text-xl font-semibold text-[#071d36]">{module.title}</h2>
+                  <p className="mt-2 min-h-16 text-sm leading-6 text-[#64748b]">{module.line}</p>
+                  <span className="mt-4 inline-flex text-sm font-semibold text-[#071d36]">{module.action}</span>
+                </Link>
+              );
+            })}
+          </section>
+
+          <section className="rounded-lg border border-[#071d36]/10 bg-white p-5 shadow-[0_18px_60px_rgba(7,29,54,0.08)]">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#8a6426]">Assigned Academy Structure</p>
+                <h2 className="mt-2 text-2xl font-semibold text-[#071d36]">Programs, batches and subject responsibilities</h2>
+                <p className="mt-2 text-sm leading-7 text-[#64748b]">These are seeded from the NIDUS Academy master course architecture and ready for Director planning.</p>
+              </div>
+              <Button href="/courses">Open Batches</Button>
+            </div>
+            <AssignedBatchGrid batches={assignedBatches.slice(0, 8)} />
+          </section>
+
+          <section className="grid gap-4 lg:grid-cols-3">
+            <AcademicStatusCard title="Green" description="Class or syllabus is completed as planned." tone="bg-[#edf7ee] text-[#2f6b3f] border-[#9bc7a0]" />
+            <AcademicStatusCard title="Orange" description="Slight delay. Recovery plan needed this week." tone="bg-[#fff7de] text-[#8a6426] border-[#e7c873]" />
+            <AcademicStatusCard title="Red" description="Urgent delay. Director and teacher attention required." tone="bg-[#fff2ec] text-[#9f341f] border-[#efb099]" />
+          </section>
+
+          <section className="rounded-lg border border-[#b9913f]/25 bg-[linear-gradient(135deg,#fffdf8_0%,#f7f3ea_58%,#fff7de_100%)] p-6 shadow-[0_24px_80px_rgba(7,29,54,0.10)]">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#8a6426]">NIDUS AI Academic Assistant</p>
+                <h2 className="mt-3 text-3xl font-semibold text-[#071d36]">Ask for timetable, syllabus and test support.</h2>
+                <p className="mt-3 max-w-2xl text-sm leading-7 text-[#64748b]">Use simple English. NIDUS can draft test plans, timetable recovery ideas, weak-student plans and teacher follow-up notes.</p>
+              </div>
+              <Button href="/tests">Open Test Studio</Button>
+            </div>
+            <form onSubmit={handleProfessorSubmit} className="mt-6 rounded-lg border border-[#071d36]/10 bg-white p-4">
+              <textarea
+                value={aiPrompt}
+                onChange={(event) => setAiPrompt(event.target.value)}
+                className="min-h-28 w-full resize-none rounded border border-[#071d36]/12 bg-[#fffdf8] p-4 text-sm font-medium text-[#071d36] outline-none focus:border-[#b9913f]"
+                placeholder="Example: Create a recovery timetable for NDA Crash Maths and English pending topics."
+              />
+              <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex flex-wrap gap-2">
+                  {["Prepare a weekly timetable for NDA Crash.", "Create a syllabus recovery plan for weak batches."].map((prompt) => (
+                    <button key={prompt} type="button" onClick={() => setAiPrompt(prompt)} className="rounded-full border border-[#071d36]/10 bg-[#f7f3ea] px-3 py-2 text-xs font-semibold text-[#071d36] transition hover:border-[#b9913f]/45">
+                      Use sample
+                    </button>
+                  ))}
+                </div>
+                <Button type="submit">Ask NIDUS <Send className="h-4 w-4" /></Button>
+              </div>
+            </form>
+            <div className="mt-5 grid gap-3">
+              {aiHistory.length ? aiHistory.map((item) => (
+                <div key={item.prompt} className="rounded-lg border border-[#071d36]/10 bg-white p-4">
+                  <p className="text-sm font-semibold text-[#071d36]">{item.prompt}</p>
+                  <p className="mt-2 text-sm leading-6 text-[#64748b]">{item.response}</p>
+                </div>
+              )) : (
+                <div className="rounded-lg border border-[#071d36]/10 bg-white p-4">
+                  <p className="text-sm font-semibold text-[#071d36]">No academic AI requests yet</p>
+                  <p className="mt-2 text-sm leading-6 text-[#64748b]">Ask NIDUS for timetable planning, test planning, syllabus recovery or teacher coordination notes.</p>
+                </div>
+              )}
+            </div>
+          </section>
+        </motion.div>
+      </RoleDashboardGuard>
+    );
   }
 
   return (
@@ -365,9 +541,15 @@ export default function TeacherDashboardPage() {
             </div>
             <div className="mt-5 grid gap-3">
               <div className="rounded-lg border border-[#071d36]/10 bg-[#f7f3ea] px-4 py-4">
-                <p className="text-sm font-semibold text-[#071d36]">{isPhysicalInstructor ? `${physical?.dailyLogs ?? 0} daily fitness logs` : "No course batches assigned yet"}</p>
-                <p className="mt-1 text-xs leading-5 text-[#64748b]">{isPhysicalInstructor ? "Daily logs will grow as students record training and fitness progress." : "Assigned batches will appear here after the academic cell links this faculty to live courses."}</p>
+                <p className="text-sm font-semibold text-[#071d36]">{isPhysicalInstructor ? `${physical?.dailyLogs ?? 0} daily fitness logs` : `${assignedBatches.length} assigned batch responsibilities`}</p>
+                <p className="mt-1 text-xs leading-5 text-[#64748b]">{isPhysicalInstructor ? "Daily logs will grow as students record training and fitness progress." : assignedBatches.length ? "Open a batch to teach, upload materials, plan tests, or check students." : "Assigned batches will appear here after the academic cell links this faculty to live courses."}</p>
               </div>
+              {!isPhysicalInstructor && assignedBatches.slice(0, 4).map((batch) => (
+                <Link key={`${batch.id}-${batch.subject}`} href="/courses" className="rounded-lg border border-[#071d36]/10 bg-white px-4 py-4 transition hover:-translate-y-0.5 hover:border-[#b9913f]/45">
+                  <p className="text-sm font-semibold text-[#071d36]">{batch.course?.title ?? batch.name}</p>
+                  <p className="mt-1 text-xs leading-5 text-[#64748b]">{batch.subject} - {batch.type.replace(/_/g, " ")}</p>
+                </Link>
+              ))}
             </div>
           </div>
 
@@ -499,6 +681,9 @@ function buildProfessorResponse(prompt: string) {
   if (lower.includes("pt") || lower.includes("fitness") || lower.includes("stamina") || lower.includes("running") || lower.includes("drill") || lower.includes("eligibility")) {
     return "Training draft ready flow: NIDUS will prepare a simple PT plan, session structure, fitness target, improvement note, and parent-friendly training remark. Review it before sharing or recording.";
   }
+  if (lower.includes("timetable") || lower.includes("schedule") || lower.includes("syllabus") || lower.includes("batch") || lower.includes("teacher allocation")) {
+    return "Academic planning draft ready: NIDUS will prepare batch-wise timetable, subject allocation, pending syllabus recovery, teacher responsibility, and red/orange/green tracking notes for review.";
+  }
   if (lower.includes("test") || lower.includes("question") || lower.includes("exam")) {
     return "Draft ready flow: NIDUS will prepare questions, answer options, correct answers, explanations, difficulty level, and suggested timer. Open Test Studio to review, edit, approve, and publish.";
   }
@@ -550,6 +735,42 @@ function SimpleInfo({ title, items }: { title: string; items: string[] }) {
         ))}
       </div>
     </section>
+  );
+}
+
+function AcademicStatusCard({ title, description, tone }: { title: string; description: string; tone: string }) {
+  return (
+    <section className={`rounded-lg border p-5 shadow-[0_18px_60px_rgba(7,29,54,0.08)] ${tone}`}>
+      <h2 className="text-2xl font-semibold">{title}</h2>
+      <p className="mt-2 text-sm leading-6">{description}</p>
+    </section>
+  );
+}
+
+function AssignedBatchGrid({ batches }: { batches: TeacherDashboardData["assignedBatches"] }) {
+  if (!batches.length) {
+    return (
+      <div className="mt-5 rounded-lg border border-[#071d36]/10 bg-[#fffdf8] p-4">
+        <p className="text-sm font-semibold text-[#071d36]">No batch allocation yet</p>
+        <p className="mt-1 text-sm leading-6 text-[#64748b]">Director and Academic Head planning batches are ready. Once allocated, the teacher will see course, subject, timetable and students here.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      {batches.map((batch) => (
+        <Link key={`${batch.id}-${batch.subject}`} href="/courses" className="rounded-lg border border-[#071d36]/10 bg-[#fffdf8] p-4 transition hover:-translate-y-1 hover:border-[#b9913f]/45 hover:bg-white">
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#8a6426]">{batch.type.replace(/_/g, " ")}</p>
+          <h3 className="mt-2 text-lg font-semibold leading-tight text-[#071d36]">{batch.course?.title ?? batch.name}</h3>
+          <p className="mt-2 text-sm leading-6 text-[#64748b]">{batch.subject}</p>
+          <div className="mt-4 grid grid-cols-2 gap-2 text-xs font-semibold text-[#40516a]">
+            <span className="rounded border border-[#071d36]/10 bg-white px-2 py-2">{batch.students} students</span>
+            <span className="rounded border border-[#071d36]/10 bg-white px-2 py-2">{batch.tests} tests</span>
+          </div>
+        </Link>
+      ))}
+    </div>
   );
 }
 

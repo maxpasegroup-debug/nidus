@@ -235,6 +235,83 @@ const imageTones = [
   "from-[#102a43] via-[#31572c] to-[#e0c36a]"
 ];
 
+const facultyBySubject: Record<string, string[]> = {
+  Maths: ["anjushae1997@gmail.com", "sumithavinod40378@gmail.com"],
+  Mathematics: ["anjushae1997@gmail.com", "sumithavinod40378@gmail.com"],
+  English: ["anjaliack2@gmail.com"],
+  GK: ["sumasooryakantham@gmail.com"],
+  "General Knowledge": ["sumasooryakantham@gmail.com"],
+  "Current Affairs": ["sumasooryakantham@gmail.com"],
+  Reasoning: ["sumasooryakantham@gmail.com"],
+  Intelligence: ["sumasooryakantham@gmail.com"],
+  Aptitude: ["sumasooryakantham@gmail.com", "anjushae1997@gmail.com"],
+  Biology: ["suryasmathew22@gmail.com"],
+  Chemistry: ["nimishamanoharan555@gmail.com"],
+  Science: ["suryasmathew22@gmail.com", "nimishamanoharan555@gmail.com"],
+  Physical: ["vaniyamkulam68@gmail.com", "vinuchirakkal01@gmail.com"],
+  Fitness: ["vaniyamkulam68@gmail.com", "vinuchirakkal01@gmail.com"],
+  Running: ["vaniyamkulam68@gmail.com", "vinuchirakkal01@gmail.com"],
+  SSB: ["priyankaraveendran87@gmail.com", "ritwikvyshnav@gmail.com"],
+  Interview: ["priyankaraveendran87@gmail.com", "ritwikvyshnav@gmail.com"],
+  Personality: ["priyankaraveendran87@gmail.com", "ritwikvyshnav@gmail.com"],
+  Communication: ["priyankaraveendran87@gmail.com", "ritwikvyshnav@gmail.com"],
+  Leadership: ["priyankaraveendran87@gmail.com", "ritwikvyshnav@gmail.com"],
+  Documentation: ["admisioncell@nidusacademy.in"],
+  Counselling: ["admisioncell@nidusacademy.in"]
+};
+
+const academicHeadEmails = ["priyankaraveendran87@gmail.com", "ritwikvyshnav@gmail.com"];
+
+type BatchTemplate = {
+  suffix: string;
+  type: string;
+  deliveryMode: string;
+  cadence: string;
+  status: string;
+};
+
+function batchTemplatesFor(program: AcademyProgramSeed): BatchTemplate[] {
+  const templates: BatchTemplate[] = [
+    { suffix: "Offline Regular", type: "REGULAR_OFFLINE", deliveryMode: "OFFLINE", cadence: "Classroom schedule", status: "PLANNING" },
+    { suffix: "Online Live", type: "ONLINE_LIVE", deliveryMode: "ONLINE", cadence: "Live online schedule", status: "PLANNING" },
+    { suffix: "Recorded Support", type: "RECORDED_SUPPORT", deliveryMode: "RECORDED_SUPPORT", cadence: "Recorded lesson library", status: "PLANNING" }
+  ];
+
+  if (program.title.toLowerCase().includes("crash") || program.duration.toLowerCase().includes("rapid") || program.duration.toLowerCase().includes("12-day")) {
+    templates.push({ suffix: "Crash Intensive", type: "CRASH_COURSE", deliveryMode: "HYBRID", cadence: "Daily intensive timetable", status: "PLANNING" });
+  }
+
+  if (program.title.toLowerCase().includes("agniveer") || program.modules.some((moduleTitle) => moduleTitle.toLowerCase().includes("physical") || moduleTitle.toLowerCase().includes("running"))) {
+    templates.push({ suffix: "Physical Training", type: "PHYSICAL_TRAINING", deliveryMode: "OFFLINE", cadence: "Ground training schedule", status: "PLANNING" });
+  }
+
+  if (program.targetStudents.toLowerCase().includes("working professionals") || program.targetStudents.toLowerCase().includes("college")) {
+    templates.push({ suffix: "Weekend Batch", type: "WEEKEND", deliveryMode: "HYBRID", cadence: "Saturday and Sunday schedule", status: "PLANNING" });
+  }
+
+  return templates;
+}
+
+function pickFacultyEmails(subject: string) {
+  const lower = subject.toLowerCase();
+  for (const [keyword, emails] of Object.entries(facultyBySubject)) {
+    if (lower.includes(keyword.toLowerCase())) return emails;
+  }
+  return academicHeadEmails;
+}
+
+function academicSubject(moduleTitle: string) {
+  if (moduleTitle.toLowerCase().includes("general ability")) return "GAT";
+  if (moduleTitle.toLowerCase().includes("mathematics")) return "Mathematics";
+  if (moduleTitle.toLowerCase().includes("maths")) return "Mathematics";
+  if (moduleTitle.toLowerCase().includes("general knowledge")) return "General Knowledge";
+  if (moduleTitle.toLowerCase().includes("current affairs")) return "Current Affairs";
+  if (moduleTitle.toLowerCase().includes("physical") || moduleTitle.toLowerCase().includes("running") || moduleTitle.toLowerCase().includes("fitness")) return "Physical Training";
+  if (moduleTitle.toLowerCase().includes("interview")) return "Interview Guidance";
+  if (moduleTitle.toLowerCase().includes("ssb") || moduleTitle.toLowerCase().includes("gto") || moduleTitle.toLowerCase().includes("olq")) return "SSB Guidance";
+  return moduleTitle;
+}
+
 function buildDescription(program: AcademyProgramSeed) {
   return JSON.stringify({
     summary: program.outcome,
@@ -252,6 +329,18 @@ export async function seedAcademyArchitecture() {
   let courseCount = 0;
   let moduleCount = 0;
   let lessonCount = 0;
+  let batchCount = 0;
+  const teacherAssignmentRows: Array<{ batchId: string; teacherId: string; subject: string; role: string; status: string }> = [];
+
+  const facultyUsers = await prisma.user.findMany({
+    where: {
+      email: {
+        in: Array.from(new Set([...Object.values(facultyBySubject).flat(), ...academicHeadEmails]))
+      }
+    },
+    select: { id: true, email: true }
+  });
+  const facultyByEmail = new Map(facultyUsers.map((user) => [user.email, user.id]));
 
   for (const [index, program] of academyPrograms.entries()) {
     const course = await prisma.course.upsert({
@@ -375,43 +464,77 @@ export async function seedAcademyArchitecture() {
       lessonCount += program.pathways.length;
     }
 
-    await prisma.batch.upsert({
-      where: {
-        name_programSlug: {
-          name: `${program.title} - Planning Batch`,
-          programSlug: program.slug
+    for (const template of batchTemplatesFor(program)) {
+      const batch = await prisma.batch.upsert({
+        where: {
+          name_programSlug: {
+            name: `${program.title} - ${template.suffix}`,
+            programSlug: program.slug
+          }
+        },
+        update: {
+          batchType: template.type,
+          courseId: course.id,
+          schedule: {
+            vertical: program.vertical,
+            level: program.level,
+            deliveryMode: template.deliveryMode,
+            cadence: template.cadence,
+            subjects: program.modules.map(academicSubject),
+            pathways: program.pathways ?? [],
+            imageTone: imageTones[index % imageTones.length],
+            planningStatus: "READY_FOR_DIRECTOR_ALLOCATION",
+            flow: ["Director planning", "Academic Head coordination", "Teacher execution", "Student reporting"]
+          },
+          status: template.status
+        },
+        create: {
+          name: `${program.title} - ${template.suffix}`,
+          batchType: template.type,
+          programSlug: program.slug,
+          courseId: course.id,
+          schedule: {
+            vertical: program.vertical,
+            level: program.level,
+            deliveryMode: template.deliveryMode,
+            cadence: template.cadence,
+            subjects: program.modules.map(academicSubject),
+            pathways: program.pathways ?? [],
+            imageTone: imageTones[index % imageTones.length],
+            planningStatus: "READY_FOR_DIRECTOR_ALLOCATION",
+            flow: ["Director planning", "Academic Head coordination", "Teacher execution", "Student reporting"]
+          },
+          status: template.status
         }
-      },
-      update: {
-        batchType: "PLANNING",
-        courseId: course.id,
-        schedule: {
-          vertical: program.vertical,
-          level: program.level,
-          deliveryModes: ["OFFLINE", "ONLINE", "RECORDED_SUPPORT"],
-          imageTone: imageTones[index % imageTones.length],
-          status: "READY_FOR_ALLOCATION"
-        },
-        status: "PLANNING"
-      },
-      create: {
-        name: `${program.title} - Planning Batch`,
-        batchType: "PLANNING",
-        programSlug: program.slug,
-        courseId: course.id,
-        schedule: {
-          vertical: program.vertical,
-          level: program.level,
-          deliveryModes: ["OFFLINE", "ONLINE", "RECORDED_SUPPORT"],
-          imageTone: imageTones[index % imageTones.length],
-          status: "READY_FOR_ALLOCATION"
-        },
-        status: "PLANNING"
+      });
+      batchCount += 1;
+
+      for (const headEmail of academicHeadEmails) {
+        const teacherId = facultyByEmail.get(headEmail);
+        if (!teacherId) continue;
+        teacherAssignmentRows.push({ batchId: batch.id, teacherId, subject: "Academic Coordination", role: "ACADEMIC_HEAD", status: "ACTIVE" });
       }
-    });
+
+      const subjects = Array.from(new Set(program.modules.map(academicSubject)));
+      for (const subject of subjects) {
+        for (const email of pickFacultyEmails(subject)) {
+          const teacherId = facultyByEmail.get(email);
+          if (!teacherId) continue;
+          teacherAssignmentRows.push({ batchId: batch.id, teacherId, subject, role: subject === "Physical Training" ? "PHYSICAL_TRAINER" : "FACULTY", status: "ACTIVE" });
+        }
+      }
+    }
   }
 
-  return { courseCount, moduleCount, lessonCount, batchTemplates: academyPrograms.length };
+  const teacherAssignments = teacherAssignmentRows.length
+    ? await prisma.teacherBatchAssignment.createMany({
+        data: teacherAssignmentRows,
+        skipDuplicates: true
+      })
+    : { count: 0 };
+  const totalActiveTeacherAssignments = await prisma.teacherBatchAssignment.count({ where: { status: "ACTIVE" } });
+
+  return { courseCount, moduleCount, lessonCount, batchTemplates: batchCount, teacherAssignments: teacherAssignments.count, totalActiveTeacherAssignments };
 }
 
 async function main() {
