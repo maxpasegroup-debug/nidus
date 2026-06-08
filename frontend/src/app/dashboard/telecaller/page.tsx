@@ -10,14 +10,14 @@ const callFlow = [
   { title: "Call", description: "Open New Leads. Call the parent or student.", tag: "1" },
   { title: "Write Note", description: "Write what they said after the call.", tag: "2" },
   { title: "Book Counselling", description: "If interested, book a counselling time.", tag: "3" },
-  { title: "Send to Admin", description: "If confirmed, hand over to Administration for admission, fees, and documents.", tag: "4" }
+  { title: "Send to Admission Cell", description: "If confirmed, hand over to Admission Cell for fees, documents, and approval.", tag: "4" }
 ];
 
 const dailyButtons = [
   { title: "1. Call New Leads", description: "Start here every morning. Call people who enquired.", href: "/crm/leads" },
   { title: "2. Today's Follow-ups", description: "Call people who asked us to call later.", href: "/crm/followups" },
   { title: "3. Book Counselling", description: "Fix counselling for interested parents and students.", href: "/crm/counselling" },
-  { title: "4. Send Confirmed Admission to Admin", description: "When they say yes, send the case to Administration.", href: "/crm/admissions" }
+  { title: "4. Send Confirmed Admission to Admission Cell", description: "When they say yes, send the case to Admission Cell.", href: "/crm/admissions" }
 ];
 
 export default function TelecallerDashboardPage() {
@@ -32,8 +32,8 @@ export default function TelecallerDashboardPage() {
       <motion.div className="space-y-8" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
         <PageHero
           eyebrow="Student Support Desk"
-          title="Call. Note. Follow up. Send to Admin."
-          description="A simple daily desk for enquiries, phone calls, counselling booking, and confirmed admission handover to Administration."
+          title="Call. Note. Follow up. Send to Admission Cell."
+          description="A simple daily desk for enquiries, phone calls, counselling booking, and confirmed admission handover to Admission Cell."
           actions={<Button type="button" onClick={() => refetch()} disabled={isFetching} variant="secondary">{isFetching ? "Refreshing..." : "Refresh"}</Button>}
           stats={[
             { value: String(data.leadPipeline.new), label: "new leads" },
@@ -45,7 +45,7 @@ export default function TelecallerDashboardPage() {
         <section className="grid gap-4 md:grid-cols-3">
           <StatCard label="Call First" value={String(data.leadPipeline.new)} note="New enquiries waiting" />
           <StatCard label="Call Again" value={String(data.scheduling.callbacksToday)} note="Follow-ups for today" />
-          <StatCard label="Send to Admin" value={String(data.leadPipeline.enrolled)} note="Confirmed admission cases" />
+          <StatCard label="Admission Cell" value={String(data.leadPipeline.enrolled)} note="Confirmed admission cases" />
         </section>
 
         <SectionHeader eyebrow="Daily Work" title="Use these 4 buttons" />
@@ -61,11 +61,11 @@ export default function TelecallerDashboardPage() {
         <section className="grid gap-4 lg:grid-cols-[1fr_1fr]">
           <div className="rounded-lg border border-[#071d36]/10 bg-white p-5 shadow-[0_18px_60px_rgba(7,29,54,0.08)]">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#3f4a32]">When Parent Says Yes</p>
-            <h2 className="mt-3 text-2xl font-semibold text-[#071d36]">Send confirmed admission to Administration</h2>
-            <p className="mt-3 text-sm leading-7 text-[#40516a]">Open Admissions, update the confirmed case, and Administration will continue fee collection, documents, and final admission work.</p>
+            <h2 className="mt-3 text-2xl font-semibold text-[#071d36]">Send confirmed admission to Admission Cell</h2>
+            <p className="mt-3 text-sm leading-7 text-[#40516a]">Open Applications, update the confirmed case, and Admission Cell will continue fee collection, documents, and final approval.</p>
             <div className="mt-5 flex flex-col gap-3 sm:flex-row">
-              <Button href="/crm/admissions">Send to Admin</Button>
-              <Button href="/messages" variant="secondary">Message Admin</Button>
+              <Button href="/crm/admissions">Send to Admission Cell</Button>
+              <Button href="/messages" variant="secondary">Message Admission Cell</Button>
             </div>
           </div>
           <div className="premium-surface rounded-lg p-5">

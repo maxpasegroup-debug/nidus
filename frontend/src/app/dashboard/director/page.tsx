@@ -6,7 +6,6 @@ import {
   BadgeIndianRupee,
   BarChart3,
   BookOpenCheck,
-  Building2,
   CalendarDays,
   ClipboardCheck,
   FileText,
@@ -16,7 +15,6 @@ import {
   Plus,
   Settings,
   ShieldCheck,
-  Sparkles,
   UsersRound
 } from "lucide-react";
 import { DashboardError, DashboardSkeleton, RoleDashboardGuard } from "@/components/dashboard";
@@ -24,184 +22,91 @@ import { Button } from "@/components/ui/button";
 import { PageHero } from "@/components/layout/page-hero";
 import { useDirectorDashboard } from "@/hooks/use-dashboard";
 
-type DirectorModule = {
+type IconType = typeof GraduationCap;
+
+type ControlModule = {
   title: string;
   description: string;
   href: string;
-  icon: typeof GraduationCap;
-  metric?: string;
-  action?: string;
+  icon: IconType;
+  action: string;
+  status?: "green" | "orange" | "red";
 };
 
-type DirectorCategory = {
+type ControlRoom = {
   title: string;
-  subtitle: string;
+  purpose: string;
   href: string;
-  icon: typeof GraduationCap;
+  icon: IconType;
   tone: string;
-  stat: string;
-  modules: DirectorModule[];
+  modules: ControlModule[];
 };
 
-const categories: DirectorCategory[] = [
+const statusStyles = {
+  green: "bg-[#edf7ee] text-[#2f6b3f] border-[#9bc7a0]",
+  orange: "bg-[#fff7de] text-[#8a6426] border-[#e7c873]",
+  red: "bg-[#fff2ec] text-[#9f341f] border-[#efb099]"
+};
+
+const controlRooms: ControlRoom[] = [
   {
-    title: "Academy",
-    subtitle: "Offline, online, recorded classes, teachers and student progress.",
+    title: "Academic Planning",
+    purpose: "Plan programs, batches, schedules, subjects, teachers, tests and academic calendar. Academic Heads and teachers receive this ready-made plan.",
     href: "/programs",
     icon: GraduationCap,
     tone: "bg-[#fff7de]",
-    stat: "Programs",
     modules: [
-      { title: "Offline Programs", description: "Manage physical academy batches and daily class flow.", href: "/programs", icon: Building2, action: "Manage" },
-      { title: "Online Classes", description: "Schedule live classes and review online sessions.", href: "/live-classes", icon: MonitorPlay, action: "Open" },
-      { title: "Recorded Classes", description: "Upload and organize recorded lessons for students.", href: "/recorded-lectures", icon: BookOpenCheck, action: "Manage" },
-      { title: "Batches", description: "Create batches, assign students and link teachers.", href: "/courses", icon: UsersRound, action: "Manage" },
-      { title: "Tests & Exams", description: "Review CBT, mock tests, quick tests and performance.", href: "/tests", icon: ClipboardCheck, action: "Review" },
-      { title: "Performance", description: "Check student progress, weak areas and reports.", href: "/performance-analytics", icon: BarChart3, action: "Reports" }
+      { title: "Programs & Courses", description: "Add and manage all academy programs, online courses and recorded programs.", href: "/programs", icon: BookOpenCheck, action: "Manage", status: "green" },
+      { title: "Batches", description: "Create batches, connect students, and prepare regular or crash-course groups.", href: "/courses", icon: UsersRound, action: "Plan", status: "green" },
+      { title: "Class Schedule", description: "Plan class days, class time, online/offline mode and weekly structure.", href: "/live-classes", icon: CalendarDays, action: "Schedule", status: "orange" },
+      { title: "Timetable", description: "Prepare weekly timetable for each batch and send it to Academic Heads and teachers.", href: "/sessions", icon: ClipboardCheck, action: "Organize", status: "orange" },
+      { title: "Subject Allocation", description: "Decide subjects, topic ownership and teacher responsibility.", href: "/staff-hr", icon: GraduationCap, action: "Allocate", status: "green" },
+      { title: "Test Planner", description: "Plan weekly mocks, quick tests, topic tests and paper analysis days.", href: "/tests", icon: FileText, action: "Plan", status: "orange" }
     ]
   },
   {
-    title: "Admissions",
-    subtitle: "Enquiries, applications, counselling, fees, documents and approvals.",
-    href: "/crm",
-    icon: ClipboardCheck,
-    tone: "bg-[#eef5ff]",
-    stat: "Pipeline",
-    modules: [
-      { title: "New Enquiries", description: "Leads from website, calls, WhatsApp and campaigns.", href: "/crm/leads", icon: UsersRound, action: "Open" },
-      { title: "Applications", description: "Review application forms and approve admission steps.", href: "/crm/admissions", icon: FileText, action: "Manage" },
-      { title: "Counselling", description: "Track counselling bookings and parent discussions.", href: "/crm/counselling", icon: CalendarDays, action: "Schedule" },
-      { title: "Follow-ups", description: "See pending calls and reminders.", href: "/crm/followups", icon: ClipboardCheck, action: "Track" },
-      { title: "Fee Check", description: "Verify payments, receipts and pending amounts.", href: "/payments", icon: BadgeIndianRupee, action: "Verify" },
-      { title: "Documents", description: "Check certificates, ID proof and admission files.", href: "/documents", icon: FileText, action: "Review" }
-    ]
-  },
-  {
-    title: "Marketing",
-    subtitle: "Sales Booster, social campaigns, creatives, WhatsApp and lead performance.",
-    href: "/dashboard/marketing",
-    icon: Megaphone,
-    tone: "bg-[#fff2ec]",
-    stat: "Growth",
-    modules: [
-      { title: "Sales Booster", description: "Create campaigns with AI and submit for approval.", href: "/dashboard/marketing", icon: Sparkles, action: "Open" },
-      { title: "Campaigns", description: "Review academy, TOPRANK, Guru and assessment campaigns.", href: "/dashboard/marketing", icon: Megaphone, action: "Manage" },
-      { title: "Creatives", description: "Upload posters, videos, reels and brochures.", href: "/media-library", icon: MonitorPlay, action: "Upload" },
-      { title: "Social Leads", description: "Track Facebook, Instagram, YouTube and WhatsApp leads.", href: "/crm/leads", icon: UsersRound, action: "Track" },
-      { title: "WhatsApp Center", description: "Review broadcast follow-ups and counsellor routing.", href: "/messages", icon: ClipboardCheck, action: "Open" },
-      { title: "Marketing Reports", description: "Check lead source, conversion and campaign results.", href: "/progress-reports", icon: BarChart3, action: "Reports" }
-    ]
-  },
-  {
-    title: "NIDUS Guru",
-    subtitle: "Recorded transformation quests and personal growth programs.",
-    href: "/admin-center/guru",
-    icon: Sparkles,
-    tone: "bg-[#f5efff]",
-    stat: "Quests",
-    modules: [
-      { title: "Dream Addiction", description: "Transformation quest for ambition and distraction control.", href: "/guru/quests/dream-addiction", icon: Sparkles, action: "View" },
-      { title: "Focus Reset", description: "Quest for focus, attention and digital discipline.", href: "/guru/quests/focus-reset", icon: ShieldCheck, action: "View" },
-      { title: "Warrior Discipline", description: "Quest for routine, consistency and execution.", href: "/guru/quests/warrior-discipline", icon: ClipboardCheck, action: "View" },
-      { title: "Active Learning", description: "Foundational quest that explains the NIDUS Guru method.", href: "/guru/quests/active-learning-transformation", icon: BookOpenCheck, action: "View" },
-      { title: "Guru Admin", description: "Manage quests, progress and future releases.", href: "/admin-center/guru", icon: Settings, action: "Manage" },
-      { title: "Engagement", description: "Review Guru users, completion and reports.", href: "/progress-reports", icon: BarChart3, action: "Reports" }
-    ]
-  },
-  {
-    title: "TOPRANK",
-    subtitle: "AI-powered exam coaching and subscription training access.",
-    href: "/toprank",
-    icon: ShieldCheck,
-    tone: "bg-[#edf7ee]",
-    stat: "Exam AI",
-    modules: [
-      { title: "Exam Arena", description: "Open NDA, CDS, AFCAT, Agniveer and practice paths.", href: "/toprank", icon: ShieldCheck, action: "Open" },
-      { title: "NDA", description: "Review NDA training access and student readiness.", href: "/toprank/nda", icon: GraduationCap, action: "View" },
-      { title: "Subscriptions", description: "Manage TOPRANK payment and 30-day access.", href: "/subscriptions", icon: BadgeIndianRupee, action: "Manage" },
-      { title: "Practice Tests", description: "Review mock tests and practice cycles.", href: "/tests", icon: ClipboardCheck, action: "Review" },
-      { title: "Bridge Status", description: "Check Career7/TOPRANK launch readiness.", href: "/toprank", icon: Settings, action: "Check" },
-      { title: "Reports", description: "View subscription, training and performance reports.", href: "/progress-reports", icon: BarChart3, action: "Reports" }
-    ]
-  },
-  {
-    title: "Assessments",
-    subtitle: "Free and premium psychometric tests, reports and counselling signals.",
-    href: "/psychometric/admin",
-    icon: FileText,
-    tone: "bg-[#eff8f8]",
-    stat: "Reports",
-    modules: [
-      { title: "Assessment Page", description: "View all free and premium assessments.", href: "/psychometric", icon: FileText, action: "Open" },
-      { title: "Reports", description: "Review completed reports and PDF downloads.", href: "/psychometric/reports", icon: BarChart3, action: "Reports" },
-      { title: "Assessment Admin", description: "Manage assessment status, questions and report flow.", href: "/psychometric/admin", icon: Settings, action: "Manage" },
-      { title: "SSB Simulator", description: "Track premium SSB simulator usage.", href: "/psychometric/ssb-psychology-simulator", icon: ShieldCheck, action: "View" },
-      { title: "Digital Profile", description: "See how reports connect to student profiles.", href: "/digital-profile", icon: UsersRound, action: "Open" },
-      { title: "Counselling Signals", description: "Find students who need guidance after reports.", href: "/crm/counselling", icon: ClipboardCheck, action: "Track" }
-    ]
-  },
-  {
-    title: "Finance",
-    subtitle: "Collections, pending fees, subscriptions, receipts and refunds.",
-    href: "/payments",
-    icon: BadgeIndianRupee,
-    tone: "bg-[#fffdf8]",
-    stat: "Revenue",
-    modules: [
-      { title: "Fee Collections", description: "View collected fees and payment records.", href: "/payments", icon: BadgeIndianRupee, action: "Open" },
-      { title: "Pending Fees", description: "Track dues and follow-up requirements.", href: "/fees", icon: ClipboardCheck, action: "Track" },
-      { title: "Invoices", description: "Review invoices and receipts.", href: "/invoices", icon: FileText, action: "Open" },
-      { title: "Subscriptions", description: "Check TOPRANK and digital subscriptions.", href: "/subscriptions", icon: ShieldCheck, action: "Manage" },
-      { title: "Refunds", description: "Review refund and cancellation policies.", href: "/refund-policy", icon: FileText, action: "Review" },
-      { title: "Finance Report", description: "Open revenue and collection reports.", href: "/progress-reports", icon: BarChart3, action: "Reports" }
-    ]
-  },
-  {
-    title: "Team",
-    subtitle: "Directors, academic heads, teachers, PT, admission cell and support staff.",
+    title: "Team & Performance",
+    purpose: "Oversee academic heads, teachers, physical trainers, syllabus completion, class progress and red/orange/green alerts.",
     href: "/staff-hr",
     icon: UsersRound,
-    tone: "bg-[#f7f3ea]",
-    stat: "Staff",
+    tone: "bg-[#edf7ee]",
     modules: [
-      { title: "Staff List", description: "Review all employee roles and departments.", href: "/staff-hr", icon: UsersRound, action: "Open" },
-      { title: "Academic Heads", description: "Manage academic supervision and batch control.", href: "/staff-hr", icon: GraduationCap, action: "Review" },
-      { title: "Teachers", description: "Review classes, tests and subject activity.", href: "/staff-hr", icon: BookOpenCheck, action: "Manage" },
-      { title: "Physical Training", description: "Review PT schedules, logs and eligibility.", href: "/fitness/pt-schedule", icon: ShieldCheck, action: "Open" },
-      { title: "Admission Cell", description: "Open applications, approvals, fees and documents.", href: "/crm/admissions", icon: ClipboardCheck, action: "Open" },
-      { title: "Student Support", description: "Review telecaller leads and follow-ups.", href: "/dashboard/telecaller", icon: UsersRound, action: "Open" }
+      { title: "Academic Heads", description: "Review academic coordination, batch supervision and pending academic decisions.", href: "/staff-hr", icon: UsersRound, action: "Review", status: "green" },
+      { title: "Teachers", description: "Check teacher allocation, teaching load, classes handled and reports submitted.", href: "/staff-hr", icon: GraduationCap, action: "Oversee", status: "green" },
+      { title: "Physical Trainers", description: "Review PT schedule, attendance, eligibility and fitness readiness.", href: "/fitness/pt-schedule", icon: ShieldCheck, action: "Track", status: "orange" },
+      { title: "Syllabus Progress", description: "Track completed, delayed and pending topics by batch and subject.", href: "/performance-analytics", icon: BarChart3, action: "Track", status: "orange" },
+      { title: "Class Completion", description: "See completed classes, missed classes and reschedule requirements.", href: "/live-classes", icon: MonitorPlay, action: "Monitor", status: "green" },
+      { title: "Performance Alerts", description: "Green means on track, orange means delayed, red means urgent attention.", href: "/progress-reports", icon: ClipboardCheck, action: "Review", status: "red" }
     ]
   },
   {
-    title: "Reports",
-    subtitle: "Daily summary, academy, admission, finance, marketing and staff reports.",
+    title: "Admissions & Marketing",
+    purpose: "Oversee campaigns, leads, counselling, applications, fee verification and batch-wise admission movement.",
+    href: "/crm",
+    icon: Megaphone,
+    tone: "bg-[#eef5ff]",
+    modules: [
+      { title: "Sales Booster", description: "Review marketing campaigns for Academy, TOPRANK, Guru and Assessments.", href: "/dashboard/marketing", icon: Megaphone, action: "Open", status: "green" },
+      { title: "Lead Sources", description: "See enquiries from website, Facebook, Instagram, WhatsApp, YouTube and calls.", href: "/crm/leads", icon: UsersRound, action: "Track", status: "green" },
+      { title: "Follow-ups", description: "Monitor pending calls, parent responses and counselling reminders.", href: "/crm/followups", icon: ClipboardCheck, action: "Monitor", status: "orange" },
+      { title: "Counselling", description: "Track counselling sessions and interest level before admission.", href: "/crm/counselling", icon: CalendarDays, action: "Review", status: "orange" },
+      { title: "Applications", description: "Check student applications, selected program and admission status.", href: "/crm/admissions", icon: FileText, action: "Approve", status: "green" },
+      { title: "Batch Allocation", description: "Move confirmed admissions into the correct batch after approval.", href: "/courses", icon: UsersRound, action: "Allocate", status: "orange" }
+    ]
+  },
+  {
+    title: "Reports & Management",
+    purpose: "Review final company reports, finance, users, roles, settings and pending approvals.",
     href: "/progress-reports",
-    icon: BarChart3,
-    tone: "bg-[#eef4ef]",
-    stat: "Review",
-    modules: [
-      { title: "Daily Summary", description: "Check company-wide daily movement.", href: "/progress-reports", icon: BarChart3, action: "Open" },
-      { title: "Admission Report", description: "Review leads, applications and joined students.", href: "/crm/admissions", icon: FileText, action: "Report" },
-      { title: "Academy Report", description: "Review classes, tests and batch progress.", href: "/performance-analytics", icon: GraduationCap, action: "Report" },
-      { title: "Marketing Report", description: "Review campaigns, leads and conversion.", href: "/dashboard/marketing", icon: Megaphone, action: "Report" },
-      { title: "Finance Report", description: "Review fee collection and pending amounts.", href: "/payments", icon: BadgeIndianRupee, action: "Report" },
-      { title: "Staff Report", description: "Review staff roles, activities and approvals.", href: "/staff-hr", icon: UsersRound, action: "Report" }
-    ]
-  },
-  {
-    title: "Management",
-    subtitle: "Users, roles, permissions, branches, settings, approvals and audit logs.",
-    href: "/admin-center",
     icon: Settings,
-    tone: "bg-[#f1f5f9]",
-    stat: "Control",
+    tone: "bg-[#f7f3ea]",
     modules: [
-      { title: "Users", description: "Add, delete, disable and manage platform users.", href: "/admin-center/users", icon: UsersRound, action: "Manage" },
-      { title: "Roles", description: "Manage staff roles and permission groups.", href: "/admin-center/roles", icon: ShieldCheck, action: "Manage" },
-      { title: "Permissions", description: "Control who can access each module.", href: "/admin-center/permissions", icon: Settings, action: "Manage" },
-      { title: "Branches", description: "Manage academy branches and centers.", href: "/admin-center/branches", icon: Building2, action: "Manage" },
-      { title: "System Health", description: "Check backend, queues, Redis and deployment health.", href: "/admin-center/operations", icon: BarChart3, action: "Check" },
-      { title: "Audit Logs", description: "Review system changes and important actions.", href: "/admin-center/audit-logs", icon: FileText, action: "Review" }
+      { title: "Daily Summary", description: "One-page company movement report for admissions, academics and finance.", href: "/progress-reports", icon: BarChart3, action: "Open", status: "green" },
+      { title: "Finance", description: "Fees collected, pending fees, invoices, subscriptions and refunds.", href: "/payments", icon: BadgeIndianRupee, action: "Review", status: "green" },
+      { title: "Admission Report", description: "Lead to admission conversion and batch-wise joining report.", href: "/crm/admissions", icon: FileText, action: "Report", status: "orange" },
+      { title: "Academic Report", description: "Syllabus, classes, tests, attendance and student performance.", href: "/performance-analytics", icon: GraduationCap, action: "Report", status: "orange" },
+      { title: "User Accounts", description: "Add, disable, delete and manage platform users.", href: "/admin-center/users", icon: UsersRound, action: "Manage", status: "green" },
+      { title: "Roles & Settings", description: "Manage roles, permissions, branches, operations and audit logs.", href: "/admin-center", icon: Settings, action: "Control", status: "green" }
     ]
   }
 ];
@@ -217,38 +122,54 @@ export default function DirectorDashboardPage() {
       <motion.div className="space-y-8" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
         <PageHero
           eyebrow="Director Dashboard"
-          title="Company control room"
-          description="Choose a company area below. Each card opens the right management page for academy, admissions, marketing, finance, staff, reports and settings."
+          title="Plan. Assign. Track."
+          description="A simple control room for academic planning, team performance, admissions, marketing, reports and management."
           actions={<Button type="button" onClick={() => refetch()} disabled={isFetching} variant="secondary">{isFetching ? "Refreshing..." : "Refresh"}</Button>}
         />
 
-        <DirectorSectionTitle eyebrow="Main Categories" title="Tap a company area" action={`${categories.length} areas`} />
-        <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-          {categories.map((category) => (
-            <DirectorCategoryCard key={category.title} category={category} />
+        <section className="grid gap-4 md:grid-cols-4">
+          {controlRooms.map((room) => (
+            <ControlRoomCard key={room.title} room={room} />
           ))}
         </section>
 
-        <DirectorSectionTitle eyebrow="Sub Modules" title="Manage services and activities" action="Add, manage, review" />
+        <div className="rounded-lg border border-[#071d36]/10 bg-white p-5 shadow-[0_18px_60px_rgba(7,29,54,0.08)]">
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#8a6426]">Academic Flow</p>
+          <h2 className="mt-2 text-2xl font-semibold text-[#071d36]">Director plans, Academic Head coordinates, Teachers execute</h2>
+          <div className="mt-5 grid gap-3 md:grid-cols-3">
+            {[
+              ["Director", "Programs, batches, timetable, teacher allocation and test calendar are planned here."],
+              ["Academic Head", "Receives the plan, checks completion, supports teachers and tracks syllabus."],
+              ["Teachers", "See only assigned batches, timetable, classes, tests, attendance and reports."]
+            ].map(([title, text], index) => (
+              <div key={title} className="rounded-lg border border-[#071d36]/10 bg-[#fffdf8] p-4">
+                <span className="grid h-8 w-8 place-items-center rounded-full bg-[#071d36] text-xs font-bold text-[#e7c873]">{index + 1}</span>
+                <h3 className="mt-3 text-lg font-semibold text-[#071d36]">{title}</h3>
+                <p className="mt-2 text-sm leading-6 text-[#40516a]">{text}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
         <div className="space-y-6">
-          {categories.map((category) => (
-            <section key={category.title} className="rounded-lg border border-[#071d36]/10 bg-white p-5 shadow-[0_18px_60px_rgba(7,29,54,0.08)]">
+          {controlRooms.map((room) => (
+            <section key={room.title} className="rounded-lg border border-[#071d36]/10 bg-white p-5 shadow-[0_18px_60px_rgba(7,29,54,0.08)]">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-start gap-3">
-                  <span className={`grid h-12 w-12 shrink-0 place-items-center rounded-lg border border-[#071d36]/10 ${category.tone}`}>
-                    <category.icon className="h-6 w-6 text-[#071d36]" />
+                  <span className={`grid h-12 w-12 shrink-0 place-items-center rounded-lg border border-[#071d36]/10 ${room.tone}`}>
+                    <room.icon className="h-6 w-6 text-[#071d36]" />
                   </span>
                   <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#8a6426]">{category.stat}</p>
-                    <h2 className="mt-1 text-2xl font-semibold text-[#071d36]">{category.title}</h2>
-                    <p className="mt-1 max-w-3xl text-sm leading-6 text-[#40516a]">{category.subtitle}</p>
+                    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#8a6426]">Control Room</p>
+                    <h2 className="mt-1 text-2xl font-semibold text-[#071d36]">{room.title}</h2>
+                    <p className="mt-1 max-w-3xl text-sm leading-6 text-[#40516a]">{room.purpose}</p>
                   </div>
                 </div>
-                <Button href={category.href} variant="secondary">Open {category.title}</Button>
+                <Button href={room.href} variant="secondary">Open</Button>
               </div>
               <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-                {category.modules.map((module) => (
-                  <DirectorModuleCard key={`${category.title}-${module.title}`} module={module} />
+                {room.modules.map((module) => (
+                  <ControlModuleCard key={`${room.title}-${module.title}`} module={module} />
                 ))}
               </div>
             </section>
@@ -259,36 +180,23 @@ export default function DirectorDashboardPage() {
   );
 }
 
-function DirectorCategoryCard({ category }: { category: DirectorCategory }) {
-  const Icon = category.icon;
+function ControlRoomCard({ room }: { room: ControlRoom }) {
+  const Icon = room.icon;
   return (
-    <Link href={category.href} className="group rounded-lg border border-[#071d36]/10 bg-white p-5 shadow-[0_18px_60px_rgba(7,29,54,0.08)] transition hover:-translate-y-1 hover:border-[#b9913f]/45">
-      <div className={`grid h-14 w-14 place-items-center rounded-lg border border-[#071d36]/10 ${category.tone}`}>
+    <Link href={room.href} className="group rounded-lg border border-[#071d36]/10 bg-white p-5 shadow-[0_18px_60px_rgba(7,29,54,0.08)] transition hover:-translate-y-1 hover:border-[#b9913f]/45">
+      <div className={`grid h-14 w-14 place-items-center rounded-lg border border-[#071d36]/10 ${room.tone}`}>
         <Icon className="h-7 w-7 text-[#071d36]" />
       </div>
-      <p className="mt-5 text-xs font-semibold uppercase tracking-[0.16em] text-[#8a6426]">{category.stat}</p>
-      <h3 className="mt-2 text-xl font-semibold text-[#071d36]">{category.title}</h3>
-      <p className="mt-2 text-sm leading-6 text-[#40516a]">{category.subtitle}</p>
+      <h3 className="mt-5 text-xl font-semibold text-[#071d36]">{room.title}</h3>
+      <p className="mt-2 text-sm leading-6 text-[#40516a]">{room.purpose}</p>
       <span className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[#071d36]">
-        Open area <Plus className="h-4 w-4 transition group-hover:rotate-90" />
+        Open <Plus className="h-4 w-4 transition group-hover:rotate-90" />
       </span>
     </Link>
   );
 }
 
-function DirectorSectionTitle({ eyebrow, title, action }: { eyebrow: string; title: string; action?: string }) {
-  return (
-    <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
-      <div>
-        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#8a6426]">{eyebrow}</p>
-        <h2 className="mt-2 text-2xl font-semibold text-[#071d36]">{title}</h2>
-      </div>
-      {action ? <p className="text-sm font-semibold text-[#40516a]">{action}</p> : null}
-    </div>
-  );
-}
-
-function DirectorModuleCard({ module }: { module: DirectorModule }) {
+function ControlModuleCard({ module }: { module: ControlModule }) {
   const Icon = module.icon;
   return (
     <Link href={module.href} className="group flex min-h-36 flex-col rounded-lg border border-[#071d36]/10 bg-[#fffdf8] p-4 transition hover:-translate-y-0.5 hover:border-[#b9913f]/45 hover:bg-white">
@@ -296,11 +204,11 @@ function DirectorModuleCard({ module }: { module: DirectorModule }) {
         <span className="grid h-11 w-11 place-items-center rounded-lg bg-[#f7f3ea] text-[#071d36]">
           <Icon className="h-5 w-5" />
         </span>
-        <span className="rounded-full border border-[#b9913f]/25 bg-[#fff7de] px-3 py-1 text-xs font-semibold text-[#8a6426]">{module.action ?? "Open"}</span>
+        <span className={`rounded-full border px-3 py-1 text-xs font-semibold ${statusStyles[module.status ?? "green"]}`}>{module.action}</span>
       </div>
       <h3 className="mt-4 text-base font-semibold text-[#071d36]">{module.title}</h3>
       <p className="mt-2 text-sm leading-6 text-[#40516a]">{module.description}</p>
-      <p className="mt-auto pt-4 text-sm font-semibold text-[#071d36]">Add / Delete / Manage</p>
+      <p className="mt-auto pt-4 text-sm font-semibold text-[#071d36]">Add / Manage / Track</p>
     </Link>
   );
 }

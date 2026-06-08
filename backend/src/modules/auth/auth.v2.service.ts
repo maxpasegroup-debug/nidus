@@ -63,7 +63,7 @@ export const AuthServiceV2 = {
     if (!existing) {
       const user = await prisma.user.create({
         data: {
-          name: "NIDUS Super Admin",
+          name: "Management",
           email: SUPER_ADMIN_EMAIL,
           mobile: "+910000000001",
           password,
@@ -84,6 +84,7 @@ export const AuthServiceV2 = {
     const user = await prisma.user.update({
       where: { id: existing.id },
       data: {
+        name: "Management",
         role: Role.ADMIN,
         emailVerified: true,
         mobileVerified: true,

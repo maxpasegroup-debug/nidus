@@ -9,6 +9,8 @@ import { useState } from "react";
 export function TopNavbar() {
   const { isAuthenticated, logout, user } = useAuth();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const designation = typeof user?.roleMetadata?.designation === "string" ? user.roleMetadata.designation : "";
+  const roleLabel = designation || (user?.role === "ADMIN" && user?.roleMetadata?.superAdmin === true ? "Management" : user?.role);
 
   return (
     <header className="fixed left-0 right-0 top-0 z-40 border-b border-[#071d36]/10 bg-[#f7f3ea]/82 text-[#101827] backdrop-blur-xl lg:left-[var(--sidebar-width)]">
@@ -54,7 +56,7 @@ export function TopNavbar() {
                   <p className="font-semibold text-[#071d36]">{user?.name}</p>
                   <p className="mt-1 text-xs text-[#64748b]">{user?.email}</p>
                   <p className="mt-3 rounded border border-[#b9913f]/20 bg-[#f7f3ea] px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-[#3f4a32]">
-                    {user?.role}
+                    {roleLabel}
                   </p>
                   <Button onClick={logout} size="sm" variant="secondary" className="mt-3 w-full">
                     Logout

@@ -77,35 +77,31 @@ const telecallerMenu = [
   { label: "New Leads", href: "/crm/leads" },
   { label: "Follow-ups", href: "/crm/followups" },
   { label: "Counselling", href: "/crm/counselling" },
-  { label: "Send to Admin", href: "/crm/admissions" },
+  { label: "Send to Admission Cell", href: "/crm/admissions" },
   { label: "Messages", href: "/messages" },
   { label: "Reports", href: "/progress-reports" },
   { label: "Settings", href: "/dashboard/settings" }
 ];
 
 const adminOperationsMenu = [
-  { label: "Administration", href: "/dashboard/admin" },
-  { label: "Admission Handover", href: "/crm/admissions" },
-  { label: "Student Records", href: "/admin-center/users" },
-  { label: "Fee Follow-up", href: "/payments" },
+  { label: "Admission Cell", href: "/dashboard/admin" },
+  { label: "Enquiries", href: "/crm/leads" },
+  { label: "Applications", href: "/crm/admissions" },
+  { label: "Follow-ups", href: "/crm/followups" },
+  { label: "Fees", href: "/payments" },
   { label: "Documents", href: "/documents" },
-  { label: "Notices", href: "/announcements" },
-  { label: "Staff Records", href: "/staff-hr" },
-  { label: "Reports", href: "/progress-reports" },
   { label: "Messages", href: "/messages" },
-  { label: "Settings", href: "/admin-center" }
+  { label: "Reports", href: "/progress-reports" },
+  { label: "Settings", href: "/dashboard/settings" }
 ];
 
 const directorMenu = [
   { label: "Director Desk", href: "/dashboard/director" },
-  { label: "Today", href: "/operations-hub" },
-  { label: "Admissions", href: "/crm" },
-  { label: "Academics", href: "/courses" },
-  { label: "Finance", href: "/payments" },
-  { label: "Staff & HR", href: "/staff-hr" },
-  { label: "Assessment Command", href: "/psychometric/admin" },
+  { label: "Academic Planning", href: "/programs" },
+  { label: "Team & Performance", href: "/staff-hr" },
+  { label: "Admissions & Marketing", href: "/crm" },
   { label: "Reports", href: "/progress-reports" },
-  { label: "NIDUS AI", href: "/nidus-ai" },
+  { label: "Management", href: "/admin-center" },
   { label: "Settings", href: "/dashboard/settings" }
 ];
 
