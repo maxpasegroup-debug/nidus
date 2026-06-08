@@ -19,7 +19,7 @@ function metadataObject(value: unknown) {
 
 export const usersRouter = Router();
 
-usersRouter.use(protect, allowRoles(Role.ADMIN));
+usersRouter.use(protect, allowRoles(Role.ADMIN, Role.DIRECTOR));
 
 usersRouter.get("/", async (_req, res, next) => {
   try {

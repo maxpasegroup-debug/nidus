@@ -19,7 +19,7 @@ import {
   Sparkles,
   UsersRound
 } from "lucide-react";
-import { DashboardError, DashboardSkeleton, RoleDashboardGuard, SectionHeader, StatCard } from "@/components/dashboard";
+import { DashboardError, DashboardSkeleton, RoleDashboardGuard } from "@/components/dashboard";
 import { Button } from "@/components/ui/button";
 import { PageHero } from "@/components/layout/page-hero";
 import { useDirectorDashboard } from "@/hooks/use-dashboard";
@@ -47,7 +47,7 @@ const categories: DirectorCategory[] = [
   {
     title: "Academy",
     subtitle: "Offline, online, recorded classes, teachers and student progress.",
-    href: "/dashboard/academy",
+    href: "/programs",
     icon: GraduationCap,
     tone: "bg-[#fff7de]",
     stat: "Programs",
@@ -95,7 +95,7 @@ const categories: DirectorCategory[] = [
   {
     title: "NIDUS Guru",
     subtitle: "Recorded transformation quests and personal growth programs.",
-    href: "/dashboard/nidus-guru",
+    href: "/admin-center/guru",
     icon: Sparkles,
     tone: "bg-[#f5efff]",
     stat: "Quests",
@@ -111,7 +111,7 @@ const categories: DirectorCategory[] = [
   {
     title: "TOPRANK",
     subtitle: "AI-powered exam coaching and subscription training access.",
-    href: "/dashboard/toprank",
+    href: "/toprank",
     icon: ShieldCheck,
     tone: "bg-[#edf7ee]",
     stat: "Exam AI",
@@ -120,14 +120,14 @@ const categories: DirectorCategory[] = [
       { title: "NDA", description: "Review NDA training access and student readiness.", href: "/toprank/nda", icon: GraduationCap, action: "View" },
       { title: "Subscriptions", description: "Manage TOPRANK payment and 30-day access.", href: "/subscriptions", icon: BadgeIndianRupee, action: "Manage" },
       { title: "Practice Tests", description: "Review mock tests and practice cycles.", href: "/tests", icon: ClipboardCheck, action: "Review" },
-      { title: "Bridge Status", description: "Check Career7/TOPRANK launch readiness.", href: "/dashboard/toprank", icon: Settings, action: "Check" },
+      { title: "Bridge Status", description: "Check Career7/TOPRANK launch readiness.", href: "/toprank", icon: Settings, action: "Check" },
       { title: "Reports", description: "View subscription, training and performance reports.", href: "/progress-reports", icon: BarChart3, action: "Reports" }
     ]
   },
   {
     title: "Assessments",
     subtitle: "Free and premium psychometric tests, reports and counselling signals.",
-    href: "/dashboard/assessments",
+    href: "/psychometric/admin",
     icon: FileText,
     tone: "bg-[#eff8f8]",
     stat: "Reports",
@@ -165,10 +165,10 @@ const categories: DirectorCategory[] = [
     stat: "Staff",
     modules: [
       { title: "Staff List", description: "Review all employee roles and departments.", href: "/staff-hr", icon: UsersRound, action: "Open" },
-      { title: "Academic Heads", description: "Manage academic supervision and batch control.", href: "/dashboard/teacher", icon: GraduationCap, action: "Review" },
+      { title: "Academic Heads", description: "Manage academic supervision and batch control.", href: "/staff-hr", icon: GraduationCap, action: "Review" },
       { title: "Teachers", description: "Review classes, tests and subject activity.", href: "/staff-hr", icon: BookOpenCheck, action: "Manage" },
       { title: "Physical Training", description: "Review PT schedules, logs and eligibility.", href: "/fitness/pt-schedule", icon: ShieldCheck, action: "Open" },
-      { title: "Admission Cell", description: "Open admission desk and application work.", href: "/dashboard/admin", icon: ClipboardCheck, action: "Open" },
+      { title: "Admission Cell", description: "Open applications, approvals, fees and documents.", href: "/crm/admissions", icon: ClipboardCheck, action: "Open" },
       { title: "Student Support", description: "Review telecaller leads and follow-ups.", href: "/dashboard/telecaller", icon: UsersRound, action: "Open" }
     ]
   },
@@ -218,30 +218,18 @@ export default function DirectorDashboardPage() {
         <PageHero
           eyebrow="Director Dashboard"
           title="Company control room"
-          description="Simple thumbnails to manage Academy, Admissions, Marketing, NIDUS Guru, TOPRANK, Assessments, Finance, Team, Reports and Management."
+          description="Choose a company area below. Each card opens the right management page for academy, admissions, marketing, finance, staff, reports and settings."
           actions={<Button type="button" onClick={() => refetch()} disabled={isFetching} variant="secondary">{isFetching ? "Refreshing..." : "Refresh"}</Button>}
-          stats={[
-            { value: String(data.instituteAnalytics.students), label: "students" },
-            { value: `${data.admissionsAnalytics.conversionRate}%`, label: "admission conversion" },
-            { value: `Rs ${Math.round(data.revenueAnalytics.collected / 100000)}L`, label: "collected" }
-          ]}
         />
 
-        <section className="grid gap-4 md:grid-cols-4">
-          <StatCard label="Admissions" value={`${data.admissionsAnalytics.admissions}/${data.admissionsAnalytics.leads}`} note="Joined students from enquiries" />
-          <StatCard label="Academy" value={`${data.instituteAnalytics.attendance}%`} note="Average attendance" />
-          <StatCard label="Faculty" value={`${data.facultyAnalytics.active}`} note={`${data.facultyAnalytics.reviewDue} reviews due`} />
-          <StatCard label="Pending Fees" value={`Rs ${Math.round(data.revenueAnalytics.pending / 100000)}L`} note="Needs follow-up" />
-        </section>
-
-        <SectionHeader eyebrow="Main Categories" title="Tap a company area" action={`${categories.length} areas`} />
+        <DirectorSectionTitle eyebrow="Main Categories" title="Tap a company area" action={`${categories.length} areas`} />
         <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
           {categories.map((category) => (
             <DirectorCategoryCard key={category.title} category={category} />
           ))}
         </section>
 
-        <SectionHeader eyebrow="Sub Modules" title="Manage services and activities" action="Add, manage, review" />
+        <DirectorSectionTitle eyebrow="Sub Modules" title="Manage services and activities" action="Add, manage, review" />
         <div className="space-y-6">
           {categories.map((category) => (
             <section key={category.title} className="rounded-lg border border-[#071d36]/10 bg-white p-5 shadow-[0_18px_60px_rgba(7,29,54,0.08)]">
@@ -285,6 +273,18 @@ function DirectorCategoryCard({ category }: { category: DirectorCategory }) {
         Open area <Plus className="h-4 w-4 transition group-hover:rotate-90" />
       </span>
     </Link>
+  );
+}
+
+function DirectorSectionTitle({ eyebrow, title, action }: { eyebrow: string; title: string; action?: string }) {
+  return (
+    <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
+      <div>
+        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#8a6426]">{eyebrow}</p>
+        <h2 className="mt-2 text-2xl font-semibold text-[#071d36]">{title}</h2>
+      </div>
+      {action ? <p className="text-sm font-semibold text-[#40516a]">{action}</p> : null}
+    </div>
   );
 }
 

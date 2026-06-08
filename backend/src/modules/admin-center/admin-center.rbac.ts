@@ -36,7 +36,7 @@ export function requirePermission(module: string, action: string) {
         return;
       }
 
-      if (req.user.role === Role.ADMIN) {
+      if (req.user.role === Role.ADMIN || req.user.role === Role.DIRECTOR) {
         next();
         return;
       }
