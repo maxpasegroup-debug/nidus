@@ -18,6 +18,7 @@
     "bootstrap:production": "tsx src/scripts/production-bootstrap.ts",
     "seed:psychometric": "tsx src/scripts/psychometric-assessments.ts",
     "seed:guru": "tsx src/scripts/guru-seed.ts",
+    "seed:academy-architecture": "tsx src/scripts/academy-architecture.ts",
     "seed:nidus-team": "tsx src/scripts/nidus-team.ts",
     "cleanup:demo-data": "tsx src/scripts/cleanup-demo-data.ts",
     "db:readiness": "tsx src/scripts/database-readiness.ts",
