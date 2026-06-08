@@ -70,9 +70,6 @@ const classCycle = [
   }
 ];
 
-const courseTracks = ["NDA Crash", "NDA F1", "NDA F2"];
-const subjectLibrary = ["Maths", "English", "Biology", "Social", "GK", "Current Affairs", "Chemistry", "Physics"];
-
 const simpleActions = [
   { title: "My Course", href: "/my-courses", icon: BookOpen },
   { title: "Tests", href: "/tests", icon: ClipboardCheck },
@@ -89,6 +86,9 @@ export default function StudentDashboardPage() {
   if (error || !data) return <RoleDashboardGuard role="STUDENT"><DashboardError error={error} onRefresh={() => refetch()} /></RoleDashboardGuard>;
 
   const activeCourse = data.enrolledCourses[0];
+  const activeBatch = data.academyProfile.assignedBatches[0];
+  const subjectLibrary = data.academyProfile.librarySubjects.length ? data.academyProfile.librarySubjects : ["Maths", "English", "GK", "Current Affairs"];
+  const visibleClasses = data.academyProfile.todayClasses.length ? data.academyProfile.todayClasses : data.academyProfile.upcomingClasses.slice(0, 4);
 
   return (
     <RoleDashboardGuard role="STUDENT">
@@ -109,10 +109,48 @@ export default function StudentDashboardPage() {
         </section>
 
         <section className="grid gap-4 md:grid-cols-4">
-          <StatCard label="Current Course" value={activeCourse?.title ?? "Not assigned"} note={activeCourse?.nextLesson ?? "Course appears after admission approval"} />
+          <StatCard label="Current Course" value={activeCourse?.title ?? activeBatch?.course?.title ?? "Not assigned"} note={activeCourse?.nextLesson ?? activeBatch?.name ?? "Course appears after admission approval"} />
           <StatCard label="Attendance" value={`${data.attendance.percentage}%`} note={`${data.attendance.present}/${data.attendance.total} sessions`} />
           <StatCard label="Upcoming Tests" value={String(data.upcomingTests.length)} note={data.upcomingTests[0]?.title ?? "No test scheduled"} />
-          <StatCard label="Course Progress" value={`${activeCourse?.progress ?? 0}%`} note="Recorded class and test progress" />
+          <StatCard label="My Batch" value={activeBatch ? activeBatch.type.replace(/_/g, " ") : "Pending"} note={activeBatch ? `${activeBatch.teachers} teachers, ${activeBatch.tests} tests` : "Admission Cell will assign batch"} />
+        </section>
+
+        <section className="rounded-lg border border-[#071d36]/10 bg-white p-5 shadow-[0_18px_60px_rgba(7,29,54,0.08)]">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#8a6426]">My Academy Plan</p>
+              <h2 className="mt-2 text-3xl font-semibold text-[#071d36]">Your batch and class timetable</h2>
+              <p className="mt-2 max-w-2xl text-sm leading-7 text-[#64748b]">
+                After Admission Cell approval, your program, batch, teachers, tests and timetable appear here automatically.
+              </p>
+            </div>
+            <Button href="/live-classes">Open Classes</Button>
+          </div>
+          <div className="mt-5 grid gap-4 lg:grid-cols-[0.85fr_1.15fr]">
+            <div className="rounded-lg border border-[#071d36]/10 bg-[#fffdf8] p-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8a6426]">Assigned Batch</p>
+              <h3 className="mt-3 text-xl font-semibold text-[#071d36]">{activeBatch?.course?.title ?? "No batch assigned yet"}</h3>
+              <p className="mt-2 text-sm leading-6 text-[#64748b]">{activeBatch?.name ?? "Apply to an Academy program or wait for Admission Cell approval."}</p>
+              <div className="mt-4 grid grid-cols-2 gap-2 text-xs font-semibold text-[#40516a]">
+                <span className="rounded border border-[#071d36]/10 bg-white px-3 py-2">{activeBatch?.teachers ?? 0} teachers</span>
+                <span className="rounded border border-[#071d36]/10 bg-white px-3 py-2">{activeBatch?.tests ?? 0} tests</span>
+              </div>
+            </div>
+            <div className="grid gap-3">
+              {visibleClasses.length ? visibleClasses.map((slot) => (
+                <Link key={slot.id} href="/live-classes" className="rounded-lg border border-[#071d36]/10 bg-[#fffdf8] p-4 transition hover:-translate-y-0.5 hover:border-[#b9913f]/45 hover:bg-white">
+                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#8a6426]">{slot.subject}</p>
+                  <h3 className="mt-2 text-base font-semibold text-[#071d36]">{slot.title}</h3>
+                  <p className="mt-1 text-xs leading-5 text-[#64748b]">{slot.instructor} - {new Date(slot.startTime).toLocaleString()}</p>
+                </Link>
+              )) : (
+                <div className="rounded-lg border border-[#071d36]/10 bg-[#fffdf8] p-4">
+                  <p className="text-sm font-semibold text-[#071d36]">No timetable assigned yet</p>
+                  <p className="mt-1 text-xs leading-5 text-[#64748b]">Your classes will appear after batch allocation.</p>
+                </div>
+              )}
+            </div>
+          </div>
         </section>
 
         <section className="rounded-lg border border-[#071d36]/10 bg-white p-5 shadow-[0_18px_60px_rgba(7,29,54,0.08)]">
@@ -159,12 +197,15 @@ export default function StudentDashboardPage() {
               </div>
             </div>
             <div className="mt-5 grid gap-3">
-              {courseTracks.map((course) => (
-                <Link key={course} href="/my-courses" className="flex items-center justify-between rounded-lg border border-[#071d36]/10 bg-[#f7f3ea] px-4 py-4 text-sm font-semibold text-[#071d36] transition hover:border-[#b9913f]/45 hover:bg-white">
-                  {course}
+              {(data.academyProfile.assignedBatches.length ? data.academyProfile.assignedBatches : []).map((batch) => (
+                <Link key={batch.id} href="/my-courses" className="flex items-center justify-between rounded-lg border border-[#071d36]/10 bg-[#f7f3ea] px-4 py-4 text-sm font-semibold text-[#071d36] transition hover:border-[#b9913f]/45 hover:bg-white">
+                  {batch.course?.title ?? batch.name}
                   <BookOpen className="h-4 w-4 text-[#b9913f]" />
                 </Link>
               ))}
+              {!data.academyProfile.assignedBatches.length ? (
+                <div className="rounded-lg border border-[#071d36]/10 bg-[#f7f3ea] px-4 py-4 text-sm font-semibold text-[#071d36]">No course assigned yet</div>
+              ) : null}
             </div>
           </div>
 

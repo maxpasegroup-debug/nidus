@@ -125,6 +125,11 @@ export default function DirectorDashboardPage() {
           title="Plan. Assign. Track."
           description="A simple control room for academic planning, team performance, admissions, marketing, reports and management."
           actions={<Button type="button" onClick={() => refetch()} disabled={isFetching} variant="secondary">{isFetching ? "Refreshing..." : "Refresh"}</Button>}
+          stats={[
+            { value: String(data.academyArchitecture.programs), label: "programs" },
+            { value: String(data.academyArchitecture.batches), label: "batches" },
+            { value: String(data.academyArchitecture.timetableSlots), label: "class slots" }
+          ]}
         />
 
         <section className="grid gap-4 md:grid-cols-4">
@@ -150,6 +155,46 @@ export default function DirectorDashboardPage() {
             ))}
           </div>
         </div>
+
+        <section className="grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
+          <div className="rounded-lg border border-[#071d36]/10 bg-white p-5 shadow-[0_18px_60px_rgba(7,29,54,0.08)]">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#8a6426]">Academy Architecture</p>
+            <h2 className="mt-3 text-2xl font-semibold text-[#071d36]">Seeded operational system</h2>
+            <div className="mt-5 grid gap-3">
+              {[
+                ["Programs", data.academyArchitecture.programs],
+                ["Batches", data.academyArchitecture.batches],
+                ["Teacher mappings", data.academyArchitecture.teacherAssignments],
+                ["Timetable slots", data.academyArchitecture.timetableSlots],
+                ["Draft tests", data.academyArchitecture.draftTests],
+                ["Live tests", data.academyArchitecture.liveTests]
+              ].map(([label, value]) => (
+                <div key={label} className="flex items-center justify-between rounded-lg border border-[#071d36]/10 bg-[#fffdf8] px-4 py-3">
+                  <span className="text-sm font-semibold text-[#071d36]">{label}</span>
+                  <span className="rounded-full bg-[#fff7de] px-3 py-1 text-sm font-bold text-[#8a6426]">{value}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="rounded-lg border border-[#071d36]/10 bg-white p-5 shadow-[0_18px_60px_rgba(7,29,54,0.08)]">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#8a6426]">Verticals & Batch Types</p>
+            <h2 className="mt-3 text-2xl font-semibold text-[#071d36]">Where the academy is organized</h2>
+            <div className="mt-5 grid gap-3 md:grid-cols-2">
+              {data.academyArchitecture.verticals.map((item) => (
+                <div key={item.category} className="rounded-lg border border-[#071d36]/10 bg-[#fffdf8] p-4">
+                  <p className="text-sm font-semibold text-[#071d36]">{item.category}</p>
+                  <p className="mt-1 text-xs text-[#64748b]">{item.count} programs</p>
+                </div>
+              ))}
+              {data.academyArchitecture.batchTypes.map((item) => (
+                <div key={item.type} className="rounded-lg border border-[#071d36]/10 bg-[#f7f3ea] p-4">
+                  <p className="text-sm font-semibold text-[#071d36]">{item.type.replace(/_/g, " ")}</p>
+                  <p className="mt-1 text-xs text-[#64748b]">{item.count} batches</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
 
         <div className="space-y-6">
           {controlRooms.map((room) => (

@@ -85,6 +85,15 @@ export default function AdminDashboardPage() {
           <StatCard label="Today" value={String(data.attendanceAnalytics.totalMarked)} note="Attendance entries marked" />
         </section>
 
+        <section className="grid gap-4 md:grid-cols-3 xl:grid-cols-6">
+          <StatCard label="Programs" value={String(data.academySummary.programs)} note="Academy catalog" />
+          <StatCard label="Batches" value={String(data.academySummary.batches)} note="Ready for allocation" />
+          <StatCard label="Teachers Mapped" value={String(data.academySummary.teacherAssignments)} note="Subject assignments" />
+          <StatCard label="Timetable" value={String(data.academySummary.timetableSlots)} note="Class slots" />
+          <StatCard label="Draft Tests" value={String(data.academySummary.draftTests)} note="Faculty review" />
+          <StatCard label="Live Tests" value={String(data.academySummary.liveTests)} note="Student access" />
+        </section>
+
         <SectionHeader eyebrow={pageName} title={isAdmissionCell ? "Choose what you want to do" : "Management work areas"} />
         <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {commandModules.map((module) => (
@@ -99,6 +108,42 @@ export default function AdminDashboardPage() {
               {data.customDashboard.focusAreas.map((area) => (
                 <AnnouncementCard key={area} title={area} description="Keep this checked and updated before closing the day." tag="Admission" />
               ))}
+            </section>
+
+            <section className="grid gap-6 lg:grid-cols-2">
+              <div className="rounded-lg border border-[#071d36]/10 bg-white p-5 shadow-[0_18px_60px_rgba(7,29,54,0.08)]">
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#8a6426]">Applications By Program</p>
+                <h2 className="mt-3 text-2xl font-semibold text-[#071d36]">Course-wise admission movement</h2>
+                <div className="mt-5 grid gap-3">
+                  {data.admissionProgramPipeline.length ? data.admissionProgramPipeline.slice(0, 8).map((item) => (
+                    <div key={`${item.courseId}-${item.status}`} className="rounded-lg border border-[#071d36]/10 bg-[#fffdf8] p-4">
+                      <div className="flex items-center justify-between gap-3">
+                        <div>
+                          <p className="text-sm font-semibold text-[#071d36]">{item.title}</p>
+                          <p className="mt-1 text-xs text-[#64748b]">{item.category} - {item.status.replace(/_/g, " ")}</p>
+                        </div>
+                        <span className="rounded-full bg-[#fff7de] px-3 py-1 text-sm font-bold text-[#8a6426]">{item.count}</span>
+                      </div>
+                    </div>
+                  )) : (
+                    <div className="rounded-lg border border-[#071d36]/10 bg-[#fffdf8] p-4 text-sm font-semibold text-[#071d36]">No course applications yet</div>
+                  )}
+                </div>
+              </div>
+              <div className="rounded-lg border border-[#071d36]/10 bg-white p-5 shadow-[0_18px_60px_rgba(7,29,54,0.08)]">
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#8a6426]">Lead Interest</p>
+                <h2 className="mt-3 text-2xl font-semibold text-[#071d36]">Enquiries by selected course</h2>
+                <div className="mt-5 grid gap-3">
+                  {data.leadProgramPipeline.length ? data.leadProgramPipeline.slice(0, 8).map((item) => (
+                    <div key={item.program} className="flex items-center justify-between rounded-lg border border-[#071d36]/10 bg-[#fffdf8] p-4">
+                      <p className="text-sm font-semibold text-[#071d36]">{item.program}</p>
+                      <span className="rounded-full bg-[#edf7ee] px-3 py-1 text-sm font-bold text-[#2f6b3f]">{item.count}</span>
+                    </div>
+                  )) : (
+                    <div className="rounded-lg border border-[#071d36]/10 bg-[#fffdf8] p-4 text-sm font-semibold text-[#071d36]">No lead course interest yet</div>
+                  )}
+                </div>
+              </div>
             </section>
           </>
         ) : null}

@@ -15,6 +15,22 @@ export type ChartPoint = {
 export type StudentDashboardData = {
   profile: Pick<AuthUser, "id" | "name" | "email" | "mobile" | "role"> | null;
   enrolledCourses: Array<{ id: string; title: string; progress: number; nextLesson: string }>;
+  academyProfile: {
+    assignedBatches: Array<{
+      id: string;
+      name: string;
+      type: string;
+      programSlug: string;
+      status: string;
+      joinedAt: string;
+      teachers: number;
+      tests: number;
+      course: { id: string; title: string; slug: string; category: string; examType: string; duration: string } | null;
+    }>;
+    todayClasses: Array<{ id: string; title: string; batch: string; subject: string; instructor: string; startTime: string; endTime: string; classroom: string }>;
+    upcomingClasses: Array<{ id: string; title: string; batch: string; subject: string; instructor: string; startTime: string; endTime: string; classroom: string }>;
+    librarySubjects: string[];
+  };
   upcomingTests: Array<{ id: string; title: string; date: string; durationMinutes: number }>;
   attendance: {
     percentage: number;
@@ -113,6 +129,9 @@ export type AdminDashboardData = {
     totalBeds: number;
   };
   customDashboard: StaffDashboardProfile;
+  academySummary: { programs: number; batches: number; teacherAssignments: number; timetableSlots: number; draftTests: number; liveTests: number };
+  admissionProgramPipeline: Array<{ courseId: string; title: string; category: string; status: string; count: number }>;
+  leadProgramPipeline: Array<{ program: string; count: number }>;
 };
 
 export type GuestDashboardData = {
@@ -138,6 +157,10 @@ export type TeacherDashboardData = {
     schedule: unknown;
     course: { id: string; title: string; slug: string; category: string; examType: string; duration: string } | null;
   }>;
+  teachingPlan: {
+    today: Array<{ id: string; title: string; batch: string; subject: string; startTime: string; endTime: string; classroom: string }>;
+    upcoming: Array<{ id: string; title: string; batch: string; subject: string; startTime: string; endTime: string; classroom: string }>;
+  };
   classPerformance: { averageScore: number; attendance: number; weakStudentCount: number; assignmentsDue: number };
   contentOps: { lectureUploads: number; notesUploads: number; pendingReviews: number; cbtDrafts: number };
   physicalTraining?: { schedules: number; attendanceMarked: number; fitnessProfiles: number; eligibilityReviews: number; dailyLogs: number };
@@ -153,6 +176,16 @@ export type DirectorDashboardData = {
   admissionsAnalytics: { leads: number; admissions: number; conversionRate: number };
   revenueAnalytics: { collected: number; pending: number; forecast: number };
   facultyAnalytics: { active: number; utilization: number; reviewDue: number };
+  academyArchitecture: {
+    programs: number;
+    batches: number;
+    teacherAssignments: number;
+    timetableSlots: number;
+    draftTests: number;
+    liveTests: number;
+    batchTypes: Array<{ type: string; count: number }>;
+    verticals: Array<{ category: string; count: number }>;
+  };
   riskAlerts: string[];
   executiveInsights: string[];
   growthForecast: Array<{ month: string; forecast: number }>;

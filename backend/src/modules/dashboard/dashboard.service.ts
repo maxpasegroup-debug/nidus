@@ -111,6 +111,30 @@ function buildAssessmentProfile(
   };
 }
 
+function startOfToday() {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return today;
+}
+
+function endOfToday() {
+  const tomorrow = startOfToday();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  return tomorrow;
+}
+
+async function academyArchitectureSummary() {
+  const [programs, batches, teacherAssignments, timetableSlots, draftTests, liveTests] = await Promise.all([
+    prisma.course.count(),
+    prisma.batch.count(),
+    prisma.teacherBatchAssignment.count({ where: { status: "ACTIVE" } }),
+    prisma.timetable.count(),
+    prisma.test.count({ where: { status: { in: ["DRAFT_REVIEW", "REVIEW", "DRAFT"] } } }),
+    prisma.test.count({ where: { isLive: true } })
+  ]);
+  return { programs, batches, teacherAssignments, timetableSlots, draftTests, liveTests };
+}
+
 export const dashboardService = {
   async getStudentDashboard(user: DashboardUser) {
     const profile = await prisma.user.findUnique({
@@ -118,11 +142,20 @@ export const dashboardService = {
       select: { id: true, name: true, email: true, mobile: true, role: true }
     });
 
-    const [enrollments, liveTests, attendanceRows, leaderboard, studentCount, recommendations, fitness, lectureProgress, attempts, psychometricAttempts] = await Promise.all([
+    const todayStart = startOfToday();
+    const upcomingEnd = new Date(todayStart);
+    upcomingEnd.setDate(upcomingEnd.getDate() + 14);
+
+    const [enrollments, batchEnrollments, liveTests, attendanceRows, leaderboard, studentCount, recommendations, fitness, lectureProgress, attempts, psychometricAttempts] = await Promise.all([
       prisma.enrollment.findMany({
         where: { userId: user.id },
         orderBy: { enrolledAt: "desc" },
         include: { course: { include: { modules: { orderBy: { order: "asc" }, include: { lessons: { orderBy: { order: "asc" }, take: 1 } } } } } }
+      }),
+      prisma.batchStudent.findMany({
+        where: { studentId: user.id, status: "ACTIVE" },
+        include: { batch: { include: { course: { select: { id: true, title: true, slug: true, category: true, examType: true, duration: true } }, _count: { select: { teachers: true, tests: true } } } } },
+        orderBy: { joinedAt: "desc" }
       }),
       prisma.test.findMany({ where: { isLive: true }, orderBy: { createdAt: "desc" }, take: 5, include: { _count: { select: { questions: true } } } }),
       prisma.attendance.findMany({ where: { userId: user.id }, orderBy: { date: "asc" } }),
@@ -140,6 +173,13 @@ export const dashboardService = {
     ]);
     const present = attendanceRows.filter((row) => attendanceStatus(row.status) === "PRESENT").length;
     const assessmentProfile = buildAssessmentProfile(psychometricAttempts);
+    const studentBatchNames = batchEnrollments.map((enrollment) => enrollment.batch.name);
+    const [todayClasses, upcomingClasses] = studentBatchNames.length
+      ? await Promise.all([
+          prisma.timetable.findMany({ where: { batch: { in: studentBatchNames }, startTime: { gte: todayStart, lt: endOfToday() } }, orderBy: { startTime: "asc" }, take: 8 }),
+          prisma.timetable.findMany({ where: { batch: { in: studentBatchNames }, startTime: { gte: endOfToday(), lt: upcomingEnd } }, orderBy: { startTime: "asc" }, take: 12 })
+        ])
+      : [[], []];
     const recentActivities = [
       ...assessmentProfile.completed.slice(0, 3).map((attempt) => `Completed ${attempt.title}`),
       ...attempts.map((attempt) => `Attempted ${attempt.test.title}`),
@@ -154,6 +194,43 @@ export const dashboardService = {
         progress: enrollment.progress,
         nextLesson: enrollment.course.modules[0]?.lessons[0]?.title ?? "No lesson added"
       })),
+      academyProfile: {
+        assignedBatches: batchEnrollments.map((enrollment) => ({
+          id: enrollment.batch.id,
+          name: enrollment.batch.name,
+          type: enrollment.batch.batchType,
+          programSlug: enrollment.batch.programSlug,
+          status: enrollment.batch.status,
+          joinedAt: enrollment.joinedAt.toISOString(),
+          teachers: enrollment.batch._count.teachers,
+          tests: enrollment.batch._count.tests,
+          course: enrollment.batch.course
+        })),
+        todayClasses: todayClasses.map((slot) => ({
+          id: slot.id,
+          title: slot.title,
+          batch: slot.batch,
+          subject: slot.subject,
+          instructor: slot.instructor,
+          startTime: slot.startTime.toISOString(),
+          endTime: slot.endTime.toISOString(),
+          classroom: slot.classroom
+        })),
+        upcomingClasses: upcomingClasses.map((slot) => ({
+          id: slot.id,
+          title: slot.title,
+          batch: slot.batch,
+          subject: slot.subject,
+          instructor: slot.instructor,
+          startTime: slot.startTime.toISOString(),
+          endTime: slot.endTime.toISOString(),
+          classroom: slot.classroom
+        })),
+        librarySubjects: Array.from(new Set(batchEnrollments.flatMap((enrollment) => {
+          const schedule = metadataObject(enrollment.batch.schedule);
+          return stringArray(schedule.subjects);
+        })))
+      },
       upcomingTests: liveTests.map((test) => ({ id: test.id, title: test.title, date: test.createdAt.toISOString(), durationMinutes: test.duration })),
       attendance: {
         percentage: percentage(present, attendanceRows.length),
@@ -164,7 +241,7 @@ export const dashboardService = {
       leaderboardRank: {
         rank: leaderboard?.rank ?? 0,
         percentile: leaderboard?.rank && studentCount ? percentage(studentCount - leaderboard.rank + 1, studentCount) : 0,
-        batch: "No batch assigned"
+        batch: batchEnrollments[0]?.batch.name ?? "No batch assigned"
       },
       aiRecommendations: recommendations.map((item) => item.recommendation),
       fitnessProgress: {
@@ -245,7 +322,7 @@ export const dashboardService = {
     const customDashboard = staffDashboard(metadataObject(currentUser?.roleMetadata), "ADMIN_OPERATIONS");
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const [totalStudents, recentAdmissions, revenue, attendanceToday, staffCounts, hostelRooms] = await Promise.all([
+    const [totalStudents, recentAdmissions, revenue, attendanceToday, staffCounts, hostelRooms, programApplications, leadPrograms, academySummary] = await Promise.all([
       prisma.user.count({ where: { role: "STUDENT" } }),
       prisma.admission.findMany({
         take: 5,
@@ -255,8 +332,14 @@ export const dashboardService = {
       prisma.payment.aggregate({ where: { paymentStatus: { in: paidStatuses } }, _sum: { amount: true } }),
       prisma.attendance.findMany({ where: { date: { gte: today } } }),
       prisma.user.groupBy({ by: ["role"], where: { role: { in: staffRoles } }, _count: { role: true } }),
-      prisma.room.aggregate({ _sum: { occupiedCount: true, capacity: true } })
+      prisma.room.aggregate({ _sum: { occupiedCount: true, capacity: true } }),
+      prisma.admission.groupBy({ by: ["courseId", "status"], _count: { id: true } }),
+      prisma.lead.groupBy({ by: ["targetExam"], _count: { id: true } }),
+      academyArchitectureSummary()
     ]);
+    const courseIds = Array.from(new Set(programApplications.map((item) => item.courseId)));
+    const courses = courseIds.length ? await prisma.course.findMany({ where: { id: { in: courseIds } }, select: { id: true, title: true, slug: true, category: true } }) : [];
+    const courseMap = new Map(courses.map((course) => [course.id, course]));
     const presentToday = attendanceToday.filter((row) => attendanceStatus(row.status) === "PRESENT").length;
     const staffMap = new Map(staffCounts.map((item) => [item.role, item._count.role]));
     const faculty = staffMap.get("TEACHER") ?? 0;
@@ -289,7 +372,16 @@ export const dashboardService = {
         occupiedBeds,
         totalBeds
       },
-      customDashboard
+      customDashboard,
+      academySummary,
+      admissionProgramPipeline: programApplications.map((item) => ({
+        courseId: item.courseId,
+        title: courseMap.get(item.courseId)?.title ?? "Unknown program",
+        category: courseMap.get(item.courseId)?.category ?? "Academy",
+        status: item.status,
+        count: item._count.id
+      })),
+      leadProgramPipeline: leadPrograms.map((item) => ({ program: item.targetExam || "Not selected", count: item._count.id }))
     };
   },
 
@@ -314,7 +406,12 @@ export const dashboardService = {
     const customDashboard = staffDashboard(metadataObject(profile?.roleMetadata), "SUBJECT_FACULTY");
     const subject = customDashboard.subject;
 
-    const [attendanceRows, attempts, lectures, documents, tests, recommendations, teachingAssignments] = await Promise.all([
+    const todayStart = startOfToday();
+    const tomorrowStart = endOfToday();
+    const upcomingEnd = new Date(todayStart);
+    upcomingEnd.setDate(upcomingEnd.getDate() + 14);
+
+    const [attendanceRows, attempts, lectures, documents, tests, recommendations, teachingAssignments, todayTimetable, upcomingTimetable] = await Promise.all([
       prisma.attendance.findMany({ orderBy: { date: "desc" }, take: 200 }),
       prisma.testAttempt.findMany({ where: { submittedAt: { not: null } }, orderBy: { submittedAt: "desc" }, take: 100 }),
       prisma.recordedLecture.count(),
@@ -332,6 +429,16 @@ export const dashboardService = {
             }
           }
         }
+      }),
+      prisma.timetable.findMany({
+        where: { instructor: profile?.name ?? "", startTime: { gte: todayStart, lt: tomorrowStart } },
+        orderBy: { startTime: "asc" },
+        take: 8
+      }),
+      prisma.timetable.findMany({
+        where: { instructor: profile?.name ?? "", startTime: { gte: tomorrowStart, lt: upcomingEnd } },
+        orderBy: { startTime: "asc" },
+        take: 12
       })
     ]);
     const isPhysicalInstructor = customDashboard.dashboardTemplate === "PHYSICAL_INSTRUCTOR";
@@ -374,6 +481,26 @@ export const dashboardService = {
             }
           : null
       })),
+      teachingPlan: {
+        today: todayTimetable.map((slot) => ({
+          id: slot.id,
+          title: slot.title,
+          batch: slot.batch,
+          subject: slot.subject,
+          startTime: slot.startTime.toISOString(),
+          endTime: slot.endTime.toISOString(),
+          classroom: slot.classroom
+        })),
+        upcoming: upcomingTimetable.map((slot) => ({
+          id: slot.id,
+          title: slot.title,
+          batch: slot.batch,
+          subject: slot.subject,
+          startTime: slot.startTime.toISOString(),
+          endTime: slot.endTime.toISOString(),
+          classroom: slot.classroom
+        }))
+      },
       classPerformance: { averageScore, attendance: percentage(present, attendanceRows.length), weakStudentCount: attempts.filter((attempt) => attempt.score < 50).length, assignmentsDue: 0 },
       contentOps: {
         lectureUploads: lectures,
@@ -411,7 +538,7 @@ export const dashboardService = {
     });
     const customDashboard = staffDashboard(metadataObject(director?.roleMetadata), "EXECUTIVE_COMMAND");
     const scopedWhere = user.role === "DIRECTOR" ? { instituteId: director?.instituteId ?? undefined, branchId: director?.branchId ?? undefined } : {};
-    const [students, leads, admissions, teachers, attendanceRows, completedAttempts, totalAttempts, collected, pending, facultyReviewDue] = await Promise.all([
+    const [students, leads, admissions, teachers, attendanceRows, completedAttempts, totalAttempts, collected, pending, facultyReviewDue, academySummary, batchTypes, programCounts] = await Promise.all([
       prisma.user.count({ where: { role: "STUDENT", ...scopedWhere } }),
       prisma.lead.count(),
       prisma.admission.count(),
@@ -421,7 +548,10 @@ export const dashboardService = {
       prisma.testAttempt.count(),
       prisma.payment.aggregate({ where: { paymentStatus: { in: paidStatuses } }, _sum: { amount: true } }),
       prisma.feeInstallment.aggregate({ where: { paidStatus: { not: "PAID" } }, _sum: { dueAmount: true, amount: true } }),
-      prisma.faculty.count({ where: { status: { not: "ACTIVE" } } })
+      prisma.faculty.count({ where: { status: { not: "ACTIVE" } } }),
+      academyArchitectureSummary(),
+      prisma.batch.groupBy({ by: ["batchType"], _count: { id: true } }),
+      prisma.course.groupBy({ by: ["category"], _count: { id: true } })
     ]);
     const present = attendanceRows.filter((row) => attendanceStatus(row.status) === "PRESENT").length;
     const collectedAmount = collected._sum.amount ?? 0;
@@ -433,6 +563,11 @@ export const dashboardService = {
       admissionsAnalytics: { leads, admissions, conversionRate: leads ? Math.round((admissions / leads) * 100) : 0 },
       revenueAnalytics: { collected: collectedAmount, pending: pendingAmount, forecast: collectedAmount + pendingAmount },
       facultyAnalytics: { active: teachers, utilization: teachers ? 100 : 0, reviewDue: facultyReviewDue },
+      academyArchitecture: {
+        ...academySummary,
+        batchTypes: batchTypes.map((item) => ({ type: item.batchType, count: item._count.id })),
+        verticals: programCounts.map((item) => ({ category: item.category, count: item._count.id }))
+      },
       customDashboard,
       riskAlerts: customDashboard.focusAreas.length ? customDashboard.focusAreas.map((item) => `Track ${item.toLowerCase()} in today's review.`) : [],
       executiveInsights: customDashboard.permissions.length ? customDashboard.permissions.map((item) => `Access enabled: ${item.replace(/_/g, " ")}.`) : [],

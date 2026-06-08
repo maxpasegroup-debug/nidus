@@ -345,6 +345,7 @@ export default function TeacherDashboardPage() {
   const activeExecutionTiles = isPhysicalInstructor ? physicalExecutionTiles : classExecutionTiles;
   const activePrompts = isPhysicalInstructor ? physicalPrompts : professorPrompts;
   const assignedBatches = data.assignedBatches ?? [];
+  const teachingPlan = data.teachingPlan ?? { today: [], upcoming: [] };
 
   function handleProfessorSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -405,6 +406,8 @@ export default function TeacherDashboardPage() {
               );
             })}
           </section>
+
+          <TeachingPlanPanel title="Today and upcoming academic movement" today={teachingPlan.today} upcoming={teachingPlan.upcoming} />
 
           <section className="rounded-lg border border-[#071d36]/10 bg-white p-5 shadow-[0_18px_60px_rgba(7,29,54,0.08)]">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
@@ -506,6 +509,8 @@ export default function TeacherDashboardPage() {
             </>
           )}
         </section>
+
+        <TeachingPlanPanel title={isPhysicalInstructor ? "Today and upcoming PT plan" : "Today and upcoming teaching plan"} today={teachingPlan.today} upcoming={teachingPlan.upcoming} />
 
         <section className="rounded-lg border border-[#071d36]/10 bg-white p-5 shadow-[0_18px_60px_rgba(7,29,54,0.08)]">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
@@ -771,6 +776,52 @@ function AssignedBatchGrid({ batches }: { batches: TeacherDashboardData["assigne
         </Link>
       ))}
     </div>
+  );
+}
+
+function TeachingPlanPanel({
+  title,
+  today,
+  upcoming
+}: {
+  title: string;
+  today: TeacherDashboardData["teachingPlan"]["today"];
+  upcoming: TeacherDashboardData["teachingPlan"]["upcoming"];
+}) {
+  const visibleSlots = today.length ? today : upcoming.slice(0, 4);
+  return (
+    <section className="rounded-lg border border-[#071d36]/10 bg-white p-5 shadow-[0_18px_60px_rgba(7,29,54,0.08)]">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#8a6426]">Timetable Flow</p>
+          <h2 className="mt-2 text-2xl font-semibold text-[#071d36]">{title}</h2>
+          <p className="mt-2 text-sm leading-7 text-[#64748b]">Program to batch to subject to teacher. This is the simple teaching line for daily execution.</p>
+        </div>
+        <Button href="/live-classes">Open Classes</Button>
+      </div>
+      <div className="mt-5 grid gap-3 lg:grid-cols-2">
+        {visibleSlots.length ? visibleSlots.map((slot) => (
+          <Link key={slot.id} href="/live-classes" className="rounded-lg border border-[#071d36]/10 bg-[#fffdf8] p-4 transition hover:-translate-y-0.5 hover:border-[#b9913f]/45 hover:bg-white">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#8a6426]">{slot.subject}</p>
+                <h3 className="mt-2 text-lg font-semibold text-[#071d36]">{slot.title}</h3>
+                <p className="mt-1 text-sm leading-6 text-[#64748b]">{slot.batch}</p>
+              </div>
+              <span className="rounded-full border border-[#b9913f]/35 bg-[#fff7de] px-3 py-1 text-xs font-bold text-[#8a6426]">{slot.classroom.replace("NIDUS-AUTO-", "").replace(/_/g, " ")}</span>
+            </div>
+            <p className="mt-4 text-sm font-semibold text-[#071d36]">
+              {new Date(slot.startTime).toLocaleString()} - {new Date(slot.endTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+            </p>
+          </Link>
+        )) : (
+          <div className="rounded-lg border border-[#071d36]/10 bg-[#fffdf8] p-4 lg:col-span-2">
+            <p className="text-sm font-semibold text-[#071d36]">No timetable slot assigned yet</p>
+            <p className="mt-1 text-sm leading-6 text-[#64748b]">Once Director planning assigns timetable slots, they will appear here for simple daily teaching execution.</p>
+          </div>
+        )}
+      </div>
+    </section>
   );
 }
 

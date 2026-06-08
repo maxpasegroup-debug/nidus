@@ -1,6 +1,7 @@
 import { prisma } from "../config/prisma.js";
 import { AuthServiceV2 } from "../modules/auth/auth.v2.service.js";
 import { ensureDefaultPermissions } from "../modules/admin-center/admin-center.rbac.js";
+import { seedAcademyArchitecture } from "./academy-architecture.js";
 import { ensureNidusTeam } from "./nidus-team.js";
 import { ensurePsychometricAssessments } from "./psychometric-assessments.js";
 
@@ -30,6 +31,7 @@ await AuthServiceV2.ensureSuperAdmin();
 await ensureDefaultPermissions();
 await ensureDefaultSettings();
 const team = await ensureNidusTeam();
+const academy = await seedAcademyArchitecture();
 const psychometric = await ensurePsychometricAssessments();
 
 const [users, permissions, settings] = await Promise.all([
@@ -38,5 +40,5 @@ const [users, permissions, settings] = await Promise.all([
   prisma.systemSetting.count()
 ]);
 
-console.log(JSON.stringify({ bootstrapped: true, users, permissions, settings, teamUsers: team.length, psychometric }));
+console.log(JSON.stringify({ bootstrapped: true, users, permissions, settings, teamUsers: team.length, academy, psychometric }));
 await prisma.$disconnect();

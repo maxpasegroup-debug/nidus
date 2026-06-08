@@ -312,6 +312,18 @@ function academicSubject(moduleTitle: string) {
   return moduleTitle;
 }
 
+function addMinutes(date: Date, minutes: number) {
+  return new Date(date.getTime() + minutes * 60_000);
+}
+
+function timetableStart(index: number) {
+  const date = new Date();
+  date.setHours(9, 0, 0, 0);
+  date.setDate(date.getDate() + (index % 6));
+  date.setHours(9 + (index % 6), index % 2 === 0 ? 0 : 30, 0, 0);
+  return date;
+}
+
 function buildDescription(program: AcademyProgramSeed) {
   return JSON.stringify({
     summary: program.outcome,
@@ -533,8 +545,91 @@ export async function seedAcademyArchitecture() {
       })
     : { count: 0 };
   const totalActiveTeacherAssignments = await prisma.teacherBatchAssignment.count({ where: { status: "ACTIVE" } });
+  const activeAssignments = await prisma.teacherBatchAssignment.findMany({
+    where: { status: "ACTIVE", subject: { not: "Academic Coordination" } },
+    include: {
+      teacher: { select: { name: true, email: true } },
+      batch: { include: { course: { select: { title: true, examType: true, category: true } } } }
+    },
+    orderBy: [{ batchId: "asc" }, { subject: "asc" }, { createdAt: "asc" }]
+  });
+  const uniqueClassSlots = new Map<string, (typeof activeAssignments)[number]>();
+  for (const assignment of activeAssignments) {
+    const key = `${assignment.batchId}:${assignment.subject}`;
+    if (!uniqueClassSlots.has(key)) uniqueClassSlots.set(key, assignment);
+  }
 
-  return { courseCount, moduleCount, lessonCount, batchTemplates: batchCount, teacherAssignments: teacherAssignments.count, totalActiveTeacherAssignments };
+  await prisma.timetable.deleteMany({ where: { classroom: { startsWith: "NIDUS-AUTO" } } });
+  const timetableRows = Array.from(uniqueClassSlots.values()).map((assignment, index) => {
+    const startTime = timetableStart(index);
+    const isRecordedSupport = assignment.batch.batchType === "RECORDED_SUPPORT";
+    const isPhysical = assignment.batch.batchType === "PHYSICAL_TRAINING";
+    return {
+      title: `${assignment.subject} - ${assignment.batch.course?.title ?? assignment.batch.name}`,
+      batch: assignment.batch.name,
+      subject: assignment.subject,
+      instructor: assignment.teacher.name,
+      startTime,
+      endTime: addMinutes(startTime, isPhysical ? 75 : isRecordedSupport ? 45 : 60),
+      classroom: `NIDUS-AUTO-${assignment.batch.batchType}`
+    };
+  });
+
+  const timetable = timetableRows.length ? await prisma.timetable.createMany({ data: timetableRows }) : { count: 0 };
+  const firstAssignmentByBatch = new Map<string, (typeof activeAssignments)[number]>();
+  for (const assignment of activeAssignments) {
+    if (assignment.subject === "Academic Coordination") continue;
+    if (!firstAssignmentByBatch.has(assignment.batchId)) firstAssignmentByBatch.set(assignment.batchId, assignment);
+  }
+
+  const previousAutoTests = await prisma.test.findMany({ where: { title: { startsWith: "NIDUS-AUTO" } }, select: { id: true } });
+  if (previousAutoTests.length) {
+    await prisma.question.deleteMany({ where: { testId: { in: previousAutoTests.map((test) => test.id) } } });
+    await prisma.test.deleteMany({ where: { id: { in: previousAutoTests.map((test) => test.id) } } });
+  }
+  let autoTests = 0;
+  let autoQuestions = 0;
+  for (const [index, assignment] of Array.from(firstAssignmentByBatch.values()).entries()) {
+    const test = await prisma.test.create({
+      data: {
+        title: `NIDUS-AUTO ${assignment.batch.name} Quick Practice`,
+        description: "Auto-created quick practice draft from Academy architecture. Faculty can review, edit, approve and publish.",
+        examType: assignment.batch.course?.examType ?? assignment.batch.programSlug,
+        category: assignment.batch.course?.category ?? "Academy",
+        subject: assignment.subject,
+        topic: "Foundation practice",
+        batchId: assignment.batchId,
+        teacherId: assignment.teacherId,
+        publishAt: addMinutes(new Date(), 24 * 60 + index * 10),
+        status: "DRAFT_REVIEW",
+        duration: 20,
+        totalMarks: 10,
+        isMockTest: false,
+        isLive: false
+      }
+    });
+    autoTests += 1;
+
+    await prisma.question.createMany({
+      data: Array.from({ length: 10 }, (_unused, questionIndex) => ({
+        testId: test.id,
+        questionText: `${assignment.subject} practice question ${questionIndex + 1} for ${assignment.batch.course?.title ?? assignment.batch.name}`,
+        optionA: "A",
+        optionB: "B",
+        optionC: "C",
+        optionD: "D",
+        correctAnswer: ["A", "B", "C", "D"][questionIndex % 4],
+        explanation: "Faculty should review and replace this draft with final approved question content before publishing.",
+        marks: 1,
+        negativeMarks: 0,
+        difficultyLevel: questionIndex < 4 ? "EASY" : questionIndex < 8 ? "MEDIUM" : "HARD",
+        topic: "Foundation practice"
+      }))
+    });
+    autoQuestions += 10;
+  }
+
+  return { courseCount, moduleCount, lessonCount, batchTemplates: batchCount, teacherAssignments: teacherAssignments.count, totalActiveTeacherAssignments, timetableSlots: timetable.count, autoTests, autoQuestions };
 }
 
 async function main() {
