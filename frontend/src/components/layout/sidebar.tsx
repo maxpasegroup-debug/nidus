@@ -11,7 +11,12 @@ export function Sidebar() {
   const pathname = usePathname();
   const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
-  const navItems = getNavItems(user?.role);
+  const userMetadata = (user as { roleMetadata?: Record<string, unknown> | null } | null | undefined)?.roleMetadata;
+  const dashboardTemplate =
+    typeof userMetadata === "object" && userMetadata && "dashboardTemplate" in userMetadata
+      ? String(userMetadata.dashboardTemplate)
+      : null;
+  const navItems = getNavItems(user?.role, dashboardTemplate);
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {

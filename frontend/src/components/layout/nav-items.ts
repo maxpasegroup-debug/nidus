@@ -57,6 +57,17 @@ const facultyMenu = [
   { label: "Academic Calendar", href: "/dashboard/teacher#calendar" }
 ];
 
+const academicHeadMenu = [
+  { label: "Today", href: "/dashboard/teacher#today" },
+  { label: "Batches", href: "/dashboard/teacher#batches" },
+  { label: "Teacher Allocation", href: "/dashboard/teacher#teachers" },
+  { label: "Timetable", href: "/dashboard/teacher#timetable" },
+  { label: "Syllabus Tracker", href: "/dashboard/teacher#syllabus" },
+  { label: "Exam Approval", href: "/examination-center" },
+  { label: "Student Progress", href: "/performance-analytics" },
+  { label: "Reports", href: "/progress-reports" }
+];
+
 const salesBoosterMenu = [
   { label: "Sales Booster", href: "/dashboard/marketing" },
   { label: "Campaign Builder", href: "/dashboard/marketing" },
@@ -98,22 +109,22 @@ const adminOperationsMenu = [
 ];
 
 const directorMenu = [
-  { label: "Director Desk", href: "/dashboard/director" },
-  { label: "Examination Center", href: "/examination-center" },
-  { label: "Question Bank", href: "/examination-center/question-bank" },
-  { label: "Exams", href: "/examination-center/exams" },
-  { label: "Published Exams", href: "/examination-center/published" },
-  { label: "Results", href: "/examination-center/results" },
-  { label: "Analytics", href: "/examination-center/analytics" },
-  { label: "Academic Planning", href: "/programs" },
-  { label: "Team & Performance", href: "/staff-hr" },
-  { label: "Admissions & Marketing", href: "/crm" },
+  { label: "Management", href: "/dashboard/director" },
+  { label: "Today", href: "/dashboard/director#today" },
+  { label: "Academy", href: "/dashboard/director#academy" },
+  { label: "Academic Department", href: "/dashboard/director#academic" },
+  { label: "Admissions", href: "/crm/admissions" },
+  { label: "TOPRANK", href: "/dashboard/toprank" },
+  { label: "NIDUS Guru", href: "/admin-center/guru" },
+  { label: "Assessments", href: "/psychometric/admin" },
+  { label: "Sales Booster", href: "/dashboard/marketing" },
+  { label: "Finance", href: "/payments" },
+  { label: "Team", href: "/staff-hr" },
   { label: "Reports", href: "/progress-reports" },
-  { label: "Management", href: "/admin-center" },
   { label: "Settings", href: "/dashboard/settings" }
 ];
 
-export function getNavItems(role?: AuthRole) {
+export function getNavItems(role?: AuthRole, dashboardTemplate?: string | null) {
   if (role === "ADMIN") {
     return adminOperationsMenu;
   }
@@ -135,7 +146,7 @@ export function getNavItems(role?: AuthRole) {
   }
 
   if (role === "TEACHER") {
-    return facultyMenu;
+    return dashboardTemplate === "ACADEMIC_HEAD" ? academicHeadMenu : facultyMenu;
   }
 
   if (role === "MARKETING_COORDINATOR") {
