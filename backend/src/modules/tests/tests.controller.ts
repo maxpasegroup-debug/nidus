@@ -59,6 +59,15 @@ export const testsController = {
     }
   },
 
+  async available(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      const tests = await testsService.available(userId(req), req.user?.role);
+      res.json({ tests });
+    } catch (error) {
+      next(error);
+    }
+  },
+
   async generateDraft(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
       assertValid(req);

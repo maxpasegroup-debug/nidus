@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -28,6 +28,8 @@ export default function TestAttemptPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [confidence, setConfidence] = useState<Record<string, string>>({});
   const [skippedMode, setSkippedMode] = useState(false);
+  const [visited, setVisited] = useState<Set<number>>(new Set([0]));
+  const startedAtRef = useRef<number | null>(null);
 
   const attempt = useMemo<(TestAttempt & { test: TestAttempt["test"] & { questions: Question[] } }) | null>(() => {
     if (typeof window === "undefined") return null;
@@ -37,7 +39,17 @@ export default function TestAttemptPage() {
   const questions: Question[] = useMemo(() => attempt?.test?.questions ?? [], [attempt]);
   const activeQuestion = questions[current];
   const answeredIndexes = useMemo(() => new Set(questions.map((question, index) => (answers[question.id] ? index : -1)).filter((index) => index >= 0)), [answers, questions]);
-  const skippedIndexes = useMemo(() => new Set(questions.map((question, index) => (!answers[question.id] && !review.has(index) ? index : -1)).filter((index) => index >= 0)), [answers, questions, review]);
+  const skippedIndexes = useMemo(() => new Set(questions.map((question, index) => (!answers[question.id] && visited.has(index) && !review.has(index) ? index : -1)).filter((index) => index >= 0)), [answers, questions, review, visited]);
+
+  function goToQuestion(index: number) {
+    const bounded = Math.max(0, Math.min(questions.length - 1, index));
+    setVisited((currentSet) => new Set(currentSet).add(bounded));
+    setCurrent(bounded);
+  }
+
+  useEffect(() => {
+    startedAtRef.current = Date.now();
+  }, []);
 
   useEffect(() => {
     if (!attemptId) return;
@@ -91,9 +103,9 @@ export default function TestAttemptPage() {
     submitMutation.mutate({
       attemptId,
       answers: Object.entries(answers).map(([questionId, selectedAnswer]) => ({ questionId, selectedAnswer })),
-      timeTaken: attempt?.test?.duration ? attempt.test.duration * 60 : 0
+      timeTaken: Math.max(0, Math.round((Date.now() - (startedAtRef.current ?? Date.now())) / 1000))
     });
-  }, [answers, attempt?.test?.duration, attemptId, submitMutation]);
+  }, [answers, attemptId, submitMutation]);
 
   if (!attempt || !activeQuestion) {
     return <EmptyState title="Attempt not loaded" description="Start a test from the test details page." />;
@@ -104,6 +116,13 @@ export default function TestAttemptPage() {
     setAnswers(next);
     localStorage.setItem(`nidus_attempt_${attemptId}`, JSON.stringify(next));
     showToast("Answer auto-saved", "info");
+  }
+
+  function clearResponse() {
+    const next = { ...answers };
+    delete next[activeQuestion.id];
+    setAnswers(next);
+    localStorage.setItem(`nidus_attempt_${attemptId}`, JSON.stringify(next));
   }
 
   function toggleReview() {
@@ -117,7 +136,7 @@ export default function TestAttemptPage() {
 
   function skipQuestion() {
     setSkippedMode(true);
-    setCurrent((value) => Math.min(questions.length - 1, value + 1));
+    goToQuestion(current + 1);
     showToast("Question skipped. It is saved in the sidebar.", "info");
   }
 
@@ -127,17 +146,17 @@ export default function TestAttemptPage() {
     const nextIndex = questions.findIndex((question) => question.id === nextId);
     if (nextIndex >= 0) {
       setSkippedMode(true);
-      setCurrent(nextIndex);
+      goToQuestion(nextIndex);
     }
   }
 
   return (
-    <motion.div className="grid gap-6 lg:grid-cols-[1fr_320px]" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+    <motion.div className="grid gap-6 bg-[#f7f3ea] p-4 lg:grid-cols-[1fr_320px]" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
       <main className="space-y-5">
-        <div className="flex flex-col justify-between gap-3 rounded-lg border border-white/10 bg-white/[0.055] p-4 sm:flex-row sm:items-center">
+        <div className="flex flex-col justify-between gap-3 rounded-lg border border-[#d9c79d] bg-white p-4 shadow-sm sm:flex-row sm:items-center">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gold">Fullscreen Exam Mode</p>
-            <h1 className="mt-1 text-xl font-semibold text-white">{attempt.test.title}</h1>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8a6426]">CBT Exam Mode</p>
+            <h1 className="mt-1 text-xl font-semibold text-[#071d36]">{attempt.test.title}</h1>
           </div>
           <Button type="button" variant="secondary" onClick={() => document.documentElement.requestFullscreen?.()}>
             Fullscreen
@@ -145,10 +164,11 @@ export default function TestAttemptPage() {
         </div>
         <QuestionCard question={activeQuestion} selectedAnswer={answers[activeQuestion.id]} onSelect={selectAnswer} />
         <div className="flex flex-wrap gap-3">
-          <Button type="button" variant="secondary" onClick={() => setCurrent((value) => Math.max(0, value - 1))}>Previous</Button>
-          <Button type="button" onClick={() => setCurrent((value) => Math.min(questions.length - 1, value + 1))}>Next</Button>
+          <Button type="button" variant="secondary" onClick={() => goToQuestion(current - 1)}>Previous</Button>
+          <Button type="button" onClick={() => goToQuestion(current + 1)}>Next</Button>
           <Button type="button" variant="secondary" onClick={skipQuestion}>Skip</Button>
           <Button type="button" variant="secondary" onClick={toggleReview}>Mark for review</Button>
+          <Button type="button" variant="secondary" onClick={clearResponse}>Clear response</Button>
           <Button type="button" variant="secondary" onClick={() => activeQuestion && setConfidence((value) => ({ ...value, [activeQuestion.id]: value[activeQuestion.id] === "LOW" ? "HIGH" : "LOW" }))}>Confidence</Button>
           <Button type="button" variant="secondary" onClick={reviewSkipped}>Review skipped</Button>
           <Button type="button" onClick={() => setIsModalOpen(true)}>Submit Test</Button>
@@ -162,13 +182,15 @@ export default function TestAttemptPage() {
           answered={answeredIndexes}
           marked={review}
           skipped={skippedIndexes}
-          onSelect={setCurrent}
+          visited={visited}
+          onSelect={goToQuestion}
         />
       </aside>
       <ReviewModal
         isOpen={isModalOpen}
         answered={Object.keys(answers).length}
         total={questions.length}
+        marked={review.size}
         onClose={() => setIsModalOpen(false)}
         onSubmit={submit}
       />

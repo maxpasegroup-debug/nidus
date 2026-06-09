@@ -1,857 +1,369 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState, type FormEvent, type ReactNode } from "react";
+import { useMemo, useState, type FormEvent } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import {
-  BarChart3,
+  Bell,
   BookOpen,
-  CalendarCheck,
+  CalendarDays,
+  CheckCircle2,
   ClipboardCheck,
   FileText,
+  FolderOpen,
   GraduationCap,
   LibraryBig,
-  MessageSquareText,
-  PlayCircle,
+  ListChecks,
+  PenLine,
   Send,
-  Target,
-  Timer,
-  Trophy,
-  Video,
+  Sparkles,
+  Upload,
   UsersRound
 } from "lucide-react";
-import {
-  DashboardError,
-  DashboardSkeleton,
-  RoleDashboardGuard,
-  StatCard
-} from "@/components/dashboard";
+import { DashboardError, DashboardSkeleton, RoleDashboardGuard, StatCard } from "@/components/dashboard";
 import { Button } from "@/components/ui/button";
-import { PageHero } from "@/components/layout/page-hero";
+import { useAuth } from "@/components/providers/auth-provider-v2";
 import { useTeacherDashboard } from "@/hooks/use-dashboard";
-import type { TeacherDashboardData } from "@/services/dashboard";
+import { getAcademyBatches, type AcademyBatch } from "@/services/academy";
 
-const simpleModules = [
+const modules = [
   {
-    title: "Classes",
-    line: "Online classes, recorded classes, class schedule, and uploaded recordings.",
-    href: "/live-classes",
-    icon: PlayCircle,
-    action: "Open Classes"
+    id: "today",
+    title: "Today",
+    line: "Immediate work, notices, pending attendance, exam drafts and class reminders.",
+    icon: Bell,
+    href: "#today"
   },
   {
-    title: "Teachers",
-    line: "Subject-wise teachers, class coverage, workload, and pending approvals.",
-    href: "/staff-hr",
+    id: "classroom",
+    title: "Classroom",
+    line: "Assigned batches, students, student profiles, class details and batch movement.",
     icon: UsersRound,
-    action: "Manage Teachers"
+    href: "#classroom"
   },
   {
-    title: "Students",
-    line: "Batch-wise students, weak students, attendance issues, and performance alerts.",
-    href: "/performance-analytics",
-    icon: GraduationCap,
-    action: "View Students"
-  },
-  {
-    title: "Exams & Tests",
-    line: "Create timed tests, optional answers, review questions, approve, and publish.",
-    href: "/tests",
+    id: "exams",
+    title: "Exams",
+    line: "Create an exam with NIDUS AI, review questions, select class and publish.",
     icon: ClipboardCheck,
-    action: "Create Test"
+    href: "#exams"
   },
   {
-    title: "Attendance",
-    line: "Mark present, absent, late, and check daily or batch attendance.",
-    href: "/discipline",
-    icon: CalendarCheck,
-    action: "Mark Attendance"
-  },
-  {
+    id: "assignments",
     title: "Assignments",
-    line: "Give homework, upload worksheets, review submissions, and track pending work.",
-    href: "/documents",
-    icon: FileText,
-    action: "Open Assignments"
+    line: "Create homework or classwork with AI help and publish to students.",
+    icon: PenLine,
+    href: "#assignments"
   },
   {
-    title: "Study Materials",
-    line: "Upload notes, PDFs, answer keys, recorded lessons, and subject resources.",
-    href: "/media-library",
-    icon: BookOpen,
-    action: "Upload Material"
+    id: "attendance",
+    title: "Attendance",
+    line: "Mark attendance quickly, check leave requests and submit class attendance.",
+    icon: CheckCircle2,
+    href: "#attendance"
   },
   {
-    title: "Reports",
-    line: "Class reports, student progress, attendance reports, and exam reports.",
-    href: "/progress-reports",
-    icon: FileText,
-    action: "View Reports"
+    id: "library",
+    title: "Library",
+    line: "Create folders, upload recordings, notes, PDFs and publish to a class.",
+    icon: LibraryBig,
+    href: "#library"
+  },
+  {
+    id: "calendar",
+    title: "Academic Calendar",
+    line: "View Director-planned syllabus calendar and enter daily completion logs.",
+    icon: CalendarDays,
+    href: "#calendar"
   }
 ];
 
-const physicalModules = [
-  {
-    title: "PT Sessions",
-    line: "Plan daily physical training, drill practice, running, endurance, and warm-up sessions.",
-    href: "/fitness/pt-schedule",
-    icon: CalendarCheck,
-    action: "Open Schedule"
-  },
-  {
-    title: "PT Attendance",
-    line: "Mark training attendance, absentees, late students, and daily participation.",
-    href: "/fitness/pt-schedule",
-    icon: ClipboardCheck,
-    action: "Mark Attendance"
-  },
-  {
-    title: "Fitness Logs",
-    line: "Track running, workout duration, stamina, and daily fitness progress.",
-    href: "/fitness/logs",
-    icon: BarChart3,
-    action: "View Logs"
-  },
-  {
-    title: "Eligibility",
-    line: "Review height, weight, BMI, stamina, and exam-wise physical eligibility.",
-    href: "/fitness/eligibility",
-    icon: Target,
-    action: "Check Eligibility"
-  },
-  {
-    title: "Students",
-    line: "Find students who need attention in fitness, discipline, attendance, or stamina.",
-    href: "/performance-analytics",
-    icon: UsersRound,
-    action: "View Students"
-  },
-  {
-    title: "Reports",
-    line: "Prepare physical readiness notes, training remarks, and parent-friendly reports.",
-    href: "/progress-reports",
-    icon: FileText,
-    action: "View Reports"
-  }
+const aiSamples = [
+  "Create a 30-question NDA Maths test from trigonometry for 45 minutes.",
+  "Prepare homework for today's English grammar class.",
+  "Create a simple revision plan for weak students in Medieval India.",
+  "Write a completion log for today's Physics topic."
 ];
-
-const academicHeadModules = [
-  {
-    title: "My Academic Desk",
-    line: "Today's classes, pending academic tasks, batch alerts and quick decisions.",
-    href: "/performance-analytics",
-    icon: ClipboardCheck,
-    action: "Open Desk"
-  },
-  {
-    title: "Batches",
-    line: "NDA Crash, NDA F1, NDA F2, Foundation, AISSEE, Agniveer and active batches.",
-    href: "/courses",
-    icon: UsersRound,
-    action: "Manage Batches"
-  },
-  {
-    title: "Teachers",
-    line: "Teacher allocation, subject allocation, class completion and teacher remarks.",
-    href: "/staff-hr",
-    icon: GraduationCap,
-    action: "View Teachers"
-  },
-  {
-    title: "Timetable",
-    line: "Daily timetable, weekly timetable and class schedule changes.",
-    href: "/sessions",
-    icon: CalendarCheck,
-    action: "Open Timetable"
-  },
-  {
-    title: "Syllabus Tracker",
-    line: "Subject-wise progress, completed topics, pending topics and color alerts.",
-    href: "/performance-analytics",
-    icon: BarChart3,
-    action: "Track Progress"
-  },
-  {
-    title: "Tests",
-    line: "Scheduled tests, teacher-created tests, pending approvals and results.",
-    href: "/tests",
-    icon: ClipboardCheck,
-    action: "Review Tests"
-  },
-  {
-    title: "Reports",
-    line: "Batch reports, teacher reports and student progress reports.",
-    href: "/progress-reports",
-    icon: FileText,
-    action: "Open Reports"
-  },
-  {
-    title: "NIDUS AI",
-    line: "Ask for timetable help, syllabus planning, test creation and weak-student plans.",
-    href: "/tests",
-    icon: MessageSquareText,
-    action: "Ask NIDUS"
-  }
-];
-
-const professorPrompts = [
-  "Create a 30-question NDA Maths test from Trigonometry with 45 minutes timer.",
-  "Prepare a simple class plan for today's Physics topic.",
-  "Find weak students from the latest test result and suggest revision.",
-  "Create homework with 10 easy, 10 medium and 5 hard questions."
-];
-
-const physicalPrompts = [
-  "Prepare a 7-day endurance plan for NDA physical readiness.",
-  "Create a simple PT attendance remark for students who missed training.",
-  "Make a running improvement plan for weak stamina students.",
-  "Prepare drill practice instructions for tomorrow morning."
-];
-
-const classExecutionTiles = [
-  {
-    title: "20 Min Recorded Class",
-    line: "Upload or assign one short recorded class for the topic.",
-    href: "/recorded-lectures",
-    icon: Video,
-    tone: "bg-[#fff7de]"
-  },
-  {
-    title: "10 MCQ Practice",
-    line: "Give 10 questions based on that recorded class.",
-    href: "/tests",
-    icon: ClipboardCheck,
-    tone: "bg-[#edf7ee]"
-  },
-  {
-    title: "Topic Analysis",
-    line: "Check speed, time per question, first attempt and second attempt accuracy.",
-    href: "/performance-analytics",
-    icon: BarChart3,
-    tone: "bg-[#eef5ff]"
-  },
-  {
-    title: "Area to Improve",
-    line: "See which topic or question type needs correction.",
-    href: "/progress-reports",
-    icon: Target,
-    tone: "bg-[#fff2ec]"
-  },
-  {
-    title: "Saturday Mock Test",
-    line: "Run one weekly mock test with timer and marks.",
-    href: "/tests",
-    icon: Trophy,
-    tone: "bg-[#f5efff]"
-  },
-  {
-    title: "Sunday Paper Analysis",
-    line: "Host live paper analysis for maximum 2 hours.",
-    href: "/live-classes",
-    icon: Timer,
-    tone: "bg-[#eff8f8]"
-  }
-];
-
-const physicalExecutionTiles = [
-  {
-    title: "Morning PT Session",
-    line: "Plan warm-up, running, drill, strength work, and cool-down.",
-    href: "/fitness/pt-schedule",
-    icon: CalendarCheck,
-    tone: "bg-[#fff7de]"
-  },
-  {
-    title: "Mark Attendance",
-    line: "Record present, absent, late, and training remarks.",
-    href: "/fitness/pt-schedule",
-    icon: ClipboardCheck,
-    tone: "bg-[#edf7ee]"
-  },
-  {
-    title: "Fitness Log",
-    line: "Track running distance, workout time, water intake, and stamina.",
-    href: "/fitness/logs",
-    icon: BarChart3,
-    tone: "bg-[#eef5ff]"
-  },
-  {
-    title: "Eligibility Review",
-    line: "Check exam-wise physical readiness and improvement needs.",
-    href: "/fitness/eligibility",
-    icon: Target,
-    tone: "bg-[#fff2ec]"
-  },
-  {
-    title: "Weekly Progress",
-    line: "Review students who improved, missed sessions, or need support.",
-    href: "/progress-reports",
-    icon: Trophy,
-    tone: "bg-[#f5efff]"
-  },
-  {
-    title: "Training Remarks",
-    line: "Add simple notes for students, parents, and administration.",
-    href: "/discipline",
-    icon: Timer,
-    tone: "bg-[#eff8f8]"
-  }
-];
-
-function dashboardCopy(template: string, designation?: string | null, subject?: string | null) {
-  if (template === "ACADEMIC_HEAD") {
-    return {
-      eyebrow: "Academic Head",
-      title: "Simple Academic Control Room",
-      description: "Manage classes, teachers, students, tests, attendance, assignments, materials, and reports from one easy dashboard."
-    };
-  }
-
-  if (template === "PHYSICAL_INSTRUCTOR") {
-    return {
-      eyebrow: "Physical Training",
-      title: "Simple Training Dashboard",
-      description: "Plan sessions, mark attendance, track fitness, and support students who need physical training attention."
-    };
-  }
-
-  return {
-    eyebrow: designation || `${subject ?? "Subject"} Faculty`,
-    title: "Simple Teacher Dashboard",
-    description: "Teach online, upload recorded classes, create tests, mark attendance, give assignments, and support students easily."
-  };
-}
 
 export default function TeacherDashboardPage() {
+  const { user } = useAuth();
   const { data, isLoading, error, refetch, isFetching } = useTeacherDashboard();
+  const { data: academyBatches = [] } = useQuery({ queryKey: ["teacher", "academy-batches"], queryFn: () => getAcademyBatches({ status: "ACTIVE" }) });
   const [aiPrompt, setAiPrompt] = useState("");
-  const [aiHistory, setAiHistory] = useState<Array<{ prompt: string; response: string }>>([]);
+  const [aiResponse, setAiResponse] = useState("");
 
-  const copy = useMemo(() => {
-    const custom = data?.customDashboard;
-    return dashboardCopy(custom?.dashboardTemplate ?? "SUBJECT_FACULTY", custom?.designation, custom?.subject);
-  }, [data]);
+  const assignedBatchIds = useMemo(() => new Set(data?.assignedBatches.map((batch) => batch.id) ?? []), [data?.assignedBatches]);
+  const assignedClassrooms = useMemo(() => {
+    const scoped = academyBatches.filter((batch) => assignedBatchIds.has(batch.id));
+    return scoped.length ? scoped : academyBatches.slice(0, 4);
+  }, [academyBatches, assignedBatchIds]);
 
   if (isLoading) return <RoleDashboardGuard role="TEACHER"><DashboardSkeleton /></RoleDashboardGuard>;
   if (error || !data) return <RoleDashboardGuard role="TEACHER"><DashboardError error={error} onRefresh={() => refetch()} /></RoleDashboardGuard>;
 
-  const custom = data.customDashboard;
-  const focusAreas = custom.focusAreas.length ? custom.focusAreas : data.subjects;
-  const assignedSubjects = data.subjects.filter(Boolean);
-  const isAcademicHead = custom.dashboardTemplate === "ACADEMIC_HEAD";
-  const isPhysicalInstructor = custom.dashboardTemplate === "PHYSICAL_INSTRUCTOR";
-  const physical = data.physicalTraining;
-  const activeModules = isPhysicalInstructor ? physicalModules : simpleModules;
-  const activeExecutionTiles = isPhysicalInstructor ? physicalExecutionTiles : classExecutionTiles;
-  const activePrompts = isPhysicalInstructor ? physicalPrompts : professorPrompts;
-  const assignedBatches = data.assignedBatches ?? [];
-  const teachingPlan = data.teachingPlan ?? { today: [], upcoming: [] };
+  const profileName = user?.name ?? data.profile?.name ?? "Teacher";
+  const todayClasses = data.teachingPlan.today;
+  const upcomingClasses = data.teachingPlan.upcoming;
+  const pendingTasks = [
+    todayClasses.length ? `${todayClasses.length} class${todayClasses.length > 1 ? "es" : ""} today` : "No class scheduled today",
+    data.contentOps.cbtDrafts ? `${data.contentOps.cbtDrafts} test drafts / tests in system` : "No pending exam draft",
+    data.classPerformance.assignmentsDue ? `${data.classPerformance.assignmentsDue} assignments due` : "No assignment due",
+    data.classPerformance.attendance < 100 ? "Check attendance completion" : "Attendance looks fine"
+  ];
 
-  function handleProfessorSubmit(event: FormEvent<HTMLFormElement>) {
+  function handleAiSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const prompt = aiPrompt.trim();
     if (!prompt) return;
-    const response = buildProfessorResponse(prompt);
-    setAiHistory((items) => [{ prompt, response }, ...items].slice(0, 5));
-    setAiPrompt("");
-  }
-
-  if (isAcademicHead && !isPhysicalInstructor) {
-    return (
-      <RoleDashboardGuard role="TEACHER">
-        <motion.div className="space-y-8" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-          <PageHero
-            eyebrow="Academic Head"
-            title="Academic coordination desk"
-            description="A simple dashboard to coordinate batches, teachers, timetable, syllabus progress, tests and reports from the Director's academic plan."
-            actions={<Button type="button" onClick={() => refetch()} disabled={isFetching} variant="secondary">{isFetching ? "Refreshing..." : "Refresh"}</Button>}
-            stats={[
-              { value: String(assignedBatches.length), label: "assigned batches" },
-              { value: String(new Set(assignedBatches.map((batch) => batch.programSlug)).size), label: "programs" },
-              { value: String(new Set(assignedBatches.map((batch) => batch.subject)).size), label: "subjects" }
-            ]}
-          />
-
-          <section className="rounded-lg border border-[#071d36]/10 bg-white p-5 shadow-[0_18px_60px_rgba(7,29,54,0.08)]">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#8a6426]">Academic Flow</p>
-            <h2 className="mt-2 text-2xl font-semibold text-[#071d36]">Receive plan, coordinate teachers, track completion</h2>
-            <div className="mt-5 grid gap-3 md:grid-cols-4">
-              {[
-                ["Plan Received", "Director sets programs, batches, teachers, timetable and tests."],
-                ["Coordinate", "Academic Head checks teachers, classes and batch movement."],
-                ["Track", "Syllabus and classes are marked green, orange or red."],
-                ["Report", "Academic report goes back to Directors with clear remarks."]
-              ].map(([title, text], index) => (
-                <div key={title} className="rounded-lg border border-[#071d36]/10 bg-[#fffdf8] p-4">
-                  <span className="grid h-8 w-8 place-items-center rounded-full bg-[#071d36] text-xs font-bold text-[#e7c873]">{index + 1}</span>
-                  <h3 className="mt-3 text-base font-semibold text-[#071d36]">{title}</h3>
-                  <p className="mt-2 text-sm leading-6 text-[#40516a]">{text}</p>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            {academicHeadModules.map((module) => {
-              const Icon = module.icon;
-              return (
-                <Link key={module.title} href={module.href} className="group rounded-lg border border-[#071d36]/10 bg-white p-5 shadow-[0_18px_60px_rgba(7,29,54,0.08)] transition hover:-translate-y-1 hover:border-[#b9913f]/45">
-                  <div className="grid h-12 w-12 place-items-center rounded bg-[#fff7de] text-[#b9913f]">
-                    <Icon className="h-6 w-6" />
-                  </div>
-                  <h2 className="mt-4 text-xl font-semibold text-[#071d36]">{module.title}</h2>
-                  <p className="mt-2 min-h-16 text-sm leading-6 text-[#64748b]">{module.line}</p>
-                  <span className="mt-4 inline-flex text-sm font-semibold text-[#071d36]">{module.action}</span>
-                </Link>
-              );
-            })}
-          </section>
-
-          <TeachingPlanPanel title="Today and upcoming academic movement" today={teachingPlan.today} upcoming={teachingPlan.upcoming} />
-
-          <section className="rounded-lg border border-[#071d36]/10 bg-white p-5 shadow-[0_18px_60px_rgba(7,29,54,0.08)]">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#8a6426]">Assigned Academy Structure</p>
-                <h2 className="mt-2 text-2xl font-semibold text-[#071d36]">Programs, batches and subject responsibilities</h2>
-                <p className="mt-2 text-sm leading-7 text-[#64748b]">These are seeded from the NIDUS Academy master course architecture and ready for Director planning.</p>
-              </div>
-              <Button href="/courses">Open Batches</Button>
-            </div>
-            <AssignedBatchGrid batches={assignedBatches.slice(0, 8)} />
-          </section>
-
-          <section className="grid gap-4 lg:grid-cols-3">
-            <AcademicStatusCard title="Green" description="Class or syllabus is completed as planned." tone="bg-[#edf7ee] text-[#2f6b3f] border-[#9bc7a0]" />
-            <AcademicStatusCard title="Orange" description="Slight delay. Recovery plan needed this week." tone="bg-[#fff7de] text-[#8a6426] border-[#e7c873]" />
-            <AcademicStatusCard title="Red" description="Urgent delay. Director and teacher attention required." tone="bg-[#fff2ec] text-[#9f341f] border-[#efb099]" />
-          </section>
-
-          <section className="rounded-lg border border-[#b9913f]/25 bg-[linear-gradient(135deg,#fffdf8_0%,#f7f3ea_58%,#fff7de_100%)] p-6 shadow-[0_24px_80px_rgba(7,29,54,0.10)]">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#8a6426]">NIDUS AI Academic Assistant</p>
-                <h2 className="mt-3 text-3xl font-semibold text-[#071d36]">Ask for timetable, syllabus and test support.</h2>
-                <p className="mt-3 max-w-2xl text-sm leading-7 text-[#64748b]">Use simple English. NIDUS can draft test plans, timetable recovery ideas, weak-student plans and teacher follow-up notes.</p>
-              </div>
-              <Button href="/tests">Open Test Studio</Button>
-            </div>
-            <form onSubmit={handleProfessorSubmit} className="mt-6 rounded-lg border border-[#071d36]/10 bg-white p-4">
-              <textarea
-                value={aiPrompt}
-                onChange={(event) => setAiPrompt(event.target.value)}
-                className="min-h-28 w-full resize-none rounded border border-[#071d36]/12 bg-[#fffdf8] p-4 text-sm font-medium text-[#071d36] outline-none focus:border-[#b9913f]"
-                placeholder="Example: Create a recovery timetable for NDA Crash Maths and English pending topics."
-              />
-              <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div className="flex flex-wrap gap-2">
-                  {["Prepare a weekly timetable for NDA Crash.", "Create a syllabus recovery plan for weak batches."].map((prompt) => (
-                    <button key={prompt} type="button" onClick={() => setAiPrompt(prompt)} className="rounded-full border border-[#071d36]/10 bg-[#f7f3ea] px-3 py-2 text-xs font-semibold text-[#071d36] transition hover:border-[#b9913f]/45">
-                      Use sample
-                    </button>
-                  ))}
-                </div>
-                <Button type="submit">Ask NIDUS <Send className="h-4 w-4" /></Button>
-              </div>
-            </form>
-            <div className="mt-5 grid gap-3">
-              {aiHistory.length ? aiHistory.map((item) => (
-                <div key={item.prompt} className="rounded-lg border border-[#071d36]/10 bg-white p-4">
-                  <p className="text-sm font-semibold text-[#071d36]">{item.prompt}</p>
-                  <p className="mt-2 text-sm leading-6 text-[#64748b]">{item.response}</p>
-                </div>
-              )) : (
-                <div className="rounded-lg border border-[#071d36]/10 bg-white p-4">
-                  <p className="text-sm font-semibold text-[#071d36]">No academic AI requests yet</p>
-                  <p className="mt-2 text-sm leading-6 text-[#64748b]">Ask NIDUS for timetable planning, test planning, syllabus recovery or teacher coordination notes.</p>
-                </div>
-              )}
-            </div>
-          </section>
-        </motion.div>
-      </RoleDashboardGuard>
-    );
+    if (prompt.toLowerCase().includes("exam") || prompt.toLowerCase().includes("test") || prompt.toLowerCase().includes("question")) {
+      setAiResponse("NIDUS AI will prepare the question plan, options, answers, explanations, timer and class selection flow. Open Exams to review and publish.");
+    } else if (prompt.toLowerCase().includes("assignment") || prompt.toLowerCase().includes("homework")) {
+      setAiResponse("NIDUS AI will draft the assignment instructions, due date suggestion, marking points and student-friendly explanation. Open Assignments to publish.");
+    } else if (prompt.toLowerCase().includes("calendar") || prompt.toLowerCase().includes("log") || prompt.toLowerCase().includes("syllabus")) {
+      setAiResponse("NIDUS AI will turn this into a simple academic calendar log with completed, pending and next-action notes.");
+    } else {
+      setAiResponse("NIDUS AI will convert your request into a teacher-ready draft. Review it, edit if needed, then publish or record the update.");
+    }
   }
 
   return (
     <RoleDashboardGuard role="TEACHER">
-      <motion.div className="space-y-8" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-        <PageHero
-          eyebrow={copy.eyebrow}
-          title={copy.title}
-          description={copy.description}
-          actions={<Button type="button" onClick={() => refetch()} disabled={isFetching} variant="secondary">{isFetching ? "Refreshing..." : "Refresh"}</Button>}
-          stats={isPhysicalInstructor ? [
-            { value: String(physical?.schedules ?? 0), label: "PT sessions" },
-            { value: String(physical?.attendanceMarked ?? 0), label: "attendance" },
-            { value: String(physical?.fitnessProfiles ?? 0), label: "fitness profiles" }
-          ] : [
-            { value: String(data.contentOps.cbtDrafts), label: "tests" },
-            { value: String(data.contentOps.notesUploads), label: "materials" },
-            { value: String(data.classPerformance.weakStudentCount), label: "need help" }
-          ]}
-        />
-
-        <section className="grid gap-4 md:grid-cols-4">
-          {isPhysicalInstructor ? (
-            <>
-              <StatCard label="PT Sessions" value={String(physical?.schedules ?? 0)} note="Scheduled physical training sessions" />
-              <StatCard label="Attendance" value={String(physical?.attendanceMarked ?? 0)} note="Marked PT attendance records" />
-              <StatCard label="Fitness Profiles" value={String(physical?.fitnessProfiles ?? 0)} note="Student fitness profiles" />
-              <StatCard label="Eligibility" value={String(physical?.eligibilityReviews ?? 0)} note="Physical eligibility reviews" />
-            </>
-          ) : (
-            <>
-              <StatCard label="Class Score" value={`${data.classPerformance.averageScore}%`} note="Average student performance" />
-              <StatCard label="Attendance" value={`${data.classPerformance.attendance}%`} note="Marked attendance" />
-              <StatCard label="Tests" value={String(data.contentOps.cbtDrafts)} note="Created or available tests" />
-              <StatCard label="Materials" value={String(data.contentOps.notesUploads)} note="Uploaded study files" />
-            </>
-          )}
-        </section>
-
-        <TeachingPlanPanel title={isPhysicalInstructor ? "Today and upcoming PT plan" : "Today and upcoming teaching plan"} today={teachingPlan.today} upcoming={teachingPlan.upcoming} />
-
-        <section className="rounded-lg border border-[#071d36]/10 bg-white p-5 shadow-[0_18px_60px_rgba(7,29,54,0.08)]">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+      <motion.div className="space-y-8" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+        <section className="rounded-lg border border-[#071d36]/10 bg-[linear-gradient(135deg,#fffdf8_0%,#f7f3ea_58%,#eef4f7_100%)] p-6 shadow-[0_28px_90px_rgba(7,29,54,0.10)] sm:p-8">
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#8a6426]">{isPhysicalInstructor ? "Physical Training" : "Classes"}</p>
-              <h2 className="mt-2 text-3xl font-semibold text-[#071d36]">{isPhysicalInstructor ? "Simple PT execution" : "Simple class execution"}</h2>
-              <p className="mt-2 max-w-2xl text-sm leading-7 text-[#64748b]">
-                {isPhysicalInstructor
-                  ? "Follow this easy training cycle: schedule PT, mark attendance, record fitness, review eligibility, track progress, and submit remarks."
-                  : "Follow this easy class cycle: short recorded lesson, quick MCQ practice, topic analysis, improvement work, weekly mock, and live paper analysis."}
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#8a6426]">Teacher Control Panel</p>
+              <h1 className="mt-4 max-w-4xl text-4xl font-semibold leading-tight text-[#071d36] sm:text-6xl">
+                Welcome, {profileName}.
+              </h1>
+              <p className="mt-5 max-w-3xl text-base leading-8 text-[#40516a]">
+                Teach, mark attendance, create exams, publish assignments, upload materials and update syllabus logs from one simple dashboard.
               </p>
             </div>
-            <Button href={isPhysicalInstructor ? "/fitness/pt-schedule" : "/live-classes"}>{isPhysicalInstructor ? "Open PT Schedule" : "Open Classes"}</Button>
-          </div>
-          <div className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-            {activeExecutionTiles.map((tile, index) => {
-              const Icon = tile.icon;
-              return <DashboardThumbnail key={tile.title} href={tile.href} title={tile.title} line={tile.line} icon={<Icon className="h-7 w-7" />} tone={tile.tone} step={index + 1} />;
-            })}
+            <Button type="button" onClick={() => refetch()} disabled={isFetching} variant="secondary">
+              {isFetching ? "Refreshing..." : "Refresh"}
+            </Button>
           </div>
         </section>
 
-        <section className="grid gap-6 xl:grid-cols-[0.85fr_1.15fr]">
-          <div className="rounded-lg border border-[#071d36]/10 bg-white p-5 shadow-[0_18px_60px_rgba(7,29,54,0.08)]">
-            <div className="flex items-center gap-3">
-              <div className="grid h-11 w-11 place-items-center rounded bg-[#fff7de] text-[#b9913f]">
-                <LibraryBig className="h-6 w-6" />
-              </div>
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8a6426]">{isPhysicalInstructor ? "Training Records" : "Library"}</p>
-                <h2 className="text-2xl font-semibold text-[#071d36]">{isPhysicalInstructor ? "Physical training data" : "Course-wise access"}</h2>
-              </div>
-            </div>
-            <div className="mt-5 grid gap-3">
-              <div className="rounded-lg border border-[#071d36]/10 bg-[#f7f3ea] px-4 py-4">
-                <p className="text-sm font-semibold text-[#071d36]">{isPhysicalInstructor ? `${physical?.dailyLogs ?? 0} daily fitness logs` : `${assignedBatches.length} assigned batch responsibilities`}</p>
-                <p className="mt-1 text-xs leading-5 text-[#64748b]">{isPhysicalInstructor ? "Daily logs will grow as students record training and fitness progress." : assignedBatches.length ? "Open a batch to teach, upload materials, plan tests, or check students." : "Assigned batches will appear here after the academic cell links this faculty to live courses."}</p>
-              </div>
-              {!isPhysicalInstructor && assignedBatches.slice(0, 4).map((batch) => (
-                <Link key={`${batch.id}-${batch.subject}`} href="/courses" className="rounded-lg border border-[#071d36]/10 bg-white px-4 py-4 transition hover:-translate-y-0.5 hover:border-[#b9913f]/45">
-                  <p className="text-sm font-semibold text-[#071d36]">{batch.course?.title ?? batch.name}</p>
-                  <p className="mt-1 text-xs leading-5 text-[#64748b]">{batch.subject} - {batch.type.replace(/_/g, " ")}</p>
-                </Link>
-              ))}
-            </div>
-          </div>
-
-          <div className="rounded-lg border border-[#071d36]/10 bg-white p-5 shadow-[0_18px_60px_rgba(7,29,54,0.08)]">
-            <div className="flex items-center gap-3">
-              <div className="grid h-11 w-11 place-items-center rounded bg-[#edf7ee] text-[#3f6b45]">
-                <BookOpen className="h-6 w-6" />
-              </div>
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#3f6b45]">{isPhysicalInstructor ? "Focus Areas" : "Subjects"}</p>
-                <h2 className="text-2xl font-semibold text-[#071d36]">{isPhysicalInstructor ? "Daily physical responsibilities" : "Notes, videos and photos by topic"}</h2>
-              </div>
-            </div>
-            <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              {isPhysicalInstructor ? focusAreas.map((area) => (
-                <Link key={area} href="/fitness" className="rounded-lg border border-[#071d36]/10 bg-[#fffdf8] p-4 transition hover:-translate-y-0.5 hover:border-[#b9913f]/45">
-                  <p className="font-semibold text-[#071d36]">{area}</p>
-                  <p className="mt-1 text-xs leading-5 text-[#64748b]">Physical training responsibility</p>
-                </Link>
-              )) : assignedSubjects.length ? assignedSubjects.map((subject) => (
-                <Link key={subject} href="/media-library" className="rounded-lg border border-[#071d36]/10 bg-[#fffdf8] p-4 transition hover:-translate-y-0.5 hover:border-[#b9913f]/45">
-                  <p className="font-semibold text-[#071d36]">{subject}</p>
-                  <p className="mt-1 text-xs leading-5 text-[#64748b]">Topic notes and referred media</p>
-                </Link>
-              )) : (
-                <div className="rounded-lg border border-[#071d36]/10 bg-[#fffdf8] p-4 sm:col-span-2 lg:col-span-4">
-                  <p className="font-semibold text-[#071d36]">No subject allocation yet</p>
-                  <p className="mt-1 text-xs leading-5 text-[#64748b]">Subjects will appear after administration assigns this teacher to a subject or batch.</p>
-                </div>
-              )}
-            </div>
-          </div>
+        <section className="grid gap-4 md:grid-cols-4">
+          <StatCard label="Today Classes" value={String(todayClasses.length)} note={todayClasses[0]?.title ?? "No class today"} />
+          <StatCard label="Classrooms" value={String(data.assignedBatches.length)} note="Assigned batches" />
+          <StatCard label="Attendance" value={`${data.classPerformance.attendance}%`} note="Recent attendance status" />
+          <StatCard label="Library Uploads" value={String(data.contentOps.lectureUploads + data.contentOps.notesUploads)} note="Lectures and documents" />
         </section>
 
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#8a6426]">Main Menu</p>
-          <h2 className="mt-2 text-2xl font-semibold text-[#071d36]">{isPhysicalInstructor ? "Daily physical training tools" : "Daily teacher tools"}</h2>
-        </div>
         <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          {activeModules.map((module) => {
+          {modules.map((module) => {
             const Icon = module.icon;
             return (
-              <Link key={module.title} href={module.href} className="group rounded-lg border border-[#071d36]/10 bg-white p-5 shadow-[0_18px_60px_rgba(7,29,54,0.08)] transition hover:-translate-y-1 hover:border-[#b9913f]/45">
+              <a key={module.id} href={module.href} className="group rounded-lg border border-[#071d36]/10 bg-white p-5 shadow-[0_18px_60px_rgba(7,29,54,0.08)] transition hover:-translate-y-1 hover:border-[#b9913f]/45">
                 <div className="grid h-12 w-12 place-items-center rounded bg-[#fff7de] text-[#b9913f]">
                   <Icon className="h-6 w-6" />
                 </div>
                 <h2 className="mt-4 text-xl font-semibold text-[#071d36]">{module.title}</h2>
                 <p className="mt-2 min-h-16 text-sm leading-6 text-[#64748b]">{module.line}</p>
-                <span className="mt-4 inline-flex text-sm font-semibold text-[#071d36]">{module.action}</span>
-              </Link>
+                <span className="mt-4 inline-flex text-sm font-semibold text-[#071d36]">Open</span>
+              </a>
             );
           })}
         </section>
 
-        <section className="grid gap-6 xl:grid-cols-[1fr_0.8fr]">
-          <div className="rounded-lg border border-[#b9913f]/25 bg-[linear-gradient(135deg,#fffdf8_0%,#f7f3ea_58%,#fff7de_100%)] p-6 shadow-[0_24px_80px_rgba(7,29,54,0.10)]">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#8a6426]">{isPhysicalInstructor ? "NIDUS AI Training Assistant" : "NIDUS AI Professor"}</p>
-                <h2 className="mt-3 text-3xl font-semibold text-[#071d36]">{isPhysicalInstructor ? "Ask for PT plans, remarks, and fitness support." : "Ask in simple English. Review before publishing."}</h2>
-                <p className="mt-3 max-w-2xl text-sm leading-7 text-[#64748b]">
-                  {isPhysicalInstructor
-                    ? "Use this like a physical training assistant. Ask for daily PT plans, stamina improvement, drill notes, eligibility guidance, and parent-friendly progress remarks."
-                    : "Use this like a teaching assistant. Ask for class plans, questions, timed tests, homework, notes, or weak-student revision ideas."}
-                </p>
-              </div>
-              <Button href={isPhysicalInstructor ? "/fitness/pt-schedule" : "/tests"}>{isPhysicalInstructor ? "Open PT Schedule" : "Open Test Studio"}</Button>
+        <Panel id="today" eyebrow="Today" title="Immediate attention">
+          <div className="grid gap-4 lg:grid-cols-[1fr_0.85fr]">
+            <div className="grid gap-3">
+              {pendingTasks.map((task, index) => (
+                <div key={task} className="flex items-center gap-3 rounded border border-[#071d36]/10 bg-[#fffdf8] p-4">
+                  <span className="grid h-8 w-8 place-items-center rounded-full bg-[#071d36] text-xs font-bold text-[#e7c873]">{index + 1}</span>
+                  <p className="text-sm font-semibold text-[#071d36]">{task}</p>
+                </div>
+              ))}
             </div>
-
-            <form onSubmit={handleProfessorSubmit} className="mt-6 rounded-lg border border-[#071d36]/10 bg-white p-4">
-              <textarea
-                value={aiPrompt}
-                onChange={(event) => setAiPrompt(event.target.value)}
-                className="min-h-28 w-full resize-none rounded border border-[#071d36]/12 bg-[#fffdf8] p-4 text-sm font-medium text-[#071d36] outline-none focus:border-[#b9913f]"
-                placeholder={isPhysicalInstructor ? "Example: Prepare a 7-day running improvement plan for weak stamina students." : "Example: Create a 30-question NDA English test with 45 minutes timer."}
-              />
-              <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div className="flex flex-wrap gap-2">
-                  {activePrompts.slice(0, 2).map((prompt) => (
-                    <button key={prompt} type="button" onClick={() => setAiPrompt(prompt)} className="rounded-full border border-[#071d36]/10 bg-[#f7f3ea] px-3 py-2 text-xs font-semibold text-[#071d36] transition hover:border-[#b9913f]/45">
-                      Use sample
-                    </button>
-                  ))}
-                </div>
+            <div className="rounded border border-[#b9913f]/25 bg-[#fff7de] p-4">
+              <Sparkles className="h-6 w-6 text-[#8a6426]" />
+              <h3 className="mt-3 text-xl font-semibold text-[#071d36]">Ask NIDUS AI</h3>
+              <p className="mt-2 text-sm leading-6 text-[#64748b]">Type what you need. NIDUS will prepare a teacher-ready draft for exam, assignment, class note or syllabus log.</p>
+              <form onSubmit={handleAiSubmit} className="mt-4 grid gap-3">
+                <textarea value={aiPrompt} onChange={(event) => setAiPrompt(event.target.value)} className="min-h-24 rounded border border-[#071d36]/10 bg-white p-3 text-sm text-[#071d36]" placeholder="Example: Create a test from today's topic" />
                 <Button type="submit">Ask NIDUS <Send className="h-4 w-4" /></Button>
+              </form>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {aiSamples.slice(0, 2).map((sample) => (
+                  <button key={sample} type="button" onClick={() => setAiPrompt(sample)} className="rounded-full border border-[#071d36]/10 bg-white px-3 py-2 text-xs font-semibold text-[#071d36]">
+                    Sample
+                  </button>
+                ))}
               </div>
-            </form>
-
-            <div className="mt-5 grid gap-3">
-              {aiHistory.length ? aiHistory.map((item) => (
-                <div key={item.prompt} className="rounded-lg border border-[#071d36]/10 bg-white p-4">
-                  <p className="text-sm font-semibold text-[#071d36]">{item.prompt}</p>
-                  <p className="mt-2 text-sm leading-6 text-[#64748b]">{item.response}</p>
-                </div>
-              )) : (
-                <div className="rounded-lg border border-[#071d36]/10 bg-white p-4">
-                  <p className="text-sm font-semibold text-[#071d36]">No AI requests yet</p>
-                  <p className="mt-2 text-sm leading-6 text-[#64748b]">{isPhysicalInstructor ? "Ask NIDUS for PT plans, fitness guidance, eligibility notes, or training remarks. Your recent requests will appear here." : "Ask NIDUS to prepare a class plan, test draft, homework, or revision support. Your recent requests will appear here."}</p>
-                </div>
-              )}
+              {aiResponse ? <p className="mt-4 rounded border border-[#071d36]/10 bg-white p-3 text-sm leading-6 text-[#40516a]">{aiResponse}</p> : null}
             </div>
           </div>
+        </Panel>
 
-          <TeacherSubjectPanel title={isPhysicalInstructor ? "Physical Focus" : isAcademicHead ? "Teachers & Subjects" : "My Subjects"} items={focusAreas} designation={custom.designation || "Faculty"} />
-        </section>
+        <Panel id="classroom" eyebrow="Classroom" title="Assigned classrooms and students">
+          <div className="grid gap-4 xl:grid-cols-2">
+            {assignedClassrooms.map((batch) => (
+              <ClassroomCard key={batch.id} batch={batch} />
+            ))}
+            {!assignedClassrooms.length ? <EmptyBlock title="No classroom assigned yet" text="Director or Academic Head will allocate batches and students. They will appear here automatically." /> : null}
+          </div>
+        </Panel>
 
-        <section className="grid gap-4 lg:grid-cols-3">
-          {isPhysicalInstructor ? (
-            <>
-              <SimpleInfo title="PT Flow" items={["Plan session", "Mark attendance", "Record fitness", "Add training remark"]} />
-              <SimpleInfo title="Readiness Flow" items={["Check eligibility", "Find weak stamina", "Assign improvement work", "Review next week"]} />
-              <SimpleInfo title="Student Support" items={["Check absentees", "Give simple target", "Send parent update", "Download report"]} />
-            </>
-          ) : (
-            <>
-              <SimpleInfo title="Class Flow" items={["Schedule or start class", "Upload recording", "Add notes or assignment", "Create quick test"]} />
-              <SimpleInfo title="Exam Flow" items={["Ask NIDUS for questions", "Review all questions", "Set timer and marks", "Approve and publish"]} />
-              <SimpleInfo title="Student Support" items={["Check weak students", "Give revision work", "Send parent update", "Download report"]} />
-            </>
-          )}
-        </section>
+        <Panel id="exams" eyebrow="Exams" title="Create, review and publish tests">
+          <SimpleFlow
+            icon={<ClipboardCheck className="h-6 w-6" />}
+            title="Teacher exam flow"
+            description="Click create exam, type topic and class, use question bank or NIDUS AI, review questions, set timer and publish."
+            href="/examination-center/exams"
+            action="Create Exam"
+            steps={["Select class", "Type topic", "AI/question bank", "Review", "Publish"]}
+          />
+        </Panel>
+
+        <Panel id="assignments" eyebrow="Assignments" title="Create homework or classwork">
+          <SimpleFlow
+            icon={<FileText className="h-6 w-6" />}
+            title="Assignment flow"
+            description="Create simple assignments, upload files if needed, set due date and publish to the selected classroom."
+            href="/documents"
+            action="Open Assignments"
+            steps={["Select class", "Write task", "Attach file", "Set due date", "Publish"]}
+          />
+        </Panel>
+
+        <Panel id="attendance" eyebrow="Attendance" title="One-click attendance and leave review">
+          <SimpleFlow
+            icon={<CheckCircle2 className="h-6 w-6" />}
+            title="Attendance flow"
+            description="Open attendance, choose class, mark all present or mark absentees, check leave requests and submit."
+            href="/discipline"
+            action="Mark Attendance"
+            steps={["Choose class", "All present", "Mark absent", "Check leave", "Submit"]}
+          />
+        </Panel>
+
+        <Panel id="library" eyebrow="Library" title="Course folders and study materials">
+          <SimpleFlow
+            icon={<FolderOpen className="h-6 w-6" />}
+            title="Library flow"
+            description="Create course folders, subfolders, upload recorded classes, notes, PDFs or photos, then publish to students."
+            href="/media-library"
+            action="Open Library"
+            steps={["Create folder", "Add topic", "Upload", "Rename/edit", "Publish"]}
+          />
+        </Panel>
+
+        <Panel id="calendar" eyebrow="Academic Calendar" title="Syllabus calendar and completion logs">
+          <div className="grid gap-4 lg:grid-cols-[1fr_0.9fr]">
+            <div className="grid gap-3">
+              {(todayClasses.length ? todayClasses : upcomingClasses.slice(0, 5)).map((slot) => (
+                <div key={slot.id} className="rounded border border-[#071d36]/10 bg-[#fffdf8] p-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8a6426]">{slot.subject}</p>
+                  <h3 className="mt-2 text-lg font-semibold text-[#071d36]">{slot.title}</h3>
+                  <p className="mt-1 text-sm leading-6 text-[#64748b]">{slot.batch} - {new Date(slot.startTime).toLocaleString()}</p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <span className="rounded-full bg-[#edf7ee] px-3 py-1 text-xs font-bold text-[#2f6b3f]">Completed</span>
+                    <span className="rounded-full bg-[#fff7de] px-3 py-1 text-xs font-bold text-[#8a6426]">Partial</span>
+                    <span className="rounded-full bg-[#fff2ec] px-3 py-1 text-xs font-bold text-[#9f341f]">Delayed</span>
+                  </div>
+                </div>
+              ))}
+              {!todayClasses.length && !upcomingClasses.length ? <EmptyBlock title="No calendar item yet" text="Director-planned class calendar will appear here after timetable allocation." /> : null}
+            </div>
+            <div className="rounded border border-[#071d36]/10 bg-[#fffdf8] p-4">
+              <ListChecks className="h-6 w-6 text-[#b9913f]" />
+              <h3 className="mt-3 text-xl font-semibold text-[#071d36]">Daily log</h3>
+              <p className="mt-2 text-sm leading-6 text-[#64748b]">Teacher clicks the day, marks completed/partial/delayed, adds a short comment and next action.</p>
+              <textarea className="mt-4 min-h-28 w-full rounded border border-[#071d36]/10 bg-white p-3 text-sm text-[#071d36]" placeholder="Example: Completed Mughal administration. Need 10 MCQ practice tomorrow." />
+              <Button href="/live-classes" className="mt-3">Open Calendar</Button>
+            </div>
+          </div>
+        </Panel>
       </motion.div>
     </RoleDashboardGuard>
   );
 }
 
-function buildProfessorResponse(prompt: string) {
-  const lower = prompt.toLowerCase();
-  if (lower.includes("pt") || lower.includes("fitness") || lower.includes("stamina") || lower.includes("running") || lower.includes("drill") || lower.includes("eligibility")) {
-    return "Training draft ready flow: NIDUS will prepare a simple PT plan, session structure, fitness target, improvement note, and parent-friendly training remark. Review it before sharing or recording.";
-  }
-  if (lower.includes("timetable") || lower.includes("schedule") || lower.includes("syllabus") || lower.includes("batch") || lower.includes("teacher allocation")) {
-    return "Academic planning draft ready: NIDUS will prepare batch-wise timetable, subject allocation, pending syllabus recovery, teacher responsibility, and red/orange/green tracking notes for review.";
-  }
-  if (lower.includes("test") || lower.includes("question") || lower.includes("exam")) {
-    return "Draft ready flow: NIDUS will prepare questions, answer options, correct answers, explanations, difficulty level, and suggested timer. Open Test Studio to review, edit, approve, and publish.";
-  }
-  if (lower.includes("class") || lower.includes("lesson")) {
-    return "Class plan flow: NIDUS will arrange introduction, key points, board work, examples, practice questions, homework, and next-class reminder.";
-  }
-  if (lower.includes("weak") || lower.includes("revision")) {
-    return "Support flow: NIDUS will identify weak areas, suggest revision topics, create practice work, and prepare a simple student follow-up note.";
-  }
-  return "NIDUS will convert your request into a teacher-ready draft. You stay in control: review, edit, approve, and then publish or share.";
-}
-
-function TeacherSubjectPanel({ title, items, designation }: { title: string; items: string[]; designation: string }) {
+function Panel({ id, eyebrow, title, children }: { id: string; eyebrow: string; title: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-lg border border-[#071d36]/10 bg-white p-5 shadow-[0_18px_60px_rgba(7,29,54,0.08)]">
-      <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#8a6426]">{designation}</p>
-      <h2 className="mt-3 text-2xl font-semibold text-[#071d36]">{title}</h2>
-      <div className="mt-5 grid gap-3">
-        {items.length ? items.map((item) => (
-          <div key={item} className="flex items-center justify-between gap-3 rounded border border-[#071d36]/10 bg-[#f7f3ea] px-4 py-3">
-            <span className="text-sm font-semibold text-[#071d36]">{item}</span>
-            <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-[#64748b]">Active</span>
-          </div>
-        )) : (
-          <div className="rounded border border-[#071d36]/10 bg-[#f7f3ea] px-4 py-3">
-            <p className="text-sm font-semibold text-[#071d36]">No allocation yet</p>
-            <p className="mt-1 text-xs leading-5 text-[#64748b]">Administration can assign focus areas, subject, or batch from staff settings.</p>
-          </div>
-        )}
-      </div>
-      <Button href="/staff-hr" className="mt-5 w-full">Manage Allocation</Button>
+    <section id={id} className="scroll-mt-24 rounded-lg border border-[#071d36]/10 bg-white p-5 shadow-[0_18px_60px_rgba(7,29,54,0.08)]">
+      <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#8a6426]">{eyebrow}</p>
+      <h2 className="mt-2 text-3xl font-semibold text-[#071d36]">{title}</h2>
+      <div className="mt-5">{children}</div>
     </section>
   );
 }
 
-function SimpleInfo({ title, items }: { title: string; items: string[] }) {
+function ClassroomCard({ batch }: { batch: AcademyBatch }) {
+  const students = batch.students ?? [];
   return (
-    <section className="rounded-lg border border-[#071d36]/10 bg-white p-5 shadow-[0_18px_60px_rgba(7,29,54,0.08)]">
-      <div className="flex items-center gap-3">
-        <MessageSquareText className="h-5 w-5 text-[#b9913f]" />
-        <h2 className="text-xl font-semibold text-[#071d36]">{title}</h2>
+    <article className="rounded-lg border border-[#071d36]/10 bg-[#fffdf8] p-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8a6426]">{batch.batchType.replace(/_/g, " ")}</p>
+          <h3 className="mt-2 text-xl font-semibold text-[#071d36]">{batch.name}</h3>
+          <p className="mt-1 text-sm leading-6 text-[#64748b]">{batch.course?.title ?? batch.programSlug}</p>
+        </div>
+        <span className="rounded-full bg-white px-3 py-1 text-xs font-bold text-[#071d36]">{students.length || batch._count?.students || 0} students</span>
       </div>
-      <div className="mt-4 grid gap-3">
-        {items.map((item, index) => (
-          <div key={item} className="flex gap-3 text-sm leading-6 text-[#40516a]">
-            <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-[#fff7de] text-xs font-bold text-[#8a6426]">{index + 1}</span>
-            <span>{item}</span>
+      <div className="mt-4 grid gap-2">
+        {students.slice(0, 5).map((entry) => (
+          <Link key={entry.id} href="/digital-profile" className="flex items-center justify-between rounded border border-[#071d36]/10 bg-white px-3 py-3 text-sm transition hover:border-[#b9913f]/45">
+            <span className="font-semibold text-[#071d36]">{entry.student.name}</span>
+            <span className="text-xs text-[#64748b]">{entry.status}</span>
+          </Link>
+        ))}
+        {!students.length ? <p className="rounded border border-[#071d36]/10 bg-white px-3 py-3 text-sm text-[#64748b]">Student list will appear after Admission Cell assigns students.</p> : null}
+      </div>
+      <div className="mt-4 flex flex-wrap gap-2">
+        <Button href="/performance-analytics" size="sm">Student Profiles</Button>
+        <Button href="/live-classes" size="sm" variant="secondary">Open Class</Button>
+      </div>
+    </article>
+  );
+}
+
+function SimpleFlow({
+  icon,
+  title,
+  description,
+  steps,
+  href,
+  action
+}: {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+  steps: string[];
+  href: string;
+  action: string;
+}) {
+  return (
+    <div className="grid gap-5 lg:grid-cols-[0.85fr_1.15fr]">
+      <div className="rounded border border-[#071d36]/10 bg-[#fff7de] p-5">
+        <div className="text-[#8a6426]">{icon}</div>
+        <h3 className="mt-3 text-2xl font-semibold text-[#071d36]">{title}</h3>
+        <p className="mt-2 text-sm leading-7 text-[#64748b]">{description}</p>
+        <Button href={href} className="mt-5">{action}</Button>
+      </div>
+      <div className="grid gap-3 sm:grid-cols-5">
+        {steps.map((step, index) => (
+          <div key={step} className="rounded border border-[#071d36]/10 bg-[#fffdf8] p-4">
+            <span className="grid h-8 w-8 place-items-center rounded-full bg-[#071d36] text-xs font-bold text-[#e7c873]">{index + 1}</span>
+            <p className="mt-3 text-sm font-semibold leading-6 text-[#071d36]">{step}</p>
           </div>
         ))}
       </div>
-    </section>
-  );
-}
-
-function AcademicStatusCard({ title, description, tone }: { title: string; description: string; tone: string }) {
-  return (
-    <section className={`rounded-lg border p-5 shadow-[0_18px_60px_rgba(7,29,54,0.08)] ${tone}`}>
-      <h2 className="text-2xl font-semibold">{title}</h2>
-      <p className="mt-2 text-sm leading-6">{description}</p>
-    </section>
-  );
-}
-
-function AssignedBatchGrid({ batches }: { batches: TeacherDashboardData["assignedBatches"] }) {
-  if (!batches.length) {
-    return (
-      <div className="mt-5 rounded-lg border border-[#071d36]/10 bg-[#fffdf8] p-4">
-        <p className="text-sm font-semibold text-[#071d36]">No batch allocation yet</p>
-        <p className="mt-1 text-sm leading-6 text-[#64748b]">Director and Academic Head planning batches are ready. Once allocated, the teacher will see course, subject, timetable and students here.</p>
-      </div>
-    );
-  }
-
-  return (
-    <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-      {batches.map((batch) => (
-        <Link key={`${batch.id}-${batch.subject}`} href="/courses" className="rounded-lg border border-[#071d36]/10 bg-[#fffdf8] p-4 transition hover:-translate-y-1 hover:border-[#b9913f]/45 hover:bg-white">
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#8a6426]">{batch.type.replace(/_/g, " ")}</p>
-          <h3 className="mt-2 text-lg font-semibold leading-tight text-[#071d36]">{batch.course?.title ?? batch.name}</h3>
-          <p className="mt-2 text-sm leading-6 text-[#64748b]">{batch.subject}</p>
-          <div className="mt-4 grid grid-cols-2 gap-2 text-xs font-semibold text-[#40516a]">
-            <span className="rounded border border-[#071d36]/10 bg-white px-2 py-2">{batch.students} students</span>
-            <span className="rounded border border-[#071d36]/10 bg-white px-2 py-2">{batch.tests} tests</span>
-          </div>
-        </Link>
-      ))}
     </div>
   );
 }
 
-function TeachingPlanPanel({
-  title,
-  today,
-  upcoming
-}: {
-  title: string;
-  today: TeacherDashboardData["teachingPlan"]["today"];
-  upcoming: TeacherDashboardData["teachingPlan"]["upcoming"];
-}) {
-  const visibleSlots = today.length ? today : upcoming.slice(0, 4);
+function EmptyBlock({ title, text }: { title: string; text: string }) {
   return (
-    <section className="rounded-lg border border-[#071d36]/10 bg-white p-5 shadow-[0_18px_60px_rgba(7,29,54,0.08)]">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#8a6426]">Timetable Flow</p>
-          <h2 className="mt-2 text-2xl font-semibold text-[#071d36]">{title}</h2>
-          <p className="mt-2 text-sm leading-7 text-[#64748b]">Program to batch to subject to teacher. This is the simple teaching line for daily execution.</p>
-        </div>
-        <Button href="/live-classes">Open Classes</Button>
-      </div>
-      <div className="mt-5 grid gap-3 lg:grid-cols-2">
-        {visibleSlots.length ? visibleSlots.map((slot) => (
-          <Link key={slot.id} href="/live-classes" className="rounded-lg border border-[#071d36]/10 bg-[#fffdf8] p-4 transition hover:-translate-y-0.5 hover:border-[#b9913f]/45 hover:bg-white">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#8a6426]">{slot.subject}</p>
-                <h3 className="mt-2 text-lg font-semibold text-[#071d36]">{slot.title}</h3>
-                <p className="mt-1 text-sm leading-6 text-[#64748b]">{slot.batch}</p>
-              </div>
-              <span className="rounded-full border border-[#b9913f]/35 bg-[#fff7de] px-3 py-1 text-xs font-bold text-[#8a6426]">{slot.classroom.replace("NIDUS-AUTO-", "").replace(/_/g, " ")}</span>
-            </div>
-            <p className="mt-4 text-sm font-semibold text-[#071d36]">
-              {new Date(slot.startTime).toLocaleString()} - {new Date(slot.endTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-            </p>
-          </Link>
-        )) : (
-          <div className="rounded-lg border border-[#071d36]/10 bg-[#fffdf8] p-4 lg:col-span-2">
-            <p className="text-sm font-semibold text-[#071d36]">No timetable slot assigned yet</p>
-            <p className="mt-1 text-sm leading-6 text-[#64748b]">Once Director planning assigns timetable slots, they will appear here for simple daily teaching execution.</p>
-          </div>
-        )}
-      </div>
-    </section>
-  );
-}
-
-function DashboardThumbnail({
-  href,
-  title,
-  line,
-  icon,
-  tone,
-  step
-}: {
-  href: string;
-  title: string;
-  line: string;
-  icon: ReactNode;
-  tone: string;
-  step: number;
-}) {
-  return (
-    <Link href={href} className="group rounded-lg border border-[#071d36]/10 bg-[#fffdf8] p-4 transition hover:-translate-y-1 hover:border-[#b9913f]/45 hover:bg-white">
-      <div className="flex items-start gap-4">
-        <div className={`grid h-14 w-14 shrink-0 place-items-center rounded-lg ${tone} text-[#071d36]`}>
-          {icon}
-        </div>
-        <div>
-          <span className="rounded-full bg-white px-2.5 py-1 text-[11px] font-bold text-[#8a6426] shadow-sm">Step {step}</span>
-          <h3 className="mt-3 text-lg font-semibold text-[#071d36]">{title}</h3>
-          <p className="mt-2 text-sm leading-6 text-[#64748b]">{line}</p>
-        </div>
-      </div>
-    </Link>
+    <div className="rounded-lg border border-[#071d36]/10 bg-[#fffdf8] p-4">
+      <BookOpen className="h-6 w-6 text-[#b9913f]" />
+      <p className="mt-3 font-semibold text-[#071d36]">{title}</p>
+      <p className="mt-1 text-sm leading-6 text-[#64748b]">{text}</p>
+    </div>
   );
 }

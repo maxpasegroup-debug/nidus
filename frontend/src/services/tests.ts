@@ -65,6 +65,11 @@ export async function getTests(filters: TestFilters = {}) {
   return response.data.tests;
 }
 
+export async function getAvailableTests() {
+  const response = await apiClient.get<{ tests: Array<Test & { studentStatus?: string }> }>("/tests/available");
+  return response.data.tests;
+}
+
 export async function createTest(payload: TestPayload) {
   const response = await apiClient.post<{ test: Test }>("/tests", payload);
   return response.data.test;

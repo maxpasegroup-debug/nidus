@@ -93,6 +93,11 @@ export type Test = Prisma.TestModel
  */
 export type Question = Prisma.QuestionModel
 /**
+ * Model QuestionBankItem
+ * 
+ */
+export type QuestionBankItem = Prisma.QuestionBankItemModel
+/**
  * Model TestAttempt
  * 
  */

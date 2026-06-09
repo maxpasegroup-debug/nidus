@@ -346,6 +346,7 @@ export type UserWhereInput = {
   testAttempts?: Prisma.TestAttemptListRelationFilter
   testsCreated?: Prisma.TestListRelationFilter
   testsApproved?: Prisma.TestListRelationFilter
+  questionBankItemsCreated?: Prisma.QuestionBankItemListRelationFilter
   psychometricAttempts?: Prisma.PsychometricAttemptListRelationFilter
   olqScore?: Prisma.XOR<Prisma.OLQScoreNullableScalarRelationFilter, Prisma.OLQScoreWhereInput> | null
   studyPlans?: Prisma.StudyPlanListRelationFilter
@@ -439,6 +440,7 @@ export type UserOrderByWithRelationInput = {
   testAttempts?: Prisma.TestAttemptOrderByRelationAggregateInput
   testsCreated?: Prisma.TestOrderByRelationAggregateInput
   testsApproved?: Prisma.TestOrderByRelationAggregateInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemOrderByRelationAggregateInput
   psychometricAttempts?: Prisma.PsychometricAttemptOrderByRelationAggregateInput
   olqScore?: Prisma.OLQScoreOrderByWithRelationInput
   studyPlans?: Prisma.StudyPlanOrderByRelationAggregateInput
@@ -535,6 +537,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   testAttempts?: Prisma.TestAttemptListRelationFilter
   testsCreated?: Prisma.TestListRelationFilter
   testsApproved?: Prisma.TestListRelationFilter
+  questionBankItemsCreated?: Prisma.QuestionBankItemListRelationFilter
   psychometricAttempts?: Prisma.PsychometricAttemptListRelationFilter
   olqScore?: Prisma.XOR<Prisma.OLQScoreNullableScalarRelationFilter, Prisma.OLQScoreWhereInput> | null
   studyPlans?: Prisma.StudyPlanListRelationFilter
@@ -682,6 +685,7 @@ export type UserCreateInput = {
   testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
@@ -775,6 +779,7 @@ export type UserUncheckedCreateInput = {
   testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestUncheckedCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestUncheckedCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
@@ -864,6 +869,7 @@ export type UserUpdateInput = {
   testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
@@ -957,6 +963,7 @@ export type UserUncheckedUpdateInput = {
   testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUncheckedUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUncheckedUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
@@ -1376,6 +1383,22 @@ export type UserUpdateOneWithoutTestsApprovedNestedInput = {
   delete?: Prisma.UserWhereInput | boolean
   connect?: Prisma.UserWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutTestsApprovedInput, Prisma.UserUpdateWithoutTestsApprovedInput>, Prisma.UserUncheckedUpdateWithoutTestsApprovedInput>
+}
+
+export type UserCreateNestedOneWithoutQuestionBankItemsCreatedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutQuestionBankItemsCreatedInput, Prisma.UserUncheckedCreateWithoutQuestionBankItemsCreatedInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutQuestionBankItemsCreatedInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutQuestionBankItemsCreatedNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutQuestionBankItemsCreatedInput, Prisma.UserUncheckedCreateWithoutQuestionBankItemsCreatedInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutQuestionBankItemsCreatedInput
+  upsert?: Prisma.UserUpsertWithoutQuestionBankItemsCreatedInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutQuestionBankItemsCreatedInput, Prisma.UserUpdateWithoutQuestionBankItemsCreatedInput>, Prisma.UserUncheckedUpdateWithoutQuestionBankItemsCreatedInput>
 }
 
 export type UserCreateNestedOneWithoutTestAttemptsInput = {
@@ -2296,6 +2319,7 @@ export type UserCreateWithoutSessionTokensInput = {
   testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
@@ -2388,6 +2412,7 @@ export type UserUncheckedCreateWithoutSessionTokensInput = {
   testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestUncheckedCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestUncheckedCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
@@ -2492,6 +2517,7 @@ export type UserUpdateWithoutSessionTokensInput = {
   testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
@@ -2584,6 +2610,7 @@ export type UserUncheckedUpdateWithoutSessionTokensInput = {
   testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUncheckedUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUncheckedUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
@@ -2672,6 +2699,7 @@ export type UserCreateWithoutPasswordResetsInput = {
   testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
@@ -2764,6 +2792,7 @@ export type UserUncheckedCreateWithoutPasswordResetsInput = {
   testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestUncheckedCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestUncheckedCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
@@ -2868,6 +2897,7 @@ export type UserUpdateWithoutPasswordResetsInput = {
   testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
@@ -2960,6 +2990,7 @@ export type UserUncheckedUpdateWithoutPasswordResetsInput = {
   testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUncheckedUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUncheckedUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
@@ -3048,6 +3079,7 @@ export type UserCreateWithoutParentInvitationsSentInput = {
   testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
@@ -3140,6 +3172,7 @@ export type UserUncheckedCreateWithoutParentInvitationsSentInput = {
   testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestUncheckedCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestUncheckedCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
@@ -3233,6 +3266,7 @@ export type UserCreateWithoutParentInvitationsReceivedInput = {
   testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
@@ -3325,6 +3359,7 @@ export type UserUncheckedCreateWithoutParentInvitationsReceivedInput = {
   testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestUncheckedCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestUncheckedCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
@@ -3429,6 +3464,7 @@ export type UserUpdateWithoutParentInvitationsSentInput = {
   testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
@@ -3521,6 +3557,7 @@ export type UserUncheckedUpdateWithoutParentInvitationsSentInput = {
   testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUncheckedUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUncheckedUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
@@ -3620,6 +3657,7 @@ export type UserUpdateWithoutParentInvitationsReceivedInput = {
   testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
@@ -3712,6 +3750,7 @@ export type UserUncheckedUpdateWithoutParentInvitationsReceivedInput = {
   testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUncheckedUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUncheckedUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
@@ -3800,6 +3839,7 @@ export type UserCreateWithoutParentLinksInput = {
   testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
@@ -3892,6 +3932,7 @@ export type UserUncheckedCreateWithoutParentLinksInput = {
   testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestUncheckedCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestUncheckedCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
@@ -3985,6 +4026,7 @@ export type UserCreateWithoutStudentLinksInput = {
   testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
@@ -4077,6 +4119,7 @@ export type UserUncheckedCreateWithoutStudentLinksInput = {
   testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestUncheckedCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestUncheckedCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
@@ -4181,6 +4224,7 @@ export type UserUpdateWithoutParentLinksInput = {
   testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
@@ -4273,6 +4317,7 @@ export type UserUncheckedUpdateWithoutParentLinksInput = {
   testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUncheckedUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUncheckedUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
@@ -4372,6 +4417,7 @@ export type UserUpdateWithoutStudentLinksInput = {
   testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
@@ -4464,6 +4510,7 @@ export type UserUncheckedUpdateWithoutStudentLinksInput = {
   testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUncheckedUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUncheckedUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
@@ -4551,6 +4598,7 @@ export type UserCreateWithoutEnrollmentsInput = {
   testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
@@ -4643,6 +4691,7 @@ export type UserUncheckedCreateWithoutEnrollmentsInput = {
   testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestUncheckedCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestUncheckedCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
@@ -4747,6 +4796,7 @@ export type UserUpdateWithoutEnrollmentsInput = {
   testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
@@ -4839,6 +4889,7 @@ export type UserUncheckedUpdateWithoutEnrollmentsInput = {
   testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUncheckedUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUncheckedUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
@@ -4927,6 +4978,7 @@ export type UserCreateWithoutBatchEnrollmentsInput = {
   testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
@@ -5019,6 +5071,7 @@ export type UserUncheckedCreateWithoutBatchEnrollmentsInput = {
   testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestUncheckedCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestUncheckedCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
@@ -5123,6 +5176,7 @@ export type UserUpdateWithoutBatchEnrollmentsInput = {
   testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
@@ -5215,6 +5269,7 @@ export type UserUncheckedUpdateWithoutBatchEnrollmentsInput = {
   testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUncheckedUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUncheckedUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
@@ -5303,6 +5358,7 @@ export type UserCreateWithoutTeachingAssignmentsInput = {
   testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
@@ -5395,6 +5451,7 @@ export type UserUncheckedCreateWithoutTeachingAssignmentsInput = {
   testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestUncheckedCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestUncheckedCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
@@ -5499,6 +5556,7 @@ export type UserUpdateWithoutTeachingAssignmentsInput = {
   testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
@@ -5591,6 +5649,7 @@ export type UserUncheckedUpdateWithoutTeachingAssignmentsInput = {
   testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUncheckedUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUncheckedUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
@@ -5679,6 +5738,7 @@ export type UserCreateWithoutTestsCreatedInput = {
   teachingAssignments?: Prisma.TeacherBatchAssignmentCreateNestedManyWithoutTeacherInput
   testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
   testsApproved?: Prisma.TestCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
@@ -5771,6 +5831,7 @@ export type UserUncheckedCreateWithoutTestsCreatedInput = {
   teachingAssignments?: Prisma.TeacherBatchAssignmentUncheckedCreateNestedManyWithoutTeacherInput
   testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
   testsApproved?: Prisma.TestUncheckedCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
@@ -5864,6 +5925,7 @@ export type UserCreateWithoutTestsApprovedInput = {
   teachingAssignments?: Prisma.TeacherBatchAssignmentCreateNestedManyWithoutTeacherInput
   testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestCreateNestedManyWithoutTeacherInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
@@ -5956,6 +6018,7 @@ export type UserUncheckedCreateWithoutTestsApprovedInput = {
   teachingAssignments?: Prisma.TeacherBatchAssignmentUncheckedCreateNestedManyWithoutTeacherInput
   testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestUncheckedCreateNestedManyWithoutTeacherInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
@@ -6060,6 +6123,7 @@ export type UserUpdateWithoutTestsCreatedInput = {
   teachingAssignments?: Prisma.TeacherBatchAssignmentUpdateManyWithoutTeacherNestedInput
   testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
   testsApproved?: Prisma.TestUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
@@ -6152,6 +6216,7 @@ export type UserUncheckedUpdateWithoutTestsCreatedInput = {
   teachingAssignments?: Prisma.TeacherBatchAssignmentUncheckedUpdateManyWithoutTeacherNestedInput
   testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
   testsApproved?: Prisma.TestUncheckedUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
@@ -6251,6 +6316,7 @@ export type UserUpdateWithoutTestsApprovedInput = {
   teachingAssignments?: Prisma.TeacherBatchAssignmentUpdateManyWithoutTeacherNestedInput
   testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUpdateManyWithoutTeacherNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
@@ -6343,6 +6409,387 @@ export type UserUncheckedUpdateWithoutTestsApprovedInput = {
   teachingAssignments?: Prisma.TeacherBatchAssignmentUncheckedUpdateManyWithoutTeacherNestedInput
   testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUncheckedUpdateManyWithoutTeacherNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedUpdateManyWithoutCreatedByNestedInput
+  psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
+  olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
+  studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
+  performanceAnalytics?: Prisma.PerformanceAnalyticsUncheckedUpdateOneWithoutUserNestedInput
+  revisionSchedules?: Prisma.RevisionScheduleUncheckedUpdateManyWithoutUserNestedInput
+  lectureProgress?: Prisma.LectureProgressUncheckedUpdateManyWithoutUserNestedInput
+  attendanceRecords?: Prisma.AttendanceUncheckedUpdateManyWithoutUserNestedInput
+  markedAttendance?: Prisma.AttendanceUncheckedUpdateManyWithoutMarkerNestedInput
+  facultyProfile?: Prisma.FacultyUncheckedUpdateOneWithoutUserNestedInput
+  hostelAllocations?: Prisma.HostelAllocationUncheckedUpdateManyWithoutStudentNestedInput
+  inOutEntries?: Prisma.InOutEntryUncheckedUpdateManyWithoutStudentNestedInput
+  hostelLeaves?: Prisma.HostelLeaveUncheckedUpdateManyWithoutStudentNestedInput
+  approvedHostelLeaves?: Prisma.HostelLeaveUncheckedUpdateManyWithoutApproverNestedInput
+  disciplineRecords?: Prisma.DisciplineRecordUncheckedUpdateManyWithoutStudentNestedInput
+  recordedDiscipline?: Prisma.DisciplineRecordUncheckedUpdateManyWithoutRecorderNestedInput
+  paradePerformances?: Prisma.ParadePerformanceUncheckedUpdateManyWithoutStudentNestedInput
+  assignedLeads?: Prisma.LeadUncheckedUpdateManyWithoutAssigneeNestedInput
+  followUpsCreated?: Prisma.FollowUpUncheckedUpdateManyWithoutCreatorNestedInput
+  admissions?: Prisma.AdmissionUncheckedUpdateManyWithoutStudentNestedInput
+  referralsMade?: Prisma.ReferralUncheckedUpdateManyWithoutReferrerNestedInput
+  referralsReceived?: Prisma.ReferralUncheckedUpdateManyWithoutReferredNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutUserNestedInput
+  collectedPayments?: Prisma.PaymentUncheckedUpdateManyWithoutCollectorNestedInput
+  verifiedPayments?: Prisma.PaymentUncheckedUpdateManyWithoutVerifierNestedInput
+  subscriptions?: Prisma.SubscriptionUncheckedUpdateManyWithoutUserNestedInput
+  feeInstallments?: Prisma.FeeInstallmentUncheckedUpdateManyWithoutStudentNestedInput
+  invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutStudentNestedInput
+  approvalRequestsCreated?: Prisma.ApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
+  approvalRequestsReviewed?: Prisma.ApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
+  scholarships?: Prisma.ScholarshipDiscountUncheckedUpdateManyWithoutStudentNestedInput
+  scholarshipReviewActions?: Prisma.ScholarshipDiscountUncheckedUpdateManyWithoutApproverNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  messageThreads?: Prisma.MessageThreadUncheckedUpdateManyWithoutCreatorNestedInput
+  sentMessages?: Prisma.MessageUncheckedUpdateManyWithoutSenderNestedInput
+  receivedMessages?: Prisma.MessageUncheckedUpdateManyWithoutReceiverNestedInput
+  communicationAnnouncements?: Prisma.AnnouncementUncheckedUpdateManyWithoutCreatorNestedInput
+  aiInterviewSessions?: Prisma.AIInterviewSessionUncheckedUpdateManyWithoutUserNestedInput
+  doubtQueries?: Prisma.DoubtQueryUncheckedUpdateManyWithoutUserNestedInput
+  aiRecommendations?: Prisma.AIRecommendationUncheckedUpdateManyWithoutUserNestedInput
+  officerPotential?: Prisma.OfficerPotentialUncheckedUpdateOneWithoutUserNestedInput
+  fitnessProfile?: Prisma.FitnessProfileUncheckedUpdateOneWithoutUserNestedInput
+  ptAttendances?: Prisma.PTAttendanceUncheckedUpdateManyWithoutStudentNestedInput
+  physicalEligibilities?: Prisma.PhysicalEligibilityUncheckedUpdateManyWithoutUserNestedInput
+  dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedUpdateManyWithoutUserNestedInput
+  quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedUpdateManyWithoutUserNestedInput
+  leaderboard?: Prisma.LeaderboardUncheckedUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUncheckedUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUncheckedUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUncheckedUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUncheckedUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedUpdateManyWithoutApprovedByNestedInput
+  salesBoosterAudienceContacts?: Prisma.SalesBoosterAudienceContactUncheckedUpdateManyWithoutCreatedByNestedInput
+  sessionTokens?: Prisma.SessionTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUncheckedUpdateManyWithoutUserNestedInput
+  parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutParentNestedInput
+  parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedUpdateManyWithoutStudentNestedInput
+  parentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutParentNestedInput
+  studentLinks?: Prisma.ParentStudentLinkUncheckedUpdateManyWithoutStudentNestedInput
+}
+
+export type UserCreateWithoutQuestionBankItemsCreatedInput = {
+  id?: string
+  name: string
+  email: string
+  mobile: string
+  password: string
+  role?: $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
+  emailVerified?: boolean
+  mobileVerified?: boolean
+  isDisabled?: boolean
+  disabledAt?: Date | string | null
+  loginFailureCount?: number
+  lockedUntil?: Date | string | null
+  lastLoginAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
+  batchEnrollments?: Prisma.BatchStudentCreateNestedManyWithoutStudentInput
+  teachingAssignments?: Prisma.TeacherBatchAssignmentCreateNestedManyWithoutTeacherInput
+  testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
+  testsCreated?: Prisma.TestCreateNestedManyWithoutTeacherInput
+  testsApproved?: Prisma.TestCreateNestedManyWithoutApprovedByInput
+  psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
+  olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
+  studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
+  performanceAnalytics?: Prisma.PerformanceAnalyticsCreateNestedOneWithoutUserInput
+  revisionSchedules?: Prisma.RevisionScheduleCreateNestedManyWithoutUserInput
+  lectureProgress?: Prisma.LectureProgressCreateNestedManyWithoutUserInput
+  attendanceRecords?: Prisma.AttendanceCreateNestedManyWithoutUserInput
+  markedAttendance?: Prisma.AttendanceCreateNestedManyWithoutMarkerInput
+  facultyProfile?: Prisma.FacultyCreateNestedOneWithoutUserInput
+  hostelAllocations?: Prisma.HostelAllocationCreateNestedManyWithoutStudentInput
+  inOutEntries?: Prisma.InOutEntryCreateNestedManyWithoutStudentInput
+  hostelLeaves?: Prisma.HostelLeaveCreateNestedManyWithoutStudentInput
+  approvedHostelLeaves?: Prisma.HostelLeaveCreateNestedManyWithoutApproverInput
+  disciplineRecords?: Prisma.DisciplineRecordCreateNestedManyWithoutStudentInput
+  recordedDiscipline?: Prisma.DisciplineRecordCreateNestedManyWithoutRecorderInput
+  paradePerformances?: Prisma.ParadePerformanceCreateNestedManyWithoutStudentInput
+  assignedLeads?: Prisma.LeadCreateNestedManyWithoutAssigneeInput
+  followUpsCreated?: Prisma.FollowUpCreateNestedManyWithoutCreatorInput
+  admissions?: Prisma.AdmissionCreateNestedManyWithoutStudentInput
+  referralsMade?: Prisma.ReferralCreateNestedManyWithoutReferrerInput
+  referralsReceived?: Prisma.ReferralCreateNestedManyWithoutReferredInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutUserInput
+  collectedPayments?: Prisma.PaymentCreateNestedManyWithoutCollectorInput
+  verifiedPayments?: Prisma.PaymentCreateNestedManyWithoutVerifierInput
+  subscriptions?: Prisma.SubscriptionCreateNestedManyWithoutUserInput
+  feeInstallments?: Prisma.FeeInstallmentCreateNestedManyWithoutStudentInput
+  invoices?: Prisma.InvoiceCreateNestedManyWithoutStudentInput
+  approvalRequestsCreated?: Prisma.ApprovalRequestCreateNestedManyWithoutRequesterInput
+  approvalRequestsReviewed?: Prisma.ApprovalRequestCreateNestedManyWithoutReviewerInput
+  scholarships?: Prisma.ScholarshipDiscountCreateNestedManyWithoutStudentInput
+  scholarshipReviewActions?: Prisma.ScholarshipDiscountCreateNestedManyWithoutApproverInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  messageThreads?: Prisma.MessageThreadCreateNestedManyWithoutCreatorInput
+  sentMessages?: Prisma.MessageCreateNestedManyWithoutSenderInput
+  receivedMessages?: Prisma.MessageCreateNestedManyWithoutReceiverInput
+  communicationAnnouncements?: Prisma.AnnouncementCreateNestedManyWithoutCreatorInput
+  aiInterviewSessions?: Prisma.AIInterviewSessionCreateNestedManyWithoutUserInput
+  doubtQueries?: Prisma.DoubtQueryCreateNestedManyWithoutUserInput
+  aiRecommendations?: Prisma.AIRecommendationCreateNestedManyWithoutUserInput
+  officerPotential?: Prisma.OfficerPotentialCreateNestedOneWithoutUserInput
+  fitnessProfile?: Prisma.FitnessProfileCreateNestedOneWithoutUserInput
+  ptAttendances?: Prisma.PTAttendanceCreateNestedManyWithoutStudentInput
+  physicalEligibilities?: Prisma.PhysicalEligibilityCreateNestedManyWithoutUserInput
+  dailyFitnessLogs?: Prisma.DailyFitnessLogCreateNestedManyWithoutUserInput
+  quizBattleParticipants?: Prisma.QuizBattleParticipantCreateNestedManyWithoutUserInput
+  leaderboard?: Prisma.LeaderboardCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityCreateNestedManyWithoutUserInput
+  institute?: Prisma.InstituteCreateNestedOneWithoutUsersInput
+  branch?: Prisma.BranchCreateNestedOneWithoutUsersInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignCreateNestedManyWithoutApprovedByInput
+  salesBoosterAudienceContacts?: Prisma.SalesBoosterAudienceContactCreateNestedManyWithoutCreatedByInput
+  sessionTokens?: Prisma.SessionTokenCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetCreateNestedManyWithoutUserInput
+  parentInvitationsSent?: Prisma.ParentStudentInvitationCreateNestedManyWithoutParentInput
+  parentInvitationsReceived?: Prisma.ParentStudentInvitationCreateNestedManyWithoutStudentInput
+  parentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutParentInput
+  studentLinks?: Prisma.ParentStudentLinkCreateNestedManyWithoutStudentInput
+}
+
+export type UserUncheckedCreateWithoutQuestionBankItemsCreatedInput = {
+  id?: string
+  name: string
+  email: string
+  mobile: string
+  password: string
+  role?: $Enums.Role
+  instituteId?: string | null
+  branchId?: string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: string
+  roleActivatedAt?: Date | string | null
+  lastRoleActivityAt?: Date | string | null
+  emailVerified?: boolean
+  mobileVerified?: boolean
+  isDisabled?: boolean
+  disabledAt?: Date | string | null
+  loginFailureCount?: number
+  lockedUntil?: Date | string | null
+  lastLoginAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
+  batchEnrollments?: Prisma.BatchStudentUncheckedCreateNestedManyWithoutStudentInput
+  teachingAssignments?: Prisma.TeacherBatchAssignmentUncheckedCreateNestedManyWithoutTeacherInput
+  testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
+  testsCreated?: Prisma.TestUncheckedCreateNestedManyWithoutTeacherInput
+  testsApproved?: Prisma.TestUncheckedCreateNestedManyWithoutApprovedByInput
+  psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
+  olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
+  studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
+  performanceAnalytics?: Prisma.PerformanceAnalyticsUncheckedCreateNestedOneWithoutUserInput
+  revisionSchedules?: Prisma.RevisionScheduleUncheckedCreateNestedManyWithoutUserInput
+  lectureProgress?: Prisma.LectureProgressUncheckedCreateNestedManyWithoutUserInput
+  attendanceRecords?: Prisma.AttendanceUncheckedCreateNestedManyWithoutUserInput
+  markedAttendance?: Prisma.AttendanceUncheckedCreateNestedManyWithoutMarkerInput
+  facultyProfile?: Prisma.FacultyUncheckedCreateNestedOneWithoutUserInput
+  hostelAllocations?: Prisma.HostelAllocationUncheckedCreateNestedManyWithoutStudentInput
+  inOutEntries?: Prisma.InOutEntryUncheckedCreateNestedManyWithoutStudentInput
+  hostelLeaves?: Prisma.HostelLeaveUncheckedCreateNestedManyWithoutStudentInput
+  approvedHostelLeaves?: Prisma.HostelLeaveUncheckedCreateNestedManyWithoutApproverInput
+  disciplineRecords?: Prisma.DisciplineRecordUncheckedCreateNestedManyWithoutStudentInput
+  recordedDiscipline?: Prisma.DisciplineRecordUncheckedCreateNestedManyWithoutRecorderInput
+  paradePerformances?: Prisma.ParadePerformanceUncheckedCreateNestedManyWithoutStudentInput
+  assignedLeads?: Prisma.LeadUncheckedCreateNestedManyWithoutAssigneeInput
+  followUpsCreated?: Prisma.FollowUpUncheckedCreateNestedManyWithoutCreatorInput
+  admissions?: Prisma.AdmissionUncheckedCreateNestedManyWithoutStudentInput
+  referralsMade?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferrerInput
+  referralsReceived?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferredInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutUserInput
+  collectedPayments?: Prisma.PaymentUncheckedCreateNestedManyWithoutCollectorInput
+  verifiedPayments?: Prisma.PaymentUncheckedCreateNestedManyWithoutVerifierInput
+  subscriptions?: Prisma.SubscriptionUncheckedCreateNestedManyWithoutUserInput
+  feeInstallments?: Prisma.FeeInstallmentUncheckedCreateNestedManyWithoutStudentInput
+  invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutStudentInput
+  approvalRequestsCreated?: Prisma.ApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
+  approvalRequestsReviewed?: Prisma.ApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
+  scholarships?: Prisma.ScholarshipDiscountUncheckedCreateNestedManyWithoutStudentInput
+  scholarshipReviewActions?: Prisma.ScholarshipDiscountUncheckedCreateNestedManyWithoutApproverInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  messageThreads?: Prisma.MessageThreadUncheckedCreateNestedManyWithoutCreatorInput
+  sentMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutSenderInput
+  receivedMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutReceiverInput
+  communicationAnnouncements?: Prisma.AnnouncementUncheckedCreateNestedManyWithoutCreatorInput
+  aiInterviewSessions?: Prisma.AIInterviewSessionUncheckedCreateNestedManyWithoutUserInput
+  doubtQueries?: Prisma.DoubtQueryUncheckedCreateNestedManyWithoutUserInput
+  aiRecommendations?: Prisma.AIRecommendationUncheckedCreateNestedManyWithoutUserInput
+  officerPotential?: Prisma.OfficerPotentialUncheckedCreateNestedOneWithoutUserInput
+  fitnessProfile?: Prisma.FitnessProfileUncheckedCreateNestedOneWithoutUserInput
+  ptAttendances?: Prisma.PTAttendanceUncheckedCreateNestedManyWithoutStudentInput
+  physicalEligibilities?: Prisma.PhysicalEligibilityUncheckedCreateNestedManyWithoutUserInput
+  dailyFitnessLogs?: Prisma.DailyFitnessLogUncheckedCreateNestedManyWithoutUserInput
+  quizBattleParticipants?: Prisma.QuizBattleParticipantUncheckedCreateNestedManyWithoutUserInput
+  leaderboard?: Prisma.LeaderboardUncheckedCreateNestedOneWithoutUserInput
+  mediaFolders?: Prisma.MediaFolderUncheckedCreateNestedManyWithoutCreatorInput
+  mediaFiles?: Prisma.MediaFileUncheckedCreateNestedManyWithoutUploaderInput
+  documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUploaderInput
+  adminRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  roleActivities?: Prisma.RoleActivityUncheckedCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutCreatedByInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUncheckedCreateNestedManyWithoutApprovedByInput
+  salesBoosterAudienceContacts?: Prisma.SalesBoosterAudienceContactUncheckedCreateNestedManyWithoutCreatedByInput
+  sessionTokens?: Prisma.SessionTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResets?: Prisma.PasswordResetUncheckedCreateNestedManyWithoutUserInput
+  parentInvitationsSent?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutParentInput
+  parentInvitationsReceived?: Prisma.ParentStudentInvitationUncheckedCreateNestedManyWithoutStudentInput
+  parentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutParentInput
+  studentLinks?: Prisma.ParentStudentLinkUncheckedCreateNestedManyWithoutStudentInput
+}
+
+export type UserCreateOrConnectWithoutQuestionBankItemsCreatedInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutQuestionBankItemsCreatedInput, Prisma.UserUncheckedCreateWithoutQuestionBankItemsCreatedInput>
+}
+
+export type UserUpsertWithoutQuestionBankItemsCreatedInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutQuestionBankItemsCreatedInput, Prisma.UserUncheckedUpdateWithoutQuestionBankItemsCreatedInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutQuestionBankItemsCreatedInput, Prisma.UserUncheckedCreateWithoutQuestionBankItemsCreatedInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutQuestionBankItemsCreatedInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutQuestionBankItemsCreatedInput, Prisma.UserUncheckedUpdateWithoutQuestionBankItemsCreatedInput>
+}
+
+export type UserUpdateWithoutQuestionBankItemsCreatedInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  disabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
+  batchEnrollments?: Prisma.BatchStudentUpdateManyWithoutStudentNestedInput
+  teachingAssignments?: Prisma.TeacherBatchAssignmentUpdateManyWithoutTeacherNestedInput
+  testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
+  testsCreated?: Prisma.TestUpdateManyWithoutTeacherNestedInput
+  testsApproved?: Prisma.TestUpdateManyWithoutApprovedByNestedInput
+  psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
+  olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
+  studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
+  performanceAnalytics?: Prisma.PerformanceAnalyticsUpdateOneWithoutUserNestedInput
+  revisionSchedules?: Prisma.RevisionScheduleUpdateManyWithoutUserNestedInput
+  lectureProgress?: Prisma.LectureProgressUpdateManyWithoutUserNestedInput
+  attendanceRecords?: Prisma.AttendanceUpdateManyWithoutUserNestedInput
+  markedAttendance?: Prisma.AttendanceUpdateManyWithoutMarkerNestedInput
+  facultyProfile?: Prisma.FacultyUpdateOneWithoutUserNestedInput
+  hostelAllocations?: Prisma.HostelAllocationUpdateManyWithoutStudentNestedInput
+  inOutEntries?: Prisma.InOutEntryUpdateManyWithoutStudentNestedInput
+  hostelLeaves?: Prisma.HostelLeaveUpdateManyWithoutStudentNestedInput
+  approvedHostelLeaves?: Prisma.HostelLeaveUpdateManyWithoutApproverNestedInput
+  disciplineRecords?: Prisma.DisciplineRecordUpdateManyWithoutStudentNestedInput
+  recordedDiscipline?: Prisma.DisciplineRecordUpdateManyWithoutRecorderNestedInput
+  paradePerformances?: Prisma.ParadePerformanceUpdateManyWithoutStudentNestedInput
+  assignedLeads?: Prisma.LeadUpdateManyWithoutAssigneeNestedInput
+  followUpsCreated?: Prisma.FollowUpUpdateManyWithoutCreatorNestedInput
+  admissions?: Prisma.AdmissionUpdateManyWithoutStudentNestedInput
+  referralsMade?: Prisma.ReferralUpdateManyWithoutReferrerNestedInput
+  referralsReceived?: Prisma.ReferralUpdateManyWithoutReferredNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutUserNestedInput
+  collectedPayments?: Prisma.PaymentUpdateManyWithoutCollectorNestedInput
+  verifiedPayments?: Prisma.PaymentUpdateManyWithoutVerifierNestedInput
+  subscriptions?: Prisma.SubscriptionUpdateManyWithoutUserNestedInput
+  feeInstallments?: Prisma.FeeInstallmentUpdateManyWithoutStudentNestedInput
+  invoices?: Prisma.InvoiceUpdateManyWithoutStudentNestedInput
+  approvalRequestsCreated?: Prisma.ApprovalRequestUpdateManyWithoutRequesterNestedInput
+  approvalRequestsReviewed?: Prisma.ApprovalRequestUpdateManyWithoutReviewerNestedInput
+  scholarships?: Prisma.ScholarshipDiscountUpdateManyWithoutStudentNestedInput
+  scholarshipReviewActions?: Prisma.ScholarshipDiscountUpdateManyWithoutApproverNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  messageThreads?: Prisma.MessageThreadUpdateManyWithoutCreatorNestedInput
+  sentMessages?: Prisma.MessageUpdateManyWithoutSenderNestedInput
+  receivedMessages?: Prisma.MessageUpdateManyWithoutReceiverNestedInput
+  communicationAnnouncements?: Prisma.AnnouncementUpdateManyWithoutCreatorNestedInput
+  aiInterviewSessions?: Prisma.AIInterviewSessionUpdateManyWithoutUserNestedInput
+  doubtQueries?: Prisma.DoubtQueryUpdateManyWithoutUserNestedInput
+  aiRecommendations?: Prisma.AIRecommendationUpdateManyWithoutUserNestedInput
+  officerPotential?: Prisma.OfficerPotentialUpdateOneWithoutUserNestedInput
+  fitnessProfile?: Prisma.FitnessProfileUpdateOneWithoutUserNestedInput
+  ptAttendances?: Prisma.PTAttendanceUpdateManyWithoutStudentNestedInput
+  physicalEligibilities?: Prisma.PhysicalEligibilityUpdateManyWithoutUserNestedInput
+  dailyFitnessLogs?: Prisma.DailyFitnessLogUpdateManyWithoutUserNestedInput
+  quizBattleParticipants?: Prisma.QuizBattleParticipantUpdateManyWithoutUserNestedInput
+  leaderboard?: Prisma.LeaderboardUpdateOneWithoutUserNestedInput
+  mediaFolders?: Prisma.MediaFolderUpdateManyWithoutCreatorNestedInput
+  mediaFiles?: Prisma.MediaFileUpdateManyWithoutUploaderNestedInput
+  documents?: Prisma.DocumentUpdateManyWithoutUploaderNestedInput
+  adminRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  roleActivities?: Prisma.RoleActivityUpdateManyWithoutUserNestedInput
+  institute?: Prisma.InstituteUpdateOneWithoutUsersNestedInput
+  branch?: Prisma.BranchUpdateOneWithoutUsersNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  salesBoosterCampaignsCreated?: Prisma.SalesBoosterCampaignUpdateManyWithoutCreatedByNestedInput
+  salesBoosterCampaignsApproved?: Prisma.SalesBoosterCampaignUpdateManyWithoutApprovedByNestedInput
+  salesBoosterAudienceContacts?: Prisma.SalesBoosterAudienceContactUpdateManyWithoutCreatedByNestedInput
+  sessionTokens?: Prisma.SessionTokenUpdateManyWithoutUserNestedInput
+  passwordResets?: Prisma.PasswordResetUpdateManyWithoutUserNestedInput
+  parentInvitationsSent?: Prisma.ParentStudentInvitationUpdateManyWithoutParentNestedInput
+  parentInvitationsReceived?: Prisma.ParentStudentInvitationUpdateManyWithoutStudentNestedInput
+  parentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutParentNestedInput
+  studentLinks?: Prisma.ParentStudentLinkUpdateManyWithoutStudentNestedInput
+}
+
+export type UserUncheckedUpdateWithoutQuestionBankItemsCreatedInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  instituteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  roleOnboardingStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  roleActivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRoleActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mobileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDisabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  disabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  loginFailureCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
+  batchEnrollments?: Prisma.BatchStudentUncheckedUpdateManyWithoutStudentNestedInput
+  teachingAssignments?: Prisma.TeacherBatchAssignmentUncheckedUpdateManyWithoutTeacherNestedInput
+  testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
+  testsCreated?: Prisma.TestUncheckedUpdateManyWithoutTeacherNestedInput
+  testsApproved?: Prisma.TestUncheckedUpdateManyWithoutApprovedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
@@ -6431,6 +6878,7 @@ export type UserCreateWithoutTestAttemptsInput = {
   teachingAssignments?: Prisma.TeacherBatchAssignmentCreateNestedManyWithoutTeacherInput
   testsCreated?: Prisma.TestCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
@@ -6523,6 +6971,7 @@ export type UserUncheckedCreateWithoutTestAttemptsInput = {
   teachingAssignments?: Prisma.TeacherBatchAssignmentUncheckedCreateNestedManyWithoutTeacherInput
   testsCreated?: Prisma.TestUncheckedCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestUncheckedCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
@@ -6627,6 +7076,7 @@ export type UserUpdateWithoutTestAttemptsInput = {
   teachingAssignments?: Prisma.TeacherBatchAssignmentUpdateManyWithoutTeacherNestedInput
   testsCreated?: Prisma.TestUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
@@ -6719,6 +7169,7 @@ export type UserUncheckedUpdateWithoutTestAttemptsInput = {
   teachingAssignments?: Prisma.TeacherBatchAssignmentUncheckedUpdateManyWithoutTeacherNestedInput
   testsCreated?: Prisma.TestUncheckedUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUncheckedUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
@@ -6808,6 +7259,7 @@ export type UserCreateWithoutPsychometricAttemptsInput = {
   testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemCreateNestedManyWithoutCreatedByInput
   olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
   performanceAnalytics?: Prisma.PerformanceAnalyticsCreateNestedOneWithoutUserInput
@@ -6900,6 +7352,7 @@ export type UserUncheckedCreateWithoutPsychometricAttemptsInput = {
   testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestUncheckedCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestUncheckedCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedCreateNestedManyWithoutCreatedByInput
   olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
   performanceAnalytics?: Prisma.PerformanceAnalyticsUncheckedCreateNestedOneWithoutUserInput
@@ -7004,6 +7457,7 @@ export type UserUpdateWithoutPsychometricAttemptsInput = {
   testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUpdateManyWithoutCreatedByNestedInput
   olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
   performanceAnalytics?: Prisma.PerformanceAnalyticsUpdateOneWithoutUserNestedInput
@@ -7096,6 +7550,7 @@ export type UserUncheckedUpdateWithoutPsychometricAttemptsInput = {
   testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUncheckedUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUncheckedUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedUpdateManyWithoutCreatedByNestedInput
   olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
   performanceAnalytics?: Prisma.PerformanceAnalyticsUncheckedUpdateOneWithoutUserNestedInput
@@ -7184,6 +7639,7 @@ export type UserCreateWithoutOlqScoreInput = {
   testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
   performanceAnalytics?: Prisma.PerformanceAnalyticsCreateNestedOneWithoutUserInput
@@ -7276,6 +7732,7 @@ export type UserUncheckedCreateWithoutOlqScoreInput = {
   testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestUncheckedCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestUncheckedCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
   performanceAnalytics?: Prisma.PerformanceAnalyticsUncheckedCreateNestedOneWithoutUserInput
@@ -7380,6 +7837,7 @@ export type UserUpdateWithoutOlqScoreInput = {
   testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
   performanceAnalytics?: Prisma.PerformanceAnalyticsUpdateOneWithoutUserNestedInput
@@ -7472,6 +7930,7 @@ export type UserUncheckedUpdateWithoutOlqScoreInput = {
   testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUncheckedUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUncheckedUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
   performanceAnalytics?: Prisma.PerformanceAnalyticsUncheckedUpdateOneWithoutUserNestedInput
@@ -7560,6 +8019,7 @@ export type UserCreateWithoutStudyPlansInput = {
   testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
   performanceAnalytics?: Prisma.PerformanceAnalyticsCreateNestedOneWithoutUserInput
@@ -7652,6 +8112,7 @@ export type UserUncheckedCreateWithoutStudyPlansInput = {
   testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestUncheckedCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestUncheckedCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
   performanceAnalytics?: Prisma.PerformanceAnalyticsUncheckedCreateNestedOneWithoutUserInput
@@ -7756,6 +8217,7 @@ export type UserUpdateWithoutStudyPlansInput = {
   testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
   performanceAnalytics?: Prisma.PerformanceAnalyticsUpdateOneWithoutUserNestedInput
@@ -7848,6 +8310,7 @@ export type UserUncheckedUpdateWithoutStudyPlansInput = {
   testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUncheckedUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUncheckedUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
   performanceAnalytics?: Prisma.PerformanceAnalyticsUncheckedUpdateOneWithoutUserNestedInput
@@ -7936,6 +8399,7 @@ export type UserCreateWithoutPerformanceAnalyticsInput = {
   testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
@@ -8028,6 +8492,7 @@ export type UserUncheckedCreateWithoutPerformanceAnalyticsInput = {
   testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestUncheckedCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestUncheckedCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
@@ -8132,6 +8597,7 @@ export type UserUpdateWithoutPerformanceAnalyticsInput = {
   testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
@@ -8224,6 +8690,7 @@ export type UserUncheckedUpdateWithoutPerformanceAnalyticsInput = {
   testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUncheckedUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUncheckedUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
@@ -8312,6 +8779,7 @@ export type UserCreateWithoutRevisionSchedulesInput = {
   testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
@@ -8404,6 +8872,7 @@ export type UserUncheckedCreateWithoutRevisionSchedulesInput = {
   testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestUncheckedCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestUncheckedCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
@@ -8508,6 +8977,7 @@ export type UserUpdateWithoutRevisionSchedulesInput = {
   testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
@@ -8600,6 +9070,7 @@ export type UserUncheckedUpdateWithoutRevisionSchedulesInput = {
   testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUncheckedUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUncheckedUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
@@ -8688,6 +9159,7 @@ export type UserCreateWithoutLectureProgressInput = {
   testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
@@ -8780,6 +9252,7 @@ export type UserUncheckedCreateWithoutLectureProgressInput = {
   testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestUncheckedCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestUncheckedCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
@@ -8884,6 +9357,7 @@ export type UserUpdateWithoutLectureProgressInput = {
   testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
@@ -8976,6 +9450,7 @@ export type UserUncheckedUpdateWithoutLectureProgressInput = {
   testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUncheckedUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUncheckedUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
@@ -9064,6 +9539,7 @@ export type UserCreateWithoutAttendanceRecordsInput = {
   testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
@@ -9156,6 +9632,7 @@ export type UserUncheckedCreateWithoutAttendanceRecordsInput = {
   testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestUncheckedCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestUncheckedCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
@@ -9249,6 +9726,7 @@ export type UserCreateWithoutMarkedAttendanceInput = {
   testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
@@ -9341,6 +9819,7 @@ export type UserUncheckedCreateWithoutMarkedAttendanceInput = {
   testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestUncheckedCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestUncheckedCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
@@ -9445,6 +9924,7 @@ export type UserUpdateWithoutAttendanceRecordsInput = {
   testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
@@ -9537,6 +10017,7 @@ export type UserUncheckedUpdateWithoutAttendanceRecordsInput = {
   testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUncheckedUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUncheckedUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
@@ -9636,6 +10117,7 @@ export type UserUpdateWithoutMarkedAttendanceInput = {
   testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
@@ -9728,6 +10210,7 @@ export type UserUncheckedUpdateWithoutMarkedAttendanceInput = {
   testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUncheckedUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUncheckedUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
@@ -9816,6 +10299,7 @@ export type UserCreateWithoutFacultyProfileInput = {
   testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
@@ -9908,6 +10392,7 @@ export type UserUncheckedCreateWithoutFacultyProfileInput = {
   testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestUncheckedCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestUncheckedCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
@@ -10012,6 +10497,7 @@ export type UserUpdateWithoutFacultyProfileInput = {
   testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
@@ -10104,6 +10590,7 @@ export type UserUncheckedUpdateWithoutFacultyProfileInput = {
   testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUncheckedUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUncheckedUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
@@ -10192,6 +10679,7 @@ export type UserCreateWithoutCommunicationAnnouncementsInput = {
   testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
@@ -10284,6 +10772,7 @@ export type UserUncheckedCreateWithoutCommunicationAnnouncementsInput = {
   testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestUncheckedCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestUncheckedCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
@@ -10388,6 +10877,7 @@ export type UserUpdateWithoutCommunicationAnnouncementsInput = {
   testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
@@ -10480,6 +10970,7 @@ export type UserUncheckedUpdateWithoutCommunicationAnnouncementsInput = {
   testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUncheckedUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUncheckedUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
@@ -10568,6 +11059,7 @@ export type UserCreateWithoutHostelAllocationsInput = {
   testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
@@ -10660,6 +11152,7 @@ export type UserUncheckedCreateWithoutHostelAllocationsInput = {
   testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestUncheckedCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestUncheckedCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
@@ -10764,6 +11257,7 @@ export type UserUpdateWithoutHostelAllocationsInput = {
   testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
@@ -10856,6 +11350,7 @@ export type UserUncheckedUpdateWithoutHostelAllocationsInput = {
   testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUncheckedUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUncheckedUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
@@ -10944,6 +11439,7 @@ export type UserCreateWithoutInOutEntriesInput = {
   testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
@@ -11036,6 +11532,7 @@ export type UserUncheckedCreateWithoutInOutEntriesInput = {
   testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestUncheckedCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestUncheckedCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
@@ -11140,6 +11637,7 @@ export type UserUpdateWithoutInOutEntriesInput = {
   testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
@@ -11232,6 +11730,7 @@ export type UserUncheckedUpdateWithoutInOutEntriesInput = {
   testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUncheckedUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUncheckedUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
@@ -11320,6 +11819,7 @@ export type UserCreateWithoutHostelLeavesInput = {
   testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
@@ -11412,6 +11912,7 @@ export type UserUncheckedCreateWithoutHostelLeavesInput = {
   testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestUncheckedCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestUncheckedCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
@@ -11505,6 +12006,7 @@ export type UserCreateWithoutApprovedHostelLeavesInput = {
   testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
@@ -11597,6 +12099,7 @@ export type UserUncheckedCreateWithoutApprovedHostelLeavesInput = {
   testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestUncheckedCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestUncheckedCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
@@ -11701,6 +12204,7 @@ export type UserUpdateWithoutHostelLeavesInput = {
   testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
@@ -11793,6 +12297,7 @@ export type UserUncheckedUpdateWithoutHostelLeavesInput = {
   testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUncheckedUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUncheckedUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
@@ -11892,6 +12397,7 @@ export type UserUpdateWithoutApprovedHostelLeavesInput = {
   testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
@@ -11984,6 +12490,7 @@ export type UserUncheckedUpdateWithoutApprovedHostelLeavesInput = {
   testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUncheckedUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUncheckedUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
@@ -12072,6 +12579,7 @@ export type UserCreateWithoutDisciplineRecordsInput = {
   testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
@@ -12164,6 +12672,7 @@ export type UserUncheckedCreateWithoutDisciplineRecordsInput = {
   testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestUncheckedCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestUncheckedCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
@@ -12257,6 +12766,7 @@ export type UserCreateWithoutRecordedDisciplineInput = {
   testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
@@ -12349,6 +12859,7 @@ export type UserUncheckedCreateWithoutRecordedDisciplineInput = {
   testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestUncheckedCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestUncheckedCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
@@ -12453,6 +12964,7 @@ export type UserUpdateWithoutDisciplineRecordsInput = {
   testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
@@ -12545,6 +13057,7 @@ export type UserUncheckedUpdateWithoutDisciplineRecordsInput = {
   testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUncheckedUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUncheckedUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
@@ -12644,6 +13157,7 @@ export type UserUpdateWithoutRecordedDisciplineInput = {
   testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
@@ -12736,6 +13250,7 @@ export type UserUncheckedUpdateWithoutRecordedDisciplineInput = {
   testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUncheckedUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUncheckedUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
@@ -12824,6 +13339,7 @@ export type UserCreateWithoutParadePerformancesInput = {
   testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
@@ -12916,6 +13432,7 @@ export type UserUncheckedCreateWithoutParadePerformancesInput = {
   testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestUncheckedCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestUncheckedCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
@@ -13020,6 +13537,7 @@ export type UserUpdateWithoutParadePerformancesInput = {
   testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
@@ -13112,6 +13630,7 @@ export type UserUncheckedUpdateWithoutParadePerformancesInput = {
   testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUncheckedUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUncheckedUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
@@ -13200,6 +13719,7 @@ export type UserCreateWithoutAssignedLeadsInput = {
   testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
@@ -13292,6 +13812,7 @@ export type UserUncheckedCreateWithoutAssignedLeadsInput = {
   testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestUncheckedCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestUncheckedCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
@@ -13396,6 +13917,7 @@ export type UserUpdateWithoutAssignedLeadsInput = {
   testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
@@ -13488,6 +14010,7 @@ export type UserUncheckedUpdateWithoutAssignedLeadsInput = {
   testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUncheckedUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUncheckedUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
@@ -13576,6 +14099,7 @@ export type UserCreateWithoutFollowUpsCreatedInput = {
   testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
@@ -13668,6 +14192,7 @@ export type UserUncheckedCreateWithoutFollowUpsCreatedInput = {
   testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestUncheckedCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestUncheckedCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
@@ -13772,6 +14297,7 @@ export type UserUpdateWithoutFollowUpsCreatedInput = {
   testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
@@ -13864,6 +14390,7 @@ export type UserUncheckedUpdateWithoutFollowUpsCreatedInput = {
   testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUncheckedUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUncheckedUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
@@ -13952,6 +14479,7 @@ export type UserCreateWithoutAdmissionsInput = {
   testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
@@ -14044,6 +14572,7 @@ export type UserUncheckedCreateWithoutAdmissionsInput = {
   testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestUncheckedCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestUncheckedCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
@@ -14148,6 +14677,7 @@ export type UserUpdateWithoutAdmissionsInput = {
   testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
@@ -14240,6 +14770,7 @@ export type UserUncheckedUpdateWithoutAdmissionsInput = {
   testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUncheckedUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUncheckedUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
@@ -14328,6 +14859,7 @@ export type UserCreateWithoutReferralsMadeInput = {
   testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
@@ -14420,6 +14952,7 @@ export type UserUncheckedCreateWithoutReferralsMadeInput = {
   testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestUncheckedCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestUncheckedCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
@@ -14513,6 +15046,7 @@ export type UserCreateWithoutReferralsReceivedInput = {
   testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
@@ -14605,6 +15139,7 @@ export type UserUncheckedCreateWithoutReferralsReceivedInput = {
   testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestUncheckedCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestUncheckedCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
@@ -14709,6 +15244,7 @@ export type UserUpdateWithoutReferralsMadeInput = {
   testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
@@ -14801,6 +15337,7 @@ export type UserUncheckedUpdateWithoutReferralsMadeInput = {
   testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUncheckedUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUncheckedUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
@@ -14900,6 +15437,7 @@ export type UserUpdateWithoutReferralsReceivedInput = {
   testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
@@ -14992,6 +15530,7 @@ export type UserUncheckedUpdateWithoutReferralsReceivedInput = {
   testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUncheckedUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUncheckedUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
@@ -15080,6 +15619,7 @@ export type UserCreateWithoutPaymentsInput = {
   testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
@@ -15172,6 +15712,7 @@ export type UserUncheckedCreateWithoutPaymentsInput = {
   testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestUncheckedCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestUncheckedCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
@@ -15265,6 +15806,7 @@ export type UserCreateWithoutCollectedPaymentsInput = {
   testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
@@ -15357,6 +15899,7 @@ export type UserUncheckedCreateWithoutCollectedPaymentsInput = {
   testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestUncheckedCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestUncheckedCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
@@ -15450,6 +15993,7 @@ export type UserCreateWithoutVerifiedPaymentsInput = {
   testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
@@ -15542,6 +16086,7 @@ export type UserUncheckedCreateWithoutVerifiedPaymentsInput = {
   testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestUncheckedCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestUncheckedCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
@@ -15646,6 +16191,7 @@ export type UserUpdateWithoutPaymentsInput = {
   testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
@@ -15738,6 +16284,7 @@ export type UserUncheckedUpdateWithoutPaymentsInput = {
   testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUncheckedUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUncheckedUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
@@ -15837,6 +16384,7 @@ export type UserUpdateWithoutCollectedPaymentsInput = {
   testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
@@ -15929,6 +16477,7 @@ export type UserUncheckedUpdateWithoutCollectedPaymentsInput = {
   testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUncheckedUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUncheckedUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
@@ -16028,6 +16577,7 @@ export type UserUpdateWithoutVerifiedPaymentsInput = {
   testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
@@ -16120,6 +16670,7 @@ export type UserUncheckedUpdateWithoutVerifiedPaymentsInput = {
   testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUncheckedUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUncheckedUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
@@ -16208,6 +16759,7 @@ export type UserCreateWithoutSubscriptionsInput = {
   testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
@@ -16300,6 +16852,7 @@ export type UserUncheckedCreateWithoutSubscriptionsInput = {
   testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestUncheckedCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestUncheckedCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
@@ -16404,6 +16957,7 @@ export type UserUpdateWithoutSubscriptionsInput = {
   testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
@@ -16496,6 +17050,7 @@ export type UserUncheckedUpdateWithoutSubscriptionsInput = {
   testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUncheckedUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUncheckedUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
@@ -16584,6 +17139,7 @@ export type UserCreateWithoutFeeInstallmentsInput = {
   testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
@@ -16676,6 +17232,7 @@ export type UserUncheckedCreateWithoutFeeInstallmentsInput = {
   testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestUncheckedCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestUncheckedCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
@@ -16780,6 +17337,7 @@ export type UserUpdateWithoutFeeInstallmentsInput = {
   testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
@@ -16872,6 +17430,7 @@ export type UserUncheckedUpdateWithoutFeeInstallmentsInput = {
   testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUncheckedUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUncheckedUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
@@ -16960,6 +17519,7 @@ export type UserCreateWithoutInvoicesInput = {
   testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
@@ -17052,6 +17612,7 @@ export type UserUncheckedCreateWithoutInvoicesInput = {
   testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestUncheckedCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestUncheckedCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
@@ -17156,6 +17717,7 @@ export type UserUpdateWithoutInvoicesInput = {
   testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
@@ -17248,6 +17810,7 @@ export type UserUncheckedUpdateWithoutInvoicesInput = {
   testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUncheckedUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUncheckedUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
@@ -17336,6 +17899,7 @@ export type UserCreateWithoutApprovalRequestsCreatedInput = {
   testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
@@ -17428,6 +17992,7 @@ export type UserUncheckedCreateWithoutApprovalRequestsCreatedInput = {
   testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestUncheckedCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestUncheckedCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
@@ -17521,6 +18086,7 @@ export type UserCreateWithoutApprovalRequestsReviewedInput = {
   testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
@@ -17613,6 +18179,7 @@ export type UserUncheckedCreateWithoutApprovalRequestsReviewedInput = {
   testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestUncheckedCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestUncheckedCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
@@ -17717,6 +18284,7 @@ export type UserUpdateWithoutApprovalRequestsCreatedInput = {
   testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
@@ -17809,6 +18377,7 @@ export type UserUncheckedUpdateWithoutApprovalRequestsCreatedInput = {
   testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUncheckedUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUncheckedUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
@@ -17908,6 +18477,7 @@ export type UserUpdateWithoutApprovalRequestsReviewedInput = {
   testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
@@ -18000,6 +18570,7 @@ export type UserUncheckedUpdateWithoutApprovalRequestsReviewedInput = {
   testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUncheckedUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUncheckedUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
@@ -18088,6 +18659,7 @@ export type UserCreateWithoutScholarshipsInput = {
   testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
@@ -18180,6 +18752,7 @@ export type UserUncheckedCreateWithoutScholarshipsInput = {
   testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestUncheckedCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestUncheckedCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
@@ -18273,6 +18846,7 @@ export type UserCreateWithoutScholarshipReviewActionsInput = {
   testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
@@ -18365,6 +18939,7 @@ export type UserUncheckedCreateWithoutScholarshipReviewActionsInput = {
   testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestUncheckedCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestUncheckedCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
@@ -18469,6 +19044,7 @@ export type UserUpdateWithoutScholarshipsInput = {
   testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
@@ -18561,6 +19137,7 @@ export type UserUncheckedUpdateWithoutScholarshipsInput = {
   testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUncheckedUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUncheckedUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
@@ -18660,6 +19237,7 @@ export type UserUpdateWithoutScholarshipReviewActionsInput = {
   testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
@@ -18752,6 +19330,7 @@ export type UserUncheckedUpdateWithoutScholarshipReviewActionsInput = {
   testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUncheckedUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUncheckedUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
@@ -18840,6 +19419,7 @@ export type UserCreateWithoutNotificationsInput = {
   testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
@@ -18932,6 +19512,7 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestUncheckedCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestUncheckedCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
@@ -19036,6 +19617,7 @@ export type UserUpdateWithoutNotificationsInput = {
   testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
@@ -19128,6 +19710,7 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUncheckedUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUncheckedUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
@@ -19216,6 +19799,7 @@ export type UserCreateWithoutMessageThreadsInput = {
   testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
@@ -19308,6 +19892,7 @@ export type UserUncheckedCreateWithoutMessageThreadsInput = {
   testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestUncheckedCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestUncheckedCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
@@ -19412,6 +19997,7 @@ export type UserUpdateWithoutMessageThreadsInput = {
   testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
@@ -19504,6 +20090,7 @@ export type UserUncheckedUpdateWithoutMessageThreadsInput = {
   testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUncheckedUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUncheckedUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
@@ -19592,6 +20179,7 @@ export type UserCreateWithoutSentMessagesInput = {
   testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
@@ -19684,6 +20272,7 @@ export type UserUncheckedCreateWithoutSentMessagesInput = {
   testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestUncheckedCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestUncheckedCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
@@ -19777,6 +20366,7 @@ export type UserCreateWithoutReceivedMessagesInput = {
   testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
@@ -19869,6 +20459,7 @@ export type UserUncheckedCreateWithoutReceivedMessagesInput = {
   testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestUncheckedCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestUncheckedCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
@@ -19973,6 +20564,7 @@ export type UserUpdateWithoutSentMessagesInput = {
   testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
@@ -20065,6 +20657,7 @@ export type UserUncheckedUpdateWithoutSentMessagesInput = {
   testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUncheckedUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUncheckedUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
@@ -20164,6 +20757,7 @@ export type UserUpdateWithoutReceivedMessagesInput = {
   testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
@@ -20256,6 +20850,7 @@ export type UserUncheckedUpdateWithoutReceivedMessagesInput = {
   testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUncheckedUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUncheckedUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
@@ -20344,6 +20939,7 @@ export type UserCreateWithoutAiInterviewSessionsInput = {
   testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
@@ -20436,6 +21032,7 @@ export type UserUncheckedCreateWithoutAiInterviewSessionsInput = {
   testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestUncheckedCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestUncheckedCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
@@ -20540,6 +21137,7 @@ export type UserUpdateWithoutAiInterviewSessionsInput = {
   testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
@@ -20632,6 +21230,7 @@ export type UserUncheckedUpdateWithoutAiInterviewSessionsInput = {
   testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUncheckedUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUncheckedUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
@@ -20720,6 +21319,7 @@ export type UserCreateWithoutDoubtQueriesInput = {
   testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
@@ -20812,6 +21412,7 @@ export type UserUncheckedCreateWithoutDoubtQueriesInput = {
   testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestUncheckedCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestUncheckedCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
@@ -20916,6 +21517,7 @@ export type UserUpdateWithoutDoubtQueriesInput = {
   testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
@@ -21008,6 +21610,7 @@ export type UserUncheckedUpdateWithoutDoubtQueriesInput = {
   testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUncheckedUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUncheckedUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
@@ -21096,6 +21699,7 @@ export type UserCreateWithoutAiRecommendationsInput = {
   testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
@@ -21188,6 +21792,7 @@ export type UserUncheckedCreateWithoutAiRecommendationsInput = {
   testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestUncheckedCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestUncheckedCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
@@ -21292,6 +21897,7 @@ export type UserUpdateWithoutAiRecommendationsInput = {
   testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
@@ -21384,6 +21990,7 @@ export type UserUncheckedUpdateWithoutAiRecommendationsInput = {
   testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUncheckedUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUncheckedUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
@@ -21472,6 +22079,7 @@ export type UserCreateWithoutOfficerPotentialInput = {
   testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
@@ -21564,6 +22172,7 @@ export type UserUncheckedCreateWithoutOfficerPotentialInput = {
   testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestUncheckedCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestUncheckedCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
@@ -21668,6 +22277,7 @@ export type UserUpdateWithoutOfficerPotentialInput = {
   testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
@@ -21760,6 +22370,7 @@ export type UserUncheckedUpdateWithoutOfficerPotentialInput = {
   testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUncheckedUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUncheckedUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
@@ -21848,6 +22459,7 @@ export type UserCreateWithoutFitnessProfileInput = {
   testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
@@ -21940,6 +22552,7 @@ export type UserUncheckedCreateWithoutFitnessProfileInput = {
   testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestUncheckedCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestUncheckedCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
@@ -22044,6 +22657,7 @@ export type UserUpdateWithoutFitnessProfileInput = {
   testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
@@ -22136,6 +22750,7 @@ export type UserUncheckedUpdateWithoutFitnessProfileInput = {
   testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUncheckedUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUncheckedUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
@@ -22224,6 +22839,7 @@ export type UserCreateWithoutPtAttendancesInput = {
   testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
@@ -22316,6 +22932,7 @@ export type UserUncheckedCreateWithoutPtAttendancesInput = {
   testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestUncheckedCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestUncheckedCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
@@ -22420,6 +23037,7 @@ export type UserUpdateWithoutPtAttendancesInput = {
   testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
@@ -22512,6 +23130,7 @@ export type UserUncheckedUpdateWithoutPtAttendancesInput = {
   testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUncheckedUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUncheckedUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
@@ -22600,6 +23219,7 @@ export type UserCreateWithoutPhysicalEligibilitiesInput = {
   testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
@@ -22692,6 +23312,7 @@ export type UserUncheckedCreateWithoutPhysicalEligibilitiesInput = {
   testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestUncheckedCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestUncheckedCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
@@ -22796,6 +23417,7 @@ export type UserUpdateWithoutPhysicalEligibilitiesInput = {
   testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
@@ -22888,6 +23510,7 @@ export type UserUncheckedUpdateWithoutPhysicalEligibilitiesInput = {
   testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUncheckedUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUncheckedUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
@@ -22976,6 +23599,7 @@ export type UserCreateWithoutDailyFitnessLogsInput = {
   testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
@@ -23068,6 +23692,7 @@ export type UserUncheckedCreateWithoutDailyFitnessLogsInput = {
   testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestUncheckedCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestUncheckedCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
@@ -23172,6 +23797,7 @@ export type UserUpdateWithoutDailyFitnessLogsInput = {
   testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
@@ -23264,6 +23890,7 @@ export type UserUncheckedUpdateWithoutDailyFitnessLogsInput = {
   testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUncheckedUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUncheckedUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
@@ -23352,6 +23979,7 @@ export type UserCreateWithoutQuizBattleParticipantsInput = {
   testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
@@ -23444,6 +24072,7 @@ export type UserUncheckedCreateWithoutQuizBattleParticipantsInput = {
   testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestUncheckedCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestUncheckedCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
@@ -23548,6 +24177,7 @@ export type UserUpdateWithoutQuizBattleParticipantsInput = {
   testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
@@ -23640,6 +24270,7 @@ export type UserUncheckedUpdateWithoutQuizBattleParticipantsInput = {
   testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUncheckedUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUncheckedUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
@@ -23728,6 +24359,7 @@ export type UserCreateWithoutLeaderboardInput = {
   testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
@@ -23820,6 +24452,7 @@ export type UserUncheckedCreateWithoutLeaderboardInput = {
   testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestUncheckedCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestUncheckedCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
@@ -23924,6 +24557,7 @@ export type UserUpdateWithoutLeaderboardInput = {
   testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
@@ -24016,6 +24650,7 @@ export type UserUncheckedUpdateWithoutLeaderboardInput = {
   testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUncheckedUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUncheckedUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
@@ -24104,6 +24739,7 @@ export type UserCreateWithoutMediaFoldersInput = {
   testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
@@ -24196,6 +24832,7 @@ export type UserUncheckedCreateWithoutMediaFoldersInput = {
   testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestUncheckedCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestUncheckedCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
@@ -24300,6 +24937,7 @@ export type UserUpdateWithoutMediaFoldersInput = {
   testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
@@ -24392,6 +25030,7 @@ export type UserUncheckedUpdateWithoutMediaFoldersInput = {
   testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUncheckedUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUncheckedUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
@@ -24480,6 +25119,7 @@ export type UserCreateWithoutMediaFilesInput = {
   testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
@@ -24572,6 +25212,7 @@ export type UserUncheckedCreateWithoutMediaFilesInput = {
   testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestUncheckedCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestUncheckedCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
@@ -24676,6 +25317,7 @@ export type UserUpdateWithoutMediaFilesInput = {
   testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
@@ -24768,6 +25410,7 @@ export type UserUncheckedUpdateWithoutMediaFilesInput = {
   testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUncheckedUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUncheckedUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
@@ -24856,6 +25499,7 @@ export type UserCreateWithoutDocumentsInput = {
   testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
@@ -24948,6 +25592,7 @@ export type UserUncheckedCreateWithoutDocumentsInput = {
   testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestUncheckedCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestUncheckedCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
@@ -25052,6 +25697,7 @@ export type UserUpdateWithoutDocumentsInput = {
   testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
@@ -25144,6 +25790,7 @@ export type UserUncheckedUpdateWithoutDocumentsInput = {
   testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUncheckedUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUncheckedUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
@@ -25232,6 +25879,7 @@ export type UserCreateWithoutAdminRolesInput = {
   testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
@@ -25324,6 +25972,7 @@ export type UserUncheckedCreateWithoutAdminRolesInput = {
   testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestUncheckedCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestUncheckedCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
@@ -25428,6 +26077,7 @@ export type UserUpdateWithoutAdminRolesInput = {
   testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
@@ -25520,6 +26170,7 @@ export type UserUncheckedUpdateWithoutAdminRolesInput = {
   testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUncheckedUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUncheckedUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
@@ -25608,6 +26259,7 @@ export type UserCreateWithoutRoleActivitiesInput = {
   testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
@@ -25700,6 +26352,7 @@ export type UserUncheckedCreateWithoutRoleActivitiesInput = {
   testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestUncheckedCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestUncheckedCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
@@ -25804,6 +26457,7 @@ export type UserUpdateWithoutRoleActivitiesInput = {
   testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
@@ -25896,6 +26550,7 @@ export type UserUncheckedUpdateWithoutRoleActivitiesInput = {
   testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUncheckedUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUncheckedUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
@@ -25984,6 +26639,7 @@ export type UserCreateWithoutAuditLogsInput = {
   testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
@@ -26076,6 +26732,7 @@ export type UserUncheckedCreateWithoutAuditLogsInput = {
   testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestUncheckedCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestUncheckedCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
@@ -26180,6 +26837,7 @@ export type UserUpdateWithoutAuditLogsInput = {
   testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
@@ -26272,6 +26930,7 @@ export type UserUncheckedUpdateWithoutAuditLogsInput = {
   testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUncheckedUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUncheckedUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
@@ -26360,6 +27019,7 @@ export type UserCreateWithoutSalesBoosterCampaignsCreatedInput = {
   testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
@@ -26452,6 +27112,7 @@ export type UserUncheckedCreateWithoutSalesBoosterCampaignsCreatedInput = {
   testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestUncheckedCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestUncheckedCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
@@ -26545,6 +27206,7 @@ export type UserCreateWithoutSalesBoosterCampaignsApprovedInput = {
   testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
@@ -26637,6 +27299,7 @@ export type UserUncheckedCreateWithoutSalesBoosterCampaignsApprovedInput = {
   testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestUncheckedCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestUncheckedCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
@@ -26741,6 +27404,7 @@ export type UserUpdateWithoutSalesBoosterCampaignsCreatedInput = {
   testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
@@ -26833,6 +27497,7 @@ export type UserUncheckedUpdateWithoutSalesBoosterCampaignsCreatedInput = {
   testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUncheckedUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUncheckedUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
@@ -26932,6 +27597,7 @@ export type UserUpdateWithoutSalesBoosterCampaignsApprovedInput = {
   testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
@@ -27024,6 +27690,7 @@ export type UserUncheckedUpdateWithoutSalesBoosterCampaignsApprovedInput = {
   testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUncheckedUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUncheckedUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
@@ -27112,6 +27779,7 @@ export type UserCreateWithoutSalesBoosterAudienceContactsInput = {
   testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
@@ -27204,6 +27872,7 @@ export type UserUncheckedCreateWithoutSalesBoosterAudienceContactsInput = {
   testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestUncheckedCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestUncheckedCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
@@ -27308,6 +27977,7 @@ export type UserUpdateWithoutSalesBoosterAudienceContactsInput = {
   testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
@@ -27400,6 +28070,7 @@ export type UserUncheckedUpdateWithoutSalesBoosterAudienceContactsInput = {
   testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUncheckedUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUncheckedUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
@@ -27488,6 +28159,7 @@ export type UserCreateWithoutBranchInput = {
   testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
@@ -27579,6 +28251,7 @@ export type UserUncheckedCreateWithoutBranchInput = {
   testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestUncheckedCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestUncheckedCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
@@ -27721,6 +28394,7 @@ export type UserCreateWithoutInstituteInput = {
   testAttempts?: Prisma.TestAttemptCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanCreateNestedManyWithoutUserInput
@@ -27812,6 +28486,7 @@ export type UserUncheckedCreateWithoutInstituteInput = {
   testAttempts?: Prisma.TestAttemptUncheckedCreateNestedManyWithoutUserInput
   testsCreated?: Prisma.TestUncheckedCreateNestedManyWithoutTeacherInput
   testsApproved?: Prisma.TestUncheckedCreateNestedManyWithoutApprovedByInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedCreateNestedManyWithoutCreatedByInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedCreateNestedManyWithoutUserInput
   olqScore?: Prisma.OLQScoreUncheckedCreateNestedOneWithoutUserInput
   studyPlans?: Prisma.StudyPlanUncheckedCreateNestedManyWithoutUserInput
@@ -27950,6 +28625,7 @@ export type UserUpdateWithoutBranchInput = {
   testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
@@ -28041,6 +28717,7 @@ export type UserUncheckedUpdateWithoutBranchInput = {
   testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUncheckedUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUncheckedUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
@@ -28176,6 +28853,7 @@ export type UserUpdateWithoutInstituteInput = {
   testAttempts?: Prisma.TestAttemptUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUpdateManyWithoutUserNestedInput
@@ -28267,6 +28945,7 @@ export type UserUncheckedUpdateWithoutInstituteInput = {
   testAttempts?: Prisma.TestAttemptUncheckedUpdateManyWithoutUserNestedInput
   testsCreated?: Prisma.TestUncheckedUpdateManyWithoutTeacherNestedInput
   testsApproved?: Prisma.TestUncheckedUpdateManyWithoutApprovedByNestedInput
+  questionBankItemsCreated?: Prisma.QuestionBankItemUncheckedUpdateManyWithoutCreatedByNestedInput
   psychometricAttempts?: Prisma.PsychometricAttemptUncheckedUpdateManyWithoutUserNestedInput
   olqScore?: Prisma.OLQScoreUncheckedUpdateOneWithoutUserNestedInput
   studyPlans?: Prisma.StudyPlanUncheckedUpdateManyWithoutUserNestedInput
@@ -28365,6 +29044,7 @@ export type UserCountOutputType = {
   testAttempts: number
   testsCreated: number
   testsApproved: number
+  questionBankItemsCreated: number
   psychometricAttempts: number
   studyPlans: number
   revisionSchedules: number
@@ -28429,6 +29109,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   testAttempts?: boolean | UserCountOutputTypeCountTestAttemptsArgs
   testsCreated?: boolean | UserCountOutputTypeCountTestsCreatedArgs
   testsApproved?: boolean | UserCountOutputTypeCountTestsApprovedArgs
+  questionBankItemsCreated?: boolean | UserCountOutputTypeCountQuestionBankItemsCreatedArgs
   psychometricAttempts?: boolean | UserCountOutputTypeCountPsychometricAttemptsArgs
   studyPlans?: boolean | UserCountOutputTypeCountStudyPlansArgs
   revisionSchedules?: boolean | UserCountOutputTypeCountRevisionSchedulesArgs
@@ -28536,6 +29217,13 @@ export type UserCountOutputTypeCountTestsCreatedArgs<ExtArgs extends runtime.Typ
  */
 export type UserCountOutputTypeCountTestsApprovedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.TestWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountQuestionBankItemsCreatedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.QuestionBankItemWhereInput
 }
 
 /**
@@ -28952,6 +29640,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   testAttempts?: boolean | Prisma.User$testAttemptsArgs<ExtArgs>
   testsCreated?: boolean | Prisma.User$testsCreatedArgs<ExtArgs>
   testsApproved?: boolean | Prisma.User$testsApprovedArgs<ExtArgs>
+  questionBankItemsCreated?: boolean | Prisma.User$questionBankItemsCreatedArgs<ExtArgs>
   psychometricAttempts?: boolean | Prisma.User$psychometricAttemptsArgs<ExtArgs>
   olqScore?: boolean | Prisma.User$olqScoreArgs<ExtArgs>
   studyPlans?: boolean | Prisma.User$studyPlansArgs<ExtArgs>
@@ -29102,6 +29791,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   testAttempts?: boolean | Prisma.User$testAttemptsArgs<ExtArgs>
   testsCreated?: boolean | Prisma.User$testsCreatedArgs<ExtArgs>
   testsApproved?: boolean | Prisma.User$testsApprovedArgs<ExtArgs>
+  questionBankItemsCreated?: boolean | Prisma.User$questionBankItemsCreatedArgs<ExtArgs>
   psychometricAttempts?: boolean | Prisma.User$psychometricAttemptsArgs<ExtArgs>
   olqScore?: boolean | Prisma.User$olqScoreArgs<ExtArgs>
   studyPlans?: boolean | Prisma.User$studyPlansArgs<ExtArgs>
@@ -29185,6 +29875,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     testAttempts: Prisma.$TestAttemptPayload<ExtArgs>[]
     testsCreated: Prisma.$TestPayload<ExtArgs>[]
     testsApproved: Prisma.$TestPayload<ExtArgs>[]
+    questionBankItemsCreated: Prisma.$QuestionBankItemPayload<ExtArgs>[]
     psychometricAttempts: Prisma.$PsychometricAttemptPayload<ExtArgs>[]
     olqScore: Prisma.$OLQScorePayload<ExtArgs> | null
     studyPlans: Prisma.$StudyPlanPayload<ExtArgs>[]
@@ -29671,6 +30362,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   testAttempts<T extends Prisma.User$testAttemptsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$testAttemptsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TestAttemptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   testsCreated<T extends Prisma.User$testsCreatedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$testsCreatedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   testsApproved<T extends Prisma.User$testsApprovedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$testsApprovedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  questionBankItemsCreated<T extends Prisma.User$questionBankItemsCreatedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$questionBankItemsCreatedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$QuestionBankItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   psychometricAttempts<T extends Prisma.User$psychometricAttemptsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$psychometricAttemptsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PsychometricAttemptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   olqScore<T extends Prisma.User$olqScoreArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$olqScoreArgs<ExtArgs>>): Prisma.Prisma__OLQScoreClient<runtime.Types.Result.GetResult<Prisma.$OLQScorePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   studyPlans<T extends Prisma.User$studyPlansArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$studyPlansArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$StudyPlanPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -30326,6 +31018,30 @@ export type User$testsApprovedArgs<ExtArgs extends runtime.Types.Extensions.Inte
   take?: number
   skip?: number
   distinct?: Prisma.TestScalarFieldEnum | Prisma.TestScalarFieldEnum[]
+}
+
+/**
+ * User.questionBankItemsCreated
+ */
+export type User$questionBankItemsCreatedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the QuestionBankItem
+   */
+  select?: Prisma.QuestionBankItemSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the QuestionBankItem
+   */
+  omit?: Prisma.QuestionBankItemOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.QuestionBankItemInclude<ExtArgs> | null
+  where?: Prisma.QuestionBankItemWhereInput
+  orderBy?: Prisma.QuestionBankItemOrderByWithRelationInput | Prisma.QuestionBankItemOrderByWithRelationInput[]
+  cursor?: Prisma.QuestionBankItemWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.QuestionBankItemScalarFieldEnum | Prisma.QuestionBankItemScalarFieldEnum[]
 }
 
 /**

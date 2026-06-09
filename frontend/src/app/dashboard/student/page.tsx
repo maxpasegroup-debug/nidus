@@ -24,6 +24,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/components/providers/auth-provider-v2";
 import { useStudentDashboard } from "@/hooks/use-dashboard";
+import { useAvailableTests, useStartTest } from "@/hooks/use-tests";
 
 const classCycle = [
   {
@@ -81,6 +82,8 @@ const simpleActions = [
 export default function StudentDashboardPage() {
   const { user } = useAuth();
   const { data, isLoading, error, refetch, isFetching } = useStudentDashboard();
+  const { data: availableTests = [] } = useAvailableTests();
+  const startTestMutation = useStartTest();
 
   if (isLoading) return <RoleDashboardGuard role="STUDENT"><DashboardSkeleton /></RoleDashboardGuard>;
   if (error || !data) return <RoleDashboardGuard role="STUDENT"><DashboardError error={error} onRefresh={() => refetch()} /></RoleDashboardGuard>;
@@ -113,6 +116,50 @@ export default function StudentDashboardPage() {
           <StatCard label="Attendance" value={`${data.attendance.percentage}%`} note={`${data.attendance.present}/${data.attendance.total} sessions`} />
           <StatCard label="Upcoming Tests" value={String(data.upcomingTests.length)} note={data.upcomingTests[0]?.title ?? "No test scheduled"} />
           <StatCard label="My Batch" value={activeBatch ? activeBatch.type.replace(/_/g, " ") : "Pending"} note={activeBatch ? `${activeBatch.teachers} teachers, ${activeBatch.tests} tests` : "Admission Cell will assign batch"} />
+        </section>
+
+        <section className="rounded-lg border border-[#071d36]/10 bg-white p-5 shadow-[0_18px_60px_rgba(7,29,54,0.08)]">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#8a6426]">Available Exams</p>
+              <h2 className="mt-2 text-3xl font-semibold text-[#071d36]">Assigned tests for your batch</h2>
+              <p className="mt-2 max-w-2xl text-sm leading-7 text-[#64748b]">
+                Only exams published to your batch appear here. Start, continue, or review after submission.
+              </p>
+            </div>
+            <Button href="/tests" variant="secondary">Open Tests</Button>
+          </div>
+          <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {availableTests.slice(0, 6).map((test) => (
+              <article key={test.id} className="rounded-lg border border-[#071d36]/10 bg-[#fffdf8] p-4">
+                <div className="flex items-center justify-between gap-3">
+                  <span className="rounded-full bg-[#fff7de] px-3 py-1 text-xs font-bold uppercase tracking-[0.14em] text-[#8a6426]">{test.examType}</span>
+                  <span className="text-xs font-semibold text-[#64748b]">{test.studentStatus?.replace(/_/g, " ") ?? "NOT STARTED"}</span>
+                </div>
+                <h3 className="mt-4 text-lg font-semibold text-[#071d36]">{test.title}</h3>
+                <p className="mt-2 line-clamp-2 text-sm leading-6 text-[#64748b]">{test.description}</p>
+                <div className="mt-4 grid grid-cols-3 gap-2 text-xs font-semibold text-[#40516a]">
+                  <span className="rounded bg-white px-3 py-2">{test.duration} min</span>
+                  <span className="rounded bg-white px-3 py-2">{test._count?.questions ?? 0} Q</span>
+                  <span className="rounded bg-white px-3 py-2">{test.totalMarks} marks</span>
+                </div>
+                <button
+                  type="button"
+                  disabled={startTestMutation.isPending || test.studentStatus === "SUBMITTED"}
+                  onClick={() => startTestMutation.mutate(test.id)}
+                  className="mt-4 w-full rounded border border-[#b9913f] bg-[linear-gradient(135deg,#fff3bf,#e7c873,#b9913f)] px-4 py-3 text-sm font-black text-[#071d36] disabled:opacity-60"
+                >
+                  {test.studentStatus === "SUBMITTED" ? "Submitted" : test.studentStatus === "IN_PROGRESS" ? "Continue Exam" : "Start Exam"}
+                </button>
+              </article>
+            ))}
+            {!availableTests.length ? (
+              <div className="rounded-lg border border-[#071d36]/10 bg-[#fffdf8] p-4 md:col-span-2 xl:col-span-3">
+                <p className="font-semibold text-[#071d36]">No assigned exam now</p>
+                <p className="mt-1 text-sm leading-6 text-[#64748b]">When Academic Head publishes an exam to your batch, it will appear here.</p>
+              </div>
+            ) : null}
+          </div>
         </section>
 
         <section className="rounded-lg border border-[#071d36]/10 bg-white p-5 shadow-[0_18px_60px_rgba(7,29,54,0.08)]">

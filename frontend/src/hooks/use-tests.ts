@@ -8,6 +8,7 @@ import {
   createTest,
   generateTestDraft,
   getResult,
+  getAvailableTests,
   getTestDetails,
   getTests,
   publishGeneratedTest,
@@ -23,6 +24,13 @@ export function useTests(filters: TestFilters = {}) {
   return useQuery({
     queryKey: ["tests", filters],
     queryFn: () => getTests(filters)
+  });
+}
+
+export function useAvailableTests() {
+  return useQuery({
+    queryKey: ["tests", "available"],
+    queryFn: getAvailableTests
   });
 }
 

@@ -1,6 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useState, type FormEvent } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   BarChart3,
   CheckCircle2,
@@ -15,9 +17,28 @@ import {
   Trophy
 } from "lucide-react";
 import { EmptyState, QuickActionCard, SectionHeader, StatCard } from "@/components/dashboard";
+import { useToast } from "@/components/providers/toast-provider";
 import { Button } from "@/components/ui/button";
 import { useTests } from "@/hooks/use-tests";
 import { getApiErrorMessage } from "@/services/api";
+import { getAcademyBatches, type AcademyBatch } from "@/services/academy";
+import {
+  closeExam,
+  createExamFromBank,
+  createQuestionBankItem,
+  deleteExam,
+  deleteQuestionBankItem,
+  getExaminationAnalytics,
+  getExaminationResults,
+  getQuestionBank,
+  importQuestionBankCsv,
+  publishExam,
+  updateQuestionBankItem,
+  type ExaminationAnalytics,
+  type ExaminationResultAttempt,
+  type QuestionBankItem,
+  type QuestionBankPayload
+} from "@/services/examination";
 import type { Test } from "@/types/test";
 
 type ExaminationView = "dashboard" | "question-bank" | "exams" | "published" | "results" | "analytics";
@@ -126,7 +147,14 @@ function ErrorPanel({ message }: { message: string }) {
   );
 }
 
-function TestList({ tests, emptyTitle }: { tests: Test[]; emptyTitle: string }) {
+type ExamActions = {
+  onPublish?: (id: string) => void;
+  onClose?: (id: string) => void;
+  onDelete?: (id: string) => void;
+  busy?: boolean;
+};
+
+function TestList({ tests, emptyTitle, actions }: { tests: Test[]; emptyTitle: string; actions?: ExamActions }) {
   if (!tests.length) {
     return <EmptyState title={emptyTitle} description="Create or publish exams from the existing CBT engine when ready." />;
   }
@@ -148,22 +176,42 @@ function TestList({ tests, emptyTitle }: { tests: Test[]; emptyTitle: string }) 
             <span className="rounded bg-[#f8f2e6] p-3 text-[#071d36]">{test._count?.questions ?? 0} questions</span>
             <span className="rounded bg-[#f8f2e6] p-3 text-[#071d36]">{test._count?.attempts ?? 0} attempts</span>
           </div>
+          {actions ? (
+            <div className="mt-5 flex flex-wrap gap-2">
+              {actions.onPublish && test.status !== "PUBLISHED" ? (
+                <button disabled={actions.busy} onClick={() => actions.onPublish?.(test.id)} className="rounded border border-[#b9913f] bg-[#fff6d8] px-3 py-2 text-sm font-bold text-[#071d36]">
+                  Publish
+                </button>
+              ) : null}
+              {actions.onClose && test.status !== "CLOSED" ? (
+                <button disabled={actions.busy} onClick={() => actions.onClose?.(test.id)} className="rounded border border-[#d9c79d] bg-white px-3 py-2 text-sm font-bold text-[#071d36]">
+                  Close
+                </button>
+              ) : null}
+              {actions.onDelete ? (
+                <button disabled={actions.busy} onClick={() => actions.onDelete?.(test.id)} className="rounded border border-red-200 bg-red-50 px-3 py-2 text-sm font-bold text-red-700">
+                  Delete
+                </button>
+              ) : null}
+            </div>
+          ) : null}
         </article>
       ))}
     </div>
   );
 }
 
-function DashboardView({ tests }: { tests: Test[] }) {
+function DashboardView({ tests, analytics }: { tests: Test[]; analytics?: ExaminationAnalytics }) {
   const published = getPublishedTests(tests);
   const drafts = getDraftTests(tests);
   const attempts = countAttempts(tests);
+  const questionBankTotal = analytics?.totals.questionBank ?? 0;
 
   return (
     <>
       <section className="grid gap-4 md:grid-cols-4">
         <StatCard label="Total Exams" value={String(tests.length)} note="Created CBT tests" />
-        <StatCard label="Question Pool" value={String(countQuestions(tests))} note="Available questions" />
+        <StatCard label="Question Bank" value={String(questionBankTotal)} note="Reusable central pool" />
         <StatCard label="Published" value={String(published.length)} note="Live or assigned" />
         <StatCard label="Attempts" value={String(attempts)} note="Student submissions" />
       </section>
@@ -211,13 +259,53 @@ function DashboardView({ tests }: { tests: Test[] }) {
   );
 }
 
-function QuestionBankView({ tests }: { tests: Test[] }) {
+function QuestionBankView({
+  tests,
+  questions,
+  onCreate,
+  onImport,
+  onActivate,
+  onDelete,
+  busy
+}: {
+  tests: Test[];
+  questions: QuestionBankItem[];
+  onCreate: (payload: QuestionBankPayload) => void;
+  onImport: (csvText: string) => void;
+  onActivate: (id: string) => void;
+  onDelete: (id: string) => void;
+  busy: boolean;
+}) {
+  const [form, setForm] = useState<QuestionBankPayload>({
+    questionText: "",
+    optionA: "",
+    optionB: "",
+    optionC: "",
+    optionD: "",
+    correctAnswer: "A",
+    explanation: "",
+    category: "Defence",
+    subCategory: "NDA",
+    topic: "Medieval India",
+    subTopic: "",
+    difficulty: "MEDIUM",
+    marks: 1,
+    negativeMarks: 0,
+    status: "ACTIVE"
+  });
+  const [csvText, setCsvText] = useState("");
+
+  function submitQuestion(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    onCreate(form);
+  }
+
   return (
     <>
       <section className="grid gap-4 md:grid-cols-3">
-        <StatCard label="Question Pool" value={String(countQuestions(tests))} note="From existing CBT questions" />
+        <StatCard label="Central Bank" value={String(questions.length)} note="Reusable bank questions" />
+        <StatCard label="CBT Questions" value={String(countQuestions(tests))} note="Already inside tests" />
         <StatCard label="Exam Categories" value={String(questionCategories.length)} note="Defence structure ready" />
-        <StatCard label="Import Formats" value="CSV / Excel" note="Bulk import shell ready" />
       </section>
 
       <section className="grid gap-4 lg:grid-cols-[1.3fr_0.7fr]">
@@ -243,9 +331,74 @@ function QuestionBankView({ tests }: { tests: Test[] }) {
           <FileSpreadsheet className="h-8 w-8 text-[#b9913f]" />
           <h3 className="mt-4 text-xl font-black text-[#071d36]">Bulk question import</h3>
           <p className="mt-2 text-sm leading-6 text-[#506581]">
-            Ritwik can use this flow for Excel or CSV upload in the next backend phase. The template will carry question, options, answer, explanation, topic and difficulty.
+            Paste CSV with headers: questionText, optionA, optionB, optionC, optionD, correctAnswer, explanation, subCategory, topic, difficulty.
           </p>
-          <Button href="/tests" className="mt-5">Open CBT Builder</Button>
+          <textarea
+            value={csvText}
+            onChange={(event) => setCsvText(event.target.value)}
+            className="mt-4 min-h-40 w-full rounded border border-[#d9c79d] bg-white p-3 text-sm text-[#071d36]"
+            placeholder="questionText,optionA,optionB,optionC,optionD,correctAnswer,explanation,subCategory,topic,difficulty"
+          />
+          <button disabled={busy || !csvText.trim()} onClick={() => onImport(csvText)} className="mt-4 rounded border border-[#b9913f] bg-[linear-gradient(135deg,#fff3bf,#e7c873,#b9913f)] px-5 py-3 text-sm font-black text-[#071d36]">
+            Import CSV
+          </button>
+        </div>
+      </section>
+
+      <section className="rounded border border-[#d9c79d] bg-white/85 p-6 shadow-sm">
+        <SectionHeader eyebrow="Add Question" title="Create a reusable question" />
+        <form onSubmit={submitQuestion} className="mt-5 grid gap-4">
+          <textarea value={form.questionText} onChange={(event) => setForm({ ...form, questionText: event.target.value })} required className="min-h-24 rounded border border-[#d9c79d] bg-white p-3 text-[#071d36]" placeholder="Question text" />
+          <div className="grid gap-3 md:grid-cols-4">
+            {(["optionA", "optionB", "optionC", "optionD"] as const).map((key) => (
+              <input key={key} value={form[key]} onChange={(event) => setForm({ ...form, [key]: event.target.value })} required className="rounded border border-[#d9c79d] bg-white p-3 text-[#071d36]" placeholder={key.replace("option", "Option ")} />
+            ))}
+          </div>
+          <div className="grid gap-3 md:grid-cols-6">
+            <select value={form.correctAnswer} onChange={(event) => setForm({ ...form, correctAnswer: event.target.value })} className="rounded border border-[#d9c79d] bg-white p-3 text-[#071d36]">
+              {["A", "B", "C", "D"].map((answer) => <option key={answer}>{answer}</option>)}
+            </select>
+            <select value={form.subCategory} onChange={(event) => setForm({ ...form, subCategory: event.target.value })} className="rounded border border-[#d9c79d] bg-white p-3 text-[#071d36]">
+              {["NDA", "CDS", "AFCAT", "AGNIVEER", "SSB", "AIR FORCE", "NAVY", "ARMY", "COAST GUARD", "SSC"].map((exam) => <option key={exam}>{exam}</option>)}
+            </select>
+            <input value={form.topic} onChange={(event) => setForm({ ...form, topic: event.target.value })} required className="rounded border border-[#d9c79d] bg-white p-3 text-[#071d36] md:col-span-2" placeholder="Topic" />
+            <select value={form.difficulty} onChange={(event) => setForm({ ...form, difficulty: event.target.value })} className="rounded border border-[#d9c79d] bg-white p-3 text-[#071d36]">
+              {["EASY", "MEDIUM", "HARD"].map((difficulty) => <option key={difficulty}>{difficulty}</option>)}
+            </select>
+            <select value={form.status} onChange={(event) => setForm({ ...form, status: event.target.value })} className="rounded border border-[#d9c79d] bg-white p-3 text-[#071d36]">
+              {["DRAFT", "ACTIVE"].map((status) => <option key={status}>{status}</option>)}
+            </select>
+          </div>
+          <textarea value={form.explanation} onChange={(event) => setForm({ ...form, explanation: event.target.value })} className="min-h-20 rounded border border-[#d9c79d] bg-white p-3 text-[#071d36]" placeholder="Explanation for result report" />
+          <button disabled={busy} className="w-fit rounded border border-[#b9913f] bg-[linear-gradient(135deg,#fff3bf,#e7c873,#b9913f)] px-6 py-3 text-sm font-black text-[#071d36]">
+            Save Question
+          </button>
+        </form>
+      </section>
+
+      <section className="rounded border border-[#d9c79d] bg-white/85 p-6 shadow-sm">
+        <SectionHeader eyebrow="Bank Items" title="Reusable questions" />
+        <div className="mt-5 grid gap-3">
+          {questions.slice(0, 20).map((question) => (
+            <article key={question.id} className="rounded border border-[#eadfca] bg-[#fffdf8] p-4">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <span className="text-xs font-black uppercase tracking-[0.18em] text-[#b9913f]">{question.subCategory} - {question.topic} - {question.difficulty}</span>
+                <span className="rounded-full border border-[#d9c79d] px-3 py-1 text-xs font-bold text-[#071d36]">{question.status}</span>
+              </div>
+              <p className="mt-3 font-bold text-[#071d36]">{question.questionText}</p>
+              <div className="mt-3 grid gap-2 text-sm text-[#506581] md:grid-cols-4">
+                <span>A. {question.optionA}</span>
+                <span>B. {question.optionB}</span>
+                <span>C. {question.optionC}</span>
+                <span>D. {question.optionD}</span>
+              </div>
+              <div className="mt-4 flex flex-wrap gap-2">
+                {question.status !== "ACTIVE" ? <button disabled={busy} onClick={() => onActivate(question.id)} className="rounded border border-[#b9913f] bg-[#fff6d8] px-3 py-2 text-xs font-black text-[#071d36]">Activate</button> : null}
+                <button disabled={busy} onClick={() => onDelete(question.id)} className="rounded border border-red-200 bg-red-50 px-3 py-2 text-xs font-black text-red-700">Delete</button>
+              </div>
+            </article>
+          ))}
+          {!questions.length ? <EmptyState title="No bank questions yet" description="Add one question or paste the CSV import template above." /> : null}
         </div>
       </section>
 
@@ -263,7 +416,43 @@ function QuestionBankView({ tests }: { tests: Test[] }) {
   );
 }
 
-function ExamsView({ tests }: { tests: Test[] }) {
+function ExamsView({
+  tests,
+  batches,
+  onCreateExam,
+  actions,
+  busy
+}: {
+  tests: Test[];
+  batches: AcademyBatch[];
+  onCreateExam: (payload: Parameters<typeof createExamFromBank>[0]) => void;
+  actions: ExamActions;
+  busy: boolean;
+}) {
+  const [form, setForm] = useState({
+    title: "NDA Foundation Test 01",
+    description: "Medieval India foundation test for NDA aspirants.",
+    examType: "NDA",
+    category: "Defence",
+    topic: "Medieval India",
+    duration: 60,
+    totalQuestions: 100,
+    publishNow: false,
+    batchIds: [] as string[]
+  });
+
+  function submitExam(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    onCreateExam({ ...form, batchIds: form.batchIds, randomization: true, questionSelection: "RANDOM", passingPercentage: 50 });
+  }
+
+  function toggleBatch(batchId: string) {
+    setForm((currentForm) => ({
+      ...currentForm,
+      batchIds: currentForm.batchIds.includes(batchId) ? currentForm.batchIds.filter((id) => id !== batchId) : [...currentForm.batchIds, batchId]
+    }));
+  }
+
   return (
     <>
       <section className="rounded border border-[#d9c79d] bg-white/85 p-6 shadow-sm">
@@ -281,17 +470,52 @@ function ExamsView({ tests }: { tests: Test[] }) {
           <Button href="/examination-center/question-bank" variant="secondary">Review Question Bank</Button>
         </div>
       </section>
+      <section className="rounded border border-[#d9c79d] bg-white/85 p-6 shadow-sm">
+        <SectionHeader eyebrow="Create From Bank" title="Generate a CBT exam from active questions" />
+        <form onSubmit={submitExam} className="mt-5 grid gap-4 md:grid-cols-6">
+          <input value={form.title} onChange={(event) => setForm({ ...form, title: event.target.value })} className="rounded border border-[#d9c79d] bg-white p-3 text-[#071d36] md:col-span-2" />
+          <select value={form.examType} onChange={(event) => setForm({ ...form, examType: event.target.value })} className="rounded border border-[#d9c79d] bg-white p-3 text-[#071d36]">
+            {["NDA", "CDS", "AFCAT", "AGNIVEER", "SSC"].map((exam) => <option key={exam}>{exam}</option>)}
+          </select>
+          <input value={form.topic} onChange={(event) => setForm({ ...form, topic: event.target.value })} className="rounded border border-[#d9c79d] bg-white p-3 text-[#071d36]" />
+          <input type="number" value={form.duration} onChange={(event) => setForm({ ...form, duration: Number(event.target.value) })} className="rounded border border-[#d9c79d] bg-white p-3 text-[#071d36]" />
+          <input type="number" value={form.totalQuestions} onChange={(event) => setForm({ ...form, totalQuestions: Number(event.target.value) })} className="rounded border border-[#d9c79d] bg-white p-3 text-[#071d36]" />
+          <textarea value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} className="rounded border border-[#d9c79d] bg-white p-3 text-[#071d36] md:col-span-4" />
+          <label className="flex items-center gap-2 rounded border border-[#d9c79d] bg-white px-3 text-sm font-bold text-[#071d36]">
+            <input type="checkbox" checked={form.publishNow} onChange={(event) => setForm({ ...form, publishNow: event.target.checked })} />
+            Publish now
+          </label>
+          <button disabled={busy} className="rounded border border-[#b9913f] bg-[linear-gradient(135deg,#fff3bf,#e7c873,#b9913f)] px-5 py-3 text-sm font-black text-[#071d36]">
+            Create Exam
+          </button>
+          <div className="md:col-span-6">
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-[#8a6426]">Publish to batches</p>
+            <div className="mt-3 grid gap-2 md:grid-cols-3">
+              {batches.map((batch) => (
+                <label key={batch.id} className="flex items-start gap-3 rounded border border-[#d9c79d] bg-[#fffdf8] p-3 text-sm font-bold text-[#071d36]">
+                  <input type="checkbox" checked={form.batchIds.includes(batch.id)} onChange={() => toggleBatch(batch.id)} className="mt-1" />
+                  <span>
+                    {batch.name}
+                    <span className="block text-xs font-medium text-[#64748b]">{batch.course?.title ?? batch.programSlug}</span>
+                  </span>
+                </label>
+              ))}
+              {!batches.length ? <p className="text-sm text-[#64748b]">No active batches found.</p> : null}
+            </div>
+          </div>
+        </form>
+      </section>
       <section>
         <SectionHeader eyebrow="Exam Plans" title="Draft and available exams" />
         <div className="mt-4">
-          <TestList tests={tests} emptyTitle="No exams created yet" />
+          <TestList tests={tests} emptyTitle="No exams created yet" actions={actions} />
         </div>
       </section>
     </>
   );
 }
 
-function PublishedView({ tests }: { tests: Test[] }) {
+function PublishedView({ tests, actions }: { tests: Test[]; actions: ExamActions }) {
   const published = getPublishedTests(tests);
   return (
     <>
@@ -300,12 +524,12 @@ function PublishedView({ tests }: { tests: Test[] }) {
         <StatCard label="Questions Assigned" value={String(countQuestions(published))} note="Across published exams" />
         <StatCard label="Attempts" value={String(countAttempts(published))} note="Captured submissions" />
       </section>
-      <TestList tests={published} emptyTitle="No published exams found" />
+      <TestList tests={published} emptyTitle="No published exams found" actions={{ onClose: actions.onClose, onDelete: actions.onDelete, busy: actions.busy }} />
     </>
   );
 }
 
-function ResultsView({ tests }: { tests: Test[] }) {
+function ResultsView({ tests, results }: { tests: Test[]; results: ExaminationResultAttempt[] }) {
   return (
     <>
       <section className="grid gap-4 md:grid-cols-4">
@@ -325,18 +549,32 @@ function ResultsView({ tests }: { tests: Test[] }) {
         </div>
         <Button href="/progress-reports" className="mt-6">Open Reports</Button>
       </section>
+      <section className="rounded border border-[#d9c79d] bg-white/85 p-6 shadow-sm">
+        <SectionHeader eyebrow="Latest Submissions" title="Ritwik result review queue" />
+        <div className="mt-5 grid gap-3">
+          {results.slice(0, 12).map((attempt) => (
+            <div key={attempt.id} className="grid gap-2 rounded border border-[#eadfca] bg-[#fffdf8] p-4 md:grid-cols-5">
+              <span className="font-bold text-[#071d36]">{attempt.user.name}</span>
+              <span className="text-[#506581] md:col-span-2">{attempt.test.title}</span>
+              <span className="font-black text-[#b9913f]">{attempt.score}/{attempt.test.totalMarks}</span>
+              <span className="text-[#506581]">{attempt.totalCorrect} correct</span>
+            </div>
+          ))}
+          {!results.length ? <EmptyState title="No submitted attempts yet" description="Results will appear after students submit published exams." /> : null}
+        </div>
+      </section>
     </>
   );
 }
 
-function AnalyticsView({ tests }: { tests: Test[] }) {
+function AnalyticsView({ tests, analytics }: { tests: Test[]; analytics?: ExaminationAnalytics }) {
   const byTrack = groupByTrack(tests);
   return (
     <>
       <section className="grid gap-4 md:grid-cols-3">
         <StatCard label="Exam Types" value={String(Object.keys(byTrack).length)} note="Mapped tracks" />
-        <StatCard label="Question Pool" value={String(countQuestions(tests))} note="Across all exams" />
-        <StatCard label="Attempts" value={String(countAttempts(tests))} note="Student activity" />
+        <StatCard label="Question Bank" value={String(analytics?.totals.questionBank ?? 0)} note="Reusable questions" />
+        <StatCard label="Attempts" value={String(analytics?.totals.attempts ?? countAttempts(tests))} note="Student activity" />
       </section>
 
       <section className="grid gap-4 lg:grid-cols-2">
@@ -354,13 +592,15 @@ function AnalyticsView({ tests }: { tests: Test[] }) {
         </div>
 
         <div className="rounded border border-[#d9c79d] bg-white/85 p-6 shadow-sm">
-          <SectionHeader eyebrow="Future Analytics" title="Topic and difficulty intelligence" />
+          <SectionHeader eyebrow="Question Analytics" title="Topic and difficulty intelligence" />
           <div className="mt-5 grid gap-3">
-            {["Batch wise performance", "Question wise accuracy", "Topic wise weakness", "Difficulty wise score", "Faculty wise exam impact"].map((item) => (
-              <div key={item} className="rounded border border-[#eadfca] bg-[#fffdf8] px-4 py-3 font-bold text-[#071d36]">
-                {item}
+            {(analytics?.questionBankBreakdown ?? []).slice(0, 8).map((item) => (
+              <div key={`${item.subCategory}-${item.topic}-${item.difficulty}-${item.status}`} className="rounded border border-[#eadfca] bg-[#fffdf8] px-4 py-3 font-bold text-[#071d36]">
+                {item.subCategory} - {item.topic} - {item.difficulty}
+                <span className="float-right text-[#b9913f]">{item._count._all}</span>
               </div>
             ))}
+            {!analytics?.questionBankBreakdown?.length ? <EmptyState title="No question analytics yet" description="Add active question bank items to see topic and difficulty intelligence." /> : null}
           </div>
         </div>
       </section>
@@ -409,8 +649,102 @@ const viewMeta: Record<ExaminationView, { eyebrow: string; title: string; descri
 
 export function ExaminationCenterShell({ view }: ExaminationCenterShellProps) {
   const { data: tests = [], isLoading, error } = useTests();
+  const queryClient = useQueryClient();
+  const { showToast } = useToast();
+  const { data: questions = [], isLoading: questionsLoading } = useQuery({ queryKey: ["examination", "question-bank"], queryFn: getQuestionBank });
+  const { data: results = [] } = useQuery({ queryKey: ["examination", "results"], queryFn: getExaminationResults });
+  const { data: analytics } = useQuery({ queryKey: ["examination", "analytics"], queryFn: getExaminationAnalytics });
+  const { data: batches = [] } = useQuery({ queryKey: ["academy", "batches", "active"], queryFn: () => getAcademyBatches({ status: "ACTIVE" }) });
   const meta = viewMeta[view];
   const Icon = meta.icon;
+
+  async function refreshExamData() {
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ["tests"] }),
+      queryClient.invalidateQueries({ queryKey: ["examination"] })
+    ]);
+  }
+
+  const createQuestionMutation = useMutation({
+    mutationFn: createQuestionBankItem,
+    onSuccess: async () => {
+      showToast("Question saved to bank", "success");
+      await refreshExamData();
+    },
+    onError: (mutationError) => showToast(getApiErrorMessage(mutationError), "error")
+  });
+  const importMutation = useMutation({
+    mutationFn: importQuestionBankCsv,
+    onSuccess: async (result) => {
+      showToast(`${result.imported} questions imported`, "success");
+      await refreshExamData();
+    },
+    onError: (mutationError) => showToast(getApiErrorMessage(mutationError), "error")
+  });
+  const updateQuestionMutation = useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: Partial<QuestionBankPayload> }) => updateQuestionBankItem(id, payload),
+    onSuccess: async () => {
+      showToast("Question updated", "success");
+      await refreshExamData();
+    },
+    onError: (mutationError) => showToast(getApiErrorMessage(mutationError), "error")
+  });
+  const deleteQuestionMutation = useMutation({
+    mutationFn: deleteQuestionBankItem,
+    onSuccess: async () => {
+      showToast("Question deleted", "success");
+      await refreshExamData();
+    },
+    onError: (mutationError) => showToast(getApiErrorMessage(mutationError), "error")
+  });
+  const createExamMutation = useMutation({
+    mutationFn: createExamFromBank,
+    onSuccess: async () => {
+      showToast("Exam created from question bank", "success");
+      await refreshExamData();
+    },
+    onError: (mutationError) => showToast(getApiErrorMessage(mutationError), "error")
+  });
+  const publishMutation = useMutation({
+    mutationFn: publishExam,
+    onSuccess: async () => {
+      showToast("Exam published", "success");
+      await refreshExamData();
+    },
+    onError: (mutationError) => showToast(getApiErrorMessage(mutationError), "error")
+  });
+  const closeMutation = useMutation({
+    mutationFn: closeExam,
+    onSuccess: async () => {
+      showToast("Exam closed", "success");
+      await refreshExamData();
+    },
+    onError: (mutationError) => showToast(getApiErrorMessage(mutationError), "error")
+  });
+  const deleteExamMutation = useMutation({
+    mutationFn: deleteExam,
+    onSuccess: async () => {
+      showToast("Exam deleted", "success");
+      await refreshExamData();
+    },
+    onError: (mutationError) => showToast(getApiErrorMessage(mutationError), "error")
+  });
+  const busy =
+    questionsLoading ||
+    createQuestionMutation.isPending ||
+    importMutation.isPending ||
+    updateQuestionMutation.isPending ||
+    deleteQuestionMutation.isPending ||
+    createExamMutation.isPending ||
+    publishMutation.isPending ||
+    closeMutation.isPending ||
+    deleteExamMutation.isPending;
+  const examActions: ExamActions = {
+    onPublish: (id) => publishMutation.mutate(id),
+    onClose: (id) => closeMutation.mutate(id),
+    onDelete: (id) => deleteExamMutation.mutate(id),
+    busy
+  };
 
   return (
     <main className="min-h-screen bg-[#f7f3ea] px-4 py-8 text-[#071d36] md:px-8">
@@ -441,12 +775,22 @@ export function ExaminationCenterShell({ view }: ExaminationCenterShellProps) {
 
         {!isLoading && !error ? (
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col gap-8">
-            {view === "dashboard" ? <DashboardView tests={tests} /> : null}
-            {view === "question-bank" ? <QuestionBankView tests={tests} /> : null}
-            {view === "exams" ? <ExamsView tests={tests} /> : null}
-            {view === "published" ? <PublishedView tests={tests} /> : null}
-            {view === "results" ? <ResultsView tests={tests} /> : null}
-            {view === "analytics" ? <AnalyticsView tests={tests} /> : null}
+            {view === "dashboard" ? <DashboardView tests={tests} analytics={analytics} /> : null}
+            {view === "question-bank" ? (
+              <QuestionBankView
+                tests={tests}
+                questions={questions}
+                onCreate={(payload) => createQuestionMutation.mutate(payload)}
+                onImport={(csvText) => importMutation.mutate(csvText)}
+                onActivate={(id) => updateQuestionMutation.mutate({ id, payload: { status: "ACTIVE" } })}
+                onDelete={(id) => deleteQuestionMutation.mutate(id)}
+                busy={busy}
+              />
+            ) : null}
+            {view === "exams" ? <ExamsView tests={tests} batches={batches} onCreateExam={(payload) => createExamMutation.mutate(payload)} actions={examActions} busy={busy} /> : null}
+            {view === "published" ? <PublishedView tests={tests} actions={examActions} /> : null}
+            {view === "results" ? <ResultsView tests={tests} results={results} /> : null}
+            {view === "analytics" ? <AnalyticsView tests={tests} analytics={analytics} /> : null}
           </motion.div>
         ) : null}
 

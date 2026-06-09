@@ -75,6 +75,7 @@ model User {
   testAttempts   TestAttempt[]
   testsCreated   Test[] @relation("TestTeacher")
   testsApproved  Test[] @relation("TestApprover")
+  questionBankItemsCreated QuestionBankItem[] @relation("QuestionBankItemCreator")
   psychometricAttempts PsychometricAttempt[]
   olqScore       OLQScore?
   studyPlans     StudyPlan[]
@@ -394,6 +395,37 @@ model Question {
   answerStates    CBTAnswerState[]
 
   @@index([testId])
+}
+
+model QuestionBankItem {
+  id              String   @id @default(cuid())
+  questionText    String
+  questionType    String   @default("SINGLE_CHOICE")
+  optionA         String
+  optionB         String
+  optionC         String
+  optionD         String
+  correctAnswer   String
+  explanation     String
+  category        String   @default("Defence")
+  subCategory     String
+  topic           String
+  subTopic        String?
+  difficulty      String   @default("MEDIUM")
+  marks           Float    @default(1)
+  negativeMarks   Float    @default(0)
+  status          String   @default("DRAFT")
+  createdById     String?
+  createdBy       User?    @relation("QuestionBankItemCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([category])
+  @@index([subCategory])
+  @@index([topic])
+  @@index([difficulty])
+  @@index([status])
+  @@index([createdById])
 }
 
 model TestAttempt {

@@ -27,6 +27,7 @@ function testValidators(optional = false) {
 }
 
 testsRouter.get("/", testsController.list);
+testsRouter.get("/available", protect, allowRoles(Role.STUDENT, Role.ADMIN), testsController.available);
 testsRouter.get("/attempts/history", protect, allowRoles(Role.STUDENT, Role.ADMIN), testsController.history);
 testsRouter.get("/result/:attemptId", protect, allowRoles(Role.STUDENT, Role.ADMIN), testsController.result);
 testsRouter.get("/attempts/:attemptId/resume", protect, allowRoles(Role.STUDENT, Role.ADMIN), testsController.resume);

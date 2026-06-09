@@ -166,6 +166,44 @@ export const testsService = {
     });
   },
 
+  async available(userId: string, role?: Role) {
+    if (role === Role.ADMIN) {
+      return this.list({});
+    }
+
+    const enrollments = await prisma.batchStudent.findMany({
+      where: { studentId: userId, status: "ACTIVE" },
+      select: { batchId: true }
+    });
+    const batchIds = enrollments.map((enrollment) => enrollment.batchId);
+    if (!batchIds.length) return [];
+
+    const attempts = await prisma.testAttempt.findMany({
+      where: { userId },
+      select: { testId: true, status: true, submittedAt: true }
+    });
+    const attemptByTest = new Map(attempts.map((attempt) => [attempt.testId, attempt]));
+
+    const tests = await prisma.test.findMany({
+      where: {
+        batchId: { in: batchIds },
+        status: "PUBLISHED",
+        isLive: true,
+        OR: [{ publishAt: null }, { publishAt: { lte: new Date() } }]
+      },
+      orderBy: [{ publishAt: "desc" }, { createdAt: "desc" }],
+      include: {
+        batch: { select: { id: true, name: true, batchType: true, programSlug: true } },
+        _count: { select: { attempts: true, questions: true } }
+      }
+    });
+
+    return tests.map((test) => ({
+      ...test,
+      studentStatus: attemptByTest.get(test.id)?.submittedAt ? "SUBMITTED" : attemptByTest.has(test.id) ? "IN_PROGRESS" : "NOT_STARTED"
+    }));
+  },
+
   async details(id: string) {
     const test = await prisma.test.findUnique({ where: { id }, include: testInclude });
 
@@ -321,6 +359,22 @@ export const testsService = {
     }
     if (test.publishAt && test.publishAt > new Date()) {
       throw new Error("This test will open at the scheduled time.");
+    }
+
+    const existingAttempt = await prisma.testAttempt.findFirst({
+      where: { userId, testId },
+      orderBy: { startedAt: "desc" },
+      include: {
+        test: {
+          include: testInclude
+        }
+      }
+    });
+    if (existingAttempt?.submittedAt) {
+      throw new Error("This test has already been submitted.");
+    }
+    if (existingAttempt) {
+      return existingAttempt;
     }
 
     const attempt = await prisma.testAttempt.create({

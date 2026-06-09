@@ -16,6 +16,31 @@ export type AcademyBatch = {
     examType: string;
     category: string;
   } | null;
+  students?: Array<{
+    id: string;
+    status: string;
+    remarks?: string | null;
+    student: {
+      id: string;
+      name: string;
+      email: string;
+      mobile: string;
+      role: string;
+    };
+  }>;
+  teachers?: Array<{
+    id: string;
+    subject: string;
+    role: string;
+    status: string;
+    teacher: {
+      id: string;
+      name: string;
+      email: string;
+      mobile: string;
+      role: string;
+    };
+  }>;
   _count?: {
     students?: number;
     teachers?: number;

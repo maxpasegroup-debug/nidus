@@ -48,23 +48,13 @@ const guestJourneyMenu = [
 ];
 
 const facultyMenu = [
-  { label: "My Dashboard", href: "/dashboard/teacher" },
-  { label: "Examination Center", href: "/examination-center" },
-  { label: "Question Bank", href: "/examination-center/question-bank" },
-  { label: "Exams", href: "/examination-center/exams" },
-  { label: "Published Exams", href: "/examination-center/published" },
-  { label: "Results", href: "/examination-center/results" },
-  { label: "Analytics", href: "/examination-center/analytics" },
-  { label: "Classes", href: "/live-classes" },
-  { label: "Teachers", href: "/staff-hr" },
-  { label: "Students", href: "/performance-analytics" },
-  { label: "Exams & Tests", href: "/tests" },
-  { label: "Attendance", href: "/discipline" },
-  { label: "Assignments", href: "/documents" },
-  { label: "Study Materials", href: "/media-library" },
-  { label: "NIDUS AI Professor", href: "/tests" },
-  { label: "Reports", href: "/progress-reports" },
-  { label: "Settings", href: "/dashboard/settings" }
+  { label: "Today", href: "/dashboard/teacher#today" },
+  { label: "Classroom", href: "/dashboard/teacher#classroom" },
+  { label: "Exams", href: "/dashboard/teacher#exams" },
+  { label: "Assignments", href: "/dashboard/teacher#assignments" },
+  { label: "Attendance", href: "/dashboard/teacher#attendance" },
+  { label: "Library", href: "/dashboard/teacher#library" },
+  { label: "Academic Calendar", href: "/dashboard/teacher#calendar" }
 ];
 
 const salesBoosterMenu = [

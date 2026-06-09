@@ -66,6 +66,7 @@ export const ModelName = {
   TeacherBatchAssignment: 'TeacherBatchAssignment',
   Test: 'Test',
   Question: 'Question',
+  QuestionBankItem: 'QuestionBankItem',
   TestAttempt: 'TestAttempt',
   CBTAnswerState: 'CBTAnswerState',
   CBTIntegrityEvent: 'CBTIntegrityEvent',
@@ -429,6 +430,32 @@ export const QuestionScalarFieldEnum = {
 } as const
 
 export type QuestionScalarFieldEnum = (typeof QuestionScalarFieldEnum)[keyof typeof QuestionScalarFieldEnum]
+
+
+export const QuestionBankItemScalarFieldEnum = {
+  id: 'id',
+  questionText: 'questionText',
+  questionType: 'questionType',
+  optionA: 'optionA',
+  optionB: 'optionB',
+  optionC: 'optionC',
+  optionD: 'optionD',
+  correctAnswer: 'correctAnswer',
+  explanation: 'explanation',
+  category: 'category',
+  subCategory: 'subCategory',
+  topic: 'topic',
+  subTopic: 'subTopic',
+  difficulty: 'difficulty',
+  marks: 'marks',
+  negativeMarks: 'negativeMarks',
+  status: 'status',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type QuestionBankItemScalarFieldEnum = (typeof QuestionBankItemScalarFieldEnum)[keyof typeof QuestionBankItemScalarFieldEnum]
 
 
 export const TestAttemptScalarFieldEnum = {
