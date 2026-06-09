@@ -49,6 +49,12 @@ const guestJourneyMenu = [
 
 const facultyMenu = [
   { label: "My Dashboard", href: "/dashboard/teacher" },
+  { label: "Examination Center", href: "/examination-center" },
+  { label: "Question Bank", href: "/examination-center/question-bank" },
+  { label: "Exams", href: "/examination-center/exams" },
+  { label: "Published Exams", href: "/examination-center/published" },
+  { label: "Results", href: "/examination-center/results" },
+  { label: "Analytics", href: "/examination-center/analytics" },
   { label: "Classes", href: "/live-classes" },
   { label: "Teachers", href: "/staff-hr" },
   { label: "Students", href: "/performance-analytics" },
@@ -87,6 +93,12 @@ const adminOperationsMenu = [
   { label: "Admission Cell", href: "/dashboard/admin" },
   { label: "Enquiries", href: "/crm/leads" },
   { label: "Applications", href: "/crm/admissions" },
+  { label: "Examination Center", href: "/examination-center" },
+  { label: "Question Bank", href: "/examination-center/question-bank" },
+  { label: "Exams", href: "/examination-center/exams" },
+  { label: "Published Exams", href: "/examination-center/published" },
+  { label: "Results", href: "/examination-center/results" },
+  { label: "Analytics", href: "/examination-center/analytics" },
   { label: "Follow-ups", href: "/crm/followups" },
   { label: "Fees", href: "/payments" },
   { label: "Documents", href: "/documents" },
@@ -97,6 +109,12 @@ const adminOperationsMenu = [
 
 const directorMenu = [
   { label: "Director Desk", href: "/dashboard/director" },
+  { label: "Examination Center", href: "/examination-center" },
+  { label: "Question Bank", href: "/examination-center/question-bank" },
+  { label: "Exams", href: "/examination-center/exams" },
+  { label: "Published Exams", href: "/examination-center/published" },
+  { label: "Results", href: "/examination-center/results" },
+  { label: "Analytics", href: "/examination-center/analytics" },
   { label: "Academic Planning", href: "/programs" },
   { label: "Team & Performance", href: "/staff-hr" },
   { label: "Admissions & Marketing", href: "/crm" },
