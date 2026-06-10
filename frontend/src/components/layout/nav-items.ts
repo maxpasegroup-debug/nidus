@@ -112,7 +112,7 @@ const directorMenu = [
   { label: "Management", href: "/dashboard/director" },
   { label: "Today", href: "/dashboard/director#today" },
   { label: "Academy", href: "/dashboard/director#academy" },
-  { label: "Academic Department", href: "/dashboard/director#academic" },
+  { label: "Academic Department", href: "/dashboard/director/academic" },
   { label: "Admissions", href: "/crm/admissions" },
   { label: "TOPRANK", href: "/dashboard/toprank" },
   { label: "NIDUS Guru", href: "/admin-center/guru" },

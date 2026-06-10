@@ -1,296 +1,290 @@
 "use client";
 
+import { useMemo } from "react";
+import type { ReactNode } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { useQuery } from "@tanstack/react-query";
 import {
-  BarChart3,
-  BookMarked,
-  BookOpen,
   CalendarDays,
   ClipboardCheck,
   FileText,
-  Target,
-  Timer,
-  Trophy,
+  GraduationCap,
+  Library,
+  PlayCircle,
+  ShieldCheck,
   UserRound,
-  Video
 } from "lucide-react";
-import {
-  DashboardError,
-  DashboardSkeleton,
-  RoleDashboardGuard,
-  StatCard
-} from "@/components/dashboard";
-import { Button } from "@/components/ui/button";
-import { useAuth } from "@/components/providers/auth-provider-v2";
-import { useStudentDashboard } from "@/hooks/use-dashboard";
-import { useAvailableTests, useStartTest } from "@/hooks/use-tests";
+import type { LucideIcon } from "lucide-react";
 
-const classCycle = [
-  {
-    title: "20 Min Recorded Class",
-    line: "Watch the short class for today's topic.",
-    href: "/recorded-lectures",
-    icon: Video,
-    tone: "bg-[#fff7de]"
-  },
-  {
-    title: "10 MCQ Practice",
-    line: "Answer 10 questions from the same topic.",
-    href: "/tests",
-    icon: ClipboardCheck,
-    tone: "bg-[#edf7ee]"
-  },
-  {
-    title: "Topic Analysis",
-    line: "Check speed, time per question and first-attempt accuracy.",
-    href: "/performance-analytics",
-    icon: BarChart3,
-    tone: "bg-[#eef5ff]"
-  },
-  {
-    title: "Area to Improve",
-    line: "See what you should revise before the next practice.",
-    href: "/progress-reports",
-    icon: Target,
-    tone: "bg-[#fff2ec]"
-  },
-  {
-    title: "Saturday Mock Test",
-    line: "Attempt the weekly timed mock test.",
-    href: "/tests",
-    icon: Trophy,
-    tone: "bg-[#f5efff]"
-  },
-  {
-    title: "Sunday Paper Analysis",
-    line: "Join live paper analysis for maximum 2 hours.",
-    href: "/live-classes",
-    icon: Timer,
-    tone: "bg-[#eff8f8]"
+type StudentBatch = {
+  id: string;
+  name: string;
+  batchType?: string | null;
+  status?: string | null;
+  course?: {
+    title?: string | null;
+    slug?: string | null;
+  } | null;
+  teachers?: Array<{
+    subject?: string | null;
+    role?: string | null;
+    teacher?: {
+      name?: string | null;
+      email?: string | null;
+    } | null;
+  }>;
+};
+
+type CalendarItem = {
+  id: string;
+  batchId?: string | null;
+  batchName?: string | null;
+  subject: string;
+  topic: string;
+  plannedDate: string;
+  startTime?: string | null;
+  endTime?: string | null;
+  teacherName?: string | null;
+  completionStatus?: string | null;
+  teacherLog?: string | null;
+};
+
+type StudentPlan = {
+  batches: StudentBatch[];
+  calendar: CalendarItem[];
+};
+
+type ExamSummary = {
+  id: string;
+  testId?: string | null;
+  title?: string | null;
+  name?: string | null;
+  examName?: string | null;
+  durationMinutes?: number | null;
+  duration?: number | null;
+  totalQuestions?: number | null;
+  status?: string | null;
+  batchName?: string | null;
+};
+
+async function apiJson<T>(path: string): Promise<T> {
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_API_BASE_URL || "";
+  const response = await fetch(`${baseUrl}${path}`, {
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+  });
+
+  if (!response.ok) {
+    throw new Error("Unable to load student academic data");
   }
-];
 
-const simpleActions = [
-  { title: "My Course", href: "/my-courses", icon: BookOpen },
-  { title: "Tests", href: "/tests", icon: ClipboardCheck },
-  { title: "Attendance", href: "/discipline", icon: CalendarDays },
-  { title: "Reports", href: "/progress-reports", icon: FileText },
-  { title: "Digital Profile", href: "/digital-profile", icon: UserRound }
-];
+  return response.json() as Promise<T>;
+}
 
 export default function StudentDashboardPage() {
-  const { user } = useAuth();
-  const { data, isLoading, error, refetch, isFetching } = useStudentDashboard();
-  const { data: availableTests = [] } = useAvailableTests();
-  const startTestMutation = useStartTest();
+  const academicPlan = useQuery({
+    queryKey: ["student", "academic-plan"],
+    queryFn: () => apiJson<StudentPlan>("/api/academy/my-plan"),
+  });
+  const availableExams = useQuery({
+    queryKey: ["student", "available-exams"],
+    queryFn: () => apiJson<ExamSummary[]>("/api/tests/available"),
+  });
 
-  if (isLoading) return <RoleDashboardGuard role="STUDENT"><DashboardSkeleton /></RoleDashboardGuard>;
-  if (error || !data) return <RoleDashboardGuard role="STUDENT"><DashboardError error={error} onRefresh={() => refetch()} /></RoleDashboardGuard>;
+  const batches = academicPlan.data?.batches ?? [];
+  const calendar = academicPlan.data?.calendar ?? [];
+  const exams = availableExams.data ?? [];
+  const today = new Date().toISOString().slice(0, 10);
+  const todayClasses = calendar.filter((item) => item.plannedDate.slice(0, 10) === today);
+  const upcomingClasses = calendar.filter((item) => item.plannedDate.slice(0, 10) >= today).slice(0, 6);
 
-  const activeCourse = data.enrolledCourses[0];
-  const activeBatch = data.academyProfile.assignedBatches[0];
-  const subjectLibrary = data.academyProfile.librarySubjects.length ? data.academyProfile.librarySubjects : ["Maths", "English", "GK", "Current Affairs"];
-  const visibleClasses = data.academyProfile.todayClasses.length ? data.academyProfile.todayClasses : data.academyProfile.upcomingClasses.slice(0, 4);
+  const primaryBatch = batches[0];
+  const teacherList = useMemo(
+    () =>
+      batches
+        .flatMap((batch) => batch.teachers ?? [])
+        .filter((teacher) => teacher.teacher?.name)
+        .slice(0, 6),
+    [batches],
+  );
 
   return (
-    <RoleDashboardGuard role="STUDENT">
-      <motion.div className="space-y-8" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-        <section className="rounded-lg border border-[#071d36]/10 bg-[linear-gradient(135deg,#fffdf8_0%,#f7f3ea_58%,#eef4f7_100%)] p-6 shadow-[0_28px_90px_rgba(7,29,54,0.10)] sm:p-8">
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#8a6426]">Student Dashboard</p>
-          <h1 className="mt-4 max-w-4xl text-4xl font-semibold leading-tight text-[#071d36] sm:text-6xl">
-            Welcome{user?.name ? `, ${user.name}` : ""}.
-          </h1>
-          <p className="mt-5 max-w-3xl text-base leading-8 text-[#40516a]">
-            Follow the simple NIDUS study cycle every week: class, practice, analysis, improvement, mock test and paper analysis.
-          </p>
-          <div className="mt-7 flex flex-col gap-3 sm:flex-row">
-            <Button href="/recorded-lectures">Start Today Class</Button>
-            <Button href="/tests" variant="secondary">Start 10 MCQs</Button>
-            <Button type="button" onClick={() => refetch()} disabled={isFetching} variant="secondary">{isFetching ? "Refreshing..." : "Refresh"}</Button>
-          </div>
-        </section>
-
-        <section className="grid gap-4 md:grid-cols-4">
-          <StatCard label="Current Course" value={activeCourse?.title ?? activeBatch?.course?.title ?? "Not assigned"} note={activeCourse?.nextLesson ?? activeBatch?.name ?? "Course appears after admission approval"} />
-          <StatCard label="Attendance" value={`${data.attendance.percentage}%`} note={`${data.attendance.present}/${data.attendance.total} sessions`} />
-          <StatCard label="Upcoming Tests" value={String(data.upcomingTests.length)} note={data.upcomingTests[0]?.title ?? "No test scheduled"} />
-          <StatCard label="My Batch" value={activeBatch ? activeBatch.type.replace(/_/g, " ") : "Pending"} note={activeBatch ? `${activeBatch.teachers} teachers, ${activeBatch.tests} tests` : "Admission Cell will assign batch"} />
-        </section>
-
-        <section className="rounded-lg border border-[#071d36]/10 bg-white p-5 shadow-[0_18px_60px_rgba(7,29,54,0.08)]">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+    <main className="min-h-screen bg-[var(--page-bg)] px-5 py-6 text-[var(--navy)] md:px-8">
+      <section className="mx-auto max-w-7xl space-y-8">
+        <div className="rounded-3xl border border-[var(--border)] bg-white/90 p-6 shadow-xl md:p-8">
+          <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">My Student Journey</p>
+          <div className="mt-3 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#8a6426]">Available Exams</p>
-              <h2 className="mt-2 text-3xl font-semibold text-[#071d36]">Assigned tests for your batch</h2>
-              <p className="mt-2 max-w-2xl text-sm leading-7 text-[#64748b]">
-                Only exams published to your batch appear here. Start, continue, or review after submission.
+              <h1 className="text-4xl font-black tracking-tight md:text-6xl">Your academy dashboard</h1>
+              <p className="mt-4 max-w-3xl text-base leading-8 text-[var(--muted-blue)]">
+                See your batch, today&apos;s class, upcoming exams, learning materials, attendance and academic progress in one simple place.
               </p>
             </div>
-            <Button href="/tests" variant="secondary">Open Tests</Button>
+            <div className="rounded-2xl border border-[var(--gold-border)] bg-[var(--gold-soft)] px-5 py-4">
+              <p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold)]">Current Batch</p>
+              <p className="mt-1 text-lg font-black">{primaryBatch?.name ?? "Admission not approved yet"}</p>
+            </div>
           </div>
-          <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {availableTests.slice(0, 6).map((test) => (
-              <article key={test.id} className="rounded-lg border border-[#071d36]/10 bg-[#fffdf8] p-4">
-                <div className="flex items-center justify-between gap-3">
-                  <span className="rounded-full bg-[#fff7de] px-3 py-1 text-xs font-bold uppercase tracking-[0.14em] text-[#8a6426]">{test.examType}</span>
-                  <span className="text-xs font-semibold text-[#64748b]">{test.studentStatus?.replace(/_/g, " ") ?? "NOT STARTED"}</span>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-4">
+          <Metric label="Assigned Batches" value={batches.length} icon={GraduationCap} />
+          <Metric label="Today Classes" value={todayClasses.length} icon={CalendarDays} />
+          <Metric label="Available Exams" value={exams.length} icon={ClipboardCheck} />
+          <Metric label="Teachers" value={teacherList.length} icon={UserRound} />
+        </div>
+
+        {!batches.length && (
+          <EmptyState
+            title="Your admission is being processed"
+            text="After the Admission Cell approves your application and assigns a batch, your classes, exams, materials and calendar will appear here."
+          />
+        )}
+
+        <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+          <Panel title="Today" eyebrow="Immediate attention">
+            <div className="grid gap-3">
+              {todayClasses.map((item) => (
+                <ClassRow key={item.id} item={item} />
+              ))}
+              {!todayClasses.length && <SoftNote text="No class is scheduled for today in your academic calendar." />}
+            </div>
+          </Panel>
+
+          <Panel title="My Batch" eyebrow="Academy program">
+            {primaryBatch ? (
+              <div className="space-y-4">
+                <div className="rounded-2xl border border-[var(--border)] bg-white p-5">
+                  <p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold)]">{primaryBatch.batchType ?? "Academy"}</p>
+                  <h3 className="mt-2 text-2xl font-black">{primaryBatch.name}</h3>
+                  <p className="mt-2 text-sm text-[var(--muted-blue)]">{primaryBatch.course?.title ?? "NIDUS Academy program"}</p>
                 </div>
-                <h3 className="mt-4 text-lg font-semibold text-[#071d36]">{test.title}</h3>
-                <p className="mt-2 line-clamp-2 text-sm leading-6 text-[#64748b]">{test.description}</p>
-                <div className="mt-4 grid grid-cols-3 gap-2 text-xs font-semibold text-[#40516a]">
-                  <span className="rounded bg-white px-3 py-2">{test.duration} min</span>
-                  <span className="rounded bg-white px-3 py-2">{test._count?.questions ?? 0} Q</span>
-                  <span className="rounded bg-white px-3 py-2">{test.totalMarks} marks</span>
+                <div className="grid gap-2">
+                  {teacherList.map((teacher) => (
+                    <div key={`${teacher.subject}-${teacher.teacher?.email}`} className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-sm">
+                      <span className="font-black">{teacher.subject ?? "Subject"}</span>
+                      <span className="text-[var(--muted-blue)]"> / {teacher.teacher?.name}</span>
+                    </div>
+                  ))}
+                  {!teacherList.length && <SoftNote text="Teacher allocation will appear after academic planning." />}
                 </div>
-                <button
-                  type="button"
-                  disabled={startTestMutation.isPending || test.studentStatus === "SUBMITTED"}
-                  onClick={() => startTestMutation.mutate(test.id)}
-                  className="mt-4 w-full rounded border border-[#b9913f] bg-[linear-gradient(135deg,#fff3bf,#e7c873,#b9913f)] px-4 py-3 text-sm font-black text-[#071d36] disabled:opacity-60"
+              </div>
+            ) : (
+              <SoftNote text="No batch assigned yet." />
+            )}
+          </Panel>
+        </section>
+
+        <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <StudentModule title="Classes" text="Recorded and live class links will appear batch-wise." icon={PlayCircle} />
+          <StudentModule title="Exams" text="Assigned CBT exams and weekly tests will be shown here." icon={ClipboardCheck} />
+          <StudentModule title="Assignments" text="Submit homework and teacher-given tasks." icon={FileText} />
+          <StudentModule title="Library" text="Access notes, videos, files and topic materials." icon={Library} />
+        </section>
+
+        <Panel title="Available Exams" eyebrow="CBT and weekly tests">
+          <div className="grid gap-3 md:grid-cols-2">
+            {exams.map((exam) => (
+              <article key={exam.id || exam.testId || exam.examName || exam.title || "exam"} className="rounded-2xl border border-[var(--border)] bg-white p-4">
+                <p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold)]">{exam.status ?? "Available"}</p>
+                <h3 className="mt-2 text-xl font-black text-[var(--navy)]">{exam.examName ?? exam.title ?? exam.name ?? "Assigned Exam"}</h3>
+                <p className="mt-2 text-sm text-[var(--muted-blue)]">
+                  {exam.totalQuestions ? `${exam.totalQuestions} questions` : "Questions assigned"} /{" "}
+                  {exam.durationMinutes ?? exam.duration ?? "Timed"} min
+                  {exam.batchName ? ` / ${exam.batchName}` : ""}
+                </p>
+                <Link
+                  className="mt-4 inline-flex rounded-xl bg-[var(--gold-gradient)] px-4 py-2 text-sm font-black text-[var(--navy)]"
+                  href={`/test-attempt/${exam.testId || exam.id}`}
                 >
-                  {test.studentStatus === "SUBMITTED" ? "Submitted" : test.studentStatus === "IN_PROGRESS" ? "Continue Exam" : "Start Exam"}
-                </button>
+                  Start Exam
+                </Link>
               </article>
             ))}
-            {!availableTests.length ? (
-              <div className="rounded-lg border border-[#071d36]/10 bg-[#fffdf8] p-4 md:col-span-2 xl:col-span-3">
-                <p className="font-semibold text-[#071d36]">No assigned exam now</p>
-                <p className="mt-1 text-sm leading-6 text-[#64748b]">When Academic Head publishes an exam to your batch, it will appear here.</p>
-              </div>
-            ) : null}
+            {!exams.length && <SoftNote text="No assigned exam is available right now. Your teacher or academic head can publish exams to your batch." />}
           </div>
-        </section>
+        </Panel>
 
-        <section className="rounded-lg border border-[#071d36]/10 bg-white p-5 shadow-[0_18px_60px_rgba(7,29,54,0.08)]">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#8a6426]">My Academy Plan</p>
-              <h2 className="mt-2 text-3xl font-semibold text-[#071d36]">Your batch and class timetable</h2>
-              <p className="mt-2 max-w-2xl text-sm leading-7 text-[#64748b]">
-                After Admission Cell approval, your program, batch, teachers, tests and timetable appear here automatically.
-              </p>
-            </div>
-            <Button href="/live-classes">Open Classes</Button>
+        <Panel title="Academic Calendar" eyebrow="Upcoming plan">
+          <div className="grid gap-3">
+            {upcomingClasses.map((item) => (
+              <ClassRow key={item.id} item={item} />
+            ))}
+            {!upcomingClasses.length && <SoftNote text="Your upcoming academic plan will appear after the Director/Academic Head publishes the calendar." />}
           </div>
-          <div className="mt-5 grid gap-4 lg:grid-cols-[0.85fr_1.15fr]">
-            <div className="rounded-lg border border-[#071d36]/10 bg-[#fffdf8] p-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8a6426]">Assigned Batch</p>
-              <h3 className="mt-3 text-xl font-semibold text-[#071d36]">{activeBatch?.course?.title ?? "No batch assigned yet"}</h3>
-              <p className="mt-2 text-sm leading-6 text-[#64748b]">{activeBatch?.name ?? "Apply to an Academy program or wait for Admission Cell approval."}</p>
-              <div className="mt-4 grid grid-cols-2 gap-2 text-xs font-semibold text-[#40516a]">
-                <span className="rounded border border-[#071d36]/10 bg-white px-3 py-2">{activeBatch?.teachers ?? 0} teachers</span>
-                <span className="rounded border border-[#071d36]/10 bg-white px-3 py-2">{activeBatch?.tests ?? 0} tests</span>
-              </div>
-            </div>
-            <div className="grid gap-3">
-              {visibleClasses.length ? visibleClasses.map((slot) => (
-                <Link key={slot.id} href="/live-classes" className="rounded-lg border border-[#071d36]/10 bg-[#fffdf8] p-4 transition hover:-translate-y-0.5 hover:border-[#b9913f]/45 hover:bg-white">
-                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#8a6426]">{slot.subject}</p>
-                  <h3 className="mt-2 text-base font-semibold text-[#071d36]">{slot.title}</h3>
-                  <p className="mt-1 text-xs leading-5 text-[#64748b]">{slot.instructor} - {new Date(slot.startTime).toLocaleString()}</p>
-                </Link>
-              )) : (
-                <div className="rounded-lg border border-[#071d36]/10 bg-[#fffdf8] p-4">
-                  <p className="text-sm font-semibold text-[#071d36]">No timetable assigned yet</p>
-                  <p className="mt-1 text-xs leading-5 text-[#64748b]">Your classes will appear after batch allocation.</p>
-                </div>
-              )}
-            </div>
-          </div>
-        </section>
-
-        <section className="rounded-lg border border-[#071d36]/10 bg-white p-5 shadow-[0_18px_60px_rgba(7,29,54,0.08)]">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#8a6426]">Classes</p>
-              <h2 className="mt-2 text-3xl font-semibold text-[#071d36]">Your weekly class cycle</h2>
-              <p className="mt-2 max-w-2xl text-sm leading-7 text-[#64748b]">
-                This is the main student workflow. Complete it in order and your reports will become meaningful with real data.
-              </p>
-            </div>
-            <Button href="/my-courses">Open My Course</Button>
-          </div>
-          <div className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-            {classCycle.map((tile, index) => {
-              const Icon = tile.icon;
-              return (
-                <Link key={tile.title} href={tile.href} className="group rounded-lg border border-[#071d36]/10 bg-[#fffdf8] p-4 transition hover:-translate-y-1 hover:border-[#b9913f]/45 hover:bg-white">
-                  <div className="flex items-start gap-4">
-                    <div className={`grid h-14 w-14 shrink-0 place-items-center rounded-lg ${tile.tone} text-[#071d36]`}>
-                      <Icon className="h-7 w-7" />
-                    </div>
-                    <div>
-                      <span className="rounded-full bg-white px-2.5 py-1 text-[11px] font-bold text-[#8a6426] shadow-sm">Step {index + 1}</span>
-                      <h3 className="mt-3 text-lg font-semibold text-[#071d36]">{tile.title}</h3>
-                      <p className="mt-2 text-sm leading-6 text-[#64748b]">{tile.line}</p>
-                    </div>
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-        </section>
-
-        <section className="grid gap-6 xl:grid-cols-[0.85fr_1.15fr]">
-          <div className="rounded-lg border border-[#071d36]/10 bg-white p-5 shadow-[0_18px_60px_rgba(7,29,54,0.08)]">
-            <div className="flex items-center gap-3">
-              <div className="grid h-11 w-11 place-items-center rounded bg-[#fff7de] text-[#b9913f]">
-                <BookMarked className="h-6 w-6" />
-              </div>
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8a6426]">Library</p>
-                <h2 className="text-2xl font-semibold text-[#071d36]">Course-wise</h2>
-              </div>
-            </div>
-            <div className="mt-5 grid gap-3">
-              {(data.academyProfile.assignedBatches.length ? data.academyProfile.assignedBatches : []).map((batch) => (
-                <Link key={batch.id} href="/my-courses" className="flex items-center justify-between rounded-lg border border-[#071d36]/10 bg-[#f7f3ea] px-4 py-4 text-sm font-semibold text-[#071d36] transition hover:border-[#b9913f]/45 hover:bg-white">
-                  {batch.course?.title ?? batch.name}
-                  <BookOpen className="h-4 w-4 text-[#b9913f]" />
-                </Link>
-              ))}
-              {!data.academyProfile.assignedBatches.length ? (
-                <div className="rounded-lg border border-[#071d36]/10 bg-[#f7f3ea] px-4 py-4 text-sm font-semibold text-[#071d36]">No course assigned yet</div>
-              ) : null}
-            </div>
-          </div>
-
-          <div className="rounded-lg border border-[#071d36]/10 bg-white p-5 shadow-[0_18px_60px_rgba(7,29,54,0.08)]">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#3f6b45]">Subjects</p>
-            <h2 className="mt-2 text-2xl font-semibold text-[#071d36]">Notes, videos and photos by topic</h2>
-            <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              {subjectLibrary.map((subject) => (
-                <Link key={subject} href="/media-library" className="rounded-lg border border-[#071d36]/10 bg-[#fffdf8] p-4 transition hover:-translate-y-0.5 hover:border-[#b9913f]/45">
-                  <p className="font-semibold text-[#071d36]">{subject}</p>
-                  <p className="mt-1 text-xs leading-5 text-[#64748b]">Topic notes and referred media</p>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="grid gap-4 md:grid-cols-5">
-          {simpleActions.map((action) => {
-            const Icon = action.icon;
-            return (
-              <Link key={action.title} href={action.href} className="rounded-lg border border-[#071d36]/10 bg-white p-4 text-center shadow-[0_18px_60px_rgba(7,29,54,0.08)] transition hover:-translate-y-1 hover:border-[#b9913f]/45">
-                <Icon className="mx-auto h-6 w-6 text-[#b9913f]" />
-                <p className="mt-3 text-sm font-semibold text-[#071d36]">{action.title}</p>
-              </Link>
-            );
-          })}
-        </section>
-
-        <section className="rounded-lg border border-[#b9913f]/25 bg-[#071d36] p-6 text-white">
-          <h2 className="text-3xl font-semibold">TOPRANK and NIDUS Guru are coming soon.</h2>
-          <p className="mt-3 max-w-2xl text-sm leading-7 text-white/70">For the first real student onboarding, we are keeping the app focused on Academy classes, tests, attendance, library and reports.</p>
-          <div className="mt-5 flex flex-col gap-3 sm:flex-row">
-            <Button href="/dashboard/toprank">TOPRANK Coming Soon</Button>
-            <Button href="/dashboard/nidus-guru" variant="secondary">NIDUS Guru Coming Soon</Button>
-          </div>
-        </section>
-      </motion.div>
-    </RoleDashboardGuard>
+        </Panel>
+      </section>
+    </main>
   );
+}
+
+function Metric({ label, value, icon: Icon }: { label: string; value: number; icon: LucideIcon }) {
+  return (
+    <div className="rounded-2xl border border-[var(--border)] bg-white/85 p-5 shadow-sm">
+      <Icon className="h-5 w-5 text-[var(--gold)]" />
+      <p className="mt-4 text-3xl font-black text-[var(--navy)]">{value}</p>
+      <p className="mt-1 text-sm text-[var(--muted-blue)]">{label}</p>
+    </div>
+  );
+}
+
+function Panel({ title, eyebrow, children }: { title: string; eyebrow: string; children: ReactNode }) {
+  return (
+    <section className="rounded-3xl border border-[var(--border)] bg-white/90 p-5 shadow-sm">
+      <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">{eyebrow}</p>
+      <h2 className="mt-2 text-2xl font-black text-[var(--navy)]">{title}</h2>
+      <div className="mt-5">{children}</div>
+    </section>
+  );
+}
+
+function ClassRow({ item }: { item: CalendarItem }) {
+  const statusColor =
+    item.completionStatus === "GREEN"
+      ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+      : item.completionStatus === "RED"
+        ? "border-rose-200 bg-rose-50 text-rose-800"
+        : "border-orange-200 bg-orange-50 text-orange-800";
+
+  return (
+    <article className="rounded-2xl border border-[var(--border)] bg-white p-4">
+      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div>
+          <p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold)]">{item.subject}</p>
+          <h3 className="mt-1 text-lg font-black text-[var(--navy)]">{item.topic}</h3>
+          <p className="mt-1 text-sm text-[var(--muted-blue)]">
+            {new Date(item.plannedDate).toLocaleDateString()} {item.startTime ? ` / ${item.startTime}` : ""} {item.teacherName ? ` / ${item.teacherName}` : ""}
+          </p>
+        </div>
+        <span className={`rounded-full border px-3 py-1 text-xs font-black ${statusColor}`}>{item.completionStatus ?? "PLANNED"}</span>
+      </div>
+      {item.teacherLog && <p className="mt-3 rounded-xl bg-[var(--page-bg)] p-3 text-sm text-[var(--muted-blue)]">{item.teacherLog}</p>}
+    </article>
+  );
+}
+
+function StudentModule({ title, text, icon: Icon }: { title: string; text: string; icon: LucideIcon }) {
+  return (
+    <div className="rounded-2xl border border-[var(--border)] bg-white/90 p-5 shadow-sm">
+      <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-[var(--gold-border)] bg-[var(--gold-soft)]">
+        <Icon className="h-6 w-6 text-[var(--navy)]" />
+      </div>
+      <h3 className="mt-5 text-xl font-black text-[var(--navy)]">{title}</h3>
+      <p className="mt-2 text-sm leading-6 text-[var(--muted-blue)]">{text}</p>
+    </div>
+  );
+}
+
+function EmptyState({ title, text }: { title: string; text: string }) {
+  return (
+    <div className="rounded-3xl border border-[var(--gold-border)] bg-[var(--gold-soft)] p-6">
+      <ShieldCheck className="h-7 w-7 text-[var(--gold)]" />
+      <h2 className="mt-4 text-2xl font-black text-[var(--navy)]">{title}</h2>
+      <p className="mt-2 max-w-3xl text-sm leading-7 text-[var(--muted-blue)]">{text}</p>
+    </div>
+  );
+}
+
+function SoftNote({ text }: { text: string }) {
+  return <div className="rounded-2xl border border-dashed border-[var(--border)] bg-white/70 p-5 text-sm text-[var(--muted-blue)]">{text}</div>;
 }

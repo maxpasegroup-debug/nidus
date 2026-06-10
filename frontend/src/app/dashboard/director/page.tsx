@@ -1,259 +1,211 @@
 "use client";
 
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { useQuery } from "@tanstack/react-query";
 import {
-  BadgeIndianRupee,
   BarChart3,
-  BookOpenCheck,
+  Building2,
   CalendarDays,
   ClipboardCheck,
-  FileText,
   GraduationCap,
   Megaphone,
-  MonitorPlay,
-  Plus,
-  Settings,
   ShieldCheck,
-  UsersRound
+  Sparkles,
+  Users,
+  WalletCards,
 } from "lucide-react";
-import { DashboardError, DashboardSkeleton, RoleDashboardGuard } from "@/components/dashboard";
-import { Button } from "@/components/ui/button";
-import { PageHero } from "@/components/layout/page-hero";
-import { useDirectorDashboard } from "@/hooks/use-dashboard";
+import type { LucideIcon } from "lucide-react";
 
-type IconType = typeof GraduationCap;
-
-type ControlModule = {
-  title: string;
-  description: string;
-  href: string;
-  icon: IconType;
-  action: string;
-  status?: "green" | "orange" | "red";
+type BatchSummary = {
+  id: string;
+  name: string;
+  status?: string | null;
+  batchType?: string | null;
+  _count?: {
+    students?: number;
+    teachers?: number;
+  };
 };
 
-type ControlRoom = {
-  title: string;
-  purpose: string;
-  href: string;
-  icon: IconType;
-  tone: string;
-  modules: ControlModule[];
+type CalendarSummary = {
+  id: string;
+  completionStatus?: string | null;
 };
 
-const statusStyles = {
-  green: "bg-[#edf7ee] text-[#2f6b3f] border-[#9bc7a0]",
-  orange: "bg-[#fff7de] text-[#8a6426] border-[#e7c873]",
-  red: "bg-[#fff2ec] text-[#9f341f] border-[#efb099]"
-};
+async function apiJson<T>(path: string): Promise<T> {
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_API_BASE_URL || "";
+  const response = await fetch(`${baseUrl}${path}`, {
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+  });
 
-const controlRooms: ControlRoom[] = [
-  {
-    title: "Academic Planning",
-    purpose: "Plan programs, batches, schedules, subjects, teachers, tests and academic calendar. Academic Heads and teachers receive this ready-made plan.",
-    href: "/programs",
-    icon: GraduationCap,
-    tone: "bg-[#fff7de]",
-    modules: [
-      { title: "Programs & Courses", description: "Add and manage all academy programs, online courses and recorded programs.", href: "/programs", icon: BookOpenCheck, action: "Manage", status: "green" },
-      { title: "Batches", description: "Create batches, connect students, and prepare regular or crash-course groups.", href: "/courses", icon: UsersRound, action: "Plan", status: "green" },
-      { title: "Class Schedule", description: "Plan class days, class time, online/offline mode and weekly structure.", href: "/live-classes", icon: CalendarDays, action: "Schedule", status: "orange" },
-      { title: "Timetable", description: "Prepare weekly timetable for each batch and send it to Academic Heads and teachers.", href: "/sessions", icon: ClipboardCheck, action: "Organize", status: "orange" },
-      { title: "Subject Allocation", description: "Decide subjects, topic ownership and teacher responsibility.", href: "/staff-hr", icon: GraduationCap, action: "Allocate", status: "green" },
-      { title: "Test Planner", description: "Plan weekly mocks, quick tests, topic tests and paper analysis days.", href: "/tests", icon: FileText, action: "Plan", status: "orange" }
-    ]
-  },
-  {
-    title: "Team & Performance",
-    purpose: "Oversee academic heads, teachers, physical trainers, syllabus completion, class progress and red/orange/green alerts.",
-    href: "/staff-hr",
-    icon: UsersRound,
-    tone: "bg-[#edf7ee]",
-    modules: [
-      { title: "Academic Heads", description: "Review academic coordination, batch supervision and pending academic decisions.", href: "/staff-hr", icon: UsersRound, action: "Review", status: "green" },
-      { title: "Teachers", description: "Check teacher allocation, teaching load, classes handled and reports submitted.", href: "/staff-hr", icon: GraduationCap, action: "Oversee", status: "green" },
-      { title: "Physical Trainers", description: "Review PT schedule, attendance, eligibility and fitness readiness.", href: "/fitness/pt-schedule", icon: ShieldCheck, action: "Track", status: "orange" },
-      { title: "Syllabus Progress", description: "Track completed, delayed and pending topics by batch and subject.", href: "/performance-analytics", icon: BarChart3, action: "Track", status: "orange" },
-      { title: "Class Completion", description: "See completed classes, missed classes and reschedule requirements.", href: "/live-classes", icon: MonitorPlay, action: "Monitor", status: "green" },
-      { title: "Performance Alerts", description: "Green means on track, orange means delayed, red means urgent attention.", href: "/progress-reports", icon: ClipboardCheck, action: "Review", status: "red" }
-    ]
-  },
-  {
-    title: "Admissions & Marketing",
-    purpose: "Oversee campaigns, leads, counselling, applications, fee verification and batch-wise admission movement.",
-    href: "/crm",
-    icon: Megaphone,
-    tone: "bg-[#eef5ff]",
-    modules: [
-      { title: "Sales Booster", description: "Review marketing campaigns for Academy, TOPRANK, Guru and Assessments.", href: "/dashboard/marketing", icon: Megaphone, action: "Open", status: "green" },
-      { title: "Lead Sources", description: "See enquiries from website, Facebook, Instagram, WhatsApp, YouTube and calls.", href: "/crm/leads", icon: UsersRound, action: "Track", status: "green" },
-      { title: "Follow-ups", description: "Monitor pending calls, parent responses and counselling reminders.", href: "/crm/followups", icon: ClipboardCheck, action: "Monitor", status: "orange" },
-      { title: "Counselling", description: "Track counselling sessions and interest level before admission.", href: "/crm/counselling", icon: CalendarDays, action: "Review", status: "orange" },
-      { title: "Applications", description: "Check student applications, selected program and admission status.", href: "/crm/admissions", icon: FileText, action: "Approve", status: "green" },
-      { title: "Batch Allocation", description: "Move confirmed admissions into the correct batch after approval.", href: "/courses", icon: UsersRound, action: "Allocate", status: "orange" }
-    ]
-  },
-  {
-    title: "Reports & Management",
-    purpose: "Review final company reports, finance, users, roles, settings and pending approvals.",
-    href: "/progress-reports",
-    icon: Settings,
-    tone: "bg-[#f7f3ea]",
-    modules: [
-      { title: "Daily Summary", description: "One-page company movement report for admissions, academics and finance.", href: "/progress-reports", icon: BarChart3, action: "Open", status: "green" },
-      { title: "Finance", description: "Fees collected, pending fees, invoices, subscriptions and refunds.", href: "/payments", icon: BadgeIndianRupee, action: "Review", status: "green" },
-      { title: "Admission Report", description: "Lead to admission conversion and batch-wise joining report.", href: "/crm/admissions", icon: FileText, action: "Report", status: "orange" },
-      { title: "Academic Report", description: "Syllabus, classes, tests, attendance and student performance.", href: "/performance-analytics", icon: GraduationCap, action: "Report", status: "orange" },
-      { title: "User Accounts", description: "Add, disable, delete and manage platform users.", href: "/admin-center/users", icon: UsersRound, action: "Manage", status: "green" },
-      { title: "Roles & Settings", description: "Manage roles, permissions, branches, operations and audit logs.", href: "/admin-center", icon: Settings, action: "Control", status: "green" }
-    ]
+  if (!response.ok) {
+    throw new Error("Unable to load management data");
   }
-];
+
+  return response.json() as Promise<T>;
+}
+
+const managementAreas = [
+  {
+    title: "Academy",
+    label: "Programs",
+    description: "Create batches, plan courses, monitor offline and online academic delivery.",
+    href: "/dashboard/director/academic",
+    icon: GraduationCap,
+  },
+  {
+    title: "Academic Department",
+    label: "Planning",
+    description: "Allocate teachers, publish calendars, and track syllabus status.",
+    href: "/dashboard/director/academic",
+    icon: CalendarDays,
+  },
+  {
+    title: "Admission Cell",
+    label: "Approvals",
+    description: "Approve applicants, assign batches, and activate student dashboards.",
+    href: "/dashboard/admission-cell",
+    icon: ClipboardCheck,
+  },
+  {
+    title: "Sales Booster",
+    label: "Growth",
+    description: "Campaigns, leads, creatives, WhatsApp follow-up and reports.",
+    href: "/dashboard/sales-booster",
+    icon: Megaphone,
+  },
+  {
+    title: "TOPRANK",
+    label: "Exam AI",
+    description: "AI-powered exam coaching subscriptions and training access.",
+    href: "/dashboard/toprank",
+    icon: ShieldCheck,
+  },
+  {
+    title: "NIDUS Guru",
+    label: "Quests",
+    description: "Recorded transformation quests and active learning programs.",
+    href: "/dashboard/guru",
+    icon: Sparkles,
+  },
+  {
+    title: "Assessments",
+    label: "Reports",
+    description: "Psychometric attempts, student reports and readiness insights.",
+    href: "/psychometric/reports",
+    icon: BarChart3,
+  },
+  {
+    title: "Team",
+    label: "People",
+    description: "Teachers, trainers, staff roles and department accountability.",
+    href: "/staff-hr",
+    icon: Users,
+  },
+  {
+    title: "Finance",
+    label: "Accounts",
+    description: "Fees, subscriptions, invoices and payment tracking.",
+    href: "/payments",
+    icon: WalletCards,
+  },
+] as const;
 
 export default function DirectorDashboardPage() {
-  const { data, isLoading, error, refetch, isFetching } = useDirectorDashboard();
+  const batchesQuery = useQuery({ queryKey: ["management", "batches"], queryFn: () => apiJson<BatchSummary[]>("/api/academy/batches") });
+  const calendarQuery = useQuery({
+    queryKey: ["management", "academic-calendar"],
+    queryFn: () => apiJson<CalendarSummary[]>("/api/academy/academic-calendar"),
+  });
 
-  if (isLoading) return <RoleDashboardGuard role="DIRECTOR"><DashboardSkeleton /></RoleDashboardGuard>;
-  if (error || !data) return <RoleDashboardGuard role="DIRECTOR"><DashboardError error={error} onRefresh={() => refetch()} /></RoleDashboardGuard>;
+  const batches = batchesQuery.data ?? [];
+  const calendar = calendarQuery.data ?? [];
+  const studentCount = batches.reduce((total, batch) => total + (batch._count?.students ?? 0), 0);
+  const teacherCount = batches.reduce((total, batch) => total + (batch._count?.teachers ?? 0), 0);
+  const delayedItems = calendar.filter((item) => item.completionStatus === "RED").length;
 
   return (
-    <RoleDashboardGuard role="DIRECTOR">
-      <motion.div className="space-y-8" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-        <PageHero
-          eyebrow="Director Dashboard"
-          title="Plan. Assign. Track."
-          description="A simple control room for academic planning, team performance, admissions, marketing, reports and management."
-          actions={<Button type="button" onClick={() => refetch()} disabled={isFetching} variant="secondary">{isFetching ? "Refreshing..." : "Refresh"}</Button>}
-          stats={[
-            { value: String(data.academyArchitecture.programs), label: "programs" },
-            { value: String(data.academyArchitecture.batches), label: "batches" },
-            { value: String(data.academyArchitecture.timetableSlots), label: "class slots" }
-          ]}
-        />
-
-        <section className="grid gap-4 md:grid-cols-4">
-          {controlRooms.map((room) => (
-            <ControlRoomCard key={room.title} room={room} />
-          ))}
-        </section>
-
-        <div className="rounded-lg border border-[#071d36]/10 bg-white p-5 shadow-[0_18px_60px_rgba(7,29,54,0.08)]">
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#8a6426]">Academic Flow</p>
-          <h2 className="mt-2 text-2xl font-semibold text-[#071d36]">Director plans, Academic Head coordinates, Teachers execute</h2>
-          <div className="mt-5 grid gap-3 md:grid-cols-3">
-            {[
-              ["Director", "Programs, batches, timetable, teacher allocation and test calendar are planned here."],
-              ["Academic Head", "Receives the plan, checks completion, supports teachers and tracks syllabus."],
-              ["Teachers", "See only assigned batches, timetable, classes, tests, attendance and reports."]
-            ].map(([title, text], index) => (
-              <div key={title} className="rounded-lg border border-[#071d36]/10 bg-[#fffdf8] p-4">
-                <span className="grid h-8 w-8 place-items-center rounded-full bg-[#071d36] text-xs font-bold text-[#e7c873]">{index + 1}</span>
-                <h3 className="mt-3 text-lg font-semibold text-[#071d36]">{title}</h3>
-                <p className="mt-2 text-sm leading-6 text-[#40516a]">{text}</p>
-              </div>
-            ))}
+    <main className="min-h-screen bg-[var(--page-bg)] px-5 py-6 text-[var(--navy)] md:px-8">
+      <section className="mx-auto max-w-7xl space-y-8">
+        <div className="rounded-3xl border border-[var(--border)] bg-white/90 p-6 shadow-xl md:p-8">
+          <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Management</p>
+          <div className="mt-3 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+            <div>
+              <h1 className="text-4xl font-black tracking-tight md:text-6xl">Company control room</h1>
+              <p className="mt-4 max-w-3xl text-base leading-8 text-[var(--muted-blue)]">
+                Manage Academy, Admissions, Academic Department, Sales Booster, TOPRANK, NIDUS Guru, Assessments, Team and Finance
+                without demo numbers or confusing dashboards.
+              </p>
+            </div>
+            <Link
+              className="inline-flex items-center justify-center rounded-xl bg-[var(--gold-gradient)] px-5 py-3 font-black text-[var(--navy)] shadow-lg"
+              href="/dashboard/director/academic"
+            >
+              Open Academic Department
+            </Link>
           </div>
         </div>
 
-        <section className="grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
-          <div className="rounded-lg border border-[#071d36]/10 bg-white p-5 shadow-[0_18px_60px_rgba(7,29,54,0.08)]">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#8a6426]">Academy Architecture</p>
-            <h2 className="mt-3 text-2xl font-semibold text-[#071d36]">Seeded operational system</h2>
-            <div className="mt-5 grid gap-3">
-              {[
-                ["Programs", data.academyArchitecture.programs],
-                ["Batches", data.academyArchitecture.batches],
-                ["Teacher mappings", data.academyArchitecture.teacherAssignments],
-                ["Timetable slots", data.academyArchitecture.timetableSlots],
-                ["Draft tests", data.academyArchitecture.draftTests],
-                ["Live tests", data.academyArchitecture.liveTests]
-              ].map(([label, value]) => (
-                <div key={label} className="flex items-center justify-between rounded-lg border border-[#071d36]/10 bg-[#fffdf8] px-4 py-3">
-                  <span className="text-sm font-semibold text-[#071d36]">{label}</span>
-                  <span className="rounded-full bg-[#fff7de] px-3 py-1 text-sm font-bold text-[#8a6426]">{value}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="rounded-lg border border-[#071d36]/10 bg-white p-5 shadow-[0_18px_60px_rgba(7,29,54,0.08)]">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#8a6426]">Verticals & Batch Types</p>
-            <h2 className="mt-3 text-2xl font-semibold text-[#071d36]">Where the academy is organized</h2>
-            <div className="mt-5 grid gap-3 md:grid-cols-2">
-              {data.academyArchitecture.verticals.map((item) => (
-                <div key={item.category} className="rounded-lg border border-[#071d36]/10 bg-[#fffdf8] p-4">
-                  <p className="text-sm font-semibold text-[#071d36]">{item.category}</p>
-                  <p className="mt-1 text-xs text-[#64748b]">{item.count} programs</p>
-                </div>
-              ))}
-              {data.academyArchitecture.batchTypes.map((item) => (
-                <div key={item.type} className="rounded-lg border border-[#071d36]/10 bg-[#f7f3ea] p-4">
-                  <p className="text-sm font-semibold text-[#071d36]">{item.type.replace(/_/g, " ")}</p>
-                  <p className="mt-1 text-xs text-[#64748b]">{item.count} batches</p>
-                </div>
-              ))}
-            </div>
-          </div>
+        <div className="grid gap-4 md:grid-cols-4">
+          <Metric label="Active Batches" value={batches.filter((batch) => batch.status === "ACTIVE").length} icon={Building2} />
+          <Metric label="Students In Batches" value={studentCount} icon={GraduationCap} />
+          <Metric label="Teacher Allocations" value={teacherCount} icon={Users} />
+          <Metric label="Delayed Calendar Items" value={delayedItems} icon={CalendarDays} />
+        </div>
+
+        <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {managementAreas.map((area) => (
+            <ManagementCard key={area.title} area={area} />
+          ))}
         </section>
 
-        <div className="space-y-6">
-          {controlRooms.map((room) => (
-            <section key={room.title} className="rounded-lg border border-[#071d36]/10 bg-white p-5 shadow-[0_18px_60px_rgba(7,29,54,0.08)]">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div className="flex items-start gap-3">
-                  <span className={`grid h-12 w-12 shrink-0 place-items-center rounded-lg border border-[#071d36]/10 ${room.tone}`}>
-                    <room.icon className="h-6 w-6 text-[#071d36]" />
-                  </span>
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#8a6426]">Control Room</p>
-                    <h2 className="mt-1 text-2xl font-semibold text-[#071d36]">{room.title}</h2>
-                    <p className="mt-1 max-w-3xl text-sm leading-6 text-[#40516a]">{room.purpose}</p>
-                  </div>
-                </div>
-                <Button href={room.href} variant="secondary">Open</Button>
+        <section className="rounded-3xl border border-[var(--border)] bg-white/90 p-5 shadow-sm">
+          <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Today</p>
+          <h2 className="mt-2 text-2xl font-black">Live academic attention</h2>
+          <div className="mt-5 grid gap-3">
+            {delayedItems > 0 ? (
+              <div className="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm font-bold text-rose-800">
+                {delayedItems} academic calendar item{delayedItems === 1 ? "" : "s"} need management attention.
               </div>
-              <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-                {room.modules.map((module) => (
-                  <ControlModuleCard key={`${room.title}-${module.title}`} module={module} />
-                ))}
+            ) : (
+              <div className="rounded-2xl border border-[var(--border)] bg-white p-4 text-sm text-[var(--muted-blue)]">
+                No delayed academic calendar item is reported right now.
               </div>
-            </section>
-          ))}
-        </div>
-      </motion.div>
-    </RoleDashboardGuard>
+            )}
+            {!batches.length && (
+              <div className="rounded-2xl border border-dashed border-[var(--border)] bg-white/70 p-4 text-sm text-[var(--muted-blue)]">
+                No batches found. Start from Academic Department and create the first real batch.
+              </div>
+            )}
+          </div>
+        </section>
+      </section>
+    </main>
   );
 }
 
-function ControlRoomCard({ room }: { room: ControlRoom }) {
-  const Icon = room.icon;
+function Metric({ label, value, icon: Icon }: { label: string; value: number; icon: LucideIcon }) {
   return (
-    <Link href={room.href} className="group rounded-lg border border-[#071d36]/10 bg-white p-5 shadow-[0_18px_60px_rgba(7,29,54,0.08)] transition hover:-translate-y-1 hover:border-[#b9913f]/45">
-      <div className={`grid h-14 w-14 place-items-center rounded-lg border border-[#071d36]/10 ${room.tone}`}>
-        <Icon className="h-7 w-7 text-[#071d36]" />
-      </div>
-      <h3 className="mt-5 text-xl font-semibold text-[#071d36]">{room.title}</h3>
-      <p className="mt-2 text-sm leading-6 text-[#40516a]">{room.purpose}</p>
-      <span className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[#071d36]">
-        Open <Plus className="h-4 w-4 transition group-hover:rotate-90" />
-      </span>
-    </Link>
+    <div className="rounded-2xl border border-[var(--border)] bg-white/85 p-5 shadow-sm">
+      <Icon className="h-5 w-5 text-[var(--gold)]" />
+      <p className="mt-4 text-3xl font-black text-[var(--navy)]">{value}</p>
+      <p className="mt-1 text-sm text-[var(--muted-blue)]">{label}</p>
+    </div>
   );
 }
 
-function ControlModuleCard({ module }: { module: ControlModule }) {
-  const Icon = module.icon;
+function ManagementCard({ area }: { area: (typeof managementAreas)[number] }) {
+  const Icon = area.icon;
   return (
-    <Link href={module.href} className="group flex min-h-36 flex-col rounded-lg border border-[#071d36]/10 bg-[#fffdf8] p-4 transition hover:-translate-y-0.5 hover:border-[#b9913f]/45 hover:bg-white">
-      <div className="flex items-start justify-between gap-3">
-        <span className="grid h-11 w-11 place-items-center rounded-lg bg-[#f7f3ea] text-[#071d36]">
-          <Icon className="h-5 w-5" />
-        </span>
-        <span className={`rounded-full border px-3 py-1 text-xs font-semibold ${statusStyles[module.status ?? "green"]}`}>{module.action}</span>
+    <Link className="group rounded-2xl border border-[var(--border)] bg-white/90 p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-xl" href={area.href}>
+      <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-[var(--gold-border)] bg-[var(--gold-soft)]">
+        <Icon className="h-6 w-6 text-[var(--navy)]" />
       </div>
-      <h3 className="mt-4 text-base font-semibold text-[#071d36]">{module.title}</h3>
-      <p className="mt-2 text-sm leading-6 text-[#40516a]">{module.description}</p>
-      <p className="mt-auto pt-4 text-sm font-semibold text-[#071d36]">Add / Manage / Track</p>
+      <p className="mt-5 text-xs font-black uppercase tracking-[0.25em] text-[var(--gold)]">{area.label}</p>
+      <h3 className="mt-2 text-2xl font-black text-[var(--navy)]">{area.title}</h3>
+      <p className="mt-3 text-sm leading-7 text-[var(--muted-blue)]">{area.description}</p>
+      <span className="mt-5 inline-flex font-black text-[var(--navy)]">Open area +</span>
     </Link>
   );
 }

@@ -1,48 +1,28 @@
 import { Router } from "express";
-import { body } from "express-validator";
-import { Role } from "../../generated/prisma/client.js";
-import { allowRoles, protect } from "../../middlewares/session.middleware.js";
+
+import { requireAuth, requireRole } from "../../middlewares/session.middleware.js";
 import { academyController } from "./academy.controller.js";
 
-export const academyRouter = Router();
+const router = Router();
 
-const academyRoles = [protect, allowRoles(Role.ADMIN, Role.DIRECTOR, Role.TEACHER)];
-const academyAdminRoles = [protect, allowRoles(Role.ADMIN, Role.DIRECTOR)];
+const academicRoles = ["ADMIN", "DIRECTOR", "TEACHER"] as const;
+const managementRoles = ["ADMIN", "DIRECTOR"] as const;
 
-academyRouter.get("/batches", ...academyRoles, academyController.batches);
-academyRouter.get("/teacher-assignments", ...academyRoles, academyController.teacherAssignments);
-academyRouter.post(
-  "/batches",
-  ...academyAdminRoles,
-  [
-    body("name").trim().isLength({ min: 2 }),
-    body("batchType").trim().notEmpty(),
-    body("programSlug").trim().notEmpty(),
-    body("courseId").optional({ nullable: true }).trim(),
-    body("startDate").optional({ nullable: true }).isISO8601(),
-    body("endDate").optional({ nullable: true }).isISO8601(),
-    body("schedule").optional()
-  ],
-  academyController.createBatch
-);
-academyRouter.post(
-  "/batches/:id/students",
-  ...academyAdminRoles,
-  [
-    body("studentId").trim().notEmpty(),
-    body("status").optional().trim(),
-    body("remarks").optional({ nullable: true }).trim()
-  ],
-  academyController.addStudent
-);
-academyRouter.post(
-  "/batches/:id/teachers",
-  ...academyAdminRoles,
-  [
-    body("teacherId").trim().notEmpty(),
-    body("subject").trim().notEmpty(),
-    body("role").optional().trim(),
-    body("status").optional().trim()
-  ],
-  academyController.assignTeacher
-);
+router.use(requireAuth);
+
+router.get("/batches", academyController.batches);
+router.get("/teachers", requireRole(academicRoles), academyController.teachers);
+router.get("/teacher-assignments", requireRole(academicRoles), academyController.teacherAssignments);
+router.get("/my-plan", academyController.myAcademicPlan);
+router.get("/academic-calendar", requireRole(academicRoles), academyController.academicCalendar);
+
+router.post("/academic-calendar", requireRole(academicRoles), academyController.createAcademicCalendarItem);
+router.patch("/academic-calendar/:id", requireRole(academicRoles), academyController.updateAcademicCalendarItem);
+
+router.post("/batches", requireRole(managementRoles), academyController.createBatch);
+router.patch("/batches/:id", requireRole(managementRoles), academyController.updateBatch);
+router.post("/batches/:id/students", requireRole(managementRoles), academyController.addStudent);
+router.post("/batches/:id/teachers", requireRole(academicRoles), academyController.assignTeacher);
+router.post("/admissions/approve", requireRole(managementRoles), academyController.approveAdmissionToBatch);
+
+export { router as academyRoutes };
