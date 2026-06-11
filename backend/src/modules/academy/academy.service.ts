@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import bcrypt from "bcryptjs";
 
 import { Prisma, Role } from "../../generated/prisma/client.js";
 import { prisma } from "../../config/prisma.js";
@@ -55,6 +56,24 @@ type ApproveAdmissionInput = StudentInput & {
   batchId: string;
   applicationId?: string;
   leadId?: string;
+};
+
+type EmployeeInput = {
+  name: string;
+  email: string;
+  phone?: string;
+  role: Role;
+  designation?: string;
+  department?: string;
+  employmentType?: "FULL_TIME" | "PART_TIME" | "HOURLY" | "CONTRACT";
+  hourlyRate?: number;
+  subjects?: string[];
+  dashboardTemplate?: string;
+  password?: string;
+};
+
+type EmployeeUpdateInput = Partial<EmployeeInput> & {
+  status?: string;
 };
 
 type AcademicCalendarRow = {
@@ -325,7 +344,7 @@ export const academyService = {
 
   async teachers() {
     return prisma.user.findMany({
-      where: { role: Role.TEACHER },
+      where: { role: { in: [Role.TEACHER, Role.DIRECTOR] } },
       select: {
         id: true,
         name: true,
@@ -336,6 +355,172 @@ export const academyService = {
       },
       orderBy: { name: "asc" },
     });
+  },
+
+  async employees(user: Requester, includeArchived = false) {
+    requireManagement(user);
+    const users = await prisma.user.findMany({
+      where: {
+        role: {
+          in: [Role.ADMIN, Role.DIRECTOR, Role.TEACHER, Role.STUDENT],
+        },
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        phone: true,
+        role: true,
+        roleMetadata: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    return users.filter((employee) => {
+      const metadata = (employee.roleMetadata ?? {}) as Record<string, unknown>;
+      return includeArchived || metadata.status !== "ARCHIVED";
+    });
+  },
+
+  async createEmployee(user: Requester, input: EmployeeInput) {
+    requireManagement(user);
+    if (!input.name || !input.email || !input.role) {
+      throw Object.assign(new Error("Name, email and role are required"), { statusCode: 400 });
+    }
+
+    const allowedRoles = [Role.ADMIN, Role.DIRECTOR, Role.TEACHER];
+    if (!allowedRoles.includes(input.role)) {
+      throw Object.assign(new Error("Only employee roles can be created here"), { statusCode: 400 });
+    }
+
+    const temporaryPassword = input.password || "123456789";
+    const passwordHash = await bcrypt.hash(temporaryPassword, 10);
+    const roleMetadata = {
+      designation: input.designation || "Employee",
+      department: input.department || "Academy",
+      employmentType: input.employmentType || "FULL_TIME",
+      hourlyRate: input.hourlyRate || null,
+      subjects: input.subjects || [],
+      dashboardTemplate: input.dashboardTemplate || (input.designation?.toLowerCase().includes("academic head") ? "ACADEMIC_HEAD" : undefined),
+      status: "ACTIVE",
+      createdBy: user.id,
+      credentialGeneratedAt: new Date().toISOString(),
+    };
+
+    const created = await prisma.user.create({
+      data: {
+        name: input.name,
+        email: input.email.toLowerCase(),
+        phone: input.phone,
+        role: input.role,
+        passwordHash,
+        mustChangePassword: true,
+        roleMetadata,
+      } as Prisma.UserUncheckedCreateInput,
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        phone: true,
+        role: true,
+        roleMetadata: true,
+      },
+    });
+
+    return {
+      employee: created,
+      credentials: {
+        email: created.email,
+        temporaryPassword,
+        mustChangePassword: true,
+      },
+    };
+  },
+
+  async updateEmployee(user: Requester, employeeId: string, input: EmployeeUpdateInput) {
+    requireManagement(user);
+    const employee = await prisma.user.findUnique({ where: { id: employeeId } });
+    if (!employee) {
+      throw Object.assign(new Error("Employee not found"), { statusCode: 404 });
+    }
+
+    const existingMetadata = (employee.roleMetadata ?? {}) as Record<string, unknown>;
+    const roleMetadata = {
+      ...existingMetadata,
+      designation: input.designation ?? existingMetadata.designation,
+      department: input.department ?? existingMetadata.department,
+      employmentType: input.employmentType ?? existingMetadata.employmentType,
+      hourlyRate: input.hourlyRate ?? existingMetadata.hourlyRate,
+      subjects: input.subjects ?? existingMetadata.subjects,
+      dashboardTemplate: input.dashboardTemplate ?? existingMetadata.dashboardTemplate,
+      status: input.status ?? existingMetadata.status ?? "ACTIVE",
+      updatedBy: user.id,
+      updatedAt: new Date().toISOString(),
+    };
+
+    return prisma.user.update({
+      where: { id: employeeId },
+      data: {
+        name: input.name,
+        email: input.email?.toLowerCase(),
+        phone: input.phone,
+        role: input.role,
+        roleMetadata,
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        phone: true,
+        role: true,
+        roleMetadata: true,
+      },
+    });
+  },
+
+  async archiveEmployee(user: Requester, employeeId: string) {
+    requireManagement(user);
+    return this.updateEmployee(user, employeeId, { status: "ARCHIVED" });
+  },
+
+  async resetEmployeePassword(user: Requester, employeeId: string, password = "123456789") {
+    requireManagement(user);
+    const passwordHash = await bcrypt.hash(password, 10);
+    const employee = await prisma.user.findUnique({ where: { id: employeeId } });
+    if (!employee) {
+      throw Object.assign(new Error("Employee not found"), { statusCode: 404 });
+    }
+    const existingMetadata = (employee.roleMetadata ?? {}) as Record<string, unknown>;
+    const updated = await prisma.user.update({
+      where: { id: employeeId },
+      data: {
+        passwordHash,
+        mustChangePassword: true,
+        roleMetadata: {
+          ...existingMetadata,
+          passwordResetBy: user.id,
+          passwordResetAt: new Date().toISOString(),
+        },
+      } as Prisma.UserUncheckedUpdateInput,
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        roleMetadata: true,
+      },
+    });
+
+    return {
+      employee: updated,
+      credentials: {
+        email: updated.email,
+        temporaryPassword: password,
+        mustChangePassword: true,
+      },
+    };
   },
 
   async academicCalendar(user: Requester, query: Record<string, unknown>) {

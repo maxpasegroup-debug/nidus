@@ -103,4 +103,39 @@ export const academyController = {
       next(error);
     }
   },
+  employees: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      res.json(await academyService.employees(requester(req), req.query.includeArchived === "true"));
+    } catch (error) {
+      next(error);
+    }
+  },
+  createEmployee: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      res.status(201).json(await academyService.createEmployee(requester(req), req.body));
+    } catch (error) {
+      next(error);
+    }
+  },
+  updateEmployee: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      res.json(await academyService.updateEmployee(requester(req), param(req, "id"), req.body));
+    } catch (error) {
+      next(error);
+    }
+  },
+  archiveEmployee: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      res.json(await academyService.archiveEmployee(requester(req), param(req, "id")));
+    } catch (error) {
+      next(error);
+    }
+  },
+  resetEmployeePassword: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      res.json(await academyService.resetEmployeePassword(requester(req), param(req, "id"), req.body?.password));
+    } catch (error) {
+      next(error);
+    }
+  },
 };

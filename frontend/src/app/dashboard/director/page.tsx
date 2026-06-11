@@ -48,6 +48,13 @@ async function apiJson<T>(path: string): Promise<T> {
 
 const managementAreas = [
   {
+    title: "Employee Control",
+    label: "Management",
+    description: "Add employees, generate credentials, assign dashboards, reset passwords and archive safely.",
+    href: "/dashboard/director/management",
+    icon: Users,
+  },
+  {
     title: "Academy",
     label: "Programs",
     description: "Create batches, plan courses, monitor offline and online academic delivery.",
