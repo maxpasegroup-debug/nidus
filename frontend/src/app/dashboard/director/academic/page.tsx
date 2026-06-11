@@ -477,7 +477,8 @@ function BatchTeamBoard({ batch, onClose }: { batch: AcademyBatch; onClose: () =
     students?: Array<{
       id?: string;
       status?: string;
-      user?: { id?: string; name?: string | null; email?: string | null; mobile?: string | null; phone?: string | null } | null;
+      remarks?: string | null;
+      student?: { id?: string; name?: string | null; email?: string | null; mobile?: string | null; phone?: string | null } | null;
     }>;
     teachers?: Array<{
       id?: string;
@@ -524,12 +525,12 @@ function BatchTeamBoard({ batch, onClose }: { batch: AcademyBatch; onClose: () =
         <p className="text-center text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Students</p>
         <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {students.map((student, index) => (
-            <div key={student.id ?? student.user?.id ?? index} className="rounded-2xl border border-[var(--border)] bg-white p-4 text-center shadow-sm">
+            <div key={student.id ?? student.student?.id ?? index} className="rounded-2xl border border-[var(--border)] bg-white p-4 text-center shadow-sm">
               <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full border border-[var(--gold-border)] bg-[var(--gold-soft)] font-black text-[var(--navy)]">
-                {(student.user?.name ?? "S").slice(0, 1)}
+                {(student.student?.name ?? "S").slice(0, 1)}
               </div>
-              <h3 className="mt-3 font-black">{student.user?.name ?? "Student"}</h3>
-              <p className="mt-1 text-xs text-[var(--muted-blue)]">{student.user?.email ?? "No email"}</p>
+              <h3 className="mt-3 font-black">{student.student?.name ?? "Student"}</h3>
+              <p className="mt-1 text-xs text-[var(--muted-blue)]">{student.student?.email ?? "No email"}</p>
               <span className="mt-3 inline-flex rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-black text-emerald-800">
                 {student.status ?? "ACTIVE"}
               </span>
