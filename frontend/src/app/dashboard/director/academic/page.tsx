@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import type { FormEvent, ReactNode } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -55,7 +55,6 @@ export default function DirectorAcademicDepartmentPage() {
     batchType: "OFFLINE",
     startDate: "",
     endDate: "",
-    capacity: "",
   });
   const [allocation, setAllocation] = useState({
     batchId: "",
@@ -81,15 +80,6 @@ export default function DirectorAcademicDepartmentPage() {
   const teachers = teachersQuery.data ?? [];
   const calendarItems = calendarQuery.data ?? [];
 
-  const selectedBatch = useMemo(
-    () => batches.find((batch) => batch.id === calendarForm.batchId),
-    [batches, calendarForm.batchId],
-  );
-  const selectedTeacher = useMemo(
-    () => teachers.find((teacher) => teacher.id === calendarForm.teacherId),
-    [teachers, calendarForm.teacherId],
-  );
-
   const refresh = () => {
     void queryClient.invalidateQueries({ queryKey: ["academy", "batches"] });
     void queryClient.invalidateQueries({ queryKey: ["academy", "teachers"] });
@@ -99,7 +89,7 @@ export default function DirectorAcademicDepartmentPage() {
   const createBatchMutation = useMutation({
     mutationFn: createAcademyBatch,
     onSuccess: () => {
-      setBatchForm({ name: "", courseId: "", batchType: "OFFLINE", startDate: "", endDate: "", capacity: "" });
+      setBatchForm({ name: "", courseId: "", batchType: "OFFLINE", startDate: "", endDate: "" });
       refresh();
       setNotice("Batch created. The batch is now ready for planning.");
     },
@@ -116,7 +106,7 @@ export default function DirectorAcademicDepartmentPage() {
   });
 
   const assignTeacherMutation = useMutation({
-    mutationFn: ({ batchId, payload }: { batchId: string; payload: { teacherId: string; subject?: string; role?: string } }) =>
+    mutationFn: ({ batchId, payload }: { batchId: string; payload: { teacherId: string; subject: string; role?: string } }) =>
       assignTeacherToBatch(batchId, payload),
     onSuccess: () => {
       setAllocation({ batchId: "", teacherId: "", subject: "", role: "Subject Teacher" });
@@ -151,10 +141,10 @@ export default function DirectorAcademicDepartmentPage() {
     createBatchMutation.mutate({
       name: batchForm.name,
       courseId: batchForm.courseId || undefined,
+      programSlug: batchForm.courseId || "academy-program",
       batchType: batchForm.batchType,
       startDate: batchForm.startDate || undefined,
       endDate: batchForm.endDate || undefined,
-      capacity: batchForm.capacity ? Number(batchForm.capacity) : undefined,
     });
   };
 
@@ -164,7 +154,7 @@ export default function DirectorAcademicDepartmentPage() {
       batchId: allocation.batchId,
       payload: {
         teacherId: allocation.teacherId,
-        subject: allocation.subject || undefined,
+        subject: allocation.subject || "General",
         role: allocation.role || undefined,
       },
     });
@@ -174,15 +164,12 @@ export default function DirectorAcademicDepartmentPage() {
     event.preventDefault();
     createCalendarMutation.mutate({
       batchId: calendarForm.batchId,
-      batchName: selectedBatch?.name,
-      programSlug: selectedBatch?.course?.slug,
       subject: calendarForm.subject,
       topic: calendarForm.topic,
       plannedDate: calendarForm.plannedDate,
       startTime: calendarForm.startTime || undefined,
       endTime: calendarForm.endTime || undefined,
       teacherId: calendarForm.teacherId || undefined,
-      teacherName: selectedTeacher?.name,
     });
   };
 
@@ -245,7 +232,6 @@ export default function DirectorAcademicDepartmentPage() {
                     <option key={type} value={type}>{type}</option>
                   ))}
                 </Select>
-                <Input label="Capacity" type="number" value={batchForm.capacity} onChange={(value) => setBatchForm((form) => ({ ...form, capacity: value }))} />
                 <Input label="Start date" type="date" value={batchForm.startDate} onChange={(value) => setBatchForm((form) => ({ ...form, startDate: value }))} />
                 <Input label="End date" type="date" value={batchForm.endDate} onChange={(value) => setBatchForm((form) => ({ ...form, endDate: value }))} />
               </div>
@@ -425,10 +411,9 @@ function BatchCard({ batch, onStatus }: { batch: AcademyBatch; onStatus: (status
           {batch.status}
         </span>
       </div>
-      <div className="mt-4 grid grid-cols-3 gap-2 text-center text-xs text-[var(--muted-blue)]">
+      <div className="mt-4 grid grid-cols-2 gap-2 text-center text-xs text-[var(--muted-blue)]">
         <span className="rounded-xl bg-[var(--page-bg)] p-2">{batch._count?.students ?? 0} students</span>
         <span className="rounded-xl bg-[var(--page-bg)] p-2">{batch._count?.teachers ?? 0} teachers</span>
-        <span className="rounded-xl bg-[var(--page-bg)] p-2">{batch.capacity ?? "-"} seats</span>
       </div>
       <div className="mt-4 flex flex-wrap gap-2">
         <button className="rounded-lg border border-emerald-200 px-3 py-2 text-sm font-bold text-emerald-800" onClick={() => onStatus("ACTIVE")}>

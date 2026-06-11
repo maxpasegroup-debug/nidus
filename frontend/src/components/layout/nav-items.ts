@@ -1,161 +1,105 @@
-import type { AuthRole } from "@/services/auth.v2";
-import { roleDashboardPath } from "@/lib/dashboard-data";
+import {
+  BarChart3,
+  Bell,
+  BookOpen,
+  CalendarDays,
+  CheckCircle2,
+  ClipboardCheck,
+  FileText,
+  GraduationCap,
+  LayoutDashboard,
+  Library,
+  Megaphone,
+  Settings,
+  ShieldCheck,
+  Sparkles,
+  UserRound,
+  Users,
+  WalletCards,
+} from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
-const sharedLearningMenu = [
-  { label: "Home", href: "/" },
-  { label: "Dashboard", href: "/dashboard" },
-  { label: "Courses", href: "/courses" },
-  { label: "Tests", href: "/tests" },
-  { label: "Reports", href: "/progress-reports" },
-  { label: "NIDUS AI", href: "/nidus-ai" },
-  { label: "Live", href: "/live-classes" },
-  { label: "Media", href: "/media-library" },
-  { label: "Docs", href: "/documents" },
-  { label: "Messages", href: "/messages" },
-  { label: "Settings", href: "/dashboard/settings" }
+export type NavItem = {
+  label: string;
+  href: string;
+  icon: LucideIcon;
+};
+
+const teacherMenu: NavItem[] = [
+  { label: "Today", href: "/dashboard/teacher#today", icon: Bell },
+  { label: "Classrooms", href: "/dashboard/teacher#classrooms", icon: Users },
+  { label: "Exams", href: "/dashboard/teacher#exams", icon: ClipboardCheck },
+  { label: "Assignments", href: "/dashboard/teacher#assignments", icon: FileText },
+  { label: "Attendance", href: "/dashboard/teacher#attendance", icon: CheckCircle2 },
+  { label: "Library", href: "/dashboard/teacher#library", icon: Library },
+  { label: "Academic Calendar", href: "/dashboard/teacher#academic-calendar", icon: CalendarDays },
+  { label: "Profile", href: "/dashboard/settings", icon: UserRound },
 ];
 
-const learnerGuruMenu = [
-  { label: "My Journey", href: "/dashboard" },
-  { label: "TOPRANK", href: "/dashboard/toprank" },
-  { label: "NIDUS Guru", href: "/dashboard/nidus-guru" },
-  { label: "Academy Programs", href: "/dashboard/academy" },
-  { label: "Assessments", href: "/dashboard/assessments" },
-  { label: "Digital Profile", href: "/digital-profile" },
-  { label: "Learning", href: "/courses" },
-  { label: "Progress", href: "/progress-reports" },
-  { label: "Mock Tests", href: "/tests" },
-  { label: "Live", href: "/live-classes" }
+const academicHeadMenu: NavItem[] = [
+  { label: "Teaching Profile", href: "/dashboard/teacher#teaching-profile", icon: GraduationCap },
+  { label: "Academic Department", href: "/dashboard/director/academic", icon: LayoutDashboard },
+  { label: "Today", href: "/dashboard/teacher#today", icon: Bell },
+  { label: "Batches", href: "/dashboard/director/academic#batches", icon: BookOpen },
+  { label: "Teacher Allocation", href: "/dashboard/director/academic#teacher-allocation", icon: Users },
+  { label: "Timetable", href: "/dashboard/director/academic#calendar", icon: CalendarDays },
+  { label: "Syllabus Tracker", href: "/dashboard/director/academic#tracker", icon: BarChart3 },
+  { label: "Exam Approval", href: "/dashboard/teacher#exams", icon: ClipboardCheck },
+  { label: "Student Progress", href: "/dashboard/director/academic#batches", icon: ShieldCheck },
+  { label: "Reports", href: "/performance-analytics", icon: FileText },
+  { label: "Profile", href: "/dashboard/settings", icon: UserRound },
 ];
 
-const parentMenu = [
-  { label: "Parent View", href: "/dashboard/parent" },
-  { label: "Progress", href: "/progress-reports" },
-  { label: "Assessments", href: "/dashboard/assessments" },
-  { label: "Digital Profile", href: "/digital-profile" },
-  { label: "Fees", href: "/payments" },
-  { label: "Messages", href: "/messages" },
-  { label: "Settings", href: "/dashboard/settings" }
+const directorMenu: NavItem[] = [
+  { label: "Management", href: "/dashboard/director", icon: LayoutDashboard },
+  { label: "Employee Control", href: "/dashboard/director/management", icon: Users },
+  { label: "Academy", href: "/programs", icon: GraduationCap },
+  { label: "Academic Department", href: "/dashboard/director/academic", icon: BookOpen },
+  { label: "Admissions", href: "/dashboard/admission-cell", icon: ClipboardCheck },
+  { label: "TOPRANK", href: "/dashboard/toprank", icon: ShieldCheck },
+  { label: "NIDUS Guru", href: "/dashboard/guru", icon: Sparkles },
+  { label: "Assessments", href: "/psychometric/reports", icon: BarChart3 },
+  { label: "Sales Booster", href: "/dashboard/sales-booster", icon: Megaphone },
+  { label: "Finance", href: "/payments", icon: WalletCards },
+  { label: "Team", href: "/staff-hr", icon: Users },
+  { label: "Reports", href: "/performance-analytics", icon: FileText },
+  { label: "Settings", href: "/dashboard/settings", icon: Settings },
 ];
 
-const guestJourneyMenu = [
-  { label: "My Journey", href: "/dashboard/guest" },
-  { label: "TOPRANK", href: "/dashboard/toprank" },
-  { label: "NIDUS Guru", href: "/dashboard/nidus-guru" },
-  { label: "Academy Programs", href: "/dashboard/academy" },
-  { label: "Assessments", href: "/dashboard/assessments" },
-  { label: "Digital Profile", href: "/digital-profile" }
+const admissionMenu: NavItem[] = [
+  { label: "Admission Cell", href: "/dashboard/admission-cell", icon: ClipboardCheck },
+  { label: "Enquiries", href: "/crm/leads", icon: Bell },
+  { label: "Admissions", href: "/crm/admissions", icon: GraduationCap },
+  { label: "Counselling", href: "/crm/counselling", icon: Users },
+  { label: "Follow Ups", href: "/crm/followups", icon: CalendarDays },
+  { label: "Profile", href: "/dashboard/settings", icon: UserRound },
 ];
 
-const facultyMenu = [
-  { label: "Today", href: "/dashboard/teacher#today" },
-  { label: "Classroom", href: "/dashboard/teacher#classroom" },
-  { label: "Exams", href: "/dashboard/teacher#exams" },
-  { label: "Assignments", href: "/dashboard/teacher#assignments" },
-  { label: "Attendance", href: "/dashboard/teacher#attendance" },
-  { label: "Library", href: "/dashboard/teacher#library" },
-  { label: "Academic Calendar", href: "/dashboard/teacher#calendar" }
+const studentMenu: NavItem[] = [
+  { label: "My Journey", href: "/dashboard/student", icon: LayoutDashboard },
+  { label: "Classes", href: "/dashboard/student#classes", icon: BookOpen },
+  { label: "Exams", href: "/dashboard/student#exams", icon: ClipboardCheck },
+  { label: "Assignments", href: "/dashboard/student#assignments", icon: FileText },
+  { label: "Library", href: "/dashboard/student#library", icon: Library },
+  { label: "Academic Calendar", href: "/dashboard/student#academic-calendar", icon: CalendarDays },
+  { label: "Digital Profile", href: "/digital-profile", icon: UserRound },
 ];
 
-const academicHeadMenu = [
-  { label: "Today", href: "/dashboard/teacher#today" },
-  { label: "Batches", href: "/dashboard/teacher#batches" },
-  { label: "Teacher Allocation", href: "/dashboard/teacher#teachers" },
-  { label: "Timetable", href: "/dashboard/teacher#timetable" },
-  { label: "Syllabus Tracker", href: "/dashboard/teacher#syllabus" },
-  { label: "Exam Approval", href: "/examination-center" },
-  { label: "Student Progress", href: "/performance-analytics" },
-  { label: "Reports", href: "/progress-reports" }
+const guestMenu: NavItem[] = [
+  { label: "My Journey", href: "/dashboard/guest", icon: LayoutDashboard },
+  { label: "Assessments", href: "/psychometric", icon: BarChart3 },
+  { label: "Academy Programs", href: "/programs", icon: GraduationCap },
+  { label: "TOPRANK", href: "/dashboard/toprank", icon: ShieldCheck },
+  { label: "NIDUS Guru", href: "/dashboard/guru", icon: Sparkles },
+  { label: "Digital Profile", href: "/digital-profile", icon: UserRound },
 ];
 
-const salesBoosterMenu = [
-  { label: "Sales Booster", href: "/dashboard/marketing" },
-  { label: "Campaign Builder", href: "/dashboard/marketing" },
-  { label: "Lead CRM", href: "/crm/leads" },
-  { label: "Creatives", href: "/media-library" },
-  { label: "WhatsApp Center", href: "/messages" },
-  { label: "Analytics", href: "/performance-analytics" },
-  { label: "Reports", href: "/progress-reports" },
-  { label: "Settings", href: "/dashboard/settings" }
-];
-
-const telecallerMenu = [
-  { label: "My Calls", href: "/dashboard/telecaller" },
-  { label: "New Leads", href: "/crm/leads" },
-  { label: "Follow-ups", href: "/crm/followups" },
-  { label: "Counselling", href: "/crm/counselling" },
-  { label: "Send to Admission Cell", href: "/crm/admissions" },
-  { label: "Messages", href: "/messages" },
-  { label: "Reports", href: "/progress-reports" },
-  { label: "Settings", href: "/dashboard/settings" }
-];
-
-const adminOperationsMenu = [
-  { label: "Admission Cell", href: "/dashboard/admin" },
-  { label: "Enquiries", href: "/crm/leads" },
-  { label: "Applications", href: "/crm/admissions" },
-  { label: "Examination Center", href: "/examination-center" },
-  { label: "Question Bank", href: "/examination-center/question-bank" },
-  { label: "Exams", href: "/examination-center/exams" },
-  { label: "Published Exams", href: "/examination-center/published" },
-  { label: "Results", href: "/examination-center/results" },
-  { label: "Analytics", href: "/examination-center/analytics" },
-  { label: "Follow-ups", href: "/crm/followups" },
-  { label: "Fees", href: "/payments" },
-  { label: "Documents", href: "/documents" },
-  { label: "Messages", href: "/messages" },
-  { label: "Reports", href: "/progress-reports" },
-  { label: "Settings", href: "/dashboard/settings" }
-];
-
-const directorMenu = [
-  { label: "Management", href: "/dashboard/director" },
-  { label: "Today", href: "/dashboard/director#today" },
-  { label: "Academy", href: "/dashboard/director#academy" },
-  { label: "Academic Department", href: "/dashboard/director/academic" },
-  { label: "Admissions", href: "/crm/admissions" },
-  { label: "TOPRANK", href: "/dashboard/toprank" },
-  { label: "NIDUS Guru", href: "/admin-center/guru" },
-  { label: "Assessments", href: "/psychometric/admin" },
-  { label: "Sales Booster", href: "/dashboard/marketing" },
-  { label: "Finance", href: "/payments" },
-  { label: "Team", href: "/staff-hr" },
-  { label: "Reports", href: "/progress-reports" },
-  { label: "Settings", href: "/dashboard/settings" }
-];
-
-export function getNavItems(role?: AuthRole, dashboardTemplate?: string | null) {
-  if (role === "ADMIN") {
-    return adminOperationsMenu;
-  }
-
-  if (role === "DIRECTOR") {
-    return directorMenu;
-  }
-
-  if (role === "GUEST") {
-    return guestJourneyMenu;
-  }
-
-  if (role === "STUDENT") {
-    return learnerGuruMenu.map((item) => (item.label === "My Journey" ? { ...item, href: roleDashboardPath[role] } : item));
-  }
-
-  if (role === "PARENT") {
-    return parentMenu;
-  }
-
-  if (role === "TEACHER") {
-    return dashboardTemplate === "ACADEMIC_HEAD" ? academicHeadMenu : facultyMenu;
-  }
-
-  if (role === "MARKETING_COORDINATOR") {
-    return salesBoosterMenu;
-  }
-
-  if (role === "TELECALLER") {
-    return telecallerMenu;
-  }
-
-  return sharedLearningMenu.map((item) => (item.label === "Dashboard" ? { ...item, href: role ? roleDashboardPath[role] : "/dashboard" } : item));
+export function getNavItems(role?: string | null, dashboardTemplate?: string | null): NavItem[] {
+  if (role === "DIRECTOR") return directorMenu;
+  if (role === "ADMIN" && dashboardTemplate === "ADMISSION_CELL") return admissionMenu;
+  if (role === "ADMIN") return directorMenu;
+  if (role === "TEACHER" && dashboardTemplate === "ACADEMIC_HEAD") return academicHeadMenu;
+  if (role === "TEACHER") return teacherMenu;
+  if (role === "STUDENT") return studentMenu;
+  return guestMenu;
 }

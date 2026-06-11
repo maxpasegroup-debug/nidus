@@ -2,6 +2,7 @@
 
 import { FormEvent, useState } from "react";
 import type { ReactNode } from "react";
+import Link from "next/link";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   BookOpen,
@@ -70,7 +71,7 @@ async function apiJson<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 const modules = [
-  { title: "Classroom", text: "Open assigned batches and student profiles.", icon: Users },
+  { title: "Classrooms", text: "Open assigned batches and student profiles.", icon: Users },
   { title: "Exams", text: "Prepare tests, review AI question paper, publish to class.", icon: ClipboardCheck },
   { title: "Assignments", text: "Give homework and collect student submissions.", icon: FileText },
   { title: "Attendance", text: "Mark presence and view leave requests.", icon: CheckCircle2 },
@@ -124,13 +125,34 @@ export default function TeacherDashboardPage() {
   return (
     <main className="min-h-screen bg-[var(--page-bg)] px-5 py-6 text-[var(--navy)] md:px-8">
       <section className="mx-auto max-w-7xl space-y-8">
-        <div className="rounded-3xl border border-[var(--border)] bg-white/90 p-6 shadow-xl md:p-8">
+        <div id="today" className="rounded-3xl border border-[var(--border)] bg-white/90 p-6 shadow-xl md:p-8">
           <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Teacher Dashboard</p>
           <h1 className="mt-3 text-4xl font-black tracking-tight md:text-6xl">Simple teaching room</h1>
           <p className="mt-4 max-w-3xl text-base leading-8 text-[var(--muted-blue)]">
             See your assigned batches, today&apos;s classes, students, academic calendar and quick teaching actions. No demo data is shown here.
           </p>
         </div>
+
+        <section id="teaching-profile" className="rounded-3xl border border-[var(--gold-border)] bg-[var(--gold-soft)] p-5 shadow-sm">
+          <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Academic Head Switch</p>
+          <div className="mt-3 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div>
+              <h2 className="text-2xl font-black">Choose your working profile</h2>
+              <p className="mt-2 text-sm leading-7 text-[var(--muted-blue)]">
+                Use Teaching Profile for your own classes. Use Academic Department for timetable, teacher allocation, syllabus
+                tracking and academic management.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              <Link className="rounded-xl bg-[var(--gold-gradient)] px-5 py-3 font-black text-[var(--navy)] shadow-lg" href="/dashboard/teacher#classrooms">
+                Teaching Profile
+              </Link>
+              <Link className="rounded-xl border border-[var(--border)] bg-white px-5 py-3 font-black" href="/dashboard/director/academic">
+                Academic Department
+              </Link>
+            </div>
+          </div>
+        </section>
 
         <div className="grid gap-4 md:grid-cols-4">
           <Metric label="Assigned Batches" value={assignments.length} icon={BookOpen} />
@@ -148,7 +170,7 @@ export default function TeacherDashboardPage() {
         </section>
 
         <section className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
-          <Panel title="Classrooms" eyebrow="Director allocated batches">
+          <Panel id="classrooms" title="Classrooms" eyebrow="Director allocated batches">
             <div className="grid gap-3">
               {assignments.map((assignment) => (
                 <article key={assignment.id} className="rounded-2xl border border-[var(--border)] bg-white p-4">
@@ -171,7 +193,7 @@ export default function TeacherDashboardPage() {
             </div>
           </Panel>
 
-          <Panel title="Academic Calendar" eyebrow="Click the day and report">
+          <Panel id="academic-calendar" title="Academic Calendar" eyebrow="Click the day and report">
             <div className="grid gap-3">
               {visibleCalendar.map((item) => (
                 <CalendarCard
@@ -203,8 +225,9 @@ function Metric({ label, value, icon: Icon }: { label: string; value: number; ic
 
 function ModuleCard({ module }: { module: (typeof modules)[number] }) {
   const Icon = module.icon;
+  const id = module.title.toLowerCase().replaceAll(" ", "-");
   return (
-    <article className="rounded-2xl border border-[var(--border)] bg-white/90 p-5 shadow-sm">
+    <article id={id} className="rounded-2xl border border-[var(--border)] bg-white/90 p-5 shadow-sm">
       <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-[var(--gold-border)] bg-[var(--gold-soft)]">
         <Icon className="h-6 w-6 text-[var(--navy)]" />
       </div>
@@ -214,9 +237,9 @@ function ModuleCard({ module }: { module: (typeof modules)[number] }) {
   );
 }
 
-function Panel({ title, eyebrow, children }: { title: string; eyebrow: string; children: ReactNode }) {
+function Panel({ id, title, eyebrow, children }: { id?: string; title: string; eyebrow: string; children: ReactNode }) {
   return (
-    <section className="rounded-3xl border border-[var(--border)] bg-white/90 p-5 shadow-sm">
+    <section id={id} className="rounded-3xl border border-[var(--border)] bg-white/90 p-5 shadow-sm">
       <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">{eyebrow}</p>
       <h2 className="mt-2 text-2xl font-black">{title}</h2>
       <div className="mt-5">{children}</div>
