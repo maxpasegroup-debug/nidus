@@ -50,7 +50,7 @@ const academicHeadMenu: NavItem[] = [
   { label: "Profile", href: "/dashboard/settings", icon: UserRound },
 ];
 
-const directorMenu: NavItem[] = [
+export const directorMenu: NavItem[] = [
   { label: "Management", href: "/dashboard/director", icon: LayoutDashboard },
   { label: "Employee Control", href: "/dashboard/director/management", icon: Users },
   { label: "Academy", href: "/programs", icon: GraduationCap },
@@ -95,7 +95,7 @@ const guestMenu: NavItem[] = [
 ];
 
 export function getNavItems(role?: string | null, dashboardTemplate?: string | null): NavItem[] {
-  if (role === "DIRECTOR") return directorMenu;
+  if (role === "DIRECTOR") return [];
   if (role === "ADMIN" && dashboardTemplate === "ADMISSION_CELL") return admissionMenu;
   if (role === "ADMIN") return directorMenu;
   if (role === "TEACHER" && dashboardTemplate === "ACADEMIC_HEAD") return academicHeadMenu;

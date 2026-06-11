@@ -29,6 +29,7 @@ import {
   type AcademyBatch,
   type AcademicCalendarItem,
 } from "@/services/academy";
+import { academyProgramGroups } from "@/data/academy-programs";
 
 const academicAreas = [
   { title: "Programs", text: "Create and manage course structure", icon: GraduationCap },
@@ -71,6 +72,7 @@ export default function DirectorAcademicDepartmentPage() {
     endTime: "",
     teacherId: "",
   });
+  const [selectedBatch, setSelectedBatch] = useState<AcademyBatch | null>(null);
 
   const batchesQuery = useQuery({ queryKey: ["academy", "batches"], queryFn: () => getAcademyBatches() });
   const teachersQuery = useQuery({ queryKey: ["academy", "teachers"], queryFn: () => getAcademyTeachers() });
@@ -206,7 +208,7 @@ export default function DirectorAcademicDepartmentPage() {
           </div>
         )}
 
-        <section className="grid gap-4 md:grid-cols-3 lg:grid-cols-6">
+        <section id="programs" className="grid gap-4 md:grid-cols-3 lg:grid-cols-6">
           {academicAreas.map((area) => {
             const Icon = area.icon;
             return (
@@ -220,6 +222,25 @@ export default function DirectorAcademicDepartmentPage() {
             );
           })}
         </section>
+
+        <Panel title="Programs & Courses" eyebrow="Academy architecture">
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {academyProgramGroups.map((group) => (
+              <div key={group.title} className="rounded-2xl border border-[var(--border)] bg-white p-4">
+                <p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold)]">Program Group</p>
+                <h3 className="mt-2 text-xl font-black">{group.title}</h3>
+                <p className="mt-2 text-sm leading-6 text-[var(--muted-blue)]">{group.subtitle}</p>
+                <div className="mt-4 grid gap-2">
+                  {group.programs.map((program) => (
+                    <a key={program.slug} className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-3 py-2 text-sm font-bold" href="#batches">
+                      {program.title}
+                    </a>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </Panel>
 
         <section className="grid gap-6 lg:grid-cols-2">
           <Panel title="Create Batch" eyebrow="Batch and course control">
@@ -239,7 +260,7 @@ export default function DirectorAcademicDepartmentPage() {
             </form>
           </Panel>
 
-          <Panel title="Teacher Allocation" eyebrow="Ready-made teaching system">
+          <Panel id="teacher-allocation" title="Teacher Allocation" eyebrow="Ready-made teaching system">
             <form onSubmit={submitAllocation} className="grid gap-3">
               <Select label="Batch" value={allocation.batchId} onChange={(value) => setAllocation((form) => ({ ...form, batchId: value }))} required>
                 <option value="">Select batch</option>
@@ -262,17 +283,24 @@ export default function DirectorAcademicDepartmentPage() {
           </Panel>
         </section>
 
-        <Panel title="Current Batches" eyebrow="Simple batch control">
+        <Panel id="batches" title="Current Batches" eyebrow="Simple batch control">
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {batches.map((batch) => (
-              <BatchCard key={batch.id} batch={batch} onStatus={(status) => updateBatchMutation.mutate({ batchId: batch.id, status })} />
+              <BatchCard
+                key={batch.id}
+                batch={batch}
+                onOpen={() => setSelectedBatch(batch)}
+                onStatus={(status) => updateBatchMutation.mutate({ batchId: batch.id, status })}
+              />
             ))}
             {!batches.length && <EmptyState text="No batches found. Create the first batch to begin planning." />}
           </div>
         </Panel>
 
+        {selectedBatch && <BatchTeamBoard batch={selectedBatch} onClose={() => setSelectedBatch(null)} />}
+
         <section className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
-          <Panel title="Plan Syllabus Calendar" eyebrow="Director planned calendar">
+          <Panel id="calendar" title="Plan Syllabus Calendar" eyebrow="Director planned calendar">
             <form onSubmit={submitCalendar} className="grid gap-3">
               <Select label="Batch" value={calendarForm.batchId} onChange={(value) => setCalendarForm((form) => ({ ...form, batchId: value }))} required>
                 <option value="">Select batch</option>
@@ -297,7 +325,7 @@ export default function DirectorAcademicDepartmentPage() {
             </form>
           </Panel>
 
-          <Panel title="Syllabus Tracker" eyebrow="Green orange red progress">
+          <Panel id="tracker" title="Syllabus Tracker" eyebrow="Green orange red progress">
             <div className="grid gap-3">
               {calendarItems.map((item) => (
                 <CalendarCard key={item.id} item={item} onStatus={(completionStatus) => updateCalendarMutation.mutate({ id: item.id, completionStatus })} />
@@ -306,6 +334,14 @@ export default function DirectorAcademicDepartmentPage() {
             </div>
           </Panel>
         </section>
+
+        <Panel id="materials" title="Study Materials Control" eyebrow="Batch library">
+          <div className="grid gap-4 md:grid-cols-3">
+            <EmptyState text="Recorded classes, notes and files will be organized batch-wise here. No demo files are shown." />
+            <EmptyState text="Use teacher Library to upload materials; Director review and publish controls can be connected here." />
+            <EmptyState text="Students will see only materials assigned to their approved batch." />
+          </div>
+        </Panel>
       </section>
     </main>
   );
@@ -320,9 +356,9 @@ function StatCard({ label, value }: { label: string; value: string | number }) {
   );
 }
 
-function Panel({ title, eyebrow, children }: { title: string; eyebrow: string; children: ReactNode }) {
+function Panel({ id, title, eyebrow, children }: { id?: string; title: string; eyebrow: string; children: ReactNode }) {
   return (
-    <section className="rounded-3xl border border-[var(--border)] bg-white/90 p-5 shadow-sm">
+    <section id={id} className="rounded-3xl border border-[var(--border)] bg-white/90 p-5 shadow-sm">
       <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">{eyebrow}</p>
       <h2 className="mt-2 text-2xl font-black text-[var(--navy)]">{title}</h2>
       <div className="mt-5">{children}</div>
@@ -398,7 +434,7 @@ function GoldButton({ children, disabled }: { children: ReactNode; disabled?: bo
   );
 }
 
-function BatchCard({ batch, onStatus }: { batch: AcademyBatch; onStatus: (status: string) => void }) {
+function BatchCard({ batch, onOpen, onStatus }: { batch: AcademyBatch; onOpen: () => void; onStatus: (status: string) => void }) {
   return (
     <article className="rounded-2xl border border-[var(--border)] bg-white p-5">
       <div className="flex items-start justify-between gap-3">
@@ -416,6 +452,9 @@ function BatchCard({ batch, onStatus }: { batch: AcademyBatch; onStatus: (status
         <span className="rounded-xl bg-[var(--page-bg)] p-2">{batch._count?.teachers ?? 0} teachers</span>
       </div>
       <div className="mt-4 flex flex-wrap gap-2">
+        <button className="rounded-lg bg-[var(--gold-gradient)] px-3 py-2 text-sm font-black text-[var(--navy)]" onClick={onOpen}>
+          Open Team
+        </button>
         <button className="rounded-lg border border-emerald-200 px-3 py-2 text-sm font-bold text-emerald-800" onClick={() => onStatus("ACTIVE")}>
           <PlayCircle className="mr-1 inline h-4 w-4" />
           Active
@@ -430,6 +469,101 @@ function BatchCard({ batch, onStatus }: { batch: AcademyBatch; onStatus: (status
         </button>
       </div>
     </article>
+  );
+}
+
+function BatchTeamBoard({ batch, onClose }: { batch: AcademyBatch; onClose: () => void }) {
+  const looseBatch = batch as AcademyBatch & {
+    students?: Array<{
+      id?: string;
+      status?: string;
+      user?: { id?: string; name?: string | null; email?: string | null; mobile?: string | null; phone?: string | null } | null;
+    }>;
+    teachers?: Array<{
+      id?: string;
+      subject?: string | null;
+      role?: string | null;
+      teacher?: { id?: string; name?: string | null; email?: string | null } | null;
+    }>;
+  };
+  const students = looseBatch.students ?? [];
+  const teachers = looseBatch.teachers ?? [];
+
+  return (
+    <section className="rounded-3xl border border-[var(--gold-border)] bg-white/95 p-5 shadow-xl">
+      <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+        <div>
+          <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Batch Team View</p>
+          <h2 className="mt-2 text-3xl font-black text-[var(--navy)]">{batch.name}</h2>
+          <p className="mt-2 text-sm leading-7 text-[var(--muted-blue)]">
+            Football-team style view of tutors, students and progress. Use this to understand one batch at a glance.
+          </p>
+        </div>
+        <button className="rounded-xl border border-[var(--border)] bg-white px-4 py-2 font-black" onClick={onClose}>
+          Close
+        </button>
+      </div>
+
+      <div className="mt-6 rounded-3xl border border-[var(--border)] bg-[var(--page-bg)] p-5">
+        <p className="text-center text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Tutors / Trainers</p>
+        <div className="mt-4 grid gap-3 md:grid-cols-3">
+          {teachers.map((teacher, index) => (
+            <div key={teacher.id ?? `${teacher.teacher?.email}-${index}`} className="rounded-2xl border border-[var(--gold-border)] bg-white p-4 text-center shadow-sm">
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[var(--gold-gradient)] font-black text-[var(--navy)]">
+                {(teacher.teacher?.name ?? "T").slice(0, 1)}
+              </div>
+              <h3 className="mt-3 font-black">{teacher.teacher?.name ?? "Tutor not assigned"}</h3>
+              <p className="mt-1 text-xs text-[var(--muted-blue)]">{teacher.subject ?? "Subject"} / {teacher.role ?? "Tutor"}</p>
+            </div>
+          ))}
+          {!teachers.length && <TeamEmpty text="No tutor assigned yet. Use Teacher Allocation above." />}
+        </div>
+      </div>
+
+      <div className="mt-5 rounded-3xl border border-[var(--border)] bg-white p-5">
+        <p className="text-center text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Students</p>
+        <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {students.map((student, index) => (
+            <div key={student.id ?? student.user?.id ?? index} className="rounded-2xl border border-[var(--border)] bg-white p-4 text-center shadow-sm">
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full border border-[var(--gold-border)] bg-[var(--gold-soft)] font-black text-[var(--navy)]">
+                {(student.user?.name ?? "S").slice(0, 1)}
+              </div>
+              <h3 className="mt-3 font-black">{student.user?.name ?? "Student"}</h3>
+              <p className="mt-1 text-xs text-[var(--muted-blue)]">{student.user?.email ?? "No email"}</p>
+              <span className="mt-3 inline-flex rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-black text-emerald-800">
+                {student.status ?? "ACTIVE"}
+              </span>
+            </div>
+          ))}
+          {!students.length && <TeamEmpty text="No students assigned yet. Admission Cell can approve students into this batch." />}
+        </div>
+      </div>
+
+      <div className="mt-5 grid gap-3 md:grid-cols-3">
+        <ProgressPill label="Class Progress" value="Calendar based" tone="green" />
+        <ProgressPill label="Exam Progress" value="Published tests" tone="orange" />
+        <ProgressPill label="Intervention" value="Needs live data" tone="red" />
+      </div>
+    </section>
+  );
+}
+
+function TeamEmpty({ text }: { text: string }) {
+  return <div className="rounded-2xl border border-dashed border-[var(--border)] bg-white/70 p-5 text-center text-sm text-[var(--muted-blue)]">{text}</div>;
+}
+
+function ProgressPill({ label, value, tone }: { label: string; value: string; tone: "green" | "orange" | "red" }) {
+  const toneClass =
+    tone === "green"
+      ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+      : tone === "orange"
+        ? "border-orange-200 bg-orange-50 text-orange-800"
+        : "border-rose-200 bg-rose-50 text-rose-800";
+  return (
+    <div className={`rounded-2xl border p-4 ${toneClass}`}>
+      <p className="text-xs font-black uppercase tracking-[0.2em]">{label}</p>
+      <p className="mt-2 text-lg font-black">{value}</p>
+    </div>
   );
 }
 
