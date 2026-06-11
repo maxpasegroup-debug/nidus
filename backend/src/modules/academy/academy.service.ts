@@ -4,6 +4,8 @@ import bcrypt from "bcryptjs";
 import { Prisma, Role } from "../../generated/prisma/client.js";
 import { prisma } from "../../config/prisma.js";
 
+const db = prisma as any;
+
 type Requester = {
   id: string;
   role: Role;
@@ -16,7 +18,6 @@ type BatchInput = {
   batchType?: string;
   startDate?: string;
   endDate?: string;
-  capacity?: number;
   status?: string;
 };
 
@@ -96,41 +97,6 @@ type AcademicCalendarRow = {
   updatedAt: Date;
 };
 
-const batchInclude = {
-  course: true,
-  students: {
-    include: {
-      user: {
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          phone: true,
-          role: true,
-        },
-      },
-    },
-  },
-  teachers: {
-    include: {
-      teacher: {
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          role: true,
-        },
-      },
-    },
-  },
-  _count: {
-    select: {
-      students: true,
-      teachers: true,
-    },
-  },
-} satisfies Prisma.BatchInclude;
-
 function requireManagement(user: Requester) {
   if (user.role !== Role.ADMIN && user.role !== Role.DIRECTOR) {
     throw Object.assign(new Error("Management access required"), { statusCode: 403 });
@@ -147,6 +113,10 @@ function toDate(value?: string) {
   return value ? new Date(value) : undefined;
 }
 
+function toJsonObject(value: Record<string, unknown>) {
+  return value as Prisma.InputJsonObject;
+}
+
 function sanitizeCalendarRow(row: AcademicCalendarRow) {
   return {
     ...row,
@@ -154,6 +124,50 @@ function sanitizeCalendarRow(row: AcademicCalendarRow) {
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),
   };
+}
+
+async function batchWithCounts(batchId?: string) {
+  const where = batchId ? { id: batchId } : undefined;
+  const batches = await db.batch.findMany({
+    where,
+    include: {
+      course: true,
+      students: true,
+      _count: { select: { students: true } },
+    },
+    orderBy: [{ status: "asc" }, { createdAt: "desc" }],
+  });
+
+  if (!batches.length) {
+    return batchId ? null : [];
+  }
+
+  const studentIds = Array.from(
+    new Set(
+      batches
+        .flatMap((batch: any) => batch.students ?? [])
+        .map((student: any) => student.studentId)
+        .filter(Boolean),
+    ),
+  );
+  const users = studentIds.length
+    ? await prisma.user.findMany({
+        where: { id: { in: studentIds as string[] } },
+        select: { id: true, name: true, email: true, mobile: true, role: true },
+      })
+    : [];
+  const userMap = new Map(users.map((user) => [user.id, user]));
+
+  const hydrated = batches.map((batch: any) => ({
+    ...batch,
+    students: (batch.students ?? []).map((student: any) => ({
+      ...student,
+      user: userMap.get(student.studentId) ?? null,
+    })),
+    teachers: [],
+  }));
+
+  return batchId ? hydrated[0] : hydrated;
 }
 
 async function findStudentUserForAdmission(input: StudentInput) {
@@ -179,7 +193,7 @@ async function findStudentUserForAdmission(input: StudentInput) {
     where: { id: existing.id },
     data: {
       name: input.name || existing.name,
-      phone: input.phone || existing.phone,
+      mobile: input.phone || existing.mobile,
       role: Role.STUDENT,
       mustChangePassword: false,
     },
@@ -188,10 +202,7 @@ async function findStudentUserForAdmission(input: StudentInput) {
 
 export const academyService = {
   async batches() {
-    return prisma.batch.findMany({
-      include: batchInclude,
-      orderBy: [{ status: "asc" }, { createdAt: "desc" }],
-    });
+    return batchWithCounts();
   },
 
   async createBatch(user: Requester, input: BatchInput) {
@@ -200,23 +211,23 @@ export const academyService = {
       throw Object.assign(new Error("Batch name is required"), { statusCode: 400 });
     }
 
-    return prisma.batch.create({
+    const created = await db.batch.create({
       data: {
         name: input.name,
         courseId: input.courseId || null,
         batchType: input.batchType || "OFFLINE",
         startDate: toDate(input.startDate),
         endDate: toDate(input.endDate),
-        capacity: input.capacity,
         status: input.status || "ACTIVE",
       },
-      include: batchInclude,
     });
+
+    return batchWithCounts(created.id);
   },
 
   async updateBatch(user: Requester, batchId: string, input: BatchInput) {
     requireManagement(user);
-    return prisma.batch.update({
+    await db.batch.update({
       where: { id: batchId },
       data: {
         name: input.name,
@@ -224,39 +235,36 @@ export const academyService = {
         batchType: input.batchType,
         startDate: toDate(input.startDate),
         endDate: toDate(input.endDate),
-        capacity: input.capacity,
         status: input.status,
       },
-      include: batchInclude,
     });
+
+    return batchWithCounts(batchId);
   },
 
   async addStudent(user: Requester, batchId: string, input: StudentInput) {
     requireManagement(user);
     const student = await findStudentUserForAdmission(input);
+    const existing = await db.batchStudent.findFirst({
+      where: { batchId, studentId: student.id },
+    });
 
-    return prisma.batchStudent.upsert({
-      where: {
-        batchId_userId: {
-          batchId,
-          userId: student.id,
+    if (existing) {
+      return db.batchStudent.update({
+        where: { id: existing.id },
+        data: {
+          status: "ACTIVE",
+          remarks: input.notes || input.rollNumber || existing.remarks,
         },
-      },
-      update: {
-        rollNumber: input.rollNumber,
-        notes: input.notes,
-        status: "ACTIVE",
-      },
-      create: {
+      });
+    }
+
+    return db.batchStudent.create({
+      data: {
         batchId,
-        userId: student.id,
-        rollNumber: input.rollNumber,
-        notes: input.notes,
+        studentId: student.id,
         status: "ACTIVE",
-      },
-      include: {
-        batch: { include: { course: true } },
-        user: { select: { id: true, name: true, email: true, phone: true, role: true } },
+        remarks: input.notes || input.rollNumber || null,
       },
     });
   },
@@ -267,66 +275,65 @@ export const academyService = {
       throw Object.assign(new Error("Teacher is required"), { statusCode: 400 });
     }
 
-    return prisma.batchTeacher.upsert({
-      where: {
-        batchId_teacherId_subject: {
-          batchId,
-          teacherId: input.teacherId,
-          subject: input.subject || "General",
-        },
-      },
-      update: {
-        role: input.role || "Subject Teacher",
-        status: "ACTIVE",
-      },
-      create: {
-        batchId,
-        teacherId: input.teacherId,
-        subject: input.subject || "General",
-        role: input.role || "Subject Teacher",
-        status: "ACTIVE",
-      },
-      include: {
-        batch: { include: { course: true } },
-        teacher: { select: { id: true, name: true, email: true, role: true } },
-      },
+    const teacher = await prisma.user.findUnique({
+      where: { id: input.teacherId },
+      select: { id: true, name: true, email: true, role: true },
     });
+    const batch = await db.batch.findUnique({ where: { id: batchId }, include: { course: true } });
+    if (!teacher || !batch) {
+      throw Object.assign(new Error("Teacher or batch not found"), { statusCode: 404 });
+    }
+
+    return {
+      id: `${batchId}:${teacher.id}:${input.subject || "General"}`,
+      batchId,
+      teacherId: teacher.id,
+      subject: input.subject || "General",
+      role: input.role || "Subject Teacher",
+      status: "ACTIVE",
+      batch,
+      teacher,
+    };
   },
 
   async teacherAssignments(user: Requester) {
     requireAcademic(user);
-    if (user.role === Role.ADMIN || user.role === Role.DIRECTOR) {
-      return prisma.batchTeacher.findMany({
-        include: {
-          batch: { include: batchInclude },
-          teacher: { select: { id: true, name: true, email: true, role: true } },
-        },
-        orderBy: { createdAt: "desc" },
-      });
-    }
+    const teacherId = user.role === Role.TEACHER ? user.id : undefined;
+    const rows = teacherId
+      ? await prisma.$queryRaw<AcademicCalendarRow[]>`
+          SELECT * FROM "AcademicCalendarItem"
+          WHERE "teacherId" = ${teacherId}
+          ORDER BY "plannedDate" ASC, "startTime" ASC
+        `
+      : await prisma.$queryRaw<AcademicCalendarRow[]>`
+          SELECT * FROM "AcademicCalendarItem"
+          ORDER BY "plannedDate" ASC, "startTime" ASC
+        `;
 
-    return prisma.batchTeacher.findMany({
-      where: { teacherId: user.id, status: "ACTIVE" },
-      include: {
-        batch: { include: batchInclude },
-        teacher: { select: { id: true, name: true, email: true, role: true } },
+    return rows.map((row) => ({
+      id: row.id,
+      subject: row.subject,
+      role: "Subject Teacher",
+      batch: {
+        id: row.batchId,
+        name: row.batchName,
+        batchType: "ACADEMY",
+        status: row.status,
+        course: { title: row.programSlug },
+        students: [],
       },
-      orderBy: { createdAt: "desc" },
-    });
+    }));
   },
 
   async myAcademicPlan(user: Requester) {
-    const enrollments = await prisma.batchStudent.findMany({
-      where: { userId: user.id, status: "ACTIVE" },
-      include: {
-        batch: {
-          include: batchInclude,
-        },
-      },
-      orderBy: { createdAt: "desc" },
+    const enrollments = await db.batchStudent.findMany({
+      where: { studentId: user.id, status: "ACTIVE" },
+      orderBy: { joinedAt: "desc" },
     });
 
-    const batchIds = enrollments.map((enrollment) => enrollment.batchId);
+    const batchIds = enrollments.map((enrollment: any) => enrollment.batchId);
+    const batches = batchIds.length ? await batchWithCounts() : [];
+    const assignedBatches = Array.isArray(batches) ? batches.filter((batch: any) => batchIds.includes(batch.id)) : [];
     const calendar = batchIds.length
       ? await prisma.$queryRaw<AcademicCalendarRow[]>`
           SELECT * FROM "AcademicCalendarItem"
@@ -337,7 +344,7 @@ export const academyService = {
 
     return {
       enrollments,
-      batches: enrollments.map((enrollment) => enrollment.batch),
+      batches: assignedBatches,
       calendar: calendar.map(sanitizeCalendarRow),
     };
   },
@@ -349,7 +356,7 @@ export const academyService = {
         id: true,
         name: true,
         email: true,
-        phone: true,
+        mobile: true,
         role: true,
         roleMetadata: true,
       },
@@ -369,7 +376,7 @@ export const academyService = {
         id: true,
         name: true,
         email: true,
-        phone: true,
+        mobile: true,
         role: true,
         roleMetadata: true,
         createdAt: true,
@@ -390,40 +397,39 @@ export const academyService = {
       throw Object.assign(new Error("Name, email and role are required"), { statusCode: 400 });
     }
 
-    const allowedRoles = [Role.ADMIN, Role.DIRECTOR, Role.TEACHER];
-    if (!allowedRoles.includes(input.role)) {
+    if (![Role.ADMIN, Role.DIRECTOR, Role.TEACHER].includes(input.role as any)) {
       throw Object.assign(new Error("Only employee roles can be created here"), { statusCode: 400 });
     }
 
     const temporaryPassword = input.password || "123456789";
-    const passwordHash = await bcrypt.hash(temporaryPassword, 10);
-    const roleMetadata = {
+    const password = await bcrypt.hash(temporaryPassword, 10);
+    const roleMetadata = toJsonObject({
       designation: input.designation || "Employee",
       department: input.department || "Academy",
       employmentType: input.employmentType || "FULL_TIME",
-      hourlyRate: input.hourlyRate || null,
+      hourlyRate: input.hourlyRate ?? null,
       subjects: input.subjects || [],
-      dashboardTemplate: input.dashboardTemplate || (input.designation?.toLowerCase().includes("academic head") ? "ACADEMIC_HEAD" : undefined),
+      dashboardTemplate: input.dashboardTemplate || (input.designation?.toLowerCase().includes("academic head") ? "ACADEMIC_HEAD" : null),
       status: "ACTIVE",
       createdBy: user.id,
       credentialGeneratedAt: new Date().toISOString(),
-    };
+    });
 
     const created = await prisma.user.create({
       data: {
         name: input.name,
         email: input.email.toLowerCase(),
-        phone: input.phone,
+        mobile: input.phone || "",
         role: input.role,
-        passwordHash,
+        password,
         mustChangePassword: true,
         roleMetadata,
-      } as Prisma.UserUncheckedCreateInput,
+      },
       select: {
         id: true,
         name: true,
         email: true,
-        phone: true,
+        mobile: true,
         role: true,
         roleMetadata: true,
       },
@@ -447,25 +453,25 @@ export const academyService = {
     }
 
     const existingMetadata = (employee.roleMetadata ?? {}) as Record<string, unknown>;
-    const roleMetadata = {
+    const roleMetadata = toJsonObject({
       ...existingMetadata,
-      designation: input.designation ?? existingMetadata.designation,
-      department: input.department ?? existingMetadata.department,
-      employmentType: input.employmentType ?? existingMetadata.employmentType,
-      hourlyRate: input.hourlyRate ?? existingMetadata.hourlyRate,
-      subjects: input.subjects ?? existingMetadata.subjects,
-      dashboardTemplate: input.dashboardTemplate ?? existingMetadata.dashboardTemplate,
+      designation: input.designation ?? existingMetadata.designation ?? null,
+      department: input.department ?? existingMetadata.department ?? null,
+      employmentType: input.employmentType ?? existingMetadata.employmentType ?? null,
+      hourlyRate: input.hourlyRate ?? existingMetadata.hourlyRate ?? null,
+      subjects: input.subjects ?? existingMetadata.subjects ?? [],
+      dashboardTemplate: input.dashboardTemplate ?? existingMetadata.dashboardTemplate ?? null,
       status: input.status ?? existingMetadata.status ?? "ACTIVE",
       updatedBy: user.id,
       updatedAt: new Date().toISOString(),
-    };
+    });
 
     return prisma.user.update({
       where: { id: employeeId },
       data: {
         name: input.name,
         email: input.email?.toLowerCase(),
-        phone: input.phone,
+        mobile: input.phone,
         role: input.role,
         roleMetadata,
       },
@@ -473,7 +479,7 @@ export const academyService = {
         id: true,
         name: true,
         email: true,
-        phone: true,
+        mobile: true,
         role: true,
         roleMetadata: true,
       },
@@ -485,9 +491,9 @@ export const academyService = {
     return this.updateEmployee(user, employeeId, { status: "ARCHIVED" });
   },
 
-  async resetEmployeePassword(user: Requester, employeeId: string, password = "123456789") {
+  async resetEmployeePassword(user: Requester, employeeId: string, passwordValue = "123456789") {
     requireManagement(user);
-    const passwordHash = await bcrypt.hash(password, 10);
+    const password = await bcrypt.hash(passwordValue, 10);
     const employee = await prisma.user.findUnique({ where: { id: employeeId } });
     if (!employee) {
       throw Object.assign(new Error("Employee not found"), { statusCode: 404 });
@@ -496,14 +502,14 @@ export const academyService = {
     const updated = await prisma.user.update({
       where: { id: employeeId },
       data: {
-        passwordHash,
+        password,
         mustChangePassword: true,
-        roleMetadata: {
+        roleMetadata: toJsonObject({
           ...existingMetadata,
           passwordResetBy: user.id,
           passwordResetAt: new Date().toISOString(),
-        },
-      } as Prisma.UserUncheckedUpdateInput,
+        }),
+      },
       select: {
         id: true,
         name: true,
@@ -517,7 +523,7 @@ export const academyService = {
       employee: updated,
       credentials: {
         email: updated.email,
-        temporaryPassword: password,
+        temporaryPassword: passwordValue,
         mustChangePassword: true,
       },
     };

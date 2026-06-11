@@ -12,10 +12,11 @@ function requester(req: AuthenticatedRequest) {
 
 function param(req: AuthenticatedRequest, key: string) {
   const value = req.params[key];
-  if (!value) {
+  const normalized = Array.isArray(value) ? value[0] : value;
+  if (!normalized) {
     throw Object.assign(new Error(`${key} is required`), { statusCode: 400 });
   }
-  return value;
+  return normalized;
 }
 
 export const academyController = {
