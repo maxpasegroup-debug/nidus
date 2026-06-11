@@ -73,8 +73,8 @@ export default function DirectorAcademicDepartmentPage() {
     teacherId: "",
   });
 
-  const batchesQuery = useQuery({ queryKey: ["academy", "batches"], queryFn: getAcademyBatches });
-  const teachersQuery = useQuery({ queryKey: ["academy", "teachers"], queryFn: getAcademyTeachers });
+  const batchesQuery = useQuery({ queryKey: ["academy", "batches"], queryFn: () => getAcademyBatches() });
+  const teachersQuery = useQuery({ queryKey: ["academy", "teachers"], queryFn: () => getAcademyTeachers() });
   const calendarQuery = useQuery({ queryKey: ["academy", "academic-calendar"], queryFn: () => getAcademicCalendar() });
 
   const batches = batchesQuery.data ?? [];
