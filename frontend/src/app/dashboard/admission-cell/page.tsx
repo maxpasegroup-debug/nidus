@@ -108,7 +108,7 @@ export default function AdmissionCellDashboardPage() {
     onError: (error) => setMessage(error instanceof Error ? error.message : "Could not approve admission."),
   });
 
-  const activeBatches = batchesQuery.data ?? [];
+  const activeBatches = useMemo(() => batchesQuery.data ?? [], [batchesQuery.data]);
   const totalStudents = useMemo(
     () => activeBatches.reduce((total, batch) => total + (batch._count?.students ?? 0), 0),
     [activeBatches],
