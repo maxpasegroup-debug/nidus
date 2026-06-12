@@ -77,9 +77,56 @@ const roleOptions = [
 
 const employmentTypes = ["FULL_TIME", "PART_TIME", "HOURLY", "CONTRACT"];
 
+const quickProfiles = [
+  {
+    label: "Teacher",
+    role: "TEACHER",
+    designation: "Teacher",
+    department: "Academics",
+    dashboardTemplate: "",
+  },
+  {
+    label: "Academic Head",
+    role: "TEACHER",
+    designation: "Academic Head",
+    department: "Academics",
+    dashboardTemplate: "ACADEMIC_HEAD",
+  },
+  {
+    label: "Physical Trainer",
+    role: "TEACHER",
+    designation: "Physical Trainer",
+    department: "Physical Training",
+    dashboardTemplate: "PHYSICAL_TRAINER",
+  },
+  {
+    label: "Admission Staff",
+    role: "ADMIN",
+    designation: "Admission Cell",
+    department: "Admission Cell",
+    dashboardTemplate: "ADMISSION_CELL",
+  },
+  {
+    label: "Marketing Staff",
+    role: "ADMIN",
+    designation: "Marketing Coordinator",
+    department: "Advertisement & Marketing",
+    dashboardTemplate: "MARKETING",
+  },
+  {
+    label: "Administration",
+    role: "ADMIN",
+    designation: "Administration",
+    department: "Admin & Accounts",
+    dashboardTemplate: "ADMINISTRATION",
+  },
+];
+
 export default function DirectorManagementPage() {
   const queryClient = useQueryClient();
   const [notice, setNotice] = useState("");
+  const [activeTab, setActiveTab] = useState<"ACTIVE" | "ARCHIVED">("ACTIVE");
+  const [lastCredentials, setLastCredentials] = useState<{ email: string; temporaryPassword: string } | null>(null);
   const [form, setForm] = useState<EmployeePayload>({
     name: "",
     email: "",
@@ -108,6 +155,7 @@ export default function DirectorManagementPage() {
       }),
     onSuccess: (data) => {
       setNotice(`Employee created. Login: ${data.credentials.email} / Password: ${data.credentials.temporaryPassword}`);
+      setLastCredentials(data.credentials);
       setForm({
         name: "",
         email: "",
@@ -131,6 +179,7 @@ export default function DirectorManagementPage() {
     mutationFn: (id: string) => apiJson<Employee>(`/api/academy/employees/${id}/archive`, { method: "POST" }),
     onSuccess: () => {
       setNotice("Employee archived into history.");
+      setActiveTab("ARCHIVED");
       void queryClient.invalidateQueries({ queryKey: ["director", "employees"] });
     },
     onError: (error) => setNotice(error instanceof Error ? error.message : "Could not archive employee."),
@@ -144,6 +193,7 @@ export default function DirectorManagementPage() {
       }),
     onSuccess: (data) => {
       setNotice(`Password reset. Login: ${data.credentials.email} / Password: ${data.credentials.temporaryPassword}`);
+      setLastCredentials(data.credentials);
     },
     onError: (error) => setNotice(error instanceof Error ? error.message : "Could not reset password."),
   });
@@ -161,6 +211,18 @@ export default function DirectorManagementPage() {
 
   const activeEmployees = (employeesQuery.data ?? []).filter((employee) => employee.roleMetadata?.status !== "ARCHIVED");
   const archivedEmployees = (employeesQuery.data ?? []).filter((employee) => employee.roleMetadata?.status === "ARCHIVED");
+  const visibleEmployees = activeTab === "ACTIVE" ? activeEmployees : archivedEmployees;
+
+  const applyQuickProfile = (profile: (typeof quickProfiles)[number]) => {
+    setForm((item) => ({
+      ...item,
+      role: profile.role,
+      designation: profile.designation,
+      department: profile.department,
+      dashboardTemplate: profile.dashboardTemplate,
+    }));
+    setNotice(`${profile.label} profile selected. Fill name, email and phone to generate credentials.`);
+  };
 
   return (
     <main className="min-h-screen bg-[var(--page-bg)] px-5 py-6 text-[var(--navy)] md:px-8">
@@ -183,10 +245,42 @@ export default function DirectorManagementPage() {
 
         {notice && <div className="rounded-2xl border border-[var(--gold-border)] bg-[var(--gold-soft)] p-4 text-sm font-bold">{notice}</div>}
 
+        {lastCredentials && (
+          <section className="rounded-3xl border border-[var(--gold-border)] bg-[var(--gold-soft)] p-5 shadow-sm">
+            <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Generated Credentials</p>
+            <div className="mt-4 grid gap-3 md:grid-cols-[1fr_1fr_auto] md:items-end">
+              <CredentialBox label="Login email" value={lastCredentials.email} />
+              <CredentialBox label="Temporary password" value={lastCredentials.temporaryPassword} />
+              <button
+                className="rounded-xl border border-[var(--border)] bg-white px-5 py-3 font-black"
+                onClick={() => {
+                  void navigator.clipboard?.writeText(`${lastCredentials.email}\n${lastCredentials.temporaryPassword}`);
+                  setNotice("Credentials copied.");
+                }}
+                type="button"
+              >
+                Copy
+              </button>
+            </div>
+          </section>
+        )}
+
         <section className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
           <div className="rounded-3xl border border-[var(--border)] bg-white/90 p-5 shadow-sm">
             <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Add Employee</p>
             <h2 className="mt-2 text-2xl font-black">Create credentials</h2>
+            <div className="mt-5 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+              {quickProfiles.map((profile) => (
+                <button
+                  key={profile.label}
+                  className="rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-left text-sm font-black transition hover:border-[var(--gold-border)] hover:bg-[var(--gold-soft)]"
+                  onClick={() => applyQuickProfile(profile)}
+                  type="button"
+                >
+                  {profile.label}
+                </button>
+              ))}
+            </div>
             <form onSubmit={submit} className="mt-5 grid gap-3">
               <Input label="Name" value={form.name} onChange={(value) => setForm((item) => ({ ...item, name: value }))} required />
               <Input label="Email" value={form.email} onChange={(value) => setForm((item) => ({ ...item, email: value }))} required />
@@ -262,25 +356,58 @@ export default function DirectorManagementPage() {
           </div>
         </section>
 
-        <section className="rounded-3xl border border-[var(--border)] bg-white/90 p-5 shadow-sm">
-          <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Employees</p>
-          <h2 className="mt-2 text-2xl font-black">Active users</h2>
-          <div className="mt-5 grid gap-3">
-            {activeEmployees.map((employee) => (
-              <EmployeeRow key={employee.id} employee={employee} onArchive={() => archiveMutation.mutate(employee.id)} onReset={() => resetMutation.mutate(employee.id)} />
-            ))}
-            {!activeEmployees.length && <Empty text="No active users found." />}
+        <section id="attendance" className="rounded-3xl border border-[var(--border)] bg-white/90 p-5 shadow-sm">
+          <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Attendance & Leave</p>
+          <h2 className="mt-2 text-2xl font-black">Launch setup state</h2>
+          <div className="mt-5 rounded-2xl border border-dashed border-[var(--border)] bg-white/70 p-5 text-sm leading-7 text-[var(--muted-blue)]">
+            Staff attendance and leave approval can be connected here. Employee account creation and access control are already active.
+          </div>
+        </section>
+
+        <section id="performance" className="rounded-3xl border border-[var(--border)] bg-white/90 p-5 shadow-sm">
+          <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Performance Review</p>
+          <h2 className="mt-2 text-2xl font-black">Teacher and staff output</h2>
+          <div className="mt-5 rounded-2xl border border-dashed border-[var(--border)] bg-white/70 p-5 text-sm leading-7 text-[var(--muted-blue)]">
+            Performance will combine class completion, academic calendar logs, student progress and management reviews. No demo scores are shown.
           </div>
         </section>
 
         <section className="rounded-3xl border border-[var(--border)] bg-white/90 p-5 shadow-sm">
-          <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">History</p>
-          <h2 className="mt-2 text-2xl font-black">Archived users</h2>
+          <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Employees</p>
+          <div className="mt-2 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <h2 className="text-2xl font-black">{activeTab === "ACTIVE" ? "Active users" : "Archived history"}</h2>
+            <div className="flex rounded-xl border border-[var(--border)] bg-white p-1">
+              <button
+                className={`rounded-lg px-4 py-2 text-sm font-black ${activeTab === "ACTIVE" ? "bg-[var(--gold-gradient)] text-[var(--navy)]" : "text-[var(--muted-blue)]"}`}
+                onClick={() => setActiveTab("ACTIVE")}
+                type="button"
+              >
+                Active
+              </button>
+              <button
+                className={`rounded-lg px-4 py-2 text-sm font-black ${activeTab === "ARCHIVED" ? "bg-[var(--gold-gradient)] text-[var(--navy)]" : "text-[var(--muted-blue)]"}`}
+                onClick={() => setActiveTab("ARCHIVED")}
+                type="button"
+              >
+                Archived
+              </button>
+            </div>
+          </div>
           <div className="mt-5 grid gap-3">
-            {archivedEmployees.map((employee) => (
-              <EmployeeRow key={employee.id} employee={employee} archived />
+            {visibleEmployees.map((employee) => (
+              <EmployeeRow
+                key={employee.id}
+                employee={employee}
+                archived={activeTab === "ARCHIVED"}
+                onArchive={() => {
+                  if (window.confirm(`Archive ${employee.name}? This will move the account into history.`)) {
+                    archiveMutation.mutate(employee.id);
+                  }
+                }}
+                onReset={() => resetMutation.mutate(employee.id)}
+              />
             ))}
-            {!archivedEmployees.length && <Empty text="No archived users yet." />}
+            {!visibleEmployees.length && <Empty text={activeTab === "ACTIVE" ? "No active users found." : "No archived users yet."} />}
           </div>
         </section>
       </section>
@@ -294,6 +421,15 @@ function Metric({ icon: Icon, label, value }: { icon: LucideIcon; label: string;
       <Icon className="h-5 w-5 text-[var(--gold)]" />
       <p className="mt-4 text-3xl font-black">{value}</p>
       <p className="mt-1 text-sm text-[var(--muted-blue)]">{label}</p>
+    </div>
+  );
+}
+
+function CredentialBox({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-2xl border border-[var(--border)] bg-white p-4">
+      <p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold)]">{label}</p>
+      <p className="mt-2 break-all font-black text-[var(--navy)]">{value}</p>
     </div>
   );
 }

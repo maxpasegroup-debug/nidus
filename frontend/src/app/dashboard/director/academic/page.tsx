@@ -356,17 +356,25 @@ export default function DirectorAcademicDepartmentPage() {
 
         <Panel id="materials" title="Study Materials Control" eyebrow="Batch library">
           <div className="grid gap-4 md:grid-cols-3">
-            <EmptyState text="Recorded classes, notes and files will be organized batch-wise here. No demo files are shown." />
-            <EmptyState text="Use teacher Library to upload materials; Director review and publish controls can be connected here." />
-            <EmptyState text="Students will see only materials assigned to their approved batch." />
+            <a className="rounded-2xl border border-[var(--border)] bg-white p-5 font-black transition hover:border-[var(--gold-border)] hover:shadow-lg" href="/dashboard/director/materials">
+              Open Materials Control
+            </a>
+            <EmptyState text="Recorded classes, notes and files are organized batch-wise. No demo files are shown." />
+            <EmptyState text="Students should see only materials assigned to their approved batch." />
           </div>
         </Panel>
 
         <Panel id="exams" title="Exams & Tests Control" eyebrow="Academic testing">
           <div className="grid gap-4 md:grid-cols-3">
-            <EmptyState text="Create exams from Examination Center, then publish them to selected batches." />
-            <EmptyState text="Students will see only exams assigned to their approved batch." />
-            <EmptyState text="Director and Academic Head can review results after students submit tests." />
+            <a className="rounded-2xl border border-[var(--border)] bg-white p-5 font-black transition hover:border-[var(--gold-border)] hover:shadow-lg" href="/dashboard/director/exams">
+              Open Exam Command
+            </a>
+            <a className="rounded-2xl border border-[var(--border)] bg-white p-5 font-black transition hover:border-[var(--gold-border)] hover:shadow-lg" href="/question-bank">
+              Open Question Bank
+            </a>
+            <a className="rounded-2xl border border-[var(--border)] bg-white p-5 font-black transition hover:border-[var(--gold-border)] hover:shadow-lg" href="/published">
+              Published Exams
+            </a>
           </div>
         </Panel>
 
