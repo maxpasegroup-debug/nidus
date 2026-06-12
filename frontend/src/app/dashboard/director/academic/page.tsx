@@ -342,6 +342,22 @@ export default function DirectorAcademicDepartmentPage() {
             <EmptyState text="Students will see only materials assigned to their approved batch." />
           </div>
         </Panel>
+
+        <Panel id="exams" title="Exams & Tests Control" eyebrow="Academic testing">
+          <div className="grid gap-4 md:grid-cols-3">
+            <EmptyState text="Create exams from Examination Center, then publish them to selected batches." />
+            <EmptyState text="Students will see only exams assigned to their approved batch." />
+            <EmptyState text="Director and Academic Head can review results after students submit tests." />
+          </div>
+        </Panel>
+
+        <Panel id="progress" title="Student Progress Control" eyebrow="Batch performance">
+          <div className="grid gap-4 md:grid-cols-3">
+            <EmptyState text="Open a batch team board to view students, tutors and batch status." />
+            <EmptyState text="Progress will combine calendar completion, exams, attendance and assignments as modules go live." />
+            <EmptyState text="No demo progress data is shown. Only real student data should appear here." />
+          </div>
+        </Panel>
       </section>
     </main>
   );

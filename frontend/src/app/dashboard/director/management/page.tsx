@@ -20,6 +20,7 @@ type Employee = {
   name: string;
   email: string;
   phone?: string | null;
+  mobile?: string | null;
   role: string;
   roleMetadata?: Record<string, unknown> | null;
 };
@@ -328,7 +329,7 @@ function EmployeeRow({ employee, archived, onArchive, onReset }: { employee: Emp
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h3 className="text-lg font-black">{employee.name}</h3>
-          <p className="mt-1 text-sm text-[var(--muted-blue)]">{employee.email} / {employee.phone || "No phone"}</p>
+          <p className="mt-1 text-sm text-[var(--muted-blue)]">{employee.email} / {employee.phone || employee.mobile || "No phone"}</p>
           <p className="mt-2 text-xs font-black uppercase tracking-[0.25em] text-[var(--gold)]">
             {String(metadata.designation ?? employee.role)} / {String(metadata.employmentType ?? "FULL_TIME")} / {String(metadata.department ?? "Academy")}
           </p>
