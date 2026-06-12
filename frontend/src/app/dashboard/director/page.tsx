@@ -32,6 +32,7 @@ type DirectorSubArea = {
   text: string;
   href: string;
   icon: LucideIcon;
+  status?: "Ready" | "Setup" | "Review";
 };
 
 type DirectorArea = {
@@ -51,14 +52,14 @@ const directorAreas: DirectorArea[] = [
     icon: GraduationCap,
     accent: "from-amber-200 via-white to-emerald-100",
     subAreas: [
-      { title: "Programs & Courses", text: "Manage Academy programs and course structure.", href: "/dashboard/director/academic#programs", icon: BookOpen },
-      { title: "Batches", text: "Create offline, online, crash and foundation batches.", href: "/dashboard/director/academic#batches", icon: Users },
-      { title: "Timetable Planner", text: "Plan weekly class schedules and teacher calendars.", href: "/dashboard/director/academic#calendar", icon: CalendarDays },
-      { title: "Teacher Allocation", text: "Assign subject teachers and trainers to batches.", href: "/dashboard/director/academic#teacher-allocation", icon: UserCheck },
-      { title: "Syllabus Tracker", text: "Track topic completion with green, orange and red status.", href: "/dashboard/director/academic#tracker", icon: BarChart3 },
-      { title: "Exams & Tests", text: "Create, approve, publish and monitor exams.", href: "/dashboard/director/academic#exams", icon: ClipboardCheck },
-      { title: "Study Materials", text: "Control notes, recorded classes and batch library.", href: "/dashboard/director/academic#materials", icon: FileArchive },
-      { title: "Student Progress", text: "Review batch-wise and student-wise academic progress.", href: "/dashboard/director/academic#progress", icon: PieChart },
+      { title: "Programs & Courses", text: "Manage Academy programs and course structure.", href: "/dashboard/director/academic#programs", icon: BookOpen, status: "Ready" },
+      { title: "Batches", text: "Create offline, online, crash and foundation batches.", href: "/dashboard/director/academic#batches", icon: Users, status: "Ready" },
+      { title: "Timetable Planner", text: "Plan weekly class schedules and teacher calendars.", href: "/dashboard/director/academic#calendar", icon: CalendarDays, status: "Ready" },
+      { title: "Teacher Allocation", text: "Assign subject teachers and trainers to batches.", href: "/dashboard/director/academic#teacher-allocation", icon: UserCheck, status: "Ready" },
+      { title: "Syllabus Tracker", text: "Track topic completion with green, orange and red status.", href: "/dashboard/director/academic#tracker", icon: BarChart3, status: "Ready" },
+      { title: "Exams & Tests", text: "Create, approve, publish and monitor exams.", href: "/dashboard/director/academic#exams", icon: ClipboardCheck, status: "Setup" },
+      { title: "Study Materials", text: "Control notes, recorded classes and batch library.", href: "/dashboard/director/academic#materials", icon: FileArchive, status: "Setup" },
+      { title: "Student Progress", text: "Review batch-wise and student-wise academic progress.", href: "/dashboard/director/academic#progress", icon: PieChart, status: "Review" },
     ],
   },
   {
@@ -68,13 +69,13 @@ const directorAreas: DirectorArea[] = [
     icon: ClipboardCheck,
     accent: "from-sky-100 via-white to-amber-100",
     subAreas: [
-      { title: "New Enquiries", text: "Website, WhatsApp, calls, social media and walk-in leads.", href: "/dashboard/admission-cell#enquiries", icon: MessageCircle },
-      { title: "Applications", text: "Students who applied for Academy programs.", href: "/dashboard/admission-cell#applications", icon: FileText },
-      { title: "Counselling", text: "Parent discussion, student needs and course suggestions.", href: "/dashboard/admission-cell#counselling", icon: Users },
-      { title: "Admission Approval", text: "Approve application and activate student dashboard.", href: "/dashboard/admission-cell", icon: ShieldCheck },
-      { title: "Fee Follow-Up", text: "Pending fee reminders and payment coordination.", href: "/dashboard/admission-cell#fees", icon: BadgeIndianRupee },
-      { title: "Documents", text: "Student documents, ID proof and academic details.", href: "/dashboard/admission-cell#documents", icon: FileArchive },
-      { title: "Admission Reports", text: "Course-wise admissions and conversion status.", href: "/dashboard/admission-cell#reports", icon: BarChart3 },
+      { title: "New Enquiries", text: "Website, WhatsApp, calls, social media and walk-in leads.", href: "/dashboard/admission-cell#enquiries", icon: MessageCircle, status: "Setup" },
+      { title: "Applications", text: "Students who applied for Academy programs.", href: "/dashboard/admission-cell#applications", icon: FileText, status: "Ready" },
+      { title: "Counselling", text: "Parent discussion, student needs and course suggestions.", href: "/dashboard/admission-cell#counselling", icon: Users, status: "Setup" },
+      { title: "Admission Approval", text: "Approve application and activate student dashboard.", href: "/dashboard/admission-cell", icon: ShieldCheck, status: "Ready" },
+      { title: "Fee Follow-Up", text: "Pending fee reminders and payment coordination.", href: "/dashboard/admission-cell#fees", icon: BadgeIndianRupee, status: "Setup" },
+      { title: "Documents", text: "Student documents, ID proof and academic details.", href: "/dashboard/admission-cell#documents", icon: FileArchive, status: "Setup" },
+      { title: "Admission Reports", text: "Course-wise admissions and conversion status.", href: "/dashboard/admission-cell#reports", icon: BarChart3, status: "Review" },
     ],
   },
   {
@@ -84,13 +85,13 @@ const directorAreas: DirectorArea[] = [
     icon: Megaphone,
     accent: "from-orange-100 via-white to-green-100",
     subAreas: [
-      { title: "Sales Booster", text: "AI campaign creation and marketing automation.", href: "/dashboard/sales-booster", icon: Sparkles },
-      { title: "Campaigns", text: "Academy, TOPRANK, NIDUS Guru and assessment campaigns.", href: "/dashboard/sales-booster", icon: Megaphone },
-      { title: "Creative Library", text: "Posters, videos, brochures and reels.", href: "/dashboard/sales-booster#creatives", icon: FileArchive },
-      { title: "Social Media", text: "Facebook, Instagram, Threads and YouTube posting.", href: "/dashboard/sales-booster", icon: MessageCircle },
-      { title: "WhatsApp Campaigns", text: "Bulk messages, templates and counsellor routing.", href: "/dashboard/sales-booster", icon: MessageCircle },
-      { title: "Campaign Leads", text: "Track campaign-wise leads and source quality.", href: "/dashboard/sales-booster#leads", icon: UserPlus },
-      { title: "Marketing Reports", text: "Reach, engagement, conversion and best creatives.", href: "/dashboard/sales-booster#reports", icon: BarChart3 },
+      { title: "Sales Booster", text: "AI campaign creation and marketing automation.", href: "/dashboard/sales-booster", icon: Sparkles, status: "Ready" },
+      { title: "Campaigns", text: "Academy, TOPRANK, NIDUS Guru and assessment campaigns.", href: "/dashboard/sales-booster", icon: Megaphone, status: "Setup" },
+      { title: "Creative Library", text: "Posters, videos, brochures and reels.", href: "/dashboard/sales-booster#creatives", icon: FileArchive, status: "Setup" },
+      { title: "Social Media", text: "Facebook, Instagram, Threads and YouTube posting.", href: "/dashboard/sales-booster", icon: MessageCircle, status: "Setup" },
+      { title: "WhatsApp Campaigns", text: "Bulk messages, templates and counsellor routing.", href: "/dashboard/sales-booster", icon: MessageCircle, status: "Setup" },
+      { title: "Campaign Leads", text: "Track campaign-wise leads and source quality.", href: "/dashboard/sales-booster#leads", icon: UserPlus, status: "Review" },
+      { title: "Marketing Reports", text: "Reach, engagement, conversion and best creatives.", href: "/dashboard/sales-booster#reports", icon: BarChart3, status: "Review" },
     ],
   },
   {
@@ -100,13 +101,13 @@ const directorAreas: DirectorArea[] = [
     icon: Users,
     accent: "from-emerald-100 via-white to-slate-100",
     subAreas: [
-      { title: "Employee Control", text: "Add teachers, heads, trainers, admin and staff.", href: "/dashboard/director/management", icon: UserPlus },
-      { title: "Credentials", text: "Generate login, reset password and manage access.", href: "/dashboard/director/management", icon: KeyRound },
-      { title: "Roles & Departments", text: "Assign role, department, dashboard and access level.", href: "/dashboard/director/management", icon: ShieldCheck },
-      { title: "Full-Time / Part-Time / Hourly", text: "Manage employment type and hourly trainers.", href: "/dashboard/director/management", icon: Users },
-      { title: "Attendance & Leave", text: "Staff attendance, leave and approvals.", href: "/dashboard/director/management#attendance", icon: CalendarDays },
-      { title: "Performance Review", text: "Class completion, student feedback and staff output.", href: "/dashboard/director/management#performance", icon: PieChart },
-      { title: "Archive History", text: "Archive employees safely instead of deleting.", href: "/dashboard/director/management", icon: FileArchive },
+      { title: "Employee Control", text: "Add teachers, heads, trainers, admin and staff.", href: "/dashboard/director/management", icon: UserPlus, status: "Ready" },
+      { title: "Credentials", text: "Generate login, reset password and manage access.", href: "/dashboard/director/management", icon: KeyRound, status: "Ready" },
+      { title: "Roles & Departments", text: "Assign role, department, dashboard and access level.", href: "/dashboard/director/management", icon: ShieldCheck, status: "Ready" },
+      { title: "Full-Time / Part-Time / Hourly", text: "Manage employment type and hourly trainers.", href: "/dashboard/director/management", icon: Users, status: "Ready" },
+      { title: "Attendance & Leave", text: "Staff attendance, leave and approvals.", href: "/dashboard/director/management#attendance", icon: CalendarDays, status: "Setup" },
+      { title: "Performance Review", text: "Class completion, student feedback and staff output.", href: "/dashboard/director/management#performance", icon: PieChart, status: "Review" },
+      { title: "Archive History", text: "Archive employees safely instead of deleting.", href: "/dashboard/director/management", icon: FileArchive, status: "Ready" },
     ],
   },
   {
@@ -116,13 +117,13 @@ const directorAreas: DirectorArea[] = [
     icon: WalletCards,
     accent: "from-slate-100 via-white to-amber-100",
     subAreas: [
-      { title: "Fee Management", text: "Course fees, student payments and pending dues.", href: "/dashboard/director/accounts#fees", icon: BadgeIndianRupee },
-      { title: "Invoices & Receipts", text: "Generate and track payment receipts.", href: "/dashboard/director/accounts#invoices", icon: ReceiptText },
-      { title: "Expenses", text: "Office, salary, rent, marketing and operations.", href: "/dashboard/director/accounts#expenses", icon: CreditCard },
-      { title: "Subscriptions", text: "TOPRANK, assessments and premium module subscriptions.", href: "/dashboard/director/accounts#subscriptions", icon: WalletCards },
-      { title: "Reports", text: "Academic, admissions, marketing, finance and staff reports.", href: "/dashboard/director/accounts#reports", icon: BarChart3 },
-      { title: "Settings", text: "Company details, contact number and system controls.", href: "/dashboard/director/accounts#settings", icon: Settings },
-      { title: "Audit Logs", text: "Track important staff and management actions.", href: "/dashboard/director/accounts#audit", icon: FileText },
+      { title: "Fee Management", text: "Course fees, student payments and pending dues.", href: "/dashboard/director/accounts#fees", icon: BadgeIndianRupee, status: "Setup" },
+      { title: "Invoices & Receipts", text: "Generate and track payment receipts.", href: "/dashboard/director/accounts#invoices", icon: ReceiptText, status: "Setup" },
+      { title: "Expenses", text: "Office, salary, rent, marketing and operations.", href: "/dashboard/director/accounts#expenses", icon: CreditCard, status: "Setup" },
+      { title: "Subscriptions", text: "TOPRANK, assessments and premium module subscriptions.", href: "/dashboard/director/accounts#subscriptions", icon: WalletCards, status: "Setup" },
+      { title: "Reports", text: "Academic, admissions, marketing, finance and staff reports.", href: "/dashboard/director/accounts#reports", icon: BarChart3, status: "Review" },
+      { title: "Settings", text: "Company details, contact number and system controls.", href: "/dashboard/director/accounts#settings", icon: Settings, status: "Ready" },
+      { title: "Audit Logs", text: "Track important staff and management actions.", href: "/dashboard/director/accounts#audit", icon: FileText, status: "Setup" },
     ],
   },
 ];
@@ -147,25 +148,25 @@ export default function DirectorDashboardPage() {
           </div>
         </div>
 
-        <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+        <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
           {directorAreas.map((area) => {
             const Icon = area.icon;
             const active = selectedArea.title === area.title;
             return (
               <button
                 key={area.title}
-                className={`group min-h-56 rounded-3xl border p-5 text-left shadow-sm transition hover:-translate-y-1 hover:shadow-xl ${
+                className={`group min-h-48 rounded-3xl border p-4 text-left shadow-sm transition hover:-translate-y-1 hover:shadow-xl md:p-5 ${
                   active ? "border-[var(--gold-border)] bg-white shadow-xl" : "border-[var(--border)] bg-white/80"
                 }`}
                 onClick={() => setSelectedArea(area)}
                 type="button"
               >
-                <div className={`rounded-2xl bg-gradient-to-br ${area.accent} p-4 shadow-inner`}>
-                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-white/80 bg-white/70 shadow-sm">
-                    <Icon className="h-7 w-7 text-[var(--navy)]" />
+                <div className={`h-full rounded-2xl bg-gradient-to-br ${area.accent} p-4 shadow-inner`}>
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/80 bg-white/70 shadow-sm">
+                    <Icon className="h-6 w-6 text-[var(--navy)]" />
                   </div>
-                  <p className="mt-7 text-xs font-black uppercase tracking-[0.25em] text-[var(--gold)]">{area.label}</p>
-                  <h2 className="mt-2 text-2xl font-black text-[var(--navy)]">{area.title}</h2>
+                  <p className="mt-5 text-[10px] font-black uppercase tracking-[0.22em] text-[var(--gold)]">{area.label}</p>
+                  <h2 className="mt-2 text-xl font-black text-[var(--navy)] md:text-2xl">{area.title}</h2>
                   <p className="mt-3 text-sm leading-6 text-[var(--muted-blue)]">{area.text}</p>
                 </div>
               </button>
@@ -205,13 +206,25 @@ export default function DirectorDashboardPage() {
 
 function SubAreaCard({ subArea }: { subArea: DirectorSubArea }) {
   const Icon = subArea.icon;
+  const status = subArea.status ?? "Ready";
+  const statusClass =
+    status === "Ready"
+      ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+      : status === "Setup"
+        ? "border-orange-200 bg-orange-50 text-orange-800"
+        : "border-sky-200 bg-sky-50 text-sky-800";
   return (
     <Link
       className="group rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:border-[var(--gold-border)] hover:shadow-xl"
       href={subArea.href}
     >
-      <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-[var(--gold-border)] bg-[var(--gold-soft)] shadow-inner">
-        <Icon className="h-6 w-6 text-[var(--navy)]" />
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-[var(--gold-border)] bg-[var(--gold-soft)] shadow-inner">
+          <Icon className="h-6 w-6 text-[var(--navy)]" />
+        </div>
+        <span className={`rounded-full border px-3 py-1 text-[10px] font-black uppercase tracking-[0.15em] ${statusClass}`}>
+          {status}
+        </span>
       </div>
       <h3 className="mt-5 text-xl font-black text-[var(--navy)]">{subArea.title}</h3>
       <p className="mt-2 text-sm leading-6 text-[var(--muted-blue)]">{subArea.text}</p>

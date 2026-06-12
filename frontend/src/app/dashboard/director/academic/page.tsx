@@ -81,6 +81,7 @@ export default function DirectorAcademicDepartmentPage() {
   const batches = batchesQuery.data ?? [];
   const teachers = teachersQuery.data ?? [];
   const calendarItems = calendarQuery.data ?? [];
+  const allPrograms = academyProgramGroups.flatMap((group) => group.programs);
 
   const refresh = () => {
     void queryClient.invalidateQueries({ queryKey: ["academy", "batches"] });
@@ -142,7 +143,6 @@ export default function DirectorAcademicDepartmentPage() {
     event.preventDefault();
     createBatchMutation.mutate({
       name: batchForm.name,
-      courseId: batchForm.courseId || undefined,
       programSlug: batchForm.courseId || "academy-program",
       batchType: batchForm.batchType,
       startDate: batchForm.startDate || undefined,
@@ -232,9 +232,21 @@ export default function DirectorAcademicDepartmentPage() {
                 <p className="mt-2 text-sm leading-6 text-[var(--muted-blue)]">{group.subtitle}</p>
                 <div className="mt-4 grid gap-2">
                   {group.programs.map((program) => (
-                    <a key={program.slug} className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-3 py-2 text-sm font-bold" href="#batches">
+                    <button
+                      key={program.slug}
+                      className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-3 py-2 text-left text-sm font-bold transition hover:border-[var(--gold-border)] hover:bg-[var(--gold-soft)]"
+                      onClick={() => {
+                        setBatchForm((form) => ({
+                          ...form,
+                          name: form.name || `${program.title} Batch`,
+                          courseId: program.slug,
+                        }));
+                        document.getElementById("create-batch")?.scrollIntoView({ behavior: "smooth", block: "start" });
+                      }}
+                      type="button"
+                    >
                       {program.title}
-                    </a>
+                    </button>
                   ))}
                 </div>
               </div>
@@ -243,10 +255,17 @@ export default function DirectorAcademicDepartmentPage() {
         </Panel>
 
         <section className="grid gap-6 lg:grid-cols-2">
-          <Panel title="Create Batch" eyebrow="Batch and course control">
+          <Panel id="create-batch" title="Create Batch" eyebrow="Batch and course control">
             <form onSubmit={submitBatch} className="grid gap-3">
               <Input label="Batch name" value={batchForm.name} onChange={(value) => setBatchForm((form) => ({ ...form, name: value }))} required />
-              <Input label="Course ID / Program ID" value={batchForm.courseId} onChange={(value) => setBatchForm((form) => ({ ...form, courseId: value }))} />
+              <Select label="Program" value={batchForm.courseId} onChange={(value) => setBatchForm((form) => ({ ...form, courseId: value }))} required>
+                <option value="">Select program</option>
+                {allPrograms.map((program) => (
+                  <option key={program.slug} value={program.slug}>
+                    {program.title}
+                  </option>
+                ))}
+              </Select>
               <div className="grid gap-3 md:grid-cols-2">
                 <Select label="Batch type" value={batchForm.batchType} onChange={(value) => setBatchForm((form) => ({ ...form, batchType: value }))}>
                   {batchTypes.map((type) => (

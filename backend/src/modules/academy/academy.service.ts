@@ -15,6 +15,7 @@ type Requester = {
 type BatchInput = {
   name?: string;
   courseId?: string;
+  programSlug?: string;
   batchType?: string;
   startDate?: string;
   endDate?: string;
@@ -97,6 +98,17 @@ type AcademicCalendarRow = {
   updatedAt: Date;
 };
 
+type BatchTeacherAssignmentRow = {
+  id: string;
+  batchId: string;
+  teacherId: string;
+  subject: string;
+  role: string;
+  status: string;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
 function requireManagement(user: Requester) {
   if (user.role !== Role.ADMIN && user.role !== Role.DIRECTOR) {
     throw Object.assign(new Error("Management access required"), { statusCode: 403 });
@@ -157,14 +169,41 @@ async function batchWithCounts(batchId?: string) {
       })
     : [];
   const userMap = new Map(users.map((user) => [user.id, user]));
+  const batchIds = batches.map((batch: any) => batch.id).filter(Boolean);
+  const teacherAssignments = batchIds.length
+    ? await prisma.$queryRaw<BatchTeacherAssignmentRow[]>`
+        SELECT * FROM "BatchTeacherAssignment"
+        WHERE "batchId" IN (${Prisma.join(batchIds)})
+        AND "status" = 'ACTIVE'
+        ORDER BY "createdAt" DESC
+      `
+    : [];
+  const teacherIds = Array.from(new Set(teacherAssignments.map((assignment) => assignment.teacherId)));
+  const teacherUsers = teacherIds.length
+    ? await prisma.user.findMany({
+        where: { id: { in: teacherIds } },
+        select: { id: true, name: true, email: true, mobile: true, role: true },
+      })
+    : [];
+  const teacherMap = new Map(teacherUsers.map((teacher) => [teacher.id, teacher]));
 
   const hydrated = batches.map((batch: any) => ({
     ...batch,
     students: (batch.students ?? []).map((student: any) => ({
       ...student,
       user: userMap.get(student.studentId) ?? null,
+      student: userMap.get(student.studentId) ?? null,
     })),
-    teachers: [],
+    teachers: teacherAssignments
+      .filter((assignment) => assignment.batchId === batch.id)
+      .map((assignment) => ({
+        ...assignment,
+        teacher: teacherMap.get(assignment.teacherId) ?? null,
+      })),
+    _count: {
+      ...(batch._count ?? {}),
+      teachers: teacherAssignments.filter((assignment) => assignment.batchId === batch.id).length,
+    },
   }));
 
   return batchId ? hydrated[0] : hydrated;
@@ -215,6 +254,7 @@ export const academyService = {
       data: {
         name: input.name,
         courseId: input.courseId || null,
+        programSlug: input.programSlug || input.courseId || null,
         batchType: input.batchType || "OFFLINE",
         startDate: toDate(input.startDate),
         endDate: toDate(input.endDate),
@@ -232,6 +272,7 @@ export const academyService = {
       data: {
         name: input.name,
         courseId: input.courseId,
+        programSlug: input.programSlug,
         batchType: input.batchType,
         startDate: toDate(input.startDate),
         endDate: toDate(input.endDate),
@@ -284,11 +325,45 @@ export const academyService = {
       throw Object.assign(new Error("Teacher or batch not found"), { statusCode: 404 });
     }
 
+    const subject = input.subject || "General";
+    const existing = await prisma.$queryRaw<BatchTeacherAssignmentRow[]>`
+      SELECT * FROM "BatchTeacherAssignment"
+      WHERE "batchId" = ${batchId}
+      AND "teacherId" = ${teacher.id}
+      AND "subject" = ${subject}
+      LIMIT 1
+    `;
+
+    if (existing[0]) {
+      await prisma.$executeRaw`
+        UPDATE "BatchTeacherAssignment"
+        SET "role" = ${input.role || "Subject Teacher"},
+            "status" = 'ACTIVE',
+            "updatedAt" = ${new Date()}
+        WHERE "id" = ${existing[0].id}
+      `;
+      return {
+        ...existing[0],
+        role: input.role || "Subject Teacher",
+        status: "ACTIVE",
+        batch,
+        teacher,
+      };
+    }
+
+    const id = randomUUID();
+    await prisma.$executeRaw`
+      INSERT INTO "BatchTeacherAssignment"
+      ("id", "batchId", "teacherId", "subject", "role", "status", "createdAt", "updatedAt")
+      VALUES
+      (${id}, ${batchId}, ${teacher.id}, ${subject}, ${input.role || "Subject Teacher"}, 'ACTIVE', ${new Date()}, ${new Date()})
+    `;
+
     return {
-      id: `${batchId}:${teacher.id}:${input.subject || "General"}`,
+      id,
       batchId,
       teacherId: teacher.id,
-      subject: input.subject || "General",
+      subject,
       role: input.role || "Subject Teacher",
       status: "ACTIVE",
       batch,
@@ -298,30 +373,27 @@ export const academyService = {
 
   async teacherAssignments(user: Requester) {
     requireAcademic(user);
-    const teacherId = user.role === Role.TEACHER ? user.id : undefined;
-    const rows = teacherId
-      ? await prisma.$queryRaw<AcademicCalendarRow[]>`
-          SELECT * FROM "AcademicCalendarItem"
-          WHERE "teacherId" = ${teacherId}
-          ORDER BY "plannedDate" ASC, "startTime" ASC
+    const rows = user.role === Role.TEACHER
+      ? await prisma.$queryRaw<BatchTeacherAssignmentRow[]>`
+          SELECT * FROM "BatchTeacherAssignment"
+          WHERE "teacherId" = ${user.id}
+          AND "status" = 'ACTIVE'
+          ORDER BY "createdAt" DESC
         `
-      : await prisma.$queryRaw<AcademicCalendarRow[]>`
-          SELECT * FROM "AcademicCalendarItem"
-          ORDER BY "plannedDate" ASC, "startTime" ASC
+      : await prisma.$queryRaw<BatchTeacherAssignmentRow[]>`
+          SELECT * FROM "BatchTeacherAssignment"
+          WHERE "status" = 'ACTIVE'
+          ORDER BY "createdAt" DESC
         `;
 
+    const batchIds = Array.from(new Set(rows.map((row) => row.batchId)));
+    const allBatches = await batchWithCounts();
+    const batches = Array.isArray(allBatches) ? allBatches.filter((batch: any) => batchIds.includes(batch.id)) : [];
+    const batchMap = new Map(batches.map((batch) => [batch.id, batch]));
+
     return rows.map((row) => ({
-      id: row.id,
-      subject: row.subject,
-      role: "Subject Teacher",
-      batch: {
-        id: row.batchId,
-        name: row.batchName,
-        batchType: "ACADEMY",
-        status: row.status,
-        course: { title: row.programSlug },
-        students: [],
-      },
+      ...row,
+      batch: batchMap.get(row.batchId) ?? null,
     }));
   },
 
