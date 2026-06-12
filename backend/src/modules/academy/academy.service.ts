@@ -367,11 +367,6 @@ export const academyService = {
   async employees(user: Requester, includeArchived = false) {
     requireManagement(user);
     const users = await prisma.user.findMany({
-      where: {
-        role: {
-          in: [Role.ADMIN, Role.DIRECTOR, Role.TEACHER, Role.STUDENT],
-        },
-      },
       select: {
         id: true,
         name: true,

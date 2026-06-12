@@ -18,6 +18,10 @@ export function Sidebar() {
       : null;
   const navItems = getNavItems(user?.role, dashboardTemplate);
 
+  if (!navItems.length) {
+    return null;
+  }
+
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") setIsOpen(false);
