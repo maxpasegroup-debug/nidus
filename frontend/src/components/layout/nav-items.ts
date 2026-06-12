@@ -67,14 +67,15 @@ const adminMenu: DashboardNavItem[] = [
   { label: "Settings", href: "/admin-center/settings" },
 ];
 
-export function getNavItems(role?: string | null): DashboardNavItem[] {
+export function getNavItems(role?: string | null, dashboardTemplate?: string | null): DashboardNavItem[] {
   const normalizedRole = role?.toUpperCase();
+  const normalizedTemplate = dashboardTemplate?.toUpperCase();
 
   if (normalizedRole === "DIRECTOR") {
     return [];
   }
 
-  if (normalizedRole === "ACADEMIC_HEAD") {
+  if (normalizedRole === "ACADEMIC_HEAD" || normalizedTemplate === "ACADEMIC_HEAD") {
     return academicHeadMenu;
   }
 

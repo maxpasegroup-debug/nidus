@@ -12,7 +12,7 @@ import {
   Send,
   ShieldCheck,
   Sparkles,
-  Youtube,
+  Video as Youtube,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
