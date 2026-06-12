@@ -121,7 +121,7 @@ const directorAreas: DirectorArea[] = [
       { title: "Invoices & Receipts", text: "Generate and track payment receipts.", href: "/dashboard/director/accounts#invoices", icon: ReceiptText, status: "Setup" },
       { title: "Expenses", text: "Office, salary, rent, marketing and operations.", href: "/dashboard/director/accounts#expenses", icon: CreditCard, status: "Setup" },
       { title: "Subscriptions", text: "TOPRANK, assessments and premium module subscriptions.", href: "/dashboard/director/accounts#subscriptions", icon: WalletCards, status: "Setup" },
-      { title: "Reports", text: "Academic, admissions, marketing, finance and staff reports.", href: "/dashboard/director/accounts#reports", icon: BarChart3, status: "Review" },
+      { title: "Reports & Launch QA", text: "Academic, admissions, marketing, finance, staff reports and launch checklist.", href: "/dashboard/director/launch-qa", icon: BarChart3, status: "Ready" },
       { title: "Settings", text: "Company details, contact number and system controls.", href: "/dashboard/director/accounts#settings", icon: Settings, status: "Ready" },
       { title: "Audit Logs", text: "Track important staff and management actions.", href: "/dashboard/director/accounts#audit", icon: FileText, status: "Setup" },
     ],
