@@ -36,8 +36,18 @@ const teacherMenu: DashboardNavItem[] = [
 ];
 
 const academicHeadMenu: DashboardNavItem[] = [
-  ...teacherMenu,
-  { label: "HOD Mode", href: "/dashboard/academic-head" },
+  { label: "HOD Home", href: "/dashboard/academic-head" },
+  { label: "Batches", href: "/dashboard/academic-head#batches" },
+  { label: "Teacher Allocation", href: "/dashboard/academic-head#teacher-allocation" },
+  { label: "Timetable", href: "/dashboard/academic-head#calendar" },
+  { label: "Syllabus Tracker", href: "/dashboard/academic-head#tracker" },
+  { label: "Exams", href: "/dashboard/academic-head#exams" },
+  { label: "Materials", href: "/dashboard/academic-head#materials" },
+  { label: "Assignments", href: "/dashboard/academic-head#assignments" },
+  { label: "Attendance", href: "/dashboard/academic-head#attendance" },
+  { label: "Student Progress", href: "/dashboard/academic-head#progress" },
+  { label: "Teacher Reports", href: "/dashboard/academic-head#teacher-reports" },
+  { label: "Teaching Profile", href: "/dashboard/teacher/today" },
 ];
 
 const admissionCellMenu: DashboardNavItem[] = [

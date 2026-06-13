@@ -232,7 +232,7 @@ export default function AcademicHeadDashboardPage() {
   return (
     <main className="min-h-screen bg-[var(--page-bg)] px-4 py-8 text-[var(--ink)] sm:px-8">
       <div className="mx-auto max-w-7xl space-y-8">
-        <section id="tracker" className="rounded-3xl border border-[var(--border)] bg-white p-6 shadow-sm">
+        <section id="hod-home" className="rounded-3xl border border-[var(--border)] bg-white p-6 shadow-sm">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
             <div>
               <p className="text-xs font-black uppercase tracking-[0.45em] text-[var(--gold-dark)]">HOD Mode</p>
@@ -422,7 +422,7 @@ export default function AcademicHeadDashboardPage() {
           </div>
         </section>
 
-        <section id="exams" className="rounded-3xl border border-[var(--border)] bg-white p-6 shadow-sm">
+        <section id="tracker" className="rounded-3xl border border-[var(--border)] bg-white p-6 shadow-sm">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
               <p className="text-xs font-black uppercase tracking-[0.45em] text-[var(--gold-dark)]">Syllabus Tracker</p>
@@ -490,7 +490,7 @@ export default function AcademicHeadDashboardPage() {
           </div>
         </section>
 
-        <section id="materials" className="rounded-3xl border border-[var(--border)] bg-white p-6 shadow-sm">
+        <section id="exams" className="rounded-3xl border border-[var(--border)] bg-white p-6 shadow-sm">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
               <p className="text-xs font-black uppercase tracking-[0.45em] text-[var(--gold-dark)]">Exam Approval</p>
@@ -531,7 +531,7 @@ export default function AcademicHeadDashboardPage() {
           </div>
         </section>
 
-        <section id="assignments" className="rounded-3xl border border-[var(--border)] bg-white p-6 shadow-sm">
+        <section id="materials" className="rounded-3xl border border-[var(--border)] bg-white p-6 shadow-sm">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
               <p className="text-xs font-black uppercase tracking-[0.45em] text-[var(--gold-dark)]">Material Review</p>
@@ -588,7 +588,7 @@ export default function AcademicHeadDashboardPage() {
           </div>
         </section>
 
-        <section id="attendance" className="rounded-3xl border border-[var(--border)] bg-white p-6 shadow-sm">
+        <section id="assignments" className="rounded-3xl border border-[var(--border)] bg-white p-6 shadow-sm">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
               <p className="text-xs font-black uppercase tracking-[0.45em] text-[var(--gold-dark)]">Assignment Monitor</p>
@@ -633,7 +633,7 @@ export default function AcademicHeadDashboardPage() {
           </div>
         </section>
 
-        <section className="rounded-3xl border border-[var(--border)] bg-white p-6 shadow-sm">
+        <section id="attendance" className="rounded-3xl border border-[var(--border)] bg-white p-6 shadow-sm">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
               <p className="text-xs font-black uppercase tracking-[0.45em] text-[var(--gold-dark)]">Attendance Monitor</p>
