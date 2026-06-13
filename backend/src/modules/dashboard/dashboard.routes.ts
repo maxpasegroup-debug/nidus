@@ -26,8 +26,8 @@ function allowDashboard(kind: "student" | "parent" | "admin" | "guest" | "teache
       (kind === "parent" && (role === Role.PARENT || unrestrictedAdmin(role, template))) ||
       (kind === "admin" && unrestrictedAdmin(role, template)) ||
       (kind === "guest" && (role === Role.GUEST || unrestrictedAdmin(role, template))) ||
-      (kind === "teacher" && (role === Role.TEACHER || unrestrictedAdmin(role, template))) ||
-      (kind === "academicHead" && role === Role.TEACHER && template === "ACADEMIC_HEAD") ||
+      (kind === "teacher" && (role === Role.TEACHER || template === "ACADEMIC_HEAD" || unrestrictedAdmin(role, template))) ||
+      (kind === "academicHead" && template === "ACADEMIC_HEAD") ||
       (kind === "director" && (role === Role.DIRECTOR || unrestrictedAdmin(role, template))) ||
       (kind === "telecaller" && (role === Role.TELECALLER || role === Role.DIRECTOR || unrestrictedAdmin(role, template))) ||
       (kind === "marketing" && (role === Role.MARKETING_COORDINATOR || role === Role.DIRECTOR || (role === Role.ADMIN && ["MARKETING", "SALES_BOOSTER"].includes(template))));

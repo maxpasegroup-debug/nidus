@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import { login } from "@/services/auth.v2";
 import { getApiErrorMessage } from "@/services/api";
-import { roleDashboardPath } from "@/lib/dashboard-data";
+import { effectiveDashboardPath } from "@/lib/dashboard-data";
 
 export default function LoginPage() {
   const [identifier, setIdentifier] = useState("");
@@ -25,7 +25,7 @@ export default function LoginPage() {
     try {
       const result = await login({ identifier, password });
       if (result.success && result.user) {
-        window.location.assign(result.user.mustChangePassword ? "/dashboard/settings?mustChangePassword=1" : roleDashboardPath[result.user.role] ?? "/dashboard");
+        window.location.assign(result.user.mustChangePassword ? "/dashboard/settings?mustChangePassword=1" : effectiveDashboardPath(result.user));
       } else {
         setError(result.message || "Login failed. Please check your details.");
       }

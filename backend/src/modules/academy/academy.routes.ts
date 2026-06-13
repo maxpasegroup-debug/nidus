@@ -23,7 +23,8 @@ function requireAcademyRoles(roles: Role[]) {
       res.status(403).json({ message: "Access denied for assigned dashboard scope" });
       return;
     }
-    if (!roles.includes(req.user.role as Role)) {
+    const templateAcademicAccess = template === "ACADEMIC_HEAD" && roles.includes(Role.TEACHER);
+    if (!templateAcademicAccess && !roles.includes(req.user.role as Role)) {
       res.status(403).json({ message: "Access denied" });
       return;
     }

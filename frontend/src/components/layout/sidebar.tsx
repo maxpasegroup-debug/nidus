@@ -4,64 +4,29 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { useAuth } from "@/components/providers/auth-provider-v2";
 import { getNavItems } from "./nav-items";
-
-type StoredUser = {
-  role?: string | null;
-  roleMetadata?: Record<string, unknown> | null;
-};
-
-const USER_STORAGE_KEYS = ["user", "nidus_user", "authUser"];
-
-function readStoredUser(): StoredUser | null {
-  if (typeof window === "undefined") {
-    return null;
-  }
-
-  for (const key of USER_STORAGE_KEYS) {
-    const value = window.localStorage.getItem(key);
-    if (!value) {
-      continue;
-    }
-
-    try {
-      const parsed = JSON.parse(value) as StoredUser & {
-        user?: StoredUser;
-        data?: { user?: StoredUser };
-      };
-      return parsed.user ?? parsed.data?.user ?? parsed;
-    } catch {
-      continue;
-    }
-  }
-
-  return null;
-}
 
 export function Sidebar() {
   const pathname = usePathname();
-  const [user, setUser] = useState<StoredUser | null>(null);
-  const [hydrated, setHydrated] = useState(false);
   const [open, setOpen] = useState(false);
+  const { user, isLoading } = useAuth();
 
   const userMetadata = user?.roleMetadata && typeof user.roleMetadata === "object" ? user.roleMetadata : {};
   const dashboardTemplate =
     "dashboardTemplate" in userMetadata && typeof userMetadata.dashboardTemplate === "string"
       ? userMetadata.dashboardTemplate
       : null;
+  const designation = typeof userMetadata.designation === "string" ? userMetadata.designation : null;
+  const roleLabel = designation ?? dashboardTemplate ?? user?.role ?? "GUEST";
 
   const navItems = useMemo(() => getNavItems(user?.role, dashboardTemplate), [dashboardTemplate, user?.role]);
-
-  useEffect(() => {
-    setUser(readStoredUser());
-    setHydrated(true);
-  }, []);
 
   useEffect(() => {
     setOpen(false);
   }, [pathname]);
 
-  if (!hydrated || !navItems.length) {
+  if (isLoading || !user || !navItems.length) {
     return null;
   }
 
@@ -112,7 +77,7 @@ export function Sidebar() {
 
         <div className="absolute bottom-6 left-5 right-5 rounded-xl border border-[var(--border)] bg-white p-4 text-sm">
           <p className="text-xs uppercase tracking-[0.3em] text-[var(--muted)]">Secure Node</p>
-          <p className="mt-2 text-[var(--muted)]">Role: {user?.role ?? "GUEST"}</p>
+          <p className="mt-2 text-[var(--muted)]">Role: {roleLabel}</p>
         </div>
       </aside>
     </>

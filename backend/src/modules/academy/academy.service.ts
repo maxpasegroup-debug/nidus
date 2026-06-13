@@ -206,7 +206,8 @@ function requireManagement(user: Requester) {
 }
 
 function requireAcademic(user: Requester) {
-  if ((user.role !== Role.ADMIN && user.role !== Role.DIRECTOR && user.role !== Role.TEACHER) || isNonAcademicStaffTemplate(user)) {
+  const template = staffTemplate(user);
+  if ((user.role !== Role.ADMIN && user.role !== Role.DIRECTOR && user.role !== Role.TEACHER && template !== "ACADEMIC_HEAD") || isNonAcademicStaffTemplate(user)) {
     throw Object.assign(new Error("Academic access required"), { statusCode: 403 });
   }
 }

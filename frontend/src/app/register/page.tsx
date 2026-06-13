@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import { signup } from "@/services/auth.v2";
 import { getApiErrorMessage } from "@/services/api";
-import { roleDashboardPath } from "@/lib/dashboard-data";
+import { effectiveDashboardPath } from "@/lib/dashboard-data";
 
 export default function RegisterPage() {
   const [name, setName] = useState("");
@@ -26,7 +26,7 @@ export default function RegisterPage() {
     try {
       const result = await signup({ name, email, mobile, password });
       if (result.success && result.user) {
-        window.location.assign(roleDashboardPath[result.user.role] ?? "/dashboard");
+        window.location.assign(effectiveDashboardPath(result.user));
       } else {
         setError(result.message || "Account creation failed. Please try again.");
       }

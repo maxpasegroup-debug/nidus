@@ -31,14 +31,17 @@ export function canAccessDashboardPath(user: Pick<AuthUser, "role" | "roleMetada
   if (!user) return false;
   if (path === "/dashboard/settings") return true;
   const template = dashboardTemplate(user);
-  if (user.role === "ADMIN") return true;
-  if (user.role === "DIRECTOR") return path.startsWith("/dashboard/director") || path === "/dashboard/teacher" || path.startsWith("/admin-center");
-  if (user.role === "TEACHER" && template === "ACADEMIC_HEAD") {
+  if (template === "ACADEMIC_HEAD") {
     return path === "/dashboard/academic-head" || path === "/dashboard/teacher" || path.startsWith("/dashboard/director/academic") || path.startsWith("/dashboard/director/materials") || path.startsWith("/dashboard/director/exams");
   }
-  if (user.role === "TEACHER") return path === "/dashboard/teacher";
   if (template === "ADMISSION_CELL") return path === "/dashboard/admission-cell";
-  if (template === "MARKETING" || template === "SALES_BOOSTER" || user.role === "MARKETING_COORDINATOR") {
+  if (template === "MARKETING" || template === "SALES_BOOSTER") {
+    return path === "/dashboard/marketing" || path === "/dashboard/sales-booster";
+  }
+  if (user.role === "ADMIN") return true;
+  if (user.role === "DIRECTOR") return path.startsWith("/dashboard/director") || path === "/dashboard/teacher" || path.startsWith("/admin-center");
+  if (user.role === "TEACHER") return path === "/dashboard/teacher";
+  if (user.role === "MARKETING_COORDINATOR") {
     return path === "/dashboard/marketing" || path === "/dashboard/sales-booster";
   }
   if (user.role === "TELECALLER") return path === "/dashboard/telecaller";
