@@ -606,7 +606,7 @@ export default function TeacherDashboardClient({ view }: { view: TeacherView }) 
           </p>
         </div>
         <div className="flex items-center gap-2">
-          {isAcademicHead ? <Link className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-sm font-black" href="/dashboard/academic-head">HOD Mode</Link> : null}
+          {isAcademicHead ? <Link className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-sm font-black" href="/dashboard/director/academic">HOD</Link> : null}
           <button type="button" onClick={() => void loadTeachingPlan()} className="inline-flex items-center gap-2 rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-sm font-black">
             <RefreshCw size={16} /> Refresh
           </button>
