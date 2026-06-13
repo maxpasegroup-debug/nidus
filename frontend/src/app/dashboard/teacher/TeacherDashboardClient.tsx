@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { Children, useEffect, useMemo, useState } from "react";
 import {
   Bell,
   BookOpen,
@@ -235,6 +235,16 @@ function todayDate() {
   return new Date().toISOString().slice(0, 10);
 }
 
+function monthStartDate(date: Date) {
+  return new Date(date.getFullYear(), date.getMonth(), 1);
+}
+
+function sameDate(value: Date, isoDate?: string) {
+  if (!isoDate) return false;
+  const date = new Date(isoDate);
+  return date.getFullYear() === value.getFullYear() && date.getMonth() === value.getMonth() && date.getDate() === value.getDate();
+}
+
 function statusTone(status?: string | null) {
   const normalized = status?.toUpperCase();
   if (normalized === "COMPLETED" || normalized === "PUBLISHED" || normalized === "APPROVED") return "bg-emerald-50 text-emerald-700";
@@ -264,9 +274,13 @@ export default function TeacherDashboardClient({ view }: { view: TeacherView }) 
   const [attendanceComments, setAttendanceComments] = useState<Record<string, string>>({});
   const [showExamCreator, setShowExamCreator] = useState(false);
   const [showAssignmentCreator, setShowAssignmentCreator] = useState(false);
+  const [classStage, setClassStage] = useState<"programs" | "batches" | "students">("programs");
   const [examDraft, setExamDraft] = useState<ExamDraft | null>(null);
   const [examSourceName, setExamSourceName] = useState("");
   const [assignmentSourceName, setAssignmentSourceName] = useState("");
+  const [librarySubject, setLibrarySubject] = useState<string | null>(null);
+  const [libraryTopic, setLibraryTopic] = useState<string | null>(null);
+  const [calendarMonth, setCalendarMonth] = useState(() => monthStartDate(new Date()));
   const [classWorkspace, setClassWorkspace] = useState<ClassWorkspace>(emptyWorkspace);
   const [calendarLog, setCalendarLog] = useState({ completionStatus: "COMPLETED", teacherLog: "", nextAction: "" });
   const [libraryForm, setLibraryForm] = useState({
@@ -320,6 +334,36 @@ export default function TeacherDashboardClient({ view }: { view: TeacherView }) 
     selectedCalendarItems[0] ??
     null;
   const pendingAssignments = classWorkspace.assignments.reduce((total, item) => total + Number(item.submissionStats?.pending ?? 0), 0);
+  const librarySubjects = useMemo(() => {
+    const subjects = new Set(classWorkspace.materials.map((item) => item.subject || item.folder || "General"));
+    if (libraryForm.subject) subjects.add(libraryForm.subject);
+    return Array.from(subjects);
+  }, [classWorkspace.materials, libraryForm.subject]);
+  const activeLibrarySubject = librarySubject ?? librarySubjects[0] ?? null;
+  const libraryTopics = useMemo(() => {
+    const topics = new Set(
+      classWorkspace.materials
+        .filter((item) => (item.subject || item.folder || "General") === activeLibrarySubject)
+        .map((item) => item.topic || "General"),
+    );
+    if (libraryForm.topic && libraryForm.subject === activeLibrarySubject) topics.add(libraryForm.topic);
+    return Array.from(topics);
+  }, [activeLibrarySubject, classWorkspace.materials, libraryForm.subject, libraryForm.topic]);
+  const activeLibraryTopic = libraryTopic ?? libraryTopics[0] ?? null;
+  const visibleLibraryMaterials = classWorkspace.materials.filter(
+    (item) =>
+      (item.subject || item.folder || "General") === activeLibrarySubject &&
+      (item.topic || "General") === activeLibraryTopic,
+  );
+  const calendarDays = useMemo(() => {
+    const first = monthStartDate(calendarMonth);
+    const startOffset = first.getDay();
+    const daysInMonth = new Date(first.getFullYear(), first.getMonth() + 1, 0).getDate();
+    return Array.from({ length: startOffset + daysInMonth }, (_, index) => {
+      if (index < startOffset) return null;
+      return new Date(first.getFullYear(), first.getMonth(), index - startOffset + 1);
+    });
+  }, [calendarMonth]);
   const pendingCalendarItems = calendar.filter((item) => item.completionStatus !== "COMPLETED").length;
   const attendanceMarkedToday = classWorkspace.attendance.some((item) => item.date?.slice(0, 10) === attendanceDate);
   const selectedStudentAttendance = classWorkspace.attendance
@@ -422,11 +466,27 @@ export default function TeacherDashboardClient({ view }: { view: TeacherView }) 
     setSelectedProgramKey(key);
     setSelectedClassId(program?.classes[0]?.id ?? null);
     setSelectedStudentId(null);
+    setLibrarySubject(null);
+    setLibraryTopic(null);
   }
 
   function chooseBatch(batchId: string) {
     setSelectedClassId(batchId);
     setSelectedStudentId(null);
+    setLibrarySubject(null);
+    setLibraryTopic(null);
+  }
+
+  function openClassProgram(key: string) {
+    setSelectedProgramKey(key);
+    setSelectedClassId(null);
+    setSelectedStudentId(null);
+    setClassStage("batches");
+  }
+
+  function openClassBatch(batchId: string) {
+    chooseBatch(batchId);
+    setClassStage("students");
   }
 
   function setAllAttendance(status: "PRESENT" | "ABSENT" | "LEAVE") {
@@ -595,15 +655,22 @@ export default function TeacherDashboardClient({ view }: { view: TeacherView }) 
     }
   }
 
+  const viewTitles: Record<TeacherView, string> = {
+    today: "Today",
+    classes: "Classes",
+    exams: "Exams",
+    assignments: "Assignments",
+    attendance: "Attendance",
+    library: "Library",
+    "academic-calendar": "Academic Calendar",
+  };
+
   return (
-    <div className="mx-auto w-full max-w-7xl px-4 py-5 sm:px-6 lg:px-8">
-      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+    <div className="w-full">
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p className="text-xs font-black uppercase tracking-[0.4em] text-[var(--gold-dark)]">Teacher Dashboard</p>
-          <h1 className="mt-2 text-3xl font-black text-[var(--ink)]">Simple class control</h1>
-          <p className="mt-1 max-w-2xl text-sm text-[var(--muted-blue)]">
-            Program, batch, students, attendance, assignments, exams, library and calendar logs in one small-academy workflow.
-          </p>
+          <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold-dark)]">Teacher Dashboard</p>
+          <h1 className="mt-1 text-2xl font-black text-[var(--ink)]">{viewTitles[view]}</h1>
         </div>
         <div className="flex items-center gap-2">
           {isAcademicHead ? <Link className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-sm font-black" href="/dashboard/director/academic">HOD</Link> : null}
@@ -639,56 +706,45 @@ export default function TeacherDashboardClient({ view }: { view: TeacherView }) 
       </section> : null}
 
       {view === "classes" ? <section className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
-        <SectionHeader eyebrow="Classes" title="Programs, batches and students" description="Choose the program first, then open the batch and student progress." icon={<GraduationCap size={20} />} />
-        <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-          {programGroups.map((program) => (
-            <button key={program.key} type="button" onClick={() => chooseProgram(program.key)} className={`rounded-2xl border p-4 text-left ${selectedProgram?.key === program.key ? "border-[var(--ink)] bg-[var(--ink)] text-white" : "border-[var(--border)] bg-[var(--page-bg)]"}`}>
-              <p className="text-xs font-black uppercase tracking-[0.25em] opacity-70">Program</p>
-              <h3 className="mt-3 text-xl font-black">{program.name}</h3>
-              <p className="mt-2 text-sm opacity-80">{program.classes.length} batch(es)</p>
-            </button>
-          ))}
-          {!programGroups.length ? <EmptyState text="No program is assigned yet. Academic Head or Director should assign batches to this teacher." /> : null}
-        </div>
-        <div className="mt-6 grid gap-4 lg:grid-cols-[320px_1fr]">
-          <div>
-            <h3 className="font-black">Batches</h3>
-            <div className="mt-3 grid gap-3">
+        <SectionHeader eyebrow="Classes" title="Program to batch to students" description="Only assigned programs and batches appear here." icon={<GraduationCap size={20} />} />
+        <StepTrail items={["Programs", "Batches", "Students"]} active={classStage === "programs" ? 0 : classStage === "batches" ? 1 : 2} />
+        {classStage === "programs" ? (
+          <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            {programGroups.map((program) => (
+              <button key={program.key} type="button" onClick={() => openClassProgram(program.key)} className="min-h-36 rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-5 text-left shadow-sm transition hover:-translate-y-1 hover:bg-white">
+                <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold-dark)]">Program</p>
+                <h3 className="mt-4 text-2xl font-black">{program.name}</h3>
+                <p className="mt-3 text-sm text-[var(--muted-blue)]">{program.classes.length} assigned batch(es)</p>
+              </button>
+            ))}
+            {!programGroups.length ? <EmptyState text="No program is assigned yet. Academic Head or Director should assign batches to this teacher." /> : null}
+          </div>
+        ) : null}
+        {classStage === "batches" ? (
+          <div className="mt-5">
+            <button type="button" onClick={() => setClassStage("programs")} className="mb-4 rounded-xl border border-[var(--border)] bg-white px-4 py-2 text-sm font-black">Back to programs</button>
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {programClasses.map((batch) => (
-                <button key={batch.id} type="button" onClick={() => chooseBatch(batch.id)} className={`rounded-2xl border p-4 text-left ${selectedClass?.id === batch.id ? "border-[var(--ink)] bg-white shadow-sm" : "border-[var(--border)] bg-[var(--page-bg)]"}`}>
-                  <p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold-dark)]">{batch.subject || "Subject"}</p>
-                  <h4 className="mt-2 font-black">{batch.name}</h4>
+                <button key={batch.id} type="button" onClick={() => openClassBatch(batch.id)} className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-5 text-left shadow-sm transition hover:-translate-y-1 hover:bg-white">
+                  <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold-dark)]">{selectedProgram?.name ?? "Program"}</p>
+                  <h3 className="mt-3 text-xl font-black">{batch.name}</h3>
                   <p className="mt-2 text-sm text-[var(--muted-blue)]">{batch.students?.length ?? batch._count?.students ?? 0} students</p>
+                  <p className="mt-4 rounded-full border border-[var(--border)] bg-white px-3 py-2 text-xs font-black">{batch.subject || "Subject"}</p>
                 </button>
               ))}
+              {!programClasses.length ? <EmptyState text="No batch is assigned under this program." /> : null}
             </div>
           </div>
-          <div className="rounded-[28px] border border-emerald-900 bg-emerald-950 p-5 text-white">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div>
-                <p className="text-xs font-black uppercase tracking-[0.35em] text-emerald-200">Team View</p>
-                <h3 className="mt-2 text-2xl font-black">{selectedClass?.name ?? "Select a batch"}</h3>
-              </div>
-              <span className="rounded-full border border-white/30 px-4 py-2 text-sm font-black">{selectedStudents.length} students</span>
+        ) : null}
+        {classStage === "students" ? (
+          <div className="mt-5">
+            <div className="mb-4 flex flex-wrap gap-2">
+              <button type="button" onClick={() => setClassStage("programs")} className="rounded-xl border border-[var(--border)] bg-white px-4 py-2 text-sm font-black">Programs</button>
+              <button type="button" onClick={() => setClassStage("batches")} className="rounded-xl border border-[var(--border)] bg-white px-4 py-2 text-sm font-black">Batches</button>
             </div>
-            <div className="mt-5 rounded-[24px] border border-white/25 bg-emerald-900/70 p-4">
-              <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
-                {selectedStudents.map((entry, index) => {
-                  const id = studentId(entry, index);
-                  const active = selectedStudentId === id;
-                  return (
-                    <button key={id} type="button" onClick={() => setSelectedStudentId(id)} className={`flex flex-col items-center rounded-2xl border p-4 text-center ${active ? "border-white bg-white text-emerald-950" : "border-white/25 bg-white/10 text-white"}`}>
-                      <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white font-black text-emerald-950">{(entry.student?.name || entry.student?.email || "?").slice(0, 1).toUpperCase()}</span>
-                      <span className="mt-3 text-sm font-black">{entry.student?.name || entry.student?.email || "Student"}</span>
-                      <span className="mt-1 text-xs opacity-75">{entry.status || "Active"}</span>
-                    </button>
-                  );
-                })}
-              </div>
-              {!selectedStudents.length ? <p className="py-10 text-center text-sm text-emerald-100">Students will appear after Admission Cell approval and batch assignment.</p> : null}
-            </div>
+            <FootballStudentGrid students={selectedStudents} selectedStudentId={selectedStudentId} onSelect={setSelectedStudentId} />
             {selectedStudent ? (
-              <div className="mt-4 rounded-2xl bg-white p-4 text-[var(--ink)]">
+              <div className="mt-4 rounded-2xl border border-[var(--border)] bg-white p-4 text-[var(--ink)]">
                 <h4 className="font-black">{selectedStudent.name || selectedStudent.email}</h4>
                 <p className="mt-1 text-sm text-[var(--muted-blue)]">{selectedStudent.email || selectedStudent.mobile || "Student profile"}</p>
                 <div className="mt-3 grid gap-2 sm:grid-cols-3">
@@ -699,24 +755,28 @@ export default function TeacherDashboardClient({ view }: { view: TeacherView }) 
               </div>
             ) : null}
           </div>
-        </div>
+        ) : null}
       </section> : null}
 
       {view === "exams" ? <section className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
-        <SectionHeader eyebrow="Exams" title="Create and publish exams" description="NIDUS GURU prepares a draft from topic notes, files, photos or a question bank. Teacher reviews before publishing." icon={<BookOpen size={20} />} action={<button type="button" onClick={() => setShowExamCreator((value) => !value)} className="inline-flex items-center gap-2 rounded-xl bg-[var(--ink)] px-4 py-3 text-sm font-black text-white"><Plus size={16} /> Create New Exam</button>} />
+        <SectionHeader eyebrow="Exams" title="Exam room" description="Create with NIDUS GURU, review, schedule and publish." icon={<BookOpen size={20} />} action={<button type="button" onClick={() => setShowExamCreator((value) => !value)} className="inline-flex min-h-14 items-center gap-2 rounded-2xl bg-[var(--ink)] px-6 py-4 text-base font-black text-white shadow-sm"><Plus size={20} /> Create Exam</button>} />
         <ProgramBatchPicker programGroups={programGroups} selectedProgramKey={selectedProgram?.key} selectedClassId={selectedClass?.id} onProgram={chooseProgram} onBatch={chooseBatch} />
         {showExamCreator ? (
           <div className="mt-5 rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
+            <div className="rounded-2xl bg-white p-4 shadow-sm">
+              <p className="font-black">NIDUS GURU</p>
+              <p className="mt-2 text-sm leading-6 text-[var(--muted-blue)]">Hello Teacher. What exam are you creating today? Add the topic, upload notes or a question bank, and I will draft the paper for review.</p>
+            </div>
             <FormGrid>
+              <Input label="Exam topic" value={examForm.topic} onChange={(value) => setExamForm((form) => ({ ...form, topic: value, title: form.title || `${value} Test` }))} />
               <Input label="Exam title" value={examForm.title} onChange={(value) => setExamForm((form) => ({ ...form, title: value }))} />
-              <Input label="Topic details" value={examForm.topic} onChange={(value) => setExamForm((form) => ({ ...form, topic: value }))} />
+              <FileInput label="Upload PDF / Word / photo / question bank" onChange={setExamSourceName} />
+              <Textarea label="Notes for NIDUS GURU" value={examForm.instructions} onChange={(value) => setExamForm((form) => ({ ...form, instructions: value }))} />
               <Input label="Questions" type="number" value={examForm.questionCount} onChange={(value) => setExamForm((form) => ({ ...form, questionCount: value }))} />
-              <Input label="Timer in minutes" type="number" value={examForm.duration} onChange={(value) => setExamForm((form) => ({ ...form, duration: value }))} />
+              <Select label="Difficulty" value={examForm.difficulty} onChange={(value) => setExamForm((form) => ({ ...form, difficulty: value }))}><option value="EASY">Easy</option><option value="MEDIUM">Medium</option><option value="HARD">Hard</option></Select>
               <Input label="Publish date" type="date" value={examForm.publishDate} onChange={(value) => setExamForm((form) => ({ ...form, publishDate: value }))} />
               <Input label="Publish time" type="time" value={examForm.publishTime} onChange={(value) => setExamForm((form) => ({ ...form, publishTime: value }))} />
-              <Select label="Difficulty" value={examForm.difficulty} onChange={(value) => setExamForm((form) => ({ ...form, difficulty: value }))}><option value="EASY">Easy</option><option value="MEDIUM">Medium</option><option value="HARD">Hard</option></Select>
-              <FileInput label="PDF / Word / photo / question bank" onChange={setExamSourceName} />
-              <Textarea label="Instructions for NIDUS GURU" value={examForm.instructions} onChange={(value) => setExamForm((form) => ({ ...form, instructions: value }))} />
+              <Input label="Duration in minutes" type="number" value={examForm.duration} onChange={(value) => setExamForm((form) => ({ ...form, duration: value }))} />
             </FormGrid>
             <div className="mt-4 flex flex-wrap gap-2">
               <button type="button" onClick={() => void createExamDraft()} className="rounded-xl border border-[var(--border)] bg-white px-5 py-3 font-black">Ask NIDUS GURU</button>
@@ -739,10 +799,14 @@ export default function TeacherDashboardClient({ view }: { view: TeacherView }) 
       </section> : null}
 
       {view === "assignments" ? <section className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
-        <SectionHeader eyebrow="Assignments" title="Create and track assignments" description="Same simple flow as exams: add task, attach file or link, publish to selected batch." icon={<FileText size={20} />} action={<button type="button" onClick={() => setShowAssignmentCreator((value) => !value)} className="inline-flex items-center gap-2 rounded-xl bg-[var(--ink)] px-4 py-3 text-sm font-black text-white"><Plus size={16} /> Create Assignment</button>} />
+        <SectionHeader eyebrow="Assignments" title="Assignment board" description="Create one task, publish it, then track submitted and pending work." icon={<FileText size={20} />} action={<button type="button" onClick={() => setShowAssignmentCreator((value) => !value)} className="inline-flex min-h-14 items-center gap-2 rounded-2xl bg-[var(--ink)] px-6 py-4 text-base font-black text-white shadow-sm"><Plus size={20} /> Create Assignment</button>} />
         <ProgramBatchPicker programGroups={programGroups} selectedProgramKey={selectedProgram?.key} selectedClassId={selectedClass?.id} onProgram={chooseProgram} onBatch={chooseBatch} />
         {showAssignmentCreator ? (
           <div className="mt-5 rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
+            <div className="mb-4 rounded-2xl bg-white p-4 shadow-sm">
+              <p className="font-black">New assignment</p>
+              <p className="mt-2 text-sm text-[var(--muted-blue)]">Add the task, attach a file or link, then publish to the selected batch.</p>
+            </div>
             <FormGrid>
               <Input label="Assignment title" value={assignmentForm.title} onChange={(value) => setAssignmentForm((form) => ({ ...form, title: value }))} />
               <Input label="Topic" value={assignmentForm.topic} onChange={(value) => setAssignmentForm((form) => ({ ...form, topic: value }))} />
@@ -798,9 +862,40 @@ export default function TeacherDashboardClient({ view }: { view: TeacherView }) 
       </section> : null}
 
       {view === "library" ? <section className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
-        <SectionHeader eyebrow="Library" title="Folders, topics and recorded videos" description="Create a subject folder, add lesson or topic folder, then upload or link the class material." icon={<Library size={20} />} />
+        <SectionHeader eyebrow="Library" title="Class resource folders" description="Open a subject folder, then a lesson folder, then manage videos, PDFs and links." icon={<Library size={20} />} />
         <ProgramBatchPicker programGroups={programGroups} selectedProgramKey={selectedProgram?.key} selectedClassId={selectedClass?.id} onProgram={chooseProgram} onBatch={chooseBatch} />
+        <div className="mt-5 grid gap-4 lg:grid-cols-[260px_260px_1fr]">
+          <FolderColumn title="Subjects" emptyText="Create the first subject folder below.">
+            {librarySubjects.map((subject) => (
+              <button key={subject} type="button" onClick={() => { setLibrarySubject(subject); setLibraryTopic(null); }} className={`rounded-2xl border p-4 text-left ${activeLibrarySubject === subject ? "border-[var(--ink)] bg-white shadow-sm" : "border-[var(--border)] bg-[var(--page-bg)]"}`}>
+                <p className="font-black">{subject}</p>
+                <p className="mt-1 text-xs text-[var(--muted-blue)]">Subject folder</p>
+              </button>
+            ))}
+          </FolderColumn>
+          <FolderColumn title="Lessons" emptyText="No lesson folder yet.">
+            {libraryTopics.map((topic) => (
+              <button key={topic} type="button" onClick={() => setLibraryTopic(topic)} className={`rounded-2xl border p-4 text-left ${activeLibraryTopic === topic ? "border-[var(--ink)] bg-white shadow-sm" : "border-[var(--border)] bg-[var(--page-bg)]"}`}>
+                <p className="font-black">{topic}</p>
+                <p className="mt-1 text-xs text-[var(--muted-blue)]">Topic folder</p>
+              </button>
+            ))}
+          </FolderColumn>
+          <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
+            <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold-dark)]">Materials</p>
+            <div className="mt-4 grid gap-3">
+              {visibleLibraryMaterials.map((material) => (
+                <SimpleCard key={material.id} eyebrow={material.reviewStatus || material.status || "Material"} title={material.title || "Untitled material"}>
+                  <p>{material.fileName || material.url || "No file link"}</p>
+                  <button type="button" onClick={() => void archiveLibraryMaterial(material.id)} className="mt-3 text-sm font-black text-rose-700">Archive</button>
+                </SimpleCard>
+              ))}
+              {!visibleLibraryMaterials.length ? <EmptyState text="No material in this folder yet." /> : null}
+            </div>
+          </div>
+        </div>
         <div className="mt-5 rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
+          <p className="mb-4 font-black">Add material or create folder</p>
           <FormGrid>
             <Input label="Subject folder" value={libraryForm.subject} onChange={(value) => setLibraryForm((form) => ({ ...form, subject: value, folder: value }))} />
             <Input label="Lesson / topic folder" value={libraryForm.topic} onChange={(value) => setLibraryForm((form) => ({ ...form, topic: value }))} />
@@ -813,31 +908,41 @@ export default function TeacherDashboardClient({ view }: { view: TeacherView }) 
           <button type="button" onClick={() => void publishLibraryMaterial()} className="mt-4 inline-flex items-center gap-2 rounded-xl bg-emerald-700 px-5 py-3 font-black text-white"><FolderPlus size={16} /> Publish Material</button>
         </div>
         {libraryMessage ? <Notice text={libraryMessage} /> : null}
-        <CardGrid>
-          {classWorkspace.materials.map((material) => (
-            <SimpleCard key={material.id} eyebrow={material.reviewStatus || material.status || "Material"} title={material.title || "Untitled material"}>
-              <p>{material.subject || material.folder || "Subject"} / {material.topic || "Topic"}</p>
-              <p>{material.fileName || material.url || "No file link"}</p>
-              <button type="button" onClick={() => void archiveLibraryMaterial(material.id)} className="mt-3 text-sm font-black text-rose-700">Archive</button>
-            </SimpleCard>
-          ))}
-          {!classWorkspace.materials.length ? <EmptyState text="No library material uploaded for this batch yet." /> : null}
-        </CardGrid>
       </section> : null}
 
       {view === "academic-calendar" ? <section className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
-        <SectionHeader eyebrow="Academic Calendar" title="Timetable, syllabus progress and teacher logs" description="This is the main connection between teacher and management. Update class completion here." icon={<CalendarDays size={20} />} />
+        <SectionHeader eyebrow="Academic Calendar" title="Calendar and class logs" description="Click a date/topic, update completion, and management sees progress." icon={<CalendarDays size={20} />} />
         <ProgramBatchPicker programGroups={programGroups} selectedProgramKey={selectedProgram?.key} selectedClassId={selectedClass?.id} onProgram={chooseProgram} onBatch={chooseBatch} />
         <div className="mt-5 grid gap-4 lg:grid-cols-[1fr_360px]">
-          <div className="grid gap-3 md:grid-cols-2">
-            {selectedCalendarItems.map((item) => (
-              <button key={item.id} type="button" onClick={() => { setSelectedCalendarId(item.id); setCalendarLog({ completionStatus: item.completionStatus || "COMPLETED", teacherLog: item.teacherLog || "", nextAction: item.nextAction || "" }); }} className={`rounded-2xl border p-4 text-left ${selectedCalendarItem?.id === item.id ? "border-[var(--ink)] bg-white shadow-sm" : "border-[var(--border)] bg-[var(--page-bg)]"}`}>
-                <p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold-dark)]">{item.plannedDate ? new Date(item.plannedDate).toLocaleDateString() : "Planned"}{item.startTime ? ` / ${item.startTime}` : ""}</p>
-                <h3 className="mt-2 font-black">{item.topic || "Topic pending"}</h3>
-                <p className="mt-1 text-sm text-[var(--muted-blue)]">{item.batchName || selectedClass?.name || "Batch"} / {item.subject || "Subject"}</p>
-                <span className={`mt-3 inline-flex rounded-full px-3 py-1 text-xs font-black ${statusTone(item.completionStatus)}`}>{item.completionStatus || "PENDING"}</span>
-              </button>
-            ))}
+          <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+              <h3 className="text-xl font-black">{calendarMonth.toLocaleDateString(undefined, { month: "long", year: "numeric" })}</h3>
+              <div className="flex gap-2">
+                <button type="button" onClick={() => setCalendarMonth((date) => new Date(date.getFullYear(), date.getMonth() - 1, 1))} className="rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-sm font-black">Prev</button>
+                <button type="button" onClick={() => setCalendarMonth(monthStartDate(new Date()))} className="rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-sm font-black">Today</button>
+                <button type="button" onClick={() => setCalendarMonth((date) => new Date(date.getFullYear(), date.getMonth() + 1, 1))} className="rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-sm font-black">Next</button>
+              </div>
+            </div>
+            <div className="grid grid-cols-7 gap-2 text-center text-xs font-black uppercase tracking-[0.12em] text-[var(--muted-blue)]">
+              {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => <span key={day}>{day}</span>)}
+            </div>
+            <div className="mt-2 grid grid-cols-7 gap-2">
+              {calendarDays.map((day, index) => {
+                const dayItems = day ? selectedCalendarItems.filter((item) => sameDate(day, item.plannedDate)) : [];
+                return (
+                  <div key={day?.toISOString() ?? `empty-${index}`} className="min-h-28 rounded-2xl border border-[var(--border)] bg-white p-2">
+                    {day ? <p className="text-xs font-black">{day.getDate()}</p> : null}
+                    <div className="mt-2 grid gap-1">
+                      {dayItems.slice(0, 2).map((item) => (
+                        <button key={item.id} type="button" onClick={() => { setSelectedCalendarId(item.id); setCalendarLog({ completionStatus: item.completionStatus || "COMPLETED", teacherLog: item.teacherLog || "", nextAction: item.nextAction || "" }); }} className={`rounded-lg px-2 py-1 text-left text-[0.68rem] font-black ${statusTone(item.completionStatus)}`}>
+                          {item.topic || "Topic"}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
             {!selectedCalendarItems.length ? <EmptyState text="No timetable or syllabus plan is assigned yet." /> : null}
           </div>
           <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
@@ -875,6 +980,71 @@ function SectionHeader({ eyebrow, title, description, icon, action }: { eyebrow:
   );
 }
 
+function StepTrail({ items, active }: { items: string[]; active: number }) {
+  return (
+    <div className="mt-4 flex flex-wrap gap-2">
+      {items.map((item, index) => (
+        <span key={item} className={`rounded-full px-4 py-2 text-xs font-black ${index === active ? "bg-[var(--ink)] text-white" : "border border-[var(--border)] bg-[var(--page-bg)] text-[var(--ink)]"}`}>
+          {index + 1}. {item}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+function FootballStudentGrid({
+  students,
+  selectedStudentId,
+  onSelect,
+}: {
+  students: NonNullable<AssignedClass["students"]>;
+  selectedStudentId: string | null;
+  onSelect: (id: string) => void;
+}) {
+  const rows = [students.slice(0, 1), students.slice(1, 3), students.slice(3, 6), students.slice(6, 8), students.slice(8)];
+
+  return (
+    <div className="rounded-[28px] border border-emerald-900 bg-emerald-950 p-5 text-white">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <p className="text-xs font-black uppercase tracking-[0.35em] text-emerald-200">Football Team View</p>
+          <h3 className="mt-2 text-2xl font-black">Students</h3>
+        </div>
+        <span className="rounded-full border border-white/30 px-4 py-2 text-sm font-black">{students.length} students</span>
+      </div>
+      <div className="mt-5 rounded-[24px] border border-white/25 bg-emerald-900/70 p-4">
+        <div className="grid gap-5">
+          {rows.map((row, rowIndex) => (
+            <div key={`row-${rowIndex}`} className="flex flex-wrap justify-center gap-4">
+              {row.map((entry, index) => {
+                const id = studentId(entry, rowIndex * 4 + index);
+                const active = selectedStudentId === id;
+                return (
+                  <button key={id} type="button" onClick={() => onSelect(id)} className={`w-36 rounded-2xl border p-3 text-center ${active ? "border-white bg-white text-emerald-950" : "border-white/25 bg-white/10 text-white"}`}>
+                    <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-white font-black text-emerald-950">{(entry.student?.name || entry.student?.email || "?").slice(0, 1).toUpperCase()}</span>
+                    <span className="mt-3 block truncate text-sm font-black">{entry.student?.name || entry.student?.email || "Student"}</span>
+                    <span className="mt-2 block rounded-full border border-current px-2 py-1 text-[0.65rem] font-black">{entry.status || "Active"}</span>
+                  </button>
+                );
+              })}
+            </div>
+          ))}
+        </div>
+        {!students.length ? <p className="py-10 text-center text-sm text-emerald-100">Students will appear after Admission Cell approval and batch assignment.</p> : null}
+      </div>
+    </div>
+  );
+}
+
+function FolderColumn({ title, emptyText, children }: { title: string; emptyText: string; children: React.ReactNode }) {
+  return (
+    <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
+      <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold-dark)]">{title}</p>
+      <div className="mt-4 grid gap-3">{Children.count(children) ? children : <EmptyState text={emptyText} />}</div>
+    </div>
+  );
+}
+
 function ProgramBatchPicker({
   programGroups,
   selectedProgramKey,
@@ -891,23 +1061,34 @@ function ProgramBatchPicker({
   const selectedProgram = programGroups.find((program) => program.key === selectedProgramKey) ?? programGroups[0] ?? null;
 
   return (
-    <div className="mt-5 grid gap-3 rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4 md:grid-cols-2">
-      <Select label="Program" value={selectedProgram?.key ?? ""} onChange={onProgram}>
-        <option value="">Select program</option>
+    <div className="mt-5 rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
+      <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold-dark)]">Choose class</p>
+      <div className="mt-3 flex gap-3 overflow-x-auto pb-1">
         {programGroups.map((program) => (
-          <option key={program.key} value={program.key}>
-            {program.name}
-          </option>
+          <button
+            key={program.key}
+            type="button"
+            onClick={() => onProgram(program.key)}
+            className={`min-w-40 rounded-2xl border px-4 py-3 text-left ${selectedProgram?.key === program.key ? "border-[var(--ink)] bg-white shadow-sm" : "border-[var(--border)] bg-[var(--page-bg)]"}`}
+          >
+            <span className="text-xs font-black uppercase tracking-[0.18em] text-[var(--gold-dark)]">Program</span>
+            <span className="mt-2 block font-black">{program.name}</span>
+          </button>
         ))}
-      </Select>
-      <Select label="Batch" value={selectedClassId ?? ""} onChange={onBatch}>
-        <option value="">Select batch</option>
+      </div>
+      <div className="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
         {(selectedProgram?.classes ?? []).map((batch) => (
-          <option key={batch.id} value={batch.id}>
-            {batch.name} {batch.subject ? `- ${batch.subject}` : ""}
-          </option>
+          <button
+            key={batch.id}
+            type="button"
+            onClick={() => onBatch(batch.id)}
+            className={`rounded-2xl border p-4 text-left ${selectedClassId === batch.id ? "border-[var(--ink)] bg-white shadow-sm" : "border-[var(--border)] bg-white/70"}`}
+          >
+            <p className="font-black">{batch.name}</p>
+            <p className="mt-1 text-sm text-[var(--muted-blue)]">{batch.students?.length ?? batch._count?.students ?? 0} students</p>
+          </button>
         ))}
-      </Select>
+      </div>
       {!programGroups.length ? <p className="text-sm text-[var(--muted-blue)] md:col-span-2">No assigned program is available yet. Only Academic Head or Director allocations will appear here.</p> : null}
     </div>
   );
