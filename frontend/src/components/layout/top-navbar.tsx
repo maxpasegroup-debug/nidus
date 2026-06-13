@@ -6,14 +6,18 @@ import { Bell, ChevronDown } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
-export function TopNavbar() {
+export function TopNavbar({ hasSidebar = true }: { hasSidebar?: boolean }) {
   const { isAuthenticated, logout, user } = useAuth();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const designation = typeof user?.roleMetadata?.designation === "string" ? user.roleMetadata.designation : "";
   const roleLabel = designation || (user?.role === "ADMIN" && user?.roleMetadata?.superAdmin === true ? "Management" : user?.role);
 
   return (
-    <header className="fixed left-0 right-0 top-0 z-40 border-b border-[#071d36]/10 bg-[#f7f3ea]/82 text-[#101827] backdrop-blur-xl lg:left-[var(--sidebar-width)]">
+    <header
+      className={`fixed left-0 right-0 top-0 z-40 border-b border-[#071d36]/10 bg-[#f7f3ea]/82 text-[#101827] backdrop-blur-xl ${
+        hasSidebar ? "lg:left-[var(--sidebar-width)]" : ""
+      }`}
+    >
       <div className="flex h-[var(--nav-height)] items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link href="/" className="flex items-center gap-3 lg:hidden">
           <span className="grid h-10 w-10 place-items-center rounded border border-[#b9913f]/30 bg-[#071d36] text-sm font-bold text-[#e7c873]">

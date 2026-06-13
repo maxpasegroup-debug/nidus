@@ -35,7 +35,12 @@ const teacherMenu: DashboardNavItem[] = [
 ];
 
 const academicHeadMenu: DashboardNavItem[] = [
-  ...teacherMenu,
+  { label: "Classes", href: "/dashboard/academic-head/classes" },
+  { label: "Exams", href: "/dashboard/academic-head/exams" },
+  { label: "Assignments", href: "/dashboard/academic-head/assignments" },
+  { label: "Attendance", href: "/dashboard/academic-head/attendance" },
+  { label: "Library", href: "/dashboard/academic-head/library" },
+  { label: "Academic Calendar", href: "/dashboard/academic-head/academic-calendar" },
   { label: "HOD", href: "/dashboard/director/academic" },
 ];
 

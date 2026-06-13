@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Children, useEffect, useMemo, useState } from "react";
 import {
   Bell,
@@ -293,6 +294,7 @@ function statusTone(status?: string | null) {
 }
 
 export default function TeacherDashboardClient({ view, courseKey }: { view: TeacherView; courseKey?: string }) {
+  const pathname = usePathname();
   const [user, setUser] = useState<StoredUser | null>(null);
   const [classes, setClasses] = useState<AssignedClass[]>([]);
   const [calendar, setCalendar] = useState<CalendarItem[]>([]);
@@ -363,7 +365,9 @@ export default function TeacherDashboardClient({ view, courseKey }: { view: Teac
   });
 
   const dashboardTemplate = typeof user?.roleMetadata?.dashboardTemplate === "string" ? user.roleMetadata.dashboardTemplate.toUpperCase() : "";
-  const isAcademicHead = user?.role?.toUpperCase() === "ACADEMIC_HEAD" || dashboardTemplate === "ACADEMIC_HEAD";
+  const isAcademicHeadRoute = pathname?.startsWith("/dashboard/academic-head") ?? false;
+  const isAcademicHead = isAcademicHeadRoute || user?.role?.toUpperCase() === "ACADEMIC_HEAD" || dashboardTemplate === "ACADEMIC_HEAD";
+  const dashboardBasePath = isAcademicHead ? "/dashboard/academic-head" : "/dashboard/teacher";
   const activeClasses = useMemo(() => classes.filter((item) => item.status !== "ARCHIVED"), [classes]);
   const activeCourseKey = courseKey ? decodeURIComponent(courseKey) : null;
   const programGroups = useMemo(() => {
@@ -466,25 +470,25 @@ export default function TeacherDashboardClient({ view, courseKey }: { view: Teac
     {
       title: "Pending assignments",
       detail: pendingAssignments ? `${pendingAssignments} student submission(s) need attention.` : "No pending assignment review for the selected batch.",
-      href: "/dashboard/teacher/assignments",
+      href: `${dashboardBasePath}/assignments`,
       icon: FileText,
     },
     {
       title: "Syllabus completion",
       detail: pendingCalendarItems ? `${pendingCalendarItems} calendar topic(s) need completion update.` : "Calendar logs are clear right now.",
-      href: "/dashboard/teacher/academic-calendar",
+      href: `${dashboardBasePath}/academic-calendar`,
       icon: CalendarDays,
     },
     {
       title: "Attendance",
       detail: attendanceMarkedToday ? "Attendance is saved for the selected date." : selectedStudents.length ? "Mark attendance for today's class." : "Select a batch with students to mark attendance.",
-      href: "/dashboard/teacher/attendance",
+      href: `${dashboardBasePath}/attendance`,
       icon: ClipboardCheck,
     },
     {
       title: "Management notes",
       detail: selectedCalendarItem?.nextAction || "Notifications from Academic Head or Director will appear here.",
-      href: "/dashboard/teacher/academic-calendar",
+      href: `${dashboardBasePath}/academic-calendar`,
       icon: Bell,
     },
   ];
@@ -884,7 +888,7 @@ export default function TeacherDashboardClient({ view, courseKey }: { view: Teac
           <SectionHeader eyebrow="Classes" title="Assigned courses" description="Only courses assigned by the Academic Head or Director appear here." icon={<GraduationCap size={20} />} />
           <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             {programGroups.map((program) => (
-              <Link key={program.key} href={`/dashboard/teacher/classes/${program.key}`} className="min-h-44 rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-5 text-left shadow-sm transition hover:-translate-y-1 hover:bg-white">
+              <Link key={program.key} href={`${dashboardBasePath}/classes/${program.key}`} className="min-h-44 rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-5 text-left shadow-sm transition hover:-translate-y-1 hover:bg-white">
                 <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold-dark)]">Program</p>
                 <h3 className="mt-4 text-2xl font-black">{program.name}</h3>
                 <div className="mt-4 grid grid-cols-2 gap-2 text-sm">
@@ -903,7 +907,7 @@ export default function TeacherDashboardClient({ view, courseKey }: { view: Teac
           <div>
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
-                <Link href="/dashboard/teacher/classes" className="text-sm font-black text-[var(--gold-dark)]">Back to assigned courses</Link>
+                <Link href={`${dashboardBasePath}/classes`} className="text-sm font-black text-[var(--gold-dark)]">Back to assigned courses</Link>
                 <h2 className="mt-2 text-3xl font-black">{selectedProgram?.name ?? "Course not assigned"}</h2>
                 <p className="mt-2 text-sm leading-6 text-[var(--muted-blue)]">
                   Course workspace: batches, students, syllabus tracker, exams and assignments.

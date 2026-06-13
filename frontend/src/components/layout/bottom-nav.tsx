@@ -8,7 +8,8 @@ import { useAuth } from "@/components/providers/auth-provider-v2";
 export function BottomNav() {
   const pathname = usePathname();
   const { user } = useAuth();
-  const navItems = getNavItems(user?.role).slice(0, 4);
+  const dashboardTemplate = typeof user?.roleMetadata?.dashboardTemplate === "string" ? user.roleMetadata.dashboardTemplate : null;
+  const navItems = getNavItems(user?.role, dashboardTemplate).slice(0, 4);
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-40 grid grid-cols-4 border-t border-[#071d36]/10 bg-[#f7f3ea]/92 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl lg:hidden" aria-label="Mobile primary navigation">
