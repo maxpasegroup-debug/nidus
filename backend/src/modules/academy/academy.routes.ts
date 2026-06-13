@@ -74,7 +74,7 @@ router.post("/exams", requireAcademyRoles(academicRoles), academyController.publ
 router.post("/batches", requireAcademyRoles(managementRoles), academyController.createBatch);
 router.post("/director-expenses", requireAcademyRoles(managementRoles), academyController.createDirectorExpense);
 router.post("/director-expenses/:id/archive", requireAcademyRoles(managementRoles), academyController.archiveDirectorExpense);
-router.post("/employees", requireAcademyRoles(managementRoles), academyController.createEmployee);
+router.post("/employees", requireAcademyRoles(academicRoles), academyController.createEmployee);
 router.patch("/batches/:id", requireAcademyRoles(managementRoles), academyController.updateBatch);
 router.patch("/employees/:id", requireAcademyRoles(managementRoles), academyController.updateEmployee);
 router.post("/employees/:id/archive", requireAcademyRoles(managementRoles), academyController.archiveEmployee);

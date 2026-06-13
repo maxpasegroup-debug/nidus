@@ -37,6 +37,7 @@ type StudentInput = {
 type TeacherInput = {
   teacherId: string;
   subject?: string;
+  subjects?: string[];
   role?: string;
 };
 
@@ -252,6 +253,16 @@ function isAcademicManager(user: Requester) {
     designation.toLowerCase().includes("academic head") ||
     permissions.includes("review_attendance")
   );
+}
+
+function requireEmployeeCreationAccess(user: Requester, input: EmployeeInput) {
+  if (isManagement(user)) return;
+  if (!isAcademicManager(user)) {
+    throw Object.assign(new Error("Management access required"), { statusCode: 403 });
+  }
+  if (input.role !== Role.TEACHER || input.dashboardTemplate === "ACADEMIC_HEAD") {
+    throw Object.assign(new Error("Academic Head can create teacher accounts only"), { statusCode: 403 });
+  }
 }
 
 function usesTeacherWorkspace(user: Requester) {
@@ -796,22 +807,66 @@ export const academyService = {
       throw Object.assign(new Error("Teacher or batch not found"), { statusCode: 404 });
     }
 
-    const subject = input.subject || "General";
-    const existing = await prisma.$queryRaw<BatchTeacherAssignmentRow[]>`
-      SELECT * FROM "BatchTeacherAssignment"
-      WHERE "batchId" = ${batchId}
-      AND "teacherId" = ${teacher.id}
-      AND "subject" = ${subject}
-      LIMIT 1
-    `;
+    const subjects = (input.subjects?.length ? input.subjects : [input.subject || "General"])
+      .map((subject) => subject.trim())
+      .filter(Boolean);
+    const savedAssignments = [];
 
-    if (existing[0]) {
+    for (const subject of Array.from(new Set(subjects.length ? subjects : ["General"]))) {
+      const existing = await prisma.$queryRaw<BatchTeacherAssignmentRow[]>`
+        SELECT * FROM "BatchTeacherAssignment"
+        WHERE "batchId" = ${batchId}
+        AND "teacherId" = ${teacher.id}
+        AND "subject" = ${subject}
+        LIMIT 1
+      `;
+
+      if (existing[0]) {
+        await prisma.$executeRaw`
+          UPDATE "BatchTeacherAssignment"
+          SET "role" = ${input.role || "Subject Teacher"},
+              "status" = 'ACTIVE',
+              "updatedAt" = ${new Date()}
+          WHERE "id" = ${existing[0].id}
+        `;
+        await prisma.teacherBatchAssignment
+          .upsert({
+            where: {
+              batchId_teacherId_subject: {
+                batchId,
+                teacherId: teacher.id,
+                subject,
+              },
+            },
+            create: {
+              batchId,
+              teacherId: teacher.id,
+              subject,
+              role: input.role || "Subject Teacher",
+              status: "ACTIVE",
+            },
+            update: {
+              role: input.role || "Subject Teacher",
+              status: "ACTIVE",
+            },
+          })
+          .catch(() => undefined);
+        savedAssignments.push({
+          ...existing[0],
+          role: input.role || "Subject Teacher",
+          status: "ACTIVE",
+          batch,
+          teacher,
+        });
+        continue;
+      }
+
+      const id = randomUUID();
       await prisma.$executeRaw`
-        UPDATE "BatchTeacherAssignment"
-        SET "role" = ${input.role || "Subject Teacher"},
-            "status" = 'ACTIVE',
-            "updatedAt" = ${new Date()}
-        WHERE "id" = ${existing[0].id}
+        INSERT INTO "BatchTeacherAssignment"
+        ("id", "batchId", "teacherId", "subject", "role", "status", "createdAt", "updatedAt")
+        VALUES
+        (${id}, ${batchId}, ${teacher.id}, ${subject}, ${input.role || "Subject Teacher"}, 'ACTIVE', ${new Date()}, ${new Date()})
       `;
       await prisma.teacherBatchAssignment
         .upsert({
@@ -835,55 +890,19 @@ export const academyService = {
           },
         })
         .catch(() => undefined);
-      return {
-        ...existing[0],
+      savedAssignments.push({
+        id,
+        batchId,
+        teacherId: teacher.id,
+        subject,
         role: input.role || "Subject Teacher",
         status: "ACTIVE",
         batch,
         teacher,
-      };
+      });
     }
 
-    const id = randomUUID();
-    await prisma.$executeRaw`
-      INSERT INTO "BatchTeacherAssignment"
-      ("id", "batchId", "teacherId", "subject", "role", "status", "createdAt", "updatedAt")
-      VALUES
-      (${id}, ${batchId}, ${teacher.id}, ${subject}, ${input.role || "Subject Teacher"}, 'ACTIVE', ${new Date()}, ${new Date()})
-    `;
-    await prisma.teacherBatchAssignment
-      .upsert({
-        where: {
-          batchId_teacherId_subject: {
-            batchId,
-            teacherId: teacher.id,
-            subject,
-          },
-        },
-        create: {
-          batchId,
-          teacherId: teacher.id,
-          subject,
-          role: input.role || "Subject Teacher",
-          status: "ACTIVE",
-        },
-        update: {
-          role: input.role || "Subject Teacher",
-          status: "ACTIVE",
-        },
-      })
-      .catch(() => undefined);
-
-    return {
-      id,
-      batchId,
-      teacherId: teacher.id,
-      subject,
-      role: input.role || "Subject Teacher",
-      status: "ACTIVE",
-      batch,
-      teacher,
-    };
+    return savedAssignments.length === 1 ? savedAssignments[0] : { assignments: savedAssignments, batch, teacher };
   },
 
   async teacherAssignments(user: Requester) {
@@ -1087,7 +1106,7 @@ export const academyService = {
   },
 
   async createEmployee(user: Requester, input: EmployeeInput) {
-    requireManagement(user);
+    requireEmployeeCreationAccess(user, input);
     if (!input.name || !input.email || !input.role) {
       throw Object.assign(new Error("Name, email and role are required"), { statusCode: 400 });
     }

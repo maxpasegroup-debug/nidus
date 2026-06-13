@@ -57,6 +57,20 @@ export type AcademyTeacher = {
   roleMetadata?: Record<string, unknown> | null;
 };
 
+export type AcademyTeacherPayload = {
+  name: string;
+  email: string;
+  phone?: string;
+  role: "TEACHER";
+  designation?: string;
+  department?: string;
+  employmentType?: "FULL_TIME" | "PART_TIME" | "HOURLY" | "CONTRACT";
+  hourlyRate?: number;
+  subjects?: string[];
+  dashboardTemplate?: string;
+  password?: string;
+};
+
 export type AcademicCalendarItem = {
   id: string;
   batchId?: string | null;
@@ -286,6 +300,11 @@ export async function getAcademyTeachers() {
   return response.data.teachers;
 }
 
+export async function createAcademyTeacher(payload: AcademyTeacherPayload) {
+  const response = await apiClient.post<{ employee: AcademyTeacher; credentials: { email: string; temporaryPassword: string } }>("/academy/employees", payload);
+  return response.data;
+}
+
 export async function createAcademyBatch(payload: {
   name: string;
   batchType: string;
@@ -311,7 +330,7 @@ export async function updateAcademyBatch(batchId: string, payload: Partial<{
   return response.data.batch;
 }
 
-export async function assignTeacherToBatch(batchId: string, payload: { teacherId: string; subject: string; role?: string; status?: string }) {
+export async function assignTeacherToBatch(batchId: string, payload: { teacherId: string; subject?: string; subjects?: string[]; role?: string; status?: string }) {
   const response = await apiClient.post(`/academy/batches/${batchId}/teachers`, payload);
   return response.data;
 }

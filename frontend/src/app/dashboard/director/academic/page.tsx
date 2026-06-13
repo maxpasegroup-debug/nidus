@@ -20,6 +20,7 @@ import {
 import {
   assignTeacherToBatch,
   createAcademyBatch,
+  createAcademyTeacher,
   createAcademicCalendarItem,
   getAcademyBatches,
   getAcademyTeachers,
@@ -46,6 +47,7 @@ const academicAreas = [
 ];
 
 const batchTypes = ["OFFLINE", "ONLINE", "CRASH", "FOUNDATION", "TOPRANK", "GURU"] as const;
+const employmentTypes = ["FULL_TIME", "PART_TIME", "HOURLY", "CONTRACT"] as const;
 const completionOptions = [
   { label: "Green", value: "GREEN", helper: "On track", className: "bg-emerald-50 text-emerald-800 border-emerald-200" },
   { label: "Orange", value: "ORANGE", helper: "Needs attention", className: "bg-orange-50 text-orange-800 border-orange-200" },
@@ -65,9 +67,21 @@ export default function DirectorAcademicDepartmentPage() {
   const [allocation, setAllocation] = useState({
     batchId: "",
     teacherId: "",
-    subject: "",
+    subjects: "",
     role: "Subject Teacher",
   });
+  const [teacherForm, setTeacherForm] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    designation: "Teacher",
+    department: "Academics",
+    employmentType: "FULL_TIME",
+    hourlyRate: "",
+    subjects: "",
+    password: "123456789",
+  });
+  const [lastCredentials, setLastCredentials] = useState<{ email: string; temporaryPassword: string } | null>(null);
   const [calendarForm, setCalendarForm] = useState({
     batchId: "",
     subject: "",
@@ -129,14 +143,48 @@ export default function DirectorAcademicDepartmentPage() {
   });
 
   const assignTeacherMutation = useMutation({
-    mutationFn: ({ batchId, payload }: { batchId: string; payload: { teacherId: string; subject: string; role?: string } }) =>
+    mutationFn: ({ batchId, payload }: { batchId: string; payload: { teacherId: string; subjects: string[]; role?: string } }) =>
       assignTeacherToBatch(batchId, payload),
     onSuccess: () => {
-      setAllocation({ batchId: "", teacherId: "", subject: "", role: "Subject Teacher" });
+      setAllocation({ batchId: "", teacherId: "", subjects: "", role: "Subject Teacher" });
       refresh();
-      setNotice("Teacher allocated. The teacher can now see this batch in their dashboard.");
+      setNotice("Teacher allocated. The teacher can now see these subject batches in their dashboard.");
     },
     onError: (error) => setNotice(error instanceof Error ? error.message : "Could not allocate teacher."),
+  });
+
+  const createTeacherMutation = useMutation({
+    mutationFn: () =>
+      createAcademyTeacher({
+        name: teacherForm.name,
+        email: teacherForm.email,
+        phone: teacherForm.phone || undefined,
+        role: "TEACHER",
+        designation: teacherForm.designation || "Teacher",
+        department: teacherForm.department || "Academics",
+        employmentType: teacherForm.employmentType as "FULL_TIME" | "PART_TIME" | "HOURLY" | "CONTRACT",
+        hourlyRate: teacherForm.hourlyRate ? Number(teacherForm.hourlyRate) : undefined,
+        subjects: teacherForm.subjects.split(",").map((subject) => subject.trim()).filter(Boolean),
+        dashboardTemplate: "",
+        password: teacherForm.password || "123456789",
+      }),
+    onSuccess: (data) => {
+      setTeacherForm({
+        name: "",
+        email: "",
+        phone: "",
+        designation: "Teacher",
+        department: "Academics",
+        employmentType: "FULL_TIME",
+        hourlyRate: "",
+        subjects: "",
+        password: "123456789",
+      });
+      setLastCredentials(data.credentials);
+      refresh();
+      setNotice(`Teacher created. Login: ${data.credentials.email} / Password: ${data.credentials.temporaryPassword}`);
+    },
+    onError: (error) => setNotice(error instanceof Error ? error.message : "Could not create teacher."),
   });
 
   const createCalendarMutation = useMutation({
@@ -172,14 +220,23 @@ export default function DirectorAcademicDepartmentPage() {
 
   const submitAllocation = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    const subjects = allocation.subjects
+      .split(",")
+      .map((subject) => subject.trim())
+      .filter(Boolean);
     assignTeacherMutation.mutate({
       batchId: allocation.batchId,
       payload: {
         teacherId: allocation.teacherId,
-        subject: allocation.subject || "General",
+        subjects: subjects.length ? subjects : ["General"],
         role: allocation.role || undefined,
       },
     });
+  };
+
+  const submitTeacher = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    createTeacherMutation.mutate();
   };
 
   const submitCalendar = (event: FormEvent<HTMLFormElement>) => {
@@ -228,6 +285,12 @@ export default function DirectorAcademicDepartmentPage() {
           </div>
         )}
 
+        {lastCredentials ? (
+          <div className="rounded-2xl border border-[var(--gold-border)] bg-white p-4 text-sm font-bold text-[var(--navy)]">
+            Teacher login created: {lastCredentials.email} / Temporary password: {lastCredentials.temporaryPassword}
+          </div>
+        ) : null}
+
         <section id="programs" className="grid gap-4 md:grid-cols-3 lg:grid-cols-6">
           {academicAreas.map((area) => {
             const Icon = area.icon;
@@ -274,7 +337,7 @@ export default function DirectorAcademicDepartmentPage() {
           </div>
         </Panel>
 
-        <section className="grid gap-6 lg:grid-cols-2">
+        <section className="grid gap-6 xl:grid-cols-3">
           <Panel id="create-batch" title="Create Batch" eyebrow="Batch and course control">
             <form onSubmit={submitBatch} className="grid gap-3">
               <Input label="Batch name" value={batchForm.name} onChange={(value) => setBatchForm((form) => ({ ...form, name: value }))} required />
@@ -299,6 +362,25 @@ export default function DirectorAcademicDepartmentPage() {
             </form>
           </Panel>
 
+          <Panel id="create-teacher" title="Add Teacher" eyebrow="Full-time, part-time, hourly">
+            <form onSubmit={submitTeacher} className="grid gap-3">
+              <Input label="Teacher name" value={teacherForm.name} onChange={(value) => setTeacherForm((form) => ({ ...form, name: value }))} required />
+              <Input label="Email" type="email" value={teacherForm.email} onChange={(value) => setTeacherForm((form) => ({ ...form, email: value }))} required />
+              <Input label="Phone" value={teacherForm.phone} onChange={(value) => setTeacherForm((form) => ({ ...form, phone: value }))} />
+              <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-1">
+                <Select label="Employment" value={teacherForm.employmentType} onChange={(value) => setTeacherForm((form) => ({ ...form, employmentType: value }))}>
+                  {employmentTypes.map((type) => (
+                    <option key={type} value={type}>{type}</option>
+                  ))}
+                </Select>
+                <Input label="Hourly rate" type="number" value={teacherForm.hourlyRate} onChange={(value) => setTeacherForm((form) => ({ ...form, hourlyRate: value }))} />
+              </div>
+              <Input label="Subjects comma separated" value={teacherForm.subjects} onChange={(value) => setTeacherForm((form) => ({ ...form, subjects: value }))} />
+              <Input label="Temporary password" value={teacherForm.password} onChange={(value) => setTeacherForm((form) => ({ ...form, password: value }))} />
+              <GoldButton disabled={createTeacherMutation.isPending}>Create Teacher</GoldButton>
+            </form>
+          </Panel>
+
           <Panel id="teacher-allocation" title="Teacher Allocation" eyebrow="Ready-made teaching system">
             <form onSubmit={submitAllocation} className="grid gap-3">
               <Select label="Batch" value={allocation.batchId} onChange={(value) => setAllocation((form) => ({ ...form, batchId: value }))} required>
@@ -314,7 +396,7 @@ export default function DirectorAcademicDepartmentPage() {
                 ))}
               </Select>
               <div className="grid gap-3 md:grid-cols-2">
-                <Input label="Subject" value={allocation.subject} onChange={(value) => setAllocation((form) => ({ ...form, subject: value }))} />
+                <Input label="Subjects comma separated" value={allocation.subjects} onChange={(value) => setAllocation((form) => ({ ...form, subjects: value }))} />
                 <Input label="Role" value={allocation.role} onChange={(value) => setAllocation((form) => ({ ...form, role: value }))} />
               </div>
               <GoldButton disabled={assignTeacherMutation.isPending}>Assign Teacher</GoldButton>
