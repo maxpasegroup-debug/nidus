@@ -73,11 +73,14 @@ type AttendanceRecord = {
 
 type AssignmentRecord = {
   id: string;
+  batchName?: string | null;
+  course?: string | null;
   title?: string;
   topic?: string | null;
   instructions?: string | null;
   dueDate?: string | null;
   status?: string;
+  createdAt?: string;
   submissionStats?: { submitted?: number; pending?: number; totalStudents?: number };
 };
 
@@ -139,6 +142,12 @@ type ExamChatMessage = {
   text: string;
 };
 
+type AssignmentChatMessage = {
+  id: string;
+  role: "guru" | "teacher";
+  text: string;
+};
+
 type ExamForm = {
   title: string;
   topic: string;
@@ -148,6 +157,15 @@ type ExamForm = {
   instructions: string;
   publishDate: string;
   publishTime: string;
+};
+
+type AssignmentForm = {
+  title: string;
+  topic: string;
+  instructions: string;
+  dueDate: string;
+  attachmentName: string;
+  link: string;
 };
 
 export type TeacherView = "today" | "classes" | "exams" | "assignments" | "attendance" | "library" | "academic-calendar";
@@ -296,6 +314,7 @@ export default function TeacherDashboardClient({ view, courseKey }: { view: Teac
   const [showExamCreator, setShowExamCreator] = useState(false);
   const [showAssignmentCreator, setShowAssignmentCreator] = useState(false);
   const [examDateFilter, setExamDateFilter] = useState("");
+  const [assignmentDateFilter, setAssignmentDateFilter] = useState("");
   const [examDraft, setExamDraft] = useState<ExamDraft | null>(null);
   const [examChatInput, setExamChatInput] = useState("");
   const [examChatMessages, setExamChatMessages] = useState<ExamChatMessage[]>([
@@ -307,6 +326,14 @@ export default function TeacherDashboardClient({ view, courseKey }: { view: Teac
   ]);
   const [examSourceName, setExamSourceName] = useState("");
   const [assignmentSourceName, setAssignmentSourceName] = useState("");
+  const [assignmentChatInput, setAssignmentChatInput] = useState("");
+  const [assignmentChatMessages, setAssignmentChatMessages] = useState<AssignmentChatMessage[]>([
+    {
+      id: "welcome",
+      role: "guru",
+      text: "Hello Teacher. Tell me the assignment topic, due date, instructions, attachment or link. I will prepare a clean assignment draft for review.",
+    },
+  ]);
   const [librarySubject, setLibrarySubject] = useState<string | null>(null);
   const [libraryTopic, setLibraryTopic] = useState<string | null>(null);
   const [calendarMonth, setCalendarMonth] = useState(() => monthStartDate(new Date()));
@@ -323,7 +350,7 @@ export default function TeacherDashboardClient({ view, courseKey }: { view: Teac
     fileName: "",
     thumbnailName: "",
   });
-  const [assignmentForm, setAssignmentForm] = useState({ title: "", topic: "", instructions: "", dueDate: "", attachmentName: "", link: "" });
+  const [assignmentForm, setAssignmentForm] = useState<AssignmentForm>({ title: "", topic: "", instructions: "", dueDate: "", attachmentName: "", link: "" });
   const [examForm, setExamForm] = useState<ExamForm>({
     title: "",
     topic: "",
@@ -411,6 +438,19 @@ export default function TeacherDashboardClient({ view, courseKey }: { view: Teac
     }
     return Array.from(groups.entries()).map(([label, exams]) => ({ label, exams }));
   }, [activeClasses, selectedClass, visibleExams]);
+  const visibleAssignments = classWorkspace.assignments.filter((assignment) => {
+    if (!assignmentDateFilter) return true;
+    return assignment.dueDate?.slice(0, 10) === assignmentDateFilter;
+  });
+  const assignmentGroups = useMemo(() => {
+    const groups = new Map<string, AssignmentRecord[]>();
+    for (const assignment of visibleAssignments) {
+      const date = assignment.dueDate ? assignment.dueDate.slice(0, 10) : "Due date not set";
+      const key = `${selectedProgram?.name ?? assignment.course ?? "Course"} / ${selectedClass?.name ?? assignment.batchName ?? "Batch"} / ${date}`;
+      groups.set(key, [...(groups.get(key) ?? []), assignment]);
+    }
+    return Array.from(groups.entries()).map(([label, assignments]) => ({ label, assignments }));
+  }, [selectedClass, selectedProgram, visibleAssignments]);
   const calendarDays = useMemo(() => {
     const first = monthStartDate(calendarMonth);
     const startOffset = first.getDay();
@@ -566,6 +606,56 @@ export default function TeacherDashboardClient({ view, courseKey }: { view: Teac
     setExamChatInput("");
   }
 
+  function openAssignmentCreator() {
+    setShowAssignmentCreator(true);
+    setAssignmentMessage(null);
+    setAssignmentChatInput("");
+    setAssignmentChatMessages([
+      {
+        id: "welcome",
+        role: "guru",
+        text: "Hello Teacher. Tell me the assignment topic, due date, instructions, attachment or link. I will prepare a clean assignment draft for review.",
+      },
+    ]);
+  }
+
+  function sendAssignmentChatMessage() {
+    const text = assignmentChatInput.trim();
+    if (!text) return;
+    setAssignmentChatMessages((messages) => [
+      ...messages,
+      { id: `teacher-${Date.now()}`, role: "teacher", text },
+      {
+        id: `guru-${Date.now()}`,
+        role: "guru",
+        text: "Noted. I have added that to the assignment instructions. You can generate a draft or publish after review.",
+      },
+    ]);
+    setAssignmentForm((form) => ({
+      ...form,
+      instructions: [form.instructions, text].filter(Boolean).join("\n"),
+      title: form.title || (form.topic ? `${form.topic} Assignment` : ""),
+    }));
+    setAssignmentChatInput("");
+  }
+
+  function generateAssignmentDraft() {
+    const title = assignmentForm.title || (assignmentForm.topic ? `${assignmentForm.topic} Assignment` : "Class Assignment");
+    const topic = assignmentForm.topic || "selected topic";
+    const draftText = [
+      `Draft ready: ${title}`,
+      `Topic: ${topic}`,
+      assignmentForm.dueDate ? `Due date: ${assignmentForm.dueDate}` : "Due date: not set",
+      "Suggested structure:",
+      "1. Read the given material carefully.",
+      "2. Answer the task questions clearly.",
+      "3. Submit before the due date.",
+      assignmentForm.instructions ? `Teacher instructions: ${assignmentForm.instructions}` : "Teacher instructions can be added in the chat.",
+    ].join("\n");
+    setAssignmentForm((form) => ({ ...form, title, topic, instructions: form.instructions || draftText }));
+    setAssignmentChatMessages((messages) => [...messages, { id: `guru-draft-${Date.now()}`, role: "guru", text: draftText }]);
+  }
+
   async function saveAttendance() {
     if (!selectedClass) return;
     setAttendanceMessage(null);
@@ -628,6 +718,7 @@ export default function TeacherDashboardClient({ view, courseKey }: { view: Teac
       });
       setAssignmentForm({ title: "", topic: "", instructions: "", dueDate: "", attachmentName: "", link: "" });
       setAssignmentSourceName("");
+      setAssignmentChatInput("");
       setShowAssignmentCreator(false);
       setAssignmentMessage("Assignment published to the selected batch.");
       await loadClassWorkspace(selectedClass.id);
@@ -915,36 +1006,44 @@ export default function TeacherDashboardClient({ view, courseKey }: { view: Teac
       </section> : null}
 
       {view === "assignments" ? <section className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
-        <SectionHeader eyebrow="Assignments" title="Assignment board" description="Create one task, publish it, then track submitted and pending work." icon={<FileText size={20} />} action={<button type="button" onClick={() => setShowAssignmentCreator((value) => !value)} className="inline-flex min-h-14 items-center gap-2 rounded-2xl bg-[var(--ink)] px-6 py-4 text-base font-black text-white shadow-sm"><Plus size={20} /> Create Assignment</button>} />
+        <SectionHeader eyebrow="Assignments" title="Published assignments" description="Assignments are shown by assigned course, batch and due date." icon={<FileText size={20} />} action={<button type="button" onClick={openAssignmentCreator} className="inline-flex min-h-14 items-center gap-2 rounded-2xl bg-[var(--ink)] px-6 py-4 text-base font-black text-white shadow-sm"><Plus size={20} /> Create Assignment</button>} />
         <ProgramBatchPicker programGroups={programGroups} selectedProgramKey={selectedProgram?.key} selectedClassId={selectedClass?.id} onProgram={chooseProgram} onBatch={chooseBatch} />
-        {showAssignmentCreator ? (
-          <div className="mt-5 rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
-            <div className="mb-4 rounded-2xl bg-white p-4 shadow-sm">
-              <p className="font-black">New assignment</p>
-              <p className="mt-2 text-sm text-[var(--muted-blue)]">Add the task, attach a file or link, then publish to the selected batch.</p>
-            </div>
-            <FormGrid>
-              <Input label="Assignment title" value={assignmentForm.title} onChange={(value) => setAssignmentForm((form) => ({ ...form, title: value }))} />
-              <Input label="Topic" value={assignmentForm.topic} onChange={(value) => setAssignmentForm((form) => ({ ...form, topic: value }))} />
-              <Input label="Due date" type="date" value={assignmentForm.dueDate} onChange={(value) => setAssignmentForm((form) => ({ ...form, dueDate: value }))} />
-              <Input label="Link" value={assignmentForm.link} onChange={(value) => setAssignmentForm((form) => ({ ...form, link: value }))} />
-              <FileInput label="Attachment" onChange={setAssignmentSourceName} />
-              <Textarea label="Instructions" value={assignmentForm.instructions} onChange={(value) => setAssignmentForm((form) => ({ ...form, instructions: value }))} />
-            </FormGrid>
-            <button type="button" onClick={() => void publishAssignment()} className="mt-4 rounded-xl bg-emerald-700 px-5 py-3 font-black text-white">Publish Assignment</button>
-          </div>
-        ) : null}
+        <div className="mt-5 flex flex-wrap items-end gap-3 rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
+          <Input label="Due date" type="date" value={assignmentDateFilter} onChange={setAssignmentDateFilter} />
+          {assignmentDateFilter ? <button type="button" onClick={() => setAssignmentDateFilter("")} className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-sm font-black">Clear date</button> : null}
+          <span className="rounded-xl bg-white px-4 py-3 text-sm font-black">{visibleAssignments.length} assignment(s)</span>
+        </div>
         {assignmentMessage ? <Notice text={assignmentMessage} /> : null}
-        <CardGrid>
-          {classWorkspace.assignments.map((assignment) => (
-            <SimpleCard key={assignment.id} eyebrow={assignment.status || "Assignment"} title={assignment.title || "Untitled assignment"}>
-              <p>{assignment.topic || "Topic"}</p>
-              <p>Submitted {assignment.submissionStats?.submitted ?? 0} / {assignment.submissionStats?.totalStudents ?? selectedStudents.length}</p>
-              <p>Pending {assignment.submissionStats?.pending ?? 0}</p>
-            </SimpleCard>
+        <div className="mt-5 grid gap-5">
+          {assignmentGroups.map((group) => (
+            <div key={group.label} className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
+              <p className="text-xs font-black uppercase tracking-[0.24em] text-[var(--gold-dark)]">{group.label}</p>
+              <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                {group.assignments.map((assignment) => (
+                  <AssignmentThumbnail key={assignment.id} assignment={assignment} batchName={selectedClass?.name ?? assignment.batchName ?? "Batch"} courseName={selectedProgram?.name ?? assignment.course ?? "Course"} />
+                ))}
+              </div>
+            </div>
           ))}
-          {!classWorkspace.assignments.length ? <EmptyState text="No assignment published for this batch yet." /> : null}
-        </CardGrid>
+          {!visibleAssignments.length ? <EmptyState text="No assignment published for this batch yet. Use Create Assignment to open NIDUS Guru." /> : null}
+        </div>
+        {showAssignmentCreator ? (
+          <AssignmentGuruModal
+            messages={assignmentChatMessages}
+            chatInput={assignmentChatInput}
+            setChatInput={setAssignmentChatInput}
+            onSend={sendAssignmentChatMessage}
+            onClose={() => setShowAssignmentCreator(false)}
+            onDraft={generateAssignmentDraft}
+            onPublish={() => void publishAssignment()}
+            assignmentForm={assignmentForm}
+            setAssignmentForm={setAssignmentForm}
+            setAssignmentSourceName={setAssignmentSourceName}
+            selectedProgramName={selectedProgram?.name ?? "Course"}
+            selectedBatchName={selectedClass?.name ?? "Batch"}
+            assignmentSourceName={assignmentSourceName}
+          />
+        ) : null}
       </section> : null}
 
       {view === "attendance" ? <section className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
@@ -1310,6 +1409,126 @@ function ExamGuruModal({
               <Textarea label="Teacher notes" value={examForm.instructions} onChange={(value) => setExamForm((form) => ({ ...form, instructions: value }))} />
               <button type="button" onClick={onDraft} className="rounded-xl border border-[var(--border)] bg-white px-5 py-3 font-black">Generate Question Bank</button>
               <button type="button" onClick={onPublish} className="rounded-xl bg-emerald-700 px-5 py-3 font-black text-white">Publish Exam</button>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AssignmentThumbnail({ assignment, courseName, batchName }: { assignment: AssignmentRecord; courseName: string; batchName: string }) {
+  return (
+    <div className="rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm">
+      <div className="flex items-start justify-between gap-3">
+        <span className={`rounded-full px-3 py-1 text-xs font-black ${statusTone(assignment.status)}`}>{assignment.status || "PUBLISHED"}</span>
+        <span className="text-xs font-black text-[var(--gold-dark)]">{assignment.dueDate ? `Due ${new Date(assignment.dueDate).toLocaleDateString()}` : "Due date pending"}</span>
+      </div>
+      <h3 className="mt-4 text-xl font-black">{assignment.title || "Untitled assignment"}</h3>
+      <p className="mt-2 text-sm leading-6 text-[var(--muted-blue)]">{courseName} / {batchName}</p>
+      <p className="mt-1 text-sm text-[var(--muted-blue)]">{assignment.topic || "Topic pending"}</p>
+      <div className="mt-4 grid grid-cols-3 gap-2 text-center text-xs font-black">
+        <span className="rounded-xl bg-[var(--page-bg)] p-2">{assignment.submissionStats?.submitted ?? 0} submitted</span>
+        <span className="rounded-xl bg-[var(--page-bg)] p-2">{assignment.submissionStats?.pending ?? 0} pending</span>
+        <span className="rounded-xl bg-[var(--page-bg)] p-2">{assignment.submissionStats?.totalStudents ?? 0} total</span>
+      </div>
+    </div>
+  );
+}
+
+function AssignmentGuruModal({
+  messages,
+  chatInput,
+  setChatInput,
+  onSend,
+  onClose,
+  onDraft,
+  onPublish,
+  assignmentForm,
+  setAssignmentForm,
+  setAssignmentSourceName,
+  selectedProgramName,
+  selectedBatchName,
+  assignmentSourceName,
+}: {
+  messages: AssignmentChatMessage[];
+  chatInput: string;
+  setChatInput: (value: string) => void;
+  onSend: () => void;
+  onClose: () => void;
+  onDraft: () => void;
+  onPublish: () => void;
+  assignmentForm: AssignmentForm;
+  setAssignmentForm: React.Dispatch<React.SetStateAction<AssignmentForm>>;
+  setAssignmentSourceName: (value: string) => void;
+  selectedProgramName: string;
+  selectedBatchName: string;
+  assignmentSourceName: string;
+}) {
+  return (
+    <div className="fixed inset-0 z-50 bg-[#f7f5ef] text-[var(--ink)]">
+      <div className="flex h-screen flex-col">
+        <div className="flex items-center justify-between border-b border-[var(--border)] bg-white px-4 py-3">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.3em] text-[var(--gold-dark)]">NIDUS Guru</p>
+            <h2 className="text-xl font-black">Create assignment</h2>
+          </div>
+          <button type="button" onClick={onClose} className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] p-3" aria-label="Close assignment creator">
+            <X size={18} />
+          </button>
+        </div>
+
+        <div className="grid min-h-0 flex-1 lg:grid-cols-[1fr_360px]">
+          <div className="flex min-h-0 flex-col">
+            <div className="flex-1 overflow-y-auto px-4 py-5">
+              <div className="mx-auto grid max-w-3xl gap-4">
+                {messages.map((message) => (
+                  <div key={message.id} className={`flex ${message.role === "teacher" ? "justify-end" : "justify-start"}`}>
+                    <div className={`max-w-[86%] whitespace-pre-wrap rounded-2xl px-4 py-3 text-sm leading-6 ${message.role === "teacher" ? "bg-[var(--ink)] text-white" : "border border-[var(--border)] bg-white text-[var(--ink)]"}`}>
+                      {message.text}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="border-t border-[var(--border)] bg-white px-4 py-3">
+              <div className="mx-auto flex max-w-3xl items-end gap-2 rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-2">
+                <textarea
+                  value={chatInput}
+                  onChange={(event) => setChatInput(event.target.value)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" && !event.shiftKey) {
+                      event.preventDefault();
+                      onSend();
+                    }
+                  }}
+                  rows={2}
+                  placeholder="Ask NIDUS Guru, or say: make it easier..."
+                  className="min-h-12 flex-1 resize-none bg-transparent px-3 py-2 text-sm outline-none"
+                />
+                <button type="button" onClick={onSend} className="rounded-xl bg-[var(--ink)] px-5 py-3 text-sm font-black text-white">
+                  Send
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <aside className="min-h-0 overflow-y-auto border-l border-[var(--border)] bg-white p-4">
+            <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
+              <p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold-dark)]">Selected class</p>
+              <h3 className="mt-2 font-black">{selectedProgramName}</h3>
+              <p className="mt-1 text-sm text-[var(--muted-blue)]">{selectedBatchName}</p>
+            </div>
+            <div className="mt-4 grid gap-3">
+              <Input label="Assignment topic" value={assignmentForm.topic} onChange={(value) => setAssignmentForm((form) => ({ ...form, topic: value, title: form.title || `${value} Assignment` }))} />
+              <Input label="Assignment title" value={assignmentForm.title} onChange={(value) => setAssignmentForm((form) => ({ ...form, title: value }))} />
+              <Input label="Due date" type="date" value={assignmentForm.dueDate} onChange={(value) => setAssignmentForm((form) => ({ ...form, dueDate: value }))} />
+              <Input label="Reference link" value={assignmentForm.link} onChange={(value) => setAssignmentForm((form) => ({ ...form, link: value }))} />
+              <FileInput label="Attach file / photo / question bank" onChange={setAssignmentSourceName} />
+              {assignmentSourceName ? <p className="rounded-xl bg-[var(--page-bg)] px-3 py-2 text-xs font-black">Attached: {assignmentSourceName}</p> : null}
+              <Textarea label="Instructions" value={assignmentForm.instructions} onChange={(value) => setAssignmentForm((form) => ({ ...form, instructions: value }))} />
+              <button type="button" onClick={onDraft} className="rounded-xl border border-[var(--border)] bg-white px-5 py-3 font-black">Generate Assignment Draft</button>
+              <button type="button" onClick={onPublish} className="rounded-xl bg-emerald-700 px-5 py-3 font-black text-white">Publish Assignment</button>
             </div>
           </aside>
         </div>
