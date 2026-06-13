@@ -75,7 +75,7 @@ const qaGroups = [
     checks: [
       "Materials Control opens from Director dashboard.",
       "Real batches load in the material draft form.",
-      "No demo files or fake material data are displayed.",
+      "Only published material records are displayed.",
       "Storage connection can be added later without changing the Director workflow.",
     ],
   },
@@ -86,7 +86,7 @@ const qaGroups = [
       "Sales Booster opens without session expiry.",
       "Campaign draft form works.",
       "Connection status is visible for Meta, WhatsApp, YouTube and Analytics.",
-      "No fake leads or fake campaign analytics are shown.",
+      "Only captured leads and campaign analytics are shown.",
     ],
   },
   {
@@ -121,7 +121,7 @@ export default function DirectorLaunchQaPage() {
           <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Launch QA</p>
           <h1 className="mt-3 text-4xl font-black tracking-tight md:text-6xl">Director dashboard launch checklist</h1>
           <p className="mt-4 max-w-3xl text-base leading-8 text-[var(--muted-blue)]">
-            Use this page before launch to verify every Director module opens, every workflow is safe, and no demo data is shown.
+            Use this page before launch to verify every Director module opens, every workflow is safe, and only live records are shown.
           </p>
         </div>
 

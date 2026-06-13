@@ -1,7 +1,7 @@
 import { Router, type NextFunction, type Response } from "express";
 
 import { Role } from "../../generated/prisma/client.js";
-import type { AuthenticatedRequest } from "../../middlewares/session.middleware.js";
+import { protect, type AuthenticatedRequest } from "../../middlewares/session.middleware.js";
 import { academyController } from "./academy.controller.js";
 
 const router = Router();
@@ -10,6 +10,17 @@ function requireAcademyRoles(roles: Role[]) {
   return (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     if (!req.user) {
       res.status(401).json({ message: "Authentication required" });
+      return;
+    }
+    const metadata = req.user.roleMetadata && typeof req.user.roleMetadata === "object" ? req.user.roleMetadata : {};
+    const template = typeof metadata.dashboardTemplate === "string" ? metadata.dashboardTemplate.toUpperCase() : "";
+    const restrictedAdmin = req.user.role === Role.ADMIN && ["ADMISSION_CELL", "MARKETING", "SALES_BOOSTER"].includes(template);
+    const admissionAllowed = template === "ADMISSION_CELL" && (
+      (req.method === "GET" && req.path === "/batches") ||
+      (req.method === "POST" && req.path === "/admissions/approve")
+    );
+    if (restrictedAdmin && !admissionAllowed) {
+      res.status(403).json({ message: "Access denied for assigned dashboard scope" });
       return;
     }
     if (!roles.includes(req.user.role as Role)) {
@@ -21,19 +32,47 @@ function requireAcademyRoles(roles: Role[]) {
 }
 
 const academicRoles = [Role.ADMIN, Role.DIRECTOR, Role.TEACHER];
+const studentAcademicRoles = [Role.ADMIN, Role.DIRECTOR, Role.TEACHER, Role.STUDENT];
 const managementRoles = [Role.ADMIN, Role.DIRECTOR];
 
-router.get("/batches", academyController.batches);
+router.use(protect);
+
+router.get("/batches", requireAcademyRoles(academicRoles), academyController.batches);
 router.get("/employees", requireAcademyRoles(managementRoles), academyController.employees);
 router.get("/teachers", requireAcademyRoles(academicRoles), academyController.teachers);
 router.get("/teacher-assignments", requireAcademyRoles(academicRoles), academyController.teacherAssignments);
+router.get("/my-teaching-plan", requireAcademyRoles(academicRoles), academyController.teacherTeachingPlan);
 router.get("/my-plan", academyController.myAcademicPlan);
 router.get("/academic-calendar", requireAcademyRoles(academicRoles), academyController.academicCalendar);
+router.get("/attendance", requireAcademyRoles(academicRoles), academyController.attendanceHistory);
+router.get("/attendance-summary", requireAcademyRoles(academicRoles), academyController.attendanceSummary);
+router.get("/assignments", requireAcademyRoles(academicRoles), academyController.assignments);
+router.get("/assignment-summary", requireAcademyRoles(academicRoles), academyController.assignmentSummary);
+router.get("/study-materials", requireAcademyRoles(academicRoles), academyController.studyMaterials);
+router.get("/material-summary", requireAcademyRoles(academicRoles), academyController.materialSummary);
+router.get("/exams", requireAcademyRoles(academicRoles), academyController.exams);
+router.get("/exam-summary", requireAcademyRoles(academicRoles), academyController.examSummary);
+router.get("/syllabus-progress", requireAcademyRoles(academicRoles), academyController.syllabusProgress);
+router.get("/syllabus-summary", requireAcademyRoles(academicRoles), academyController.syllabusSummary);
+router.get("/academic-audit", requireAcademyRoles(managementRoles), academyController.academicAuditTrail);
+router.get("/director-expenses", requireAcademyRoles(managementRoles), academyController.directorExpenses);
 
 router.post("/academic-calendar", requireAcademyRoles(academicRoles), academyController.createAcademicCalendarItem);
 router.patch("/academic-calendar/:id", requireAcademyRoles(academicRoles), academyController.updateAcademicCalendarItem);
+router.post("/attendance", requireAcademyRoles(academicRoles), academyController.saveAttendance);
+router.post("/assignments", requireAcademyRoles(academicRoles), academyController.createAssignment);
+router.post("/assignments/:id/submit", requireAcademyRoles(studentAcademicRoles), academyController.submitAssignment);
+router.patch("/assignment-submissions/:id", requireAcademyRoles(academicRoles), academyController.reviewAssignmentSubmission);
+router.post("/study-materials", requireAcademyRoles(academicRoles), academyController.publishStudyMaterial);
+router.patch("/study-materials/:id", requireAcademyRoles(academicRoles), academyController.updateStudyMaterial);
+router.post("/study-materials/:id/archive", requireAcademyRoles(academicRoles), academyController.archiveStudyMaterial);
+router.patch("/study-materials/:id/review", requireAcademyRoles(academicRoles), academyController.reviewStudyMaterial);
+router.post("/exams/ai-draft", requireAcademyRoles(academicRoles), academyController.createExamDraft);
+router.post("/exams", requireAcademyRoles(academicRoles), academyController.publishExam);
 
 router.post("/batches", requireAcademyRoles(managementRoles), academyController.createBatch);
+router.post("/director-expenses", requireAcademyRoles(managementRoles), academyController.createDirectorExpense);
+router.post("/director-expenses/:id/archive", requireAcademyRoles(managementRoles), academyController.archiveDirectorExpense);
 router.post("/employees", requireAcademyRoles(managementRoles), academyController.createEmployee);
 router.patch("/batches/:id", requireAcademyRoles(managementRoles), academyController.updateBatch);
 router.patch("/employees/:id", requireAcademyRoles(managementRoles), academyController.updateEmployee);

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import {
   BadgeIndianRupee,
   BarChart3,
@@ -26,13 +27,15 @@ import {
   WalletCards,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { getDirectorDashboard } from "@/services/dashboard";
+import { getAssignmentSummary, getAttendanceSummary, getExamSummary, getMaterialSummary, getSyllabusSummary } from "@/services/academy";
 
 type DirectorSubArea = {
   title: string;
   text: string;
   href: string;
   icon: LucideIcon;
-  status?: "Ready" | "Setup" | "Review";
+  status?: "Ready" | "Manage" | "Monitor";
 };
 
 type DirectorArea = {
@@ -59,7 +62,7 @@ const directorAreas: DirectorArea[] = [
       { title: "Syllabus Tracker", text: "Track topic completion with green, orange and red status.", href: "/dashboard/director/academic#tracker", icon: BarChart3, status: "Ready" },
       { title: "Exams & Tests", text: "Create, approve, publish and monitor exams.", href: "/dashboard/director/exams", icon: ClipboardCheck, status: "Ready" },
       { title: "Study Materials", text: "Control notes, recorded classes and batch library.", href: "/dashboard/director/materials", icon: FileArchive, status: "Ready" },
-      { title: "Student Progress", text: "Review batch-wise and student-wise academic progress.", href: "/dashboard/director/academic#progress", icon: PieChart, status: "Review" },
+      { title: "Student Progress", text: "Review batch-wise and student-wise academic progress.", href: "/dashboard/director/academic#progress", icon: PieChart, status: "Monitor" },
     ],
   },
   {
@@ -69,13 +72,13 @@ const directorAreas: DirectorArea[] = [
     icon: ClipboardCheck,
     accent: "from-sky-100 via-white to-amber-100",
     subAreas: [
-      { title: "New Enquiries", text: "Website, WhatsApp, calls, social media and walk-in leads.", href: "/dashboard/admission-cell#enquiries", icon: MessageCircle, status: "Setup" },
+      { title: "New Enquiries", text: "Website, WhatsApp, calls, social media and walk-in leads.", href: "/dashboard/admission-cell#enquiries", icon: MessageCircle, status: "Manage" },
       { title: "Applications", text: "Students who applied for Academy programs.", href: "/dashboard/admission-cell#applications", icon: FileText, status: "Ready" },
-      { title: "Counselling", text: "Parent discussion, student needs and course suggestions.", href: "/dashboard/admission-cell#counselling", icon: Users, status: "Setup" },
+      { title: "Counselling", text: "Parent discussion, student needs and course suggestions.", href: "/dashboard/admission-cell#counselling", icon: Users, status: "Manage" },
       { title: "Admission Approval", text: "Approve application and activate student dashboard.", href: "/dashboard/admission-cell", icon: ShieldCheck, status: "Ready" },
-      { title: "Fee Follow-Up", text: "Pending fee reminders and payment coordination.", href: "/dashboard/admission-cell#fees", icon: BadgeIndianRupee, status: "Setup" },
-      { title: "Documents", text: "Student documents, ID proof and academic details.", href: "/dashboard/admission-cell#documents", icon: FileArchive, status: "Setup" },
-      { title: "Admission Reports", text: "Course-wise admissions and conversion status.", href: "/dashboard/admission-cell#reports", icon: BarChart3, status: "Review" },
+      { title: "Fee Follow-Up", text: "Pending fee reminders and payment coordination.", href: "/fees", icon: BadgeIndianRupee, status: "Manage" },
+      { title: "Documents", text: "Student documents, ID proof and academic details.", href: "/dashboard/admission-cell#documents", icon: FileArchive, status: "Manage" },
+      { title: "Admission Reports", text: "Course-wise admissions and conversion status.", href: "/dashboard/admission-cell#reports", icon: BarChart3, status: "Monitor" },
     ],
   },
   {
@@ -85,13 +88,13 @@ const directorAreas: DirectorArea[] = [
     icon: Megaphone,
     accent: "from-orange-100 via-white to-green-100",
     subAreas: [
-      { title: "Sales Booster", text: "AI campaign creation and marketing automation.", href: "/dashboard/sales-booster", icon: Sparkles, status: "Ready" },
-      { title: "Campaigns", text: "Academy, TOPRANK, NIDUS Guru and assessment campaigns.", href: "/dashboard/sales-booster", icon: Megaphone, status: "Setup" },
-      { title: "Creative Library", text: "Posters, videos, brochures and reels.", href: "/dashboard/sales-booster#creatives", icon: FileArchive, status: "Setup" },
-      { title: "Social Media", text: "Facebook, Instagram, Threads and YouTube posting.", href: "/dashboard/sales-booster", icon: MessageCircle, status: "Setup" },
-      { title: "WhatsApp Campaigns", text: "Bulk messages, templates and counsellor routing.", href: "/dashboard/sales-booster", icon: MessageCircle, status: "Setup" },
-      { title: "Campaign Leads", text: "Track campaign-wise leads and source quality.", href: "/dashboard/sales-booster#leads", icon: UserPlus, status: "Review" },
-      { title: "Marketing Reports", text: "Reach, engagement, conversion and best creatives.", href: "/dashboard/sales-booster#reports", icon: BarChart3, status: "Review" },
+      { title: "Sales Booster", text: "AI campaign creation and marketing automation.", href: "/dashboard/marketing", icon: Sparkles, status: "Ready" },
+      { title: "Campaigns", text: "Academy, TOPRANK, NIDUS Guru and assessment campaigns.", href: "/dashboard/marketing", icon: Megaphone, status: "Manage" },
+      { title: "Creative Library", text: "Posters, videos, brochures and reels.", href: "/media-library", icon: FileArchive, status: "Manage" },
+      { title: "Social Media", text: "Facebook, Instagram, Threads and YouTube posting.", href: "/dashboard/marketing", icon: MessageCircle, status: "Manage" },
+      { title: "WhatsApp Campaigns", text: "Bulk messages, templates and counsellor routing.", href: "/dashboard/marketing", icon: MessageCircle, status: "Manage" },
+      { title: "Campaign Leads", text: "Track campaign-wise leads and source quality.", href: "/crm/leads", icon: UserPlus, status: "Monitor" },
+      { title: "Marketing Reports", text: "Reach, engagement, conversion and best creatives.", href: "/dashboard/marketing", icon: BarChart3, status: "Monitor" },
     ],
   },
   {
@@ -105,8 +108,8 @@ const directorAreas: DirectorArea[] = [
       { title: "Credentials", text: "Generate login, reset password and manage access.", href: "/dashboard/director/management", icon: KeyRound, status: "Ready" },
       { title: "Roles & Departments", text: "Assign role, department, dashboard and access level.", href: "/dashboard/director/management", icon: ShieldCheck, status: "Ready" },
       { title: "Full-Time / Part-Time / Hourly", text: "Manage employment type and hourly trainers.", href: "/dashboard/director/management", icon: Users, status: "Ready" },
-      { title: "Attendance & Leave", text: "Staff attendance, leave and approvals.", href: "/dashboard/director/management#attendance", icon: CalendarDays, status: "Setup" },
-      { title: "Performance Review", text: "Class completion, student feedback and staff output.", href: "/dashboard/director/management#performance", icon: PieChart, status: "Review" },
+      { title: "Attendance & Leave", text: "Staff attendance, leave and approvals.", href: "/dashboard/director/management#attendance", icon: CalendarDays, status: "Manage" },
+      { title: "Performance Review", text: "Class completion, student feedback and staff output.", href: "/dashboard/director/management#performance", icon: PieChart, status: "Monitor" },
       { title: "Archive History", text: "Archive employees safely instead of deleting.", href: "/dashboard/director/management", icon: FileArchive, status: "Ready" },
     ],
   },
@@ -117,13 +120,13 @@ const directorAreas: DirectorArea[] = [
     icon: WalletCards,
     accent: "from-slate-100 via-white to-amber-100",
     subAreas: [
-      { title: "Fee Management", text: "Course fees, student payments and pending dues.", href: "/dashboard/director/accounts#fees", icon: BadgeIndianRupee, status: "Setup" },
-      { title: "Invoices & Receipts", text: "Generate and track payment receipts.", href: "/dashboard/director/accounts#invoices", icon: ReceiptText, status: "Setup" },
-      { title: "Expenses", text: "Office, salary, rent, marketing and operations.", href: "/dashboard/director/accounts#expenses", icon: CreditCard, status: "Setup" },
-      { title: "Subscriptions", text: "TOPRANK, assessments and premium module subscriptions.", href: "/dashboard/director/accounts#subscriptions", icon: WalletCards, status: "Setup" },
+      { title: "Fee Management", text: "Course fees, student payments and pending dues.", href: "/fees", icon: BadgeIndianRupee, status: "Ready" },
+      { title: "Invoices & Receipts", text: "Generate and track payment receipts.", href: "/invoices", icon: ReceiptText, status: "Ready" },
+      { title: "Expenses", text: "Office, salary, rent, marketing and operations.", href: "/dashboard/director/accounts#expenses", icon: CreditCard, status: "Manage" },
+      { title: "Subscriptions", text: "TOPRANK, assessments and premium module subscriptions.", href: "/subscriptions", icon: WalletCards, status: "Ready" },
       { title: "Reports & Launch QA", text: "Academic, admissions, marketing, finance, staff reports and launch checklist.", href: "/dashboard/director/launch-qa", icon: BarChart3, status: "Ready" },
       { title: "Settings", text: "Company details, contact number and system controls.", href: "/dashboard/director/accounts#settings", icon: Settings, status: "Ready" },
-      { title: "Audit Logs", text: "Track important staff and management actions.", href: "/dashboard/director/accounts#audit", icon: FileText, status: "Setup" },
+      { title: "Audit Logs", text: "Track important staff and management actions.", href: "/admin-center/audit-logs", icon: FileText, status: "Monitor" },
     ],
   },
 ];
@@ -131,6 +134,21 @@ const directorAreas: DirectorArea[] = [
 export default function DirectorDashboardPage() {
   const [selectedArea, setSelectedArea] = useState<DirectorArea>(directorAreas[0]);
   const SelectedIcon = selectedArea.icon;
+  const directorQuery = useQuery({ queryKey: ["dashboard", "director", "command-room"], queryFn: getDirectorDashboard });
+  const attendanceQuery = useQuery({ queryKey: ["academy", "attendance-summary", "director-command"], queryFn: () => getAttendanceSummary() });
+  const assignmentQuery = useQuery({ queryKey: ["academy", "assignment-summary", "director-command"], queryFn: () => getAssignmentSummary() });
+  const materialQuery = useQuery({ queryKey: ["academy", "material-summary", "director-command"], queryFn: () => getMaterialSummary() });
+  const examQuery = useQuery({ queryKey: ["academy", "exam-summary", "director-command"], queryFn: () => getExamSummary() });
+  const syllabusQuery = useQuery({ queryKey: ["academy", "syllabus-summary", "director-command"], queryFn: () => getSyllabusSummary() });
+  const director = directorQuery.data;
+  const areaMetrics = metricsForArea(selectedArea.title, {
+    director,
+    attendance: attendanceQuery.data?.summary,
+    assignments: assignmentQuery.data?.summary,
+    materials: materialQuery.data?.summary,
+    exams: examQuery.data?.summary,
+    syllabus: syllabusQuery.data?.summary,
+  });
 
   return (
     <main className="min-h-screen bg-[var(--page-bg)] px-5 py-6 text-[var(--navy)] md:px-8">
@@ -147,6 +165,14 @@ export default function DirectorDashboardPage() {
             </p>
           </div>
         </div>
+
+        <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+          <CommandMetric label="Students" value={director?.instituteAnalytics.students ?? 0} />
+          <CommandMetric label="Teachers" value={director?.instituteAnalytics.teachers ?? 0} />
+          <CommandMetric label="Admissions" value={director?.admissionsAnalytics.admissions ?? 0} />
+          <CommandMetric label="Collected" value={`Rs ${(director?.revenueAnalytics.collected ?? 0).toLocaleString()}`} />
+          <CommandMetric label="Academic Completion" value={`${syllabusQuery.data?.summary.completionPercentage ?? 0}%`} />
+        </section>
 
         <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
           {directorAreas.map((area) => {
@@ -198,9 +224,74 @@ export default function DirectorDashboardPage() {
               <SubAreaCard key={subArea.title} subArea={subArea} />
             ))}
           </div>
+
+          <div className="mt-7 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            {areaMetrics.map((metric) => (
+              <CommandMetric key={metric.label} label={metric.label} value={metric.value} />
+            ))}
+          </div>
         </section>
       </section>
     </main>
+  );
+}
+
+type MetricContext = {
+  director?: Awaited<ReturnType<typeof getDirectorDashboard>>;
+  attendance?: { percentage: number; sessions: number };
+  assignments?: { assignments: number; pending: number; submitted: number };
+  materials?: { total: number; pendingReview: number; approved: number };
+  exams?: { exams: number; liveTests: number; submitted: number; averageScore: number };
+  syllabus?: { completionPercentage: number; green: number; orange: number; red: number };
+};
+
+function metricsForArea(title: string, context: MetricContext) {
+  if (title === "Academics") {
+    return [
+      { label: "Programs", value: context.director?.academyArchitecture.programs ?? 0 },
+      { label: "Batches", value: context.director?.academyArchitecture.batches ?? 0 },
+      { label: "Live Tests", value: context.exams?.liveTests ?? context.director?.academyArchitecture.liveTests ?? 0 },
+      { label: "Syllabus", value: `${context.syllabus?.completionPercentage ?? 0}%` },
+    ];
+  }
+  if (title === "Admission Cell") {
+    return [
+      { label: "Leads", value: context.director?.admissionsAnalytics.leads ?? 0 },
+      { label: "Admissions", value: context.director?.admissionsAnalytics.admissions ?? 0 },
+      { label: "Conversion", value: `${context.director?.admissionsAnalytics.conversionRate ?? 0}%` },
+      { label: "Students", value: context.director?.instituteAnalytics.students ?? 0 },
+    ];
+  }
+  if (title === "Advertisement & Marketing") {
+    return [
+      { label: "Campaign Leads", value: context.director?.admissionsAnalytics.leads ?? 0 },
+      { label: "Admissions", value: context.director?.admissionsAnalytics.admissions ?? 0 },
+      { label: "Conversion", value: `${context.director?.admissionsAnalytics.conversionRate ?? 0}%` },
+      { label: "Forecast", value: `Rs ${(context.director?.revenueAnalytics.forecast ?? 0).toLocaleString()}` },
+    ];
+  }
+  if (title === "HRM") {
+    return [
+      { label: "Faculty", value: context.director?.facultyAnalytics.active ?? 0 },
+      { label: "Utilization", value: `${context.director?.facultyAnalytics.utilization ?? 0}%` },
+      { label: "Review Due", value: context.director?.facultyAnalytics.reviewDue ?? 0 },
+      { label: "Attendance", value: `${context.attendance?.percentage ?? 0}%` },
+    ];
+  }
+  return [
+    { label: "Collected", value: `Rs ${(context.director?.revenueAnalytics.collected ?? 0).toLocaleString()}` },
+    { label: "Pending", value: `Rs ${(context.director?.revenueAnalytics.pending ?? 0).toLocaleString()}` },
+    { label: "Forecast", value: `Rs ${(context.director?.revenueAnalytics.forecast ?? 0).toLocaleString()}` },
+    { label: "Transactions", value: context.exams?.submitted ?? 0 },
+  ];
+}
+
+function CommandMetric({ label, value }: { label: string; value: string | number }) {
+  return (
+    <div className="rounded-2xl border border-[var(--border)] bg-white/90 p-5 shadow-sm">
+      <p className="text-xs font-black uppercase tracking-[0.22em] text-[var(--gold)]">{label}</p>
+      <p className="mt-3 text-3xl font-black text-[var(--navy)]">{value}</p>
+    </div>
   );
 }
 
@@ -210,7 +301,7 @@ function SubAreaCard({ subArea }: { subArea: DirectorSubArea }) {
   const statusClass =
     status === "Ready"
       ? "border-emerald-200 bg-emerald-50 text-emerald-800"
-      : status === "Setup"
+      : status === "Manage"
         ? "border-orange-200 bg-orange-50 text-orange-800"
         : "border-sky-200 bg-sky-50 text-sky-800";
   return (

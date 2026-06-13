@@ -9,7 +9,7 @@ test.describe("Authentication flow", () => {
 
     await page.getByLabel("Email or mobile").fill("nidusacademycalicut@gmail.com");
     await page.getByLabel("Password").fill("123456789");
-    await page.getByRole("button", { name: /access platform/i }).click();
+    await page.getByRole("button", { name: /sign in/i }).click();
 
     await expect(page).toHaveURL(/\/dashboard/);
   });
@@ -28,7 +28,7 @@ test.describe("Authentication flow", () => {
     await waitForNidusHydration(page);
     await page.getByLabel("Email or mobile").fill("wrong@example.com");
     await page.getByLabel("Password").fill("wrongpassword");
-    await page.getByRole("button", { name: /access platform/i }).click();
+    await page.getByRole("button", { name: /sign in/i }).click();
 
     await expect(page.getByText("Invalid credentials")).toBeVisible();
   });

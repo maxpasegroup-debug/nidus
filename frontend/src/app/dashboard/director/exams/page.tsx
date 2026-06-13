@@ -115,8 +115,7 @@ export default function DirectorExamControlPage() {
             <div>
               <h2 className="text-2xl font-black">Production note</h2>
               <p className="mt-2 text-sm leading-7 text-[var(--muted-blue)]">
-                This page does not show demo exam data. If no exams are created or published, students will see a clean empty
-                state until an exam is assigned to their batch.
+                Students see exams only after a teacher or academic manager publishes a live CBT test to their batch.
               </p>
             </div>
           </div>

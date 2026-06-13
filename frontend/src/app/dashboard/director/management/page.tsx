@@ -368,7 +368,7 @@ export default function DirectorManagementPage() {
           <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Performance Review</p>
           <h2 className="mt-2 text-2xl font-black">Teacher and staff output</h2>
           <div className="mt-5 rounded-2xl border border-dashed border-[var(--border)] bg-white/70 p-5 text-sm leading-7 text-[var(--muted-blue)]">
-            Performance will combine class completion, academic calendar logs, student progress and management reviews. No demo scores are shown.
+            Performance combines class completion, academic calendar logs, student progress and management reviews as those records are created.
           </div>
         </section>
 

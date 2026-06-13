@@ -11,6 +11,7 @@ export type AuthenticatedRequest = Request & {
     emailVerified: boolean;
     instituteId: string | null;
     branchId: string | null;
+    roleMetadata?: Record<string, unknown> | null;
     mustChangePassword: boolean;
   };
 };

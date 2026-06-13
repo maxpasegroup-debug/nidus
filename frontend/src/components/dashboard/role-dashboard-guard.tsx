@@ -3,7 +3,7 @@
 import { useEffect, type ReactNode } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/components/providers/auth-provider-v2";
-import { roleDashboardPath } from "@/lib/dashboard-data";
+import { effectiveDashboardPath } from "@/lib/dashboard-data";
 import type { AuthRole } from "@/services/auth.v2";
 
 const compatibleRoles: Partial<Record<AuthRole, AuthRole[]>> = {
@@ -13,6 +13,20 @@ const compatibleRoles: Partial<Record<AuthRole, AuthRole[]>> = {
   TELECALLER: ["TELECALLER", "ADMIN", "DIRECTOR"],
   MARKETING_COORDINATOR: ["MARKETING_COORDINATOR", "ADMIN", "DIRECTOR"]
 };
+
+function template(user: { roleMetadata?: Record<string, unknown> | null } | null | undefined) {
+  const metadata = user?.roleMetadata && typeof user.roleMetadata === "object" ? user.roleMetadata : {};
+  return typeof metadata.dashboardTemplate === "string" ? metadata.dashboardTemplate.toUpperCase() : "";
+}
+
+function hasDashboardAccess(user: { role: AuthRole; roleMetadata?: Record<string, unknown> | null } | null | undefined, requestedRoles: AuthRole[]) {
+  if (!user) return false;
+  if (requestedRoles.includes(user.role)) return true;
+  const dashboardTemplate = template(user);
+  if (requestedRoles.includes("TEACHER") && dashboardTemplate === "ACADEMIC_HEAD") return true;
+  if (requestedRoles.includes("ADMIN") && (dashboardTemplate === "ADMISSION_CELL" || dashboardTemplate === "MARKETING" || dashboardTemplate === "SALES_BOOSTER")) return true;
+  return false;
+}
 
 export function RoleDashboardGuard({
   role,
@@ -38,14 +52,14 @@ export function RoleDashboardGuard({
       return;
     }
 
-    if (!isLoading && user && !allowedRoles.includes(user.role)) {
-      router.replace(roleDashboardPath[user.role]);
+    if (!isLoading && user && !hasDashboardAccess(user, allowedRoles)) {
+      router.replace(effectiveDashboardPath(user));
     }
   }, [isLoading, pathname, role, router, user]);
 
   const allowedRoles = Array.isArray(role) ? role : compatibleRoles[role] ?? [role];
 
-  if (isLoading || !user || !allowedRoles.includes(user.role)) {
+  if (isLoading || !user || !hasDashboardAccess(user, allowedRoles)) {
     return <DashboardRouteLoader />;
   }
 

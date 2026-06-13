@@ -2347,3 +2347,202 @@ model Institute {
   @@index([status])
   @@index([createdAt])
 }
+model TeacherAttendanceRecord {
+  id          String   @id @default(cuid())
+  batchId     String
+  batchName   String?
+  subject     String?
+  teacherId   String?
+  teacherName String?
+  date        DateTime
+  records     Json
+  status      String   @default("SAVED")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([batchId])
+  @@index([teacherId])
+  @@index([date])
+}
+
+model TeacherAssignmentRecord {
+  id             String   @id @default(cuid())
+  batchId        String
+  batchName      String?
+  subject        String?
+  course         String?
+  teacherId      String?
+  teacherName    String?
+  title          String
+  topic          String?
+  instructions   String
+  dueDate        DateTime?
+  attachmentName String?
+  link           String?
+  status         String   @default("PUBLISHED")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([batchId])
+  @@index([teacherId])
+  @@index([status])
+}
+
+model AssignmentSubmissionRecord {
+  id             String   @id @default(cuid())
+  assignmentId   String
+  batchId        String
+  studentId      String
+  studentName    String?
+  answerText     String?
+  attachmentName String?
+  link           String?
+  status         String   @default("SUBMITTED")
+  submittedAt    DateTime @default(now())
+  reviewedBy     String?
+  reviewStatus   String   @default("PENDING_REVIEW")
+  feedback       String?
+  score          Int?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([assignmentId, studentId])
+  @@index([assignmentId])
+  @@index([batchId])
+  @@index([studentId])
+  @@index([status])
+  @@index([reviewStatus])
+}
+
+model TeacherStudyMaterialRecord {
+  id          String   @id @default(cuid())
+  batchId     String
+  batchName   String?
+  course      String?
+  folder      String?
+  subject     String?
+  topic       String?
+  teacherId   String?
+  teacherName String?
+  title       String
+  type        String   @default("PDF")
+  url         String?
+  fileName    String?
+  status      String   @default("PUBLISHED")
+  reviewStatus String   @default("PENDING_REVIEW")
+  reviewedBy   String?
+  reviewedAt   DateTime?
+  reviewNote   String?
+  archivedAt   DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([batchId])
+  @@index([teacherId])
+  @@index([status])
+  @@index([reviewStatus])
+}
+
+model TeacherExamRecord {
+  id              String   @id @default(cuid())
+  batchId         String
+  batchName       String?
+  testId          String?
+  subject         String?
+  course          String?
+  teacherId       String?
+  teacherName     String?
+  title           String
+  topic           String?
+  questionCount   Int      @default(10)
+  durationMinutes Int      @default(20)
+  difficulty      String   @default("MEDIUM")
+  instructions    String?
+  draft           Json?
+  status          String   @default("PUBLISHED")
+  approvedBy      String?
+  approvedAt      DateTime?
+  analytics       Json?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([batchId])
+  @@index([testId])
+  @@index([teacherId])
+  @@index([status])
+}
+
+model TeacherCalendarLogRecord {
+  id               String   @id @default(cuid())
+  calendarId       String
+  batchId          String?
+  batchName        String?
+  subject          String?
+  topic            String?
+  teacherId        String?
+  teacherName      String?
+  completionStatus String   @default("COMPLETED")
+  teacherLog       String?
+  nextAction       String?
+  status           String   @default("UPDATED_BY_TEACHER")
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([calendarId])
+  @@index([teacherId])
+  @@index([completionStatus])
+}
+
+model TeacherSyllabusProgressRecord {
+  id               String   @id @default(cuid())
+  batchId          String
+  batchName        String?
+  subject          String
+  topic            String
+  teacherId        String?
+  teacherName      String?
+  completionStatus String   @default("PENDING")
+  progressColor    String   @default("ORANGE")
+  remarks          String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([batchId])
+  @@index([teacherId])
+  @@index([progressColor])
+}
+
+model AcademicActivityAuditRecord {
+  id          String   @id @default(cuid())
+  actorId     String?
+  actorName   String?
+  actorRole   String?
+  action      String
+  entityType  String
+  entityId    String?
+  payload     Json?
+  createdAt   DateTime @default(now())
+
+  @@index([actorId])
+  @@index([entityType])
+  @@index([createdAt])
+}
+
+model DirectorExpenseRecord {
+  id          String    @id @default(cuid())
+  title       String
+  category    String    @default("Office")
+  amount      Float
+  currency    String    @default("INR")
+  note        String?
+  status      String    @default("ACTIVE")
+  createdBy   String?
+  archivedBy  String?
+  archivedAt  DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([category])
+  @@index([status])
+  @@index([createdAt])
+}

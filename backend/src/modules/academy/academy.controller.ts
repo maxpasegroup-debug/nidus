@@ -62,6 +62,13 @@ export const academyController = {
       next(error);
     }
   },
+  teacherTeachingPlan: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      res.json(await academyService.teacherTeachingPlan(requester(req)));
+    } catch (error) {
+      next(error);
+    }
+  },
   myAcademicPlan: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     try {
       res.json(await academyService.myAcademicPlan(requester(req)));
@@ -92,7 +99,175 @@ export const academyController = {
   },
   updateAcademicCalendarItem: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     try {
-      res.json(await academyService.updateAcademicCalendarItem(param(req, "id"), req.body));
+      res.json(await academyService.updateAcademicCalendarItem(requester(req), param(req, "id"), req.body));
+    } catch (error) {
+      next(error);
+    }
+  },
+  saveAttendance: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      res.status(201).json(await academyService.saveAttendance(requester(req), req.body));
+    } catch (error) {
+      next(error);
+    }
+  },
+  attendanceHistory: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      res.json(await academyService.attendanceHistory(requester(req), req.query));
+    } catch (error) {
+      next(error);
+    }
+  },
+  attendanceSummary: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      res.json(await academyService.attendanceSummary(requester(req), req.query));
+    } catch (error) {
+      next(error);
+    }
+  },
+  createAssignment: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      res.status(201).json(await academyService.createAssignment(requester(req), req.body));
+    } catch (error) {
+      next(error);
+    }
+  },
+  assignments: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      res.json(await academyService.assignments(requester(req), req.query));
+    } catch (error) {
+      next(error);
+    }
+  },
+  assignmentSummary: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      res.json(await academyService.assignmentSummary(requester(req), req.query));
+    } catch (error) {
+      next(error);
+    }
+  },
+  submitAssignment: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      res.status(201).json(await academyService.submitAssignment(requester(req), param(req, "id"), req.body));
+    } catch (error) {
+      next(error);
+    }
+  },
+  reviewAssignmentSubmission: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      res.json(await academyService.reviewAssignmentSubmission(requester(req), param(req, "id"), req.body));
+    } catch (error) {
+      next(error);
+    }
+  },
+  publishStudyMaterial: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      res.status(201).json(await academyService.publishStudyMaterial(requester(req), req.body));
+    } catch (error) {
+      next(error);
+    }
+  },
+  studyMaterials: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      res.json(await academyService.studyMaterials(requester(req), req.query));
+    } catch (error) {
+      next(error);
+    }
+  },
+  materialSummary: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      res.json(await academyService.materialSummary(requester(req), req.query));
+    } catch (error) {
+      next(error);
+    }
+  },
+  updateStudyMaterial: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      res.json(await academyService.updateStudyMaterial(requester(req), param(req, "id"), req.body));
+    } catch (error) {
+      next(error);
+    }
+  },
+  archiveStudyMaterial: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      res.json(await academyService.archiveStudyMaterial(requester(req), param(req, "id")));
+    } catch (error) {
+      next(error);
+    }
+  },
+  reviewStudyMaterial: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      res.json(await academyService.reviewStudyMaterial(requester(req), param(req, "id"), req.body));
+    } catch (error) {
+      next(error);
+    }
+  },
+  createExamDraft: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      res.json(await academyService.createExamDraft(requester(req), req.body));
+    } catch (error) {
+      next(error);
+    }
+  },
+  publishExam: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      res.status(201).json(await academyService.publishExam(requester(req), req.body));
+    } catch (error) {
+      next(error);
+    }
+  },
+  exams: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      res.json(await academyService.exams(requester(req), req.query));
+    } catch (error) {
+      next(error);
+    }
+  },
+  examSummary: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      res.json(await academyService.examSummary(requester(req), req.query));
+    } catch (error) {
+      next(error);
+    }
+  },
+  syllabusProgress: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      res.json(await academyService.syllabusProgress(requester(req), req.query));
+    } catch (error) {
+      next(error);
+    }
+  },
+  syllabusSummary: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      res.json(await academyService.syllabusSummary(requester(req), req.query));
+    } catch (error) {
+      next(error);
+    }
+  },
+  academicAuditTrail: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      res.json(await academyService.academicAuditTrail(requester(req), req.query));
+    } catch (error) {
+      next(error);
+    }
+  },
+  directorExpenses: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      res.json(await academyService.directorExpenses(requester(req)));
+    } catch (error) {
+      next(error);
+    }
+  },
+  createDirectorExpense: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      res.status(201).json(await academyService.createDirectorExpense(requester(req), req.body));
+    } catch (error) {
+      next(error);
+    }
+  },
+  archiveDirectorExpense: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      res.json(await academyService.archiveDirectorExpense(requester(req), param(req, "id")));
     } catch (error) {
       next(error);
     }

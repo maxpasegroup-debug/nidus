@@ -119,7 +119,7 @@ export const AuthServiceV2 = {
       allServicesAccess: true,
       subscriptionTier: "signature_identity",
       defaultPassword: false,
-      note: "Seeded NIDUS test account. Enable only for demos, QA, staging or controlled internal testing."
+      note: "Seeded NIDUS test account. Enable only for QA, staging or controlled internal testing."
     };
 
     if (!existing) {

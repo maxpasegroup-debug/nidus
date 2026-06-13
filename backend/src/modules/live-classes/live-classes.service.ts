@@ -101,7 +101,7 @@ export const liveClassesService = {
         eventType: payload.eventType ?? "PROGRESS",
         position: payload.position ?? payload.watchedDuration,
         duration: payload.duration ?? 0,
-        metadata: { completionPercent, fakeWatchShell: activeWatchTime === 0 && payload.watchedDuration > 0 }
+        metadata: { completionPercent, passiveProgressCredit: activeWatchTime === 0 && payload.watchedDuration > 0 }
       }
     });
     return progress;

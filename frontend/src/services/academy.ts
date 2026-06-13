@@ -77,6 +77,199 @@ export type AcademicCalendarItem = {
   updatedAt: string;
 };
 
+export type AttendanceSummary = {
+  sessions: number;
+  records: number;
+  present: number;
+  absent: number;
+  leave: number;
+  percentage: number;
+  batches: Array<{
+    batchId: string;
+    batchName?: string | null;
+    sessions: number;
+    present: number;
+    absent: number;
+    leave: number;
+    total: number;
+    percentage: number;
+  }>;
+  students: Array<{
+    studentId: string;
+    studentName?: string | null;
+    present: number;
+    absent: number;
+    leave: number;
+    total: number;
+    percentage: number;
+  }>;
+};
+
+export type AttendanceSession = {
+  id: string;
+  batchId: string;
+  batchName?: string | null;
+  subject?: string | null;
+  teacherId?: string | null;
+  teacherName?: string | null;
+  date: string;
+  records: Array<{ studentId?: string; studentName?: string; status?: string }>;
+  status: string;
+  createdAt: string;
+};
+
+export type AssignmentRecord = {
+  id: string;
+  batchId: string;
+  batchName?: string | null;
+  subject?: string | null;
+  course?: string | null;
+  title: string;
+  topic?: string | null;
+  instructions: string;
+  dueDate?: string | null;
+  attachmentName?: string | null;
+  link?: string | null;
+  status: string;
+  createdAt: string;
+  submissions?: AssignmentSubmissionRecord[];
+  submissionStats?: {
+    totalStudents: number;
+    submitted: number;
+    pending: number;
+    reviewed: number;
+  };
+};
+
+export type AssignmentSubmissionRecord = {
+  id: string;
+  assignmentId: string;
+  batchId: string;
+  studentId: string;
+  studentName?: string | null;
+  answerText?: string | null;
+  attachmentName?: string | null;
+  link?: string | null;
+  status: string;
+  submittedAt: string;
+  reviewStatus: string;
+  feedback?: string | null;
+  score?: number | null;
+};
+
+export type AssignmentSummary = {
+  assignments: number;
+  totalExpected: number;
+  submitted: number;
+  pending: number;
+  reviewed: number;
+};
+
+export type StudyMaterialRecord = {
+  id: string;
+  batchId: string;
+  batchName?: string | null;
+  course?: string | null;
+  folder?: string | null;
+  subject?: string | null;
+  topic?: string | null;
+  teacherId?: string | null;
+  teacherName?: string | null;
+  title: string;
+  type: string;
+  url?: string | null;
+  fileName?: string | null;
+  status: string;
+  reviewStatus?: string | null;
+  reviewNote?: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type MaterialSummary = {
+  total: number;
+  published: number;
+  pendingReview: number;
+  approved: number;
+  rejected: number;
+  links: number;
+  files: number;
+};
+
+export type TeacherExamRecord = {
+  id: string;
+  batchId: string;
+  batchName?: string | null;
+  testId?: string | null;
+  subject?: string | null;
+  course?: string | null;
+  teacherId?: string | null;
+  teacherName?: string | null;
+  title: string;
+  topic?: string | null;
+  questionCount: number;
+  durationMinutes: number;
+  difficulty: string;
+  instructions?: string | null;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+  attemptStats?: {
+    attempts: number;
+    submitted: number;
+    averageScore: number;
+  };
+};
+
+export type ExamSummary = {
+  exams: number;
+  liveTests: number;
+  attempts: number;
+  submitted: number;
+  averageScore: number;
+};
+
+export type SyllabusProgressRecord = {
+  id: string;
+  batchId: string;
+  batchName?: string | null;
+  subject: string;
+  topic: string;
+  teacherId?: string | null;
+  teacherName?: string | null;
+  completionStatus: string;
+  progressColor: string;
+  remarks?: string | null;
+  updatedAt: string;
+};
+
+export type SyllabusSummary = {
+  total: number;
+  green: number;
+  orange: number;
+  red: number;
+  completed: number;
+  partial: number;
+  pending: number;
+  completionPercentage: number;
+};
+
+export type SyllabusBatchSummary = SyllabusSummary & {
+  batchId?: string | null;
+  batchName?: string | null;
+};
+
+export type DirectorExpenseRecord = {
+  id: string;
+  title: string;
+  category: string;
+  amount: number;
+  currency: string;
+  note?: string | null;
+  status: string;
+  createdAt: string;
+};
+
 export type BatchFilters = {
   programSlug?: string;
   batchType?: string;
@@ -128,6 +321,62 @@ export async function getAcademicCalendar(filters: { batchId?: string; status?: 
   return response.data.items;
 }
 
+export async function getAttendanceSummary(filters: { batchId?: string } = {}) {
+  const response = await apiClient.get<{ summary: AttendanceSummary; attendance: AttendanceSession[] }>("/academy/attendance-summary", { params: filters });
+  return response.data;
+}
+
+export async function getAssignmentSummary(filters: { batchId?: string } = {}) {
+  const response = await apiClient.get<{ summary: AssignmentSummary; assignments: AssignmentRecord[] }>("/academy/assignment-summary", { params: filters });
+  return response.data;
+}
+
+export async function getMaterialSummary(filters: { batchId?: string } = {}) {
+  const response = await apiClient.get<{ summary: MaterialSummary; materials: StudyMaterialRecord[] }>("/academy/material-summary", { params: filters });
+  return response.data;
+}
+
+export async function getExamSummary(filters: { batchId?: string } = {}) {
+  const response = await apiClient.get<{ summary: ExamSummary; exams: TeacherExamRecord[] }>("/academy/exam-summary", { params: filters });
+  return response.data;
+}
+
+export async function getSyllabusSummary(filters: { batchId?: string } = {}) {
+  const response = await apiClient.get<{
+    summary: SyllabusSummary;
+    batches: SyllabusBatchSummary[];
+    progress: SyllabusProgressRecord[];
+  }>("/academy/syllabus-summary", { params: filters });
+  return response.data;
+}
+
+export async function publishStudyMaterial(payload: {
+  batchId: string;
+  batchName?: string;
+  course?: string;
+  folder?: string;
+  subject?: string;
+  topic?: string;
+  title: string;
+  type?: string;
+  url?: string;
+  fileName?: string;
+  status?: string;
+}) {
+  const response = await apiClient.post<{ material: StudyMaterialRecord }>("/academy/study-materials", payload);
+  return response.data.material;
+}
+
+export async function reviewStudyMaterial(id: string, payload: { reviewStatus: string; reviewNote?: string }) {
+  const response = await apiClient.patch<{ material: StudyMaterialRecord }>(`/academy/study-materials/${id}/review`, payload);
+  return response.data.material;
+}
+
+export async function archiveStudyMaterial(id: string) {
+  const response = await apiClient.post<{ material: StudyMaterialRecord }>(`/academy/study-materials/${id}/archive`);
+  return response.data.material;
+}
+
 export async function createAcademicCalendarItem(payload: {
   batchId?: string;
   subject: string;
@@ -148,4 +397,22 @@ export async function createAcademicCalendarItem(payload: {
 export async function updateAcademicCalendarItem(id: string, payload: Partial<Pick<AcademicCalendarItem, "status" | "completionStatus" | "teacherLog" | "nextAction">>) {
   const response = await apiClient.patch<{ item: AcademicCalendarItem }>(`/academy/academic-calendar/${id}`, payload);
   return response.data.item;
+}
+
+export async function getDirectorExpenses() {
+  const response = await apiClient.get<{
+    summary: { total: number; active: number; archived: number; byCategory: Record<string, number> };
+    expenses: DirectorExpenseRecord[];
+  }>("/academy/director-expenses");
+  return response.data;
+}
+
+export async function createDirectorExpense(payload: { title: string; category: string; amount: number; currency?: string; note?: string }) {
+  const response = await apiClient.post<{ expense: DirectorExpenseRecord }>("/academy/director-expenses", payload);
+  return response.data.expense;
+}
+
+export async function archiveDirectorExpense(id: string) {
+  const response = await apiClient.post<{ expense: DirectorExpenseRecord }>(`/academy/director-expenses/${id}/archive`);
+  return response.data.expense;
 }

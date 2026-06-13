@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/providers/auth-provider-v2";
-import { roleDashboardPath } from "@/lib/dashboard-data";
+import { effectiveDashboardPath } from "@/lib/dashboard-data";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -11,7 +11,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (!isLoading && user) {
-      router.replace(roleDashboardPath[user.role]);
+      router.replace(effectiveDashboardPath(user));
     }
   }, [isLoading, router, user]);
 

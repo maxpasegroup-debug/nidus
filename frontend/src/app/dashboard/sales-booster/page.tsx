@@ -122,7 +122,7 @@ export default function SalesBoosterDashboardPage() {
             <Empty icon={CheckCircle2} text="Campaign drafts should be reviewed by management before API publishing is enabled." />
           </Panel>
           <Panel id="leads" title="Campaign Leads" eyebrow="Lead follow-up">
-            <Empty icon={MessageCircle} text="Campaign leads will flow here after Meta/WhatsApp lead API setup. No fake leads are shown." />
+            <Empty icon={MessageCircle} text="Campaign leads will flow here after Meta/WhatsApp lead capture is connected." />
           </Panel>
           <Panel id="reports" title="Marketing Reports" eyebrow="Performance review">
             <Empty icon={BarChart3} text="Reach, engagement, CPL and admissions conversion reports will show only real connected campaign data." />
@@ -154,7 +154,7 @@ function Status({ icon: Icon, title }: { icon: LucideIcon; title: string }) {
         <span className="font-bold">{title}</span>
       </div>
       <span className="rounded-full border border-[var(--gold-border)] bg-[var(--gold-soft)] px-3 py-1 text-xs font-black">
-        Setup Required
+        Needs Connection
       </span>
     </div>
   );

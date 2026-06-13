@@ -7,7 +7,7 @@ test("login flow reaches dashboard with mocked backend auth", async ({ page }) =
   await waitForNidusHydration(page);
   await page.getByLabel("Email or mobile").fill("beta@student.test");
   await page.getByLabel("Password").fill("StrongPass123");
-  await page.getByRole("button", { name: /access platform/i }).click();
+  await page.getByRole("button", { name: /sign in/i }).click();
   await expect(page).toHaveURL(/\/dashboard/);
 });
 
@@ -21,7 +21,7 @@ test("registration creates public guest accounts without role selection", async 
   await page.getByLabel("Mobile").fill("9999999998");
   await page.getByLabel("Password").fill("StrongPass123");
   const signupResponse = page.waitForResponse((response) => response.url().includes("/auth/signup"));
-  await page.getByRole("button", { name: /join nidus/i }).click();
+  await page.getByRole("button", { name: /start free/i }).click();
   expect((await signupResponse).status()).toBe(201);
   await expect(page).toHaveURL(/\/dashboard\/guest/, { timeout: 10000 });
 });
@@ -40,7 +40,7 @@ test("authenticated navigation and CBT listing work on mobile", async ({ page })
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/tests");
   await waitForNidusHydration(page);
-  await expect(page.getByRole("heading", { name: /test readiness/i })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /plan monthly exams/i })).toBeVisible();
   await expect(page.getByText("NDA Beta Mock")).toBeVisible();
   await expect(page.getByRole("navigation", { name: /mobile primary/i })).toBeVisible();
 });

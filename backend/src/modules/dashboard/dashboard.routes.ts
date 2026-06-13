@@ -1,17 +1,50 @@
 import { Router } from "express";
 import { Role } from "../../generated/prisma/client.js";
-import { allowRoles, protect } from "../../middlewares/session.middleware.js";
+import { protect, type AuthenticatedRequest } from "../../middlewares/session.middleware.js";
+import type { NextFunction, Response } from "express";
 import { dashboardController } from "./dashboard.controller.js";
 
 export const dashboardRouter = Router();
 
 dashboardRouter.use(protect);
 
-dashboardRouter.get("/student", allowRoles(Role.STUDENT, Role.ADMIN), dashboardController.student);
-dashboardRouter.get("/parent", allowRoles(Role.PARENT, Role.ADMIN), dashboardController.parent);
-dashboardRouter.get("/admin", allowRoles(Role.ADMIN, Role.DIRECTOR), dashboardController.admin);
-dashboardRouter.get("/guest", allowRoles(Role.GUEST, Role.ADMIN), dashboardController.guest);
-dashboardRouter.get("/teacher", allowRoles(Role.TEACHER, Role.ADMIN), dashboardController.teacher);
-dashboardRouter.get("/director", allowRoles(Role.DIRECTOR, Role.ADMIN), dashboardController.director);
-dashboardRouter.get("/telecaller", allowRoles(Role.TELECALLER, Role.ADMIN, Role.DIRECTOR), dashboardController.telecaller);
-dashboardRouter.get("/marketing", allowRoles(Role.MARKETING_COORDINATOR, Role.ADMIN, Role.DIRECTOR), dashboardController.marketing);
+function dashboardTemplate(req: AuthenticatedRequest) {
+  const metadata = req.user?.roleMetadata && typeof req.user.roleMetadata === "object" ? req.user.roleMetadata : {};
+  return typeof metadata.dashboardTemplate === "string" ? metadata.dashboardTemplate.toUpperCase() : "";
+}
+
+function unrestrictedAdmin(role?: Role, template = "") {
+  return role === Role.ADMIN && !["ADMISSION_CELL", "MARKETING", "SALES_BOOSTER"].includes(template);
+}
+
+function allowDashboard(kind: "student" | "parent" | "admin" | "guest" | "teacher" | "academicHead" | "director" | "telecaller" | "marketing") {
+  return (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    const role = req.user?.role;
+    const template = dashboardTemplate(req);
+    const allowed =
+      (kind === "student" && (role === Role.STUDENT || unrestrictedAdmin(role, template))) ||
+      (kind === "parent" && (role === Role.PARENT || unrestrictedAdmin(role, template))) ||
+      (kind === "admin" && unrestrictedAdmin(role, template)) ||
+      (kind === "guest" && (role === Role.GUEST || unrestrictedAdmin(role, template))) ||
+      (kind === "teacher" && (role === Role.TEACHER || unrestrictedAdmin(role, template))) ||
+      (kind === "academicHead" && role === Role.TEACHER && template === "ACADEMIC_HEAD") ||
+      (kind === "director" && (role === Role.DIRECTOR || unrestrictedAdmin(role, template))) ||
+      (kind === "telecaller" && (role === Role.TELECALLER || role === Role.DIRECTOR || unrestrictedAdmin(role, template))) ||
+      (kind === "marketing" && (role === Role.MARKETING_COORDINATOR || role === Role.DIRECTOR || (role === Role.ADMIN && ["MARKETING", "SALES_BOOSTER"].includes(template))));
+    if (!allowed) {
+      res.status(403).json({ success: false, message: "Forbidden for assigned dashboard scope" });
+      return;
+    }
+    next();
+  };
+}
+
+dashboardRouter.get("/student", allowDashboard("student"), dashboardController.student);
+dashboardRouter.get("/parent", allowDashboard("parent"), dashboardController.parent);
+dashboardRouter.get("/admin", allowDashboard("admin"), dashboardController.admin);
+dashboardRouter.get("/guest", allowDashboard("guest"), dashboardController.guest);
+dashboardRouter.get("/teacher", allowDashboard("teacher"), dashboardController.teacher);
+dashboardRouter.get("/academic-head", allowDashboard("academicHead"), dashboardController.teacher);
+dashboardRouter.get("/director", allowDashboard("director"), dashboardController.director);
+dashboardRouter.get("/telecaller", allowDashboard("telecaller"), dashboardController.telecaller);
+dashboardRouter.get("/marketing", allowDashboard("marketing"), dashboardController.marketing);

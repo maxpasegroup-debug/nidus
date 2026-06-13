@@ -231,13 +231,13 @@ export default function AdmissionCellDashboardPage() {
 
         <section className="grid gap-6 lg:grid-cols-2">
           <Panel id="enquiries" title="New Enquiries" eyebrow="Lead capture">
-            <Empty text="Live enquiries will appear here after website, WhatsApp, social media or manual CRM lead capture is connected. No demo leads are shown." />
+            <Empty text="Live enquiries appear here after website, WhatsApp, social media or manual CRM lead capture is connected." />
           </Panel>
           <Panel id="counselling" title="Counselling Notes" eyebrow="Parent and student clarity">
             <Empty text="Use the admission note during approval for now. Full counselling history can be connected to CRM notes." />
           </Panel>
           <Panel id="fees" title="Fee Follow-Up" eyebrow="Payment readiness">
-            <Empty text="Use this section to track pending fee workflow once accounts/payment data is connected. No fake fee numbers are shown." />
+            <Empty text="Use this section to track pending fee workflow from connected accounts/payment records." />
           </Panel>
           <Panel id="documents" title="Documents" eyebrow="Admission files">
             <Empty text="Document upload and verification can be connected here. Required documents: ID proof, academic details, photo and blood group." />

@@ -2,6 +2,8 @@
 
 import { FormEvent, useState } from "react";
 import type { ReactNode } from "react";
+import Link from "next/link";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   BadgeIndianRupee,
   BarChart3,
@@ -14,42 +16,110 @@ import {
   WalletCards,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { archiveDirectorExpense, createDirectorExpense, getDirectorExpenses } from "@/services/academy";
+import { createFeeInstallment, generateInvoice, getFees, getInvoices, getPaymentAnalytics, getSubscriptions } from "@/services/payments";
 
 const accountSections = [
   { id: "fees", title: "Fee Management", text: "Course fees, student payments and pending dues.", icon: BadgeIndianRupee, status: "Manual Ready" },
-  { id: "invoices", title: "Invoices & Receipts", text: "Generate and track payment receipts.", icon: ReceiptText, status: "Setup" },
+  { id: "invoices", title: "Invoices & Receipts", text: "Generate and track payment receipts.", icon: ReceiptText, status: "Ready" },
   { id: "expenses", title: "Expenses", text: "Office, salary, rent, marketing and operational expenses.", icon: CreditCard, status: "Manual Ready" },
-  { id: "subscriptions", title: "Subscriptions", text: "TOPRANK, assessments and premium module subscriptions.", icon: WalletCards, status: "Setup" },
-  { id: "reports", title: "Reports", text: "Academic, admissions, marketing, finance and staff reports.", icon: BarChart3, status: "Review" },
+  { id: "subscriptions", title: "Subscriptions", text: "TOPRANK, assessments and premium module subscriptions.", icon: WalletCards, status: "Ready" },
+  { id: "reports", title: "Reports", text: "Academic, admissions, marketing, finance and staff reports.", icon: BarChart3, status: "Monitor" },
   { id: "settings", title: "Settings", text: "Company details, contact number, branch and system controls.", icon: Settings, status: "Ready" },
-  { id: "audit", title: "Audit Logs", text: "Track important actions by staff and management.", icon: FileText, status: "Setup" },
+  { id: "audit", title: "Audit Logs", text: "Track important actions by staff and management.", icon: FileText, status: "Monitor" },
 ];
 
 export default function DirectorAccountsPage() {
+  const queryClient = useQueryClient();
   const [notice, setNotice] = useState("");
   const [feeForm, setFeeForm] = useState({
-    student: "",
-    batch: "",
+    studentId: "",
+    title: "",
     amount: "",
-    status: "Pending",
-    note: "",
+    dueDate: "",
+    status: "PENDING",
   });
+  const [invoiceForm, setInvoiceForm] = useState({ studentId: "", amount: "", status: "GENERATED" });
   const [expenseForm, setExpenseForm] = useState({
     title: "",
     category: "Office",
     amount: "",
     note: "",
   });
+  const analyticsQuery = useQuery({ queryKey: ["finance", "analytics", "director-accounts"], queryFn: getPaymentAnalytics });
+  const feesQuery = useQuery({ queryKey: ["finance", "fees", "director-accounts"], queryFn: getFees });
+  const invoicesQuery = useQuery({ queryKey: ["finance", "invoices", "director-accounts"], queryFn: getInvoices });
+  const subscriptionsQuery = useQuery({ queryKey: ["finance", "subscriptions", "director-accounts"], queryFn: getSubscriptions });
+  const expensesQuery = useQuery({ queryKey: ["academy", "director-expenses"], queryFn: getDirectorExpenses });
+
+  const invalidateFinance = () => {
+    void queryClient.invalidateQueries({ queryKey: ["finance"] });
+    void queryClient.invalidateQueries({ queryKey: ["academy", "director-expenses"] });
+  };
+
+  const feeMutation = useMutation({
+    mutationFn: () =>
+      createFeeInstallment({
+        studentId: feeForm.studentId,
+        title: feeForm.title,
+        amount: Number(feeForm.amount),
+        dueDate: feeForm.dueDate,
+        paidStatus: feeForm.status,
+      }),
+    onSuccess: () => {
+      setNotice("Fee installment saved.");
+      setFeeForm({ studentId: "", title: "", amount: "", dueDate: "", status: "PENDING" });
+      invalidateFinance();
+    },
+    onError: (error) => setNotice(error instanceof Error ? error.message : "Could not save fee installment."),
+  });
+  const invoiceMutation = useMutation({
+    mutationFn: () => generateInvoice({ studentId: invoiceForm.studentId, amount: Number(invoiceForm.amount), status: invoiceForm.status }),
+    onSuccess: () => {
+      setNotice("Invoice generated.");
+      setInvoiceForm({ studentId: "", amount: "", status: "GENERATED" });
+      invalidateFinance();
+    },
+    onError: (error) => setNotice(error instanceof Error ? error.message : "Could not generate invoice."),
+  });
+  const expenseMutation = useMutation({
+    mutationFn: () => createDirectorExpense({ ...expenseForm, amount: Number(expenseForm.amount) }),
+    onSuccess: () => {
+      setNotice("Expense saved.");
+      setExpenseForm({ title: "", category: "Office", amount: "", note: "" });
+      invalidateFinance();
+    },
+    onError: (error) => setNotice(error instanceof Error ? error.message : "Could not save expense."),
+  });
+  const archiveExpenseMutation = useMutation({
+    mutationFn: archiveDirectorExpense,
+    onSuccess: () => {
+      setNotice("Expense archived.");
+      invalidateFinance();
+    },
+    onError: (error) => setNotice(error instanceof Error ? error.message : "Could not archive expense."),
+  });
 
   const submitFee = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setNotice("Fee record prepared. Connect this form to the finance table/Razorpay reconciliation when accounts backend is finalized.");
+    feeMutation.mutate();
   };
 
   const submitExpense = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setNotice("Expense record prepared. Connect this form to the accounts ledger when finance backend is finalized.");
+    expenseMutation.mutate();
   };
+  const submitInvoice = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    invoiceMutation.mutate();
+  };
+
+  const analytics = analyticsQuery.data;
+  const fees = feesQuery.data ?? [];
+  const invoices = invoicesQuery.data ?? [];
+  const subscriptions = subscriptionsQuery.data ?? [];
+  const expenses = expensesQuery.data?.expenses ?? [];
+  const activeExpenses = expenses.filter((expense) => expense.status !== "ARCHIVED");
 
   return (
     <main className="min-h-screen bg-[var(--page-bg)] px-5 py-6 text-[var(--navy)] md:px-8">
@@ -59,7 +129,7 @@ export default function DirectorAccountsPage() {
           <h1 className="mt-3 text-4xl font-black tracking-tight md:text-6xl">Finance and operations control</h1>
           <p className="mt-4 max-w-3xl text-base leading-8 text-[var(--muted-blue)]">
             A clean Director-owned accounts room for fee status, invoices, expenses, subscriptions, settings and audit readiness.
-            No fake revenue or demo finance numbers are displayed.
+            Revenue, dues, invoices and expenses are loaded from finance records only.
           </p>
         </div>
 
@@ -87,6 +157,13 @@ export default function DirectorAccountsPage() {
           })}
         </section>
 
+        <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <AccountMetric label="Monthly Revenue" value={`Rs ${(analytics?.monthlyRevenue ?? 0).toLocaleString()}`} />
+          <AccountMetric label="Pending Dues" value={`Rs ${(analytics?.pendingDues ?? 0).toLocaleString()}`} />
+          <AccountMetric label="Open Fees" value={fees.filter((fee) => fee.paidStatus !== "PAID").length} />
+          <AccountMetric label="Expenses" value={`Rs ${(expensesQuery.data?.summary.total ?? 0).toLocaleString()}`} />
+        </section>
+
         {notice && (
           <div className="rounded-2xl border border-[var(--gold-border)] bg-[var(--gold-soft)] p-4 text-sm font-bold text-[var(--navy)]">
             {notice}
@@ -97,9 +174,10 @@ export default function DirectorAccountsPage() {
           <Panel id="fees" title="Fee Management" eyebrow="Manual launch control">
             <form onSubmit={submitFee} className="grid gap-4">
               <div className="grid gap-4 md:grid-cols-2">
-                <Field label="Student name / email" value={feeForm.student} onChange={(value) => setFeeForm((item) => ({ ...item, student: value }))} required />
-                <Field label="Batch / program" value={feeForm.batch} onChange={(value) => setFeeForm((item) => ({ ...item, batch: value }))} />
+                <Field label="Student ID" value={feeForm.studentId} onChange={(value) => setFeeForm((item) => ({ ...item, studentId: value }))} required />
+                <Field label="Fee title" value={feeForm.title} onChange={(value) => setFeeForm((item) => ({ ...item, title: value }))} required />
                 <Field label="Amount" value={feeForm.amount} onChange={(value) => setFeeForm((item) => ({ ...item, amount: value }))} required />
+                <Field label="Due date" value={feeForm.dueDate} onChange={(value) => setFeeForm((item) => ({ ...item, dueDate: value }))} required type="date" />
                 <label className="grid gap-2 text-sm font-bold">
                   Status
                   <select
@@ -107,18 +185,22 @@ export default function DirectorAccountsPage() {
                     value={feeForm.status}
                     onChange={(event) => setFeeForm((item) => ({ ...item, status: event.target.value }))}
                   >
-                    <option>Pending</option>
-                    <option>Partially Paid</option>
-                    <option>Paid</option>
-                    <option>Refund Requested</option>
+                    <option value="PENDING">Pending</option>
+                    <option value="PARTIAL">Partially Paid</option>
+                    <option value="PAID">Paid</option>
                   </select>
                 </label>
               </div>
-              <Field label="Note" value={feeForm.note} onChange={(value) => setFeeForm((item) => ({ ...item, note: value }))} />
               <button className="rounded-xl bg-[var(--gold-gradient)] px-5 py-3 font-black text-[var(--navy)] shadow-lg">
-                Prepare Fee Record
+                Save Fee Installment
               </button>
             </form>
+            <div className="mt-5 grid gap-3">
+              {fees.slice(0, 4).map((fee) => (
+                <FinanceRow key={fee.id} title={fee.title} meta={`${fee.student?.name ?? fee.studentId} / due ${new Date(fee.dueDate).toLocaleDateString()}`} amount={fee.dueAmount ?? fee.amount} status={fee.paidStatus} />
+              ))}
+              {!fees.length ? <Empty text="No fee installments recorded yet." icon={BadgeIndianRupee} /> : null}
+            </div>
           </Panel>
 
           <Panel id="expenses" title="Expenses" eyebrow="Manual launch control">
@@ -144,21 +226,65 @@ export default function DirectorAccountsPage() {
                 <Field label="Note" value={expenseForm.note} onChange={(value) => setExpenseForm((item) => ({ ...item, note: value }))} />
               </div>
               <button className="rounded-xl bg-[var(--gold-gradient)] px-5 py-3 font-black text-[var(--navy)] shadow-lg">
-                Prepare Expense Record
+                Save Expense
               </button>
             </form>
+            <div className="mt-5 grid gap-3">
+              {activeExpenses.slice(0, 5).map((expense) => (
+                <div key={expense.id} className="rounded-2xl border border-[var(--border)] bg-white p-4">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <p className="font-black">{expense.title}</p>
+                      <p className="mt-1 text-sm text-[var(--muted-blue)]">{expense.category} / {expense.currency} {expense.amount.toLocaleString()}</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => archiveExpenseMutation.mutate(expense.id)}
+                      className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-black text-rose-800"
+                    >
+                      Archive
+                    </button>
+                  </div>
+                </div>
+              ))}
+              {!activeExpenses.length ? <Empty text="No expenses recorded yet." icon={CreditCard} /> : null}
+            </div>
           </Panel>
         </section>
 
         <section className="grid gap-6 lg:grid-cols-2">
           <Panel id="invoices" title="Invoices & Receipts" eyebrow="Receipt setup">
-            <Empty text="Invoice/receipt generation will connect to actual payment records. No fake receipts are shown." icon={ReceiptText} />
+            <form onSubmit={submitInvoice} className="grid gap-4 md:grid-cols-[1fr_1fr_1fr_auto] md:items-end">
+              <Field label="Student ID" value={invoiceForm.studentId} onChange={(value) => setInvoiceForm((item) => ({ ...item, studentId: value }))} required />
+              <Field label="Amount" value={invoiceForm.amount} onChange={(value) => setInvoiceForm((item) => ({ ...item, amount: value }))} required />
+              <Field label="Status" value={invoiceForm.status} onChange={(value) => setInvoiceForm((item) => ({ ...item, status: value }))} />
+              <button className="rounded-xl bg-[var(--gold-gradient)] px-5 py-3 font-black text-[var(--navy)] shadow-lg">
+                Generate
+              </button>
+            </form>
+            <div className="mt-5 grid gap-3">
+              {invoices.slice(0, 4).map((invoice) => (
+                <FinanceRow key={invoice.id} title={invoice.invoiceNumber} meta={invoice.student?.name ?? invoice.studentId} amount={invoice.dueAmount ?? invoice.amount} status={invoice.status} />
+              ))}
+              {!invoices.length ? <Empty text="No invoices generated yet." icon={ReceiptText} /> : null}
+            </div>
           </Panel>
           <Panel id="subscriptions" title="Subscriptions" eyebrow="Razorpay and premium access">
-            <Empty text="TOPRANK, assessments and premium subscriptions should be reconciled with Razorpay before launch." icon={WalletCards} />
+            <div className="grid gap-3">
+              {subscriptions.slice(0, 5).map((subscription) => (
+                <FinanceRow key={subscription.id} title={subscription.planName} meta={subscription.user?.name ?? subscription.userId} amount={subscription.amount} status={subscription.status} />
+              ))}
+              {!subscriptions.length ? <Empty text="No premium subscriptions recorded yet." icon={WalletCards} /> : null}
+              <Link href="/subscriptions" className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-center font-black">
+                Open Subscription Console
+              </Link>
+            </div>
           </Panel>
           <Panel id="reports" title="Reports" eyebrow="Management review">
-            <Empty text="Reports will combine real admissions, academics, marketing, fees and staff data. No demo charts are shown." icon={BarChart3} />
+            <div className="grid gap-3 md:grid-cols-2">
+              <AccountMetric label="Transactions" value={`${analytics?.successfulTransactions ?? 0}/${analytics?.totalTransactions ?? 0}`} />
+              <AccountMetric label="Payment Methods" value={Object.keys(analytics?.paymentMethodAnalytics ?? {}).length} />
+            </div>
           </Panel>
           <Panel id="settings" title="Settings" eyebrow="Company configuration">
             <Empty text="Company contact, branch, receipt format, payment settings and account permissions can be managed here." icon={Building2} />
@@ -183,12 +309,38 @@ function Panel({ id, title, eyebrow, children }: { id: string; title: string; ey
   );
 }
 
-function Field({ label, value, onChange, required }: { label: string; value: string; onChange: (value: string) => void; required?: boolean }) {
+function AccountMetric({ label, value }: { label: string; value: string | number }) {
+  return (
+    <div className="rounded-2xl border border-[var(--border)] bg-white/90 p-5 shadow-sm">
+      <p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold)]">{label}</p>
+      <p className="mt-3 text-2xl font-black text-[var(--navy)]">{value}</p>
+    </div>
+  );
+}
+
+function FinanceRow({ title, meta, amount, status }: { title: string; meta: string; amount: number; status: string }) {
+  return (
+    <div className="rounded-2xl border border-[var(--border)] bg-white p-4">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p className="font-black">{title}</p>
+          <p className="mt-1 text-sm text-[var(--muted-blue)]">{meta}</p>
+        </div>
+        <span className="rounded-full border border-[var(--gold-border)] bg-[var(--gold-soft)] px-3 py-1 text-xs font-black">
+          Rs {amount.toLocaleString()} / {status}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+function Field({ label, value, onChange, required, type = "text" }: { label: string; value: string; onChange: (value: string) => void; required?: boolean; type?: string }) {
   return (
     <label className="grid gap-2 text-sm font-bold">
       {label}
       <input
         className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-[var(--navy)] outline-none focus:border-[var(--gold)]"
+        type={type}
         value={value}
         onChange={(event) => onChange(event.target.value)}
         required={required}

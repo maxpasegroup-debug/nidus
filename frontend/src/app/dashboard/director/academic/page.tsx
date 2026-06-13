@@ -24,6 +24,11 @@ import {
   getAcademyBatches,
   getAcademyTeachers,
   getAcademicCalendar,
+  getAssignmentSummary,
+  getAttendanceSummary,
+  getExamSummary,
+  getMaterialSummary,
+  getSyllabusSummary,
   updateAcademyBatch,
   updateAcademicCalendarItem,
   type AcademyBatch,
@@ -77,16 +82,31 @@ export default function DirectorAcademicDepartmentPage() {
   const batchesQuery = useQuery({ queryKey: ["academy", "batches"], queryFn: () => getAcademyBatches() });
   const teachersQuery = useQuery({ queryKey: ["academy", "teachers"], queryFn: () => getAcademyTeachers() });
   const calendarQuery = useQuery({ queryKey: ["academy", "academic-calendar"], queryFn: () => getAcademicCalendar() });
+  const attendanceQuery = useQuery({ queryKey: ["academy", "attendance-summary"], queryFn: () => getAttendanceSummary() });
+  const assignmentQuery = useQuery({ queryKey: ["academy", "assignment-summary"], queryFn: () => getAssignmentSummary() });
+  const materialQuery = useQuery({ queryKey: ["academy", "material-summary"], queryFn: () => getMaterialSummary() });
+  const examQuery = useQuery({ queryKey: ["academy", "exam-summary"], queryFn: () => getExamSummary() });
+  const syllabusQuery = useQuery({ queryKey: ["academy", "syllabus-summary"], queryFn: () => getSyllabusSummary() });
 
   const batches = batchesQuery.data ?? [];
   const teachers = teachersQuery.data ?? [];
   const calendarItems = calendarQuery.data ?? [];
+  const attendanceSummary = attendanceQuery.data?.summary;
+  const assignmentSummary = assignmentQuery.data?.summary;
+  const materialSummary = materialQuery.data?.summary;
+  const examSummary = examQuery.data?.summary;
+  const syllabusSummary = syllabusQuery.data?.summary;
   const allPrograms = academyProgramGroups.flatMap((group) => group.programs);
 
   const refresh = () => {
     void queryClient.invalidateQueries({ queryKey: ["academy", "batches"] });
     void queryClient.invalidateQueries({ queryKey: ["academy", "teachers"] });
     void queryClient.invalidateQueries({ queryKey: ["academy", "academic-calendar"] });
+    void queryClient.invalidateQueries({ queryKey: ["academy", "attendance-summary"] });
+    void queryClient.invalidateQueries({ queryKey: ["academy", "assignment-summary"] });
+    void queryClient.invalidateQueries({ queryKey: ["academy", "material-summary"] });
+    void queryClient.invalidateQueries({ queryKey: ["academy", "exam-summary"] });
+    void queryClient.invalidateQueries({ queryKey: ["academy", "syllabus-summary"] });
   };
 
   const createBatchMutation = useMutation({
@@ -199,7 +219,7 @@ export default function DirectorAcademicDepartmentPage() {
           <StatCard label="Teachers" value={teachers.length} />
           <StatCard label="Planned Classes" value={calendarItems.length} />
           <StatCard label="Active" value={batches.filter((batch) => batch.status === "ACTIVE").length} />
-          <StatCard label="Delayed" value={calendarItems.filter((item) => item.completionStatus === "RED").length} />
+          <StatCard label="Attendance" value={`${attendanceSummary?.percentage ?? 0}%`} />
         </div>
 
         {notice && (
@@ -345,6 +365,46 @@ export default function DirectorAcademicDepartmentPage() {
           </Panel>
 
           <Panel id="tracker" title="Syllabus Tracker" eyebrow="Green orange red progress">
+            <div className="grid gap-3 md:grid-cols-4">
+              <StatCard label="Completion" value={`${syllabusSummary?.completionPercentage ?? 0}%`} />
+              <StatCard label="Green" value={syllabusSummary?.green ?? 0} />
+              <StatCard label="Orange" value={syllabusSummary?.orange ?? 0} />
+              <StatCard label="Red" value={syllabusSummary?.red ?? 0} />
+            </div>
+            <div className="mt-4 grid gap-3">
+              {(syllabusQuery.data?.batches ?? []).slice(0, 5).map((batch) => (
+                <div key={batch.batchId ?? batch.batchName ?? "batch"} className="rounded-2xl border border-[var(--border)] bg-white p-4">
+                  <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+                    <div>
+                      <p className="font-black">{batch.batchName ?? "Batch"}</p>
+                      <p className="mt-1 text-sm text-[var(--muted-blue)]">
+                        Green {batch.green} / Orange {batch.orange} / Red {batch.red}
+                      </p>
+                    </div>
+                    <span className="rounded-full border border-[var(--gold-border)] bg-[var(--gold-soft)] px-3 py-1 text-xs font-black">
+                      {batch.completionPercentage}% complete
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="mt-5 grid gap-3">
+              {(syllabusQuery.data?.progress ?? []).slice(0, 6).map((item) => (
+                <div key={item.id} className="rounded-2xl border border-[var(--border)] bg-white p-4">
+                  <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+                    <div>
+                      <p className="font-black">{item.topic}</p>
+                      <p className="mt-1 text-sm text-[var(--muted-blue)]">
+                        {item.batchName ?? "Batch"} / {item.subject} / {item.teacherName ?? "Teacher"}
+                      </p>
+                    </div>
+                    <span className="rounded-full border border-[var(--border)] px-3 py-1 text-xs font-black">
+                      {item.progressColor}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
             <div className="grid gap-3">
               {calendarItems.map((item) => (
                 <CalendarCard key={item.id} item={item} onStatus={(completionStatus) => updateCalendarMutation.mutate({ id: item.id, completionStatus })} />
@@ -355,26 +415,142 @@ export default function DirectorAcademicDepartmentPage() {
         </section>
 
         <Panel id="materials" title="Study Materials Control" eyebrow="Batch library">
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-4">
+            <StatCard label="Materials" value={materialSummary?.total ?? 0} />
+            <StatCard label="Pending Review" value={materialSummary?.pendingReview ?? 0} />
+            <StatCard label="Approved" value={materialSummary?.approved ?? 0} />
             <a className="rounded-2xl border border-[var(--border)] bg-white p-5 font-black transition hover:border-[var(--gold-border)] hover:shadow-lg" href="/dashboard/director/materials">
               Open Materials Control
             </a>
-            <EmptyState text="Recorded classes, notes and files are organized batch-wise. No demo files are shown." />
-            <EmptyState text="Students should see only materials assigned to their approved batch." />
+          </div>
+          <div className="mt-5 grid gap-3">
+            {(materialQuery.data?.materials ?? []).slice(0, 5).map((material) => (
+              <div key={material.id} className="rounded-2xl border border-[var(--border)] bg-white p-4">
+                <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+                  <div>
+                    <p className="font-black">{material.title}</p>
+                    <p className="mt-1 text-sm text-[var(--muted-blue)]">
+                      {material.batchName ?? "Batch"} / {material.subject ?? "Subject"} / {material.type}
+                    </p>
+                  </div>
+                  <span className="rounded-full border border-[var(--gold-border)] bg-[var(--gold-soft)] px-3 py-1 text-xs font-black">
+                    {material.reviewStatus ?? "PENDING_REVIEW"}
+                  </span>
+                </div>
+              </div>
+            ))}
+            {!materialQuery.data?.materials.length && <EmptyState text="Recorded classes, notes and files will appear after materials are published." />}
+          </div>
+        </Panel>
+
+        <Panel id="attendance" title="Attendance Monitoring" eyebrow="Teacher marked sessions">
+          <div className="grid gap-4 md:grid-cols-4">
+            <StatCard label="Overall" value={`${attendanceSummary?.percentage ?? 0}%`} />
+            <StatCard label="Sessions" value={attendanceSummary?.sessions ?? 0} />
+            <StatCard label="Present Records" value={attendanceSummary?.present ?? 0} />
+            <StatCard label="Absent / Leave" value={(attendanceSummary?.absent ?? 0) + (attendanceSummary?.leave ?? 0)} />
+          </div>
+
+          <div className="mt-5 grid gap-4 lg:grid-cols-[1fr_1fr]">
+            <div className="rounded-2xl border border-[var(--border)] bg-white p-5">
+              <h3 className="text-xl font-black">Batch attendance</h3>
+              <div className="mt-4 space-y-3">
+                {(attendanceSummary?.batches ?? []).slice(0, 6).map((batch) => (
+                  <div key={batch.batchId} className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="font-black">{batch.batchName ?? "Batch"}</p>
+                      <span className="rounded-full border border-[var(--gold-border)] bg-[var(--gold-soft)] px-3 py-1 text-xs font-black">
+                        {batch.percentage}%
+                      </span>
+                    </div>
+                    <p className="mt-1 text-sm text-[var(--muted-blue)]">
+                      {batch.sessions} sessions / Present {batch.present}/{batch.total}
+                    </p>
+                  </div>
+                ))}
+                {!attendanceSummary?.batches.length && <EmptyState text="No attendance sessions have been marked yet." />}
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-[var(--border)] bg-white p-5">
+              <h3 className="text-xl font-black">Recent sessions</h3>
+              <div className="mt-4 space-y-3">
+                {(attendanceQuery.data?.attendance ?? []).slice(0, 6).map((session) => (
+                  <div key={session.id} className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
+                    <p className="font-black">{session.batchName ?? "Batch"} / {session.subject ?? "Subject"}</p>
+                    <p className="mt-1 text-sm text-[var(--muted-blue)]">
+                      {new Date(session.date).toLocaleDateString()} / {session.teacherName ?? "Teacher"} / {session.records?.length ?? 0} records
+                    </p>
+                  </div>
+                ))}
+                {!attendanceQuery.data?.attendance.length && <EmptyState text="Teacher-marked sessions will appear here." />}
+              </div>
+            </div>
           </div>
         </Panel>
 
         <Panel id="exams" title="Exams & Tests Control" eyebrow="Academic testing">
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-4">
+            <StatCard label="Teacher Exams" value={examSummary?.exams ?? 0} />
+            <StatCard label="Live CBT Tests" value={examSummary?.liveTests ?? 0} />
+            <StatCard label="Submitted" value={examSummary?.submitted ?? 0} />
+            <StatCard label="Avg Score" value={examSummary?.averageScore ?? 0} />
+          </div>
+          <div className="mt-5 grid gap-3">
+            {(examQuery.data?.exams ?? []).slice(0, 6).map((exam) => (
+              <div key={exam.id} className="rounded-2xl border border-[var(--border)] bg-white p-4">
+                <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+                  <div>
+                    <p className="font-black">{exam.title}</p>
+                    <p className="mt-1 text-sm text-[var(--muted-blue)]">
+                      {exam.batchName ?? "Batch"} / {exam.subject ?? "Subject"} / {exam.teacherName ?? "Teacher"}
+                    </p>
+                  </div>
+                  <span className="rounded-full border border-[var(--gold-border)] bg-[var(--gold-soft)] px-3 py-1 text-xs font-black">
+                    {exam.attemptStats?.submitted ?? 0} submitted / {exam.attemptStats?.attempts ?? 0} attempts
+                  </span>
+                </div>
+              </div>
+            ))}
+            {!examQuery.data?.exams.length && <EmptyState text="Teacher-created CBT exams will appear here after publication." />}
+          </div>
+          <div className="mt-5 grid gap-4 md:grid-cols-3">
             <a className="rounded-2xl border border-[var(--border)] bg-white p-5 font-black transition hover:border-[var(--gold-border)] hover:shadow-lg" href="/dashboard/director/exams">
               Open Exam Command
             </a>
-            <a className="rounded-2xl border border-[var(--border)] bg-white p-5 font-black transition hover:border-[var(--gold-border)] hover:shadow-lg" href="/question-bank">
+            <a className="rounded-2xl border border-[var(--border)] bg-white p-5 font-black transition hover:border-[var(--gold-border)] hover:shadow-lg" href="/examination-center/question-bank">
               Open Question Bank
             </a>
-            <a className="rounded-2xl border border-[var(--border)] bg-white p-5 font-black transition hover:border-[var(--gold-border)] hover:shadow-lg" href="/published">
+            <a className="rounded-2xl border border-[var(--border)] bg-white p-5 font-black transition hover:border-[var(--gold-border)] hover:shadow-lg" href="/examination-center/published">
               Published Exams
             </a>
+          </div>
+        </Panel>
+
+        <Panel id="assignments" title="Assignment Monitoring" eyebrow="Submitted and pending">
+          <div className="grid gap-4 md:grid-cols-4">
+            <StatCard label="Assignments" value={assignmentSummary?.assignments ?? 0} />
+            <StatCard label="Expected" value={assignmentSummary?.totalExpected ?? 0} />
+            <StatCard label="Submitted" value={assignmentSummary?.submitted ?? 0} />
+            <StatCard label="Pending" value={assignmentSummary?.pending ?? 0} />
+          </div>
+          <div className="mt-5 grid gap-3">
+            {(assignmentQuery.data?.assignments ?? []).slice(0, 6).map((assignment) => (
+              <div key={assignment.id} className="rounded-2xl border border-[var(--border)] bg-white p-4">
+                <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+                  <div>
+                    <p className="font-black">{assignment.title}</p>
+                    <p className="mt-1 text-sm text-[var(--muted-blue)]">
+                      {assignment.batchName ?? "Batch"} / {assignment.subject ?? "Subject"}
+                    </p>
+                  </div>
+                  <span className="rounded-full border border-[var(--gold-border)] bg-[var(--gold-soft)] px-3 py-1 text-xs font-black">
+                    {assignment.submissionStats?.submitted ?? 0} submitted / {assignment.submissionStats?.pending ?? 0} pending
+                  </span>
+                </div>
+              </div>
+            ))}
+            {!assignmentQuery.data?.assignments.length && <EmptyState text="Assignment activity will appear after teachers publish assignments." />}
           </div>
         </Panel>
 
@@ -382,7 +558,7 @@ export default function DirectorAcademicDepartmentPage() {
           <div className="grid gap-4 md:grid-cols-3">
             <EmptyState text="Open a batch team board to view students, tutors and batch status." />
             <EmptyState text="Progress will combine calendar completion, exams, attendance and assignments as modules go live." />
-            <EmptyState text="No demo progress data is shown. Only real student data should appear here." />
+            <EmptyState text="Student progress appears after attendance, assignments, exams and syllabus activity are recorded." />
           </div>
         </Panel>
       </section>

@@ -1,9 +1,15 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { BookOpen, FileArchive, FileText, FolderPlus, Link as LinkIcon, PlayCircle, ShieldCheck, Upload } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import {
+  archiveStudyMaterial,
+  getMaterialSummary,
+  publishStudyMaterial,
+  reviewStudyMaterial,
+} from "@/services/academy";
 
 type BatchOption = {
   id: string;
@@ -45,6 +51,7 @@ const materialControls = [
 ] as const;
 
 export default function DirectorMaterialsPage() {
+  const queryClient = useQueryClient();
   const [notice, setNotice] = useState("");
   const [form, setForm] = useState({
     batchId: "",
@@ -54,21 +61,71 @@ export default function DirectorMaterialsPage() {
     materialTitle: "",
     materialType: "Recorded Class",
     materialUrl: "",
+    fileName: "",
   });
 
   const batchesQuery = useQuery({
     queryKey: ["director", "materials", "batches"],
     queryFn: () => apiJson<BatchOption[]>("/api/academy/batches"),
   });
+  const materialsQuery = useQuery({
+    queryKey: ["director", "materials", "summary"],
+    queryFn: () => getMaterialSummary(),
+  });
+
+  const refresh = () => {
+    void queryClient.invalidateQueries({ queryKey: ["director", "materials", "summary"] });
+  };
+
+  const publishMutation = useMutation({
+    mutationFn: publishStudyMaterial,
+    onSuccess: () => {
+      setNotice("Material published to selected batch.");
+      setForm({ batchId: "", folderName: "", subject: "", topic: "", materialTitle: "", materialType: "Recorded Class", materialUrl: "", fileName: "" });
+      refresh();
+    },
+    onError: (error) => setNotice(error instanceof Error ? error.message : "Could not publish material."),
+  });
+
+  const reviewMutation = useMutation({
+    mutationFn: ({ id, reviewStatus }: { id: string; reviewStatus: string }) => reviewStudyMaterial(id, { reviewStatus }),
+    onSuccess: () => {
+      setNotice("Material review updated.");
+      refresh();
+    },
+    onError: (error) => setNotice(error instanceof Error ? error.message : "Could not review material."),
+  });
+
+  const archiveMutation = useMutation({
+    mutationFn: archiveStudyMaterial,
+    onSuccess: () => {
+      setNotice("Material archived.");
+      refresh();
+    },
+    onError: (error) => setNotice(error instanceof Error ? error.message : "Could not archive material."),
+  });
 
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setNotice(
-      "Material draft prepared. File storage/publish API can now connect this form to real uploads without changing the Director workflow.",
-    );
+    const batch = batches.find((item) => item.id === form.batchId);
+    publishMutation.mutate({
+      batchId: form.batchId,
+      batchName: batch?.name,
+      folder: form.folderName || batch?.name,
+      subject: form.subject,
+      topic: form.topic,
+      title: form.materialTitle,
+      type: form.materialType,
+      url: form.materialUrl || undefined,
+      fileName: form.fileName || undefined,
+      status: "PUBLISHED",
+    });
   };
 
   const batches = batchesQuery.data ?? [];
+  const materialData = materialsQuery.data;
+  const materials = materialData?.materials ?? [];
+  const summary = materialData?.summary;
 
   return (
     <main className="min-h-screen bg-[var(--page-bg)] px-5 py-6 text-[var(--navy)] md:px-8">
@@ -77,8 +134,8 @@ export default function DirectorMaterialsPage() {
           <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Study Materials</p>
           <h1 className="mt-3 text-4xl font-black tracking-tight md:text-6xl">Batch library control</h1>
           <p className="mt-4 max-w-3xl text-base leading-8 text-[var(--muted-blue)]">
-            Organize recorded classes, notes, PDFs, links and topic resources by batch. This page is launch-safe and shows no
-            fake material data.
+            Organize recorded classes, notes, PDFs, links and topic resources by batch. Empty states remain clean until
+            teachers or management publish materials.
           </p>
         </div>
 
@@ -136,9 +193,13 @@ export default function DirectorMaterialsPage() {
               </div>
               <Field label="Material title" value={form.materialTitle} onChange={(value) => setForm((item) => ({ ...item, materialTitle: value }))} required />
               <Field label="Video/file/link URL" value={form.materialUrl} onChange={(value) => setForm((item) => ({ ...item, materialUrl: value }))} />
-              <button className="inline-flex items-center justify-center gap-2 rounded-xl bg-[var(--gold-gradient)] px-5 py-3 font-black text-[var(--navy)] shadow-lg">
+              <Field label="File name" value={form.fileName} onChange={(value) => setForm((item) => ({ ...item, fileName: value }))} />
+              <button
+                disabled={publishMutation.isPending}
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-[var(--gold-gradient)] px-5 py-3 font-black text-[var(--navy)] shadow-lg disabled:opacity-60"
+              >
                 <Upload className="h-5 w-5" />
-                Prepare Material
+                Publish Material
               </button>
             </form>
           </div>
@@ -167,16 +228,57 @@ export default function DirectorMaterialsPage() {
           </div>
         </section>
 
-        <section className="rounded-3xl border border-[var(--gold-border)] bg-[var(--gold-soft)] p-5 shadow-sm">
-          <div className="flex items-start gap-4">
-            <LinkIcon className="mt-1 h-6 w-6 shrink-0 text-[var(--gold)]" />
+        <section className="rounded-3xl border border-[var(--border)] bg-white/90 p-5 shadow-sm">
+          <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div>
-              <h2 className="text-2xl font-black">Launch note</h2>
-              <p className="mt-2 text-sm leading-7 text-[var(--muted-blue)]">
-                This page prepares the final Director workflow. To make uploads fully live, connect this form to storage and a
-                material table. Until then, no fake material files are displayed.
-              </p>
+              <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Live Library</p>
+              <h2 className="mt-2 text-2xl font-black">Published materials</h2>
             </div>
+            <div className="grid grid-cols-4 gap-2 text-center text-xs font-black">
+              <span className="rounded-xl bg-[var(--page-bg)] px-3 py-2">{summary?.total ?? 0} total</span>
+              <span className="rounded-xl bg-[var(--page-bg)] px-3 py-2">{summary?.pendingReview ?? 0} review</span>
+              <span className="rounded-xl bg-[var(--page-bg)] px-3 py-2">{summary?.links ?? 0} links</span>
+              <span className="rounded-xl bg-[var(--page-bg)] px-3 py-2">{summary?.files ?? 0} files</span>
+            </div>
+          </div>
+
+          <div className="mt-5 grid gap-3">
+            {materials.map((material) => (
+              <article key={material.id} className="rounded-2xl border border-[var(--border)] bg-white p-4">
+                <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                  <div>
+                    <p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold)]">
+                      {material.batchName ?? "Batch"} / {material.subject ?? "Subject"}
+                    </p>
+                    <h3 className="mt-2 text-xl font-black">{material.title}</h3>
+                    <p className="mt-1 text-sm text-[var(--muted-blue)]">
+                      {material.folder ?? "Folder"} / {material.topic ?? "Topic"} / {material.type}
+                    </p>
+                  </div>
+                  <span className="rounded-full border border-[var(--gold-border)] bg-[var(--gold-soft)] px-3 py-1 text-xs font-black">
+                    {material.reviewStatus ?? "PENDING_REVIEW"}
+                  </span>
+                </div>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {material.url ? (
+                    <a href={material.url} target="_blank" rel="noreferrer" className="rounded-lg border border-[var(--border)] px-3 py-2 text-sm font-bold">
+                      <LinkIcon className="mr-1 inline h-4 w-4" />
+                      Open
+                    </a>
+                  ) : null}
+                  <button className="rounded-lg border border-emerald-200 px-3 py-2 text-sm font-bold text-emerald-800" onClick={() => reviewMutation.mutate({ id: material.id, reviewStatus: "APPROVED" })}>
+                    Approve
+                  </button>
+                  <button className="rounded-lg border border-rose-200 px-3 py-2 text-sm font-bold text-rose-800" onClick={() => reviewMutation.mutate({ id: material.id, reviewStatus: "REJECTED" })}>
+                    Reject
+                  </button>
+                  <button className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-bold text-slate-800" onClick={() => archiveMutation.mutate(material.id)}>
+                    Archive
+                  </button>
+                </div>
+              </article>
+            ))}
+            {!materials.length && <Empty text="No materials have been published yet." />}
           </div>
         </section>
       </section>

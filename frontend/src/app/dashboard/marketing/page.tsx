@@ -312,7 +312,7 @@ export default function MarketingDashboardPage() {
               <div key={channel.channel} className="rounded border border-[#071d36]/10 bg-[#f7f3ea] p-4">
                 <div className="flex items-center justify-between gap-3">
                   <p className="font-semibold text-[#071d36]">{channel.channel}</p>
-                  <span className={`rounded px-2 py-1 text-xs font-semibold ${channel.connected ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"}`}>{channel.connected ? "Ready" : "Setup"}</span>
+                  <span className={`rounded px-2 py-1 text-xs font-semibold ${channel.connected ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"}`}>{channel.connected ? "Ready" : "Needs connection"}</span>
                 </div>
                 <p className="mt-2 text-xs leading-5 text-[#64748b]">{channel.nextStep}</p>
               </div>
@@ -538,7 +538,7 @@ export default function MarketingDashboardPage() {
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#3f4a32]">Phase 4 Analytics</p>
                 <h2 className="mt-3 text-3xl font-semibold text-[#071d36]">Campaign reporting and attribution</h2>
-                <p className="mt-2 text-sm leading-7 text-[#64748b]">Pull reach, clicks, spend, leads, admissions and revenue from connected platforms. Manual entry remains available when APIs are not configured.</p>
+                <p className="mt-2 text-sm leading-7 text-[#64748b]">Pull reach, clicks, spend, leads, admissions and revenue from connected platforms. Manual metric entry is available for offline campaign records.</p>
               </div>
               <BarChart3 className="h-7 w-7 text-[#b9913f]" />
             </div>
@@ -605,7 +605,7 @@ export default function MarketingDashboardPage() {
 
           <div className="rounded-lg border border-white/10 bg-white/[0.055] p-5 shadow-[0_24px_70px_rgba(0,0,0,0.18)]">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-gold-soft">Metric Snapshot</p>
-            <h2 className="mt-3 text-2xl font-semibold text-white">Manual fallback data</h2>
+            <h2 className="mt-3 text-2xl font-semibold text-white">Manual metric entry</h2>
             <div className="mt-5 grid gap-3">
               <label>
                 <span className="text-sm font-semibold text-white">Campaign</span>
