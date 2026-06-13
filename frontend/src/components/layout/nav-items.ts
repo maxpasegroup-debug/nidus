@@ -33,7 +33,6 @@ const teacherMenu: DashboardNavItem[] = [
   { label: "Attendance", href: "/dashboard/teacher#attendance" },
   { label: "Library", href: "/dashboard/teacher#library" },
   { label: "Academic Calendar", href: "/dashboard/teacher#academic-calendar" },
-  { label: "Profile", href: "/dashboard/teacher#profile" },
 ];
 
 const academicHeadMenu: DashboardNavItem[] = [
