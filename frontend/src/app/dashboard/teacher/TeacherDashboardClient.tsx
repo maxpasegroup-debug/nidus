@@ -13,6 +13,7 @@ import {
   Library,
   Plus,
   RefreshCw,
+  X,
 } from "lucide-react";
 
 type StoredUser = {
@@ -253,13 +254,13 @@ function statusTone(status?: string | null) {
   return "bg-slate-100 text-slate-700";
 }
 
-export default function TeacherDashboardClient({ view }: { view: TeacherView }) {
+export default function TeacherDashboardClient({ view, courseKey }: { view: TeacherView; courseKey?: string }) {
   const [user, setUser] = useState<StoredUser | null>(null);
   const [classes, setClasses] = useState<AssignedClass[]>([]);
   const [calendar, setCalendar] = useState<CalendarItem[]>([]);
   const [selectedProgramKey, setSelectedProgramKey] = useState<string | null>(null);
   const [selectedClassId, setSelectedClassId] = useState<string | null>(null);
-  const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
+  const [studentModalId, setStudentModalId] = useState<string | null>(null);
   const [selectedCalendarId, setSelectedCalendarId] = useState<string | null>(null);
   const [loadingPlan, setLoadingPlan] = useState(true);
   const [workspaceLoading, setWorkspaceLoading] = useState(false);
@@ -274,7 +275,6 @@ export default function TeacherDashboardClient({ view }: { view: TeacherView }) 
   const [attendanceComments, setAttendanceComments] = useState<Record<string, string>>({});
   const [showExamCreator, setShowExamCreator] = useState(false);
   const [showAssignmentCreator, setShowAssignmentCreator] = useState(false);
-  const [classStage, setClassStage] = useState<"programs" | "batches" | "students">("programs");
   const [examDraft, setExamDraft] = useState<ExamDraft | null>(null);
   const [examSourceName, setExamSourceName] = useState("");
   const [assignmentSourceName, setAssignmentSourceName] = useState("");
@@ -309,6 +309,7 @@ export default function TeacherDashboardClient({ view }: { view: TeacherView }) 
   const dashboardTemplate = typeof user?.roleMetadata?.dashboardTemplate === "string" ? user.roleMetadata.dashboardTemplate.toUpperCase() : "";
   const isAcademicHead = user?.role?.toUpperCase() === "ACADEMIC_HEAD" || dashboardTemplate === "ACADEMIC_HEAD";
   const activeClasses = useMemo(() => classes.filter((item) => item.status !== "ARCHIVED"), [classes]);
+  const activeCourseKey = courseKey ? decodeURIComponent(courseKey) : null;
   const programGroups = useMemo(() => {
     const map = new Map<string, { key: string; name: string; classes: AssignedClass[] }>();
     for (const batch of activeClasses) {
@@ -319,12 +320,25 @@ export default function TeacherDashboardClient({ view }: { view: TeacherView }) 
     }
     return Array.from(map.values());
   }, [activeClasses]);
-  const selectedProgram = programGroups.find((program) => program.key === selectedProgramKey) ?? programGroups[0] ?? null;
+  const selectedProgram =
+    programGroups.find((program) => program.key === activeCourseKey) ??
+    programGroups.find((program) => program.key === selectedProgramKey) ??
+    programGroups[0] ??
+    null;
   const programClasses = selectedProgram?.classes ?? [];
   const selectedClass = activeClasses.find((item) => item.id === selectedClassId) ?? programClasses[0] ?? activeClasses[0] ?? null;
   const selectedStudents = selectedClass?.students ?? [];
-  const selectedStudentEntry = selectedStudents.find((entry, index) => studentId(entry, index) === selectedStudentId) ?? selectedStudents[0] ?? null;
-  const selectedStudent = selectedStudentEntry?.student ?? null;
+  const modalStudentEntry = selectedStudents.find((entry, index) => studentId(entry, index) === studentModalId) ?? null;
+  const modalStudent = modalStudentEntry?.student ?? null;
+  const modalStudentAttendance = classWorkspace.attendance
+    .flatMap((record) =>
+      (record.records ?? [])
+        .filter((entry) => entry.studentId === modalStudent?.id || entry.studentName === modalStudent?.name)
+        .map((entry) => ({ ...entry, date: record.date, subject: record.subject })),
+    )
+    .slice(0, 20);
+  const modalPresent = modalStudentAttendance.filter((entry) => entry.status === "PRESENT").length;
+  const modalAttendancePercent = modalStudentAttendance.length ? Math.round((modalPresent / modalStudentAttendance.length) * 100) : 0;
   const selectedCalendarItems = selectedClass?.id
     ? calendar.filter((item) => !item.batchId || item.batchId === selectedClass.id)
     : calendar;
@@ -366,13 +380,6 @@ export default function TeacherDashboardClient({ view }: { view: TeacherView }) 
   }, [calendarMonth]);
   const pendingCalendarItems = calendar.filter((item) => item.completionStatus !== "COMPLETED").length;
   const attendanceMarkedToday = classWorkspace.attendance.some((item) => item.date?.slice(0, 10) === attendanceDate);
-  const selectedStudentAttendance = classWorkspace.attendance
-    .flatMap((record) =>
-      (record.records ?? [])
-        .filter((entry) => entry.studentId === selectedStudent?.id)
-        .map((entry) => ({ ...entry, date: record.date, subject: record.subject })),
-    )
-    .slice(0, 5);
   const notificationItems = [
     {
       title: "Pending assignments",
@@ -465,28 +472,16 @@ export default function TeacherDashboardClient({ view }: { view: TeacherView }) 
     const program = programGroups.find((item) => item.key === key);
     setSelectedProgramKey(key);
     setSelectedClassId(program?.classes[0]?.id ?? null);
-    setSelectedStudentId(null);
+    setStudentModalId(null);
     setLibrarySubject(null);
     setLibraryTopic(null);
   }
 
   function chooseBatch(batchId: string) {
     setSelectedClassId(batchId);
-    setSelectedStudentId(null);
+    setStudentModalId(null);
     setLibrarySubject(null);
     setLibraryTopic(null);
-  }
-
-  function openClassProgram(key: string) {
-    setSelectedProgramKey(key);
-    setSelectedClassId(null);
-    setSelectedStudentId(null);
-    setClassStage("batches");
-  }
-
-  function openClassBatch(batchId: string) {
-    chooseBatch(batchId);
-    setClassStage("students");
   }
 
   function setAllAttendance(status: "PRESENT" | "ABSENT" | "LEAVE") {
@@ -706,56 +701,88 @@ export default function TeacherDashboardClient({ view }: { view: TeacherView }) 
       </section> : null}
 
       {view === "classes" ? <section className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
-        <SectionHeader eyebrow="Classes" title="Program to batch to students" description="Only assigned programs and batches appear here." icon={<GraduationCap size={20} />} />
-        <StepTrail items={["Programs", "Batches", "Students"]} active={classStage === "programs" ? 0 : classStage === "batches" ? 1 : 2} />
-        {classStage === "programs" ? (
+        {!activeCourseKey ? (
+          <>
+          <SectionHeader eyebrow="Classes" title="Assigned courses" description="Only courses assigned by the Academic Head or Director appear here." icon={<GraduationCap size={20} />} />
           <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             {programGroups.map((program) => (
-              <button key={program.key} type="button" onClick={() => openClassProgram(program.key)} className="min-h-36 rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-5 text-left shadow-sm transition hover:-translate-y-1 hover:bg-white">
+              <Link key={program.key} href={`/dashboard/teacher/classes/${program.key}`} className="min-h-44 rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-5 text-left shadow-sm transition hover:-translate-y-1 hover:bg-white">
                 <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold-dark)]">Program</p>
                 <h3 className="mt-4 text-2xl font-black">{program.name}</h3>
-                <p className="mt-3 text-sm text-[var(--muted-blue)]">{program.classes.length} assigned batch(es)</p>
-              </button>
+                <div className="mt-4 grid grid-cols-2 gap-2 text-sm">
+                  <span className="rounded-xl bg-white px-3 py-2 font-black">{program.classes.length} batch(es)</span>
+                  <span className="rounded-xl bg-white px-3 py-2 font-black">
+                    {program.classes.reduce((total, batch) => total + (batch.students?.length ?? batch._count?.students ?? 0), 0)} students
+                  </span>
+                </div>
+                <p className="mt-4 text-sm font-black text-[var(--gold-dark)]">Open course</p>
+              </Link>
             ))}
-            {!programGroups.length ? <EmptyState text="No program is assigned yet. Academic Head or Director should assign batches to this teacher." /> : null}
+            {!programGroups.length ? <EmptyState text="No classes assigned yet. Academic Head or Director will assign your courses." /> : null}
           </div>
-        ) : null}
-        {classStage === "batches" ? (
-          <div className="mt-5">
-            <button type="button" onClick={() => setClassStage("programs")} className="mb-4 rounded-xl border border-[var(--border)] bg-white px-4 py-2 text-sm font-black">Back to programs</button>
-            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-              {programClasses.map((batch) => (
-                <button key={batch.id} type="button" onClick={() => openClassBatch(batch.id)} className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-5 text-left shadow-sm transition hover:-translate-y-1 hover:bg-white">
-                  <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold-dark)]">{selectedProgram?.name ?? "Program"}</p>
-                  <h3 className="mt-3 text-xl font-black">{batch.name}</h3>
-                  <p className="mt-2 text-sm text-[var(--muted-blue)]">{batch.students?.length ?? batch._count?.students ?? 0} students</p>
-                  <p className="mt-4 rounded-full border border-[var(--border)] bg-white px-3 py-2 text-xs font-black">{batch.subject || "Subject"}</p>
-                </button>
-              ))}
-              {!programClasses.length ? <EmptyState text="No batch is assigned under this program." /> : null}
+          </>
+        ) : (
+          <div>
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <Link href="/dashboard/teacher/classes" className="text-sm font-black text-[var(--gold-dark)]">Back to assigned courses</Link>
+                <h2 className="mt-2 text-3xl font-black">{selectedProgram?.name ?? "Course not assigned"}</h2>
+                <p className="mt-2 text-sm leading-6 text-[var(--muted-blue)]">
+                  Course workspace: batches, students, syllabus tracker, exams and assignments.
+                </p>
+              </div>
+              <span className="rounded-full bg-[var(--page-bg)] px-4 py-2 text-sm font-black">{programClasses.length} assigned batch(es)</span>
             </div>
-          </div>
-        ) : null}
-        {classStage === "students" ? (
-          <div className="mt-5">
-            <div className="mb-4 flex flex-wrap gap-2">
-              <button type="button" onClick={() => setClassStage("programs")} className="rounded-xl border border-[var(--border)] bg-white px-4 py-2 text-sm font-black">Programs</button>
-              <button type="button" onClick={() => setClassStage("batches")} className="rounded-xl border border-[var(--border)] bg-white px-4 py-2 text-sm font-black">Batches</button>
-            </div>
-            <FootballStudentGrid students={selectedStudents} selectedStudentId={selectedStudentId} onSelect={setSelectedStudentId} />
-            {selectedStudent ? (
-              <div className="mt-4 rounded-2xl border border-[var(--border)] bg-white p-4 text-[var(--ink)]">
-                <h4 className="font-black">{selectedStudent.name || selectedStudent.email}</h4>
-                <p className="mt-1 text-sm text-[var(--muted-blue)]">{selectedStudent.email || selectedStudent.mobile || "Student profile"}</p>
-                <div className="mt-3 grid gap-2 sm:grid-cols-3">
-                  <MiniMetric label="Attendance" value={`${selectedStudentAttendance.length} logs`} />
-                  <MiniMetric label="Assignments" value={`${classWorkspace.assignments.length}`} />
-                  <MiniMetric label="Progress" value={`${classWorkspace.progress.length} topics`} />
+            {!selectedProgram && !loadingPlan ? <EmptyState text="This course is not assigned to this teacher." /> : null}
+            <div className="mt-5 grid gap-4 lg:grid-cols-[280px_1fr]">
+              <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
+                <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold-dark)]">Batches</p>
+                <div className="mt-3 grid gap-3">
+                  {programClasses.map((batch) => (
+                    <button key={batch.id} type="button" onClick={() => chooseBatch(batch.id)} className={`rounded-2xl border p-4 text-left ${selectedClass?.id === batch.id ? "border-[var(--ink)] bg-white shadow-sm" : "border-[var(--border)] bg-white/70"}`}>
+                      <h3 className="font-black">{batch.name}</h3>
+                      <p className="mt-1 text-sm text-[var(--muted-blue)]">{batch.subject || "Subject"} / {batch.students?.length ?? batch._count?.students ?? 0} students</p>
+                    </button>
+                  ))}
+                  {!programClasses.length ? <EmptyState text="No batch is assigned under this course." /> : null}
                 </div>
               </div>
+              <div className="grid gap-4">
+                <CourseSummaryCards students={selectedStudents.length} progress={classWorkspace.progress.length} exams={classWorkspace.exams.length} assignments={classWorkspace.assignments.length} />
+                <div className="rounded-2xl border border-[var(--border)] bg-white p-4">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <h3 className="text-xl font-black">Students</h3>
+                    <p className="rounded-full bg-[var(--page-bg)] px-3 py-1 text-xs font-black">{selectedClass?.name ?? "Select batch"}</p>
+                  </div>
+                  <FootballStudentGrid
+                    students={selectedStudents}
+                    selectedStudentId={studentModalId}
+                    onSelect={(id) => {
+                      setStudentModalId(id);
+                    }}
+                  />
+                </div>
+                <div className="grid gap-4 xl:grid-cols-2">
+                  <ProgressPanel title="Syllabus plan and tracker" items={classWorkspace.progress.map((item) => ({ id: item.id, title: item.topic || "Topic", meta: item.subject || "Subject", status: item.completionStatus || item.progressColor || "PENDING" }))} empty="No syllabus progress is recorded for this batch yet." />
+                  <ProgressPanel title="Exams conducted" items={classWorkspace.exams.map((item) => ({ id: item.id, title: item.title || "Exam", meta: `${item.questionCount ?? 0} questions / ${item.durationMinutes ?? 0} min`, status: item.status || "PUBLISHED" }))} empty="No exams conducted for this batch yet." />
+                  <ProgressPanel title="Upcoming exams" items={classWorkspace.exams.filter((item) => !item.attemptStats?.submitted).map((item) => ({ id: `${item.id}-upcoming`, title: item.title || "Exam", meta: item.topic || selectedClass?.subject || "Topic", status: "LIVE" }))} empty="No upcoming exam is listed for this batch." />
+                  <ProgressPanel title="Assignments" items={classWorkspace.assignments.map((item) => ({ id: item.id, title: item.title || "Assignment", meta: `Submitted ${item.submissionStats?.submitted ?? 0} / ${item.submissionStats?.totalStudents ?? selectedStudents.length}`, status: item.status || "PUBLISHED" }))} empty="No assignments published for this batch yet." />
+                </div>
+              </div>
+            </div>
+            {modalStudent ? (
+              <StudentProgressModal
+                student={modalStudent}
+                attendance={modalStudentAttendance}
+                attendancePercent={modalAttendancePercent}
+                assignments={classWorkspace.assignments}
+                exams={classWorkspace.exams}
+                progress={classWorkspace.progress}
+                onClose={() => setStudentModalId(null)}
+              />
             ) : null}
           </div>
-        ) : null}
+        )}
       </section> : null}
 
       {view === "exams" ? <section className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
@@ -980,18 +1007,6 @@ function SectionHeader({ eyebrow, title, description, icon, action }: { eyebrow:
   );
 }
 
-function StepTrail({ items, active }: { items: string[]; active: number }) {
-  return (
-    <div className="mt-4 flex flex-wrap gap-2">
-      {items.map((item, index) => (
-        <span key={item} className={`rounded-full px-4 py-2 text-xs font-black ${index === active ? "bg-[var(--ink)] text-white" : "border border-[var(--border)] bg-[var(--page-bg)] text-[var(--ink)]"}`}>
-          {index + 1}. {item}
-        </span>
-      ))}
-    </div>
-  );
-}
-
 function FootballStudentGrid({
   students,
   selectedStudentId,
@@ -1031,6 +1046,139 @@ function FootballStudentGrid({
           ))}
         </div>
         {!students.length ? <p className="py-10 text-center text-sm text-emerald-100">Students will appear after Admission Cell approval and batch assignment.</p> : null}
+      </div>
+    </div>
+  );
+}
+
+function CourseSummaryCards({ students, progress, exams, assignments }: { students: number; progress: number; exams: number; assignments: number }) {
+  return (
+    <div className="grid gap-3 md:grid-cols-4">
+      <SummaryCard label="Students" value={students} />
+      <SummaryCard label="Syllabus Topics" value={progress} />
+      <SummaryCard label="Exams" value={exams} />
+      <SummaryCard label="Assignments" value={assignments} />
+    </div>
+  );
+}
+
+function SummaryCard({ label, value }: { label: string; value: string | number }) {
+  return (
+    <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
+      <p className="text-xs font-black uppercase tracking-[0.22em] text-[var(--gold-dark)]">{label}</p>
+      <p className="mt-2 text-3xl font-black">{value}</p>
+    </div>
+  );
+}
+
+function ProgressPanel({
+  title,
+  items,
+  empty,
+}: {
+  title: string;
+  items: Array<{ id: string; title: string; meta: string; status: string }>;
+  empty: string;
+}) {
+  return (
+    <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
+      <h3 className="font-black">{title}</h3>
+      <div className="mt-3 grid gap-3">
+        {items.slice(0, 6).map((item) => (
+          <div key={item.id} className="rounded-xl border border-[var(--border)] bg-white p-3">
+            <div className="flex flex-wrap items-start justify-between gap-2">
+              <p className="font-black">{item.title}</p>
+              <span className={`rounded-full px-3 py-1 text-xs font-black ${statusTone(item.status)}`}>{item.status}</span>
+            </div>
+            <p className="mt-1 text-sm text-[var(--muted-blue)]">{item.meta}</p>
+          </div>
+        ))}
+        {!items.length ? <EmptyState text={empty} /> : null}
+      </div>
+    </div>
+  );
+}
+
+function StudentProgressModal({
+  student,
+  attendance,
+  attendancePercent,
+  assignments,
+  exams,
+  progress,
+  onClose,
+}: {
+  student: AssignedStudent;
+  attendance: Array<{ date?: string; subject?: string | null; status?: string; remarks?: string }>;
+  attendancePercent: number;
+  assignments: AssignmentRecord[];
+  exams: ExamRecord[];
+  progress: SyllabusProgressRecord[];
+  onClose: () => void;
+}) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 px-4 py-6">
+      <div className="max-h-[88vh] w-full max-w-3xl overflow-y-auto rounded-2xl border border-[var(--border)] bg-white p-5 shadow-2xl">
+        <div className="sticky top-0 z-10 -mx-5 -mt-5 flex items-start justify-between gap-3 border-b border-[var(--border)] bg-white px-5 py-4">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.3em] text-[var(--gold-dark)]">Student Progress Card</p>
+            <h2 className="mt-2 text-2xl font-black">{student.name || student.email || "Student"}</h2>
+            <p className="mt-1 text-sm text-[var(--muted-blue)]">{student.email || student.mobile || "Profile details pending"}</p>
+          </div>
+          <button type="button" onClick={onClose} className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] p-3" aria-label="Close student progress">
+            <X size={18} />
+          </button>
+        </div>
+
+        <div className="mt-5 grid gap-3 md:grid-cols-4">
+          <SummaryCard label="Attendance" value={`${attendancePercent}%`} />
+          <SummaryCard label="Attendance Logs" value={attendance.length} />
+          <SummaryCard label="Assignments" value={assignments.length} />
+          <SummaryCard label="Exams" value={exams.length} />
+        </div>
+
+        <div className="mt-5 grid gap-4">
+          <ProgressPanel
+            title="Attendance history"
+            items={attendance.map((item, index) => ({
+              id: `${item.date}-${index}`,
+              title: item.date ? new Date(item.date).toLocaleDateString() : "Attendance",
+              meta: `${item.subject || "Subject"}${item.remarks ? ` / ${item.remarks}` : ""}`,
+              status: item.status || "PRESENT",
+            }))}
+            empty="No attendance records found for this student."
+          />
+          <ProgressPanel
+            title="Syllabus progress"
+            items={progress.map((item) => ({
+              id: item.id,
+              title: item.topic || "Topic",
+              meta: item.subject || "Subject",
+              status: item.completionStatus || item.progressColor || "PENDING",
+            }))}
+            empty="No syllabus progress recorded yet."
+          />
+          <ProgressPanel
+            title="Assignments"
+            items={assignments.map((item) => ({
+              id: item.id,
+              title: item.title || "Assignment",
+              meta: `Submitted ${item.submissionStats?.submitted ?? 0} / ${item.submissionStats?.totalStudents ?? 0}, pending ${item.submissionStats?.pending ?? 0}`,
+              status: item.status || "PUBLISHED",
+            }))}
+            empty="No assignments published yet."
+          />
+          <ProgressPanel
+            title="Exams"
+            items={exams.map((item) => ({
+              id: item.id,
+              title: item.title || "Exam",
+              meta: `${item.topic || "Topic"} / average ${item.attemptStats?.averageScore ?? 0}`,
+              status: item.status || "PUBLISHED",
+            }))}
+            empty="No exams conducted yet."
+          />
+        </div>
       </div>
     </div>
   );
@@ -1146,15 +1294,6 @@ function Notice({ text, tone = "info" }: { text: string; tone?: "info" | "error"
 
 function EmptyState({ text }: { text: string }) {
   return <div className="rounded-2xl border border-dashed border-[var(--border)] bg-white p-5 text-sm text-[var(--muted-blue)]">{text}</div>;
-}
-
-function MiniMetric({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-xl bg-[var(--page-bg)] p-3">
-      <p className="text-xs font-black uppercase tracking-[0.2em] text-[var(--gold-dark)]">{label}</p>
-      <p className="mt-1 font-black">{value}</p>
-    </div>
-  );
 }
 
 function SimpleCard({ eyebrow, title, children }: { eyebrow: string; title: string; children: React.ReactNode }) {

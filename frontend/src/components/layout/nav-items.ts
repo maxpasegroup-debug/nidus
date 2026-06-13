@@ -26,7 +26,6 @@ const studentMenu: DashboardNavItem[] = [
 ];
 
 const teacherMenu: DashboardNavItem[] = [
-  { label: "Today", href: "/dashboard/teacher/today" },
   { label: "Classes", href: "/dashboard/teacher/classes" },
   { label: "Exams", href: "/dashboard/teacher/exams" },
   { label: "Assignments", href: "/dashboard/teacher/assignments" },
