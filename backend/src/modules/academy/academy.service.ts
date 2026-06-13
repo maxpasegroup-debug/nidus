@@ -254,6 +254,14 @@ function isAcademicManager(user: Requester) {
   );
 }
 
+function usesTeacherWorkspace(user: Requester) {
+  return user.role === Role.TEACHER || staffTemplate(user) === "ACADEMIC_HEAD";
+}
+
+function isTeacherClassAllocation(row: BatchTeacherAssignmentRow) {
+  return row.status === "ACTIVE" && !(row.role === "ACADEMIC_HEAD" && row.subject === "Academic Coordination");
+}
+
 function percentage(part: number, total: number) {
   return total > 0 ? Math.round((part / total) * 100) : 0;
 }
@@ -880,7 +888,8 @@ export const academyService = {
 
   async teacherAssignments(user: Requester) {
     requireAcademic(user);
-    const rows = user.role === Role.TEACHER
+    const teacherWorkspace = usesTeacherWorkspace(user);
+    const rows = teacherWorkspace
       ? await prisma.$queryRaw<BatchTeacherAssignmentRow[]>`
           SELECT * FROM "BatchTeacherAssignment"
           WHERE "teacherId" = ${user.id}
@@ -892,13 +901,14 @@ export const academyService = {
           WHERE "status" = 'ACTIVE'
           ORDER BY "createdAt" DESC
         `;
+    const visibleRows = teacherWorkspace ? rows.filter(isTeacherClassAllocation) : rows;
 
-    const batchIds = Array.from(new Set(rows.map((row) => row.batchId)));
+    const batchIds = Array.from(new Set(visibleRows.map((row) => row.batchId)));
     const allBatches = await batchWithCounts();
     const batches = Array.isArray(allBatches) ? allBatches.filter((batch: any) => batchIds.includes(batch.id)) : [];
     const batchMap = new Map(batches.map((batch) => [batch.id, batch]));
 
-    return rows.map((row) => ({
+    return visibleRows.map((row) => ({
       ...row,
       batch: batchMap.get(row.batchId) ?? null,
     }));
@@ -906,7 +916,8 @@ export const academyService = {
 
   async teacherTeachingPlan(user: Requester) {
     requireAcademic(user);
-    const normalizedRows = user.role === Role.TEACHER
+    const teacherWorkspace = usesTeacherWorkspace(user);
+    const normalizedRows = teacherWorkspace
       ? await prisma.$queryRaw<BatchTeacherAssignmentRow[]>`
           SELECT * FROM "TeacherBatchAssignment"
           WHERE "teacherId" = ${user.id}
@@ -918,7 +929,7 @@ export const academyService = {
           WHERE "status" = 'ACTIVE'
           ORDER BY "createdAt" DESC
         `;
-    const legacyRows = user.role === Role.TEACHER
+    const legacyRows = teacherWorkspace
       ? await prisma.$queryRaw<BatchTeacherAssignmentRow[]>`
           SELECT * FROM "BatchTeacherAssignment"
           WHERE "teacherId" = ${user.id}
@@ -930,12 +941,12 @@ export const academyService = {
           WHERE "status" = 'ACTIVE'
           ORDER BY "createdAt" DESC
         `;
-    const rows = mergeAssignments(normalizedRows, legacyRows);
+    const rows = mergeAssignments(normalizedRows, legacyRows).filter((row) => (teacherWorkspace ? isTeacherClassAllocation(row) : true));
 
     const batches = await hydrateBatchesForAssignments(rows);
     const batchIds = rows.map((row) => row.batchId);
     const calendar = batchIds.length
-      ? user.role === Role.TEACHER
+      ? teacherWorkspace
         ? await prisma.$queryRaw<AcademicCalendarRow[]>`
             SELECT * FROM "AcademicCalendarItem"
             WHERE "batchId" IN (${Prisma.join(batchIds)})

@@ -293,6 +293,10 @@ function statusTone(status?: string | null) {
   return "bg-slate-100 text-slate-700";
 }
 
+function isTeacherClassAllocation(batch: AssignedClass) {
+  return batch.status !== "ARCHIVED" && !(batch.role === "ACADEMIC_HEAD" && batch.subject === "Academic Coordination");
+}
+
 export default function TeacherDashboardClient({ view, courseKey }: { view: TeacherView; courseKey?: string }) {
   const pathname = usePathname();
   const [user, setUser] = useState<StoredUser | null>(null);
@@ -368,7 +372,7 @@ export default function TeacherDashboardClient({ view, courseKey }: { view: Teac
   const isAcademicHeadRoute = pathname?.startsWith("/dashboard/academic-head") ?? false;
   const isAcademicHead = isAcademicHeadRoute || user?.role?.toUpperCase() === "ACADEMIC_HEAD" || dashboardTemplate === "ACADEMIC_HEAD";
   const dashboardBasePath = isAcademicHead ? "/dashboard/academic-head" : "/dashboard/teacher";
-  const activeClasses = useMemo(() => classes.filter((item) => item.status !== "ARCHIVED"), [classes]);
+  const activeClasses = useMemo(() => classes.filter(isTeacherClassAllocation), [classes]);
   const activeCourseKey = courseKey ? decodeURIComponent(courseKey) : null;
   const programGroups = useMemo(() => {
     const map = new Map<string, { key: string; name: string; classes: AssignedClass[] }>();
@@ -386,7 +390,9 @@ export default function TeacherDashboardClient({ view, courseKey }: { view: Teac
     programGroups[0] ??
     null;
   const programClasses = selectedProgram?.classes ?? [];
-  const selectedClass = activeClasses.find((item) => item.id === selectedClassId) ?? programClasses[0] ?? activeClasses[0] ?? null;
+  const selectedClass = selectedProgram
+    ? programClasses.find((item) => item.id === selectedClassId) ?? programClasses[0] ?? null
+    : activeClasses.find((item) => item.id === selectedClassId) ?? (!activeCourseKey ? activeClasses[0] : null) ?? null;
   const selectedStudents = selectedClass?.students ?? [];
   const modalStudentEntry = selectedStudents.find((entry, index) => studentId(entry, index) === studentModalId) ?? null;
   const modalStudent = modalStudentEntry?.student ?? null;
