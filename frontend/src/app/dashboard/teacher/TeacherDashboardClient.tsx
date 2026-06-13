@@ -96,12 +96,15 @@ type MaterialRecord = {
 
 type ExamRecord = {
   id: string;
+  batchName?: string | null;
+  course?: string | null;
   title?: string;
   topic?: string | null;
   questionCount?: number;
   durationMinutes?: number;
   difficulty?: string | null;
   status?: string;
+  createdAt?: string;
   attemptStats?: { attempts?: number; submitted?: number; averageScore?: number };
 };
 
@@ -128,6 +131,23 @@ type ExamDraft = {
   topic?: string;
   duration?: number;
   questions?: Array<{ question: string; options?: string[]; answer?: string; marks?: number; difficultyLevel?: string }>;
+};
+
+type ExamChatMessage = {
+  id: string;
+  role: "guru" | "teacher";
+  text: string;
+};
+
+type ExamForm = {
+  title: string;
+  topic: string;
+  questionCount: string;
+  duration: string;
+  difficulty: string;
+  instructions: string;
+  publishDate: string;
+  publishTime: string;
 };
 
 export type TeacherView = "today" | "classes" | "exams" | "assignments" | "attendance" | "library" | "academic-calendar";
@@ -275,7 +295,16 @@ export default function TeacherDashboardClient({ view, courseKey }: { view: Teac
   const [attendanceComments, setAttendanceComments] = useState<Record<string, string>>({});
   const [showExamCreator, setShowExamCreator] = useState(false);
   const [showAssignmentCreator, setShowAssignmentCreator] = useState(false);
+  const [examDateFilter, setExamDateFilter] = useState("");
   const [examDraft, setExamDraft] = useState<ExamDraft | null>(null);
+  const [examChatInput, setExamChatInput] = useState("");
+  const [examChatMessages, setExamChatMessages] = useState<ExamChatMessage[]>([
+    {
+      id: "welcome",
+      role: "guru",
+      text: "Hello Teacher. Tell me the exam topic, batch, question count, difficulty, date, time and timer. You can also attach a PDF, Word file, photo or question bank.",
+    },
+  ]);
   const [examSourceName, setExamSourceName] = useState("");
   const [assignmentSourceName, setAssignmentSourceName] = useState("");
   const [librarySubject, setLibrarySubject] = useState<string | null>(null);
@@ -295,7 +324,7 @@ export default function TeacherDashboardClient({ view, courseKey }: { view: Teac
     thumbnailName: "",
   });
   const [assignmentForm, setAssignmentForm] = useState({ title: "", topic: "", instructions: "", dueDate: "", attachmentName: "", link: "" });
-  const [examForm, setExamForm] = useState({
+  const [examForm, setExamForm] = useState<ExamForm>({
     title: "",
     topic: "",
     questionCount: "20",
@@ -369,6 +398,19 @@ export default function TeacherDashboardClient({ view, courseKey }: { view: Teac
       (item.subject || item.folder || "General") === activeLibrarySubject &&
       (item.topic || "General") === activeLibraryTopic,
   );
+  const visibleExams = classWorkspace.exams.filter((exam) => {
+    if (!examDateFilter) return true;
+    return exam.createdAt?.slice(0, 10) === examDateFilter;
+  });
+  const examGroups = useMemo(() => {
+    const groups = new Map<string, ExamRecord[]>();
+    for (const exam of visibleExams) {
+      const date = exam.createdAt ? exam.createdAt.slice(0, 10) : "Date not set";
+      const key = `${programName(selectedClass ?? activeClasses[0] ?? { id: "", name: "" })} / ${selectedClass?.name ?? exam.batchName ?? "Batch"} / ${date}`;
+      groups.set(key, [...(groups.get(key) ?? []), exam]);
+    }
+    return Array.from(groups.entries()).map(([label, exams]) => ({ label, exams }));
+  }, [activeClasses, selectedClass, visibleExams]);
   const calendarDays = useMemo(() => {
     const first = monthStartDate(calendarMonth);
     const startOffset = first.getDay();
@@ -486,6 +528,42 @@ export default function TeacherDashboardClient({ view, courseKey }: { view: Teac
 
   function setAllAttendance(status: "PRESENT" | "ABSENT" | "LEAVE") {
     setAttendance(Object.fromEntries(selectedStudents.map((entry, index) => [studentId(entry, index), status])));
+  }
+
+  function openExamCreator() {
+    setShowExamCreator(true);
+    setExamMessage(null);
+    setExamDraft(null);
+    setExamChatInput("");
+    setExamChatMessages([
+      {
+        id: "welcome",
+        role: "guru",
+        text: "Hello Teacher. Tell me the exam topic, batch, question count, difficulty, date, time and timer. You can also attach a PDF, Word file, photo or question bank.",
+      },
+    ]);
+  }
+
+  function sendExamChatMessage() {
+    const text = examChatInput.trim();
+    if (!text) return;
+    setExamChatMessages((messages) => [
+      ...messages,
+      { id: `teacher-${Date.now()}`, role: "teacher", text },
+      {
+        id: `guru-${Date.now()}`,
+        role: "guru",
+        text: examDraft
+          ? "Noted. I will keep this correction with the draft. You can ask for more changes or publish when ready."
+          : "Got it. Fill any missing exam fields on the right, then click Generate Question Bank.",
+      },
+    ]);
+    setExamForm((form) => ({
+      ...form,
+      instructions: [form.instructions, text].filter(Boolean).join("\n"),
+      title: form.title || (form.topic ? `${form.topic} Test` : ""),
+    }));
+    setExamChatInput("");
   }
 
   async function saveAttendance() {
@@ -610,6 +688,14 @@ export default function TeacherDashboardClient({ view, courseKey }: { view: Teac
         instructions: [examForm.instructions, examSourceName ? `Source attached: ${examSourceName}` : ""].filter(Boolean).join("\n"),
       });
       setExamDraft(draft);
+      setExamChatMessages((messages) => [
+        ...messages,
+        {
+          id: `guru-draft-${Date.now()}`,
+          role: "guru",
+          text: draft?.draft || `Question bank prepared with ${draft?.questions?.length ?? examForm.questionCount} question(s). Please review it below.`,
+        },
+      ]);
       setExamMessage("NIDUS GURU draft ready. Review it, correct if needed, then publish.");
     } catch (error) {
       setExamMessage(error instanceof Error ? error.message : "Could not create AI exam draft.");
@@ -643,6 +729,7 @@ export default function TeacherDashboardClient({ view, courseKey }: { view: Teac
       setExamSourceName("");
       setExamDraft(null);
       setShowExamCreator(false);
+      setExamChatInput("");
       setExamMessage("Exam published to students.");
       await loadClassWorkspace(selectedClass.id);
     } catch (error) {
@@ -786,43 +873,45 @@ export default function TeacherDashboardClient({ view, courseKey }: { view: Teac
       </section> : null}
 
       {view === "exams" ? <section className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
-        <SectionHeader eyebrow="Exams" title="Exam room" description="Create with NIDUS GURU, review, schedule and publish." icon={<BookOpen size={20} />} action={<button type="button" onClick={() => setShowExamCreator((value) => !value)} className="inline-flex min-h-14 items-center gap-2 rounded-2xl bg-[var(--ink)] px-6 py-4 text-base font-black text-white shadow-sm"><Plus size={20} /> Create Exam</button>} />
+        <SectionHeader eyebrow="Exams" title="Published exams" description="Created exams are shown by assigned course, batch and date." icon={<BookOpen size={20} />} action={<button type="button" onClick={openExamCreator} className="inline-flex min-h-14 items-center gap-2 rounded-2xl bg-[var(--ink)] px-6 py-4 text-base font-black text-white shadow-sm"><Plus size={20} /> Create Exam</button>} />
         <ProgramBatchPicker programGroups={programGroups} selectedProgramKey={selectedProgram?.key} selectedClassId={selectedClass?.id} onProgram={chooseProgram} onBatch={chooseBatch} />
-        {showExamCreator ? (
-          <div className="mt-5 rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
-            <div className="rounded-2xl bg-white p-4 shadow-sm">
-              <p className="font-black">NIDUS GURU</p>
-              <p className="mt-2 text-sm leading-6 text-[var(--muted-blue)]">Hello Teacher. What exam are you creating today? Add the topic, upload notes or a question bank, and I will draft the paper for review.</p>
-            </div>
-            <FormGrid>
-              <Input label="Exam topic" value={examForm.topic} onChange={(value) => setExamForm((form) => ({ ...form, topic: value, title: form.title || `${value} Test` }))} />
-              <Input label="Exam title" value={examForm.title} onChange={(value) => setExamForm((form) => ({ ...form, title: value }))} />
-              <FileInput label="Upload PDF / Word / photo / question bank" onChange={setExamSourceName} />
-              <Textarea label="Notes for NIDUS GURU" value={examForm.instructions} onChange={(value) => setExamForm((form) => ({ ...form, instructions: value }))} />
-              <Input label="Questions" type="number" value={examForm.questionCount} onChange={(value) => setExamForm((form) => ({ ...form, questionCount: value }))} />
-              <Select label="Difficulty" value={examForm.difficulty} onChange={(value) => setExamForm((form) => ({ ...form, difficulty: value }))}><option value="EASY">Easy</option><option value="MEDIUM">Medium</option><option value="HARD">Hard</option></Select>
-              <Input label="Publish date" type="date" value={examForm.publishDate} onChange={(value) => setExamForm((form) => ({ ...form, publishDate: value }))} />
-              <Input label="Publish time" type="time" value={examForm.publishTime} onChange={(value) => setExamForm((form) => ({ ...form, publishTime: value }))} />
-              <Input label="Duration in minutes" type="number" value={examForm.duration} onChange={(value) => setExamForm((form) => ({ ...form, duration: value }))} />
-            </FormGrid>
-            <div className="mt-4 flex flex-wrap gap-2">
-              <button type="button" onClick={() => void createExamDraft()} className="rounded-xl border border-[var(--border)] bg-white px-5 py-3 font-black">Ask NIDUS GURU</button>
-              <button type="button" onClick={() => void publishExam()} className="rounded-xl bg-emerald-700 px-5 py-3 font-black text-white">Confirm and Publish</button>
-            </div>
-            {examDraft ? <DraftBox draft={examDraft} /> : null}
-          </div>
-        ) : null}
+        <div className="mt-5 flex flex-wrap items-end gap-3 rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
+          <Input label="Date" type="date" value={examDateFilter} onChange={setExamDateFilter} />
+          {examDateFilter ? <button type="button" onClick={() => setExamDateFilter("")} className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-sm font-black">Clear date</button> : null}
+          <span className="rounded-xl bg-white px-4 py-3 text-sm font-black">{visibleExams.length} exam(s)</span>
+        </div>
         {examMessage ? <Notice text={examMessage} /> : null}
-        <CardGrid>
-          {classWorkspace.exams.map((exam) => (
-            <SimpleCard key={exam.id} eyebrow={exam.status || "Exam"} title={exam.title || "Untitled exam"}>
-              <p>{exam.topic || selectedClass?.subject || "Topic"}</p>
-              <p>{exam.questionCount ?? 0} questions / {exam.durationMinutes ?? 0} minutes</p>
-              <p>{exam.attemptStats?.submitted ?? 0} submitted</p>
-            </SimpleCard>
+        <div className="mt-5 grid gap-5">
+          {examGroups.map((group) => (
+            <div key={group.label} className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
+              <p className="text-xs font-black uppercase tracking-[0.24em] text-[var(--gold-dark)]">{group.label}</p>
+              <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                {group.exams.map((exam) => (
+                  <ExamThumbnail key={exam.id} exam={exam} batchName={selectedClass?.name ?? exam.batchName ?? "Batch"} courseName={selectedProgram?.name ?? exam.course ?? "Course"} />
+                ))}
+              </div>
+            </div>
           ))}
-          {!classWorkspace.exams.length ? <EmptyState text="No exam created for this batch yet." /> : null}
-        </CardGrid>
+          {!visibleExams.length ? <EmptyState text="No exam created for this batch yet. Use Create Exam to open NIDUS Guru." /> : null}
+        </div>
+        {showExamCreator ? (
+          <ExamGuruModal
+            messages={examChatMessages}
+            chatInput={examChatInput}
+            setChatInput={setExamChatInput}
+            onSend={sendExamChatMessage}
+            onClose={() => setShowExamCreator(false)}
+            onDraft={() => void createExamDraft()}
+            onPublish={() => void publishExam()}
+            examDraft={examDraft}
+            examForm={examForm}
+            setExamForm={setExamForm}
+            setExamSourceName={setExamSourceName}
+            selectedProgramName={selectedProgram?.name ?? "Course"}
+            selectedBatchName={selectedClass?.name ?? "Batch"}
+            examSourceName={examSourceName}
+          />
+        ) : null}
       </section> : null}
 
       {view === "assignments" ? <section className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
@@ -1094,6 +1183,136 @@ function ProgressPanel({
           </div>
         ))}
         {!items.length ? <EmptyState text={empty} /> : null}
+      </div>
+    </div>
+  );
+}
+
+function ExamThumbnail({ exam, courseName, batchName }: { exam: ExamRecord; courseName: string; batchName: string }) {
+  return (
+    <div className="rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm">
+      <div className="flex items-start justify-between gap-3">
+        <span className={`rounded-full px-3 py-1 text-xs font-black ${statusTone(exam.status)}`}>{exam.status || "PUBLISHED"}</span>
+        <span className="text-xs font-black text-[var(--gold-dark)]">{exam.createdAt ? new Date(exam.createdAt).toLocaleDateString() : "Date pending"}</span>
+      </div>
+      <h3 className="mt-4 text-xl font-black">{exam.title || "Untitled exam"}</h3>
+      <p className="mt-2 text-sm leading-6 text-[var(--muted-blue)]">{courseName} / {batchName}</p>
+      <p className="mt-1 text-sm text-[var(--muted-blue)]">{exam.topic || "Topic pending"}</p>
+      <div className="mt-4 grid grid-cols-3 gap-2 text-center text-xs font-black">
+        <span className="rounded-xl bg-[var(--page-bg)] p-2">{exam.questionCount ?? 0} Qs</span>
+        <span className="rounded-xl bg-[var(--page-bg)] p-2">{exam.durationMinutes ?? 0} min</span>
+        <span className="rounded-xl bg-[var(--page-bg)] p-2">{exam.attemptStats?.submitted ?? 0} done</span>
+      </div>
+    </div>
+  );
+}
+
+function ExamGuruModal({
+  messages,
+  chatInput,
+  setChatInput,
+  onSend,
+  onClose,
+  onDraft,
+  onPublish,
+  examDraft,
+  examForm,
+  setExamForm,
+  setExamSourceName,
+  selectedProgramName,
+  selectedBatchName,
+  examSourceName,
+}: {
+  messages: ExamChatMessage[];
+  chatInput: string;
+  setChatInput: (value: string) => void;
+  onSend: () => void;
+  onClose: () => void;
+  onDraft: () => void;
+  onPublish: () => void;
+  examDraft: ExamDraft | null;
+  examForm: ExamForm;
+  setExamForm: React.Dispatch<React.SetStateAction<ExamForm>>;
+  setExamSourceName: (value: string) => void;
+  selectedProgramName: string;
+  selectedBatchName: string;
+  examSourceName: string;
+}) {
+  return (
+    <div className="fixed inset-0 z-50 bg-[#f7f5ef] text-[var(--ink)]">
+      <div className="flex h-screen flex-col">
+        <div className="flex items-center justify-between border-b border-[var(--border)] bg-white px-4 py-3">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.3em] text-[var(--gold-dark)]">NIDUS Guru</p>
+            <h2 className="text-xl font-black">Create exam</h2>
+          </div>
+          <button type="button" onClick={onClose} className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] p-3" aria-label="Close exam creator">
+            <X size={18} />
+          </button>
+        </div>
+
+        <div className="grid min-h-0 flex-1 lg:grid-cols-[1fr_360px]">
+          <div className="flex min-h-0 flex-col">
+            <div className="flex-1 overflow-y-auto px-4 py-5">
+              <div className="mx-auto grid max-w-3xl gap-4">
+                {messages.map((message) => (
+                  <div key={message.id} className={`flex ${message.role === "teacher" ? "justify-end" : "justify-start"}`}>
+                    <div className={`max-w-[86%] rounded-2xl px-4 py-3 text-sm leading-6 ${message.role === "teacher" ? "bg-[var(--ink)] text-white" : "border border-[var(--border)] bg-white text-[var(--ink)]"}`}>
+                      {message.text}
+                    </div>
+                  </div>
+                ))}
+                {examDraft ? <DraftBox draft={examDraft} /> : null}
+              </div>
+            </div>
+            <div className="border-t border-[var(--border)] bg-white px-4 py-3">
+              <div className="mx-auto flex max-w-3xl items-end gap-2 rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-2">
+                <textarea
+                  value={chatInput}
+                  onChange={(event) => setChatInput(event.target.value)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" && !event.shiftKey) {
+                      event.preventDefault();
+                      onSend();
+                    }
+                  }}
+                  rows={2}
+                  placeholder="Ask NIDUS Guru, or say: change question 5..."
+                  className="min-h-12 flex-1 resize-none bg-transparent px-3 py-2 text-sm outline-none"
+                />
+                <button type="button" onClick={onSend} className="rounded-xl bg-[var(--ink)] px-5 py-3 text-sm font-black text-white">
+                  Send
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <aside className="min-h-0 overflow-y-auto border-l border-[var(--border)] bg-white p-4">
+            <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
+              <p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold-dark)]">Selected class</p>
+              <h3 className="mt-2 font-black">{selectedProgramName}</h3>
+              <p className="mt-1 text-sm text-[var(--muted-blue)]">{selectedBatchName}</p>
+            </div>
+            <div className="mt-4 grid gap-3">
+              <Input label="Exam topic" value={examForm.topic} onChange={(value) => setExamForm((form) => ({ ...form, topic: value, title: form.title || `${value} Test` }))} />
+              <Input label="Exam title" value={examForm.title} onChange={(value) => setExamForm((form) => ({ ...form, title: value }))} />
+              <Input label="Questions" type="number" value={examForm.questionCount} onChange={(value) => setExamForm((form) => ({ ...form, questionCount: value }))} />
+              <Input label="Timer in minutes" type="number" value={examForm.duration} onChange={(value) => setExamForm((form) => ({ ...form, duration: value }))} />
+              <Select label="Difficulty" value={examForm.difficulty} onChange={(value) => setExamForm((form) => ({ ...form, difficulty: value }))}>
+                <option value="EASY">Easy</option>
+                <option value="MEDIUM">Medium</option>
+                <option value="HARD">Hard</option>
+              </Select>
+              <Input label="Publish date" type="date" value={examForm.publishDate} onChange={(value) => setExamForm((form) => ({ ...form, publishDate: value }))} />
+              <Input label="Publish time" type="time" value={examForm.publishTime} onChange={(value) => setExamForm((form) => ({ ...form, publishTime: value }))} />
+              <FileInput label="Attach PDF / Word / photo / question bank" onChange={setExamSourceName} />
+              {examSourceName ? <p className="rounded-xl bg-[var(--page-bg)] px-3 py-2 text-xs font-black">Attached: {examSourceName}</p> : null}
+              <Textarea label="Teacher notes" value={examForm.instructions} onChange={(value) => setExamForm((form) => ({ ...form, instructions: value }))} />
+              <button type="button" onClick={onDraft} className="rounded-xl border border-[var(--border)] bg-white px-5 py-3 font-black">Generate Question Bank</button>
+              <button type="button" onClick={onPublish} className="rounded-xl bg-emerald-700 px-5 py-3 font-black text-white">Publish Exam</button>
+            </div>
+          </aside>
+        </div>
       </div>
     </div>
   );
