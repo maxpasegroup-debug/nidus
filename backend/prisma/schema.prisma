@@ -2563,6 +2563,8 @@ model AiWorkflowRequest {
   status         String   @default("REQUESTED")
   inputJson      Json
   metadataJson   Json?
+  deletedAt      DateTime?
+  deletedByUserId String?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
   contexts       AiWorkflowContext[]
@@ -2589,13 +2591,19 @@ model AiWorkflowContext {
   batchId          String?
   studentId        String?
   teacherId        String?
+  actorUserId      String?
+  actorName        String?
+  actorRole        String?
   contextJson      Json
   summaryText      String?
   sourceCount      Int      @default(0)
   sensitivityLevel String   @default("INTERNAL")
   expiresAt        DateTime?
   schemaVersion    Int      @default(1)
+  deletedAt        DateTime?
+  deletedByUserId  String?
   createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
   request          AiWorkflowRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
   sources          AiWorkflowContextSource[]
 
@@ -2604,6 +2612,7 @@ model AiWorkflowContext {
   @@index([programCode])
   @@index([batchId])
   @@index([teacherId])
+  @@index([actorUserId])
   @@index([createdAt])
   @@map("ai_workflow_context")
 }
@@ -2616,7 +2625,10 @@ model AiWorkflowContextSource {
   sourceLabel      String?
   sourceJson       Json?
   sensitivityLevel String   @default("INTERNAL")
+  deletedAt        DateTime?
+  deletedByUserId  String?
   createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
   context          AiWorkflowContext @relation(fields: [contextId], references: [id], onDelete: Cascade)
 
   @@index([contextId])
@@ -2630,6 +2642,9 @@ model AiWorkflowDraft {
   draftType            String
   targetType           String?
   targetId             String?
+  actorUserId          String?
+  actorName            String?
+  actorRole            String?
   title                String?
   status               String   @default("DRAFT")
   schemaVersion        Int      @default(1)
@@ -2637,6 +2652,8 @@ model AiWorkflowDraft {
   validationJson       Json?
   sourceReferencesJson Json?
   approvedVersionId    String?
+  deletedAt            DateTime?
+  deletedByUserId      String?
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
   request              AiWorkflowRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
@@ -2649,6 +2666,7 @@ model AiWorkflowDraft {
   @@index([requestId])
   @@index([draftType, status])
   @@index([targetType, targetId])
+  @@index([actorUserId])
   @@index([createdAt])
   @@map("ai_workflow_drafts")
 }
@@ -2661,7 +2679,12 @@ model AiWorkflowDraftVersion {
   draftJson       Json
   changeSummary   String?
   createdByUserId String?
+  actorName       String?
+  actorRole       String?
+  deletedAt       DateTime?
+  deletedByUserId String?
   createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
   draft           AiWorkflowDraft @relation(fields: [draftId], references: [id], onDelete: Cascade)
 
   @@unique([draftId, version])
@@ -2676,10 +2699,15 @@ model AiWorkflowReview {
   draftId        String?
   reviewerUserId String?
   reviewerName   String?
+  actorUserId    String?
+  actorName      String?
+  actorRole      String?
   reviewType     String   @default("TEACHER_REVIEW")
   status         String   @default("PENDING")
   notes          String?
   correctionJson Json?
+  deletedAt      DateTime?
+  deletedByUserId String?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
   request        AiWorkflowRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
@@ -2688,6 +2716,7 @@ model AiWorkflowReview {
   @@index([requestId])
   @@index([draftId])
   @@index([reviewerUserId])
+  @@index([actorUserId])
   @@index([status])
   @@map("ai_workflow_reviews")
 }
@@ -2697,19 +2726,28 @@ model AiWorkflowApproval {
   requestId        String
   draftId          String?
   publicationId    String?
+  actorUserId      String?
+  actorName        String?
+  actorRole        String?
   approvalType     String   @default("HUMAN_APPROVAL")
   status           String   @default("PENDING")
   approvedByUserId String?
   approvedByName   String?
   notes            String?
   approvedAt       DateTime?
+  deletedAt        DateTime?
+  deletedByUserId  String?
   createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
   request          AiWorkflowRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
   draft            AiWorkflowDraft? @relation(fields: [draftId], references: [id], onDelete: SetNull)
+  publication      AiWorkflowPublication? @relation("PublicationApprovalSource", fields: [publicationId], references: [id], onDelete: SetNull)
+  approvedPublication AiWorkflowPublication? @relation("PublicationApprovedBy")
 
   @@index([requestId])
   @@index([draftId])
   @@index([publicationId])
+  @@index([actorUserId])
   @@index([approvedByUserId])
   @@index([status])
   @@map("ai_workflow_approvals")
@@ -2721,17 +2759,24 @@ model AiWorkflowFeedback {
   draftId        String?
   userId         String?
   userName       String?
+  actorUserId    String?
+  actorName      String?
+  actorRole      String?
   feedbackType   String   @default("QUALITY")
   rating         Int?
   feedbackText   String?
   correctionJson Json?
+  deletedAt      DateTime?
+  deletedByUserId String?
   createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
   request        AiWorkflowRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
   draft          AiWorkflowDraft? @relation(fields: [draftId], references: [id], onDelete: SetNull)
 
   @@index([requestId])
   @@index([draftId])
   @@index([userId])
+  @@index([actorUserId])
   @@index([feedbackType])
   @@map("ai_workflow_feedback")
 }
@@ -2739,21 +2784,29 @@ model AiWorkflowFeedback {
 model AiWorkflowPublication {
   id                 String   @id @default(cuid())
   requestId          String
-  draftId            String?
+  draftId            String
+  actorUserId        String?
+  actorName          String?
+  actorRole          String?
   targetType         String
   targetId           String?
   status             String   @default("PENDING_APPROVAL")
   publishPayloadJson Json
-  approvalId         String?
+  approvalId         String? @unique
   scheduledAt        DateTime?
   publishedAt        DateTime?
+  deletedAt          DateTime?
+  deletedByUserId    String?
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
   request            AiWorkflowRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
-  draft              AiWorkflowDraft? @relation(fields: [draftId], references: [id], onDelete: SetNull)
+  draft              AiWorkflowDraft @relation(fields: [draftId], references: [id], onDelete: Cascade)
+  approval           AiWorkflowApproval? @relation("PublicationApprovedBy", fields: [approvalId], references: [id], onDelete: SetNull)
+  approvalActions    AiWorkflowApproval[] @relation("PublicationApprovalSource")
 
   @@index([requestId])
   @@index([draftId])
+  @@index([actorUserId])
   @@index([targetType, targetId])
   @@index([status])
   @@index([scheduledAt])
@@ -2766,8 +2819,12 @@ model AiWorkflowAuditEvent {
   eventType   String
   actorUserId String?
   actorName   String?
+  actorRole   String?
   eventJson   Json?
+  deletedAt   DateTime?
+  deletedByUserId String?
   createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
   request     AiWorkflowRequest? @relation(fields: [requestId], references: [id], onDelete: SetNull)
 
   @@index([requestId])

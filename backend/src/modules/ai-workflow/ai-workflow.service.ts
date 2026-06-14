@@ -1,30 +1,27 @@
 import { prisma } from "../../config/prisma.js";
+import type { InputJsonValue } from "../../generated/prisma/internal/prismaNamespace.js";
 import type { AuthenticatedRequest } from "../../middlewares/session.middleware.js";
 
 type Actor = NonNullable<AuthenticatedRequest["user"]>;
-type JsonObject = Record<string, unknown>;
+type BodyObject = Record<string, unknown>;
 
-const db = prisma as unknown as {
-  aiWorkflowRequest: any;
-  aiWorkflowContext: any;
-  aiWorkflowContextSource: any;
-  aiWorkflowDraft: any;
-  aiWorkflowDraftVersion: any;
-  aiWorkflowReview: any;
-  aiWorkflowApproval: any;
-  aiWorkflowFeedback: any;
-  aiWorkflowPublication: any;
-  aiWorkflowAuditEvent: any;
-};
-
+function text(value: unknown, field: string, required?: true): string;
+function text(value: unknown, field: string, required: false): string | undefined;
 function text(value: unknown, field: string, required = true) {
   if (typeof value === "string" && value.trim()) return value.trim();
   if (!required) return undefined;
   throw new Error(`${field} is required`);
 }
 
-function jsonObject(value: unknown, field: string, required = true): JsonObject | undefined {
-  if (value && typeof value === "object" && !Array.isArray(value)) return value as JsonObject;
+function bodyObject(value: unknown, field: string): BodyObject {
+  if (value && typeof value === "object" && !Array.isArray(value)) return value as BodyObject;
+  throw new Error(`${field} must be an object`);
+}
+
+function jsonObject(value: unknown, field: string, required?: true): InputJsonValue;
+function jsonObject(value: unknown, field: string, required: false): InputJsonValue | undefined;
+function jsonObject(value: unknown, field: string, required = true) {
+  if (value && typeof value === "object" && !Array.isArray(value)) return value as InputJsonValue;
   if (!required) return undefined;
   throw new Error(`${field} must be an object`);
 }
@@ -41,20 +38,21 @@ function tenantIdFor(actor: Actor) {
   return actor.instituteId ?? actor.branchId ?? "nidus-default";
 }
 
-async function audit(eventType: string, actor: Actor, requestId?: string, eventJson?: JsonObject) {
-  await db.aiWorkflowAuditEvent.create({
+async function audit(eventType: string, actor: Actor, requestId?: string, eventJson?: InputJsonValue) {
+  await prisma.aiWorkflowAuditEvent.create({
     data: {
       requestId,
       eventType,
       actorUserId: actor.id,
       actorName: actor.name,
+      actorRole: actor.role,
       eventJson
     }
   });
 }
 
 async function fullRequest(id: string) {
-  const request = await db.aiWorkflowRequest.findUnique({
+  const request = await prisma.aiWorkflowRequest.findUnique({
     where: { id },
     include: {
       contexts: { include: { sources: true }, orderBy: { createdAt: "desc" } },
@@ -80,7 +78,7 @@ async function fullRequest(id: string) {
 }
 
 async function nextVersion(draftId: string) {
-  const latest = await db.aiWorkflowDraftVersion.findFirst({
+  const latest = await prisma.aiWorkflowDraftVersion.findFirst({
     where: { draftId },
     orderBy: { version: "desc" },
     select: { version: true }
@@ -90,8 +88,8 @@ async function nextVersion(draftId: string) {
 
 export const aiWorkflowService = {
   async createRequest(actor: Actor, body: unknown) {
-    const payload = jsonObject(body, "body") ?? {};
-    const request = await db.aiWorkflowRequest.create({
+    const payload = bodyObject(body, "body");
+    const request = await prisma.aiWorkflowRequest.create({
       data: {
         agentType: text(payload.agentType, "agentType"),
         requestType: text(payload.requestType, "requestType"),
@@ -119,9 +117,9 @@ export const aiWorkflowService = {
 
   async addContext(actor: Actor, requestId: string, body: unknown) {
     await fullRequest(requestId);
-    const payload = jsonObject(body, "body") ?? {};
+    const payload = bodyObject(body, "body");
     const sources = Array.isArray(payload.sources) ? payload.sources : [];
-    const context = await db.aiWorkflowContext.create({
+    const context = await prisma.aiWorkflowContext.create({
       data: {
         requestId,
         scope: text(payload.scope, "scope"),
@@ -129,6 +127,9 @@ export const aiWorkflowService = {
         batchId: text(payload.batchId, "batchId", false),
         studentId: text(payload.studentId, "studentId", false),
         teacherId: text(payload.teacherId, "teacherId", false),
+        actorUserId: actor.id,
+        actorName: actor.name,
+        actorRole: actor.role,
         contextJson: jsonObject(payload.contextJson ?? payload.context, "contextJson"),
         summaryText: text(payload.summaryText, "summaryText", false),
         sourceCount: sources.length,
@@ -137,7 +138,7 @@ export const aiWorkflowService = {
         schemaVersion: typeof payload.schemaVersion === "number" ? payload.schemaVersion : 1,
         sources: {
           create: sources.map((source) => {
-            const sourcePayload = jsonObject(source, "source") ?? {};
+            const sourcePayload = bodyObject(source, "source");
             return {
               sourceType: text(sourcePayload.sourceType, "sourceType"),
               sourceId: text(sourcePayload.sourceId, "sourceId", false),
@@ -150,62 +151,71 @@ export const aiWorkflowService = {
       },
       include: { sources: true }
     });
-    await db.aiWorkflowRequest.update({ where: { id: requestId }, data: { status: "CONTEXT_READY" } });
+    await prisma.aiWorkflowRequest.update({ where: { id: requestId }, data: { status: "CONTEXT_READY" } });
     await audit("AI_WORKFLOW_CONTEXT_ADDED", actor, requestId, { contextId: context.id, scope: context.scope, sourceCount: context.sourceCount });
     return context;
   },
 
   async createDraft(actor: Actor, requestId: string, body: unknown) {
     await fullRequest(requestId);
-    const payload = jsonObject(body, "body") ?? {};
-    const draft = await db.aiWorkflowDraft.create({
+    const payload = bodyObject(body, "body");
+    const draftJson = jsonObject(payload.draftJson ?? payload.draft, "draftJson");
+    const draft = await prisma.aiWorkflowDraft.create({
       data: {
         requestId,
         draftType: text(payload.draftType, "draftType"),
         targetType: text(payload.targetType, "targetType", false),
         targetId: text(payload.targetId, "targetId", false),
+        actorUserId: actor.id,
+        actorName: actor.name,
+        actorRole: actor.role,
         title: text(payload.title, "title", false),
         status: text(payload.status, "status", false) ?? "DRAFT",
         schemaVersion: typeof payload.schemaVersion === "number" ? payload.schemaVersion : 1,
-        draftJson: jsonObject(payload.draftJson ?? payload.draft, "draftJson"),
+        draftJson,
         validationJson: jsonObject(payload.validationJson, "validationJson", false),
         sourceReferencesJson: jsonObject(payload.sourceReferencesJson, "sourceReferencesJson", false),
         versions: {
           create: {
             version: 1,
-            draftJson: jsonObject(payload.draftJson ?? payload.draft, "draftJson"),
+            draftJson,
             changeSummary: "Initial AI draft",
-            createdByUserId: actor.id
+            createdByUserId: actor.id,
+            actorName: actor.name,
+            actorRole: actor.role
           }
         }
       },
       include: { versions: true }
     });
-    await db.aiWorkflowRequest.update({ where: { id: requestId }, data: { status: "DRAFT_READY" } });
+    await prisma.aiWorkflowRequest.update({ where: { id: requestId }, data: { status: "DRAFT_READY" } });
     await audit("AI_WORKFLOW_DRAFT_CREATED", actor, requestId, { draftId: draft.id, draftType: draft.draftType });
     return draft;
   },
 
   async createDraftVersion(actor: Actor, draftId: string, body: unknown) {
-    const draft = await db.aiWorkflowDraft.findUnique({ where: { id: draftId } });
+    const draft = await prisma.aiWorkflowDraft.findUnique({ where: { id: draftId } });
     if (!draft) throw new Error("AI workflow draft not found");
-    const payload = jsonObject(body, "body") ?? {};
+    const payload = bodyObject(body, "body");
     const version = await nextVersion(draftId);
-    const draftVersion = await db.aiWorkflowDraftVersion.create({
+    const nextDraftJson = jsonObject(payload.draftJson ?? payload.draft, "draftJson");
+    const draftVersion = await prisma.aiWorkflowDraftVersion.create({
       data: {
         draftId,
         version,
         revisionRequest: text(payload.revisionRequest, "revisionRequest", false),
-        draftJson: jsonObject(payload.draftJson ?? payload.draft, "draftJson"),
+        draftJson: nextDraftJson,
         changeSummary: text(payload.changeSummary, "changeSummary", false),
-        createdByUserId: actor.id
+        createdByUserId: actor.id,
+        actorName: actor.name,
+        actorRole: actor.role
       }
     });
-    await db.aiWorkflowDraft.update({
+    await prisma.aiWorkflowDraft.update({
       where: { id: draftId },
       data: {
         status: "REVISED",
-        draftJson: jsonObject(payload.draftJson ?? payload.draft, "draftJson")
+        draftJson: nextDraftJson
       }
     });
     await audit("AI_WORKFLOW_DRAFT_VERSION_CREATED", actor, draft.requestId, { draftId, version });
@@ -213,37 +223,43 @@ export const aiWorkflowService = {
   },
 
   async createReview(actor: Actor, draftId: string, body: unknown) {
-    const draft = await db.aiWorkflowDraft.findUnique({ where: { id: draftId } });
+    const draft = await prisma.aiWorkflowDraft.findUnique({ where: { id: draftId } });
     if (!draft) throw new Error("AI workflow draft not found");
-    const payload = jsonObject(body, "body") ?? {};
-    const review = await db.aiWorkflowReview.create({
+    const payload = bodyObject(body, "body");
+    const review = await prisma.aiWorkflowReview.create({
       data: {
         requestId: draft.requestId,
         draftId,
         reviewerUserId: actor.id,
         reviewerName: actor.name,
+        actorUserId: actor.id,
+        actorName: actor.name,
+        actorRole: actor.role,
         reviewType: text(payload.reviewType, "reviewType", false) ?? "TEACHER_REVIEW",
         status: text(payload.status, "status", false) ?? "PENDING",
         notes: text(payload.notes, "notes", false),
         correctionJson: jsonObject(payload.correctionJson, "correctionJson", false)
       }
     });
-    await db.aiWorkflowDraft.update({ where: { id: draftId }, data: { status: review.status === "APPROVED" ? "REVIEW_APPROVED" : "IN_REVIEW" } });
+    await prisma.aiWorkflowDraft.update({ where: { id: draftId }, data: { status: review.status === "APPROVED" ? "REVIEW_APPROVED" : "IN_REVIEW" } });
     await audit("AI_WORKFLOW_REVIEW_CREATED", actor, draft.requestId, { draftId, reviewId: review.id, status: review.status });
     return review;
   },
 
   async approveDraft(actor: Actor, draftId: string, body: unknown) {
-    const draft = await db.aiWorkflowDraft.findUnique({
+    const draft = await prisma.aiWorkflowDraft.findUnique({
       where: { id: draftId },
       include: { versions: { orderBy: { version: "desc" }, take: 1 } }
     });
     if (!draft) throw new Error("AI workflow draft not found");
-    const payload = jsonObject(body, "body") ?? {};
-    const approval = await db.aiWorkflowApproval.create({
+    const payload = bodyObject(body, "body");
+    const approval = await prisma.aiWorkflowApproval.create({
       data: {
         requestId: draft.requestId,
         draftId,
+        actorUserId: actor.id,
+        actorName: actor.name,
+        actorRole: actor.role,
         approvalType: text(payload.approvalType, "approvalType", false) ?? "DRAFT_APPROVAL",
         status: "APPROVED",
         approvedByUserId: actor.id,
@@ -252,7 +268,7 @@ export const aiWorkflowService = {
         approvedAt: new Date()
       }
     });
-    await db.aiWorkflowDraft.update({
+    await prisma.aiWorkflowDraft.update({
       where: { id: draftId },
       data: {
         status: "APPROVED",
@@ -265,13 +281,16 @@ export const aiWorkflowService = {
 
   async createFeedback(actor: Actor, requestId: string, body: unknown) {
     await fullRequest(requestId);
-    const payload = jsonObject(body, "body") ?? {};
-    const feedback = await db.aiWorkflowFeedback.create({
+    const payload = bodyObject(body, "body");
+    const feedback = await prisma.aiWorkflowFeedback.create({
       data: {
         requestId,
         draftId: text(payload.draftId, "draftId", false),
         userId: actor.id,
         userName: actor.name,
+        actorUserId: actor.id,
+        actorName: actor.name,
+        actorRole: actor.role,
         feedbackType: text(payload.feedbackType, "feedbackType", false) ?? "QUALITY",
         rating: typeof payload.rating === "number" ? payload.rating : undefined,
         feedbackText: text(payload.feedbackText, "feedbackText", false),
@@ -284,17 +303,18 @@ export const aiWorkflowService = {
 
   async createPublication(actor: Actor, requestId: string, body: unknown) {
     await fullRequest(requestId);
-    const payload = jsonObject(body, "body") ?? {};
-    const draftId = text(payload.draftId, "draftId", false);
-    if (draftId) {
-      const draft = await db.aiWorkflowDraft.findUnique({ where: { id: draftId } });
-      if (!draft || draft.requestId !== requestId) throw new Error("AI workflow draft not found for this request");
-      if (draft.status !== "APPROVED") throw new Error("Human approval is required before publication");
-    }
-    const publication = await db.aiWorkflowPublication.create({
+    const payload = bodyObject(body, "body");
+    const draftId = text(payload.draftId, "draftId");
+    const draft = await prisma.aiWorkflowDraft.findUnique({ where: { id: draftId } });
+    if (!draft || draft.requestId !== requestId) throw new Error("AI workflow draft not found for this request");
+    if (draft.status !== "APPROVED") throw new Error("Human approval is required before publication");
+    const publication = await prisma.aiWorkflowPublication.create({
       data: {
         requestId,
         draftId,
+        actorUserId: actor.id,
+        actorName: actor.name,
+        actorRole: actor.role,
         targetType: text(payload.targetType, "targetType"),
         targetId: text(payload.targetId, "targetId", false),
         status: "PENDING_APPROVAL",
@@ -307,14 +327,17 @@ export const aiWorkflowService = {
   },
 
   async approvePublication(actor: Actor, publicationId: string, body: unknown) {
-    const publication = await db.aiWorkflowPublication.findUnique({ where: { id: publicationId } });
+    const publication = await prisma.aiWorkflowPublication.findUnique({ where: { id: publicationId } });
     if (!publication) throw new Error("AI workflow publication not found");
-    const payload = jsonObject(body, "body", false) ?? {};
-    const approval = await db.aiWorkflowApproval.create({
+    const payload = body && typeof body === "object" && !Array.isArray(body) ? (body as BodyObject) : {};
+    const approval = await prisma.aiWorkflowApproval.create({
       data: {
         requestId: publication.requestId,
         draftId: publication.draftId,
         publicationId,
+        actorUserId: actor.id,
+        actorName: actor.name,
+        actorRole: actor.role,
         approvalType: text(payload.approvalType, "approvalType", false) ?? "PUBLICATION_APPROVAL",
         status: "APPROVED",
         approvedByUserId: actor.id,
@@ -323,7 +346,7 @@ export const aiWorkflowService = {
         approvedAt: new Date()
       }
     });
-    const updated = await db.aiWorkflowPublication.update({
+    const updated = await prisma.aiWorkflowPublication.update({
       where: { id: publicationId },
       data: {
         approvalId: approval.id,
@@ -335,19 +358,19 @@ export const aiWorkflowService = {
   },
 
   async markPublished(actor: Actor, publicationId: string) {
-    const publication = await db.aiWorkflowPublication.findUnique({ where: { id: publicationId } });
+    const publication = await prisma.aiWorkflowPublication.findUnique({ where: { id: publicationId } });
     if (!publication) throw new Error("AI workflow publication not found");
     if (publication.status !== "APPROVED" || !publication.approvalId) {
       throw new Error("Human approval is required before publication");
     }
-    const updated = await db.aiWorkflowPublication.update({
+    const updated = await prisma.aiWorkflowPublication.update({
       where: { id: publicationId },
       data: {
         status: "PUBLISHED",
         publishedAt: new Date()
       }
     });
-    await db.aiWorkflowRequest.update({ where: { id: publication.requestId }, data: { status: "PUBLISHED" } });
+    await prisma.aiWorkflowRequest.update({ where: { id: publication.requestId }, data: { status: "PUBLISHED" } });
     await audit("AI_WORKFLOW_MARKED_PUBLISHED", actor, publication.requestId, { publicationId });
     return updated;
   }
