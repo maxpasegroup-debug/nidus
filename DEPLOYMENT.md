@@ -15,7 +15,7 @@ Use two Railway services from this repository:
    - Build command: `npm install && npm run build`
    - Start command: `npm run start`
 
-Attach a Railway PostgreSQL database to the backend service and set `DATABASE_URL`.
+Attach a Railway PostgreSQL database to the NIDUS service and set `DATABASE_URL`.
 
 ## Backend Environment
 
@@ -65,7 +65,7 @@ AI_QUEUE_ENABLED=false
 ## Frontend Environment
 
 ```bash
-NEXT_PUBLIC_API_URL=https://your-backend.railway.app/api
+NEXT_PUBLIC_API_URL=
 NEXT_PUBLIC_CSRF_COOKIE_NAME=nidus_csrf
 NEXT_PUBLIC_MAINTENANCE_MODE=false
 NEXT_PUBLIC_SENTRY_DSN=
@@ -76,8 +76,8 @@ NEXT_PUBLIC_APP_ENV=production
 ## Release Steps
 
 1. Push changes to the deployment branch.
-2. Railway builds backend and frontend services.
-3. Confirm backend health at `/api/health`.
+2. Railway builds the single NIDUS service.
+3. Confirm service health at `/api/health`.
 4. Confirm system health at `/api/system/status`.
 5. Verify login, dashboard, media upload, admin center, and PWA install prompt.
 

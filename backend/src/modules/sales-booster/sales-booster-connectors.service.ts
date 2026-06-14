@@ -211,11 +211,11 @@ async function runMetaAds(campaign: ConnectorCampaign): Promise<ConnectorResult>
   if (!adSet.id) throw new Error("Meta ad set id missing.");
   const linkData: Record<string, unknown> = {
     message: campaignMessage(campaign),
-    link: env.FRONTEND_APP_URL ? `${env.FRONTEND_APP_URL.replace(/\/$/, "")}/start-free` : "https://nidusacademy.com/start-free",
+    link: env.FRONTEND_APP_URL ? `${env.FRONTEND_APP_URL.replace(/\/$/, "")}/start-free` : "https://nidusacademy.in/start-free",
     name: campaign.title,
     call_to_action: env.SALESBOOSTER_META_LEAD_FORM_ID
       ? { type: "SIGN_UP", value: { lead_gen_form_id: env.SALESBOOSTER_META_LEAD_FORM_ID } }
-      : { type: "LEARN_MORE", value: { link: env.FRONTEND_APP_URL ? `${env.FRONTEND_APP_URL.replace(/\/$/, "")}/start-free` : "https://nidusacademy.com/start-free" } }
+      : { type: "LEARN_MORE", value: { link: env.FRONTEND_APP_URL ? `${env.FRONTEND_APP_URL.replace(/\/$/, "")}/start-free` : "https://nidusacademy.in/start-free" } }
   };
   if (hasMediaUrl(campaign) && isImageCreative(campaign)) linkData.picture = mediaUrl(campaign);
   const creative = await postForm(`${graphBaseUrl}/${account}/adcreatives`, {

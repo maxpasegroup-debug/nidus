@@ -44,9 +44,14 @@ function apiRouteDebugger(req: Request, res: Response, next: NextFunction) {
   next();
 }
 
-export function createApp() {
+type CreateAppOptions = {
+  mountErrorHandler?: boolean;
+};
+
+export function createApp(options: CreateAppOptions = {}) {
   initMonitoring();
   const app = express();
+  const mountErrorHandler = options.mountErrorHandler ?? true;
 
   app.set("trust proxy", env.TRUST_PROXY ? 1 : false);
   app.disable("x-powered-by");
@@ -110,13 +115,15 @@ export function createApp() {
   app.use("/api/documents", uploadRateLimiter);
   app.use("/api", apiRateLimiter);
 
-  app.get("/", (_req, res) => {
+  if (env.NODE_ENV !== "production") {
+    app.get("/", (_req, res) => {
     res.json({
       service: "nidus-backend",
       status: "ok",
       apiBase: "/api"
     });
-  });
+    });
+  }
   app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
   app.use((req, res, next) => {
@@ -133,7 +140,9 @@ export function createApp() {
   });
 
   app.use("/api", apiRouter);
-  app.use(errorHandler);
+  if (mountErrorHandler) app.use(errorHandler);
 
   return app;
 }
+
+export { errorHandler };

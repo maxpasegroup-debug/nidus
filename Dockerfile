@@ -13,8 +13,6 @@ FROM node:22-bookworm-slim AS build
 WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV DATABASE_URL=postgresql://build:build@localhost:5432/nidus_build
-ENV API_INTERNAL_PORT=4001
-ENV INTERNAL_API_URL=http://127.0.0.1:4001
 
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
@@ -28,17 +26,15 @@ FROM node:22-bookworm-slim AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
-ENV PORT=3000
-ENV API_INTERNAL_PORT=4001
-ENV INTERNAL_API_URL=http://127.0.0.1:4001
+ENV PORT=8080
+ENV SERVE_FRONTEND=true
 
 COPY --from=build /app/package.json ./package.json
 COPY --from=build /app/package-lock.json ./package-lock.json
 COPY --from=build /app/node_modules ./node_modules
-COPY --from=build /app/scripts ./scripts
 COPY --from=build /app/backend ./backend
 COPY --from=build /app/frontend ./frontend
 
-EXPOSE 3000
+EXPOSE 8080
 
-CMD ["node", "scripts/start-monolith.mjs"]
+CMD ["npm", "run", "start"]

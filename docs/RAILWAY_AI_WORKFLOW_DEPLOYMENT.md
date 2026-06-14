@@ -191,7 +191,7 @@ Expected key relations include:
 After deploy:
 
 ```powershell
-curl https://api.nidusacademy.com/api/health
+curl https://nidusacademy.in/api/health
 ```
 
 Expected:

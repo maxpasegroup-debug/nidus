@@ -17,8 +17,9 @@ assertContains("src/modules/admin-center/admin-center.routes.ts", "/operations",
 assertContains("src/modules/admin-center/admin-center.service.ts", "queueHealth", "queue health telemetry");
 assertContains("../frontend/src/app/admin-center/operations/page.tsx", "Production Operations", "admin operations panel");
 assertContains("../frontend/public/sw.js", "SKIP_WAITING", "PWA update handling");
-assertContains("../railway.backend.json", "backend/Dockerfile", "Railway backend service config");
-assertContains("../railway.frontend.json", "frontend/Dockerfile", "Railway frontend service config");
+assertContains("../railway.json", "preDeployCommand", "single Railway service migration hook");
+assertContains("../Dockerfile", "CMD [\"npm\", \"run\", \"start\"]", "single Node process Docker start command");
+assertContains("src/frontend.ts", "attachProductionFrontend", "backend-served Next frontend");
 assertContains("../docs/OPERATIONAL_HANDBOOK.md", "Production Smoke", "operational handbook smoke runbook");
 
 console.log("Production operations verification checks passed.");

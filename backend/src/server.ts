@@ -1,5 +1,6 @@
 import { env } from "./config/env.js";
-import { createApp } from "./app.js";
+import { createApp, errorHandler } from "./app.js";
+import { attachProductionFrontend } from "./frontend.js";
 import { assertCloudinaryReady } from "./config/cloudinary.js";
 import { closeRedis, verifyRedisConnection } from "./config/redis.js";
 import { verifyDatabaseConnection } from "./config/prisma.js";
@@ -9,7 +10,7 @@ import { markRuntimeDegraded, markRuntimeReady, markRuntimeShuttingDown } from "
 import { AuthServiceV2 } from "./modules/auth/auth.v2.service.js";
 import { ensureNidusTeam } from "./scripts/nidus-team.js";
 
-const app = createApp();
+const app = createApp({ mountErrorHandler: false });
 const PORT = Number(process.env.PORT || env.PORT || 8080);
 
 async function startupChecks() {
@@ -22,6 +23,9 @@ async function startupChecks() {
   assertCloudinaryReady();
   if (env.PROCESS_ROLE !== "web") await startInfrastructureWorkers();
 }
+
+await attachProductionFrontend(app);
+app.use(errorHandler);
 
 const server = app.listen(PORT, "0.0.0.0", async () => {
   try {

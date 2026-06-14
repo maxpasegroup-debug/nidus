@@ -49,7 +49,7 @@ export const emailService = {
                 <p><strong>This link expires in 1 hour.</strong></p>
                 <p>If you did not request this, you can safely ignore this email.</p>
                 <hr style="margin: 24px 0; border: none; border-top: 1px solid #ded6c6;">
-                <p style="font-size: 12px; color: #667085;">NIDUS Academy | https://nidusacademy.com</p>
+                <p style="font-size: 12px; color: #667085;">NIDUS Academy | https://nidusacademy.in</p>
               </div>
             </body>
           </html>
@@ -87,8 +87,8 @@ export const emailService = {
               <div style="max-width: 600px; margin: 0 auto; padding: 24px;">
                 <h2 style="color: #0b1f3a;">Welcome to NIDUS Academy, ${name}.</h2>
                 <p>Your account has been created successfully.</p>
-                <p>Login anytime at <a href="https://app.nidusacademy.com/login">app.nidusacademy.com</a>.</p>
-                <p>Questions? Contact support@nidusacademy.com.</p>
+                <p>Login anytime at <a href="https://nidusacademy.in/login">nidusacademy.in</a>.</p>
+                <p>Questions? Contact support@nidusacademy.in.</p>
               </div>
             </body>
           </html>

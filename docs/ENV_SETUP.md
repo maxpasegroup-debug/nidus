@@ -5,11 +5,11 @@
 - `NODE_ENV=production`
 - `DATABASE_URL`
 - `JWT_SECRET`
-- `FRONTEND_APP_URL=https://nidusacademy.com`
-- `BACKEND_PUBLIC_URL=https://api.nidusacademy.com`
-- `APP_DOMAIN=nidusacademy.com`
-- `API_DOMAIN=api.nidusacademy.com`
-- `CORS_ORIGIN=https://nidusacademy.com`
+- `FRONTEND_APP_URL=https://nidusacademy.in`
+- `BACKEND_PUBLIC_URL=https://nidusacademy.in`
+- `APP_DOMAIN=nidusacademy.in`
+- `API_DOMAIN=nidusacademy.in`
+- `CORS_ORIGIN=https://nidusacademy.in`
 - `TRUST_PROXY=true`
 
 ## Infrastructure
@@ -39,8 +39,7 @@
 
 ## Frontend
 
-- `NEXT_PUBLIC_API_URL=`. Leave blank so `nidusacademy.com` and `nidusacademy.in` both call their own same-origin `/api` route.
-- `INTERNAL_API_URL=<Railway backend URL>`. Set on the frontend service so Next.js can proxy `/api` to the backend.
+- `NEXT_PUBLIC_API_URL=`. Leave blank so `nidusacademy.in` calls its own same-origin `/api` route.
 - `NEXT_PUBLIC_ENABLE_PWA=false`. Keep this false until authentication is stable in production.
 
 ## Backups

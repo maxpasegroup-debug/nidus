@@ -41,7 +41,7 @@ const requiredBackend = [
   "HEALTHCHECK_STRICT"
 ];
 
-const requiredFrontend = ["NEXT_PUBLIC_APP_ENV"];
+const requiredFrontend = [];
 const requiredIntegrations = [
   "RESEND_API_KEY",
   "CLOUDINARY_CLOUD_NAME",
@@ -71,11 +71,11 @@ if (backendEnv.NODE_ENV !== "production") {
   errors.push("backend: NODE_ENV must be production for deployment");
 }
 
-if (!["web", "worker"].includes(backendEnv.PROCESS_ROLE ?? "")) {
-  errors.push("backend: PROCESS_ROLE must be web or worker in production");
+if (!["web", "all"].includes(backendEnv.PROCESS_ROLE ?? "")) {
+  errors.push("backend: PROCESS_ROLE must be web or all in the single-service production deployment");
 }
 
-if (frontendEnv.NEXT_PUBLIC_APP_ENV !== "production") {
+if (frontendEnv.NEXT_PUBLIC_APP_ENV && frontendEnv.NEXT_PUBLIC_APP_ENV !== "production") {
   errors.push("frontend: NEXT_PUBLIC_APP_ENV must be production for deployment");
 }
 
@@ -97,11 +97,7 @@ if (backendEnv.BACKEND_PUBLIC_URL && backendEnv.API_DOMAIN && !backendEnv.BACKEN
 }
 
 if (frontendEnv.NEXT_PUBLIC_API_URL && !frontendEnv.NEXT_PUBLIC_API_URL.startsWith("/")) {
-  warnings.push("frontend: NEXT_PUBLIC_API_URL is set to an absolute URL; prefer leaving it blank so both public domains use the same-origin /api proxy");
-}
-
-if (!frontendEnv.INTERNAL_API_URL && !frontendEnv.API_PROXY_TARGET) {
-  warnings.push("frontend: INTERNAL_API_URL or API_PROXY_TARGET should point to the Railway backend service for same-origin /api proxying");
+  warnings.push("frontend: NEXT_PUBLIC_API_URL is set to an absolute URL; prefer leaving it blank so the single NIDUS service uses same-origin /api");
 }
 
 for (const urlKey of ["CORS_ORIGIN", "FRONTEND_APP_URL", "BACKEND_PUBLIC_URL"]) {
@@ -123,11 +119,11 @@ if (backendEnv.REDIS_REQUIRED === "true" && !backendEnv.REDIS_URL) {
 }
 
 if (backendEnv.PROCESS_ROLE === "web" && backendEnv.QUEUE_WORKERS_ENABLED !== "false") {
-  errors.push("backend: QUEUE_WORKERS_ENABLED must be false on the web/API service");
+  errors.push("backend: QUEUE_WORKERS_ENABLED must be false when PROCESS_ROLE=web");
 }
 
-if (backendEnv.PROCESS_ROLE === "worker" && backendEnv.QUEUE_WORKERS_ENABLED !== "true") {
-  errors.push("backend: QUEUE_WORKERS_ENABLED must be true on the worker service");
+if (backendEnv.PROCESS_ROLE === "all" && backendEnv.QUEUE_WORKERS_ENABLED !== "true") {
+  errors.push("backend: QUEUE_WORKERS_ENABLED must be true when PROCESS_ROLE=all");
 }
 
 if (backendEnv.HEALTHCHECK_STRICT !== "true") {

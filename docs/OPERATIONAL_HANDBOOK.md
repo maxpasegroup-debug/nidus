@@ -13,7 +13,7 @@
 Run after each deploy:
 
 ```bash
-SMOKE_API_URL=https://api.nidusacademy.com SMOKE_APP_URL=https://app.nidusacademy.com npm run ops:smoke --workspace backend
+SMOKE_API_URL=https://nidusacademy.in SMOKE_APP_URL=https://nidusacademy.in npm run ops:smoke --workspace backend
 ```
 
 ## Deployment Flow

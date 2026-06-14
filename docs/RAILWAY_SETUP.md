@@ -2,36 +2,35 @@
 
 ## Services
 
-- Frontend: use `railway.frontend.json`, `frontend/Dockerfile`, domains `nidusacademy.com` and `nidusacademy.in`.
-- Backend API: use `railway.backend.json`, `backend/Dockerfile`, domain `api.nidusacademy.com`.
+- NIDUS: one Railway service using root `railway.json` and root `Dockerfile`, domain `nidusacademy.in`.
 - PostgreSQL: Railway managed PostgreSQL, connected to backend as `DATABASE_URL`.
 - Redis: Railway managed Redis, connected to backend as `REDIS_URL`.
-- Worker: create a second backend service from `backend/Dockerfile` with `PROCESS_ROLE=worker`.
+- Workers: run inside the same NIDUS service when `PROCESS_ROLE=all`.
 
 ## Startup Order
 
 1. PostgreSQL and Redis provisioned.
-2. Backend web service deployed with `PROCESS_ROLE=web`.
-3. Backend worker service deployed with `PROCESS_ROLE=worker`.
-4. Frontend deployed with `NEXT_PUBLIC_API_URL` blank and `INTERNAL_API_URL` pointing to the Railway backend service.
-5. Run `npm run prisma:migrate:deploy` once from the backend service or CI.
+2. Single NIDUS service deployed with `PROCESS_ROLE=all` or `PROCESS_ROLE=web`.
+3. Frontend is built during Docker build.
+4. Backend Express serves the built Next frontend in production.
+5. Railway pre-deploy runs `npm run prisma:migrate:deploy`.
 6. Run `npm run bootstrap:production` to ensure the super admin, default permissions, and required settings exist.
 7. Run `npm run db:readiness` before opening traffic.
-8. Run `npm run queue:readiness` after Redis is connected and before enabling worker traffic.
+8. Run `npm run queue:readiness` after Redis is connected.
 9. Run `npm run integrations:readiness` after Cloudinary, Resend, Razorpay, and OpenAI keys are configured.
 10. Run `npm run security:readiness` before opening traffic.
 
 ## Health Checks
 
-- Backend: `/api/health`.
-- Frontend: `/`.
+- Service health: `/api/health`.
+- Frontend: `/`, served by the backend process.
 - Admin diagnostics: `/admin-center/operations`.
 
 ## Railway Variables
 
-Set `APP_DOMAIN=nidusacademy.com`, `API_DOMAIN=api.nidusacademy.com`, `FRONTEND_APP_URL=https://nidusacademy.com`, and `BACKEND_PUBLIC_URL=https://api.nidusacademy.com`.
+Set `APP_DOMAIN=nidusacademy.in`, `API_DOMAIN=nidusacademy.in`, `FRONTEND_APP_URL=https://nidusacademy.in`, and `BACKEND_PUBLIC_URL=https://nidusacademy.in`.
 
-For the cleanest two-domain auth setup, add both `nidusacademy.com` and `nidusacademy.in` to the frontend service. Browsers should call `/api` on the same domain they opened. Do not force `NEXT_PUBLIC_API_URL=https://api.nidusacademy.com` unless you also intentionally configure cross-site cookies and CORS.
+Use same-origin API calls. Leave `NEXT_PUBLIC_API_URL` blank so browsers call `/api` on `nidusacademy.in`.
 
 ## Database Gate
 
@@ -52,7 +51,5 @@ Production API and worker services should use:
 
 - `REDIS_URL=<railway-redis-url>`
 - `REDIS_REQUIRED=true`
-- `QUEUE_WORKERS_ENABLED=false` on the web/API service
-- `QUEUE_WORKERS_ENABLED=true` on the worker service
-- `PROCESS_ROLE=web` for API
-- `PROCESS_ROLE=worker` for workers
+- `PROCESS_ROLE=all` and `QUEUE_WORKERS_ENABLED=true` to run API and workers in the single NIDUS service
+- `PROCESS_ROLE=web` and `QUEUE_WORKERS_ENABLED=false` to run only API/frontend in the single NIDUS service
