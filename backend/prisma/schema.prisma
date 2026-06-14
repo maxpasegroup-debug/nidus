@@ -2546,3 +2546,233 @@ model DirectorExpenseRecord {
   @@index([status])
   @@index([createdAt])
 }
+
+model AiWorkflowRequest {
+  id             String   @id @default(cuid())
+  agentType      String
+  requestType    String
+  targetType     String?
+  targetId       String?
+  actorUserId    String?
+  actorName      String?
+  actorRole      String?
+  actingMode     String?
+  instituteId    String?
+  branchId       String?
+  tenantId       String?
+  status         String   @default("REQUESTED")
+  inputJson      Json
+  metadataJson   Json?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  contexts       AiWorkflowContext[]
+  drafts         AiWorkflowDraft[]
+  reviews        AiWorkflowReview[]
+  approvals      AiWorkflowApproval[]
+  feedback       AiWorkflowFeedback[]
+  publications   AiWorkflowPublication[]
+  auditEvents    AiWorkflowAuditEvent[]
+
+  @@index([agentType, status, createdAt])
+  @@index([requestType, status])
+  @@index([actorUserId, createdAt])
+  @@index([tenantId, createdAt])
+  @@index([targetType, targetId])
+  @@map("ai_workflow_requests")
+}
+
+model AiWorkflowContext {
+  id               String   @id @default(cuid())
+  requestId        String
+  scope            String
+  programCode      String?
+  batchId          String?
+  studentId        String?
+  teacherId        String?
+  contextJson      Json
+  summaryText      String?
+  sourceCount      Int      @default(0)
+  sensitivityLevel String   @default("INTERNAL")
+  expiresAt        DateTime?
+  schemaVersion    Int      @default(1)
+  createdAt        DateTime @default(now())
+  request          AiWorkflowRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  sources          AiWorkflowContextSource[]
+
+  @@index([requestId])
+  @@index([scope])
+  @@index([programCode])
+  @@index([batchId])
+  @@index([teacherId])
+  @@index([createdAt])
+  @@map("ai_workflow_context")
+}
+
+model AiWorkflowContextSource {
+  id               String   @id @default(cuid())
+  contextId        String
+  sourceType       String
+  sourceId         String?
+  sourceLabel      String?
+  sourceJson       Json?
+  sensitivityLevel String   @default("INTERNAL")
+  createdAt        DateTime @default(now())
+  context          AiWorkflowContext @relation(fields: [contextId], references: [id], onDelete: Cascade)
+
+  @@index([contextId])
+  @@index([sourceType, sourceId])
+  @@map("ai_workflow_context_sources")
+}
+
+model AiWorkflowDraft {
+  id                   String   @id @default(cuid())
+  requestId            String
+  draftType            String
+  targetType           String?
+  targetId             String?
+  title                String?
+  status               String   @default("DRAFT")
+  schemaVersion        Int      @default(1)
+  draftJson            Json
+  validationJson       Json?
+  sourceReferencesJson Json?
+  approvedVersionId    String?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  request              AiWorkflowRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  versions             AiWorkflowDraftVersion[]
+  reviews              AiWorkflowReview[]
+  approvals            AiWorkflowApproval[]
+  feedback             AiWorkflowFeedback[]
+  publications         AiWorkflowPublication[]
+
+  @@index([requestId])
+  @@index([draftType, status])
+  @@index([targetType, targetId])
+  @@index([createdAt])
+  @@map("ai_workflow_drafts")
+}
+
+model AiWorkflowDraftVersion {
+  id              String   @id @default(cuid())
+  draftId         String
+  version         Int
+  revisionRequest String?
+  draftJson       Json
+  changeSummary   String?
+  createdByUserId String?
+  createdAt       DateTime @default(now())
+  draft           AiWorkflowDraft @relation(fields: [draftId], references: [id], onDelete: Cascade)
+
+  @@unique([draftId, version])
+  @@index([draftId])
+  @@index([createdByUserId])
+  @@map("ai_workflow_draft_versions")
+}
+
+model AiWorkflowReview {
+  id             String   @id @default(cuid())
+  requestId      String
+  draftId        String?
+  reviewerUserId String?
+  reviewerName   String?
+  reviewType     String   @default("TEACHER_REVIEW")
+  status         String   @default("PENDING")
+  notes          String?
+  correctionJson Json?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  request        AiWorkflowRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  draft          AiWorkflowDraft? @relation(fields: [draftId], references: [id], onDelete: SetNull)
+
+  @@index([requestId])
+  @@index([draftId])
+  @@index([reviewerUserId])
+  @@index([status])
+  @@map("ai_workflow_reviews")
+}
+
+model AiWorkflowApproval {
+  id               String   @id @default(cuid())
+  requestId        String
+  draftId          String?
+  publicationId    String?
+  approvalType     String   @default("HUMAN_APPROVAL")
+  status           String   @default("PENDING")
+  approvedByUserId String?
+  approvedByName   String?
+  notes            String?
+  approvedAt       DateTime?
+  createdAt        DateTime @default(now())
+  request          AiWorkflowRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  draft            AiWorkflowDraft? @relation(fields: [draftId], references: [id], onDelete: SetNull)
+
+  @@index([requestId])
+  @@index([draftId])
+  @@index([publicationId])
+  @@index([approvedByUserId])
+  @@index([status])
+  @@map("ai_workflow_approvals")
+}
+
+model AiWorkflowFeedback {
+  id             String   @id @default(cuid())
+  requestId      String
+  draftId        String?
+  userId         String?
+  userName       String?
+  feedbackType   String   @default("QUALITY")
+  rating         Int?
+  feedbackText   String?
+  correctionJson Json?
+  createdAt      DateTime @default(now())
+  request        AiWorkflowRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  draft          AiWorkflowDraft? @relation(fields: [draftId], references: [id], onDelete: SetNull)
+
+  @@index([requestId])
+  @@index([draftId])
+  @@index([userId])
+  @@index([feedbackType])
+  @@map("ai_workflow_feedback")
+}
+
+model AiWorkflowPublication {
+  id                 String   @id @default(cuid())
+  requestId          String
+  draftId            String?
+  targetType         String
+  targetId           String?
+  status             String   @default("PENDING_APPROVAL")
+  publishPayloadJson Json
+  approvalId         String?
+  scheduledAt        DateTime?
+  publishedAt        DateTime?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  request            AiWorkflowRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  draft              AiWorkflowDraft? @relation(fields: [draftId], references: [id], onDelete: SetNull)
+
+  @@index([requestId])
+  @@index([draftId])
+  @@index([targetType, targetId])
+  @@index([status])
+  @@index([scheduledAt])
+  @@map("ai_workflow_publications")
+}
+
+model AiWorkflowAuditEvent {
+  id          String   @id @default(cuid())
+  requestId   String?
+  eventType   String
+  actorUserId String?
+  actorName   String?
+  eventJson   Json?
+  createdAt   DateTime @default(now())
+  request     AiWorkflowRequest? @relation(fields: [requestId], references: [id], onDelete: SetNull)
+
+  @@index([requestId])
+  @@index([eventType])
+  @@index([actorUserId])
+  @@index([createdAt])
+  @@map("ai_workflow_audit_events")
+}

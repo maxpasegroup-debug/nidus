@@ -1057,7 +1057,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
                 <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--muted-blue)]">Start with NIDUS GURU, review the generated question bank, then schedule the exam for the selected program and batch.</p>
               </div>
             </div>
-            <button type="button" onClick={openExamCreator} className="inline-flex min-h-14 items-center justify-center gap-2 rounded-2xl bg-[var(--ink)] px-6 py-4 text-base font-black text-white shadow-sm transition hover:-translate-y-0.5">
+            <button type="button" onClick={openExamCreator} className="relative z-10 inline-flex min-h-14 shrink-0 items-center justify-center gap-2 rounded-2xl border border-slate-950 !bg-slate-950 px-6 py-4 text-base font-black !text-white shadow-sm transition hover:-translate-y-0.5">
               <Plus size={20} /> Create New Exam
             </button>
           </div>
@@ -1129,7 +1129,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
                 <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--muted-blue)]">Use NIDUS GURU to prepare assignments, publish to the selected batch, then track submitted and pending students.</p>
               </div>
             </div>
-            <button type="button" onClick={openAssignmentCreator} className="inline-flex min-h-14 items-center justify-center gap-2 rounded-2xl bg-[var(--ink)] px-6 py-4 text-base font-black text-white shadow-sm transition hover:-translate-y-0.5">
+            <button type="button" onClick={openAssignmentCreator} className="relative z-10 inline-flex min-h-14 shrink-0 items-center justify-center gap-2 rounded-2xl border border-slate-950 !bg-slate-950 px-6 py-4 text-base font-black !text-white shadow-sm transition hover:-translate-y-0.5">
               <Plus size={20} /> Create Assignment
             </button>
           </div>
@@ -1275,7 +1275,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
                 <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold-dark)]">Learning Materials</p>
                 <h3 className="mt-2 text-2xl font-black">{activeLibraryTopic || "Select topic folder"}</h3>
               </div>
-              {activeLibraryTopic ? <button type="button" onClick={() => setShowLibraryUpload((value) => !value)} className="inline-flex items-center gap-2 rounded-xl bg-[var(--ink)] px-4 py-3 text-sm font-black text-white"><FolderPlus size={16} /> Add Material</button> : null}
+              {activeLibraryTopic ? <button type="button" onClick={() => setShowLibraryUpload((value) => !value)} className="relative z-10 inline-flex shrink-0 items-center gap-2 rounded-xl border border-slate-950 !bg-slate-950 px-4 py-3 text-sm font-black !text-white"><FolderPlus size={16} /> Add Material</button> : null}
             </div>
             <input value={librarySearch} onChange={(event) => setLibrarySearch(event.target.value)} placeholder="Search materials..." className="mt-4 min-h-12 w-full rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-4 text-sm font-bold outline-none" />
             {showLibraryUpload && activeLibraryTopic ? (
@@ -1815,7 +1815,7 @@ function AssignmentEmptyState({ onCreate }: { onCreate: () => void }) {
     <div className="md:col-span-2 xl:col-span-3 rounded-2xl border border-dashed border-[var(--border)] bg-[var(--page-bg)] p-8 text-center">
       <h3 className="text-2xl font-black">No assignments created yet</h3>
       <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-[var(--muted-blue)]">Create an assignment with NIDUS GURU, review the generated tasks, then publish it to students.</p>
-      <button type="button" onClick={onCreate} className="mt-5 inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-[var(--ink)] px-6 py-3 text-sm font-black text-white">
+      <button type="button" onClick={onCreate} className="mt-5 inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-slate-950 !bg-slate-950 px-6 py-3 text-sm font-black !text-white">
         <Plus size={18} /> Create Assignment
       </button>
     </div>
@@ -2206,7 +2206,7 @@ function FolderCreateBox({ label, placeholder, value, onChange, onCreate }: { la
       <p className="text-sm font-black">{label}</p>
       <div className="mt-3 flex gap-2">
         <input value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} className="min-h-11 min-w-0 flex-1 rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-3 text-sm outline-none" />
-        <button type="button" onClick={onCreate} className="rounded-xl bg-[var(--ink)] px-4 text-sm font-black text-white">Create</button>
+        <button type="button" onClick={onCreate} className="rounded-xl border border-slate-950 !bg-slate-950 px-4 text-sm font-black !text-white">Create</button>
       </div>
     </div>
   );
