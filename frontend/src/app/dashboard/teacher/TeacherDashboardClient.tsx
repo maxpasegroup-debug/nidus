@@ -4,7 +4,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Children, useEffect, useMemo, useState } from "react";
 import {
-  Bell,
   BookOpen,
   CalendarDays,
   ClipboardCheck,
@@ -169,7 +168,7 @@ type AssignmentForm = {
   link: string;
 };
 
-export type TeacherView = "today" | "classes" | "exams" | "assignments" | "attendance" | "library" | "academic-calendar";
+export type TeacherView = "classes" | "exams" | "assignments" | "attendance" | "library" | "academic-calendar";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") || "";
 
@@ -293,8 +292,11 @@ function statusTone(status?: string | null) {
   return "bg-slate-100 text-slate-700";
 }
 
-function isTeacherClassAllocation(batch: AssignedClass) {
-  return batch.status !== "ARCHIVED" && !(batch.role === "ACADEMIC_HEAD" && batch.subject === "Academic Coordination");
+function isTeacherClassAllocation(batch: AssignedClass, isAcademicHead: boolean) {
+  if (batch.status === "ARCHIVED") return false;
+  if (batch.role === "ACADEMIC_HEAD" && batch.subject === "Academic Coordination") return false;
+  if (isAcademicHead) return batch.role === "Subject Teacher";
+  return true;
 }
 
 export default function TeacherDashboardClient({ view, courseKey }: { view: TeacherView; courseKey?: string }) {
@@ -372,7 +374,7 @@ export default function TeacherDashboardClient({ view, courseKey }: { view: Teac
   const isAcademicHeadRoute = pathname?.startsWith("/dashboard/academic-head") ?? false;
   const isAcademicHead = isAcademicHeadRoute || user?.role?.toUpperCase() === "ACADEMIC_HEAD" || dashboardTemplate === "ACADEMIC_HEAD";
   const dashboardBasePath = isAcademicHead ? "/dashboard/academic-head" : "/dashboard/teacher";
-  const activeClasses = useMemo(() => classes.filter(isTeacherClassAllocation), [classes]);
+  const activeClasses = useMemo(() => classes.filter((batch) => isTeacherClassAllocation(batch, isAcademicHead)), [classes, isAcademicHead]);
   const activeCourseKey = courseKey ? decodeURIComponent(courseKey) : null;
   const programGroups = useMemo(() => {
     const map = new Map<string, { key: string; name: string; classes: AssignedClass[] }>();
@@ -413,7 +415,6 @@ export default function TeacherDashboardClient({ view, courseKey }: { view: Teac
     selectedCalendarItems.find((item) => item.batchId === selectedClass?.id) ??
     selectedCalendarItems[0] ??
     null;
-  const pendingAssignments = classWorkspace.assignments.reduce((total, item) => total + Number(item.submissionStats?.pending ?? 0), 0);
   const librarySubjects = useMemo(() => {
     const subjects = new Set(classWorkspace.materials.map((item) => item.subject || item.folder || "General"));
     if (libraryForm.subject) subjects.add(libraryForm.subject);
@@ -470,34 +471,6 @@ export default function TeacherDashboardClient({ view, courseKey }: { view: Teac
       return new Date(first.getFullYear(), first.getMonth(), index - startOffset + 1);
     });
   }, [calendarMonth]);
-  const pendingCalendarItems = calendar.filter((item) => item.completionStatus !== "COMPLETED").length;
-  const attendanceMarkedToday = classWorkspace.attendance.some((item) => item.date?.slice(0, 10) === attendanceDate);
-  const notificationItems = [
-    {
-      title: "Pending assignments",
-      detail: pendingAssignments ? `${pendingAssignments} student submission(s) need attention.` : "No pending assignment review for the selected batch.",
-      href: `${dashboardBasePath}/assignments`,
-      icon: FileText,
-    },
-    {
-      title: "Syllabus completion",
-      detail: pendingCalendarItems ? `${pendingCalendarItems} calendar topic(s) need completion update.` : "Calendar logs are clear right now.",
-      href: `${dashboardBasePath}/academic-calendar`,
-      icon: CalendarDays,
-    },
-    {
-      title: "Attendance",
-      detail: attendanceMarkedToday ? "Attendance is saved for the selected date." : selectedStudents.length ? "Mark attendance for today's class." : "Select a batch with students to mark attendance.",
-      href: `${dashboardBasePath}/attendance`,
-      icon: ClipboardCheck,
-    },
-    {
-      title: "Management notes",
-      detail: selectedCalendarItem?.nextAction || "Notifications from Academic Head or Director will appear here.",
-      href: `${dashboardBasePath}/academic-calendar`,
-      icon: Bell,
-    },
-  ];
 
   async function loadTeachingPlan() {
     setLoadingPlan(true);
@@ -839,7 +812,6 @@ export default function TeacherDashboardClient({ view, courseKey }: { view: Teac
   }
 
   const viewTitles: Record<TeacherView, string> = {
-    today: "Today",
     classes: "Classes",
     exams: "Exams",
     assignments: "Assignments",
@@ -865,28 +837,6 @@ export default function TeacherDashboardClient({ view, courseKey }: { view: Teac
 
       {message ? <Notice text={message} tone="error" /> : null}
       {loadingPlan ? <Notice text="Loading assigned programs and batches..." /> : null}
-
-      {view === "today" ? <section className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold-dark)]">Today</p>
-            <h2 className="mt-2 text-2xl font-black">Reminders and notifications</h2>
-          </div>
-          <p className="rounded-full bg-[var(--page-bg)] px-4 py-2 text-sm font-black">{selectedClass ? selectedClass.name : "No batch selected"}</p>
-        </div>
-        <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-          {notificationItems.map((item) => {
-            const Icon = item.icon;
-            return (
-              <a key={item.title} href={item.href} className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
-                <Icon size={20} className="text-[var(--gold-dark)]" />
-                <h3 className="mt-3 font-black">{item.title}</h3>
-                <p className="mt-2 text-sm leading-6 text-[var(--muted-blue)]">{item.detail}</p>
-              </a>
-            );
-          })}
-        </div>
-      </section> : null}
 
       {view === "classes" ? <section className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
         {!activeCourseKey ? (

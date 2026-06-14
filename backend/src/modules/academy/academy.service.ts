@@ -273,6 +273,12 @@ function isTeacherClassAllocation(row: BatchTeacherAssignmentRow) {
   return row.status === "ACTIVE" && !(row.role === "ACADEMIC_HEAD" && row.subject === "Academic Coordination");
 }
 
+function isVisibleTeacherWorkspaceAllocation(row: BatchTeacherAssignmentRow, user: Requester) {
+  if (!isTeacherClassAllocation(row)) return false;
+  if (staffTemplate(user) === "ACADEMIC_HEAD") return row.role === "Subject Teacher";
+  return true;
+}
+
 function percentage(part: number, total: number) {
   return total > 0 ? Math.round((part / total) * 100) : 0;
 }
@@ -920,7 +926,7 @@ export const academyService = {
           WHERE "status" = 'ACTIVE'
           ORDER BY "createdAt" DESC
         `;
-    const visibleRows = teacherWorkspace ? rows.filter(isTeacherClassAllocation) : rows;
+    const visibleRows = teacherWorkspace ? rows.filter((row) => isVisibleTeacherWorkspaceAllocation(row, user)) : rows;
 
     const batchIds = Array.from(new Set(visibleRows.map((row) => row.batchId)));
     const allBatches = await batchWithCounts();
@@ -960,7 +966,7 @@ export const academyService = {
           WHERE "status" = 'ACTIVE'
           ORDER BY "createdAt" DESC
         `;
-    const rows = mergeAssignments(normalizedRows, legacyRows).filter((row) => (teacherWorkspace ? isTeacherClassAllocation(row) : true));
+    const rows = mergeAssignments(normalizedRows, legacyRows).filter((row) => (teacherWorkspace ? isVisibleTeacherWorkspaceAllocation(row, user) : true));
 
     const batches = await hydrateBatchesForAssignments(rows);
     const batchIds = rows.map((row) => row.batchId);
