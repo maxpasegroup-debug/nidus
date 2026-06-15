@@ -7,6 +7,10 @@ export const roleDashboardPath: Record<AuthRole, string> = {
   STUDENT: "/dashboard/student",
   PARENT: "/dashboard/parent",
   TEACHER: "/dashboard/teacher",
+  ACADEMIC_HEAD: "/dashboard/academic-head",
+  PHYSICAL_TRAINER: "/dashboard/teacher",
+  ADMINISTRATIVE_OFFICER: "/dashboard/admission-cell",
+  BUSINESS_DEVELOPMENT_EXECUTIVE: "/dashboard/business-development",
   DIRECTOR: "/dashboard/director",
   TELECALLER: "/dashboard/business-development",
   MARKETING_COORDINATOR: "/dashboard/business-development"
@@ -21,6 +25,10 @@ export function effectiveDashboardPath(user?: Pick<AuthUser, "role" | "roleMetad
   if (!user) return "/login";
   const template = dashboardTemplate(user);
   if (user.role === "DIRECTOR") return "/dashboard/director";
+  if (user.role === "ACADEMIC_HEAD") return "/dashboard/academic-head";
+  if (user.role === "ADMINISTRATIVE_OFFICER") return "/dashboard/admission-cell";
+  if (user.role === "BUSINESS_DEVELOPMENT_EXECUTIVE") return "/dashboard/business-development";
+  if (user.role === "PHYSICAL_TRAINER") return "/dashboard/teacher";
   if (template === "ACADEMIC_HEAD") return "/dashboard/academic-head";
   if (template === "ADMISSION_CELL") return "/dashboard/admission-cell";
   if (template === "MARKETING" || template === "SALES_BOOSTER") return "/dashboard/business-development";
@@ -31,16 +39,18 @@ export function canAccessDashboardPath(user: Pick<AuthUser, "role" | "roleMetada
   if (!user) return false;
   if (path === "/dashboard/settings") return true;
   const template = dashboardTemplate(user);
-  if (template === "ACADEMIC_HEAD") {
+  if (user.role === "ACADEMIC_HEAD" || template === "ACADEMIC_HEAD") {
     return path.startsWith("/dashboard/academic-head") || path.startsWith("/dashboard/teacher") || path.startsWith("/dashboard/director/academic") || path.startsWith("/dashboard/director/materials") || path.startsWith("/dashboard/director/exams");
   }
+  if (user.role === "ADMINISTRATIVE_OFFICER") return path === "/dashboard/admission-cell";
+  if (user.role === "BUSINESS_DEVELOPMENT_EXECUTIVE") return path === "/dashboard/business-development" || path.startsWith("/crm");
   if (template === "ADMISSION_CELL") return path === "/dashboard/admission-cell";
   if (template === "MARKETING" || template === "SALES_BOOSTER") {
     return path === "/dashboard/business-development";
   }
   if (user.role === "ADMIN") return true;
   if (user.role === "DIRECTOR") return path.startsWith("/dashboard/director") || path === "/dashboard/teacher" || path.startsWith("/admin-center");
-  if (user.role === "TEACHER") return path.startsWith("/dashboard/teacher");
+  if (user.role === "TEACHER" || user.role === "PHYSICAL_TRAINER") return path.startsWith("/dashboard/teacher");
   if (user.role === "MARKETING_COORDINATOR") return path === "/dashboard/business-development";
   if (user.role === "TELECALLER") return path === "/dashboard/business-development";
   if (user.role === "STUDENT") return path === "/dashboard/student";

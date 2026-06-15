@@ -21,7 +21,7 @@ function requireAcademicAiAccess(req: AuthenticatedRequest, res: Response, next:
   }
 
   const academicHead = template === "ACADEMIC_HEAD";
-  const academicRoles: Role[] = [Role.ADMIN, Role.DIRECTOR, Role.TEACHER];
+  const academicRoles: Role[] = [Role.ADMIN, Role.DIRECTOR, Role.ACADEMIC_HEAD, Role.TEACHER, Role.PHYSICAL_TRAINER];
   const allowedRole = academicRoles.includes(req.user.role as Role);
   if (!academicHead && !allowedRole) {
     res.status(403).json({ message: "Access denied" });

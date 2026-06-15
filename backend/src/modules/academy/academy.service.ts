@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 
 import { Prisma, Role } from "../../generated/prisma/client.js";
 import { prisma } from "../../config/prisma.js";
+import { deleteCloudinaryAsset } from "../../config/cloudinary.js";
 import { testsService, type TestPayload } from "../tests/tests.service.js";
 
 const db = prisma as any;
@@ -223,7 +224,7 @@ function requireManagement(user: Requester) {
 
 function requireAcademic(user: Requester) {
   const template = staffTemplate(user);
-  if ((user.role !== Role.ADMIN && user.role !== Role.DIRECTOR && user.role !== Role.TEACHER && template !== "ACADEMIC_HEAD") || isNonAcademicStaffTemplate(user)) {
+  if ((user.role !== Role.ADMIN && user.role !== Role.DIRECTOR && user.role !== Role.TEACHER && user.role !== Role.ACADEMIC_HEAD && user.role !== Role.PHYSICAL_TRAINER && template !== "ACADEMIC_HEAD") || isNonAcademicStaffTemplate(user)) {
     throw Object.assign(new Error("Academic access required"), { statusCode: 403 });
   }
 }
@@ -249,7 +250,7 @@ function isNonAcademicStaffTemplate(user: Requester) {
 function isAdmissionCell(user: Requester) {
   const template = staffTemplate(user);
   const designation = typeof user.roleMetadata?.designation === "string" ? user.roleMetadata.designation : "";
-  return user.role === Role.ADMIN && (template === "ADMISSION_CELL" || designation.toLowerCase().includes("admission"));
+  return user.role === Role.ADMINISTRATIVE_OFFICER || (user.role === Role.ADMIN && (template === "ADMISSION_CELL" || designation.toLowerCase().includes("admission")));
 }
 
 function requireAdmissionAccess(user: Requester) {
@@ -264,6 +265,7 @@ function isAcademicManager(user: Requester) {
   const permissions = Array.isArray(user.roleMetadata?.permissions) ? user.roleMetadata.permissions : [];
   return (
     isManagement(user) ||
+    user.role === Role.ACADEMIC_HEAD ||
     template === "ACADEMIC_HEAD" ||
     designation.toLowerCase().includes("academic head") ||
     permissions.includes("review_attendance")
@@ -281,7 +283,7 @@ function requireEmployeeCreationAccess(user: Requester, input: EmployeeInput) {
 }
 
 function usesTeacherWorkspace(user: Requester) {
-  return user.role === Role.TEACHER || staffTemplate(user) === "ACADEMIC_HEAD";
+  return user.role === Role.TEACHER || user.role === Role.ACADEMIC_HEAD || user.role === Role.PHYSICAL_TRAINER || staffTemplate(user) === "ACADEMIC_HEAD";
 }
 
 function isTeacherClassAllocation(row: BatchTeacherAssignmentRow) {
@@ -290,8 +292,17 @@ function isTeacherClassAllocation(row: BatchTeacherAssignmentRow) {
 
 function isVisibleTeacherWorkspaceAllocation(row: BatchTeacherAssignmentRow, user: Requester) {
   if (!isTeacherClassAllocation(row)) return false;
-  if (staffTemplate(user) === "ACADEMIC_HEAD") return row.role === "Subject Teacher";
+  if (user.role === Role.ACADEMIC_HEAD || staffTemplate(user) === "ACADEMIC_HEAD") return row.role === "Subject Teacher";
   return true;
+}
+
+function materialMimeType(type?: string | null) {
+  const normalized = (type || "").toUpperCase();
+  if (normalized.includes("VIDEO")) return "video/mp4";
+  if (normalized.includes("PDF")) return "application/pdf";
+  if (normalized.includes("PPT")) return "application/vnd.openxmlformats-officedocument.presentationml.presentation";
+  if (normalized.includes("DOC") || normalized.includes("WORD")) return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+  return "image/jpeg";
 }
 
 function percentage(part: number, total: number) {
@@ -457,6 +468,36 @@ async function assertBatchAccess(user: Requester, batchId?: string) {
   }
 
   throw Object.assign(new Error("This class is not assigned to the teacher"), { statusCode: 403 });
+}
+
+async function assertBatchSubjectAccess(user: Requester, batchId?: string, subject?: string | null) {
+  await assertBatchAccess(user, batchId);
+  if (!batchId || !subject || isAcademicManager(user)) return;
+  const normalizedSubject = subject.trim();
+  if (!normalizedSubject) return;
+
+  const assignment = await prisma.teacherBatchAssignment.findFirst({
+    where: {
+      batchId,
+      teacherId: user.id,
+      status: "ACTIVE",
+      subject: { equals: normalizedSubject, mode: "insensitive" },
+    },
+    select: { id: true },
+  });
+  if (assignment) return;
+
+  const legacyRows = await prisma.$queryRaw<Array<{ id: string }>>`
+    SELECT "id" FROM "BatchTeacherAssignment"
+    WHERE "batchId" = ${batchId}
+    AND "teacherId" = ${user.id}
+    AND LOWER("subject") = LOWER(${normalizedSubject})
+    AND "status" = 'ACTIVE'
+    LIMIT 1
+  `;
+  if (legacyRows[0]) return;
+
+  throw Object.assign(new Error("This subject is not assigned to this teacher for the selected batch"), { statusCode: 403 });
 }
 
 async function assertStudentBatchAccess(user: Requester, batchId?: string) {
@@ -1323,7 +1364,7 @@ export const academyService = {
       throw Object.assign(new Error("Subject, topic and planned date are required"), { statusCode: 400 });
     }
     if (input.batchId) {
-      await assertBatchAccess(user, input.batchId);
+      await assertBatchSubjectAccess(user, input.batchId, input.subject);
     }
     const assignedTeacher = input.teacherId
       ? await prisma.user.findUnique({ where: { id: input.teacherId }, select: { id: true, name: true, email: true } })
@@ -1425,7 +1466,7 @@ export const academyService = {
   },
 
   async saveAttendance(user: Requester, input: AttendanceInput) {
-    await assertBatchAccess(user, input.batchId);
+    await assertBatchSubjectAccess(user, input.batchId, input.subject);
     if (!input.date) {
       throw Object.assign(new Error("Attendance date is required"), { statusCode: 400 });
     }
@@ -1509,7 +1550,7 @@ export const academyService = {
   },
 
   async createAssignment(user: Requester, input: AssignmentInput) {
-    await assertBatchAccess(user, input.batchId);
+    await assertBatchSubjectAccess(user, input.batchId, input.subject);
     if (!input.title || !input.instructions) {
       throw Object.assign(new Error("Assignment title and instructions are required"), { statusCode: 400 });
     }
@@ -1647,7 +1688,7 @@ export const academyService = {
   },
 
   async publishStudyMaterial(user: Requester, input: StudyMaterialInput) {
-    await assertBatchAccess(user, input.batchId);
+    await assertBatchSubjectAccess(user, input.batchId, input.subject);
     if (!input.title) {
       throw Object.assign(new Error("Material title is required"), { statusCode: 400 });
     }
@@ -1718,6 +1759,7 @@ export const academyService = {
       throw Object.assign(new Error("Material not found"), { statusCode: 404 });
     }
     await assertBatchAccess(user, current.batchId);
+    await assertBatchSubjectAccess(user, current.batchId, input.subject ?? current.subject);
     if (user.role === Role.TEACHER && current.teacherId !== user.id && !isAcademicManager(user)) {
       throw Object.assign(new Error("Only the publishing teacher can edit this material"), { statusCode: 403 });
     }
@@ -1746,10 +1788,26 @@ export const academyService = {
   },
 
   async archiveStudyMaterial(user: Requester, materialId: string) {
+    const rows = await prisma.$queryRaw<any[]>`
+      SELECT * FROM "TeacherStudyMaterialRecord" WHERE "id" = ${materialId} LIMIT 1
+    `;
+    const current = rows[0];
+    if (!current) {
+      throw Object.assign(new Error("Material not found"), { statusCode: 404 });
+    }
+    if (current.cloudinaryPublicId) {
+      await deleteCloudinaryAsset(current.cloudinaryPublicId, materialMimeType(current.type)).catch(() => undefined);
+    }
+    if (current.thumbnailPublicId) {
+      await deleteCloudinaryAsset(current.thumbnailPublicId, "image/jpeg").catch(() => undefined);
+    }
+
     return this.updateStudyMaterial(user, materialId, { status: "ARCHIVED" }).then(async (result) => {
       await prisma.$executeRaw`
         UPDATE "TeacherStudyMaterialRecord"
         SET "archivedAt" = ${new Date()},
+            "cloudinaryPublicId" = NULL,
+            "thumbnailPublicId" = NULL,
             "updatedAt" = ${new Date()}
         WHERE "id" = ${materialId}
       `;
@@ -1786,7 +1844,7 @@ export const academyService = {
   },
 
   async createExamDraft(user: Requester, input: ExamInput) {
-    await assertBatchAccess(user, input.batchId);
+    await assertBatchSubjectAccess(user, input.batchId, input.subject);
     if (!input.topic) {
       throw Object.assign(new Error("Exam topic is required"), { statusCode: 400 });
     }
@@ -1802,7 +1860,7 @@ export const academyService = {
   },
 
   async publishExam(user: Requester, input: ExamInput) {
-    await assertBatchAccess(user, input.batchId);
+    await assertBatchSubjectAccess(user, input.batchId, input.subject);
     if (!input.title || !input.topic) {
       throw Object.assign(new Error("Exam title and topic are required"), { statusCode: 400 });
     }

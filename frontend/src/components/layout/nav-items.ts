@@ -73,15 +73,15 @@ export function getNavItems(role?: string | null, dashboardTemplate?: string | n
     return academicHeadMenu;
   }
 
-  if (normalizedRole === "TEACHER" || normalizedRole === "PHYSICAL_INSTRUCTOR") {
+  if (normalizedRole === "TEACHER" || normalizedRole === "PHYSICAL_TRAINER" || normalizedRole === "PHYSICAL_INSTRUCTOR") {
     return teacherMenu;
   }
 
-  if (normalizedRole === "ADMIN" || normalizedRole === "ADMISSION_CELL") {
+  if (normalizedRole === "ADMINISTRATIVE_OFFICER" || normalizedRole === "ADMIN" || normalizedRole === "ADMISSION_CELL") {
     return administrativeOfficerMenu;
   }
 
-  if (normalizedRole === "MARKETING_COORDINATOR" || normalizedRole === "SALES_BOOSTER" || normalizedRole === "TELECALLER") {
+  if (normalizedRole === "BUSINESS_DEVELOPMENT_EXECUTIVE" || normalizedRole === "MARKETING_COORDINATOR" || normalizedRole === "SALES_BOOSTER" || normalizedRole === "TELECALLER") {
     return businessDevelopmentMenu;
   }
 

@@ -5,7 +5,7 @@ import { allowRoles, protect } from "../../middlewares/session.middleware.js";
 import { documentsController, mediaController } from "./media.controller.js";
 import { upload } from "./media.middleware.js";
 
-const mediaRoles = allowRoles(Role.ADMIN, Role.TEACHER, Role.MARKETING_COORDINATOR);
+const mediaRoles = allowRoles(Role.ADMIN, Role.DIRECTOR, Role.ACADEMIC_HEAD, Role.TEACHER, Role.PHYSICAL_TRAINER, Role.MARKETING_COORDINATOR);
 
 export const mediaRouter = Router();
 export const documentsRouter = Router();

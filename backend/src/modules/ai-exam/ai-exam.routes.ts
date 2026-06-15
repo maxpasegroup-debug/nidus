@@ -15,7 +15,7 @@ function requireExamAgentAccess(req: AuthenticatedRequest, res: Response, next: 
   const template = typeof metadata.dashboardTemplate === "string" ? metadata.dashboardTemplate.toUpperCase() : "";
   const restrictedAdmin = req.user.role === Role.ADMIN && ["ADMISSION_CELL", "MARKETING", "SALES_BOOSTER"].includes(template);
 
-  const allowedRole = req.user.role === Role.ADMIN || req.user.role === Role.DIRECTOR || req.user.role === Role.TEACHER;
+  const allowedRole = req.user.role === Role.ADMIN || req.user.role === Role.DIRECTOR || req.user.role === Role.ACADEMIC_HEAD || req.user.role === Role.TEACHER || req.user.role === Role.PHYSICAL_TRAINER;
   if (restrictedAdmin || !allowedRole) {
     res.status(403).json({ message: "Access denied" });
     return;

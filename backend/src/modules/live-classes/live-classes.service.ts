@@ -1,4 +1,34 @@
 import { prisma } from "../../config/prisma.js";
+import { Role } from "../../generated/prisma/client.js";
+
+type LiveClassUser = {
+  id: string;
+  role: Role;
+  roleMetadata?: Record<string, unknown> | null;
+};
+
+function liveClassTemplate(user: LiveClassUser) {
+  const metadata = user.roleMetadata && typeof user.roleMetadata === "object" ? user.roleMetadata : {};
+  return typeof metadata.dashboardTemplate === "string" ? metadata.dashboardTemplate.toUpperCase() : "";
+}
+
+function canManageAllLiveClasses(user: LiveClassUser) {
+  const dashboardTemplate = liveClassTemplate(user);
+  return (
+    user.role === Role.DIRECTOR ||
+    user.role === Role.ACADEMIC_HEAD ||
+    dashboardTemplate === "ACADEMIC_HEAD" ||
+    (user.role === Role.ADMIN && !["ADMISSION_CELL", "MARKETING", "SALES_BOOSTER", "ADMINISTRATION"].includes(dashboardTemplate))
+  );
+}
+
+async function assignedBatchIdsForTeacher(userId: string) {
+  const assignments = await prisma.teacherBatchAssignment.findMany({
+    where: { teacherId: userId, status: "ACTIVE" },
+    select: { batchId: true }
+  });
+  return assignments.map((assignment) => assignment.batchId);
+}
 
 export type LiveClassPayload = {
   title: string;
@@ -20,8 +50,61 @@ export type LiveClassPayload = {
 };
 
 export const liveClassesService = {
-  listLiveClasses() {
-    return prisma.liveClass.findMany({ orderBy: { scheduledAt: "asc" } });
+  async listLiveClasses(user: LiveClassUser) {
+    if (canManageAllLiveClasses(user)) {
+      return prisma.liveClass.findMany({
+        where: { status: { not: "CANCELLED" } },
+        orderBy: { scheduledAt: "asc" }
+      });
+    }
+
+    if (user.role === Role.TEACHER || user.role === Role.PHYSICAL_TRAINER) {
+      const batchIds = await assignedBatchIdsForTeacher(user.id);
+      return prisma.liveClass.findMany({
+        where: {
+          status: { not: "CANCELLED" },
+          OR: [
+            { teacherId: user.id },
+            ...(batchIds.length ? [{ batchId: { in: batchIds } }] : [])
+          ]
+        },
+        orderBy: { scheduledAt: "asc" }
+      });
+    }
+
+    if (user.role === Role.STUDENT) {
+      const enrollments = await prisma.batchStudent.findMany({
+        where: { studentId: user.id, status: "ACTIVE" },
+        select: { batchId: true }
+      });
+      const batchIds = enrollments.map((enrollment) => enrollment.batchId);
+      if (!batchIds.length) return [];
+      return prisma.liveClass.findMany({
+        where: { batchId: { in: batchIds }, status: { not: "CANCELLED" } },
+        orderBy: { scheduledAt: "asc" }
+      });
+    }
+
+    if (user.role === Role.PARENT) {
+      const links = await prisma.parentStudentLink.findMany({
+        where: { parentId: user.id, status: "ACTIVE" },
+        select: { studentId: true }
+      });
+      const studentIds = links.map((link) => link.studentId);
+      if (!studentIds.length) return [];
+      const enrollments = await prisma.batchStudent.findMany({
+        where: { studentId: { in: studentIds }, status: "ACTIVE" },
+        select: { batchId: true }
+      });
+      const batchIds = Array.from(new Set(enrollments.map((enrollment) => enrollment.batchId)));
+      if (!batchIds.length) return [];
+      return prisma.liveClass.findMany({
+        where: { batchId: { in: batchIds }, status: { not: "CANCELLED" } },
+        orderBy: { scheduledAt: "asc" }
+      });
+    }
+
+    return [];
   },
 
   createLiveClass(payload: LiveClassPayload) {
@@ -47,8 +130,8 @@ export const liveClassesService = {
     });
   },
 
-  async updateLiveClass(id: string, payload: Partial<LiveClassPayload>) {
-    await this.getLiveClass(id);
+  async updateLiveClass(user: LiveClassUser, id: string, payload: Partial<LiveClassPayload>) {
+    await this.assertManageAccess(user, id);
     return prisma.liveClass.update({
       where: { id },
       data: {
@@ -72,10 +155,21 @@ export const liveClassesService = {
     });
   },
 
-  async deleteLiveClass(id: string) {
-    await this.getLiveClass(id);
+  async deleteLiveClass(user: LiveClassUser, id: string) {
+    await this.assertManageAccess(user, id);
     await prisma.liveClass.delete({ where: { id } });
     return { message: "Live class deleted successfully" };
+  },
+
+  async assertManageAccess(user: LiveClassUser, id: string) {
+    const liveClass = await this.getLiveClass(id);
+    if (canManageAllLiveClasses(user)) return liveClass;
+    if (liveClass.teacherId === user.id) return liveClass;
+    if (liveClass.batchId && (user.role === Role.TEACHER || user.role === Role.PHYSICAL_TRAINER)) {
+      const batchIds = await assignedBatchIdsForTeacher(user.id);
+      if (batchIds.includes(liveClass.batchId)) return liveClass;
+    }
+    throw Object.assign(new Error("This live class is not assigned to this user"), { statusCode: 403 });
   },
 
   async getLiveClass(id: string) {

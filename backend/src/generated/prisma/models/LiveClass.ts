@@ -45,6 +45,13 @@ export type LiveClassMinAggregateOutputType = {
   meetingLink: string | null
   thumbnail: string | null
   isLive: boolean | null
+  batchId: string | null
+  programSlug: string | null
+  subject: string | null
+  topic: string | null
+  teacherId: string | null
+  status: string | null
+  recordingUrl: string | null
   createdAt: Date | null
 }
 
@@ -59,6 +66,13 @@ export type LiveClassMaxAggregateOutputType = {
   meetingLink: string | null
   thumbnail: string | null
   isLive: boolean | null
+  batchId: string | null
+  programSlug: string | null
+  subject: string | null
+  topic: string | null
+  teacherId: string | null
+  status: string | null
+  recordingUrl: string | null
   createdAt: Date | null
 }
 
@@ -73,6 +87,13 @@ export type LiveClassCountAggregateOutputType = {
   meetingLink: number
   thumbnail: number
   isLive: number
+  batchId: number
+  programSlug: number
+  subject: number
+  topic: number
+  teacherId: number
+  status: number
+  recordingUrl: number
   createdAt: number
   _all: number
 }
@@ -97,6 +118,13 @@ export type LiveClassMinAggregateInputType = {
   meetingLink?: true
   thumbnail?: true
   isLive?: true
+  batchId?: true
+  programSlug?: true
+  subject?: true
+  topic?: true
+  teacherId?: true
+  status?: true
+  recordingUrl?: true
   createdAt?: true
 }
 
@@ -111,6 +139,13 @@ export type LiveClassMaxAggregateInputType = {
   meetingLink?: true
   thumbnail?: true
   isLive?: true
+  batchId?: true
+  programSlug?: true
+  subject?: true
+  topic?: true
+  teacherId?: true
+  status?: true
+  recordingUrl?: true
   createdAt?: true
 }
 
@@ -125,6 +160,13 @@ export type LiveClassCountAggregateInputType = {
   meetingLink?: true
   thumbnail?: true
   isLive?: true
+  batchId?: true
+  programSlug?: true
+  subject?: true
+  topic?: true
+  teacherId?: true
+  status?: true
+  recordingUrl?: true
   createdAt?: true
   _all?: true
 }
@@ -226,6 +268,13 @@ export type LiveClassGroupByOutputType = {
   meetingLink: string
   thumbnail: string
   isLive: boolean
+  batchId: string | null
+  programSlug: string | null
+  subject: string | null
+  topic: string | null
+  teacherId: string | null
+  status: string
+  recordingUrl: string | null
   createdAt: Date
   _count: LiveClassCountAggregateOutputType | null
   _avg: LiveClassAvgAggregateOutputType | null
@@ -263,6 +312,13 @@ export type LiveClassWhereInput = {
   meetingLink?: Prisma.StringFilter<"LiveClass"> | string
   thumbnail?: Prisma.StringFilter<"LiveClass"> | string
   isLive?: Prisma.BoolFilter<"LiveClass"> | boolean
+  batchId?: Prisma.StringNullableFilter<"LiveClass"> | string | null
+  programSlug?: Prisma.StringNullableFilter<"LiveClass"> | string | null
+  subject?: Prisma.StringNullableFilter<"LiveClass"> | string | null
+  topic?: Prisma.StringNullableFilter<"LiveClass"> | string | null
+  teacherId?: Prisma.StringNullableFilter<"LiveClass"> | string | null
+  status?: Prisma.StringFilter<"LiveClass"> | string
+  recordingUrl?: Prisma.StringNullableFilter<"LiveClass"> | string | null
   createdAt?: Prisma.DateTimeFilter<"LiveClass"> | Date | string
 }
 
@@ -277,6 +333,13 @@ export type LiveClassOrderByWithRelationInput = {
   meetingLink?: Prisma.SortOrder
   thumbnail?: Prisma.SortOrder
   isLive?: Prisma.SortOrder
+  batchId?: Prisma.SortOrderInput | Prisma.SortOrder
+  programSlug?: Prisma.SortOrderInput | Prisma.SortOrder
+  subject?: Prisma.SortOrderInput | Prisma.SortOrder
+  topic?: Prisma.SortOrderInput | Prisma.SortOrder
+  teacherId?: Prisma.SortOrderInput | Prisma.SortOrder
+  status?: Prisma.SortOrder
+  recordingUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -294,6 +357,13 @@ export type LiveClassWhereUniqueInput = Prisma.AtLeast<{
   meetingLink?: Prisma.StringFilter<"LiveClass"> | string
   thumbnail?: Prisma.StringFilter<"LiveClass"> | string
   isLive?: Prisma.BoolFilter<"LiveClass"> | boolean
+  batchId?: Prisma.StringNullableFilter<"LiveClass"> | string | null
+  programSlug?: Prisma.StringNullableFilter<"LiveClass"> | string | null
+  subject?: Prisma.StringNullableFilter<"LiveClass"> | string | null
+  topic?: Prisma.StringNullableFilter<"LiveClass"> | string | null
+  teacherId?: Prisma.StringNullableFilter<"LiveClass"> | string | null
+  status?: Prisma.StringFilter<"LiveClass"> | string
+  recordingUrl?: Prisma.StringNullableFilter<"LiveClass"> | string | null
   createdAt?: Prisma.DateTimeFilter<"LiveClass"> | Date | string
 }, "id">
 
@@ -308,6 +378,13 @@ export type LiveClassOrderByWithAggregationInput = {
   meetingLink?: Prisma.SortOrder
   thumbnail?: Prisma.SortOrder
   isLive?: Prisma.SortOrder
+  batchId?: Prisma.SortOrderInput | Prisma.SortOrder
+  programSlug?: Prisma.SortOrderInput | Prisma.SortOrder
+  subject?: Prisma.SortOrderInput | Prisma.SortOrder
+  topic?: Prisma.SortOrderInput | Prisma.SortOrder
+  teacherId?: Prisma.SortOrderInput | Prisma.SortOrder
+  status?: Prisma.SortOrder
+  recordingUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.LiveClassCountOrderByAggregateInput
   _avg?: Prisma.LiveClassAvgOrderByAggregateInput
@@ -330,6 +407,13 @@ export type LiveClassScalarWhereWithAggregatesInput = {
   meetingLink?: Prisma.StringWithAggregatesFilter<"LiveClass"> | string
   thumbnail?: Prisma.StringWithAggregatesFilter<"LiveClass"> | string
   isLive?: Prisma.BoolWithAggregatesFilter<"LiveClass"> | boolean
+  batchId?: Prisma.StringNullableWithAggregatesFilter<"LiveClass"> | string | null
+  programSlug?: Prisma.StringNullableWithAggregatesFilter<"LiveClass"> | string | null
+  subject?: Prisma.StringNullableWithAggregatesFilter<"LiveClass"> | string | null
+  topic?: Prisma.StringNullableWithAggregatesFilter<"LiveClass"> | string | null
+  teacherId?: Prisma.StringNullableWithAggregatesFilter<"LiveClass"> | string | null
+  status?: Prisma.StringWithAggregatesFilter<"LiveClass"> | string
+  recordingUrl?: Prisma.StringNullableWithAggregatesFilter<"LiveClass"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"LiveClass"> | Date | string
 }
 
@@ -344,6 +428,13 @@ export type LiveClassCreateInput = {
   meetingLink: string
   thumbnail: string
   isLive?: boolean
+  batchId?: string | null
+  programSlug?: string | null
+  subject?: string | null
+  topic?: string | null
+  teacherId?: string | null
+  status?: string
+  recordingUrl?: string | null
   createdAt?: Date | string
 }
 
@@ -358,6 +449,13 @@ export type LiveClassUncheckedCreateInput = {
   meetingLink: string
   thumbnail: string
   isLive?: boolean
+  batchId?: string | null
+  programSlug?: string | null
+  subject?: string | null
+  topic?: string | null
+  teacherId?: string | null
+  status?: string
+  recordingUrl?: string | null
   createdAt?: Date | string
 }
 
@@ -372,6 +470,13 @@ export type LiveClassUpdateInput = {
   meetingLink?: Prisma.StringFieldUpdateOperationsInput | string
   thumbnail?: Prisma.StringFieldUpdateOperationsInput | string
   isLive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  batchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  programSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subject?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  topic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  teacherId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  recordingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -386,6 +491,13 @@ export type LiveClassUncheckedUpdateInput = {
   meetingLink?: Prisma.StringFieldUpdateOperationsInput | string
   thumbnail?: Prisma.StringFieldUpdateOperationsInput | string
   isLive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  batchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  programSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subject?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  topic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  teacherId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  recordingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -400,6 +512,13 @@ export type LiveClassCreateManyInput = {
   meetingLink: string
   thumbnail: string
   isLive?: boolean
+  batchId?: string | null
+  programSlug?: string | null
+  subject?: string | null
+  topic?: string | null
+  teacherId?: string | null
+  status?: string
+  recordingUrl?: string | null
   createdAt?: Date | string
 }
 
@@ -414,6 +533,13 @@ export type LiveClassUpdateManyMutationInput = {
   meetingLink?: Prisma.StringFieldUpdateOperationsInput | string
   thumbnail?: Prisma.StringFieldUpdateOperationsInput | string
   isLive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  batchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  programSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subject?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  topic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  teacherId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  recordingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -428,6 +554,13 @@ export type LiveClassUncheckedUpdateManyInput = {
   meetingLink?: Prisma.StringFieldUpdateOperationsInput | string
   thumbnail?: Prisma.StringFieldUpdateOperationsInput | string
   isLive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  batchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  programSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subject?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  topic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  teacherId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  recordingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -442,6 +575,13 @@ export type LiveClassCountOrderByAggregateInput = {
   meetingLink?: Prisma.SortOrder
   thumbnail?: Prisma.SortOrder
   isLive?: Prisma.SortOrder
+  batchId?: Prisma.SortOrder
+  programSlug?: Prisma.SortOrder
+  subject?: Prisma.SortOrder
+  topic?: Prisma.SortOrder
+  teacherId?: Prisma.SortOrder
+  status?: Prisma.SortOrder
+  recordingUrl?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -460,6 +600,13 @@ export type LiveClassMaxOrderByAggregateInput = {
   meetingLink?: Prisma.SortOrder
   thumbnail?: Prisma.SortOrder
   isLive?: Prisma.SortOrder
+  batchId?: Prisma.SortOrder
+  programSlug?: Prisma.SortOrder
+  subject?: Prisma.SortOrder
+  topic?: Prisma.SortOrder
+  teacherId?: Prisma.SortOrder
+  status?: Prisma.SortOrder
+  recordingUrl?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -474,6 +621,13 @@ export type LiveClassMinOrderByAggregateInput = {
   meetingLink?: Prisma.SortOrder
   thumbnail?: Prisma.SortOrder
   isLive?: Prisma.SortOrder
+  batchId?: Prisma.SortOrder
+  programSlug?: Prisma.SortOrder
+  subject?: Prisma.SortOrder
+  topic?: Prisma.SortOrder
+  teacherId?: Prisma.SortOrder
+  status?: Prisma.SortOrder
+  recordingUrl?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -494,6 +648,13 @@ export type LiveClassSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   meetingLink?: boolean
   thumbnail?: boolean
   isLive?: boolean
+  batchId?: boolean
+  programSlug?: boolean
+  subject?: boolean
+  topic?: boolean
+  teacherId?: boolean
+  status?: boolean
+  recordingUrl?: boolean
   createdAt?: boolean
 }, ExtArgs["result"]["liveClass"]>
 
@@ -508,6 +669,13 @@ export type LiveClassSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   meetingLink?: boolean
   thumbnail?: boolean
   isLive?: boolean
+  batchId?: boolean
+  programSlug?: boolean
+  subject?: boolean
+  topic?: boolean
+  teacherId?: boolean
+  status?: boolean
+  recordingUrl?: boolean
   createdAt?: boolean
 }, ExtArgs["result"]["liveClass"]>
 
@@ -522,6 +690,13 @@ export type LiveClassSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
   meetingLink?: boolean
   thumbnail?: boolean
   isLive?: boolean
+  batchId?: boolean
+  programSlug?: boolean
+  subject?: boolean
+  topic?: boolean
+  teacherId?: boolean
+  status?: boolean
+  recordingUrl?: boolean
   createdAt?: boolean
 }, ExtArgs["result"]["liveClass"]>
 
@@ -536,10 +711,17 @@ export type LiveClassSelectScalar = {
   meetingLink?: boolean
   thumbnail?: boolean
   isLive?: boolean
+  batchId?: boolean
+  programSlug?: boolean
+  subject?: boolean
+  topic?: boolean
+  teacherId?: boolean
+  status?: boolean
+  recordingUrl?: boolean
   createdAt?: boolean
 }
 
-export type LiveClassOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "description" | "examType" | "instructorName" | "scheduledAt" | "duration" | "meetingLink" | "thumbnail" | "isLive" | "createdAt", ExtArgs["result"]["liveClass"]>
+export type LiveClassOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "description" | "examType" | "instructorName" | "scheduledAt" | "duration" | "meetingLink" | "thumbnail" | "isLive" | "batchId" | "programSlug" | "subject" | "topic" | "teacherId" | "status" | "recordingUrl" | "createdAt", ExtArgs["result"]["liveClass"]>
 
 export type $LiveClassPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "LiveClass"
@@ -555,6 +737,13 @@ export type $LiveClassPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     meetingLink: string
     thumbnail: string
     isLive: boolean
+    batchId: string | null
+    programSlug: string | null
+    subject: string | null
+    topic: string | null
+    teacherId: string | null
+    status: string
+    recordingUrl: string | null
     createdAt: Date
   }, ExtArgs["result"]["liveClass"]>
   composites: {}
@@ -989,6 +1178,13 @@ export interface LiveClassFieldRefs {
   readonly meetingLink: Prisma.FieldRef<"LiveClass", 'String'>
   readonly thumbnail: Prisma.FieldRef<"LiveClass", 'String'>
   readonly isLive: Prisma.FieldRef<"LiveClass", 'Boolean'>
+  readonly batchId: Prisma.FieldRef<"LiveClass", 'String'>
+  readonly programSlug: Prisma.FieldRef<"LiveClass", 'String'>
+  readonly subject: Prisma.FieldRef<"LiveClass", 'String'>
+  readonly topic: Prisma.FieldRef<"LiveClass", 'String'>
+  readonly teacherId: Prisma.FieldRef<"LiveClass", 'String'>
+  readonly status: Prisma.FieldRef<"LiveClass", 'String'>
+  readonly recordingUrl: Prisma.FieldRef<"LiveClass", 'String'>
   readonly createdAt: Prisma.FieldRef<"LiveClass", 'DateTime'>
 }
     

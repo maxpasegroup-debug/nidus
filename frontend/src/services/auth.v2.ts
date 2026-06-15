@@ -1,6 +1,18 @@
 import { apiClient } from "./api";
 
-export type AuthRole = "ADMIN" | "GUEST" | "STUDENT" | "PARENT" | "TEACHER" | "DIRECTOR" | "TELECALLER" | "MARKETING_COORDINATOR";
+export type AuthRole =
+  | "ADMIN"
+  | "GUEST"
+  | "STUDENT"
+  | "PARENT"
+  | "TEACHER"
+  | "ACADEMIC_HEAD"
+  | "PHYSICAL_TRAINER"
+  | "ADMINISTRATIVE_OFFICER"
+  | "BUSINESS_DEVELOPMENT_EXECUTIVE"
+  | "DIRECTOR"
+  | "TELECALLER"
+  | "MARKETING_COORDINATOR";
 
 export type LoginPayload = {
   identifier: string;

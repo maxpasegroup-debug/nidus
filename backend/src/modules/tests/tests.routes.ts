@@ -32,11 +32,11 @@ testsRouter.get("/attempts/history", protect, allowRoles(Role.STUDENT, Role.ADMI
 testsRouter.get("/result/:attemptId", protect, allowRoles(Role.STUDENT, Role.ADMIN), testsController.result);
 testsRouter.get("/attempts/:attemptId/resume", protect, allowRoles(Role.STUDENT, Role.ADMIN), testsController.resume);
 testsRouter.get("/attempts/:attemptId/review-plan", protect, allowRoles(Role.STUDENT, Role.ADMIN), testsController.reviewPlan);
-testsRouter.get("/attempts/:attemptId/intelligence", protect, allowRoles(Role.STUDENT, Role.TEACHER, Role.ADMIN), testsController.intelligenceReport);
+testsRouter.get("/attempts/:attemptId/intelligence", protect, allowRoles(Role.STUDENT, Role.TEACHER, Role.ACADEMIC_HEAD, Role.ADMIN), testsController.intelligenceReport);
 testsRouter.post(
   "/ai-draft",
   protect,
-  allowRoles(Role.ADMIN, Role.TEACHER),
+  allowRoles(Role.ADMIN, Role.DIRECTOR, Role.ACADEMIC_HEAD, Role.TEACHER),
   [
     body("prompt").trim().isLength({ min: 5 }).withMessage("Prompt must describe the test"),
     body("examType").optional({ nullable: true }).trim(),
@@ -48,11 +48,11 @@ testsRouter.post(
   ],
   testsController.generateDraft
 );
-testsRouter.post("/publish-draft", protect, allowRoles(Role.ADMIN, Role.TEACHER), testValidators(), testsController.publishDraft);
+testsRouter.post("/publish-draft", protect, allowRoles(Role.ADMIN, Role.DIRECTOR, Role.ACADEMIC_HEAD, Role.TEACHER), testValidators(), testsController.publishDraft);
 testsRouter.get("/:id", testsController.details);
-testsRouter.post("/", protect, allowRoles(Role.ADMIN, Role.TEACHER), testValidators(), testsController.create);
-testsRouter.put("/:id", protect, allowRoles(Role.ADMIN, Role.TEACHER), testValidators(true), testsController.update);
-testsRouter.delete("/:id", protect, allowRoles(Role.ADMIN, Role.TEACHER), testsController.remove);
+testsRouter.post("/", protect, allowRoles(Role.ADMIN, Role.DIRECTOR, Role.ACADEMIC_HEAD, Role.TEACHER), testValidators(), testsController.create);
+testsRouter.put("/:id", protect, allowRoles(Role.ADMIN, Role.DIRECTOR, Role.ACADEMIC_HEAD, Role.TEACHER), testValidators(true), testsController.update);
+testsRouter.delete("/:id", protect, allowRoles(Role.ADMIN, Role.DIRECTOR, Role.ACADEMIC_HEAD, Role.TEACHER), testsController.remove);
 testsRouter.post("/start", protect, allowRoles(Role.STUDENT, Role.ADMIN), [body("testId").notEmpty()], testsController.start);
 testsRouter.post(
   "/submit",

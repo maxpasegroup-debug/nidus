@@ -6,7 +6,7 @@ import { crmController } from "./crm.controller.js";
 
 export const crmRouter = Router();
 
-const crmRoles = [protect, allowRoles(Role.ADMIN, Role.DIRECTOR, Role.TELECALLER, Role.MARKETING_COORDINATOR)];
+const crmRoles = [protect, allowRoles(Role.ADMIN, Role.DIRECTOR, Role.ADMINISTRATIVE_OFFICER, Role.BUSINESS_DEVELOPMENT_EXECUTIVE, Role.TELECALLER, Role.MARKETING_COORDINATOR)];
 const approvalRoles = [protect, allowRoles(Role.ADMIN, Role.DIRECTOR)];
 const leadStatuses = ["NEW", "CONTACTED", "COUNSELLING", "ENROLLED", "LOST"];
 

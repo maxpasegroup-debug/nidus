@@ -15,7 +15,7 @@ function requireAcademyRoles(roles: Role[]) {
     const metadata = req.user.roleMetadata && typeof req.user.roleMetadata === "object" ? req.user.roleMetadata : {};
     const template = typeof metadata.dashboardTemplate === "string" ? metadata.dashboardTemplate.toUpperCase() : "";
     const restrictedAdmin = req.user.role === Role.ADMIN && ["ADMISSION_CELL", "MARKETING", "SALES_BOOSTER"].includes(template);
-    const admissionAllowed = template === "ADMISSION_CELL" && (
+    const admissionAllowed = (template === "ADMISSION_CELL" || req.user.role === Role.ADMINISTRATIVE_OFFICER) && (
       (req.method === "GET" && req.path === "/batches") ||
       (req.method === "POST" && req.path === "/admissions/approve")
     );
@@ -24,7 +24,7 @@ function requireAcademyRoles(roles: Role[]) {
       return;
     }
     const templateAcademicAccess = template === "ACADEMIC_HEAD" && roles.includes(Role.TEACHER);
-    if (!templateAcademicAccess && !roles.includes(req.user.role as Role)) {
+    if (!templateAcademicAccess && !admissionAllowed && !roles.includes(req.user.role as Role)) {
       res.status(403).json({ message: "Access denied" });
       return;
     }
@@ -32,8 +32,8 @@ function requireAcademyRoles(roles: Role[]) {
   };
 }
 
-const academicRoles = [Role.ADMIN, Role.DIRECTOR, Role.TEACHER];
-const studentAcademicRoles = [Role.ADMIN, Role.DIRECTOR, Role.TEACHER, Role.STUDENT];
+const academicRoles = [Role.ADMIN, Role.DIRECTOR, Role.ACADEMIC_HEAD, Role.TEACHER, Role.PHYSICAL_TRAINER];
+const studentAcademicRoles = [Role.ADMIN, Role.DIRECTOR, Role.ACADEMIC_HEAD, Role.TEACHER, Role.PHYSICAL_TRAINER, Role.STUDENT];
 const managementRoles = [Role.ADMIN, Role.DIRECTOR];
 
 router.use(protect);

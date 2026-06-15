@@ -30,10 +30,10 @@ function liveValidators(optional = false) {
   ];
 }
 
-liveClassesRouter.get("/", liveClassesController.listLiveClasses);
-liveClassesRouter.post("/", protect, allowRoles(Role.ADMIN, Role.TEACHER), liveValidators(), liveClassesController.createLiveClass);
-liveClassesRouter.put("/:id", protect, allowRoles(Role.ADMIN, Role.TEACHER), liveValidators(true), liveClassesController.updateLiveClass);
-liveClassesRouter.delete("/:id", protect, allowRoles(Role.ADMIN, Role.TEACHER), liveClassesController.deleteLiveClass);
+liveClassesRouter.get("/", protect, allowRoles(Role.ADMIN, Role.DIRECTOR, Role.ACADEMIC_HEAD, Role.TEACHER, Role.PHYSICAL_TRAINER, Role.STUDENT, Role.PARENT), liveClassesController.listLiveClasses);
+liveClassesRouter.post("/", protect, allowRoles(Role.ADMIN, Role.DIRECTOR, Role.ACADEMIC_HEAD, Role.TEACHER, Role.PHYSICAL_TRAINER), liveValidators(), liveClassesController.createLiveClass);
+liveClassesRouter.put("/:id", protect, allowRoles(Role.ADMIN, Role.DIRECTOR, Role.ACADEMIC_HEAD, Role.TEACHER, Role.PHYSICAL_TRAINER), liveValidators(true), liveClassesController.updateLiveClass);
+liveClassesRouter.delete("/:id", protect, allowRoles(Role.ADMIN, Role.DIRECTOR, Role.ACADEMIC_HEAD, Role.TEACHER, Role.PHYSICAL_TRAINER), liveClassesController.deleteLiveClass);
 
 recordedLecturesRouter.get("/", liveClassesController.listLectures);
 recordedLecturesRouter.get("/:id", liveClassesController.lectureDetails);

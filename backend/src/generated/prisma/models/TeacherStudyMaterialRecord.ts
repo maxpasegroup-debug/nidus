@@ -20,8 +20,20 @@ export type TeacherStudyMaterialRecordModel = runtime.Types.Result.DefaultSelect
 
 export type AggregateTeacherStudyMaterialRecord = {
   _count: TeacherStudyMaterialRecordCountAggregateOutputType | null
+  _avg: TeacherStudyMaterialRecordAvgAggregateOutputType | null
+  _sum: TeacherStudyMaterialRecordSumAggregateOutputType | null
   _min: TeacherStudyMaterialRecordMinAggregateOutputType | null
   _max: TeacherStudyMaterialRecordMaxAggregateOutputType | null
+}
+
+export type TeacherStudyMaterialRecordAvgAggregateOutputType = {
+  fileSize: number | null
+  durationSeconds: number | null
+}
+
+export type TeacherStudyMaterialRecordSumAggregateOutputType = {
+  fileSize: number | null
+  durationSeconds: number | null
 }
 
 export type TeacherStudyMaterialRecordMinAggregateOutputType = {
@@ -35,9 +47,16 @@ export type TeacherStudyMaterialRecordMinAggregateOutputType = {
   teacherId: string | null
   teacherName: string | null
   title: string | null
+  description: string | null
   type: string | null
   url: string | null
   fileName: string | null
+  cloudinaryPublicId: string | null
+  thumbnailUrl: string | null
+  thumbnailPublicId: string | null
+  fileSize: number | null
+  durationSeconds: number | null
+  lessonName: string | null
   status: string | null
   reviewStatus: string | null
   reviewedBy: string | null
@@ -59,9 +78,16 @@ export type TeacherStudyMaterialRecordMaxAggregateOutputType = {
   teacherId: string | null
   teacherName: string | null
   title: string | null
+  description: string | null
   type: string | null
   url: string | null
   fileName: string | null
+  cloudinaryPublicId: string | null
+  thumbnailUrl: string | null
+  thumbnailPublicId: string | null
+  fileSize: number | null
+  durationSeconds: number | null
+  lessonName: string | null
   status: string | null
   reviewStatus: string | null
   reviewedBy: string | null
@@ -83,9 +109,16 @@ export type TeacherStudyMaterialRecordCountAggregateOutputType = {
   teacherId: number
   teacherName: number
   title: number
+  description: number
   type: number
   url: number
   fileName: number
+  cloudinaryPublicId: number
+  thumbnailUrl: number
+  thumbnailPublicId: number
+  fileSize: number
+  durationSeconds: number
+  lessonName: number
   status: number
   reviewStatus: number
   reviewedBy: number
@@ -98,6 +131,16 @@ export type TeacherStudyMaterialRecordCountAggregateOutputType = {
 }
 
 
+export type TeacherStudyMaterialRecordAvgAggregateInputType = {
+  fileSize?: true
+  durationSeconds?: true
+}
+
+export type TeacherStudyMaterialRecordSumAggregateInputType = {
+  fileSize?: true
+  durationSeconds?: true
+}
+
 export type TeacherStudyMaterialRecordMinAggregateInputType = {
   id?: true
   batchId?: true
@@ -109,9 +152,16 @@ export type TeacherStudyMaterialRecordMinAggregateInputType = {
   teacherId?: true
   teacherName?: true
   title?: true
+  description?: true
   type?: true
   url?: true
   fileName?: true
+  cloudinaryPublicId?: true
+  thumbnailUrl?: true
+  thumbnailPublicId?: true
+  fileSize?: true
+  durationSeconds?: true
+  lessonName?: true
   status?: true
   reviewStatus?: true
   reviewedBy?: true
@@ -133,9 +183,16 @@ export type TeacherStudyMaterialRecordMaxAggregateInputType = {
   teacherId?: true
   teacherName?: true
   title?: true
+  description?: true
   type?: true
   url?: true
   fileName?: true
+  cloudinaryPublicId?: true
+  thumbnailUrl?: true
+  thumbnailPublicId?: true
+  fileSize?: true
+  durationSeconds?: true
+  lessonName?: true
   status?: true
   reviewStatus?: true
   reviewedBy?: true
@@ -157,9 +214,16 @@ export type TeacherStudyMaterialRecordCountAggregateInputType = {
   teacherId?: true
   teacherName?: true
   title?: true
+  description?: true
   type?: true
   url?: true
   fileName?: true
+  cloudinaryPublicId?: true
+  thumbnailUrl?: true
+  thumbnailPublicId?: true
+  fileSize?: true
+  durationSeconds?: true
+  lessonName?: true
   status?: true
   reviewStatus?: true
   reviewedBy?: true
@@ -209,6 +273,18 @@ export type TeacherStudyMaterialRecordAggregateArgs<ExtArgs extends runtime.Type
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: TeacherStudyMaterialRecordAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: TeacherStudyMaterialRecordSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: TeacherStudyMaterialRecordMinAggregateInputType
@@ -239,6 +315,8 @@ export type TeacherStudyMaterialRecordGroupByArgs<ExtArgs extends runtime.Types.
   take?: number
   skip?: number
   _count?: TeacherStudyMaterialRecordCountAggregateInputType | true
+  _avg?: TeacherStudyMaterialRecordAvgAggregateInputType
+  _sum?: TeacherStudyMaterialRecordSumAggregateInputType
   _min?: TeacherStudyMaterialRecordMinAggregateInputType
   _max?: TeacherStudyMaterialRecordMaxAggregateInputType
 }
@@ -254,9 +332,16 @@ export type TeacherStudyMaterialRecordGroupByOutputType = {
   teacherId: string | null
   teacherName: string | null
   title: string
+  description: string | null
   type: string
   url: string | null
   fileName: string | null
+  cloudinaryPublicId: string | null
+  thumbnailUrl: string | null
+  thumbnailPublicId: string | null
+  fileSize: number | null
+  durationSeconds: number | null
+  lessonName: string | null
   status: string
   reviewStatus: string
   reviewedBy: string | null
@@ -266,6 +351,8 @@ export type TeacherStudyMaterialRecordGroupByOutputType = {
   createdAt: Date
   updatedAt: Date
   _count: TeacherStudyMaterialRecordCountAggregateOutputType | null
+  _avg: TeacherStudyMaterialRecordAvgAggregateOutputType | null
+  _sum: TeacherStudyMaterialRecordSumAggregateOutputType | null
   _min: TeacherStudyMaterialRecordMinAggregateOutputType | null
   _max: TeacherStudyMaterialRecordMaxAggregateOutputType | null
 }
@@ -299,9 +386,16 @@ export type TeacherStudyMaterialRecordWhereInput = {
   teacherId?: Prisma.StringNullableFilter<"TeacherStudyMaterialRecord"> | string | null
   teacherName?: Prisma.StringNullableFilter<"TeacherStudyMaterialRecord"> | string | null
   title?: Prisma.StringFilter<"TeacherStudyMaterialRecord"> | string
+  description?: Prisma.StringNullableFilter<"TeacherStudyMaterialRecord"> | string | null
   type?: Prisma.StringFilter<"TeacherStudyMaterialRecord"> | string
   url?: Prisma.StringNullableFilter<"TeacherStudyMaterialRecord"> | string | null
   fileName?: Prisma.StringNullableFilter<"TeacherStudyMaterialRecord"> | string | null
+  cloudinaryPublicId?: Prisma.StringNullableFilter<"TeacherStudyMaterialRecord"> | string | null
+  thumbnailUrl?: Prisma.StringNullableFilter<"TeacherStudyMaterialRecord"> | string | null
+  thumbnailPublicId?: Prisma.StringNullableFilter<"TeacherStudyMaterialRecord"> | string | null
+  fileSize?: Prisma.IntNullableFilter<"TeacherStudyMaterialRecord"> | number | null
+  durationSeconds?: Prisma.IntNullableFilter<"TeacherStudyMaterialRecord"> | number | null
+  lessonName?: Prisma.StringNullableFilter<"TeacherStudyMaterialRecord"> | string | null
   status?: Prisma.StringFilter<"TeacherStudyMaterialRecord"> | string
   reviewStatus?: Prisma.StringFilter<"TeacherStudyMaterialRecord"> | string
   reviewedBy?: Prisma.StringNullableFilter<"TeacherStudyMaterialRecord"> | string | null
@@ -323,9 +417,16 @@ export type TeacherStudyMaterialRecordOrderByWithRelationInput = {
   teacherId?: Prisma.SortOrderInput | Prisma.SortOrder
   teacherName?: Prisma.SortOrderInput | Prisma.SortOrder
   title?: Prisma.SortOrder
+  description?: Prisma.SortOrderInput | Prisma.SortOrder
   type?: Prisma.SortOrder
   url?: Prisma.SortOrderInput | Prisma.SortOrder
   fileName?: Prisma.SortOrderInput | Prisma.SortOrder
+  cloudinaryPublicId?: Prisma.SortOrderInput | Prisma.SortOrder
+  thumbnailUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  thumbnailPublicId?: Prisma.SortOrderInput | Prisma.SortOrder
+  fileSize?: Prisma.SortOrderInput | Prisma.SortOrder
+  durationSeconds?: Prisma.SortOrderInput | Prisma.SortOrder
+  lessonName?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   reviewStatus?: Prisma.SortOrder
   reviewedBy?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -350,9 +451,16 @@ export type TeacherStudyMaterialRecordWhereUniqueInput = Prisma.AtLeast<{
   teacherId?: Prisma.StringNullableFilter<"TeacherStudyMaterialRecord"> | string | null
   teacherName?: Prisma.StringNullableFilter<"TeacherStudyMaterialRecord"> | string | null
   title?: Prisma.StringFilter<"TeacherStudyMaterialRecord"> | string
+  description?: Prisma.StringNullableFilter<"TeacherStudyMaterialRecord"> | string | null
   type?: Prisma.StringFilter<"TeacherStudyMaterialRecord"> | string
   url?: Prisma.StringNullableFilter<"TeacherStudyMaterialRecord"> | string | null
   fileName?: Prisma.StringNullableFilter<"TeacherStudyMaterialRecord"> | string | null
+  cloudinaryPublicId?: Prisma.StringNullableFilter<"TeacherStudyMaterialRecord"> | string | null
+  thumbnailUrl?: Prisma.StringNullableFilter<"TeacherStudyMaterialRecord"> | string | null
+  thumbnailPublicId?: Prisma.StringNullableFilter<"TeacherStudyMaterialRecord"> | string | null
+  fileSize?: Prisma.IntNullableFilter<"TeacherStudyMaterialRecord"> | number | null
+  durationSeconds?: Prisma.IntNullableFilter<"TeacherStudyMaterialRecord"> | number | null
+  lessonName?: Prisma.StringNullableFilter<"TeacherStudyMaterialRecord"> | string | null
   status?: Prisma.StringFilter<"TeacherStudyMaterialRecord"> | string
   reviewStatus?: Prisma.StringFilter<"TeacherStudyMaterialRecord"> | string
   reviewedBy?: Prisma.StringNullableFilter<"TeacherStudyMaterialRecord"> | string | null
@@ -374,9 +482,16 @@ export type TeacherStudyMaterialRecordOrderByWithAggregationInput = {
   teacherId?: Prisma.SortOrderInput | Prisma.SortOrder
   teacherName?: Prisma.SortOrderInput | Prisma.SortOrder
   title?: Prisma.SortOrder
+  description?: Prisma.SortOrderInput | Prisma.SortOrder
   type?: Prisma.SortOrder
   url?: Prisma.SortOrderInput | Prisma.SortOrder
   fileName?: Prisma.SortOrderInput | Prisma.SortOrder
+  cloudinaryPublicId?: Prisma.SortOrderInput | Prisma.SortOrder
+  thumbnailUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  thumbnailPublicId?: Prisma.SortOrderInput | Prisma.SortOrder
+  fileSize?: Prisma.SortOrderInput | Prisma.SortOrder
+  durationSeconds?: Prisma.SortOrderInput | Prisma.SortOrder
+  lessonName?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   reviewStatus?: Prisma.SortOrder
   reviewedBy?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -386,8 +501,10 @@ export type TeacherStudyMaterialRecordOrderByWithAggregationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.TeacherStudyMaterialRecordCountOrderByAggregateInput
+  _avg?: Prisma.TeacherStudyMaterialRecordAvgOrderByAggregateInput
   _max?: Prisma.TeacherStudyMaterialRecordMaxOrderByAggregateInput
   _min?: Prisma.TeacherStudyMaterialRecordMinOrderByAggregateInput
+  _sum?: Prisma.TeacherStudyMaterialRecordSumOrderByAggregateInput
 }
 
 export type TeacherStudyMaterialRecordScalarWhereWithAggregatesInput = {
@@ -404,9 +521,16 @@ export type TeacherStudyMaterialRecordScalarWhereWithAggregatesInput = {
   teacherId?: Prisma.StringNullableWithAggregatesFilter<"TeacherStudyMaterialRecord"> | string | null
   teacherName?: Prisma.StringNullableWithAggregatesFilter<"TeacherStudyMaterialRecord"> | string | null
   title?: Prisma.StringWithAggregatesFilter<"TeacherStudyMaterialRecord"> | string
+  description?: Prisma.StringNullableWithAggregatesFilter<"TeacherStudyMaterialRecord"> | string | null
   type?: Prisma.StringWithAggregatesFilter<"TeacherStudyMaterialRecord"> | string
   url?: Prisma.StringNullableWithAggregatesFilter<"TeacherStudyMaterialRecord"> | string | null
   fileName?: Prisma.StringNullableWithAggregatesFilter<"TeacherStudyMaterialRecord"> | string | null
+  cloudinaryPublicId?: Prisma.StringNullableWithAggregatesFilter<"TeacherStudyMaterialRecord"> | string | null
+  thumbnailUrl?: Prisma.StringNullableWithAggregatesFilter<"TeacherStudyMaterialRecord"> | string | null
+  thumbnailPublicId?: Prisma.StringNullableWithAggregatesFilter<"TeacherStudyMaterialRecord"> | string | null
+  fileSize?: Prisma.IntNullableWithAggregatesFilter<"TeacherStudyMaterialRecord"> | number | null
+  durationSeconds?: Prisma.IntNullableWithAggregatesFilter<"TeacherStudyMaterialRecord"> | number | null
+  lessonName?: Prisma.StringNullableWithAggregatesFilter<"TeacherStudyMaterialRecord"> | string | null
   status?: Prisma.StringWithAggregatesFilter<"TeacherStudyMaterialRecord"> | string
   reviewStatus?: Prisma.StringWithAggregatesFilter<"TeacherStudyMaterialRecord"> | string
   reviewedBy?: Prisma.StringNullableWithAggregatesFilter<"TeacherStudyMaterialRecord"> | string | null
@@ -428,9 +552,16 @@ export type TeacherStudyMaterialRecordCreateInput = {
   teacherId?: string | null
   teacherName?: string | null
   title: string
+  description?: string | null
   type?: string
   url?: string | null
   fileName?: string | null
+  cloudinaryPublicId?: string | null
+  thumbnailUrl?: string | null
+  thumbnailPublicId?: string | null
+  fileSize?: number | null
+  durationSeconds?: number | null
+  lessonName?: string | null
   status?: string
   reviewStatus?: string
   reviewedBy?: string | null
@@ -452,9 +583,16 @@ export type TeacherStudyMaterialRecordUncheckedCreateInput = {
   teacherId?: string | null
   teacherName?: string | null
   title: string
+  description?: string | null
   type?: string
   url?: string | null
   fileName?: string | null
+  cloudinaryPublicId?: string | null
+  thumbnailUrl?: string | null
+  thumbnailPublicId?: string | null
+  fileSize?: number | null
+  durationSeconds?: number | null
+  lessonName?: string | null
   status?: string
   reviewStatus?: string
   reviewedBy?: string | null
@@ -476,9 +614,16 @@ export type TeacherStudyMaterialRecordUpdateInput = {
   teacherId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   teacherName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.StringFieldUpdateOperationsInput | string
   url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cloudinaryPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileSize?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  durationSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  lessonName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
   reviewedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -500,9 +645,16 @@ export type TeacherStudyMaterialRecordUncheckedUpdateInput = {
   teacherId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   teacherName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.StringFieldUpdateOperationsInput | string
   url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cloudinaryPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileSize?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  durationSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  lessonName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
   reviewedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -524,9 +676,16 @@ export type TeacherStudyMaterialRecordCreateManyInput = {
   teacherId?: string | null
   teacherName?: string | null
   title: string
+  description?: string | null
   type?: string
   url?: string | null
   fileName?: string | null
+  cloudinaryPublicId?: string | null
+  thumbnailUrl?: string | null
+  thumbnailPublicId?: string | null
+  fileSize?: number | null
+  durationSeconds?: number | null
+  lessonName?: string | null
   status?: string
   reviewStatus?: string
   reviewedBy?: string | null
@@ -548,9 +707,16 @@ export type TeacherStudyMaterialRecordUpdateManyMutationInput = {
   teacherId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   teacherName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.StringFieldUpdateOperationsInput | string
   url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cloudinaryPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileSize?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  durationSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  lessonName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
   reviewedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -572,9 +738,16 @@ export type TeacherStudyMaterialRecordUncheckedUpdateManyInput = {
   teacherId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   teacherName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.StringFieldUpdateOperationsInput | string
   url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cloudinaryPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileSize?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  durationSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  lessonName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
   reviewedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -596,9 +769,16 @@ export type TeacherStudyMaterialRecordCountOrderByAggregateInput = {
   teacherId?: Prisma.SortOrder
   teacherName?: Prisma.SortOrder
   title?: Prisma.SortOrder
+  description?: Prisma.SortOrder
   type?: Prisma.SortOrder
   url?: Prisma.SortOrder
   fileName?: Prisma.SortOrder
+  cloudinaryPublicId?: Prisma.SortOrder
+  thumbnailUrl?: Prisma.SortOrder
+  thumbnailPublicId?: Prisma.SortOrder
+  fileSize?: Prisma.SortOrder
+  durationSeconds?: Prisma.SortOrder
+  lessonName?: Prisma.SortOrder
   status?: Prisma.SortOrder
   reviewStatus?: Prisma.SortOrder
   reviewedBy?: Prisma.SortOrder
@@ -607,6 +787,11 @@ export type TeacherStudyMaterialRecordCountOrderByAggregateInput = {
   archivedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type TeacherStudyMaterialRecordAvgOrderByAggregateInput = {
+  fileSize?: Prisma.SortOrder
+  durationSeconds?: Prisma.SortOrder
 }
 
 export type TeacherStudyMaterialRecordMaxOrderByAggregateInput = {
@@ -620,9 +805,16 @@ export type TeacherStudyMaterialRecordMaxOrderByAggregateInput = {
   teacherId?: Prisma.SortOrder
   teacherName?: Prisma.SortOrder
   title?: Prisma.SortOrder
+  description?: Prisma.SortOrder
   type?: Prisma.SortOrder
   url?: Prisma.SortOrder
   fileName?: Prisma.SortOrder
+  cloudinaryPublicId?: Prisma.SortOrder
+  thumbnailUrl?: Prisma.SortOrder
+  thumbnailPublicId?: Prisma.SortOrder
+  fileSize?: Prisma.SortOrder
+  durationSeconds?: Prisma.SortOrder
+  lessonName?: Prisma.SortOrder
   status?: Prisma.SortOrder
   reviewStatus?: Prisma.SortOrder
   reviewedBy?: Prisma.SortOrder
@@ -644,9 +836,16 @@ export type TeacherStudyMaterialRecordMinOrderByAggregateInput = {
   teacherId?: Prisma.SortOrder
   teacherName?: Prisma.SortOrder
   title?: Prisma.SortOrder
+  description?: Prisma.SortOrder
   type?: Prisma.SortOrder
   url?: Prisma.SortOrder
   fileName?: Prisma.SortOrder
+  cloudinaryPublicId?: Prisma.SortOrder
+  thumbnailUrl?: Prisma.SortOrder
+  thumbnailPublicId?: Prisma.SortOrder
+  fileSize?: Prisma.SortOrder
+  durationSeconds?: Prisma.SortOrder
+  lessonName?: Prisma.SortOrder
   status?: Prisma.SortOrder
   reviewStatus?: Prisma.SortOrder
   reviewedBy?: Prisma.SortOrder
@@ -655,6 +854,11 @@ export type TeacherStudyMaterialRecordMinOrderByAggregateInput = {
   archivedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type TeacherStudyMaterialRecordSumOrderByAggregateInput = {
+  fileSize?: Prisma.SortOrder
+  durationSeconds?: Prisma.SortOrder
 }
 
 
@@ -670,9 +874,16 @@ export type TeacherStudyMaterialRecordSelect<ExtArgs extends runtime.Types.Exten
   teacherId?: boolean
   teacherName?: boolean
   title?: boolean
+  description?: boolean
   type?: boolean
   url?: boolean
   fileName?: boolean
+  cloudinaryPublicId?: boolean
+  thumbnailUrl?: boolean
+  thumbnailPublicId?: boolean
+  fileSize?: boolean
+  durationSeconds?: boolean
+  lessonName?: boolean
   status?: boolean
   reviewStatus?: boolean
   reviewedBy?: boolean
@@ -694,9 +905,16 @@ export type TeacherStudyMaterialRecordSelectCreateManyAndReturn<ExtArgs extends 
   teacherId?: boolean
   teacherName?: boolean
   title?: boolean
+  description?: boolean
   type?: boolean
   url?: boolean
   fileName?: boolean
+  cloudinaryPublicId?: boolean
+  thumbnailUrl?: boolean
+  thumbnailPublicId?: boolean
+  fileSize?: boolean
+  durationSeconds?: boolean
+  lessonName?: boolean
   status?: boolean
   reviewStatus?: boolean
   reviewedBy?: boolean
@@ -718,9 +936,16 @@ export type TeacherStudyMaterialRecordSelectUpdateManyAndReturn<ExtArgs extends 
   teacherId?: boolean
   teacherName?: boolean
   title?: boolean
+  description?: boolean
   type?: boolean
   url?: boolean
   fileName?: boolean
+  cloudinaryPublicId?: boolean
+  thumbnailUrl?: boolean
+  thumbnailPublicId?: boolean
+  fileSize?: boolean
+  durationSeconds?: boolean
+  lessonName?: boolean
   status?: boolean
   reviewStatus?: boolean
   reviewedBy?: boolean
@@ -742,9 +967,16 @@ export type TeacherStudyMaterialRecordSelectScalar = {
   teacherId?: boolean
   teacherName?: boolean
   title?: boolean
+  description?: boolean
   type?: boolean
   url?: boolean
   fileName?: boolean
+  cloudinaryPublicId?: boolean
+  thumbnailUrl?: boolean
+  thumbnailPublicId?: boolean
+  fileSize?: boolean
+  durationSeconds?: boolean
+  lessonName?: boolean
   status?: boolean
   reviewStatus?: boolean
   reviewedBy?: boolean
@@ -755,7 +987,7 @@ export type TeacherStudyMaterialRecordSelectScalar = {
   updatedAt?: boolean
 }
 
-export type TeacherStudyMaterialRecordOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "batchId" | "batchName" | "course" | "folder" | "subject" | "topic" | "teacherId" | "teacherName" | "title" | "type" | "url" | "fileName" | "status" | "reviewStatus" | "reviewedBy" | "reviewedAt" | "reviewNote" | "archivedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["teacherStudyMaterialRecord"]>
+export type TeacherStudyMaterialRecordOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "batchId" | "batchName" | "course" | "folder" | "subject" | "topic" | "teacherId" | "teacherName" | "title" | "description" | "type" | "url" | "fileName" | "cloudinaryPublicId" | "thumbnailUrl" | "thumbnailPublicId" | "fileSize" | "durationSeconds" | "lessonName" | "status" | "reviewStatus" | "reviewedBy" | "reviewedAt" | "reviewNote" | "archivedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["teacherStudyMaterialRecord"]>
 
 export type $TeacherStudyMaterialRecordPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "TeacherStudyMaterialRecord"
@@ -771,9 +1003,16 @@ export type $TeacherStudyMaterialRecordPayload<ExtArgs extends runtime.Types.Ext
     teacherId: string | null
     teacherName: string | null
     title: string
+    description: string | null
     type: string
     url: string | null
     fileName: string | null
+    cloudinaryPublicId: string | null
+    thumbnailUrl: string | null
+    thumbnailPublicId: string | null
+    fileSize: number | null
+    durationSeconds: number | null
+    lessonName: string | null
     status: string
     reviewStatus: string
     reviewedBy: string | null
@@ -1215,9 +1454,16 @@ export interface TeacherStudyMaterialRecordFieldRefs {
   readonly teacherId: Prisma.FieldRef<"TeacherStudyMaterialRecord", 'String'>
   readonly teacherName: Prisma.FieldRef<"TeacherStudyMaterialRecord", 'String'>
   readonly title: Prisma.FieldRef<"TeacherStudyMaterialRecord", 'String'>
+  readonly description: Prisma.FieldRef<"TeacherStudyMaterialRecord", 'String'>
   readonly type: Prisma.FieldRef<"TeacherStudyMaterialRecord", 'String'>
   readonly url: Prisma.FieldRef<"TeacherStudyMaterialRecord", 'String'>
   readonly fileName: Prisma.FieldRef<"TeacherStudyMaterialRecord", 'String'>
+  readonly cloudinaryPublicId: Prisma.FieldRef<"TeacherStudyMaterialRecord", 'String'>
+  readonly thumbnailUrl: Prisma.FieldRef<"TeacherStudyMaterialRecord", 'String'>
+  readonly thumbnailPublicId: Prisma.FieldRef<"TeacherStudyMaterialRecord", 'String'>
+  readonly fileSize: Prisma.FieldRef<"TeacherStudyMaterialRecord", 'Int'>
+  readonly durationSeconds: Prisma.FieldRef<"TeacherStudyMaterialRecord", 'Int'>
+  readonly lessonName: Prisma.FieldRef<"TeacherStudyMaterialRecord", 'String'>
   readonly status: Prisma.FieldRef<"TeacherStudyMaterialRecord", 'String'>
   readonly reviewStatus: Prisma.FieldRef<"TeacherStudyMaterialRecord", 'String'>
   readonly reviewedBy: Prisma.FieldRef<"TeacherStudyMaterialRecord", 'String'>

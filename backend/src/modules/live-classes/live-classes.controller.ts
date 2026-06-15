@@ -20,32 +20,53 @@ function userId(req: AuthenticatedRequest) {
 }
 
 export const liveClassesController = {
-  async listLiveClasses(_req: Request, res: Response, next: NextFunction) {
+  async listLiveClasses(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
-      res.json({ liveClasses: await liveClassesService.listLiveClasses() });
+      if (!req.user) {
+        res.status(401).json({ message: "Authentication required" });
+        return;
+      }
+      res.json({ liveClasses: await liveClassesService.listLiveClasses(req.user) });
     } catch (error) {
       next(error);
     }
   },
-  async createLiveClass(req: Request, res: Response, next: NextFunction) {
+  async createLiveClass(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
       assertValid(req);
-      res.status(201).json({ liveClass: await liveClassesService.createLiveClass(req.body) });
+      if (!req.user) {
+        res.status(401).json({ message: "Authentication required" });
+        return;
+      }
+      const template = req.user.roleMetadata && typeof req.user.roleMetadata === "object" && typeof req.user.roleMetadata.dashboardTemplate === "string"
+        ? req.user.roleMetadata.dashboardTemplate.toUpperCase()
+        : "";
+      const canAssignTeacher = req.user.role === "ADMIN" || req.user.role === "DIRECTOR" || req.user.role === "ACADEMIC_HEAD" || template === "ACADEMIC_HEAD";
+      const payload = canAssignTeacher ? req.body : { ...req.body, teacherId: req.user.id };
+      res.status(201).json({ liveClass: await liveClassesService.createLiveClass(payload) });
     } catch (error) {
       next(error);
     }
   },
-  async updateLiveClass(req: Request, res: Response, next: NextFunction) {
+  async updateLiveClass(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
       assertValid(req);
-      res.json({ liveClass: await liveClassesService.updateLiveClass(param(req, "id"), req.body) });
+      if (!req.user) {
+        res.status(401).json({ message: "Authentication required" });
+        return;
+      }
+      res.json({ liveClass: await liveClassesService.updateLiveClass(req.user, param(req, "id"), req.body) });
     } catch (error) {
       next(error);
     }
   },
-  async deleteLiveClass(req: Request, res: Response, next: NextFunction) {
+  async deleteLiveClass(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
-      res.json(await liveClassesService.deleteLiveClass(param(req, "id")));
+      if (!req.user) {
+        res.status(401).json({ message: "Authentication required" });
+        return;
+      }
+      res.json(await liveClassesService.deleteLiveClass(req.user, param(req, "id")));
     } catch (error) {
       next(error);
     }
