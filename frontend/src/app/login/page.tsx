@@ -51,15 +51,18 @@ export default function LoginPage() {
 
         <form className="mt-7 space-y-4" onSubmit={handleSubmit}>
           {error ? <div className="rounded border border-red-400/40 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div> : null}
-          <Input label="Email or mobile" type="text" placeholder="Email or mobile number" value={identifier} onChange={(event) => setIdentifier(event.target.value)} className={fieldClass} required />
+          <Input label="Email or Mobile Number" type="text" placeholder="Email or mobile number" value={identifier} onChange={(event) => setIdentifier(event.target.value)} className={fieldClass} required />
           <PasswordInput label="Password" placeholder="Password" value={password} onChange={(event) => setPassword(event.target.value)} className={fieldClass} minLength={8} required />
           <Button type="submit" className="w-full" disabled={isSubmitting}>
-            {isSubmitting ? "Signing in..." : "Sign in"} <ArrowRight className="h-4 w-4" />
+            {isSubmitting ? "Logging in..." : "Login"} <ArrowRight className="h-4 w-4" />
           </Button>
+          <button type="button" className="w-full rounded-lg border border-dashed border-[#071d36]/15 px-4 py-3 text-sm font-semibold text-[#64748b]" disabled>
+            Continue with OTP
+          </button>
         </form>
 
         <div className="mt-5 flex items-center justify-between gap-3 text-sm">
-          <Link href="/forgot-password" className="font-semibold text-[#3f4a32]">Forgot password?</Link>
+          <Link href="/forgot-password" className="font-semibold text-[#3f4a32]">Forgot Password</Link>
           <Link href="/register" className="font-semibold text-[#071d36]">Create account</Link>
         </div>
       </section>

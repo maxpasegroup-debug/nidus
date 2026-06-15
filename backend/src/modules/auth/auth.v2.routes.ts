@@ -66,7 +66,7 @@ authRouter.post("/login", authControllerV2.login);
  * @swagger
  * /auth/forgot-password:
  *   post:
- *     summary: Request a password reset email
+ *     summary: Request a password reset using email or mobile
  *     tags: [Auth]
  *     requestBody:
  *       required: true
@@ -74,14 +74,14 @@ authRouter.post("/login", authControllerV2.login);
  *         application/json:
  *           schema:
  *             type: object
- *             required: [email]
+ *             required: [identifier]
  *             properties:
- *               email:
+ *               identifier:
  *                 type: string
- *                 format: email
+ *                 description: Email address or mobile number
  *     responses:
  *       200:
- *         description: Reset link sent if the email exists
+ *         description: Reset instructions sent if the account exists
  */
 authRouter.post("/forgot-password", authControllerV2.forgotPassword);
 authRouter.post("/forgot-password/send-otp", authControllerV2.forgotPassword);

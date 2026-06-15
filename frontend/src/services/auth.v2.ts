@@ -84,7 +84,7 @@ export async function getMe(): Promise<AuthUser> {
 export const getCurrentUser = getMe;
 
 export async function forgotPassword(identifier: string): Promise<AuthResponse> {
-  const response = await apiClient.post<AuthResponse>("/auth/forgot-password", { email: identifier });
+  const response = await apiClient.post<AuthResponse>("/auth/forgot-password", { identifier });
   return response.data;
 }
 

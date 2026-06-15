@@ -15,12 +15,17 @@ export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [mobile, setMobile] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
   const fieldClass = "!border-[#071d36]/14 !bg-white !text-[#071d36] placeholder:!text-[#64748b]/70 focus:!border-[#b9913f] focus:!bg-white focus:!ring-[#b9913f]/25";
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
     setIsSubmitting(true);
     setError("");
     try {
@@ -54,8 +59,9 @@ export default function RegisterPage() {
           {error ? <div className="rounded border border-red-400/40 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div> : null}
           <Input label="Full name" placeholder="Student name" value={name} onChange={(event) => setName(event.target.value)} className={fieldClass} required />
           <Input label="Email" type="email" placeholder="Email address" value={email} onChange={(event) => setEmail(event.target.value)} className={fieldClass} required />
-          <Input label="Mobile" placeholder="WhatsApp mobile number" value={mobile} onChange={(event) => setMobile(event.target.value)} className={fieldClass} required />
+          <Input label="Mobile Number" placeholder="WhatsApp mobile number" value={mobile} onChange={(event) => setMobile(event.target.value)} className={fieldClass} required />
           <PasswordInput label="Password" placeholder="Create password" value={password} onChange={(event) => setPassword(event.target.value)} className={fieldClass} minLength={8} required />
+          <PasswordInput label="Confirm Password" placeholder="Confirm password" value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} className={fieldClass} minLength={8} required />
           <Button type="submit" className="w-full" disabled={isSubmitting}>
             {isSubmitting ? "Creating..." : "Start free"} <ArrowRight className="h-4 w-4" />
           </Button>

@@ -25,12 +25,37 @@ export const authControllerV2 = {
         res.status(400).json({ success: false, message: "Name, email, mobile, and 8 character password are required" });
         return;
       }
+      const normalizedEmail = email.trim().toLowerCase();
+      const normalizedMobile = mobile.trim().replace(/[\s()-]/g, "");
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
+        res.status(400).json({ success: false, message: "Valid email is required" });
+        return;
+      }
+      if (!/^\+?\d{7,15}$/.test(normalizedMobile)) {
+        res.status(400).json({ success: false, message: "Valid mobile number is required" });
+        return;
+      }
+      const mobileDigits = normalizedMobile.replace(/^\+/, "");
+      const mobileMatches = new Set([normalizedMobile]);
+      if (/^\d{10}$/.test(mobileDigits)) {
+        mobileMatches.add(mobileDigits);
+        mobileMatches.add(`+91${mobileDigits}`);
+      }
+      const existing = await prisma.user.findFirst({ where: { OR: [{ email: normalizedEmail }, { mobile: { in: Array.from(mobileMatches) } }] }, select: { email: true, mobile: true } });
+      if (existing?.email === normalizedEmail) {
+        res.status(409).json({ success: false, message: "Email is already registered" });
+        return;
+      }
+      if (existing?.mobile && mobileMatches.has(existing.mobile)) {
+        res.status(409).json({ success: false, message: "Mobile number is already registered" });
+        return;
+      }
 
       await prisma.user.create({
         data: {
           name: name.trim(),
-          email: email.trim().toLowerCase(),
-          mobile: mobile.trim(),
+          email: normalizedEmail,
+          mobile: normalizedMobile,
           password: await bcrypt.hash(password, 12),
           role: Role.STUDENT,
           emailVerified: true,
@@ -41,7 +66,7 @@ export const authControllerV2 = {
         }
       });
 
-      const result = await AuthServiceV2.login(email, password, req.ip || "", req.get("user-agent") || "");
+      const result = await AuthServiceV2.login(normalizedEmail, password, req.ip || "", req.get("user-agent") || "");
       res.cookie("session", result.sessionId, cookieOptions);
       res.status(201).json({ success: true, message: "Account created", user: result.user });
     } catch (error) {
@@ -132,12 +157,13 @@ export const authControllerV2 = {
 
   async forgotPassword(req: Request, res: Response) {
     try {
-      const { email } = req.body as { email?: string };
-      if (!email) {
-        res.status(400).json({ success: false, message: "Email is required" });
+      const { email, identifier } = req.body as { email?: string; identifier?: string };
+      const identity = identifier || email;
+      if (!identity) {
+        res.status(400).json({ success: false, message: "Email or mobile number is required" });
         return;
       }
-      res.json({ success: true, ...(await AuthServiceV2.forgotPassword(email)) });
+      res.json({ success: true, ...(await AuthServiceV2.forgotPassword(identity)) });
     } catch (error) {
       res.status(400).json({ success: false, message: error instanceof Error ? error.message : "Password reset request failed" });
     }

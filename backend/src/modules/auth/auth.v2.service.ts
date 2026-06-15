@@ -12,7 +12,34 @@ export const TEST_ACCOUNT_PASSWORD = "123456789";
 const TEST_ACCOUNT_MOBILE = "+910000000045";
 const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 
-type SafeUser = Pick<User, "id" | "name" | "email" | "role" | "emailVerified" | "instituteId" | "branchId" | "roleMetadata">;
+type SafeUser = Pick<User, "id" | "name" | "email" | "mobile" | "role" | "emailVerified" | "mobileVerified" | "instituteId" | "branchId" | "roleMetadata">;
+
+function isEmailIdentity(value: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
+}
+
+function normalizeEmail(value: string) {
+  return value.trim().toLowerCase();
+}
+
+function normalizeMobile(value: string) {
+  return value.trim().replace(/[\s()-]/g, "");
+}
+
+function mobileCandidates(value: string) {
+  const normalized = normalizeMobile(value);
+  const digitsOnly = normalized.replace(/^\+/, "");
+  const candidates = new Set([normalized]);
+  if (/^\d{10}$/.test(digitsOnly)) {
+    candidates.add(digitsOnly);
+    candidates.add(`+91${digitsOnly}`);
+  }
+  return Array.from(candidates).filter(Boolean);
+}
+
+function isValidMobile(value: string) {
+  return /^\+?\d{7,15}$/.test(normalizeMobile(value));
+}
 
 function metadataObject(value: unknown) {
   return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
@@ -24,8 +51,10 @@ function safeUser(user: SafeUser) {
     id: user.id,
     name: user.name,
     email: user.email,
+    mobile: user.mobile,
     role: user.role,
     emailVerified: user.emailVerified,
+    mobileVerified: user.mobileVerified,
     instituteId: user.instituteId,
     branchId: user.branchId,
     roleMetadata: metadata,
@@ -56,6 +85,27 @@ async function createEmailVerification(user: Pick<User, "id" | "email">) {
 }
 
 export const AuthServiceV2 = {
+  async findByEmail(email: string) {
+    return prisma.user.findUnique({ where: { email: normalizeEmail(email) } });
+  },
+
+  async findByMobile(mobile: string) {
+    const candidates = mobileCandidates(mobile);
+    return prisma.user.findFirst({ where: { mobile: { in: candidates } } });
+  },
+
+  async findByIdentity(identity: string) {
+    const value = identity.trim();
+    if (!value) return null;
+    if (isEmailIdentity(value)) {
+      return this.findByEmail(value);
+    }
+    if (!isValidMobile(value)) {
+      return null;
+    }
+    return this.findByMobile(value);
+  },
+
   async ensureSuperAdmin() {
     const password = await bcrypt.hash(DEFAULT_ACCOUNT_PASSWORD, 12);
     const existing = await prisma.user.findUnique({ where: { email: SUPER_ADMIN_EMAIL } });
@@ -167,25 +217,29 @@ export const AuthServiceV2 = {
   },
 
   async login(identifier: string, password: string, ip: string, userAgent = "") {
-    const normalized = identifier.trim().toLowerCase();
-    const user = await prisma.user.findFirst({
-      where: { OR: [{ email: normalized }, { mobile: identifier.trim() }] },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        mobile: true,
-        password: true,
-        role: true,
-        isDisabled: true,
-        emailVerified: true,
-        instituteId: true,
-        branchId: true,
-        roleMetadata: true,
-        loginFailureCount: true,
-        lockedUntil: true
-      }
-    });
+    const identity = identifier.trim();
+    const userRecord = await this.findByIdentity(identity);
+    const user = userRecord
+      ? await prisma.user.findUnique({
+          where: { id: userRecord.id },
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            mobile: true,
+            password: true,
+            role: true,
+            isDisabled: true,
+            emailVerified: true,
+            mobileVerified: true,
+            instituteId: true,
+            branchId: true,
+            roleMetadata: true,
+            loginFailureCount: true,
+            lockedUntil: true
+          }
+        })
+      : null;
 
     if (!user) {
       await audit({ action: "LOGIN_FAILED", description: `Failed login: user not found (${identifier})`, ip });
@@ -250,8 +304,10 @@ export const AuthServiceV2 = {
             id: true,
             name: true,
             email: true,
+            mobile: true,
             role: true,
             emailVerified: true,
+            mobileVerified: true,
             isDisabled: true,
             instituteId: true,
             branchId: true,
@@ -329,13 +385,16 @@ export const AuthServiceV2 = {
     return { message: "Password changed. Please login again." };
   },
 
-  async forgotPassword(email: string) {
-    const user = await prisma.user.findUnique({
-      where: { email: email.trim().toLowerCase() },
+  async forgotPassword(identity: string) {
+    const matchedUser = await this.findByIdentity(identity);
+    const user = matchedUser
+      ? await prisma.user.findUnique({
+      where: { id: matchedUser.id },
       select: { id: true, email: true, name: true }
-    });
+    })
+      : null;
 
-    if (!user) return { message: "If email exists, reset link will be sent" };
+    if (!user) return { message: "If the account exists, reset instructions will be sent" };
 
     const token = crypto.randomBytes(32).toString("hex");
     await prisma.passwordReset.deleteMany({ where: { userId: user.id } });
@@ -346,7 +405,7 @@ export const AuthServiceV2 = {
     const resetLink = `${env.FRONTEND_APP_URL}/reset-password?token=${token}`;
     await emailService.sendPasswordResetEmail(user.email, user.name, resetLink);
     await audit({ userId: user.id, action: "PASSWORD_RESET_REQUESTED", description: "Password reset requested" });
-    return { message: "Reset link sent to email" };
+    return { message: "Reset link sent to the registered email" };
   },
 
   async resetPassword(token: string, newPassword: string) {
