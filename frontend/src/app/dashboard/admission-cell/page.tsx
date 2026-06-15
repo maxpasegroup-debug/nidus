@@ -43,6 +43,10 @@ type LeadApplication = {
   source: string;
   status: "NEW" | "CONTACTED" | "COUNSELLING" | "ENROLLED" | "LOST";
   notes?: string | null;
+  assignee?: {
+    name?: string | null;
+    email?: string | null;
+  } | null;
   createdAt: string;
 };
 
@@ -147,18 +151,22 @@ export default function AdmissionCellDashboardPage() {
   const totalFee = Number(form.totalFee || 0);
   const amountPaid = Number(form.amountPaid || 0);
   const feesReady = form.paymentStatus === "PAID" || form.paymentStatus === "APPROVED" || (totalFee > 0 && amountPaid >= totalFee);
-  const readyForEnrollment = requiredDocumentsVerified && rejectedDocuments.length === 0 && feesReady && admissionStatus === "Ready For Enrollment";
+  const readyForEnrollment = requiredDocumentsVerified && rejectedDocuments.length === 0 && feesReady && admissionStatus === "Ready For Admission";
   const readinessIssues = [
     !requiredDocumentsVerified ? `Documents pending: ${pendingDocuments.join(", ") || "Required documents not verified"}` : "",
     rejectedDocuments.length ? `Rejected documents: ${rejectedDocuments.join(", ")}` : "",
     !feesReady ? "Registration/course fee pending or not approved" : "",
-    admissionStatus !== "Ready For Enrollment" ? "Student status is not Ready For Enrollment" : "",
+    admissionStatus !== "Ready For Admission" ? "Student status is not Ready For Admission" : "",
   ].filter(Boolean);
 
+  const documentReadyLeads = applications.filter((lead) => lead.notes?.includes("Documents: VERIFIED")).length;
+  const feeReadyLeads = applications.filter((lead) => lead.notes?.includes("Fees: PAID") || lead.notes?.includes("Fees: APPROVED")).length;
   const reportCounts = {
     newAdmissions: applications.length,
-    pendingDocuments: applications.length && !requiredDocumentsVerified ? applications.length : 0,
-    pendingFees: applications.length && !feesReady ? applications.length : 0,
+    pendingDocuments: Math.max(applications.length - documentReadyLeads, 0),
+    pendingFees: Math.max(applications.length - feeReadyLeads, 0),
+    batchAllocationPending: applications.filter((lead) => lead.notes?.includes("Ready For Admission")).length,
+    activationsPending: applications.filter((lead) => lead.status === "COUNSELLING").length,
     activatedStudents: activeBatches.reduce((total, batch) => total + (batch._count?.students ?? 0), 0),
   };
 
@@ -285,7 +293,9 @@ export default function AdmissionCellDashboardPage() {
                       <p className="text-xs font-black uppercase tracking-[0.22em] text-[var(--gold)]">{admissionStatusForLead(lead)}</p>
                       <h3 className="mt-2 text-xl font-black">{lead.fullName}</h3>
                       <p className="mt-1 text-sm text-[var(--muted-blue)]">Program: {lead.targetExam}</p>
-                      <p className="mt-1 text-sm text-[var(--muted-blue)]">Parent/Phone: {lead.mobile}</p>
+                      <p className="mt-1 text-sm text-[var(--muted-blue)]">Parent: {parentNameFromNotes(lead.notes) || "To be confirmed"}</p>
+                      <p className="mt-1 text-sm text-[var(--muted-blue)]">Phone: {lead.mobile}</p>
+                      <p className="mt-1 text-sm text-[var(--muted-blue)]">Counsellor: {lead.assignee?.name ?? "BDE team"}</p>
                       <p className="mt-1 text-xs text-[var(--muted-blue)]">{lead.email}</p>
                     </div>
                     <button type="button" onClick={() => selectLead(lead)} className="rounded-xl border border-[var(--gold-border)] bg-white px-4 py-2 text-sm font-black">
@@ -317,6 +327,31 @@ export default function AdmissionCellDashboardPage() {
                     </select>
                   </label>
                 ))}
+                <label className="grid gap-2 text-sm font-bold">
+                  Verification note / resubmission request
+                  <textarea
+                    value={callNote}
+                    onChange={(event) => setCallNote(event.target.value)}
+                    className="min-h-24 rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-[var(--navy)] outline-none focus:border-[var(--gold)]"
+                    placeholder="Call notes, missing document details, rejection reason, parent details..."
+                  />
+                </label>
+                <button
+                  type="button"
+                  onClick={() => saveLeadNoteMutation.mutate({
+                    lead: selectedLead,
+                    status: rejectedDocuments.length ? "CONTACTED" : requiredDocumentsVerified ? "COUNSELLING" : "CONTACTED",
+                    note: [
+                      `Admission Status: ${admissionStatus}`,
+                      `Documents: ${requiredDocumentsVerified && !rejectedDocuments.length ? "VERIFIED" : rejectedDocuments.length ? "REJECTED" : "PENDING"}`,
+                      `Document Details: ${JSON.stringify(documentStatuses)}`,
+                      callNote || "Document verification updated."
+                    ].join("\n"),
+                  })}
+                  className="rounded-xl border border-[var(--gold-border)] bg-white px-4 py-3 text-sm font-black"
+                >
+                  Save Verification Note
+                </button>
               </div>
             ) : (
               <Empty text="Open a new admission first, then verify documents here." />
@@ -353,8 +388,24 @@ export default function AdmissionCellDashboardPage() {
                   <option value="Received">Received</option>
                   <option value="Documents Pending">Documents Pending</option>
                   <option value="Verification Pending">Verification Pending</option>
-                  <option value="Ready For Enrollment">Ready For Enrollment</option>
+                  <option value="Ready For Admission">Ready For Admission</option>
                 </SelectField>
+                <button
+                  type="button"
+                  onClick={() => saveLeadNoteMutation.mutate({
+                    lead: selectedLead,
+                    status: feesReady ? "COUNSELLING" : "CONTACTED",
+                    note: [
+                      `Admission Status: ${admissionStatus}`,
+                      `Fees: ${feesReady ? form.paymentStatus === "APPROVED" ? "APPROVED" : "PAID" : amountPaid > 0 ? "PARTIAL" : "PENDING"}`,
+                      `Fee Details: total=${totalFee}, paid=${amountPaid}, method=${form.paymentMethod}, ref=${form.transactionRef || "NA"}`,
+                      callNote || "Fee and enrollment status updated."
+                    ].join("\n"),
+                  })}
+                  className="rounded-xl border border-[var(--gold-border)] bg-white px-4 py-3 text-sm font-black"
+                >
+                  Save Fee Status
+                </button>
               </div>
             ) : (
               <Empty text="Open a new admission first, then record registration fee, course fee, installments or approval here." />
@@ -405,7 +456,7 @@ export default function AdmissionCellDashboardPage() {
               <StatusLine label="Document verification" ok={requiredDocumentsVerified && rejectedDocuments.length === 0} />
               <StatusLine label="Fees & enrollment" ok={feesReady} />
               <StatusLine label="Batch selected" ok={Boolean(form.batchId)} />
-              <StatusLine label="Student status" ok={admissionStatus === "Ready For Enrollment"} />
+              <StatusLine label="Student status" ok={admissionStatus === "Ready For Admission"} />
             </div>
           </Panel>
 
@@ -414,6 +465,8 @@ export default function AdmissionCellDashboardPage() {
               <Metric icon={Users} label="New Admissions" value={reportCounts.newAdmissions} />
               <Metric icon={FileArchive} label="Pending Documents" value={reportCounts.pendingDocuments} />
               <Metric icon={BadgeIndianRupee} label="Pending Fees" value={reportCounts.pendingFees} />
+              <Metric icon={GraduationCap} label="Batch Allocation Pending" value={reportCounts.batchAllocationPending} />
+              <Metric icon={UserCheck} label="Activations Pending" value={reportCounts.activationsPending} />
               <Metric icon={ShieldCheck} label="Activated Students" value={reportCounts.activatedStudents} />
             </div>
           </Panel>
@@ -432,6 +485,11 @@ function admissionStatusForLead(lead: LeadApplication) {
   if (lead.status === "CONTACTED") return "Documents Pending";
   if (lead.status === "COUNSELLING") return "Verification Pending";
   return "Ready For Admission";
+}
+
+function parentNameFromNotes(notes?: string | null) {
+  const match = notes?.match(/Parent(?: Name)?:\s*([^\n]+)/i);
+  return match?.[1]?.trim() ?? "";
 }
 
 function StudentMiniCard({ lead }: { lead: LeadApplication }) {

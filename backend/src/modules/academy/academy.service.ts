@@ -266,6 +266,16 @@ function requireAdmissionAccess(user: Requester) {
   }
 }
 
+function requireStudentEnrollmentAccess(user: Requester) {
+  const template = staffTemplate(user);
+  if (
+    (user.role !== Role.ADMIN && user.role !== Role.DIRECTOR && user.role !== Role.ACADEMIC_HEAD && template !== "ACADEMIC_HEAD" && !isAdmissionCell(user)) ||
+    isNonAcademicStaffTemplate(user)
+  ) {
+    throw Object.assign(new Error("Student enrollment access required"), { statusCode: 403 });
+  }
+}
+
 function isAcademicManager(user: Requester) {
   const template = staffTemplate(user);
   const designation = typeof user.roleMetadata?.designation === "string" ? user.roleMetadata.designation : "";
@@ -854,7 +864,7 @@ export const academyService = {
   },
 
   async addStudent(user: Requester, batchId: string, input: StudentInput) {
-    requireAcademicManagement(user);
+    requireStudentEnrollmentAccess(user);
     const student = await findStudentUserForAdmission(input);
     const existing = await db.batchStudent.findFirst({
       where: { batchId, studentId: student.id },
