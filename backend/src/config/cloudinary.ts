@@ -33,7 +33,6 @@ function hasCloudinaryCredentials() {
 
 export function assertCloudinaryReady() {
   if (!hasCloudinaryCredentials()) {
-    if (env.NODE_ENV === "production") throw new Error("Cloudinary credentials are required in production");
     return false;
   }
   return true;

@@ -20,7 +20,9 @@ async function startupChecks() {
   await AuthServiceV2.ensureTestAccount();
   await ensureNidusTeam();
   await verifyRedisConnection();
-  assertCloudinaryReady();
+  if (!assertCloudinaryReady()) {
+    logger.warn("Cloudinary credentials are not configured. Media upload features will stay disabled until Cloudinary env vars are added.");
+  }
   if (env.PROCESS_ROLE !== "web") await startInfrastructureWorkers();
 }
 
