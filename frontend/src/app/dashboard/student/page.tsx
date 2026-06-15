@@ -104,6 +104,19 @@ type StudentPlan = {
     reviewStatus?: string | null;
     createdAt?: string;
   }>;
+  liveClasses?: Array<{
+    id: string;
+    title: string;
+    description?: string | null;
+    subject?: string | null;
+    topic?: string | null;
+    instructorName?: string | null;
+    scheduledAt: string;
+    duration: number;
+    meetingLink: string;
+    status?: string | null;
+    batchId?: string | null;
+  }>;
 };
 
 type ExamSummary = {
@@ -209,12 +222,14 @@ export default function StudentDashboardPage() {
   const attendanceSessions = attendance?.sessions ?? [];
   const assignments = academicPlan.data?.assignments ?? [];
   const materials = academicPlan.data?.materials ?? [];
+  const liveClasses = academicPlan.data?.liveClasses ?? [];
   const pendingAssignments = assignments.filter((assignment) => assignment.submissionStatus !== "SUBMITTED");
   const exams = availableExams.data?.tests ?? [];
   const results = attemptHistory.data?.attempts ?? [];
   const today = new Date().toISOString().slice(0, 10);
   const todayClasses = calendar.filter((item) => item.plannedDate.slice(0, 10) === today);
   const upcomingClasses = calendar.filter((item) => item.plannedDate.slice(0, 10) >= today).slice(0, 6);
+  const upcomingLiveClasses = liveClasses.filter((item) => item.scheduledAt.slice(0, 10) >= today).slice(0, 6);
 
   const primaryBatch = batches[0];
   const teacherList = useMemo(
@@ -294,7 +309,7 @@ export default function StudentDashboardPage() {
         </section>
 
         <section id="classes" className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          <StudentModule title="Classes" text="Recorded and live class links will appear batch-wise." icon={PlayCircle} />
+          <StudentModule title="Classes" text="Upcoming live classes and recorded lessons appear batch-wise." icon={PlayCircle} href="#classes" />
           <StudentModule title="Exam Coaching" text="Practice tests, weekly tests and NIDUS-owned CBT coaching." icon={ClipboardCheck} href="#exams" />
           <StudentModule title="Assessments" text="Open psychometric and defence-readiness assessments." icon={ShieldCheck} href="/dashboard/student#assessments" />
           <StudentModule title="NIDUS Guru" text="Focus, discipline and dream-building quests." icon={UserRound} href="/dashboard/student#nidus-guru" />
@@ -305,6 +320,15 @@ export default function StudentDashboardPage() {
           <StudentModule title="Attendance" text="Track class attendance and marked sessions." icon={CalendarDays} href="#attendance" />
           <StudentModule title="Library" text="Access notes, videos, files and topic materials." icon={Library} href="#library" />
         </section>
+
+        <Panel id="classes" title="My Classes" eyebrow="Upcoming live classes">
+          <div className="grid gap-4 md:grid-cols-2">
+            {upcomingLiveClasses.map((item) => (
+              <LiveClassRow key={item.id} item={item} />
+            ))}
+            {!upcomingLiveClasses.length && <SoftNote text="Live classes published for your batch will appear here." />}
+          </div>
+        </Panel>
 
         <Panel id="assignments" title="Assignments" eyebrow="Teacher published tasks">
           <div className="grid gap-4">
@@ -595,6 +619,29 @@ function ClassRow({ item }: { item: CalendarItem }) {
         <span className={`rounded-full border px-3 py-1 text-xs font-black ${statusColor}`}>{item.completionStatus ?? "PLANNED"}</span>
       </div>
       {item.teacherLog && <p className="mt-3 rounded-xl bg-[var(--page-bg)] p-3 text-sm text-[var(--muted-blue)]">{item.teacherLog}</p>}
+    </article>
+  );
+}
+
+function LiveClassRow({ item }: { item: NonNullable<StudentPlan["liveClasses"]>[number] }) {
+  return (
+    <article className="rounded-2xl border border-[var(--border)] bg-white p-5">
+      <div className="flex items-start gap-3">
+        <span className="grid h-11 w-11 place-items-center rounded-xl border border-[var(--border)] bg-[var(--gold-soft)]">
+          <PlayCircle size={18} />
+        </span>
+        <div className="min-w-0 flex-1">
+          <p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold)]">{item.subject ?? "Live Class"}</p>
+          <h3 className="mt-2 text-xl font-black text-[var(--navy)]">{item.topic || item.title}</h3>
+          <p className="mt-2 text-sm leading-6 text-[var(--muted-blue)]">
+            {item.instructorName || "NIDUS Teacher"} / {new Date(item.scheduledAt).toLocaleString()} / {item.duration} min
+          </p>
+          {item.description ? <p className="mt-2 text-sm leading-6 text-[var(--muted-blue)]">{item.description}</p> : null}
+          <a href={item.meetingLink} target="_blank" rel="noreferrer" className="mt-4 inline-flex rounded-xl bg-[var(--gold-gradient)] px-4 py-2 text-sm font-black text-[var(--navy)]">
+            Join Class
+          </a>
+        </div>
+      </div>
     </article>
   );
 }

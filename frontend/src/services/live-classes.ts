@@ -9,8 +9,15 @@ export type LiveClassPayload = {
   scheduledAt: string;
   duration: number;
   meetingLink: string;
-  thumbnail: string;
+  thumbnail?: string;
   isLive?: boolean;
+  batchId?: string;
+  programSlug?: string;
+  subject?: string;
+  topic?: string;
+  teacherId?: string;
+  status?: string;
+  recordingUrl?: string;
 };
 
 export async function getLiveClasses() {

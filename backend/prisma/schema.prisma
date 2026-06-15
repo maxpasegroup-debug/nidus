@@ -655,7 +655,20 @@ model LiveClass {
   meetingLink    String
   thumbnail      String
   isLive         Boolean  @default(false)
+  batchId        String?
+  programSlug    String?
+  subject        String?
+  topic          String?
+  teacherId      String?
+  status         String   @default("SCHEDULED")
+  recordingUrl   String?
   createdAt      DateTime @default(now())
+
+  @@index([batchId])
+  @@index([programSlug])
+  @@index([teacherId])
+  @@index([status])
+  @@index([scheduledAt])
 }
 
 model RecordedLecture {
@@ -2425,9 +2438,16 @@ model TeacherStudyMaterialRecord {
   teacherId   String?
   teacherName String?
   title       String
+  description String?
   type        String   @default("PDF")
   url         String?
   fileName    String?
+  cloudinaryPublicId String?
+  thumbnailUrl String?
+  thumbnailPublicId String?
+  fileSize    Int?
+  durationSeconds Int?
+  lessonName  String?
   status      String   @default("PUBLISHED")
   reviewStatus String   @default("PENDING_REVIEW")
   reviewedBy   String?

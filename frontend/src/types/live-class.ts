@@ -9,6 +9,13 @@ export type LiveClass = {
   meetingLink: string;
   thumbnail: string;
   isLive: boolean;
+  batchId?: string | null;
+  programSlug?: string | null;
+  subject?: string | null;
+  topic?: string | null;
+  teacherId?: string | null;
+  status?: string | null;
+  recordingUrl?: string | null;
   createdAt: string;
 };
 

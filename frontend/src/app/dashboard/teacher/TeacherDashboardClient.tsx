@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Children, useEffect, useMemo, useState } from "react";
+import { uploadMediaFile } from "@/services/media";
 import {
   BookOpen,
   CalendarDays,
@@ -12,7 +13,9 @@ import {
   GraduationCap,
   Library,
   Plus,
+  PlayCircle,
   RefreshCw,
+  Users,
   X,
 } from "lucide-react";
 
@@ -37,12 +40,14 @@ type AssignedStudent = {
 type AssignedClass = {
   id: string;
   name: string;
+  batchType?: string | null;
   subject?: string | null;
   role?: string | null;
   status?: string | null;
   course?: { title?: string | null; name?: string | null; slug?: string | null } | null;
   _count?: { students?: number; teachers?: number } | null;
   students?: Array<{ id?: string; student?: AssignedStudent | null; status?: string | null }>;
+  teachers?: Array<{ subject?: string | null; teacher?: { id?: string; name?: string | null; email?: string | null } | null }>;
 };
 
 type CalendarItem = {
@@ -58,6 +63,25 @@ type CalendarItem = {
   completionStatus?: string;
   teacherLog?: string | null;
   nextAction?: string | null;
+};
+
+type LiveClassRecord = {
+  id: string;
+  title: string;
+  description?: string | null;
+  examType?: string | null;
+  instructorName?: string | null;
+  scheduledAt: string;
+  duration: number;
+  meetingLink: string;
+  isLive?: boolean;
+  batchId?: string | null;
+  programSlug?: string | null;
+  subject?: string | null;
+  topic?: string | null;
+  teacherId?: string | null;
+  status?: string | null;
+  recordingUrl?: string | null;
 };
 
 type TeachingPlan = {
@@ -99,6 +123,12 @@ type MaterialRecord = {
   url?: string | null;
   fileName?: string | null;
   thumbnailName?: string | null;
+  cloudinaryPublicId?: string | null;
+  thumbnailUrl?: string | null;
+  thumbnailPublicId?: string | null;
+  fileSize?: number | null;
+  durationSeconds?: number | null;
+  lessonName?: string | null;
   createdAt?: string;
   status?: string;
   reviewStatus?: string | null;
@@ -182,6 +212,16 @@ type AssignmentForm = {
   link: string;
 };
 
+type LiveClassForm = {
+  subject: string;
+  topic: string;
+  date: string;
+  time: string;
+  duration: string;
+  description: string;
+  meetingLink: string;
+};
+
 export type TeacherView = "classes" | "exams" | "assignments" | "attendance" | "library" | "academic-calendar";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") || "";
@@ -204,6 +244,12 @@ const initialLibraryForm = {
   url: "",
   fileName: "",
   thumbnailName: "",
+  cloudinaryPublicId: "",
+  thumbnailUrl: "",
+  thumbnailPublicId: "",
+  fileSize: "",
+  durationSeconds: "",
+  lessonName: "",
 };
 
 function getStoredToken() {
@@ -371,6 +417,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
   const [user, setUser] = useState<StoredUser | null>(null);
   const [classes, setClasses] = useState<AssignedClass[]>([]);
   const [calendar, setCalendar] = useState<CalendarItem[]>([]);
+  const [liveClasses, setLiveClasses] = useState<LiveClassRecord[]>([]);
   const [selectedProgramKey, setSelectedProgramKey] = useState<string | null>(null);
   const [selectedClassId, setSelectedClassId] = useState<string | null>(null);
   const [studentModalId, setStudentModalId] = useState<string | null>(null);
@@ -386,11 +433,13 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
   const [assignmentMessage, setAssignmentMessage] = useState<string | null>(null);
   const [libraryMessage, setLibraryMessage] = useState<string | null>(null);
   const [examMessage, setExamMessage] = useState<string | null>(null);
+  const [liveClassMessage, setLiveClassMessage] = useState<string | null>(null);
   const [attendanceDate, setAttendanceDate] = useState(todayDate());
   const [attendance, setAttendance] = useState<Record<string, "PRESENT" | "ABSENT" | "LEAVE">>({});
   const [attendanceComments, setAttendanceComments] = useState<Record<string, string>>({});
   const [showExamCreator, setShowExamCreator] = useState(false);
   const [showAssignmentCreator, setShowAssignmentCreator] = useState(false);
+  const [showLiveClassCreator, setShowLiveClassCreator] = useState(false);
   const [examDraft, setExamDraft] = useState<ExamDraft | null>(null);
   const [examChatInput, setExamChatInput] = useState("");
   const [examChatMessages, setExamChatMessages] = useState<ExamChatMessage[]>([
@@ -419,6 +468,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
   const [calendarLog, setCalendarLog] = useState({ completionStatus: "COMPLETED", teacherLog: "", nextAction: "" });
   const [libraryForm, setLibraryForm] = useState(initialLibraryForm);
   const [assignmentForm, setAssignmentForm] = useState<AssignmentForm>({ title: "", subject: "", topic: "", difficulty: "MEDIUM", instructions: "", pastedContent: "", dueDate: "", attachmentName: "", link: "" });
+  const [liveClassForm, setLiveClassForm] = useState<LiveClassForm>({ subject: "", topic: "", date: todayDate(), time: "", duration: "60", description: "", meetingLink: "" });
   const [examForm, setExamForm] = useState<ExamForm>({
     title: "",
     subject: "",
@@ -497,6 +547,20 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
     selectedCalendarItems.find((item) => item.batchId === selectedClass?.id) ??
     selectedCalendarItems[0] ??
     null;
+  const liveClassesByBatch = useMemo(() => {
+    const map = new Map<string, LiveClassRecord[]>();
+    for (const item of liveClasses) {
+      if (!item.batchId) continue;
+      const items = map.get(item.batchId) ?? [];
+      items.push(item);
+      map.set(item.batchId, items);
+    }
+    for (const items of map.values()) {
+      items.sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime());
+    }
+    return map;
+  }, [liveClasses]);
+  const selectedBatchLiveClasses = selectedClass?.id ? liveClassesByBatch.get(selectedClass.id) ?? [] : [];
   const librarySubjects = useMemo(() => {
     const subjects = new Set(classWorkspace.materials.map((item) => item.subject || item.folder || "General"));
     if (libraryForm.subject) subjects.add(libraryForm.subject);
@@ -564,13 +628,19 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
     setLoadingPlan(true);
     setMessage(null);
     try {
-      const data = await apiGet<TeachingPlan | AssignedClass[]>(["/api/academy/my-teaching-plan", "/api/academy/teacher-assignments"]);
+      const [data, liveData] = await Promise.all([
+        apiGet<TeachingPlan | AssignedClass[]>(["/api/academy/my-teaching-plan", "/api/academy/teacher-assignments"]),
+        apiGet<{ liveClasses?: LiveClassRecord[] }>(["/api/live-classes"]).catch(() => null),
+      ]);
       const assigned = normalizeAssignedClasses(data);
       const plannedCalendar = Array.isArray(data) ? [] : data?.calendar ?? [];
+      const rememberedBatchId = typeof window !== "undefined" ? window.localStorage.getItem("teacherSelectedBatchId") : null;
+      const rememberedBatch = rememberedBatchId ? assigned.find((batch) => batch.id === rememberedBatchId) : null;
       setClasses(assigned);
       setCalendar(plannedCalendar);
-      setSelectedProgramKey((current) => current ?? (assigned[0] ? programKey(assigned[0]) : null));
-      setSelectedClassId((current) => current ?? assigned[0]?.id ?? null);
+      setLiveClasses(liveData?.liveClasses ?? []);
+      setSelectedProgramKey((current) => current ?? (rememberedBatch ? programKey(rememberedBatch) : assigned[0] ? programKey(assigned[0]) : null));
+      setSelectedClassId((current) => current ?? rememberedBatch?.id ?? assigned[0]?.id ?? null);
       setSelectedCalendarId((current) => current ?? plannedCalendar[0]?.id ?? null);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Could not load teacher plan.");
@@ -628,7 +698,9 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
   function chooseProgram(key: string) {
     const program = programGroups.find((item) => item.key === key);
     setSelectedProgramKey(key);
-    setSelectedClassId(program?.classes[0]?.id ?? null);
+    const nextBatchId = program?.classes[0]?.id ?? null;
+    setSelectedClassId(nextBatchId);
+    if (nextBatchId && typeof window !== "undefined") window.localStorage.setItem("teacherSelectedBatchId", nextBatchId);
     setStudentModalId(null);
     setSelectedAssignmentId(null);
     setLibrarySubject(null);
@@ -638,6 +710,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
 
   function chooseBatch(batchId: string) {
     setSelectedClassId(batchId);
+    if (typeof window !== "undefined") window.localStorage.setItem("teacherSelectedBatchId", batchId);
     setStudentModalId(null);
     setSelectedAssignmentId(null);
     setLibrarySubject(null);
@@ -696,6 +769,90 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
         text: `Hello ${user?.name || "Teacher"}. What assignment would you like to create today? Share the topic, notes, PDF, Word document, images, or reference links.`,
       },
     ]);
+  }
+
+  function openLiveClassCreator(batch?: AssignedClass) {
+    const target = batch ?? selectedClass;
+    if (target) chooseBatch(target.id);
+    setLiveClassMessage(null);
+    setLiveClassForm({
+      subject: target?.subject || "",
+      topic: "",
+      date: todayDate(),
+      time: "",
+      duration: "60",
+      description: "",
+      meetingLink: "",
+    });
+    setShowLiveClassCreator(true);
+  }
+
+  async function publishLiveClass() {
+    if (!selectedClass) {
+      setLiveClassMessage("Select an assigned batch before publishing a live class.");
+      return;
+    }
+    if (!liveClassForm.subject || !liveClassForm.topic || !liveClassForm.date || !liveClassForm.time || !liveClassForm.meetingLink) {
+      setLiveClassMessage("Subject, topic, date, time and meeting link are required.");
+      return;
+    }
+    setLiveClassMessage(null);
+    try {
+      const scheduledAt = new Date(`${liveClassForm.date}T${liveClassForm.time}`).toISOString();
+      const response = await apiPost<{ liveClass?: LiveClassRecord }>(["/api/live-classes"], {
+        title: `${liveClassForm.subject} - ${liveClassForm.topic}`,
+        description: liveClassForm.description || `${programName(selectedClass)} / ${selectedClass.name}`,
+        examType: programName(selectedClass),
+        instructorName: user?.name || user?.email || "NIDUS Teacher",
+        scheduledAt,
+        duration: Number(liveClassForm.duration || 60),
+        meetingLink: liveClassForm.meetingLink,
+        batchId: selectedClass.id,
+        programSlug: selectedClass.course?.slug || programKey(selectedClass),
+        subject: liveClassForm.subject,
+        topic: liveClassForm.topic,
+        teacherId: user?.id,
+        status: "SCHEDULED",
+      });
+      if (response?.liveClass) {
+        setLiveClasses((items) => [...items.filter((item) => item.id !== response.liveClass?.id), response.liveClass as LiveClassRecord]);
+      } else {
+        await loadTeachingPlan();
+      }
+      setShowLiveClassCreator(false);
+      setLiveClassMessage("Live class published to assigned students.");
+    } catch (error) {
+      setLiveClassMessage(error instanceof Error ? error.message : "Could not publish live class.");
+    }
+  }
+
+  async function saveLiveRecordingToLibrary(item: LiveClassRecord) {
+    const targetBatch = activeClasses.find((batch) => batch.id === item.batchId) ?? selectedClass;
+    if (!targetBatch) {
+      setLiveClassMessage("Select a batch before saving the recording to Library.");
+      return;
+    }
+    const recordingUrl = item.recordingUrl || item.meetingLink;
+    try {
+      await apiPost<{ ok?: boolean }>(["/api/academy/study-materials"], {
+        batchId: targetBatch.id,
+        batchName: targetBatch.name,
+        course: programName(targetBatch),
+        folder: item.subject || targetBatch.subject || "Recorded Classes",
+        subject: item.subject || targetBatch.subject || "General",
+        topic: item.topic || "Live Class",
+        title: item.title,
+        description: item.description || "Live class recording saved to Library.",
+        type: "VIDEO",
+        url: recordingUrl,
+        fileName: `${item.title}.recording`,
+        reviewStatus: "PENDING_REVIEW",
+      });
+      setLiveClassMessage("Recording saved to Library as a video lesson.");
+      await loadClassWorkspace(targetBatch.id);
+    } catch (error) {
+      setLiveClassMessage(error instanceof Error ? error.message : "Could not save recording to Library.");
+    }
   }
 
   function sendAssignmentChatMessage() {
@@ -847,7 +1004,12 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
         type: libraryForm.type,
         url: libraryForm.url || undefined,
         fileName: libraryForm.fileName || undefined,
-        thumbnailName: libraryForm.thumbnailName || undefined,
+        cloudinaryPublicId: libraryForm.cloudinaryPublicId || undefined,
+        thumbnailUrl: libraryForm.thumbnailUrl || undefined,
+        thumbnailPublicId: libraryForm.thumbnailPublicId || undefined,
+        fileSize: libraryForm.fileSize ? Number(libraryForm.fileSize) : undefined,
+        durationSeconds: libraryForm.durationSeconds ? Number(libraryForm.durationSeconds) : undefined,
+        lessonName: libraryForm.lessonName || libraryForm.title || undefined,
       });
       setLibraryForm(initialLibraryForm);
       setShowLibraryUpload(false);
@@ -865,6 +1027,53 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
       await loadClassWorkspace(selectedClass.id);
     } catch (error) {
       setLibraryMessage(error instanceof Error ? error.message : "Could not archive material.");
+    }
+  }
+
+  async function uploadLibraryFile(file: File) {
+    setLibraryMessage("Uploading file to secure storage...");
+    try {
+      const uploaded = await uploadMediaFile({ file });
+      const normalizedType = uploaded.fileType.startsWith("video/")
+        ? "VIDEO"
+        : uploaded.fileType.includes("pdf")
+          ? "PDF"
+          : uploaded.fileType.includes("presentation") || uploaded.originalName.toLowerCase().endsWith(".ppt") || uploaded.originalName.toLowerCase().endsWith(".pptx")
+            ? "PPT"
+            : uploaded.fileType.includes("word") || uploaded.originalName.toLowerCase().endsWith(".doc") || uploaded.originalName.toLowerCase().endsWith(".docx")
+              ? "WORD"
+              : uploaded.fileType.startsWith("image/")
+                ? "IMAGE"
+                : "FILE";
+      setLibraryForm((form) => ({
+        ...form,
+        title: form.title || uploaded.originalName.replace(/\.[^.]+$/, ""),
+        lessonName: form.lessonName || uploaded.originalName.replace(/\.[^.]+$/, ""),
+        type: normalizedType,
+        url: uploaded.cloudinaryUrl,
+        fileName: uploaded.originalName,
+        cloudinaryPublicId: uploaded.publicId,
+        fileSize: String(uploaded.fileSize),
+      }));
+      setLibraryMessage("Upload complete. Review the lesson details, then publish.");
+    } catch (error) {
+      setLibraryMessage(error instanceof Error ? error.message : "Could not upload file.");
+    }
+  }
+
+  async function uploadLibraryThumbnail(file: File) {
+    setLibraryMessage("Uploading thumbnail...");
+    try {
+      const uploaded = await uploadMediaFile({ file });
+      setLibraryForm((form) => ({
+        ...form,
+        thumbnailName: uploaded.originalName,
+        thumbnailUrl: uploaded.cloudinaryUrl,
+        thumbnailPublicId: uploaded.publicId,
+      }));
+      setLibraryMessage("Thumbnail uploaded.");
+    } catch (error) {
+      setLibraryMessage(error instanceof Error ? error.message : "Could not upload thumbnail.");
     }
   }
 
@@ -993,21 +1202,24 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
         {!activeCourseKey ? (
           <>
           <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
-            <SectionHeader eyebrow="Classes" title="Assigned programs" description="Only programs assigned by the Academic Head or Director appear here." icon={<GraduationCap size={20} />} />
+            <SectionHeader eyebrow="Classes" title="Teaching workspace" description="Only assigned batches appear here. Use each card to take attendance, start live classes, view students or check the schedule." icon={<GraduationCap size={20} />} />
           </div>
+          {liveClassMessage ? <Notice text={liveClassMessage} /> : null}
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {programGroups.map((program) => (
-              <Link key={program.key} href={`${dashboardBasePath}/classes/${program.key}`} className="min-h-56 rounded-2xl border border-[var(--border)] bg-white p-5 text-left shadow-sm transition hover:-translate-y-1 hover:bg-[var(--page-bg)]">
-                <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold-dark)]">Assigned program</p>
-                <h3 className="mt-5 text-2xl font-black">{program.name}</h3>
-                <div className="mt-5 grid grid-cols-2 gap-3 text-sm">
-                  <MetricPill label="Students" value={program.classes.reduce((total, batch) => total + (batch.students?.length ?? batch._count?.students ?? 0), 0)} />
-                  <MetricPill label="Batches" value={program.classes.length} />
-                </div>
-                <span className="mt-6 inline-flex rounded-xl bg-[var(--ink)] px-4 py-3 text-sm font-black text-white">Open Program</span>
-              </Link>
+            {activeClasses.map((batch) => (
+              <TeachingWorkspaceCard
+                key={batch.id}
+                batch={batch}
+                href={`${dashboardBasePath}/classes/${programKey(batch)}/${batch.id}`}
+                attendanceHref={`${dashboardBasePath}/attendance`}
+                scheduleHref={`${dashboardBasePath}/academic-calendar`}
+                upcomingClass={(liveClassesByBatch.get(batch.id) ?? [])[0]}
+                calendarItem={calendar.find((item) => item.batchId === batch.id)}
+                onStartLive={() => openLiveClassCreator(batch)}
+                onRemember={() => chooseBatch(batch.id)}
+              />
             ))}
-            {!programGroups.length ? <ClassesEmptyState /> : null}
+            {!activeClasses.length ? <ClassesEmptyState /> : null}
           </div>
           </>
         ) : activeCourseKey && !activeBatchId ? (
@@ -1092,9 +1304,22 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
                 onClose={() => setStudentModalId(null)}
               />
             ) : null}
+            {liveClassMessage ? <Notice text={liveClassMessage} /> : null}
+            <LiveClassStrip items={selectedBatchLiveClasses} onSaveRecording={saveLiveRecordingToLibrary} />
           </div>
         )}
       </section> : null}
+      {showLiveClassCreator ? (
+        <LiveClassCreatorModal
+          form={liveClassForm}
+          setForm={setLiveClassForm}
+          batchName={selectedClass?.name ?? "Batch"}
+          programName={selectedClass ? programName(selectedClass) : "Program"}
+          onClose={() => setShowLiveClassCreator(false)}
+          onPublish={() => void publishLiveClass()}
+          message={liveClassMessage}
+        />
+      ) : null}
 
       {view === "exams" ? <section className="grid gap-5">
         <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
@@ -1337,6 +1562,8 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
                 activeSubject={activeLibrarySubject}
                 activeTopic={activeLibraryTopic}
                 onChange={setLibraryForm}
+                onUploadMaterial={(file) => void uploadLibraryFile(file)}
+                onUploadThumbnail={(file) => void uploadLibraryThumbnail(file)}
                 onPublish={() => void publishLibraryMaterial()}
               />
             ) : null}
@@ -1443,6 +1670,67 @@ function ClassesEmptyState() {
   );
 }
 
+function TeachingWorkspaceCard({
+  batch,
+  href,
+  attendanceHref,
+  scheduleHref,
+  upcomingClass,
+  calendarItem,
+  onStartLive,
+  onRemember,
+}: {
+  batch: AssignedClass;
+  href: string;
+  attendanceHref: string;
+  scheduleHref: string;
+  upcomingClass?: LiveClassRecord;
+  calendarItem?: CalendarItem;
+  onStartLive: () => void;
+  onRemember: () => void;
+}) {
+  const subjects = Array.from(new Set([batch.subject, ...(batch.teachers?.map((teacher) => teacher.subject) ?? [])].filter(Boolean))) as string[];
+  const mode = batch.batchType || (batch.name.toUpperCase().includes("ONLINE") ? "ONLINE" : "OFFLINE");
+  const studentCount = batch.students?.length ?? batch._count?.students ?? 0;
+  const upcoming = upcomingClass
+    ? `${upcomingClass.subject || "Class"} / ${new Date(upcomingClass.scheduledAt).toLocaleString()}`
+    : calendarItem
+      ? `${calendarItem.subject || "Class"} / ${calendarItem.plannedDate ? new Date(calendarItem.plannedDate).toLocaleDateString() : "planned"}`
+      : "No upcoming class";
+  const status = upcomingClass?.status || calendarItem?.status || "Planning pending";
+
+  return (
+    <article className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold-dark)]">{programName(batch)}</p>
+          <h3 className="mt-3 text-2xl font-black">{batch.name}</h3>
+        </div>
+        <span className="rounded-full border border-[var(--border)] bg-[var(--page-bg)] px-3 py-1 text-xs font-black">{mode}</span>
+      </div>
+      <div className="mt-4 grid grid-cols-2 gap-3">
+        <MetricPill label="Students" value={studentCount} />
+        <MetricPill label="Subjects" value={subjects.length || "Pending"} />
+      </div>
+      <div className="mt-4 rounded-xl border border-[var(--border)] bg-[var(--page-bg)] p-3 text-sm">
+        <p className="font-black">Assigned Subjects</p>
+        <p className="mt-1 text-[var(--muted-blue)]">{subjects.join(", ") || batch.subject || "Subject allocation pending"}</p>
+      </div>
+      <div className="mt-3 rounded-xl border border-[var(--border)] bg-[var(--page-bg)] p-3 text-sm">
+        <p className="font-black">Upcoming Class</p>
+        <p className="mt-1 text-[var(--muted-blue)]">{upcoming}</p>
+        <span className="mt-2 inline-flex rounded-full bg-white px-3 py-1 text-xs font-black">{status}</span>
+      </div>
+      <div className="mt-4 grid grid-cols-2 gap-2">
+        <Link onClick={onRemember} href={attendanceHref} className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-3 py-3 text-center text-xs font-black">Take Attendance</Link>
+        <button type="button" onClick={onStartLive} className="rounded-xl bg-[var(--ink)] px-3 py-3 text-xs font-black text-white">Start Live Class</button>
+        <Link onClick={onRemember} href={href} className="rounded-xl border border-[var(--border)] bg-white px-3 py-3 text-center text-xs font-black">View Students</Link>
+        <Link onClick={onRemember} href={scheduleHref} className="rounded-xl border border-[var(--border)] bg-white px-3 py-3 text-center text-xs font-black">View Schedule</Link>
+      </div>
+    </article>
+  );
+}
+
 function BatchCard({ batch, href }: { batch: AssignedClass; href: string }) {
   const students = batch.students?.length ?? batch._count?.students ?? 0;
 
@@ -1468,6 +1756,94 @@ function BatchHealthOverview({ health }: { health: ReturnType<typeof calculateBa
       <HealthCard label="Attendance" value={health.attendance} />
       <HealthCard label="Assignments" value={health.assignments} />
       <HealthCard label="Exams" value={health.exams} />
+    </div>
+  );
+}
+
+function LiveClassStrip({ items, onSaveRecording }: { items: LiveClassRecord[]; onSaveRecording: (item: LiveClassRecord) => void }) {
+  return (
+    <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <p className="text-xs font-black uppercase tracking-[0.3em] text-[var(--gold-dark)]">Live Classes</p>
+          <h3 className="mt-2 text-2xl font-black">Upcoming and recorded sessions</h3>
+        </div>
+        <span className="rounded-full bg-[var(--page-bg)] px-4 py-2 text-xs font-black">{items.length} class(es)</span>
+      </div>
+      <div className="mt-4 grid gap-3 md:grid-cols-2">
+        {items.map((item) => (
+          <article key={item.id} className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
+            <div className="flex items-start gap-3">
+              <span className="grid h-11 w-11 place-items-center rounded-xl border border-[var(--border)] bg-white">
+                <PlayCircle size={18} />
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="text-xs font-black uppercase tracking-[0.22em] text-[var(--gold-dark)]">{item.subject || "Live Class"}</p>
+                <h4 className="mt-1 text-lg font-black">{item.topic || item.title}</h4>
+                <p className="mt-1 text-sm text-[var(--muted-blue)]">{new Date(item.scheduledAt).toLocaleString()} / {item.duration} min</p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <a href={item.meetingLink} target="_blank" rel="noreferrer" className="rounded-xl bg-[var(--ink)] px-4 py-2 text-xs font-black text-white">Join</a>
+                  <button type="button" onClick={() => onSaveRecording(item)} className="rounded-xl border border-[var(--border)] bg-white px-4 py-2 text-xs font-black">Save Recording To Library</button>
+                </div>
+              </div>
+            </div>
+          </article>
+        ))}
+        {!items.length ? <EmptyState text="No live classes are scheduled for this batch yet." /> : null}
+      </div>
+    </div>
+  );
+}
+
+function LiveClassCreatorModal({
+  form,
+  setForm,
+  batchName,
+  programName,
+  onClose,
+  onPublish,
+  message,
+}: {
+  form: LiveClassForm;
+  setForm: React.Dispatch<React.SetStateAction<LiveClassForm>>;
+  batchName: string;
+  programName: string;
+  onClose: () => void;
+  onPublish: () => void;
+  message?: string | null;
+}) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 px-4 py-6">
+      <div className="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-2xl border border-[var(--border)] bg-white p-5 shadow-2xl">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.3em] text-[var(--gold-dark)]">Classes</p>
+            <h2 className="mt-2 text-3xl font-black">Start Live Class</h2>
+            <p className="mt-2 text-sm text-[var(--muted-blue)]">{programName} / {batchName}</p>
+          </div>
+          <button type="button" onClick={onClose} className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] p-3" aria-label="Close live class creator">
+            <X size={18} />
+          </button>
+        </div>
+
+        {message ? <Notice text={message} /> : null}
+
+        <div className="mt-5 grid gap-4 md:grid-cols-2">
+          <Input label="Subject" value={form.subject} onChange={(value) => setForm((current) => ({ ...current, subject: value }))} />
+          <Input label="Topic" value={form.topic} onChange={(value) => setForm((current) => ({ ...current, topic: value }))} />
+          <Input label="Date" type="date" value={form.date} onChange={(value) => setForm((current) => ({ ...current, date: value }))} />
+          <Input label="Time" type="time" value={form.time} onChange={(value) => setForm((current) => ({ ...current, time: value }))} />
+          <Input label="Duration" type="number" value={form.duration} onChange={(value) => setForm((current) => ({ ...current, duration: value }))} />
+          <Input label="Meeting Link" value={form.meetingLink} onChange={(value) => setForm((current) => ({ ...current, meetingLink: value }))} />
+        </div>
+        <div className="mt-4">
+          <Textarea label="Description" value={form.description} onChange={(value) => setForm((current) => ({ ...current, description: value }))} />
+        </div>
+        <div className="mt-5 flex flex-wrap justify-end gap-3">
+          <button type="button" onClick={onClose} className="rounded-xl border border-[var(--border)] bg-white px-5 py-3 text-sm font-black">Cancel</button>
+          <button type="button" onClick={onPublish} className="rounded-xl bg-[var(--ink)] px-5 py-3 text-sm font-black text-white">Publish Live Class</button>
+        </div>
+      </div>
     </div>
   );
 }
@@ -2392,12 +2768,16 @@ function LibraryUploadPanel({
   activeSubject,
   activeTopic,
   onChange,
+  onUploadMaterial,
+  onUploadThumbnail,
   onPublish,
 }: {
   form: typeof initialLibraryForm;
   activeSubject: string | null;
   activeTopic: string | null;
   onChange: React.Dispatch<React.SetStateAction<typeof initialLibraryForm>>;
+  onUploadMaterial: (file: File) => void;
+  onUploadThumbnail: (file: File) => void;
   onPublish: () => void;
 }) {
   return (
@@ -2410,6 +2790,7 @@ function LibraryUploadPanel({
         <MaterialPreview title={form.title} type={form.type} thumbnailName={form.thumbnailName} />
       </div>
       <FormGrid>
+        <Input label="Lesson Name" value={form.lessonName} onChange={(value) => onChange((current) => ({ ...current, lessonName: value, title: current.title || value }))} />
         <Input label="Title" value={form.title} onChange={(value) => onChange((current) => ({ ...current, title: value, subject: activeSubject || current.subject, folder: activeSubject || current.folder, topic: activeTopic || current.topic }))} />
         <Select label="Material type" value={form.type} onChange={(value) => onChange((current) => ({ ...current, type: value }))}>
           <option value="VIDEO">Recorded Video</option>
@@ -2418,12 +2799,15 @@ function LibraryUploadPanel({
           <option value="WORD">Word Document</option>
           <option value="LINK">External Link</option>
           <option value="NOTE">Notes</option>
+          <option value="IMAGE">Image</option>
+          <option value="FILE">File</option>
         </Select>
-        <Input label="External link" value={form.url} onChange={(value) => onChange((current) => ({ ...current, url: value }))} />
-        <FileInput label="Upload material file" onChange={(value) => onChange((current) => ({ ...current, fileName: value }))} />
-        <FileInput label="Thumbnail preview" accept="image/*" onChange={(value) => onChange((current) => ({ ...current, thumbnailName: value }))} />
+        <Input label="External link" value={form.cloudinaryPublicId ? "Upload complete" : form.url} onChange={(value) => onChange((current) => ({ ...current, url: value, cloudinaryPublicId: "" }))} />
+        <FileInput label="Upload File" accept="video/*,.pdf,.doc,.docx,.ppt,.pptx,image/*,.txt" onChange={(value, file) => file ? onUploadMaterial(file) : onChange((current) => ({ ...current, fileName: value }))} />
+        <FileInput label="Thumbnail preview" accept="image/*" onChange={(value, file) => file ? onUploadThumbnail(file) : onChange((current) => ({ ...current, thumbnailName: value }))} />
         <Textarea label="Description / notes" value={form.description} onChange={(value) => onChange((current) => ({ ...current, description: value }))} />
       </FormGrid>
+      {form.fileName ? <p className="mt-3 rounded-xl bg-white px-3 py-2 text-xs font-black">Upload Complete: {form.fileName}</p> : null}
       <button type="button" onClick={onPublish} className="mt-4 inline-flex items-center gap-2 rounded-xl bg-emerald-700 px-5 py-3 font-black text-white"><FolderPlus size={16} /> Publish Material</button>
     </div>
   );
@@ -2561,11 +2945,19 @@ function Textarea({ label, value, onChange }: { label: string; value: string; on
   );
 }
 
-function FileInput({ label, accept, onChange }: { label: string; accept?: string; onChange: (value: string) => void }) {
+function FileInput({ label, accept, onChange }: { label: string; accept?: string; onChange: (value: string, file?: File) => void }) {
   return (
     <label className="grid gap-2 text-sm font-black">
       {label}
-      <input type="file" accept={accept} onChange={(event) => onChange(event.target.files?.[0]?.name ?? "")} className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 font-normal" />
+      <input
+        type="file"
+        accept={accept}
+        onChange={(event) => {
+          const file = event.target.files?.[0];
+          onChange(file?.name ?? "", file);
+        }}
+        className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 font-normal"
+      />
     </label>
   );
 }

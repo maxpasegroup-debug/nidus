@@ -8,8 +8,15 @@ export type LiveClassPayload = {
   scheduledAt: string;
   duration: number;
   meetingLink: string;
-  thumbnail: string;
+  thumbnail?: string;
   isLive?: boolean;
+  batchId?: string;
+  programSlug?: string;
+  subject?: string;
+  topic?: string;
+  teacherId?: string;
+  status?: string;
+  recordingUrl?: string;
 };
 
 export const liveClassesService = {
@@ -19,7 +26,24 @@ export const liveClassesService = {
 
   createLiveClass(payload: LiveClassPayload) {
     return prisma.liveClass.create({
-      data: { ...payload, scheduledAt: new Date(payload.scheduledAt), isLive: payload.isLive ?? false }
+      data: {
+        title: payload.title,
+        description: payload.description,
+        examType: payload.examType,
+        instructorName: payload.instructorName,
+        scheduledAt: new Date(payload.scheduledAt),
+        duration: payload.duration,
+        meetingLink: payload.meetingLink,
+        thumbnail: payload.thumbnail || "",
+        isLive: payload.isLive ?? false,
+        batchId: payload.batchId,
+        programSlug: payload.programSlug,
+        subject: payload.subject,
+        topic: payload.topic,
+        teacherId: payload.teacherId,
+        status: payload.status || "SCHEDULED",
+        recordingUrl: payload.recordingUrl
+      }
     });
   },
 
@@ -36,7 +60,14 @@ export const liveClassesService = {
         duration: payload.duration,
         meetingLink: payload.meetingLink,
         thumbnail: payload.thumbnail,
-        isLive: payload.isLive
+        isLive: payload.isLive,
+        batchId: payload.batchId,
+        programSlug: payload.programSlug,
+        subject: payload.subject,
+        topic: payload.topic,
+        teacherId: payload.teacherId,
+        status: payload.status,
+        recordingUrl: payload.recordingUrl
       }
     });
   },

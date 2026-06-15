@@ -18,8 +18,15 @@ function liveValidators(optional = false) {
     maybe(body("scheduledAt")).isISO8601(),
     maybe(body("duration")).isInt({ min: 1 }),
     maybe(body("meetingLink")).isURL(),
-    maybe(body("thumbnail")).isURL(),
-    body("isLive").optional().isBoolean()
+    body("thumbnail").optional({ values: "falsy" }).isURL(),
+    body("isLive").optional().isBoolean(),
+    body("batchId").optional({ values: "falsy" }).isString(),
+    body("programSlug").optional({ values: "falsy" }).isString(),
+    body("subject").optional({ values: "falsy" }).isString(),
+    body("topic").optional({ values: "falsy" }).isString(),
+    body("teacherId").optional({ values: "falsy" }).isString(),
+    body("status").optional({ values: "falsy" }).isString(),
+    body("recordingUrl").optional({ values: "falsy" }).isURL()
   ];
 }
 

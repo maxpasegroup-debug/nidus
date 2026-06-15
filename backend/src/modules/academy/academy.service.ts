@@ -109,9 +109,16 @@ type StudyMaterialInput = {
   subject?: string;
   topic?: string;
   title?: string;
+  description?: string;
   type?: string;
   url?: string;
   fileName?: string;
+  cloudinaryPublicId?: string;
+  thumbnailUrl?: string;
+  thumbnailPublicId?: string;
+  fileSize?: number;
+  durationSeconds?: number;
+  lessonName?: string;
   status?: string;
   reviewStatus?: string;
   reviewNote?: string;
@@ -1075,6 +1082,14 @@ export const academyService = {
           ORDER BY "createdAt" DESC
         `
       : [];
+    const liveClassRows = batchIds.length
+      ? await prisma.$queryRaw<any[]>`
+          SELECT * FROM "LiveClass"
+          WHERE "batchId" IN (${Prisma.join(batchIds)})
+          AND "status" != 'CANCELLED'
+          ORDER BY "scheduledAt" ASC
+        `
+      : [];
 
     return {
       enrollments,
@@ -1098,6 +1113,7 @@ export const academyService = {
         submissionStatus: submissionMap.has(assignment.id) ? "SUBMITTED" : "PENDING",
       })),
       materials: normalizeRows(materialRows),
+      liveClasses: normalizeRows(liveClassRows),
     };
   },
 
@@ -1639,9 +1655,9 @@ export const academyService = {
     const now = new Date();
     await prisma.$executeRaw`
       INSERT INTO "TeacherStudyMaterialRecord"
-      ("id", "batchId", "batchName", "course", "folder", "subject", "topic", "teacherId", "teacherName", "title", "type", "url", "fileName", "status", "reviewStatus", "createdAt", "updatedAt")
+      ("id", "batchId", "batchName", "course", "folder", "subject", "topic", "teacherId", "teacherName", "title", "description", "type", "url", "fileName", "cloudinaryPublicId", "thumbnailUrl", "thumbnailPublicId", "fileSize", "durationSeconds", "lessonName", "status", "reviewStatus", "createdAt", "updatedAt")
       VALUES
-      (${id}, ${input.batchId}, ${input.batchName || null}, ${input.course || null}, ${input.folder || null}, ${input.subject || null}, ${input.topic || null}, ${user.id}, ${user.name || user.email || null}, ${input.title}, ${input.type || "PDF"}, ${input.url || null}, ${input.fileName || null}, ${input.status || "PUBLISHED"}, ${input.reviewStatus || "PENDING_REVIEW"}, ${now}, ${now})
+      (${id}, ${input.batchId}, ${input.batchName || null}, ${input.course || null}, ${input.folder || null}, ${input.subject || null}, ${input.topic || null}, ${user.id}, ${user.name || user.email || null}, ${input.title}, ${input.description || null}, ${input.type || "PDF"}, ${input.url || null}, ${input.fileName || null}, ${input.cloudinaryPublicId || null}, ${input.thumbnailUrl || null}, ${input.thumbnailPublicId || null}, ${typeof input.fileSize === "number" ? input.fileSize : null}, ${typeof input.durationSeconds === "number" ? input.durationSeconds : null}, ${input.lessonName || input.title || null}, ${input.status || "PUBLISHED"}, ${input.reviewStatus || "PENDING_REVIEW"}, ${now}, ${now})
     `;
     const rows = await prisma.$queryRaw<any[]>`
       SELECT * FROM "TeacherStudyMaterialRecord" WHERE "id" = ${id} LIMIT 1

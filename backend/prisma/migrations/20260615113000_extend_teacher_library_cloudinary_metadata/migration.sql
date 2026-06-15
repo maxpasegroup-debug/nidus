@@ -1,0 +1,8 @@
+ALTER TABLE "TeacherStudyMaterialRecord"
+  ADD COLUMN IF NOT EXISTS "description" TEXT,
+  ADD COLUMN IF NOT EXISTS "cloudinaryPublicId" TEXT,
+  ADD COLUMN IF NOT EXISTS "thumbnailUrl" TEXT,
+  ADD COLUMN IF NOT EXISTS "thumbnailPublicId" TEXT,
+  ADD COLUMN IF NOT EXISTS "fileSize" INTEGER,
+  ADD COLUMN IF NOT EXISTS "durationSeconds" INTEGER,
+  ADD COLUMN IF NOT EXISTS "lessonName" TEXT;
