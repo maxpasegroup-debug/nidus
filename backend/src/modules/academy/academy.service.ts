@@ -149,6 +149,12 @@ type ApproveAdmissionInput = StudentInput & {
   batchId: string;
   applicationId?: string;
   leadId?: string;
+  totalFee?: number;
+  amountPaid?: number;
+  paymentStatus?: string;
+  paymentMethod?: string;
+  transactionRef?: string;
+  receiptUploadUrl?: string;
 };
 
 type EmployeeInput = {
@@ -1963,13 +1969,136 @@ export const academyService = {
       throw Object.assign(new Error("Batch is required"), { statusCode: 400 });
     }
 
+    const batch = await db.batch.findUnique({ where: { id: input.batchId }, include: { course: true } });
+    if (!batch) {
+      throw Object.assign(new Error("Batch not found"), { statusCode: 404 });
+    }
+
+    const student = await findStudentUserForAdmission(input);
     const enrollment = await this.addStudent(user, input.batchId, input);
+    const now = new Date();
+    const totalFee = Number(input.totalFee || 0);
+    const amountPaid = Math.max(0, Number(input.amountPaid || 0));
+    const paymentStatus = input.paymentStatus || (amountPaid >= totalFee && totalFee > 0 ? "PAID" : amountPaid > 0 ? "PARTIAL" : "PENDING");
+    const approvalNotes = [
+      input.notes || "",
+      amountPaid > 0 ? `Payment confirmed: INR ${amountPaid} via ${input.paymentMethod || "MANUAL"}.` : "",
+      input.transactionRef ? `Transaction reference: ${input.transactionRef}.` : "",
+    ].filter(Boolean).join("\n");
+    let admission: Record<string, unknown> | null = null;
+    let payment: Record<string, unknown> | null = null;
+
+    if (batch.courseId) {
+      const existingAdmission = input.leadId
+        ? await prisma.admission.findFirst({ where: { leadId: input.leadId, studentId: student.id, courseId: batch.courseId } })
+        : await prisma.admission.findFirst({ where: { studentId: student.id, courseId: batch.courseId, batch: batch.name } });
+
+      admission = existingAdmission
+        ? await prisma.admission.update({
+            where: { id: existingAdmission.id },
+            data: {
+              batch: batch.name,
+              status: "ENROLLED",
+              approvalStatus: "APPROVED",
+              approvedBy: user.id,
+              approvedAt: now,
+              onboardingStatus: "ACTIVE",
+              paymentStatus,
+              totalFee,
+              paidAmount: amountPaid,
+              dueAmount: Math.max(totalFee - amountPaid, 0),
+              remarks: approvalNotes || existingAdmission.remarks,
+            },
+          })
+        : await prisma.admission.create({
+            data: {
+              leadId: input.leadId || undefined,
+              studentId: student.id,
+              courseId: batch.courseId,
+              admissionDate: now,
+              paymentStatus,
+              status: "ENROLLED",
+              admissionMode: input.paymentMethod === "RAZORPAY_LINK" ? "ONLINE" : "MANUAL",
+              approvalStatus: "APPROVED",
+              approvedBy: user.id,
+              approvedAt: now,
+              onboardingStatus: "ACTIVE",
+              batch: batch.name,
+              totalFee,
+              paidAmount: amountPaid,
+              dueAmount: Math.max(totalFee - amountPaid, 0),
+              remarks: approvalNotes || null,
+            },
+          });
+    }
+
+    if (amountPaid > 0) {
+      const method = (input.paymentMethod || "OFFICE_COLLECTION").toUpperCase();
+      payment = await prisma.payment.create({
+        data: {
+          userId: student.id,
+          courseId: batch.courseId || undefined,
+          admissionId: typeof admission?.id === "string" ? admission.id : undefined,
+          collectorId: user.id,
+          amount: amountPaid,
+          currency: "INR",
+          razorpayOrderId: `admission_manual_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+          paymentStatus: "SUCCESS",
+          paymentMethod: method,
+          paymentMode: method === "RAZORPAY_LINK" ? "ONLINE" : "MANUAL",
+          transactionRef: input.transactionRef || undefined,
+          receiptUploadUrl: input.receiptUploadUrl || undefined,
+          remarks: approvalNotes || undefined,
+          verifiedBy: user.id,
+          verifiedAt: now,
+        },
+      });
+
+      await prisma.paymentTransactionLog.create({
+        data: {
+          paymentId: payment.id as string,
+          event: "ADMISSION_PAYMENT_CONFIRMED",
+          actorId: user.id,
+          statusTo: "SUCCESS",
+          metadata: { batchId: input.batchId, leadId: input.leadId || null, method },
+        },
+      });
+    }
+
+    if (input.leadId) {
+      const lead = await prisma.lead.findUnique({ where: { id: input.leadId } });
+      if (lead) {
+        const existingNotes = lead.notes ? `${lead.notes}\n\n` : "";
+        await prisma.lead.update({
+          where: { id: input.leadId },
+          data: {
+            status: "ENROLLED",
+            notes: `${existingNotes}[${now.toISOString()}] Admission approved into ${batch.name}.${approvalNotes ? `\n${approvalNotes}` : ""}`,
+          },
+        });
+      }
+    }
+
+    await auditAcademicAction(user, "ADMISSION_APPROVED_AND_ACTIVATED", "BatchStudent", enrollment.id, {
+      batchId: input.batchId,
+      batchName: batch.name,
+      studentId: student.id,
+      studentEmail: student.email,
+      leadId: input.leadId || null,
+      admissionId: admission?.id || null,
+      paymentId: payment?.id || null,
+      paymentStatus,
+      amountPaid,
+    });
+
     return {
       status: "APPROVED",
       message: "Admission approved and student dashboard activated.",
       applicationId: input.applicationId || null,
       leadId: input.leadId || null,
       enrollment,
+      admission,
+      payment,
     };
   },
 };
