@@ -49,7 +49,17 @@ export function canAccessDashboardPath(user: Pick<AuthUser, "role" | "roleMetada
     return path === "/dashboard/business-development";
   }
   if (user.role === "ADMIN") return true;
-  if (user.role === "DIRECTOR") return path.startsWith("/dashboard/director") || path === "/dashboard/teacher" || path.startsWith("/admin-center");
+  if (user.role === "DIRECTOR") {
+    return path.startsWith("/dashboard/director") ||
+      path === "/dashboard/teacher" ||
+      path.startsWith("/admin-center") ||
+      path.startsWith("/crm") ||
+      path.startsWith("/fees") ||
+      path.startsWith("/invoices") ||
+      path.startsWith("/subscriptions") ||
+      path.startsWith("/media-library") ||
+      path.startsWith("/messages");
+  }
   if (user.role === "PHYSICAL_TRAINER") return path.startsWith("/dashboard/teacher") || path.startsWith("/fitness");
   if (user.role === "TEACHER") return path.startsWith("/dashboard/teacher");
   if (user.role === "MARKETING_COORDINATOR") return path === "/dashboard/business-development";

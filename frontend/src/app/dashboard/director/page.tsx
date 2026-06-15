@@ -145,6 +145,7 @@ export default function DirectorDashboardPage() {
   const examQuery = useQuery({ queryKey: ["academy", "exam-summary", "director-command"], queryFn: () => getExamSummary() });
   const syllabusQuery = useQuery({ queryKey: ["academy", "syllabus-summary", "director-command"], queryFn: () => getSyllabusSummary() });
   const director = directorQuery.data;
+  const commandCenter = director?.commandCenter;
   const areaMetrics = metricsForArea(selectedArea.title, {
     director,
     attendance: attendanceQuery.data?.summary,
@@ -153,6 +154,14 @@ export default function DirectorDashboardPage() {
     exams: examQuery.data?.summary,
     syllabus: syllabusQuery.data?.summary,
   });
+  const emptyStaffStatus = { active: 0, onLeave: 0, archived: 0 };
+  const staffRows = [
+    { label: "Academic Heads", stats: commandCenter?.staff.academicHeads ?? emptyStaffStatus },
+    { label: "Teachers", stats: commandCenter?.staff.teachers ?? emptyStaffStatus },
+    { label: "Physical Trainers", stats: commandCenter?.staff.physicalTrainers ?? emptyStaffStatus },
+    { label: "Administrative Officers", stats: commandCenter?.staff.administrativeOfficers ?? emptyStaffStatus },
+    { label: "BDEs", stats: commandCenter?.staff.businessDevelopmentExecutives ?? emptyStaffStatus }
+  ];
 
   return (
     <main className="min-h-screen bg-[var(--page-bg)] px-5 py-6 text-[var(--navy)] md:px-8">
@@ -176,6 +185,108 @@ export default function DirectorDashboardPage() {
           <CommandMetric label="Admissions" value={director?.admissionsAnalytics.admissions ?? 0} />
           <CommandMetric label="Collected" value={`Rs ${(director?.revenueAnalytics.collected ?? 0).toLocaleString()}`} />
           <CommandMetric label="Academic Completion" value={`${syllabusQuery.data?.summary.completionPercentage ?? 0}%`} />
+        </section>
+
+        <section className="grid gap-4 xl:grid-cols-[1.2fr_0.8fr]">
+          <div className="rounded-3xl border border-[var(--border)] bg-white/95 p-5 shadow-xl md:p-7">
+            <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Academy Overview</p>
+                <h2 className="mt-3 text-3xl font-black text-[var(--navy)]">Director command center</h2>
+              </div>
+              <span className="rounded-full border border-[var(--gold-border)] bg-[var(--gold-soft)] px-4 py-2 text-xs font-black uppercase tracking-[0.18em] text-[var(--gold)]">Real Data</span>
+            </div>
+            <div className="mt-6 grid gap-4 md:grid-cols-3">
+              <CommandPanel
+                title="Admissions"
+                rows={[
+                  ["New Leads", commandCenter?.admissions.newLeads ?? director?.admissionsAnalytics.leads ?? 0],
+                  ["Ready For Admission", commandCenter?.admissions.readyForAdmission ?? 0],
+                  ["Activated Students", commandCenter?.admissions.activatedStudents ?? 0]
+                ]}
+              />
+              <CommandPanel
+                title="Academics"
+                rows={[
+                  ["Active Programs", commandCenter?.academics.activePrograms ?? director?.academyArchitecture.programs ?? 0],
+                  ["Active Batches", commandCenter?.academics.activeBatches ?? director?.academyArchitecture.batches ?? 0],
+                  ["Teachers", commandCenter?.academics.teachers ?? director?.instituteAnalytics.teachers ?? 0],
+                  ["Academic Heads", commandCenter?.academics.academicHeads ?? 0]
+                ]}
+              />
+              <CommandPanel
+                title="Learning"
+                rows={[
+                  ["Live Classes", commandCenter?.learning.liveClasses ?? 0],
+                  ["Lessons Uploaded", commandCenter?.learning.lessonsUploaded ?? materialQuery.data?.summary.total ?? 0],
+                  ["Exams Published", commandCenter?.learning.examsPublished ?? examQuery.data?.summary.exams ?? 0],
+                  ["Assignments Published", commandCenter?.learning.assignmentsPublished ?? assignmentQuery.data?.summary.assignments ?? 0]
+                ]}
+              />
+            </div>
+          </div>
+
+          <div className="rounded-3xl border border-[var(--border)] bg-white/95 p-5 shadow-xl md:p-7">
+            <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Operational Alerts</p>
+            <h2 className="mt-3 text-3xl font-black text-[var(--navy)]">Attention needed</h2>
+            <div className="mt-6 grid gap-3">
+              {[
+                ["Pending Admissions", commandCenter?.operationalAlerts.pendingAdmissions ?? 0],
+                ["Pending Documents", commandCenter?.operationalAlerts.pendingDocuments ?? 0],
+                ["Pending Fees", commandCenter?.operationalAlerts.pendingFees ?? 0],
+                ["Pending Batch Allocation", commandCenter?.operationalAlerts.pendingBatchAllocation ?? 0],
+                ["Low Attendance Alerts", commandCenter?.operationalAlerts.lowAttendanceAlerts ?? 0],
+                ["Exam Publication Delays", commandCenter?.operationalAlerts.examPublicationDelays ?? 0]
+              ].map(([label, value]) => (
+                <div key={label} className="flex items-center justify-between rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] px-4 py-3">
+                  <span className="text-sm font-black text-[var(--navy)]">{label}</span>
+                  <span className="rounded-full border border-[var(--gold-border)] bg-white px-3 py-1 text-sm font-black text-[var(--navy)]">{value}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="grid gap-4 xl:grid-cols-3">
+          <div className="rounded-3xl border border-[var(--border)] bg-white/95 p-5 shadow-xl md:p-7">
+            <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Staff Overview</p>
+            <h2 className="mt-3 text-2xl font-black text-[var(--navy)]">Team status</h2>
+            <div className="mt-5 space-y-3">
+              {staffRows.map((row) => (
+                <StaffRow key={row.label} label={row.label} active={row.stats.active} onLeave={row.stats.onLeave} archived={row.stats.archived} />
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-3xl border border-[var(--border)] bg-white/95 p-5 shadow-xl md:p-7">
+            <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Student Overview</p>
+            <h2 className="mt-3 text-2xl font-black text-[var(--navy)]">Batch and program spread</h2>
+            <div className="mt-5 grid gap-3 sm:grid-cols-2">
+              <CommandMetric label="Total Students" value={commandCenter?.students.total ?? director?.instituteAnalytics.students ?? 0} />
+              <CommandMetric label="Active Students" value={commandCenter?.students.active ?? 0} />
+            </div>
+            <div className="mt-5 space-y-3">
+              {(commandCenter?.students.batchDistribution ?? []).slice(0, 5).map((item) => (
+                <DistributionRow key={item.program} label={item.program} value={item.count} />
+              ))}
+              {!(commandCenter?.students.batchDistribution ?? []).length ? <EmptyCommandNote text="Batch distribution appears after students are allocated." /> : null}
+            </div>
+          </div>
+
+          <div className="rounded-3xl border border-[var(--border)] bg-white/95 p-5 shadow-xl md:p-7">
+            <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Finance & Reports</p>
+            <h2 className="mt-3 text-2xl font-black text-[var(--navy)]">Money and reports</h2>
+            <div className="mt-5 grid gap-3">
+              <CommandMetric label="Fees Collected" value={`Rs ${(commandCenter?.finance.feesCollected ?? director?.revenueAnalytics.collected ?? 0).toLocaleString()}`} />
+              <CommandMetric label="Pending Fees" value={`Rs ${(commandCenter?.finance.pendingFees ?? director?.revenueAnalytics.pending ?? 0).toLocaleString()}`} />
+              <CommandMetric label="Installments Pending" value={commandCenter?.finance.installmentsPending ?? 0} />
+            </div>
+            <div className="mt-5 flex flex-wrap gap-2">
+              {(commandCenter?.reports ?? ["Admissions Reports", "Academic Reports", "Attendance Reports", "Student Reports", "Staff Reports"]).map((report) => (
+                <span key={report} className="rounded-full border border-[var(--border)] bg-[var(--page-bg)] px-3 py-2 text-xs font-black text-[var(--navy)]">{report}</span>
+              ))}
+            </div>
+          </div>
         </section>
 
         <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
@@ -331,6 +442,50 @@ function CommandMetric({ label, value }: { label: string; value: string | number
       <p className="mt-3 text-3xl font-black text-[var(--navy)]">{value}</p>
     </div>
   );
+}
+
+function CommandPanel({ title, rows }: { title: string; rows: Array<[string, string | number]> }) {
+  return (
+    <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-5">
+      <h3 className="text-xl font-black text-[var(--navy)]">{title}</h3>
+      <div className="mt-4 space-y-3">
+        {rows.map(([label, value]) => (
+          <div key={label} className="flex items-center justify-between gap-3 border-t border-[var(--border)] pt-3 first:border-t-0 first:pt-0">
+            <span className="text-sm font-semibold text-[var(--muted-blue)]">{label}</span>
+            <span className="text-lg font-black text-[var(--navy)]">{value}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function StaffRow({ label, active, onLeave, archived }: { label: string; active: number; onLeave: number; archived: number }) {
+  return (
+    <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
+      <div className="flex items-center justify-between gap-3">
+        <span className="font-black text-[var(--navy)]">{label}</span>
+        <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-black text-emerald-800">{active} active</span>
+      </div>
+      <div className="mt-3 flex flex-wrap gap-2 text-xs font-black">
+        <span className="rounded-full border border-orange-200 bg-orange-50 px-3 py-1 text-orange-800">{onLeave} on leave</span>
+        <span className="rounded-full border border-slate-200 bg-white px-3 py-1 text-slate-700">{archived} archived</span>
+      </div>
+    </div>
+  );
+}
+
+function DistributionRow({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="flex items-center justify-between rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] px-4 py-3">
+      <span className="text-sm font-black text-[var(--navy)]">{label}</span>
+      <span className="rounded-full border border-[var(--gold-border)] bg-white px-3 py-1 text-sm font-black text-[var(--navy)]">{value}</span>
+    </div>
+  );
+}
+
+function EmptyCommandNote({ text }: { text: string }) {
+  return <p className="rounded-2xl border border-dashed border-[var(--border)] bg-[var(--page-bg)] p-4 text-sm font-semibold text-[var(--muted-blue)]">{text}</p>;
 }
 
 function SubAreaCard({ subArea }: { subArea: DirectorSubArea }) {

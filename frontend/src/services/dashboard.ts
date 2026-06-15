@@ -191,6 +191,35 @@ export type DirectorDashboardData = {
   admissionsAnalytics: { leads: number; admissions: number; conversionRate: number };
   revenueAnalytics: { collected: number; pending: number; forecast: number };
   facultyAnalytics: { active: number; utilization: number; reviewDue: number };
+  commandCenter?: {
+    admissions: { newLeads: number; readyForAdmission: number; activatedStudents: number };
+    academics: { activePrograms: number; activeBatches: number; teachers: number; academicHeads: number };
+    learning: { liveClasses: number; lessonsUploaded: number; examsPublished: number; assignmentsPublished: number };
+    staff: {
+      academicHeads: { active: number; onLeave: number; archived: number };
+      teachers: { active: number; onLeave: number; archived: number };
+      physicalTrainers: { active: number; onLeave: number; archived: number };
+      administrativeOfficers: { active: number; onLeave: number; archived: number };
+      businessDevelopmentExecutives: { active: number; onLeave: number; archived: number };
+      archived: number;
+    };
+    students: {
+      total: number;
+      active: number;
+      batchDistribution: Array<{ program: string; count: number }>;
+      programDistribution: Array<{ courseId: string; count: number }>;
+    };
+    operationalAlerts: {
+      pendingAdmissions: number;
+      pendingDocuments: number;
+      pendingFees: number;
+      pendingBatchAllocation: number;
+      lowAttendanceAlerts: number;
+      examPublicationDelays: number;
+    };
+    finance: { feesCollected: number; pendingFees: number; installmentsPending: number };
+    reports: string[];
+  };
   academyArchitecture: {
     programs: number;
     batches: number;

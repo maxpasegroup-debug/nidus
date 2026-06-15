@@ -7,7 +7,7 @@ type DashboardUser = {
 };
 
 const paidStatuses = ["SUCCESS", "PAID", "VERIFIED", "CAPTURED"];
-const staffRoles: Role[] = ["ADMIN", "DIRECTOR", "TEACHER", "TELECALLER", "MARKETING_COORDINATOR"];
+const staffRoles: Role[] = ["ADMIN", "DIRECTOR", "TEACHER", "ACADEMIC_HEAD", "PHYSICAL_TRAINER", "ADMINISTRATIVE_OFFICER", "BUSINESS_DEVELOPMENT_EXECUTIVE", "TELECALLER", "MARKETING_COORDINATOR"];
 
 function percentage(part: number, total: number) {
   return total > 0 ? Math.round((part / total) * 100) : 0;
@@ -51,6 +51,11 @@ function staffDashboard(metadata: Record<string, unknown>, fallbackTemplate: str
     focusAreas: stringArray(metadata.focusAreas),
     permissions: stringArray(metadata.permissions)
   };
+}
+
+function dashboardTemplateFromMetadata(value: unknown) {
+  const metadata = metadataObject(value);
+  return typeof metadata.dashboardTemplate === "string" ? metadata.dashboardTemplate.toUpperCase() : "";
 }
 
 function buildAttendanceTrend(rows: Array<{ date: Date; status: string }>) {
@@ -639,20 +644,76 @@ export const dashboardService = {
     });
     const customDashboard = staffDashboard(metadataObject(director?.roleMetadata), "EXECUTIVE_COMMAND");
     const scopedWhere = user.role === "DIRECTOR" ? { instituteId: director?.instituteId ?? undefined, branchId: director?.branchId ?? undefined } : {};
-    const [students, leads, admissions, teachers, attendanceRows, completedAttempts, totalAttempts, collected, pending, facultyReviewDue, academySummary, batchTypes, programCounts] = await Promise.all([
+    const [
+      students,
+      activeStudents,
+      leads,
+      readyForAdmission,
+      admissions,
+      activeBatches,
+      activePrograms,
+      academicHeads,
+      teachers,
+      physicalTrainers,
+      administrativeOfficers,
+      businessDevelopmentExecutives,
+      attendanceRows,
+      completedAttempts,
+      totalAttempts,
+      collected,
+      pending,
+      installmentsPending,
+      facultyReviewDue,
+      academySummary,
+      batchTypes,
+      programCounts,
+      batchDistribution,
+      programDistribution,
+      liveClasses,
+      lessonsUploaded,
+      examsPublished,
+      assignmentsPublished,
+      pendingDocuments,
+      pendingFees,
+      pendingBatchAllocation,
+      lowAttendanceBatches,
+      examPublicationDelays,
+      archivedStaff
+    ] = await Promise.all([
       prisma.user.count({ where: { role: "STUDENT", ...scopedWhere } }),
+      prisma.batchStudent.count({ where: { status: "ACTIVE" } }),
       prisma.lead.count(),
+      prisma.lead.count({ where: { status: "COUNSELLING", notes: { contains: "Ready For Admission", mode: "insensitive" } } }),
       prisma.admission.count(),
+      prisma.batch.count({ where: { status: "ACTIVE" } }),
+      prisma.course.count(),
+      prisma.user.count({ where: { OR: [{ role: "ACADEMIC_HEAD" }, { role: "TEACHER", roleMetadata: { path: ["dashboardTemplate"], equals: "ACADEMIC_HEAD" } }] } }),
       prisma.user.count({ where: { role: "TEACHER", ...scopedWhere } }),
+      prisma.user.count({ where: { OR: [{ role: "PHYSICAL_TRAINER" }, { role: "TEACHER", roleMetadata: { path: ["dashboardTemplate"], equals: "PHYSICAL_TRAINER" } }] } }),
+      prisma.user.count({ where: { OR: [{ role: "ADMINISTRATIVE_OFFICER" }, { role: "ADMIN", roleMetadata: { path: ["dashboardTemplate"], equals: "ADMISSION_CELL" } }] } }),
+      prisma.user.count({ where: { role: { in: ["BUSINESS_DEVELOPMENT_EXECUTIVE", "TELECALLER", "MARKETING_COORDINATOR"] } } }),
       prisma.attendance.findMany({ orderBy: { date: "desc" }, take: 500 }),
       prisma.testAttempt.count({ where: { submittedAt: { not: null } } }),
       prisma.testAttempt.count(),
       prisma.payment.aggregate({ where: { paymentStatus: { in: paidStatuses } }, _sum: { amount: true } }),
       prisma.feeInstallment.aggregate({ where: { paidStatus: { not: "PAID" } }, _sum: { dueAmount: true, amount: true } }),
+      prisma.feeInstallment.count({ where: { paidStatus: { not: "PAID" } } }),
       prisma.faculty.count({ where: { status: { not: "ACTIVE" } } }),
       academyArchitectureSummary(),
       prisma.batch.groupBy({ by: ["batchType"], _count: { id: true } }),
-      prisma.course.groupBy({ by: ["category"], _count: { id: true } })
+      prisma.course.groupBy({ by: ["category"], _count: { id: true } }),
+      prisma.batch.groupBy({ by: ["programSlug"], _count: { id: true } }),
+      prisma.batch.groupBy({ by: ["courseId"], _count: { id: true }, where: { courseId: { not: null } } }),
+      prisma.liveClass.count(),
+      prisma.teacherStudyMaterialRecord.count({ where: { archivedAt: null } }),
+      prisma.teacherExamRecord.count({ where: { status: { in: ["PUBLISHED", "LIVE", "APPROVED"] } } }),
+      prisma.teacherAssignmentRecord.count({ where: { status: "PUBLISHED" } }),
+      prisma.lead.count({ where: { status: "COUNSELLING", notes: { contains: "Documents: PENDING", mode: "insensitive" } } }),
+      prisma.lead.count({ where: { status: "COUNSELLING", notes: { contains: "Fees: PENDING", mode: "insensitive" } } }),
+      prisma.lead.count({ where: { status: "COUNSELLING", notes: { contains: "Batch Allocation: PENDING", mode: "insensitive" } } }),
+      prisma.teacherAttendanceRecord.count({ where: { status: "SAVED", records: { string_contains: "ABSENT" } } }),
+      prisma.teacherExamRecord.count({ where: { status: { in: ["DRAFT", "REVIEW", "PENDING_REVIEW"] } } }),
+      prisma.user.count({ where: { role: { in: staffRoles }, roleOnboardingStatus: "ARCHIVED" } })
     ]);
     const present = attendanceRows.filter((row) => attendanceStatus(row.status) === "PRESENT").length;
     const collectedAmount = collected._sum.amount ?? 0;
@@ -664,6 +725,35 @@ export const dashboardService = {
       admissionsAnalytics: { leads, admissions, conversionRate: leads ? Math.round((admissions / leads) * 100) : 0 },
       revenueAnalytics: { collected: collectedAmount, pending: pendingAmount, forecast: collectedAmount + pendingAmount },
       facultyAnalytics: { active: teachers, utilization: teachers ? 100 : 0, reviewDue: facultyReviewDue },
+      commandCenter: {
+        admissions: { newLeads: leads, readyForAdmission, activatedStudents: activeStudents },
+        academics: { activePrograms, activeBatches, teachers, academicHeads },
+        learning: { liveClasses, lessonsUploaded, examsPublished, assignmentsPublished },
+        staff: {
+          academicHeads: { active: academicHeads, onLeave: 0, archived: 0 },
+          teachers: { active: teachers, onLeave: facultyReviewDue, archived: 0 },
+          physicalTrainers: { active: physicalTrainers, onLeave: 0, archived: 0 },
+          administrativeOfficers: { active: administrativeOfficers, onLeave: 0, archived: 0 },
+          businessDevelopmentExecutives: { active: businessDevelopmentExecutives, onLeave: 0, archived: 0 },
+          archived: archivedStaff
+        },
+        students: {
+          total: students,
+          active: activeStudents,
+          batchDistribution: batchDistribution.map((item) => ({ program: item.programSlug, count: item._count.id })),
+          programDistribution: programDistribution.map((item) => ({ courseId: item.courseId ?? "unassigned", count: item._count.id }))
+        },
+        operationalAlerts: {
+          pendingAdmissions: readyForAdmission,
+          pendingDocuments,
+          pendingFees,
+          pendingBatchAllocation,
+          lowAttendanceAlerts: lowAttendanceBatches,
+          examPublicationDelays
+        },
+        finance: { feesCollected: collectedAmount, pendingFees: pendingAmount, installmentsPending },
+        reports: ["Admissions Reports", "Academic Reports", "Attendance Reports", "Student Reports", "Staff Reports"]
+      },
       academyArchitecture: {
         ...academySummary,
         batchTypes: batchTypes.map((item) => ({ type: item.batchType, count: item._count.id })),
