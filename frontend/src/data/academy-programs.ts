@@ -41,8 +41,8 @@ export const academyProgramGroups: AcademyProgramGroup[] = [
     ],
   },
   {
-    title: "Foundation & Long-Term",
-    subtitle: "Early discipline, academics and leadership foundation.",
+    title: "Foundation & NDA",
+    subtitle: "Foundation, NDA F1/F2 and NDA crash preparation.",
     programs: [
       {
         title: "Foundation NDA & Civil Services",
@@ -52,11 +52,18 @@ export const academyProgramGroups: AcademyProgramGroup[] = [
         modules: ["Foundation Mathematics", "English", "GK", "Current Affairs", "Communication", "Discipline Training"],
       },
       {
-        title: "Mission NDA",
-        slug: "mission-nda",
-        audience: "After 10th students",
-        outcome: "Two-year officer entry preparation through NDA.",
+        title: "NDA F1",
+        slug: "nda-f1",
+        audience: "NDA foundation aspirants",
+        outcome: "First-stage NDA foundation preparation.",
         modules: ["NDA Mathematics", "GAT", "English", "Current Affairs", "Mock Tests", "SSB Orientation"],
+      },
+      {
+        title: "NDA F2",
+        slug: "nda-f2",
+        audience: "NDA foundation aspirants",
+        outcome: "Second-stage NDA foundation preparation.",
+        modules: ["NDA Mathematics", "GAT", "English", "Current Affairs", "Advanced Practice", "Mock Tests"],
       },
       {
         title: "NDA Crash Course",
@@ -72,11 +79,32 @@ export const academyProgramGroups: AcademyProgramGroup[] = [
     subtitle: "For college students, graduates and technical officer aspirants.",
     programs: [
       {
-        title: "CDSE Long-Term Coaching",
-        slug: "cdse-long-term-coaching",
+        title: "CDS F1",
+        slug: "cds-f1",
         audience: "College students",
-        outcome: "Officer entry preparation through CDS examination.",
+        outcome: "First-stage CDS officer entry preparation.",
         modules: ["English", "General Knowledge", "Current Affairs", "Mathematics", "SSB Orientation"],
+      },
+      {
+        title: "CDS F2",
+        slug: "cds-f2",
+        audience: "College students and graduates",
+        outcome: "Second-stage CDS officer entry preparation.",
+        modules: ["English", "General Knowledge", "Current Affairs", "Mathematics", "Exam Strategy", "SSB Orientation"],
+      },
+      {
+        title: "CDS F3",
+        slug: "cds-f3",
+        audience: "College students and graduates",
+        outcome: "Advanced CDS officer entry preparation.",
+        modules: ["English", "General Knowledge", "Current Affairs", "Mathematics", "Advanced Mock Tests", "SSB Orientation"],
+      },
+      {
+        title: "AFCAT",
+        slug: "afcat",
+        audience: "Graduates and final-year students",
+        outcome: "Indian Air Force officer entry preparation.",
+        modules: ["English", "Numerical Ability", "Reasoning", "Military Aptitude", "AFSB Guidance"],
       },
       {
         title: "CDSE / AFCAT Crash Course",
@@ -84,13 +112,6 @@ export const academyProgramGroups: AcademyProgramGroup[] = [
         audience: "Graduates",
         outcome: "Rapid preparation for CDS and AFCAT.",
         modules: ["English", "GK", "Mathematics", "Reasoning", "Military Aptitude", "Mock Tests"],
-      },
-      {
-        title: "AFCAT Program",
-        slug: "afcat-program",
-        audience: "Graduates and final-year students",
-        outcome: "Indian Air Force officer entry preparation.",
-        modules: ["English", "Numerical Ability", "Reasoning", "Military Aptitude", "AFSB Guidance"],
       },
       {
         title: "TES Guidance",
@@ -120,15 +141,15 @@ export const academyProgramGroups: AcademyProgramGroup[] = [
     subtitle: "Medical and nursing pathways inside defence careers.",
     programs: [
       {
-        title: "AFMC Preparation",
-        slug: "afmc-preparation",
+        title: "AFMC",
+        slug: "afmc",
         audience: "PCB / NEET students",
         outcome: "Defence medical career guidance through AFMC.",
         modules: ["NEET Support", "AFMC Process Guidance", "Interview Preparation", "Medical Officer Career Guidance"],
       },
       {
-        title: "MNS Preparation",
-        slug: "mns-preparation",
+        title: "MNS",
+        slug: "mns",
         audience: "Female PCB students",
         outcome: "Military Nursing Service preparation.",
         modules: ["Eligibility Guidance", "Biology", "General Science", "English", "Aptitude", "Interview Guidance"],

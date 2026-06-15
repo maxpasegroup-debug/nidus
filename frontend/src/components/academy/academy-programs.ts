@@ -60,13 +60,24 @@ export const academyCategories = [
     description: "Focused officer, technical, and defence medical guidance for senior school students.",
     programs: [
       {
-        slug: "mission-nda-2-year-program",
-        title: "Mission NDA - 2 Year Program",
-        targetStudents: "After 10th pass students",
-        duration: "2 years",
-        format: "Classroom training, physical fitness support, mock tests, SSB orientation, analytics, and mentor review",
-        summary: "A full NDA journey that connects academics, discipline, physical routine, and officer mindset.",
-        benefits: ["NDA Mathematics and GAT", "Regular mock tests", "SSB orientation", "Physical fitness support"],
+        slug: "nda-f1",
+        title: "NDA F1",
+        targetStudents: "NDA foundation aspirants",
+        duration: "Foundation level 1",
+        format: "Offline classroom and online learning tracks with NDA mathematics, GAT, current affairs and SSB orientation",
+        summary: "First-stage NDA foundation preparation.",
+        benefits: ["NDA Mathematics and GAT", "Regular mock tests", "SSB orientation", "Foundation discipline"],
+        careerOpportunities: ["NDA Army", "NDA Navy", "NDA Air Force", "Naval Academy"],
+        imageTone: "from-[#102a43] via-[#31572c] to-[#e0c36a]"
+      },
+      {
+        slug: "nda-f2",
+        title: "NDA F2",
+        targetStudents: "NDA foundation aspirants",
+        duration: "Foundation level 2",
+        format: "Offline classroom and online learning tracks with advanced NDA practice and mock test rhythm",
+        summary: "Second-stage NDA foundation preparation.",
+        benefits: ["Advanced NDA Mathematics", "GAT practice", "Mock tests", "SSB orientation"],
         careerOpportunities: ["NDA Army", "NDA Navy", "NDA Air Force", "Naval Academy"],
         imageTone: "from-[#102a43] via-[#31572c] to-[#e0c36a]"
       },
@@ -82,8 +93,8 @@ export const academyCategories = [
         imageTone: "from-[#071d36] via-[#6e8faf] to-[#b9913f]"
       },
       {
-        slug: "tes-technical-entry-scheme",
-        title: "TES - Technical Entry Scheme",
+        slug: "tes-guidance",
+        title: "TES Guidance",
         targetStudents: "Plus Two PCM students",
         duration: "Application and SSB guidance track",
         format: "TES guidance, application support, documentation, SSB preparation, and interview skills",
@@ -93,8 +104,8 @@ export const academyCategories = [
         imageTone: "from-[#0b1424] via-[#34415f] to-[#b99c4b]"
       },
       {
-        slug: "afmc-preparation",
-        title: "AFMC Preparation",
+        slug: "afmc",
+        title: "AFMC",
         targetStudents: "PCB and NEET students",
         duration: "Medical defence guidance track",
         format: "NEET-oriented support, AFMC process guidance, interview preparation, and career counselling",
@@ -104,8 +115,8 @@ export const academyCategories = [
         imageTone: "from-[#14213d] via-[#3d5a80] to-[#e0c36a]"
       },
       {
-        slug: "mns-military-nursing-service",
-        title: "MNS - Military Nursing Service",
+        slug: "mns",
+        title: "MNS",
         targetStudents: "Female PCB students",
         duration: "Defence nursing guidance track",
         format: "Eligibility guidance, biology and general science, English, aptitude, and interview preparation",
@@ -121,13 +132,35 @@ export const academyCategories = [
     description: "Officer-entry preparation for college students, graduates, engineers, and working professionals.",
     programs: [
       {
-        slug: "cdse-long-term-coaching",
-        title: "CDSE Long-Term Coaching",
+        slug: "cds-f1",
+        title: "CDS F1",
         targetStudents: "College students",
-        duration: "1 year, 2 year, and 3 year tracks",
-        format: "English, GK, current affairs, mathematics, mock tests, SSB orientation, and personality development",
-        summary: "A long-term CDS pathway for students who want steady officer-entry preparation.",
+        duration: "Foundation level 1",
+        format: "Offline classroom and online learning tracks for CDS English, GK, current affairs and mathematics",
+        summary: "First-stage CDS officer entry preparation.",
         benefits: ["English and GK", "Mathematics", "Mock tests", "SSB orientation"],
+        careerOpportunities: ["CDS", "IMA", "OTA", "Indian Navy and Air Force officer pathways"],
+        imageTone: "from-[#0f172a] via-[#2f4a78] to-[#c3a24b]"
+      },
+      {
+        slug: "cds-f2",
+        title: "CDS F2",
+        targetStudents: "College students and graduates",
+        duration: "Foundation level 2",
+        format: "Offline classroom and online learning tracks with CDS exam strategy and revision systems",
+        summary: "Second-stage CDS officer entry preparation.",
+        benefits: ["English and GK", "Mathematics", "Exam strategy", "SSB orientation"],
+        careerOpportunities: ["CDS", "IMA", "OTA", "Indian Navy and Air Force officer pathways"],
+        imageTone: "from-[#0f172a] via-[#2f4a78] to-[#c3a24b]"
+      },
+      {
+        slug: "cds-f3",
+        title: "CDS F3",
+        targetStudents: "College students and graduates",
+        duration: "Foundation level 3",
+        format: "Offline classroom and online learning tracks with advanced mock tests and SSB orientation",
+        summary: "Advanced CDS officer entry preparation.",
+        benefits: ["Advanced mock tests", "Mathematics", "Current affairs", "SSB orientation"],
         careerOpportunities: ["CDS", "IMA", "OTA", "Indian Navy and Air Force officer pathways"],
         imageTone: "from-[#0f172a] via-[#2f4a78] to-[#c3a24b]"
       },
@@ -143,8 +176,8 @@ export const academyCategories = [
         imageTone: "from-[#171717] via-[#3f4d3f] to-[#c8aa52]"
       },
       {
-        slug: "afcat-program",
-        title: "AFCAT Program",
+        slug: "afcat",
+        title: "AFCAT",
         targetStudents: "Graduates and final year students",
         duration: "Air Force officer preparation track",
         format: "English, numerical ability, reasoning, military aptitude, current affairs, mock tests, and AFSB guidance",
@@ -165,8 +198,8 @@ export const academyCategories = [
         imageTone: "from-[#19273c] via-[#365f7c] to-[#d6b85c]"
       },
       {
-        slug: "territorial-army-coast-guard-ac",
-        title: "Territorial Army & Coast Guard Assistant Commandant",
+        slug: "territorial-army-coast-guard",
+        title: "Territorial Army & Coast Guard",
         targetStudents: "Graduates and working professionals",
         duration: "Officer entry guidance track",
         format: "Aptitude, GK, reasoning, English, physical guidance, documentation support, interview skills, and personality development",
@@ -222,7 +255,7 @@ export const academyCategories = [
     programs: [
       {
         slug: "ssb-interview-guidance",
-        title: "SSB Interview Guidance Program",
+        title: "SSB Interview Guidance",
         targetStudents: "Candidates preparing for SSB screening, psychology, GTO, and interview",
         duration: "12-day intensive program",
         format: "OIR, PPDT, psychology, GTO, group tasks, lecturette, interview practice, conference preparation, and individual feedback",
@@ -238,23 +271,23 @@ export const academyCategories = [
 export const academyPrograms = academyCategories.flatMap((category) => category.programs.map((program) => ({ ...program, category: category.title })));
 
 const academyProgramAliases: Record<string, string> = {
-  nda: "mission-nda-2-year-program",
-  cds: "cdse-long-term-coaching",
-  cdse: "cdse-long-term-coaching",
-  afcat: "afcat-program",
+  nda: "nda-f1",
+  cds: "cds-f1",
+  cdse: "cds-f1",
+  afcat: "afcat",
   ssb: "ssb-interview-guidance",
-  aissee: "aissee-sainik-school-entrance",
+  aissee: "aissee-class-6",
   rimc: "rimc-preparation",
   agniveer: "agniveer-army",
   foundation: "foundation-nda-civil-services",
   "foundation-programs": "foundation-nda-civil-services",
   "physical-training": "agniveer-army",
   "interview-guidance": "ssb-interview-guidance",
-  afmc: "afmc-preparation",
-  mns: "mns-military-nursing-service",
-  tes: "tes-technical-entry-scheme",
+  afmc: "afmc",
+  mns: "mns",
+  tes: "tes-guidance",
   "tgc-ssc": "tgc-ssc-technical",
-  "coast-guard": "territorial-army-coast-guard-ac"
+  "coast-guard": "territorial-army-coast-guard"
 };
 
 export const academyVerticals = [

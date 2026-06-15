@@ -47,6 +47,7 @@ type AcademicCalendarInput = {
   programSlug?: string;
   subject?: string;
   topic?: string;
+  classType?: string;
   plannedDate?: string;
   startTime?: string;
   endTime?: string;
@@ -182,6 +183,7 @@ type AcademicCalendarRow = {
   programSlug: string | null;
   subject: string;
   topic: string;
+  classType?: string | null;
   plannedDate: Date;
   startTime: string | null;
   endTime: string | null;
@@ -287,6 +289,25 @@ function isVisibleTeacherWorkspaceAllocation(row: BatchTeacherAssignmentRow, use
 
 function percentage(part: number, total: number) {
   return total > 0 ? Math.round((part / total) * 100) : 0;
+}
+
+function average(values: number[]) {
+  const realValues = values.filter((value) => Number.isFinite(value));
+  return realValues.length ? Math.round(realValues.reduce((sum, value) => sum + value, 0) / realValues.length) : null;
+}
+
+function trafficStatus(value: number | null, total = 100) {
+  if (value === null || total === 0) return "RED";
+  if (value >= 75) return "GREEN";
+  if (value >= 50) return "ORANGE";
+  return "RED";
+}
+
+function academicHealthStatus(score: number | null) {
+  if (score === null) return "No Data";
+  if (score >= 75) return "Healthy";
+  if (score >= 50) return "Attention Needed";
+  return "Critical";
 }
 
 function toDate(value?: string) {
@@ -626,6 +647,7 @@ async function batchStudentCountMap(batchIds: string[]) {
 function sanitizeCalendarRow(row: AcademicCalendarRow) {
   return {
     ...row,
+    classType: row.classType || "Live Class",
     plannedDate: row.plannedDate.toISOString(),
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),
@@ -1296,9 +1318,9 @@ export const academyService = {
     const now = new Date();
     await prisma.$executeRaw`
       INSERT INTO "AcademicCalendarItem"
-      ("id", "batchId", "batchName", "programSlug", "subject", "topic", "plannedDate", "startTime", "endTime", "teacherId", "teacherName", "status", "completionStatus", "teacherLog", "nextAction", "createdAt", "updatedAt")
+      ("id", "batchId", "batchName", "programSlug", "subject", "topic", "classType", "plannedDate", "startTime", "endTime", "teacherId", "teacherName", "status", "completionStatus", "teacherLog", "nextAction", "createdAt", "updatedAt")
       VALUES
-      (${id}, ${input.batchId || null}, ${input.batchName || null}, ${input.programSlug || null}, ${input.subject}, ${input.topic}, ${new Date(input.plannedDate)}, ${input.startTime || null}, ${input.endTime || null}, ${input.teacherId || null}, ${input.teacherName || assignedTeacher?.name || assignedTeacher?.email || null}, ${input.status || "PLANNED"}, ${input.completionStatus || "PENDING"}, ${input.teacherLog || null}, ${input.nextAction || null}, ${now}, ${now})
+      (${id}, ${input.batchId || null}, ${input.batchName || null}, ${input.programSlug || null}, ${input.subject}, ${input.topic}, ${input.classType || "Live Class"}, ${new Date(input.plannedDate)}, ${input.startTime || null}, ${input.endTime || null}, ${input.teacherId || null}, ${input.teacherName || assignedTeacher?.name || assignedTeacher?.email || null}, ${input.status || "PLANNED"}, ${input.completionStatus || "PENDING"}, ${input.teacherLog || null}, ${input.nextAction || null}, ${now}, ${now})
     `;
 
     const rows = await prisma.$queryRaw<AcademicCalendarRow[]>`
@@ -1327,6 +1349,7 @@ export const academyService = {
       SET
         "subject" = ${input.subject ?? current.subject},
         "topic" = ${input.topic ?? current.topic},
+        "classType" = ${input.classType ?? current.classType ?? "Live Class"},
         "plannedDate" = ${input.plannedDate ? new Date(input.plannedDate) : current.plannedDate},
         "startTime" = ${input.startTime ?? current.startTime},
         "endTime" = ${input.endTime ?? current.endTime},
@@ -1347,9 +1370,9 @@ export const academyService = {
 
     await prisma.$executeRaw`
       INSERT INTO "TeacherCalendarLogRecord"
-      ("id", "calendarId", "batchId", "batchName", "subject", "topic", "teacherId", "teacherName", "completionStatus", "teacherLog", "nextAction", "status", "createdAt", "updatedAt")
+      ("id", "calendarId", "batchId", "batchName", "subject", "topic", "classType", "teacherId", "teacherName", "completionStatus", "teacherLog", "nextAction", "status", "createdAt", "updatedAt")
       VALUES
-      (${randomUUID()}, ${id}, ${updated[0].batchId}, ${updated[0].batchName}, ${updated[0].subject}, ${updated[0].topic}, ${user.id}, ${user.name || user.email || null}, ${updated[0].completionStatus}, ${updated[0].teacherLog}, ${updated[0].nextAction}, ${updated[0].status}, ${new Date()}, ${new Date()})
+      (${randomUUID()}, ${id}, ${updated[0].batchId}, ${updated[0].batchName}, ${updated[0].subject}, ${updated[0].topic}, ${updated[0].classType || "Live Class"}, ${user.id}, ${user.name || user.email || null}, ${updated[0].completionStatus}, ${updated[0].teacherLog}, ${updated[0].nextAction}, ${updated[0].status}, ${new Date()}, ${new Date()})
     `;
     if (updated[0].batchId && updated[0].subject && updated[0].topic) {
       const progressRows = await prisma.$queryRaw<any[]>`
@@ -1661,6 +1684,11 @@ export const academyService = {
         rejected: materials.filter((item) => item.reviewStatus === "REJECTED").length,
         links: materials.filter((item) => item.url).length,
         files: materials.filter((item) => item.fileName).length,
+        byType: materials.reduce<Record<string, number>>((counts, item) => {
+          const type = String(item.type || "UNKNOWN").toUpperCase();
+          counts[type] = (counts[type] ?? 0) + 1;
+          return counts;
+        }, {}),
       },
     };
   },
@@ -1885,6 +1913,194 @@ export const academyService = {
       summary: summarizeSyllabusProgress(progress as any[]),
       batches: Array.from(batches.values()).sort((a, b) => a.completionPercentage - b.completionPercentage),
       progress,
+    };
+  },
+
+  async teacherPerformanceSummary(user: Requester) {
+    requireAcademic(user);
+    const assignments = await prisma.$queryRaw<any[]>`
+      SELECT * FROM "BatchTeacherAssignment"
+      WHERE "status" = 'ACTIVE'
+      ORDER BY "createdAt" DESC
+    `;
+    const teacherIds = Array.from(new Set(assignments.map((assignment) => assignment.teacherId).filter(Boolean)));
+    const teachers = teacherIds.length
+      ? await prisma.user.findMany({
+          where: { id: { in: teacherIds } },
+          select: { id: true, name: true, email: true },
+        })
+      : [];
+    const teacherMap = new Map(teachers.map((teacher) => [teacher.id, teacher]));
+    const [calendarRows, attendanceRows, assignmentRows, examRows, materialRows, progressRows] = await Promise.all([
+      prisma.$queryRaw<any[]>`SELECT * FROM "TeacherCalendarLogRecord"`,
+      prisma.$queryRaw<any[]>`SELECT * FROM "TeacherAttendanceRecord"`,
+      prisma.$queryRaw<any[]>`SELECT * FROM "TeacherAssignmentRecord" WHERE "status" != 'ARCHIVED'`,
+      prisma.$queryRaw<any[]>`SELECT * FROM "TeacherExamRecord" WHERE "status" != 'ARCHIVED'`,
+      prisma.$queryRaw<any[]>`SELECT * FROM "TeacherStudyMaterialRecord" WHERE "status" != 'ARCHIVED'`,
+      prisma.$queryRaw<any[]>`SELECT * FROM "TeacherSyllabusProgressRecord"`,
+    ]);
+
+    const cards = teacherIds.map((teacherId) => {
+      const teacherAssignments = assignments.filter((assignment) => assignment.teacherId === teacherId);
+      const teacherProgress = progressRows.filter((item) => item.teacherId === teacherId);
+      const completedProgress = teacherProgress.filter((item) => String(item.completionStatus).toUpperCase() === "COMPLETED").length;
+      const plannedClasses = calendarRows.filter((item) => item.teacherId === teacherId).length;
+      const conductedClasses = calendarRows.filter((item) => item.teacherId === teacherId && String(item.completionStatus).toUpperCase() === "COMPLETED").length;
+      const attendanceMarked = attendanceRows.filter((item) => item.teacherId === teacherId).length;
+      const syllabusCompletionPercentage = teacherProgress.length ? percentage(completedProgress, teacherProgress.length) : null;
+      const attendanceMarkingPercentage = plannedClasses ? percentage(attendanceMarked, plannedClasses) : null;
+      const status = trafficStatus(average([syllabusCompletionPercentage ?? NaN, attendanceMarkingPercentage ?? NaN]));
+      const teacher = teacherMap.get(teacherId);
+
+      return {
+        teacherId,
+        teacherName: teacher?.name || teacher?.email || "Teacher",
+        assignedBatches: new Set(teacherAssignments.map((assignment) => assignment.batchId)).size,
+        assignedSubjects: Array.from(new Set(teacherAssignments.map((assignment) => assignment.subject).filter(Boolean))),
+        classesConducted: conductedClasses,
+        syllabusCompletionPercentage,
+        attendanceMarkingPercentage,
+        assignmentsPublished: assignmentRows.filter((item) => item.teacherId === teacherId).length,
+        examsPublished: examRows.filter((item) => item.teacherId === teacherId).length,
+        libraryMaterialsUploaded: materialRows.filter((item) => item.teacherId === teacherId).length,
+        status,
+      };
+    });
+
+    return { teachers: cards };
+  },
+
+  async academicCalendarMonitor(user: Requester) {
+    requireAcademic(user);
+    const rows = await prisma.$queryRaw<AcademicCalendarRow[]>`
+      SELECT * FROM "AcademicCalendarItem"
+      ORDER BY "plannedDate" ASC, "startTime" ASC
+    `;
+    const today = new Date();
+    const groups = new Map<string, any>();
+    for (const item of rows) {
+      const key = `${item.batchId || "none"}:${item.teacherId || "none"}:${item.subject}`;
+      const current = groups.get(key) ?? {
+        batchId: item.batchId,
+        batchName: item.batchName,
+        teacherId: item.teacherId,
+        teacherName: item.teacherName,
+        subject: item.subject,
+        plannedClasses: 0,
+        completedClasses: 0,
+        delayedClasses: 0,
+        missedClasses: 0,
+        completionPercentage: 0,
+        status: "RED",
+      };
+      const completion = String(item.completionStatus || "").toUpperCase();
+      current.plannedClasses += 1;
+      if (completion === "COMPLETED") current.completedClasses += 1;
+      else if (item.plannedDate < today && completion === "PARTIAL") current.delayedClasses += 1;
+      else if (item.plannedDate < today) current.missedClasses += 1;
+      current.completionPercentage = percentage(current.completedClasses, current.plannedClasses);
+      current.status = trafficStatus(current.completionPercentage, current.plannedClasses);
+      groups.set(key, current);
+    }
+
+    return { items: Array.from(groups.values()).sort((a, b) => a.completionPercentage - b.completionPercentage) };
+  },
+
+  async studentProgressSummary(user: Requester) {
+    requireAcademic(user);
+    const batches = (await batchWithCounts()) as any[];
+    const batchIds = batches.map((batch) => batch.id).filter(Boolean);
+    const [attendanceRows, assignmentsData, examsData, materialsData] = await Promise.all([
+      batchIds.length
+        ? prisma.$queryRaw<any[]>`
+            SELECT * FROM "TeacherAttendanceRecord"
+            WHERE "batchId" IN (${Prisma.join(batchIds)})
+          `
+        : Promise.resolve([]),
+      this.assignmentSummary(user, {}),
+      this.examSummary(user, {}),
+      this.materialSummary(user, {}),
+    ]);
+
+    const attendance = summarizeAttendance(attendanceRows);
+    const attendanceByBatch = new Map(attendance.batches.map((item) => [item.batchId, item]));
+    const assignmentRows = assignmentsData.assignments as any[];
+    const examRows = examsData.exams as any[];
+    const materialRows = materialsData.materials as any[];
+    const riskByBatch = new Map<string, number>();
+    for (const batch of attendance.batches) {
+      const studentStats = new Map<string, { present: number; total: number }>();
+      for (const row of attendanceRows.filter((item) => item.batchId === batch.batchId)) {
+        for (const record of attendanceRecordList(row)) {
+          if (!record.studentId) continue;
+          const current = studentStats.get(record.studentId) ?? { present: 0, total: 0 };
+          current.total += 1;
+          if (String(record.status).toUpperCase() === "PRESENT") current.present += 1;
+          studentStats.set(record.studentId, current);
+        }
+      }
+      riskByBatch.set(
+        batch.batchId,
+        Array.from(studentStats.values()).filter((student) => student.total > 0 && percentage(student.present, student.total) < 60).length,
+      );
+    }
+
+    const cards = batches.map((batch) => {
+      const batchAssignments = assignmentRows.filter((assignment) => assignment.batchId === batch.id);
+      const assignmentExpected = batchAssignments.reduce((sum, assignment) => sum + Number(assignment.submissionStats?.totalStudents || 0), 0);
+      const assignmentSubmitted = batchAssignments.reduce((sum, assignment) => sum + Number(assignment.submissionStats?.submitted || 0), 0);
+      const batchExams = examRows.filter((exam) => exam.batchId === batch.id);
+      const examSubmitted = batchExams.reduce((sum, exam) => sum + Number(exam.attemptStats?.submitted || 0), 0);
+      const examScoreTotal = batchExams.reduce((sum, exam) => sum + Number(exam.attemptStats?.averageScore || 0) * Number(exam.attemptStats?.submitted || 0), 0);
+      const attendancePercentage = attendanceByBatch.get(batch.id)?.percentage ?? null;
+      const assignmentCompletionPercentage = assignmentExpected ? percentage(assignmentSubmitted, assignmentExpected) : null;
+      const examAveragePercentage = examSubmitted ? Math.round(examScoreTotal / examSubmitted) : null;
+      const materialCount = materialRows.filter((material) => material.batchId === batch.id).length;
+      const batchHealthScore = average([
+        attendancePercentage ?? NaN,
+        assignmentCompletionPercentage ?? NaN,
+        examAveragePercentage ?? NaN,
+      ]);
+
+      return {
+        batchId: batch.id,
+        batchName: batch.name,
+        programSlug: batch.programSlug,
+        studentCount: batch._count?.students ?? 0,
+        batchHealthScore,
+        attendancePercentage,
+        assignmentCompletionPercentage,
+        examAveragePercentage,
+        libraryUsagePercentage: null,
+        materialCount,
+        riskStudentCount: riskByBatch.get(batch.id) ?? 0,
+        overallStatus: academicHealthStatus(batchHealthScore),
+      };
+    });
+
+    return { batches: cards };
+  },
+
+  async academicAssessmentEcosystem(user: Requester) {
+    requireAcademic(user);
+    const [exams, assignments, questionBanks, aiGenerated] = await Promise.all([
+      prisma.$queryRaw<any[]>`SELECT "id" FROM "TeacherExamRecord" WHERE "status" != 'ARCHIVED'`,
+      prisma.$queryRaw<any[]>`SELECT "id" FROM "TeacherAssignmentRecord" WHERE "status" != 'ARCHIVED'`,
+      prisma.questionBankItem.count().catch(() => 0),
+      prisma.$queryRaw<any[]>`
+        SELECT "id" FROM "ai_workflow_requests"
+        WHERE "agentType" = 'EXAM_CREATOR'
+        AND "deletedAt" IS NULL
+      `.catch(() => []),
+    ]);
+    return {
+      summary: {
+        exams: exams.length,
+        mockTests: exams.length,
+        assignments: assignments.length,
+        questionBanks,
+        aiGeneratedAssessments: Array.isArray(aiGenerated) ? aiGenerated.length : 0,
+      },
     };
   },
 

@@ -78,6 +78,7 @@ export type AcademicCalendarItem = {
   programSlug?: string | null;
   subject: string;
   topic: string;
+  classType?: string | null;
   plannedDate: string;
   startTime?: string | null;
   endTime?: string | null;
@@ -208,6 +209,7 @@ export type MaterialSummary = {
   rejected: number;
   links: number;
   files: number;
+  byType?: Record<string, number>;
 };
 
 export type TeacherExamRecord = {
@@ -282,6 +284,57 @@ export type DirectorExpenseRecord = {
   note?: string | null;
   status: string;
   createdAt: string;
+};
+
+export type TeacherPerformanceCard = {
+  teacherId: string;
+  teacherName: string;
+  assignedBatches: number;
+  assignedSubjects: string[];
+  classesConducted: number;
+  syllabusCompletionPercentage: number | null;
+  attendanceMarkingPercentage: number | null;
+  assignmentsPublished: number;
+  examsPublished: number;
+  libraryMaterialsUploaded: number;
+  status: "GREEN" | "ORANGE" | "RED";
+};
+
+export type AcademicCalendarMonitorItem = {
+  batchId?: string | null;
+  batchName?: string | null;
+  teacherId?: string | null;
+  teacherName?: string | null;
+  subject: string;
+  plannedClasses: number;
+  completedClasses: number;
+  delayedClasses: number;
+  missedClasses: number;
+  completionPercentage: number;
+  status: "GREEN" | "ORANGE" | "RED";
+};
+
+export type StudentProgressBatchCard = {
+  batchId: string;
+  batchName: string;
+  programSlug?: string | null;
+  studentCount: number;
+  batchHealthScore: number | null;
+  attendancePercentage: number | null;
+  assignmentCompletionPercentage: number | null;
+  examAveragePercentage: number | null;
+  libraryUsagePercentage: number | null;
+  materialCount: number;
+  riskStudentCount: number;
+  overallStatus: "Healthy" | "Attention Needed" | "Critical" | "No Data";
+};
+
+export type AcademicAssessmentEcosystemSummary = {
+  exams: number;
+  mockTests: number;
+  assignments: number;
+  questionBanks: number;
+  aiGeneratedAssessments: number;
 };
 
 export type BatchFilters = {
@@ -369,6 +422,26 @@ export async function getSyllabusSummary(filters: { batchId?: string } = {}) {
   return response.data;
 }
 
+export async function getTeacherPerformanceSummary() {
+  const response = await apiClient.get<{ teachers: TeacherPerformanceCard[] }>("/academy/teacher-performance-summary");
+  return response.data;
+}
+
+export async function getAcademicCalendarMonitor() {
+  const response = await apiClient.get<{ items: AcademicCalendarMonitorItem[] }>("/academy/academic-calendar-monitor");
+  return response.data;
+}
+
+export async function getStudentProgressSummary() {
+  const response = await apiClient.get<{ batches: StudentProgressBatchCard[] }>("/academy/student-progress-summary");
+  return response.data;
+}
+
+export async function getAcademicAssessmentEcosystem() {
+  const response = await apiClient.get<{ summary: AcademicAssessmentEcosystemSummary }>("/academy/assessment-ecosystem");
+  return response.data;
+}
+
 export async function publishStudyMaterial(payload: {
   batchId: string;
   batchName?: string;
@@ -400,6 +473,7 @@ export async function createAcademicCalendarItem(payload: {
   batchId?: string;
   subject: string;
   topic: string;
+  classType?: string;
   plannedDate: string;
   startTime?: string;
   endTime?: string;
@@ -413,7 +487,7 @@ export async function createAcademicCalendarItem(payload: {
   return response.data.item;
 }
 
-export async function updateAcademicCalendarItem(id: string, payload: Partial<Pick<AcademicCalendarItem, "status" | "completionStatus" | "teacherLog" | "nextAction">>) {
+export async function updateAcademicCalendarItem(id: string, payload: Partial<Pick<AcademicCalendarItem, "status" | "completionStatus" | "teacherLog" | "nextAction" | "classType">>) {
   const response = await apiClient.patch<{ item: AcademicCalendarItem }>(`/academy/academic-calendar/${id}`, payload);
   return response.data.item;
 }

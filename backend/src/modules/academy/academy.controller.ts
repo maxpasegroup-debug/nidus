@@ -244,6 +244,34 @@ export const academyController = {
       next(error);
     }
   },
+  teacherPerformanceSummary: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      res.json(await academyService.teacherPerformanceSummary(requester(req)));
+    } catch (error) {
+      next(error);
+    }
+  },
+  academicCalendarMonitor: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      res.json(await academyService.academicCalendarMonitor(requester(req)));
+    } catch (error) {
+      next(error);
+    }
+  },
+  studentProgressSummary: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      res.json(await academyService.studentProgressSummary(requester(req)));
+    } catch (error) {
+      next(error);
+    }
+  },
+  academicAssessmentEcosystem: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      res.json(await academyService.academicAssessmentEcosystem(requester(req)));
+    } catch (error) {
+      next(error);
+    }
+  },
   academicAuditTrail: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     try {
       res.json(await academyService.academicAuditTrail(requester(req), req.query));

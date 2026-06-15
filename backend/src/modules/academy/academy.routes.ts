@@ -55,6 +55,10 @@ router.get("/exams", requireAcademyRoles(academicRoles), academyController.exams
 router.get("/exam-summary", requireAcademyRoles(academicRoles), academyController.examSummary);
 router.get("/syllabus-progress", requireAcademyRoles(academicRoles), academyController.syllabusProgress);
 router.get("/syllabus-summary", requireAcademyRoles(academicRoles), academyController.syllabusSummary);
+router.get("/teacher-performance-summary", requireAcademyRoles(academicRoles), academyController.teacherPerformanceSummary);
+router.get("/academic-calendar-monitor", requireAcademyRoles(academicRoles), academyController.academicCalendarMonitor);
+router.get("/student-progress-summary", requireAcademyRoles(academicRoles), academyController.studentProgressSummary);
+router.get("/assessment-ecosystem", requireAcademyRoles(academicRoles), academyController.academicAssessmentEcosystem);
 router.get("/academic-audit", requireAcademyRoles(managementRoles), academyController.academicAuditTrail);
 router.get("/director-expenses", requireAcademyRoles(managementRoles), academyController.directorExpenses);
 
