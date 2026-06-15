@@ -59,7 +59,7 @@ export default function DirectorMaterialsPage() {
     subject: "",
     topic: "",
     materialTitle: "",
-    materialType: "Recorded Class",
+    materialType: "Video",
     materialUrl: "",
     fileName: "",
   });
@@ -81,7 +81,7 @@ export default function DirectorMaterialsPage() {
     mutationFn: publishStudyMaterial,
     onSuccess: () => {
       setNotice("Material published to selected batch.");
-      setForm({ batchId: "", folderName: "", subject: "", topic: "", materialTitle: "", materialType: "Recorded Class", materialUrl: "", fileName: "" });
+      setForm({ batchId: "", folderName: "", subject: "", topic: "", materialTitle: "", materialType: "Video", materialUrl: "", fileName: "" });
       refresh();
     },
     onError: (error) => setNotice(error instanceof Error ? error.message : "Could not publish material."),
@@ -183,11 +183,13 @@ export default function DirectorMaterialsPage() {
                     value={form.materialType}
                     onChange={(event) => setForm((item) => ({ ...item, materialType: event.target.value }))}
                   >
-                    <option>Recorded Class</option>
-                    <option>PDF Notes</option>
-                    <option>Worksheet</option>
-                    <option>Reference Link</option>
-                    <option>Photo / Diagram</option>
+                    <option>PDF</option>
+                    <option>DOCX</option>
+                    <option>PPT</option>
+                    <option>Video</option>
+                    <option>External Link</option>
+                    <option>Question Bank File</option>
+                    <option>Notes</option>
                   </select>
                 </label>
               </div>

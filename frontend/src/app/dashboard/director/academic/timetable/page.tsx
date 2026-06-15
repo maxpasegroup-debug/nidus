@@ -6,10 +6,21 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createAcademicCalendarItem, getAcademyBatches, getAcademyTeachers, getAcademicCalendar } from "@/services/academy";
 import { AcademicHero, AcademicShell, EmptyState, GoldButton, Input, Panel, Select, StatCard } from "../_components";
 
+const classTypes = [
+  "Live Class",
+  "Revision Class",
+  "Mock Test",
+  "Doubt Clearing",
+  "Physical Training",
+  "Interview Practice",
+  "Special Session",
+  "Guest Session",
+];
+
 export default function DirectorTimetablePage() {
   const queryClient = useQueryClient();
   const [notice, setNotice] = useState("");
-  const [form, setForm] = useState({ batchId: "", subject: "", topic: "", plannedDate: "", startTime: "", endTime: "", teacherId: "" });
+  const [form, setForm] = useState({ batchId: "", subject: "", topic: "", classType: "Live Class", plannedDate: "", startTime: "", endTime: "", teacherId: "" });
   const batchesQuery = useQuery({ queryKey: ["academy", "batches"], queryFn: () => getAcademyBatches() });
   const teachersQuery = useQuery({ queryKey: ["academy", "teachers"], queryFn: () => getAcademyTeachers() });
   const calendarQuery = useQuery({ queryKey: ["academy", "academic-calendar"], queryFn: () => getAcademicCalendar() });
@@ -20,7 +31,7 @@ export default function DirectorTimetablePage() {
   const createItem = useMutation({
     mutationFn: createAcademicCalendarItem,
     onSuccess: () => {
-      setForm({ batchId: "", subject: "", topic: "", plannedDate: "", startTime: "", endTime: "", teacherId: "" });
+      setForm({ batchId: "", subject: "", topic: "", classType: "Live Class", plannedDate: "", startTime: "", endTime: "", teacherId: "" });
       void queryClient.invalidateQueries({ queryKey: ["academy", "academic-calendar"] });
       setNotice("Timetable item added.");
     },
@@ -33,6 +44,7 @@ export default function DirectorTimetablePage() {
       batchId: form.batchId,
       subject: form.subject,
       topic: form.topic,
+      classType: form.classType,
       plannedDate: form.plannedDate,
       startTime: form.startTime || undefined,
       endTime: form.endTime || undefined,
@@ -61,6 +73,9 @@ export default function DirectorTimetablePage() {
           </Select>
           <Input label="Subject" value={form.subject} onChange={(value) => setForm((state) => ({ ...state, subject: value }))} required />
           <Input label="Topic" value={form.topic} onChange={(value) => setForm((state) => ({ ...state, topic: value }))} required />
+          <Select label="Class Type" value={form.classType} onChange={(value) => setForm((state) => ({ ...state, classType: value }))} required>
+            {classTypes.map((type) => <option key={type} value={type}>{type}</option>)}
+          </Select>
           <Input label="Date" type="date" value={form.plannedDate} onChange={(value) => setForm((state) => ({ ...state, plannedDate: value }))} required />
           <div className="grid gap-4 md:grid-cols-2">
             <Input label="Start time" type="time" value={form.startTime} onChange={(value) => setForm((state) => ({ ...state, startTime: value }))} />
@@ -76,7 +91,7 @@ export default function DirectorTimetablePage() {
             <article key={item.id} className="rounded-2xl border border-[var(--border)] bg-white p-5">
               <p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold)]">{item.batchName}</p>
               <h3 className="mt-2 text-xl font-black">{item.topic}</h3>
-              <p className="mt-1 text-sm text-[var(--muted-blue)]">{item.subject} / {item.teacherName ?? "Teacher pending"}</p>
+              <p className="mt-1 text-sm text-[var(--muted-blue)]">{item.subject} / {item.classType ?? "Live Class"} / {item.teacherName ?? "Teacher pending"}</p>
               <p className="mt-4 text-sm font-bold">{new Date(item.plannedDate).toLocaleDateString()} {item.startTime ? ` / ${item.startTime}` : ""}</p>
             </article>
           ))}

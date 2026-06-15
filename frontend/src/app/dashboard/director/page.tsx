@@ -65,7 +65,9 @@ const directorAreas: DirectorArea[] = [
       { title: "Syllabus Tracker", text: "Track topic completion with green, orange and red status.", href: "/dashboard/director/academic/syllabus", icon: BarChart3, status: "Ready" },
       { title: "Exams & Tests", text: "Create, approve, publish and monitor exams.", href: "/dashboard/director/exams", icon: ClipboardCheck, status: "Ready" },
       { title: "Study Materials", text: "Control notes, recorded classes and batch library.", href: "/dashboard/director/materials", icon: FileArchive, status: "Ready" },
-      { title: "Student Progress", text: "Review batch-wise and student-wise academic progress.", href: "/dashboard/director/academic/reports", icon: PieChart, status: "Monitor" },
+      { title: "Student Progress", text: "Review batch health, attendance, assignments, exams and risk students.", href: "/dashboard/director/academic/student-progress", icon: PieChart, status: "Monitor" },
+      { title: "Teacher Performance", text: "Monitor teaching quality and academic delivery.", href: "/dashboard/director/academic/teacher-performance", icon: UserCheck, status: "Monitor" },
+      { title: "Academic Calendar Monitor", text: "Track class execution and syllabus completion.", href: "/dashboard/director/academic/calendar-monitor", icon: CalendarDays, status: "Monitor" },
     ],
   },
   {

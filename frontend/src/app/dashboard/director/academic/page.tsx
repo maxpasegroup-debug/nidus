@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BarChart3, CalendarDays, ClipboardCheck, GraduationCap, Users, UserCheck } from "lucide-react";
+import { BarChart3, CalendarCheck, CalendarDays, ClipboardCheck, FileArchive, GraduationCap, PieChart, Users, UserCheck } from "lucide-react";
 import { AcademicHero, AcademicShell } from "./_components";
 
 const modules = [
@@ -34,10 +34,40 @@ const modules = [
     icon: BarChart3,
   },
   {
+    title: "Exams & Tests",
+    text: "Create, approve, publish and monitor exams, tests and question banks.",
+    href: "/dashboard/director/exams",
+    icon: ClipboardCheck,
+  },
+  {
+    title: "Study Materials",
+    text: "Control notes, recorded classes, documents and batch library.",
+    href: "/dashboard/director/materials",
+    icon: FileArchive,
+  },
+  {
     title: "Reports",
     text: "See attendance, assignments, exams, materials and academic health.",
     href: "/dashboard/director/academic/reports",
     icon: ClipboardCheck,
+  },
+  {
+    title: "Student Progress",
+    text: "Review batch health, attendance, assignments, exams and risk students.",
+    href: "/dashboard/director/academic/student-progress",
+    icon: PieChart,
+  },
+  {
+    title: "Teacher Performance",
+    text: "Monitor teaching quality and academic delivery.",
+    href: "/dashboard/director/academic/teacher-performance",
+    icon: UserCheck,
+  },
+  {
+    title: "Academic Calendar Monitor",
+    text: "Track class execution and syllabus completion.",
+    href: "/dashboard/director/academic/calendar-monitor",
+    icon: CalendarCheck,
   },
 ];
 
