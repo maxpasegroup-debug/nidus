@@ -6,8 +6,8 @@ import { fitnessController } from "./fitness.controller.js";
 
 export const fitnessRouter = Router();
 
-const fitnessRoles = [protect, allowRoles(Role.STUDENT, Role.TEACHER, Role.ADMIN)];
-const trainerRoles = [protect, allowRoles(Role.TEACHER, Role.ADMIN)];
+const fitnessRoles = [protect, allowRoles(Role.STUDENT, Role.TEACHER, Role.PHYSICAL_TRAINER, Role.ACADEMIC_HEAD, Role.DIRECTOR, Role.ADMIN)];
+const trainerRoles = [protect, allowRoles(Role.TEACHER, Role.PHYSICAL_TRAINER, Role.ACADEMIC_HEAD, Role.DIRECTOR, Role.ADMIN)];
 
 const profileValidators = [body("userId").optional().trim(), body("height").isFloat({ min: 100 }), body("weight").isFloat({ min: 25 }), body("runningTime").isFloat({ min: 0 }), body("pushups").isInt({ min: 0 }), body("pullups").isInt({ min: 0 }), body("situps").isInt({ min: 0 })];
 

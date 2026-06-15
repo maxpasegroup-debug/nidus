@@ -50,7 +50,8 @@ export function canAccessDashboardPath(user: Pick<AuthUser, "role" | "roleMetada
   }
   if (user.role === "ADMIN") return true;
   if (user.role === "DIRECTOR") return path.startsWith("/dashboard/director") || path === "/dashboard/teacher" || path.startsWith("/admin-center");
-  if (user.role === "TEACHER" || user.role === "PHYSICAL_TRAINER") return path.startsWith("/dashboard/teacher");
+  if (user.role === "PHYSICAL_TRAINER") return path.startsWith("/dashboard/teacher") || path.startsWith("/fitness");
+  if (user.role === "TEACHER") return path.startsWith("/dashboard/teacher");
   if (user.role === "MARKETING_COORDINATOR") return path === "/dashboard/business-development";
   if (user.role === "TELECALLER") return path === "/dashboard/business-development";
   if (user.role === "STUDENT") return path === "/dashboard/student";

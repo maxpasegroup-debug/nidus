@@ -25,6 +25,15 @@ const teacherMenu: DashboardNavItem[] = [
   { label: "Academic Calendar", href: "/dashboard/teacher/academic-calendar" },
 ];
 
+const physicalTrainerMenu: DashboardNavItem[] = [
+  { label: "Assigned Batches", href: "/dashboard/teacher/classes" },
+  { label: "Attendance", href: "/dashboard/teacher/attendance" },
+  { label: "PT Schedule", href: "/fitness/pt-schedule" },
+  { label: "Fitness Scores", href: "/fitness" },
+  { label: "Eligibility", href: "/fitness/eligibility" },
+  { label: "Running Records", href: "/fitness/logs" },
+];
+
 const academicHeadMenu: DashboardNavItem[] = [
   { label: "Classes", href: "/dashboard/academic-head/classes" },
   { label: "Exams", href: "/dashboard/academic-head/exams" },
@@ -73,7 +82,11 @@ export function getNavItems(role?: string | null, dashboardTemplate?: string | n
     return academicHeadMenu;
   }
 
-  if (normalizedRole === "TEACHER" || normalizedRole === "PHYSICAL_TRAINER" || normalizedRole === "PHYSICAL_INSTRUCTOR") {
+  if (normalizedRole === "PHYSICAL_TRAINER" || normalizedRole === "PHYSICAL_INSTRUCTOR") {
+    return physicalTrainerMenu;
+  }
+
+  if (normalizedRole === "TEACHER") {
     return teacherMenu;
   }
 

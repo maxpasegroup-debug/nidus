@@ -29,11 +29,11 @@ export const fitnessController = {
   async ptSchedules(_req: Request, res: Response, next: NextFunction) {
     try { res.json({ schedules: await fitnessService.ptSchedules() }); } catch (error) { next(error); }
   },
-  async createPTSchedule(req: Request, res: Response, next: NextFunction) {
-    try { assertValid(req); res.status(201).json({ schedule: await fitnessService.createPTSchedule(req.body) }); } catch (error) { next(error); }
+  async createPTSchedule(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try { assertValid(req); res.status(201).json({ schedule: await fitnessService.createPTSchedule(requester(req), req.body) }); } catch (error) { next(error); }
   },
-  async markAttendance(req: Request, res: Response, next: NextFunction) {
-    try { assertValid(req); res.status(201).json({ attendance: await fitnessService.markAttendance(req.body) }); } catch (error) { next(error); }
+  async markAttendance(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try { assertValid(req); res.status(201).json({ attendance: await fitnessService.markAttendance(requester(req), req.body) }); } catch (error) { next(error); }
   },
   async attendance(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try { res.json({ attendance: await fitnessService.attendance(param(req, "studentId"), requester(req)) }); } catch (error) { next(error); }
