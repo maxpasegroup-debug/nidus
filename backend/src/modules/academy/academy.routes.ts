@@ -23,7 +23,7 @@ function requireAcademyRoles(roles: Role[]) {
       res.status(403).json({ message: "Access denied for assigned dashboard scope" });
       return;
     }
-    const templateAcademicAccess = template === "ACADEMIC_HEAD" && roles.includes(Role.TEACHER);
+    const templateAcademicAccess = template === "ACADEMIC_HEAD" && (roles.includes(Role.TEACHER) || roles.includes(Role.ACADEMIC_HEAD));
     if (!templateAcademicAccess && !admissionAllowed && !roles.includes(req.user.role as Role)) {
       res.status(403).json({ message: "Access denied" });
       return;
@@ -35,6 +35,7 @@ function requireAcademyRoles(roles: Role[]) {
 const academicRoles = [Role.ADMIN, Role.DIRECTOR, Role.ACADEMIC_HEAD, Role.TEACHER, Role.PHYSICAL_TRAINER];
 const studentAcademicRoles = [Role.ADMIN, Role.DIRECTOR, Role.ACADEMIC_HEAD, Role.TEACHER, Role.PHYSICAL_TRAINER, Role.STUDENT];
 const managementRoles = [Role.ADMIN, Role.DIRECTOR];
+const academicManagementRoles = [Role.ADMIN, Role.DIRECTOR, Role.ACADEMIC_HEAD];
 
 router.use(protect);
 
@@ -75,15 +76,15 @@ router.patch("/study-materials/:id/review", requireAcademyRoles(academicRoles), 
 router.post("/exams/ai-draft", requireAcademyRoles(academicRoles), academyController.createExamDraft);
 router.post("/exams", requireAcademyRoles(academicRoles), academyController.publishExam);
 
-router.post("/batches", requireAcademyRoles(managementRoles), academyController.createBatch);
+router.post("/batches", requireAcademyRoles(academicManagementRoles), academyController.createBatch);
 router.post("/director-expenses", requireAcademyRoles(managementRoles), academyController.createDirectorExpense);
 router.post("/director-expenses/:id/archive", requireAcademyRoles(managementRoles), academyController.archiveDirectorExpense);
 router.post("/employees", requireAcademyRoles(academicRoles), academyController.createEmployee);
-router.patch("/batches/:id", requireAcademyRoles(managementRoles), academyController.updateBatch);
+router.patch("/batches/:id", requireAcademyRoles(academicManagementRoles), academyController.updateBatch);
 router.patch("/employees/:id", requireAcademyRoles(managementRoles), academyController.updateEmployee);
 router.post("/employees/:id/archive", requireAcademyRoles(managementRoles), academyController.archiveEmployee);
 router.post("/employees/:id/reset-password", requireAcademyRoles(managementRoles), academyController.resetEmployeePassword);
-router.post("/batches/:id/students", requireAcademyRoles(managementRoles), academyController.addStudent);
+router.post("/batches/:id/students", requireAcademyRoles(academicManagementRoles), academyController.addStudent);
 router.post("/batches/:id/teachers", requireAcademyRoles(academicRoles), academyController.assignTeacher);
 router.post("/admissions/approve", requireAcademyRoles(managementRoles), academyController.approveAdmissionToBatch);
 

@@ -222,6 +222,13 @@ function requireManagement(user: Requester) {
   }
 }
 
+function requireAcademicManagement(user: Requester) {
+  const template = staffTemplate(user);
+  if ((user.role !== Role.ADMIN && user.role !== Role.DIRECTOR && user.role !== Role.ACADEMIC_HEAD && template !== "ACADEMIC_HEAD") || isNonAcademicStaffTemplate(user)) {
+    throw Object.assign(new Error("Academic management access required"), { statusCode: 403 });
+  }
+}
+
 function requireAcademic(user: Requester) {
   const template = staffTemplate(user);
   if ((user.role !== Role.ADMIN && user.role !== Role.DIRECTOR && user.role !== Role.TEACHER && user.role !== Role.ACADEMIC_HEAD && user.role !== Role.PHYSICAL_TRAINER && template !== "ACADEMIC_HEAD") || isNonAcademicStaffTemplate(user)) {
@@ -808,7 +815,7 @@ export const academyService = {
   },
 
   async createBatch(user: Requester, input: BatchInput) {
-    requireManagement(user);
+    requireAcademicManagement(user);
     if (!input.name) {
       throw Object.assign(new Error("Batch name is required"), { statusCode: 400 });
     }
@@ -829,7 +836,7 @@ export const academyService = {
   },
 
   async updateBatch(user: Requester, batchId: string, input: BatchInput) {
-    requireManagement(user);
+    requireAcademicManagement(user);
     await db.batch.update({
       where: { id: batchId },
       data: {
@@ -847,7 +854,7 @@ export const academyService = {
   },
 
   async addStudent(user: Requester, batchId: string, input: StudentInput) {
-    requireManagement(user);
+    requireAcademicManagement(user);
     const student = await findStudentUserForAdmission(input);
     const existing = await db.batchStudent.findFirst({
       where: { batchId, studentId: student.id },

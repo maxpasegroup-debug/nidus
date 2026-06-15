@@ -445,16 +445,12 @@ export default function StudentDashboardPage() {
                   </span>
                 </div>
                 <div className="mt-4 flex flex-wrap gap-2">
-                  {material.url ? (
-                    <a
-                      href={material.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="rounded-xl bg-[var(--gold-gradient)] px-4 py-2 text-sm font-black text-[var(--navy)]"
-                    >
-                      Open Link
-                    </a>
-                  ) : null}
+                  <Link
+                    href={`/dashboard/student/lesson/${material.id}`}
+                    className="rounded-xl bg-[var(--gold-gradient)] px-4 py-2 text-sm font-black text-[var(--navy)]"
+                  >
+                    Open Lesson
+                  </Link>
                   {material.fileName ? (
                     <span className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-4 py-2 text-sm font-bold text-[var(--muted-blue)]">
                       {material.fileName}

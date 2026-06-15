@@ -22,6 +22,10 @@ export const allowedMediaMimeTypes = new Set([
   "image/webp",
   "image/gif",
   "application/pdf",
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "application/vnd.ms-powerpoint",
+  "application/vnd.openxmlformats-officedocument.presentationml.presentation",
   "video/mp4",
   "video/webm",
   "video/quicktime"
@@ -45,7 +49,7 @@ function resourceTypeForMime(mimeType: string): "image" | "video" | "raw" {
 }
 
 export function validateUpload(file: Express.Multer.File) {
-  if (!allowedMediaMimeTypes.has(file.mimetype)) throw new Error("Unsupported file type. Upload images, PDFs, or videos only.");
+  if (!allowedMediaMimeTypes.has(file.mimetype)) throw new Error("Unsupported file type. Upload images, PDFs, Word, PowerPoint, or videos only.");
   if (file.size > env.MAX_UPLOAD_MB * 1024 * 1024) throw new Error(`File exceeds ${env.MAX_UPLOAD_MB}MB upload limit`);
 }
 

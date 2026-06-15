@@ -153,7 +153,7 @@ export default function DirectorBatchesPage() {
                 <span className="rounded-full border border-[var(--border)] px-3 py-1">{batch._count?.teachers ?? 0} teachers</span>
               </div>
               <div className="mt-4 flex flex-wrap gap-2">
-                {["ACTIVE", "PAUSED", "COMPLETED"].map((status) => (
+                {["ACTIVE", "PAUSED", "COMPLETED", "ARCHIVED"].map((status) => (
                   <button key={status} className="rounded-lg border border-[var(--border)] px-3 py-2 text-sm font-bold" onClick={() => updateStatus.mutate({ id: batch.id, status })} type="button">
                     {status}
                   </button>
