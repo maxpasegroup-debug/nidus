@@ -344,13 +344,13 @@ export type BatchFilters = {
 };
 
 export async function getAcademyBatches(filters: BatchFilters = {}) {
-  const response = await apiClient.get<{ batches: AcademyBatch[] }>("/academy/batches", { params: filters });
-  return response.data.batches;
+  const response = await apiClient.get<{ batches: AcademyBatch[] } | AcademyBatch[]>("/academy/batches", { params: filters });
+  return Array.isArray(response.data) ? response.data : response.data.batches;
 }
 
 export async function getAcademyTeachers() {
-  const response = await apiClient.get<{ teachers: AcademyTeacher[] }>("/academy/teachers");
-  return response.data.teachers;
+  const response = await apiClient.get<{ teachers: AcademyTeacher[] } | AcademyTeacher[]>("/academy/teachers");
+  return Array.isArray(response.data) ? response.data : response.data.teachers;
 }
 
 export async function createAcademyTeacher(payload: AcademyTeacherPayload) {
@@ -366,8 +366,8 @@ export async function createAcademyBatch(payload: {
   startDate?: string;
   endDate?: string;
 }) {
-  const response = await apiClient.post<{ batch: AcademyBatch }>("/academy/batches", payload);
-  return response.data.batch;
+  const response = await apiClient.post<{ batch: AcademyBatch } | AcademyBatch>("/academy/batches", payload);
+  return "batch" in response.data ? response.data.batch : response.data;
 }
 
 export async function updateAcademyBatch(batchId: string, payload: Partial<{
@@ -379,8 +379,8 @@ export async function updateAcademyBatch(batchId: string, payload: Partial<{
   endDate?: string;
   status: string;
 }>) {
-  const response = await apiClient.patch<{ batch: AcademyBatch }>(`/academy/batches/${batchId}`, payload);
-  return response.data.batch;
+  const response = await apiClient.patch<{ batch: AcademyBatch } | AcademyBatch>(`/academy/batches/${batchId}`, payload);
+  return "batch" in response.data ? response.data.batch : response.data;
 }
 
 export async function assignTeacherToBatch(batchId: string, payload: { teacherId: string; subject?: string; subjects?: string[]; role?: string; status?: string }) {
