@@ -25,6 +25,15 @@ function attendanceStatus(status: string) {
   return status.trim().toUpperCase();
 }
 
+function recordArray(value: unknown): Array<Record<string, unknown>> {
+  if (Array.isArray(value)) return value.filter((item): item is Record<string, unknown> => Boolean(item) && typeof item === "object" && !Array.isArray(item));
+  return [];
+}
+
+function recordStudentId(record: Record<string, unknown>) {
+  return typeof record.studentId === "string" ? record.studentId : "";
+}
+
 function metadataObject(value: unknown) {
   return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
 }
@@ -266,7 +275,7 @@ export const dashboardService = {
     }
 
     const studentId = linkedStudent?.id;
-    const [attempts, attendanceRows, fees, notifications, discipline, psychometricAttempts] = await Promise.all([
+    const [attempts, attendanceRows, fees, notifications, discipline, psychometricAttempts, academyAttendanceRows, assignmentRows, submissionRows, teacherExamRows, fitness, fitnessLogs] = await Promise.all([
       studentId ? prisma.testAttempt.findMany({ where: { userId: studentId, submittedAt: { not: null } }, orderBy: { submittedAt: "asc" }, take: 12 }) : [],
       studentId ? prisma.attendance.findMany({ where: { userId: studentId }, orderBy: { date: "asc" } }) : [],
       studentId ? prisma.feeInstallment.findMany({ where: { studentId }, orderBy: { dueDate: "asc" } }) : [],
@@ -279,12 +288,59 @@ export const dashboardService = {
             include: { test: { select: { id: true, title: true, type: true } } }
           })
         : []
+      ,
+      studentId
+        ? prisma.$queryRaw<Array<{ id: string; batchName: string | null; subject: string | null; date: Date; records: unknown }>>`
+            SELECT "id", "batchName", "subject", "date", "records"
+            FROM "TeacherAttendanceRecord"
+            WHERE "records"::text LIKE ${`%${studentId}%`}
+            ORDER BY "date" DESC
+          `
+        : [],
+      studentId
+        ? prisma.$queryRaw<Array<{ id: string; title: string; subject: string | null; batchName: string | null; dueDate: Date | null; status: string }>>`
+            SELECT a."id", a."title", a."subject", a."batchName", a."dueDate", a."status"
+            FROM "TeacherAssignmentRecord" a
+            WHERE a."batchId" IN (SELECT "batchId" FROM "BatchStudent" WHERE "studentId" = ${studentId} AND "status" = 'ACTIVE')
+            AND a."status" != 'ARCHIVED'
+            ORDER BY a."createdAt" DESC
+          `
+        : [],
+      studentId
+        ? prisma.$queryRaw<Array<{ assignmentId: string; reviewStatus: string; score: number | null; submittedAt: Date | null }>>`
+            SELECT "assignmentId", "reviewStatus", "score", "submittedAt"
+            FROM "AssignmentSubmissionRecord"
+            WHERE "studentId" = ${studentId}
+          `
+        : [],
+      studentId
+        ? prisma.$queryRaw<Array<{ id: string; title: string; subject: string | null; batchName: string | null; testId: string | null; createdAt: Date }>>`
+            SELECT "id", "title", "subject", "batchName", "testId", "createdAt"
+            FROM "TeacherExamRecord"
+            WHERE "batchId" IN (SELECT "batchId" FROM "BatchStudent" WHERE "studentId" = ${studentId} AND "status" = 'ACTIVE')
+            AND "status" != 'ARCHIVED'
+            ORDER BY "createdAt" DESC
+          `
+        : [],
+      studentId ? prisma.fitnessProfile.findUnique({ where: { userId: studentId } }) : null,
+      studentId ? prisma.dailyFitnessLog.findMany({ where: { userId: studentId }, orderBy: { createdAt: "desc" }, take: 5 }) : []
     ]);
-    const present = attendanceRows.filter((row) => attendanceStatus(row.status) === "PRESENT").length;
+    const academyAttendance = academyAttendanceRows
+      .map((row) => {
+        const record = recordArray(row.records).find((item) => recordStudentId(item) === studentId);
+        return record ? { ...row, status: typeof record.status === "string" ? record.status : "MARKED" } : null;
+      })
+      .filter((row): row is { id: string; batchName: string | null; subject: string | null; date: Date; records: unknown; status: string } => Boolean(row));
+    const legacyPresent = attendanceRows.filter((row) => attendanceStatus(row.status) === "PRESENT").length;
+    const academyPresent = academyAttendance.filter((row) => attendanceStatus(row.status) === "PRESENT").length;
+    const attendanceTotal = academyAttendance.length || attendanceRows.length;
+    const present = academyAttendance.length ? academyPresent : legacyPresent;
     const averageScore = attempts.length ? clampPercentage(attempts.reduce((sum, attempt) => sum + attempt.score, 0) / attempts.length) : 0;
     const firstScore = attempts[0]?.score ?? 0;
     const lastScore = attempts.at(-1)?.score ?? 0;
     const dueFees = fees.filter((fee) => fee.paidStatus !== "PAID");
+    const submissionByAssignment = new Map(submissionRows.map((item) => [item.assignmentId, item]));
+    const submittedAssignments = assignmentRows.filter((assignment) => submissionByAssignment.has(assignment.id)).length;
 
     return {
       parentId: user.id,
@@ -296,15 +352,73 @@ export const dashboardService = {
         trend: attempts.map((attempt) => ({ month: monthLabel(attempt.startedAt), score: Math.round(attempt.score) }))
       },
       attendance: {
-        percentage: percentage(present, attendanceRows.length),
+        percentage: percentage(present, attendanceTotal),
         present,
-        total: attendanceRows.length
+        total: attendanceTotal,
+        recent: academyAttendance.slice(0, 6).map((row) => ({
+          subject: row.subject,
+          batchName: row.batchName,
+          date: row.date,
+          status: row.status
+        }))
+      },
+      assignments: {
+        total: assignmentRows.length,
+        submitted: submittedAssignments,
+        pending: Math.max(assignmentRows.length - submittedAssignments, 0),
+        recent: assignmentRows.slice(0, 6).map((assignment) => {
+          const submission = submissionByAssignment.get(assignment.id);
+          return {
+            id: assignment.id,
+            title: assignment.title,
+            subject: assignment.subject,
+            batchName: assignment.batchName,
+            dueDate: assignment.dueDate,
+            status: submission ? submission.reviewStatus || "SUBMITTED" : "PENDING",
+            score: submission?.score ?? null
+          };
+        })
+      },
+      exams: {
+        published: teacherExamRows.length,
+        submitted: attempts.length,
+        averageScore,
+        recent: attempts.slice(-6).reverse().map((attempt) => ({
+          id: attempt.id,
+          score: attempt.score,
+          submittedAt: attempt.submittedAt,
+          status: attempt.status
+        }))
       },
       feeStatus: {
         status: dueFees.length ? "PENDING" : fees.length ? "PAID" : "NO_FEE_PLAN",
         dueAmount: dueFees.reduce((sum, fee) => sum + (fee.dueAmount || fee.amount - fee.paidAmount), 0),
-        nextDueDate: dueFees[0]?.dueDate.toISOString() ?? ""
+        nextDueDate: dueFees[0]?.dueDate.toISOString() ?? "",
+        installments: fees.map((fee) => ({
+          id: fee.id,
+          title: fee.title,
+          amount: fee.amount,
+          paidAmount: fee.paidAmount,
+          dueAmount: fee.dueAmount,
+          dueDate: fee.dueDate,
+          paidStatus: fee.paidStatus
+        }))
       },
+      fitness: fitness
+        ? {
+            bmi: fitness.bmi,
+            runningTime: fitness.runningTime,
+            staminaScore: fitness.staminaScore,
+            fitnessLevel: fitness.fitnessLevel,
+            recentLogs: fitnessLogs.map((log) => ({
+              id: log.id,
+              runningDistance: log.runningDistance,
+              workoutDuration: log.workoutDuration,
+              notes: log.notes,
+              createdAt: log.createdAt
+            }))
+          }
+        : null,
       notifications: notifications.map((notification) => notification.title),
       disciplineScore: {
         grade: discipline.length ? "REVIEW" : "NO_RECORDS",

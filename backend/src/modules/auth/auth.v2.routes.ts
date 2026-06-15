@@ -144,3 +144,5 @@ authRouter.post("/logout-all", sessionAuth, authControllerV2.logoutAll);
 authRouter.get("/sessions", sessionAuth, authControllerV2.sessions);
 authRouter.delete("/sessions/:id", sessionAuth, authControllerV2.revokeSession);
 authRouter.post("/change-password", sessionAuth, authControllerV2.changePassword);
+authRouter.post("/parent-link/invite", sessionAuth, authControllerV2.inviteParentLink);
+authRouter.post("/parent-link/accept", sessionAuth, authControllerV2.acceptParentLink);

@@ -139,10 +139,12 @@ export async function revokeSession(id: string) {
   return response.data;
 }
 
-export async function inviteParentLink(_studentId: string) {
-  return { message: "Parent link invitation requires backend workflow configuration" };
+export async function inviteParentLink(parentIdentity: string) {
+  const response = await apiClient.post<{ success: boolean; message: string }>("/auth/parent-link/invite", { parentIdentity });
+  return response.data;
 }
 
-export async function acceptParentLink(_token: string) {
-  return { message: "Parent account linked" };
+export async function acceptParentLink(token: string) {
+  const response = await apiClient.post<{ success: boolean; message: string }>("/auth/parent-link/accept", { token });
+  return response.data;
 }

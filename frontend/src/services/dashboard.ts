@@ -88,12 +88,33 @@ export type ParentDashboardData = {
     percentage: number;
     present: number;
     total: number;
+    recent?: Array<{ subject?: string | null; batchName?: string | null; date: string; status: string }>;
+  };
+  assignments?: {
+    total: number;
+    submitted: number;
+    pending: number;
+    recent: Array<{ id: string; title: string; subject?: string | null; batchName?: string | null; dueDate?: string | null; status: string; score?: number | null }>;
+  };
+  exams?: {
+    published: number;
+    submitted: number;
+    averageScore: number;
+    recent: Array<{ id: string; score?: number | null; submittedAt?: string | null; status: string }>;
   };
   feeStatus: {
     status: string;
     dueAmount: number;
     nextDueDate: string;
+    installments?: Array<{ id: string; title: string; amount: number; paidAmount: number; dueAmount: number; dueDate: string; paidStatus: string }>;
   };
+  fitness?: {
+    bmi: number;
+    runningTime: number;
+    staminaScore: number;
+    fitnessLevel: string;
+    recentLogs: Array<{ id: string; runningDistance: number; workoutDuration: number; notes?: string | null; createdAt: string }>;
+  } | null;
   notifications: string[];
   disciplineScore: {
     grade: string;

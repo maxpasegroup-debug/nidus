@@ -37,7 +37,7 @@ export default function StudentLessonPage() {
   const materialId = params?.materialId ?? "";
   const planQuery = useQuery({
     queryKey: ["student", "lesson", materialId],
-    queryFn: () => apiJson<{ materials?: StudyMaterial[] }>("/academy/my-plan"),
+    queryFn: () => apiJson<{ materials?: StudyMaterial[] }>("/api/academy/my-plan"),
   });
   const material = planQuery.data?.materials?.find((item) => item.id === materialId);
 

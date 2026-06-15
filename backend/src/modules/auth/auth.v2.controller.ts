@@ -180,5 +180,31 @@ export const authControllerV2 = {
     } catch (error) {
       res.status(400).json({ success: false, message: error instanceof Error ? error.message : "Password reset failed" });
     }
+  },
+
+  async inviteParentLink(req: AuthenticatedRequest, res: Response) {
+    try {
+      const { parentIdentity } = req.body as { parentIdentity?: string };
+      if (!req.user || !parentIdentity) {
+        res.status(400).json({ success: false, message: "Parent email or mobile is required" });
+        return;
+      }
+      res.json({ success: true, ...(await AuthServiceV2.inviteParentLink(req.user.id, parentIdentity)) });
+    } catch (error) {
+      res.status(400).json({ success: false, message: error instanceof Error ? error.message : "Parent invitation failed" });
+    }
+  },
+
+  async acceptParentLink(req: AuthenticatedRequest, res: Response) {
+    try {
+      const { token } = req.body as { token?: string };
+      if (!req.user || !token) {
+        res.status(400).json({ success: false, message: "Parent invitation token is required" });
+        return;
+      }
+      res.json({ success: true, ...(await AuthServiceV2.acceptParentLink(req.user.id, token)) });
+    } catch (error) {
+      res.status(400).json({ success: false, message: error instanceof Error ? error.message : "Parent link failed" });
+    }
   }
 };

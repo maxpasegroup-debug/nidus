@@ -4,6 +4,7 @@ import { prisma } from "../../config/prisma.js";
 import { env } from "../../config/env.js";
 import { Role, type User } from "../../generated/prisma/client.js";
 import { emailService } from "../../services/email.service.js";
+import { authEmailService } from "./auth-email.service.js";
 
 export const SUPER_ADMIN_EMAIL = "nidusacademycalicut@gmail.com";
 export const DEFAULT_ACCOUNT_PASSWORD = "123456789";
@@ -435,6 +436,78 @@ export const AuthServiceV2 = {
     await this.logoutAll(reset.user.id);
     await audit({ userId: reset.user.id, action: "PASSWORD_RESET", description: "Password reset successful" });
     return { message: "Password reset successful. Please login." };
+  },
+
+  async inviteParentLink(studentId: string, parentIdentity: string) {
+    const student = await prisma.user.findUnique({ where: { id: studentId }, select: { id: true, name: true, role: true } });
+    if (!student || student.role !== Role.STUDENT) throw new Error("Student account required");
+
+    const parent = await this.findByIdentity(parentIdentity);
+    if (!parent || parent.role !== Role.PARENT) throw new Error("Parent account not found. Ask the parent to create a parent account first.");
+
+    const token = crypto.randomBytes(32).toString("hex");
+    const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
+    await prisma.parentStudentInvitation.deleteMany({ where: { parentId: parent.id, studentId: student.id, acceptedAt: null } });
+    await prisma.parentStudentInvitation.create({
+      data: {
+        parentId: parent.id,
+        studentId: student.id,
+        tokenHash,
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+      }
+    });
+    await authEmailService.sendParentInvitation({ recipient: parent.email, token }).catch(() => undefined);
+    await audit({ userId: student.id, action: "PARENT_LINK_INVITED", description: `Parent invite sent to ${parent.email}` });
+    return { message: "Parent invitation created", parent: { id: parent.id, name: parent.name, email: parent.email, mobile: parent.mobile } };
+  },
+
+  async acceptParentLink(parentId: string, token: string) {
+    const parent = await prisma.user.findUnique({ where: { id: parentId }, select: { id: true, role: true } });
+    if (!parent || parent.role !== Role.PARENT) throw new Error("Parent account required");
+    const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
+    const invitation = await prisma.parentStudentInvitation.findFirst({
+      where: {
+        parentId,
+        tokenHash,
+        acceptedAt: null,
+        revokedAt: null,
+        expiresAt: { gt: new Date() }
+      },
+      include: { student: { select: { id: true, name: true, email: true, mobile: true } } }
+    });
+    if (!invitation) throw new Error("Parent invitation is invalid or expired");
+
+    const link = await prisma.parentStudentLink.upsert({
+      where: { parentId_studentId: { parentId, studentId: invitation.studentId } },
+      create: {
+        parentId,
+        studentId: invitation.studentId,
+        status: "ACTIVE",
+        monitoringPermissions: {
+          attendance: true,
+          exams: true,
+          assignments: true,
+          fees: true,
+          fitness: true,
+          reports: true
+        }
+      },
+      update: {
+        status: "ACTIVE",
+        monitoringPermissions: {
+          attendance: true,
+          exams: true,
+          assignments: true,
+          fees: true,
+          fitness: true,
+          reports: true
+        },
+        linkedAt: new Date()
+      }
+    });
+    await prisma.parentStudentInvitation.update({ where: { id: invitation.id }, data: { acceptedAt: new Date() } });
+    await audit({ userId: parentId, action: "PARENT_LINK_ACCEPTED", description: `Parent linked to ${invitation.student.name}` });
+    return { message: "Parent account linked", link, student: invitation.student };
   }
 };
 

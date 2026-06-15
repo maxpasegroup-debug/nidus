@@ -50,6 +50,10 @@ export default function ParentDashboardPage() {
           <StatCard label="Fee Status" value={data.feeStatus.status} note={`Due Rs ${data.feeStatus.dueAmount}`} />
         </section>
 
+        {!data.linkedStudent ? (
+          <AnnouncementCard title="No student linked" description="Ask the student to send a parent invitation from the student dashboard. Parent access remains read-only and restricted to linked students." tag="Link Required" />
+        ) : null}
+
         <section className="grid gap-4 lg:grid-cols-[1.3fr_0.9fr]">
           <PerformanceChart title="Monthly progress trend" data={chartData} />
           <div className="space-y-4">
@@ -57,6 +61,72 @@ export default function ParentDashboardPage() {
             <ProgressCard title="Assessment profile" value={assessmentProfile?.profileAccuracy ?? 0} label={assessmentProfile?.readinessBand ?? "Assessment reports pending"} />
             <ProgressCard title="Discipline score" value={data.disciplineScore.score} label={data.disciplineScore.notes} />
             <AnnouncementCard title="Next fee date" description={data.feeStatus.nextDueDate} tag="Finance" />
+          </div>
+        </section>
+
+        <SectionHeader eyebrow="Student Operations" title="Academy status visible to parent" />
+        <section className="grid gap-4 lg:grid-cols-3">
+          <div className="premium-surface rounded-lg p-5">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-gold-soft">Assignments</p>
+            <h2 className="mt-3 text-3xl font-semibold text-ink">{data.assignments?.submitted ?? 0}/{data.assignments?.total ?? 0}</h2>
+            <p className="mt-2 text-sm text-muted">{data.assignments?.pending ?? 0} pending assignment(s)</p>
+            <div className="mt-4 grid gap-2">
+              {(data.assignments?.recent ?? []).slice(0, 4).map((item) => (
+                <div key={item.id} className="rounded border border-white/10 bg-navy-deep/55 p-3 text-sm text-muted">
+                  <b className="text-ink">{item.title}</b><br />{item.status}{item.score !== null && item.score !== undefined ? ` / ${item.score}` : ""}
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="premium-surface rounded-lg p-5">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-gold-soft">Exams</p>
+            <h2 className="mt-3 text-3xl font-semibold text-ink">{data.exams?.averageScore ?? data.studentPerformance.averageScore}%</h2>
+            <p className="mt-2 text-sm text-muted">{data.exams?.submitted ?? 0} submitted / {data.exams?.published ?? 0} published</p>
+            <div className="mt-4 grid gap-2">
+              {(data.exams?.recent ?? []).slice(0, 4).map((item) => (
+                <div key={item.id} className="rounded border border-white/10 bg-navy-deep/55 p-3 text-sm text-muted">
+                  Score {item.score ?? 0} / {item.status}
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="premium-surface rounded-lg p-5">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-gold-soft">Fitness</p>
+            <h2 className="mt-3 text-3xl font-semibold text-ink">{data.fitness ? `${Math.round(data.fitness.staminaScore)}%` : "--"}</h2>
+            <p className="mt-2 text-sm text-muted">{data.fitness ? `BMI ${data.fitness.bmi} / Run ${data.fitness.runningTime} min / ${data.fitness.fitnessLevel}` : "Fitness profile pending"}</p>
+            <div className="mt-4 grid gap-2">
+              {(data.fitness?.recentLogs ?? []).slice(0, 3).map((item) => (
+                <div key={item.id} className="rounded border border-white/10 bg-navy-deep/55 p-3 text-sm text-muted">
+                  {item.runningDistance} km / {item.workoutDuration} min {item.notes ? `/ ${item.notes}` : ""}
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <SectionHeader eyebrow="Read Only Details" title="Attendance and fees" />
+        <section className="grid gap-4 lg:grid-cols-2">
+          <div className="premium-surface rounded-lg p-5">
+            <h2 className="text-2xl font-semibold text-ink">Recent attendance</h2>
+            <div className="mt-4 grid gap-2">
+              {(data.attendance.recent ?? []).slice(0, 6).map((item, index) => (
+                <div key={`${item.date}-${index}`} className="rounded border border-white/10 bg-navy-deep/55 p-3 text-sm text-muted">
+                  <b className="text-ink">{item.subject ?? "Class"}</b> / {item.status} / {new Date(item.date).toLocaleDateString()}
+                </div>
+              ))}
+              {data.attendance.recent?.length ? null : <AnnouncementCard title="No attendance records" description="Attendance will appear after teachers mark class attendance." tag="Pending" />}
+            </div>
+          </div>
+          <div className="premium-surface rounded-lg p-5">
+            <h2 className="text-2xl font-semibold text-ink">Fee status</h2>
+            <div className="mt-4 grid gap-2">
+              {(data.feeStatus.installments ?? []).slice(0, 6).map((fee) => (
+                <div key={fee.id} className="rounded border border-white/10 bg-navy-deep/55 p-3 text-sm text-muted">
+                  <b className="text-ink">{fee.title}</b> / Rs {fee.dueAmount || fee.amount - fee.paidAmount} / {fee.paidStatus}
+                </div>
+              ))}
+              {data.feeStatus.installments?.length ? null : <AnnouncementCard title="No fee plan" description="Fee details will appear after the Administrative Officer records enrollment fees." tag="Finance" />}
+            </div>
           </div>
         </section>
 

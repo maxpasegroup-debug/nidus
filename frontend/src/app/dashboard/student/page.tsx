@@ -116,6 +116,7 @@ type StudentPlan = {
     meetingLink: string;
     status?: string | null;
     batchId?: string | null;
+    recordingUrl?: string | null;
   }>;
 };
 
@@ -202,6 +203,8 @@ async function apiPost<T>(path: string, body: unknown): Promise<T> {
 export default function StudentDashboardPage() {
   const [assignmentDrafts, setAssignmentDrafts] = useState<Record<string, { answerText: string; link: string; attachmentName: string }>>({});
   const [assignmentMessage, setAssignmentMessage] = useState<string | null>(null);
+  const [parentIdentity, setParentIdentity] = useState("");
+  const [parentLinkMessage, setParentLinkMessage] = useState<string | null>(null);
   const academicPlan = useQuery({
     queryKey: ["student", "academic-plan"],
     queryFn: () => apiJson<StudentPlan>("/api/academy/my-plan"),
@@ -230,6 +233,7 @@ export default function StudentDashboardPage() {
   const todayClasses = calendar.filter((item) => item.plannedDate.slice(0, 10) === today);
   const upcomingClasses = calendar.filter((item) => item.plannedDate.slice(0, 10) >= today).slice(0, 6);
   const upcomingLiveClasses = liveClasses.filter((item) => item.scheduledAt.slice(0, 10) >= today).slice(0, 6);
+  const pastLiveClasses = liveClasses.filter((item) => item.scheduledAt.slice(0, 10) < today).slice(0, 4);
 
   const primaryBatch = batches[0];
   const teacherList = useMemo(
@@ -310,6 +314,7 @@ export default function StudentDashboardPage() {
 
         <section id="classes" className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           <StudentModule title="Classes" text="Upcoming live classes and recorded lessons appear batch-wise." icon={PlayCircle} href="#classes" />
+          <StudentModule title="My Learning" text="Program, subject, topic and lesson view for your batch materials." icon={Library} href="/dashboard/student/learning" />
           <StudentModule title="Exam Coaching" text="Practice tests, weekly tests and NIDUS-owned CBT coaching." icon={ClipboardCheck} href="#exams" />
           <StudentModule title="Assessments" text="Open psychometric and defence-readiness assessments." icon={ShieldCheck} href="/dashboard/student#assessments" />
           <StudentModule title="NIDUS Guru" text="Focus, discipline and dream-building quests." icon={UserRound} href="/dashboard/student#nidus-guru" />
@@ -318,6 +323,7 @@ export default function StudentDashboardPage() {
         <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           <StudentModule title="Assignments" text="Submit homework and teacher-given tasks." icon={FileText} href="#assignments" />
           <StudentModule title="Attendance" text="Track class attendance and marked sessions." icon={CalendarDays} href="#attendance" />
+          <StudentModule title="Progress" text="See attendance, assignments, exams, learning and fitness together." icon={GraduationCap} href="/dashboard/student/progress" />
           <StudentModule title="Library" text="Access notes, videos, files and topic materials." icon={Library} href="#library" />
         </section>
 
@@ -327,6 +333,15 @@ export default function StudentDashboardPage() {
               <LiveClassRow key={item.id} item={item} />
             ))}
             {!upcomingLiveClasses.length && <SoftNote text="Live classes published for your batch will appear here." />}
+          </div>
+          <div className="mt-6">
+            <p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold)]">Past Live Classes</p>
+            <div className="mt-3 grid gap-4 md:grid-cols-2">
+              {pastLiveClasses.map((item) => (
+                <LiveClassRow key={item.id} item={item} past />
+              ))}
+              {!pastLiveClasses.length && <SoftNote text="Completed live classes and recording links will appear here." />}
+            </div>
           </div>
         </Panel>
 
@@ -569,6 +584,35 @@ export default function StudentDashboardPage() {
             <StudentModule title="Digital Profile" text="Build a simple NIDUS profile with goals, strengths and progress." icon={UserRound} href="/digital-profile" />
           </div>
         </Panel>
+
+        <Panel id="parent-link" title="Parent Access" eyebrow="Read-only progress sharing">
+          <div className="grid gap-3 md:grid-cols-[1fr_auto]">
+            <input
+              value={parentIdentity}
+              onChange={(event) => setParentIdentity(event.target.value)}
+              className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-sm"
+              placeholder="Parent email or mobile number"
+            />
+            <button
+              type="button"
+              onClick={async () => {
+                setParentLinkMessage("Sending parent invitation...");
+                try {
+                  await apiPost("/api/auth/parent-link/invite", { parentIdentity });
+                  setParentIdentity("");
+                  setParentLinkMessage("Parent invitation sent. Ask parent to login and accept the link.");
+                } catch (error) {
+                  setParentLinkMessage(error instanceof Error ? error.message : "Could not send parent invitation.");
+                }
+              }}
+              className="rounded-xl bg-[var(--gold-gradient)] px-4 py-3 text-sm font-black text-[var(--navy)]"
+            >
+              Invite Parent
+            </button>
+          </div>
+          <p className="mt-3 text-sm text-[var(--muted-blue)]">Parents receive read-only access to attendance, assignments, exams, fees, fitness and reports after accepting.</p>
+          {parentLinkMessage ? <div className="mt-3 rounded-xl border border-[var(--gold-border)] bg-[var(--gold-soft)] p-3 text-sm font-bold">{parentLinkMessage}</div> : null}
+        </Panel>
       </section>
     </main>
   );
@@ -619,7 +663,7 @@ function ClassRow({ item }: { item: CalendarItem }) {
   );
 }
 
-function LiveClassRow({ item }: { item: NonNullable<StudentPlan["liveClasses"]>[number] }) {
+function LiveClassRow({ item, past = false }: { item: NonNullable<StudentPlan["liveClasses"]>[number]; past?: boolean }) {
   return (
     <article className="rounded-2xl border border-[var(--border)] bg-white p-5">
       <div className="flex items-start gap-3">
@@ -633,9 +677,20 @@ function LiveClassRow({ item }: { item: NonNullable<StudentPlan["liveClasses"]>[
             {item.instructorName || "NIDUS Teacher"} / {new Date(item.scheduledAt).toLocaleString()} / {item.duration} min
           </p>
           {item.description ? <p className="mt-2 text-sm leading-6 text-[var(--muted-blue)]">{item.description}</p> : null}
-          <a href={item.meetingLink} target="_blank" rel="noreferrer" className="mt-4 inline-flex rounded-xl bg-[var(--gold-gradient)] px-4 py-2 text-sm font-black text-[var(--navy)]">
-            Join Class
-          </a>
+          <div className="mt-4 flex flex-wrap gap-2">
+            {!past ? (
+              <a href={item.meetingLink} target="_blank" rel="noreferrer" className="inline-flex rounded-xl bg-[var(--gold-gradient)] px-4 py-2 text-sm font-black text-[var(--navy)]">
+                Join Class
+              </a>
+            ) : null}
+            {item.recordingUrl ? (
+              <a href={item.recordingUrl} target="_blank" rel="noreferrer" className="inline-flex rounded-xl border border-[var(--border)] bg-white px-4 py-2 text-sm font-black text-[var(--navy)]">
+                Watch Recording
+              </a>
+            ) : past ? (
+              <span className="inline-flex rounded-xl border border-dashed border-[var(--border)] px-4 py-2 text-sm font-bold text-[var(--muted-blue)]">Recording pending</span>
+            ) : null}
+          </div>
         </div>
       </div>
     </article>
