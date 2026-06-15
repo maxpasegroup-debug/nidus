@@ -4,10 +4,66 @@ import { useMemo, useState } from "react";
 import type { FormEvent } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createAcademyBatch, getAcademyBatches, updateAcademyBatch } from "@/services/academy";
+import { allAcademyPrograms } from "@/data/academy-programs";
 import { useCourses } from "@/hooks/use-courses";
 import { AcademicHero, AcademicShell, EmptyState, GoldButton, Input, Panel, Select, StatCard } from "../_components";
+import type { Course } from "@/types/course";
 
 const batchTypes = ["OFFLINE", "ONLINE", "CRASH", "FOUNDATION", "EXAM_COACHING", "GURU"];
+const finalProgramSlugs = [
+  "aissee-class-6",
+  "aissee-class-9",
+  "rimc-preparation",
+  "foundation-nda-civil-services",
+  "nda-f1",
+  "nda-f2",
+  "nda-crash-course",
+  "cds-f1",
+  "cds-f2",
+  "cds-f3",
+  "afcat",
+  "cdse-afcat-crash-course",
+  "tes-guidance",
+  "tgc-ssc-technical",
+  "territorial-army-coast-guard",
+  "afmc",
+  "mns",
+  "agniveer-army",
+  "agniveer-navy",
+  "agniveer-air-force",
+  "ssb-interview-guidance",
+];
+
+function programTemplateToCourse(program: (typeof allAcademyPrograms)[number]): Course {
+  return {
+    id: `template-${program.slug}`,
+    title: program.title,
+    slug: program.slug,
+    description: JSON.stringify({
+      summary: program.outcome,
+      deliveryMode: "BOTH",
+      source: "NIDUS Academy Master Course Architecture",
+    }),
+    thumbnail: `/images/academy/${program.slug}.jpg`,
+    category: program.groupTitle,
+    examType: "Academy Program",
+    duration: program.audience,
+    price: 0,
+    isPremium: false,
+    createdAt: "",
+  };
+}
+
+function orderedCourses(courses: Course[]) {
+  return [...courses].sort((left, right) => {
+    const leftIndex = finalProgramSlugs.indexOf(left.slug);
+    const rightIndex = finalProgramSlugs.indexOf(right.slug);
+    if (leftIndex >= 0 && rightIndex >= 0) return leftIndex - rightIndex;
+    if (leftIndex >= 0) return -1;
+    if (rightIndex >= 0) return 1;
+    return left.title.localeCompare(right.title);
+  });
+}
 
 export default function DirectorBatchesPage() {
   const queryClient = useQueryClient();
@@ -16,7 +72,15 @@ export default function DirectorBatchesPage() {
   const batchesQuery = useQuery({ queryKey: ["academy", "batches"], queryFn: () => getAcademyBatches() });
   const coursesQuery = useCourses();
   const batches = batchesQuery.data ?? [];
-  const courses = coursesQuery.data ?? [];
+  const courses = useMemo(() => {
+    const databaseCourses = coursesQuery.data ?? [];
+    const existingSlugs = new Set(databaseCourses.map((course) => course.slug));
+    const missingFinalPrograms = allAcademyPrograms
+      .filter((program) => finalProgramSlugs.includes(program.slug) && !existingSlugs.has(program.slug))
+      .map(programTemplateToCourse);
+
+    return orderedCourses([...databaseCourses, ...missingFinalPrograms]);
+  }, [coursesQuery.data]);
   const activeCount = useMemo(() => batches.filter((batch) => batch.status === "ACTIVE").length, [batches]);
 
   const refresh = () => queryClient.invalidateQueries({ queryKey: ["academy", "batches"] });
@@ -40,9 +104,10 @@ export default function DirectorBatchesPage() {
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const course = courses.find((item) => item.id === form.courseId);
+    const isTemplateCourse = course?.id.startsWith("template-");
     createBatch.mutate({
       name: form.name,
-      courseId: form.courseId,
+      courseId: isTemplateCourse ? undefined : form.courseId,
       programSlug: course?.slug ?? "academy-program",
       batchType: form.batchType,
       startDate: form.startDate || undefined,
