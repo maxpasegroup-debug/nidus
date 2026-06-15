@@ -3,19 +3,7 @@
 import { FormEvent, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  BadgeIndianRupee,
-  CheckCircle2,
-  ClipboardCheck,
-  FileArchive,
-  FileText,
-  GraduationCap,
-  MessageCircle,
-  Phone,
-  ShieldCheck,
-  UserRound,
-  Users,
-} from "lucide-react";
+import { BadgeIndianRupee, CheckCircle2, ClipboardCheck, FileArchive, FileText, GraduationCap, ShieldCheck, UserCheck, Users } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 type BatchOption = {
@@ -28,6 +16,8 @@ type BatchOption = {
   _count?: { students?: number; teachers?: number };
 };
 
+type BatchResponse = BatchOption[] | { batches: BatchOption[] };
+
 type ApprovalPayload = {
   batchId: string;
   email: string;
@@ -35,7 +25,6 @@ type ApprovalPayload = {
   phone?: string;
   rollNumber?: string;
   notes?: string;
-  applicationId?: string;
   leadId?: string;
   totalFee?: number;
   amountPaid?: number;
@@ -57,14 +46,31 @@ type LeadApplication = {
   createdAt: string;
 };
 
+type DocumentKey = "photo" | "aadhaar" | "marksheet" | "parentDetails" | "otherFiles";
+type DocumentStatus = "Pending" | "Verified" | "Rejected";
+
+const workflowCards = [
+  { id: "new-admissions", title: "New Admissions", text: "Confirmed admissions from Business Development Executive.", icon: FileText },
+  { id: "document-verification", title: "Document Verification", text: "Photo, Aadhaar, marksheet, parent details and files.", icon: FileArchive },
+  { id: "fees-enrollment", title: "Fees & Enrollment", text: "Registration fee, course fee and installment readiness.", icon: BadgeIndianRupee },
+  { id: "batch-allocation", title: "Batch Allocation", text: "Assign program batch only after readiness checks pass.", icon: GraduationCap },
+  { id: "student-activation", title: "Student Activation", text: "Final approval, dashboard access and batch access.", icon: UserCheck },
+  { id: "admission-reports", title: "Admission Reports", text: "Real counts only: new, pending, fee pending and activated.", icon: ClipboardCheck },
+] as const;
+
+const documentLabels: Record<DocumentKey, string> = {
+  photo: "Photo",
+  aadhaar: "Aadhaar",
+  marksheet: "Marksheet",
+  parentDetails: "Parent Details",
+  otherFiles: "Other Files",
+};
+
 async function apiJson<T>(path: string, init?: RequestInit): Promise<T> {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_API_BASE_URL || "";
   const token =
     typeof window !== "undefined"
-      ? localStorage.getItem("token") ||
-        localStorage.getItem("accessToken") ||
-        localStorage.getItem("authToken") ||
-        localStorage.getItem("nidus_token")
+      ? localStorage.getItem("token") || localStorage.getItem("accessToken") || localStorage.getItem("authToken") || localStorage.getItem("nidus_token")
       : null;
 
   const response = await fetch(`${baseUrl}${path}`, {
@@ -85,19 +91,24 @@ async function apiJson<T>(path: string, init?: RequestInit): Promise<T> {
   return response.json() as Promise<T>;
 }
 
-const stages = [
-  { id: "enquiries", title: "New Enquiries", text: "Website, phone, WhatsApp, social and walk-in leads.", icon: MessageCircle },
-  { id: "applications", title: "Applications", text: "Students who selected a program and requested admission.", icon: FileText },
-  { id: "counselling", title: "Counselling", text: "Parent discussion, student need and course guidance.", icon: Users },
-  { id: "approval", title: "Admission Approval", text: "Approve, assign batch and activate student dashboard.", icon: ShieldCheck },
-  { id: "fees", title: "Fee Follow-Up", text: "Track pending and completed admission fee follow-up.", icon: BadgeIndianRupee },
-  { id: "documents", title: "Documents", text: "Academic details, ID proof, blood group and admission documents.", icon: FileArchive },
-  { id: "reports", title: "Admission Reports", text: "Course-wise conversion and admission status.", icon: ClipboardCheck },
-] as const;
+function normalizeBatches(response: BatchResponse | undefined) {
+  if (!response) return [];
+  return Array.isArray(response) ? response : response.batches ?? [];
+}
 
 export default function AdmissionCellDashboardPage() {
   const queryClient = useQueryClient();
   const [message, setMessage] = useState("");
+  const [selectedLeadId, setSelectedLeadId] = useState("");
+  const [callNote, setCallNote] = useState("");
+  const [admissionStatus, setAdmissionStatus] = useState("Received");
+  const [documentStatuses, setDocumentStatuses] = useState<Record<DocumentKey, DocumentStatus>>({
+    photo: "Pending",
+    aadhaar: "Pending",
+    marksheet: "Pending",
+    parentDetails: "Pending",
+    otherFiles: "Pending",
+  });
   const [form, setForm] = useState<ApprovalPayload>({
     batchId: "",
     email: "",
@@ -112,13 +123,10 @@ export default function AdmissionCellDashboardPage() {
     transactionRef: "",
     receiptUploadUrl: "",
   });
-  const [selectedLeadId, setSelectedLeadId] = useState("");
-  const [callNote, setCallNote] = useState("");
-  const [leadStatus, setLeadStatus] = useState<LeadApplication["status"]>("CONTACTED");
 
   const batchesQuery = useQuery({
     queryKey: ["admission-cell", "batches"],
-    queryFn: () => apiJson<BatchOption[]>("/api/academy/batches"),
+    queryFn: () => apiJson<BatchResponse>("/api/academy/batches"),
   });
 
   const leadsQuery = useQuery({
@@ -126,23 +134,51 @@ export default function AdmissionCellDashboardPage() {
     queryFn: () => apiJson<{ leads: LeadApplication[] }>("/api/crm/leads"),
   });
 
+  const activeBatches = useMemo(() => normalizeBatches(batchesQuery.data).filter((batch) => batch.status !== "ARCHIVED"), [batchesQuery.data]);
+  const applications = useMemo(() => {
+    const leads = leadsQuery.data?.leads ?? [];
+    return leads.filter((lead) => lead.status !== "ENROLLED" && lead.status !== "LOST");
+  }, [leadsQuery.data]);
+  const selectedLead = useMemo(() => applications.find((lead) => lead.id === selectedLeadId) ?? null, [applications, selectedLeadId]);
+
+  const requiredDocumentsVerified = documentStatuses.photo === "Verified" && documentStatuses.aadhaar === "Verified" && documentStatuses.parentDetails === "Verified";
+  const rejectedDocuments = Object.entries(documentStatuses).filter(([, status]) => status === "Rejected").map(([key]) => documentLabels[key as DocumentKey]);
+  const pendingDocuments = Object.entries(documentStatuses).filter(([, status]) => status === "Pending").map(([key]) => documentLabels[key as DocumentKey]);
+  const totalFee = Number(form.totalFee || 0);
+  const amountPaid = Number(form.amountPaid || 0);
+  const feesReady = form.paymentStatus === "PAID" || form.paymentStatus === "APPROVED" || (totalFee > 0 && amountPaid >= totalFee);
+  const readyForEnrollment = requiredDocumentsVerified && rejectedDocuments.length === 0 && feesReady && admissionStatus === "Ready For Enrollment";
+  const readinessIssues = [
+    !requiredDocumentsVerified ? `Documents pending: ${pendingDocuments.join(", ") || "Required documents not verified"}` : "",
+    rejectedDocuments.length ? `Rejected documents: ${rejectedDocuments.join(", ")}` : "",
+    !feesReady ? "Registration/course fee pending or not approved" : "",
+    admissionStatus !== "Ready For Enrollment" ? "Student status is not Ready For Enrollment" : "",
+  ].filter(Boolean);
+
+  const reportCounts = {
+    newAdmissions: applications.length,
+    pendingDocuments: applications.length && !requiredDocumentsVerified ? applications.length : 0,
+    pendingFees: applications.length && !feesReady ? applications.length : 0,
+    activatedStudents: activeBatches.reduce((total, batch) => total + (batch._count?.students ?? 0), 0),
+  };
+
   const saveLeadNoteMutation = useMutation({
-    mutationFn: (payload: { lead: LeadApplication; status: LeadApplication["status"]; note: string }) => {
+    mutationFn: (payload: { lead: LeadApplication; note: string; status: LeadApplication["status"] }) => {
       const existing = payload.lead.notes ? `${payload.lead.notes}\n\n` : "";
       return apiJson<{ lead: LeadApplication }>(`/api/crm/leads/${payload.lead.id}`, {
         method: "PUT",
         body: JSON.stringify({
           status: payload.status,
-          notes: `${existing}[${new Date().toISOString()}] ${payload.note || "Administrative Officer contacted applicant."}`,
+          notes: `${existing}[${new Date().toISOString()}] ${payload.note || "Administrative Officer processed admission."}`,
         }),
       });
     },
     onSuccess: () => {
-      setMessage("Call/counselling note saved.");
+      setMessage("Admission note saved.");
       setCallNote("");
       void queryClient.invalidateQueries({ queryKey: ["admission-cell", "applications"] });
     },
-    onError: (error) => setMessage(error instanceof Error ? error.message : "Could not save application note."),
+    onError: (error) => setMessage(error instanceof Error ? error.message : "Could not save admission note."),
   });
 
   const approveMutation = useMutation({
@@ -152,60 +188,63 @@ export default function AdmissionCellDashboardPage() {
         body: JSON.stringify(payload),
       }),
     onSuccess: (data) => {
-      setMessage(data.message || "Admission approved and student dashboard activated.");
-      setForm({
-        batchId: "",
-        email: "",
-        name: "",
-        phone: "",
-        rollNumber: "",
-        notes: "",
-        totalFee: 0,
-        amountPaid: 0,
-        paymentStatus: "PENDING",
-        paymentMethod: "OFFICE_COLLECTION",
-        transactionRef: "",
-        receiptUploadUrl: "",
-      });
-      setSelectedLeadId("");
+      setMessage(data.message || "Student activated with batch access.");
+      resetProcessingState();
       void queryClient.invalidateQueries({ queryKey: ["admission-cell", "batches"] });
       void queryClient.invalidateQueries({ queryKey: ["admission-cell", "applications"] });
     },
-    onError: (error) => setMessage(error instanceof Error ? error.message : "Could not approve admission."),
+    onError: (error) => setMessage(error instanceof Error ? error.message : "Could not activate student."),
   });
 
-  const activeBatches = useMemo(() => batchesQuery.data ?? [], [batchesQuery.data]);
-  const applications = useMemo(() => {
-    const leads = leadsQuery.data?.leads ?? [];
-    return leads.filter((lead) => lead.status !== "ENROLLED" && lead.status !== "LOST");
-  }, [leadsQuery.data]);
-  const selectedLead = useMemo(() => applications.find((lead) => lead.id === selectedLeadId) ?? null, [applications, selectedLeadId]);
-  const totalStudents = useMemo(
-    () => activeBatches.reduce((total, batch) => total + (batch._count?.students ?? 0), 0),
-    [activeBatches],
-  );
-
-  const submit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setMessage("");
-    approveMutation.mutate(form);
-  };
+  function resetProcessingState() {
+    setSelectedLeadId("");
+    setAdmissionStatus("Received");
+    setDocumentStatuses({ photo: "Pending", aadhaar: "Pending", marksheet: "Pending", parentDetails: "Pending", otherFiles: "Pending" });
+    setForm({
+      batchId: "",
+      email: "",
+      name: "",
+      phone: "",
+      rollNumber: "",
+      notes: "",
+      totalFee: 0,
+      amountPaid: 0,
+      paymentStatus: "PENDING",
+      paymentMethod: "OFFICE_COLLECTION",
+      transactionRef: "",
+      receiptUploadUrl: "",
+    });
+  }
 
   function selectLead(lead: LeadApplication) {
     setSelectedLeadId(lead.id);
-    setLeadStatus(lead.status === "NEW" ? "CONTACTED" : lead.status);
+    setAdmissionStatus("Received");
     setForm((item) => ({
       ...item,
       leadId: lead.id,
       email: lead.email,
       name: lead.fullName,
       phone: lead.mobile,
-      notes: [
-        `Application source: ${lead.source}`,
-        `Program interest: ${lead.targetExam}`,
-        lead.notes ? `Previous notes: ${lead.notes}` : "",
-      ].filter(Boolean).join("\n"),
+      notes: [`Program: ${lead.targetExam}`, `Source: ${lead.source}`, lead.notes ? `Previous notes: ${lead.notes}` : ""].filter(Boolean).join("\n"),
     }));
+  }
+
+  function submitActivation(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setMessage("");
+    if (!readyForEnrollment) {
+      setMessage(`Cannot allocate batch yet. Pending requirements: ${readinessIssues.join("; ")}`);
+      return;
+    }
+    if (!form.batchId) {
+      setMessage("Cannot activate student without batch allocation.");
+      return;
+    }
+    approveMutation.mutate({
+      ...form,
+      paymentStatus: feesReady ? "PAID" : form.paymentStatus,
+      notes: [form.notes, `Document status: ${JSON.stringify(documentStatuses)}`].filter(Boolean).join("\n"),
+    });
   }
 
   return (
@@ -213,47 +252,40 @@ export default function AdmissionCellDashboardPage() {
       <section className="mx-auto max-w-7xl space-y-8">
         <div className="rounded-3xl border border-[var(--border)] bg-white/90 p-6 shadow-xl md:p-8">
           <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Administrative Officer</p>
-          <h1 className="mt-3 text-4xl font-black tracking-tight md:text-6xl">Admissions, documents and fee coordination</h1>
+          <h1 className="mt-3 text-4xl font-black tracking-tight md:text-6xl">Simple admission processing desk</h1>
           <p className="mt-4 max-w-3xl text-base leading-8 text-[var(--muted-blue)]">
-            One simple workspace to process sales handovers, approve applications, assign batches, track documents and coordinate fees.
+            Process students only: receive admissions, verify documents, record fees, allocate batches, and activate access.
           </p>
         </div>
 
-        <section className="grid gap-4 md:grid-cols-3">
-          <Metric icon={GraduationCap} label="Available Batches" value={activeBatches.length} />
-          <Metric icon={Users} label="Students In Batches" value={totalStudents} />
-          <Metric icon={ShieldCheck} label="New Applications" value={applications.length} />
-        </section>
-
-        <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          {stages.map((stage) => {
+        <section className="grid gap-4 md:grid-cols-3 xl:grid-cols-6">
+          {workflowCards.map((stage) => {
             const Icon = stage.icon;
             return (
-              <a
-                key={stage.id}
-                className="rounded-2xl border border-[var(--border)] bg-white/90 p-5 shadow-sm transition hover:-translate-y-1 hover:border-[var(--gold-border)] hover:shadow-xl"
-                href={`#${stage.id}`}
-              >
+              <a key={stage.id} href={`#${stage.id}`} className="rounded-2xl border border-[var(--border)] bg-white/90 p-5 shadow-sm transition hover:-translate-y-1 hover:border-[var(--gold-border)] hover:shadow-xl">
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-[var(--gold-border)] bg-[var(--gold-soft)]">
                   <Icon className="h-6 w-6 text-[var(--navy)]" />
                 </div>
-                <h2 className="mt-5 text-xl font-black">{stage.title}</h2>
-                <p className="mt-2 text-sm leading-6 text-[var(--muted-blue)]">{stage.text}</p>
+                <h2 className="mt-5 text-lg font-black">{stage.title}</h2>
+                <p className="mt-2 text-xs leading-5 text-[var(--muted-blue)]">{stage.text}</p>
               </a>
             );
           })}
         </section>
 
+        {message ? <div className="rounded-2xl border border-[var(--gold-border)] bg-[var(--gold-soft)] p-4 text-sm font-bold">{message}</div> : null}
+
         <section className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
-          <Panel id="applications" title="New Applications" eyebrow="Live website enquiries">
+          <Panel id="new-admissions" title="New Admissions" eyebrow="BDE handover">
             <div className="grid gap-3">
               {applications.map((lead) => (
                 <article key={lead.id} className={`rounded-2xl border p-4 ${selectedLeadId === lead.id ? "border-[var(--gold)] bg-[var(--gold-soft)]" : "border-[var(--border)] bg-white"}`}>
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                     <div>
-                      <p className="text-xs font-black uppercase tracking-[0.22em] text-[var(--gold)]">{lead.status}</p>
+                      <p className="text-xs font-black uppercase tracking-[0.22em] text-[var(--gold)]">{admissionStatusForLead(lead)}</p>
                       <h3 className="mt-2 text-xl font-black">{lead.fullName}</h3>
-                      <p className="mt-1 text-sm text-[var(--muted-blue)]">{lead.targetExam} / {lead.mobile}</p>
+                      <p className="mt-1 text-sm text-[var(--muted-blue)]">Program: {lead.targetExam}</p>
+                      <p className="mt-1 text-sm text-[var(--muted-blue)]">Parent/Phone: {lead.mobile}</p>
                       <p className="mt-1 text-xs text-[var(--muted-blue)]">{lead.email}</p>
                     </div>
                     <button type="button" onClick={() => selectLead(lead)} className="rounded-xl border border-[var(--gold-border)] bg-white px-4 py-2 text-sm font-black">
@@ -263,172 +295,169 @@ export default function AdmissionCellDashboardPage() {
                   {lead.notes ? <p className="mt-3 line-clamp-3 text-xs leading-5 text-[var(--muted-blue)]">{lead.notes}</p> : null}
                 </article>
               ))}
-              {!applications.length && <Empty text="No new applications right now. Website applications from Start Free will appear here automatically." />}
+              {!applications.length ? <Empty text="No new admissions right now. Confirmed BDE handovers and website applications will appear here." /> : null}
             </div>
           </Panel>
 
-          <Panel id="counselling" title="Call, Counselling And Fee Note" eyebrow="Before approval">
+          <Panel id="document-verification" title="Document Verification" eyebrow="Photo, Aadhaar, marksheet">
             {selectedLead ? (
               <div className="grid gap-4">
-                <div className="rounded-2xl border border-[var(--border)] bg-white p-4">
-                  <h3 className="font-black">{selectedLead.fullName}</h3>
-                  <p className="mt-1 text-sm text-[var(--muted-blue)]">{selectedLead.targetExam} / {selectedLead.mobile}</p>
-                </div>
-                <label className="grid gap-2 text-sm font-bold">
-                  Application status
-                  <select value={leadStatus} onChange={(event) => setLeadStatus(event.target.value as LeadApplication["status"])} className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-[var(--navy)] outline-none focus:border-[var(--gold)]">
-                    <option value="CONTACTED">Contacted</option>
-                    <option value="COUNSELLING">Counselling</option>
-                    <option value="NEW">New</option>
-                    <option value="LOST">Lost</option>
-                  </select>
-                </label>
-                <label className="grid gap-2 text-sm font-bold">
-                  Call / counselling note
-                  <textarea
-                    className="min-h-28 rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-[var(--navy)] outline-none focus:border-[var(--gold)]"
-                    value={callNote}
-                    onChange={(event) => setCallNote(event.target.value)}
-                    placeholder="Called parent, discussed program, documents pending, fee promised..."
-                  />
-                </label>
-                <button
-                  type="button"
-                  onClick={() => saveLeadNoteMutation.mutate({ lead: selectedLead, status: leadStatus, note: callNote })}
-                  disabled={saveLeadNoteMutation.isPending}
-                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-[var(--gold-border)] bg-white px-5 py-3 font-black text-[var(--navy)] disabled:opacity-60"
-                >
-                  <Phone className="h-5 w-5" />
-                  Save Call Note
-                </button>
+                <StudentMiniCard lead={selectedLead} />
+                {Object.entries(documentLabels).map(([key, label]) => (
+                  <label key={key} className="grid gap-2 text-sm font-bold">
+                    {label}
+                    <select
+                      value={documentStatuses[key as DocumentKey]}
+                      onChange={(event) => setDocumentStatuses((state) => ({ ...state, [key]: event.target.value as DocumentStatus }))}
+                      className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-[var(--navy)] outline-none focus:border-[var(--gold)]"
+                    >
+                      <option value="Pending">Pending</option>
+                      <option value="Verified">Verified</option>
+                      <option value="Rejected">Rejected</option>
+                    </select>
+                  </label>
+                ))}
               </div>
             ) : (
-              <Empty text="Select a new application to call, add counselling notes, and prepare admission approval." />
+              <Empty text="Open a new admission first, then verify documents here." />
             )}
           </Panel>
         </section>
 
-        <section className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
-          <Panel id="approval" title="Approve Admission" eyebrow="Activate learner dashboard">
-            <form onSubmit={submit} className="grid gap-4">
-              <Field label="Learner account email" value={form.email} onChange={(value) => setForm((item) => ({ ...item, email: value }))} required />
-              <div className="grid gap-4 md:grid-cols-2">
-                <Field label="Learner name" value={form.name ?? ""} onChange={(value) => setForm((item) => ({ ...item, name: value }))} />
-                <Field label="WhatsApp / phone" value={form.phone ?? ""} onChange={(value) => setForm((item) => ({ ...item, phone: value }))} />
-                <Field label="Roll number" value={form.rollNumber ?? ""} onChange={(value) => setForm((item) => ({ ...item, rollNumber: value }))} />
-                <label className="grid gap-2 text-sm font-bold">
-                  Assign batch
-                  <select
-                    className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-[var(--navy)] outline-none focus:border-[var(--gold)]"
-                    required
-                    value={form.batchId}
-                    onChange={(event) => setForm((item) => ({ ...item, batchId: event.target.value }))}
-                  >
-                    <option value="">Choose batch</option>
-                    {activeBatches.map((batch) => (
-                      <option key={batch.id} value={batch.id}>
-                        {batch.name} {batch.programSlug ? `- ${batch.programSlug}` : ""}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-              </div>
-              <label className="grid gap-2 text-sm font-bold">
-                Counselling / admission note
-                <textarea
-                  className="min-h-28 rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-[var(--navy)] outline-none focus:border-[var(--gold)]"
-                  value={form.notes}
-                  onChange={(event) => setForm((item) => ({ ...item, notes: event.target.value }))}
-                  placeholder="Course selected, payment status, document pending, parent discussion..."
-                />
-              </label>
-              <div className="grid gap-4 md:grid-cols-3">
-                <NumberField label="Total fee" value={form.totalFee ?? 0} onChange={(value) => setForm((item) => ({ ...item, totalFee: value }))} />
-                <NumberField label="Amount paid" value={form.amountPaid ?? 0} onChange={(value) => setForm((item) => ({ ...item, amountPaid: value }))} />
-                <label className="grid gap-2 text-sm font-bold">
-                  Payment status
-                  <select
-                    className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-[var(--navy)] outline-none focus:border-[var(--gold)]"
-                    value={form.paymentStatus}
-                    onChange={(event) => setForm((item) => ({ ...item, paymentStatus: event.target.value }))}
-                  >
+        <section className="grid gap-6 lg:grid-cols-2">
+          <Panel id="fees-enrollment" title="Fees & Enrollment" eyebrow="Payment readiness">
+            {selectedLead ? (
+              <div className="grid gap-4">
+                <div className="grid gap-4 md:grid-cols-2">
+                  <NumberField label="Registration + course fee" value={form.totalFee ?? 0} onChange={(value) => setForm((item) => ({ ...item, totalFee: value }))} />
+                  <NumberField label="Amount paid" value={form.amountPaid ?? 0} onChange={(value) => setForm((item) => ({ ...item, amountPaid: value }))} />
+                  <SelectField label="Payment status" value={form.paymentStatus ?? "PENDING"} onChange={(value) => setForm((item) => ({ ...item, paymentStatus: value }))}>
                     <option value="PENDING">Pending</option>
                     <option value="LINK_SENT">Razorpay link sent</option>
                     <option value="PARTIAL">Partial paid</option>
                     <option value="PAID">Paid</option>
-                  </select>
-                </label>
-                <label className="grid gap-2 text-sm font-bold">
-                  Payment method
-                  <select
-                    className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-[var(--navy)] outline-none focus:border-[var(--gold)]"
-                    value={form.paymentMethod}
-                    onChange={(event) => setForm((item) => ({ ...item, paymentMethod: event.target.value }))}
-                  >
+                    <option value="APPROVED">Approved by management</option>
+                  </SelectField>
+                  <SelectField label="Payment method" value={form.paymentMethod ?? "OFFICE_COLLECTION"} onChange={(value) => setForm((item) => ({ ...item, paymentMethod: value }))}>
                     <option value="OFFICE_COLLECTION">Office collection</option>
                     <option value="UPI">UPI</option>
                     <option value="BANK_TRANSFER">Bank transfer</option>
                     <option value="CASH">Cash</option>
                     <option value="CHEQUE">Cheque</option>
                     <option value="RAZORPAY_LINK">Razorpay link</option>
-                  </select>
-                </label>
-                <Field label="Transaction / receipt ref" value={form.transactionRef ?? ""} onChange={(value) => setForm((item) => ({ ...item, transactionRef: value }))} />
-                <Field label="Receipt upload URL" value={form.receiptUploadUrl ?? ""} onChange={(value) => setForm((item) => ({ ...item, receiptUploadUrl: value }))} />
+                  </SelectField>
+                  <Field label="Transaction / receipt ref" value={form.transactionRef ?? ""} onChange={(value) => setForm((item) => ({ ...item, transactionRef: value }))} />
+                  <Field label="Receipt upload URL" value={form.receiptUploadUrl ?? ""} onChange={(value) => setForm((item) => ({ ...item, receiptUploadUrl: value }))} />
+                </div>
+                <SelectField label="Enrollment status" value={admissionStatus} onChange={setAdmissionStatus}>
+                  <option value="Received">Received</option>
+                  <option value="Documents Pending">Documents Pending</option>
+                  <option value="Verification Pending">Verification Pending</option>
+                  <option value="Ready For Enrollment">Ready For Enrollment</option>
+                </SelectField>
               </div>
-              <button
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-[var(--gold-gradient)] px-5 py-3 font-black text-[var(--navy)] shadow-lg disabled:cursor-not-allowed disabled:opacity-60"
-                disabled={approveMutation.isPending}
-                type="submit"
-              >
-                <CheckCircle2 className="h-5 w-5" />
-                Approve And Activate
-              </button>
-            </form>
-
-            {message && (
-              <div className="mt-4 rounded-2xl border border-[var(--gold-border)] bg-[var(--gold-soft)] p-4 text-sm font-bold text-[var(--navy)]">
-                {message}
-              </div>
+            ) : (
+              <Empty text="Open a new admission first, then record registration fee, course fee, installments or approval here." />
             )}
           </Panel>
 
-          <Panel id="enquiries" title="Batch Assignment Board" eyebrow="Real batches">
-            <div className="grid gap-3">
-              {activeBatches.map((batch) => (
-                <article key={batch.id} className="rounded-2xl border border-[var(--border)] bg-white p-4">
-                  <div className="flex items-start gap-3">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-[var(--gold-border)] bg-[var(--gold-soft)]">
-                      <GraduationCap className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <h3 className="font-black">{batch.name}</h3>
-                      <p className="mt-1 text-sm text-[var(--muted-blue)]">
-                        {batch.batchType ?? "Batch"} / {batch.status ?? "ACTIVE"} / {batch._count?.students ?? 0} students
-                      </p>
-                    </div>
-                  </div>
-                </article>
-              ))}
-              {!activeBatches.length && <Empty text="No batches available. Director must create batches from Academic Department before admissions can be approved." />}
-            </div>
+          <Panel id="batch-allocation" title="Batch Allocation" eyebrow="Readiness gated">
+            {selectedLead ? (
+              <form onSubmit={submitActivation} className="grid gap-4">
+                <ReadinessBox ready={readyForEnrollment} issues={readinessIssues} />
+                <Field label="Student login email" value={form.email} onChange={(value) => setForm((item) => ({ ...item, email: value }))} required />
+                <div className="grid gap-4 md:grid-cols-2">
+                  <Field label="Student name" value={form.name ?? ""} onChange={(value) => setForm((item) => ({ ...item, name: value }))} />
+                  <Field label="Phone" value={form.phone ?? ""} onChange={(value) => setForm((item) => ({ ...item, phone: value }))} />
+                  <Field label="Roll number" value={form.rollNumber ?? ""} onChange={(value) => setForm((item) => ({ ...item, rollNumber: value }))} />
+                  <SelectField label="Assign batch" value={form.batchId} onChange={(value) => setForm((item) => ({ ...item, batchId: value }))} disabled={!readyForEnrollment} required>
+                    <option value="">Choose batch</option>
+                    {activeBatches.map((batch) => (
+                      <option key={batch.id} value={batch.id}>
+                        {batch.name} {batch.programSlug ? `- ${batch.programSlug}` : ""}
+                      </option>
+                    ))}
+                  </SelectField>
+                </div>
+                <label className="grid gap-2 text-sm font-bold">
+                  Admission note
+                  <textarea
+                    className="min-h-28 rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-[var(--navy)] outline-none focus:border-[var(--gold)]"
+                    value={form.notes}
+                    onChange={(event) => setForm((item) => ({ ...item, notes: event.target.value }))}
+                    placeholder="Parent discussion, fee confirmation, document notes..."
+                  />
+                </label>
+                <button className="inline-flex items-center justify-center gap-2 rounded-xl bg-[var(--gold-gradient)] px-5 py-3 font-black text-[var(--navy)] shadow-lg disabled:cursor-not-allowed disabled:opacity-60" disabled={!readyForEnrollment || !form.batchId || approveMutation.isPending} type="submit">
+                  <CheckCircle2 className="h-5 w-5" />
+                  Activate Student
+                </button>
+              </form>
+            ) : (
+              <Empty text="Open a new admission first. Batch allocation is allowed only after documents and fees are ready." />
+            )}
           </Panel>
         </section>
 
         <section className="grid gap-6 lg:grid-cols-2">
-          <Panel id="fees" title="Fee Follow-Up" eyebrow="Payment readiness">
-            <Empty text="Fee status and confirmed manual/bank/Razorpay-link notes are recorded during admission approval. Full receipt view remains available inside Admin & Accounts." />
+          <Panel id="student-activation" title="Student Activation" eyebrow="Final approval">
+            <div className="grid gap-3">
+              <StatusLine label="Document verification" ok={requiredDocumentsVerified && rejectedDocuments.length === 0} />
+              <StatusLine label="Fees & enrollment" ok={feesReady} />
+              <StatusLine label="Batch selected" ok={Boolean(form.batchId)} />
+              <StatusLine label="Student status" ok={admissionStatus === "Ready For Enrollment"} />
+            </div>
           </Panel>
-          <Panel id="documents" title="Documents" eyebrow="Admission files">
-            <Empty text="Document upload and verification can be connected here. Required documents: ID proof, academic details, photo and blood group." />
+
+          <Panel id="admission-reports" title="Admission Reports" eyebrow="Real data only">
+            <div className="grid gap-4 md:grid-cols-2">
+              <Metric icon={Users} label="New Admissions" value={reportCounts.newAdmissions} />
+              <Metric icon={FileArchive} label="Pending Documents" value={reportCounts.pendingDocuments} />
+              <Metric icon={BadgeIndianRupee} label="Pending Fees" value={reportCounts.pendingFees} />
+              <Metric icon={ShieldCheck} label="Activated Students" value={reportCounts.activatedStudents} />
+            </div>
           </Panel>
         </section>
 
-        <Panel id="reports" title="Admission Reports" eyebrow="Conversion overview">
-          <Empty text="Admission conversion reports will show real enquiries, applications, approvals and batch assignment data after lead capture is connected." />
+        <Panel id="admission-boundary" title="Officer Scope" eyebrow="Role boundary">
+          <Empty text="Administrative Officer processes students only. Programs, batches, teachers, timetables and academic content remain inside Director and Academic Head modules." />
         </Panel>
       </section>
     </main>
+  );
+}
+
+function admissionStatusForLead(lead: LeadApplication) {
+  if (lead.status === "NEW") return "Received";
+  if (lead.status === "CONTACTED") return "Documents Pending";
+  if (lead.status === "COUNSELLING") return "Verification Pending";
+  return "Ready For Admission";
+}
+
+function StudentMiniCard({ lead }: { lead: LeadApplication }) {
+  return (
+    <div className="rounded-2xl border border-[var(--border)] bg-white p-4">
+      <h3 className="font-black">{lead.fullName}</h3>
+      <p className="mt-1 text-sm text-[var(--muted-blue)]">{lead.targetExam} / {lead.mobile}</p>
+    </div>
+  );
+}
+
+function ReadinessBox({ ready, issues }: { ready: boolean; issues: string[] }) {
+  return (
+    <div className={`rounded-2xl border p-4 text-sm leading-7 ${ready ? "border-emerald-200 bg-emerald-50 text-emerald-900" : "border-[var(--gold-border)] bg-[var(--gold-soft)] text-[var(--navy)]"}`}>
+      <p className="font-black">{ready ? "Ready for batch allocation" : "Cannot allocate batch yet"}</p>
+      {!ready ? <ul className="mt-2 list-disc pl-5">{issues.map((issue) => <li key={issue}>{issue}</li>)}</ul> : null}
+    </div>
+  );
+}
+
+function StatusLine({ label, ok }: { label: string; ok: boolean }) {
+  return (
+    <div className="flex items-center justify-between rounded-2xl border border-[var(--border)] bg-white p-4 text-sm font-bold">
+      <span>{label}</span>
+      <span className={ok ? "text-emerald-700" : "text-amber-700"}>{ok ? "Ready" : "Pending"}</span>
+    </div>
   );
 }
 
@@ -456,12 +485,7 @@ function Field({ label, value, onChange, required }: { label: string; value: str
   return (
     <label className="grid gap-2 text-sm font-bold">
       {label}
-      <input
-        className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-[var(--navy)] outline-none focus:border-[var(--gold)]"
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        required={required}
-      />
+      <input className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-[var(--navy)] outline-none focus:border-[var(--gold)]" value={value} onChange={(event) => onChange(event.target.value)} required={required} />
     </label>
   );
 }
@@ -470,13 +494,18 @@ function NumberField({ label, value, onChange }: { label: string; value: number;
   return (
     <label className="grid gap-2 text-sm font-bold">
       {label}
-      <input
-        type="number"
-        min="0"
-        className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-[var(--navy)] outline-none focus:border-[var(--gold)]"
-        value={value}
-        onChange={(event) => onChange(Number(event.target.value || 0))}
-      />
+      <input type="number" min="0" className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-[var(--navy)] outline-none focus:border-[var(--gold)]" value={value} onChange={(event) => onChange(Number(event.target.value || 0))} />
+    </label>
+  );
+}
+
+function SelectField({ label, value, onChange, children, disabled, required }: { label: string; value: string; onChange: (value: string) => void; children: ReactNode; disabled?: boolean; required?: boolean }) {
+  return (
+    <label className="grid gap-2 text-sm font-bold">
+      {label}
+      <select className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-[var(--navy)] outline-none focus:border-[var(--gold)] disabled:cursor-not-allowed disabled:opacity-60" value={value} onChange={(event) => onChange(event.target.value)} disabled={disabled} required={required}>
+        {children}
+      </select>
     </label>
   );
 }
