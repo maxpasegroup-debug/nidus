@@ -157,19 +157,26 @@ type AssignmentChatMessage = {
 
 type ExamForm = {
   title: string;
+  subject: string;
+  examType: string;
   topic: string;
   questionCount: string;
   duration: string;
+  totalMarks: string;
   difficulty: string;
   instructions: string;
+  pastedQuestions: string;
   publishDate: string;
   publishTime: string;
 };
 
 type AssignmentForm = {
   title: string;
+  subject: string;
   topic: string;
+  difficulty: string;
   instructions: string;
+  pastedContent: string;
   dueDate: string;
   attachmentName: string;
   link: string;
@@ -411,14 +418,18 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
   const [classWorkspace, setClassWorkspace] = useState<ClassWorkspace>(emptyWorkspace);
   const [calendarLog, setCalendarLog] = useState({ completionStatus: "COMPLETED", teacherLog: "", nextAction: "" });
   const [libraryForm, setLibraryForm] = useState(initialLibraryForm);
-  const [assignmentForm, setAssignmentForm] = useState<AssignmentForm>({ title: "", topic: "", instructions: "", dueDate: "", attachmentName: "", link: "" });
+  const [assignmentForm, setAssignmentForm] = useState<AssignmentForm>({ title: "", subject: "", topic: "", difficulty: "MEDIUM", instructions: "", pastedContent: "", dueDate: "", attachmentName: "", link: "" });
   const [examForm, setExamForm] = useState<ExamForm>({
     title: "",
+    subject: "",
+    examType: "Weekly Test",
     topic: "",
     questionCount: "20",
     duration: "30",
+    totalMarks: "100",
     difficulty: "MEDIUM",
     instructions: "",
+    pastedQuestions: "",
     publishDate: "",
     publishTime: "",
   });
@@ -712,8 +723,10 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
     const topic = assignmentForm.topic || "selected topic";
     const draftText = [
       `Draft ready: ${title}`,
+      assignmentForm.subject ? `Subject: ${assignmentForm.subject}` : "",
       `Topic: ${topic}`,
       assignmentForm.dueDate ? `Due date: ${assignmentForm.dueDate}` : "Due date: not set",
+      `Difficulty: ${assignmentForm.difficulty}`,
       "Suggested structure:",
       "Objectives:",
       "1. Understand the core concept from the supplied material.",
@@ -726,8 +739,9 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
       "1. Accuracy of answer.",
       "2. Clarity and structure.",
       "3. Timely submission.",
+      assignmentForm.pastedContent ? `Source content reviewed:\n${assignmentForm.pastedContent}` : "",
       assignmentForm.instructions ? `Teacher instructions: ${assignmentForm.instructions}` : "Teacher instructions can be added in the chat.",
-    ].join("\n");
+    ].filter(Boolean).join("\n");
     setAssignmentForm((form) => ({ ...form, title, topic, instructions: form.instructions || draftText }));
     setAssignmentChatMessages((messages) => [...messages, { id: `guru-draft-${Date.now()}`, role: "guru", text: draftText }]);
   }
@@ -783,16 +797,30 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
       await apiPost<{ ok?: boolean }>(["/api/academy/assignments"], {
         batchId: selectedClass.id,
         batchName: selectedClass.name,
-        subject: selectedClass.subject,
+        subject: assignmentForm.subject || selectedClass.subject,
         course: programName(selectedClass),
         title: assignmentForm.title,
         topic: assignmentForm.topic,
-        instructions: assignmentForm.instructions,
+        instructions: [
+          assignmentForm.instructions,
+          assignmentForm.difficulty ? `Difficulty: ${assignmentForm.difficulty}` : "",
+          assignmentForm.pastedContent ? `Pasted assignment content:\n${assignmentForm.pastedContent}` : "",
+        ].filter(Boolean).join("\n"),
         dueDate: assignmentForm.dueDate || undefined,
         attachmentName: assignmentForm.attachmentName || assignmentSourceName || undefined,
         link: assignmentForm.link || undefined,
       });
-      setAssignmentForm({ title: "", topic: "", instructions: "", dueDate: "", attachmentName: "", link: "" });
+      setAssignmentForm({
+        title: "",
+        subject: "",
+        topic: "",
+        difficulty: "MEDIUM",
+        instructions: "",
+        pastedContent: "",
+        dueDate: "",
+        attachmentName: "",
+        link: "",
+      });
       setAssignmentSourceName("");
       setAssignmentChatInput("");
       setShowAssignmentCreator(false);
@@ -851,11 +879,18 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
         subject: selectedClass.subject,
         course: programName(selectedClass),
         title: examForm.title,
-        topic: examForm.topic,
+        topic: examForm.topic || examForm.subject,
         questionCount: Number(examForm.questionCount || 20),
         duration: Number(examForm.duration || 30),
         difficulty: examForm.difficulty,
-        instructions: [examForm.instructions, examSourceName ? `Source attached: ${examSourceName}` : ""].filter(Boolean).join("\n"),
+        instructions: [
+          examForm.instructions,
+          examForm.examType ? `Exam type: ${examForm.examType}` : "",
+          examForm.subject ? `Subject: ${examForm.subject}` : "",
+          examForm.totalMarks ? `Total marks: ${examForm.totalMarks}` : "",
+          examForm.pastedQuestions ? `Pasted source questions:\n${examForm.pastedQuestions}` : "",
+          examSourceName ? `Source attached: ${examSourceName}` : "",
+        ].filter(Boolean).join("\n"),
       });
       setExamDraft(draft);
       setExamChatMessages((messages) => [
@@ -885,20 +920,37 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
         subject: selectedClass.subject,
         course: programName(selectedClass),
         title: examForm.title,
-        topic: examForm.topic,
+        topic: examForm.topic || examForm.subject,
         questionCount: Number(examForm.questionCount || 20),
         duration: Number(examForm.duration || 30),
         durationMinutes: Number(examForm.duration || 30),
         difficulty: examForm.difficulty,
         instructions: [
           examForm.instructions,
+          examForm.examType ? `Exam type: ${examForm.examType}` : "",
+          examForm.subject ? `Subject: ${examForm.subject}` : "",
+          examForm.totalMarks ? `Total marks: ${examForm.totalMarks}` : "",
+          examForm.pastedQuestions ? `Pasted source questions:\n${examForm.pastedQuestions}` : "",
           examForm.publishDate ? `Scheduled date: ${examForm.publishDate}` : "",
           examForm.publishTime ? `Scheduled time: ${examForm.publishTime}` : "",
           examSourceName ? `Source attached: ${examSourceName}` : "",
         ].filter(Boolean).join("\n"),
         draft: examDraft,
       });
-      setExamForm({ title: "", topic: "", questionCount: "20", duration: "30", difficulty: "MEDIUM", instructions: "", publishDate: "", publishTime: "" });
+      setExamForm({
+        title: "",
+        subject: "",
+        examType: "Weekly Test",
+        topic: "",
+        questionCount: "20",
+        duration: "30",
+        totalMarks: "100",
+        difficulty: "MEDIUM",
+        instructions: "",
+        pastedQuestions: "",
+        publishDate: "",
+        publishTime: "",
+      });
       setExamSourceName("");
       setExamDraft(null);
       setShowExamCreator(false);
@@ -1103,6 +1155,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
             examDraft={examDraft}
             examForm={examForm}
             setExamForm={setExamForm}
+            setExamDraft={setExamDraft}
             setExamSourceName={setExamSourceName}
             programGroups={programGroups}
             selectedProgramKey={selectedProgram?.key}
@@ -1638,6 +1691,7 @@ function ExamGuruModal({
   examDraft,
   examForm,
   setExamForm,
+  setExamDraft,
   setExamSourceName,
   programGroups,
   selectedProgramKey,
@@ -1658,6 +1712,7 @@ function ExamGuruModal({
   examDraft: ExamDraft | null;
   examForm: ExamForm;
   setExamForm: React.Dispatch<React.SetStateAction<ExamForm>>;
+  setExamDraft: React.Dispatch<React.SetStateAction<ExamDraft | null>>;
   setExamSourceName: (value: string) => void;
   programGroups: Array<{ key: string; name: string; classes: AssignedClass[] }>;
   selectedProgramKey?: string;
@@ -1669,113 +1724,173 @@ function ExamGuruModal({
   examSourceName: string;
 }) {
   const activeProgram = programGroups.find((program) => program.key === selectedProgramKey) ?? programGroups[0] ?? null;
+  const draftQuestions = examDraft?.questions ?? [];
+  const pastedQuestionCount = examForm.pastedQuestions
+    .split(/\n+/)
+    .map((line) => line.trim())
+    .filter(Boolean).length;
+  const detectedQuestionCount = draftQuestions.length || pastedQuestionCount || Number(examForm.questionCount || 0);
+  const duplicateCount = Math.max(0, draftQuestions.length - new Set(draftQuestions.map((item) => item.question.trim().toLowerCase())).size);
+  const difficultyCounts = draftQuestions.reduce<Record<string, number>>((counts, item) => {
+    const key = (item.difficultyLevel || examForm.difficulty || "MEDIUM").toUpperCase();
+    counts[key] = (counts[key] ?? 0) + 1;
+    return counts;
+  }, {});
+  const markTotal = draftQuestions.reduce((total, item) => total + Number(item.marks ?? 0), 0) || Number(examForm.totalMarks || 0);
+  const addInstruction = (instruction: string) => {
+    setExamForm((form) => ({
+      ...form,
+      instructions: [form.instructions, `AI action: ${instruction}`].filter(Boolean).join("\n"),
+    }));
+  };
+  const updateDraftQuestion = (index: number, value: string) => {
+    setExamDraft((draft) => {
+      if (!draft?.questions) return draft;
+      return {
+        ...draft,
+        questions: draft.questions.map((question, currentIndex) => currentIndex === index ? { ...question, question: value } : question),
+      };
+    });
+  };
+  const appendSourceName = (label: string) => (value: string) => {
+    if (!value) return;
+    setExamSourceName([examSourceName, `${label}: ${value}`].filter(Boolean).join(" | "));
+  };
 
   return (
-    <div className="fixed inset-0 z-50 bg-[#f7f5ef] text-[var(--ink)]">
-      <div className="flex h-screen flex-col">
-        <div className="flex items-center justify-between border-b border-[var(--border)] bg-white px-4 py-3">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-[#f7f5ef] text-[var(--ink)]">
+      <div className="mx-auto max-w-7xl px-4 py-5">
+        <div className="mb-4 flex items-center justify-between rounded-2xl border border-[var(--border)] bg-white px-5 py-4 shadow-sm">
           <div>
             <p className="text-xs font-black uppercase tracking-[0.3em] text-[var(--gold-dark)]">NIDUS Guru</p>
-            <h2 className="text-xl font-black">Create exam</h2>
+            <h2 className="text-2xl font-black">AI Exam Review Workspace</h2>
+            <p className="mt-1 text-sm text-[var(--muted-blue)]">Prepare, clean, review and publish an exam from existing questions and source files.</p>
           </div>
           <button type="button" onClick={onClose} className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] p-3" aria-label="Close exam creator">
             <X size={18} />
           </button>
         </div>
 
-        <div className="grid min-h-0 flex-1 lg:grid-cols-[1fr_360px]">
-          <div className="flex min-h-0 flex-col">
-            <div className="flex-1 overflow-y-auto px-4 py-5">
-              <div className="mx-auto grid max-w-3xl gap-4">
-                {messages.map((message) => (
-                  <div key={message.id} className={`flex ${message.role === "teacher" ? "justify-end" : "justify-start"}`}>
-                    <div className={`max-w-[86%] rounded-2xl px-4 py-3 text-sm leading-6 ${message.role === "teacher" ? "bg-[var(--ink)] text-white" : "border border-[var(--border)] bg-white text-[var(--ink)]"}`}>
-                      {message.text}
-                    </div>
-                  </div>
-                ))}
-                {examDraft ? <DraftBox draft={examDraft} /> : null}
-              </div>
-            </div>
-            <div className="border-t border-[var(--border)] bg-white px-4 py-3">
-              <div className="mx-auto flex max-w-3xl items-end gap-2 rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-2">
-                <textarea
-                  value={chatInput}
-                  onChange={(event) => setChatInput(event.target.value)}
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter" && !event.shiftKey) {
-                      event.preventDefault();
-                      onSend();
-                    }
-                  }}
-                  rows={2}
-                  placeholder="Ask NIDUS Guru, or say: change question 5..."
-                  className="min-h-12 flex-1 resize-none bg-transparent px-3 py-2 text-sm outline-none"
-                />
-                <button type="button" onClick={onSend} className="rounded-xl bg-[var(--ink)] px-5 py-3 text-sm font-black text-white">
-                  Send
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <aside className="min-h-0 overflow-y-auto border-l border-[var(--border)] bg-white p-4">
-            <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
-              <p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold-dark)]">Publish target</p>
-              <div className="mt-3 grid gap-3">
-                <Select label="Program" value={activeProgram?.key ?? ""} onChange={onProgram}>
-                  <option value="">Select program</option>
-                  {programGroups.map((program) => (
-                    <option key={program.key} value={program.key}>{program.name}</option>
-                  ))}
-                </Select>
+        <div className="grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
+          <section className="grid gap-4">
+            <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
+              <SectionHeader eyebrow="Section 1" title="Exam Target" description="Select where this assessment will be published." icon={<ClipboardCheck size={20} />} />
+              <div className="mt-4 grid gap-3 md:grid-cols-3">
                 <Select label="Batch" value={selectedClassId ?? ""} onChange={onBatch}>
                   <option value="">Select batch</option>
-                  {(activeProgram?.classes ?? []).map((batch) => (
-                    <option key={batch.id} value={batch.id}>{batch.name}</option>
-                  ))}
+                  {(activeProgram?.classes ?? []).map((batch) => <option key={batch.id} value={batch.id}>{batch.name}</option>)}
                 </Select>
+                <Input label="Subject" value={examForm.subject} onChange={(value) => setExamForm((form) => ({ ...form, subject: value, topic: form.topic || value }))} />
+                <Select label="Exam Type" value={examForm.examType} onChange={(value) => setExamForm((form) => ({ ...form, examType: value }))}>
+                  <option value="Weekly Test">Weekly Test</option>
+                  <option value="Revision Test">Revision Test</option>
+                  <option value="Mock Test">Mock Test</option>
+                  <option value="Grand Test">Grand Test</option>
+                  <option value="Previous Year Style">Previous Year Style</option>
+                </Select>
+                <Input label="Date" type="date" value={examForm.publishDate} onChange={(value) => setExamForm((form) => ({ ...form, publishDate: value }))} />
+                <Input label="Duration" type="number" value={examForm.duration} onChange={(value) => setExamForm((form) => ({ ...form, duration: value }))} />
+                <Input label="Total Marks" type="number" value={examForm.totalMarks} onChange={(value) => setExamForm((form) => ({ ...form, totalMarks: value }))} />
               </div>
-              <p className="mt-3 text-xs leading-5 text-[var(--muted-blue)]">{selectedProgramName} / {selectedBatchName}</p>
+              <div className="mt-3 grid gap-3 md:grid-cols-2">
+                <Input label="Exam Title" value={examForm.title} onChange={(value) => setExamForm((form) => ({ ...form, title: value }))} />
+                <Input label="Time" type="time" value={examForm.publishTime} onChange={(value) => setExamForm((form) => ({ ...form, publishTime: value }))} />
+              </div>
             </div>
-            <div className="mt-4 grid gap-3">
-              <Input label="Exam topic" value={examForm.topic} onChange={(value) => setExamForm((form) => ({ ...form, topic: value, title: form.title || `${value} Test` }))} />
-              <Input label="Exam title" value={examForm.title} onChange={(value) => setExamForm((form) => ({ ...form, title: value }))} />
-              <Input label="Questions" type="number" value={examForm.questionCount} onChange={(value) => setExamForm((form) => ({ ...form, questionCount: value }))} />
-              <Input label="Timer in minutes" type="number" value={examForm.duration} onChange={(value) => setExamForm((form) => ({ ...form, duration: value }))} />
-              <Select label="Difficulty" value={examForm.difficulty} onChange={(value) => setExamForm((form) => ({ ...form, difficulty: value }))}>
-                <option value="EASY">Easy</option>
-                <option value="MEDIUM">Medium</option>
-                <option value="HARD">Hard</option>
-              </Select>
-              <Input label="Publish date" type="date" value={examForm.publishDate} onChange={(value) => setExamForm((form) => ({ ...form, publishDate: value }))} />
-              <Input label="Publish time" type="time" value={examForm.publishTime} onChange={(value) => setExamForm((form) => ({ ...form, publishTime: value }))} />
-              <div className="rounded-2xl border border-dashed border-[var(--border)] bg-[var(--page-bg)] p-4">
-                <p className="text-sm font-black">Upload source material</p>
-                <p className="mt-1 text-xs leading-5 text-[var(--muted-blue)]">PDF, Word, photos, notes, question bank or syllabus content for NIDUS GURU to analyse.</p>
-                <div className="mt-3">
-                  <FileInput label="Attach source file" onChange={setExamSourceName} />
-                </div>
+
+            <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
+              <SectionHeader eyebrow="Section 2" title="Source Material" description="Paste or attach the questions teachers already prepared elsewhere." icon={<FileText size={20} />} />
+              <div className="mt-4">
+                <Textarea label="Paste Questions" value={examForm.pastedQuestions} onChange={(value) => setExamForm((form) => ({ ...form, pastedQuestions: value }))} />
               </div>
-              {examSourceName ? <p className="rounded-xl bg-[var(--page-bg)] px-3 py-2 text-xs font-black">Attached: {examSourceName}</p> : null}
-              <Textarea label="Instructions and exam rules" value={examForm.instructions} onChange={(value) => setExamForm((form) => ({ ...form, instructions: value }))} />
-              {examDraft ? (
-                <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
-                  <p className="text-sm font-black">Review tools</p>
-                  <div className="mt-3 grid grid-cols-2 gap-2">
-                    <button type="button" onClick={onDraft} className="rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-xs font-black">Regenerate</button>
-                    <button type="button" className="rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-xs font-black">Add question</button>
-                    <button type="button" className="rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-xs font-black">Edit question</button>
-                    <button type="button" className="rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-xs font-black">Delete question</button>
+              <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+                <FileInput label="Upload PDF" accept=".pdf" onChange={appendSourceName("PDF")} />
+                <FileInput label="Upload Word" accept=".doc,.docx" onChange={appendSourceName("Word")} />
+                <FileInput label="Upload Image" accept="image/*" onChange={appendSourceName("Image")} />
+                <FileInput label="Upload Question Bank" accept=".pdf,.doc,.docx,.txt,.csv,.xlsx" onChange={appendSourceName("Question bank")} />
+              </div>
+              {examSourceName ? <p className="mt-3 rounded-xl bg-[var(--page-bg)] px-3 py-2 text-xs font-black">Attached: {examSourceName}</p> : null}
+            </div>
+
+            <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
+              <SectionHeader eyebrow="Section 5" title="Exam Preview" description="Review and edit the detected question list before publishing." icon={<BookOpen size={20} />} />
+              <div className="mt-4 grid gap-3">
+                {draftQuestions.map((question, index) => (
+                  <div key={`${question.question}-${index}`} className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <p className="text-xs font-black uppercase tracking-[0.2em] text-[var(--gold-dark)]">Question {index + 1}</p>
+                      <span className="rounded-full bg-white px-3 py-1 text-xs font-black">{question.difficultyLevel || examForm.difficulty} / {question.marks ?? 1} mark(s)</span>
+                    </div>
+                    <textarea value={question.question} onChange={(event) => updateDraftQuestion(index, event.target.value)} className="mt-3 min-h-20 w-full resize-y rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-sm outline-none" />
+                    {question.options?.length ? <p className="mt-2 text-xs text-[var(--muted-blue)]">Options: {question.options.join(" / ")}</p> : null}
+                    {question.answer ? <p className="mt-1 text-xs font-bold text-emerald-700">Answer: {question.answer}</p> : null}
                   </div>
-                </div>
-              ) : null}
-              <button type="button" onClick={onDraft} className="rounded-xl border border-[var(--border)] bg-white px-5 py-3 font-black">Generate Question Bank</button>
-              <button type="button" onClick={onPublish} className="rounded-xl bg-emerald-700 px-5 py-3 font-black text-white">Publish Exam</button>
+                ))}
+                {!draftQuestions.length ? <EmptyState text="Generate a draft or paste questions to let NIDUS GURU prepare the preview." /> : null}
+              </div>
+            </div>
+          </section>
+
+          <aside className="grid content-start gap-4">
+            <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
+              <SectionHeader eyebrow="Section 3" title="NIDUS GURU Review Panel" description="Academic quality checks before the exam goes to students." icon={<GraduationCap size={20} />} />
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                <ReviewMetric label="Questions detected" value={detectedQuestionCount || "Pending"} />
+                <ReviewMetric label="Duplicate questions" value={duplicateCount} tone={duplicateCount ? "warn" : "ok"} />
+                <ReviewMetric label="Syllabus mismatch" value={examForm.topic || examForm.subject ? "Check ready" : "Topic missing"} tone={examForm.topic || examForm.subject ? "ok" : "warn"} />
+                <ReviewMetric label="Difficulty analysis" value={Object.entries(difficultyCounts).map(([key, value]) => `${key} ${value}`).join(", ") || examForm.difficulty} />
+                <ReviewMetric label="Topic coverage" value={examForm.topic || examForm.subject || "Pending"} />
+                <ReviewMetric label="Estimated duration" value={`${examForm.duration || 0} min`} />
+              </div>
+              <p className="mt-3 text-xs text-[var(--muted-blue)]">Total marks target: {markTotal || "Pending"}</p>
+            </div>
+
+            <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
+              <SectionHeader eyebrow="Section 4" title="AI Actions" description="Ask NIDUS GURU to improve the paper academically." icon={<Plus size={20} />} />
+              <div className="mt-4 grid grid-cols-2 gap-2">
+                {["Balance Difficulty", "Remove Duplicates", "Improve Language", "Add Answer Key", "Add Explanations", "Convert MCQ", "Convert Descriptive"].map((action) => (
+                  <button key={action} type="button" onClick={() => addInstruction(action)} className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-3 py-3 text-left text-xs font-black hover:bg-white">
+                    {action}
+                  </button>
+                ))}
+              </div>
+              <button type="button" onClick={onDraft} className="mt-4 w-full rounded-xl bg-[var(--ink)] px-5 py-3 font-black text-white">Run NIDUS GURU Review</button>
+            </div>
+
+            <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
+              <SectionHeader eyebrow="AI Assistant" title="Optional Instructions" description="Use this only for corrections like changing question 5." icon={<FileText size={20} />} />
+              <textarea value={chatInput} onChange={(event) => setChatInput(event.target.value)} rows={4} placeholder="Example: Make question 5 easier and add explanations for all MCQs." className="mt-4 min-h-28 w-full resize-y rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-3 py-2 text-sm outline-none" />
+              <button type="button" onClick={onSend} className="mt-3 rounded-xl border border-[var(--border)] bg-white px-5 py-3 text-sm font-black">Add Instruction</button>
+              <div className="mt-3 grid gap-2">
+                {messages.slice(-2).map((message) => (
+                  <p key={message.id} className="rounded-xl bg-[var(--page-bg)] px-3 py-2 text-xs leading-5 text-[var(--muted-blue)]">{message.text}</p>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
+              <SectionHeader eyebrow="Section 6" title="Workflow Status" description="Human review remains mandatory before publish." icon={<ClipboardCheck size={20} />} />
+              <div className="mt-4 grid grid-cols-4 gap-2 text-center text-xs font-black">
+                {["Draft", "Review", "Approve", "Publish"].map((step, index) => (
+                  <span key={step} className={`rounded-xl border px-2 py-3 ${index === 0 || examDraft ? "border-emerald-200 bg-emerald-50 text-emerald-800" : "border-[var(--border)] bg-[var(--page-bg)] text-[var(--muted-blue)]"}`}>{step}</span>
+                ))}
+              </div>
+              <Textarea label="Instructions and exam rules" value={examForm.instructions} onChange={(value) => setExamForm((form) => ({ ...form, instructions: value }))} />
+              <button type="button" onClick={onPublish} className="mt-4 w-full rounded-xl bg-emerald-700 px-5 py-3 font-black text-white">Publish Exam</button>
             </div>
           </aside>
         </div>
       </div>
+    </div>
+  );
+}
+
+function ReviewMetric({ label, value, tone = "neutral" }: { label: string; value: React.ReactNode; tone?: "neutral" | "ok" | "warn" }) {
+  const toneClass = tone === "ok" ? "bg-emerald-50 text-emerald-800" : tone === "warn" ? "bg-amber-50 text-amber-800" : "bg-[var(--page-bg)] text-[var(--ink)]";
+  return (
+    <div className={`rounded-2xl border border-[var(--border)] p-3 ${toneClass}`}>
+      <p className="text-xs font-black uppercase tracking-[0.18em] opacity-70">{label}</p>
+      <p className="mt-2 text-lg font-black">{value}</p>
     </div>
   );
 }
@@ -1927,76 +2042,136 @@ function AssignmentGuruModal({
   selectedBatchName: string;
   assignmentSourceName: string;
 }) {
+  const assignmentLines = assignmentForm.pastedContent
+    .split(/\n+/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+  const instructionLines = assignmentForm.instructions
+    .split(/\n+/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+  const detectedTasks = assignmentLines.length || instructionLines.filter((line) => /^\d+[\).\s-]/.test(line)).length || 0;
+  const addAssignmentAction = (action: string) => {
+    setAssignmentForm((form) => ({
+      ...form,
+      instructions: [form.instructions, `NIDUS GURU action: ${action}`].filter(Boolean).join("\n"),
+    }));
+  };
+  const appendAssignmentSource = (label: string) => (value: string) => {
+    if (!value) return;
+    setAssignmentSourceName([assignmentSourceName, `${label}: ${value}`].filter(Boolean).join(" | "));
+  };
+
   return (
-    <div className="fixed inset-0 z-50 bg-[#f7f5ef] text-[var(--ink)]">
-      <div className="flex h-screen flex-col">
-        <div className="flex items-center justify-between border-b border-[var(--border)] bg-white px-4 py-3">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-[#f7f5ef] text-[var(--ink)]">
+      <div className="mx-auto max-w-7xl px-4 py-5">
+        <div className="mb-4 flex items-center justify-between rounded-2xl border border-[var(--border)] bg-white px-5 py-4 shadow-sm">
           <div>
             <p className="text-xs font-black uppercase tracking-[0.3em] text-[var(--gold-dark)]">NIDUS Guru</p>
-            <h2 className="text-xl font-black">Create assignment</h2>
+            <h2 className="text-2xl font-black">Assignment Builder</h2>
+            <p className="mt-1 text-sm text-[var(--muted-blue)]">Create, review and publish classroom work without a chat-heavy flow.</p>
           </div>
           <button type="button" onClick={onClose} className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] p-3" aria-label="Close assignment creator">
             <X size={18} />
           </button>
         </div>
 
-        <div className="grid min-h-0 flex-1 lg:grid-cols-[1fr_360px]">
-          <div className="flex min-h-0 flex-col">
-            <div className="flex-1 overflow-y-auto px-4 py-5">
-              <div className="mx-auto grid max-w-3xl gap-4">
-                {messages.map((message) => (
-                  <div key={message.id} className={`flex ${message.role === "teacher" ? "justify-end" : "justify-start"}`}>
-                    <div className={`max-w-[86%] whitespace-pre-wrap rounded-2xl px-4 py-3 text-sm leading-6 ${message.role === "teacher" ? "bg-[var(--ink)] text-white" : "border border-[var(--border)] bg-white text-[var(--ink)]"}`}>
-                      {message.text}
-                    </div>
+        <div className="grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
+          <section className="grid gap-4">
+            <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
+              <SectionHeader eyebrow="Step 1" title="Assignment Details" description="Set the class, subject and deadline first." icon={<ClipboardCheck size={20} />} />
+              <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                <div className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-4 py-3">
+                  <p className="text-xs font-black uppercase tracking-[0.18em] text-[var(--gold-dark)]">Batch</p>
+                  <p className="mt-2 font-black">{selectedBatchName}</p>
+                  <p className="mt-1 text-xs text-[var(--muted-blue)]">{selectedProgramName}</p>
+                </div>
+                <Input label="Subject" value={assignmentForm.subject} onChange={(value) => setAssignmentForm((form) => ({ ...form, subject: value }))} />
+                <Input label="Topic" value={assignmentForm.topic} onChange={(value) => setAssignmentForm((form) => ({ ...form, topic: value, title: form.title || `${value} Assignment` }))} />
+                <Input label="Assignment Title" value={assignmentForm.title} onChange={(value) => setAssignmentForm((form) => ({ ...form, title: value }))} />
+                <Input label="Due Date" type="date" value={assignmentForm.dueDate} onChange={(value) => setAssignmentForm((form) => ({ ...form, dueDate: value }))} />
+                <Select label="Difficulty" value={assignmentForm.difficulty} onChange={(value) => setAssignmentForm((form) => ({ ...form, difficulty: value }))}>
+                  <option value="EASY">Easy</option>
+                  <option value="MEDIUM">Medium</option>
+                  <option value="HARD">Hard</option>
+                </Select>
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
+              <SectionHeader eyebrow="Step 2" title="Source Material" description="Most teachers can paste ChatGPT questions or attach prepared files." icon={<FileText size={20} />} />
+              <div className="mt-4">
+                <Textarea label="Paste assignment content here" value={assignmentForm.pastedContent} onChange={(value) => setAssignmentForm((form) => ({ ...form, pastedContent: value }))} />
+              </div>
+              <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+                <FileInput label="Upload PDF" accept=".pdf" onChange={appendAssignmentSource("PDF")} />
+                <FileInput label="Upload Word" accept=".doc,.docx" onChange={appendAssignmentSource("Word")} />
+                <FileInput label="Upload PPT" accept=".ppt,.pptx" onChange={appendAssignmentSource("PPT")} />
+                <FileInput label="Upload Notes" accept=".txt,.pdf,.doc,.docx" onChange={appendAssignmentSource("Notes")} />
+                <FileInput label="Upload Images" accept="image/*" onChange={appendAssignmentSource("Images")} />
+              </div>
+              <Input label="Reference link" value={assignmentForm.link} onChange={(value) => setAssignmentForm((form) => ({ ...form, link: value }))} />
+              {assignmentSourceName ? <p className="mt-3 rounded-xl bg-[var(--page-bg)] px-3 py-2 text-xs font-black">Attached: {assignmentSourceName}</p> : null}
+            </div>
+
+            <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
+              <SectionHeader eyebrow="Step 4" title="Assignment Preview" description="This is how students will read the assignment before submission." icon={<BookOpen size={20} />} />
+              <div className="mt-4 rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-5">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <p className="text-xs font-black uppercase tracking-[0.22em] text-[var(--gold-dark)]">{assignmentForm.subject || "Subject"} / {assignmentForm.difficulty}</p>
+                    <h3 className="mt-2 text-2xl font-black">{assignmentForm.title || "Assignment title pending"}</h3>
+                    <p className="mt-1 text-sm text-[var(--muted-blue)]">{assignmentForm.topic || "Topic pending"} / Due {assignmentForm.dueDate || "not set"}</p>
                   </div>
+                  <span className="rounded-full bg-white px-3 py-1 text-xs font-black">{detectedTasks || "No"} task(s) detected</span>
+                </div>
+                <div className="mt-4 whitespace-pre-wrap rounded-xl bg-white p-4 text-sm leading-7">
+                  {assignmentForm.pastedContent || assignmentForm.instructions || "Paste content, upload material, or generate a NIDUS GURU draft to preview the assignment."}
+                </div>
+                {assignmentForm.link || assignmentSourceName ? (
+                  <div className="mt-4 grid gap-2 text-sm text-[var(--muted-blue)]">
+                    {assignmentForm.link ? <p><b>Reference:</b> {assignmentForm.link}</p> : null}
+                    {assignmentSourceName ? <p><b>Attachments:</b> {assignmentSourceName}</p> : null}
+                  </div>
+                ) : null}
+              </div>
+            </div>
+          </section>
+
+          <aside className="grid content-start gap-4">
+            <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
+              <SectionHeader eyebrow="Step 3" title="NIDUS GURU Assistant" description="Academic review actions without making chat the main screen." icon={<GraduationCap size={20} />} />
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                <ReviewMetric label="Content lines" value={assignmentLines.length || "Pending"} />
+                <ReviewMetric label="Detected tasks" value={detectedTasks || "Pending"} />
+                <ReviewMetric label="Syllabus mismatch" value={assignmentForm.topic || assignmentForm.subject ? "Check ready" : "Topic missing"} tone={assignmentForm.topic || assignmentForm.subject ? "ok" : "warn"} />
+                <ReviewMetric label="Rubric" value={assignmentForm.instructions.toLowerCase().includes("rubric") ? "Included" : "Suggested"} tone={assignmentForm.instructions.toLowerCase().includes("rubric") ? "ok" : "warn"} />
+              </div>
+              <div className="mt-4 grid grid-cols-2 gap-2">
+                {["Review Assignment", "Improve Questions", "Simplify Language", "Increase Difficulty", "Add Model Answers", "Generate Evaluation Rubric", "Convert To MCQ", "Convert To Descriptive"].map((action) => (
+                  <button key={action} type="button" onClick={() => addAssignmentAction(action)} className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-3 py-3 text-left text-xs font-black hover:bg-white">
+                    {action}
+                  </button>
                 ))}
               </div>
+              <button type="button" onClick={onDraft} className="mt-4 w-full rounded-xl bg-[var(--ink)] px-5 py-3 font-black text-white">Generate Draft</button>
             </div>
-            <div className="border-t border-[var(--border)] bg-white px-4 py-3">
-              <div className="mx-auto flex max-w-3xl items-end gap-2 rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-2">
-                <textarea
-                  value={chatInput}
-                  onChange={(event) => setChatInput(event.target.value)}
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter" && !event.shiftKey) {
-                      event.preventDefault();
-                      onSend();
-                    }
-                  }}
-                  rows={2}
-                  placeholder="Ask NIDUS Guru, or say: make it easier..."
-                  className="min-h-12 flex-1 resize-none bg-transparent px-3 py-2 text-sm outline-none"
-                />
-                <button type="button" onClick={onSend} className="rounded-xl bg-[var(--ink)] px-5 py-3 text-sm font-black text-white">
-                  Send
-                </button>
-              </div>
-            </div>
-          </div>
 
-          <aside className="min-h-0 overflow-y-auto border-l border-[var(--border)] bg-white p-4">
-            <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
-              <p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold-dark)]">Selected class</p>
-              <h3 className="mt-2 font-black">{selectedProgramName}</h3>
-              <p className="mt-1 text-sm text-[var(--muted-blue)]">{selectedBatchName}</p>
-            </div>
-            <div className="mt-4 grid gap-3">
-              <Input label="Assignment topic" value={assignmentForm.topic} onChange={(value) => setAssignmentForm((form) => ({ ...form, topic: value, title: form.title || `${value} Assignment` }))} />
-              <Input label="Assignment title" value={assignmentForm.title} onChange={(value) => setAssignmentForm((form) => ({ ...form, title: value }))} />
-              <Input label="Due date" type="date" value={assignmentForm.dueDate} onChange={(value) => setAssignmentForm((form) => ({ ...form, dueDate: value }))} />
-              <Input label="Reference link" value={assignmentForm.link} onChange={(value) => setAssignmentForm((form) => ({ ...form, link: value }))} />
-              <div className="rounded-2xl border border-dashed border-[var(--border)] bg-[var(--page-bg)] p-4">
-                <p className="text-sm font-black">Upload source material</p>
-                <p className="mt-1 text-xs leading-5 text-[var(--muted-blue)]">Notes, PDF, Word documents, images, question bank or supporting material for NIDUS GURU to analyse.</p>
-                <div className="mt-3">
-                  <FileInput label="Attach source file" onChange={setAssignmentSourceName} />
-                </div>
+            <details className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
+              <summary className="cursor-pointer text-sm font-black">Optional AI instruction chat</summary>
+              <textarea value={chatInput} onChange={(event) => setChatInput(event.target.value)} rows={4} placeholder="Example: Make this suitable for weaker students and add model answers." className="mt-4 min-h-28 w-full resize-y rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-3 py-2 text-sm outline-none" />
+              <button type="button" onClick={onSend} className="mt-3 rounded-xl border border-[var(--border)] bg-white px-5 py-3 text-sm font-black">Add Instruction</button>
+              <div className="mt-3 grid gap-2">
+                {messages.slice(-2).map((message) => (
+                  <p key={message.id} className="rounded-xl bg-[var(--page-bg)] px-3 py-2 text-xs leading-5 text-[var(--muted-blue)]">{message.text}</p>
+                ))}
               </div>
-              {assignmentSourceName ? <p className="rounded-xl bg-[var(--page-bg)] px-3 py-2 text-xs font-black">Attached: {assignmentSourceName}</p> : null}
-              <Textarea label="Notes, instructions and evaluation criteria" value={assignmentForm.instructions} onChange={(value) => setAssignmentForm((form) => ({ ...form, instructions: value }))} />
-              <button type="button" onClick={onDraft} className="rounded-xl border border-[var(--border)] bg-white px-5 py-3 font-black">Generate Assignment Draft</button>
-              <button type="button" onClick={onPublish} className="rounded-xl bg-emerald-700 px-5 py-3 font-black text-white">Publish Assignment</button>
+            </details>
+
+            <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
+              <SectionHeader eyebrow="Step 5" title="Publish" description="Teacher approval is required before students receive it." icon={<ClipboardCheck size={20} />} />
+              <Textarea label="Instructions and evaluation criteria" value={assignmentForm.instructions} onChange={(value) => setAssignmentForm((form) => ({ ...form, instructions: value }))} />
+              <button type="button" onClick={onPublish} className="mt-4 w-full rounded-xl bg-emerald-700 px-5 py-3 font-black text-white">Publish Assignment</button>
             </div>
           </aside>
         </div>
