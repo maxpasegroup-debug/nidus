@@ -43,7 +43,7 @@ export function canAccessDashboardPath(user: Pick<AuthUser, "role" | "roleMetada
     return path.startsWith("/dashboard/academic-head") || path.startsWith("/dashboard/teacher") || path.startsWith("/dashboard/director/academic") || path.startsWith("/dashboard/director/materials") || path.startsWith("/dashboard/director/exams");
   }
   if (user.role === "ADMINISTRATIVE_OFFICER") return path === "/dashboard/admission-cell";
-  if (user.role === "BUSINESS_DEVELOPMENT_EXECUTIVE") return path === "/dashboard/business-development" || path.startsWith("/crm");
+  if (user.role === "BUSINESS_DEVELOPMENT_EXECUTIVE") return path === "/dashboard/business-development";
   if (template === "ADMISSION_CELL") return path === "/dashboard/admission-cell";
   if (template === "MARKETING" || template === "SALES_BOOSTER") {
     return path === "/dashboard/business-development";

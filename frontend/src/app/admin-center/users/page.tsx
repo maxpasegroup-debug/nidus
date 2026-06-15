@@ -8,12 +8,12 @@ import type { AuthRole } from "@/services/auth.v2";
 const roles: Array<{ label: string; value: AuthRole }> = [
   { label: "Director / Management", value: "DIRECTOR" },
   { label: "Teacher / Faculty", value: "TEACHER" },
-  { label: "Business Development Executive", value: "TELECALLER" },
+  { label: "Business Development Executive", value: "BUSINESS_DEVELOPMENT_EXECUTIVE" },
   { label: "Learner", value: "STUDENT" },
   { label: "Parent", value: "PARENT" }
 ];
 
-const employeeRoles = ["DIRECTOR", "TEACHER", "TELECALLER"];
+const employeeRoles = ["DIRECTOR", "TEACHER", "BUSINESS_DEVELOPMENT_EXECUTIVE", "TELECALLER"];
 
 function roleLabel(role: string) {
   return roles.find((item) => item.value === role)?.label ?? role;

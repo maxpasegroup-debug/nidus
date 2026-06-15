@@ -26,28 +26,28 @@ function requester(req: AuthenticatedRequest) {
 }
 
 export const crmController = {
-  async leads(req: Request, res: Response, next: NextFunction) {
+  async leads(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
-      res.json({ leads: await crmService.leads({ status: typeof req.query.status === "string" ? req.query.status as LeadStatus : undefined, search: typeof req.query.search === "string" ? req.query.search : undefined }) });
+      res.json({ leads: await crmService.leads({ status: typeof req.query.status === "string" ? req.query.status as LeadStatus : undefined, search: typeof req.query.search === "string" ? req.query.search : undefined }, requester(req)) });
     } catch (error) { next(error); }
   },
-  async createLead(req: Request, res: Response, next: NextFunction) {
-    try { assertValid(req); res.status(201).json({ lead: await crmService.createLead(req.body) }); } catch (error) { next(error); }
+  async createLead(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try { assertValid(req); res.status(201).json({ lead: await crmService.createLead(requester(req), req.body) }); } catch (error) { next(error); }
   },
   async createPublicLead(req: Request, res: Response, next: NextFunction) {
     try { assertValid(req); res.status(201).json({ lead: await crmService.createPublicLead(req.body) }); } catch (error) { next(error); }
   },
-  async updateLead(req: Request, res: Response, next: NextFunction) {
-    try { assertValid(req); res.json({ lead: await crmService.updateLead(param(req, "id"), req.body) }); } catch (error) { next(error); }
+  async updateLead(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try { assertValid(req); res.json({ lead: await crmService.updateLead(requester(req), param(req, "id"), req.body) }); } catch (error) { next(error); }
   },
-  async deleteLead(req: Request, res: Response, next: NextFunction) {
-    try { res.json(await crmService.deleteLead(param(req, "id"))); } catch (error) { next(error); }
+  async deleteLead(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try { res.json(await crmService.deleteLead(requester(req), param(req, "id"))); } catch (error) { next(error); }
   },
   async createFollowUp(req: AuthenticatedRequest, res: Response, next: NextFunction) {
-    try { assertValid(req); res.status(201).json({ followUp: await crmService.createFollowUp(req.body, userId(req)) }); } catch (error) { next(error); }
+    try { assertValid(req); userId(req); res.status(201).json({ followUp: await crmService.createFollowUp(requester(req), req.body) }); } catch (error) { next(error); }
   },
-  async followUps(_req: Request, res: Response, next: NextFunction) {
-    try { res.json({ followUps: await crmService.followUps() }); } catch (error) { next(error); }
+  async followUps(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try { res.json({ followUps: await crmService.followUps(requester(req)) }); } catch (error) { next(error); }
   },
   async createAdmission(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try { assertValid(req); res.status(201).json({ admission: await crmService.createAdmission(requester(req), req.body) }); } catch (error) { next(error); }
@@ -67,11 +67,11 @@ export const crmController = {
   async reviewScholarship(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try { assertValid(req); res.json({ scholarship: await crmService.reviewScholarship(requester(req), param(req, "id"), req.body) }); } catch (error) { next(error); }
   },
-  async createCounselling(req: Request, res: Response, next: NextFunction) {
-    try { assertValid(req); res.status(201).json({ booking: await crmService.createCounselling(req.body) }); } catch (error) { next(error); }
+  async createCounselling(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try { assertValid(req); res.status(201).json({ booking: await crmService.createCounselling(requester(req), req.body) }); } catch (error) { next(error); }
   },
-  async counselling(_req: Request, res: Response, next: NextFunction) {
-    try { res.json({ bookings: await crmService.counselling() }); } catch (error) { next(error); }
+  async counselling(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try { res.json({ bookings: await crmService.counselling(requester(req)) }); } catch (error) { next(error); }
   },
   async referrals(_req: Request, res: Response, next: NextFunction) {
     try { res.json({ referrals: await crmService.referrals() }); } catch (error) { next(error); }

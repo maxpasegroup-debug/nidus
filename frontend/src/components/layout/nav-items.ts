@@ -55,10 +55,9 @@ const administrativeOfficerMenu: DashboardNavItem[] = [
 
 const businessDevelopmentMenu: DashboardNavItem[] = [
   { label: "Today", href: "/dashboard/business-development" },
-  { label: "Leads", href: "/crm/leads" },
-  { label: "Follow-ups", href: "/crm/followups" },
-  { label: "Counselling", href: "/crm/counselling" },
-  { label: "Admissions", href: "/crm/admissions" },
+  { label: "Leads", href: "/dashboard/business-development#leads" },
+  { label: "Follow-ups", href: "/dashboard/business-development#followups" },
+  { label: "Counselling", href: "/dashboard/business-development#followups" },
   { label: "Reports", href: "/dashboard/business-development#reports" },
 ];
 

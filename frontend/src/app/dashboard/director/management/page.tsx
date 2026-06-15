@@ -71,7 +71,7 @@ const roleOptions = [
   { label: "Academic Head", value: "TEACHER", dashboardTemplate: "ACADEMIC_HEAD" },
   { label: "Physical Trainer", value: "TEACHER", dashboardTemplate: "PHYSICAL_TRAINER" },
   { label: "Administrative Officer", value: "ADMIN", dashboardTemplate: "ADMISSION_CELL" },
-  { label: "Business Development Executive", value: "TELECALLER", dashboardTemplate: "LEAD_SUPPORT" },
+  { label: "Business Development Executive", value: "BUSINESS_DEVELOPMENT_EXECUTIVE", dashboardTemplate: "LEAD_SUPPORT" },
   { label: "Management", value: "DIRECTOR" },
   { label: "Administration", value: "ADMIN" },
 ];
@@ -109,7 +109,7 @@ const quickProfiles = [
   },
   {
     label: "Business Development Executive",
-    role: "TELECALLER",
+    role: "BUSINESS_DEVELOPMENT_EXECUTIVE",
     designation: "Business Development Executive",
     department: "Admissions and Sales",
     dashboardTemplate: "LEAD_SUPPORT",
