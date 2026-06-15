@@ -5,6 +5,7 @@ import type { FormEvent } from "react";
 import { BookOpen, Laptop, MapPin, Plus } from "lucide-react";
 
 import { AcademicHero, AcademicShell, EmptyState, GoldButton, Input, Panel, Select, TextArea } from "../_components";
+import { allAcademyPrograms } from "@/data/academy-programs";
 import { useCreateCourse, useCourses } from "@/hooks/use-courses";
 import type { Course } from "@/types/course";
 
@@ -99,13 +100,41 @@ function orderedCourses(courses: Course[]) {
   });
 }
 
+function programTemplateToCourse(program: (typeof allAcademyPrograms)[number]): Course {
+  return {
+    id: `template-${program.slug}`,
+    title: program.title,
+    slug: program.slug,
+    description: JSON.stringify({
+      summary: program.outcome,
+      deliveryMode: "BOTH",
+      source: "NIDUS Academy Master Course Architecture",
+    }),
+    thumbnail: `/images/academy/${program.slug}.jpg`,
+    category: program.groupTitle,
+    examType: "Academy Program",
+    duration: program.audience,
+    price: 0,
+    isPremium: false,
+    createdAt: "",
+  };
+}
+
 export default function DirectorProgramsPage() {
   const [selectedMode, setSelectedMode] = useState<DeliveryMode>("OFFLINE");
   const [showCreate, setShowCreate] = useState(false);
   const [form, setForm] = useState(defaultCourseForm);
   const coursesQuery = useCourses();
   const createCourse = useCreateCourse();
-  const courses = useMemo(() => orderedCourses((coursesQuery.data ?? []).filter(isFinalOrCustomCourse)), [coursesQuery.data]);
+  const courses = useMemo(() => {
+    const databaseCourses = (coursesQuery.data ?? []).filter(isFinalOrCustomCourse);
+    const existingSlugs = new Set(databaseCourses.map((course) => course.slug));
+    const missingFinalPrograms = allAcademyPrograms
+      .filter((program) => finalProgramSlugs.includes(program.slug) && !existingSlugs.has(program.slug))
+      .map(programTemplateToCourse);
+
+    return orderedCourses([...databaseCourses, ...missingFinalPrograms]);
+  }, [coursesQuery.data]);
 
   const modeCourses = useMemo(() => courses.filter((course) => visibleForMode(course, selectedMode)), [courses, selectedMode]);
   const offlineCount = courses.filter((course) => visibleForMode(course, "OFFLINE")).length;
