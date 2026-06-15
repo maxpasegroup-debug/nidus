@@ -729,7 +729,7 @@ async function findStudentUserForAdmission(input: StudentInput) {
   if (input.userId) {
     return prisma.user.update({
       where: { id: input.userId },
-      data: { role: Role.STUDENT, mustChangePassword: false },
+      data: { role: Role.STUDENT },
     });
   }
 
@@ -750,7 +750,6 @@ async function findStudentUserForAdmission(input: StudentInput) {
       name: input.name || existing.name,
       mobile: input.phone || existing.mobile,
       role: Role.STUDENT,
-      mustChangePassword: false,
     },
   });
 }
