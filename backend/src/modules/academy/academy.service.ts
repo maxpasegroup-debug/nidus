@@ -239,7 +239,7 @@ function isAdmissionCell(user: Requester) {
 
 function requireAdmissionAccess(user: Requester) {
   if (!isManagement(user) && !isAdmissionCell(user)) {
-    throw Object.assign(new Error("Admission Cell access required"), { statusCode: 403 });
+    throw Object.assign(new Error("Administrative Officer access required"), { statusCode: 403 });
   }
 }
 

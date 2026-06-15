@@ -1,4 +1,4 @@
-import { BrainCircuit, Dumbbell, GraduationCap, Medal, MessageCircle, Plane, ShieldCheck, Sparkles, Target, Zap } from "lucide-react";
+import { BrainCircuit, ShieldCheck, Sparkles, Target } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 export type PublicTile = {
@@ -8,16 +8,6 @@ export type PublicTile = {
   href: string;
   image: string;
   icon: LucideIcon;
-};
-
-export type TopRankExam = PublicTile & {
-  status: "live" | "staged";
-  audience: string;
-  whatItIs: string;
-  howItPerforms: string[];
-  trainingFlow: string[];
-  outcomes: string[];
-  dashboardNote: string;
 };
 
 export type GuruQuest = PublicTile & {
@@ -46,99 +36,6 @@ export const publicImages = {
   republic: wikiImage("Indian%20soldiers%20at%20the%20Republic%20day%20parade.jpg", 900),
   para: wikiImage("Para%20contingent%20republic%20day%202022.jpg", 900)
 };
-
-export const topRankExams: TopRankExam[] = [
-  {
-    slug: "nda",
-    title: "NDA",
-    subtitle: "Adaptive NDA speed, accuracy, memory, and rank practice.",
-    href: "/toprank/nda",
-    image: publicImages.army,
-    icon: ShieldCheck,
-    status: "live",
-    audience: "Plus One, Plus Two and repeat aspirants preparing for NDA Army, Navy, Air Force and Naval Academy routes.",
-    whatItIs: "A guided NDA performance arena that profiles the student, starts focused practice, tracks speed and accuracy, and builds a daily mission loop for rank readiness.",
-    howItPerforms: ["Creates a tenant-secure TOPRANK launch session from the NIDUS dashboard.", "Routes students into NDA Army, Navy, Air Force or Naval Academy training.", "Uses diagnostic practice, adaptive revision and readiness reporting to guide the next mission."],
-    trainingFlow: ["Sign up or log in to NIDUS.", "Open the student dashboard and choose NDA mission route.", "Start TOPRANK NDA AI Training and continue daily practice."],
-    outcomes: ["Speed and accuracy clarity", "Weak-zone correction", "Daily NDA mission discipline", "Readiness score and next action"],
-    dashboardNote: "NDA is active from the student dashboard through the secure Career7 TOPRANK bridge."
-  },
-  {
-    slug: "cds",
-    title: "CDS",
-    subtitle: "Graduate-level officer exam practice arena.",
-    href: "/toprank/cds",
-    image: publicImages.republic,
-    icon: Medal,
-    status: "staged",
-    audience: "Graduates preparing for IMA, INA, AFA and OTA pathways.",
-    whatItIs: "A structured CDS training arena planned for English, general knowledge, mathematics, timed practice and officer readiness improvement.",
-    howItPerforms: ["Profiles subject confidence and exam rhythm.", "Builds practice missions around speed, accuracy and revision gaps.", "Prepares mentor-readable reports for guided improvement."],
-    trainingFlow: ["Submit interest or create a NIDUS account.", "Get mapped to the CDS preparation path.", "Training access will open as the CDS route is enabled."],
-    outcomes: ["Subject priority clarity", "Mock readiness direction", "Officer pathway guidance", "Mentor follow-up"],
-    dashboardNote: "CDS public arena is ready for guidance. Live TOPRANK launch will be enabled after the CDS bridge route is opened."
-  },
-  {
-    slug: "afcat",
-    title: "AFCAT",
-    subtitle: "Air Force aptitude, speed, and technical confidence.",
-    href: "/toprank/afcat",
-    image: publicImages.airforce,
-    icon: Plane,
-    status: "staged",
-    audience: "Air Force aspirants preparing for AFCAT and related officer pathways.",
-    whatItIs: "A planned Air Force exam training arena focused on reasoning, verbal ability, numerical ability, general awareness and exam temperament.",
-    howItPerforms: ["Identifies aptitude strengths and pressure points.", "Trains speed through focused practice missions.", "Connects practice reports with mentor guidance."],
-    trainingFlow: ["Explore the AFCAT arena.", "Submit guidance request or create free account.", "Access will open when AFCAT training launch is enabled."],
-    outcomes: ["Aptitude clarity", "Time management direction", "Air Force pathway awareness", "Practice discipline"],
-    dashboardNote: "AFCAT public arena is ready for onboarding interest. Live bridge launch is staged."
-  },
-  {
-    slug: "agniveer",
-    title: "Agniveer",
-    subtitle: "Written exam and physical readiness practice.",
-    href: "/toprank/agniveer",
-    image: publicImages.airforceMarch,
-    icon: Dumbbell,
-    status: "staged",
-    audience: "Agniveer aspirants who need written exam, routine and physical-readiness discipline.",
-    whatItIs: "A written-plus-physical preparation arena planned to combine exam practice, fitness discipline, routine building and readiness tracking.",
-    howItPerforms: ["Maps written exam practice with physical preparation habits.", "Uses mission-style routines to improve consistency.", "Creates a clear follow-up path for academy support."],
-    trainingFlow: ["Choose Agniveer arena.", "Share WhatsApp details for counselling.", "Begin academy-guided preparation while digital launch is staged."],
-    outcomes: ["Written exam direction", "Fitness mindset", "Routine discipline", "Counselling clarity"],
-    dashboardNote: "Agniveer digital TOPRANK launch is staged. Enquiries are captured for academy follow-up."
-  },
-  {
-    slug: "ssb",
-    title: "SSB",
-    subtitle: "OLQ, interview, psychology, and group task preparation.",
-    href: "/toprank/ssb",
-    image: publicImages.navy,
-    icon: MessageCircle,
-    status: "staged",
-    audience: "Aspirants preparing for SSB psychology, interview, GTO and officer-like qualities.",
-    whatItIs: "A planned SSB readiness arena that helps students understand officer-like qualities, communication, emotional control and selection-stage preparation.",
-    howItPerforms: ["Connects psychometric insight with SSB improvement areas.", "Structures interview, psychology and group-task preparation into missions.", "Keeps reports ready for mentor review."],
-    trainingFlow: ["Explore SSB readiness.", "Start free assessment or submit guidance request.", "Join SSB mentor pathway when training access opens."],
-    outcomes: ["OLQ clarity", "Interview confidence", "Psychology readiness", "Mentor action plan"],
-    dashboardNote: "SSB arena is detailed for guidance. Live TOPRANK launch is staged."
-  },
-  {
-    slug: "aissee",
-    title: "AISSEE",
-    subtitle: "Sainik School entrance practice for younger aspirants.",
-    href: "/toprank/aissee",
-    image: publicImages.cadets,
-    icon: GraduationCap,
-    status: "staged",
-    audience: "Class 6 and Class 9 aspirants preparing for Sainik School entrance.",
-    whatItIs: "A foundation-level entrance preparation arena planned for younger defence aspirants with parent-friendly guidance and structured practice.",
-    howItPerforms: ["Builds basic subject confidence with guided practice.", "Supports parents with clear preparation direction.", "Creates a foundation route toward disciplined defence learning."],
-    trainingFlow: ["Open AISSEE arena.", "Submit parent or student details.", "NIDUS counselling team maps the correct class pathway."],
-    outcomes: ["Foundation clarity", "Parent guidance", "Study routine", "Entrance readiness"],
-    dashboardNote: "AISSEE arena is ready for enquiries. Live adaptive launch is staged."
-  }
-];
 
 export const guruRecordedQuests: GuruQuest[] = [
   {
@@ -223,15 +120,10 @@ export const academyMenuItems = [
   ["Interview Guidance", "/programs/ssb-interview-guidance"]
 ] as const;
 
-export const topRankMenuItems = topRankExams.map((exam) => [exam.title, exam.href] as const);
 export const guruMenuItems = [
   ["Quest Arena", "/guru"],
   ...guruRecordedQuests.slice(0, 5).map((quest) => [quest.title, quest.href] as const)
 ] as const;
-
-export function getTopRankExam(slug: string) {
-  return topRankExams.find((exam) => exam.slug === slug);
-}
 
 export function getGuruQuest(slug: string) {
   return guruRecordedQuests.find((quest) => quest.slug === slug);

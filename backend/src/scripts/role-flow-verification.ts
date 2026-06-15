@@ -28,9 +28,12 @@ assert.match(authService, /role: Role\.ADMIN/, "bootstrap admin must force ADMIN
 assert.match(authService, /emailVerified: true/, "bootstrap admin must bypass verification");
 assert.match(authMiddleware, /requireInstituteScope/, "institute access middleware must exist");
 
-for (const route of ["teacher", "director", "telecaller", "marketing"]) {
+for (const route of ["teacher", "director", "business-development"]) {
   assert.match(dashboardRoutes, new RegExp(`/${route}`), `${route} dashboard route must exist`);
-  assert.match(dashboardService, new RegExp(`get${route[0].toUpperCase()}${route.slice(1)}Dashboard`), `${route} dashboard service must exist`);
 }
+
+assert.match(dashboardService, /getTeacherDashboard/, "teacher dashboard service must exist");
+assert.match(dashboardService, /getDirectorDashboard/, "director dashboard service must exist");
+assert.match(dashboardService, /getBusinessDevelopmentDashboard/, "business development dashboard service must exist");
 
 console.log("Role flow verification checks passed.");

@@ -70,7 +70,7 @@ const roleOptions = [
   { label: "Teacher", value: "TEACHER" },
   { label: "Academic Head", value: "TEACHER", dashboardTemplate: "ACADEMIC_HEAD" },
   { label: "Physical Trainer", value: "TEACHER", dashboardTemplate: "PHYSICAL_TRAINER" },
-  { label: "Admission Cell", value: "ADMIN", dashboardTemplate: "ADMISSION_CELL" },
+  { label: "Administrative Officer", value: "ADMIN", dashboardTemplate: "ADMISSION_CELL" },
   { label: "Management", value: "DIRECTOR" },
   { label: "Administration", value: "ADMIN" },
 ];
@@ -102,14 +102,14 @@ const quickProfiles = [
   {
     label: "Admission Staff",
     role: "ADMIN",
-    designation: "Admission Cell",
-    department: "Admission Cell",
+    designation: "Administrative Officer",
+    department: "Administration",
     dashboardTemplate: "ADMISSION_CELL",
   },
   {
     label: "Marketing Staff",
     role: "ADMIN",
-    designation: "Marketing Coordinator",
+    designation: "Business Development Executive",
     department: "Advertisement & Marketing",
     dashboardTemplate: "MARKETING",
   },

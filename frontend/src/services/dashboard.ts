@@ -134,12 +134,6 @@ export type AdminDashboardData = {
   leadProgramPipeline: Array<{ program: string; count: number }>;
 };
 
-export type GuestDashboardData = {
-  featuredCourses: Array<{ id: string; title: string; duration: string; level: string }>;
-  freeTests: Array<{ id: string; title: string; questions: number }>;
-  latestNews: string[];
-};
-
 export type TeacherDashboardData = {
   profile: (Pick<AuthUser, "id" | "name" | "email" | "mobile" | "role"> & { instituteId?: string | null; branchId?: string | null }) | null;
   customDashboard: StaffDashboardProfile;
@@ -191,7 +185,7 @@ export type DirectorDashboardData = {
   growthForecast: Array<{ month: string; forecast: number }>;
 };
 
-export type TelecallerDashboardData = {
+export type BusinessDevelopmentDashboardData = {
   leadPipeline: { new: number; contacted: number; counselling: number; enrolled: number; lost: number; assignedLeads: number };
   scheduling: { callbacksToday: number; counselling: number; overdueFollowUps: number };
   performance: { callsToday: number; conversionRate: number; averageResponseTime: string; notesAdded: number };
@@ -208,16 +202,6 @@ export type StaffDashboardProfile = {
   subject: string | null;
   focusAreas: string[];
   permissions: string[];
-};
-
-export type MarketingDashboardData = {
-  campaignTracking: { activeCampaigns: number; leadsGenerated: number; costPerLead: number; roi: number };
-  attribution: Array<{ channel: string; leads: number; conversion: number }>;
-  webinarRegistrations: { upcoming: number; registered: number; attendedLast: number };
-  landingPageAnalytics: { visitors: number; conversionRate: number; topPage: string };
-  roiAnalytics: Array<{ month: string; roi: number }>;
-  publishingShell: { contentQueue: number; dailyIntelligenceShares: number; socialPosts: number };
-  socialCampaignAnalytics: { reach: number; engagement: number; enquiries: number };
 };
 
 async function getDashboard<T>(path: string) {
@@ -237,10 +221,6 @@ export function getAdminDashboard() {
   return getDashboard<AdminDashboardData>("/dashboard/admin");
 }
 
-export function getGuestDashboard() {
-  return getDashboard<GuestDashboardData>("/dashboard/guest");
-}
-
 export function getTeacherDashboard() {
   return getDashboard<TeacherDashboardData>("/dashboard/teacher");
 }
@@ -249,10 +229,6 @@ export function getDirectorDashboard() {
   return getDashboard<DirectorDashboardData>("/dashboard/director");
 }
 
-export function getTelecallerDashboard() {
-  return getDashboard<TelecallerDashboardData>("/dashboard/telecaller");
-}
-
-export function getMarketingDashboard() {
-  return getDashboard<MarketingDashboardData>("/dashboard/marketing");
+export function getBusinessDevelopmentDashboard() {
+  return getDashboard<BusinessDevelopmentDashboardData>("/dashboard/business-development");
 }

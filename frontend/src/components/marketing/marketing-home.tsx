@@ -14,11 +14,11 @@ const modules = [
     className: "bg-[#f7f3ea] text-[#101827]"
   },
   {
-    label: "Top Rank",
+    label: "Exam Coaching",
     title: "Exam Practice With Guidance",
     text: "Practice important defence exams step by step. Know what to study, where you are weak, and what to do next.",
-    href: "/toprank",
-    cta: "Enter Top Rank",
+    href: "/start-free?intent=exam",
+    cta: "Start Practice",
     icon: BrainCircuit,
     className: "bg-[#dce9f3] text-[#101827]"
   },
@@ -154,7 +154,7 @@ export function MarketingHome() {
               <h3 className="text-sm font-semibold">Academy</h3>
               <div className="mt-5 grid gap-3 text-sm text-white/66">
                 <Link href="/programs">Programs</Link>
-                <Link href="/toprank">Top Rank</Link>
+                <Link href="/start-free?intent=exam">Exam Coaching</Link>
                 <Link href="/start-free?intent=academy">Join NIDUS</Link>
               </div>
             </div>

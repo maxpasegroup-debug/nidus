@@ -38,15 +38,6 @@ export const dashboardController = {
     }
   },
 
-  async guest(_req: AuthenticatedRequest, res: Response, next: NextFunction) {
-    try {
-      const data = await dashboardService.getGuestDashboard();
-      res.json({ role: "GUEST", data });
-    } catch (error) {
-      next(error);
-    }
-  },
-
   async teacher(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
       const data = await dashboardService.getTeacherDashboard(getAuthenticatedUser(req));
@@ -65,10 +56,10 @@ export const dashboardController = {
     }
   },
 
-  async telecaller(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+  async businessDevelopment(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
-      const data = await dashboardService.getTelecallerDashboard(getAuthenticatedUser(req));
-      res.json({ role: "TELECALLER", data });
+      const data = await dashboardService.getBusinessDevelopmentDashboard(getAuthenticatedUser(req));
+      res.json({ role: "BUSINESS_DEVELOPMENT_EXECUTIVE", data });
     } catch (error) {
       next(error);
     }

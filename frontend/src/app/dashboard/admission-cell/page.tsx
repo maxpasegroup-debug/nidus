@@ -124,10 +124,10 @@ export default function AdmissionCellDashboardPage() {
     <main className="min-h-screen bg-[var(--page-bg)] px-5 py-6 text-[var(--navy)] md:px-8">
       <section className="mx-auto max-w-7xl space-y-8">
         <div className="rounded-3xl border border-[var(--border)] bg-white/90 p-6 shadow-xl md:p-8">
-          <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Admission Cell</p>
-          <h1 className="mt-3 text-4xl font-black tracking-tight md:text-6xl">Enquiry to student activation</h1>
+          <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Administrative Officer</p>
+          <h1 className="mt-3 text-4xl font-black tracking-tight md:text-6xl">Admissions, documents and fee coordination</h1>
           <p className="mt-4 max-w-3xl text-base leading-8 text-[var(--muted-blue)]">
-            One simple workspace to guide enquiries, approve applications, assign batches and activate the student dashboard.
+            One simple workspace to process sales handovers, approve applications, assign batches, track documents and coordinate fees.
           </p>
         </div>
 
@@ -157,11 +157,11 @@ export default function AdmissionCellDashboardPage() {
         </section>
 
         <section className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
-          <Panel id="approval" title="Approve Admission" eyebrow="Activate student dashboard">
+          <Panel id="approval" title="Approve Admission" eyebrow="Activate learner dashboard">
             <form onSubmit={submit} className="grid gap-4">
-              <Field label="Student free-account email" value={form.email} onChange={(value) => setForm((item) => ({ ...item, email: value }))} required />
+              <Field label="Learner account email" value={form.email} onChange={(value) => setForm((item) => ({ ...item, email: value }))} required />
               <div className="grid gap-4 md:grid-cols-2">
-                <Field label="Student name" value={form.name ?? ""} onChange={(value) => setForm((item) => ({ ...item, name: value }))} />
+                <Field label="Learner name" value={form.name ?? ""} onChange={(value) => setForm((item) => ({ ...item, name: value }))} />
                 <Field label="WhatsApp / phone" value={form.phone ?? ""} onChange={(value) => setForm((item) => ({ ...item, phone: value }))} />
                 <Field label="Roll number" value={form.rollNumber ?? ""} onChange={(value) => setForm((item) => ({ ...item, rollNumber: value }))} />
                 <label className="grid gap-2 text-sm font-bold">

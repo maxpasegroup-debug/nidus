@@ -1501,7 +1501,7 @@ function FootballStudentGrid({
             </div>
           ))}
         </div>
-        {!students.length ? <p className="py-10 text-center text-sm text-emerald-100">Students will appear after Admission Cell approval and batch assignment.</p> : null}
+        {!students.length ? <p className="py-10 text-center text-sm text-emerald-100">Learners will appear after Administrative Officer approval and batch assignment.</p> : null}
       </div>
     </div>
   );

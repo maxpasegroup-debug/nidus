@@ -8,13 +8,12 @@ import type { AuthRole } from "@/services/auth.v2";
 const roles: Array<{ label: string; value: AuthRole }> = [
   { label: "Director / Management", value: "DIRECTOR" },
   { label: "Teacher / Faculty", value: "TEACHER" },
-  { label: "Administrative Officer / Telecaller", value: "TELECALLER" },
-  { label: "Marketing Coordinator", value: "MARKETING_COORDINATOR" },
-  { label: "Student", value: "STUDENT" },
+  { label: "Business Development Executive", value: "TELECALLER" },
+  { label: "Learner", value: "STUDENT" },
   { label: "Parent", value: "PARENT" }
 ];
 
-const employeeRoles = ["DIRECTOR", "TEACHER", "TELECALLER", "MARKETING_COORDINATOR"];
+const employeeRoles = ["DIRECTOR", "TEACHER", "TELECALLER"];
 
 function roleLabel(role: string) {
   return roles.find((item) => item.value === role)?.label ?? role;
@@ -78,7 +77,7 @@ export default function UsersPage() {
           <div className="rounded-lg border border-white/10 bg-white/5 p-4">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted">Employees</p>
             <p className="mt-3 text-3xl font-semibold text-ink">{employees.length}</p>
-            <p className="mt-1 text-sm text-muted">Director, teacher, telecaller, and marketing accounts</p>
+            <p className="mt-1 text-sm text-muted">Director, teacher, business development, learner, and parent accounts</p>
           </div>
           <div className="rounded-lg border border-white/10 bg-white/5 p-4">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted">Students & Parents</p>
@@ -136,7 +135,7 @@ export default function UsersPage() {
                 {roles.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}
               </select>
               <div className="rounded border border-white/10 bg-white/5 px-3 py-2 text-sm leading-6 text-muted sm:col-span-2">
-                Employee roles: Director, Teacher, Administrative Officer / Telecaller, Marketing Coordinator. Learner roles: Student, Parent.
+                Employee roles: Director, Teacher, and Business Development Executive. Administrative Officer is created from Director Management with the correct dashboard template. Learner roles: Learner and Parent.
               </div>
               <div className="rounded border border-gold/20 bg-gold/10 px-3 py-2 text-sm text-gold-soft sm:col-span-2">Default password: 123456789</div>
             </div>

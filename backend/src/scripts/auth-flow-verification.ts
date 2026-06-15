@@ -23,7 +23,7 @@ assert.doesNotMatch(routes, /\/refresh|\/csrf/, "refresh and CSRF auth endpoints
 
 assert.match(controller, /res\.cookie\("session", result\.sessionId, cookieOptions\)/, "login/signup must set the httpOnly session cookie");
 assert.match(controller, /res\.json\(\{ success: true, message: "Login successful", user: result\.user \}\)/, "login must return stable success + user response");
-assert.match(controller, /role: Role\.GUEST/, "public signup must create only guests");
+assert.match(controller, /role: Role\.STUDENT/, "public signup must create learner accounts as students");
 assert.doesNotMatch(controller, /accessToken|refreshToken|jwt|Authorization/, "controller must not expose tokens or bearer auth");
 
 assert.match(service, /bcrypt\.hash\(/, "passwords must be hashed with bcrypt");

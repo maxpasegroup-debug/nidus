@@ -46,7 +46,7 @@ const academicAreas = [
   { title: "Reports", text: "Review progress before management decisions", icon: ClipboardCheck },
 ];
 
-const batchTypes = ["OFFLINE", "ONLINE", "CRASH", "FOUNDATION", "TOPRANK", "GURU"] as const;
+const batchTypes = ["OFFLINE", "ONLINE", "CRASH", "FOUNDATION", "EXAM_COACHING", "GURU"] as const;
 const employmentTypes = ["FULL_TIME", "PART_TIME", "HOURLY", "CONTRACT"] as const;
 const completionOptions = [
   { label: "Green", value: "GREEN", helper: "On track", className: "bg-emerald-50 text-emerald-800 border-emerald-200" },
@@ -837,7 +837,7 @@ function BatchTeamBoard({ batch, onClose }: { batch: AcademyBatch; onClose: () =
               </span>
             </div>
           ))}
-          {!students.length && <TeamEmpty text="No students assigned yet. Admission Cell can approve students into this batch." />}
+          {!students.length && <TeamEmpty text="No learners assigned yet. Administrative Officer can approve learners into this batch." />}
         </div>
       </div>
 

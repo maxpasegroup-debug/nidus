@@ -195,11 +195,11 @@ export default function StudentDashboardPage() {
   });
   const availableExams = useQuery({
     queryKey: ["student", "available-exams"],
-    queryFn: () => apiJson<ExamSummary[]>("/api/tests/available"),
+    queryFn: () => apiJson<{ tests: ExamSummary[] }>("/api/tests/available"),
   });
   const attemptHistory = useQuery({
     queryKey: ["student", "exam-attempt-history"],
-    queryFn: () => apiJson<AttemptHistory[]>("/api/tests/attempts/history"),
+    queryFn: () => apiJson<{ attempts: AttemptHistory[] }>("/api/tests/attempts/history"),
   });
 
   const batches = academicPlan.data?.batches ?? [];
@@ -210,8 +210,8 @@ export default function StudentDashboardPage() {
   const assignments = academicPlan.data?.assignments ?? [];
   const materials = academicPlan.data?.materials ?? [];
   const pendingAssignments = assignments.filter((assignment) => assignment.submissionStatus !== "SUBMITTED");
-  const exams = availableExams.data ?? [];
-  const results = attemptHistory.data ?? [];
+  const exams = availableExams.data?.tests ?? [];
+  const results = attemptHistory.data?.attempts ?? [];
   const today = new Date().toISOString().slice(0, 10);
   const todayClasses = calendar.filter((item) => item.plannedDate.slice(0, 10) === today);
   const upcomingClasses = calendar.filter((item) => item.plannedDate.slice(0, 10) >= today).slice(0, 6);
@@ -230,10 +230,10 @@ export default function StudentDashboardPage() {
     <main className="min-h-screen bg-[var(--page-bg)] px-5 py-6 text-[var(--navy)] md:px-8">
       <section className="mx-auto max-w-7xl space-y-8">
         <div className="rounded-3xl border border-[var(--border)] bg-white/90 p-6 shadow-xl md:p-8">
-          <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">My Student Journey</p>
+          <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">My Journey</p>
           <div className="mt-3 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
             <div>
-              <h1 className="text-4xl font-black tracking-tight md:text-6xl">Your academy dashboard</h1>
+              <h1 className="text-4xl font-black tracking-tight md:text-6xl">Your NIDUS dashboard</h1>
               <p className="mt-4 max-w-3xl text-base leading-8 text-[var(--muted-blue)]">
                 See your batch, today&apos;s class, upcoming exams, learning materials, attendance and academic progress in one simple place.
               </p>
@@ -255,7 +255,7 @@ export default function StudentDashboardPage() {
         {!batches.length && (
           <EmptyState
             title="Your admission is being processed"
-            text="After the Admission Cell approves your application and assigns a batch, your classes, exams, materials and calendar will appear here."
+            text="After the Administrative Officer approves your application and assigns a batch, your classes, exams, materials and calendar will appear here."
           />
         )}
 
@@ -293,14 +293,20 @@ export default function StudentDashboardPage() {
           </Panel>
         </section>
 
-        <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <section id="classes" className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           <StudentModule title="Classes" text="Recorded and live class links will appear batch-wise." icon={PlayCircle} />
-          <StudentModule title="Exams" text="Assigned CBT exams and weekly tests will be shown here." icon={ClipboardCheck} />
-          <StudentModule title="Assignments" text="Submit homework and teacher-given tasks." icon={FileText} />
-          <StudentModule title="Library" text="Access notes, videos, files and topic materials." icon={Library} />
+          <StudentModule title="Exam Coaching" text="Practice tests, weekly tests and NIDUS-owned CBT coaching." icon={ClipboardCheck} href="#exams" />
+          <StudentModule title="Assessments" text="Open psychometric and defence-readiness assessments." icon={ShieldCheck} href="/dashboard/student#assessments" />
+          <StudentModule title="NIDUS Guru" text="Focus, discipline and dream-building quests." icon={UserRound} href="/dashboard/student#nidus-guru" />
         </section>
 
-        <Panel title="Assignments" eyebrow="Teacher published tasks">
+        <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <StudentModule title="Assignments" text="Submit homework and teacher-given tasks." icon={FileText} href="#assignments" />
+          <StudentModule title="Attendance" text="Track class attendance and marked sessions." icon={CalendarDays} href="#attendance" />
+          <StudentModule title="Library" text="Access notes, videos, files and topic materials." icon={Library} href="#library" />
+        </section>
+
+        <Panel id="assignments" title="Assignments" eyebrow="Teacher published tasks">
           <div className="grid gap-4">
             {assignments.map((assignment) => {
               const draft = assignmentDrafts[assignment.id] ?? { answerText: "", link: "", attachmentName: "" };
@@ -395,7 +401,7 @@ export default function StudentDashboardPage() {
           </div>
         </Panel>
 
-        <Panel title="Library" eyebrow="Batch study materials">
+        <Panel id="library" title="Library" eyebrow="Batch study materials">
           <div className="grid gap-3 md:grid-cols-2">
             {materials.map((material) => (
               <article key={material.id} className="rounded-2xl border border-[var(--border)] bg-white p-4">
@@ -437,7 +443,7 @@ export default function StudentDashboardPage() {
           </div>
         </Panel>
 
-        <Panel title="Attendance" eyebrow="Teacher marked sessions">
+        <Panel id="attendance" title="Attendance" eyebrow="Teacher marked sessions">
           <div className="grid gap-4 lg:grid-cols-[0.8fr_1.2fr]">
             <div className="rounded-2xl border border-[var(--border)] bg-white p-5">
               <p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold)]">Overall</p>
@@ -474,7 +480,7 @@ export default function StudentDashboardPage() {
           </div>
         </Panel>
 
-        <Panel title="Available Exams" eyebrow="CBT and weekly tests">
+        <Panel id="exams" title="Exam Coaching" eyebrow="CBT and weekly tests">
           <div className="grid gap-3 md:grid-cols-2">
             {exams.map((exam) => (
               <article key={exam.id || exam.testId || exam.examName || exam.title || "exam"} className="rounded-2xl border border-[var(--border)] bg-white p-4">
@@ -522,12 +528,25 @@ export default function StudentDashboardPage() {
           </div>
         </Panel>
 
-        <Panel title="Academic Calendar" eyebrow="Upcoming plan">
+        <Panel id="academic-calendar" title="Academic Calendar" eyebrow="Upcoming plan">
           <div className="grid gap-3">
             {upcomingClasses.map((item) => (
               <ClassRow key={item.id} item={item} />
             ))}
             {!upcomingClasses.length && <SoftNote text="Your upcoming academic plan will appear after the Director/Academic Head publishes the calendar." />}
+          </div>
+        </Panel>
+        <Panel id="assessments" title="Assessments" eyebrow="Know your readiness">
+          <div className="grid gap-3 md:grid-cols-2">
+            <StudentModule title="Defence Assessments" text="Start readiness, discipline, focus and officer-potential assessments." icon={ShieldCheck} href="/psychometric" />
+            <StudentModule title="Assessment Reports" text="Review completed assessment reports and next-action guidance." icon={FileText} href="/psychometric/reports" />
+          </div>
+        </Panel>
+
+        <Panel id="nidus-guru" title="NIDUS Guru" eyebrow="Personal growth quests">
+          <div className="grid gap-3 md:grid-cols-2">
+            <StudentModule title="Quest Arena" text="Open focus, discipline, confidence and Dream Addiction quests." icon={UserRound} href="/guru" />
+            <StudentModule title="Digital Profile" text="Build a simple NIDUS profile with goals, strengths and progress." icon={UserRound} href="/digital-profile" />
           </div>
         </Panel>
       </section>
@@ -545,9 +564,9 @@ function Metric({ label, value, suffix = "", icon: Icon }: { label: string; valu
   );
 }
 
-function Panel({ title, eyebrow, children }: { title: string; eyebrow: string; children: ReactNode }) {
+function Panel({ id, title, eyebrow, children }: { id?: string; title: string; eyebrow: string; children: ReactNode }) {
   return (
-    <section className="rounded-3xl border border-[var(--border)] bg-white/90 p-5 shadow-sm">
+    <section id={id} className="rounded-3xl border border-[var(--border)] bg-white/90 p-5 shadow-sm">
       <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">{eyebrow}</p>
       <h2 className="mt-2 text-2xl font-black text-[var(--navy)]">{title}</h2>
       <div className="mt-5">{children}</div>
@@ -580,14 +599,28 @@ function ClassRow({ item }: { item: CalendarItem }) {
   );
 }
 
-function StudentModule({ title, text, icon: Icon }: { title: string; text: string; icon: LucideIcon }) {
-  return (
-    <div className="rounded-2xl border border-[var(--border)] bg-white/90 p-5 shadow-sm">
+function StudentModule({ title, text, icon: Icon, href }: { title: string; text: string; icon: LucideIcon; href?: string }) {
+  const content = (
+    <>
       <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-[var(--gold-border)] bg-[var(--gold-soft)]">
         <Icon className="h-6 w-6 text-[var(--navy)]" />
       </div>
       <h3 className="mt-5 text-xl font-black text-[var(--navy)]">{title}</h3>
       <p className="mt-2 text-sm leading-6 text-[var(--muted-blue)]">{text}</p>
+    </>
+  );
+
+  if (href) {
+    return (
+      <Link href={href} className="rounded-2xl border border-[var(--border)] bg-white/90 p-5 shadow-sm transition hover:-translate-y-1 hover:border-[var(--gold-border)] hover:shadow-lg">
+        {content}
+      </Link>
+    );
+  }
+
+  return (
+    <div className="rounded-2xl border border-[var(--border)] bg-white/90 p-5 shadow-sm">
+      {content}
     </div>
   );
 }

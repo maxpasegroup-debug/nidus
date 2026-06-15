@@ -6,11 +6,11 @@ import { PageHero } from "@/components/layout/page-hero";
 
 const aiRoles = [
   { title: "Director", description: "Institution health, admissions, revenue, risk alerts, and staff performance summary.", tag: "CEO" },
-  { title: "Admin", description: "Pending users, fees, course uploads, tests, HR documents, and system checks.", tag: "Ops" },
+  { title: "Administrative Officer", description: "Admissions, documents, fee coordination, approvals, and operations checks.", tag: "Ops" },
   { title: "Teacher", description: "Lesson plan help, weak-student alerts, test review, and parent update suggestions.", tag: "Class" },
-  { title: "Student", description: "Daily study plan, weak topics, mock-test practice, and revision actions.", tag: "Study" },
-  { title: "Telecaller", description: "Call script, follow-up priority, counselling prompt, and admission conversion tips.", tag: "CRM" },
-  { title: "Marketing", description: "Campaign focus, webinar follow-up, content ideas, and lead-source quality.", tag: "Growth" }
+  { title: "Learner", description: "Daily study plan, weak topics, mock-test practice, and revision actions.", tag: "Study" },
+  { title: "Business Development Executive", description: "Call scripts, follow-up priority, counselling prompts, and admission conversion tips.", tag: "CRM" },
+  { title: "Sales Booster", description: "Campaign focus, webinar follow-up, content ideas, and lead-source quality.", tag: "Growth" }
 ];
 
 const dailyQuestions = [
@@ -28,7 +28,7 @@ export default function NidusAiPage() {
       <PageHero
         eyebrow="NIDUS AI Boss"
         title="Ask NIDUS across the whole academy"
-        description="NIDUS acts as the academy assistant for management, teachers, students, parents, telecallers, marketing, reports, and operations."
+        description="NIDUS acts as the academy assistant for management, teachers, learners, parents, business development, sales booster, reports, and operations."
         stats={[
           { value: "24/7", label: "AI support" },
           { value: "6", label: "role views" },

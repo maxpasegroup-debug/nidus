@@ -17,7 +17,6 @@ const publicRoutes = new Set([
   "/contact",
   "/nidus-ai-ecosystem",
   "/programs",
-  "/toprank",
   "/guru",
   "/psychometric",
   "/join",
@@ -29,7 +28,7 @@ const publicRoutes = new Set([
   "/disclaimer"
 ]);
 
-const publicPrefixes = ["/programs/", "/toprank/", "/guru/quests/"];
+const publicPrefixes = ["/programs/", "/guru/quests/"];
 
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();

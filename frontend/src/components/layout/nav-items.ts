@@ -5,15 +5,6 @@ export type DashboardNavItem = {
 
 export type NavItem = DashboardNavItem;
 
-const guestMenu: DashboardNavItem[] = [
-  { label: "My Journey", href: "/dashboard/guest" },
-  { label: "Assessments", href: "/dashboard/guest#assessments" },
-  { label: "TOPRANK", href: "/dashboard/guest#toprank" },
-  { label: "NIDUS Guru", href: "/dashboard/guest#guru" },
-  { label: "Academy Programs", href: "/dashboard/guest#academy" },
-  { label: "Digital Profile", href: "/dashboard/guest#profile" },
-];
-
 const studentMenu: DashboardNavItem[] = [
   { label: "My Journey", href: "/dashboard/student" },
   { label: "Classes", href: "/dashboard/student#classes" },
@@ -44,7 +35,7 @@ const academicHeadMenu: DashboardNavItem[] = [
   { label: "HOD", href: "/dashboard/director/academic" },
 ];
 
-const admissionCellMenu: DashboardNavItem[] = [
+const administrativeOfficerMenu: DashboardNavItem[] = [
   { label: "Today", href: "/dashboard/admission-cell" },
   { label: "Enquiries", href: "/dashboard/admission-cell#enquiries" },
   { label: "Applications", href: "/dashboard/admission-cell#applications" },
@@ -53,13 +44,13 @@ const admissionCellMenu: DashboardNavItem[] = [
   { label: "Reports", href: "/dashboard/admission-cell#reports" },
 ];
 
-const salesBoosterMenu: DashboardNavItem[] = [
-  { label: "Dashboard", href: "/dashboard/sales-booster" },
-  { label: "Campaigns", href: "/dashboard/sales-booster#campaigns" },
-  { label: "Creatives", href: "/dashboard/sales-booster#creatives" },
-  { label: "WhatsApp", href: "/dashboard/sales-booster#whatsapp" },
-  { label: "Analytics", href: "/dashboard/sales-booster#analytics" },
-  { label: "Reports", href: "/dashboard/sales-booster#reports" },
+const businessDevelopmentMenu: DashboardNavItem[] = [
+  { label: "Today", href: "/dashboard/business-development" },
+  { label: "Leads", href: "/crm/leads" },
+  { label: "Follow-ups", href: "/crm/followups" },
+  { label: "Counselling", href: "/crm/counselling" },
+  { label: "Admissions", href: "/crm/admissions" },
+  { label: "Reports", href: "/dashboard/business-development#reports" },
 ];
 
 const adminMenu: DashboardNavItem[] = [
@@ -87,11 +78,11 @@ export function getNavItems(role?: string | null, dashboardTemplate?: string | n
   }
 
   if (normalizedRole === "ADMIN" || normalizedRole === "ADMISSION_CELL") {
-    return admissionCellMenu;
+    return administrativeOfficerMenu;
   }
 
-  if (normalizedRole === "MARKETING_COORDINATOR" || normalizedRole === "SALES_BOOSTER") {
-    return salesBoosterMenu;
+  if (normalizedRole === "MARKETING_COORDINATOR" || normalizedRole === "SALES_BOOSTER" || normalizedRole === "TELECALLER") {
+    return businessDevelopmentMenu;
   }
 
   if (normalizedRole === "STUDENT") {
@@ -99,12 +90,12 @@ export function getNavItems(role?: string | null, dashboardTemplate?: string | n
   }
 
   if (normalizedRole === "GUEST") {
-    return guestMenu;
+    return studentMenu;
   }
 
   if (normalizedRole === "SUPER_ADMIN" || normalizedRole === "MANAGEMENT") {
     return adminMenu;
   }
 
-  return guestMenu;
+  return studentMenu;
 }

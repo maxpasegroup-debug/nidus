@@ -32,7 +32,7 @@ export default function DigitalProfilePage() {
             A hybrid digital profile designed as a portfolio, CV and shareable recruiter-ready identity for defence training, academics, assessments, discipline and leadership growth.
           </p>
           <div className="mt-7 flex flex-col gap-3 sm:flex-row">
-            <Button href="/dashboard/assessments">
+            <Button href="/dashboard/student#assessments">
               Complete Assessments <ArrowRight className="h-4 w-4" />
             </Button>
             <Button href="/join" variant="secondary">
@@ -98,11 +98,11 @@ export default function DigitalProfilePage() {
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#e7c873]">Next Profile Upgrade</p>
               <h2 className="mt-3 text-3xl font-semibold">Make your profile stronger.</h2>
-              <p className="mt-3 max-w-2xl text-sm leading-7 text-white/70">Complete assessments, choose a TOPRANK exam path and apply to the academy to convert this into a full student portfolio.</p>
+              <p className="mt-3 max-w-2xl text-sm leading-7 text-white/70">Complete assessments, choose a NIDUS exam coaching path and apply to the academy to convert this into a full student portfolio.</p>
             </div>
             <div className="flex flex-col gap-3 sm:flex-row">
-              <Button href="/dashboard/assessments">Assessments</Button>
-              <Link href="/dashboard/toprank" className="inline-flex min-h-12 items-center justify-center rounded border border-white/15 bg-white px-5 py-3 text-sm font-semibold text-[#071d36]">TOPRANK</Link>
+              <Button href="/dashboard/student#assessments">Assessments</Button>
+              <Link href="/tests" className="inline-flex min-h-12 items-center justify-center rounded border border-white/15 bg-white px-5 py-3 text-sm font-semibold text-[#071d36]">Exam Coaching</Link>
             </div>
           </div>
         </section>

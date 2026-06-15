@@ -385,19 +385,6 @@ export const dashboardService = {
     };
   },
 
-  async getGuestDashboard() {
-    const [courses, tests, announcements] = await Promise.all([
-      prisma.course.findMany({ orderBy: { createdAt: "desc" }, take: 4 }),
-      prisma.test.findMany({ where: { isLive: true }, orderBy: { createdAt: "desc" }, take: 3, include: { _count: { select: { questions: true } } } }),
-      prisma.announcement.findMany({ orderBy: { createdAt: "desc" }, take: 5 })
-    ]);
-    return {
-      featuredCourses: courses.map((course) => ({ id: course.id, title: course.title, duration: course.duration, level: course.category })),
-      freeTests: tests.map((test) => ({ id: test.id, title: test.title, questions: test._count.questions })),
-      latestNews: announcements.map((announcement) => announcement.title)
-    };
-  },
-
   async getTeacherDashboard(user: DashboardUser) {
     const profile = await prisma.user.findUnique({
       where: { id: user.id },
@@ -575,9 +562,9 @@ export const dashboardService = {
     };
   },
 
-  async getTelecallerDashboard(user: DashboardUser) {
-    const telecaller = await prisma.user.findUnique({ where: { id: user.id }, select: { roleMetadata: true } });
-    const customDashboard = staffDashboard(metadataObject(telecaller?.roleMetadata), "LEAD_SUPPORT");
+  async getBusinessDevelopmentDashboard(user: DashboardUser) {
+    const executive = await prisma.user.findUnique({ where: { id: user.id }, select: { roleMetadata: true } });
+    const customDashboard = staffDashboard(metadataObject(executive?.roleMetadata), "LEAD_SUPPORT");
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const tomorrow = new Date(today);
@@ -603,7 +590,7 @@ export const dashboardService = {
       aiCallScripts: [
         "Hello, I am calling from NIDUS Academy. You enquired about defence training. May I know which program you are interested in?",
         "If the parent is interested, open Counselling and book a convenient time.",
-        "If admission is confirmed, open Send to Admission Cell and hand over the case for fees and documents."
+        "If admission is confirmed, send the case to Administrative Officer for fees, documents and final processing."
       ],
       whatsappShell: { status: "Not connected", templates: 0, pendingOptIns: 0 }
     };

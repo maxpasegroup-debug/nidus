@@ -161,12 +161,12 @@ export const nidusTeamMembers: TeamMemberSeed[] = [
     focusAreas: ["Chemistry concepts", "Equation practice", "Topic tests", "Lab-linked notes"]
   },
   {
-    name: "Admission Cell",
+    name: "Administrative Officer",
     email: "admisioncell@nidusacademy.in",
     legacyEmail: "vineeshdeepthi8@gmail.com",
     mobile: "+919000001013",
     role: Role.ADMIN,
-    designation: "Admission Cell",
+    designation: "Administrative Officer",
     department: "Admissions",
     dashboardTemplate: "ADMIN_OPERATIONS",
     permissions: ["manage_enquiries", "manage_applications", "manage_admissions", "manage_documents", "manage_fees", "send_notices"],
@@ -194,7 +194,7 @@ export const nidusTeamMembers: TeamMemberSeed[] = [
     dashboardTemplate: "SALES_BOOSTER",
     resetDefaultPassword: true,
     permissions: ["plan_campaigns", "review_creatives", "manage_campaign_leads", "prepare_whatsapp_followups", "review_campaign_reports"],
-    focusAreas: ["Academy promotions", "TOPRANK subscriptions", "NIDUS Guru campaigns", "Assessment lead magnets", "WhatsApp follow-up"]
+    focusAreas: ["Academy promotions", "Exam coaching campaigns", "NIDUS Guru campaigns", "Assessment lead magnets", "WhatsApp follow-up"]
   }
 ];
 

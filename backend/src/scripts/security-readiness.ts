@@ -47,7 +47,7 @@ try {
       email,
       mobile: `+9188${Date.now().toString().slice(-8)}`,
       password: await bcrypt.hash(password, 12),
-      role: Role.GUEST,
+      role: Role.STUDENT,
       emailVerified: true,
       roleOnboardingStatus: "ACTIVE",
       roleActivatedAt: new Date(),

@@ -17,7 +17,7 @@ function unrestrictedAdmin(role?: Role, template = "") {
   return role === Role.ADMIN && !["ADMISSION_CELL", "MARKETING", "SALES_BOOSTER"].includes(template);
 }
 
-function allowDashboard(kind: "student" | "parent" | "admin" | "guest" | "teacher" | "academicHead" | "director" | "telecaller" | "marketing") {
+function allowDashboard(kind: "student" | "parent" | "admin" | "teacher" | "academicHead" | "director" | "businessDevelopment" | "marketing") {
   return (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     const role = req.user?.role;
     const template = dashboardTemplate(req);
@@ -25,11 +25,10 @@ function allowDashboard(kind: "student" | "parent" | "admin" | "guest" | "teache
       (kind === "student" && (role === Role.STUDENT || unrestrictedAdmin(role, template))) ||
       (kind === "parent" && (role === Role.PARENT || unrestrictedAdmin(role, template))) ||
       (kind === "admin" && unrestrictedAdmin(role, template)) ||
-      (kind === "guest" && (role === Role.GUEST || unrestrictedAdmin(role, template))) ||
       (kind === "teacher" && (role === Role.TEACHER || template === "ACADEMIC_HEAD" || unrestrictedAdmin(role, template))) ||
       (kind === "academicHead" && template === "ACADEMIC_HEAD") ||
       (kind === "director" && (role === Role.DIRECTOR || unrestrictedAdmin(role, template))) ||
-      (kind === "telecaller" && (role === Role.TELECALLER || role === Role.DIRECTOR || unrestrictedAdmin(role, template))) ||
+      (kind === "businessDevelopment" && (role === Role.TELECALLER || role === Role.DIRECTOR || unrestrictedAdmin(role, template))) ||
       (kind === "marketing" && (role === Role.MARKETING_COORDINATOR || role === Role.DIRECTOR || (role === Role.ADMIN && ["MARKETING", "SALES_BOOSTER"].includes(template))));
     if (!allowed) {
       res.status(403).json({ success: false, message: "Forbidden for assigned dashboard scope" });
@@ -42,9 +41,10 @@ function allowDashboard(kind: "student" | "parent" | "admin" | "guest" | "teache
 dashboardRouter.get("/student", allowDashboard("student"), dashboardController.student);
 dashboardRouter.get("/parent", allowDashboard("parent"), dashboardController.parent);
 dashboardRouter.get("/admin", allowDashboard("admin"), dashboardController.admin);
-dashboardRouter.get("/guest", allowDashboard("guest"), dashboardController.guest);
+dashboardRouter.get("/guest", allowDashboard("student"), dashboardController.student);
 dashboardRouter.get("/teacher", allowDashboard("teacher"), dashboardController.teacher);
 dashboardRouter.get("/academic-head", allowDashboard("academicHead"), dashboardController.teacher);
 dashboardRouter.get("/director", allowDashboard("director"), dashboardController.director);
-dashboardRouter.get("/telecaller", allowDashboard("telecaller"), dashboardController.telecaller);
+dashboardRouter.get("/business-development", allowDashboard("businessDevelopment"), dashboardController.businessDevelopment);
+dashboardRouter.get("/telecaller", allowDashboard("businessDevelopment"), dashboardController.businessDevelopment);
 dashboardRouter.get("/marketing", allowDashboard("marketing"), dashboardController.marketing);

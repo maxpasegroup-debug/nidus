@@ -8,6 +8,7 @@ import {
   BarChart3,
   BookOpen,
   CalendarDays,
+  Camera,
   ClipboardCheck,
   CreditCard,
   FileArchive,
@@ -17,8 +18,10 @@ import {
   Megaphone,
   MessageCircle,
   PieChart,
+  PlayCircle,
   ReceiptText,
   Settings,
+  Share2,
   ShieldCheck,
   Sparkles,
   UserCheck,
@@ -66,35 +69,35 @@ const directorAreas: DirectorArea[] = [
     ],
   },
   {
-    title: "Admission Cell",
+    title: "Administrative Officer",
     label: "Enquiries to admissions",
-    text: "Convert enquiries into students and assign them to the right batch.",
+    text: "Process admissions, documents, fees and batch activation after sales handover.",
     icon: ClipboardCheck,
     accent: "from-sky-100 via-white to-amber-100",
     subAreas: [
-      { title: "New Enquiries", text: "Website, WhatsApp, calls, social media and walk-in leads.", href: "/dashboard/admission-cell#enquiries", icon: MessageCircle, status: "Manage" },
-      { title: "Applications", text: "Students who applied for Academy programs.", href: "/dashboard/admission-cell#applications", icon: FileText, status: "Ready" },
-      { title: "Counselling", text: "Parent discussion, student needs and course suggestions.", href: "/dashboard/admission-cell#counselling", icon: Users, status: "Manage" },
+      { title: "Sales Handover", text: "Confirmed cases sent by Business Development Executive.", href: "/dashboard/admission-cell#enquiries", icon: MessageCircle, status: "Manage" },
+      { title: "Applications", text: "Admissions waiting for processing and activation.", href: "/dashboard/admission-cell#applications", icon: FileText, status: "Ready" },
+      { title: "Documentation", text: "Student details, parent discussion and required records.", href: "/dashboard/admission-cell#documents", icon: Users, status: "Manage" },
       { title: "Admission Approval", text: "Approve application and activate student dashboard.", href: "/dashboard/admission-cell", icon: ShieldCheck, status: "Ready" },
       { title: "Fee Follow-Up", text: "Pending fee reminders and payment coordination.", href: "/fees", icon: BadgeIndianRupee, status: "Manage" },
       { title: "Documents", text: "Student documents, ID proof and academic details.", href: "/dashboard/admission-cell#documents", icon: FileArchive, status: "Manage" },
-      { title: "Admission Reports", text: "Course-wise admissions and conversion status.", href: "/dashboard/admission-cell#reports", icon: BarChart3, status: "Monitor" },
+      { title: "Admission Reports", text: "Course-wise admissions and processing status.", href: "/dashboard/admission-cell#reports", icon: BarChart3, status: "Monitor" },
     ],
   },
   {
     title: "Advertisement & Marketing",
-    label: "Campaigns and growth",
-    text: "Run campaigns, manage creatives, track leads and marketing performance.",
+    label: "Sales Booster",
+    text: "Plan campaigns, manage creatives, track leads and run social growth from Director control.",
     icon: Megaphone,
     accent: "from-orange-100 via-white to-green-100",
     subAreas: [
-      { title: "Sales Booster", text: "AI campaign creation and marketing automation.", href: "/dashboard/marketing", icon: Sparkles, status: "Ready" },
-      { title: "Campaigns", text: "Academy, TOPRANK, NIDUS Guru and assessment campaigns.", href: "/dashboard/marketing", icon: Megaphone, status: "Manage" },
+      { title: "Sales Booster", text: "AI campaign creation and marketing automation.", href: "#sales-booster", icon: Sparkles, status: "Ready" },
+      { title: "Campaigns", text: "Academy, exam coaching, NIDUS Guru and assessment campaigns.", href: "#sales-booster", icon: Megaphone, status: "Manage" },
       { title: "Creative Library", text: "Posters, videos, brochures and reels.", href: "/media-library", icon: FileArchive, status: "Manage" },
-      { title: "Social Media", text: "Facebook, Instagram, Threads and YouTube posting.", href: "/dashboard/marketing", icon: MessageCircle, status: "Manage" },
-      { title: "WhatsApp Campaigns", text: "Bulk messages, templates and counsellor routing.", href: "/dashboard/marketing", icon: MessageCircle, status: "Manage" },
+      { title: "Social Media", text: "Facebook, Instagram, Threads and YouTube posting.", href: "#sales-booster", icon: MessageCircle, status: "Manage" },
+      { title: "WhatsApp Campaigns", text: "Bulk messages, templates and counsellor routing.", href: "#sales-booster", icon: MessageCircle, status: "Manage" },
       { title: "Campaign Leads", text: "Track campaign-wise leads and source quality.", href: "/crm/leads", icon: UserPlus, status: "Monitor" },
-      { title: "Marketing Reports", text: "Reach, engagement, conversion and best creatives.", href: "/dashboard/marketing", icon: BarChart3, status: "Monitor" },
+      { title: "Marketing Reports", text: "Reach, engagement, conversion and best creatives.", href: "#sales-booster", icon: BarChart3, status: "Monitor" },
     ],
   },
   {
@@ -123,7 +126,7 @@ const directorAreas: DirectorArea[] = [
       { title: "Fee Management", text: "Course fees, student payments and pending dues.", href: "/fees", icon: BadgeIndianRupee, status: "Ready" },
       { title: "Invoices & Receipts", text: "Generate and track payment receipts.", href: "/invoices", icon: ReceiptText, status: "Ready" },
       { title: "Expenses", text: "Office, salary, rent, marketing and operations.", href: "/dashboard/director/accounts#expenses", icon: CreditCard, status: "Manage" },
-      { title: "Subscriptions", text: "TOPRANK, assessments and premium module subscriptions.", href: "/subscriptions", icon: WalletCards, status: "Ready" },
+      { title: "Subscriptions", text: "Assessments, exam coaching and premium module subscriptions.", href: "/subscriptions", icon: WalletCards, status: "Ready" },
       { title: "Reports & Launch QA", text: "Academic, admissions, marketing, finance, staff reports and launch checklist.", href: "/dashboard/director/launch-qa", icon: BarChart3, status: "Ready" },
       { title: "Settings", text: "Company details, contact number and system controls.", href: "/dashboard/director/accounts#settings", icon: Settings, status: "Ready" },
       { title: "Audit Logs", text: "Track important staff and management actions.", href: "/admin-center/audit-logs", icon: FileText, status: "Monitor" },
@@ -161,7 +164,7 @@ export default function DirectorDashboardPage() {
               Manage the whole company from five clear areas.
             </h1>
             <p className="mt-5 max-w-3xl text-base leading-8 text-[var(--muted-blue)]">
-              A simple glossy control room for Academics, Admission Cell, Advertisement & Marketing, HRM, and Admin & Accounts.
+              A simple glossy control room for Academics, Administrative Officer, Advertisement & Marketing, HRM, and Admin & Accounts.
             </p>
           </div>
         </div>
@@ -231,6 +234,40 @@ export default function DirectorDashboardPage() {
             ))}
           </div>
         </section>
+
+        <section id="sales-booster" className="rounded-3xl border border-[var(--gold-border)] bg-white/95 p-5 shadow-xl md:p-7">
+          <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Sales Booster</p>
+              <h2 className="mt-3 text-3xl font-black text-[var(--navy)]">Director marketing command module</h2>
+              <p className="mt-3 max-w-3xl text-sm leading-7 text-[var(--muted-blue)]">
+                Create campaigns for Academy admissions, NIDUS Exam Coaching, assessments and NIDUS Guru. Social posting and WhatsApp follow-up stay under Director control.
+              </p>
+            </div>
+            <Link className="rounded-2xl bg-[var(--gold-gradient)] px-5 py-3 text-sm font-black text-[var(--navy)] shadow-lg" href="/dashboard/director#sales-booster">
+              Open Module
+            </Link>
+          </div>
+          <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            {[
+              { title: "Facebook", text: "Lead ads and parent campaigns", icon: Share2 },
+              { title: "Instagram", text: "Reels, stories and poster campaigns", icon: Camera },
+              { title: "YouTube", text: "Campaign videos and academy proof", icon: PlayCircle },
+              { title: "WhatsApp", text: "Follow-up, templates and counsellor routing", icon: MessageCircle }
+            ].map((channel) => {
+              const Icon = channel.icon;
+              return (
+                <div key={channel.title} className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-5">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-[var(--gold-border)] bg-white">
+                    <Icon className="h-6 w-6 text-[var(--navy)]" />
+                  </div>
+                  <h3 className="mt-4 text-xl font-black text-[var(--navy)]">{channel.title}</h3>
+                  <p className="mt-2 text-sm leading-6 text-[var(--muted-blue)]">{channel.text}</p>
+                </div>
+              );
+            })}
+          </div>
+        </section>
       </section>
     </main>
   );
@@ -254,7 +291,7 @@ function metricsForArea(title: string, context: MetricContext) {
       { label: "Syllabus", value: `${context.syllabus?.completionPercentage ?? 0}%` },
     ];
   }
-  if (title === "Admission Cell") {
+  if (title === "Administrative Officer") {
     return [
       { label: "Leads", value: context.director?.admissionsAnalytics.leads ?? 0 },
       { label: "Admissions", value: context.director?.admissionsAnalytics.admissions ?? 0 },

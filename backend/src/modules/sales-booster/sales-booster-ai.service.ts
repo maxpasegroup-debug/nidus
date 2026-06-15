@@ -41,7 +41,7 @@ function cleanChannels(channels?: string[]) {
 }
 
 function trackIntent(track: string) {
-  if (/toprank/i.test(track)) return "AI-powered defence exam coaching with Rs 2,999 + GST monthly 24x7 AI trainer access";
+  if (/exam|coaching/i.test(track)) return "NIDUS-owned defence exam coaching with practice, tests, correction, and daily mission support";
   if (/guru/i.test(track)) return "active learning transformation quests for focus, discipline and personal growth";
   if (/assessment/i.test(track)) return "free psychometric and defence readiness assessments for lead generation";
   return "academy admissions, counselling, physical campus training and defence preparation";
@@ -53,7 +53,7 @@ function fallbackDraft(input: GenerateInput): SalesBoosterAIDraft {
   const audience = input.audience?.trim() || "Kerala defence aspirants, parents, and students preparing for NDA, CDS, AFCAT, AISSEE, SSB or Agniveer";
   const baseCaption = `${input.goal.trim() || `Promote ${input.track}`} Keep the message simple for parents, build trust, and guide users to Start Free before counselling.`;
   return {
-    hook: /toprank/i.test(input.track) ? "Train for rank, not just marks." : "Your uniform journey can start with one clear step.",
+    hook: /exam|coaching/i.test(input.track) ? "Train with a clear NIDUS exam mission." : "Your uniform journey can start with one clear step.",
     caption: `${baseCaption} NIDUS Academy supports ${intent}.`,
     audience,
     cta: /assessment/i.test(input.track) ? "Start Free Assessment" : /academy/i.test(input.track) ? "Apply for Counselling" : "Start Free",
@@ -91,7 +91,7 @@ function fallbackDraft(input: GenerateInput): SalesBoosterAIDraft {
 
 const instructions = `
 You are NIDUS Academy's Sales Booster AI for a premium Indian defence academy.
-Generate a concise, parent-friendly campaign draft for Academy admissions, TOPRANK AI coaching, NIDUS Guru, or free assessments.
+Generate a concise, parent-friendly campaign draft for Academy admissions, NIDUS Exam Coaching, NIDUS Guru, or free assessments.
 Do not sound like a generic SaaS tool. Do not promise guaranteed selection.
 Keep English simple and trustworthy for Indian parents and students.
 Return ONLY valid JSON matching:

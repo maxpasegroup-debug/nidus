@@ -32,7 +32,7 @@ export const authControllerV2 = {
           email: email.trim().toLowerCase(),
           mobile: mobile.trim(),
           password: await bcrypt.hash(password, 12),
-          role: Role.GUEST,
+          role: Role.STUDENT,
           emailVerified: true,
           mobileVerified: false,
           roleOnboardingStatus: "ACTIVE",

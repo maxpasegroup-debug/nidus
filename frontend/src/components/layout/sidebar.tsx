@@ -18,7 +18,15 @@ export function Sidebar() {
       ? userMetadata.dashboardTemplate
       : null;
   const designation = typeof userMetadata.designation === "string" ? userMetadata.designation : null;
-  const roleLabel = designation ?? dashboardTemplate ?? user?.role ?? "GUEST";
+  const rawRoleLabel = designation ?? dashboardTemplate ?? user?.role ?? "STUDENT";
+  const roleLabel =
+    rawRoleLabel === "GUEST" || rawRoleLabel === "STUDENT"
+      ? "Learner"
+      : rawRoleLabel === "TELECALLER"
+        ? "Business Development Executive"
+        : rawRoleLabel === "ADMISSION_CELL"
+          ? "Administrative Officer"
+          : rawRoleLabel;
 
   const navItems = useMemo(() => getNavItems(user?.role, dashboardTemplate), [dashboardTemplate, user?.role]);
 

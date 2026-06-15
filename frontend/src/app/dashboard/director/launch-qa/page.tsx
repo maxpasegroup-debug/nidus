@@ -21,7 +21,7 @@ const qaGroups = [
     icon: Building2,
     checks: [
       "Director login opens /dashboard/director without sidebar gap.",
-      "Five master thumbnails are visible: Academics, Admission Cell, Advertisement & Marketing, HRM, Admin & Accounts.",
+      "Five master thumbnails are visible: Academics, Administrative Officer, Advertisement & Marketing, HRM, Admin & Accounts.",
       "Every service tile opens an internal dashboard page or section.",
       "No service tile points to the public landing page.",
     ],
@@ -38,13 +38,13 @@ const qaGroups = [
     ],
   },
   {
-    title: "Admission Cell",
+    title: "Administrative Officer",
     icon: ClipboardCheck,
     checks: [
-      "Admission Cell opens without session expiry.",
+      "Administrative Officer opens without session expiry.",
       "Batches load in the admission approval form.",
-      "Admission Cell can approve a free-account user into a selected batch.",
-      "Approved user becomes student and sees assigned batch in student dashboard.",
+      "Administrative Officer can approve a learner account into a selected batch.",
+      "Approved user sees assigned batch in the learner dashboard.",
     ],
   },
   {
@@ -105,11 +105,11 @@ const qaGroups = [
 const quickLinks = [
   { title: "Director Control Room", href: "/dashboard/director", icon: Building2 },
   { title: "Academic Department", href: "/dashboard/director/academic", icon: GraduationCap },
-  { title: "Admission Cell", href: "/dashboard/admission-cell", icon: ClipboardCheck },
+  { title: "Administrative Officer", href: "/dashboard/admission-cell", icon: ClipboardCheck },
   { title: "Employee Control", href: "/dashboard/director/management", icon: Users },
   { title: "Exam Command", href: "/dashboard/director/exams", icon: BookOpen },
   { title: "Materials Control", href: "/dashboard/director/materials", icon: BadgeCheck },
-  { title: "Sales Booster", href: "/dashboard/sales-booster", icon: Megaphone },
+  { title: "Sales Booster", href: "/dashboard/director#sales-booster", icon: Megaphone },
   { title: "Accounts", href: "/dashboard/director/accounts", icon: ShieldCheck },
 ];
 

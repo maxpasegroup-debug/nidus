@@ -37,7 +37,7 @@ export default function StaffHrPage() {
       <section className="grid gap-4 md:grid-cols-4">
         <StatCard label="Staff Profiles" value="Ready" note="Create employees through Admin Center users" />
         <StatCard label="Documents" value="Folders" note="Organize files like computer folders" />
-        <StatCard label="Roles" value="Controlled" note="Admin, teacher, telecaller, marketing and director" />
+        <StatCard label="Roles" value="Controlled" note="Director, academic head, teacher, administrative officer and business development" />
         <StatCard label="Reviews" value="Monthly" note="Performance notes and follow-up actions" />
       </section>
 
@@ -55,7 +55,7 @@ export default function StaffHrPage() {
           </div>
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
-          <QuickActionCard title="Create staff user" description="Add staff and assign teacher, telecaller, marketing, director, or admin role." href="/admin-center/users" />
+          <QuickActionCard title="Create staff user" description="Add staff and assign teacher, business development, administrative officer, academic head, or director role." href="/admin-center/users" />
           <QuickActionCard title="Upload documents" description="Use documents and media folders for HR files." href="/documents" />
           <QuickActionCard title="Manage permissions" description="Control what each employee can access." href="/admin-center/permissions" />
           <QuickActionCard title="Teacher dashboard" description="Open the simplified teaching workbench." href="/dashboard/teacher" />

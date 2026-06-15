@@ -11,7 +11,7 @@ const compatibleRoles: Partial<Record<AuthRole, AuthRole[]>> = {
   DIRECTOR: ["DIRECTOR", "ADMIN"],
   TEACHER: ["TEACHER", "ADMIN"],
   TELECALLER: ["TELECALLER", "ADMIN", "DIRECTOR"],
-  MARKETING_COORDINATOR: ["MARKETING_COORDINATOR", "ADMIN", "DIRECTOR"]
+  MARKETING_COORDINATOR: ["MARKETING_COORDINATOR", "TELECALLER", "ADMIN", "DIRECTOR"]
 };
 
 function template(user: { roleMetadata?: Record<string, unknown> | null } | null | undefined) {
