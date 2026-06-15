@@ -1117,7 +1117,7 @@ export const academyService = {
       throw Object.assign(new Error("Name, email and role are required"), { statusCode: 400 });
     }
 
-    if (![Role.ADMIN, Role.DIRECTOR, Role.TEACHER].includes(input.role as any)) {
+    if (![Role.ADMIN, Role.DIRECTOR, Role.TEACHER, Role.TELECALLER].includes(input.role as any)) {
       throw Object.assign(new Error("Only employee roles can be created here"), { statusCode: 400 });
     }
 

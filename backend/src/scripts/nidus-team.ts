@@ -28,6 +28,7 @@ export const nidusTeamMembers: TeamMemberSeed[] = [
     designation: "Director",
     department: "Leadership",
     dashboardTemplate: "EXECUTIVE_COMMAND",
+    resetDefaultPassword: true,
     permissions: ["view_all", "manage_strategy", "review_finance", "review_staff", "review_academics"],
     focusAreas: ["Admissions conversion", "Revenue health", "Staff productivity", "Academic outcomes"]
   },
@@ -39,6 +40,7 @@ export const nidusTeamMembers: TeamMemberSeed[] = [
     designation: "Director",
     department: "Leadership",
     dashboardTemplate: "EXECUTIVE_COMMAND",
+    resetDefaultPassword: true,
     permissions: ["view_all", "manage_strategy", "review_finance", "review_staff", "review_academics"],
     focusAreas: ["Operations discipline", "Training quality", "Admissions pipeline", "Institution reports"]
   },
@@ -168,7 +170,8 @@ export const nidusTeamMembers: TeamMemberSeed[] = [
     role: Role.ADMIN,
     designation: "Administrative Officer",
     department: "Admissions",
-    dashboardTemplate: "ADMIN_OPERATIONS",
+    dashboardTemplate: "ADMISSION_CELL",
+    resetDefaultPassword: true,
     permissions: ["manage_enquiries", "manage_applications", "manage_admissions", "manage_documents", "manage_fees", "send_notices"],
     focusAreas: ["New enquiries", "Applications", "Admission approval", "Fees and documents"]
   },
