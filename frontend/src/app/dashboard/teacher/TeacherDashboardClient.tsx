@@ -466,8 +466,36 @@ function studentProgressMetrics(student: AssignedStudent | null | undefined, wor
 function isTeacherClassAllocation(batch: AssignedClass, isAcademicHead: boolean) {
   if (batch.status === "ARCHIVED") return false;
   if (batch.role === "ACADEMIC_HEAD" && batch.subject === "Academic Coordination") return false;
-  if (isAcademicHead) return batch.role === "Subject Teacher";
+  if (isAcademicHead) return true;
   return true;
+}
+
+function teacherNameForBatch(batch: AssignedClass, subject?: string | null) {
+  const exact = batch.teachers?.find((entry) => entry.subject === subject && entry.teacher?.name)?.teacher?.name;
+  return exact || batch.teachers?.find((entry) => entry.teacher?.name)?.teacher?.name || "Teacher pending";
+}
+
+function classStatus(item: CalendarItem | LiveClassRecord) {
+  const status = ("status" in item ? item.status : undefined)?.toUpperCase();
+  if (status === "CANCELLED") return "Cancelled";
+  if (status === "COMPLETED") return "Completed";
+  if ("isLive" in item && item.isLive) return "Live";
+  if ("scheduledAt" in item) {
+    const start = new Date(item.scheduledAt).getTime();
+    const end = start + Number(item.duration || 60) * 60 * 1000;
+    const now = Date.now();
+    if (now >= start && now <= end) return "Live";
+    if (now > end && status !== "COMPLETED") return "Delayed";
+    return "Upcoming";
+  }
+  if (status === "DELAYED" || status === "MISSED") return "Delayed";
+  return status ? status.replace(/_/g, " ").toLowerCase().replace(/\b\w/g, (char) => char.toUpperCase()) : "Upcoming";
+}
+
+function statusHealth(value: number) {
+  if (value >= 75) return "Healthy";
+  if (value >= 45) return "Attention Needed";
+  return "Delayed";
 }
 
 export default function TeacherDashboardClient({ view, courseKey, batchId }: { view: TeacherView; courseKey?: string; batchId?: string }) {
@@ -709,6 +737,113 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
       return new Date(first.getFullYear(), first.getMonth(), index - startOffset + 1);
     });
   }, [calendarMonth]);
+  const todayOperations = useMemo(() => {
+    const today = todayDate();
+    const calendarOps = calendar
+      .filter((item) => (item.plannedDate || "").slice(0, 10) === today)
+      .map((item) => {
+        const batch = activeClasses.find((entry) => entry.id === item.batchId);
+        return {
+          id: `calendar-${item.id}`,
+          time: item.startTime || "Time pending",
+          batchName: item.batchName || batch?.name || "Batch pending",
+          programName: batch ? programName(batch) : "Program",
+          subject: item.subject || batch?.subject || "Subject",
+          topic: item.topic || "Topic pending",
+          teacherName: batch ? teacherNameForBatch(batch, item.subject) : "Teacher pending",
+          status: classStatus(item),
+        };
+      });
+    const liveOps = liveClasses
+      .filter((item) => item.scheduledAt.slice(0, 10) === today)
+      .map((item) => {
+        const batch = activeClasses.find((entry) => entry.id === item.batchId);
+        return {
+          id: `live-${item.id}`,
+          time: new Date(item.scheduledAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+          batchName: batch?.name || item.title || "Live class",
+          programName: batch ? programName(batch) : item.programSlug || "Program",
+          subject: item.subject || batch?.subject || "Subject",
+          topic: item.topic || item.title || "Topic pending",
+          teacherName: item.instructorName || (batch ? teacherNameForBatch(batch, item.subject) : "Teacher pending"),
+          status: classStatus(item),
+        };
+      });
+    return [...calendarOps, ...liveOps].sort((a, b) => a.time.localeCompare(b.time));
+  }, [activeClasses, calendar, liveClasses]);
+  const academicOperationsStats = useMemo(() => {
+    const completed = todayOperations.filter((item) => item.status === "Completed").length;
+    const live = todayOperations.filter((item) => item.status === "Live").length;
+    const delayed = todayOperations.filter((item) => item.status === "Delayed").length;
+    const pending = todayOperations.filter((item) => item.status === "Upcoming").length;
+    const attendancePending = activeClasses.filter((batch) => !classWorkspace.attendance.some((record) => record.batchId === batch.id && record.date === todayDate())).length;
+    const assignmentPending = classWorkspace.assignments.filter((item) => ["DRAFT", "PENDING_REVIEW"].includes((item.status || "").toUpperCase())).length;
+    const examPending = classWorkspace.exams.filter((item) => ["DRAFT", "PENDING_REVIEW"].includes((item.status || "").toUpperCase())).length;
+    return {
+      activeBatches: activeClasses.length,
+      scheduledToday: todayOperations.length,
+      completed,
+      live,
+      pending,
+      delayed,
+      attendancePending,
+      assignmentPending,
+      examPending,
+    };
+  }, [activeClasses, classWorkspace.attendance, classWorkspace.assignments, classWorkspace.exams, todayOperations]);
+  const teacherOperations = useMemo(() => {
+    const map = new Map<string, {
+      id: string;
+      name: string;
+      subjects: Set<string>;
+      batches: Set<string>;
+      classesConducted: number;
+      attendanceEntries: number;
+      assignmentsPublished: number;
+      examsPublished: number;
+      materialsUploaded: number;
+      lastActivity: string;
+    }>();
+    for (const batch of activeClasses) {
+      for (const allocation of batch.teachers ?? []) {
+        const teacher = allocation.teacher;
+        if (!teacher?.id && !teacher?.name) continue;
+        const id = teacher.id || teacher.name || "teacher";
+        const current = map.get(id) ?? {
+          id,
+          name: teacher.name || teacher.email || "Teacher",
+          subjects: new Set<string>(),
+          batches: new Set<string>(),
+          classesConducted: 0,
+          attendanceEntries: 0,
+          assignmentsPublished: 0,
+          examsPublished: 0,
+          materialsUploaded: 0,
+          lastActivity: "No activity yet",
+        };
+        current.batches.add(batch.name);
+        if (allocation.subject) current.subjects.add(allocation.subject);
+        map.set(id, current);
+      }
+    }
+    const selectedTeacherIds = new Set((selectedClass?.teachers ?? []).map((entry) => entry.teacher?.id || entry.teacher?.name).filter(Boolean));
+    for (const entry of map.values()) {
+      if (selectedTeacherIds.has(entry.id) || selectedClass?.teachers?.some((teacher) => teacher.teacher?.name === entry.name)) {
+        entry.classesConducted = classWorkspace.progress.filter((item) => (item.completionStatus || "").toUpperCase() === "COMPLETED").length;
+        entry.attendanceEntries = classWorkspace.attendance.length;
+        entry.assignmentsPublished = classWorkspace.assignments.length;
+        entry.examsPublished = classWorkspace.exams.length;
+        entry.materialsUploaded = classWorkspace.materials.filter((item) => !isFolderMaterial(item)).length;
+        entry.lastActivity = [classWorkspace.materials[0]?.createdAt, classWorkspace.assignments[0]?.createdAt, classWorkspace.exams[0]?.createdAt].filter(Boolean).sort().at(-1) || "No activity yet";
+      }
+    }
+    return Array.from(map.values()).map((entry) => ({
+      ...entry,
+      subjects: Array.from(entry.subjects),
+      batches: Array.from(entry.batches),
+      status: entry.classesConducted || entry.attendanceEntries || entry.assignmentsPublished || entry.examsPublished || entry.materialsUploaded ? "Active" : "Needs Attention",
+    }));
+  }, [activeClasses, classWorkspace, selectedClass]);
 
   async function loadTeachingPlan() {
     setLoadingPlan(true);
@@ -839,7 +974,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
       {
         id: "welcome",
         role: "guru",
-        text: `Hello ${user?.name || "Teacher"}. What exam would you like to create today? Share the topic, notes, PDF, Word document, photos, syllabus content, or an existing question bank.`,
+        text: `Hello ${user?.name || "Teacher"}. Select a batch, subject, exam basics, then upload or paste the question paper. I will review and structure it for approval.`,
       },
     ]);
   }
@@ -854,8 +989,8 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
         id: `guru-${Date.now()}`,
         role: "guru",
         text: examDraft
-          ? "Noted. I will keep this correction with the draft. You can ask for more changes or publish when ready."
-          : "Got it. Fill any missing exam fields on the right, then click Generate Question Bank.",
+          ? "Noted. I will keep this correction with the draft. Review the paper and send it for approval when ready."
+          : "Got it. Add the paper by upload, paste, or Guru generation, then run NIDUS GURU Review.",
       },
     ]);
     setExamForm((form) => ({
@@ -874,7 +1009,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
       {
         id: "welcome",
         role: "guru",
-        text: `Hello ${user?.name || "Teacher"}. What assignment would you like to create today? Share the topic, notes, PDF, Word document, images, or reference links.`,
+        text: `Hello ${user?.name || "Teacher"}. Select the batch and subject, then upload a worksheet, paste homework questions, or ask me to create a simple assignment draft.`,
       },
     ]);
   }
@@ -972,7 +1107,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
       {
         id: `guru-${Date.now()}`,
         role: "guru",
-        text: "Noted. I have added that to the assignment instructions. You can generate a draft or publish after review.",
+        text: "Noted. I have added that to the homework instructions. Generate the draft, review it, then send it through the approval flow.",
       },
     ]);
     setAssignmentForm((form) => ({
@@ -1090,7 +1225,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
       }
       setAssignmentForm((form) => ({ ...form, title, topic, instructions: form.instructions || draftText }));
       setAssignmentChatMessages((messages) => [...messages, { id: `guru-draft-${Date.now()}`, role: "guru", text: draftText }]);
-      setAssignmentMessage("NIDUS GURU assignment draft ready. Review and publish.");
+      setAssignmentMessage("NIDUS GURU assignment draft ready. Review it, then send for approval.");
     } catch (error) {
       setAssignmentMessage(error instanceof Error ? error.message : "Could not generate assignment workflow draft.");
     }
@@ -1212,7 +1347,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
       setAssignmentWorkflow(null);
       setAssignmentChatInput("");
       setShowAssignmentCreator(false);
-      setAssignmentMessage("Assignment published to the selected batch.");
+      setAssignmentMessage("Assignment sent through approval workflow and published to the selected batch.");
       await loadClassWorkspace(selectedClass.id);
     } catch (error) {
       setAssignmentMessage(error instanceof Error ? error.message : "Could not publish assignment.");
@@ -1664,26 +1799,45 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
       {view === "classes" ? <section className="grid gap-5">
         {!activeCourseKey ? (
           <>
-          <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
-            <SectionHeader eyebrow="Classes" title="Teaching workspace" description="Only assigned batches appear here. Use each card to take attendance, start live classes, view students or check the schedule." icon={<GraduationCap size={20} />} />
-          </div>
-          {liveClassMessage ? <Notice text={liveClassMessage} /> : null}
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {activeClasses.map((batch) => (
-              <TeachingWorkspaceCard
-                key={batch.id}
-                batch={batch}
-                href={`${dashboardBasePath}/classes/${programKey(batch)}/${batch.id}`}
-                attendanceHref={`${dashboardBasePath}/attendance`}
-                scheduleHref={`${dashboardBasePath}/academic-calendar`}
-                upcomingClass={(liveClassesByBatch.get(batch.id) ?? [])[0]}
-                calendarItem={calendar.find((item) => item.batchId === batch.id)}
-                onStartLive={() => openLiveClassCreator(batch)}
-                onRemember={() => chooseBatch(batch.id)}
-              />
-            ))}
-            {!activeClasses.length ? <ClassesEmptyState /> : null}
-          </div>
+          {isAcademicHead ? (
+            <AcademicOperationsCommandCenter
+              stats={academicOperationsStats}
+              operations={todayOperations}
+              batches={activeClasses}
+              calendar={calendar}
+              liveClassesByBatch={liveClassesByBatch}
+              selectedBatchId={selectedClass?.id}
+              selectedBatchHealth={batchHealth}
+              selectedWorkspace={classWorkspace}
+              teachers={teacherOperations}
+              dashboardBasePath={dashboardBasePath}
+              onOpenBatch={chooseBatch}
+              onStartLive={openLiveClassCreator}
+            />
+          ) : (
+            <>
+              <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
+                <SectionHeader eyebrow="Classes" title="Teaching workspace" description="Only assigned batches appear here. Use each card to take attendance, start live classes, view students or check the schedule." icon={<GraduationCap size={20} />} />
+              </div>
+              {liveClassMessage ? <Notice text={liveClassMessage} /> : null}
+              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                {activeClasses.map((batch) => (
+                  <TeachingWorkspaceCard
+                    key={batch.id}
+                    batch={batch}
+                    href={`${dashboardBasePath}/classes/${programKey(batch)}/${batch.id}`}
+                    attendanceHref={`${dashboardBasePath}/attendance`}
+                    scheduleHref={`${dashboardBasePath}/academic-calendar`}
+                    upcomingClass={(liveClassesByBatch.get(batch.id) ?? [])[0]}
+                    calendarItem={calendar.find((item) => item.batchId === batch.id)}
+                    onStartLive={() => openLiveClassCreator(batch)}
+                    onRemember={() => chooseBatch(batch.id)}
+                  />
+                ))}
+                {!activeClasses.length ? <ClassesEmptyState /> : null}
+              </div>
+            </>
+          )}
           </>
         ) : activeCourseKey && !activeBatchId ? (
           <div>
@@ -1793,8 +1947,8 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
               </span>
               <div>
                 <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold-dark)]">Exams</p>
-                <h2 className="mt-2 text-3xl font-black">Create, review, publish and manage student assessments.</h2>
-                <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--muted-blue)]">Start with NIDUS GURU, review the generated question bank, then schedule the exam for the selected program and batch.</p>
+                <h2 className="mt-2 text-3xl font-black">Create tomorrow's exam in minutes.</h2>
+                <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--muted-blue)]">Select batch, select subject, upload or paste the question paper, let NIDUS GURU review it, then send for approval.</p>
               </div>
             </div>
             <button type="button" onClick={openExamCreator} className="relative z-10 inline-flex min-h-14 shrink-0 items-center justify-center gap-2 rounded-2xl border border-slate-950 !bg-slate-950 px-6 py-4 text-base font-black !text-white shadow-sm transition hover:-translate-y-0.5">
@@ -1805,8 +1959,8 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
         {examMessage ? <Notice text={examMessage} /> : null}
         <ExamWorkflowSection
           title="Draft Exams"
-          description="Question banks being prepared or waiting for teacher review."
-          empty="No draft exams yet. Create a new exam with NIDUS GURU."
+          description="Question papers being prepared or waiting for teacher review."
+          empty="No draft exams yet. Upload, paste or create a question paper."
         >
           {localDraftExam ? <ExamWorkflowCard exam={localDraftExam} courseName={selectedProgram?.name ?? "Program pending"} batchName={selectedClass?.name ?? "Batch pending"} mode="draft" onPrimary={openExamCreator} /> : null}
           {draftExamCards.map((exam) => (
@@ -1815,8 +1969,8 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
         </ExamWorkflowSection>
         <ExamWorkflowSection
           title="Scheduled Exams"
-          description="Published exams waiting for students to attempt."
-          empty="No scheduled exams yet. Publish an exam from NIDUS GURU to place it here."
+          description="Approved exams waiting for students to attempt."
+          empty="No scheduled exams yet. Send a reviewed paper for approval first."
         >
           {scheduledExamCards.map((exam) => (
             <ExamWorkflowCard key={exam.id} exam={exam} batchName={exam.batchName ?? selectedClass?.name ?? "Batch"} courseName={exam.course ?? selectedProgram?.name ?? "Program"} mode="scheduled" onPrimary={openExamCreator} />
@@ -1866,8 +2020,8 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
               </span>
               <div>
                 <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold-dark)]">Assignments</p>
-                <h2 className="mt-2 text-3xl font-black">Create and manage assignments.</h2>
-                <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--muted-blue)]">Use NIDUS GURU to prepare assignments, publish to the selected batch, then track submitted and pending students.</p>
+                <h2 className="mt-2 text-3xl font-black">Give homework in 60 seconds.</h2>
+                <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--muted-blue)]">Select batch, select subject, upload a worksheet or paste questions, review, then send for approval.</p>
               </div>
             </div>
             <button type="button" onClick={openAssignmentCreator} className="relative z-10 inline-flex min-h-14 shrink-0 items-center justify-center gap-2 rounded-2xl border border-slate-950 !bg-slate-950 px-6 py-4 text-base font-black !text-white shadow-sm transition hover:-translate-y-0.5">
@@ -1909,6 +2063,11 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
             assignmentForm={assignmentForm}
             setAssignmentForm={setAssignmentForm}
             setAssignmentSourceName={setAssignmentSourceName}
+            programGroups={programGroups}
+            selectedProgramKey={selectedProgram?.key}
+            selectedClassId={selectedClass?.id}
+            onProgram={chooseProgram}
+            onBatch={chooseBatch}
             selectedProgramName={selectedProgram?.name ?? "Course"}
             selectedBatchName={selectedClass?.name ?? "Batch"}
             assignmentSourceName={assignmentSourceName}
@@ -2139,6 +2298,271 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
       </section> : null}
 
       {workspaceLoading ? <p className="mt-4 text-sm text-[var(--muted-blue)]">Refreshing selected batch data...</p> : null}
+    </div>
+  );
+}
+
+function AcademicOperationsCommandCenter({
+  stats,
+  operations,
+  batches,
+  calendar,
+  liveClassesByBatch,
+  selectedBatchId,
+  selectedBatchHealth,
+  selectedWorkspace,
+  teachers,
+  dashboardBasePath,
+  onOpenBatch,
+  onStartLive,
+}: {
+  stats: {
+    activeBatches: number;
+    scheduledToday: number;
+    completed: number;
+    live: number;
+    pending: number;
+    delayed: number;
+    attendancePending: number;
+    assignmentPending: number;
+    examPending: number;
+  };
+  operations: Array<{ id: string; time: string; batchName: string; programName: string; subject: string; topic: string; teacherName: string; status: string }>;
+  batches: AssignedClass[];
+  calendar: CalendarItem[];
+  liveClassesByBatch: Map<string, LiveClassRecord[]>;
+  selectedBatchId?: string;
+  selectedBatchHealth: ReturnType<typeof calculateBatchHealth>;
+  selectedWorkspace: ClassWorkspace;
+  teachers: Array<{
+    id: string;
+    name: string;
+    subjects: string[];
+    batches: string[];
+    classesConducted: number;
+    attendanceEntries: number;
+    assignmentsPublished: number;
+    examsPublished: number;
+    materialsUploaded: number;
+    lastActivity: string;
+    status: string;
+  }>;
+  dashboardBasePath: string;
+  onOpenBatch: (batchId: string) => void;
+  onStartLive: (batch: AssignedClass) => void;
+}) {
+  const selectedBatch = batches.find((batch) => batch.id === selectedBatchId) ?? batches[0] ?? null;
+  const selectedLiveClasses = selectedBatch ? liveClassesByBatch.get(selectedBatch.id) ?? [] : [];
+  const selectedAverage = Math.round((selectedBatchHealth.attendance + selectedBatchHealth.assignments + selectedBatchHealth.exams) / 3);
+
+  return (
+    <>
+      <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
+        <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
+          <SectionHeader
+            eyebrow="Today's Academic Operations"
+            title="Academic command center"
+            description="See today's classes, active batches, teacher activity and academic health from one practical control room."
+            icon={<GraduationCap size={20} />}
+          />
+          <div className="flex flex-wrap gap-2">
+            <Link href={`${dashboardBasePath}/academic-calendar`} className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-4 py-3 text-sm font-black">Calendar</Link>
+            <Link href={`${dashboardBasePath}/attendance`} className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-4 py-3 text-sm font-black">Attendance</Link>
+            <Link href="/dashboard/director/academic/teachers" className="rounded-xl bg-[var(--ink)] px-4 py-3 text-sm font-black text-white">Teacher Allocation</Link>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-5">
+        <SummaryCard label="Active Batches" value={stats.activeBatches} />
+        <SummaryCard label="Classes Today" value={stats.scheduledToday} />
+        <SummaryCard label="Completed" value={stats.completed} />
+        <SummaryCard label="Live Now" value={stats.live} />
+        <SummaryCard label="Delayed" value={stats.delayed} />
+        <SummaryCard label="Pending Classes" value={stats.pending} />
+        <SummaryCard label="Attendance Pending" value={stats.attendancePending} />
+        <SummaryCard label="Assignments Review" value={stats.assignmentPending} />
+        <SummaryCard label="Exams Publication" value={stats.examPending} />
+      </div>
+
+      <div className="grid gap-5 xl:grid-cols-[1fr_380px]">
+        <section className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.3em] text-[var(--gold-dark)]">Today</p>
+              <h2 className="mt-2 text-2xl font-black">Class timeline</h2>
+            </div>
+            <span className="rounded-full border border-[var(--border)] bg-[var(--page-bg)] px-4 py-2 text-xs font-black">{operations.length} class(es)</span>
+          </div>
+          <div className="mt-5 grid gap-3">
+            {operations.map((item) => (
+              <article key={item.id} className="grid gap-3 rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4 md:grid-cols-[110px_1fr_auto] md:items-center">
+                <p className="text-xl font-black">{item.time}</p>
+                <div>
+                  <p className="text-xs font-black uppercase tracking-[0.22em] text-[var(--gold-dark)]">{item.programName}</p>
+                  <h3 className="mt-1 text-lg font-black">{item.batchName}</h3>
+                  <p className="mt-1 text-sm text-[var(--muted-blue)]">{item.subject} / {item.topic} / Teacher: {item.teacherName}</p>
+                </div>
+                <span className={`w-fit rounded-full px-3 py-1 text-xs font-black ${statusTone(item.status)}`}>{item.status}</span>
+              </article>
+            ))}
+            {!operations.length ? <EmptyState text="No class is scheduled for today. Use Calendar or Start Live Class to create one." /> : null}
+          </div>
+        </section>
+
+        <section className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
+          <p className="text-xs font-black uppercase tracking-[0.3em] text-[var(--gold-dark)]">Academic Health</p>
+          <h2 className="mt-2 text-2xl font-black">Action needed</h2>
+          <div className="mt-4 grid gap-3">
+            <HealthSignal label="Batch Status" value={statusHealth(selectedAverage)} />
+            <HealthSignal label="Attendance" value={`${selectedBatchHealth.attendance}%`} />
+            <HealthSignal label="Assignments" value={`${selectedBatchHealth.assignments}%`} />
+            <HealthSignal label="Exams" value={`${selectedBatchHealth.exams}%`} />
+            <HealthSignal label="Library Uploads" value={selectedWorkspace.materials.filter((item) => !isFolderMaterial(item)).length} />
+          </div>
+        </section>
+      </div>
+
+      <section className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.3em] text-[var(--gold-dark)]">Batches</p>
+            <h2 className="mt-2 text-2xl font-black">Active academic batches</h2>
+          </div>
+          <span className="rounded-full border border-[var(--border)] bg-[var(--page-bg)] px-4 py-2 text-xs font-black">{batches.length} batch(es)</span>
+        </div>
+        <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {batches.map((batch) => {
+            const subjects = subjectsForBatch(batch);
+            const teacherCount = batch._count?.teachers ?? batch.teachers?.length ?? 0;
+            const students = batch.students?.length ?? batch._count?.students ?? 0;
+            const upcomingClass = (liveClassesByBatch.get(batch.id) ?? [])[0];
+            const calendarItem = calendar.find((item) => item.batchId === batch.id);
+            const selected = selectedBatch?.id === batch.id;
+            const completion = selected ? selectedAverage : 0;
+            return (
+              <article key={batch.id} className={`rounded-2xl border p-5 shadow-sm ${selected ? "border-slate-950 bg-slate-950 text-white" : "border-[var(--border)] bg-[var(--page-bg)] text-[var(--ink)]"}`}>
+                <p className={`text-xs font-black uppercase tracking-[0.24em] ${selected ? "text-[#e7c873]" : "text-[var(--gold-dark)]"}`}>{programName(batch)}</p>
+                <h3 className="mt-3 text-2xl font-black">{batch.name}</h3>
+                <div className="mt-4 grid grid-cols-2 gap-2 text-xs font-black">
+                  <span className="rounded-xl border border-current/20 px-3 py-2">{batch.batchType || "Mode pending"}</span>
+                  <span className="rounded-xl border border-current/20 px-3 py-2">{students} students</span>
+                  <span className="rounded-xl border border-current/20 px-3 py-2">{teacherCount} teachers</span>
+                  <span className="rounded-xl border border-current/20 px-3 py-2">{subjects.length} subjects</span>
+                </div>
+                <div className="mt-4 rounded-xl border border-current/20 p-3 text-sm">
+                  <p className="font-black">Upcoming Class</p>
+                  <p className="mt-1 opacity-80">{upcomingClass?.subject || calendarItem?.subject || "Not scheduled"}</p>
+                </div>
+                <div className="mt-4">
+                  <ProgressBar label="Completion" value={completion} mutedLabel={selected ? statusHealth(completion) : "Open batch to calculate"} />
+                </div>
+                <div className="mt-4 grid grid-cols-2 gap-2">
+                  <Link onClick={() => onOpenBatch(batch.id)} href={`${dashboardBasePath}/classes/${programKey(batch)}/${batch.id}`} className="rounded-xl bg-white px-3 py-3 text-center text-xs font-black text-slate-950">Open Batch</Link>
+                  <button type="button" onClick={() => { onOpenBatch(batch.id); onStartLive(batch); }} className="rounded-xl border border-current/20 px-3 py-3 text-xs font-black">Start Live</button>
+                  <Link onClick={() => onOpenBatch(batch.id)} href={`${dashboardBasePath}/academic-calendar`} className="rounded-xl border border-current/20 px-3 py-3 text-center text-xs font-black">View Schedule</Link>
+                  <Link onClick={() => onOpenBatch(batch.id)} href={`${dashboardBasePath}/attendance`} className="rounded-xl border border-current/20 px-3 py-3 text-center text-xs font-black">Attendance</Link>
+                </div>
+              </article>
+            );
+          })}
+          {!batches.length ? <ClassesEmptyState /> : null}
+        </div>
+      </section>
+
+      {selectedBatch ? (
+        <section className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.3em] text-[var(--gold-dark)]">Batch Command Center</p>
+              <h2 className="mt-2 text-3xl font-black">{selectedBatch.name}</h2>
+              <p className="mt-2 text-sm text-[var(--muted-blue)]">{programName(selectedBatch)} / {selectedBatch.batchType || "Mode pending"}</p>
+            </div>
+            <span className={`rounded-full px-4 py-2 text-xs font-black ${statusTone(statusHealth(selectedAverage))}`}>{statusHealth(selectedAverage)}</span>
+          </div>
+          <div className="mt-5 grid gap-4 lg:grid-cols-2">
+            <ProgressPanel
+              title="Assigned teachers"
+              items={(selectedBatch.teachers ?? []).map((entry, index) => ({
+                id: entry.teacher?.id || `${selectedBatch.id}-teacher-${index}`,
+                title: entry.teacher?.name || "Teacher pending",
+                meta: `${entry.subject || "Subject pending"} / ${entry.teacher?.email || "No email"}`,
+                status: "Active",
+              }))}
+              empty="No teacher allocation found for this batch."
+            />
+            <ProgressPanel
+              title="Upcoming schedule"
+              items={[
+                ...selectedLiveClasses.map((item) => ({
+                  id: item.id,
+                  title: item.subject || item.title,
+                  meta: `${new Date(item.scheduledAt).toLocaleString()} / ${item.duration} min`,
+                  status: classStatus(item),
+                })),
+                ...calendar.filter((item) => item.batchId === selectedBatch.id).slice(0, 6).map((item) => ({
+                  id: item.id,
+                  title: item.subject || "Class",
+                  meta: `${item.plannedDate || "Date pending"} / ${item.startTime || "Time pending"}`,
+                  status: classStatus(item),
+                })),
+              ]}
+              empty="No upcoming schedule found for this batch."
+            />
+          </div>
+          <div className="mt-5 grid gap-2 md:grid-cols-4 xl:grid-cols-8">
+            <Link href={`${dashboardBasePath}/academic-calendar`} className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-3 py-3 text-center text-xs font-black">Schedule Class</Link>
+            <Link href="/dashboard/director/academic/teachers" className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-3 py-3 text-center text-xs font-black">Allocate Teacher</Link>
+            <Link href={`${dashboardBasePath}/library`} className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-3 py-3 text-center text-xs font-black">Study Material</Link>
+            <Link href={`${dashboardBasePath}/assignments`} className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-3 py-3 text-center text-xs font-black">Assignment</Link>
+            <Link href={`${dashboardBasePath}/exams`} className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-3 py-3 text-center text-xs font-black">Exam</Link>
+            <button type="button" onClick={() => onStartLive(selectedBatch)} className="rounded-xl bg-[var(--ink)] px-3 py-3 text-xs font-black text-white">Start Live</button>
+            <Link href={`${dashboardBasePath}/attendance`} className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-3 py-3 text-center text-xs font-black">Attendance</Link>
+            <Link href={`${dashboardBasePath}/classes/${programKey(selectedBatch)}/${selectedBatch.id}`} className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-3 py-3 text-center text-xs font-black">Reports</Link>
+          </div>
+        </section>
+      ) : null}
+
+      <section className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.3em] text-[var(--gold-dark)]">Teacher Monitoring</p>
+            <h2 className="mt-2 text-2xl font-black">Teaching activity</h2>
+          </div>
+          <span className="rounded-full border border-[var(--border)] bg-[var(--page-bg)] px-4 py-2 text-xs font-black">{teachers.length} teacher(s)</span>
+        </div>
+        <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {teachers.map((teacher) => (
+            <article key={teacher.id} className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <h3 className="text-xl font-black">{teacher.name}</h3>
+                  <p className="mt-1 text-sm text-[var(--muted-blue)]">{teacher.subjects.join(", ") || "Subject pending"}</p>
+                </div>
+                <span className={`rounded-full px-3 py-1 text-xs font-black ${statusTone(teacher.status)}`}>{teacher.status}</span>
+              </div>
+              <div className="mt-4 grid grid-cols-2 gap-2 text-xs font-black">
+                <span className="rounded-xl bg-white p-2">{teacher.batches.length} batches</span>
+                <span className="rounded-xl bg-white p-2">{teacher.classesConducted} classes</span>
+                <span className="rounded-xl bg-white p-2">{teacher.attendanceEntries} attendance</span>
+                <span className="rounded-xl bg-white p-2">{teacher.assignmentsPublished} assignments</span>
+                <span className="rounded-xl bg-white p-2">{teacher.examsPublished} exams</span>
+                <span className="rounded-xl bg-white p-2">{teacher.materialsUploaded} materials</span>
+              </div>
+            </article>
+          ))}
+          {!teachers.length ? <EmptyState text="No teacher allocations are available yet." /> : null}
+        </div>
+      </section>
+    </>
+  );
+}
+
+function HealthSignal({ label, value }: { label: string; value: string | number }) {
+  return (
+    <div className="flex items-center justify-between gap-3 rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-4 py-3 text-sm">
+      <span className="font-bold text-[var(--muted-blue)]">{label}</span>
+      <span className="font-black">{value}</span>
     </div>
   );
 }
@@ -2610,6 +3034,8 @@ function ExamGuruModal({
   examSourceName: string;
 }) {
   const activeProgram = programGroups.find((program) => program.key === selectedProgramKey) ?? programGroups[0] ?? null;
+  const activeBatch = activeProgram?.classes.find((batch) => batch.id === selectedClassId) ?? activeProgram?.classes[0] ?? null;
+  const assignedSubjects = subjectsForBatch(activeBatch);
   const draftQuestions = examDraft?.questions ?? [];
   const pastedQuestionCount = examForm.pastedQuestions
     .split(/\n+/)
@@ -2648,58 +3074,115 @@ function ExamGuruModal({
       <div className="mx-auto max-w-7xl px-4 py-5">
         <div className="mb-4 flex items-center justify-between rounded-2xl border border-[var(--border)] bg-white px-5 py-4 shadow-sm">
           <div>
-            <p className="text-xs font-black uppercase tracking-[0.3em] text-[var(--gold-dark)]">NIDUS Guru</p>
-            <h2 className="text-2xl font-black">AI Exam Review Workspace</h2>
-            <p className="mt-1 text-sm text-[var(--muted-blue)]">Prepare, clean, review and publish an exam from existing questions and source files.</p>
+            <p className="text-xs font-black uppercase tracking-[0.3em] text-[var(--gold-dark)]">Exams V3</p>
+            <h2 className="text-2xl font-black">Question paper first exam creator</h2>
+            <p className="mt-1 text-sm text-[var(--muted-blue)]">Select batch, subject, upload or paste the paper, review, then send for approval.</p>
           </div>
           <button type="button" onClick={onClose} className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] p-3" aria-label="Close exam creator">
             <X size={18} />
           </button>
         </div>
 
-        <div className="grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
+        <div className="grid gap-4 xl:grid-cols-[1.2fr_0.8fr]">
           <section className="grid gap-4">
             <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
-              <SectionHeader eyebrow="Section 1" title="Exam Target" description="Select where this assessment will be published." icon={<ClipboardCheck size={20} />} />
-              <div className="mt-4 grid gap-3 md:grid-cols-3">
-                <Select label="Batch" value={selectedClassId ?? ""} onChange={onBatch}>
-                  <option value="">Select batch</option>
-                  {(activeProgram?.classes ?? []).map((batch) => <option key={batch.id} value={batch.id}>{batch.name}</option>)}
-                </Select>
-                <Input label="Subject" value={examForm.subject} onChange={(value) => setExamForm((form) => ({ ...form, subject: value, topic: form.topic || value }))} />
-                <Select label="Exam Type" value={examForm.examType} onChange={(value) => setExamForm((form) => ({ ...form, examType: value }))}>
-                  <option value="Weekly Test">Weekly Test</option>
-                  <option value="Revision Test">Revision Test</option>
-                  <option value="Mock Test">Mock Test</option>
-                  <option value="Grand Test">Grand Test</option>
-                  <option value="Previous Year Style">Previous Year Style</option>
-                </Select>
-                <Input label="Date" type="date" value={examForm.publishDate} onChange={(value) => setExamForm((form) => ({ ...form, publishDate: value }))} />
-                <Input label="Duration" type="number" value={examForm.duration} onChange={(value) => setExamForm((form) => ({ ...form, duration: value }))} />
-                <Input label="Total Marks" type="number" value={examForm.totalMarks} onChange={(value) => setExamForm((form) => ({ ...form, totalMarks: value }))} />
+              <SectionHeader eyebrow="Step 1" title="Select batch" description="Choose the batch that should receive this exam." icon={<Users size={20} />} />
+              <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                {programGroups.flatMap((program) => program.classes.map((batch) => (
+                  <button
+                    key={batch.id}
+                    type="button"
+                    onClick={() => { onProgram(program.key); onBatch(batch.id); }}
+                    className={`rounded-2xl border p-4 text-left transition hover:-translate-y-0.5 ${selectedClassId === batch.id ? "border-slate-950 bg-slate-950 text-white" : "border-[var(--border)] bg-[var(--page-bg)] text-[var(--ink)]"}`}
+                  >
+                    <p className={`text-xs font-black uppercase tracking-[0.22em] ${selectedClassId === batch.id ? "text-[#e7c873]" : "text-[var(--gold-dark)]"}`}>{program.name}</p>
+                    <h3 className="mt-2 text-lg font-black">{batch.name}</h3>
+                    <p className="mt-2 text-xs font-bold opacity-80">{batch.students?.length ?? batch._count?.students ?? 0} students</p>
+                  </button>
+                )))}
+                {!programGroups.length ? <EmptyState text="No assigned batches are available yet." /> : null}
               </div>
-              <div className="mt-3 grid gap-3 md:grid-cols-2">
-                <Input label="Exam Title" value={examForm.title} onChange={(value) => setExamForm((form) => ({ ...form, title: value }))} />
+            </div>
+
+            <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
+              <SectionHeader eyebrow="Step 2" title="Select subject" description="Show only the subjects assigned to this batch." icon={<BookOpen size={20} />} />
+              <div className="mt-4 flex flex-wrap gap-3">
+                {assignedSubjects.map((subject) => (
+                  <button
+                    key={subject}
+                    type="button"
+                    onClick={() => setExamForm((form) => ({ ...form, subject, topic: form.topic || subject }))}
+                    className={`min-h-12 rounded-xl border px-5 py-3 text-sm font-black ${examForm.subject === subject ? "border-slate-950 bg-slate-950 text-white" : "border-[var(--border)] bg-[var(--page-bg)] text-[var(--ink)]"}`}
+                  >
+                    {subject}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
+              <SectionHeader eyebrow="Step 3" title="Create exam" description="Only the basics teachers need before adding the question paper." icon={<ClipboardCheck size={20} />} />
+              <div className="mt-4 grid gap-3 md:grid-cols-2">
+                <Input label="Exam Name" value={examForm.title} onChange={(value) => setExamForm((form) => ({ ...form, title: value }))} />
+                <Select label="Exam Type" value={examForm.examType} onChange={(value) => setExamForm((form) => ({ ...form, examType: value }))}>
+                  <option value="Class Test">Class Test</option>
+                  <option value="Unit Test">Unit Test</option>
+                  <option value="Mock Test">Mock Test</option>
+                  <option value="Final Exam">Final Exam</option>
+                </Select>
+                <Input label="Marks" type="number" value={examForm.totalMarks} onChange={(value) => setExamForm((form) => ({ ...form, totalMarks: value }))} />
+                <Input label="Duration" type="number" value={examForm.duration} onChange={(value) => setExamForm((form) => ({ ...form, duration: value }))} />
+                <Input label="Date" type="date" value={examForm.publishDate} onChange={(value) => setExamForm((form) => ({ ...form, publishDate: value }))} />
                 <Input label="Time" type="time" value={examForm.publishTime} onChange={(value) => setExamForm((form) => ({ ...form, publishTime: value }))} />
               </div>
             </div>
 
             <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
-              <SectionHeader eyebrow="Section 2" title="Source Material" description="Paste or attach the questions teachers already prepared elsewhere." icon={<FileText size={20} />} />
-              <div className="mt-4">
-                <Textarea label="Paste Questions" value={examForm.pastedQuestions} onChange={(value) => setExamForm((form) => ({ ...form, pastedQuestions: value }))} />
-              </div>
-              <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-                <FileInput label="Upload PDF" accept=".pdf" onChange={appendSourceName("PDF")} />
-                <FileInput label="Upload Word" accept=".doc,.docx" onChange={appendSourceName("Word")} />
-                <FileInput label="Upload Image" accept="image/*" onChange={appendSourceName("Image")} />
-                <FileInput label="Upload Question Bank" accept=".pdf,.doc,.docx,.txt,.csv,.xlsx" onChange={appendSourceName("Question bank")} />
+              <SectionHeader eyebrow="Step 4" title="Add questions" description="Choose the fastest way to prepare tomorrow's exam." icon={<FileText size={20} />} />
+              <div className="mt-4 grid gap-4 lg:grid-cols-3">
+                <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
+                  <h3 className="text-lg font-black">Upload Question Paper</h3>
+                  <p className="mt-2 text-sm text-[var(--muted-blue)]">PDF, Word or image. NIDUS GURU structures the questions.</p>
+                  <div className="mt-4 grid gap-2">
+                    <FileInput label="Upload PDF" accept=".pdf" onChange={appendSourceName("PDF")} />
+                    <FileInput label="Upload Word" accept=".doc,.docx" onChange={appendSourceName("Word")} />
+                    <FileInput label="Upload Image" accept="image/*" onChange={appendSourceName("Image")} />
+                  </div>
+                </div>
+                <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
+                  <h3 className="text-lg font-black">Paste Questions</h3>
+                  <p className="mt-2 text-sm text-[var(--muted-blue)]">Paste questions from ChatGPT, WhatsApp, Word or notes.</p>
+                  <textarea value={examForm.pastedQuestions} onChange={(event) => setExamForm((form) => ({ ...form, pastedQuestions: event.target.value }))} rows={8} placeholder={"1. Question...\n2. Question...\n3. Question..."} className="mt-4 min-h-44 w-full resize-y rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-sm outline-none" />
+                </div>
+                <div className="rounded-2xl border border-slate-950 bg-slate-950 p-4 text-white">
+                  <h3 className="text-lg font-black">Create With NIDUS GURU</h3>
+                  <p className="mt-2 text-sm text-white/75">Use only when the teacher wants AI to generate the paper.</p>
+                  <div className="mt-4 grid gap-3">
+                    <Input label="Topic" value={examForm.topic} onChange={(value) => setExamForm((form) => ({ ...form, topic: value }))} />
+                    <Select label="Difficulty" value={examForm.difficulty} onChange={(value) => setExamForm((form) => ({ ...form, difficulty: value }))}>
+                      <option value="EASY">Easy</option>
+                      <option value="MEDIUM">Medium</option>
+                      <option value="HARD">Hard</option>
+                    </Select>
+                    <Input label="Question Count" type="number" value={examForm.questionCount} onChange={(value) => setExamForm((form) => ({ ...form, questionCount: value }))} />
+                    <button type="button" onClick={onDraft} className="rounded-xl bg-white px-5 py-3 text-sm font-black text-slate-950">Generate</button>
+                  </div>
+                </div>
               </div>
               {examSourceName ? <p className="mt-3 rounded-xl bg-[var(--page-bg)] px-3 py-2 text-xs font-black">Attached: {examSourceName}</p> : null}
+              <button type="button" onClick={onDraft} className="mt-4 w-full rounded-xl bg-[var(--ink)] px-5 py-3 font-black text-white">Review Question Paper With NIDUS GURU</button>
             </div>
 
             <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
-              <SectionHeader eyebrow="Section 5" title="Exam Preview" description="Review and edit the detected question list before publishing." icon={<BookOpen size={20} />} />
+              <SectionHeader eyebrow="Step 5" title="Exam Review" description="Review the student-facing question paper before sending for approval." icon={<BookOpen size={20} />} />
+              <div className="mt-4 grid gap-3 md:grid-cols-3">
+                <ReviewMetric label="Batch" value={selectedBatchName} />
+                <ReviewMetric label="Subject" value={examForm.subject || "Subject pending"} />
+                <ReviewMetric label="Questions" value={detectedQuestionCount || "Pending"} />
+                <ReviewMetric label="Marks" value={markTotal || examForm.totalMarks || "Pending"} />
+                <ReviewMetric label="Duration" value={`${examForm.duration || 0} min`} />
+                <ReviewMetric label="Difficulty" value={examForm.difficulty} />
+              </div>
               <div className="mt-4 grid gap-3">
                 {draftQuestions.map((question, index) => (
                   <div key={`${question.question}-${index}`} className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
@@ -2710,16 +3193,22 @@ function ExamGuruModal({
                     <textarea value={question.question} onChange={(event) => updateDraftQuestion(index, event.target.value)} className="mt-3 min-h-20 w-full resize-y rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-sm outline-none" />
                     {question.options?.length ? <p className="mt-2 text-xs text-[var(--muted-blue)]">Options: {question.options.join(" / ")}</p> : null}
                     {question.answer ? <p className="mt-1 text-xs font-bold text-emerald-700">Answer: {question.answer}</p> : null}
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      <button type="button" onClick={() => addInstruction(`Edit question ${index + 1}`)} className="rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-xs font-black">Edit</button>
+                      <button type="button" onClick={() => setExamDraft((draft) => draft?.questions ? { ...draft, questions: draft.questions.filter((_, currentIndex) => currentIndex !== index) } : draft)} className="rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-xs font-black">Delete</button>
+                      <button type="button" onClick={() => addInstruction(`Reorder question ${index + 1}`)} className="rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-xs font-black">Reorder</button>
+                    </div>
                   </div>
                 ))}
                 {!draftQuestions.length ? <EmptyState text="Generate a draft or paste questions to let NIDUS GURU prepare the preview." /> : null}
+                <button type="button" onClick={() => setExamDraft((draft) => ({ ...(draft ?? {}), questions: [...(draft?.questions ?? []), { question: "New question", marks: 1, difficultyLevel: examForm.difficulty }] }))} className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-sm font-black">Add Question</button>
               </div>
             </div>
           </section>
 
           <aside className="grid content-start gap-4">
             <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
-              <SectionHeader eyebrow="Section 3" title="NIDUS GURU Review Panel" description="Academic quality checks before the exam goes to students." icon={<GraduationCap size={20} />} />
+              <SectionHeader eyebrow="NIDUS GURU" title="Review panel" description="Academic quality checks before this paper goes for approval." icon={<GraduationCap size={20} />} />
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
                 <ReviewMetric label="Questions detected" value={detectedQuestionCount || "Pending"} />
                 <ReviewMetric label="Duplicate questions" value={duplicateCount} tone={duplicateCount ? "warn" : "ok"} />
@@ -2732,7 +3221,7 @@ function ExamGuruModal({
             </div>
 
             <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
-              <SectionHeader eyebrow="Section 4" title="AI Actions" description="Ask NIDUS GURU to improve the paper academically." icon={<Plus size={20} />} />
+              <SectionHeader eyebrow="Quick Fixes" title="AI actions" description="Use these only after a paper is uploaded, pasted or generated." icon={<Plus size={20} />} />
               <div className="mt-4 grid grid-cols-2 gap-2">
                 {["Balance Difficulty", "Remove Duplicates", "Improve Language", "Add Answer Key", "Add Explanations", "Convert MCQ", "Convert Descriptive"].map((action) => (
                   <button key={action} type="button" onClick={() => addInstruction(action)} className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-3 py-3 text-left text-xs font-black hover:bg-white">
@@ -2740,11 +3229,11 @@ function ExamGuruModal({
                   </button>
                 ))}
               </div>
-              <button type="button" onClick={onDraft} className="mt-4 w-full rounded-xl bg-[var(--ink)] px-5 py-3 font-black text-white">Run NIDUS GURU Review</button>
+              <button type="button" onClick={onDraft} className="mt-4 w-full rounded-xl bg-[var(--ink)] px-5 py-3 font-black text-white">Run Review</button>
             </div>
 
             <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
-              <SectionHeader eyebrow="AI Assistant" title="Optional Instructions" description="Use this only for corrections like changing question 5." icon={<FileText size={20} />} />
+              <SectionHeader eyebrow="Optional" title="Teacher instructions" description="Use this only for corrections like changing question 5." icon={<FileText size={20} />} />
               <textarea value={chatInput} onChange={(event) => setChatInput(event.target.value)} rows={4} placeholder="Example: Make question 5 easier and add explanations for all MCQs." className="mt-4 min-h-28 w-full resize-y rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-3 py-2 text-sm outline-none" />
               <button type="button" onClick={onSend} className="mt-3 rounded-xl border border-[var(--border)] bg-white px-5 py-3 text-sm font-black">Add Instruction</button>
               <div className="mt-3 grid gap-2">
@@ -2755,14 +3244,14 @@ function ExamGuruModal({
             </div>
 
             <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
-              <SectionHeader eyebrow="Section 6" title="Workflow Status" description="Human review remains mandatory before publish." icon={<ClipboardCheck size={20} />} />
+              <SectionHeader eyebrow="Step 6" title="Send for approval" description="Draft, review, approval and publish workflow remains mandatory." icon={<ClipboardCheck size={20} />} />
               <div className="mt-4 grid grid-cols-4 gap-2 text-center text-xs font-black">
                 {["Draft", "Review", "Approve", "Publish"].map((step, index) => (
                   <span key={step} className={`rounded-xl border px-2 py-3 ${index === 0 || examDraft ? "border-emerald-200 bg-emerald-50 text-emerald-800" : "border-[var(--border)] bg-[var(--page-bg)] text-[var(--muted-blue)]"}`}>{step}</span>
                 ))}
               </div>
               <Textarea label="Instructions and exam rules" value={examForm.instructions} onChange={(value) => setExamForm((form) => ({ ...form, instructions: value }))} />
-              <button type="button" onClick={onPublish} className="mt-4 w-full rounded-xl bg-emerald-700 px-5 py-3 font-black text-white">Publish Exam</button>
+              <button type="button" onClick={onPublish} className="mt-4 w-full rounded-xl bg-emerald-700 px-5 py-3 font-black text-white">Send For Review</button>
             </div>
           </aside>
         </div>
@@ -2910,6 +3399,11 @@ function AssignmentGuruModal({
   assignmentForm,
   setAssignmentForm,
   setAssignmentSourceName,
+  programGroups,
+  selectedProgramKey,
+  selectedClassId,
+  onProgram,
+  onBatch,
   selectedProgramName,
   selectedBatchName,
   assignmentSourceName,
@@ -2924,10 +3418,19 @@ function AssignmentGuruModal({
   assignmentForm: AssignmentForm;
   setAssignmentForm: React.Dispatch<React.SetStateAction<AssignmentForm>>;
   setAssignmentSourceName: (value: string) => void;
+  programGroups: Array<{ key: string; name: string; classes: AssignedClass[] }>;
+  selectedProgramKey?: string;
+  selectedClassId?: string;
+  onProgram: (key: string) => void;
+  onBatch: (batchId: string) => void;
   selectedProgramName: string;
   selectedBatchName: string;
   assignmentSourceName: string;
 }) {
+  const [guruQuestionCount, setGuruQuestionCount] = useState("10");
+  const activeProgram = programGroups.find((program) => program.key === selectedProgramKey) ?? programGroups[0] ?? null;
+  const activeBatch = activeProgram?.classes.find((batch) => batch.id === selectedClassId) ?? activeProgram?.classes[0] ?? null;
+  const assignedSubjects = subjectsForBatch(activeBatch);
   const assignmentLines = assignmentForm.pastedContent
     .split(/\n+/)
     .map((line) => line.trim())
@@ -2937,6 +3440,7 @@ function AssignmentGuruModal({
     .map((line) => line.trim())
     .filter(Boolean);
   const detectedTasks = assignmentLines.length || instructionLines.filter((line) => /^\d+[\).\s-]/.test(line)).length || 0;
+  const estimatedCompletion = `${Math.max(10, (detectedTasks || Number(guruQuestionCount) || 4) * 5)} min`;
   const addAssignmentAction = (action: string) => {
     setAssignmentForm((form) => ({
       ...form,
@@ -2953,9 +3457,9 @@ function AssignmentGuruModal({
       <div className="mx-auto max-w-7xl px-4 py-5">
         <div className="mb-4 flex items-center justify-between rounded-2xl border border-[var(--border)] bg-white px-5 py-4 shadow-sm">
           <div>
-            <p className="text-xs font-black uppercase tracking-[0.3em] text-[var(--gold-dark)]">NIDUS Guru</p>
-            <h2 className="text-2xl font-black">Assignment Builder</h2>
-            <p className="mt-1 text-sm text-[var(--muted-blue)]">Create, review and publish classroom work without a chat-heavy flow.</p>
+            <p className="text-xs font-black uppercase tracking-[0.3em] text-[var(--gold-dark)]">Assignments V3</p>
+            <h2 className="text-2xl font-black">Homework first assignment creator</h2>
+            <p className="mt-1 text-sm text-[var(--muted-blue)]">Select batch, choose subject, upload or paste homework, review, then send for approval.</p>
           </div>
           <button type="button" onClick={onClose} className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] p-3" aria-label="Close assignment creator">
             <X size={18} />
@@ -2965,43 +3469,125 @@ function AssignmentGuruModal({
         <div className="grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
           <section className="grid gap-4">
             <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
-              <SectionHeader eyebrow="Step 1" title="Assignment Details" description="Set the class, subject and deadline first." icon={<ClipboardCheck size={20} />} />
+              <SectionHeader eyebrow="Step 1" title="Select batch" description="Show the teacher only assigned batches. No dropdown-first workflow." icon={<ClipboardCheck size={20} />} />
               <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-                <div className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-4 py-3">
-                  <p className="text-xs font-black uppercase tracking-[0.18em] text-[var(--gold-dark)]">Batch</p>
-                  <p className="mt-2 font-black">{selectedBatchName}</p>
-                  <p className="mt-1 text-xs text-[var(--muted-blue)]">{selectedProgramName}</p>
-                </div>
-                <Input label="Subject" value={assignmentForm.subject} onChange={(value) => setAssignmentForm((form) => ({ ...form, subject: value }))} />
-                <Input label="Topic" value={assignmentForm.topic} onChange={(value) => setAssignmentForm((form) => ({ ...form, topic: value, title: form.title || `${value} Assignment` }))} />
-                <Input label="Assignment Title" value={assignmentForm.title} onChange={(value) => setAssignmentForm((form) => ({ ...form, title: value }))} />
-                <Input label="Due Date" type="date" value={assignmentForm.dueDate} onChange={(value) => setAssignmentForm((form) => ({ ...form, dueDate: value }))} />
-                <Select label="Difficulty" value={assignmentForm.difficulty} onChange={(value) => setAssignmentForm((form) => ({ ...form, difficulty: value }))}>
-                  <option value="EASY">Easy</option>
-                  <option value="MEDIUM">Medium</option>
-                  <option value="HARD">Hard</option>
-                </Select>
+                {programGroups.flatMap((program) => program.classes.map((batch) => {
+                  const active = batch.id === selectedClassId;
+                  return (
+                    <button
+                      key={batch.id}
+                      type="button"
+                      onClick={() => {
+                        onProgram(program.key);
+                        onBatch(batch.id);
+                      }}
+                      className={`min-h-32 rounded-2xl border p-4 text-left shadow-sm transition hover:-translate-y-0.5 ${active ? "border-slate-950 bg-slate-950 text-white" : "border-[var(--border)] bg-[var(--page-bg)] text-[var(--ink)]"}`}
+                    >
+                      <p className={`text-xs font-black uppercase tracking-[0.22em] ${active ? "text-[#e7c873]" : "text-[var(--gold-dark)]"}`}>{program.name}</p>
+                      <h3 className="mt-2 text-lg font-black">{batch.name}</h3>
+                      <div className="mt-3 flex flex-wrap gap-2 text-xs font-black">
+                        <span className="rounded-full border border-current/20 px-3 py-1">{batch.batchType || "Batch"}</span>
+                        <span className="rounded-full border border-current/20 px-3 py-1">{batch._count?.students ?? batch.students?.length ?? 0} students</span>
+                        <span className="rounded-full border border-current/20 px-3 py-1">{subjectsForBatch(batch).length} subjects</span>
+                      </div>
+                    </button>
+                  );
+                }))}
+                {!programGroups.length ? <EmptyState text="No assigned batches yet. Assignments can be created after Academic Head or Director allocation." /> : null}
               </div>
             </div>
 
             <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
-              <SectionHeader eyebrow="Step 2" title="Source Material" description="Most teachers can paste ChatGPT questions or attach prepared files." icon={<FileText size={20} />} />
-              <div className="mt-4">
-                <Textarea label="Paste assignment content here" value={assignmentForm.pastedContent} onChange={(value) => setAssignmentForm((form) => ({ ...form, pastedContent: value }))} />
+              <SectionHeader eyebrow="Step 2" title="Select subject" description="Pick from subjects assigned to this batch." icon={<BookOpen size={20} />} />
+              <div className="mt-4 flex flex-wrap gap-3">
+                {assignedSubjects.map((subject) => (
+                  <button
+                    key={subject}
+                    type="button"
+                    onClick={() => setAssignmentForm((form) => ({ ...form, subject, title: form.title || `${subject} Homework` }))}
+                    className={`min-h-12 rounded-xl border px-5 py-3 text-sm font-black ${assignmentForm.subject === subject ? "border-slate-950 bg-slate-950 text-white" : "border-[var(--border)] bg-[var(--page-bg)] text-[var(--ink)]"}`}
+                  >
+                    {subject}
+                  </button>
+                ))}
+                {!assignedSubjects.length ? <EmptyState text="No subjects are assigned to the selected batch yet." /> : null}
               </div>
-              <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
-                <FileInput label="Upload PDF" accept=".pdf" onChange={appendAssignmentSource("PDF")} />
-                <FileInput label="Upload Word" accept=".doc,.docx" onChange={appendAssignmentSource("Word")} />
-                <FileInput label="Upload PPT" accept=".ppt,.pptx" onChange={appendAssignmentSource("PPT")} />
-                <FileInput label="Upload Notes" accept=".txt,.pdf,.doc,.docx" onChange={appendAssignmentSource("Notes")} />
-                <FileInput label="Upload Images" accept="image/*" onChange={appendAssignmentSource("Images")} />
+            </div>
+
+            <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
+              <SectionHeader eyebrow="Step 3" title="Create assignment" description="Keep the initial form small: title, due date and instructions." icon={<FileText size={20} />} />
+              <div className="mt-4 grid gap-3 md:grid-cols-2">
+                <Input label="Assignment Title" value={assignmentForm.title} onChange={(value) => setAssignmentForm((form) => ({ ...form, title: value }))} />
+                <Input label="Due Date" type="date" value={assignmentForm.dueDate} onChange={(value) => setAssignmentForm((form) => ({ ...form, dueDate: value }))} />
+                <div className="md:col-span-2">
+                  <Textarea label="Instructions" value={assignmentForm.instructions} onChange={(value) => setAssignmentForm((form) => ({ ...form, instructions: value }))} />
+                </div>
               </div>
-              <Input label="Reference link" value={assignmentForm.link} onChange={(value) => setAssignmentForm((form) => ({ ...form, link: value }))} />
+            </div>
+
+            <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
+              <SectionHeader eyebrow="Step 4" title="Add homework" description="Choose the fastest path: upload worksheet, paste questions, upload a file, or create with NIDUS GURU." icon={<FileText size={20} />} />
+              <div className="mt-4 grid gap-4 lg:grid-cols-2">
+                <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
+                  <p className="text-xs font-black uppercase tracking-[0.24em] text-[var(--gold-dark)]">Upload Worksheet</p>
+                  <h3 className="mt-2 text-xl font-black">PDF, DOCX, image or worksheet</h3>
+                  <p className="mt-2 text-sm text-[var(--muted-blue)]">Students receive the worksheet directly after approval.</p>
+                  <div className="mt-4">
+                    <FileInput label="Choose Worksheet" accept=".pdf,.doc,.docx,image/*" onChange={appendAssignmentSource("Worksheet")} />
+                  </div>
+                </div>
+                <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
+                  <p className="text-xs font-black uppercase tracking-[0.24em] text-[var(--gold-dark)]">Paste Questions</p>
+                  <h3 className="mt-2 text-xl font-black">Paste ChatGPT or typed questions</h3>
+                  <Textarea label="Paste questions here" value={assignmentForm.pastedContent} onChange={(value) => setAssignmentForm((form) => ({ ...form, pastedContent: value }))} />
+                </div>
+                <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
+                  <p className="text-xs font-black uppercase tracking-[0.24em] text-[var(--gold-dark)]">Upload PDF / DOCX</p>
+                  <h3 className="mt-2 text-xl font-black">Assignment sheet, practice work or reading</h3>
+                  <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                    <FileInput label="Assignment Sheet" accept=".pdf,.doc,.docx" onChange={appendAssignmentSource("Assignment Sheet")} />
+                    <FileInput label="Practice File" accept=".pdf,.doc,.docx,.ppt,.pptx" onChange={appendAssignmentSource("Practice File")} />
+                  </div>
+                  <Input label="Reference link" value={assignmentForm.link} onChange={(value) => setAssignmentForm((form) => ({ ...form, link: value }))} />
+                </div>
+                <div className="rounded-2xl border border-slate-950 bg-white p-4">
+                  <p className="text-xs font-black uppercase tracking-[0.24em] text-[var(--gold-dark)]">Create With NIDUS GURU</p>
+                  <h3 className="mt-2 text-xl font-black">Generate simple homework</h3>
+                  <div className="mt-4 grid gap-3">
+                    <Input label="Topic" value={assignmentForm.topic} onChange={(value) => setAssignmentForm((form) => ({ ...form, topic: value, title: form.title || `${value} Homework` }))} />
+                    <Select label="Difficulty" value={assignmentForm.difficulty} onChange={(value) => setAssignmentForm((form) => ({ ...form, difficulty: value }))}>
+                      <option value="EASY">Easy</option>
+                      <option value="MEDIUM">Medium</option>
+                      <option value="HARD">Hard</option>
+                    </Select>
+                    <Input label="Question Count" value={guruQuestionCount} onChange={setGuruQuestionCount} />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        addAssignmentAction(`Create ${guruQuestionCount || "10"} ${assignmentForm.difficulty.toLowerCase()} questions on ${assignmentForm.topic || "selected topic"}`);
+                        onDraft();
+                      }}
+                      className="rounded-xl bg-slate-950 px-5 py-3 text-sm font-black text-white"
+                    >
+                      Generate Homework
+                    </button>
+                  </div>
+                </div>
+              </div>
               {assignmentSourceName ? <p className="mt-3 rounded-xl bg-[var(--page-bg)] px-3 py-2 text-xs font-black">Attached: {assignmentSourceName}</p> : null}
             </div>
 
             <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
-              <SectionHeader eyebrow="Step 4" title="Assignment Preview" description="This is how students will read the assignment before submission." icon={<BookOpen size={20} />} />
+              <SectionHeader eyebrow="Step 5" title="Assignment review" description="Check the student-facing homework before it enters approval." icon={<BookOpen size={20} />} />
+              <div className="mb-4 grid gap-3 md:grid-cols-3">
+                <ReviewMetric label="Program" value={activeProgram?.name ?? selectedProgramName} />
+                <ReviewMetric label="Batch" value={activeBatch?.name ?? selectedBatchName} />
+                <ReviewMetric label="Subject" value={assignmentForm.subject || "Pending"} tone={assignmentForm.subject ? "ok" : "warn"} />
+                <ReviewMetric label="Questions" value={detectedTasks || "Pending"} tone={detectedTasks ? "ok" : "warn"} />
+                <ReviewMetric label="Attachments" value={assignmentSourceName ? "Attached" : "Optional"} tone={assignmentSourceName ? "ok" : "neutral"} />
+                <ReviewMetric label="Due Date" value={assignmentForm.dueDate || "Pending"} tone={assignmentForm.dueDate ? "ok" : "warn"} />
+                <ReviewMetric label="Est. Time" value={estimatedCompletion} />
+              </div>
               <div className="mt-4 rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-5">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
@@ -3014,19 +3600,33 @@ function AssignmentGuruModal({
                 <div className="mt-4 whitespace-pre-wrap rounded-xl bg-white p-4 text-sm leading-7">
                   {assignmentForm.pastedContent || assignmentForm.instructions || "Paste content, upload material, or generate a NIDUS GURU draft to preview the assignment."}
                 </div>
+                {assignmentLines.length ? (
+                  <div className="mt-4 grid gap-2">
+                    {assignmentLines.slice(0, 8).map((line, index) => (
+                      <div key={`${line}-${index}`} className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-sm">
+                        <b>Question {index + 1}.</b> {line.replace(/^\d+[\).\s-]*/, "")}
+                      </div>
+                    ))}
+                  </div>
+                ) : null}
                 {assignmentForm.link || assignmentSourceName ? (
                   <div className="mt-4 grid gap-2 text-sm text-[var(--muted-blue)]">
                     {assignmentForm.link ? <p><b>Reference:</b> {assignmentForm.link}</p> : null}
                     {assignmentSourceName ? <p><b>Attachments:</b> {assignmentSourceName}</p> : null}
                   </div>
                 ) : null}
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <button type="button" onClick={() => setAssignmentForm((form) => ({ ...form, pastedContent: [form.pastedContent, `${detectedTasks + 1}. New homework question`].filter(Boolean).join("\n") }))} className="rounded-xl border border-[var(--border)] bg-white px-4 py-2 text-sm font-black">Add</button>
+                  <button type="button" onClick={() => setAssignmentForm((form) => ({ ...form, pastedContent: "" }))} className="rounded-xl border border-[var(--border)] bg-white px-4 py-2 text-sm font-black">Delete Questions</button>
+                  <button type="button" onClick={() => addAssignmentAction("Teacher previewed assignment before review")} className="rounded-xl border border-[var(--border)] bg-white px-4 py-2 text-sm font-black">Preview</button>
+                </div>
               </div>
             </div>
           </section>
 
           <aside className="grid content-start gap-4">
             <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
-              <SectionHeader eyebrow="Step 3" title="NIDUS GURU Assistant" description="Academic review actions without making chat the main screen." icon={<GraduationCap size={20} />} />
+              <SectionHeader eyebrow="Assistant" title="NIDUS GURU tools" description="Use AI only when the teacher needs help improving the homework." icon={<GraduationCap size={20} />} />
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
                 <ReviewMetric label="Content lines" value={assignmentLines.length || "Pending"} />
                 <ReviewMetric label="Detected tasks" value={detectedTasks || "Pending"} />
@@ -3040,7 +3640,7 @@ function AssignmentGuruModal({
                   </button>
                 ))}
               </div>
-              <button type="button" onClick={onDraft} className="mt-4 w-full rounded-xl bg-[var(--ink)] px-5 py-3 font-black text-white">Generate Draft</button>
+              <button type="button" onClick={onDraft} className="mt-4 w-full rounded-xl bg-[var(--ink)] px-5 py-3 font-black text-white">Create Homework Draft</button>
             </div>
 
             <details className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
@@ -3055,9 +3655,14 @@ function AssignmentGuruModal({
             </details>
 
             <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
-              <SectionHeader eyebrow="Step 5" title="Publish" description="Teacher approval is required before students receive it." icon={<ClipboardCheck size={20} />} />
-              <Textarea label="Instructions and evaluation criteria" value={assignmentForm.instructions} onChange={(value) => setAssignmentForm((form) => ({ ...form, instructions: value }))} />
-              <button type="button" onClick={onPublish} className="mt-4 w-full rounded-xl bg-emerald-700 px-5 py-3 font-black text-white">Publish Assignment</button>
+              <SectionHeader eyebrow="Step 6" title="Send for review" description="Existing Draft -> Review -> Approval -> Publish workflow remains mandatory." icon={<ClipboardCheck size={20} />} />
+              <div className="mt-4 grid grid-cols-4 gap-2 text-center text-[0.68rem] font-black">
+                {["Draft", "Review", "Approve", "Publish"].map((step, index) => (
+                  <span key={step} className={`rounded-full px-2 py-2 ${index === 0 || assignmentForm.instructions || assignmentForm.pastedContent ? "bg-emerald-50 text-emerald-700" : "bg-[var(--page-bg)] text-[var(--muted-blue)]"}`}>{step}</span>
+                ))}
+              </div>
+              <button type="button" onClick={onPublish} className="mt-4 w-full rounded-xl bg-emerald-700 px-5 py-3 font-black text-white">Send For Review</button>
+              <p className="mt-3 text-xs leading-5 text-[var(--muted-blue)]">The teacher cannot skip the approval workflow. A NIDUS GURU draft is required before this action succeeds.</p>
             </div>
           </aside>
         </div>
