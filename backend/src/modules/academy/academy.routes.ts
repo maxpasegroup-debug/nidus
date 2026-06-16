@@ -72,6 +72,8 @@ router.patch("/assignment-submissions/:id", requireAcademyRoles(academicRoles), 
 router.post("/study-materials", requireAcademyRoles(academicRoles), academyController.publishStudyMaterial);
 router.patch("/study-materials/:id", requireAcademyRoles(academicRoles), academyController.updateStudyMaterial);
 router.post("/study-materials/:id/archive", requireAcademyRoles(academicRoles), academyController.archiveStudyMaterial);
+router.post("/study-materials/:id/restore", requireAcademyRoles(academicRoles), academyController.restoreStudyMaterial);
+router.delete("/study-materials/:id", requireAcademyRoles(academicRoles), academyController.deleteStudyMaterial);
 router.patch("/study-materials/:id/review", requireAcademyRoles(academicRoles), academyController.reviewStudyMaterial);
 router.post("/exams/ai-draft", requireAcademyRoles(academicRoles), academyController.createExamDraft);
 router.post("/exams", requireAcademyRoles(academicRoles), academyController.publishExam);

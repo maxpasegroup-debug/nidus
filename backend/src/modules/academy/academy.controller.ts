@@ -195,6 +195,20 @@ export const academyController = {
       next(error);
     }
   },
+  restoreStudyMaterial: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      res.json(await academyService.restoreStudyMaterial(requester(req), param(req, "id")));
+    } catch (error) {
+      next(error);
+    }
+  },
+  deleteStudyMaterial: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      res.json(await academyService.deleteStudyMaterial(requester(req), param(req, "id")));
+    } catch (error) {
+      next(error);
+    }
+  },
   reviewStudyMaterial: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     try {
       res.json(await academyService.reviewStudyMaterial(requester(req), param(req, "id"), req.body));

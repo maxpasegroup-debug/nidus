@@ -9,6 +9,7 @@ import {
   CalendarDays,
   ClipboardCheck,
   FileText,
+  Folder,
   FolderPlus,
   GraduationCap,
   Library,
@@ -114,6 +115,8 @@ type AssignmentRecord = {
 
 type MaterialRecord = {
   id: string;
+  batchId?: string | null;
+  batchName?: string | null;
   folder?: string | null;
   subject?: string | null;
   topic?: string | null;
@@ -132,6 +135,12 @@ type MaterialRecord = {
   createdAt?: string;
   status?: string;
   reviewStatus?: string | null;
+};
+
+type LibraryFolderItem = {
+  name: string;
+  materials: MaterialRecord[];
+  folderRecord?: MaterialRecord;
 };
 
 type ExamRecord = {
@@ -324,6 +333,19 @@ async function apiPatch<T>(paths: string[], body: unknown): Promise<T | null> {
   return null;
 }
 
+async function apiDelete<T>(paths: string[]): Promise<T | null> {
+  let lastError: unknown;
+  for (const path of paths) {
+    try {
+      return await requestJson<T>(path, { method: "DELETE" });
+    } catch (error) {
+      lastError = error;
+    }
+  }
+  if (lastError) throw lastError;
+  return null;
+}
+
 function normalizeAssignedClasses(data: TeachingPlan | AssignedClass[] | null): AssignedClass[] {
   if (!data) return [];
   if (Array.isArray(data)) return data;
@@ -362,6 +384,14 @@ function statusTone(status?: string | null) {
   if (normalized === "PARTIAL" || normalized === "PENDING_REVIEW") return "bg-amber-50 text-amber-700";
   if (normalized === "ABSENT" || normalized === "ARCHIVED") return "bg-rose-50 text-rose-700";
   return "bg-slate-100 text-slate-700";
+}
+
+function isFolderMaterial(item: MaterialRecord) {
+  return (item.type || "").toUpperCase() === "FOLDER";
+}
+
+function folderName(item: MaterialRecord) {
+  return item.lessonName || item.title || item.topic || item.subject || item.folder || "Folder";
 }
 
 function percent(value: number, total: number) {
@@ -462,6 +492,8 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
   const [librarySubject, setLibrarySubject] = useState<string | null>(null);
   const [libraryTopic, setLibraryTopic] = useState<string | null>(null);
   const [librarySearch, setLibrarySearch] = useState("");
+  const [libraryPage, setLibraryPage] = useState(1);
+  const [showArchivedLibrary, setShowArchivedLibrary] = useState(false);
   const [showLibraryUpload, setShowLibraryUpload] = useState(false);
   const [calendarMonth, setCalendarMonth] = useState(() => monthStartDate(new Date()));
   const [classWorkspace, setClassWorkspace] = useState<ClassWorkspace>(emptyWorkspace);
@@ -561,39 +593,57 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
     return map;
   }, [liveClasses]);
   const selectedBatchLiveClasses = selectedClass?.id ? liveClassesByBatch.get(selectedClass.id) ?? [] : [];
-  const librarySubjects = useMemo(() => {
-    const subjects = new Set(classWorkspace.materials.map((item) => item.subject || item.folder || "General"));
-    if (libraryForm.subject) subjects.add(libraryForm.subject);
-    return Array.from(subjects);
-  }, [classWorkspace.materials, libraryForm.subject]);
-  const activeLibrarySubject = librarySubject ?? librarySubjects[0] ?? null;
-  const libraryTopics = useMemo(() => {
-    const topics = new Set(
-      classWorkspace.materials
-        .filter((item) => (item.subject || item.folder || "General") === activeLibrarySubject)
-        .map((item) => item.topic || "General"),
-    );
-    if (libraryForm.topic && libraryForm.subject === activeLibrarySubject) topics.add(libraryForm.topic);
-    return Array.from(topics);
-  }, [activeLibrarySubject, classWorkspace.materials, libraryForm.subject, libraryForm.topic]);
-  const activeLibraryTopic = libraryTopic ?? libraryTopics[0] ?? null;
-  const visibleLibraryMaterials = classWorkspace.materials.filter(
+  const activeLibraryRecords = useMemo(
+    () => classWorkspace.materials.filter((item) => showArchivedLibrary || item.status !== "ARCHIVED"),
+    [classWorkspace.materials, showArchivedLibrary],
+  );
+  const librarySubjects = useMemo<LibraryFolderItem[]>(() => {
+    const map = new Map<string, LibraryFolderItem>();
+    for (const item of activeLibraryRecords) {
+      const subject = item.subject || item.folder || "General";
+      const current = map.get(subject) ?? { name: subject, materials: [] };
+      current.materials.push(item);
+      if (isFolderMaterial(item) && item.topic === "__SUBJECT__") current.folderRecord = item;
+      map.set(subject, current);
+    }
+    if (libraryForm.subject && !map.has(libraryForm.subject)) map.set(libraryForm.subject, { name: libraryForm.subject, materials: [] });
+    return Array.from(map.values());
+  }, [activeLibraryRecords, libraryForm.subject]);
+  const activeLibrarySubject = librarySubject ?? librarySubjects[0]?.name ?? null;
+  const libraryTopics = useMemo<LibraryFolderItem[]>(() => {
+    const map = new Map<string, LibraryFolderItem>();
+    for (const item of activeLibraryRecords.filter((entry) => (entry.subject || entry.folder || "General") === activeLibrarySubject)) {
+      const topic = item.topic && item.topic !== "__SUBJECT__" ? item.topic : "General";
+      const current = map.get(topic) ?? { name: topic, materials: [] };
+      current.materials.push(item);
+      if (isFolderMaterial(item) && item.topic !== "__SUBJECT__") current.folderRecord = item;
+      map.set(topic, current);
+    }
+    if (libraryForm.topic && libraryForm.subject === activeLibrarySubject && !map.has(libraryForm.topic)) map.set(libraryForm.topic, { name: libraryForm.topic, materials: [] });
+    return Array.from(map.values());
+  }, [activeLibraryRecords, activeLibrarySubject, libraryForm.subject, libraryForm.topic]);
+  const activeLibraryTopic = libraryTopic ?? libraryTopics[0]?.name ?? null;
+  const visibleLibraryMaterials = activeLibraryRecords.filter(
     (item) =>
+      !isFolderMaterial(item) &&
       (item.subject || item.folder || "General") === activeLibrarySubject &&
       (item.topic || "General") === activeLibraryTopic &&
       (!librarySearch.trim() ||
-        [item.title, item.type, item.fileName, item.url, item.description]
+        [item.title, item.lessonName, item.type, item.fileName, item.url, item.description, item.subject, item.topic]
           .filter(Boolean)
           .join(" ")
           .toLowerCase()
           .includes(librarySearch.trim().toLowerCase())),
   );
+  const libraryPageSize = 12;
+  const pagedLibraryMaterials = visibleLibraryMaterials.slice((libraryPage - 1) * libraryPageSize, libraryPage * libraryPageSize);
+  const libraryTotalPages = Math.max(1, Math.ceil(visibleLibraryMaterials.length / libraryPageSize));
   const libraryStats = useMemo(() => {
-    const materials = classWorkspace.materials.filter((item) => (item.subject || item.folder || "General") === activeLibrarySubject);
+    const materials = activeLibraryRecords.filter((item) => !isFolderMaterial(item) && (item.subject || item.folder || "General") === activeLibrarySubject);
     const videos = materials.filter((item) => (item.type || "").toUpperCase().includes("VIDEO")).length;
     const documents = materials.filter((item) => ["PDF", "PPT", "PPTX", "WORD", "DOC", "DOCX", "NOTE", "NOTES"].includes((item.type || "").toUpperCase())).length;
     return { videos, documents, topics: libraryTopics.length };
-  }, [activeLibrarySubject, classWorkspace.materials, libraryTopics.length]);
+  }, [activeLibraryRecords, activeLibrarySubject, libraryTopics.length]);
   const visibleExams = classWorkspace.exams;
   const draftExamCards = visibleExams.filter((exam) => (exam.status || "").toUpperCase() === "DRAFT");
   const scheduledExamCards = visibleExams.filter((exam) => {
@@ -655,7 +705,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
       const [attendanceData, assignmentData, materialData, examData, progressData] = await Promise.all([
         apiGet<{ attendance?: AttendanceRecord[] }>([`/api/academy/attendance?batchId=${batchId}`]),
         apiGet<{ assignments?: AssignmentRecord[] }>([`/api/academy/assignments?batchId=${batchId}`]),
-        apiGet<{ materials?: MaterialRecord[] }>([`/api/academy/study-materials?batchId=${batchId}`]),
+        apiGet<{ materials?: MaterialRecord[] }>([`/api/academy/study-materials?batchId=${batchId}&includeArchived=true`]),
         apiGet<{ exams?: ExamRecord[] }>([`/api/academy/exams?batchId=${batchId}`]),
         apiGet<{ progress?: SyllabusProgressRecord[] }>([`/api/academy/syllabus-progress?batchId=${batchId}`]),
       ]);
@@ -694,6 +744,10 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
   useEffect(() => {
     if (activeBatchId && selectedClassId !== activeBatchId) setSelectedClassId(activeBatchId);
   }, [activeBatchId, selectedClassId]);
+
+  useEffect(() => {
+    setLibraryPage(1);
+  }, [activeLibrarySubject, activeLibraryTopic, librarySearch, showArchivedLibrary]);
 
   function chooseProgram(key: string) {
     const program = programGroups.find((item) => item.key === key);
@@ -1027,6 +1081,141 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
       await loadClassWorkspace(selectedClass.id);
     } catch (error) {
       setLibraryMessage(error instanceof Error ? error.message : "Could not archive material.");
+    }
+  }
+
+  async function restoreLibraryMaterial(materialId: string) {
+    if (!selectedClass) return;
+    try {
+      await apiPost<{ ok?: boolean }>([`/api/academy/study-materials/${materialId}/restore`], {});
+      await loadClassWorkspace(selectedClass.id);
+      setLibraryMessage("Restored to Library.");
+    } catch (error) {
+      setLibraryMessage(error instanceof Error ? error.message : "Could not restore material.");
+    }
+  }
+
+  async function deleteLibraryMaterial(materialId: string) {
+    if (!selectedClass) return;
+    if (typeof window !== "undefined" && !window.confirm("Delete permanently and remove Cloudinary file?")) return;
+    try {
+      await apiDelete<{ ok?: boolean }>([`/api/academy/study-materials/${materialId}`]);
+      await loadClassWorkspace(selectedClass.id);
+      setLibraryMessage("Deleted permanently.");
+    } catch (error) {
+      setLibraryMessage(error instanceof Error ? error.message : "Could not delete material.");
+    }
+  }
+
+  async function createLibraryFolder(kind: "SUBJECT" | "TOPIC", name: string) {
+    if (!selectedClass || !name.trim()) return;
+    const subject = kind === "SUBJECT" ? name.trim() : activeLibrarySubject || "General";
+    const topic = kind === "SUBJECT" ? "__SUBJECT__" : name.trim();
+    try {
+      await apiPost<{ ok?: boolean }>(["/api/academy/study-materials"], {
+        batchId: selectedClass.id,
+        batchName: selectedClass.name,
+        course: programName(selectedClass),
+        folder: subject,
+        subject,
+        topic,
+        title: name.trim(),
+        lessonName: name.trim(),
+        description: `${kind === "SUBJECT" ? "Subject" : "Topic"} folder`,
+        type: "FOLDER",
+        status: "PUBLISHED",
+        reviewStatus: "APPROVED",
+      });
+      if (kind === "SUBJECT") {
+        setLibrarySubject(name.trim());
+        setLibraryTopic(null);
+      } else {
+        setLibraryTopic(name.trim());
+      }
+      setLibraryForm((form) => ({ ...form, subject: kind === "SUBJECT" ? "" : form.subject, topic: kind === "TOPIC" ? "" : form.topic }));
+      await loadClassWorkspace(selectedClass.id);
+    } catch (error) {
+      setLibraryMessage(error instanceof Error ? error.message : "Could not create folder.");
+    }
+  }
+
+  async function renameLibraryFolder(kind: "SUBJECT" | "TOPIC", currentName: string) {
+    if (!selectedClass) return;
+    const nextName = typeof window !== "undefined" ? window.prompt(`Rename ${kind.toLowerCase()} folder`, currentName) : null;
+    if (!nextName?.trim() || nextName.trim() === currentName) return;
+    const updates = activeLibraryRecords.filter((item) => {
+      const subject = item.subject || item.folder || "General";
+      const topic = item.topic && item.topic !== "__SUBJECT__" ? item.topic : "General";
+      return kind === "SUBJECT" ? subject === currentName : subject === activeLibrarySubject && topic === currentName;
+    });
+    try {
+      await Promise.all(updates.map((item) => apiPatch<{ ok?: boolean }>([`/api/academy/study-materials/${item.id}`], {
+        batchId: item.batchId,
+        folder: kind === "SUBJECT" ? nextName.trim() : item.folder,
+        subject: kind === "SUBJECT" ? nextName.trim() : item.subject,
+        topic: kind === "TOPIC" ? nextName.trim() : item.topic,
+        title: isFolderMaterial(item) ? nextName.trim() : item.title,
+        lessonName: isFolderMaterial(item) ? nextName.trim() : item.lessonName,
+      })));
+      if (kind === "SUBJECT") setLibrarySubject(nextName.trim());
+      if (kind === "TOPIC") setLibraryTopic(nextName.trim());
+      await loadClassWorkspace(selectedClass.id);
+      setLibraryMessage("Folder renamed.");
+    } catch (error) {
+      setLibraryMessage(error instanceof Error ? error.message : "Could not rename folder.");
+    }
+  }
+
+  function libraryFolderRecords(kind: "SUBJECT" | "TOPIC", folderName: string) {
+    return classWorkspace.materials.filter((item) => {
+      const subject = item.subject || item.folder || "General";
+      const topic = item.topic && item.topic !== "__SUBJECT__" ? item.topic : "General";
+      return kind === "SUBJECT" ? subject === folderName : subject === activeLibrarySubject && topic === folderName;
+    });
+  }
+
+  async function archiveLibraryFolder(kind: "SUBJECT" | "TOPIC", folderName: string) {
+    if (!selectedClass) return;
+    const records = libraryFolderRecords(kind, folderName).filter((item) => item.status !== "ARCHIVED");
+    if (!records.length) return;
+    try {
+      await Promise.all(records.map((item) => apiPost<{ ok?: boolean }>([`/api/academy/study-materials/${item.id}/archive`], {})));
+      await loadClassWorkspace(selectedClass.id);
+      setLibraryMessage(`${folderName} archived.`);
+    } catch (error) {
+      setLibraryMessage(error instanceof Error ? error.message : "Could not archive folder.");
+    }
+  }
+
+  async function restoreLibraryFolder(kind: "SUBJECT" | "TOPIC", folderName: string) {
+    if (!selectedClass) return;
+    const records = libraryFolderRecords(kind, folderName).filter((item) => item.status === "ARCHIVED");
+    if (!records.length) return;
+    try {
+      await Promise.all(records.map((item) => apiPost<{ ok?: boolean }>([`/api/academy/study-materials/${item.id}/restore`], {})));
+      await loadClassWorkspace(selectedClass.id);
+      setLibraryMessage(`${folderName} restored.`);
+    } catch (error) {
+      setLibraryMessage(error instanceof Error ? error.message : "Could not restore folder.");
+    }
+  }
+
+  async function deleteLibraryFolder(kind: "SUBJECT" | "TOPIC", folderName: string) {
+    if (!selectedClass) return;
+    const records = libraryFolderRecords(kind, folderName);
+    if (!records.length) return;
+    if (typeof window !== "undefined" && !window.confirm(`Delete ${folderName} and every lesson inside it permanently?`)) return;
+    try {
+      await Promise.all(records.map((item) => apiDelete<{ ok?: boolean }>([`/api/academy/study-materials/${item.id}`])));
+      if (kind === "SUBJECT" && activeLibrarySubject === folderName) {
+        setLibrarySubject(null);
+        setLibraryTopic(null);
+      }
+      if (kind === "TOPIC" && activeLibraryTopic === folderName) setLibraryTopic(null);
+      await loadClassWorkspace(selectedClass.id);
+      setLibraryMessage(`${folderName} deleted permanently.`);
+    } catch (error) {
+      setLibraryMessage(error instanceof Error ? error.message : "Could not delete folder.");
     }
   }
 
@@ -1511,10 +1700,31 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
           <SummaryCard label="Total Documents" value={libraryStats.documents} />
           <SummaryCard label="Total Topics" value={libraryStats.topics} />
         </div>
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.24em] text-[var(--gold-dark)]">Explorer Controls</p>
+            <p className="mt-1 text-sm text-[var(--muted-blue)]">Create folders, archive safely, restore when needed, and permanently delete only with confirmation.</p>
+          </div>
+          <label className="inline-flex items-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-4 py-3 text-sm font-black">
+            <input type="checkbox" checked={showArchivedLibrary} onChange={(event) => setShowArchivedLibrary(event.target.checked)} />
+            Show archived
+          </label>
+        </div>
         <div className="grid gap-4 lg:grid-cols-[280px_280px_1fr]">
           <FolderColumn title="Subject Folders" emptyText="Create the first subject folder.">
             {librarySubjects.map((subject) => (
-              <FolderCard key={subject} title={subject} subtitle={`${classWorkspace.materials.filter((item) => (item.subject || item.folder || "General") === subject).length} material(s)`} active={activeLibrarySubject === subject} onClick={() => { setLibrarySubject(subject); setLibraryTopic(null); setShowLibraryUpload(false); }} />
+              <FolderCard
+                key={subject.name}
+                title={subject.name}
+                subtitle={`${subject.materials.filter((item) => !isFolderMaterial(item)).length} lesson(s)`}
+                active={activeLibrarySubject === subject.name}
+                archived={subject.folderRecord?.status === "ARCHIVED"}
+                onClick={() => { setLibrarySubject(subject.name); setLibraryTopic(null); setShowLibraryUpload(false); }}
+                onRename={() => void renameLibraryFolder("SUBJECT", subject.name)}
+                onArchive={() => void archiveLibraryFolder("SUBJECT", subject.name)}
+                onRestore={() => void restoreLibraryFolder("SUBJECT", subject.name)}
+                onDelete={() => void deleteLibraryFolder("SUBJECT", subject.name)}
+              />
             ))}
             <FolderCreateBox
               label="+ Create Subject Folder"
@@ -1523,15 +1733,24 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
               onChange={(value) => setLibraryForm((form) => ({ ...form, subject: value, folder: value }))}
               onCreate={() => {
                 if (!libraryForm.subject.trim()) return;
-                setLibrarySubject(libraryForm.subject.trim());
-                setLibraryTopic(null);
-                setShowLibraryUpload(false);
+                void createLibraryFolder("SUBJECT", libraryForm.subject);
               }}
             />
           </FolderColumn>
           <FolderColumn title="Topic / Lesson Folders" emptyText="Select a subject, then create the first topic folder.">
             {libraryTopics.map((topic) => (
-              <FolderCard key={topic} title={topic} subtitle={`${classWorkspace.materials.filter((item) => (item.subject || item.folder || "General") === activeLibrarySubject && (item.topic || "General") === topic).length} material(s)`} active={activeLibraryTopic === topic} onClick={() => { setLibraryTopic(topic); setShowLibraryUpload(false); }} />
+              <FolderCard
+                key={topic.name}
+                title={topic.name}
+                subtitle={`${topic.materials.filter((item) => !isFolderMaterial(item)).length} lesson(s)`}
+                active={activeLibraryTopic === topic.name}
+                archived={topic.folderRecord?.status === "ARCHIVED"}
+                onClick={() => { setLibraryTopic(topic.name); setShowLibraryUpload(false); }}
+                onRename={() => void renameLibraryFolder("TOPIC", topic.name)}
+                onArchive={() => void archiveLibraryFolder("TOPIC", topic.name)}
+                onRestore={() => void restoreLibraryFolder("TOPIC", topic.name)}
+                onDelete={() => void deleteLibraryFolder("TOPIC", topic.name)}
+              />
             ))}
             {activeLibrarySubject ? (
               <FolderCreateBox
@@ -1541,8 +1760,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
                 onChange={(value) => setLibraryForm((form) => ({ ...form, topic: value, subject: form.subject || activeLibrarySubject, folder: form.folder || activeLibrarySubject }))}
                 onCreate={() => {
                   if (!libraryForm.topic.trim()) return;
-                  setLibraryTopic(libraryForm.topic.trim());
-                  setShowLibraryUpload(false);
+                  void createLibraryFolder("TOPIC", libraryForm.topic);
                 }}
               />
             ) : null}
@@ -1568,12 +1786,25 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
               />
             ) : null}
             <div className="mt-4 grid gap-3 md:grid-cols-2">
-              {visibleLibraryMaterials.map((material) => (
-                <MaterialCard key={material.id} material={material} onDelete={() => void archiveLibraryMaterial(material.id)} />
+              {pagedLibraryMaterials.map((material) => (
+                <MaterialCard
+                  key={material.id}
+                  material={material}
+                  onArchive={() => void archiveLibraryMaterial(material.id)}
+                  onRestore={() => void restoreLibraryMaterial(material.id)}
+                  onDelete={() => void deleteLibraryMaterial(material.id)}
+                />
               ))}
               {!activeLibraryTopic ? <EmptyState text="Select a topic folder to view or upload materials." /> : null}
               {activeLibraryTopic && !visibleLibraryMaterials.length ? <EmptyState text="No material in this topic yet." /> : null}
             </div>
+            {visibleLibraryMaterials.length > libraryPageSize ? (
+              <div className="mt-4 flex items-center justify-between rounded-xl border border-[var(--border)] bg-[var(--page-bg)] p-3 text-sm font-black">
+                <button type="button" disabled={libraryPage <= 1} onClick={() => setLibraryPage((page) => Math.max(1, page - 1))} className="rounded-lg border border-[var(--border)] bg-white px-3 py-2 disabled:opacity-50">Previous</button>
+                <span>Page {libraryPage} / {libraryTotalPages}</span>
+                <button type="button" disabled={libraryPage >= libraryTotalPages} onClick={() => setLibraryPage((page) => Math.min(libraryTotalPages, page + 1))} className="rounded-lg border border-[var(--border)] bg-white px-3 py-2 disabled:opacity-50">Next</button>
+              </div>
+            ) : null}
           </div>
         </div>
         {libraryMessage ? <Notice text={libraryMessage} /> : null}
@@ -2742,12 +2973,43 @@ function LibraryProgramSelector({
   );
 }
 
-function FolderCard({ title, subtitle, active, onClick }: { title: string; subtitle: string; active: boolean; onClick: () => void }) {
+function FolderCard({
+  title,
+  subtitle,
+  active,
+  archived,
+  onClick,
+  onRename,
+  onArchive,
+  onRestore,
+  onDelete,
+}: {
+  title: string;
+  subtitle: string;
+  active: boolean;
+  archived?: boolean;
+  onClick: () => void;
+  onRename?: () => void;
+  onArchive?: () => void;
+  onRestore?: () => void;
+  onDelete?: () => void;
+}) {
   return (
-    <button type="button" onClick={onClick} className={`rounded-2xl border p-4 text-left transition hover:-translate-y-0.5 ${active ? "border-[var(--ink)] bg-white shadow-sm" : "border-[var(--border)] bg-[var(--page-bg)]"}`}>
-      <p className="text-lg font-black">{title}</p>
-      <p className="mt-1 text-xs text-[var(--muted-blue)]">{subtitle}</p>
-    </button>
+    <div className={`rounded-2xl border p-4 transition hover:-translate-y-0.5 ${active ? "border-[var(--ink)] bg-white shadow-sm" : "border-[var(--border)] bg-[var(--page-bg)]"} ${archived ? "opacity-65" : ""}`}>
+      <button type="button" onClick={onClick} className="w-full text-left">
+        <div className="flex items-center gap-2">
+          <Folder size={18} className="text-[var(--gold-dark)]" />
+          <p className="text-lg font-black">{title}</p>
+        </div>
+        <p className="mt-1 text-xs text-[var(--muted-blue)]">{archived ? "Archived / " : ""}{subtitle}</p>
+      </button>
+      <div className="mt-3 flex flex-wrap gap-2">
+        {onRename ? <button type="button" onClick={onRename} className="rounded-lg border border-[var(--border)] bg-white px-2 py-1 text-[10px] font-black">Rename</button> : null}
+        {archived && onRestore ? <button type="button" onClick={onRestore} className="rounded-lg border border-emerald-200 bg-white px-2 py-1 text-[10px] font-black text-emerald-700">Restore</button> : null}
+        {!archived && onArchive ? <button type="button" onClick={onArchive} className="rounded-lg border border-amber-200 bg-white px-2 py-1 text-[10px] font-black text-amber-700">Archive</button> : null}
+        {onDelete ? <button type="button" onClick={onDelete} className="rounded-lg border border-rose-200 bg-white px-2 py-1 text-[10px] font-black text-rose-700">Delete</button> : null}
+      </div>
+    </div>
   );
 }
 
@@ -2825,25 +3087,59 @@ function MaterialPreview({ title, type, thumbnailName }: { title: string; type: 
   );
 }
 
-function MaterialCard({ material, onDelete }: { material: MaterialRecord; onDelete: () => void }) {
+function MaterialCard({
+  material,
+  onArchive,
+  onRestore,
+  onDelete,
+}: {
+  material: MaterialRecord;
+  onArchive: () => void;
+  onRestore: () => void;
+  onDelete: () => void;
+}) {
   const type = material.type || "Material";
   const date = material.createdAt ? new Date(material.createdAt).toLocaleDateString() : "Upload date pending";
+  const archived = material.status === "ARCHIVED";
+  const isVideo = type.toUpperCase().includes("VIDEO");
+  const fileSize = material.fileSize ? `${(material.fileSize / 1024 / 1024).toFixed(1)} MB` : null;
+  const duration = material.durationSeconds ? `${Math.max(1, Math.round(material.durationSeconds / 60))} min` : null;
 
   return (
-    <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
-      <div className="grid aspect-video place-items-center rounded-xl bg-white text-center text-xs font-black text-[var(--muted-blue)]">
-        {material.thumbnailName || material.fileName || type}
+    <div className={`rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4 ${archived ? "opacity-65" : ""}`}>
+      <div className="relative grid aspect-video place-items-center overflow-hidden rounded-xl bg-white text-center text-xs font-black text-[var(--muted-blue)]">
+        {material.thumbnailUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={material.thumbnailUrl} alt="" className="h-full w-full object-cover" />
+        ) : (
+          <div className="flex flex-col items-center gap-2">
+            {isVideo ? <PlayCircle size={26} /> : <FileText size={24} />}
+            <span>{material.fileName || type}</span>
+          </div>
+        )}
+        <span className="absolute left-3 top-3 rounded-full bg-white/90 px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-[var(--ink)]">{type}</span>
       </div>
       <div className="mt-4 flex items-start justify-between gap-3">
         <div>
           <h4 className="font-black">{material.title || "Untitled material"}</h4>
-          <p className="mt-1 text-sm text-[var(--muted-blue)]">{type} / {date}</p>
+          <p className="mt-1 text-sm text-[var(--muted-blue)]">{material.lessonName || material.topic || "Lesson"} / {date}</p>
+          {material.description ? <p className="mt-2 line-clamp-2 text-sm text-[var(--muted-blue)]">{material.description}</p> : null}
+          <p className="mt-2 text-xs font-black text-[var(--muted-blue)]">{[fileSize, duration].filter(Boolean).join(" / ") || "File metadata pending"}</p>
         </div>
         <span className={`rounded-full px-3 py-1 text-xs font-black ${statusTone(material.reviewStatus || material.status)}`}>{material.reviewStatus || material.status || "LIVE"}</span>
       </div>
       <div className="mt-4 flex flex-wrap gap-2">
-        <button type="button" className="rounded-xl bg-[var(--ink)] px-4 py-2 text-xs font-black text-white">View</button>
+        {material.url ? (
+          <a href={material.url} target="_blank" rel="noreferrer" className="rounded-xl bg-[var(--ink)] px-4 py-2 text-xs font-black text-white">View</a>
+        ) : (
+          <button type="button" disabled className="rounded-xl bg-slate-200 px-4 py-2 text-xs font-black text-slate-500">View</button>
+        )}
         <button type="button" className="rounded-xl border border-[var(--border)] bg-white px-4 py-2 text-xs font-black">Edit</button>
+        {archived ? (
+          <button type="button" onClick={onRestore} className="rounded-xl border border-emerald-200 bg-white px-4 py-2 text-xs font-black text-emerald-700">Restore</button>
+        ) : (
+          <button type="button" onClick={onArchive} className="rounded-xl border border-amber-200 bg-white px-4 py-2 text-xs font-black text-amber-700">Archive</button>
+        )}
         <button type="button" onClick={onDelete} className="rounded-xl border border-rose-200 bg-white px-4 py-2 text-xs font-black text-rose-700">Delete</button>
       </div>
     </div>

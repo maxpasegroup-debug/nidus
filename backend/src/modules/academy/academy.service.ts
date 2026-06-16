@@ -1728,18 +1728,31 @@ export const academyService = {
   async studyMaterials(user: Requester, query: Record<string, unknown>) {
     requireAcademic(user);
     const batchId = typeof query.batchId === "string" ? query.batchId : undefined;
+    const includeArchived = query.includeArchived === "true" || query.includeArchived === true;
     if (batchId) await assertBatchAccess(user, batchId);
     const rows = batchId
-      ? await prisma.$queryRaw<any[]>`
-          SELECT * FROM "TeacherStudyMaterialRecord" WHERE "batchId" = ${batchId} AND "status" != 'ARCHIVED' ORDER BY "createdAt" DESC
-        `
-      : user.role === Role.TEACHER
+      ? includeArchived
         ? await prisma.$queryRaw<any[]>`
-            SELECT * FROM "TeacherStudyMaterialRecord" WHERE "teacherId" = ${user.id} AND "status" != 'ARCHIVED' ORDER BY "createdAt" DESC
+            SELECT * FROM "TeacherStudyMaterialRecord" WHERE "batchId" = ${batchId} ORDER BY "createdAt" DESC
           `
         : await prisma.$queryRaw<any[]>`
-            SELECT * FROM "TeacherStudyMaterialRecord" WHERE "status" != 'ARCHIVED' ORDER BY "createdAt" DESC
-          `;
+            SELECT * FROM "TeacherStudyMaterialRecord" WHERE "batchId" = ${batchId} AND "status" != 'ARCHIVED' ORDER BY "createdAt" DESC
+          `
+      : user.role === Role.TEACHER
+        ? includeArchived
+          ? await prisma.$queryRaw<any[]>`
+              SELECT * FROM "TeacherStudyMaterialRecord" WHERE "teacherId" = ${user.id} ORDER BY "createdAt" DESC
+            `
+          : await prisma.$queryRaw<any[]>`
+              SELECT * FROM "TeacherStudyMaterialRecord" WHERE "teacherId" = ${user.id} AND "status" != 'ARCHIVED' ORDER BY "createdAt" DESC
+            `
+        : includeArchived
+          ? await prisma.$queryRaw<any[]>`
+              SELECT * FROM "TeacherStudyMaterialRecord" ORDER BY "createdAt" DESC
+            `
+          : await prisma.$queryRaw<any[]>`
+              SELECT * FROM "TeacherStudyMaterialRecord" WHERE "status" != 'ARCHIVED' ORDER BY "createdAt" DESC
+            `;
     return { materials: normalizeRows(rows) };
   },
 
@@ -1812,24 +1825,73 @@ export const academyService = {
     if (!current) {
       throw Object.assign(new Error("Material not found"), { statusCode: 404 });
     }
+    return this.updateStudyMaterial(user, materialId, { status: "ARCHIVED" }).then(async (result) => {
+      await prisma.$executeRaw`
+        UPDATE "TeacherStudyMaterialRecord"
+        SET "archivedAt" = ${new Date()},
+            "updatedAt" = ${new Date()}
+        WHERE "id" = ${materialId}
+      `;
+      return result;
+    });
+  },
+
+  async restoreStudyMaterial(user: Requester, materialId: string) {
+    requireAcademic(user);
+    const rows = await prisma.$queryRaw<any[]>`
+      SELECT * FROM "TeacherStudyMaterialRecord" WHERE "id" = ${materialId} LIMIT 1
+    `;
+    const current = rows[0];
+    if (!current) {
+      throw Object.assign(new Error("Material not found"), { statusCode: 404 });
+    }
+    await assertBatchAccess(user, current.batchId);
+    if (user.role === Role.TEACHER && current.teacherId !== user.id && !isAcademicManager(user)) {
+      throw Object.assign(new Error("Only the publishing teacher can restore this material"), { statusCode: 403 });
+    }
+    await prisma.$executeRaw`
+      UPDATE "TeacherStudyMaterialRecord"
+      SET "status" = 'PUBLISHED',
+          "archivedAt" = NULL,
+          "updatedAt" = ${new Date()}
+      WHERE "id" = ${materialId}
+    `;
+    const updated = await prisma.$queryRaw<any[]>`
+      SELECT * FROM "TeacherStudyMaterialRecord" WHERE "id" = ${materialId} LIMIT 1
+    `;
+    const material = normalizeRows(updated)[0];
+    await auditAcademicAction(user, "MATERIAL_RESTORED", "TeacherStudyMaterialRecord", materialId, material);
+    return { ok: true, material };
+  },
+
+  async deleteStudyMaterial(user: Requester, materialId: string) {
+    requireAcademic(user);
+    const rows = await prisma.$queryRaw<any[]>`
+      SELECT * FROM "TeacherStudyMaterialRecord" WHERE "id" = ${materialId} LIMIT 1
+    `;
+    const current = rows[0];
+    if (!current) {
+      throw Object.assign(new Error("Material not found"), { statusCode: 404 });
+    }
+    await assertBatchAccess(user, current.batchId);
+    if (user.role === Role.TEACHER && current.teacherId !== user.id && !isAcademicManager(user)) {
+      throw Object.assign(new Error("Only the publishing teacher can delete this material"), { statusCode: 403 });
+    }
     if (current.cloudinaryPublicId) {
       await deleteCloudinaryAsset(current.cloudinaryPublicId, materialMimeType(current.type)).catch(() => undefined);
     }
     if (current.thumbnailPublicId) {
       await deleteCloudinaryAsset(current.thumbnailPublicId, "image/jpeg").catch(() => undefined);
     }
-
-    return this.updateStudyMaterial(user, materialId, { status: "ARCHIVED" }).then(async (result) => {
-      await prisma.$executeRaw`
-        UPDATE "TeacherStudyMaterialRecord"
-        SET "archivedAt" = ${new Date()},
-            "cloudinaryPublicId" = NULL,
-            "thumbnailPublicId" = NULL,
-            "updatedAt" = ${new Date()}
-        WHERE "id" = ${materialId}
-      `;
-      return result;
+    await prisma.$executeRaw`
+      DELETE FROM "TeacherStudyMaterialRecord" WHERE "id" = ${materialId}
+    `;
+    await auditAcademicAction(user, "MATERIAL_DELETED", "TeacherStudyMaterialRecord", materialId, {
+      title: current.title,
+      cloudinaryPublicId: current.cloudinaryPublicId,
+      thumbnailPublicId: current.thumbnailPublicId,
     });
+    return { ok: true, message: "Material deleted permanently" };
   },
 
   async reviewStudyMaterial(user: Requester, materialId: string, input: MaterialReviewInput) {
