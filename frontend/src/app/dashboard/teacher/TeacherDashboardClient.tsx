@@ -182,6 +182,18 @@ type ExamDraft = {
   questions?: Array<{ question: string; options?: string[]; answer?: string; marks?: number; difficultyLevel?: string }>;
 };
 
+type ExamWorkflowState = {
+  requestId: string;
+  draftId: string;
+  contextId?: string;
+};
+
+type AssignmentWorkflowState = {
+  requestId: string;
+  draftId: string;
+  contextId?: string;
+};
+
 type ExamChatMessage = {
   id: string;
   role: "guru" | "teacher";
@@ -471,6 +483,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
   const [showAssignmentCreator, setShowAssignmentCreator] = useState(false);
   const [showLiveClassCreator, setShowLiveClassCreator] = useState(false);
   const [examDraft, setExamDraft] = useState<ExamDraft | null>(null);
+  const [examWorkflow, setExamWorkflow] = useState<ExamWorkflowState | null>(null);
   const [examChatInput, setExamChatInput] = useState("");
   const [examChatMessages, setExamChatMessages] = useState<ExamChatMessage[]>([
     {
@@ -481,6 +494,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
   ]);
   const [examSourceName, setExamSourceName] = useState("");
   const [assignmentSourceName, setAssignmentSourceName] = useState("");
+  const [assignmentWorkflow, setAssignmentWorkflow] = useState<AssignmentWorkflowState | null>(null);
   const [assignmentChatInput, setAssignmentChatInput] = useState("");
   const [assignmentChatMessages, setAssignmentChatMessages] = useState<AssignmentChatMessage[]>([
     {
@@ -929,7 +943,11 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
     setAssignmentChatInput("");
   }
 
-  function generateAssignmentDraft() {
+  async function generateAssignmentDraft() {
+    if (!selectedClass) {
+      setAssignmentMessage("Select a batch before generating an assignment draft.");
+      return;
+    }
     const title = assignmentForm.title || (assignmentForm.topic ? `${assignmentForm.topic} Assignment` : "Class Assignment");
     const topic = assignmentForm.topic || "selected topic";
     const draftText = [
@@ -953,8 +971,89 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
       assignmentForm.pastedContent ? `Source content reviewed:\n${assignmentForm.pastedContent}` : "",
       assignmentForm.instructions ? `Teacher instructions: ${assignmentForm.instructions}` : "Teacher instructions can be added in the chat.",
     ].filter(Boolean).join("\n");
-    setAssignmentForm((form) => ({ ...form, title, topic, instructions: form.instructions || draftText }));
-    setAssignmentChatMessages((messages) => [...messages, { id: `guru-draft-${Date.now()}`, role: "guru", text: draftText }]);
+    setAssignmentMessage("NIDUS GURU is preparing assignment workflow draft...");
+    setAssignmentWorkflow(null);
+    try {
+      const request = await apiPost<{ id: string }>(["/api/ai/workflow/requests"], {
+        agentType: "ASSIGNMENT_CREATOR",
+        requestType: "ASSIGNMENT_DRAFT_GENERATION",
+        targetType: "BATCH",
+        targetId: selectedClass.id,
+        actingMode: isAcademicHead ? "HOD_MODE" : "TEACHER_MODE",
+        status: "REQUESTED",
+        inputJson: {
+          batchId: selectedClass.id,
+          batchName: selectedClass.name,
+          program: programName(selectedClass),
+          subject: assignmentForm.subject || selectedClass.subject,
+          topic,
+          title,
+          difficulty: assignmentForm.difficulty,
+          dueDate: assignmentForm.dueDate,
+          pastedContent: assignmentForm.pastedContent,
+          sourceMaterial: assignmentSourceName,
+          teacherInstructions: assignmentChatMessages.map((message) => message.text),
+        },
+        metadataJson: { surface: "teacher_assignment_builder", humanApprovalRequired: true },
+      });
+      const context = request?.id
+        ? await apiPost<{ id: string }>([`/api/ai/workflow/requests/${request.id}/context`], {
+            scope: "ASSIGNMENT_CREATOR_CONTEXT",
+            batchId: selectedClass.id,
+            teacherId: user?.id,
+            contextJson: {
+              batch: { id: selectedClass.id, name: selectedClass.name, program: programName(selectedClass), studentCount: selectedStudents.length },
+              subject: assignmentForm.subject || selectedClass.subject || "General",
+              topic,
+              sourceMaterial: assignmentSourceName,
+              pastedContent: assignmentForm.pastedContent,
+              rule: "Teacher approval is mandatory before publish.",
+            },
+            summaryText: `${programName(selectedClass)} / ${selectedClass.name} / ${assignmentForm.subject || selectedClass.subject || "General"} / ${topic}`,
+            sources: [
+              { sourceType: "BATCH", sourceId: selectedClass.id, sourceLabel: selectedClass.name, sourceJson: { batchId: selectedClass.id } },
+              assignmentForm.pastedContent ? { sourceType: "TEACHER_SOURCE", sourceLabel: "Pasted assignment content", sourceJson: { content: assignmentForm.pastedContent } } : null,
+              assignmentSourceName ? { sourceType: "TEACHER_SOURCE", sourceLabel: "Attached source names", sourceJson: { attachments: assignmentSourceName } } : null,
+            ].filter(Boolean),
+          })
+        : null;
+      const draft = request?.id
+        ? await apiPost<{ id: string }>([`/api/ai/workflow/requests/${request.id}/drafts`], {
+            draftType: "ASSIGNMENT_DRAFT",
+            targetType: "BATCH",
+            targetId: selectedClass.id,
+            title,
+            status: "DRAFT",
+            draftJson: {
+              title,
+              program: programName(selectedClass),
+              batch: selectedClass.name,
+              subject: assignmentForm.subject || selectedClass.subject || "General",
+              topic,
+              difficulty: assignmentForm.difficulty,
+              dueDate: assignmentForm.dueDate,
+              instructions: draftText,
+              pastedContent: assignmentForm.pastedContent,
+              sourceMaterial: assignmentSourceName,
+              teacherReviewRequired: true,
+            },
+            validationJson: {
+              contentLines: assignmentForm.pastedContent.split(/\n+/).filter(Boolean).length,
+              hasRubric: true,
+              humanApprovalRequired: true,
+            },
+            sourceReferencesJson: { contextId: context?.id },
+          })
+        : null;
+      if (request?.id && draft?.id) {
+        setAssignmentWorkflow({ requestId: request.id, draftId: draft.id, contextId: context?.id });
+      }
+      setAssignmentForm((form) => ({ ...form, title, topic, instructions: form.instructions || draftText }));
+      setAssignmentChatMessages((messages) => [...messages, { id: `guru-draft-${Date.now()}`, role: "guru", text: draftText }]);
+      setAssignmentMessage("NIDUS GURU assignment draft ready. Review and publish.");
+    } catch (error) {
+      setAssignmentMessage(error instanceof Error ? error.message : "Could not generate assignment workflow draft.");
+    }
   }
 
   async function saveAttendance() {
@@ -1003,8 +1102,42 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
 
   async function publishAssignment() {
     if (!selectedClass) return;
+    if (!assignmentWorkflow?.requestId || !assignmentWorkflow.draftId) {
+      setAssignmentMessage("Generate a NIDUS GURU draft first. Draft, review and approval are mandatory before publish.");
+      return;
+    }
     setAssignmentMessage(null);
     try {
+      await apiPost<{ id?: string }>([`/api/ai/workflow/drafts/${assignmentWorkflow.draftId}/reviews`], {
+        reviewType: "TEACHER_REVIEW",
+        status: "APPROVED",
+        notes: "Teacher reviewed assignment preview in the NIDUS dashboard.",
+        correctionJson: {
+          title: assignmentForm.title,
+          instructions: assignmentForm.instructions,
+          pastedContent: assignmentForm.pastedContent,
+        },
+      });
+      await apiPost<{ id?: string }>([`/api/ai/workflow/drafts/${assignmentWorkflow.draftId}/approvals`], {
+        approvalType: "ASSIGNMENT_DRAFT_APPROVAL",
+        notes: "Teacher approved assignment draft for publishing.",
+      });
+      const publication = await apiPost<{ id?: string }>([`/api/ai/workflow/requests/${assignmentWorkflow.requestId}/publications`], {
+        draftId: assignmentWorkflow.draftId,
+        targetType: "ASSIGNMENT",
+        publishPayloadJson: {
+          batchId: selectedClass.id,
+          title: assignmentForm.title,
+          dueDate: assignmentForm.dueDate,
+          humanApprovalRequired: true,
+        },
+      });
+      if (publication?.id) {
+        await apiPost<{ id?: string }>([`/api/ai/workflow/publications/${publication.id}/approve`], {
+          approvalType: "ASSIGNMENT_PUBLISH_APPROVAL",
+          notes: "Teacher approved assignment publish target.",
+        });
+      }
       await apiPost<{ ok?: boolean }>(["/api/academy/assignments"], {
         batchId: selectedClass.id,
         batchName: selectedClass.name,
@@ -1021,6 +1154,9 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
         attachmentName: assignmentForm.attachmentName || assignmentSourceName || undefined,
         link: assignmentForm.link || undefined,
       });
+      if (publication?.id) {
+        await apiPost<{ id?: string }>([`/api/ai/workflow/publications/${publication.id}/mark-published`], {});
+      }
       setAssignmentForm({
         title: "",
         subject: "",
@@ -1033,6 +1169,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
         link: "",
       });
       setAssignmentSourceName("");
+      setAssignmentWorkflow(null);
       setAssignmentChatInput("");
       setShowAssignmentCreator(false);
       setAssignmentMessage("Assignment published to the selected batch.");
@@ -1270,17 +1407,48 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
     if (!selectedClass) return;
     setExamMessage(null);
     setExamDraft(null);
+    setExamWorkflow(null);
     try {
-      const draft = await apiPost<ExamDraft>(["/api/academy/exams/ai-draft"], {
+      const response = await apiPost<{
+        requestId: string;
+        contextId?: string;
+        draftId: string;
+        status: string;
+        draft?: {
+          title?: string;
+          topic?: string;
+          durationMinutes?: number;
+          sections?: Array<{
+            questions?: Array<{
+              questionText?: string;
+              optionA?: string;
+              optionB?: string;
+              optionC?: string;
+              optionD?: string;
+              correctAnswer?: string;
+              marks?: number;
+              difficultyLevel?: string;
+            }>;
+          }>;
+        };
+        validation?: { questionCount?: number };
+      }>(["/api/ai/exam/create"], {
         batchId: selectedClass.id,
         batchName: selectedClass.name,
-        subject: selectedClass.subject,
-        course: programName(selectedClass),
+        program: programName(selectedClass),
+        subject: examForm.subject || selectedClass.subject,
+        examType: examForm.examType,
         title: examForm.title,
         topic: examForm.topic || examForm.subject,
         questionCount: Number(examForm.questionCount || 20),
-        duration: Number(examForm.duration || 30),
+        durationMinutes: Number(examForm.duration || 30),
+        totalMarks: Number(examForm.totalMarks || 100),
         difficulty: examForm.difficulty,
+        prompt: examChatMessages.concat(examChatInput ? [{ id: "current", role: "teacher" as const, text: examChatInput }] : []).map((message) => message.text).join("\n"),
+        sourceMaterial: [
+          examForm.pastedQuestions ? { type: "PASTED_QUESTIONS", title: "Teacher pasted questions", content: examForm.pastedQuestions } : null,
+          examSourceName ? { type: "ATTACHMENT_NAMES", title: "Attached source material", content: examSourceName } : null,
+        ].filter(Boolean),
         instructions: [
           examForm.instructions,
           examForm.examType ? `Exam type: ${examForm.examType}` : "",
@@ -1290,6 +1458,26 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
           examSourceName ? `Source attached: ${examSourceName}` : "",
         ].filter(Boolean).join("\n"),
       });
+      const workflowDraft = response?.draft;
+      const questions = (workflowDraft?.sections ?? []).flatMap((section) =>
+        (section.questions ?? []).map((question) => ({
+          question: question.questionText || "Question pending",
+          options: [question.optionA, question.optionB, question.optionC, question.optionD].filter((option): option is string => Boolean(option)),
+          answer: question.correctAnswer,
+          marks: question.marks,
+          difficultyLevel: question.difficultyLevel,
+        })),
+      );
+      const draft: ExamDraft = {
+        draft: `NIDUS GURU prepared ${questions.length || response?.validation?.questionCount || 0} question(s) through the approved AI workflow.`,
+        title: workflowDraft?.title,
+        topic: workflowDraft?.topic,
+        duration: workflowDraft?.durationMinutes,
+        questions,
+      };
+      if (response?.requestId && response.draftId) {
+        setExamWorkflow({ requestId: response.requestId, draftId: response.draftId, contextId: response.contextId });
+      }
       setExamDraft(draft);
       setExamChatMessages((messages) => [
         ...messages,
@@ -1310,30 +1498,67 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
       setExamMessage("Select a program and batch inside NIDUS Guru before publishing.");
       return;
     }
+    if (!examWorkflow?.requestId || !examWorkflow.draftId) {
+      setExamMessage("Run NIDUS GURU Review first. Draft, review and approval are mandatory before publish.");
+      return;
+    }
     setExamMessage(null);
     try {
-      await apiPost<{ ok?: boolean }>(["/api/academy/exams"], {
+      await apiPost<{ draftId?: string }>(["/api/ai/exam/review"], {
+        draftId: examWorkflow.draftId,
+        status: "APPROVED",
+        notes: "Teacher reviewed the generated exam preview in the NIDUS dashboard.",
+        correctedDraft: examDraft ? {
+          title: examForm.title || examDraft.title,
+          program: programName(selectedClass),
+          batch: selectedClass.name,
+          examType: examForm.examType,
+          subject: examForm.subject || selectedClass.subject || "General",
+          topic: examForm.topic || examForm.subject || "General",
+          durationMinutes: Number(examForm.duration || examDraft.duration || 30),
+          totalMarks: Number(examForm.totalMarks || 100),
+          negativeMarking: false,
+          difficultyMix: { easy: 40, medium: 40, hard: 20 },
+          includedTopics: [examForm.topic || examForm.subject || "General"],
+          excludedTopics: [],
+          instructions: examForm.instructions ? examForm.instructions.split("\n").filter(Boolean) : ["Teacher approved exam."],
+          sections: [{
+            title: "Section A",
+            questionType: "MCQ",
+            marks: Number(examForm.totalMarks || 100),
+            questions: (examDraft.questions ?? []).map((question) => ({
+              questionText: question.question,
+              optionA: question.options?.[0] || "Option A",
+              optionB: question.options?.[1] || "Option B",
+              optionC: question.options?.[2] || "Option C",
+              optionD: question.options?.[3] || "Option D",
+              correctAnswer: question.answer || "A",
+              explanation: "Teacher reviewed answer.",
+              marks: Number(question.marks || 1),
+              negativeMarks: 0,
+              difficultyLevel: question.difficultyLevel || examForm.difficulty,
+              topic: examForm.topic || examForm.subject || "General",
+            })),
+          }],
+          teacherReviewRequired: true,
+        } : undefined,
+      });
+      await apiPost<{ approvalId?: string }>(["/api/ai/exam/approve"], {
+        draftId: examWorkflow.draftId,
+        notes: "Teacher approved exam draft after review.",
+      });
+      await apiPost<{ status?: string }>(["/api/ai/exam/publish"], {
+        requestId: examWorkflow.requestId,
+        draftId: examWorkflow.draftId,
         batchId: selectedClass.id,
-        batchName: selectedClass.name,
-        subject: selectedClass.subject,
-        course: programName(selectedClass),
-        title: examForm.title,
-        topic: examForm.topic || examForm.subject,
-        questionCount: Number(examForm.questionCount || 20),
-        duration: Number(examForm.duration || 30),
         durationMinutes: Number(examForm.duration || 30),
-        difficulty: examForm.difficulty,
+        date: examForm.publishDate || undefined,
+        time: examForm.publishTime || undefined,
         instructions: [
           examForm.instructions,
           examForm.examType ? `Exam type: ${examForm.examType}` : "",
-          examForm.subject ? `Subject: ${examForm.subject}` : "",
-          examForm.totalMarks ? `Total marks: ${examForm.totalMarks}` : "",
-          examForm.pastedQuestions ? `Pasted source questions:\n${examForm.pastedQuestions}` : "",
-          examForm.publishDate ? `Scheduled date: ${examForm.publishDate}` : "",
-          examForm.publishTime ? `Scheduled time: ${examForm.publishTime}` : "",
-          examSourceName ? `Source attached: ${examSourceName}` : "",
         ].filter(Boolean).join("\n"),
-        draft: examDraft,
+        rules: { teacherApprovalMandatory: true, sourceMaterialReviewed: Boolean(examForm.pastedQuestions || examSourceName) },
       });
       setExamForm({
         title: "",
@@ -1351,6 +1576,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
       });
       setExamSourceName("");
       setExamDraft(null);
+      setExamWorkflow(null);
       setShowExamCreator(false);
       setExamChatInput("");
       setExamMessage("Exam published to students.");
