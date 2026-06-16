@@ -38,6 +38,7 @@
     "ops:smoke": "tsx src/scripts/production-smoke.ts",
     "backup:database": "tsx src/scripts/backup-database.ts",
     "backup:media": "tsx src/scripts/backup-media.ts",
+    "reconcile:cloudinary": "tsx src/scripts/cloudinary-orphan-reconciliation.ts",
     "test:infra": "tsx src/scripts/infra-verification.ts",
     "test:cbt": "tsx src/scripts/cbt-flow-verification.ts"
   },

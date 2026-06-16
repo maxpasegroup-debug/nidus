@@ -30,6 +30,49 @@ async function assignedBatchIdsForTeacher(userId: string) {
   return assignments.map((assignment) => assignment.batchId);
 }
 
+async function enrolledCourseIdsForStudent(studentId: string) {
+  const [enrollments, batchEnrollments] = await Promise.all([
+    prisma.enrollment.findMany({ where: { userId: studentId }, select: { courseId: true } }),
+    prisma.batchStudent.findMany({
+      where: { studentId, status: "ACTIVE" },
+      select: { batch: { select: { courseId: true } } }
+    })
+  ]);
+  return Array.from(new Set([
+    ...enrollments.map((enrollment) => enrollment.courseId),
+    ...batchEnrollments.map((enrollment) => enrollment.batch.courseId).filter((courseId): courseId is string => Boolean(courseId))
+  ]));
+}
+
+async function accessibleRecordedLectureCourseIds(user: LiveClassUser) {
+  if (canManageAllLiveClasses(user)) return null;
+
+  if (user.role === Role.TEACHER || user.role === Role.PHYSICAL_TRAINER) {
+    const batchIds = await assignedBatchIdsForTeacher(user.id);
+    if (!batchIds.length) return [];
+    const batches = await prisma.batch.findMany({
+      where: { id: { in: batchIds }, status: "ACTIVE" },
+      select: { courseId: true }
+    });
+    return Array.from(new Set(batches.map((batch) => batch.courseId).filter((courseId): courseId is string => Boolean(courseId))));
+  }
+
+  if (user.role === Role.STUDENT) {
+    return enrolledCourseIdsForStudent(user.id);
+  }
+
+  if (user.role === Role.PARENT) {
+    const links = await prisma.parentStudentLink.findMany({
+      where: { parentId: user.id, status: "ACTIVE" },
+      select: { studentId: true }
+    });
+    const nested = await Promise.all(links.map((link) => enrolledCourseIdsForStudent(link.studentId)));
+    return Array.from(new Set(nested.flat()));
+  }
+
+  return [];
+}
+
 export type LiveClassPayload = {
   title: string;
   description: string;
@@ -178,32 +221,39 @@ export const liveClassesService = {
     return liveClass;
   },
 
-  listLectures() {
+  async listLectures(user: LiveClassUser) {
+    const courseIds = await accessibleRecordedLectureCourseIds(user);
+    if (courseIds && !courseIds.length) return [];
     return prisma.recordedLecture.findMany({
+      where: courseIds ? { courseId: { in: courseIds } } : undefined,
       orderBy: { createdAt: "desc" },
+      take: 100,
       include: { course: { select: { id: true, title: true, examType: true } } }
     });
   },
 
-  async getLecture(id: string) {
+  async getLecture(user: LiveClassUser, id: string) {
+    const courseIds = await accessibleRecordedLectureCourseIds(user);
     const lecture = await prisma.recordedLecture.findUnique({
       where: { id },
       include: { course: { select: { id: true, title: true, examType: true } } }
     });
     if (!lecture) throw new Error("Recorded lecture not found");
+    if (courseIds && (!lecture.courseId || !courseIds.includes(lecture.courseId))) {
+      throw Object.assign(new Error("This recorded lecture is not available for this user"), { statusCode: 403 });
+    }
     return lecture;
   },
 
-  async updateProgress(userId: string, payload: { lectureId: string; watchedDuration: number; completed?: boolean; eventType?: string; position?: number; duration?: number }) {
-    const lecture = await prisma.recordedLecture.findUnique({ where: { id: payload.lectureId } });
-    if (!lecture) throw new Error("Recorded lecture not found");
+  async updateProgress(user: LiveClassUser, payload: { lectureId: string; watchedDuration: number; completed?: boolean; eventType?: string; position?: number; duration?: number }) {
+    const lecture = await this.getLecture(user, payload.lectureId);
     const completionPercent = lecture.duration > 0 ? Math.min(100, Math.round((payload.watchedDuration / Math.max(1, lecture.duration * 60)) * 100)) : 0;
     const activeWatchTime = payload.duration ?? 0;
     const engagementScore = Math.min(100, Math.round((completionPercent * 0.7) + (activeWatchTime > 0 ? 30 : 0)));
     const progress = await prisma.lectureProgress.upsert({
-      where: { userId_lectureId: { userId, lectureId: payload.lectureId } },
+      where: { userId_lectureId: { userId: user.id, lectureId: payload.lectureId } },
       create: {
-        userId,
+        userId: user.id,
         lectureId: payload.lectureId,
         watchedDuration: payload.watchedDuration,
         completed: payload.completed ?? completionPercent >= 90,
@@ -221,7 +271,7 @@ export const liveClassesService = {
     });
     await prisma.lecturePlaybackEvent.create({
       data: {
-        userId,
+        userId: user.id,
         lectureId: payload.lectureId,
         eventType: payload.eventType ?? "PROGRESS",
         position: payload.position ?? payload.watchedDuration,

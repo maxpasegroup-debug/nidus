@@ -41,7 +41,9 @@ function allowDashboard(kind: "student" | "parent" | "admin" | "teacher" | "acad
 dashboardRouter.get("/student", allowDashboard("student"), dashboardController.student);
 dashboardRouter.get("/parent", allowDashboard("parent"), dashboardController.parent);
 dashboardRouter.get("/admin", allowDashboard("admin"), dashboardController.admin);
-dashboardRouter.get("/guest", allowDashboard("student"), dashboardController.student);
+dashboardRouter.get("/guest", (_req, res) => {
+  res.status(410).json({ success: false, message: "Guest dashboard is disabled. Use the student dashboard." });
+});
 dashboardRouter.get("/teacher", allowDashboard("teacher"), dashboardController.teacher);
 dashboardRouter.get("/academic-head", allowDashboard("academicHead"), dashboardController.teacher);
 dashboardRouter.get("/director", allowDashboard("director"), dashboardController.director);

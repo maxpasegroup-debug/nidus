@@ -26,7 +26,7 @@ function testValidators(optional = false) {
   ];
 }
 
-testsRouter.get("/", testsController.list);
+testsRouter.get("/", protect, allowRoles(Role.STUDENT, Role.ADMIN, Role.DIRECTOR, Role.ACADEMIC_HEAD, Role.TEACHER), testsController.list);
 testsRouter.get("/available", protect, allowRoles(Role.STUDENT, Role.ADMIN), testsController.available);
 testsRouter.get("/attempts/history", protect, allowRoles(Role.STUDENT, Role.ADMIN), testsController.history);
 testsRouter.get("/result/:attemptId", protect, allowRoles(Role.STUDENT, Role.ADMIN), testsController.result);
@@ -49,7 +49,7 @@ testsRouter.post(
   testsController.generateDraft
 );
 testsRouter.post("/publish-draft", protect, allowRoles(Role.ADMIN, Role.DIRECTOR, Role.ACADEMIC_HEAD, Role.TEACHER), testValidators(), testsController.publishDraft);
-testsRouter.get("/:id", testsController.details);
+testsRouter.get("/:id", protect, allowRoles(Role.STUDENT, Role.ADMIN, Role.DIRECTOR, Role.ACADEMIC_HEAD, Role.TEACHER), testsController.details);
 testsRouter.post("/", protect, allowRoles(Role.ADMIN, Role.DIRECTOR, Role.ACADEMIC_HEAD, Role.TEACHER), testValidators(), testsController.create);
 testsRouter.put("/:id", protect, allowRoles(Role.ADMIN, Role.DIRECTOR, Role.ACADEMIC_HEAD, Role.TEACHER), testValidators(true), testsController.update);
 testsRouter.delete("/:id", protect, allowRoles(Role.ADMIN, Role.DIRECTOR, Role.ACADEMIC_HEAD, Role.TEACHER), testsController.remove);

@@ -1,6 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
 import { Role } from "../generated/prisma/client.js";
 import { AuthServiceV2 } from "../modules/auth/auth.v2.service.js";
+import { env } from "../config/env.js";
 
 export type AuthenticatedRequest = Request & {
   user?: {
@@ -43,6 +44,11 @@ export async function sessionAuth(req: AuthenticatedRequest, res: Response, next
     }
 
     req.user = await AuthServiceV2.verify(sessionId);
+    if (env.NODE_ENV === "production" && req.user.role === Role.GUEST) {
+      res.clearCookie("session", { path: "/" });
+      res.status(403).json({ success: false, message: "Guest access is disabled for production" });
+      return;
+    }
     next();
   } catch (_error) {
     res.clearCookie("session", { path: "/" });
@@ -71,5 +77,10 @@ export function requireRole(...roles: Role[]) {
 export const allowRoles = requireRole;
 
 export function requireInstituteScope() {
-  return (_req: AuthenticatedRequest, _res: Response, next: NextFunction) => next();
+  return (_req: AuthenticatedRequest, _res: Response, next: NextFunction) => {
+    // NIDUS beta is intentionally locked to single-institute mode.
+    // Institute/branch columns are retained for future scale, but no route should
+    // infer multi-tenant isolation from this middleware until branch rollout.
+    next();
+  };
 }

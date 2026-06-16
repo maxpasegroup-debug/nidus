@@ -71,16 +71,24 @@ export const liveClassesController = {
       next(error);
     }
   },
-  async listLectures(_req: Request, res: Response, next: NextFunction) {
+  async listLectures(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
-      res.json({ lectures: await liveClassesService.listLectures() });
+      if (!req.user) {
+        res.status(401).json({ message: "Authentication required" });
+        return;
+      }
+      res.json({ lectures: await liveClassesService.listLectures(req.user) });
     } catch (error) {
       next(error);
     }
   },
-  async lectureDetails(req: Request, res: Response, next: NextFunction) {
+  async lectureDetails(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
-      res.json({ lecture: await liveClassesService.getLecture(param(req, "id")) });
+      if (!req.user) {
+        res.status(401).json({ message: "Authentication required" });
+        return;
+      }
+      res.json({ lecture: await liveClassesService.getLecture(req.user, param(req, "id")) });
     } catch (error) {
       next(error);
     }
@@ -88,7 +96,11 @@ export const liveClassesController = {
   async updateProgress(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
       assertValid(req);
-      res.json({ progress: await liveClassesService.updateProgress(userId(req), req.body) });
+      if (!req.user) {
+        res.status(401).json({ message: "Authentication required" });
+        return;
+      }
+      res.json({ progress: await liveClassesService.updateProgress(req.user, req.body) });
     } catch (error) {
       next(error);
     }

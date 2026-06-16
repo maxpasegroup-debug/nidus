@@ -35,8 +35,8 @@ liveClassesRouter.post("/", protect, allowRoles(Role.ADMIN, Role.DIRECTOR, Role.
 liveClassesRouter.put("/:id", protect, allowRoles(Role.ADMIN, Role.DIRECTOR, Role.ACADEMIC_HEAD, Role.TEACHER, Role.PHYSICAL_TRAINER), liveValidators(true), liveClassesController.updateLiveClass);
 liveClassesRouter.delete("/:id", protect, allowRoles(Role.ADMIN, Role.DIRECTOR, Role.ACADEMIC_HEAD, Role.TEACHER, Role.PHYSICAL_TRAINER), liveClassesController.deleteLiveClass);
 
-recordedLecturesRouter.get("/", liveClassesController.listLectures);
-recordedLecturesRouter.get("/:id", liveClassesController.lectureDetails);
+recordedLecturesRouter.get("/", protect, allowRoles(Role.ADMIN, Role.DIRECTOR, Role.ACADEMIC_HEAD, Role.TEACHER, Role.PHYSICAL_TRAINER, Role.STUDENT, Role.PARENT), liveClassesController.listLectures);
+recordedLecturesRouter.get("/:id", protect, allowRoles(Role.ADMIN, Role.DIRECTOR, Role.ACADEMIC_HEAD, Role.TEACHER, Role.PHYSICAL_TRAINER, Role.STUDENT, Role.PARENT), liveClassesController.lectureDetails);
 
 lectureProgressRouter.post(
   "/update",

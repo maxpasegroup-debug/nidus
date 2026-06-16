@@ -1729,31 +1729,29 @@ export const academyService = {
     requireAcademic(user);
     const batchId = typeof query.batchId === "string" ? query.batchId : undefined;
     const includeArchived = query.includeArchived === "true" || query.includeArchived === true;
+    const search = typeof query.search === "string" ? query.search.trim() : "";
+    const page = Math.max(1, Number(query.page ?? 1) || 1);
+    const limit = Math.min(100, Math.max(1, Number(query.limit ?? 50) || 50));
+    const skip = (page - 1) * limit;
     if (batchId) await assertBatchAccess(user, batchId);
-    const rows = batchId
-      ? includeArchived
-        ? await prisma.$queryRaw<any[]>`
-            SELECT * FROM "TeacherStudyMaterialRecord" WHERE "batchId" = ${batchId} ORDER BY "createdAt" DESC
-          `
-        : await prisma.$queryRaw<any[]>`
-            SELECT * FROM "TeacherStudyMaterialRecord" WHERE "batchId" = ${batchId} AND "status" != 'ARCHIVED' ORDER BY "createdAt" DESC
-          `
-      : user.role === Role.TEACHER
-        ? includeArchived
-          ? await prisma.$queryRaw<any[]>`
-              SELECT * FROM "TeacherStudyMaterialRecord" WHERE "teacherId" = ${user.id} ORDER BY "createdAt" DESC
-            `
-          : await prisma.$queryRaw<any[]>`
-              SELECT * FROM "TeacherStudyMaterialRecord" WHERE "teacherId" = ${user.id} AND "status" != 'ARCHIVED' ORDER BY "createdAt" DESC
-            `
-        : includeArchived
-          ? await prisma.$queryRaw<any[]>`
-              SELECT * FROM "TeacherStudyMaterialRecord" ORDER BY "createdAt" DESC
-            `
-          : await prisma.$queryRaw<any[]>`
-              SELECT * FROM "TeacherStudyMaterialRecord" WHERE "status" != 'ARCHIVED' ORDER BY "createdAt" DESC
-            `;
-    return { materials: normalizeRows(rows) };
+    const where: Prisma.TeacherStudyMaterialRecordWhereInput = {};
+    if (batchId) where.batchId = batchId;
+    if (!batchId && user.role === Role.TEACHER && !isAcademicManager(user)) where.teacherId = user.id;
+    if (!includeArchived) where.status = { not: "ARCHIVED" };
+    if (search) {
+      where.OR = [
+        { title: { contains: search, mode: "insensitive" } },
+        { lessonName: { contains: search, mode: "insensitive" } },
+        { subject: { contains: search, mode: "insensitive" } },
+        { topic: { contains: search, mode: "insensitive" } },
+        { fileName: { contains: search, mode: "insensitive" } }
+      ];
+    }
+    const [rows, total] = await Promise.all([
+      prisma.teacherStudyMaterialRecord.findMany({ where, orderBy: { createdAt: "desc" }, skip, take: limit }),
+      prisma.teacherStudyMaterialRecord.count({ where })
+    ]);
+    return { materials: normalizeRows(rows), pagination: { page, limit, total, totalPages: Math.max(1, Math.ceil(total / limit)) } };
   },
 
   async materialSummary(user: Requester, query: Record<string, unknown>) {
