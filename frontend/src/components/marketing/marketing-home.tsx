@@ -14,11 +14,11 @@ const modules = [
     className: "bg-[#f7f3ea] text-[#101827]"
   },
   {
-    label: "Exam Coaching",
-    title: "Exam Practice With Guidance",
-    text: "Practice important defence exams step by step. Know what to study, where you are weak, and what to do next.",
-    href: "/start-free?intent=exam",
-    cta: "Start Practice",
+    label: "TOP RANK",
+    title: "Defence Career Hub",
+    text: "Army, Navy, Air Force, Coast Guard and officer-entry exam coaching paths under the public defence career division of NIDUS.",
+    href: "/top-rank",
+    cta: "Explore TOP RANK",
     icon: BrainCircuit,
     className: "bg-[#dce9f3] text-[#101827]"
   },
@@ -154,7 +154,7 @@ export function MarketingHome() {
               <h3 className="text-sm font-semibold">Academy</h3>
               <div className="mt-5 grid gap-3 text-sm text-white/66">
                 <Link href="/programs">Programs</Link>
-                <Link href="/start-free?intent=exam">Exam Coaching</Link>
+                <Link href="/top-rank">TOP RANK</Link>
                 <Link href="/start-free?intent=academy">Join NIDUS</Link>
               </div>
             </div>

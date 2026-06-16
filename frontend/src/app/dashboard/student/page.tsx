@@ -315,7 +315,7 @@ export default function StudentDashboardPage() {
         <section id="classes" className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           <StudentModule title="Classes" text="Upcoming live classes and recorded lessons appear batch-wise." icon={PlayCircle} href="#classes" />
           <StudentModule title="My Learning" text="Program, subject, topic and lesson view for your batch materials." icon={Library} href="/dashboard/student/learning" />
-          <StudentModule title="Exam Coaching" text="Practice tests, weekly tests and NIDUS-owned CBT coaching." icon={ClipboardCheck} href="#exams" />
+          <StudentModule title="TOP RANK" text="Practice tests, weekly tests and NIDUS-owned CBT coaching." icon={ClipboardCheck} href="#exams" />
           <StudentModule title="Assessments" text="Open psychometric and defence-readiness assessments." icon={ShieldCheck} href="/dashboard/student#assessments" />
           <StudentModule title="NIDUS Guru" text="Focus, discipline and dream-building quests." icon={UserRound} href="/dashboard/student#nidus-guru" />
         </section>
@@ -515,7 +515,7 @@ export default function StudentDashboardPage() {
           </div>
         </Panel>
 
-        <Panel id="exams" title="Exam Coaching" eyebrow="CBT and weekly tests">
+        <Panel id="exams" title="TOP RANK" eyebrow="CBT and weekly tests">
           <div className="grid gap-3 md:grid-cols-2">
             {exams.map((exam) => (
               <article key={exam.id || exam.testId || exam.examName || exam.title || "exam"} className="rounded-2xl border border-[var(--border)] bg-white p-4">

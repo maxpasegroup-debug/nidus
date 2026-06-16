@@ -66,8 +66,8 @@ export function PublicNavbar() {
           <Link href="/guru" className="rounded-full px-3 py-2 text-sm font-semibold text-[#071D36] transition hover:bg-[#071D36]/6 hover:text-[#B9913F]">
             Nidus Guru
           </Link>
-          <Link href="/start-free?intent=exam" className="rounded-full px-3 py-2 text-sm font-semibold text-[#071D36] transition hover:bg-[#071D36]/6 hover:text-[#B9913F]">
-            Exam Coaching
+          <Link href="/top-rank" className="rounded-full px-3 py-2 text-sm font-semibold text-[#071D36] transition hover:bg-[#071D36]/6 hover:text-[#B9913F]">
+            TOP RANK
           </Link>
         </nav>
 
@@ -105,7 +105,7 @@ export function PublicNavbar() {
               </Link>
             ))}
             <Link href="/guru" onClick={() => setOpen(false)} className="rounded px-3 py-3 text-sm font-semibold text-[#071D36] hover:bg-white">Nidus Guru</Link>
-            <Link href="/start-free?intent=exam" onClick={() => setOpen(false)} className="rounded px-3 py-3 text-sm font-semibold text-[#071D36] hover:bg-white">Exam Coaching</Link>
+            <Link href="/top-rank" onClick={() => setOpen(false)} className="rounded px-3 py-3 text-sm font-semibold text-[#071D36] hover:bg-white">TOP RANK</Link>
           </nav>
         </div>
       ) : null}

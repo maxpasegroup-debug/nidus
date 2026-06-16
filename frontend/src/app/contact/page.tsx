@@ -10,7 +10,7 @@ export default function ContactPage() {
           <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#263a8f]">Contact NIDUS</p>
           <h1 className="mt-5 text-4xl font-semibold leading-tight sm:text-6xl">Speak with the academy team.</h1>
           <p className="mt-6 max-w-xl text-base leading-8 text-[#536072]">
-            Use this form for admissions, program guidance, school campaigns, assessments, exam coaching, or NIDUS Guru enquiries.
+            Use this form for admissions, program guidance, school campaigns, assessments, TOP RANK, or NIDUS Guru enquiries.
           </p>
           <div className="mt-8 grid gap-4">
             {[

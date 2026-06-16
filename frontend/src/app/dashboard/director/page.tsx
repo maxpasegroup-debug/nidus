@@ -93,7 +93,7 @@ const directorAreas: DirectorArea[] = [
     accent: "from-orange-100 via-white to-green-100",
     subAreas: [
       { title: "Sales Booster", text: "AI campaign creation and marketing automation.", href: "#sales-booster", icon: Sparkles, status: "Ready" },
-      { title: "Campaigns", text: "Academy, exam coaching, NIDUS Guru and assessment campaigns.", href: "#sales-booster", icon: Megaphone, status: "Manage" },
+      { title: "Campaigns", text: "Academy, TOP RANK, NIDUS Guru and assessment campaigns.", href: "#sales-booster", icon: Megaphone, status: "Manage" },
       { title: "Creative Library", text: "Posters, videos, brochures and reels.", href: "/media-library", icon: FileArchive, status: "Manage" },
       { title: "Social Media", text: "Facebook, Instagram, Threads and YouTube posting.", href: "#sales-booster", icon: MessageCircle, status: "Manage" },
       { title: "WhatsApp Campaigns", text: "Bulk messages, templates and counsellor routing.", href: "#sales-booster", icon: MessageCircle, status: "Manage" },
@@ -127,7 +127,7 @@ const directorAreas: DirectorArea[] = [
       { title: "Fee Management", text: "Course fees, student payments and pending dues.", href: "/fees", icon: BadgeIndianRupee, status: "Ready" },
       { title: "Invoices & Receipts", text: "Generate and track payment receipts.", href: "/invoices", icon: ReceiptText, status: "Ready" },
       { title: "Expenses", text: "Office, salary, rent, marketing and operations.", href: "/dashboard/director/accounts#expenses", icon: CreditCard, status: "Manage" },
-      { title: "Subscriptions", text: "Assessments, exam coaching and premium module subscriptions.", href: "/subscriptions", icon: WalletCards, status: "Ready" },
+      { title: "Subscriptions", text: "Assessments, TOP RANK and premium module subscriptions.", href: "/subscriptions", icon: WalletCards, status: "Ready" },
       { title: "Reports & Launch QA", text: "Academic, admissions, marketing, finance, staff reports and launch checklist.", href: "/dashboard/director/launch-qa", icon: BarChart3, status: "Ready" },
       { title: "Settings", text: "Company details, contact number and system controls.", href: "/dashboard/director/accounts#settings", icon: Settings, status: "Ready" },
       { title: "Audit Logs", text: "Track important staff and management actions.", href: "/admin-center/audit-logs", icon: FileText, status: "Monitor" },
@@ -353,7 +353,7 @@ export default function DirectorDashboardPage() {
               <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Sales Booster</p>
               <h2 className="mt-3 text-3xl font-black text-[var(--navy)]">Director marketing command module</h2>
               <p className="mt-3 max-w-3xl text-sm leading-7 text-[var(--muted-blue)]">
-                Create campaigns for Academy admissions, NIDUS Exam Coaching, assessments and NIDUS Guru. Social posting and WhatsApp follow-up stay under Director control.
+                Create campaigns for Academy admissions, TOP RANK, assessments and NIDUS Guru. Social posting and WhatsApp follow-up stay under Director control.
               </p>
             </div>
             <Link className="rounded-2xl bg-[var(--gold-gradient)] px-5 py-3 text-sm font-black text-[var(--navy)] shadow-lg" href="/dashboard/director#sales-booster">

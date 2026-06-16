@@ -110,13 +110,13 @@ export const guruRecordedQuests: GuruQuest[] = [
 
 export const academyMenuItems = [
   ["NDA", "/programs/nda-crash-course"],
-  ["CDS", "/programs/cds-afcat-inet"],
-  ["AFCAT", "/programs/cds-afcat-inet"],
+  ["CDS", "/programs/cds-f1"],
+  ["AFCAT", "/programs/afcat"],
   ["SSB", "/programs/ssb-interview-guidance"],
   ["AISSEE", "/programs/aissee-class-6"],
-  ["Agniveer", "/programs/agniveer-full-program"],
-  ["Foundation Programs", "/programs/mission-2028-after-10th"],
-  ["Physical Training", "/programs/agniveer-physical-training"],
+  ["Agniveer", "/programs/agniveer-army"],
+  ["Foundation Programs", "/programs/foundation-nda-civil-services"],
+  ["Physical Training", "/programs/agniveer-army"],
   ["Interview Guidance", "/programs/ssb-interview-guidance"]
 ] as const;
 

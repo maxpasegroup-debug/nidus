@@ -237,6 +237,28 @@ export const academyCategories = [
         imageTone: "from-[#071d36] via-[#3f4a32] to-[#b9913f]"
       },
       {
+        slug: "ssr",
+        title: "SSR",
+        targetStudents: "Navy SSR aspirants",
+        duration: "Focused written and physical preparation",
+        format: "Written exam coaching, physical training, science, mathematics, English, test series, and documentation support",
+        summary: "A dedicated Senior Secondary Recruit preparation pathway.",
+        benefits: ["Science and mathematics practice", "Physical fitness training", "Mock tests", "Documentation guidance"],
+        careerOpportunities: ["Navy SSR", "Agniveer Navy technical pathway", "Naval service pathway"],
+        imageTone: "from-[#071d36] via-[#315a75] to-[#b9913f]"
+      },
+      {
+        slug: "mr",
+        title: "MR",
+        targetStudents: "Navy MR aspirants",
+        duration: "Focused written and physical preparation",
+        format: "Written exam coaching, physical training, general awareness, science, mathematics, test series, and documentation support",
+        summary: "A dedicated Matric Recruit preparation pathway.",
+        benefits: ["MR written exam practice", "Physical fitness training", "Mock tests", "Documentation guidance"],
+        careerOpportunities: ["Navy MR", "Agniveer Navy support pathway", "Naval service pathway"],
+        imageTone: "from-[#071d36] via-[#25445c] to-[#d9c27b]"
+      },
+      {
         slug: "agniveer-air-force",
         title: "Agniveer Air Force",
         targetStudents: "Agniveer Air Force aspirants",
@@ -246,6 +268,17 @@ export const academyCategories = [
         benefits: ["Written exam coaching", "Physical fitness training", "Test series", "Motivation and discipline"],
         careerOpportunities: ["Agniveer Air Force", "Physical test readiness", "Written exam readiness", "Air Force pathway"],
         imageTone: "from-[#071d36] via-[#6e8faf] to-[#b9913f]"
+      },
+      {
+        slug: "navik",
+        title: "Navik",
+        targetStudents: "Indian Coast Guard Navik aspirants",
+        duration: "Focused written and physical preparation",
+        format: "Written exam coaching, physical training, reasoning, mathematics, science, English, and documentation support",
+        summary: "A dedicated Indian Coast Guard Navik preparation pathway.",
+        benefits: ["Written exam practice", "Physical fitness training", "Mock tests", "Coast Guard documentation guidance"],
+        careerOpportunities: ["Navik General Duty", "Navik Domestic Branch", "Coast Guard service pathway"],
+        imageTone: "from-[#102a43] via-[#456b73] to-[#e0c36a]"
       }
     ]
   },
@@ -285,6 +318,9 @@ const academyProgramAliases: Record<string, string> = {
   "interview-guidance": "ssb-interview-guidance",
   afmc: "afmc",
   mns: "mns",
+  ssr: "ssr",
+  mr: "mr",
+  navik: "navik",
   tes: "tes-guidance",
   "tgc-ssc": "tgc-ssc-technical",
   "coast-guard": "territorial-army-coast-guard"

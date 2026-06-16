@@ -225,6 +225,28 @@ const academyPrograms: AcademyProgramSeed[] = [
     modules: ["Written Exam Coaching", "Physical Fitness Training", "Running Programs", "Test Series", "Medical Awareness", "Documentation Guidance", "Discipline & Motivation"]
   },
   {
+    slug: "ssr",
+    title: "SSR",
+    vertical: "NIDUS Agniveer Academy",
+    level: "Navy Entry",
+    targetStudents: "Navy SSR aspirants",
+    duration: "Focused written plus physical preparation",
+    format: "Available as offline classroom program and online learning program.",
+    outcome: "Senior Secondary Recruit written, physical and documentation preparation.",
+    modules: ["Science", "Mathematics", "English", "Physical Fitness Training", "Running Programs", "Mock Tests", "Documentation Guidance"]
+  },
+  {
+    slug: "mr",
+    title: "MR",
+    vertical: "NIDUS Agniveer Academy",
+    level: "Navy Entry",
+    targetStudents: "Navy MR aspirants",
+    duration: "Focused written plus physical preparation",
+    format: "Available as offline classroom program and online learning program.",
+    outcome: "Matric Recruit written, physical and documentation preparation.",
+    modules: ["General Awareness", "Science", "Mathematics", "Physical Fitness Training", "Running Programs", "Mock Tests", "Documentation Guidance"]
+  },
+  {
     slug: "agniveer-air-force",
     title: "Agniveer Air Force",
     vertical: "NIDUS Agniveer Academy",
@@ -234,6 +256,17 @@ const academyPrograms: AcademyProgramSeed[] = [
     format: "Available as offline classroom program and online learning program.",
     outcome: "Agniveer Air Force recruitment preparation.",
     modules: ["Written Exam Coaching", "Physical Fitness Training", "Running Programs", "Test Series", "Medical Awareness", "Documentation Guidance", "Discipline & Motivation"]
+  },
+  {
+    slug: "navik",
+    title: "Navik",
+    vertical: "NIDUS Agniveer Academy",
+    level: "Coast Guard Entry",
+    targetStudents: "Indian Coast Guard Navik aspirants",
+    duration: "Focused written plus physical preparation",
+    format: "Available as offline classroom program and online learning program.",
+    outcome: "Coast Guard Navik written, physical and documentation preparation.",
+    modules: ["Mathematics", "Science", "Reasoning", "English", "Physical Fitness Training", "Running Programs", "Mock Tests", "Documentation Guidance"]
   },
   {
     slug: "ssb-interview-guidance",

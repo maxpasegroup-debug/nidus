@@ -6,6 +6,7 @@ const columns = [
     title: "Academy",
     links: [
       ["Programs", "/programs"],
+      ["TOP RANK", "/top-rank"],
       ["Join NIDUS", "/start-free?intent=academy"],
       ["Contact", "/contact"]
     ]

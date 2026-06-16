@@ -376,6 +376,22 @@ function studentId(entry: NonNullable<AssignedClass["students"]>[number], index:
   return entry.student?.id || entry.id || `student-${index}`;
 }
 
+function subjectsForBatch(batch: AssignedClass | null) {
+  if (!batch) return ["General"];
+  const subjects = new Set<string>();
+  if (batch.subject) subjects.add(batch.subject);
+  for (const teacher of batch.teachers ?? []) {
+    if (teacher.subject) subjects.add(teacher.subject);
+  }
+  const fromSchedule = (batch as AssignedClass & { schedule?: { subjects?: string[] } | null }).schedule?.subjects;
+  if (Array.isArray(fromSchedule)) {
+    for (const subject of fromSchedule) {
+      if (subject) subjects.add(subject);
+    }
+  }
+  return Array.from(subjects).filter(Boolean).length ? Array.from(subjects).filter(Boolean) : ["General"];
+}
+
 function todayDate() {
   return new Date().toISOString().slice(0, 10);
 }
@@ -507,6 +523,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
   const [libraryTopic, setLibraryTopic] = useState<string | null>(null);
   const [librarySearch, setLibrarySearch] = useState("");
   const [libraryPage, setLibraryPage] = useState(1);
+  const [librarySort, setLibrarySort] = useState<"LATEST" | "OLDEST">("LATEST");
   const [showArchivedLibrary, setShowArchivedLibrary] = useState(false);
   const [showLibraryUpload, setShowLibraryUpload] = useState(false);
   const [calendarMonth, setCalendarMonth] = useState(() => monthStartDate(new Date()));
@@ -637,18 +654,23 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
     return Array.from(map.values());
   }, [activeLibraryRecords, activeLibrarySubject, libraryForm.subject, libraryForm.topic]);
   const activeLibraryTopic = libraryTopic ?? libraryTopics[0]?.name ?? null;
-  const visibleLibraryMaterials = activeLibraryRecords.filter(
-    (item) =>
-      !isFolderMaterial(item) &&
-      (item.subject || item.folder || "General") === activeLibrarySubject &&
-      (item.topic || "General") === activeLibraryTopic &&
-      (!librarySearch.trim() ||
-        [item.title, item.lessonName, item.type, item.fileName, item.url, item.description, item.subject, item.topic]
-          .filter(Boolean)
-          .join(" ")
-          .toLowerCase()
-          .includes(librarySearch.trim().toLowerCase())),
-  );
+  const visibleLibraryMaterials = activeLibraryRecords
+    .filter(
+      (item) =>
+        !isFolderMaterial(item) &&
+        (item.subject || item.folder || "General") === activeLibrarySubject &&
+        (!librarySearch.trim() ||
+          [item.title, item.lessonName, item.type, item.fileName, item.url, item.description, item.subject, item.topic]
+            .filter(Boolean)
+            .join(" ")
+            .toLowerCase()
+            .includes(librarySearch.trim().toLowerCase())),
+    )
+    .sort((a, b) => {
+      const first = new Date(a.createdAt || 0).getTime();
+      const second = new Date(b.createdAt || 0).getTime();
+      return librarySort === "LATEST" ? second - first : first - second;
+    });
   const libraryPageSize = 12;
   const pagedLibraryMaterials = visibleLibraryMaterials.slice((libraryPage - 1) * libraryPageSize, libraryPage * libraryPageSize);
   const libraryTotalPages = Math.max(1, Math.ceil(visibleLibraryMaterials.length / libraryPageSize));
@@ -760,8 +782,14 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
   }, [activeBatchId, selectedClassId]);
 
   useEffect(() => {
+    if (view !== "library" || !selectedClass) return;
+    const subjects = subjectsForBatch(selectedClass);
+    if (!librarySubject || !subjects.includes(librarySubject)) setLibrarySubject(subjects[0] ?? "General");
+  }, [librarySubject, selectedClass, view]);
+
+  useEffect(() => {
     setLibraryPage(1);
-  }, [activeLibrarySubject, activeLibraryTopic, librarySearch, showArchivedLibrary]);
+  }, [activeLibrarySubject, activeLibraryTopic, librarySearch, librarySort, showArchivedLibrary]);
 
   function chooseProgram(key: string) {
     const program = programGroups.find((item) => item.key === key);
@@ -784,6 +812,18 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
     setLibrarySubject(null);
     setLibraryTopic(null);
     setShowLibraryUpload(false);
+  }
+
+  function openLibraryUpload() {
+    const subject = activeLibrarySubject || (selectedClass ? subjectsForBatch(selectedClass)[0] : "") || "General";
+    setLibraryForm({
+      ...initialLibraryForm,
+      folder: subject,
+      subject,
+      topic: "",
+    });
+    setLibraryMessage(null);
+    setShowLibraryUpload(true);
   }
 
   function setAllAttendance(status: "PRESENT" | "ABSENT" | "LEAVE") {
@@ -1181,6 +1221,14 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
 
   async function publishLibraryMaterial() {
     if (!selectedClass) return;
+    if (!libraryForm.title.trim()) {
+      setLibraryMessage("Lesson title is required.");
+      return;
+    }
+    if (!libraryForm.url && !libraryForm.fileName) {
+      setLibraryMessage("Upload a video, PDF, document, image or file before publishing.");
+      return;
+    }
     setLibraryMessage(null);
     try {
       await apiPost<{ ok?: boolean }>(["/api/academy/study-materials"], {
@@ -1189,7 +1237,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
         course: programName(selectedClass),
         folder: libraryForm.folder || activeLibrarySubject,
         subject: libraryForm.subject || activeLibrarySubject,
-        topic: libraryForm.topic || activeLibraryTopic,
+        topic: libraryForm.topic.trim() || "General Lessons",
         title: libraryForm.title,
         description: libraryForm.description,
         type: libraryForm.type,
@@ -1204,7 +1252,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
       });
       setLibraryForm(initialLibraryForm);
       setShowLibraryUpload(false);
-      setLibraryMessage("Material published for review.");
+      setLibraryMessage("Lesson published for students.");
       await loadClassWorkspace(selectedClass.id);
     } catch (error) {
       setLibraryMessage(error instanceof Error ? error.message : "Could not publish material.");
@@ -1357,7 +1405,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
   }
 
   async function uploadLibraryFile(file: File) {
-    setLibraryMessage("Uploading file to secure storage...");
+    setLibraryMessage("Uploading...");
     try {
       const uploaded = await uploadMediaFile({ file });
       const normalizedType = uploaded.fileType.startsWith("video/")
@@ -1381,7 +1429,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
         cloudinaryPublicId: uploaded.publicId,
         fileSize: String(uploaded.fileSize),
       }));
-      setLibraryMessage("Upload complete. Review the lesson details, then publish.");
+      setLibraryMessage("Upload complete.");
     } catch (error) {
       setLibraryMessage(error instanceof Error ? error.message : "Could not upload file.");
     }
@@ -1909,109 +1957,103 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
 
       {view === "library" ? <section className="grid gap-5">
         <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
-          <div className="flex items-start gap-4">
-            <span className="grid h-12 w-12 place-items-center rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] text-[var(--ink)]">
-              <Library size={22} />
-            </span>
-            <div>
-              <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold-dark)]">Library</p>
-              <h2 className="mt-2 text-3xl font-black">Course content manager.</h2>
-              <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--muted-blue)]">Program to subject folder to topic folder to learning materials.</p>
-            </div>
-          </div>
-        </div>
-        <LibraryProgramSelector programGroups={programGroups} selectedProgramKey={selectedProgram?.key} selectedClassId={selectedClass?.id} onProgram={chooseProgram} onBatch={chooseBatch} />
-        <div className="grid gap-4 md:grid-cols-3">
-          <SummaryCard label="Total Videos" value={libraryStats.videos} />
-          <SummaryCard label="Total Documents" value={libraryStats.documents} />
-          <SummaryCard label="Total Topics" value={libraryStats.topics} />
-        </div>
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm">
-          <div>
-            <p className="text-xs font-black uppercase tracking-[0.24em] text-[var(--gold-dark)]">Explorer Controls</p>
-            <p className="mt-1 text-sm text-[var(--muted-blue)]">Create folders, archive safely, restore when needed, and permanently delete only with confirmation.</p>
-          </div>
-          <label className="inline-flex items-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-4 py-3 text-sm font-black">
-            <input type="checkbox" checked={showArchivedLibrary} onChange={(event) => setShowArchivedLibrary(event.target.checked)} />
-            Show archived
-          </label>
-        </div>
-        <div className="grid gap-4 lg:grid-cols-[280px_280px_1fr]">
-          <FolderColumn title="Subject Folders" emptyText="Create the first subject folder.">
-            {librarySubjects.map((subject) => (
-              <FolderCard
-                key={subject.name}
-                title={subject.name}
-                subtitle={`${subject.materials.filter((item) => !isFolderMaterial(item)).length} lesson(s)`}
-                active={activeLibrarySubject === subject.name}
-                archived={subject.folderRecord?.status === "ARCHIVED"}
-                onClick={() => { setLibrarySubject(subject.name); setLibraryTopic(null); setShowLibraryUpload(false); }}
-                onRename={() => void renameLibraryFolder("SUBJECT", subject.name)}
-                onArchive={() => void archiveLibraryFolder("SUBJECT", subject.name)}
-                onRestore={() => void restoreLibraryFolder("SUBJECT", subject.name)}
-                onDelete={() => void deleteLibraryFolder("SUBJECT", subject.name)}
-              />
-            ))}
-            <FolderCreateBox
-              label="+ Create Subject Folder"
-              placeholder="Mathematics"
-              value={libraryForm.subject}
-              onChange={(value) => setLibraryForm((form) => ({ ...form, subject: value, folder: value }))}
-              onCreate={() => {
-                if (!libraryForm.subject.trim()) return;
-                void createLibraryFolder("SUBJECT", libraryForm.subject);
-              }}
-            />
-          </FolderColumn>
-          <FolderColumn title="Topic / Lesson Folders" emptyText="Select a subject, then create the first topic folder.">
-            {libraryTopics.map((topic) => (
-              <FolderCard
-                key={topic.name}
-                title={topic.name}
-                subtitle={`${topic.materials.filter((item) => !isFolderMaterial(item)).length} lesson(s)`}
-                active={activeLibraryTopic === topic.name}
-                archived={topic.folderRecord?.status === "ARCHIVED"}
-                onClick={() => { setLibraryTopic(topic.name); setShowLibraryUpload(false); }}
-                onRename={() => void renameLibraryFolder("TOPIC", topic.name)}
-                onArchive={() => void archiveLibraryFolder("TOPIC", topic.name)}
-                onRestore={() => void restoreLibraryFolder("TOPIC", topic.name)}
-                onDelete={() => void deleteLibraryFolder("TOPIC", topic.name)}
-              />
-            ))}
-            {activeLibrarySubject ? (
-              <FolderCreateBox
-                label="+ Create Topic Folder"
-                placeholder="Algebra"
-                value={libraryForm.topic}
-                onChange={(value) => setLibraryForm((form) => ({ ...form, topic: value, subject: form.subject || activeLibrarySubject, folder: form.folder || activeLibrarySubject }))}
-                onCreate={() => {
-                  if (!libraryForm.topic.trim()) return;
-                  void createLibraryFolder("TOPIC", libraryForm.topic);
-                }}
-              />
-            ) : null}
-          </FolderColumn>
-          <div className="rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm">
-            <div className="flex flex-wrap items-end justify-between gap-3">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div className="flex items-start gap-4">
+              <span className="grid h-12 w-12 place-items-center rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] text-[var(--ink)]">
+                <Library size={22} />
+              </span>
               <div>
-                <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold-dark)]">Learning Materials</p>
-                <h3 className="mt-2 text-2xl font-black">{activeLibraryTopic || "Select topic folder"}</h3>
+                <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold-dark)]">My Teaching Library</p>
+                <h2 className="mt-2 text-3xl font-black">Upload a class for students to watch.</h2>
+                <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--muted-blue)]">Select batch, choose subject, upload lesson. NIDUS handles folders, file type and storage in the background.</p>
               </div>
-              {activeLibraryTopic ? <button type="button" onClick={() => setShowLibraryUpload((value) => !value)} className="relative z-10 inline-flex shrink-0 items-center gap-2 rounded-xl border border-slate-950 !bg-slate-950 px-4 py-3 text-sm font-black !text-white"><FolderPlus size={16} /> Add Material</button> : null}
             </div>
-            <input value={librarySearch} onChange={(event) => setLibrarySearch(event.target.value)} placeholder="Search materials..." className="mt-4 min-h-12 w-full rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-4 text-sm font-bold outline-none" />
-            {showLibraryUpload && activeLibraryTopic ? (
-              <LibraryUploadPanel
-                form={libraryForm}
-                activeSubject={activeLibrarySubject}
-                activeTopic={activeLibraryTopic}
-                onChange={setLibraryForm}
-                onUploadMaterial={(file) => void uploadLibraryFile(file)}
-                onUploadThumbnail={(file) => void uploadLibraryThumbnail(file)}
-                onPublish={() => void publishLibraryMaterial()}
-              />
+            {selectedClass && activeLibrarySubject ? (
+              <button type="button" onClick={openLibraryUpload} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-slate-950 !bg-slate-950 px-5 py-3 text-sm font-black !text-white">
+                <Plus size={18} /> Upload Lesson
+              </button>
             ) : null}
-            <div className="mt-4 grid gap-3 md:grid-cols-2">
+          </div>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-3">
+          <SummaryCard label="Videos" value={libraryStats.videos} />
+          <SummaryCard label="Files & Notes" value={libraryStats.documents} />
+          <SummaryCard label="Topics" value={libraryStats.topics} />
+        </div>
+
+        <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
+          <p className="text-xs font-black uppercase tracking-[0.3em] text-[var(--gold-dark)]">Assigned Batches</p>
+          <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {activeClasses.map((batch) => {
+              const subjects = subjectsForBatch(batch);
+              const lessonCount = selectedClass?.id === batch.id ? activeLibraryRecords.filter((item) => !isFolderMaterial(item)).length : classWorkspace.materials.filter((item) => item.batchId === batch.id && !isFolderMaterial(item)).length;
+              return (
+                <button
+                  key={batch.id}
+                  type="button"
+                  onClick={() => chooseBatch(batch.id)}
+                  className={`min-h-40 rounded-2xl border p-5 text-left shadow-sm transition hover:-translate-y-1 ${selectedClass?.id === batch.id ? "border-slate-950 bg-slate-950 text-white" : "border-[var(--border)] bg-[var(--page-bg)] text-[var(--ink)]"}`}
+                >
+                  <p className={`text-xs font-black uppercase tracking-[0.24em] ${selectedClass?.id === batch.id ? "text-[#e7c873]" : "text-[var(--gold-dark)]"}`}>{programName(batch)}</p>
+                  <h3 className="mt-3 text-xl font-black">{batch.name}</h3>
+                  <div className="mt-4 flex flex-wrap gap-2 text-xs font-black">
+                    <span className="rounded-full border border-current/20 px-3 py-1">{batch.batchType || "Batch"}</span>
+                    <span className="rounded-full border border-current/20 px-3 py-1">{batch._count?.students ?? batch.students?.length ?? 0} students</span>
+                    <span className="rounded-full border border-current/20 px-3 py-1">{subjects.length} subjects</span>
+                    <span className="rounded-full border border-current/20 px-3 py-1">{lessonCount} lessons</span>
+                  </div>
+                </button>
+              );
+            })}
+            {!activeClasses.length ? <EmptyState text="No assigned batches yet. Classes assigned by the Academic Head or Director will appear here." /> : null}
+          </div>
+        </div>
+
+        {selectedClass ? (
+          <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
+            <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.3em] text-[var(--gold-dark)]">Subjects Assigned To Me</p>
+                <h3 className="mt-2 text-2xl font-black">{selectedClass.name}</h3>
+              </div>
+              <p className="text-sm font-bold text-[var(--muted-blue)]">Choose the subject you taught.</p>
+            </div>
+            <div className="mt-4 flex flex-wrap gap-3">
+              {subjectsForBatch(selectedClass).map((subject) => (
+                <button
+                  key={subject}
+                  type="button"
+                  onClick={() => { setLibrarySubject(subject); setLibraryTopic(null); setShowLibraryUpload(false); }}
+                  className={`min-h-12 rounded-xl border px-5 py-3 text-sm font-black ${activeLibrarySubject === subject ? "border-slate-950 bg-slate-950 text-white" : "border-[var(--border)] bg-[var(--page-bg)] text-[var(--ink)]"}`}
+                >
+                  {subject}
+                </button>
+              ))}
+            </div>
+          </div>
+        ) : null}
+
+        {selectedClass && activeLibrarySubject ? (
+          <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
+            <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.3em] text-[var(--gold-dark)]">Lessons</p>
+                <h3 className="mt-2 text-3xl font-black">{activeLibrarySubject}</h3>
+                <p className="mt-2 text-sm text-[var(--muted-blue)]">{programName(selectedClass)} / {selectedClass.name}</p>
+              </div>
+              <button type="button" onClick={openLibraryUpload} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-slate-950 !bg-slate-950 px-5 py-3 text-sm font-black !text-white">
+                <Plus size={18} /> Upload Lesson
+              </button>
+            </div>
+            <div className="mt-5 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+              <input value={librarySearch} onChange={(event) => setLibrarySearch(event.target.value)} placeholder="Search lessons..." className="min-h-12 w-full rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-4 text-sm font-bold outline-none md:max-w-md" />
+              <select value={librarySort} onChange={(event) => setLibrarySort(event.target.value as "LATEST" | "OLDEST")} className="min-h-12 rounded-xl border border-[var(--border)] bg-white px-4 text-sm font-black">
+                <option value="LATEST">Sort Latest</option>
+                <option value="OLDEST">Sort Oldest</option>
+              </select>
+            </div>
+            <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {pagedLibraryMaterials.map((material) => (
                 <MaterialCard
                   key={material.id}
@@ -2021,8 +2063,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
                   onDelete={() => void deleteLibraryMaterial(material.id)}
                 />
               ))}
-              {!activeLibraryTopic ? <EmptyState text="Select a topic folder to view or upload materials." /> : null}
-              {activeLibraryTopic && !visibleLibraryMaterials.length ? <EmptyState text="No material in this topic yet." /> : null}
+              {!visibleLibraryMaterials.length ? <EmptyState text="No lessons yet. Upload the first class recording or note for this subject." /> : null}
             </div>
             {visibleLibraryMaterials.length > libraryPageSize ? (
               <div className="mt-4 flex items-center justify-between rounded-xl border border-[var(--border)] bg-[var(--page-bg)] p-3 text-sm font-black">
@@ -2032,7 +2073,19 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
               </div>
             ) : null}
           </div>
-        </div>
+        ) : null}
+
+        {showLibraryUpload && selectedClass && activeLibrarySubject ? (
+          <LibraryUploadPanel
+            form={libraryForm}
+            activeSubject={activeLibrarySubject}
+            activeTopic={activeLibraryTopic}
+            onClose={() => setShowLibraryUpload(false)}
+            onChange={setLibraryForm}
+            onUploadMaterial={(file) => void uploadLibraryFile(file)}
+            onPublish={() => void publishLibraryMaterial()}
+          />
+        ) : null}
         {libraryMessage ? <Notice text={libraryMessage} /> : null}
       </section> : null}
 
@@ -3255,48 +3308,52 @@ function LibraryUploadPanel({
   form,
   activeSubject,
   activeTopic,
+  onClose,
   onChange,
   onUploadMaterial,
-  onUploadThumbnail,
   onPublish,
 }: {
   form: typeof initialLibraryForm;
   activeSubject: string | null;
   activeTopic: string | null;
+  onClose: () => void;
   onChange: React.Dispatch<React.SetStateAction<typeof initialLibraryForm>>;
   onUploadMaterial: (file: File) => void;
-  onUploadThumbnail: (file: File) => void;
   onPublish: () => void;
 }) {
   return (
-    <div className="mt-4 rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <p className="text-xs font-black uppercase tracking-[0.24em] text-[var(--gold-dark)]">Add material</p>
-          <h4 className="mt-2 text-lg font-black">{activeSubject || "Subject"} / {activeTopic || "Topic"}</h4>
+    <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/55 p-4 backdrop-blur-sm">
+      <div className="max-h-[92dvh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-[var(--border)] bg-white p-5 shadow-2xl">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold-dark)]">Upload Lesson</p>
+            <h4 className="mt-2 text-2xl font-black">{activeSubject || "Subject"}</h4>
+            <p className="mt-1 text-sm text-[var(--muted-blue)]">Topic: {form.topic.trim() || activeTopic || "General Lessons"}</p>
+          </div>
+          <button type="button" onClick={onClose} className="grid h-10 w-10 place-items-center rounded-xl border border-[var(--border)] bg-[var(--page-bg)]" aria-label="Close upload lesson">
+            <X size={18} />
+          </button>
         </div>
-        <MaterialPreview title={form.title} type={form.type} thumbnailName={form.thumbnailName} />
+
+        <div className="mt-5 grid gap-4">
+          <Input label="Lesson Title" value={form.title} onChange={(value) => onChange((current) => ({ ...current, title: value, lessonName: value, subject: activeSubject || current.subject, folder: activeSubject || current.folder }))} />
+          <Input label="Topic (Optional)" value={form.topic} onChange={(value) => onChange((current) => ({ ...current, topic: value, subject: activeSubject || current.subject, folder: activeSubject || current.folder }))} />
+          <div className="rounded-2xl border border-dashed border-[var(--border)] bg-[var(--page-bg)] p-5">
+            <p className="text-sm font-black text-[var(--ink)]">Upload Video / File</p>
+            <p className="mt-1 text-xs font-bold text-[var(--muted-blue)]">Supports video, PDF, DOCX, PPTX, image and notes files.</p>
+            <FileInput label="Choose file" accept="video/*,.pdf,.doc,.docx,.ppt,.pptx,image/*,.txt" onChange={(_value, file) => file ? onUploadMaterial(file) : undefined} />
+            {form.fileName ? <p className="mt-3 rounded-xl bg-white px-3 py-2 text-xs font-black">Upload Complete: {form.fileName}</p> : null}
+          </div>
+          <Textarea label="Lesson Notes (Optional)" value={form.description} onChange={(value) => onChange((current) => ({ ...current, description: value }))} />
+        </div>
+
+        <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-xs font-bold text-[var(--muted-blue)]">NIDUS automatically handles file type, thumbnail, duration and storage details.</p>
+          <button type="button" onClick={onPublish} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-emerald-700 px-5 py-3 font-black text-white">
+            <Plus size={18} /> Publish
+          </button>
+        </div>
       </div>
-      <FormGrid>
-        <Input label="Lesson Name" value={form.lessonName} onChange={(value) => onChange((current) => ({ ...current, lessonName: value, title: current.title || value }))} />
-        <Input label="Title" value={form.title} onChange={(value) => onChange((current) => ({ ...current, title: value, subject: activeSubject || current.subject, folder: activeSubject || current.folder, topic: activeTopic || current.topic }))} />
-        <Select label="Material type" value={form.type} onChange={(value) => onChange((current) => ({ ...current, type: value }))}>
-          <option value="VIDEO">Recorded Video</option>
-          <option value="PDF">PDF</option>
-          <option value="PPT">PPT</option>
-          <option value="WORD">Word Document</option>
-          <option value="LINK">External Link</option>
-          <option value="NOTE">Notes</option>
-          <option value="IMAGE">Image</option>
-          <option value="FILE">File</option>
-        </Select>
-        <Input label="External link" value={form.cloudinaryPublicId ? "Upload complete" : form.url} onChange={(value) => onChange((current) => ({ ...current, url: value, cloudinaryPublicId: "" }))} />
-        <FileInput label="Upload File" accept="video/*,.pdf,.doc,.docx,.ppt,.pptx,image/*,.txt" onChange={(value, file) => file ? onUploadMaterial(file) : onChange((current) => ({ ...current, fileName: value }))} />
-        <FileInput label="Thumbnail preview" accept="image/*" onChange={(value, file) => file ? onUploadThumbnail(file) : onChange((current) => ({ ...current, thumbnailName: value }))} />
-        <Textarea label="Description / notes" value={form.description} onChange={(value) => onChange((current) => ({ ...current, description: value }))} />
-      </FormGrid>
-      {form.fileName ? <p className="mt-3 rounded-xl bg-white px-3 py-2 text-xs font-black">Upload Complete: {form.fileName}</p> : null}
-      <button type="button" onClick={onPublish} className="mt-4 inline-flex items-center gap-2 rounded-xl bg-emerald-700 px-5 py-3 font-black text-white"><FolderPlus size={16} /> Publish Material</button>
     </div>
   );
 }
