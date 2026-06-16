@@ -1,4 +1,4 @@
-import { Prisma, Role } from "../../generated/prisma/client.js";
+import { Role } from "../../generated/prisma/client.js";
 import { prisma } from "../../config/prisma.js";
 import type { AuthenticatedRequest } from "../../middlewares/session.middleware.js";
 
@@ -92,7 +92,7 @@ async function accessibleBatchIds(actor: Actor) {
 
 async function knowledgeBrain() {
   const [courses, questionItems, feedbackCount] = await Promise.all([
-    prisma.course.findMany({ where: { status: { not: "ARCHIVED" } }, select: { id: true, title: true, slug: true, category: true, examType: true } }),
+    prisma.course.findMany({ select: { id: true, title: true, slug: true, category: true, examType: true } }),
     prisma.questionBankItem.findMany({
       where: { status: "PUBLISHED" },
       select: { id: true, category: true, subCategory: true, topic: true, subTopic: true, difficulty: true }
@@ -354,7 +354,7 @@ async function directorBrain(data: Awaited<ReturnType<typeof scopedAcademicData>
   const [leads, admissions, payments] = await Promise.all([
     prisma.lead.count().catch(() => 0),
     prisma.admission.count().catch(() => 0),
-    prisma.payment.aggregate({ _sum: { amount: true }, where: { status: "SUCCESS" } }).catch(() => ({ _sum: { amount: null } }))
+    prisma.payment.aggregate({ _sum: { amount: true }, where: { paymentStatus: { in: ["SUCCESS", "PAID", "CAPTURED", "VERIFIED"] } } }).catch(() => ({ _sum: { amount: null } }))
   ]);
   return {
     status: "PASS",
@@ -369,7 +369,7 @@ async function directorBrain(data: Awaited<ReturnType<typeof scopedAcademicData>
     studentHealth: student.summary.atRisk ? "ATTENTION" : "HEALTHY",
     batchHealth: statusFromScore(scoreFromSignals(batch.batches.map((item) => item.healthScore))),
     financialSignals: {
-      collectedFees: payments._sum.amount ?? 0,
+      collectedFees: payments._sum?.amount ?? 0,
       source: "Payment records only"
     }
   };
