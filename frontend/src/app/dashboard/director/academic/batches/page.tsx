@@ -9,8 +9,31 @@ import { allAcademyPrograms } from "@/data/academy-programs";
 import { useCourses } from "@/hooks/use-courses";
 import { AcademicHero, AcademicShell, EmptyState, GoldButton, Input, Panel, Select, StatCard } from "../_components";
 import type { Course } from "@/types/course";
+import type { AcademyBatch } from "@/services/academy";
 
-const batchTypes = ["OFFLINE", "ONLINE", "CRASH", "FOUNDATION", "EXAM_COACHING", "GURU"];
+const learningModes = ["ONLINE", "OFFLINE", "HYBRID"];
+const programTypes = ["Foundation", "Crash Course", "Regular", "Weekend", "Interview", "Physical Training"];
+const programOptions = [
+  { label: "NDA", slug: "nda-crash-course" },
+  { label: "CDS", slug: "cdse-afcat-crash-course" },
+  { label: "AFCAT", slug: "afcat" },
+  { label: "Agniveer Army", slug: "agniveer-army" },
+  { label: "Agniveer Navy", slug: "agniveer-navy" },
+  { label: "Agniveer Air Force", slug: "agniveer-air-force" },
+  { label: "SSR", slug: "ssr" },
+  { label: "MR", slug: "mr" },
+  { label: "Navik", slug: "navik" },
+  { label: "TES", slug: "tes-guidance" },
+  { label: "TGC / SSC Technical", slug: "tgc-ssc-technical" },
+  { label: "SSB", slug: "ssb-interview-guidance" },
+  { label: "MNS", slug: "mns" },
+  { label: "AFMC", slug: "afmc" },
+  { label: "RIMC", slug: "rimc-preparation" },
+  { label: "AISSEE Class 6", slug: "aissee-class-6" },
+  { label: "AISSEE Class 9", slug: "aissee-class-9" },
+  { label: "Territorial Army & Coast Guard", slug: "territorial-army-coast-guard" },
+  { label: "Foundation NDA & Civil Services", slug: "foundation-nda-civil-services" },
+];
 const finalProgramSlugs = [
   "aissee-class-6",
   "aissee-class-9",
@@ -33,6 +56,9 @@ const finalProgramSlugs = [
   "agniveer-navy",
   "agniveer-air-force",
   "ssb-interview-guidance",
+  "ssr",
+  "mr",
+  "navik",
 ];
 
 function programTemplateToCourse(program: (typeof allAcademyPrograms)[number]): Course {
@@ -66,10 +92,90 @@ function orderedCourses(courses: Course[]) {
   });
 }
 
+function textIncludes(value: string, pattern: string) {
+  return value.toLowerCase().includes(pattern.toLowerCase());
+}
+
+function scheduleText(batch: AcademyBatch, key: string) {
+  const value = batch.schedule?.[key];
+  return typeof value === "string" && value.trim() ? value.trim() : "";
+}
+
+function inferProgram(batch: AcademyBatch) {
+  const saved = scheduleText(batch, "programName");
+  if (saved) return saved;
+  const text = `${batch.name} ${batch.programSlug} ${batch.course?.title ?? ""}`.toLowerCase();
+  if (text.includes("agniveer army")) return "Agniveer Army";
+  if (text.includes("agniveer navy")) return "Agniveer Navy";
+  if (text.includes("agniveer air")) return "Agniveer Air Force";
+  if (text.includes("cdse") || text.includes("cds")) return "CDS";
+  if (text.includes("afcat")) return "AFCAT";
+  if (text.includes("nda")) return "NDA";
+  if (text.includes("ssb")) return "SSB";
+  if (text.includes("ssr")) return "SSR";
+  if (text.includes("navik")) return "Navik";
+  if (text.includes("mr")) return "MR";
+  if (text.includes("tes")) return "TES";
+  if (text.includes("tgc") || text.includes("ssc technical")) return "TGC / SSC Technical";
+  if (text.includes("mns")) return "MNS";
+  if (text.includes("afmc")) return "AFMC";
+  if (text.includes("rimc")) return "RIMC";
+  if (text.includes("aissee class 9")) return "AISSEE Class 9";
+  if (text.includes("aissee")) return "AISSEE Class 6";
+  if (text.includes("territorial") || text.includes("coast guard")) return "Territorial Army & Coast Guard";
+  return batch.course?.title ?? batch.programSlug ?? "Academy Program";
+}
+
+function inferLearningMode(batch: AcademyBatch) {
+  const saved = scheduleText(batch, "learningMode");
+  if (saved) return saved.toUpperCase();
+  const type = (batch.batchType || "").toUpperCase();
+  if (learningModes.includes(type)) return type;
+  if (textIncludes(batch.name, "online")) return "ONLINE";
+  if (textIncludes(batch.name, "offline")) return "OFFLINE";
+  if (textIncludes(batch.name, "hybrid")) return "HYBRID";
+  return "Mode pending";
+}
+
+function inferProgramType(batch: AcademyBatch) {
+  const saved = scheduleText(batch, "programType");
+  if (saved) return saved;
+  const text = `${batch.name} ${batch.batchType} ${batch.programSlug} ${batch.course?.title ?? ""}`.toLowerCase();
+  if (text.includes("crash")) return "Crash Course";
+  if (text.includes("foundation") || text.includes("f1") || text.includes("f2") || text.includes("f3")) return "Foundation";
+  if (text.includes("weekend")) return "Weekend";
+  if (text.includes("interview") || text.includes("ssb")) return "Interview";
+  if (text.includes("physical")) return "Physical Training";
+  return "Regular";
+}
+
+function academicHeadNames(batch: AcademyBatch) {
+  const names = (batch.teachers ?? [])
+    .filter((assignment) => assignment.role === "ACADEMIC_HEAD" || assignment.subject === "Academic Coordination")
+    .map((assignment) => assignment.teacher?.name || assignment.teacher?.email)
+    .filter(Boolean) as string[];
+  return Array.from(new Set(names)).join(", ") || "Not assigned";
+}
+
+function courseForProgram(courses: Course[], programSlug: string, programType: string) {
+  const programSpecificSlug =
+    programSlug === "nda-crash-course" && programType === "Foundation" ? "nda-f1"
+    : programSlug === "cdse-afcat-crash-course" && programType === "Foundation" ? "cds-f1"
+    : programSlug;
+  return courses.find((course) => course.slug === programSpecificSlug) ?? courses.find((course) => course.slug === programSlug);
+}
+
 export default function DirectorBatchesPage() {
   const queryClient = useQueryClient();
   const [notice, setNotice] = useState("");
-  const [form, setForm] = useState({ name: "", courseId: "", batchType: "OFFLINE", startDate: "", endDate: "" });
+  const [form, setForm] = useState({
+    name: "",
+    programSlug: "nda-crash-course",
+    learningMode: "OFFLINE",
+    programType: "Crash Course",
+    startDate: "",
+    endDate: "",
+  });
   const batchesQuery = useQuery({ queryKey: ["academy", "batches"], queryFn: () => getAcademyBatches() });
   const coursesQuery = useCourses();
   const batches = batchesQuery.data ?? [];
@@ -89,7 +195,7 @@ export default function DirectorBatchesPage() {
   const createBatch = useMutation({
     mutationFn: createAcademyBatch,
     onSuccess: () => {
-      setForm({ name: "", courseId: "", batchType: "OFFLINE", startDate: "", endDate: "" });
+      setForm({ name: "", programSlug: "nda-crash-course", learningMode: "OFFLINE", programType: "Crash Course", startDate: "", endDate: "" });
       void refresh();
       setNotice("Batch created successfully.");
     },
@@ -105,13 +211,17 @@ export default function DirectorBatchesPage() {
 
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const course = courses.find((item) => item.id === form.courseId);
+    const program = programOptions.find((item) => item.slug === form.programSlug);
+    const course = courseForProgram(courses, form.programSlug, form.programType);
     const isTemplateCourse = course?.id.startsWith("template-");
     createBatch.mutate({
       name: form.name,
-      courseId: isTemplateCourse ? undefined : form.courseId,
-      programSlug: course?.slug ?? "academy-program",
-      batchType: form.batchType,
+      courseId: isTemplateCourse ? undefined : course?.id,
+      programSlug: course?.slug ?? form.programSlug,
+      programName: program?.label ?? course?.title ?? "Academy Program",
+      programType: form.programType,
+      learningMode: form.learningMode,
+      batchType: form.learningMode,
       startDate: form.startDate || undefined,
       endDate: form.endDate || undefined,
     });
@@ -119,7 +229,7 @@ export default function DirectorBatchesPage() {
 
   return (
     <AcademicShell>
-      <AcademicHero eyebrow="Batches" title="Create and manage batches." description="One page for offline, online, crash and foundation batch creation. No other academic sections are mixed into this page." />
+      <AcademicHero eyebrow="Batches" title="Create and manage batches." description="Program, learning mode and program type are now separated so Academic Head and Director see clean real academy batches." />
       {notice ? <div className="rounded-2xl border border-[var(--gold-border)] bg-[var(--gold-soft)] p-4 text-sm font-bold">{notice}</div> : null}
       {batchLoadError ? (
         <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-bold text-red-900">
@@ -133,14 +243,16 @@ export default function DirectorBatchesPage() {
       </section>
       <Panel title="Create Batch" eyebrow="Batch setup">
         <form onSubmit={submit} className="grid gap-4 md:grid-cols-2">
-          <Input label="Batch name" value={form.name} onChange={(value) => setForm((state) => ({ ...state, name: value }))} required />
-          <Select label="Course" value={form.courseId} onChange={(value) => setForm((state) => ({ ...state, courseId: value }))} required>
-            <option value="">Select course</option>
-            {courses.map((course) => <option key={course.id} value={course.id}>{course.title}</option>)}
+          <Select label="Program" value={form.programSlug} onChange={(value) => setForm((state) => ({ ...state, programSlug: value }))} required>
+            {programOptions.map((program) => <option key={program.slug} value={program.slug}>{program.label}</option>)}
           </Select>
-          <Select label="Batch type" value={form.batchType} onChange={(value) => setForm((state) => ({ ...state, batchType: value }))}>
-            {batchTypes.map((type) => <option key={type} value={type}>{type}</option>)}
+          <Select label="Learning Mode" value={form.learningMode} onChange={(value) => setForm((state) => ({ ...state, learningMode: value }))}>
+            {learningModes.map((mode) => <option key={mode} value={mode}>{mode}</option>)}
           </Select>
+          <Select label="Program Type" value={form.programType} onChange={(value) => setForm((state) => ({ ...state, programType: value }))}>
+            {programTypes.map((type) => <option key={type} value={type}>{type}</option>)}
+          </Select>
+          <Input label="Batch name" value={form.name} onChange={(value) => setForm((state) => ({ ...state, name: value }))} required placeholder="NDA Crash Course Online 2026" />
           <Input label="Start date" type="date" value={form.startDate} onChange={(value) => setForm((state) => ({ ...state, startDate: value }))} />
           <Input label="End date" type="date" value={form.endDate} onChange={(value) => setForm((state) => ({ ...state, endDate: value }))} />
           <div className="md:col-span-2"><GoldButton disabled={createBatch.isPending}>Create Batch</GoldButton></div>
@@ -151,26 +263,45 @@ export default function DirectorBatchesPage() {
         {!batchesQuery.isLoading && batchLoadError ? <EmptyState text="Batch records are unavailable because the batch API request failed. Check the message above before creating new batches." /> : null}
         {!batchesQuery.isLoading && !batchLoadError && !batches.length ? <EmptyState text="No batches found for your academic scope. Assigned and active batches will appear here." /> : null}
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {batches.map((batch) => (
-            <article key={batch.id} className="rounded-2xl border border-[var(--border)] bg-white p-5">
-              <p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold)]">{batch.batchType}</p>
-              <h3 className="mt-2 text-xl font-black">{batch.name}</h3>
-              <p className="mt-1 text-sm text-[var(--muted-blue)]">{batch.course?.title ?? batch.programSlug}</p>
-              <div className="mt-4 flex flex-wrap gap-2 text-xs font-black">
-                <span className="rounded-full border border-[var(--border)] px-3 py-1">{batch.status}</span>
-                <span className="rounded-full border border-[var(--border)] px-3 py-1">{batch._count?.students ?? 0} students</span>
-                <span className="rounded-full border border-[var(--border)] px-3 py-1">{batch._count?.teachers ?? 0} teachers</span>
-                <span className="rounded-full border border-[var(--border)] px-3 py-1">{batch.batchType || "Mode pending"}</span>
-              </div>
-              <div className="mt-4 flex flex-wrap gap-2">
-                {["ACTIVE", "PAUSED", "COMPLETED", "ARCHIVED"].map((status) => (
-                  <button key={status} className="rounded-lg border border-[var(--border)] px-3 py-2 text-sm font-bold" onClick={() => updateStatus.mutate({ id: batch.id, status })} type="button">
-                    {status}
-                  </button>
-                ))}
-              </div>
-            </article>
-          ))}
+          {batches.map((batch) => {
+            const program = inferProgram(batch);
+            const mode = inferLearningMode(batch);
+            const programType = inferProgramType(batch);
+            const heads = academicHeadNames(batch);
+
+            return (
+              <article key={batch.id} className="rounded-2xl border border-[var(--border)] bg-white p-5">
+                <p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold)]">{mode}</p>
+                <h3 className="mt-2 text-xl font-black">{batch.name}</h3>
+                <p className="mt-1 text-sm text-[var(--muted-blue)]">{program} / {programType}</p>
+                <div className="mt-4 grid gap-2 text-sm">
+                  <div className="flex items-center justify-between gap-3 rounded-xl border border-[var(--border)] px-3 py-2">
+                    <span className="font-bold text-[var(--muted-blue)]">Students</span>
+                    <span className="font-black">{batch._count?.students ?? 0}</span>
+                  </div>
+                  <div className="flex items-center justify-between gap-3 rounded-xl border border-[var(--border)] px-3 py-2">
+                    <span className="font-bold text-[var(--muted-blue)]">Teachers</span>
+                    <span className="font-black">{batch._count?.teachers ?? 0}</span>
+                  </div>
+                  <div className="rounded-xl border border-[var(--border)] px-3 py-2">
+                    <span className="block text-xs font-black uppercase tracking-[0.2em] text-[var(--gold)]">Academic Head</span>
+                    <span className="mt-1 block text-sm font-bold">{heads}</span>
+                  </div>
+                </div>
+                <div className="mt-4 flex flex-wrap gap-2 text-xs font-black">
+                  <span className="rounded-full border border-[var(--border)] px-3 py-1">{batch.status}</span>
+                  <span className="rounded-full border border-[var(--border)] px-3 py-1">{mode}</span>
+                </div>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {["ACTIVE", "PAUSED", "COMPLETED", "ARCHIVED"].map((status) => (
+                    <button key={status} className="rounded-lg border border-[var(--border)] px-3 py-2 text-sm font-bold" onClick={() => updateStatus.mutate({ id: batch.id, status })} type="button">
+                      {status}
+                    </button>
+                  ))}
+                </div>
+              </article>
+            );
+          })}
         </div>
       </Panel>
     </AcademicShell>

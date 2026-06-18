@@ -4,6 +4,7 @@ export type AcademyBatch = {
   id: string;
   name: string;
   batchType: string;
+  schedule?: Record<string, unknown> | null;
   programSlug: string;
   courseId?: string | null;
   startDate?: string | null;
@@ -362,6 +363,9 @@ export async function createAcademyBatch(payload: {
   name: string;
   batchType: string;
   programSlug: string;
+  programName?: string;
+  programType?: string;
+  learningMode?: string;
   courseId?: string;
   startDate?: string;
   endDate?: string;
@@ -374,6 +378,9 @@ export async function updateAcademyBatch(batchId: string, payload: Partial<{
   name: string;
   batchType: string;
   programSlug: string;
+  programName: string;
+  programType: string;
+  learningMode: string;
   courseId?: string;
   startDate?: string;
   endDate?: string;

@@ -20,6 +20,9 @@ type BatchInput = {
   name?: string;
   courseId?: string;
   programSlug?: string;
+  programName?: string;
+  programType?: string;
+  learningMode?: string;
   batchType?: string;
   startDate?: string;
   endDate?: string;
@@ -357,6 +360,14 @@ function toDate(value?: string) {
 
 function toJsonObject(value: Record<string, unknown>) {
   return value as Prisma.InputJsonObject;
+}
+
+function academyBatchSchedule(input: BatchInput) {
+  const schedule: Record<string, unknown> = {};
+  if (input.programName) schedule.programName = input.programName;
+  if (input.programType) schedule.programType = input.programType;
+  if (input.learningMode || input.batchType) schedule.learningMode = input.learningMode || input.batchType;
+  return Object.keys(schedule).length ? toJsonObject(schedule) : undefined;
 }
 
 function normalizeRows<T extends Record<string, any>>(rows: T[]) {
@@ -915,9 +926,10 @@ export const academyService = {
         name: input.name,
         courseId: input.courseId || null,
         programSlug: input.programSlug || input.courseId || null,
-        batchType: input.batchType || "OFFLINE",
+        batchType: input.learningMode || input.batchType || "OFFLINE",
         startDate: toDate(input.startDate),
         endDate: toDate(input.endDate),
+        schedule: academyBatchSchedule(input),
         status: input.status || "ACTIVE",
       },
     });
@@ -933,9 +945,10 @@ export const academyService = {
         name: input.name,
         courseId: input.courseId,
         programSlug: input.programSlug,
-        batchType: input.batchType,
+        batchType: input.learningMode || input.batchType,
         startDate: toDate(input.startDate),
         endDate: toDate(input.endDate),
+        schedule: academyBatchSchedule(input),
         status: input.status,
       },
     });
