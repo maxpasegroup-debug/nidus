@@ -216,6 +216,12 @@ type BatchTeacherAssignmentRow = {
   updatedAt: Date;
 };
 
+type BatchWithCountsOptions = string | {
+  batchId?: string;
+  batchIds?: string[];
+  where?: Prisma.BatchWhereInput;
+};
+
 function requireManagement(user: Requester) {
   if ((user.role !== Role.ADMIN && user.role !== Role.DIRECTOR) || isRestrictedAdminTemplate(user)) {
     throw Object.assign(new Error("Management access required"), { statusCode: 403 });
@@ -576,6 +582,41 @@ function progressColor(completionStatus?: string) {
   return "RED";
 }
 
+function batchWhereFromQuery(query: Record<string, unknown> = {}) {
+  const where: Prisma.BatchWhereInput = {};
+  if (typeof query.programSlug === "string" && query.programSlug.trim()) {
+    where.programSlug = query.programSlug.trim();
+  }
+  if (typeof query.batchType === "string" && query.batchType.trim()) {
+    where.batchType = query.batchType.trim();
+  }
+  if (typeof query.status === "string" && query.status.trim()) {
+    where.status = query.status.trim();
+  }
+  return where;
+}
+
+function mergeBatchWhere(left: Prisma.BatchWhereInput, right: Prisma.BatchWhereInput) {
+  if (!Object.keys(left).length) return right;
+  if (!Object.keys(right).length) return left;
+  return { AND: [left, right] };
+}
+
+async function assignedBatchIdsForUser(userId: string) {
+  const [officialRows, legacyRows] = await Promise.all([
+    prisma.teacherBatchAssignment.findMany({
+      where: { teacherId: userId, status: "ACTIVE" },
+      select: { batchId: true },
+    }),
+    prisma.$queryRaw<Array<{ batchId: string }>>`
+      SELECT DISTINCT "batchId" FROM "BatchTeacherAssignment"
+      WHERE "teacherId" = ${userId}
+      AND "status" = 'ACTIVE'
+    `.catch(() => []),
+  ]);
+  return Array.from(new Set([...officialRows, ...legacyRows].map((row) => row.batchId).filter(Boolean)));
+}
+
 function mergeAssignments(primary: BatchTeacherAssignmentRow[], secondary: BatchTeacherAssignmentRow[]) {
   const seen = new Set<string>();
   const merged: BatchTeacherAssignmentRow[] = [];
@@ -719,8 +760,20 @@ function sanitizeCalendarRow(row: AcademicCalendarRow) {
   };
 }
 
-async function batchWithCounts(batchId?: string) {
-  const where = batchId ? { id: batchId } : undefined;
+function normalizeBatchWithCountsOptions(options?: BatchWithCountsOptions) {
+  if (typeof options === "string") {
+    return { batchId: options };
+  }
+  return options ?? {};
+}
+
+async function batchWithCounts(options?: BatchWithCountsOptions) {
+  const normalized = normalizeBatchWithCountsOptions(options);
+  const where = normalized.batchId
+    ? { id: normalized.batchId }
+    : normalized.batchIds
+      ? { id: { in: normalized.batchIds } }
+      : normalized.where;
   const batches = await db.batch.findMany({
     where,
     include: {
@@ -732,7 +785,7 @@ async function batchWithCounts(batchId?: string) {
   });
 
   if (!batches.length) {
-    return batchId ? null : [];
+    return normalized.batchId ? null : [];
   }
 
   const studentIds = Array.from(
@@ -751,14 +804,30 @@ async function batchWithCounts(batchId?: string) {
     : [];
   const userMap = new Map(users.map((user) => [user.id, user]));
   const batchIds = batches.map((batch: any) => batch.id).filter(Boolean);
-  const teacherAssignments = batchIds.length
+  const officialTeacherAssignments = batchIds.length
+    ? (await prisma.teacherBatchAssignment.findMany({
+        where: { batchId: { in: batchIds }, status: "ACTIVE" },
+        orderBy: { createdAt: "desc" },
+      })).map((assignment) => ({
+        id: assignment.id,
+        batchId: assignment.batchId,
+        teacherId: assignment.teacherId,
+        subject: assignment.subject,
+        role: assignment.role,
+        status: assignment.status,
+        createdAt: assignment.createdAt,
+        updatedAt: assignment.createdAt,
+      }))
+    : [];
+  const legacyTeacherAssignments = batchIds.length
     ? await prisma.$queryRaw<BatchTeacherAssignmentRow[]>`
         SELECT * FROM "BatchTeacherAssignment"
         WHERE "batchId" IN (${Prisma.join(batchIds)})
         AND "status" = 'ACTIVE'
         ORDER BY "createdAt" DESC
-      `
+      `.catch(() => [])
     : [];
+  const teacherAssignments = mergeAssignments(officialTeacherAssignments, legacyTeacherAssignments);
   const teacherIds = Array.from(new Set(teacherAssignments.map((assignment) => assignment.teacherId)));
   const teacherUsers = teacherIds.length
     ? await prisma.user.findMany({
@@ -787,7 +856,7 @@ async function batchWithCounts(batchId?: string) {
     },
   }));
 
-  return batchId ? hydrated[0] : hydrated;
+  return normalized.batchId ? hydrated[0] : hydrated;
 }
 
 async function findStudentUserForAdmission(input: StudentInput) {
@@ -820,8 +889,19 @@ async function findStudentUserForAdmission(input: StudentInput) {
 }
 
 export const academyService = {
-  async batches() {
-    return batchWithCounts();
+  async batches(user: Requester, query: Record<string, unknown> = {}) {
+    if (!isAdmissionCell(user)) {
+      requireAcademic(user);
+    }
+
+    let where = batchWhereFromQuery(query);
+    if (!isManagement(user) && !isAdmissionCell(user)) {
+      const assignedBatchIds = await assignedBatchIdsForUser(user.id);
+      if (!assignedBatchIds.length) return [];
+      where = mergeBatchWhere(where, { id: { in: assignedBatchIds } });
+    }
+
+    return batchWithCounts({ where });
   },
 
   async createBatch(user: Requester, input: BatchInput) {

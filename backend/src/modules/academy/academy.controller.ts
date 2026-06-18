@@ -20,9 +20,9 @@ function param(req: AuthenticatedRequest, key: string) {
 }
 
 export const academyController = {
-  batches: async (_req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  batches: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     try {
-      res.json(await academyService.batches());
+      res.json(await academyService.batches(requester(req), req.query));
     } catch (error) {
       next(error);
     }

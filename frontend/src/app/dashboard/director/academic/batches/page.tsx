@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import type { FormEvent } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createAcademyBatch, getAcademyBatches, updateAcademyBatch } from "@/services/academy";
+import { getApiErrorMessage } from "@/services/api";
 import { allAcademyPrograms } from "@/data/academy-programs";
 import { useCourses } from "@/hooks/use-courses";
 import { AcademicHero, AcademicShell, EmptyState, GoldButton, Input, Panel, Select, StatCard } from "../_components";
@@ -72,6 +73,7 @@ export default function DirectorBatchesPage() {
   const batchesQuery = useQuery({ queryKey: ["academy", "batches"], queryFn: () => getAcademyBatches() });
   const coursesQuery = useCourses();
   const batches = batchesQuery.data ?? [];
+  const batchLoadError = batchesQuery.isError ? getApiErrorMessage(batchesQuery.error) : "";
   const courses = useMemo(() => {
     const databaseCourses = coursesQuery.data ?? [];
     const existingSlugs = new Set(databaseCourses.map((course) => course.slug));
@@ -119,9 +121,14 @@ export default function DirectorBatchesPage() {
     <AcademicShell>
       <AcademicHero eyebrow="Batches" title="Create and manage batches." description="One page for offline, online, crash and foundation batch creation. No other academic sections are mixed into this page." />
       {notice ? <div className="rounded-2xl border border-[var(--gold-border)] bg-[var(--gold-soft)] p-4 text-sm font-bold">{notice}</div> : null}
+      {batchLoadError ? (
+        <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-bold text-red-900">
+          Batch data could not be loaded from the academy database: {batchLoadError}
+        </div>
+      ) : null}
       <section className="grid gap-4 md:grid-cols-3">
-        <StatCard label="Total Batches" value={batches.length} />
-        <StatCard label="Active" value={activeCount} />
+        <StatCard label="Total Batches" value={batchesQuery.isLoading ? "Loading" : batches.length} />
+        <StatCard label="Active" value={batchesQuery.isLoading ? "Loading" : activeCount} />
         <StatCard label="Programs Available" value={courses.length} />
       </section>
       <Panel title="Create Batch" eyebrow="Batch setup">
@@ -140,7 +147,9 @@ export default function DirectorBatchesPage() {
         </form>
       </Panel>
       <Panel title="Existing Batches" eyebrow="Batch grid">
-        {!batches.length ? <EmptyState text="No batches found. Create the first batch to begin planning." /> : null}
+        {batchesQuery.isLoading ? <EmptyState text="Loading real academy batches from the database." /> : null}
+        {!batchesQuery.isLoading && batchLoadError ? <EmptyState text="Batch records are unavailable because the batch API request failed. Check the message above before creating new batches." /> : null}
+        {!batchesQuery.isLoading && !batchLoadError && !batches.length ? <EmptyState text="No batches found for your academic scope. Assigned and active batches will appear here." /> : null}
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {batches.map((batch) => (
             <article key={batch.id} className="rounded-2xl border border-[var(--border)] bg-white p-5">
@@ -151,6 +160,7 @@ export default function DirectorBatchesPage() {
                 <span className="rounded-full border border-[var(--border)] px-3 py-1">{batch.status}</span>
                 <span className="rounded-full border border-[var(--border)] px-3 py-1">{batch._count?.students ?? 0} students</span>
                 <span className="rounded-full border border-[var(--border)] px-3 py-1">{batch._count?.teachers ?? 0} teachers</span>
+                <span className="rounded-full border border-[var(--border)] px-3 py-1">{batch.batchType || "Mode pending"}</span>
               </div>
               <div className="mt-4 flex flex-wrap gap-2">
                 {["ACTIVE", "PAUSED", "COMPLETED", "ARCHIVED"].map((status) => (
