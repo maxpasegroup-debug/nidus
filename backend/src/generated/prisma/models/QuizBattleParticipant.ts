@@ -487,14 +487,6 @@ export type QuizBattleParticipantUncheckedUpdateManyWithoutBattleNestedInput = {
   deleteMany?: Prisma.QuizBattleParticipantScalarWhereInput | Prisma.QuizBattleParticipantScalarWhereInput[]
 }
 
-export type NullableIntFieldUpdateOperationsInput = {
-  set?: number | null
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
-}
-
 export type QuizBattleParticipantCreateWithoutUserInput = {
   id?: string
   score?: number

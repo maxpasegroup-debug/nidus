@@ -27,9 +27,11 @@ function requester(req: AuthenticatedRequest) {
 }
 
 export const testsController = {
-  async list(req: Request, res: Response, next: NextFunction) {
+  async list(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
       const tests = await testsService.list({
+        ...requester(req),
+      }, {
         search: typeof req.query.search === "string" ? req.query.search : undefined,
         examType: typeof req.query.examType === "string" ? req.query.examType : undefined,
         topic: typeof req.query.topic === "string" ? req.query.topic : undefined
@@ -40,19 +42,19 @@ export const testsController = {
     }
   },
 
-  async details(req: Request, res: Response, next: NextFunction) {
+  async details(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
-      const test = await testsService.details(param(req, "id"));
+      const test = await testsService.details(requester(req), param(req, "id"));
       res.json({ test });
     } catch (error) {
       next(error);
     }
   },
 
-  async create(req: Request, res: Response, next: NextFunction) {
+  async create(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
       assertValid(req);
-      const test = await testsService.create(req.body);
+      const test = await testsService.create(requester(req), req.body);
       res.status(201).json({ test });
     } catch (error) {
       next(error);
@@ -88,19 +90,19 @@ export const testsController = {
     }
   },
 
-  async update(req: Request, res: Response, next: NextFunction) {
+  async update(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
       assertValid(req);
-      const test = await testsService.update(param(req, "id"), req.body);
+      const test = await testsService.update(requester(req), param(req, "id"), req.body);
       res.json({ test });
     } catch (error) {
       next(error);
     }
   },
 
-  async remove(req: Request, res: Response, next: NextFunction) {
+  async remove(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
-      const result = await testsService.remove(param(req, "id"));
+      const result = await testsService.remove(requester(req), param(req, "id"));
       res.json(result);
     } catch (error) {
       next(error);
@@ -110,7 +112,7 @@ export const testsController = {
   async start(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
       assertValid(req);
-      const attempt = await testsService.start(userId(req), req.body.testId);
+      const attempt = await testsService.start(userId(req), req.user?.role, req.body.testId);
       res.status(201).json({ attempt });
     } catch (error) {
       next(error);

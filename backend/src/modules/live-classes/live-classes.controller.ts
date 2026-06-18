@@ -43,7 +43,7 @@ export const liveClassesController = {
         : "";
       const canAssignTeacher = req.user.role === "ADMIN" || req.user.role === "DIRECTOR" || req.user.role === "ACADEMIC_HEAD" || template === "ACADEMIC_HEAD";
       const payload = canAssignTeacher ? req.body : { ...req.body, teacherId: req.user.id };
-      res.status(201).json({ liveClass: await liveClassesService.createLiveClass(payload) });
+      res.status(201).json({ liveClass: await liveClassesService.createLiveClass(req.user, payload) });
     } catch (error) {
       next(error);
     }

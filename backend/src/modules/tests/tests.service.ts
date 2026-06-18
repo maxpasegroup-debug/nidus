@@ -56,6 +56,7 @@ type SaveStateInput = {
 type Requester = {
   id: string;
   role: Role;
+  roleMetadata?: Record<string, unknown> | null;
 };
 
 type DraftInput = {
@@ -95,6 +96,67 @@ const topicSeeds = [
   "exam trap",
   "revision recall"
 ];
+
+function requesterMetadata(requester: Requester) {
+  return requester.roleMetadata && typeof requester.roleMetadata === "object" ? requester.roleMetadata : {};
+}
+
+function isAcademicHead(requester: Requester) {
+  const template = requesterMetadata(requester).dashboardTemplate;
+  return typeof template === "string" && template.toUpperCase() === "ACADEMIC_HEAD";
+}
+
+function isAcademicManager(requester: Requester) {
+  return requester.role === Role.ADMIN || requester.role === Role.DIRECTOR || requester.role === Role.ACADEMIC_HEAD || isAcademicHead(requester);
+}
+
+async function assignedBatchIdsForTeacher(teacherId: string) {
+  const rows = await prisma.teacherBatchAssignment.findMany({
+    where: { teacherId, status: "ACTIVE" },
+    select: { batchId: true }
+  });
+  return Array.from(new Set(rows.map((row) => row.batchId)));
+}
+
+async function assertTeacherBatchSubjectAccess(requester: Requester, batchId?: string, subject?: string | null) {
+  if (isAcademicManager(requester)) return;
+  if (requester.role !== Role.TEACHER && requester.role !== Role.PHYSICAL_TRAINER) return;
+  if (!batchId) throw Object.assign(new Error("Batch is required for teacher exam actions."), { statusCode: 403 });
+
+  const where = {
+    batchId,
+    teacherId: requester.id,
+    status: "ACTIVE",
+    ...(subject?.trim() ? { subject: { equals: subject.trim(), mode: "insensitive" as const } } : {})
+  };
+
+  const assignment = await prisma.teacherBatchAssignment.findFirst({ where, select: { id: true } });
+  if (!assignment) {
+    throw Object.assign(new Error(subject?.trim() ? "This subject is not assigned to this teacher for the selected batch." : "Teacher is not assigned to this batch."), { statusCode: 403 });
+  }
+}
+
+async function assertStudentTestAccess(userId: string, test: { batchId?: string | null }) {
+  if (!test.batchId) throw Object.assign(new Error("This exam is not assigned to your batch."), { statusCode: 403 });
+  const enrollment = await prisma.batchStudent.findFirst({
+    where: { studentId: userId, batchId: test.batchId, status: "ACTIVE" },
+    select: { id: true }
+  });
+  if (!enrollment) throw Object.assign(new Error("This exam is not assigned to your batch."), { statusCode: 403 });
+}
+
+async function assertTestAccess(requester: Requester, test: { batchId?: string | null; teacherId?: string | null; subject?: string | null }) {
+  if (isAcademicManager(requester)) return;
+  if (requester.role === Role.STUDENT) {
+    await assertStudentTestAccess(requester.id, test);
+    return;
+  }
+  if (requester.role === Role.TEACHER || requester.role === Role.PHYSICAL_TRAINER) {
+    await assertTeacherBatchSubjectAccess(requester, test.batchId ?? undefined, test.subject);
+    return;
+  }
+  throw Object.assign(new Error("Exam access denied."), { statusCode: 403 });
+}
 
 function normalizeCount(count?: number) {
   return Math.min(100, Math.max(5, Number.isFinite(Number(count)) ? Number(count) : 30));
@@ -141,10 +203,19 @@ function getTopicAnalysis(answers: Array<{ isCorrect: boolean; question: { topic
 }
 
 export const testsService = {
-  async list(filters: { search?: string; examType?: string; topic?: string }) {
+  async list(requester: Requester, filters: { search?: string; examType?: string; topic?: string }) {
+    const accessWhere = isAcademicManager(requester)
+      ? {}
+      : requester.role === Role.STUDENT
+        ? { batchId: { in: (await prisma.batchStudent.findMany({ where: { studentId: requester.id, status: "ACTIVE" }, select: { batchId: true } })).map((row) => row.batchId) } }
+        : requester.role === Role.TEACHER || requester.role === Role.PHYSICAL_TRAINER
+          ? { batchId: { in: await assignedBatchIdsForTeacher(requester.id) } }
+          : { id: "__NO_ACCESS__" };
+
     return prisma.test.findMany({
       where: {
         AND: [
+          accessWhere,
           filters.search
             ? {
                 OR: [
@@ -168,7 +239,7 @@ export const testsService = {
 
   async available(userId: string, role?: Role) {
     if (role === Role.ADMIN) {
-      return this.list({});
+      return this.list({ id: userId, role }, {});
     }
 
     const enrollments = await prisma.batchStudent.findMany({
@@ -204,17 +275,19 @@ export const testsService = {
     }));
   },
 
-  async details(id: string) {
+  async details(requester: Requester, id: string) {
     const test = await prisma.test.findUnique({ where: { id }, include: testInclude });
 
     if (!test) {
       throw new Error("Test not found");
     }
 
+    await assertTestAccess(requester, test);
     return test;
   },
 
-  async create(payload: TestPayload) {
+  async create(requester: Requester, payload: TestPayload) {
+    await assertTeacherBatchSubjectAccess(requester, payload.batchId, payload.subject);
     return prisma.test.create({
       data: {
         title: payload.title,
@@ -239,12 +312,14 @@ export const testsService = {
     });
   },
 
-  async update(id: string, payload: Partial<TestPayload>) {
+  async update(requester: Requester, id: string, payload: Partial<TestPayload>) {
     const test = await prisma.test.findUnique({ where: { id } });
 
     if (!test) {
       throw new Error("Test not found");
     }
+    await assertTestAccess(requester, test);
+    await assertTeacherBatchSubjectAccess(requester, payload.batchId ?? test.batchId ?? undefined, payload.subject ?? test.subject);
 
     return prisma.test.update({
       where: { id },
@@ -268,13 +343,14 @@ export const testsService = {
     });
   },
 
-  async remove(id: string) {
-    await this.details(id);
+  async remove(requester: Requester, id: string) {
+    await this.details(requester, id);
     await prisma.test.delete({ where: { id } });
     return { message: "Test deleted successfully" };
   },
 
-  async generateDraft(_requester: Requester, input: DraftInput) {
+  async generateDraft(requester: Requester, input: DraftInput) {
+    await assertTeacherBatchSubjectAccess(requester, input.batchId, input.subject);
     const prompt = input.prompt.trim();
     if (!prompt) throw new Error("Prompt is required");
     const count = inferQuestionCount(prompt, input.questionCount);
@@ -317,14 +393,7 @@ export const testsService = {
 
   async publishDraft(requester: Requester, payload: PublishDraftInput) {
     if (!payload.questions?.length) throw new Error("At least one reviewed question is required before publishing.");
-    if (payload.batchId) {
-      const assignment = await prisma.teacherBatchAssignment.findFirst({
-        where: requester.role === Role.TEACHER ? { batchId: payload.batchId, teacherId: requester.id, status: "ACTIVE" } : { batchId: payload.batchId }
-      });
-      if (!assignment && requester.role === Role.TEACHER) {
-        throw new Error("Teacher is not assigned to this batch.");
-      }
-    }
+    await assertTeacherBatchSubjectAccess(requester, payload.batchId, payload.subject);
     return prisma.test.create({
       data: {
         title: payload.title,
@@ -352,8 +421,8 @@ export const testsService = {
     });
   },
 
-  async start(userId: string, testId: string) {
-    const test = await this.details(testId);
+  async start(userId: string, role: Role | undefined, testId: string) {
+    const test = await this.details({ id: userId, role: role ?? Role.STUDENT }, testId);
     if (test.status !== "PUBLISHED") {
       throw new Error("This test is not published for students yet.");
     }

@@ -53,6 +53,37 @@ enum OtpType {
   SIGNUP
 }
 
+enum AssessmentStatus {
+  DRAFT
+  REVIEW
+  PILOT
+  APPROVED
+  PUBLISHED
+  DEPRECATED
+  RETIRED
+}
+
+enum AssessmentQuestionType {
+  BEHAVIOURAL
+  SITUATIONAL
+  DECISION
+  PRESSURE
+  LEADERSHIP
+  GROUP_DYNAMICS
+  DISCIPLINE
+  EXAM
+  FITNESS
+  SSB
+  RANK_PREDICTION
+}
+
+enum AssessmentReviewStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  REVISION_REQUIRED
+}
+
 model User {
   id             String   @id @default(cuid())
   name           String
@@ -583,6 +614,735 @@ model PsychometricAnswer {
 
   @@unique([attemptId, questionId])
   @@index([questionId])
+}
+
+model AssessmentArenaAssessment {
+  id                    String                    @id @default(cuid())
+  slug                  String                    @unique
+  name                  String                    @unique
+  level                 String
+  purpose               String
+  description           String?
+  status                AssessmentStatus          @default(DRAFT)
+  recommendedMinutes    Int?
+  minimumQuestionBank   Int                       @default(0)
+  recommendedQuestionBank Int                     @default(0)
+  idealQuestionBank     Int                       @default(0)
+  questionsPerAttempt   Int                       @default(0)
+  createdAt             DateTime                  @default(now())
+  updatedAt             DateTime                  @updatedAt
+  traits                AssessmentTrait[]
+  dimensions            AssessmentDimension[]
+  questions             AssessmentQuestion[]
+  reviews               AssessmentQuestionReview[]
+  reviewBoards          AssessmentReviewBoard[]
+  pilotRuns             AssessmentPilotRun[]
+  exposures             AssessmentQuestionExposure[]
+  attempts              AssessmentAttempt[]
+  growthSnapshots       AssessmentGrowthSnapshot[]
+  rankPredictions       AssessmentRankPrediction[]
+  reportSnapshots       AssessmentReportSnapshot[]
+
+  @@index([status])
+  @@index([level])
+}
+
+model AssessmentTrait {
+  id           String                    @id @default(cuid())
+  assessmentId String
+  name         String
+  definition   String?
+  weight       Float                     @default(0)
+  priority     String                    @default("NORMAL")
+  isMandatory  Boolean                   @default(false)
+  isCritical   Boolean                   @default(false)
+  createdAt    DateTime                  @default(now())
+  updatedAt    DateTime                  @updatedAt
+  assessment   AssessmentArenaAssessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  dimensions   AssessmentDimension[]
+  questions    AssessmentQuestion[]
+  traitScores  AssessmentTraitScore[]
+
+  @@unique([assessmentId, name])
+  @@index([assessmentId])
+  @@index([isCritical])
+}
+
+model AssessmentDimension {
+  id              String                    @id @default(cuid())
+  assessmentId    String
+  traitId         String
+  name            String
+  definition      String?
+  weight          Float                     @default(0)
+  priority        String                    @default("NORMAL")
+  minimumQuestions Int                      @default(0)
+  recommendedQuestions Int                  @default(0)
+  idealQuestions  Int                       @default(0)
+  createdAt       DateTime                  @default(now())
+  updatedAt       DateTime                  @updatedAt
+  assessment      AssessmentArenaAssessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  trait           AssessmentTrait           @relation(fields: [traitId], references: [id], onDelete: Cascade)
+  questions       AssessmentQuestion[]
+  dimensionScores AssessmentDimensionScore[]
+
+  @@unique([traitId, name])
+  @@index([assessmentId])
+  @@index([traitId])
+}
+
+model AssessmentQuestion {
+  id                String                      @id @default(cuid())
+  assessmentId      String
+  traitId           String
+  dimensionId       String
+  questionText      String
+  instructionText   String?
+  questionType      AssessmentQuestionType
+  difficultyLevel   Int                         @default(1)
+  programRelevance  Json
+  serviceRelevance  Json
+  version           Int                         @default(1)
+  status            AssessmentStatus            @default(DRAFT)
+  authorId          String?
+  authorRole        String?
+  reviewerId        String?
+  seniorReviewerId  String?
+  approvalBoard     String?
+  exposureCount     Int                         @default(0)
+  lastUsedAt        DateTime?
+  reviewedAt        DateTime?
+  approvedAt        DateTime?
+  publishedAt       DateTime?
+  retiredAt         DateTime?
+  retirementReason  String?
+  createdAt         DateTime                    @default(now())
+  updatedAt         DateTime                    @updatedAt
+  assessment        AssessmentArenaAssessment   @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  trait             AssessmentTrait             @relation(fields: [traitId], references: [id], onDelete: Restrict)
+  dimension         AssessmentDimension         @relation(fields: [dimensionId], references: [id], onDelete: Restrict)
+  options           AssessmentQuestionOption[]
+  versions          AssessmentQuestionVersion[]
+  reviews           AssessmentQuestionReview[]
+  pilotResponses    AssessmentPilotResponse[]
+  exposures         AssessmentQuestionExposure[]
+  attemptQuestions  AssessmentAttemptQuestion[]
+  answers           AssessmentAnswer[]
+
+  @@index([assessmentId])
+  @@index([traitId])
+  @@index([dimensionId])
+  @@index([status])
+  @@index([questionType])
+  @@index([difficultyLevel])
+}
+
+model AssessmentQuestionOption {
+  id              String             @id @default(cuid())
+  questionId      String
+  optionText      String
+  displayOrder    Int                @default(1)
+  rawScore        Float              @default(0)
+  reverseScore    Float?
+  integrityWeight Float              @default(0)
+  riskWeight      Float              @default(0)
+  readinessWeight Float              @default(1)
+  dimensionWeight Float              @default(1)
+  traitWeight     Float              @default(1)
+  flags           Json?
+  interpretationHint String?
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  question        AssessmentQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  answers         AssessmentAnswer[]
+
+  @@unique([questionId, displayOrder])
+  @@index([questionId])
+}
+
+model AssessmentQuestionVersion {
+  id               String             @id @default(cuid())
+  questionId       String
+  version          Int
+  questionText     String
+  optionsSnapshot  Json?
+  metadataSnapshot Json
+  changedBy        String?
+  changeReason     String?
+  createdAt        DateTime           @default(now())
+  question         AssessmentQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([questionId, version])
+  @@index([questionId])
+}
+
+model AssessmentQuestionReview {
+  id             String                    @id @default(cuid())
+  assessmentId   String
+  questionId     String
+  reviewerId     String?
+  reviewerRole   String
+  boardType      String?
+  status         AssessmentReviewStatus    @default(PENDING)
+  comments       String?
+  score          Int?
+  createdAt      DateTime                  @default(now())
+  updatedAt      DateTime                  @updatedAt
+  assessment     AssessmentArenaAssessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  question       AssessmentQuestion        @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@index([assessmentId])
+  @@index([questionId])
+  @@index([status])
+}
+
+model AssessmentReviewBoard {
+  id            String                    @id @default(cuid())
+  assessmentId  String?
+  name          String
+  boardType     String
+  responsibilities Json?
+  status        String                    @default("ACTIVE")
+  createdAt     DateTime                  @default(now())
+  updatedAt     DateTime                  @updatedAt
+  assessment    AssessmentArenaAssessment? @relation(fields: [assessmentId], references: [id], onDelete: SetNull)
+
+  @@unique([assessmentId, name])
+  @@index([boardType])
+  @@index([status])
+}
+
+model AssessmentPilotRun {
+  id             String                    @id @default(cuid())
+  assessmentId   String
+  name           String
+  status         String                    @default("PLANNED")
+  sampleSize     Int                       @default(0)
+  startedAt      DateTime?
+  completedAt    DateTime?
+  validationMetrics Json?
+  acceptanceNotes String?
+  createdAt      DateTime                  @default(now())
+  updatedAt      DateTime                  @updatedAt
+  assessment     AssessmentArenaAssessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  responses      AssessmentPilotResponse[]
+
+  @@index([assessmentId])
+  @@index([status])
+}
+
+model AssessmentPilotResponse {
+  id          String              @id @default(cuid())
+  pilotRunId  String
+  questionId  String?
+  participantId String?
+  response    Json
+  metrics     Json?
+  createdAt   DateTime            @default(now())
+  pilotRun    AssessmentPilotRun   @relation(fields: [pilotRunId], references: [id], onDelete: Cascade)
+  question    AssessmentQuestion?  @relation(fields: [questionId], references: [id], onDelete: SetNull)
+
+  @@index([pilotRunId])
+  @@index([questionId])
+}
+
+model AssessmentQuestionExposure {
+  id              String                    @id @default(cuid())
+  assessmentId    String
+  questionId      String
+  userId          String?
+  attemptId       String?
+  questionVersion Int
+  exposedAt       DateTime                  @default(now())
+  assessment      AssessmentArenaAssessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  question        AssessmentQuestion        @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  attempt         AssessmentAttempt?        @relation(fields: [attemptId], references: [id], onDelete: SetNull)
+
+  @@index([assessmentId])
+  @@index([questionId])
+  @@index([userId])
+  @@index([attemptId])
+  @@index([exposedAt])
+}
+
+model AssessmentAttempt {
+  id              String                    @id @default(cuid())
+  assessmentId    String
+  userId          String
+  status          String                    @default("IN_PROGRESS")
+  startedAt       DateTime                  @default(now())
+  submittedAt     DateTime?
+  assessmentScore Float                     @default(0)
+  readinessScore  Float                     @default(0)
+  integrityScore  Float                     @default(100)
+  riskScore       Float                     @default(0)
+  confidenceScore Float                     @default(0)
+  metadata        Json?
+  assessment      AssessmentArenaAssessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  attemptQuestions AssessmentAttemptQuestion[]
+  answers         AssessmentAnswer[]
+  traitScores     AssessmentTraitScore[]
+  dimensionScores AssessmentDimensionScore[]
+  integritySignals AssessmentIntegritySignal[]
+  riskSignals     AssessmentRiskSignal[]
+  exposures       AssessmentQuestionExposure[]
+  rankPredictions AssessmentRankPrediction[]
+  reportSnapshots AssessmentReportSnapshot[]
+
+  @@index([assessmentId])
+  @@index([userId])
+  @@index([status])
+  @@index([submittedAt])
+}
+
+model AssessmentAttemptQuestion {
+  id              String             @id @default(cuid())
+  attemptId       String
+  questionId      String
+  questionVersion Int
+  displayOrder    Int
+  questionSnapshot Json
+  optionsSnapshot Json?
+  answered        Boolean            @default(false)
+  createdAt       DateTime           @default(now())
+  attempt         AssessmentAttempt  @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  question        AssessmentQuestion @relation(fields: [questionId], references: [id], onDelete: Restrict)
+  answers         AssessmentAnswer[]
+
+  @@unique([attemptId, questionId])
+  @@index([attemptId])
+  @@index([questionId])
+}
+
+model AssessmentAnswer {
+  id                String                    @id @default(cuid())
+  attemptId         String
+  attemptQuestionId String
+  questionId        String
+  optionId          String?
+  answerText        String?
+  rawScore          Float                     @default(0)
+  scoredMetadata    Json?
+  createdAt         DateTime                  @default(now())
+  updatedAt         DateTime                  @updatedAt
+  attempt           AssessmentAttempt         @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  attemptQuestion   AssessmentAttemptQuestion @relation(fields: [attemptQuestionId], references: [id], onDelete: Cascade)
+  question          AssessmentQuestion        @relation(fields: [questionId], references: [id], onDelete: Restrict)
+  option            AssessmentQuestionOption? @relation(fields: [optionId], references: [id], onDelete: SetNull)
+
+  @@unique([attemptId, questionId])
+  @@index([attemptId])
+  @@index([questionId])
+  @@index([optionId])
+}
+
+model AssessmentTraitScore {
+  id              String            @id @default(cuid())
+  attemptId       String
+  traitId         String
+  rawScore        Float             @default(0)
+  weightedScore   Float             @default(0)
+  confidenceScore Float             @default(0)
+  metadata        Json?
+  createdAt       DateTime          @default(now())
+  attempt         AssessmentAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  trait           AssessmentTrait   @relation(fields: [traitId], references: [id], onDelete: Restrict)
+
+  @@unique([attemptId, traitId])
+  @@index([attemptId])
+  @@index([traitId])
+}
+
+model AssessmentDimensionScore {
+  id              String              @id @default(cuid())
+  attemptId       String
+  dimensionId     String
+  rawScore        Float               @default(0)
+  weightedScore   Float               @default(0)
+  confidenceScore Float               @default(0)
+  metadata        Json?
+  createdAt       DateTime            @default(now())
+  attempt         AssessmentAttempt   @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  dimension       AssessmentDimension @relation(fields: [dimensionId], references: [id], onDelete: Restrict)
+
+  @@unique([attemptId, dimensionId])
+  @@index([attemptId])
+  @@index([dimensionId])
+}
+
+model AssessmentIntegritySignal {
+  id           String            @id @default(cuid())
+  attemptId    String
+  signalType   String
+  severity     String
+  scorePenalty Float             @default(0)
+  description  String?
+  metadata     Json?
+  createdAt    DateTime          @default(now())
+  attempt      AssessmentAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+
+  @@index([attemptId])
+  @@index([signalType])
+  @@index([severity])
+}
+
+model AssessmentRiskSignal {
+  id          String            @id @default(cuid())
+  attemptId   String
+  riskType    String
+  riskLevel   String
+  score       Float             @default(0)
+  description String?
+  metadata    Json?
+  createdAt   DateTime          @default(now())
+  attempt     AssessmentAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+
+  @@index([attemptId])
+  @@index([riskType])
+  @@index([riskLevel])
+}
+
+model AssessmentGrowthSnapshot {
+  id              String                    @id @default(cuid())
+  assessmentId    String?
+  userId          String
+  dayLabel        String
+  baselineAttemptId String?
+  currentAttemptId  String?
+  growthScore     Float                     @default(0)
+  comparisonData  Json
+  createdAt       DateTime                  @default(now())
+  assessment      AssessmentArenaAssessment? @relation(fields: [assessmentId], references: [id], onDelete: SetNull)
+
+  @@index([assessmentId])
+  @@index([userId])
+  @@index([dayLabel])
+}
+
+model AssessmentRankPrediction {
+  id              String                    @id @default(cuid())
+  assessmentId    String?
+  attemptId       String?
+  userId          String
+  predictionScore Float                     @default(0)
+  predictionBand  String
+  inputSnapshot   Json
+  createdAt       DateTime                  @default(now())
+  updatedAt       DateTime                  @updatedAt
+  assessment      AssessmentArenaAssessment? @relation(fields: [assessmentId], references: [id], onDelete: SetNull)
+  attempt         AssessmentAttempt?        @relation(fields: [attemptId], references: [id], onDelete: SetNull)
+
+  @@index([assessmentId])
+  @@index([attemptId])
+  @@index([userId])
+  @@index([predictionBand])
+}
+
+model AssessmentReportSnapshot {
+  id             String                    @id @default(cuid())
+  assessmentId   String
+  attemptId      String
+  userId         String
+  audience       String
+  report         Json
+  scoring        Json
+  recommendations Json?
+  createdAt      DateTime                  @default(now())
+  updatedAt      DateTime                  @updatedAt
+  assessment     AssessmentArenaAssessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  attempt        AssessmentAttempt         @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+
+  @@unique([attemptId, audience])
+  @@index([assessmentId])
+  @@index([userId])
+  @@index([audience])
+}
+
+model TopRankSignalSnapshot {
+  id                  String   @id @default(cuid())
+  userId              String
+  batchId             String?
+  programSlug         String?
+  snapshotDate        DateTime @default(now())
+  attendanceSignals   Json
+  assignmentSignals   Json
+  examSignals         Json
+  testSignals         Json
+  liveClassSignals    Json
+  fitnessSignals      Json
+  progressSignals     Json
+  teacherSignals      Json
+  sourceCounts        Json
+  createdAt           DateTime @default(now())
+  readinessScores     TopRankReadinessScore[]
+  performanceTrends   TopRankPerformanceTrend[]
+  growthTrends        TopRankGrowthTrend[]
+  riskTrends          TopRankRiskTrend[]
+
+  @@index([userId])
+  @@index([batchId])
+  @@index([programSlug])
+  @@index([snapshotDate])
+}
+
+model TopRankReadinessScore {
+  id                  String   @id @default(cuid())
+  userId              String
+  batchId             String?
+  snapshotId          String?
+  readinessScore      Float    @default(0)
+  readinessBand       String
+  readinessExplanation String
+  academicScore       Float    @default(0)
+  disciplineScore     Float    @default(0)
+  performanceScore    Float    @default(0)
+  growthScore         Float    @default(0)
+  riskScore           Float    @default(0)
+  componentScores     Json
+  createdAt           DateTime @default(now())
+  snapshot            TopRankSignalSnapshot? @relation(fields: [snapshotId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([batchId])
+  @@index([snapshotId])
+  @@index([readinessBand])
+  @@index([createdAt])
+}
+
+model TopRankPerformanceTrend {
+  id                  String   @id @default(cuid())
+  userId              String
+  batchId             String?
+  snapshotId          String?
+  performanceTrend    String
+  completionTrend     String
+  improvementTrend    String
+  studyTrend          String
+  score               Float    @default(0)
+  metrics             Json
+  createdAt           DateTime @default(now())
+  snapshot            TopRankSignalSnapshot? @relation(fields: [snapshotId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([batchId])
+  @@index([snapshotId])
+  @@index([performanceTrend])
+  @@index([createdAt])
+}
+
+model TopRankGrowthTrend {
+  id                  String   @id @default(cuid())
+  userId              String
+  batchId             String?
+  snapshotId          String?
+  dayLabel            String
+  growthScore         Float    @default(0)
+  growthClassification String
+  baselineScore       Float?
+  currentScore        Float    @default(0)
+  comparisonData      Json
+  createdAt           DateTime @default(now())
+  snapshot            TopRankSignalSnapshot? @relation(fields: [snapshotId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([batchId])
+  @@index([snapshotId])
+  @@index([dayLabel])
+  @@index([growthClassification])
+  @@index([createdAt])
+}
+
+model TopRankRiskTrend {
+  id                  String   @id @default(cuid())
+  userId              String
+  batchId             String?
+  snapshotId          String?
+  riskType            String
+  riskLevel           String
+  riskScore           Float    @default(0)
+  reason              String
+  interventionStatus  String   @default("OPEN")
+  metadata            Json?
+  createdAt           DateTime @default(now())
+  snapshot            TopRankSignalSnapshot? @relation(fields: [snapshotId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([batchId])
+  @@index([snapshotId])
+  @@index([riskType])
+  @@index([riskLevel])
+  @@index([interventionStatus])
+  @@index([createdAt])
+}
+
+model TopRankMentorFeedback {
+  id                  String   @id @default(cuid())
+  userId              String
+  batchId             String?
+  mentorId            String?
+  mentorRole          String
+  feedbackType        String
+  feedbackText        String
+  rating              Float?
+  actionRequired      Boolean  @default(false)
+  actionStatus        String   @default("OPEN")
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@index([userId])
+  @@index([batchId])
+  @@index([mentorId])
+  @@index([mentorRole])
+  @@index([feedbackType])
+  @@index([actionStatus])
+}
+
+model TopRankSignalWeightConfig {
+  id                  String   @id @default(cuid())
+  programSlug         String?
+  name                String
+  attendanceWeight    Float    @default(20)
+  assignmentWeight    Float    @default(20)
+  examWeight          Float    @default(20)
+  testWeight          Float    @default(15)
+  liveClassWeight     Float    @default(10)
+  fitnessWeight       Float    @default(10)
+  progressWeight      Float    @default(5)
+  disciplineWeight    Float    @default(20)
+  status              String   @default("ACTIVE")
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@unique([programSlug, name])
+  @@index([programSlug])
+  @@index([status])
+}
+
+model AssessmentTraitLibraryItem {
+  id                  String                              @id @default(cuid())
+  slug                String                              @unique
+  name                String                              @unique
+  definition          String
+  defenceRelevance    String
+  ssbRelevance        String
+  topRankRelevance    String
+  riskRelevance       String
+  assessmentRelevance Json
+  metadata            Json?
+  createdAt           DateTime                            @default(now())
+  updatedAt           DateTime                            @updatedAt
+  dimensions          AssessmentDimensionLibraryItem[]
+  interpretations     AssessmentTraitBandInterpretation[]
+
+  @@index([slug])
+}
+
+model AssessmentDimensionLibraryItem {
+  id          String                     @id @default(cuid())
+  traitId     String
+  slug        String
+  name        String
+  description String
+  importance  String
+  riskImpact  String
+  metadata    Json?
+  createdAt   DateTime                   @default(now())
+  updatedAt   DateTime                   @updatedAt
+  trait       AssessmentTraitLibraryItem  @relation(fields: [traitId], references: [id], onDelete: Cascade)
+
+  @@unique([traitId, slug])
+  @@index([traitId])
+}
+
+model AssessmentTraitBandInterpretation {
+  id             String                    @id @default(cuid())
+  traitId        String
+  band           String
+  minScore       Int
+  maxScore       Int
+  interpretation String
+  recommendation String?
+  createdAt      DateTime                  @default(now())
+  updatedAt      DateTime                  @updatedAt
+  trait          AssessmentTraitLibraryItem @relation(fields: [traitId], references: [id], onDelete: Cascade)
+
+  @@unique([traitId, band])
+  @@index([traitId])
+  @@index([band])
+}
+
+model AssessmentRiskInterpretation {
+  id             String   @id @default(cuid())
+  riskLevel      String   @unique
+  label          String
+  interpretation String
+  actionGuidance String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model AssessmentReadinessInterpretation {
+  id             String   @id @default(cuid())
+  band           String   @unique
+  label          String
+  minScore       Int
+  maxScore       Int
+  interpretation String
+  actionGuidance String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model AssessmentSsbOlq {
+  id                  String                         @id @default(cuid())
+  slug                String                         @unique
+  name                String                         @unique
+  definition          String
+  defenceRelevance    String
+  assessmentRelevance String
+  riskRelevance       String
+  metadata            Json?
+  createdAt           DateTime                       @default(now())
+  updatedAt           DateTime                       @updatedAt
+  mappings            AssessmentSsbOlqMapping[]
+  interpretations     AssessmentSsbOlqInterpretation[]
+
+  @@index([slug])
+}
+
+model AssessmentSsbOlqMapping {
+  id           String           @id @default(cuid())
+  olqId        String
+  sourceType   String
+  sourceName   String
+  sourceId     String?
+  weight       Float            @default(1)
+  metadata     Json?
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  olq          AssessmentSsbOlq @relation(fields: [olqId], references: [id], onDelete: Cascade)
+
+  @@unique([olqId, sourceType, sourceName])
+  @@index([olqId])
+  @@index([sourceType])
+  @@index([sourceName])
+}
+
+model AssessmentSsbOlqInterpretation {
+  id             String           @id @default(cuid())
+  olqId          String
+  band           String
+  minScore       Int
+  maxScore       Int
+  interpretation String
+  mentorGuidance String?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  olq            AssessmentSsbOlq @relation(fields: [olqId], references: [id], onDelete: Cascade)
+
+  @@unique([olqId, band])
+  @@index([olqId])
+  @@index([band])
 }
 
 model OLQScore {

@@ -30,6 +30,25 @@ async function assignedBatchIdsForTeacher(userId: string) {
   return assignments.map((assignment) => assignment.batchId);
 }
 
+async function assertTeacherBatchSubjectAccess(user: LiveClassUser, batchId?: string, subject?: string) {
+  if (canManageAllLiveClasses(user)) return;
+  if (user.role !== Role.TEACHER && user.role !== Role.PHYSICAL_TRAINER) return;
+  if (!batchId) throw Object.assign(new Error("Batch is required for teacher live classes"), { statusCode: 403 });
+
+  const assignment = await prisma.teacherBatchAssignment.findFirst({
+    where: {
+      batchId,
+      teacherId: user.id,
+      status: "ACTIVE",
+      ...(subject?.trim() ? { subject: { equals: subject.trim(), mode: "insensitive" } } : {})
+    },
+    select: { id: true }
+  });
+  if (!assignment) {
+    throw Object.assign(new Error(subject?.trim() ? "This subject is not assigned to this teacher for the selected batch" : "This batch is not assigned to this teacher"), { statusCode: 403 });
+  }
+}
+
 async function enrolledCourseIdsForStudent(studentId: string) {
   const [enrollments, batchEnrollments] = await Promise.all([
     prisma.enrollment.findMany({ where: { userId: studentId }, select: { courseId: true } }),
@@ -150,7 +169,8 @@ export const liveClassesService = {
     return [];
   },
 
-  createLiveClass(payload: LiveClassPayload) {
+  async createLiveClass(user: LiveClassUser, payload: LiveClassPayload) {
+    await assertTeacherBatchSubjectAccess(user, payload.batchId, payload.subject);
     return prisma.liveClass.create({
       data: {
         title: payload.title,
@@ -174,7 +194,8 @@ export const liveClassesService = {
   },
 
   async updateLiveClass(user: LiveClassUser, id: string, payload: Partial<LiveClassPayload>) {
-    await this.assertManageAccess(user, id);
+    const current = await this.assertManageAccess(user, id);
+    await assertTeacherBatchSubjectAccess(user, payload.batchId ?? current.batchId ?? undefined, payload.subject ?? current.subject ?? undefined);
     return prisma.liveClass.update({
       where: { id },
       data: {

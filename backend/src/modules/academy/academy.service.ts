@@ -628,6 +628,29 @@ async function assignedBatchIdsForUser(userId: string) {
   return Array.from(new Set([...officialRows, ...legacyRows].map((row) => row.batchId).filter(Boolean)));
 }
 
+async function assignedSubjectsForUserBatch(userId: string, batchId: string) {
+  const [officialRows, legacyRows] = await Promise.all([
+    prisma.teacherBatchAssignment.findMany({
+      where: { teacherId: userId, batchId, status: "ACTIVE" },
+      select: { subject: true },
+    }),
+    prisma.$queryRaw<Array<{ subject: string }>>`
+      SELECT DISTINCT "subject" FROM "BatchTeacherAssignment"
+      WHERE "teacherId" = ${userId}
+      AND "batchId" = ${batchId}
+      AND "status" = 'ACTIVE'
+    `.catch(() => []),
+  ]);
+  return Array.from(new Set([...officialRows, ...legacyRows].map((row) => row.subject?.trim().toLowerCase()).filter(Boolean)));
+}
+
+async function filterRowsToAssignedSubjects<T extends { subject?: string | null }>(user: Requester, batchId: string | undefined, rows: T[]) {
+  if (!batchId || isAcademicManager(user) || user.role !== Role.TEACHER) return rows;
+  const subjects = await assignedSubjectsForUserBatch(user.id, batchId);
+  if (!subjects.length) return [];
+  return rows.filter((row) => row.subject && subjects.includes(String(row.subject).trim().toLowerCase()));
+}
+
 function mergeAssignments(primary: BatchTeacherAssignmentRow[], secondary: BatchTeacherAssignmentRow[]) {
   const seen = new Set<string>();
   const merged: BatchTeacherAssignmentRow[] = [];
@@ -1684,7 +1707,7 @@ export const academyService = {
     requireAcademic(user);
     const batchId = typeof query.batchId === "string" ? query.batchId : undefined;
     if (batchId) await assertBatchAccess(user, batchId);
-    const rows = batchId
+    const queriedRows = batchId
       ? await prisma.$queryRaw<any[]>`
           SELECT * FROM "TeacherAssignmentRecord" WHERE "batchId" = ${batchId} ORDER BY "createdAt" DESC
         `
@@ -1695,6 +1718,7 @@ export const academyService = {
         : await prisma.$queryRaw<any[]>`
             SELECT * FROM "TeacherAssignmentRecord" ORDER BY "createdAt" DESC
           `;
+    const rows = await filterRowsToAssignedSubjects(user, batchId, queriedRows);
     const assignmentIds = rows.map((row) => row.id);
     const submissions = assignmentIds.length
       ? await prisma.$queryRaw<any[]>`
@@ -1830,15 +1854,21 @@ export const academyService = {
     const where: Prisma.TeacherStudyMaterialRecordWhereInput = {};
     if (batchId) where.batchId = batchId;
     if (!batchId && user.role === Role.TEACHER && !isAcademicManager(user)) where.teacherId = user.id;
+    if (batchId && user.role === Role.TEACHER && !isAcademicManager(user)) {
+      const subjects = await assignedSubjectsForUserBatch(user.id, batchId);
+      if (!subjects.length) return { materials: [], pagination: { page, limit, total: 0, totalPages: 1 } };
+      where.OR = subjects.map((subject) => ({ subject: { equals: subject, mode: "insensitive" as const } }));
+    }
     if (!includeArchived) where.status = { not: "ARCHIVED" };
     if (search) {
-      where.OR = [
-        { title: { contains: search, mode: "insensitive" } },
-        { lessonName: { contains: search, mode: "insensitive" } },
-        { subject: { contains: search, mode: "insensitive" } },
-        { topic: { contains: search, mode: "insensitive" } },
-        { fileName: { contains: search, mode: "insensitive" } }
+      const searchOr: Prisma.TeacherStudyMaterialRecordWhereInput[] = [
+        { title: { contains: search, mode: "insensitive" as const } },
+        { lessonName: { contains: search, mode: "insensitive" as const } },
+        { subject: { contains: search, mode: "insensitive" as const } },
+        { topic: { contains: search, mode: "insensitive" as const } },
+        { fileName: { contains: search, mode: "insensitive" as const } }
       ];
+      where.AND = [...(Array.isArray(where.AND) ? where.AND : []), { OR: searchOr }];
     }
     const [rows, total] = await Promise.all([
       prisma.teacherStudyMaterialRecord.findMany({ where, orderBy: { createdAt: "desc" }, skip, take: limit }),
@@ -2074,7 +2104,7 @@ export const academyService = {
     requireAcademic(user);
     const batchId = typeof query.batchId === "string" ? query.batchId : undefined;
     if (batchId) await assertBatchAccess(user, batchId);
-    const rows = batchId
+    const queriedRows = batchId
       ? await prisma.$queryRaw<any[]>`
           SELECT * FROM "TeacherExamRecord" WHERE "batchId" = ${batchId} ORDER BY "createdAt" DESC
         `
@@ -2085,6 +2115,7 @@ export const academyService = {
         : await prisma.$queryRaw<any[]>`
             SELECT * FROM "TeacherExamRecord" ORDER BY "createdAt" DESC
           `;
+    const rows = await filterRowsToAssignedSubjects(user, batchId, queriedRows);
     return { exams: await attachExamStats(rows) };
   },
 

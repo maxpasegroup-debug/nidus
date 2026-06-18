@@ -143,6 +143,186 @@ export type PsychometricReport = Prisma.PsychometricReportModel
  */
 export type PsychometricAnswer = Prisma.PsychometricAnswerModel
 /**
+ * Model AssessmentArenaAssessment
+ * 
+ */
+export type AssessmentArenaAssessment = Prisma.AssessmentArenaAssessmentModel
+/**
+ * Model AssessmentTrait
+ * 
+ */
+export type AssessmentTrait = Prisma.AssessmentTraitModel
+/**
+ * Model AssessmentDimension
+ * 
+ */
+export type AssessmentDimension = Prisma.AssessmentDimensionModel
+/**
+ * Model AssessmentQuestion
+ * 
+ */
+export type AssessmentQuestion = Prisma.AssessmentQuestionModel
+/**
+ * Model AssessmentQuestionOption
+ * 
+ */
+export type AssessmentQuestionOption = Prisma.AssessmentQuestionOptionModel
+/**
+ * Model AssessmentQuestionVersion
+ * 
+ */
+export type AssessmentQuestionVersion = Prisma.AssessmentQuestionVersionModel
+/**
+ * Model AssessmentQuestionReview
+ * 
+ */
+export type AssessmentQuestionReview = Prisma.AssessmentQuestionReviewModel
+/**
+ * Model AssessmentReviewBoard
+ * 
+ */
+export type AssessmentReviewBoard = Prisma.AssessmentReviewBoardModel
+/**
+ * Model AssessmentPilotRun
+ * 
+ */
+export type AssessmentPilotRun = Prisma.AssessmentPilotRunModel
+/**
+ * Model AssessmentPilotResponse
+ * 
+ */
+export type AssessmentPilotResponse = Prisma.AssessmentPilotResponseModel
+/**
+ * Model AssessmentQuestionExposure
+ * 
+ */
+export type AssessmentQuestionExposure = Prisma.AssessmentQuestionExposureModel
+/**
+ * Model AssessmentAttempt
+ * 
+ */
+export type AssessmentAttempt = Prisma.AssessmentAttemptModel
+/**
+ * Model AssessmentAttemptQuestion
+ * 
+ */
+export type AssessmentAttemptQuestion = Prisma.AssessmentAttemptQuestionModel
+/**
+ * Model AssessmentAnswer
+ * 
+ */
+export type AssessmentAnswer = Prisma.AssessmentAnswerModel
+/**
+ * Model AssessmentTraitScore
+ * 
+ */
+export type AssessmentTraitScore = Prisma.AssessmentTraitScoreModel
+/**
+ * Model AssessmentDimensionScore
+ * 
+ */
+export type AssessmentDimensionScore = Prisma.AssessmentDimensionScoreModel
+/**
+ * Model AssessmentIntegritySignal
+ * 
+ */
+export type AssessmentIntegritySignal = Prisma.AssessmentIntegritySignalModel
+/**
+ * Model AssessmentRiskSignal
+ * 
+ */
+export type AssessmentRiskSignal = Prisma.AssessmentRiskSignalModel
+/**
+ * Model AssessmentGrowthSnapshot
+ * 
+ */
+export type AssessmentGrowthSnapshot = Prisma.AssessmentGrowthSnapshotModel
+/**
+ * Model AssessmentRankPrediction
+ * 
+ */
+export type AssessmentRankPrediction = Prisma.AssessmentRankPredictionModel
+/**
+ * Model AssessmentReportSnapshot
+ * 
+ */
+export type AssessmentReportSnapshot = Prisma.AssessmentReportSnapshotModel
+/**
+ * Model TopRankSignalSnapshot
+ * 
+ */
+export type TopRankSignalSnapshot = Prisma.TopRankSignalSnapshotModel
+/**
+ * Model TopRankReadinessScore
+ * 
+ */
+export type TopRankReadinessScore = Prisma.TopRankReadinessScoreModel
+/**
+ * Model TopRankPerformanceTrend
+ * 
+ */
+export type TopRankPerformanceTrend = Prisma.TopRankPerformanceTrendModel
+/**
+ * Model TopRankGrowthTrend
+ * 
+ */
+export type TopRankGrowthTrend = Prisma.TopRankGrowthTrendModel
+/**
+ * Model TopRankRiskTrend
+ * 
+ */
+export type TopRankRiskTrend = Prisma.TopRankRiskTrendModel
+/**
+ * Model TopRankMentorFeedback
+ * 
+ */
+export type TopRankMentorFeedback = Prisma.TopRankMentorFeedbackModel
+/**
+ * Model TopRankSignalWeightConfig
+ * 
+ */
+export type TopRankSignalWeightConfig = Prisma.TopRankSignalWeightConfigModel
+/**
+ * Model AssessmentTraitLibraryItem
+ * 
+ */
+export type AssessmentTraitLibraryItem = Prisma.AssessmentTraitLibraryItemModel
+/**
+ * Model AssessmentDimensionLibraryItem
+ * 
+ */
+export type AssessmentDimensionLibraryItem = Prisma.AssessmentDimensionLibraryItemModel
+/**
+ * Model AssessmentTraitBandInterpretation
+ * 
+ */
+export type AssessmentTraitBandInterpretation = Prisma.AssessmentTraitBandInterpretationModel
+/**
+ * Model AssessmentRiskInterpretation
+ * 
+ */
+export type AssessmentRiskInterpretation = Prisma.AssessmentRiskInterpretationModel
+/**
+ * Model AssessmentReadinessInterpretation
+ * 
+ */
+export type AssessmentReadinessInterpretation = Prisma.AssessmentReadinessInterpretationModel
+/**
+ * Model AssessmentSsbOlq
+ * 
+ */
+export type AssessmentSsbOlq = Prisma.AssessmentSsbOlqModel
+/**
+ * Model AssessmentSsbOlqMapping
+ * 
+ */
+export type AssessmentSsbOlqMapping = Prisma.AssessmentSsbOlqMappingModel
+/**
+ * Model AssessmentSsbOlqInterpretation
+ * 
+ */
+export type AssessmentSsbOlqInterpretation = Prisma.AssessmentSsbOlqInterpretationModel
+/**
  * Model OLQScore
  * 
  */

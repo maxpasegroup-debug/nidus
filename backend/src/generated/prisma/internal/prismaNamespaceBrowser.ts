@@ -76,6 +76,42 @@ export const ModelName = {
   PsychometricAttempt: 'PsychometricAttempt',
   PsychometricReport: 'PsychometricReport',
   PsychometricAnswer: 'PsychometricAnswer',
+  AssessmentArenaAssessment: 'AssessmentArenaAssessment',
+  AssessmentTrait: 'AssessmentTrait',
+  AssessmentDimension: 'AssessmentDimension',
+  AssessmentQuestion: 'AssessmentQuestion',
+  AssessmentQuestionOption: 'AssessmentQuestionOption',
+  AssessmentQuestionVersion: 'AssessmentQuestionVersion',
+  AssessmentQuestionReview: 'AssessmentQuestionReview',
+  AssessmentReviewBoard: 'AssessmentReviewBoard',
+  AssessmentPilotRun: 'AssessmentPilotRun',
+  AssessmentPilotResponse: 'AssessmentPilotResponse',
+  AssessmentQuestionExposure: 'AssessmentQuestionExposure',
+  AssessmentAttempt: 'AssessmentAttempt',
+  AssessmentAttemptQuestion: 'AssessmentAttemptQuestion',
+  AssessmentAnswer: 'AssessmentAnswer',
+  AssessmentTraitScore: 'AssessmentTraitScore',
+  AssessmentDimensionScore: 'AssessmentDimensionScore',
+  AssessmentIntegritySignal: 'AssessmentIntegritySignal',
+  AssessmentRiskSignal: 'AssessmentRiskSignal',
+  AssessmentGrowthSnapshot: 'AssessmentGrowthSnapshot',
+  AssessmentRankPrediction: 'AssessmentRankPrediction',
+  AssessmentReportSnapshot: 'AssessmentReportSnapshot',
+  TopRankSignalSnapshot: 'TopRankSignalSnapshot',
+  TopRankReadinessScore: 'TopRankReadinessScore',
+  TopRankPerformanceTrend: 'TopRankPerformanceTrend',
+  TopRankGrowthTrend: 'TopRankGrowthTrend',
+  TopRankRiskTrend: 'TopRankRiskTrend',
+  TopRankMentorFeedback: 'TopRankMentorFeedback',
+  TopRankSignalWeightConfig: 'TopRankSignalWeightConfig',
+  AssessmentTraitLibraryItem: 'AssessmentTraitLibraryItem',
+  AssessmentDimensionLibraryItem: 'AssessmentDimensionLibraryItem',
+  AssessmentTraitBandInterpretation: 'AssessmentTraitBandInterpretation',
+  AssessmentRiskInterpretation: 'AssessmentRiskInterpretation',
+  AssessmentReadinessInterpretation: 'AssessmentReadinessInterpretation',
+  AssessmentSsbOlq: 'AssessmentSsbOlq',
+  AssessmentSsbOlqMapping: 'AssessmentSsbOlqMapping',
+  AssessmentSsbOlqInterpretation: 'AssessmentSsbOlqInterpretation',
   OLQScore: 'OLQScore',
   StudyPlan: 'StudyPlan',
   PerformanceAnalytics: 'PerformanceAnalytics',
@@ -608,6 +644,606 @@ export const PsychometricAnswerScalarFieldEnum = {
 } as const
 
 export type PsychometricAnswerScalarFieldEnum = (typeof PsychometricAnswerScalarFieldEnum)[keyof typeof PsychometricAnswerScalarFieldEnum]
+
+
+export const AssessmentArenaAssessmentScalarFieldEnum = {
+  id: 'id',
+  slug: 'slug',
+  name: 'name',
+  level: 'level',
+  purpose: 'purpose',
+  description: 'description',
+  status: 'status',
+  recommendedMinutes: 'recommendedMinutes',
+  minimumQuestionBank: 'minimumQuestionBank',
+  recommendedQuestionBank: 'recommendedQuestionBank',
+  idealQuestionBank: 'idealQuestionBank',
+  questionsPerAttempt: 'questionsPerAttempt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AssessmentArenaAssessmentScalarFieldEnum = (typeof AssessmentArenaAssessmentScalarFieldEnum)[keyof typeof AssessmentArenaAssessmentScalarFieldEnum]
+
+
+export const AssessmentTraitScalarFieldEnum = {
+  id: 'id',
+  assessmentId: 'assessmentId',
+  name: 'name',
+  definition: 'definition',
+  weight: 'weight',
+  priority: 'priority',
+  isMandatory: 'isMandatory',
+  isCritical: 'isCritical',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AssessmentTraitScalarFieldEnum = (typeof AssessmentTraitScalarFieldEnum)[keyof typeof AssessmentTraitScalarFieldEnum]
+
+
+export const AssessmentDimensionScalarFieldEnum = {
+  id: 'id',
+  assessmentId: 'assessmentId',
+  traitId: 'traitId',
+  name: 'name',
+  definition: 'definition',
+  weight: 'weight',
+  priority: 'priority',
+  minimumQuestions: 'minimumQuestions',
+  recommendedQuestions: 'recommendedQuestions',
+  idealQuestions: 'idealQuestions',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AssessmentDimensionScalarFieldEnum = (typeof AssessmentDimensionScalarFieldEnum)[keyof typeof AssessmentDimensionScalarFieldEnum]
+
+
+export const AssessmentQuestionScalarFieldEnum = {
+  id: 'id',
+  assessmentId: 'assessmentId',
+  traitId: 'traitId',
+  dimensionId: 'dimensionId',
+  questionText: 'questionText',
+  instructionText: 'instructionText',
+  questionType: 'questionType',
+  difficultyLevel: 'difficultyLevel',
+  programRelevance: 'programRelevance',
+  serviceRelevance: 'serviceRelevance',
+  version: 'version',
+  status: 'status',
+  authorId: 'authorId',
+  authorRole: 'authorRole',
+  reviewerId: 'reviewerId',
+  seniorReviewerId: 'seniorReviewerId',
+  approvalBoard: 'approvalBoard',
+  exposureCount: 'exposureCount',
+  lastUsedAt: 'lastUsedAt',
+  reviewedAt: 'reviewedAt',
+  approvedAt: 'approvedAt',
+  publishedAt: 'publishedAt',
+  retiredAt: 'retiredAt',
+  retirementReason: 'retirementReason',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AssessmentQuestionScalarFieldEnum = (typeof AssessmentQuestionScalarFieldEnum)[keyof typeof AssessmentQuestionScalarFieldEnum]
+
+
+export const AssessmentQuestionOptionScalarFieldEnum = {
+  id: 'id',
+  questionId: 'questionId',
+  optionText: 'optionText',
+  displayOrder: 'displayOrder',
+  rawScore: 'rawScore',
+  reverseScore: 'reverseScore',
+  integrityWeight: 'integrityWeight',
+  riskWeight: 'riskWeight',
+  readinessWeight: 'readinessWeight',
+  dimensionWeight: 'dimensionWeight',
+  traitWeight: 'traitWeight',
+  flags: 'flags',
+  interpretationHint: 'interpretationHint',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AssessmentQuestionOptionScalarFieldEnum = (typeof AssessmentQuestionOptionScalarFieldEnum)[keyof typeof AssessmentQuestionOptionScalarFieldEnum]
+
+
+export const AssessmentQuestionVersionScalarFieldEnum = {
+  id: 'id',
+  questionId: 'questionId',
+  version: 'version',
+  questionText: 'questionText',
+  optionsSnapshot: 'optionsSnapshot',
+  metadataSnapshot: 'metadataSnapshot',
+  changedBy: 'changedBy',
+  changeReason: 'changeReason',
+  createdAt: 'createdAt'
+} as const
+
+export type AssessmentQuestionVersionScalarFieldEnum = (typeof AssessmentQuestionVersionScalarFieldEnum)[keyof typeof AssessmentQuestionVersionScalarFieldEnum]
+
+
+export const AssessmentQuestionReviewScalarFieldEnum = {
+  id: 'id',
+  assessmentId: 'assessmentId',
+  questionId: 'questionId',
+  reviewerId: 'reviewerId',
+  reviewerRole: 'reviewerRole',
+  boardType: 'boardType',
+  status: 'status',
+  comments: 'comments',
+  score: 'score',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AssessmentQuestionReviewScalarFieldEnum = (typeof AssessmentQuestionReviewScalarFieldEnum)[keyof typeof AssessmentQuestionReviewScalarFieldEnum]
+
+
+export const AssessmentReviewBoardScalarFieldEnum = {
+  id: 'id',
+  assessmentId: 'assessmentId',
+  name: 'name',
+  boardType: 'boardType',
+  responsibilities: 'responsibilities',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AssessmentReviewBoardScalarFieldEnum = (typeof AssessmentReviewBoardScalarFieldEnum)[keyof typeof AssessmentReviewBoardScalarFieldEnum]
+
+
+export const AssessmentPilotRunScalarFieldEnum = {
+  id: 'id',
+  assessmentId: 'assessmentId',
+  name: 'name',
+  status: 'status',
+  sampleSize: 'sampleSize',
+  startedAt: 'startedAt',
+  completedAt: 'completedAt',
+  validationMetrics: 'validationMetrics',
+  acceptanceNotes: 'acceptanceNotes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AssessmentPilotRunScalarFieldEnum = (typeof AssessmentPilotRunScalarFieldEnum)[keyof typeof AssessmentPilotRunScalarFieldEnum]
+
+
+export const AssessmentPilotResponseScalarFieldEnum = {
+  id: 'id',
+  pilotRunId: 'pilotRunId',
+  questionId: 'questionId',
+  participantId: 'participantId',
+  response: 'response',
+  metrics: 'metrics',
+  createdAt: 'createdAt'
+} as const
+
+export type AssessmentPilotResponseScalarFieldEnum = (typeof AssessmentPilotResponseScalarFieldEnum)[keyof typeof AssessmentPilotResponseScalarFieldEnum]
+
+
+export const AssessmentQuestionExposureScalarFieldEnum = {
+  id: 'id',
+  assessmentId: 'assessmentId',
+  questionId: 'questionId',
+  userId: 'userId',
+  attemptId: 'attemptId',
+  questionVersion: 'questionVersion',
+  exposedAt: 'exposedAt'
+} as const
+
+export type AssessmentQuestionExposureScalarFieldEnum = (typeof AssessmentQuestionExposureScalarFieldEnum)[keyof typeof AssessmentQuestionExposureScalarFieldEnum]
+
+
+export const AssessmentAttemptScalarFieldEnum = {
+  id: 'id',
+  assessmentId: 'assessmentId',
+  userId: 'userId',
+  status: 'status',
+  startedAt: 'startedAt',
+  submittedAt: 'submittedAt',
+  assessmentScore: 'assessmentScore',
+  readinessScore: 'readinessScore',
+  integrityScore: 'integrityScore',
+  riskScore: 'riskScore',
+  confidenceScore: 'confidenceScore',
+  metadata: 'metadata'
+} as const
+
+export type AssessmentAttemptScalarFieldEnum = (typeof AssessmentAttemptScalarFieldEnum)[keyof typeof AssessmentAttemptScalarFieldEnum]
+
+
+export const AssessmentAttemptQuestionScalarFieldEnum = {
+  id: 'id',
+  attemptId: 'attemptId',
+  questionId: 'questionId',
+  questionVersion: 'questionVersion',
+  displayOrder: 'displayOrder',
+  questionSnapshot: 'questionSnapshot',
+  optionsSnapshot: 'optionsSnapshot',
+  answered: 'answered',
+  createdAt: 'createdAt'
+} as const
+
+export type AssessmentAttemptQuestionScalarFieldEnum = (typeof AssessmentAttemptQuestionScalarFieldEnum)[keyof typeof AssessmentAttemptQuestionScalarFieldEnum]
+
+
+export const AssessmentAnswerScalarFieldEnum = {
+  id: 'id',
+  attemptId: 'attemptId',
+  attemptQuestionId: 'attemptQuestionId',
+  questionId: 'questionId',
+  optionId: 'optionId',
+  answerText: 'answerText',
+  rawScore: 'rawScore',
+  scoredMetadata: 'scoredMetadata',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AssessmentAnswerScalarFieldEnum = (typeof AssessmentAnswerScalarFieldEnum)[keyof typeof AssessmentAnswerScalarFieldEnum]
+
+
+export const AssessmentTraitScoreScalarFieldEnum = {
+  id: 'id',
+  attemptId: 'attemptId',
+  traitId: 'traitId',
+  rawScore: 'rawScore',
+  weightedScore: 'weightedScore',
+  confidenceScore: 'confidenceScore',
+  metadata: 'metadata',
+  createdAt: 'createdAt'
+} as const
+
+export type AssessmentTraitScoreScalarFieldEnum = (typeof AssessmentTraitScoreScalarFieldEnum)[keyof typeof AssessmentTraitScoreScalarFieldEnum]
+
+
+export const AssessmentDimensionScoreScalarFieldEnum = {
+  id: 'id',
+  attemptId: 'attemptId',
+  dimensionId: 'dimensionId',
+  rawScore: 'rawScore',
+  weightedScore: 'weightedScore',
+  confidenceScore: 'confidenceScore',
+  metadata: 'metadata',
+  createdAt: 'createdAt'
+} as const
+
+export type AssessmentDimensionScoreScalarFieldEnum = (typeof AssessmentDimensionScoreScalarFieldEnum)[keyof typeof AssessmentDimensionScoreScalarFieldEnum]
+
+
+export const AssessmentIntegritySignalScalarFieldEnum = {
+  id: 'id',
+  attemptId: 'attemptId',
+  signalType: 'signalType',
+  severity: 'severity',
+  scorePenalty: 'scorePenalty',
+  description: 'description',
+  metadata: 'metadata',
+  createdAt: 'createdAt'
+} as const
+
+export type AssessmentIntegritySignalScalarFieldEnum = (typeof AssessmentIntegritySignalScalarFieldEnum)[keyof typeof AssessmentIntegritySignalScalarFieldEnum]
+
+
+export const AssessmentRiskSignalScalarFieldEnum = {
+  id: 'id',
+  attemptId: 'attemptId',
+  riskType: 'riskType',
+  riskLevel: 'riskLevel',
+  score: 'score',
+  description: 'description',
+  metadata: 'metadata',
+  createdAt: 'createdAt'
+} as const
+
+export type AssessmentRiskSignalScalarFieldEnum = (typeof AssessmentRiskSignalScalarFieldEnum)[keyof typeof AssessmentRiskSignalScalarFieldEnum]
+
+
+export const AssessmentGrowthSnapshotScalarFieldEnum = {
+  id: 'id',
+  assessmentId: 'assessmentId',
+  userId: 'userId',
+  dayLabel: 'dayLabel',
+  baselineAttemptId: 'baselineAttemptId',
+  currentAttemptId: 'currentAttemptId',
+  growthScore: 'growthScore',
+  comparisonData: 'comparisonData',
+  createdAt: 'createdAt'
+} as const
+
+export type AssessmentGrowthSnapshotScalarFieldEnum = (typeof AssessmentGrowthSnapshotScalarFieldEnum)[keyof typeof AssessmentGrowthSnapshotScalarFieldEnum]
+
+
+export const AssessmentRankPredictionScalarFieldEnum = {
+  id: 'id',
+  assessmentId: 'assessmentId',
+  attemptId: 'attemptId',
+  userId: 'userId',
+  predictionScore: 'predictionScore',
+  predictionBand: 'predictionBand',
+  inputSnapshot: 'inputSnapshot',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AssessmentRankPredictionScalarFieldEnum = (typeof AssessmentRankPredictionScalarFieldEnum)[keyof typeof AssessmentRankPredictionScalarFieldEnum]
+
+
+export const AssessmentReportSnapshotScalarFieldEnum = {
+  id: 'id',
+  assessmentId: 'assessmentId',
+  attemptId: 'attemptId',
+  userId: 'userId',
+  audience: 'audience',
+  report: 'report',
+  scoring: 'scoring',
+  recommendations: 'recommendations',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AssessmentReportSnapshotScalarFieldEnum = (typeof AssessmentReportSnapshotScalarFieldEnum)[keyof typeof AssessmentReportSnapshotScalarFieldEnum]
+
+
+export const TopRankSignalSnapshotScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  batchId: 'batchId',
+  programSlug: 'programSlug',
+  snapshotDate: 'snapshotDate',
+  attendanceSignals: 'attendanceSignals',
+  assignmentSignals: 'assignmentSignals',
+  examSignals: 'examSignals',
+  testSignals: 'testSignals',
+  liveClassSignals: 'liveClassSignals',
+  fitnessSignals: 'fitnessSignals',
+  progressSignals: 'progressSignals',
+  teacherSignals: 'teacherSignals',
+  sourceCounts: 'sourceCounts',
+  createdAt: 'createdAt'
+} as const
+
+export type TopRankSignalSnapshotScalarFieldEnum = (typeof TopRankSignalSnapshotScalarFieldEnum)[keyof typeof TopRankSignalSnapshotScalarFieldEnum]
+
+
+export const TopRankReadinessScoreScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  batchId: 'batchId',
+  snapshotId: 'snapshotId',
+  readinessScore: 'readinessScore',
+  readinessBand: 'readinessBand',
+  readinessExplanation: 'readinessExplanation',
+  academicScore: 'academicScore',
+  disciplineScore: 'disciplineScore',
+  performanceScore: 'performanceScore',
+  growthScore: 'growthScore',
+  riskScore: 'riskScore',
+  componentScores: 'componentScores',
+  createdAt: 'createdAt'
+} as const
+
+export type TopRankReadinessScoreScalarFieldEnum = (typeof TopRankReadinessScoreScalarFieldEnum)[keyof typeof TopRankReadinessScoreScalarFieldEnum]
+
+
+export const TopRankPerformanceTrendScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  batchId: 'batchId',
+  snapshotId: 'snapshotId',
+  performanceTrend: 'performanceTrend',
+  completionTrend: 'completionTrend',
+  improvementTrend: 'improvementTrend',
+  studyTrend: 'studyTrend',
+  score: 'score',
+  metrics: 'metrics',
+  createdAt: 'createdAt'
+} as const
+
+export type TopRankPerformanceTrendScalarFieldEnum = (typeof TopRankPerformanceTrendScalarFieldEnum)[keyof typeof TopRankPerformanceTrendScalarFieldEnum]
+
+
+export const TopRankGrowthTrendScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  batchId: 'batchId',
+  snapshotId: 'snapshotId',
+  dayLabel: 'dayLabel',
+  growthScore: 'growthScore',
+  growthClassification: 'growthClassification',
+  baselineScore: 'baselineScore',
+  currentScore: 'currentScore',
+  comparisonData: 'comparisonData',
+  createdAt: 'createdAt'
+} as const
+
+export type TopRankGrowthTrendScalarFieldEnum = (typeof TopRankGrowthTrendScalarFieldEnum)[keyof typeof TopRankGrowthTrendScalarFieldEnum]
+
+
+export const TopRankRiskTrendScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  batchId: 'batchId',
+  snapshotId: 'snapshotId',
+  riskType: 'riskType',
+  riskLevel: 'riskLevel',
+  riskScore: 'riskScore',
+  reason: 'reason',
+  interventionStatus: 'interventionStatus',
+  metadata: 'metadata',
+  createdAt: 'createdAt'
+} as const
+
+export type TopRankRiskTrendScalarFieldEnum = (typeof TopRankRiskTrendScalarFieldEnum)[keyof typeof TopRankRiskTrendScalarFieldEnum]
+
+
+export const TopRankMentorFeedbackScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  batchId: 'batchId',
+  mentorId: 'mentorId',
+  mentorRole: 'mentorRole',
+  feedbackType: 'feedbackType',
+  feedbackText: 'feedbackText',
+  rating: 'rating',
+  actionRequired: 'actionRequired',
+  actionStatus: 'actionStatus',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type TopRankMentorFeedbackScalarFieldEnum = (typeof TopRankMentorFeedbackScalarFieldEnum)[keyof typeof TopRankMentorFeedbackScalarFieldEnum]
+
+
+export const TopRankSignalWeightConfigScalarFieldEnum = {
+  id: 'id',
+  programSlug: 'programSlug',
+  name: 'name',
+  attendanceWeight: 'attendanceWeight',
+  assignmentWeight: 'assignmentWeight',
+  examWeight: 'examWeight',
+  testWeight: 'testWeight',
+  liveClassWeight: 'liveClassWeight',
+  fitnessWeight: 'fitnessWeight',
+  progressWeight: 'progressWeight',
+  disciplineWeight: 'disciplineWeight',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type TopRankSignalWeightConfigScalarFieldEnum = (typeof TopRankSignalWeightConfigScalarFieldEnum)[keyof typeof TopRankSignalWeightConfigScalarFieldEnum]
+
+
+export const AssessmentTraitLibraryItemScalarFieldEnum = {
+  id: 'id',
+  slug: 'slug',
+  name: 'name',
+  definition: 'definition',
+  defenceRelevance: 'defenceRelevance',
+  ssbRelevance: 'ssbRelevance',
+  topRankRelevance: 'topRankRelevance',
+  riskRelevance: 'riskRelevance',
+  assessmentRelevance: 'assessmentRelevance',
+  metadata: 'metadata',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AssessmentTraitLibraryItemScalarFieldEnum = (typeof AssessmentTraitLibraryItemScalarFieldEnum)[keyof typeof AssessmentTraitLibraryItemScalarFieldEnum]
+
+
+export const AssessmentDimensionLibraryItemScalarFieldEnum = {
+  id: 'id',
+  traitId: 'traitId',
+  slug: 'slug',
+  name: 'name',
+  description: 'description',
+  importance: 'importance',
+  riskImpact: 'riskImpact',
+  metadata: 'metadata',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AssessmentDimensionLibraryItemScalarFieldEnum = (typeof AssessmentDimensionLibraryItemScalarFieldEnum)[keyof typeof AssessmentDimensionLibraryItemScalarFieldEnum]
+
+
+export const AssessmentTraitBandInterpretationScalarFieldEnum = {
+  id: 'id',
+  traitId: 'traitId',
+  band: 'band',
+  minScore: 'minScore',
+  maxScore: 'maxScore',
+  interpretation: 'interpretation',
+  recommendation: 'recommendation',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AssessmentTraitBandInterpretationScalarFieldEnum = (typeof AssessmentTraitBandInterpretationScalarFieldEnum)[keyof typeof AssessmentTraitBandInterpretationScalarFieldEnum]
+
+
+export const AssessmentRiskInterpretationScalarFieldEnum = {
+  id: 'id',
+  riskLevel: 'riskLevel',
+  label: 'label',
+  interpretation: 'interpretation',
+  actionGuidance: 'actionGuidance',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AssessmentRiskInterpretationScalarFieldEnum = (typeof AssessmentRiskInterpretationScalarFieldEnum)[keyof typeof AssessmentRiskInterpretationScalarFieldEnum]
+
+
+export const AssessmentReadinessInterpretationScalarFieldEnum = {
+  id: 'id',
+  band: 'band',
+  label: 'label',
+  minScore: 'minScore',
+  maxScore: 'maxScore',
+  interpretation: 'interpretation',
+  actionGuidance: 'actionGuidance',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AssessmentReadinessInterpretationScalarFieldEnum = (typeof AssessmentReadinessInterpretationScalarFieldEnum)[keyof typeof AssessmentReadinessInterpretationScalarFieldEnum]
+
+
+export const AssessmentSsbOlqScalarFieldEnum = {
+  id: 'id',
+  slug: 'slug',
+  name: 'name',
+  definition: 'definition',
+  defenceRelevance: 'defenceRelevance',
+  assessmentRelevance: 'assessmentRelevance',
+  riskRelevance: 'riskRelevance',
+  metadata: 'metadata',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AssessmentSsbOlqScalarFieldEnum = (typeof AssessmentSsbOlqScalarFieldEnum)[keyof typeof AssessmentSsbOlqScalarFieldEnum]
+
+
+export const AssessmentSsbOlqMappingScalarFieldEnum = {
+  id: 'id',
+  olqId: 'olqId',
+  sourceType: 'sourceType',
+  sourceName: 'sourceName',
+  sourceId: 'sourceId',
+  weight: 'weight',
+  metadata: 'metadata',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AssessmentSsbOlqMappingScalarFieldEnum = (typeof AssessmentSsbOlqMappingScalarFieldEnum)[keyof typeof AssessmentSsbOlqMappingScalarFieldEnum]
+
+
+export const AssessmentSsbOlqInterpretationScalarFieldEnum = {
+  id: 'id',
+  olqId: 'olqId',
+  band: 'band',
+  minScore: 'minScore',
+  maxScore: 'maxScore',
+  interpretation: 'interpretation',
+  mentorGuidance: 'mentorGuidance',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AssessmentSsbOlqInterpretationScalarFieldEnum = (typeof AssessmentSsbOlqInterpretationScalarFieldEnum)[keyof typeof AssessmentSsbOlqInterpretationScalarFieldEnum]
 
 
 export const OLQScoreScalarFieldEnum = {

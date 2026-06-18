@@ -160,7 +160,7 @@ export const dashboardService = {
     const upcomingEnd = new Date(todayStart);
     upcomingEnd.setDate(upcomingEnd.getDate() + 14);
 
-    const [enrollments, batchEnrollments, liveTests, attendanceRows, leaderboard, studentCount, recommendations, fitness, lectureProgress, attempts, psychometricAttempts] = await Promise.all([
+    const [enrollments, batchEnrollments, attendanceRows, leaderboard, studentCount, recommendations, fitness, lectureProgress, attempts, psychometricAttempts] = await Promise.all([
       prisma.enrollment.findMany({
         where: { userId: user.id },
         orderBy: { enrolledAt: "desc" },
@@ -171,7 +171,6 @@ export const dashboardService = {
         include: { batch: { include: { course: { select: { id: true, title: true, slug: true, category: true, examType: true, duration: true } }, _count: { select: { teachers: true, tests: true } } } } },
         orderBy: { joinedAt: "desc" }
       }),
-      prisma.test.findMany({ where: { isLive: true }, orderBy: { createdAt: "desc" }, take: 5, include: { _count: { select: { questions: true } } } }),
       prisma.attendance.findMany({ where: { userId: user.id }, orderBy: { date: "asc" } }),
       prisma.leaderboard.findUnique({ where: { userId: user.id } }),
       prisma.user.count({ where: { role: "STUDENT" } }),
@@ -188,6 +187,15 @@ export const dashboardService = {
     const present = attendanceRows.filter((row) => attendanceStatus(row.status) === "PRESENT").length;
     const assessmentProfile = buildAssessmentProfile(psychometricAttempts);
     const studentBatchNames = batchEnrollments.map((enrollment) => enrollment.batch.name);
+    const studentBatchIds = batchEnrollments.map((enrollment) => enrollment.batchId);
+    const liveTests = studentBatchIds.length
+      ? await prisma.test.findMany({
+          where: { isLive: true, batchId: { in: studentBatchIds }, status: "PUBLISHED" },
+          orderBy: { createdAt: "desc" },
+          take: 5,
+          include: { _count: { select: { questions: true } } }
+        })
+      : [];
     const [todayClasses, upcomingClasses] = studentBatchNames.length
       ? await Promise.all([
           prisma.timetable.findMany({ where: { batch: { in: studentBatchNames }, startTime: { gte: todayStart, lt: endOfToday() } }, orderBy: { startTime: "asc" }, take: 8 }),

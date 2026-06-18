@@ -69,3 +69,43 @@ export const OtpType = {
 } as const
 
 export type OtpType = (typeof OtpType)[keyof typeof OtpType]
+
+
+export const AssessmentStatus = {
+  DRAFT: 'DRAFT',
+  REVIEW: 'REVIEW',
+  PILOT: 'PILOT',
+  APPROVED: 'APPROVED',
+  PUBLISHED: 'PUBLISHED',
+  DEPRECATED: 'DEPRECATED',
+  RETIRED: 'RETIRED'
+} as const
+
+export type AssessmentStatus = (typeof AssessmentStatus)[keyof typeof AssessmentStatus]
+
+
+export const AssessmentQuestionType = {
+  BEHAVIOURAL: 'BEHAVIOURAL',
+  SITUATIONAL: 'SITUATIONAL',
+  DECISION: 'DECISION',
+  PRESSURE: 'PRESSURE',
+  LEADERSHIP: 'LEADERSHIP',
+  GROUP_DYNAMICS: 'GROUP_DYNAMICS',
+  DISCIPLINE: 'DISCIPLINE',
+  EXAM: 'EXAM',
+  FITNESS: 'FITNESS',
+  SSB: 'SSB',
+  RANK_PREDICTION: 'RANK_PREDICTION'
+} as const
+
+export type AssessmentQuestionType = (typeof AssessmentQuestionType)[keyof typeof AssessmentQuestionType]
+
+
+export const AssessmentReviewStatus = {
+  PENDING: 'PENDING',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED',
+  REVISION_REQUIRED: 'REVISION_REQUIRED'
+} as const
+
+export type AssessmentReviewStatus = (typeof AssessmentReviewStatus)[keyof typeof AssessmentReviewStatus]

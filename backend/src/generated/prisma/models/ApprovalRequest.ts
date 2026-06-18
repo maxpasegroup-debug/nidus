@@ -683,14 +683,6 @@ export type ApprovalRequestUncheckedUpdateManyWithoutAdmissionNestedInput = {
   deleteMany?: Prisma.ApprovalRequestScalarWhereInput | Prisma.ApprovalRequestScalarWhereInput[]
 }
 
-export type NullableFloatFieldUpdateOperationsInput = {
-  set?: number | null
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
-}
-
 export type ApprovalRequestCreateWithoutRequesterInput = {
   id?: string
   type: string
