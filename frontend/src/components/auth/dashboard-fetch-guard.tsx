@@ -5,23 +5,6 @@ import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/components/providers/auth-provider-v2";
 import { canAccessDashboardPath, effectiveDashboardPath } from "@/lib/dashboard-data";
 
-const TOKEN_KEYS = ["token", "accessToken", "authToken", "nidus_token"];
-
-function getStoredToken() {
-  if (typeof window === "undefined") {
-    return null;
-  }
-
-  for (const key of TOKEN_KEYS) {
-    const value = window.localStorage.getItem(key);
-    if (value) {
-      return value;
-    }
-  }
-
-  return null;
-}
-
 function isInternalApiRequest(input: RequestInfo | URL) {
   const url = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
   return url.startsWith("/api/") || url.includes("/api/");
@@ -42,16 +25,16 @@ export function DashboardFetchGuard({ children }: { children: ReactNode }) {
       }
 
       const headers = new Headers(init?.headers);
-      const token = getStoredToken();
-
-      if (token && !headers.has("Authorization")) {
-        headers.set("Authorization", `Bearer ${token}`);
-      }
 
       return originalFetch(input, {
         ...init,
         credentials: init?.credentials ?? "include",
         headers,
+      }).then((response) => {
+        if (response.status === 401 && !window.location.pathname.startsWith("/login")) {
+          window.dispatchEvent(new CustomEvent("nidus:session-expired"));
+        }
+        return response;
       });
     };
 

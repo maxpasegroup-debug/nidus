@@ -15,6 +15,19 @@ type AuthContextType = {
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const LEGACY_AUTH_STORAGE_KEYS = ["user", "token", "accessToken", "authToken", "nidus_token"];
+
+function clearLegacyAuthStorage() {
+  if (typeof window === "undefined") return;
+  for (const key of LEGACY_AUTH_STORAGE_KEYS) {
+    window.localStorage.removeItem(key);
+  }
+}
+
+function cacheVerifiedUser(user: AuthUser) {
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem("user", JSON.stringify(user));
+}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
@@ -25,9 +38,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const refreshUser = useCallback(async () => {
     try {
       const currentUser = await getMe();
+      cacheVerifiedUser(currentUser);
       setUser(currentUser);
       return currentUser;
     } catch (_error) {
+      clearLegacyAuthStorage();
       setUser(null);
       return null;
     }
@@ -35,6 +50,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = useCallback(async () => {
     await logoutApi().catch(() => undefined);
+    clearLegacyAuthStorage();
     setUser(null);
     showToast("Logged out successfully", "success");
     router.replace("/");
@@ -46,6 +62,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     function handleSessionExpired() {
+      clearLegacyAuthStorage();
       setUser(null);
       if (!["/", "/login", "/register", "/contact", "/forgot-password", "/reset-password"].includes(window.location.pathname)) {
         showToast("Session expired. Please log in again.", "error");
