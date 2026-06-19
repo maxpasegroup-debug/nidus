@@ -250,6 +250,17 @@ export type TeacherView = "classes" | "exams" | "assignments" | "attendance" | "
 function resolveApiBase() {
   const configured = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_API_BASE_URL || "";
   const trimmed = configured.replace(/\/+$/, "");
+  if (typeof window !== "undefined" && trimmed) {
+    try {
+      const configuredUrl = new URL(trimmed);
+      const currentHost = window.location.hostname;
+      if (currentHost === "nidusacademy.in" && configuredUrl.hostname !== currentHost) {
+        return "";
+      }
+    } catch {
+      return "";
+    }
+  }
   return trimmed.endsWith("/api") ? trimmed.slice(0, -4) : trimmed;
 }
 

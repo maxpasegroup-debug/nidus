@@ -1217,8 +1217,9 @@ export const academyService = {
 
     const batches = await hydrateTeachingPlanBatches(rows);
     const batchIds = batches.map((batch: any) => batch.id).filter(Boolean);
+    const academicHeadWorkspace = isAcademicHeadWorkspace(user);
     const calendar = batchIds.length
-      ? teacherWorkspace
+      ? teacherWorkspace && !academicHeadWorkspace
         ? await prisma.$queryRaw<AcademicCalendarRow[]>`
             SELECT * FROM "AcademicCalendarItem"
             WHERE "batchId" IN (${Prisma.join(batchIds)})
