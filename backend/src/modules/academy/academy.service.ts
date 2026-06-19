@@ -1388,6 +1388,7 @@ export const academyService = {
       subjects: input.subjects || [],
       dashboardTemplate: input.dashboardTemplate || (input.designation?.toLowerCase().includes("academic head") ? "ACADEMIC_HEAD" : null),
       status: "ACTIVE",
+      defaultPassword: true,
       createdBy: user.id,
       credentialGeneratedAt: new Date().toISOString(),
     });
@@ -1399,7 +1400,6 @@ export const academyService = {
         mobile: input.phone || "",
         role: input.role,
         password,
-        mustChangePassword: true,
         roleMetadata,
       },
       select: {
@@ -1483,6 +1483,7 @@ export const academyService = {
         mustChangePassword: true,
         roleMetadata: toJsonObject({
           ...existingMetadata,
+          defaultPassword: true,
           passwordResetBy: user.id,
           passwordResetAt: new Date().toISOString(),
         }),
