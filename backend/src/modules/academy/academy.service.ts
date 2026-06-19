@@ -298,6 +298,12 @@ function isAcademicManager(user: Requester) {
   );
 }
 
+function isAcademicHeadWorkspace(user: Requester) {
+  const template = staffTemplate(user);
+  const designation = typeof user.roleMetadata?.designation === "string" ? user.roleMetadata.designation : "";
+  return user.role === Role.ACADEMIC_HEAD || template === "ACADEMIC_HEAD" || designation.toLowerCase().includes("academic head");
+}
+
 function requireEmployeeCreationAccess(user: Requester, input: EmployeeInput) {
   if (isManagement(user)) return;
   if (!isAcademicManager(user)) {
@@ -309,7 +315,7 @@ function requireEmployeeCreationAccess(user: Requester, input: EmployeeInput) {
 }
 
 function usesTeacherWorkspace(user: Requester) {
-  return user.role === Role.TEACHER || user.role === Role.ACADEMIC_HEAD || user.role === Role.PHYSICAL_TRAINER || staffTemplate(user) === "ACADEMIC_HEAD";
+  return user.role === Role.TEACHER || user.role === Role.PHYSICAL_TRAINER || isAcademicHeadWorkspace(user);
 }
 
 function isTeacherClassAllocation(row: BatchTeacherAssignmentRow) {
@@ -317,8 +323,10 @@ function isTeacherClassAllocation(row: BatchTeacherAssignmentRow) {
 }
 
 function isVisibleTeacherWorkspaceAllocation(row: BatchTeacherAssignmentRow, user: Requester) {
+  if (isAcademicHeadWorkspace(user)) {
+    return row.status === "ACTIVE" && (row.role === "Subject Teacher" || (row.role === "ACADEMIC_HEAD" && row.subject === "Academic Coordination"));
+  }
   if (!isTeacherClassAllocation(row)) return false;
-  if (user.role === Role.ACADEMIC_HEAD || staffTemplate(user) === "ACADEMIC_HEAD") return row.role === "Subject Teacher";
   return true;
 }
 
@@ -584,6 +592,37 @@ async function hydrateBatchesForAssignments(assignments: BatchTeacherAssignmentR
       };
     })
     .filter(Boolean);
+}
+
+async function hydrateTeachingPlanBatches(assignments: BatchTeacherAssignmentRow[]) {
+  const batchIds = Array.from(new Set(assignments.map((assignment) => assignment.batchId)));
+  if (!batchIds.length) {
+    return [];
+  }
+
+  const batches = await batchWithCounts({ where: { id: { in: batchIds }, status: "ACTIVE" } });
+  const batchList = Array.isArray(batches) ? batches : batches ? [batches] : [];
+  const assignmentMap = new Map<string, BatchTeacherAssignmentRow[]>();
+  for (const assignment of assignments) {
+    const batchAssignments = assignmentMap.get(assignment.batchId) ?? [];
+    batchAssignments.push(assignment);
+    assignmentMap.set(assignment.batchId, batchAssignments);
+  }
+
+  return batchList.map((batch: any) => {
+    const batchAssignments = assignmentMap.get(batch.id) ?? [];
+    const teachingAssignments = batchAssignments.filter((assignment) => isTeacherClassAllocation(assignment));
+    const assignedSubjects = Array.from(new Set(teachingAssignments.map((assignment) => assignment.subject).filter(Boolean)));
+    const primaryAssignment = teachingAssignments[0] ?? batchAssignments[0] ?? null;
+
+    return {
+      ...batch,
+      subject: assignedSubjects.join(", ") || primaryAssignment?.subject || null,
+      assignedSubjects,
+      role: batchAssignments.some((assignment) => assignment.role === "ACADEMIC_HEAD") ? "ACADEMIC_HEAD" : primaryAssignment?.role,
+      assignmentId: primaryAssignment?.id,
+    };
+  });
 }
 
 function progressColor(completionStatus?: string) {
@@ -1176,8 +1215,8 @@ export const academyService = {
         `;
     const rows = mergeAssignments(normalizedRows, legacyRows).filter((row) => (teacherWorkspace ? isVisibleTeacherWorkspaceAllocation(row, user) : true));
 
-    const batches = await hydrateBatchesForAssignments(rows);
-    const batchIds = rows.map((row) => row.batchId);
+    const batches = await hydrateTeachingPlanBatches(rows);
+    const batchIds = batches.map((batch: any) => batch.id).filter(Boolean);
     const calendar = batchIds.length
       ? teacherWorkspace
         ? await prisma.$queryRaw<AcademicCalendarRow[]>`
