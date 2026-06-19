@@ -833,6 +833,15 @@ function sanitizeCalendarRow(row: AcademicCalendarRow) {
   };
 }
 
+function isTemporaryActivationCalendarRow(row: AcademicCalendarRow) {
+  const topic = String(row.topic || "").trim().toLowerCase();
+  const nextAction = String(row.nextAction || "").trim().toLowerCase();
+  return (
+    nextAction === "conduct class and mark attendance" ||
+    ["number system basics", "modern india basics", "motion basics", "indian geography basics", "grammar foundation"].includes(topic)
+  );
+}
+
 function normalizeBatchWithCountsOptions(options?: BatchWithCountsOptions) {
   if (typeof options === "string") {
     return { batchId: options };
@@ -904,11 +913,12 @@ async function batchWithCounts(options?: BatchWithCountsOptions) {
   const teacherIds = Array.from(new Set(teacherAssignments.map((assignment) => assignment.teacherId)));
   const teacherUsers = teacherIds.length
     ? await prisma.user.findMany({
-        where: { id: { in: teacherIds } },
+        where: { id: { in: teacherIds }, isDisabled: false },
         select: { id: true, name: true, email: true, mobile: true, role: true },
       })
     : [];
   const teacherMap = new Map(teacherUsers.map((teacher) => [teacher.id, teacher]));
+  const visibleTeacherAssignments = teacherAssignments.filter((assignment) => teacherMap.has(assignment.teacherId));
 
   const hydrated = batches.map((batch: any) => ({
     ...batch,
@@ -917,7 +927,7 @@ async function batchWithCounts(options?: BatchWithCountsOptions) {
       user: userMap.get(student.studentId) ?? null,
       student: userMap.get(student.studentId) ?? null,
     })),
-    teachers: teacherAssignments
+    teachers: visibleTeacherAssignments
       .filter((assignment) => assignment.batchId === batch.id)
       .map((assignment) => ({
         ...assignment,
@@ -925,7 +935,7 @@ async function batchWithCounts(options?: BatchWithCountsOptions) {
       })),
     _count: {
       ...(batch._count ?? {}),
-      teachers: teacherAssignments.filter((assignment) => assignment.batchId === batch.id).length,
+      teachers: visibleTeacherAssignments.filter((assignment) => assignment.batchId === batch.id).length,
     },
   }));
 
@@ -1236,7 +1246,7 @@ export const academyService = {
     return {
       assignments: batches,
       batches,
-      calendar: calendar.map(sanitizeCalendarRow),
+      calendar: calendar.filter((row) => !isTemporaryActivationCalendarRow(row)).map(sanitizeCalendarRow),
     };
   },
 
@@ -1528,7 +1538,7 @@ export const academyService = {
             ORDER BY "plannedDate" ASC, "startTime" ASC
           `;
 
-    return rows.map(sanitizeCalendarRow);
+    return rows.filter((row) => !isTemporaryActivationCalendarRow(row)).map(sanitizeCalendarRow);
   },
 
   async createAcademicCalendarItem(user: Requester, input: AcademicCalendarInput) {
@@ -2292,7 +2302,7 @@ export const academyService = {
     `;
     const today = new Date();
     const groups = new Map<string, any>();
-    for (const item of rows) {
+    for (const item of rows.filter((row) => !isTemporaryActivationCalendarRow(row))) {
       const key = `${item.batchId || "none"}:${item.teacherId || "none"}:${item.subject}`;
       const current = groups.get(key) ?? {
         batchId: item.batchId,

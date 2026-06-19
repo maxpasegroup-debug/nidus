@@ -50,7 +50,7 @@ type AssignedClass = {
   course?: { title?: string | null; name?: string | null; slug?: string | null } | null;
   _count?: { students?: number; teachers?: number } | null;
   students?: Array<{ id?: string; student?: AssignedStudent | null; status?: string | null }>;
-  teachers?: Array<{ subject?: string | null; teacher?: { id?: string; name?: string | null; email?: string | null } | null }>;
+  teachers?: Array<{ subject?: string | null; role?: string | null; teacher?: { id?: string; name?: string | null; email?: string | null } | null }>;
 };
 
 type CalendarItem = {
@@ -511,6 +511,43 @@ function classStatus(item: CalendarItem | LiveClassRecord) {
   return status ? status.replace(/_/g, " ").toLowerCase().replace(/\b\w/g, (char) => char.toUpperCase()) : "Upcoming";
 }
 
+function displayTime(value?: string | null) {
+  if (!value) return "Time pending";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+}
+
+function displayDate(value?: string | null) {
+  if (!value) return "Date pending";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return date.toLocaleDateString([], { day: "2-digit", month: "short" });
+}
+
+function teacherCategory(subjects: string[], roles: string[] = []) {
+  const combined = [...subjects, ...roles].join(" ").toLowerCase();
+  if (combined.includes("physical")) return "Physical Trainers";
+  if (combined.includes("academic_head") || combined.includes("academic head") || combined.includes("academic coordination")) return "Academic Heads";
+  return "Subject Teachers";
+}
+
+function teacherCategoryOrder(category: string) {
+  if (category === "Academic Heads") return 0;
+  if (category === "Subject Teachers") return 1;
+  if (category === "Physical Trainers") return 2;
+  return 3;
+}
+
+function isTemporaryActivationCalendarItem(item: CalendarItem) {
+  const topic = (item.topic || "").trim().toLowerCase();
+  const nextAction = (item.nextAction || "").trim().toLowerCase();
+  return (
+    nextAction === "conduct class and mark attendance" ||
+    ["number system basics", "modern india basics", "motion basics", "indian geography basics", "grammar foundation"].includes(topic)
+  );
+}
+
 function statusHealth(value: number) {
   if (value >= 75) return "Healthy";
   if (value >= 45) return "Attention Needed";
@@ -765,7 +802,8 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
         return {
           id: `calendar-${item.id}`,
           batchId: batch?.id || item.batchId || "",
-          time: item.startTime || "Time pending",
+          date: displayDate(item.plannedDate),
+          time: displayTime(item.startTime || item.plannedDate),
           batchName: item.batchName || batch?.name || "Batch pending",
           programName: batch ? programName(batch) : "Program",
           subject: item.subject || batch?.subject || "Subject",
@@ -774,24 +812,8 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
           status: classStatus(item),
         };
       });
-    const liveOps = liveClasses
-      .filter((item) => item.scheduledAt.slice(0, 10) === today)
-      .map((item) => {
-        const batch = activeClasses.find((entry) => entry.id === item.batchId);
-        return {
-          id: `live-${item.id}`,
-          batchId: batch?.id || item.batchId || "",
-          time: new Date(item.scheduledAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-          batchName: batch?.name || item.title || "Live class",
-          programName: batch ? programName(batch) : item.programSlug || "Program",
-          subject: item.subject || batch?.subject || "Subject",
-          topic: item.topic || item.title || "Topic pending",
-          teacherName: item.instructorName || (batch ? teacherNameForBatch(batch, item.subject) : "Teacher pending"),
-          status: classStatus(item),
-        };
-      });
-    return [...calendarOps, ...liveOps].sort((a, b) => a.time.localeCompare(b.time));
-  }, [activeClasses, calendar, liveClasses]);
+    return calendarOps.sort((a, b) => a.time.localeCompare(b.time));
+  }, [activeClasses, calendar]);
   const academicOperationsStats = useMemo(() => {
     const completed = todayOperations.filter((item) => item.status === "Completed").length;
     const live = todayOperations.filter((item) => item.status === "Live").length;
@@ -836,6 +858,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
       examsPublished: number;
       materialsUploaded: number;
       lastActivity: string;
+      roles: Set<string>;
     }>();
     for (const batch of activeClasses) {
       for (const allocation of batch.teachers ?? []) {
@@ -853,9 +876,11 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
           examsPublished: 0,
           materialsUploaded: 0,
           lastActivity: "No activity yet",
+          roles: new Set<string>(),
         };
         current.batches.add(batch.name);
         if (allocation.subject) current.subjects.add(allocation.subject);
+        if (allocation.role) current.roles.add(allocation.role);
         map.set(id, current);
       }
     }
@@ -874,8 +899,10 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
       ...entry,
       subjects: Array.from(entry.subjects),
       batches: Array.from(entry.batches),
+      roles: Array.from(entry.roles),
+      category: teacherCategory(Array.from(entry.subjects), Array.from(entry.roles)),
       status: entry.classesConducted || entry.attendanceEntries || entry.assignmentsPublished || entry.examsPublished || entry.materialsUploaded ? "Active" : "Needs Attention",
-    }));
+    })).sort((a, b) => teacherCategoryOrder(a.category) - teacherCategoryOrder(b.category) || a.name.localeCompare(b.name));
   }, [activeClasses, classWorkspace, selectedClass]);
 
   async function loadTeachingPlan() {
@@ -887,7 +914,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
         apiGet<{ liveClasses?: LiveClassRecord[] }>(["/api/live-classes"]).catch(() => null),
       ]);
       const assigned = normalizeAssignedClasses(data);
-      const plannedCalendar = Array.isArray(data) ? [] : data?.calendar ?? [];
+      const plannedCalendar = (Array.isArray(data) ? [] : data?.calendar ?? []).filter((item) => !isTemporaryActivationCalendarItem(item));
       const rememberedBatchId = typeof window !== "undefined" ? window.localStorage.getItem("teacherSelectedBatchId") : null;
       const rememberedBatch = rememberedBatchId ? assigned.find((batch) => batch.id === rememberedBatchId) : null;
       setClasses(assigned);
@@ -2528,7 +2555,7 @@ function AcademicOperationsCommandCenter({
     assignmentPending: number;
     examPending: number;
   };
-  operations: Array<{ id: string; time: string; batchName: string; programName: string; subject: string; topic: string; teacherName: string; status: string }>;
+  operations: Array<{ id: string; date: string; time: string; batchName: string; programName: string; subject: string; topic: string; teacherName: string; status: string }>;
   batches: AssignedClass[];
   calendar: CalendarItem[];
   liveClassesByBatch: Map<string, LiveClassRecord[]>;
@@ -2546,6 +2573,8 @@ function AcademicOperationsCommandCenter({
     examsPublished: number;
     materialsUploaded: number;
     lastActivity: string;
+    roles: string[];
+    category: string;
     status: string;
   }>;
   dashboardBasePath: string;
@@ -2555,6 +2584,15 @@ function AcademicOperationsCommandCenter({
   const selectedBatch = batches.find((batch) => batch.id === selectedBatchId) ?? batches[0] ?? null;
   const selectedLiveClasses = selectedBatch ? liveClassesByBatch.get(selectedBatch.id) ?? [] : [];
   const selectedAverage = Math.round((selectedBatchHealth.attendance + selectedBatchHealth.assignments + selectedBatchHealth.exams) / 3);
+  const teacherOperationGroups = useMemo(() => {
+    const map = new Map<string, typeof teachers>();
+    for (const teacher of teachers) {
+      const current = map.get(teacher.category) ?? [];
+      current.push(teacher);
+      map.set(teacher.category, current);
+    }
+    return Array.from(map.entries()).sort(([a], [b]) => teacherCategoryOrder(a) - teacherCategoryOrder(b));
+  }, [teachers]);
 
   return (
     <>
@@ -2598,7 +2636,10 @@ function AcademicOperationsCommandCenter({
           <div className="mt-5 grid gap-3">
             {operations.map((item) => (
               <article key={item.id} className="grid gap-3 rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4 md:grid-cols-[110px_1fr_auto] md:items-center">
-                <p className="text-xl font-black">{item.time}</p>
+                <div>
+                  <p className="text-xs font-black uppercase tracking-[0.18em] text-[var(--muted-blue)]">{item.date}</p>
+                  <p className="mt-1 text-xl font-black">{item.time}</p>
+                </div>
                 <div>
                   <p className="text-xs font-black uppercase tracking-[0.22em] text-[var(--gold-dark)]">{item.programName}</p>
                   <h3 className="mt-1 text-lg font-black">{item.batchName}</h3>
@@ -2635,7 +2676,6 @@ function AcademicOperationsCommandCenter({
         <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {batches.map((batch) => {
             const subjects = subjectsForBatch(batch);
-            const teacherCount = batch._count?.teachers ?? batch.teachers?.length ?? 0;
             const students = batch.students?.length ?? batch._count?.students ?? 0;
             const upcomingClass = (liveClassesByBatch.get(batch.id) ?? [])[0];
             const calendarItem = calendar.find((item) => item.batchId === batch.id);
@@ -2648,7 +2688,6 @@ function AcademicOperationsCommandCenter({
                 <div className="mt-4 grid grid-cols-2 gap-2 text-xs font-black">
                   <span className="rounded-xl border border-current/20 px-3 py-2">{batch.batchType || "Mode pending"}</span>
                   <span className="rounded-xl border border-current/20 px-3 py-2">{students} students</span>
-                  <span className="rounded-xl border border-current/20 px-3 py-2">{teacherCount} teachers</span>
                   <span className="rounded-xl border border-current/20 px-3 py-2">{subjects.length} subjects</span>
                 </div>
                 <div className="mt-4 rounded-xl border border-current/20 p-3 text-sm">
@@ -2693,7 +2732,7 @@ function AcademicOperationsCommandCenter({
               items={(selectedBatch.teachers ?? []).map((entry, index) => ({
                 id: entry.teacher?.id || `${selectedBatch.id}-teacher-${index}`,
                 title: entry.teacher?.name || "Teacher pending",
-                meta: `${entry.subject || "Subject pending"} / ${entry.teacher?.email || "No email"}`,
+                meta: `${teacherCategory([entry.subject || ""], [entry.role || ""])} / ${entry.subject || "Subject pending"} / ${entry.teacher?.email || "No email"}`,
                 status: "Active",
               }))}
               empty="No teacher allocation found for this batch."
@@ -2738,25 +2777,35 @@ function AcademicOperationsCommandCenter({
           </div>
           <span className="rounded-full border border-[var(--border)] bg-[var(--page-bg)] px-4 py-2 text-xs font-black">{teachers.length} teacher(s)</span>
         </div>
-        <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {teachers.map((teacher) => (
-            <article key={teacher.id} className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <h3 className="text-xl font-black">{teacher.name}</h3>
-                  <p className="mt-1 text-sm text-[var(--muted-blue)]">{teacher.subjects.join(", ") || "Subject pending"}</p>
-                </div>
-                <span className={`rounded-full px-3 py-1 text-xs font-black ${statusTone(teacher.status)}`}>{teacher.status}</span>
+        <div className="mt-5 grid gap-5">
+          {teacherOperationGroups.map(([category, group]) => (
+            <div key={category}>
+              <div className="flex items-center justify-between gap-3">
+                <h3 className="text-sm font-black uppercase tracking-[0.24em] text-[var(--gold-dark)]">{category}</h3>
+                <span className="rounded-full border border-[var(--border)] bg-[var(--page-bg)] px-3 py-1 text-xs font-black">{group.length}</span>
               </div>
-              <div className="mt-4 grid grid-cols-2 gap-2 text-xs font-black">
-                <span className="rounded-xl bg-white p-2">{teacher.batches.length} batches</span>
-                <span className="rounded-xl bg-white p-2">{teacher.classesConducted} classes</span>
-                <span className="rounded-xl bg-white p-2">{teacher.attendanceEntries} attendance</span>
-                <span className="rounded-xl bg-white p-2">{teacher.assignmentsPublished} assignments</span>
-                <span className="rounded-xl bg-white p-2">{teacher.examsPublished} exams</span>
-                <span className="rounded-xl bg-white p-2">{teacher.materialsUploaded} materials</span>
+              <div className="mt-3 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                {group.map((teacher) => (
+                  <article key={teacher.id} className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <h4 className="text-xl font-black">{teacher.name}</h4>
+                        <p className="mt-1 text-sm text-[var(--muted-blue)]">{teacher.subjects.join(", ") || "Subject pending"}</p>
+                      </div>
+                      <span className={`rounded-full px-3 py-1 text-xs font-black ${statusTone(teacher.status)}`}>{teacher.status}</span>
+                    </div>
+                    <div className="mt-4 grid grid-cols-2 gap-2 text-xs font-black">
+                      <span className="rounded-xl bg-white p-2">{teacher.batches.length} batches</span>
+                      <span className="rounded-xl bg-white p-2">{teacher.classesConducted} classes</span>
+                      <span className="rounded-xl bg-white p-2">{teacher.attendanceEntries} attendance</span>
+                      <span className="rounded-xl bg-white p-2">{teacher.assignmentsPublished} assignments</span>
+                      <span className="rounded-xl bg-white p-2">{teacher.examsPublished} exams</span>
+                      <span className="rounded-xl bg-white p-2">{teacher.materialsUploaded} materials</span>
+                    </div>
+                  </article>
+                ))}
               </div>
-            </article>
+            </div>
           ))}
           {!teachers.length ? <EmptyState text="No teacher allocations are available yet." /> : null}
         </div>
