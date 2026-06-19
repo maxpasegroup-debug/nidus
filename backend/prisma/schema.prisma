@@ -642,9 +642,137 @@ model AssessmentArenaAssessment {
   growthSnapshots       AssessmentGrowthSnapshot[]
   rankPredictions       AssessmentRankPrediction[]
   reportSnapshots       AssessmentReportSnapshot[]
+  traitMappings         AssessmentTraitMapping[]
+  dimensionMappings     AssessmentDimensionMapping[]
+  questionBlueprint     AssessmentQuestionBlueprint?
+  traitBlueprints       AssessmentTraitBlueprint[]
+  dimensionBlueprints   AssessmentDimensionBlueprint[]
 
   @@index([status])
   @@index([level])
+}
+
+model AssessmentTraitMapping {
+  id                String                    @id @default(cuid())
+  assessmentId      String
+  traitId           String
+  weight            Float                     @default(0)
+  isCritical        Boolean                   @default(false)
+  isReadinessTrait  Boolean                   @default(true)
+  isRiskTrait       Boolean                   @default(false)
+  displayOrder      Int                       @default(1)
+  rationale         String?
+  createdAt         DateTime                  @default(now())
+  updatedAt         DateTime                  @updatedAt
+  assessment        AssessmentArenaAssessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  trait             AssessmentTraitLibraryItem @relation(fields: [traitId], references: [id], onDelete: Restrict)
+  dimensions        AssessmentDimensionMapping[]
+  blueprints        AssessmentTraitBlueprint[]
+
+  @@unique([assessmentId, traitId])
+  @@index([assessmentId])
+  @@index([traitId])
+  @@index([isCritical])
+  @@index([isReadinessTrait])
+  @@index([isRiskTrait])
+  @@index([displayOrder])
+}
+
+model AssessmentDimensionMapping {
+  id                  String                    @id @default(cuid())
+  assessmentId        String
+  traitMappingId      String
+  dimensionId         String
+  weight              Float                     @default(0)
+  priority            String                    @default("NORMAL")
+  difficultyRelevance String                    @default("LEVEL_1_TO_5")
+  minimumQuestions    Int                       @default(0)
+  recommendedQuestions Int                      @default(0)
+  idealQuestions      Int                       @default(0)
+  createdAt           DateTime                  @default(now())
+  updatedAt           DateTime                  @updatedAt
+  assessment          AssessmentArenaAssessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  traitMapping        AssessmentTraitMapping    @relation(fields: [traitMappingId], references: [id], onDelete: Cascade)
+  dimension           AssessmentDimensionLibraryItem @relation(fields: [dimensionId], references: [id], onDelete: Restrict)
+  blueprints          AssessmentDimensionBlueprint[]
+
+  @@unique([assessmentId, traitMappingId, dimensionId])
+  @@index([assessmentId])
+  @@index([traitMappingId])
+  @@index([dimensionId])
+  @@index([priority])
+  @@index([difficultyRelevance])
+}
+
+model AssessmentQuestionBlueprint {
+  id                      String                    @id @default(cuid())
+  assessmentId            String                    @unique
+  targetQuestionsPerAttempt Int
+  minimumBankSize         Int
+  recommendedBankSize     Int
+  idealBankSize           Int
+  difficultyDistribution  Json
+  integrityQuestionPercent Float                    @default(0)
+  contradictionQuestionPercent Float                @default(0)
+  reverseScoringPercent   Float                     @default(0)
+  riskDetectionPercent    Float                     @default(0)
+  questionTypeDistribution Json
+  status                  String                    @default("ACTIVE")
+  createdAt               DateTime                  @default(now())
+  updatedAt               DateTime                  @updatedAt
+  assessment              AssessmentArenaAssessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  traitBlueprints         AssessmentTraitBlueprint[]
+  dimensionBlueprints     AssessmentDimensionBlueprint[]
+
+  @@index([status])
+}
+
+model AssessmentTraitBlueprint {
+  id                      String                    @id @default(cuid())
+  assessmentId            String
+  questionBlueprintId     String
+  traitMappingId          String
+  targetQuestionCount     Int
+  weightPercent           Float
+  difficultyDistribution  Json
+  integrityQuestionPercent Float                    @default(0)
+  riskDetectionPercent    Float                     @default(0)
+  createdAt               DateTime                  @default(now())
+  updatedAt               DateTime                  @updatedAt
+  assessment              AssessmentArenaAssessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  questionBlueprint       AssessmentQuestionBlueprint @relation(fields: [questionBlueprintId], references: [id], onDelete: Cascade)
+  traitMapping            AssessmentTraitMapping    @relation(fields: [traitMappingId], references: [id], onDelete: Cascade)
+  dimensionBlueprints     AssessmentDimensionBlueprint[]
+
+  @@unique([questionBlueprintId, traitMappingId])
+  @@index([assessmentId])
+  @@index([questionBlueprintId])
+  @@index([traitMappingId])
+}
+
+model AssessmentDimensionBlueprint {
+  id                      String                    @id @default(cuid())
+  assessmentId            String
+  questionBlueprintId     String
+  traitBlueprintId        String
+  dimensionMappingId      String
+  targetQuestionCount     Int
+  questionTypes           Json
+  difficultyDistribution  Json
+  integrityQuestionPercent Float                    @default(0)
+  riskDetectionPercent    Float                     @default(0)
+  createdAt               DateTime                  @default(now())
+  updatedAt               DateTime                  @updatedAt
+  assessment              AssessmentArenaAssessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  questionBlueprint       AssessmentQuestionBlueprint @relation(fields: [questionBlueprintId], references: [id], onDelete: Cascade)
+  traitBlueprint          AssessmentTraitBlueprint  @relation(fields: [traitBlueprintId], references: [id], onDelete: Cascade)
+  dimensionMapping        AssessmentDimensionMapping @relation(fields: [dimensionMappingId], references: [id], onDelete: Cascade)
+
+  @@unique([questionBlueprintId, dimensionMappingId])
+  @@index([assessmentId])
+  @@index([questionBlueprintId])
+  @@index([traitBlueprintId])
+  @@index([dimensionMappingId])
 }
 
 model AssessmentTrait {
@@ -1233,6 +1361,7 @@ model AssessmentTraitLibraryItem {
   updatedAt           DateTime                            @updatedAt
   dimensions          AssessmentDimensionLibraryItem[]
   interpretations     AssessmentTraitBandInterpretation[]
+  assessmentMappings  AssessmentTraitMapping[]
 
   @@index([slug])
 }
@@ -1249,6 +1378,7 @@ model AssessmentDimensionLibraryItem {
   createdAt   DateTime                   @default(now())
   updatedAt   DateTime                   @updatedAt
   trait       AssessmentTraitLibraryItem  @relation(fields: [traitId], references: [id], onDelete: Cascade)
+  assessmentMappings AssessmentDimensionMapping[]
 
   @@unique([traitId, slug])
   @@index([traitId])

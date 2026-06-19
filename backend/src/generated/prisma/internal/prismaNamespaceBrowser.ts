@@ -77,6 +77,11 @@ export const ModelName = {
   PsychometricReport: 'PsychometricReport',
   PsychometricAnswer: 'PsychometricAnswer',
   AssessmentArenaAssessment: 'AssessmentArenaAssessment',
+  AssessmentTraitMapping: 'AssessmentTraitMapping',
+  AssessmentDimensionMapping: 'AssessmentDimensionMapping',
+  AssessmentQuestionBlueprint: 'AssessmentQuestionBlueprint',
+  AssessmentTraitBlueprint: 'AssessmentTraitBlueprint',
+  AssessmentDimensionBlueprint: 'AssessmentDimensionBlueprint',
   AssessmentTrait: 'AssessmentTrait',
   AssessmentDimension: 'AssessmentDimension',
   AssessmentQuestion: 'AssessmentQuestion',
@@ -664,6 +669,97 @@ export const AssessmentArenaAssessmentScalarFieldEnum = {
 } as const
 
 export type AssessmentArenaAssessmentScalarFieldEnum = (typeof AssessmentArenaAssessmentScalarFieldEnum)[keyof typeof AssessmentArenaAssessmentScalarFieldEnum]
+
+
+export const AssessmentTraitMappingScalarFieldEnum = {
+  id: 'id',
+  assessmentId: 'assessmentId',
+  traitId: 'traitId',
+  weight: 'weight',
+  isCritical: 'isCritical',
+  isReadinessTrait: 'isReadinessTrait',
+  isRiskTrait: 'isRiskTrait',
+  displayOrder: 'displayOrder',
+  rationale: 'rationale',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AssessmentTraitMappingScalarFieldEnum = (typeof AssessmentTraitMappingScalarFieldEnum)[keyof typeof AssessmentTraitMappingScalarFieldEnum]
+
+
+export const AssessmentDimensionMappingScalarFieldEnum = {
+  id: 'id',
+  assessmentId: 'assessmentId',
+  traitMappingId: 'traitMappingId',
+  dimensionId: 'dimensionId',
+  weight: 'weight',
+  priority: 'priority',
+  difficultyRelevance: 'difficultyRelevance',
+  minimumQuestions: 'minimumQuestions',
+  recommendedQuestions: 'recommendedQuestions',
+  idealQuestions: 'idealQuestions',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AssessmentDimensionMappingScalarFieldEnum = (typeof AssessmentDimensionMappingScalarFieldEnum)[keyof typeof AssessmentDimensionMappingScalarFieldEnum]
+
+
+export const AssessmentQuestionBlueprintScalarFieldEnum = {
+  id: 'id',
+  assessmentId: 'assessmentId',
+  targetQuestionsPerAttempt: 'targetQuestionsPerAttempt',
+  minimumBankSize: 'minimumBankSize',
+  recommendedBankSize: 'recommendedBankSize',
+  idealBankSize: 'idealBankSize',
+  difficultyDistribution: 'difficultyDistribution',
+  integrityQuestionPercent: 'integrityQuestionPercent',
+  contradictionQuestionPercent: 'contradictionQuestionPercent',
+  reverseScoringPercent: 'reverseScoringPercent',
+  riskDetectionPercent: 'riskDetectionPercent',
+  questionTypeDistribution: 'questionTypeDistribution',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AssessmentQuestionBlueprintScalarFieldEnum = (typeof AssessmentQuestionBlueprintScalarFieldEnum)[keyof typeof AssessmentQuestionBlueprintScalarFieldEnum]
+
+
+export const AssessmentTraitBlueprintScalarFieldEnum = {
+  id: 'id',
+  assessmentId: 'assessmentId',
+  questionBlueprintId: 'questionBlueprintId',
+  traitMappingId: 'traitMappingId',
+  targetQuestionCount: 'targetQuestionCount',
+  weightPercent: 'weightPercent',
+  difficultyDistribution: 'difficultyDistribution',
+  integrityQuestionPercent: 'integrityQuestionPercent',
+  riskDetectionPercent: 'riskDetectionPercent',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AssessmentTraitBlueprintScalarFieldEnum = (typeof AssessmentTraitBlueprintScalarFieldEnum)[keyof typeof AssessmentTraitBlueprintScalarFieldEnum]
+
+
+export const AssessmentDimensionBlueprintScalarFieldEnum = {
+  id: 'id',
+  assessmentId: 'assessmentId',
+  questionBlueprintId: 'questionBlueprintId',
+  traitBlueprintId: 'traitBlueprintId',
+  dimensionMappingId: 'dimensionMappingId',
+  targetQuestionCount: 'targetQuestionCount',
+  questionTypes: 'questionTypes',
+  difficultyDistribution: 'difficultyDistribution',
+  integrityQuestionPercent: 'integrityQuestionPercent',
+  riskDetectionPercent: 'riskDetectionPercent',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AssessmentDimensionBlueprintScalarFieldEnum = (typeof AssessmentDimensionBlueprintScalarFieldEnum)[keyof typeof AssessmentDimensionBlueprintScalarFieldEnum]
 
 
 export const AssessmentTraitScalarFieldEnum = {

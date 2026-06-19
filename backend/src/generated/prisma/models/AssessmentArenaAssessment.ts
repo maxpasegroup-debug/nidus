@@ -315,6 +315,11 @@ export type AssessmentArenaAssessmentWhereInput = {
   growthSnapshots?: Prisma.AssessmentGrowthSnapshotListRelationFilter
   rankPredictions?: Prisma.AssessmentRankPredictionListRelationFilter
   reportSnapshots?: Prisma.AssessmentReportSnapshotListRelationFilter
+  traitMappings?: Prisma.AssessmentTraitMappingListRelationFilter
+  dimensionMappings?: Prisma.AssessmentDimensionMappingListRelationFilter
+  questionBlueprint?: Prisma.XOR<Prisma.AssessmentQuestionBlueprintNullableScalarRelationFilter, Prisma.AssessmentQuestionBlueprintWhereInput> | null
+  traitBlueprints?: Prisma.AssessmentTraitBlueprintListRelationFilter
+  dimensionBlueprints?: Prisma.AssessmentDimensionBlueprintListRelationFilter
 }
 
 export type AssessmentArenaAssessmentOrderByWithRelationInput = {
@@ -343,6 +348,11 @@ export type AssessmentArenaAssessmentOrderByWithRelationInput = {
   growthSnapshots?: Prisma.AssessmentGrowthSnapshotOrderByRelationAggregateInput
   rankPredictions?: Prisma.AssessmentRankPredictionOrderByRelationAggregateInput
   reportSnapshots?: Prisma.AssessmentReportSnapshotOrderByRelationAggregateInput
+  traitMappings?: Prisma.AssessmentTraitMappingOrderByRelationAggregateInput
+  dimensionMappings?: Prisma.AssessmentDimensionMappingOrderByRelationAggregateInput
+  questionBlueprint?: Prisma.AssessmentQuestionBlueprintOrderByWithRelationInput
+  traitBlueprints?: Prisma.AssessmentTraitBlueprintOrderByRelationAggregateInput
+  dimensionBlueprints?: Prisma.AssessmentDimensionBlueprintOrderByRelationAggregateInput
 }
 
 export type AssessmentArenaAssessmentWhereUniqueInput = Prisma.AtLeast<{
@@ -374,6 +384,11 @@ export type AssessmentArenaAssessmentWhereUniqueInput = Prisma.AtLeast<{
   growthSnapshots?: Prisma.AssessmentGrowthSnapshotListRelationFilter
   rankPredictions?: Prisma.AssessmentRankPredictionListRelationFilter
   reportSnapshots?: Prisma.AssessmentReportSnapshotListRelationFilter
+  traitMappings?: Prisma.AssessmentTraitMappingListRelationFilter
+  dimensionMappings?: Prisma.AssessmentDimensionMappingListRelationFilter
+  questionBlueprint?: Prisma.XOR<Prisma.AssessmentQuestionBlueprintNullableScalarRelationFilter, Prisma.AssessmentQuestionBlueprintWhereInput> | null
+  traitBlueprints?: Prisma.AssessmentTraitBlueprintListRelationFilter
+  dimensionBlueprints?: Prisma.AssessmentDimensionBlueprintListRelationFilter
 }, "id" | "slug" | "name">
 
 export type AssessmentArenaAssessmentOrderByWithAggregationInput = {
@@ -444,6 +459,11 @@ export type AssessmentArenaAssessmentCreateInput = {
   growthSnapshots?: Prisma.AssessmentGrowthSnapshotCreateNestedManyWithoutAssessmentInput
   rankPredictions?: Prisma.AssessmentRankPredictionCreateNestedManyWithoutAssessmentInput
   reportSnapshots?: Prisma.AssessmentReportSnapshotCreateNestedManyWithoutAssessmentInput
+  traitMappings?: Prisma.AssessmentTraitMappingCreateNestedManyWithoutAssessmentInput
+  dimensionMappings?: Prisma.AssessmentDimensionMappingCreateNestedManyWithoutAssessmentInput
+  questionBlueprint?: Prisma.AssessmentQuestionBlueprintCreateNestedOneWithoutAssessmentInput
+  traitBlueprints?: Prisma.AssessmentTraitBlueprintCreateNestedManyWithoutAssessmentInput
+  dimensionBlueprints?: Prisma.AssessmentDimensionBlueprintCreateNestedManyWithoutAssessmentInput
 }
 
 export type AssessmentArenaAssessmentUncheckedCreateInput = {
@@ -472,6 +492,11 @@ export type AssessmentArenaAssessmentUncheckedCreateInput = {
   growthSnapshots?: Prisma.AssessmentGrowthSnapshotUncheckedCreateNestedManyWithoutAssessmentInput
   rankPredictions?: Prisma.AssessmentRankPredictionUncheckedCreateNestedManyWithoutAssessmentInput
   reportSnapshots?: Prisma.AssessmentReportSnapshotUncheckedCreateNestedManyWithoutAssessmentInput
+  traitMappings?: Prisma.AssessmentTraitMappingUncheckedCreateNestedManyWithoutAssessmentInput
+  dimensionMappings?: Prisma.AssessmentDimensionMappingUncheckedCreateNestedManyWithoutAssessmentInput
+  questionBlueprint?: Prisma.AssessmentQuestionBlueprintUncheckedCreateNestedOneWithoutAssessmentInput
+  traitBlueprints?: Prisma.AssessmentTraitBlueprintUncheckedCreateNestedManyWithoutAssessmentInput
+  dimensionBlueprints?: Prisma.AssessmentDimensionBlueprintUncheckedCreateNestedManyWithoutAssessmentInput
 }
 
 export type AssessmentArenaAssessmentUpdateInput = {
@@ -500,6 +525,11 @@ export type AssessmentArenaAssessmentUpdateInput = {
   growthSnapshots?: Prisma.AssessmentGrowthSnapshotUpdateManyWithoutAssessmentNestedInput
   rankPredictions?: Prisma.AssessmentRankPredictionUpdateManyWithoutAssessmentNestedInput
   reportSnapshots?: Prisma.AssessmentReportSnapshotUpdateManyWithoutAssessmentNestedInput
+  traitMappings?: Prisma.AssessmentTraitMappingUpdateManyWithoutAssessmentNestedInput
+  dimensionMappings?: Prisma.AssessmentDimensionMappingUpdateManyWithoutAssessmentNestedInput
+  questionBlueprint?: Prisma.AssessmentQuestionBlueprintUpdateOneWithoutAssessmentNestedInput
+  traitBlueprints?: Prisma.AssessmentTraitBlueprintUpdateManyWithoutAssessmentNestedInput
+  dimensionBlueprints?: Prisma.AssessmentDimensionBlueprintUpdateManyWithoutAssessmentNestedInput
 }
 
 export type AssessmentArenaAssessmentUncheckedUpdateInput = {
@@ -528,6 +558,11 @@ export type AssessmentArenaAssessmentUncheckedUpdateInput = {
   growthSnapshots?: Prisma.AssessmentGrowthSnapshotUncheckedUpdateManyWithoutAssessmentNestedInput
   rankPredictions?: Prisma.AssessmentRankPredictionUncheckedUpdateManyWithoutAssessmentNestedInput
   reportSnapshots?: Prisma.AssessmentReportSnapshotUncheckedUpdateManyWithoutAssessmentNestedInput
+  traitMappings?: Prisma.AssessmentTraitMappingUncheckedUpdateManyWithoutAssessmentNestedInput
+  dimensionMappings?: Prisma.AssessmentDimensionMappingUncheckedUpdateManyWithoutAssessmentNestedInput
+  questionBlueprint?: Prisma.AssessmentQuestionBlueprintUncheckedUpdateOneWithoutAssessmentNestedInput
+  traitBlueprints?: Prisma.AssessmentTraitBlueprintUncheckedUpdateManyWithoutAssessmentNestedInput
+  dimensionBlueprints?: Prisma.AssessmentDimensionBlueprintUncheckedUpdateManyWithoutAssessmentNestedInput
 }
 
 export type AssessmentArenaAssessmentCreateManyInput = {
@@ -668,6 +703,76 @@ export type NullableIntFieldUpdateOperationsInput = {
   decrement?: number
   multiply?: number
   divide?: number
+}
+
+export type AssessmentArenaAssessmentCreateNestedOneWithoutTraitMappingsInput = {
+  create?: Prisma.XOR<Prisma.AssessmentArenaAssessmentCreateWithoutTraitMappingsInput, Prisma.AssessmentArenaAssessmentUncheckedCreateWithoutTraitMappingsInput>
+  connectOrCreate?: Prisma.AssessmentArenaAssessmentCreateOrConnectWithoutTraitMappingsInput
+  connect?: Prisma.AssessmentArenaAssessmentWhereUniqueInput
+}
+
+export type AssessmentArenaAssessmentUpdateOneRequiredWithoutTraitMappingsNestedInput = {
+  create?: Prisma.XOR<Prisma.AssessmentArenaAssessmentCreateWithoutTraitMappingsInput, Prisma.AssessmentArenaAssessmentUncheckedCreateWithoutTraitMappingsInput>
+  connectOrCreate?: Prisma.AssessmentArenaAssessmentCreateOrConnectWithoutTraitMappingsInput
+  upsert?: Prisma.AssessmentArenaAssessmentUpsertWithoutTraitMappingsInput
+  connect?: Prisma.AssessmentArenaAssessmentWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.AssessmentArenaAssessmentUpdateToOneWithWhereWithoutTraitMappingsInput, Prisma.AssessmentArenaAssessmentUpdateWithoutTraitMappingsInput>, Prisma.AssessmentArenaAssessmentUncheckedUpdateWithoutTraitMappingsInput>
+}
+
+export type AssessmentArenaAssessmentCreateNestedOneWithoutDimensionMappingsInput = {
+  create?: Prisma.XOR<Prisma.AssessmentArenaAssessmentCreateWithoutDimensionMappingsInput, Prisma.AssessmentArenaAssessmentUncheckedCreateWithoutDimensionMappingsInput>
+  connectOrCreate?: Prisma.AssessmentArenaAssessmentCreateOrConnectWithoutDimensionMappingsInput
+  connect?: Prisma.AssessmentArenaAssessmentWhereUniqueInput
+}
+
+export type AssessmentArenaAssessmentUpdateOneRequiredWithoutDimensionMappingsNestedInput = {
+  create?: Prisma.XOR<Prisma.AssessmentArenaAssessmentCreateWithoutDimensionMappingsInput, Prisma.AssessmentArenaAssessmentUncheckedCreateWithoutDimensionMappingsInput>
+  connectOrCreate?: Prisma.AssessmentArenaAssessmentCreateOrConnectWithoutDimensionMappingsInput
+  upsert?: Prisma.AssessmentArenaAssessmentUpsertWithoutDimensionMappingsInput
+  connect?: Prisma.AssessmentArenaAssessmentWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.AssessmentArenaAssessmentUpdateToOneWithWhereWithoutDimensionMappingsInput, Prisma.AssessmentArenaAssessmentUpdateWithoutDimensionMappingsInput>, Prisma.AssessmentArenaAssessmentUncheckedUpdateWithoutDimensionMappingsInput>
+}
+
+export type AssessmentArenaAssessmentCreateNestedOneWithoutQuestionBlueprintInput = {
+  create?: Prisma.XOR<Prisma.AssessmentArenaAssessmentCreateWithoutQuestionBlueprintInput, Prisma.AssessmentArenaAssessmentUncheckedCreateWithoutQuestionBlueprintInput>
+  connectOrCreate?: Prisma.AssessmentArenaAssessmentCreateOrConnectWithoutQuestionBlueprintInput
+  connect?: Prisma.AssessmentArenaAssessmentWhereUniqueInput
+}
+
+export type AssessmentArenaAssessmentUpdateOneRequiredWithoutQuestionBlueprintNestedInput = {
+  create?: Prisma.XOR<Prisma.AssessmentArenaAssessmentCreateWithoutQuestionBlueprintInput, Prisma.AssessmentArenaAssessmentUncheckedCreateWithoutQuestionBlueprintInput>
+  connectOrCreate?: Prisma.AssessmentArenaAssessmentCreateOrConnectWithoutQuestionBlueprintInput
+  upsert?: Prisma.AssessmentArenaAssessmentUpsertWithoutQuestionBlueprintInput
+  connect?: Prisma.AssessmentArenaAssessmentWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.AssessmentArenaAssessmentUpdateToOneWithWhereWithoutQuestionBlueprintInput, Prisma.AssessmentArenaAssessmentUpdateWithoutQuestionBlueprintInput>, Prisma.AssessmentArenaAssessmentUncheckedUpdateWithoutQuestionBlueprintInput>
+}
+
+export type AssessmentArenaAssessmentCreateNestedOneWithoutTraitBlueprintsInput = {
+  create?: Prisma.XOR<Prisma.AssessmentArenaAssessmentCreateWithoutTraitBlueprintsInput, Prisma.AssessmentArenaAssessmentUncheckedCreateWithoutTraitBlueprintsInput>
+  connectOrCreate?: Prisma.AssessmentArenaAssessmentCreateOrConnectWithoutTraitBlueprintsInput
+  connect?: Prisma.AssessmentArenaAssessmentWhereUniqueInput
+}
+
+export type AssessmentArenaAssessmentUpdateOneRequiredWithoutTraitBlueprintsNestedInput = {
+  create?: Prisma.XOR<Prisma.AssessmentArenaAssessmentCreateWithoutTraitBlueprintsInput, Prisma.AssessmentArenaAssessmentUncheckedCreateWithoutTraitBlueprintsInput>
+  connectOrCreate?: Prisma.AssessmentArenaAssessmentCreateOrConnectWithoutTraitBlueprintsInput
+  upsert?: Prisma.AssessmentArenaAssessmentUpsertWithoutTraitBlueprintsInput
+  connect?: Prisma.AssessmentArenaAssessmentWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.AssessmentArenaAssessmentUpdateToOneWithWhereWithoutTraitBlueprintsInput, Prisma.AssessmentArenaAssessmentUpdateWithoutTraitBlueprintsInput>, Prisma.AssessmentArenaAssessmentUncheckedUpdateWithoutTraitBlueprintsInput>
+}
+
+export type AssessmentArenaAssessmentCreateNestedOneWithoutDimensionBlueprintsInput = {
+  create?: Prisma.XOR<Prisma.AssessmentArenaAssessmentCreateWithoutDimensionBlueprintsInput, Prisma.AssessmentArenaAssessmentUncheckedCreateWithoutDimensionBlueprintsInput>
+  connectOrCreate?: Prisma.AssessmentArenaAssessmentCreateOrConnectWithoutDimensionBlueprintsInput
+  connect?: Prisma.AssessmentArenaAssessmentWhereUniqueInput
+}
+
+export type AssessmentArenaAssessmentUpdateOneRequiredWithoutDimensionBlueprintsNestedInput = {
+  create?: Prisma.XOR<Prisma.AssessmentArenaAssessmentCreateWithoutDimensionBlueprintsInput, Prisma.AssessmentArenaAssessmentUncheckedCreateWithoutDimensionBlueprintsInput>
+  connectOrCreate?: Prisma.AssessmentArenaAssessmentCreateOrConnectWithoutDimensionBlueprintsInput
+  upsert?: Prisma.AssessmentArenaAssessmentUpsertWithoutDimensionBlueprintsInput
+  connect?: Prisma.AssessmentArenaAssessmentWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.AssessmentArenaAssessmentUpdateToOneWithWhereWithoutDimensionBlueprintsInput, Prisma.AssessmentArenaAssessmentUpdateWithoutDimensionBlueprintsInput>, Prisma.AssessmentArenaAssessmentUncheckedUpdateWithoutDimensionBlueprintsInput>
 }
 
 export type AssessmentArenaAssessmentCreateNestedOneWithoutTraitsInput = {
@@ -830,6 +935,726 @@ export type AssessmentArenaAssessmentUpdateOneRequiredWithoutReportSnapshotsNest
   update?: Prisma.XOR<Prisma.XOR<Prisma.AssessmentArenaAssessmentUpdateToOneWithWhereWithoutReportSnapshotsInput, Prisma.AssessmentArenaAssessmentUpdateWithoutReportSnapshotsInput>, Prisma.AssessmentArenaAssessmentUncheckedUpdateWithoutReportSnapshotsInput>
 }
 
+export type AssessmentArenaAssessmentCreateWithoutTraitMappingsInput = {
+  id?: string
+  slug: string
+  name: string
+  level: string
+  purpose: string
+  description?: string | null
+  status?: $Enums.AssessmentStatus
+  recommendedMinutes?: number | null
+  minimumQuestionBank?: number
+  recommendedQuestionBank?: number
+  idealQuestionBank?: number
+  questionsPerAttempt?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  traits?: Prisma.AssessmentTraitCreateNestedManyWithoutAssessmentInput
+  dimensions?: Prisma.AssessmentDimensionCreateNestedManyWithoutAssessmentInput
+  questions?: Prisma.AssessmentQuestionCreateNestedManyWithoutAssessmentInput
+  reviews?: Prisma.AssessmentQuestionReviewCreateNestedManyWithoutAssessmentInput
+  reviewBoards?: Prisma.AssessmentReviewBoardCreateNestedManyWithoutAssessmentInput
+  pilotRuns?: Prisma.AssessmentPilotRunCreateNestedManyWithoutAssessmentInput
+  exposures?: Prisma.AssessmentQuestionExposureCreateNestedManyWithoutAssessmentInput
+  attempts?: Prisma.AssessmentAttemptCreateNestedManyWithoutAssessmentInput
+  growthSnapshots?: Prisma.AssessmentGrowthSnapshotCreateNestedManyWithoutAssessmentInput
+  rankPredictions?: Prisma.AssessmentRankPredictionCreateNestedManyWithoutAssessmentInput
+  reportSnapshots?: Prisma.AssessmentReportSnapshotCreateNestedManyWithoutAssessmentInput
+  dimensionMappings?: Prisma.AssessmentDimensionMappingCreateNestedManyWithoutAssessmentInput
+  questionBlueprint?: Prisma.AssessmentQuestionBlueprintCreateNestedOneWithoutAssessmentInput
+  traitBlueprints?: Prisma.AssessmentTraitBlueprintCreateNestedManyWithoutAssessmentInput
+  dimensionBlueprints?: Prisma.AssessmentDimensionBlueprintCreateNestedManyWithoutAssessmentInput
+}
+
+export type AssessmentArenaAssessmentUncheckedCreateWithoutTraitMappingsInput = {
+  id?: string
+  slug: string
+  name: string
+  level: string
+  purpose: string
+  description?: string | null
+  status?: $Enums.AssessmentStatus
+  recommendedMinutes?: number | null
+  minimumQuestionBank?: number
+  recommendedQuestionBank?: number
+  idealQuestionBank?: number
+  questionsPerAttempt?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  traits?: Prisma.AssessmentTraitUncheckedCreateNestedManyWithoutAssessmentInput
+  dimensions?: Prisma.AssessmentDimensionUncheckedCreateNestedManyWithoutAssessmentInput
+  questions?: Prisma.AssessmentQuestionUncheckedCreateNestedManyWithoutAssessmentInput
+  reviews?: Prisma.AssessmentQuestionReviewUncheckedCreateNestedManyWithoutAssessmentInput
+  reviewBoards?: Prisma.AssessmentReviewBoardUncheckedCreateNestedManyWithoutAssessmentInput
+  pilotRuns?: Prisma.AssessmentPilotRunUncheckedCreateNestedManyWithoutAssessmentInput
+  exposures?: Prisma.AssessmentQuestionExposureUncheckedCreateNestedManyWithoutAssessmentInput
+  attempts?: Prisma.AssessmentAttemptUncheckedCreateNestedManyWithoutAssessmentInput
+  growthSnapshots?: Prisma.AssessmentGrowthSnapshotUncheckedCreateNestedManyWithoutAssessmentInput
+  rankPredictions?: Prisma.AssessmentRankPredictionUncheckedCreateNestedManyWithoutAssessmentInput
+  reportSnapshots?: Prisma.AssessmentReportSnapshotUncheckedCreateNestedManyWithoutAssessmentInput
+  dimensionMappings?: Prisma.AssessmentDimensionMappingUncheckedCreateNestedManyWithoutAssessmentInput
+  questionBlueprint?: Prisma.AssessmentQuestionBlueprintUncheckedCreateNestedOneWithoutAssessmentInput
+  traitBlueprints?: Prisma.AssessmentTraitBlueprintUncheckedCreateNestedManyWithoutAssessmentInput
+  dimensionBlueprints?: Prisma.AssessmentDimensionBlueprintUncheckedCreateNestedManyWithoutAssessmentInput
+}
+
+export type AssessmentArenaAssessmentCreateOrConnectWithoutTraitMappingsInput = {
+  where: Prisma.AssessmentArenaAssessmentWhereUniqueInput
+  create: Prisma.XOR<Prisma.AssessmentArenaAssessmentCreateWithoutTraitMappingsInput, Prisma.AssessmentArenaAssessmentUncheckedCreateWithoutTraitMappingsInput>
+}
+
+export type AssessmentArenaAssessmentUpsertWithoutTraitMappingsInput = {
+  update: Prisma.XOR<Prisma.AssessmentArenaAssessmentUpdateWithoutTraitMappingsInput, Prisma.AssessmentArenaAssessmentUncheckedUpdateWithoutTraitMappingsInput>
+  create: Prisma.XOR<Prisma.AssessmentArenaAssessmentCreateWithoutTraitMappingsInput, Prisma.AssessmentArenaAssessmentUncheckedCreateWithoutTraitMappingsInput>
+  where?: Prisma.AssessmentArenaAssessmentWhereInput
+}
+
+export type AssessmentArenaAssessmentUpdateToOneWithWhereWithoutTraitMappingsInput = {
+  where?: Prisma.AssessmentArenaAssessmentWhereInput
+  data: Prisma.XOR<Prisma.AssessmentArenaAssessmentUpdateWithoutTraitMappingsInput, Prisma.AssessmentArenaAssessmentUncheckedUpdateWithoutTraitMappingsInput>
+}
+
+export type AssessmentArenaAssessmentUpdateWithoutTraitMappingsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  level?: Prisma.StringFieldUpdateOperationsInput | string
+  purpose?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumAssessmentStatusFieldUpdateOperationsInput | $Enums.AssessmentStatus
+  recommendedMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  minimumQuestionBank?: Prisma.IntFieldUpdateOperationsInput | number
+  recommendedQuestionBank?: Prisma.IntFieldUpdateOperationsInput | number
+  idealQuestionBank?: Prisma.IntFieldUpdateOperationsInput | number
+  questionsPerAttempt?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  traits?: Prisma.AssessmentTraitUpdateManyWithoutAssessmentNestedInput
+  dimensions?: Prisma.AssessmentDimensionUpdateManyWithoutAssessmentNestedInput
+  questions?: Prisma.AssessmentQuestionUpdateManyWithoutAssessmentNestedInput
+  reviews?: Prisma.AssessmentQuestionReviewUpdateManyWithoutAssessmentNestedInput
+  reviewBoards?: Prisma.AssessmentReviewBoardUpdateManyWithoutAssessmentNestedInput
+  pilotRuns?: Prisma.AssessmentPilotRunUpdateManyWithoutAssessmentNestedInput
+  exposures?: Prisma.AssessmentQuestionExposureUpdateManyWithoutAssessmentNestedInput
+  attempts?: Prisma.AssessmentAttemptUpdateManyWithoutAssessmentNestedInput
+  growthSnapshots?: Prisma.AssessmentGrowthSnapshotUpdateManyWithoutAssessmentNestedInput
+  rankPredictions?: Prisma.AssessmentRankPredictionUpdateManyWithoutAssessmentNestedInput
+  reportSnapshots?: Prisma.AssessmentReportSnapshotUpdateManyWithoutAssessmentNestedInput
+  dimensionMappings?: Prisma.AssessmentDimensionMappingUpdateManyWithoutAssessmentNestedInput
+  questionBlueprint?: Prisma.AssessmentQuestionBlueprintUpdateOneWithoutAssessmentNestedInput
+  traitBlueprints?: Prisma.AssessmentTraitBlueprintUpdateManyWithoutAssessmentNestedInput
+  dimensionBlueprints?: Prisma.AssessmentDimensionBlueprintUpdateManyWithoutAssessmentNestedInput
+}
+
+export type AssessmentArenaAssessmentUncheckedUpdateWithoutTraitMappingsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  level?: Prisma.StringFieldUpdateOperationsInput | string
+  purpose?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumAssessmentStatusFieldUpdateOperationsInput | $Enums.AssessmentStatus
+  recommendedMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  minimumQuestionBank?: Prisma.IntFieldUpdateOperationsInput | number
+  recommendedQuestionBank?: Prisma.IntFieldUpdateOperationsInput | number
+  idealQuestionBank?: Prisma.IntFieldUpdateOperationsInput | number
+  questionsPerAttempt?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  traits?: Prisma.AssessmentTraitUncheckedUpdateManyWithoutAssessmentNestedInput
+  dimensions?: Prisma.AssessmentDimensionUncheckedUpdateManyWithoutAssessmentNestedInput
+  questions?: Prisma.AssessmentQuestionUncheckedUpdateManyWithoutAssessmentNestedInput
+  reviews?: Prisma.AssessmentQuestionReviewUncheckedUpdateManyWithoutAssessmentNestedInput
+  reviewBoards?: Prisma.AssessmentReviewBoardUncheckedUpdateManyWithoutAssessmentNestedInput
+  pilotRuns?: Prisma.AssessmentPilotRunUncheckedUpdateManyWithoutAssessmentNestedInput
+  exposures?: Prisma.AssessmentQuestionExposureUncheckedUpdateManyWithoutAssessmentNestedInput
+  attempts?: Prisma.AssessmentAttemptUncheckedUpdateManyWithoutAssessmentNestedInput
+  growthSnapshots?: Prisma.AssessmentGrowthSnapshotUncheckedUpdateManyWithoutAssessmentNestedInput
+  rankPredictions?: Prisma.AssessmentRankPredictionUncheckedUpdateManyWithoutAssessmentNestedInput
+  reportSnapshots?: Prisma.AssessmentReportSnapshotUncheckedUpdateManyWithoutAssessmentNestedInput
+  dimensionMappings?: Prisma.AssessmentDimensionMappingUncheckedUpdateManyWithoutAssessmentNestedInput
+  questionBlueprint?: Prisma.AssessmentQuestionBlueprintUncheckedUpdateOneWithoutAssessmentNestedInput
+  traitBlueprints?: Prisma.AssessmentTraitBlueprintUncheckedUpdateManyWithoutAssessmentNestedInput
+  dimensionBlueprints?: Prisma.AssessmentDimensionBlueprintUncheckedUpdateManyWithoutAssessmentNestedInput
+}
+
+export type AssessmentArenaAssessmentCreateWithoutDimensionMappingsInput = {
+  id?: string
+  slug: string
+  name: string
+  level: string
+  purpose: string
+  description?: string | null
+  status?: $Enums.AssessmentStatus
+  recommendedMinutes?: number | null
+  minimumQuestionBank?: number
+  recommendedQuestionBank?: number
+  idealQuestionBank?: number
+  questionsPerAttempt?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  traits?: Prisma.AssessmentTraitCreateNestedManyWithoutAssessmentInput
+  dimensions?: Prisma.AssessmentDimensionCreateNestedManyWithoutAssessmentInput
+  questions?: Prisma.AssessmentQuestionCreateNestedManyWithoutAssessmentInput
+  reviews?: Prisma.AssessmentQuestionReviewCreateNestedManyWithoutAssessmentInput
+  reviewBoards?: Prisma.AssessmentReviewBoardCreateNestedManyWithoutAssessmentInput
+  pilotRuns?: Prisma.AssessmentPilotRunCreateNestedManyWithoutAssessmentInput
+  exposures?: Prisma.AssessmentQuestionExposureCreateNestedManyWithoutAssessmentInput
+  attempts?: Prisma.AssessmentAttemptCreateNestedManyWithoutAssessmentInput
+  growthSnapshots?: Prisma.AssessmentGrowthSnapshotCreateNestedManyWithoutAssessmentInput
+  rankPredictions?: Prisma.AssessmentRankPredictionCreateNestedManyWithoutAssessmentInput
+  reportSnapshots?: Prisma.AssessmentReportSnapshotCreateNestedManyWithoutAssessmentInput
+  traitMappings?: Prisma.AssessmentTraitMappingCreateNestedManyWithoutAssessmentInput
+  questionBlueprint?: Prisma.AssessmentQuestionBlueprintCreateNestedOneWithoutAssessmentInput
+  traitBlueprints?: Prisma.AssessmentTraitBlueprintCreateNestedManyWithoutAssessmentInput
+  dimensionBlueprints?: Prisma.AssessmentDimensionBlueprintCreateNestedManyWithoutAssessmentInput
+}
+
+export type AssessmentArenaAssessmentUncheckedCreateWithoutDimensionMappingsInput = {
+  id?: string
+  slug: string
+  name: string
+  level: string
+  purpose: string
+  description?: string | null
+  status?: $Enums.AssessmentStatus
+  recommendedMinutes?: number | null
+  minimumQuestionBank?: number
+  recommendedQuestionBank?: number
+  idealQuestionBank?: number
+  questionsPerAttempt?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  traits?: Prisma.AssessmentTraitUncheckedCreateNestedManyWithoutAssessmentInput
+  dimensions?: Prisma.AssessmentDimensionUncheckedCreateNestedManyWithoutAssessmentInput
+  questions?: Prisma.AssessmentQuestionUncheckedCreateNestedManyWithoutAssessmentInput
+  reviews?: Prisma.AssessmentQuestionReviewUncheckedCreateNestedManyWithoutAssessmentInput
+  reviewBoards?: Prisma.AssessmentReviewBoardUncheckedCreateNestedManyWithoutAssessmentInput
+  pilotRuns?: Prisma.AssessmentPilotRunUncheckedCreateNestedManyWithoutAssessmentInput
+  exposures?: Prisma.AssessmentQuestionExposureUncheckedCreateNestedManyWithoutAssessmentInput
+  attempts?: Prisma.AssessmentAttemptUncheckedCreateNestedManyWithoutAssessmentInput
+  growthSnapshots?: Prisma.AssessmentGrowthSnapshotUncheckedCreateNestedManyWithoutAssessmentInput
+  rankPredictions?: Prisma.AssessmentRankPredictionUncheckedCreateNestedManyWithoutAssessmentInput
+  reportSnapshots?: Prisma.AssessmentReportSnapshotUncheckedCreateNestedManyWithoutAssessmentInput
+  traitMappings?: Prisma.AssessmentTraitMappingUncheckedCreateNestedManyWithoutAssessmentInput
+  questionBlueprint?: Prisma.AssessmentQuestionBlueprintUncheckedCreateNestedOneWithoutAssessmentInput
+  traitBlueprints?: Prisma.AssessmentTraitBlueprintUncheckedCreateNestedManyWithoutAssessmentInput
+  dimensionBlueprints?: Prisma.AssessmentDimensionBlueprintUncheckedCreateNestedManyWithoutAssessmentInput
+}
+
+export type AssessmentArenaAssessmentCreateOrConnectWithoutDimensionMappingsInput = {
+  where: Prisma.AssessmentArenaAssessmentWhereUniqueInput
+  create: Prisma.XOR<Prisma.AssessmentArenaAssessmentCreateWithoutDimensionMappingsInput, Prisma.AssessmentArenaAssessmentUncheckedCreateWithoutDimensionMappingsInput>
+}
+
+export type AssessmentArenaAssessmentUpsertWithoutDimensionMappingsInput = {
+  update: Prisma.XOR<Prisma.AssessmentArenaAssessmentUpdateWithoutDimensionMappingsInput, Prisma.AssessmentArenaAssessmentUncheckedUpdateWithoutDimensionMappingsInput>
+  create: Prisma.XOR<Prisma.AssessmentArenaAssessmentCreateWithoutDimensionMappingsInput, Prisma.AssessmentArenaAssessmentUncheckedCreateWithoutDimensionMappingsInput>
+  where?: Prisma.AssessmentArenaAssessmentWhereInput
+}
+
+export type AssessmentArenaAssessmentUpdateToOneWithWhereWithoutDimensionMappingsInput = {
+  where?: Prisma.AssessmentArenaAssessmentWhereInput
+  data: Prisma.XOR<Prisma.AssessmentArenaAssessmentUpdateWithoutDimensionMappingsInput, Prisma.AssessmentArenaAssessmentUncheckedUpdateWithoutDimensionMappingsInput>
+}
+
+export type AssessmentArenaAssessmentUpdateWithoutDimensionMappingsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  level?: Prisma.StringFieldUpdateOperationsInput | string
+  purpose?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumAssessmentStatusFieldUpdateOperationsInput | $Enums.AssessmentStatus
+  recommendedMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  minimumQuestionBank?: Prisma.IntFieldUpdateOperationsInput | number
+  recommendedQuestionBank?: Prisma.IntFieldUpdateOperationsInput | number
+  idealQuestionBank?: Prisma.IntFieldUpdateOperationsInput | number
+  questionsPerAttempt?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  traits?: Prisma.AssessmentTraitUpdateManyWithoutAssessmentNestedInput
+  dimensions?: Prisma.AssessmentDimensionUpdateManyWithoutAssessmentNestedInput
+  questions?: Prisma.AssessmentQuestionUpdateManyWithoutAssessmentNestedInput
+  reviews?: Prisma.AssessmentQuestionReviewUpdateManyWithoutAssessmentNestedInput
+  reviewBoards?: Prisma.AssessmentReviewBoardUpdateManyWithoutAssessmentNestedInput
+  pilotRuns?: Prisma.AssessmentPilotRunUpdateManyWithoutAssessmentNestedInput
+  exposures?: Prisma.AssessmentQuestionExposureUpdateManyWithoutAssessmentNestedInput
+  attempts?: Prisma.AssessmentAttemptUpdateManyWithoutAssessmentNestedInput
+  growthSnapshots?: Prisma.AssessmentGrowthSnapshotUpdateManyWithoutAssessmentNestedInput
+  rankPredictions?: Prisma.AssessmentRankPredictionUpdateManyWithoutAssessmentNestedInput
+  reportSnapshots?: Prisma.AssessmentReportSnapshotUpdateManyWithoutAssessmentNestedInput
+  traitMappings?: Prisma.AssessmentTraitMappingUpdateManyWithoutAssessmentNestedInput
+  questionBlueprint?: Prisma.AssessmentQuestionBlueprintUpdateOneWithoutAssessmentNestedInput
+  traitBlueprints?: Prisma.AssessmentTraitBlueprintUpdateManyWithoutAssessmentNestedInput
+  dimensionBlueprints?: Prisma.AssessmentDimensionBlueprintUpdateManyWithoutAssessmentNestedInput
+}
+
+export type AssessmentArenaAssessmentUncheckedUpdateWithoutDimensionMappingsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  level?: Prisma.StringFieldUpdateOperationsInput | string
+  purpose?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumAssessmentStatusFieldUpdateOperationsInput | $Enums.AssessmentStatus
+  recommendedMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  minimumQuestionBank?: Prisma.IntFieldUpdateOperationsInput | number
+  recommendedQuestionBank?: Prisma.IntFieldUpdateOperationsInput | number
+  idealQuestionBank?: Prisma.IntFieldUpdateOperationsInput | number
+  questionsPerAttempt?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  traits?: Prisma.AssessmentTraitUncheckedUpdateManyWithoutAssessmentNestedInput
+  dimensions?: Prisma.AssessmentDimensionUncheckedUpdateManyWithoutAssessmentNestedInput
+  questions?: Prisma.AssessmentQuestionUncheckedUpdateManyWithoutAssessmentNestedInput
+  reviews?: Prisma.AssessmentQuestionReviewUncheckedUpdateManyWithoutAssessmentNestedInput
+  reviewBoards?: Prisma.AssessmentReviewBoardUncheckedUpdateManyWithoutAssessmentNestedInput
+  pilotRuns?: Prisma.AssessmentPilotRunUncheckedUpdateManyWithoutAssessmentNestedInput
+  exposures?: Prisma.AssessmentQuestionExposureUncheckedUpdateManyWithoutAssessmentNestedInput
+  attempts?: Prisma.AssessmentAttemptUncheckedUpdateManyWithoutAssessmentNestedInput
+  growthSnapshots?: Prisma.AssessmentGrowthSnapshotUncheckedUpdateManyWithoutAssessmentNestedInput
+  rankPredictions?: Prisma.AssessmentRankPredictionUncheckedUpdateManyWithoutAssessmentNestedInput
+  reportSnapshots?: Prisma.AssessmentReportSnapshotUncheckedUpdateManyWithoutAssessmentNestedInput
+  traitMappings?: Prisma.AssessmentTraitMappingUncheckedUpdateManyWithoutAssessmentNestedInput
+  questionBlueprint?: Prisma.AssessmentQuestionBlueprintUncheckedUpdateOneWithoutAssessmentNestedInput
+  traitBlueprints?: Prisma.AssessmentTraitBlueprintUncheckedUpdateManyWithoutAssessmentNestedInput
+  dimensionBlueprints?: Prisma.AssessmentDimensionBlueprintUncheckedUpdateManyWithoutAssessmentNestedInput
+}
+
+export type AssessmentArenaAssessmentCreateWithoutQuestionBlueprintInput = {
+  id?: string
+  slug: string
+  name: string
+  level: string
+  purpose: string
+  description?: string | null
+  status?: $Enums.AssessmentStatus
+  recommendedMinutes?: number | null
+  minimumQuestionBank?: number
+  recommendedQuestionBank?: number
+  idealQuestionBank?: number
+  questionsPerAttempt?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  traits?: Prisma.AssessmentTraitCreateNestedManyWithoutAssessmentInput
+  dimensions?: Prisma.AssessmentDimensionCreateNestedManyWithoutAssessmentInput
+  questions?: Prisma.AssessmentQuestionCreateNestedManyWithoutAssessmentInput
+  reviews?: Prisma.AssessmentQuestionReviewCreateNestedManyWithoutAssessmentInput
+  reviewBoards?: Prisma.AssessmentReviewBoardCreateNestedManyWithoutAssessmentInput
+  pilotRuns?: Prisma.AssessmentPilotRunCreateNestedManyWithoutAssessmentInput
+  exposures?: Prisma.AssessmentQuestionExposureCreateNestedManyWithoutAssessmentInput
+  attempts?: Prisma.AssessmentAttemptCreateNestedManyWithoutAssessmentInput
+  growthSnapshots?: Prisma.AssessmentGrowthSnapshotCreateNestedManyWithoutAssessmentInput
+  rankPredictions?: Prisma.AssessmentRankPredictionCreateNestedManyWithoutAssessmentInput
+  reportSnapshots?: Prisma.AssessmentReportSnapshotCreateNestedManyWithoutAssessmentInput
+  traitMappings?: Prisma.AssessmentTraitMappingCreateNestedManyWithoutAssessmentInput
+  dimensionMappings?: Prisma.AssessmentDimensionMappingCreateNestedManyWithoutAssessmentInput
+  traitBlueprints?: Prisma.AssessmentTraitBlueprintCreateNestedManyWithoutAssessmentInput
+  dimensionBlueprints?: Prisma.AssessmentDimensionBlueprintCreateNestedManyWithoutAssessmentInput
+}
+
+export type AssessmentArenaAssessmentUncheckedCreateWithoutQuestionBlueprintInput = {
+  id?: string
+  slug: string
+  name: string
+  level: string
+  purpose: string
+  description?: string | null
+  status?: $Enums.AssessmentStatus
+  recommendedMinutes?: number | null
+  minimumQuestionBank?: number
+  recommendedQuestionBank?: number
+  idealQuestionBank?: number
+  questionsPerAttempt?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  traits?: Prisma.AssessmentTraitUncheckedCreateNestedManyWithoutAssessmentInput
+  dimensions?: Prisma.AssessmentDimensionUncheckedCreateNestedManyWithoutAssessmentInput
+  questions?: Prisma.AssessmentQuestionUncheckedCreateNestedManyWithoutAssessmentInput
+  reviews?: Prisma.AssessmentQuestionReviewUncheckedCreateNestedManyWithoutAssessmentInput
+  reviewBoards?: Prisma.AssessmentReviewBoardUncheckedCreateNestedManyWithoutAssessmentInput
+  pilotRuns?: Prisma.AssessmentPilotRunUncheckedCreateNestedManyWithoutAssessmentInput
+  exposures?: Prisma.AssessmentQuestionExposureUncheckedCreateNestedManyWithoutAssessmentInput
+  attempts?: Prisma.AssessmentAttemptUncheckedCreateNestedManyWithoutAssessmentInput
+  growthSnapshots?: Prisma.AssessmentGrowthSnapshotUncheckedCreateNestedManyWithoutAssessmentInput
+  rankPredictions?: Prisma.AssessmentRankPredictionUncheckedCreateNestedManyWithoutAssessmentInput
+  reportSnapshots?: Prisma.AssessmentReportSnapshotUncheckedCreateNestedManyWithoutAssessmentInput
+  traitMappings?: Prisma.AssessmentTraitMappingUncheckedCreateNestedManyWithoutAssessmentInput
+  dimensionMappings?: Prisma.AssessmentDimensionMappingUncheckedCreateNestedManyWithoutAssessmentInput
+  traitBlueprints?: Prisma.AssessmentTraitBlueprintUncheckedCreateNestedManyWithoutAssessmentInput
+  dimensionBlueprints?: Prisma.AssessmentDimensionBlueprintUncheckedCreateNestedManyWithoutAssessmentInput
+}
+
+export type AssessmentArenaAssessmentCreateOrConnectWithoutQuestionBlueprintInput = {
+  where: Prisma.AssessmentArenaAssessmentWhereUniqueInput
+  create: Prisma.XOR<Prisma.AssessmentArenaAssessmentCreateWithoutQuestionBlueprintInput, Prisma.AssessmentArenaAssessmentUncheckedCreateWithoutQuestionBlueprintInput>
+}
+
+export type AssessmentArenaAssessmentUpsertWithoutQuestionBlueprintInput = {
+  update: Prisma.XOR<Prisma.AssessmentArenaAssessmentUpdateWithoutQuestionBlueprintInput, Prisma.AssessmentArenaAssessmentUncheckedUpdateWithoutQuestionBlueprintInput>
+  create: Prisma.XOR<Prisma.AssessmentArenaAssessmentCreateWithoutQuestionBlueprintInput, Prisma.AssessmentArenaAssessmentUncheckedCreateWithoutQuestionBlueprintInput>
+  where?: Prisma.AssessmentArenaAssessmentWhereInput
+}
+
+export type AssessmentArenaAssessmentUpdateToOneWithWhereWithoutQuestionBlueprintInput = {
+  where?: Prisma.AssessmentArenaAssessmentWhereInput
+  data: Prisma.XOR<Prisma.AssessmentArenaAssessmentUpdateWithoutQuestionBlueprintInput, Prisma.AssessmentArenaAssessmentUncheckedUpdateWithoutQuestionBlueprintInput>
+}
+
+export type AssessmentArenaAssessmentUpdateWithoutQuestionBlueprintInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  level?: Prisma.StringFieldUpdateOperationsInput | string
+  purpose?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumAssessmentStatusFieldUpdateOperationsInput | $Enums.AssessmentStatus
+  recommendedMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  minimumQuestionBank?: Prisma.IntFieldUpdateOperationsInput | number
+  recommendedQuestionBank?: Prisma.IntFieldUpdateOperationsInput | number
+  idealQuestionBank?: Prisma.IntFieldUpdateOperationsInput | number
+  questionsPerAttempt?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  traits?: Prisma.AssessmentTraitUpdateManyWithoutAssessmentNestedInput
+  dimensions?: Prisma.AssessmentDimensionUpdateManyWithoutAssessmentNestedInput
+  questions?: Prisma.AssessmentQuestionUpdateManyWithoutAssessmentNestedInput
+  reviews?: Prisma.AssessmentQuestionReviewUpdateManyWithoutAssessmentNestedInput
+  reviewBoards?: Prisma.AssessmentReviewBoardUpdateManyWithoutAssessmentNestedInput
+  pilotRuns?: Prisma.AssessmentPilotRunUpdateManyWithoutAssessmentNestedInput
+  exposures?: Prisma.AssessmentQuestionExposureUpdateManyWithoutAssessmentNestedInput
+  attempts?: Prisma.AssessmentAttemptUpdateManyWithoutAssessmentNestedInput
+  growthSnapshots?: Prisma.AssessmentGrowthSnapshotUpdateManyWithoutAssessmentNestedInput
+  rankPredictions?: Prisma.AssessmentRankPredictionUpdateManyWithoutAssessmentNestedInput
+  reportSnapshots?: Prisma.AssessmentReportSnapshotUpdateManyWithoutAssessmentNestedInput
+  traitMappings?: Prisma.AssessmentTraitMappingUpdateManyWithoutAssessmentNestedInput
+  dimensionMappings?: Prisma.AssessmentDimensionMappingUpdateManyWithoutAssessmentNestedInput
+  traitBlueprints?: Prisma.AssessmentTraitBlueprintUpdateManyWithoutAssessmentNestedInput
+  dimensionBlueprints?: Prisma.AssessmentDimensionBlueprintUpdateManyWithoutAssessmentNestedInput
+}
+
+export type AssessmentArenaAssessmentUncheckedUpdateWithoutQuestionBlueprintInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  level?: Prisma.StringFieldUpdateOperationsInput | string
+  purpose?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumAssessmentStatusFieldUpdateOperationsInput | $Enums.AssessmentStatus
+  recommendedMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  minimumQuestionBank?: Prisma.IntFieldUpdateOperationsInput | number
+  recommendedQuestionBank?: Prisma.IntFieldUpdateOperationsInput | number
+  idealQuestionBank?: Prisma.IntFieldUpdateOperationsInput | number
+  questionsPerAttempt?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  traits?: Prisma.AssessmentTraitUncheckedUpdateManyWithoutAssessmentNestedInput
+  dimensions?: Prisma.AssessmentDimensionUncheckedUpdateManyWithoutAssessmentNestedInput
+  questions?: Prisma.AssessmentQuestionUncheckedUpdateManyWithoutAssessmentNestedInput
+  reviews?: Prisma.AssessmentQuestionReviewUncheckedUpdateManyWithoutAssessmentNestedInput
+  reviewBoards?: Prisma.AssessmentReviewBoardUncheckedUpdateManyWithoutAssessmentNestedInput
+  pilotRuns?: Prisma.AssessmentPilotRunUncheckedUpdateManyWithoutAssessmentNestedInput
+  exposures?: Prisma.AssessmentQuestionExposureUncheckedUpdateManyWithoutAssessmentNestedInput
+  attempts?: Prisma.AssessmentAttemptUncheckedUpdateManyWithoutAssessmentNestedInput
+  growthSnapshots?: Prisma.AssessmentGrowthSnapshotUncheckedUpdateManyWithoutAssessmentNestedInput
+  rankPredictions?: Prisma.AssessmentRankPredictionUncheckedUpdateManyWithoutAssessmentNestedInput
+  reportSnapshots?: Prisma.AssessmentReportSnapshotUncheckedUpdateManyWithoutAssessmentNestedInput
+  traitMappings?: Prisma.AssessmentTraitMappingUncheckedUpdateManyWithoutAssessmentNestedInput
+  dimensionMappings?: Prisma.AssessmentDimensionMappingUncheckedUpdateManyWithoutAssessmentNestedInput
+  traitBlueprints?: Prisma.AssessmentTraitBlueprintUncheckedUpdateManyWithoutAssessmentNestedInput
+  dimensionBlueprints?: Prisma.AssessmentDimensionBlueprintUncheckedUpdateManyWithoutAssessmentNestedInput
+}
+
+export type AssessmentArenaAssessmentCreateWithoutTraitBlueprintsInput = {
+  id?: string
+  slug: string
+  name: string
+  level: string
+  purpose: string
+  description?: string | null
+  status?: $Enums.AssessmentStatus
+  recommendedMinutes?: number | null
+  minimumQuestionBank?: number
+  recommendedQuestionBank?: number
+  idealQuestionBank?: number
+  questionsPerAttempt?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  traits?: Prisma.AssessmentTraitCreateNestedManyWithoutAssessmentInput
+  dimensions?: Prisma.AssessmentDimensionCreateNestedManyWithoutAssessmentInput
+  questions?: Prisma.AssessmentQuestionCreateNestedManyWithoutAssessmentInput
+  reviews?: Prisma.AssessmentQuestionReviewCreateNestedManyWithoutAssessmentInput
+  reviewBoards?: Prisma.AssessmentReviewBoardCreateNestedManyWithoutAssessmentInput
+  pilotRuns?: Prisma.AssessmentPilotRunCreateNestedManyWithoutAssessmentInput
+  exposures?: Prisma.AssessmentQuestionExposureCreateNestedManyWithoutAssessmentInput
+  attempts?: Prisma.AssessmentAttemptCreateNestedManyWithoutAssessmentInput
+  growthSnapshots?: Prisma.AssessmentGrowthSnapshotCreateNestedManyWithoutAssessmentInput
+  rankPredictions?: Prisma.AssessmentRankPredictionCreateNestedManyWithoutAssessmentInput
+  reportSnapshots?: Prisma.AssessmentReportSnapshotCreateNestedManyWithoutAssessmentInput
+  traitMappings?: Prisma.AssessmentTraitMappingCreateNestedManyWithoutAssessmentInput
+  dimensionMappings?: Prisma.AssessmentDimensionMappingCreateNestedManyWithoutAssessmentInput
+  questionBlueprint?: Prisma.AssessmentQuestionBlueprintCreateNestedOneWithoutAssessmentInput
+  dimensionBlueprints?: Prisma.AssessmentDimensionBlueprintCreateNestedManyWithoutAssessmentInput
+}
+
+export type AssessmentArenaAssessmentUncheckedCreateWithoutTraitBlueprintsInput = {
+  id?: string
+  slug: string
+  name: string
+  level: string
+  purpose: string
+  description?: string | null
+  status?: $Enums.AssessmentStatus
+  recommendedMinutes?: number | null
+  minimumQuestionBank?: number
+  recommendedQuestionBank?: number
+  idealQuestionBank?: number
+  questionsPerAttempt?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  traits?: Prisma.AssessmentTraitUncheckedCreateNestedManyWithoutAssessmentInput
+  dimensions?: Prisma.AssessmentDimensionUncheckedCreateNestedManyWithoutAssessmentInput
+  questions?: Prisma.AssessmentQuestionUncheckedCreateNestedManyWithoutAssessmentInput
+  reviews?: Prisma.AssessmentQuestionReviewUncheckedCreateNestedManyWithoutAssessmentInput
+  reviewBoards?: Prisma.AssessmentReviewBoardUncheckedCreateNestedManyWithoutAssessmentInput
+  pilotRuns?: Prisma.AssessmentPilotRunUncheckedCreateNestedManyWithoutAssessmentInput
+  exposures?: Prisma.AssessmentQuestionExposureUncheckedCreateNestedManyWithoutAssessmentInput
+  attempts?: Prisma.AssessmentAttemptUncheckedCreateNestedManyWithoutAssessmentInput
+  growthSnapshots?: Prisma.AssessmentGrowthSnapshotUncheckedCreateNestedManyWithoutAssessmentInput
+  rankPredictions?: Prisma.AssessmentRankPredictionUncheckedCreateNestedManyWithoutAssessmentInput
+  reportSnapshots?: Prisma.AssessmentReportSnapshotUncheckedCreateNestedManyWithoutAssessmentInput
+  traitMappings?: Prisma.AssessmentTraitMappingUncheckedCreateNestedManyWithoutAssessmentInput
+  dimensionMappings?: Prisma.AssessmentDimensionMappingUncheckedCreateNestedManyWithoutAssessmentInput
+  questionBlueprint?: Prisma.AssessmentQuestionBlueprintUncheckedCreateNestedOneWithoutAssessmentInput
+  dimensionBlueprints?: Prisma.AssessmentDimensionBlueprintUncheckedCreateNestedManyWithoutAssessmentInput
+}
+
+export type AssessmentArenaAssessmentCreateOrConnectWithoutTraitBlueprintsInput = {
+  where: Prisma.AssessmentArenaAssessmentWhereUniqueInput
+  create: Prisma.XOR<Prisma.AssessmentArenaAssessmentCreateWithoutTraitBlueprintsInput, Prisma.AssessmentArenaAssessmentUncheckedCreateWithoutTraitBlueprintsInput>
+}
+
+export type AssessmentArenaAssessmentUpsertWithoutTraitBlueprintsInput = {
+  update: Prisma.XOR<Prisma.AssessmentArenaAssessmentUpdateWithoutTraitBlueprintsInput, Prisma.AssessmentArenaAssessmentUncheckedUpdateWithoutTraitBlueprintsInput>
+  create: Prisma.XOR<Prisma.AssessmentArenaAssessmentCreateWithoutTraitBlueprintsInput, Prisma.AssessmentArenaAssessmentUncheckedCreateWithoutTraitBlueprintsInput>
+  where?: Prisma.AssessmentArenaAssessmentWhereInput
+}
+
+export type AssessmentArenaAssessmentUpdateToOneWithWhereWithoutTraitBlueprintsInput = {
+  where?: Prisma.AssessmentArenaAssessmentWhereInput
+  data: Prisma.XOR<Prisma.AssessmentArenaAssessmentUpdateWithoutTraitBlueprintsInput, Prisma.AssessmentArenaAssessmentUncheckedUpdateWithoutTraitBlueprintsInput>
+}
+
+export type AssessmentArenaAssessmentUpdateWithoutTraitBlueprintsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  level?: Prisma.StringFieldUpdateOperationsInput | string
+  purpose?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumAssessmentStatusFieldUpdateOperationsInput | $Enums.AssessmentStatus
+  recommendedMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  minimumQuestionBank?: Prisma.IntFieldUpdateOperationsInput | number
+  recommendedQuestionBank?: Prisma.IntFieldUpdateOperationsInput | number
+  idealQuestionBank?: Prisma.IntFieldUpdateOperationsInput | number
+  questionsPerAttempt?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  traits?: Prisma.AssessmentTraitUpdateManyWithoutAssessmentNestedInput
+  dimensions?: Prisma.AssessmentDimensionUpdateManyWithoutAssessmentNestedInput
+  questions?: Prisma.AssessmentQuestionUpdateManyWithoutAssessmentNestedInput
+  reviews?: Prisma.AssessmentQuestionReviewUpdateManyWithoutAssessmentNestedInput
+  reviewBoards?: Prisma.AssessmentReviewBoardUpdateManyWithoutAssessmentNestedInput
+  pilotRuns?: Prisma.AssessmentPilotRunUpdateManyWithoutAssessmentNestedInput
+  exposures?: Prisma.AssessmentQuestionExposureUpdateManyWithoutAssessmentNestedInput
+  attempts?: Prisma.AssessmentAttemptUpdateManyWithoutAssessmentNestedInput
+  growthSnapshots?: Prisma.AssessmentGrowthSnapshotUpdateManyWithoutAssessmentNestedInput
+  rankPredictions?: Prisma.AssessmentRankPredictionUpdateManyWithoutAssessmentNestedInput
+  reportSnapshots?: Prisma.AssessmentReportSnapshotUpdateManyWithoutAssessmentNestedInput
+  traitMappings?: Prisma.AssessmentTraitMappingUpdateManyWithoutAssessmentNestedInput
+  dimensionMappings?: Prisma.AssessmentDimensionMappingUpdateManyWithoutAssessmentNestedInput
+  questionBlueprint?: Prisma.AssessmentQuestionBlueprintUpdateOneWithoutAssessmentNestedInput
+  dimensionBlueprints?: Prisma.AssessmentDimensionBlueprintUpdateManyWithoutAssessmentNestedInput
+}
+
+export type AssessmentArenaAssessmentUncheckedUpdateWithoutTraitBlueprintsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  level?: Prisma.StringFieldUpdateOperationsInput | string
+  purpose?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumAssessmentStatusFieldUpdateOperationsInput | $Enums.AssessmentStatus
+  recommendedMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  minimumQuestionBank?: Prisma.IntFieldUpdateOperationsInput | number
+  recommendedQuestionBank?: Prisma.IntFieldUpdateOperationsInput | number
+  idealQuestionBank?: Prisma.IntFieldUpdateOperationsInput | number
+  questionsPerAttempt?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  traits?: Prisma.AssessmentTraitUncheckedUpdateManyWithoutAssessmentNestedInput
+  dimensions?: Prisma.AssessmentDimensionUncheckedUpdateManyWithoutAssessmentNestedInput
+  questions?: Prisma.AssessmentQuestionUncheckedUpdateManyWithoutAssessmentNestedInput
+  reviews?: Prisma.AssessmentQuestionReviewUncheckedUpdateManyWithoutAssessmentNestedInput
+  reviewBoards?: Prisma.AssessmentReviewBoardUncheckedUpdateManyWithoutAssessmentNestedInput
+  pilotRuns?: Prisma.AssessmentPilotRunUncheckedUpdateManyWithoutAssessmentNestedInput
+  exposures?: Prisma.AssessmentQuestionExposureUncheckedUpdateManyWithoutAssessmentNestedInput
+  attempts?: Prisma.AssessmentAttemptUncheckedUpdateManyWithoutAssessmentNestedInput
+  growthSnapshots?: Prisma.AssessmentGrowthSnapshotUncheckedUpdateManyWithoutAssessmentNestedInput
+  rankPredictions?: Prisma.AssessmentRankPredictionUncheckedUpdateManyWithoutAssessmentNestedInput
+  reportSnapshots?: Prisma.AssessmentReportSnapshotUncheckedUpdateManyWithoutAssessmentNestedInput
+  traitMappings?: Prisma.AssessmentTraitMappingUncheckedUpdateManyWithoutAssessmentNestedInput
+  dimensionMappings?: Prisma.AssessmentDimensionMappingUncheckedUpdateManyWithoutAssessmentNestedInput
+  questionBlueprint?: Prisma.AssessmentQuestionBlueprintUncheckedUpdateOneWithoutAssessmentNestedInput
+  dimensionBlueprints?: Prisma.AssessmentDimensionBlueprintUncheckedUpdateManyWithoutAssessmentNestedInput
+}
+
+export type AssessmentArenaAssessmentCreateWithoutDimensionBlueprintsInput = {
+  id?: string
+  slug: string
+  name: string
+  level: string
+  purpose: string
+  description?: string | null
+  status?: $Enums.AssessmentStatus
+  recommendedMinutes?: number | null
+  minimumQuestionBank?: number
+  recommendedQuestionBank?: number
+  idealQuestionBank?: number
+  questionsPerAttempt?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  traits?: Prisma.AssessmentTraitCreateNestedManyWithoutAssessmentInput
+  dimensions?: Prisma.AssessmentDimensionCreateNestedManyWithoutAssessmentInput
+  questions?: Prisma.AssessmentQuestionCreateNestedManyWithoutAssessmentInput
+  reviews?: Prisma.AssessmentQuestionReviewCreateNestedManyWithoutAssessmentInput
+  reviewBoards?: Prisma.AssessmentReviewBoardCreateNestedManyWithoutAssessmentInput
+  pilotRuns?: Prisma.AssessmentPilotRunCreateNestedManyWithoutAssessmentInput
+  exposures?: Prisma.AssessmentQuestionExposureCreateNestedManyWithoutAssessmentInput
+  attempts?: Prisma.AssessmentAttemptCreateNestedManyWithoutAssessmentInput
+  growthSnapshots?: Prisma.AssessmentGrowthSnapshotCreateNestedManyWithoutAssessmentInput
+  rankPredictions?: Prisma.AssessmentRankPredictionCreateNestedManyWithoutAssessmentInput
+  reportSnapshots?: Prisma.AssessmentReportSnapshotCreateNestedManyWithoutAssessmentInput
+  traitMappings?: Prisma.AssessmentTraitMappingCreateNestedManyWithoutAssessmentInput
+  dimensionMappings?: Prisma.AssessmentDimensionMappingCreateNestedManyWithoutAssessmentInput
+  questionBlueprint?: Prisma.AssessmentQuestionBlueprintCreateNestedOneWithoutAssessmentInput
+  traitBlueprints?: Prisma.AssessmentTraitBlueprintCreateNestedManyWithoutAssessmentInput
+}
+
+export type AssessmentArenaAssessmentUncheckedCreateWithoutDimensionBlueprintsInput = {
+  id?: string
+  slug: string
+  name: string
+  level: string
+  purpose: string
+  description?: string | null
+  status?: $Enums.AssessmentStatus
+  recommendedMinutes?: number | null
+  minimumQuestionBank?: number
+  recommendedQuestionBank?: number
+  idealQuestionBank?: number
+  questionsPerAttempt?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  traits?: Prisma.AssessmentTraitUncheckedCreateNestedManyWithoutAssessmentInput
+  dimensions?: Prisma.AssessmentDimensionUncheckedCreateNestedManyWithoutAssessmentInput
+  questions?: Prisma.AssessmentQuestionUncheckedCreateNestedManyWithoutAssessmentInput
+  reviews?: Prisma.AssessmentQuestionReviewUncheckedCreateNestedManyWithoutAssessmentInput
+  reviewBoards?: Prisma.AssessmentReviewBoardUncheckedCreateNestedManyWithoutAssessmentInput
+  pilotRuns?: Prisma.AssessmentPilotRunUncheckedCreateNestedManyWithoutAssessmentInput
+  exposures?: Prisma.AssessmentQuestionExposureUncheckedCreateNestedManyWithoutAssessmentInput
+  attempts?: Prisma.AssessmentAttemptUncheckedCreateNestedManyWithoutAssessmentInput
+  growthSnapshots?: Prisma.AssessmentGrowthSnapshotUncheckedCreateNestedManyWithoutAssessmentInput
+  rankPredictions?: Prisma.AssessmentRankPredictionUncheckedCreateNestedManyWithoutAssessmentInput
+  reportSnapshots?: Prisma.AssessmentReportSnapshotUncheckedCreateNestedManyWithoutAssessmentInput
+  traitMappings?: Prisma.AssessmentTraitMappingUncheckedCreateNestedManyWithoutAssessmentInput
+  dimensionMappings?: Prisma.AssessmentDimensionMappingUncheckedCreateNestedManyWithoutAssessmentInput
+  questionBlueprint?: Prisma.AssessmentQuestionBlueprintUncheckedCreateNestedOneWithoutAssessmentInput
+  traitBlueprints?: Prisma.AssessmentTraitBlueprintUncheckedCreateNestedManyWithoutAssessmentInput
+}
+
+export type AssessmentArenaAssessmentCreateOrConnectWithoutDimensionBlueprintsInput = {
+  where: Prisma.AssessmentArenaAssessmentWhereUniqueInput
+  create: Prisma.XOR<Prisma.AssessmentArenaAssessmentCreateWithoutDimensionBlueprintsInput, Prisma.AssessmentArenaAssessmentUncheckedCreateWithoutDimensionBlueprintsInput>
+}
+
+export type AssessmentArenaAssessmentUpsertWithoutDimensionBlueprintsInput = {
+  update: Prisma.XOR<Prisma.AssessmentArenaAssessmentUpdateWithoutDimensionBlueprintsInput, Prisma.AssessmentArenaAssessmentUncheckedUpdateWithoutDimensionBlueprintsInput>
+  create: Prisma.XOR<Prisma.AssessmentArenaAssessmentCreateWithoutDimensionBlueprintsInput, Prisma.AssessmentArenaAssessmentUncheckedCreateWithoutDimensionBlueprintsInput>
+  where?: Prisma.AssessmentArenaAssessmentWhereInput
+}
+
+export type AssessmentArenaAssessmentUpdateToOneWithWhereWithoutDimensionBlueprintsInput = {
+  where?: Prisma.AssessmentArenaAssessmentWhereInput
+  data: Prisma.XOR<Prisma.AssessmentArenaAssessmentUpdateWithoutDimensionBlueprintsInput, Prisma.AssessmentArenaAssessmentUncheckedUpdateWithoutDimensionBlueprintsInput>
+}
+
+export type AssessmentArenaAssessmentUpdateWithoutDimensionBlueprintsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  level?: Prisma.StringFieldUpdateOperationsInput | string
+  purpose?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumAssessmentStatusFieldUpdateOperationsInput | $Enums.AssessmentStatus
+  recommendedMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  minimumQuestionBank?: Prisma.IntFieldUpdateOperationsInput | number
+  recommendedQuestionBank?: Prisma.IntFieldUpdateOperationsInput | number
+  idealQuestionBank?: Prisma.IntFieldUpdateOperationsInput | number
+  questionsPerAttempt?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  traits?: Prisma.AssessmentTraitUpdateManyWithoutAssessmentNestedInput
+  dimensions?: Prisma.AssessmentDimensionUpdateManyWithoutAssessmentNestedInput
+  questions?: Prisma.AssessmentQuestionUpdateManyWithoutAssessmentNestedInput
+  reviews?: Prisma.AssessmentQuestionReviewUpdateManyWithoutAssessmentNestedInput
+  reviewBoards?: Prisma.AssessmentReviewBoardUpdateManyWithoutAssessmentNestedInput
+  pilotRuns?: Prisma.AssessmentPilotRunUpdateManyWithoutAssessmentNestedInput
+  exposures?: Prisma.AssessmentQuestionExposureUpdateManyWithoutAssessmentNestedInput
+  attempts?: Prisma.AssessmentAttemptUpdateManyWithoutAssessmentNestedInput
+  growthSnapshots?: Prisma.AssessmentGrowthSnapshotUpdateManyWithoutAssessmentNestedInput
+  rankPredictions?: Prisma.AssessmentRankPredictionUpdateManyWithoutAssessmentNestedInput
+  reportSnapshots?: Prisma.AssessmentReportSnapshotUpdateManyWithoutAssessmentNestedInput
+  traitMappings?: Prisma.AssessmentTraitMappingUpdateManyWithoutAssessmentNestedInput
+  dimensionMappings?: Prisma.AssessmentDimensionMappingUpdateManyWithoutAssessmentNestedInput
+  questionBlueprint?: Prisma.AssessmentQuestionBlueprintUpdateOneWithoutAssessmentNestedInput
+  traitBlueprints?: Prisma.AssessmentTraitBlueprintUpdateManyWithoutAssessmentNestedInput
+}
+
+export type AssessmentArenaAssessmentUncheckedUpdateWithoutDimensionBlueprintsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  level?: Prisma.StringFieldUpdateOperationsInput | string
+  purpose?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumAssessmentStatusFieldUpdateOperationsInput | $Enums.AssessmentStatus
+  recommendedMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  minimumQuestionBank?: Prisma.IntFieldUpdateOperationsInput | number
+  recommendedQuestionBank?: Prisma.IntFieldUpdateOperationsInput | number
+  idealQuestionBank?: Prisma.IntFieldUpdateOperationsInput | number
+  questionsPerAttempt?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  traits?: Prisma.AssessmentTraitUncheckedUpdateManyWithoutAssessmentNestedInput
+  dimensions?: Prisma.AssessmentDimensionUncheckedUpdateManyWithoutAssessmentNestedInput
+  questions?: Prisma.AssessmentQuestionUncheckedUpdateManyWithoutAssessmentNestedInput
+  reviews?: Prisma.AssessmentQuestionReviewUncheckedUpdateManyWithoutAssessmentNestedInput
+  reviewBoards?: Prisma.AssessmentReviewBoardUncheckedUpdateManyWithoutAssessmentNestedInput
+  pilotRuns?: Prisma.AssessmentPilotRunUncheckedUpdateManyWithoutAssessmentNestedInput
+  exposures?: Prisma.AssessmentQuestionExposureUncheckedUpdateManyWithoutAssessmentNestedInput
+  attempts?: Prisma.AssessmentAttemptUncheckedUpdateManyWithoutAssessmentNestedInput
+  growthSnapshots?: Prisma.AssessmentGrowthSnapshotUncheckedUpdateManyWithoutAssessmentNestedInput
+  rankPredictions?: Prisma.AssessmentRankPredictionUncheckedUpdateManyWithoutAssessmentNestedInput
+  reportSnapshots?: Prisma.AssessmentReportSnapshotUncheckedUpdateManyWithoutAssessmentNestedInput
+  traitMappings?: Prisma.AssessmentTraitMappingUncheckedUpdateManyWithoutAssessmentNestedInput
+  dimensionMappings?: Prisma.AssessmentDimensionMappingUncheckedUpdateManyWithoutAssessmentNestedInput
+  questionBlueprint?: Prisma.AssessmentQuestionBlueprintUncheckedUpdateOneWithoutAssessmentNestedInput
+  traitBlueprints?: Prisma.AssessmentTraitBlueprintUncheckedUpdateManyWithoutAssessmentNestedInput
+}
+
 export type AssessmentArenaAssessmentCreateWithoutTraitsInput = {
   id?: string
   slug: string
@@ -855,6 +1680,11 @@ export type AssessmentArenaAssessmentCreateWithoutTraitsInput = {
   growthSnapshots?: Prisma.AssessmentGrowthSnapshotCreateNestedManyWithoutAssessmentInput
   rankPredictions?: Prisma.AssessmentRankPredictionCreateNestedManyWithoutAssessmentInput
   reportSnapshots?: Prisma.AssessmentReportSnapshotCreateNestedManyWithoutAssessmentInput
+  traitMappings?: Prisma.AssessmentTraitMappingCreateNestedManyWithoutAssessmentInput
+  dimensionMappings?: Prisma.AssessmentDimensionMappingCreateNestedManyWithoutAssessmentInput
+  questionBlueprint?: Prisma.AssessmentQuestionBlueprintCreateNestedOneWithoutAssessmentInput
+  traitBlueprints?: Prisma.AssessmentTraitBlueprintCreateNestedManyWithoutAssessmentInput
+  dimensionBlueprints?: Prisma.AssessmentDimensionBlueprintCreateNestedManyWithoutAssessmentInput
 }
 
 export type AssessmentArenaAssessmentUncheckedCreateWithoutTraitsInput = {
@@ -882,6 +1712,11 @@ export type AssessmentArenaAssessmentUncheckedCreateWithoutTraitsInput = {
   growthSnapshots?: Prisma.AssessmentGrowthSnapshotUncheckedCreateNestedManyWithoutAssessmentInput
   rankPredictions?: Prisma.AssessmentRankPredictionUncheckedCreateNestedManyWithoutAssessmentInput
   reportSnapshots?: Prisma.AssessmentReportSnapshotUncheckedCreateNestedManyWithoutAssessmentInput
+  traitMappings?: Prisma.AssessmentTraitMappingUncheckedCreateNestedManyWithoutAssessmentInput
+  dimensionMappings?: Prisma.AssessmentDimensionMappingUncheckedCreateNestedManyWithoutAssessmentInput
+  questionBlueprint?: Prisma.AssessmentQuestionBlueprintUncheckedCreateNestedOneWithoutAssessmentInput
+  traitBlueprints?: Prisma.AssessmentTraitBlueprintUncheckedCreateNestedManyWithoutAssessmentInput
+  dimensionBlueprints?: Prisma.AssessmentDimensionBlueprintUncheckedCreateNestedManyWithoutAssessmentInput
 }
 
 export type AssessmentArenaAssessmentCreateOrConnectWithoutTraitsInput = {
@@ -925,6 +1760,11 @@ export type AssessmentArenaAssessmentUpdateWithoutTraitsInput = {
   growthSnapshots?: Prisma.AssessmentGrowthSnapshotUpdateManyWithoutAssessmentNestedInput
   rankPredictions?: Prisma.AssessmentRankPredictionUpdateManyWithoutAssessmentNestedInput
   reportSnapshots?: Prisma.AssessmentReportSnapshotUpdateManyWithoutAssessmentNestedInput
+  traitMappings?: Prisma.AssessmentTraitMappingUpdateManyWithoutAssessmentNestedInput
+  dimensionMappings?: Prisma.AssessmentDimensionMappingUpdateManyWithoutAssessmentNestedInput
+  questionBlueprint?: Prisma.AssessmentQuestionBlueprintUpdateOneWithoutAssessmentNestedInput
+  traitBlueprints?: Prisma.AssessmentTraitBlueprintUpdateManyWithoutAssessmentNestedInput
+  dimensionBlueprints?: Prisma.AssessmentDimensionBlueprintUpdateManyWithoutAssessmentNestedInput
 }
 
 export type AssessmentArenaAssessmentUncheckedUpdateWithoutTraitsInput = {
@@ -952,6 +1792,11 @@ export type AssessmentArenaAssessmentUncheckedUpdateWithoutTraitsInput = {
   growthSnapshots?: Prisma.AssessmentGrowthSnapshotUncheckedUpdateManyWithoutAssessmentNestedInput
   rankPredictions?: Prisma.AssessmentRankPredictionUncheckedUpdateManyWithoutAssessmentNestedInput
   reportSnapshots?: Prisma.AssessmentReportSnapshotUncheckedUpdateManyWithoutAssessmentNestedInput
+  traitMappings?: Prisma.AssessmentTraitMappingUncheckedUpdateManyWithoutAssessmentNestedInput
+  dimensionMappings?: Prisma.AssessmentDimensionMappingUncheckedUpdateManyWithoutAssessmentNestedInput
+  questionBlueprint?: Prisma.AssessmentQuestionBlueprintUncheckedUpdateOneWithoutAssessmentNestedInput
+  traitBlueprints?: Prisma.AssessmentTraitBlueprintUncheckedUpdateManyWithoutAssessmentNestedInput
+  dimensionBlueprints?: Prisma.AssessmentDimensionBlueprintUncheckedUpdateManyWithoutAssessmentNestedInput
 }
 
 export type AssessmentArenaAssessmentCreateWithoutDimensionsInput = {
@@ -979,6 +1824,11 @@ export type AssessmentArenaAssessmentCreateWithoutDimensionsInput = {
   growthSnapshots?: Prisma.AssessmentGrowthSnapshotCreateNestedManyWithoutAssessmentInput
   rankPredictions?: Prisma.AssessmentRankPredictionCreateNestedManyWithoutAssessmentInput
   reportSnapshots?: Prisma.AssessmentReportSnapshotCreateNestedManyWithoutAssessmentInput
+  traitMappings?: Prisma.AssessmentTraitMappingCreateNestedManyWithoutAssessmentInput
+  dimensionMappings?: Prisma.AssessmentDimensionMappingCreateNestedManyWithoutAssessmentInput
+  questionBlueprint?: Prisma.AssessmentQuestionBlueprintCreateNestedOneWithoutAssessmentInput
+  traitBlueprints?: Prisma.AssessmentTraitBlueprintCreateNestedManyWithoutAssessmentInput
+  dimensionBlueprints?: Prisma.AssessmentDimensionBlueprintCreateNestedManyWithoutAssessmentInput
 }
 
 export type AssessmentArenaAssessmentUncheckedCreateWithoutDimensionsInput = {
@@ -1006,6 +1856,11 @@ export type AssessmentArenaAssessmentUncheckedCreateWithoutDimensionsInput = {
   growthSnapshots?: Prisma.AssessmentGrowthSnapshotUncheckedCreateNestedManyWithoutAssessmentInput
   rankPredictions?: Prisma.AssessmentRankPredictionUncheckedCreateNestedManyWithoutAssessmentInput
   reportSnapshots?: Prisma.AssessmentReportSnapshotUncheckedCreateNestedManyWithoutAssessmentInput
+  traitMappings?: Prisma.AssessmentTraitMappingUncheckedCreateNestedManyWithoutAssessmentInput
+  dimensionMappings?: Prisma.AssessmentDimensionMappingUncheckedCreateNestedManyWithoutAssessmentInput
+  questionBlueprint?: Prisma.AssessmentQuestionBlueprintUncheckedCreateNestedOneWithoutAssessmentInput
+  traitBlueprints?: Prisma.AssessmentTraitBlueprintUncheckedCreateNestedManyWithoutAssessmentInput
+  dimensionBlueprints?: Prisma.AssessmentDimensionBlueprintUncheckedCreateNestedManyWithoutAssessmentInput
 }
 
 export type AssessmentArenaAssessmentCreateOrConnectWithoutDimensionsInput = {
@@ -1049,6 +1904,11 @@ export type AssessmentArenaAssessmentUpdateWithoutDimensionsInput = {
   growthSnapshots?: Prisma.AssessmentGrowthSnapshotUpdateManyWithoutAssessmentNestedInput
   rankPredictions?: Prisma.AssessmentRankPredictionUpdateManyWithoutAssessmentNestedInput
   reportSnapshots?: Prisma.AssessmentReportSnapshotUpdateManyWithoutAssessmentNestedInput
+  traitMappings?: Prisma.AssessmentTraitMappingUpdateManyWithoutAssessmentNestedInput
+  dimensionMappings?: Prisma.AssessmentDimensionMappingUpdateManyWithoutAssessmentNestedInput
+  questionBlueprint?: Prisma.AssessmentQuestionBlueprintUpdateOneWithoutAssessmentNestedInput
+  traitBlueprints?: Prisma.AssessmentTraitBlueprintUpdateManyWithoutAssessmentNestedInput
+  dimensionBlueprints?: Prisma.AssessmentDimensionBlueprintUpdateManyWithoutAssessmentNestedInput
 }
 
 export type AssessmentArenaAssessmentUncheckedUpdateWithoutDimensionsInput = {
@@ -1076,6 +1936,11 @@ export type AssessmentArenaAssessmentUncheckedUpdateWithoutDimensionsInput = {
   growthSnapshots?: Prisma.AssessmentGrowthSnapshotUncheckedUpdateManyWithoutAssessmentNestedInput
   rankPredictions?: Prisma.AssessmentRankPredictionUncheckedUpdateManyWithoutAssessmentNestedInput
   reportSnapshots?: Prisma.AssessmentReportSnapshotUncheckedUpdateManyWithoutAssessmentNestedInput
+  traitMappings?: Prisma.AssessmentTraitMappingUncheckedUpdateManyWithoutAssessmentNestedInput
+  dimensionMappings?: Prisma.AssessmentDimensionMappingUncheckedUpdateManyWithoutAssessmentNestedInput
+  questionBlueprint?: Prisma.AssessmentQuestionBlueprintUncheckedUpdateOneWithoutAssessmentNestedInput
+  traitBlueprints?: Prisma.AssessmentTraitBlueprintUncheckedUpdateManyWithoutAssessmentNestedInput
+  dimensionBlueprints?: Prisma.AssessmentDimensionBlueprintUncheckedUpdateManyWithoutAssessmentNestedInput
 }
 
 export type AssessmentArenaAssessmentCreateWithoutQuestionsInput = {
@@ -1103,6 +1968,11 @@ export type AssessmentArenaAssessmentCreateWithoutQuestionsInput = {
   growthSnapshots?: Prisma.AssessmentGrowthSnapshotCreateNestedManyWithoutAssessmentInput
   rankPredictions?: Prisma.AssessmentRankPredictionCreateNestedManyWithoutAssessmentInput
   reportSnapshots?: Prisma.AssessmentReportSnapshotCreateNestedManyWithoutAssessmentInput
+  traitMappings?: Prisma.AssessmentTraitMappingCreateNestedManyWithoutAssessmentInput
+  dimensionMappings?: Prisma.AssessmentDimensionMappingCreateNestedManyWithoutAssessmentInput
+  questionBlueprint?: Prisma.AssessmentQuestionBlueprintCreateNestedOneWithoutAssessmentInput
+  traitBlueprints?: Prisma.AssessmentTraitBlueprintCreateNestedManyWithoutAssessmentInput
+  dimensionBlueprints?: Prisma.AssessmentDimensionBlueprintCreateNestedManyWithoutAssessmentInput
 }
 
 export type AssessmentArenaAssessmentUncheckedCreateWithoutQuestionsInput = {
@@ -1130,6 +2000,11 @@ export type AssessmentArenaAssessmentUncheckedCreateWithoutQuestionsInput = {
   growthSnapshots?: Prisma.AssessmentGrowthSnapshotUncheckedCreateNestedManyWithoutAssessmentInput
   rankPredictions?: Prisma.AssessmentRankPredictionUncheckedCreateNestedManyWithoutAssessmentInput
   reportSnapshots?: Prisma.AssessmentReportSnapshotUncheckedCreateNestedManyWithoutAssessmentInput
+  traitMappings?: Prisma.AssessmentTraitMappingUncheckedCreateNestedManyWithoutAssessmentInput
+  dimensionMappings?: Prisma.AssessmentDimensionMappingUncheckedCreateNestedManyWithoutAssessmentInput
+  questionBlueprint?: Prisma.AssessmentQuestionBlueprintUncheckedCreateNestedOneWithoutAssessmentInput
+  traitBlueprints?: Prisma.AssessmentTraitBlueprintUncheckedCreateNestedManyWithoutAssessmentInput
+  dimensionBlueprints?: Prisma.AssessmentDimensionBlueprintUncheckedCreateNestedManyWithoutAssessmentInput
 }
 
 export type AssessmentArenaAssessmentCreateOrConnectWithoutQuestionsInput = {
@@ -1173,6 +2048,11 @@ export type AssessmentArenaAssessmentUpdateWithoutQuestionsInput = {
   growthSnapshots?: Prisma.AssessmentGrowthSnapshotUpdateManyWithoutAssessmentNestedInput
   rankPredictions?: Prisma.AssessmentRankPredictionUpdateManyWithoutAssessmentNestedInput
   reportSnapshots?: Prisma.AssessmentReportSnapshotUpdateManyWithoutAssessmentNestedInput
+  traitMappings?: Prisma.AssessmentTraitMappingUpdateManyWithoutAssessmentNestedInput
+  dimensionMappings?: Prisma.AssessmentDimensionMappingUpdateManyWithoutAssessmentNestedInput
+  questionBlueprint?: Prisma.AssessmentQuestionBlueprintUpdateOneWithoutAssessmentNestedInput
+  traitBlueprints?: Prisma.AssessmentTraitBlueprintUpdateManyWithoutAssessmentNestedInput
+  dimensionBlueprints?: Prisma.AssessmentDimensionBlueprintUpdateManyWithoutAssessmentNestedInput
 }
 
 export type AssessmentArenaAssessmentUncheckedUpdateWithoutQuestionsInput = {
@@ -1200,6 +2080,11 @@ export type AssessmentArenaAssessmentUncheckedUpdateWithoutQuestionsInput = {
   growthSnapshots?: Prisma.AssessmentGrowthSnapshotUncheckedUpdateManyWithoutAssessmentNestedInput
   rankPredictions?: Prisma.AssessmentRankPredictionUncheckedUpdateManyWithoutAssessmentNestedInput
   reportSnapshots?: Prisma.AssessmentReportSnapshotUncheckedUpdateManyWithoutAssessmentNestedInput
+  traitMappings?: Prisma.AssessmentTraitMappingUncheckedUpdateManyWithoutAssessmentNestedInput
+  dimensionMappings?: Prisma.AssessmentDimensionMappingUncheckedUpdateManyWithoutAssessmentNestedInput
+  questionBlueprint?: Prisma.AssessmentQuestionBlueprintUncheckedUpdateOneWithoutAssessmentNestedInput
+  traitBlueprints?: Prisma.AssessmentTraitBlueprintUncheckedUpdateManyWithoutAssessmentNestedInput
+  dimensionBlueprints?: Prisma.AssessmentDimensionBlueprintUncheckedUpdateManyWithoutAssessmentNestedInput
 }
 
 export type AssessmentArenaAssessmentCreateWithoutReviewsInput = {
@@ -1227,6 +2112,11 @@ export type AssessmentArenaAssessmentCreateWithoutReviewsInput = {
   growthSnapshots?: Prisma.AssessmentGrowthSnapshotCreateNestedManyWithoutAssessmentInput
   rankPredictions?: Prisma.AssessmentRankPredictionCreateNestedManyWithoutAssessmentInput
   reportSnapshots?: Prisma.AssessmentReportSnapshotCreateNestedManyWithoutAssessmentInput
+  traitMappings?: Prisma.AssessmentTraitMappingCreateNestedManyWithoutAssessmentInput
+  dimensionMappings?: Prisma.AssessmentDimensionMappingCreateNestedManyWithoutAssessmentInput
+  questionBlueprint?: Prisma.AssessmentQuestionBlueprintCreateNestedOneWithoutAssessmentInput
+  traitBlueprints?: Prisma.AssessmentTraitBlueprintCreateNestedManyWithoutAssessmentInput
+  dimensionBlueprints?: Prisma.AssessmentDimensionBlueprintCreateNestedManyWithoutAssessmentInput
 }
 
 export type AssessmentArenaAssessmentUncheckedCreateWithoutReviewsInput = {
@@ -1254,6 +2144,11 @@ export type AssessmentArenaAssessmentUncheckedCreateWithoutReviewsInput = {
   growthSnapshots?: Prisma.AssessmentGrowthSnapshotUncheckedCreateNestedManyWithoutAssessmentInput
   rankPredictions?: Prisma.AssessmentRankPredictionUncheckedCreateNestedManyWithoutAssessmentInput
   reportSnapshots?: Prisma.AssessmentReportSnapshotUncheckedCreateNestedManyWithoutAssessmentInput
+  traitMappings?: Prisma.AssessmentTraitMappingUncheckedCreateNestedManyWithoutAssessmentInput
+  dimensionMappings?: Prisma.AssessmentDimensionMappingUncheckedCreateNestedManyWithoutAssessmentInput
+  questionBlueprint?: Prisma.AssessmentQuestionBlueprintUncheckedCreateNestedOneWithoutAssessmentInput
+  traitBlueprints?: Prisma.AssessmentTraitBlueprintUncheckedCreateNestedManyWithoutAssessmentInput
+  dimensionBlueprints?: Prisma.AssessmentDimensionBlueprintUncheckedCreateNestedManyWithoutAssessmentInput
 }
 
 export type AssessmentArenaAssessmentCreateOrConnectWithoutReviewsInput = {
@@ -1297,6 +2192,11 @@ export type AssessmentArenaAssessmentUpdateWithoutReviewsInput = {
   growthSnapshots?: Prisma.AssessmentGrowthSnapshotUpdateManyWithoutAssessmentNestedInput
   rankPredictions?: Prisma.AssessmentRankPredictionUpdateManyWithoutAssessmentNestedInput
   reportSnapshots?: Prisma.AssessmentReportSnapshotUpdateManyWithoutAssessmentNestedInput
+  traitMappings?: Prisma.AssessmentTraitMappingUpdateManyWithoutAssessmentNestedInput
+  dimensionMappings?: Prisma.AssessmentDimensionMappingUpdateManyWithoutAssessmentNestedInput
+  questionBlueprint?: Prisma.AssessmentQuestionBlueprintUpdateOneWithoutAssessmentNestedInput
+  traitBlueprints?: Prisma.AssessmentTraitBlueprintUpdateManyWithoutAssessmentNestedInput
+  dimensionBlueprints?: Prisma.AssessmentDimensionBlueprintUpdateManyWithoutAssessmentNestedInput
 }
 
 export type AssessmentArenaAssessmentUncheckedUpdateWithoutReviewsInput = {
@@ -1324,6 +2224,11 @@ export type AssessmentArenaAssessmentUncheckedUpdateWithoutReviewsInput = {
   growthSnapshots?: Prisma.AssessmentGrowthSnapshotUncheckedUpdateManyWithoutAssessmentNestedInput
   rankPredictions?: Prisma.AssessmentRankPredictionUncheckedUpdateManyWithoutAssessmentNestedInput
   reportSnapshots?: Prisma.AssessmentReportSnapshotUncheckedUpdateManyWithoutAssessmentNestedInput
+  traitMappings?: Prisma.AssessmentTraitMappingUncheckedUpdateManyWithoutAssessmentNestedInput
+  dimensionMappings?: Prisma.AssessmentDimensionMappingUncheckedUpdateManyWithoutAssessmentNestedInput
+  questionBlueprint?: Prisma.AssessmentQuestionBlueprintUncheckedUpdateOneWithoutAssessmentNestedInput
+  traitBlueprints?: Prisma.AssessmentTraitBlueprintUncheckedUpdateManyWithoutAssessmentNestedInput
+  dimensionBlueprints?: Prisma.AssessmentDimensionBlueprintUncheckedUpdateManyWithoutAssessmentNestedInput
 }
 
 export type AssessmentArenaAssessmentCreateWithoutReviewBoardsInput = {
@@ -1351,6 +2256,11 @@ export type AssessmentArenaAssessmentCreateWithoutReviewBoardsInput = {
   growthSnapshots?: Prisma.AssessmentGrowthSnapshotCreateNestedManyWithoutAssessmentInput
   rankPredictions?: Prisma.AssessmentRankPredictionCreateNestedManyWithoutAssessmentInput
   reportSnapshots?: Prisma.AssessmentReportSnapshotCreateNestedManyWithoutAssessmentInput
+  traitMappings?: Prisma.AssessmentTraitMappingCreateNestedManyWithoutAssessmentInput
+  dimensionMappings?: Prisma.AssessmentDimensionMappingCreateNestedManyWithoutAssessmentInput
+  questionBlueprint?: Prisma.AssessmentQuestionBlueprintCreateNestedOneWithoutAssessmentInput
+  traitBlueprints?: Prisma.AssessmentTraitBlueprintCreateNestedManyWithoutAssessmentInput
+  dimensionBlueprints?: Prisma.AssessmentDimensionBlueprintCreateNestedManyWithoutAssessmentInput
 }
 
 export type AssessmentArenaAssessmentUncheckedCreateWithoutReviewBoardsInput = {
@@ -1378,6 +2288,11 @@ export type AssessmentArenaAssessmentUncheckedCreateWithoutReviewBoardsInput = {
   growthSnapshots?: Prisma.AssessmentGrowthSnapshotUncheckedCreateNestedManyWithoutAssessmentInput
   rankPredictions?: Prisma.AssessmentRankPredictionUncheckedCreateNestedManyWithoutAssessmentInput
   reportSnapshots?: Prisma.AssessmentReportSnapshotUncheckedCreateNestedManyWithoutAssessmentInput
+  traitMappings?: Prisma.AssessmentTraitMappingUncheckedCreateNestedManyWithoutAssessmentInput
+  dimensionMappings?: Prisma.AssessmentDimensionMappingUncheckedCreateNestedManyWithoutAssessmentInput
+  questionBlueprint?: Prisma.AssessmentQuestionBlueprintUncheckedCreateNestedOneWithoutAssessmentInput
+  traitBlueprints?: Prisma.AssessmentTraitBlueprintUncheckedCreateNestedManyWithoutAssessmentInput
+  dimensionBlueprints?: Prisma.AssessmentDimensionBlueprintUncheckedCreateNestedManyWithoutAssessmentInput
 }
 
 export type AssessmentArenaAssessmentCreateOrConnectWithoutReviewBoardsInput = {
@@ -1421,6 +2336,11 @@ export type AssessmentArenaAssessmentUpdateWithoutReviewBoardsInput = {
   growthSnapshots?: Prisma.AssessmentGrowthSnapshotUpdateManyWithoutAssessmentNestedInput
   rankPredictions?: Prisma.AssessmentRankPredictionUpdateManyWithoutAssessmentNestedInput
   reportSnapshots?: Prisma.AssessmentReportSnapshotUpdateManyWithoutAssessmentNestedInput
+  traitMappings?: Prisma.AssessmentTraitMappingUpdateManyWithoutAssessmentNestedInput
+  dimensionMappings?: Prisma.AssessmentDimensionMappingUpdateManyWithoutAssessmentNestedInput
+  questionBlueprint?: Prisma.AssessmentQuestionBlueprintUpdateOneWithoutAssessmentNestedInput
+  traitBlueprints?: Prisma.AssessmentTraitBlueprintUpdateManyWithoutAssessmentNestedInput
+  dimensionBlueprints?: Prisma.AssessmentDimensionBlueprintUpdateManyWithoutAssessmentNestedInput
 }
 
 export type AssessmentArenaAssessmentUncheckedUpdateWithoutReviewBoardsInput = {
@@ -1448,6 +2368,11 @@ export type AssessmentArenaAssessmentUncheckedUpdateWithoutReviewBoardsInput = {
   growthSnapshots?: Prisma.AssessmentGrowthSnapshotUncheckedUpdateManyWithoutAssessmentNestedInput
   rankPredictions?: Prisma.AssessmentRankPredictionUncheckedUpdateManyWithoutAssessmentNestedInput
   reportSnapshots?: Prisma.AssessmentReportSnapshotUncheckedUpdateManyWithoutAssessmentNestedInput
+  traitMappings?: Prisma.AssessmentTraitMappingUncheckedUpdateManyWithoutAssessmentNestedInput
+  dimensionMappings?: Prisma.AssessmentDimensionMappingUncheckedUpdateManyWithoutAssessmentNestedInput
+  questionBlueprint?: Prisma.AssessmentQuestionBlueprintUncheckedUpdateOneWithoutAssessmentNestedInput
+  traitBlueprints?: Prisma.AssessmentTraitBlueprintUncheckedUpdateManyWithoutAssessmentNestedInput
+  dimensionBlueprints?: Prisma.AssessmentDimensionBlueprintUncheckedUpdateManyWithoutAssessmentNestedInput
 }
 
 export type AssessmentArenaAssessmentCreateWithoutPilotRunsInput = {
@@ -1475,6 +2400,11 @@ export type AssessmentArenaAssessmentCreateWithoutPilotRunsInput = {
   growthSnapshots?: Prisma.AssessmentGrowthSnapshotCreateNestedManyWithoutAssessmentInput
   rankPredictions?: Prisma.AssessmentRankPredictionCreateNestedManyWithoutAssessmentInput
   reportSnapshots?: Prisma.AssessmentReportSnapshotCreateNestedManyWithoutAssessmentInput
+  traitMappings?: Prisma.AssessmentTraitMappingCreateNestedManyWithoutAssessmentInput
+  dimensionMappings?: Prisma.AssessmentDimensionMappingCreateNestedManyWithoutAssessmentInput
+  questionBlueprint?: Prisma.AssessmentQuestionBlueprintCreateNestedOneWithoutAssessmentInput
+  traitBlueprints?: Prisma.AssessmentTraitBlueprintCreateNestedManyWithoutAssessmentInput
+  dimensionBlueprints?: Prisma.AssessmentDimensionBlueprintCreateNestedManyWithoutAssessmentInput
 }
 
 export type AssessmentArenaAssessmentUncheckedCreateWithoutPilotRunsInput = {
@@ -1502,6 +2432,11 @@ export type AssessmentArenaAssessmentUncheckedCreateWithoutPilotRunsInput = {
   growthSnapshots?: Prisma.AssessmentGrowthSnapshotUncheckedCreateNestedManyWithoutAssessmentInput
   rankPredictions?: Prisma.AssessmentRankPredictionUncheckedCreateNestedManyWithoutAssessmentInput
   reportSnapshots?: Prisma.AssessmentReportSnapshotUncheckedCreateNestedManyWithoutAssessmentInput
+  traitMappings?: Prisma.AssessmentTraitMappingUncheckedCreateNestedManyWithoutAssessmentInput
+  dimensionMappings?: Prisma.AssessmentDimensionMappingUncheckedCreateNestedManyWithoutAssessmentInput
+  questionBlueprint?: Prisma.AssessmentQuestionBlueprintUncheckedCreateNestedOneWithoutAssessmentInput
+  traitBlueprints?: Prisma.AssessmentTraitBlueprintUncheckedCreateNestedManyWithoutAssessmentInput
+  dimensionBlueprints?: Prisma.AssessmentDimensionBlueprintUncheckedCreateNestedManyWithoutAssessmentInput
 }
 
 export type AssessmentArenaAssessmentCreateOrConnectWithoutPilotRunsInput = {
@@ -1545,6 +2480,11 @@ export type AssessmentArenaAssessmentUpdateWithoutPilotRunsInput = {
   growthSnapshots?: Prisma.AssessmentGrowthSnapshotUpdateManyWithoutAssessmentNestedInput
   rankPredictions?: Prisma.AssessmentRankPredictionUpdateManyWithoutAssessmentNestedInput
   reportSnapshots?: Prisma.AssessmentReportSnapshotUpdateManyWithoutAssessmentNestedInput
+  traitMappings?: Prisma.AssessmentTraitMappingUpdateManyWithoutAssessmentNestedInput
+  dimensionMappings?: Prisma.AssessmentDimensionMappingUpdateManyWithoutAssessmentNestedInput
+  questionBlueprint?: Prisma.AssessmentQuestionBlueprintUpdateOneWithoutAssessmentNestedInput
+  traitBlueprints?: Prisma.AssessmentTraitBlueprintUpdateManyWithoutAssessmentNestedInput
+  dimensionBlueprints?: Prisma.AssessmentDimensionBlueprintUpdateManyWithoutAssessmentNestedInput
 }
 
 export type AssessmentArenaAssessmentUncheckedUpdateWithoutPilotRunsInput = {
@@ -1572,6 +2512,11 @@ export type AssessmentArenaAssessmentUncheckedUpdateWithoutPilotRunsInput = {
   growthSnapshots?: Prisma.AssessmentGrowthSnapshotUncheckedUpdateManyWithoutAssessmentNestedInput
   rankPredictions?: Prisma.AssessmentRankPredictionUncheckedUpdateManyWithoutAssessmentNestedInput
   reportSnapshots?: Prisma.AssessmentReportSnapshotUncheckedUpdateManyWithoutAssessmentNestedInput
+  traitMappings?: Prisma.AssessmentTraitMappingUncheckedUpdateManyWithoutAssessmentNestedInput
+  dimensionMappings?: Prisma.AssessmentDimensionMappingUncheckedUpdateManyWithoutAssessmentNestedInput
+  questionBlueprint?: Prisma.AssessmentQuestionBlueprintUncheckedUpdateOneWithoutAssessmentNestedInput
+  traitBlueprints?: Prisma.AssessmentTraitBlueprintUncheckedUpdateManyWithoutAssessmentNestedInput
+  dimensionBlueprints?: Prisma.AssessmentDimensionBlueprintUncheckedUpdateManyWithoutAssessmentNestedInput
 }
 
 export type AssessmentArenaAssessmentCreateWithoutExposuresInput = {
@@ -1599,6 +2544,11 @@ export type AssessmentArenaAssessmentCreateWithoutExposuresInput = {
   growthSnapshots?: Prisma.AssessmentGrowthSnapshotCreateNestedManyWithoutAssessmentInput
   rankPredictions?: Prisma.AssessmentRankPredictionCreateNestedManyWithoutAssessmentInput
   reportSnapshots?: Prisma.AssessmentReportSnapshotCreateNestedManyWithoutAssessmentInput
+  traitMappings?: Prisma.AssessmentTraitMappingCreateNestedManyWithoutAssessmentInput
+  dimensionMappings?: Prisma.AssessmentDimensionMappingCreateNestedManyWithoutAssessmentInput
+  questionBlueprint?: Prisma.AssessmentQuestionBlueprintCreateNestedOneWithoutAssessmentInput
+  traitBlueprints?: Prisma.AssessmentTraitBlueprintCreateNestedManyWithoutAssessmentInput
+  dimensionBlueprints?: Prisma.AssessmentDimensionBlueprintCreateNestedManyWithoutAssessmentInput
 }
 
 export type AssessmentArenaAssessmentUncheckedCreateWithoutExposuresInput = {
@@ -1626,6 +2576,11 @@ export type AssessmentArenaAssessmentUncheckedCreateWithoutExposuresInput = {
   growthSnapshots?: Prisma.AssessmentGrowthSnapshotUncheckedCreateNestedManyWithoutAssessmentInput
   rankPredictions?: Prisma.AssessmentRankPredictionUncheckedCreateNestedManyWithoutAssessmentInput
   reportSnapshots?: Prisma.AssessmentReportSnapshotUncheckedCreateNestedManyWithoutAssessmentInput
+  traitMappings?: Prisma.AssessmentTraitMappingUncheckedCreateNestedManyWithoutAssessmentInput
+  dimensionMappings?: Prisma.AssessmentDimensionMappingUncheckedCreateNestedManyWithoutAssessmentInput
+  questionBlueprint?: Prisma.AssessmentQuestionBlueprintUncheckedCreateNestedOneWithoutAssessmentInput
+  traitBlueprints?: Prisma.AssessmentTraitBlueprintUncheckedCreateNestedManyWithoutAssessmentInput
+  dimensionBlueprints?: Prisma.AssessmentDimensionBlueprintUncheckedCreateNestedManyWithoutAssessmentInput
 }
 
 export type AssessmentArenaAssessmentCreateOrConnectWithoutExposuresInput = {
@@ -1669,6 +2624,11 @@ export type AssessmentArenaAssessmentUpdateWithoutExposuresInput = {
   growthSnapshots?: Prisma.AssessmentGrowthSnapshotUpdateManyWithoutAssessmentNestedInput
   rankPredictions?: Prisma.AssessmentRankPredictionUpdateManyWithoutAssessmentNestedInput
   reportSnapshots?: Prisma.AssessmentReportSnapshotUpdateManyWithoutAssessmentNestedInput
+  traitMappings?: Prisma.AssessmentTraitMappingUpdateManyWithoutAssessmentNestedInput
+  dimensionMappings?: Prisma.AssessmentDimensionMappingUpdateManyWithoutAssessmentNestedInput
+  questionBlueprint?: Prisma.AssessmentQuestionBlueprintUpdateOneWithoutAssessmentNestedInput
+  traitBlueprints?: Prisma.AssessmentTraitBlueprintUpdateManyWithoutAssessmentNestedInput
+  dimensionBlueprints?: Prisma.AssessmentDimensionBlueprintUpdateManyWithoutAssessmentNestedInput
 }
 
 export type AssessmentArenaAssessmentUncheckedUpdateWithoutExposuresInput = {
@@ -1696,6 +2656,11 @@ export type AssessmentArenaAssessmentUncheckedUpdateWithoutExposuresInput = {
   growthSnapshots?: Prisma.AssessmentGrowthSnapshotUncheckedUpdateManyWithoutAssessmentNestedInput
   rankPredictions?: Prisma.AssessmentRankPredictionUncheckedUpdateManyWithoutAssessmentNestedInput
   reportSnapshots?: Prisma.AssessmentReportSnapshotUncheckedUpdateManyWithoutAssessmentNestedInput
+  traitMappings?: Prisma.AssessmentTraitMappingUncheckedUpdateManyWithoutAssessmentNestedInput
+  dimensionMappings?: Prisma.AssessmentDimensionMappingUncheckedUpdateManyWithoutAssessmentNestedInput
+  questionBlueprint?: Prisma.AssessmentQuestionBlueprintUncheckedUpdateOneWithoutAssessmentNestedInput
+  traitBlueprints?: Prisma.AssessmentTraitBlueprintUncheckedUpdateManyWithoutAssessmentNestedInput
+  dimensionBlueprints?: Prisma.AssessmentDimensionBlueprintUncheckedUpdateManyWithoutAssessmentNestedInput
 }
 
 export type AssessmentArenaAssessmentCreateWithoutAttemptsInput = {
@@ -1723,6 +2688,11 @@ export type AssessmentArenaAssessmentCreateWithoutAttemptsInput = {
   growthSnapshots?: Prisma.AssessmentGrowthSnapshotCreateNestedManyWithoutAssessmentInput
   rankPredictions?: Prisma.AssessmentRankPredictionCreateNestedManyWithoutAssessmentInput
   reportSnapshots?: Prisma.AssessmentReportSnapshotCreateNestedManyWithoutAssessmentInput
+  traitMappings?: Prisma.AssessmentTraitMappingCreateNestedManyWithoutAssessmentInput
+  dimensionMappings?: Prisma.AssessmentDimensionMappingCreateNestedManyWithoutAssessmentInput
+  questionBlueprint?: Prisma.AssessmentQuestionBlueprintCreateNestedOneWithoutAssessmentInput
+  traitBlueprints?: Prisma.AssessmentTraitBlueprintCreateNestedManyWithoutAssessmentInput
+  dimensionBlueprints?: Prisma.AssessmentDimensionBlueprintCreateNestedManyWithoutAssessmentInput
 }
 
 export type AssessmentArenaAssessmentUncheckedCreateWithoutAttemptsInput = {
@@ -1750,6 +2720,11 @@ export type AssessmentArenaAssessmentUncheckedCreateWithoutAttemptsInput = {
   growthSnapshots?: Prisma.AssessmentGrowthSnapshotUncheckedCreateNestedManyWithoutAssessmentInput
   rankPredictions?: Prisma.AssessmentRankPredictionUncheckedCreateNestedManyWithoutAssessmentInput
   reportSnapshots?: Prisma.AssessmentReportSnapshotUncheckedCreateNestedManyWithoutAssessmentInput
+  traitMappings?: Prisma.AssessmentTraitMappingUncheckedCreateNestedManyWithoutAssessmentInput
+  dimensionMappings?: Prisma.AssessmentDimensionMappingUncheckedCreateNestedManyWithoutAssessmentInput
+  questionBlueprint?: Prisma.AssessmentQuestionBlueprintUncheckedCreateNestedOneWithoutAssessmentInput
+  traitBlueprints?: Prisma.AssessmentTraitBlueprintUncheckedCreateNestedManyWithoutAssessmentInput
+  dimensionBlueprints?: Prisma.AssessmentDimensionBlueprintUncheckedCreateNestedManyWithoutAssessmentInput
 }
 
 export type AssessmentArenaAssessmentCreateOrConnectWithoutAttemptsInput = {
@@ -1793,6 +2768,11 @@ export type AssessmentArenaAssessmentUpdateWithoutAttemptsInput = {
   growthSnapshots?: Prisma.AssessmentGrowthSnapshotUpdateManyWithoutAssessmentNestedInput
   rankPredictions?: Prisma.AssessmentRankPredictionUpdateManyWithoutAssessmentNestedInput
   reportSnapshots?: Prisma.AssessmentReportSnapshotUpdateManyWithoutAssessmentNestedInput
+  traitMappings?: Prisma.AssessmentTraitMappingUpdateManyWithoutAssessmentNestedInput
+  dimensionMappings?: Prisma.AssessmentDimensionMappingUpdateManyWithoutAssessmentNestedInput
+  questionBlueprint?: Prisma.AssessmentQuestionBlueprintUpdateOneWithoutAssessmentNestedInput
+  traitBlueprints?: Prisma.AssessmentTraitBlueprintUpdateManyWithoutAssessmentNestedInput
+  dimensionBlueprints?: Prisma.AssessmentDimensionBlueprintUpdateManyWithoutAssessmentNestedInput
 }
 
 export type AssessmentArenaAssessmentUncheckedUpdateWithoutAttemptsInput = {
@@ -1820,6 +2800,11 @@ export type AssessmentArenaAssessmentUncheckedUpdateWithoutAttemptsInput = {
   growthSnapshots?: Prisma.AssessmentGrowthSnapshotUncheckedUpdateManyWithoutAssessmentNestedInput
   rankPredictions?: Prisma.AssessmentRankPredictionUncheckedUpdateManyWithoutAssessmentNestedInput
   reportSnapshots?: Prisma.AssessmentReportSnapshotUncheckedUpdateManyWithoutAssessmentNestedInput
+  traitMappings?: Prisma.AssessmentTraitMappingUncheckedUpdateManyWithoutAssessmentNestedInput
+  dimensionMappings?: Prisma.AssessmentDimensionMappingUncheckedUpdateManyWithoutAssessmentNestedInput
+  questionBlueprint?: Prisma.AssessmentQuestionBlueprintUncheckedUpdateOneWithoutAssessmentNestedInput
+  traitBlueprints?: Prisma.AssessmentTraitBlueprintUncheckedUpdateManyWithoutAssessmentNestedInput
+  dimensionBlueprints?: Prisma.AssessmentDimensionBlueprintUncheckedUpdateManyWithoutAssessmentNestedInput
 }
 
 export type AssessmentArenaAssessmentCreateWithoutGrowthSnapshotsInput = {
@@ -1847,6 +2832,11 @@ export type AssessmentArenaAssessmentCreateWithoutGrowthSnapshotsInput = {
   attempts?: Prisma.AssessmentAttemptCreateNestedManyWithoutAssessmentInput
   rankPredictions?: Prisma.AssessmentRankPredictionCreateNestedManyWithoutAssessmentInput
   reportSnapshots?: Prisma.AssessmentReportSnapshotCreateNestedManyWithoutAssessmentInput
+  traitMappings?: Prisma.AssessmentTraitMappingCreateNestedManyWithoutAssessmentInput
+  dimensionMappings?: Prisma.AssessmentDimensionMappingCreateNestedManyWithoutAssessmentInput
+  questionBlueprint?: Prisma.AssessmentQuestionBlueprintCreateNestedOneWithoutAssessmentInput
+  traitBlueprints?: Prisma.AssessmentTraitBlueprintCreateNestedManyWithoutAssessmentInput
+  dimensionBlueprints?: Prisma.AssessmentDimensionBlueprintCreateNestedManyWithoutAssessmentInput
 }
 
 export type AssessmentArenaAssessmentUncheckedCreateWithoutGrowthSnapshotsInput = {
@@ -1874,6 +2864,11 @@ export type AssessmentArenaAssessmentUncheckedCreateWithoutGrowthSnapshotsInput 
   attempts?: Prisma.AssessmentAttemptUncheckedCreateNestedManyWithoutAssessmentInput
   rankPredictions?: Prisma.AssessmentRankPredictionUncheckedCreateNestedManyWithoutAssessmentInput
   reportSnapshots?: Prisma.AssessmentReportSnapshotUncheckedCreateNestedManyWithoutAssessmentInput
+  traitMappings?: Prisma.AssessmentTraitMappingUncheckedCreateNestedManyWithoutAssessmentInput
+  dimensionMappings?: Prisma.AssessmentDimensionMappingUncheckedCreateNestedManyWithoutAssessmentInput
+  questionBlueprint?: Prisma.AssessmentQuestionBlueprintUncheckedCreateNestedOneWithoutAssessmentInput
+  traitBlueprints?: Prisma.AssessmentTraitBlueprintUncheckedCreateNestedManyWithoutAssessmentInput
+  dimensionBlueprints?: Prisma.AssessmentDimensionBlueprintUncheckedCreateNestedManyWithoutAssessmentInput
 }
 
 export type AssessmentArenaAssessmentCreateOrConnectWithoutGrowthSnapshotsInput = {
@@ -1917,6 +2912,11 @@ export type AssessmentArenaAssessmentUpdateWithoutGrowthSnapshotsInput = {
   attempts?: Prisma.AssessmentAttemptUpdateManyWithoutAssessmentNestedInput
   rankPredictions?: Prisma.AssessmentRankPredictionUpdateManyWithoutAssessmentNestedInput
   reportSnapshots?: Prisma.AssessmentReportSnapshotUpdateManyWithoutAssessmentNestedInput
+  traitMappings?: Prisma.AssessmentTraitMappingUpdateManyWithoutAssessmentNestedInput
+  dimensionMappings?: Prisma.AssessmentDimensionMappingUpdateManyWithoutAssessmentNestedInput
+  questionBlueprint?: Prisma.AssessmentQuestionBlueprintUpdateOneWithoutAssessmentNestedInput
+  traitBlueprints?: Prisma.AssessmentTraitBlueprintUpdateManyWithoutAssessmentNestedInput
+  dimensionBlueprints?: Prisma.AssessmentDimensionBlueprintUpdateManyWithoutAssessmentNestedInput
 }
 
 export type AssessmentArenaAssessmentUncheckedUpdateWithoutGrowthSnapshotsInput = {
@@ -1944,6 +2944,11 @@ export type AssessmentArenaAssessmentUncheckedUpdateWithoutGrowthSnapshotsInput 
   attempts?: Prisma.AssessmentAttemptUncheckedUpdateManyWithoutAssessmentNestedInput
   rankPredictions?: Prisma.AssessmentRankPredictionUncheckedUpdateManyWithoutAssessmentNestedInput
   reportSnapshots?: Prisma.AssessmentReportSnapshotUncheckedUpdateManyWithoutAssessmentNestedInput
+  traitMappings?: Prisma.AssessmentTraitMappingUncheckedUpdateManyWithoutAssessmentNestedInput
+  dimensionMappings?: Prisma.AssessmentDimensionMappingUncheckedUpdateManyWithoutAssessmentNestedInput
+  questionBlueprint?: Prisma.AssessmentQuestionBlueprintUncheckedUpdateOneWithoutAssessmentNestedInput
+  traitBlueprints?: Prisma.AssessmentTraitBlueprintUncheckedUpdateManyWithoutAssessmentNestedInput
+  dimensionBlueprints?: Prisma.AssessmentDimensionBlueprintUncheckedUpdateManyWithoutAssessmentNestedInput
 }
 
 export type AssessmentArenaAssessmentCreateWithoutRankPredictionsInput = {
@@ -1971,6 +2976,11 @@ export type AssessmentArenaAssessmentCreateWithoutRankPredictionsInput = {
   attempts?: Prisma.AssessmentAttemptCreateNestedManyWithoutAssessmentInput
   growthSnapshots?: Prisma.AssessmentGrowthSnapshotCreateNestedManyWithoutAssessmentInput
   reportSnapshots?: Prisma.AssessmentReportSnapshotCreateNestedManyWithoutAssessmentInput
+  traitMappings?: Prisma.AssessmentTraitMappingCreateNestedManyWithoutAssessmentInput
+  dimensionMappings?: Prisma.AssessmentDimensionMappingCreateNestedManyWithoutAssessmentInput
+  questionBlueprint?: Prisma.AssessmentQuestionBlueprintCreateNestedOneWithoutAssessmentInput
+  traitBlueprints?: Prisma.AssessmentTraitBlueprintCreateNestedManyWithoutAssessmentInput
+  dimensionBlueprints?: Prisma.AssessmentDimensionBlueprintCreateNestedManyWithoutAssessmentInput
 }
 
 export type AssessmentArenaAssessmentUncheckedCreateWithoutRankPredictionsInput = {
@@ -1998,6 +3008,11 @@ export type AssessmentArenaAssessmentUncheckedCreateWithoutRankPredictionsInput 
   attempts?: Prisma.AssessmentAttemptUncheckedCreateNestedManyWithoutAssessmentInput
   growthSnapshots?: Prisma.AssessmentGrowthSnapshotUncheckedCreateNestedManyWithoutAssessmentInput
   reportSnapshots?: Prisma.AssessmentReportSnapshotUncheckedCreateNestedManyWithoutAssessmentInput
+  traitMappings?: Prisma.AssessmentTraitMappingUncheckedCreateNestedManyWithoutAssessmentInput
+  dimensionMappings?: Prisma.AssessmentDimensionMappingUncheckedCreateNestedManyWithoutAssessmentInput
+  questionBlueprint?: Prisma.AssessmentQuestionBlueprintUncheckedCreateNestedOneWithoutAssessmentInput
+  traitBlueprints?: Prisma.AssessmentTraitBlueprintUncheckedCreateNestedManyWithoutAssessmentInput
+  dimensionBlueprints?: Prisma.AssessmentDimensionBlueprintUncheckedCreateNestedManyWithoutAssessmentInput
 }
 
 export type AssessmentArenaAssessmentCreateOrConnectWithoutRankPredictionsInput = {
@@ -2041,6 +3056,11 @@ export type AssessmentArenaAssessmentUpdateWithoutRankPredictionsInput = {
   attempts?: Prisma.AssessmentAttemptUpdateManyWithoutAssessmentNestedInput
   growthSnapshots?: Prisma.AssessmentGrowthSnapshotUpdateManyWithoutAssessmentNestedInput
   reportSnapshots?: Prisma.AssessmentReportSnapshotUpdateManyWithoutAssessmentNestedInput
+  traitMappings?: Prisma.AssessmentTraitMappingUpdateManyWithoutAssessmentNestedInput
+  dimensionMappings?: Prisma.AssessmentDimensionMappingUpdateManyWithoutAssessmentNestedInput
+  questionBlueprint?: Prisma.AssessmentQuestionBlueprintUpdateOneWithoutAssessmentNestedInput
+  traitBlueprints?: Prisma.AssessmentTraitBlueprintUpdateManyWithoutAssessmentNestedInput
+  dimensionBlueprints?: Prisma.AssessmentDimensionBlueprintUpdateManyWithoutAssessmentNestedInput
 }
 
 export type AssessmentArenaAssessmentUncheckedUpdateWithoutRankPredictionsInput = {
@@ -2068,6 +3088,11 @@ export type AssessmentArenaAssessmentUncheckedUpdateWithoutRankPredictionsInput 
   attempts?: Prisma.AssessmentAttemptUncheckedUpdateManyWithoutAssessmentNestedInput
   growthSnapshots?: Prisma.AssessmentGrowthSnapshotUncheckedUpdateManyWithoutAssessmentNestedInput
   reportSnapshots?: Prisma.AssessmentReportSnapshotUncheckedUpdateManyWithoutAssessmentNestedInput
+  traitMappings?: Prisma.AssessmentTraitMappingUncheckedUpdateManyWithoutAssessmentNestedInput
+  dimensionMappings?: Prisma.AssessmentDimensionMappingUncheckedUpdateManyWithoutAssessmentNestedInput
+  questionBlueprint?: Prisma.AssessmentQuestionBlueprintUncheckedUpdateOneWithoutAssessmentNestedInput
+  traitBlueprints?: Prisma.AssessmentTraitBlueprintUncheckedUpdateManyWithoutAssessmentNestedInput
+  dimensionBlueprints?: Prisma.AssessmentDimensionBlueprintUncheckedUpdateManyWithoutAssessmentNestedInput
 }
 
 export type AssessmentArenaAssessmentCreateWithoutReportSnapshotsInput = {
@@ -2095,6 +3120,11 @@ export type AssessmentArenaAssessmentCreateWithoutReportSnapshotsInput = {
   attempts?: Prisma.AssessmentAttemptCreateNestedManyWithoutAssessmentInput
   growthSnapshots?: Prisma.AssessmentGrowthSnapshotCreateNestedManyWithoutAssessmentInput
   rankPredictions?: Prisma.AssessmentRankPredictionCreateNestedManyWithoutAssessmentInput
+  traitMappings?: Prisma.AssessmentTraitMappingCreateNestedManyWithoutAssessmentInput
+  dimensionMappings?: Prisma.AssessmentDimensionMappingCreateNestedManyWithoutAssessmentInput
+  questionBlueprint?: Prisma.AssessmentQuestionBlueprintCreateNestedOneWithoutAssessmentInput
+  traitBlueprints?: Prisma.AssessmentTraitBlueprintCreateNestedManyWithoutAssessmentInput
+  dimensionBlueprints?: Prisma.AssessmentDimensionBlueprintCreateNestedManyWithoutAssessmentInput
 }
 
 export type AssessmentArenaAssessmentUncheckedCreateWithoutReportSnapshotsInput = {
@@ -2122,6 +3152,11 @@ export type AssessmentArenaAssessmentUncheckedCreateWithoutReportSnapshotsInput 
   attempts?: Prisma.AssessmentAttemptUncheckedCreateNestedManyWithoutAssessmentInput
   growthSnapshots?: Prisma.AssessmentGrowthSnapshotUncheckedCreateNestedManyWithoutAssessmentInput
   rankPredictions?: Prisma.AssessmentRankPredictionUncheckedCreateNestedManyWithoutAssessmentInput
+  traitMappings?: Prisma.AssessmentTraitMappingUncheckedCreateNestedManyWithoutAssessmentInput
+  dimensionMappings?: Prisma.AssessmentDimensionMappingUncheckedCreateNestedManyWithoutAssessmentInput
+  questionBlueprint?: Prisma.AssessmentQuestionBlueprintUncheckedCreateNestedOneWithoutAssessmentInput
+  traitBlueprints?: Prisma.AssessmentTraitBlueprintUncheckedCreateNestedManyWithoutAssessmentInput
+  dimensionBlueprints?: Prisma.AssessmentDimensionBlueprintUncheckedCreateNestedManyWithoutAssessmentInput
 }
 
 export type AssessmentArenaAssessmentCreateOrConnectWithoutReportSnapshotsInput = {
@@ -2165,6 +3200,11 @@ export type AssessmentArenaAssessmentUpdateWithoutReportSnapshotsInput = {
   attempts?: Prisma.AssessmentAttemptUpdateManyWithoutAssessmentNestedInput
   growthSnapshots?: Prisma.AssessmentGrowthSnapshotUpdateManyWithoutAssessmentNestedInput
   rankPredictions?: Prisma.AssessmentRankPredictionUpdateManyWithoutAssessmentNestedInput
+  traitMappings?: Prisma.AssessmentTraitMappingUpdateManyWithoutAssessmentNestedInput
+  dimensionMappings?: Prisma.AssessmentDimensionMappingUpdateManyWithoutAssessmentNestedInput
+  questionBlueprint?: Prisma.AssessmentQuestionBlueprintUpdateOneWithoutAssessmentNestedInput
+  traitBlueprints?: Prisma.AssessmentTraitBlueprintUpdateManyWithoutAssessmentNestedInput
+  dimensionBlueprints?: Prisma.AssessmentDimensionBlueprintUpdateManyWithoutAssessmentNestedInput
 }
 
 export type AssessmentArenaAssessmentUncheckedUpdateWithoutReportSnapshotsInput = {
@@ -2192,6 +3232,11 @@ export type AssessmentArenaAssessmentUncheckedUpdateWithoutReportSnapshotsInput 
   attempts?: Prisma.AssessmentAttemptUncheckedUpdateManyWithoutAssessmentNestedInput
   growthSnapshots?: Prisma.AssessmentGrowthSnapshotUncheckedUpdateManyWithoutAssessmentNestedInput
   rankPredictions?: Prisma.AssessmentRankPredictionUncheckedUpdateManyWithoutAssessmentNestedInput
+  traitMappings?: Prisma.AssessmentTraitMappingUncheckedUpdateManyWithoutAssessmentNestedInput
+  dimensionMappings?: Prisma.AssessmentDimensionMappingUncheckedUpdateManyWithoutAssessmentNestedInput
+  questionBlueprint?: Prisma.AssessmentQuestionBlueprintUncheckedUpdateOneWithoutAssessmentNestedInput
+  traitBlueprints?: Prisma.AssessmentTraitBlueprintUncheckedUpdateManyWithoutAssessmentNestedInput
+  dimensionBlueprints?: Prisma.AssessmentDimensionBlueprintUncheckedUpdateManyWithoutAssessmentNestedInput
 }
 
 
@@ -2211,6 +3256,10 @@ export type AssessmentArenaAssessmentCountOutputType = {
   growthSnapshots: number
   rankPredictions: number
   reportSnapshots: number
+  traitMappings: number
+  dimensionMappings: number
+  traitBlueprints: number
+  dimensionBlueprints: number
 }
 
 export type AssessmentArenaAssessmentCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2225,6 +3274,10 @@ export type AssessmentArenaAssessmentCountOutputTypeSelect<ExtArgs extends runti
   growthSnapshots?: boolean | AssessmentArenaAssessmentCountOutputTypeCountGrowthSnapshotsArgs
   rankPredictions?: boolean | AssessmentArenaAssessmentCountOutputTypeCountRankPredictionsArgs
   reportSnapshots?: boolean | AssessmentArenaAssessmentCountOutputTypeCountReportSnapshotsArgs
+  traitMappings?: boolean | AssessmentArenaAssessmentCountOutputTypeCountTraitMappingsArgs
+  dimensionMappings?: boolean | AssessmentArenaAssessmentCountOutputTypeCountDimensionMappingsArgs
+  traitBlueprints?: boolean | AssessmentArenaAssessmentCountOutputTypeCountTraitBlueprintsArgs
+  dimensionBlueprints?: boolean | AssessmentArenaAssessmentCountOutputTypeCountDimensionBlueprintsArgs
 }
 
 /**
@@ -2314,6 +3367,34 @@ export type AssessmentArenaAssessmentCountOutputTypeCountReportSnapshotsArgs<Ext
   where?: Prisma.AssessmentReportSnapshotWhereInput
 }
 
+/**
+ * AssessmentArenaAssessmentCountOutputType without action
+ */
+export type AssessmentArenaAssessmentCountOutputTypeCountTraitMappingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AssessmentTraitMappingWhereInput
+}
+
+/**
+ * AssessmentArenaAssessmentCountOutputType without action
+ */
+export type AssessmentArenaAssessmentCountOutputTypeCountDimensionMappingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AssessmentDimensionMappingWhereInput
+}
+
+/**
+ * AssessmentArenaAssessmentCountOutputType without action
+ */
+export type AssessmentArenaAssessmentCountOutputTypeCountTraitBlueprintsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AssessmentTraitBlueprintWhereInput
+}
+
+/**
+ * AssessmentArenaAssessmentCountOutputType without action
+ */
+export type AssessmentArenaAssessmentCountOutputTypeCountDimensionBlueprintsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AssessmentDimensionBlueprintWhereInput
+}
+
 
 export type AssessmentArenaAssessmentSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -2341,6 +3422,11 @@ export type AssessmentArenaAssessmentSelect<ExtArgs extends runtime.Types.Extens
   growthSnapshots?: boolean | Prisma.AssessmentArenaAssessment$growthSnapshotsArgs<ExtArgs>
   rankPredictions?: boolean | Prisma.AssessmentArenaAssessment$rankPredictionsArgs<ExtArgs>
   reportSnapshots?: boolean | Prisma.AssessmentArenaAssessment$reportSnapshotsArgs<ExtArgs>
+  traitMappings?: boolean | Prisma.AssessmentArenaAssessment$traitMappingsArgs<ExtArgs>
+  dimensionMappings?: boolean | Prisma.AssessmentArenaAssessment$dimensionMappingsArgs<ExtArgs>
+  questionBlueprint?: boolean | Prisma.AssessmentArenaAssessment$questionBlueprintArgs<ExtArgs>
+  traitBlueprints?: boolean | Prisma.AssessmentArenaAssessment$traitBlueprintsArgs<ExtArgs>
+  dimensionBlueprints?: boolean | Prisma.AssessmentArenaAssessment$dimensionBlueprintsArgs<ExtArgs>
   _count?: boolean | Prisma.AssessmentArenaAssessmentCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["assessmentArenaAssessment"]>
 
@@ -2408,6 +3494,11 @@ export type AssessmentArenaAssessmentInclude<ExtArgs extends runtime.Types.Exten
   growthSnapshots?: boolean | Prisma.AssessmentArenaAssessment$growthSnapshotsArgs<ExtArgs>
   rankPredictions?: boolean | Prisma.AssessmentArenaAssessment$rankPredictionsArgs<ExtArgs>
   reportSnapshots?: boolean | Prisma.AssessmentArenaAssessment$reportSnapshotsArgs<ExtArgs>
+  traitMappings?: boolean | Prisma.AssessmentArenaAssessment$traitMappingsArgs<ExtArgs>
+  dimensionMappings?: boolean | Prisma.AssessmentArenaAssessment$dimensionMappingsArgs<ExtArgs>
+  questionBlueprint?: boolean | Prisma.AssessmentArenaAssessment$questionBlueprintArgs<ExtArgs>
+  traitBlueprints?: boolean | Prisma.AssessmentArenaAssessment$traitBlueprintsArgs<ExtArgs>
+  dimensionBlueprints?: boolean | Prisma.AssessmentArenaAssessment$dimensionBlueprintsArgs<ExtArgs>
   _count?: boolean | Prisma.AssessmentArenaAssessmentCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type AssessmentArenaAssessmentIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -2427,6 +3518,11 @@ export type $AssessmentArenaAssessmentPayload<ExtArgs extends runtime.Types.Exte
     growthSnapshots: Prisma.$AssessmentGrowthSnapshotPayload<ExtArgs>[]
     rankPredictions: Prisma.$AssessmentRankPredictionPayload<ExtArgs>[]
     reportSnapshots: Prisma.$AssessmentReportSnapshotPayload<ExtArgs>[]
+    traitMappings: Prisma.$AssessmentTraitMappingPayload<ExtArgs>[]
+    dimensionMappings: Prisma.$AssessmentDimensionMappingPayload<ExtArgs>[]
+    questionBlueprint: Prisma.$AssessmentQuestionBlueprintPayload<ExtArgs> | null
+    traitBlueprints: Prisma.$AssessmentTraitBlueprintPayload<ExtArgs>[]
+    dimensionBlueprints: Prisma.$AssessmentDimensionBlueprintPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -2848,6 +3944,11 @@ export interface Prisma__AssessmentArenaAssessmentClient<T, Null = never, ExtArg
   growthSnapshots<T extends Prisma.AssessmentArenaAssessment$growthSnapshotsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AssessmentArenaAssessment$growthSnapshotsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AssessmentGrowthSnapshotPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   rankPredictions<T extends Prisma.AssessmentArenaAssessment$rankPredictionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AssessmentArenaAssessment$rankPredictionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AssessmentRankPredictionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   reportSnapshots<T extends Prisma.AssessmentArenaAssessment$reportSnapshotsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AssessmentArenaAssessment$reportSnapshotsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AssessmentReportSnapshotPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  traitMappings<T extends Prisma.AssessmentArenaAssessment$traitMappingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AssessmentArenaAssessment$traitMappingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AssessmentTraitMappingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  dimensionMappings<T extends Prisma.AssessmentArenaAssessment$dimensionMappingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AssessmentArenaAssessment$dimensionMappingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AssessmentDimensionMappingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  questionBlueprint<T extends Prisma.AssessmentArenaAssessment$questionBlueprintArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AssessmentArenaAssessment$questionBlueprintArgs<ExtArgs>>): Prisma.Prisma__AssessmentQuestionBlueprintClient<runtime.Types.Result.GetResult<Prisma.$AssessmentQuestionBlueprintPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  traitBlueprints<T extends Prisma.AssessmentArenaAssessment$traitBlueprintsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AssessmentArenaAssessment$traitBlueprintsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AssessmentTraitBlueprintPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  dimensionBlueprints<T extends Prisma.AssessmentArenaAssessment$dimensionBlueprintsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AssessmentArenaAssessment$dimensionBlueprintsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AssessmentDimensionBlueprintPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3545,6 +4646,121 @@ export type AssessmentArenaAssessment$reportSnapshotsArgs<ExtArgs extends runtim
   take?: number
   skip?: number
   distinct?: Prisma.AssessmentReportSnapshotScalarFieldEnum | Prisma.AssessmentReportSnapshotScalarFieldEnum[]
+}
+
+/**
+ * AssessmentArenaAssessment.traitMappings
+ */
+export type AssessmentArenaAssessment$traitMappingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AssessmentTraitMapping
+   */
+  select?: Prisma.AssessmentTraitMappingSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the AssessmentTraitMapping
+   */
+  omit?: Prisma.AssessmentTraitMappingOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AssessmentTraitMappingInclude<ExtArgs> | null
+  where?: Prisma.AssessmentTraitMappingWhereInput
+  orderBy?: Prisma.AssessmentTraitMappingOrderByWithRelationInput | Prisma.AssessmentTraitMappingOrderByWithRelationInput[]
+  cursor?: Prisma.AssessmentTraitMappingWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.AssessmentTraitMappingScalarFieldEnum | Prisma.AssessmentTraitMappingScalarFieldEnum[]
+}
+
+/**
+ * AssessmentArenaAssessment.dimensionMappings
+ */
+export type AssessmentArenaAssessment$dimensionMappingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AssessmentDimensionMapping
+   */
+  select?: Prisma.AssessmentDimensionMappingSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the AssessmentDimensionMapping
+   */
+  omit?: Prisma.AssessmentDimensionMappingOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AssessmentDimensionMappingInclude<ExtArgs> | null
+  where?: Prisma.AssessmentDimensionMappingWhereInput
+  orderBy?: Prisma.AssessmentDimensionMappingOrderByWithRelationInput | Prisma.AssessmentDimensionMappingOrderByWithRelationInput[]
+  cursor?: Prisma.AssessmentDimensionMappingWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.AssessmentDimensionMappingScalarFieldEnum | Prisma.AssessmentDimensionMappingScalarFieldEnum[]
+}
+
+/**
+ * AssessmentArenaAssessment.questionBlueprint
+ */
+export type AssessmentArenaAssessment$questionBlueprintArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AssessmentQuestionBlueprint
+   */
+  select?: Prisma.AssessmentQuestionBlueprintSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the AssessmentQuestionBlueprint
+   */
+  omit?: Prisma.AssessmentQuestionBlueprintOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AssessmentQuestionBlueprintInclude<ExtArgs> | null
+  where?: Prisma.AssessmentQuestionBlueprintWhereInput
+}
+
+/**
+ * AssessmentArenaAssessment.traitBlueprints
+ */
+export type AssessmentArenaAssessment$traitBlueprintsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AssessmentTraitBlueprint
+   */
+  select?: Prisma.AssessmentTraitBlueprintSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the AssessmentTraitBlueprint
+   */
+  omit?: Prisma.AssessmentTraitBlueprintOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AssessmentTraitBlueprintInclude<ExtArgs> | null
+  where?: Prisma.AssessmentTraitBlueprintWhereInput
+  orderBy?: Prisma.AssessmentTraitBlueprintOrderByWithRelationInput | Prisma.AssessmentTraitBlueprintOrderByWithRelationInput[]
+  cursor?: Prisma.AssessmentTraitBlueprintWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.AssessmentTraitBlueprintScalarFieldEnum | Prisma.AssessmentTraitBlueprintScalarFieldEnum[]
+}
+
+/**
+ * AssessmentArenaAssessment.dimensionBlueprints
+ */
+export type AssessmentArenaAssessment$dimensionBlueprintsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AssessmentDimensionBlueprint
+   */
+  select?: Prisma.AssessmentDimensionBlueprintSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the AssessmentDimensionBlueprint
+   */
+  omit?: Prisma.AssessmentDimensionBlueprintOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AssessmentDimensionBlueprintInclude<ExtArgs> | null
+  where?: Prisma.AssessmentDimensionBlueprintWhereInput
+  orderBy?: Prisma.AssessmentDimensionBlueprintOrderByWithRelationInput | Prisma.AssessmentDimensionBlueprintOrderByWithRelationInput[]
+  cursor?: Prisma.AssessmentDimensionBlueprintWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.AssessmentDimensionBlueprintScalarFieldEnum | Prisma.AssessmentDimensionBlueprintScalarFieldEnum[]
 }
 
 /**

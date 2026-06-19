@@ -273,6 +273,15 @@ assessmentArenaRouter.get("/trait-library/traits/:slug", assessmentArenaControll
 assessmentArenaRouter.get("/trait-library/dimensions", assessmentArenaController.listDimensionLibrary);
 assessmentArenaRouter.get("/trait-library/interpretations", assessmentArenaController.listTraitInterpretations);
 
+assessmentArenaRouter.get("/mappings/assessments", assessmentArenaController.listMappingAssessments);
+assessmentArenaRouter.get("/mappings/traits", assessmentArenaController.listMappingTraits);
+assessmentArenaRouter.get("/mappings/dimensions", assessmentArenaController.listMappingDimensions);
+assessmentArenaRouter.get("/mappings/coverage", assessmentArenaController.mappingCoverage);
+
+assessmentArenaRouter.get("/blueprints", assessmentArenaController.listBlueprints);
+assessmentArenaRouter.get("/blueprints/coverage", assessmentArenaController.blueprintCoverage);
+assessmentArenaRouter.get("/blueprints/:assessmentId", assessmentArenaController.getBlueprint);
+
 assessmentArenaRouter.post("/ssb/seed", assessmentArenaController.seedSsbIntelligence);
 assessmentArenaRouter.get("/ssb/olqs", assessmentArenaController.listSsbOlqs);
 assessmentArenaRouter.get("/ssb/readiness", assessmentArenaController.getSsbReadiness);

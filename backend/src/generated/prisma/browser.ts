@@ -148,6 +148,31 @@ export type PsychometricAnswer = Prisma.PsychometricAnswerModel
  */
 export type AssessmentArenaAssessment = Prisma.AssessmentArenaAssessmentModel
 /**
+ * Model AssessmentTraitMapping
+ * 
+ */
+export type AssessmentTraitMapping = Prisma.AssessmentTraitMappingModel
+/**
+ * Model AssessmentDimensionMapping
+ * 
+ */
+export type AssessmentDimensionMapping = Prisma.AssessmentDimensionMappingModel
+/**
+ * Model AssessmentQuestionBlueprint
+ * 
+ */
+export type AssessmentQuestionBlueprint = Prisma.AssessmentQuestionBlueprintModel
+/**
+ * Model AssessmentTraitBlueprint
+ * 
+ */
+export type AssessmentTraitBlueprint = Prisma.AssessmentTraitBlueprintModel
+/**
+ * Model AssessmentDimensionBlueprint
+ * 
+ */
+export type AssessmentDimensionBlueprint = Prisma.AssessmentDimensionBlueprintModel
+/**
  * Model AssessmentTrait
  * 
  */

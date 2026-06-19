@@ -16,6 +16,8 @@ import { assessmentReportVersionService } from "./assessment-report-version.serv
 import { assessmentRiskService } from "./assessment-risk.service.js";
 import { assessmentReviewWorkflowService } from "./assessment-review.service.js";
 import { assessmentTraitLibraryService } from "./assessment-trait-library.service.js";
+import { assessmentMappingService } from "./assessment-mapping.service.js";
+import { assessmentBlueprintService } from "./assessment-blueprint.service.js";
 import { ssbIntelligenceService } from "./ssb-intelligence.service.js";
 import { topRankIntelligenceService } from "./toprank-intelligence.service.js";
 import { assessmentScoringFixture } from "./assessment-scoring.fixtures.js";
@@ -678,6 +680,62 @@ export const assessmentArenaController = {
     try {
       const dayLabel = typeof req.body?.dayLabel === "string" ? req.body.dayLabel.trim() : "DAY_30";
       res.status(201).json(await topRankIntelligenceService.calculate(topRankScope(req), dayLabel));
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async listMappingAssessments(_req: Request, res: Response, next: NextFunction) {
+    try {
+      res.json({ assessments: await assessmentMappingService.assessments() });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async listMappingTraits(req: Request, res: Response, next: NextFunction) {
+    try {
+      res.json({ traits: await assessmentMappingService.traits(queryText(req, "assessmentId")) });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async listMappingDimensions(req: Request, res: Response, next: NextFunction) {
+    try {
+      res.json({ dimensions: await assessmentMappingService.dimensions(queryText(req, "assessmentId")) });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async mappingCoverage(_req: Request, res: Response, next: NextFunction) {
+    try {
+      res.json({ coverage: await assessmentMappingService.coverage() });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async listBlueprints(_req: Request, res: Response, next: NextFunction) {
+    try {
+      res.json({ blueprints: await assessmentBlueprintService.list() });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async getBlueprint(req: Request, res: Response, next: NextFunction) {
+    try {
+      res.json({ blueprint: await assessmentBlueprintService.get(param(req, "assessmentId")) });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async blueprintCoverage(_req: Request, res: Response, next: NextFunction) {
+    try {
+      res.json({ coverage: await assessmentBlueprintService.coverage() });
     } catch (error) {
       next(error);
     }

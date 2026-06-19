@@ -232,6 +232,7 @@ export type AssessmentTraitLibraryItemWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"AssessmentTraitLibraryItem"> | Date | string
   dimensions?: Prisma.AssessmentDimensionLibraryItemListRelationFilter
   interpretations?: Prisma.AssessmentTraitBandInterpretationListRelationFilter
+  assessmentMappings?: Prisma.AssessmentTraitMappingListRelationFilter
 }
 
 export type AssessmentTraitLibraryItemOrderByWithRelationInput = {
@@ -249,6 +250,7 @@ export type AssessmentTraitLibraryItemOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   dimensions?: Prisma.AssessmentDimensionLibraryItemOrderByRelationAggregateInput
   interpretations?: Prisma.AssessmentTraitBandInterpretationOrderByRelationAggregateInput
+  assessmentMappings?: Prisma.AssessmentTraitMappingOrderByRelationAggregateInput
 }
 
 export type AssessmentTraitLibraryItemWhereUniqueInput = Prisma.AtLeast<{
@@ -269,6 +271,7 @@ export type AssessmentTraitLibraryItemWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"AssessmentTraitLibraryItem"> | Date | string
   dimensions?: Prisma.AssessmentDimensionLibraryItemListRelationFilter
   interpretations?: Prisma.AssessmentTraitBandInterpretationListRelationFilter
+  assessmentMappings?: Prisma.AssessmentTraitMappingListRelationFilter
 }, "id" | "slug" | "name">
 
 export type AssessmentTraitLibraryItemOrderByWithAggregationInput = {
@@ -322,6 +325,7 @@ export type AssessmentTraitLibraryItemCreateInput = {
   updatedAt?: Date | string
   dimensions?: Prisma.AssessmentDimensionLibraryItemCreateNestedManyWithoutTraitInput
   interpretations?: Prisma.AssessmentTraitBandInterpretationCreateNestedManyWithoutTraitInput
+  assessmentMappings?: Prisma.AssessmentTraitMappingCreateNestedManyWithoutTraitInput
 }
 
 export type AssessmentTraitLibraryItemUncheckedCreateInput = {
@@ -339,6 +343,7 @@ export type AssessmentTraitLibraryItemUncheckedCreateInput = {
   updatedAt?: Date | string
   dimensions?: Prisma.AssessmentDimensionLibraryItemUncheckedCreateNestedManyWithoutTraitInput
   interpretations?: Prisma.AssessmentTraitBandInterpretationUncheckedCreateNestedManyWithoutTraitInput
+  assessmentMappings?: Prisma.AssessmentTraitMappingUncheckedCreateNestedManyWithoutTraitInput
 }
 
 export type AssessmentTraitLibraryItemUpdateInput = {
@@ -356,6 +361,7 @@ export type AssessmentTraitLibraryItemUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   dimensions?: Prisma.AssessmentDimensionLibraryItemUpdateManyWithoutTraitNestedInput
   interpretations?: Prisma.AssessmentTraitBandInterpretationUpdateManyWithoutTraitNestedInput
+  assessmentMappings?: Prisma.AssessmentTraitMappingUpdateManyWithoutTraitNestedInput
 }
 
 export type AssessmentTraitLibraryItemUncheckedUpdateInput = {
@@ -373,6 +379,7 @@ export type AssessmentTraitLibraryItemUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   dimensions?: Prisma.AssessmentDimensionLibraryItemUncheckedUpdateManyWithoutTraitNestedInput
   interpretations?: Prisma.AssessmentTraitBandInterpretationUncheckedUpdateManyWithoutTraitNestedInput
+  assessmentMappings?: Prisma.AssessmentTraitMappingUncheckedUpdateManyWithoutTraitNestedInput
 }
 
 export type AssessmentTraitLibraryItemCreateManyInput = {
@@ -420,6 +427,11 @@ export type AssessmentTraitLibraryItemUncheckedUpdateManyInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
+export type AssessmentTraitLibraryItemScalarRelationFilter = {
+  is?: Prisma.AssessmentTraitLibraryItemWhereInput
+  isNot?: Prisma.AssessmentTraitLibraryItemWhereInput
+}
+
 export type AssessmentTraitLibraryItemCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   slug?: Prisma.SortOrder
@@ -461,9 +473,18 @@ export type AssessmentTraitLibraryItemMinOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
 }
 
-export type AssessmentTraitLibraryItemScalarRelationFilter = {
-  is?: Prisma.AssessmentTraitLibraryItemWhereInput
-  isNot?: Prisma.AssessmentTraitLibraryItemWhereInput
+export type AssessmentTraitLibraryItemCreateNestedOneWithoutAssessmentMappingsInput = {
+  create?: Prisma.XOR<Prisma.AssessmentTraitLibraryItemCreateWithoutAssessmentMappingsInput, Prisma.AssessmentTraitLibraryItemUncheckedCreateWithoutAssessmentMappingsInput>
+  connectOrCreate?: Prisma.AssessmentTraitLibraryItemCreateOrConnectWithoutAssessmentMappingsInput
+  connect?: Prisma.AssessmentTraitLibraryItemWhereUniqueInput
+}
+
+export type AssessmentTraitLibraryItemUpdateOneRequiredWithoutAssessmentMappingsNestedInput = {
+  create?: Prisma.XOR<Prisma.AssessmentTraitLibraryItemCreateWithoutAssessmentMappingsInput, Prisma.AssessmentTraitLibraryItemUncheckedCreateWithoutAssessmentMappingsInput>
+  connectOrCreate?: Prisma.AssessmentTraitLibraryItemCreateOrConnectWithoutAssessmentMappingsInput
+  upsert?: Prisma.AssessmentTraitLibraryItemUpsertWithoutAssessmentMappingsInput
+  connect?: Prisma.AssessmentTraitLibraryItemWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.AssessmentTraitLibraryItemUpdateToOneWithWhereWithoutAssessmentMappingsInput, Prisma.AssessmentTraitLibraryItemUpdateWithoutAssessmentMappingsInput>, Prisma.AssessmentTraitLibraryItemUncheckedUpdateWithoutAssessmentMappingsInput>
 }
 
 export type AssessmentTraitLibraryItemCreateNestedOneWithoutDimensionsInput = {
@@ -494,6 +515,90 @@ export type AssessmentTraitLibraryItemUpdateOneRequiredWithoutInterpretationsNes
   update?: Prisma.XOR<Prisma.XOR<Prisma.AssessmentTraitLibraryItemUpdateToOneWithWhereWithoutInterpretationsInput, Prisma.AssessmentTraitLibraryItemUpdateWithoutInterpretationsInput>, Prisma.AssessmentTraitLibraryItemUncheckedUpdateWithoutInterpretationsInput>
 }
 
+export type AssessmentTraitLibraryItemCreateWithoutAssessmentMappingsInput = {
+  id?: string
+  slug: string
+  name: string
+  definition: string
+  defenceRelevance: string
+  ssbRelevance: string
+  topRankRelevance: string
+  riskRelevance: string
+  assessmentRelevance: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  dimensions?: Prisma.AssessmentDimensionLibraryItemCreateNestedManyWithoutTraitInput
+  interpretations?: Prisma.AssessmentTraitBandInterpretationCreateNestedManyWithoutTraitInput
+}
+
+export type AssessmentTraitLibraryItemUncheckedCreateWithoutAssessmentMappingsInput = {
+  id?: string
+  slug: string
+  name: string
+  definition: string
+  defenceRelevance: string
+  ssbRelevance: string
+  topRankRelevance: string
+  riskRelevance: string
+  assessmentRelevance: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  dimensions?: Prisma.AssessmentDimensionLibraryItemUncheckedCreateNestedManyWithoutTraitInput
+  interpretations?: Prisma.AssessmentTraitBandInterpretationUncheckedCreateNestedManyWithoutTraitInput
+}
+
+export type AssessmentTraitLibraryItemCreateOrConnectWithoutAssessmentMappingsInput = {
+  where: Prisma.AssessmentTraitLibraryItemWhereUniqueInput
+  create: Prisma.XOR<Prisma.AssessmentTraitLibraryItemCreateWithoutAssessmentMappingsInput, Prisma.AssessmentTraitLibraryItemUncheckedCreateWithoutAssessmentMappingsInput>
+}
+
+export type AssessmentTraitLibraryItemUpsertWithoutAssessmentMappingsInput = {
+  update: Prisma.XOR<Prisma.AssessmentTraitLibraryItemUpdateWithoutAssessmentMappingsInput, Prisma.AssessmentTraitLibraryItemUncheckedUpdateWithoutAssessmentMappingsInput>
+  create: Prisma.XOR<Prisma.AssessmentTraitLibraryItemCreateWithoutAssessmentMappingsInput, Prisma.AssessmentTraitLibraryItemUncheckedCreateWithoutAssessmentMappingsInput>
+  where?: Prisma.AssessmentTraitLibraryItemWhereInput
+}
+
+export type AssessmentTraitLibraryItemUpdateToOneWithWhereWithoutAssessmentMappingsInput = {
+  where?: Prisma.AssessmentTraitLibraryItemWhereInput
+  data: Prisma.XOR<Prisma.AssessmentTraitLibraryItemUpdateWithoutAssessmentMappingsInput, Prisma.AssessmentTraitLibraryItemUncheckedUpdateWithoutAssessmentMappingsInput>
+}
+
+export type AssessmentTraitLibraryItemUpdateWithoutAssessmentMappingsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  definition?: Prisma.StringFieldUpdateOperationsInput | string
+  defenceRelevance?: Prisma.StringFieldUpdateOperationsInput | string
+  ssbRelevance?: Prisma.StringFieldUpdateOperationsInput | string
+  topRankRelevance?: Prisma.StringFieldUpdateOperationsInput | string
+  riskRelevance?: Prisma.StringFieldUpdateOperationsInput | string
+  assessmentRelevance?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  dimensions?: Prisma.AssessmentDimensionLibraryItemUpdateManyWithoutTraitNestedInput
+  interpretations?: Prisma.AssessmentTraitBandInterpretationUpdateManyWithoutTraitNestedInput
+}
+
+export type AssessmentTraitLibraryItemUncheckedUpdateWithoutAssessmentMappingsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  definition?: Prisma.StringFieldUpdateOperationsInput | string
+  defenceRelevance?: Prisma.StringFieldUpdateOperationsInput | string
+  ssbRelevance?: Prisma.StringFieldUpdateOperationsInput | string
+  topRankRelevance?: Prisma.StringFieldUpdateOperationsInput | string
+  riskRelevance?: Prisma.StringFieldUpdateOperationsInput | string
+  assessmentRelevance?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  dimensions?: Prisma.AssessmentDimensionLibraryItemUncheckedUpdateManyWithoutTraitNestedInput
+  interpretations?: Prisma.AssessmentTraitBandInterpretationUncheckedUpdateManyWithoutTraitNestedInput
+}
+
 export type AssessmentTraitLibraryItemCreateWithoutDimensionsInput = {
   id?: string
   slug: string
@@ -508,6 +613,7 @@ export type AssessmentTraitLibraryItemCreateWithoutDimensionsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   interpretations?: Prisma.AssessmentTraitBandInterpretationCreateNestedManyWithoutTraitInput
+  assessmentMappings?: Prisma.AssessmentTraitMappingCreateNestedManyWithoutTraitInput
 }
 
 export type AssessmentTraitLibraryItemUncheckedCreateWithoutDimensionsInput = {
@@ -524,6 +630,7 @@ export type AssessmentTraitLibraryItemUncheckedCreateWithoutDimensionsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   interpretations?: Prisma.AssessmentTraitBandInterpretationUncheckedCreateNestedManyWithoutTraitInput
+  assessmentMappings?: Prisma.AssessmentTraitMappingUncheckedCreateNestedManyWithoutTraitInput
 }
 
 export type AssessmentTraitLibraryItemCreateOrConnectWithoutDimensionsInput = {
@@ -556,6 +663,7 @@ export type AssessmentTraitLibraryItemUpdateWithoutDimensionsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   interpretations?: Prisma.AssessmentTraitBandInterpretationUpdateManyWithoutTraitNestedInput
+  assessmentMappings?: Prisma.AssessmentTraitMappingUpdateManyWithoutTraitNestedInput
 }
 
 export type AssessmentTraitLibraryItemUncheckedUpdateWithoutDimensionsInput = {
@@ -572,6 +680,7 @@ export type AssessmentTraitLibraryItemUncheckedUpdateWithoutDimensionsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   interpretations?: Prisma.AssessmentTraitBandInterpretationUncheckedUpdateManyWithoutTraitNestedInput
+  assessmentMappings?: Prisma.AssessmentTraitMappingUncheckedUpdateManyWithoutTraitNestedInput
 }
 
 export type AssessmentTraitLibraryItemCreateWithoutInterpretationsInput = {
@@ -588,6 +697,7 @@ export type AssessmentTraitLibraryItemCreateWithoutInterpretationsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   dimensions?: Prisma.AssessmentDimensionLibraryItemCreateNestedManyWithoutTraitInput
+  assessmentMappings?: Prisma.AssessmentTraitMappingCreateNestedManyWithoutTraitInput
 }
 
 export type AssessmentTraitLibraryItemUncheckedCreateWithoutInterpretationsInput = {
@@ -604,6 +714,7 @@ export type AssessmentTraitLibraryItemUncheckedCreateWithoutInterpretationsInput
   createdAt?: Date | string
   updatedAt?: Date | string
   dimensions?: Prisma.AssessmentDimensionLibraryItemUncheckedCreateNestedManyWithoutTraitInput
+  assessmentMappings?: Prisma.AssessmentTraitMappingUncheckedCreateNestedManyWithoutTraitInput
 }
 
 export type AssessmentTraitLibraryItemCreateOrConnectWithoutInterpretationsInput = {
@@ -636,6 +747,7 @@ export type AssessmentTraitLibraryItemUpdateWithoutInterpretationsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   dimensions?: Prisma.AssessmentDimensionLibraryItemUpdateManyWithoutTraitNestedInput
+  assessmentMappings?: Prisma.AssessmentTraitMappingUpdateManyWithoutTraitNestedInput
 }
 
 export type AssessmentTraitLibraryItemUncheckedUpdateWithoutInterpretationsInput = {
@@ -652,6 +764,7 @@ export type AssessmentTraitLibraryItemUncheckedUpdateWithoutInterpretationsInput
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   dimensions?: Prisma.AssessmentDimensionLibraryItemUncheckedUpdateManyWithoutTraitNestedInput
+  assessmentMappings?: Prisma.AssessmentTraitMappingUncheckedUpdateManyWithoutTraitNestedInput
 }
 
 
@@ -662,11 +775,13 @@ export type AssessmentTraitLibraryItemUncheckedUpdateWithoutInterpretationsInput
 export type AssessmentTraitLibraryItemCountOutputType = {
   dimensions: number
   interpretations: number
+  assessmentMappings: number
 }
 
 export type AssessmentTraitLibraryItemCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   dimensions?: boolean | AssessmentTraitLibraryItemCountOutputTypeCountDimensionsArgs
   interpretations?: boolean | AssessmentTraitLibraryItemCountOutputTypeCountInterpretationsArgs
+  assessmentMappings?: boolean | AssessmentTraitLibraryItemCountOutputTypeCountAssessmentMappingsArgs
 }
 
 /**
@@ -693,6 +808,13 @@ export type AssessmentTraitLibraryItemCountOutputTypeCountInterpretationsArgs<Ex
   where?: Prisma.AssessmentTraitBandInterpretationWhereInput
 }
 
+/**
+ * AssessmentTraitLibraryItemCountOutputType without action
+ */
+export type AssessmentTraitLibraryItemCountOutputTypeCountAssessmentMappingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AssessmentTraitMappingWhereInput
+}
+
 
 export type AssessmentTraitLibraryItemSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -709,6 +831,7 @@ export type AssessmentTraitLibraryItemSelect<ExtArgs extends runtime.Types.Exten
   updatedAt?: boolean
   dimensions?: boolean | Prisma.AssessmentTraitLibraryItem$dimensionsArgs<ExtArgs>
   interpretations?: boolean | Prisma.AssessmentTraitLibraryItem$interpretationsArgs<ExtArgs>
+  assessmentMappings?: boolean | Prisma.AssessmentTraitLibraryItem$assessmentMappingsArgs<ExtArgs>
   _count?: boolean | Prisma.AssessmentTraitLibraryItemCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["assessmentTraitLibraryItem"]>
 
@@ -761,6 +884,7 @@ export type AssessmentTraitLibraryItemOmit<ExtArgs extends runtime.Types.Extensi
 export type AssessmentTraitLibraryItemInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   dimensions?: boolean | Prisma.AssessmentTraitLibraryItem$dimensionsArgs<ExtArgs>
   interpretations?: boolean | Prisma.AssessmentTraitLibraryItem$interpretationsArgs<ExtArgs>
+  assessmentMappings?: boolean | Prisma.AssessmentTraitLibraryItem$assessmentMappingsArgs<ExtArgs>
   _count?: boolean | Prisma.AssessmentTraitLibraryItemCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type AssessmentTraitLibraryItemIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -771,6 +895,7 @@ export type $AssessmentTraitLibraryItemPayload<ExtArgs extends runtime.Types.Ext
   objects: {
     dimensions: Prisma.$AssessmentDimensionLibraryItemPayload<ExtArgs>[]
     interpretations: Prisma.$AssessmentTraitBandInterpretationPayload<ExtArgs>[]
+    assessmentMappings: Prisma.$AssessmentTraitMappingPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1181,6 +1306,7 @@ export interface Prisma__AssessmentTraitLibraryItemClient<T, Null = never, ExtAr
   readonly [Symbol.toStringTag]: "PrismaPromise"
   dimensions<T extends Prisma.AssessmentTraitLibraryItem$dimensionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AssessmentTraitLibraryItem$dimensionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AssessmentDimensionLibraryItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   interpretations<T extends Prisma.AssessmentTraitLibraryItem$interpretationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AssessmentTraitLibraryItem$interpretationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AssessmentTraitBandInterpretationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  assessmentMappings<T extends Prisma.AssessmentTraitLibraryItem$assessmentMappingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AssessmentTraitLibraryItem$assessmentMappingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AssessmentTraitMappingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1660,6 +1786,30 @@ export type AssessmentTraitLibraryItem$interpretationsArgs<ExtArgs extends runti
   take?: number
   skip?: number
   distinct?: Prisma.AssessmentTraitBandInterpretationScalarFieldEnum | Prisma.AssessmentTraitBandInterpretationScalarFieldEnum[]
+}
+
+/**
+ * AssessmentTraitLibraryItem.assessmentMappings
+ */
+export type AssessmentTraitLibraryItem$assessmentMappingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AssessmentTraitMapping
+   */
+  select?: Prisma.AssessmentTraitMappingSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the AssessmentTraitMapping
+   */
+  omit?: Prisma.AssessmentTraitMappingOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AssessmentTraitMappingInclude<ExtArgs> | null
+  where?: Prisma.AssessmentTraitMappingWhereInput
+  orderBy?: Prisma.AssessmentTraitMappingOrderByWithRelationInput | Prisma.AssessmentTraitMappingOrderByWithRelationInput[]
+  cursor?: Prisma.AssessmentTraitMappingWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.AssessmentTraitMappingScalarFieldEnum | Prisma.AssessmentTraitMappingScalarFieldEnum[]
 }
 
 /**

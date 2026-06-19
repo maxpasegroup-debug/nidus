@@ -410,6 +410,11 @@ export const ModelName = {
   PsychometricReport: 'PsychometricReport',
   PsychometricAnswer: 'PsychometricAnswer',
   AssessmentArenaAssessment: 'AssessmentArenaAssessment',
+  AssessmentTraitMapping: 'AssessmentTraitMapping',
+  AssessmentDimensionMapping: 'AssessmentDimensionMapping',
+  AssessmentQuestionBlueprint: 'AssessmentQuestionBlueprint',
+  AssessmentTraitBlueprint: 'AssessmentTraitBlueprint',
+  AssessmentDimensionBlueprint: 'AssessmentDimensionBlueprint',
   AssessmentTrait: 'AssessmentTrait',
   AssessmentDimension: 'AssessmentDimension',
   AssessmentQuestion: 'AssessmentQuestion',
@@ -584,7 +589,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "sessionToken" | "passwordReset" | "parentStudentInvitation" | "parentStudentLink" | "otp" | "course" | "module" | "lesson" | "enrollment" | "batch" | "batchStudent" | "teacherBatchAssignment" | "test" | "question" | "questionBankItem" | "testAttempt" | "cBTAnswerState" | "cBTIntegrityEvent" | "answer" | "psychometricTest" | "psychometricQuestion" | "psychometricAttempt" | "psychometricReport" | "psychometricAnswer" | "assessmentArenaAssessment" | "assessmentTrait" | "assessmentDimension" | "assessmentQuestion" | "assessmentQuestionOption" | "assessmentQuestionVersion" | "assessmentQuestionReview" | "assessmentReviewBoard" | "assessmentPilotRun" | "assessmentPilotResponse" | "assessmentQuestionExposure" | "assessmentAttempt" | "assessmentAttemptQuestion" | "assessmentAnswer" | "assessmentTraitScore" | "assessmentDimensionScore" | "assessmentIntegritySignal" | "assessmentRiskSignal" | "assessmentGrowthSnapshot" | "assessmentRankPrediction" | "assessmentReportSnapshot" | "topRankSignalSnapshot" | "topRankReadinessScore" | "topRankPerformanceTrend" | "topRankGrowthTrend" | "topRankRiskTrend" | "topRankMentorFeedback" | "topRankSignalWeightConfig" | "assessmentTraitLibraryItem" | "assessmentDimensionLibraryItem" | "assessmentTraitBandInterpretation" | "assessmentRiskInterpretation" | "assessmentReadinessInterpretation" | "assessmentSsbOlq" | "assessmentSsbOlqMapping" | "assessmentSsbOlqInterpretation" | "oLQScore" | "studyPlan" | "performanceAnalytics" | "revisionSchedule" | "liveClass" | "recordedLecture" | "lectureProgress" | "lecturePlaybackEvent" | "attendance" | "timetable" | "faculty" | "classroom" | "payroll" | "announcement" | "hostel" | "room" | "hostelAllocation" | "inOutEntry" | "hostelLeave" | "messMenu" | "disciplineRecord" | "paradePerformance" | "lead" | "followUp" | "admission" | "counsellingBooking" | "referral" | "payment" | "subscription" | "feeInstallment" | "invoice" | "feePlan" | "paymentTransactionLog" | "approvalRequest" | "scholarshipDiscount" | "financeDocument" | "notification" | "messageThread" | "message" | "emailLog" | "pushNotification" | "aIInterviewSession" | "aIInterviewQuestion" | "doubtQuery" | "aIRecommendation" | "aITutorSession" | "aITutorMessage" | "aITutorFeedback" | "aIResponseCache" | "learningTopicInsight" | "revisionQueueItem" | "cBTIntelligenceReport" | "contentIngestionJob" | "generatedContentAsset" | "offlineSyncEvent" | "learningAnalyticsSnapshot" | "dailyIntelligenceIssue" | "contentModerationItem" | "officerPotential" | "fitnessProfile" | "pTSchedule" | "pTAttendance" | "physicalEligibility" | "dailyFitnessLog" | "pYQCategory" | "pYQQuestion" | "currentAffair" | "currentAffairQuiz" | "quizBattle" | "quizBattleParticipant" | "leaderboard" | "mediaFolder" | "mediaFile" | "document" | "adminRole" | "permission" | "rolePermission" | "userRole" | "roleActivity" | "systemSetting" | "auditLog" | "queueJobLog" | "aIRequestLog" | "salesBoosterCampaign" | "salesBoosterMetricSnapshot" | "salesBoosterAudienceContact" | "guruQuest" | "guruLesson" | "guruLessonCompletion" | "guruReflectionQuestion" | "guruReflectionAnswer" | "guruChallenge" | "guruChallengeCompletion" | "guruProgress" | "guruAchievement" | "guruUserAchievement" | "guruCertificate" | "guruUserCertificate" | "guruDailyMission" | "guruDailyMissionCompletion" | "guruMentorNote" | "guruReflectionInsight" | "guruXpLedger" | "branch" | "institute" | "teacherAttendanceRecord" | "teacherAssignmentRecord" | "assignmentSubmissionRecord" | "teacherStudyMaterialRecord" | "teacherExamRecord" | "teacherCalendarLogRecord" | "teacherSyllabusProgressRecord" | "academicActivityAuditRecord" | "directorExpenseRecord" | "aiWorkflowRequest" | "aiWorkflowContext" | "aiWorkflowContextSource" | "aiWorkflowDraft" | "aiWorkflowDraftVersion" | "aiWorkflowReview" | "aiWorkflowApproval" | "aiWorkflowFeedback" | "aiWorkflowPublication" | "aiWorkflowAuditEvent"
+    modelProps: "user" | "sessionToken" | "passwordReset" | "parentStudentInvitation" | "parentStudentLink" | "otp" | "course" | "module" | "lesson" | "enrollment" | "batch" | "batchStudent" | "teacherBatchAssignment" | "test" | "question" | "questionBankItem" | "testAttempt" | "cBTAnswerState" | "cBTIntegrityEvent" | "answer" | "psychometricTest" | "psychometricQuestion" | "psychometricAttempt" | "psychometricReport" | "psychometricAnswer" | "assessmentArenaAssessment" | "assessmentTraitMapping" | "assessmentDimensionMapping" | "assessmentQuestionBlueprint" | "assessmentTraitBlueprint" | "assessmentDimensionBlueprint" | "assessmentTrait" | "assessmentDimension" | "assessmentQuestion" | "assessmentQuestionOption" | "assessmentQuestionVersion" | "assessmentQuestionReview" | "assessmentReviewBoard" | "assessmentPilotRun" | "assessmentPilotResponse" | "assessmentQuestionExposure" | "assessmentAttempt" | "assessmentAttemptQuestion" | "assessmentAnswer" | "assessmentTraitScore" | "assessmentDimensionScore" | "assessmentIntegritySignal" | "assessmentRiskSignal" | "assessmentGrowthSnapshot" | "assessmentRankPrediction" | "assessmentReportSnapshot" | "topRankSignalSnapshot" | "topRankReadinessScore" | "topRankPerformanceTrend" | "topRankGrowthTrend" | "topRankRiskTrend" | "topRankMentorFeedback" | "topRankSignalWeightConfig" | "assessmentTraitLibraryItem" | "assessmentDimensionLibraryItem" | "assessmentTraitBandInterpretation" | "assessmentRiskInterpretation" | "assessmentReadinessInterpretation" | "assessmentSsbOlq" | "assessmentSsbOlqMapping" | "assessmentSsbOlqInterpretation" | "oLQScore" | "studyPlan" | "performanceAnalytics" | "revisionSchedule" | "liveClass" | "recordedLecture" | "lectureProgress" | "lecturePlaybackEvent" | "attendance" | "timetable" | "faculty" | "classroom" | "payroll" | "announcement" | "hostel" | "room" | "hostelAllocation" | "inOutEntry" | "hostelLeave" | "messMenu" | "disciplineRecord" | "paradePerformance" | "lead" | "followUp" | "admission" | "counsellingBooking" | "referral" | "payment" | "subscription" | "feeInstallment" | "invoice" | "feePlan" | "paymentTransactionLog" | "approvalRequest" | "scholarshipDiscount" | "financeDocument" | "notification" | "messageThread" | "message" | "emailLog" | "pushNotification" | "aIInterviewSession" | "aIInterviewQuestion" | "doubtQuery" | "aIRecommendation" | "aITutorSession" | "aITutorMessage" | "aITutorFeedback" | "aIResponseCache" | "learningTopicInsight" | "revisionQueueItem" | "cBTIntelligenceReport" | "contentIngestionJob" | "generatedContentAsset" | "offlineSyncEvent" | "learningAnalyticsSnapshot" | "dailyIntelligenceIssue" | "contentModerationItem" | "officerPotential" | "fitnessProfile" | "pTSchedule" | "pTAttendance" | "physicalEligibility" | "dailyFitnessLog" | "pYQCategory" | "pYQQuestion" | "currentAffair" | "currentAffairQuiz" | "quizBattle" | "quizBattleParticipant" | "leaderboard" | "mediaFolder" | "mediaFile" | "document" | "adminRole" | "permission" | "rolePermission" | "userRole" | "roleActivity" | "systemSetting" | "auditLog" | "queueJobLog" | "aIRequestLog" | "salesBoosterCampaign" | "salesBoosterMetricSnapshot" | "salesBoosterAudienceContact" | "guruQuest" | "guruLesson" | "guruLessonCompletion" | "guruReflectionQuestion" | "guruReflectionAnswer" | "guruChallenge" | "guruChallengeCompletion" | "guruProgress" | "guruAchievement" | "guruUserAchievement" | "guruCertificate" | "guruUserCertificate" | "guruDailyMission" | "guruDailyMissionCompletion" | "guruMentorNote" | "guruReflectionInsight" | "guruXpLedger" | "branch" | "institute" | "teacherAttendanceRecord" | "teacherAssignmentRecord" | "assignmentSubmissionRecord" | "teacherStudyMaterialRecord" | "teacherExamRecord" | "teacherCalendarLogRecord" | "teacherSyllabusProgressRecord" | "academicActivityAuditRecord" | "directorExpenseRecord" | "aiWorkflowRequest" | "aiWorkflowContext" | "aiWorkflowContextSource" | "aiWorkflowDraft" | "aiWorkflowDraftVersion" | "aiWorkflowReview" | "aiWorkflowApproval" | "aiWorkflowFeedback" | "aiWorkflowPublication" | "aiWorkflowAuditEvent"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -2509,6 +2514,376 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.AssessmentArenaAssessmentCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.AssessmentArenaAssessmentCountAggregateOutputType> | number
+        }
+      }
+    }
+    AssessmentTraitMapping: {
+      payload: Prisma.$AssessmentTraitMappingPayload<ExtArgs>
+      fields: Prisma.AssessmentTraitMappingFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AssessmentTraitMappingFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentTraitMappingPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AssessmentTraitMappingFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentTraitMappingPayload>
+        }
+        findFirst: {
+          args: Prisma.AssessmentTraitMappingFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentTraitMappingPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AssessmentTraitMappingFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentTraitMappingPayload>
+        }
+        findMany: {
+          args: Prisma.AssessmentTraitMappingFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentTraitMappingPayload>[]
+        }
+        create: {
+          args: Prisma.AssessmentTraitMappingCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentTraitMappingPayload>
+        }
+        createMany: {
+          args: Prisma.AssessmentTraitMappingCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.AssessmentTraitMappingCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentTraitMappingPayload>[]
+        }
+        delete: {
+          args: Prisma.AssessmentTraitMappingDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentTraitMappingPayload>
+        }
+        update: {
+          args: Prisma.AssessmentTraitMappingUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentTraitMappingPayload>
+        }
+        deleteMany: {
+          args: Prisma.AssessmentTraitMappingDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AssessmentTraitMappingUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.AssessmentTraitMappingUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentTraitMappingPayload>[]
+        }
+        upsert: {
+          args: Prisma.AssessmentTraitMappingUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentTraitMappingPayload>
+        }
+        aggregate: {
+          args: Prisma.AssessmentTraitMappingAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAssessmentTraitMapping>
+        }
+        groupBy: {
+          args: Prisma.AssessmentTraitMappingGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AssessmentTraitMappingGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.AssessmentTraitMappingCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AssessmentTraitMappingCountAggregateOutputType> | number
+        }
+      }
+    }
+    AssessmentDimensionMapping: {
+      payload: Prisma.$AssessmentDimensionMappingPayload<ExtArgs>
+      fields: Prisma.AssessmentDimensionMappingFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AssessmentDimensionMappingFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentDimensionMappingPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AssessmentDimensionMappingFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentDimensionMappingPayload>
+        }
+        findFirst: {
+          args: Prisma.AssessmentDimensionMappingFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentDimensionMappingPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AssessmentDimensionMappingFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentDimensionMappingPayload>
+        }
+        findMany: {
+          args: Prisma.AssessmentDimensionMappingFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentDimensionMappingPayload>[]
+        }
+        create: {
+          args: Prisma.AssessmentDimensionMappingCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentDimensionMappingPayload>
+        }
+        createMany: {
+          args: Prisma.AssessmentDimensionMappingCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.AssessmentDimensionMappingCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentDimensionMappingPayload>[]
+        }
+        delete: {
+          args: Prisma.AssessmentDimensionMappingDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentDimensionMappingPayload>
+        }
+        update: {
+          args: Prisma.AssessmentDimensionMappingUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentDimensionMappingPayload>
+        }
+        deleteMany: {
+          args: Prisma.AssessmentDimensionMappingDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AssessmentDimensionMappingUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.AssessmentDimensionMappingUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentDimensionMappingPayload>[]
+        }
+        upsert: {
+          args: Prisma.AssessmentDimensionMappingUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentDimensionMappingPayload>
+        }
+        aggregate: {
+          args: Prisma.AssessmentDimensionMappingAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAssessmentDimensionMapping>
+        }
+        groupBy: {
+          args: Prisma.AssessmentDimensionMappingGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AssessmentDimensionMappingGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.AssessmentDimensionMappingCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AssessmentDimensionMappingCountAggregateOutputType> | number
+        }
+      }
+    }
+    AssessmentQuestionBlueprint: {
+      payload: Prisma.$AssessmentQuestionBlueprintPayload<ExtArgs>
+      fields: Prisma.AssessmentQuestionBlueprintFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AssessmentQuestionBlueprintFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentQuestionBlueprintPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AssessmentQuestionBlueprintFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentQuestionBlueprintPayload>
+        }
+        findFirst: {
+          args: Prisma.AssessmentQuestionBlueprintFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentQuestionBlueprintPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AssessmentQuestionBlueprintFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentQuestionBlueprintPayload>
+        }
+        findMany: {
+          args: Prisma.AssessmentQuestionBlueprintFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentQuestionBlueprintPayload>[]
+        }
+        create: {
+          args: Prisma.AssessmentQuestionBlueprintCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentQuestionBlueprintPayload>
+        }
+        createMany: {
+          args: Prisma.AssessmentQuestionBlueprintCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.AssessmentQuestionBlueprintCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentQuestionBlueprintPayload>[]
+        }
+        delete: {
+          args: Prisma.AssessmentQuestionBlueprintDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentQuestionBlueprintPayload>
+        }
+        update: {
+          args: Prisma.AssessmentQuestionBlueprintUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentQuestionBlueprintPayload>
+        }
+        deleteMany: {
+          args: Prisma.AssessmentQuestionBlueprintDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AssessmentQuestionBlueprintUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.AssessmentQuestionBlueprintUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentQuestionBlueprintPayload>[]
+        }
+        upsert: {
+          args: Prisma.AssessmentQuestionBlueprintUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentQuestionBlueprintPayload>
+        }
+        aggregate: {
+          args: Prisma.AssessmentQuestionBlueprintAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAssessmentQuestionBlueprint>
+        }
+        groupBy: {
+          args: Prisma.AssessmentQuestionBlueprintGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AssessmentQuestionBlueprintGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.AssessmentQuestionBlueprintCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AssessmentQuestionBlueprintCountAggregateOutputType> | number
+        }
+      }
+    }
+    AssessmentTraitBlueprint: {
+      payload: Prisma.$AssessmentTraitBlueprintPayload<ExtArgs>
+      fields: Prisma.AssessmentTraitBlueprintFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AssessmentTraitBlueprintFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentTraitBlueprintPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AssessmentTraitBlueprintFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentTraitBlueprintPayload>
+        }
+        findFirst: {
+          args: Prisma.AssessmentTraitBlueprintFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentTraitBlueprintPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AssessmentTraitBlueprintFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentTraitBlueprintPayload>
+        }
+        findMany: {
+          args: Prisma.AssessmentTraitBlueprintFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentTraitBlueprintPayload>[]
+        }
+        create: {
+          args: Prisma.AssessmentTraitBlueprintCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentTraitBlueprintPayload>
+        }
+        createMany: {
+          args: Prisma.AssessmentTraitBlueprintCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.AssessmentTraitBlueprintCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentTraitBlueprintPayload>[]
+        }
+        delete: {
+          args: Prisma.AssessmentTraitBlueprintDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentTraitBlueprintPayload>
+        }
+        update: {
+          args: Prisma.AssessmentTraitBlueprintUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentTraitBlueprintPayload>
+        }
+        deleteMany: {
+          args: Prisma.AssessmentTraitBlueprintDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AssessmentTraitBlueprintUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.AssessmentTraitBlueprintUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentTraitBlueprintPayload>[]
+        }
+        upsert: {
+          args: Prisma.AssessmentTraitBlueprintUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentTraitBlueprintPayload>
+        }
+        aggregate: {
+          args: Prisma.AssessmentTraitBlueprintAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAssessmentTraitBlueprint>
+        }
+        groupBy: {
+          args: Prisma.AssessmentTraitBlueprintGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AssessmentTraitBlueprintGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.AssessmentTraitBlueprintCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AssessmentTraitBlueprintCountAggregateOutputType> | number
+        }
+      }
+    }
+    AssessmentDimensionBlueprint: {
+      payload: Prisma.$AssessmentDimensionBlueprintPayload<ExtArgs>
+      fields: Prisma.AssessmentDimensionBlueprintFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AssessmentDimensionBlueprintFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentDimensionBlueprintPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AssessmentDimensionBlueprintFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentDimensionBlueprintPayload>
+        }
+        findFirst: {
+          args: Prisma.AssessmentDimensionBlueprintFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentDimensionBlueprintPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AssessmentDimensionBlueprintFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentDimensionBlueprintPayload>
+        }
+        findMany: {
+          args: Prisma.AssessmentDimensionBlueprintFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentDimensionBlueprintPayload>[]
+        }
+        create: {
+          args: Prisma.AssessmentDimensionBlueprintCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentDimensionBlueprintPayload>
+        }
+        createMany: {
+          args: Prisma.AssessmentDimensionBlueprintCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.AssessmentDimensionBlueprintCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentDimensionBlueprintPayload>[]
+        }
+        delete: {
+          args: Prisma.AssessmentDimensionBlueprintDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentDimensionBlueprintPayload>
+        }
+        update: {
+          args: Prisma.AssessmentDimensionBlueprintUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentDimensionBlueprintPayload>
+        }
+        deleteMany: {
+          args: Prisma.AssessmentDimensionBlueprintDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AssessmentDimensionBlueprintUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.AssessmentDimensionBlueprintUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentDimensionBlueprintPayload>[]
+        }
+        upsert: {
+          args: Prisma.AssessmentDimensionBlueprintUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssessmentDimensionBlueprintPayload>
+        }
+        aggregate: {
+          args: Prisma.AssessmentDimensionBlueprintAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAssessmentDimensionBlueprint>
+        }
+        groupBy: {
+          args: Prisma.AssessmentDimensionBlueprintGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AssessmentDimensionBlueprintGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.AssessmentDimensionBlueprintCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AssessmentDimensionBlueprintCountAggregateOutputType> | number
         }
       }
     }
@@ -14729,6 +15104,97 @@ export const AssessmentArenaAssessmentScalarFieldEnum = {
 export type AssessmentArenaAssessmentScalarFieldEnum = (typeof AssessmentArenaAssessmentScalarFieldEnum)[keyof typeof AssessmentArenaAssessmentScalarFieldEnum]
 
 
+export const AssessmentTraitMappingScalarFieldEnum = {
+  id: 'id',
+  assessmentId: 'assessmentId',
+  traitId: 'traitId',
+  weight: 'weight',
+  isCritical: 'isCritical',
+  isReadinessTrait: 'isReadinessTrait',
+  isRiskTrait: 'isRiskTrait',
+  displayOrder: 'displayOrder',
+  rationale: 'rationale',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AssessmentTraitMappingScalarFieldEnum = (typeof AssessmentTraitMappingScalarFieldEnum)[keyof typeof AssessmentTraitMappingScalarFieldEnum]
+
+
+export const AssessmentDimensionMappingScalarFieldEnum = {
+  id: 'id',
+  assessmentId: 'assessmentId',
+  traitMappingId: 'traitMappingId',
+  dimensionId: 'dimensionId',
+  weight: 'weight',
+  priority: 'priority',
+  difficultyRelevance: 'difficultyRelevance',
+  minimumQuestions: 'minimumQuestions',
+  recommendedQuestions: 'recommendedQuestions',
+  idealQuestions: 'idealQuestions',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AssessmentDimensionMappingScalarFieldEnum = (typeof AssessmentDimensionMappingScalarFieldEnum)[keyof typeof AssessmentDimensionMappingScalarFieldEnum]
+
+
+export const AssessmentQuestionBlueprintScalarFieldEnum = {
+  id: 'id',
+  assessmentId: 'assessmentId',
+  targetQuestionsPerAttempt: 'targetQuestionsPerAttempt',
+  minimumBankSize: 'minimumBankSize',
+  recommendedBankSize: 'recommendedBankSize',
+  idealBankSize: 'idealBankSize',
+  difficultyDistribution: 'difficultyDistribution',
+  integrityQuestionPercent: 'integrityQuestionPercent',
+  contradictionQuestionPercent: 'contradictionQuestionPercent',
+  reverseScoringPercent: 'reverseScoringPercent',
+  riskDetectionPercent: 'riskDetectionPercent',
+  questionTypeDistribution: 'questionTypeDistribution',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AssessmentQuestionBlueprintScalarFieldEnum = (typeof AssessmentQuestionBlueprintScalarFieldEnum)[keyof typeof AssessmentQuestionBlueprintScalarFieldEnum]
+
+
+export const AssessmentTraitBlueprintScalarFieldEnum = {
+  id: 'id',
+  assessmentId: 'assessmentId',
+  questionBlueprintId: 'questionBlueprintId',
+  traitMappingId: 'traitMappingId',
+  targetQuestionCount: 'targetQuestionCount',
+  weightPercent: 'weightPercent',
+  difficultyDistribution: 'difficultyDistribution',
+  integrityQuestionPercent: 'integrityQuestionPercent',
+  riskDetectionPercent: 'riskDetectionPercent',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AssessmentTraitBlueprintScalarFieldEnum = (typeof AssessmentTraitBlueprintScalarFieldEnum)[keyof typeof AssessmentTraitBlueprintScalarFieldEnum]
+
+
+export const AssessmentDimensionBlueprintScalarFieldEnum = {
+  id: 'id',
+  assessmentId: 'assessmentId',
+  questionBlueprintId: 'questionBlueprintId',
+  traitBlueprintId: 'traitBlueprintId',
+  dimensionMappingId: 'dimensionMappingId',
+  targetQuestionCount: 'targetQuestionCount',
+  questionTypes: 'questionTypes',
+  difficultyDistribution: 'difficultyDistribution',
+  integrityQuestionPercent: 'integrityQuestionPercent',
+  riskDetectionPercent: 'riskDetectionPercent',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AssessmentDimensionBlueprintScalarFieldEnum = (typeof AssessmentDimensionBlueprintScalarFieldEnum)[keyof typeof AssessmentDimensionBlueprintScalarFieldEnum]
+
+
 export const AssessmentTraitScalarFieldEnum = {
   id: 'id',
   assessmentId: 'assessmentId',
@@ -17680,6 +18146,11 @@ export type GlobalOmitConfig = {
   psychometricReport?: Prisma.PsychometricReportOmit
   psychometricAnswer?: Prisma.PsychometricAnswerOmit
   assessmentArenaAssessment?: Prisma.AssessmentArenaAssessmentOmit
+  assessmentTraitMapping?: Prisma.AssessmentTraitMappingOmit
+  assessmentDimensionMapping?: Prisma.AssessmentDimensionMappingOmit
+  assessmentQuestionBlueprint?: Prisma.AssessmentQuestionBlueprintOmit
+  assessmentTraitBlueprint?: Prisma.AssessmentTraitBlueprintOmit
+  assessmentDimensionBlueprint?: Prisma.AssessmentDimensionBlueprintOmit
   assessmentTrait?: Prisma.AssessmentTraitOmit
   assessmentDimension?: Prisma.AssessmentDimensionOmit
   assessmentQuestion?: Prisma.AssessmentQuestionOmit
