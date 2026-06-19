@@ -2659,7 +2659,13 @@ function AcademicOperationsCommandCenter({
                   <ProgressBar label="Completion" value={completion} mutedLabel={selected ? statusHealth(completion) : "Open batch to calculate"} />
                 </div>
                 <div className="mt-4 grid grid-cols-2 gap-2">
-                  <Link onClick={() => onOpenBatch(batch.id)} href={`${dashboardBasePath}/classes/${programKey(batch)}/${batch.id}`} className="rounded-xl bg-white px-3 py-3 text-center text-xs font-black text-slate-950">Open Batch</Link>
+                  <Link
+                    onClick={() => onOpenBatch(batch.id)}
+                    href={`${dashboardBasePath}/classes/${programKey(batch)}/${batch.id}`}
+                    className="rounded-xl border border-slate-950 bg-white px-3 py-3 text-center text-xs font-black !text-slate-950 shadow-sm transition hover:bg-slate-100"
+                  >
+                    Open Batch
+                  </Link>
                   <button type="button" onClick={() => { onOpenBatch(batch.id); onStartLive(batch); }} className="rounded-xl border border-current/20 px-3 py-3 text-xs font-black">Start Live</button>
                   <Link onClick={() => onOpenBatch(batch.id)} href={`${dashboardBasePath}/academic-calendar`} className="rounded-xl border border-current/20 px-3 py-3 text-center text-xs font-black">View Schedule</Link>
                   <Link onClick={() => onOpenBatch(batch.id)} href={`${dashboardBasePath}/attendance`} className="rounded-xl border border-current/20 px-3 py-3 text-center text-xs font-black">Attendance</Link>
@@ -4127,34 +4133,46 @@ function LibraryUploadPanel({
   onUploadMaterial: (file: File) => void;
   onPublish: () => void;
 }) {
+  const selectedSubject = activeSubject || form.subject || "Selected subject";
+  const selectedTopic = form.topic.trim() || activeTopic || "General Lessons";
   return (
     <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/55 p-4 backdrop-blur-sm">
-      <div className="max-h-[92dvh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-[var(--border)] bg-white p-5 shadow-2xl">
-        <div className="flex items-start justify-between gap-4">
-          <div>
+      <div className="max-h-[92dvh] w-full max-w-xl overflow-y-auto overflow-x-hidden rounded-2xl border border-[var(--border)] bg-white p-5 shadow-2xl">
+        <div className="flex min-w-0 items-start justify-between gap-4">
+          <div className="min-w-0">
             <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold-dark)]">Upload Lesson</p>
-            <h4 className="mt-2 text-2xl font-black">{activeSubject || "Subject"}</h4>
-            <p className="mt-1 text-sm text-[var(--muted-blue)]">Topic: {form.topic.trim() || activeTopic || "General Lessons"}</p>
+            <h4 className="mt-2 text-2xl font-black">Add recorded class</h4>
+            <div className="mt-3 flex min-w-0 flex-wrap gap-2 text-xs font-black">
+              <span className="max-w-full rounded-full border border-[var(--border)] bg-[var(--page-bg)] px-3 py-2 text-[var(--ink)]">
+                Subject: <span className="break-words">{selectedSubject}</span>
+              </span>
+              <span className="max-w-full rounded-full border border-[var(--border)] bg-[var(--page-bg)] px-3 py-2 text-[var(--muted-blue)]">
+                Topic: <span className="break-words">{selectedTopic}</span>
+              </span>
+            </div>
           </div>
-          <button type="button" onClick={onClose} className="grid h-10 w-10 place-items-center rounded-xl border border-[var(--border)] bg-[var(--page-bg)]" aria-label="Close upload lesson">
+          <button type="button" onClick={onClose} className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-[var(--border)] bg-[var(--page-bg)]" aria-label="Close upload lesson">
             <X size={18} />
           </button>
         </div>
 
-        <div className="mt-5 grid gap-4">
+        <div className="mt-5 grid min-w-0 grid-cols-1 gap-4">
           <Input label="Lesson Title" value={form.title} onChange={(value) => onChange((current) => ({ ...current, title: value, lessonName: value, subject: activeSubject || current.subject, folder: activeSubject || current.folder }))} />
           <Input label="Topic (Optional)" value={form.topic} onChange={(value) => onChange((current) => ({ ...current, topic: value, subject: activeSubject || current.subject, folder: activeSubject || current.folder }))} />
-          <div className="rounded-2xl border border-dashed border-[var(--border)] bg-[var(--page-bg)] p-5">
-            <p className="text-sm font-black text-[var(--ink)]">Upload Video / File</p>
-            <p className="mt-1 text-xs font-bold text-[var(--muted-blue)]">Supports video, PDF, DOCX, PPTX, image and notes files.</p>
-            <FileInput label="Choose file" accept="video/*,.pdf,.doc,.docx,.ppt,.pptx,image/*,.txt" onChange={(_value, file) => file ? onUploadMaterial(file) : undefined} />
-            {form.fileName ? <p className="mt-3 rounded-xl bg-white px-3 py-2 text-xs font-black">Upload Complete: {form.fileName}</p> : null}
+          <div className="min-w-0 rounded-2xl border border-dashed border-[var(--border)] bg-[var(--page-bg)] p-5">
+            <div className="flex min-w-0 flex-col gap-1">
+              <p className="text-base font-black text-[var(--ink)]">Upload class file</p>
+              <p className="text-xs font-bold leading-5 text-[var(--muted-blue)]">Video, PDF, DOCX, PPTX, image or notes. NIDUS handles file type, thumbnail and storage.</p>
+            </div>
+            <div className="mt-4 min-w-0">
+              <FileInput label="Choose file" accept="video/*,.pdf,.doc,.docx,.ppt,.pptx,image/*,.txt" onChange={(_value, file) => file ? onUploadMaterial(file) : undefined} />
+            </div>
+            {form.fileName ? <p className="mt-3 break-all rounded-xl bg-white px-3 py-2 text-xs font-black text-emerald-700">Upload Complete: {form.fileName}</p> : null}
           </div>
           <Textarea label="Lesson Notes (Optional)" value={form.description} onChange={(value) => onChange((current) => ({ ...current, description: value }))} />
         </div>
 
-        <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-xs font-bold text-[var(--muted-blue)]">NIDUS automatically handles file type, thumbnail, duration and storage details.</p>
+        <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
           <button type="button" onClick={onPublish} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-emerald-700 px-5 py-3 font-black text-white">
             <Plus size={18} /> Publish
           </button>
