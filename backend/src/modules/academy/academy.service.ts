@@ -1480,7 +1480,6 @@ export const academyService = {
       where: { id: employeeId },
       data: {
         password,
-        mustChangePassword: true,
         roleMetadata: toJsonObject({
           ...existingMetadata,
           defaultPassword: true,
