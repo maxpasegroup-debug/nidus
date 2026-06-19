@@ -842,6 +842,22 @@ function isTemporaryActivationCalendarRow(row: AcademicCalendarRow) {
   );
 }
 
+function isTemporaryActivationAcademicRecord(row: Record<string, any>) {
+  const title = String(row.title || "").trim().toLowerCase();
+  const topic = String(row.topic || "").trim().toLowerCase();
+  const instructions = String(row.instructions || "").trim().toLowerCase();
+  return (
+    title.includes("launch homework") ||
+    title.includes("launch test") ||
+    title.includes("class test 1 -") ||
+    title.includes("class test 2 -") ||
+    title.includes("homework 1 -") ||
+    title.includes("homework 2 -") ||
+    instructions.includes("starter homework") ||
+    ["number system basics", "modern india basics", "motion basics", "indian geography basics", "grammar foundation"].includes(topic)
+  );
+}
+
 function normalizeBatchWithCountsOptions(options?: BatchWithCountsOptions) {
   if (typeof options === "string") {
     return { batchId: options };
@@ -1753,6 +1769,50 @@ export const academyService = {
     return { ok: true, assignment };
   },
 
+  async updateAssignment(user: Requester, assignmentId: string, input: AssignmentInput) {
+    requireAcademic(user);
+    const rows = await prisma.$queryRaw<any[]>`
+      SELECT * FROM "TeacherAssignmentRecord" WHERE "id" = ${assignmentId} LIMIT 1
+    `;
+    const current = rows[0];
+    if (!current) {
+      throw Object.assign(new Error("Assignment not found"), { statusCode: 404 });
+    }
+    await assertBatchAccess(user, current.batchId);
+    await assertBatchSubjectAccess(user, current.batchId, input.subject ?? current.subject);
+    if (user.role === Role.TEACHER && current.teacherId !== user.id && !isAcademicManager(user)) {
+      throw Object.assign(new Error("Only the publishing teacher can edit this assignment"), { statusCode: 403 });
+    }
+
+    await prisma.$executeRaw`
+      UPDATE "TeacherAssignmentRecord"
+      SET "subject" = ${input.subject ?? current.subject},
+          "title" = ${input.title ?? current.title},
+          "topic" = ${input.topic ?? current.topic},
+          "instructions" = ${input.instructions ?? current.instructions},
+          "dueDate" = ${input.dueDate ? new Date(input.dueDate) : current.dueDate},
+          "attachmentName" = ${input.attachmentName ?? current.attachmentName},
+          "link" = ${input.link ?? current.link},
+          "status" = ${input.status ?? current.status},
+          "updatedAt" = ${new Date()}
+      WHERE "id" = ${assignmentId}
+    `;
+    const updated = await prisma.$queryRaw<any[]>`
+      SELECT * FROM "TeacherAssignmentRecord" WHERE "id" = ${assignmentId} LIMIT 1
+    `;
+    const assignment = normalizeRows(updated)[0];
+    await auditAcademicAction(user, "ASSIGNMENT_UPDATED", "TeacherAssignmentRecord", assignmentId, assignment);
+    return { ok: true, assignment };
+  },
+
+  async archiveAssignment(user: Requester, assignmentId: string) {
+    return this.updateAssignment(user, assignmentId, { status: "ARCHIVED" });
+  },
+
+  async publishAssignmentChanges(user: Requester, assignmentId: string) {
+    return this.updateAssignment(user, assignmentId, { status: "PUBLISHED" });
+  },
+
   async assignments(user: Requester, query: Record<string, unknown>) {
     requireAcademic(user);
     const batchId = typeof query.batchId === "string" ? query.batchId : undefined;
@@ -1768,7 +1828,9 @@ export const academyService = {
         : await prisma.$queryRaw<any[]>`
             SELECT * FROM "TeacherAssignmentRecord" ORDER BY "createdAt" DESC
           `;
-    const rows = await filterRowsToAssignedSubjects(user, batchId, queriedRows);
+    const rows = (await filterRowsToAssignedSubjects(user, batchId, queriedRows))
+      .filter((row) => String(row.status || "").toUpperCase() !== "ARCHIVED")
+      .filter((row) => !isTemporaryActivationAcademicRecord(row));
     const assignmentIds = rows.map((row) => row.id);
     const submissions = assignmentIds.length
       ? await prisma.$queryRaw<any[]>`
@@ -2150,6 +2212,62 @@ export const academyService = {
     return { ok: true, exam, test };
   },
 
+  async updateExam(user: Requester, examId: string, input: ExamInput) {
+    requireAcademic(user);
+    const rows = await prisma.$queryRaw<any[]>`
+      SELECT * FROM "TeacherExamRecord" WHERE "id" = ${examId} LIMIT 1
+    `;
+    const current = rows[0];
+    if (!current) {
+      throw Object.assign(new Error("Exam not found"), { statusCode: 404 });
+    }
+    await assertBatchAccess(user, current.batchId);
+    await assertBatchSubjectAccess(user, current.batchId, input.subject ?? current.subject);
+    if (user.role === Role.TEACHER && current.teacherId !== user.id && !isAcademicManager(user)) {
+      throw Object.assign(new Error("Only the publishing teacher can edit this exam"), { statusCode: 403 });
+    }
+
+    await prisma.$executeRaw`
+      UPDATE "TeacherExamRecord"
+      SET "subject" = ${input.subject ?? current.subject},
+          "title" = ${input.title ?? current.title},
+          "topic" = ${input.topic ?? current.topic},
+          "questionCount" = ${typeof input.questionCount === "number" ? input.questionCount : current.questionCount},
+          "durationMinutes" = ${typeof input.durationMinutes === "number" ? input.durationMinutes : typeof input.duration === "number" ? input.duration : current.durationMinutes},
+          "difficulty" = ${input.difficulty ?? current.difficulty},
+          "instructions" = ${input.instructions ?? current.instructions},
+          "status" = ${input.status ?? current.status},
+          "updatedAt" = ${new Date()}
+      WHERE "id" = ${examId}
+    `;
+    if (current.testId) {
+      await prisma.test.update({
+        where: { id: current.testId },
+        data: {
+          title: input.title ?? current.title,
+          subject: input.subject ?? current.subject,
+          topic: input.topic ?? current.topic,
+          duration: typeof input.durationMinutes === "number" ? input.durationMinutes : typeof input.duration === "number" ? input.duration : current.durationMinutes,
+          status: input.status === "ARCHIVED" ? "ARCHIVED" : input.status === "CANCELLED" ? "CANCELLED" : undefined,
+        },
+      }).catch(() => undefined);
+    }
+    const updated = await prisma.$queryRaw<any[]>`
+      SELECT * FROM "TeacherExamRecord" WHERE "id" = ${examId} LIMIT 1
+    `;
+    const exam = (await attachExamStats(updated))[0];
+    await auditAcademicAction(user, "EXAM_UPDATED", "TeacherExamRecord", examId, exam);
+    return { ok: true, exam };
+  },
+
+  async archiveExam(user: Requester, examId: string) {
+    return this.updateExam(user, examId, { status: "ARCHIVED" });
+  },
+
+  async publishExamChanges(user: Requester, examId: string) {
+    return this.updateExam(user, examId, { status: "PUBLISHED" });
+  },
+
   async exams(user: Requester, query: Record<string, unknown>) {
     requireAcademic(user);
     const batchId = typeof query.batchId === "string" ? query.batchId : undefined;
@@ -2165,7 +2283,9 @@ export const academyService = {
         : await prisma.$queryRaw<any[]>`
             SELECT * FROM "TeacherExamRecord" ORDER BY "createdAt" DESC
           `;
-    const rows = await filterRowsToAssignedSubjects(user, batchId, queriedRows);
+    const rows = (await filterRowsToAssignedSubjects(user, batchId, queriedRows))
+      .filter((row) => String(row.status || "").toUpperCase() !== "ARCHIVED")
+      .filter((row) => !isTemporaryActivationAcademicRecord(row));
     return { exams: await attachExamStats(rows) };
   },
 

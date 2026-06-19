@@ -132,6 +132,27 @@ export const academyController = {
       next(error);
     }
   },
+  updateAssignment: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      res.json(await academyService.updateAssignment(requester(req), param(req, "id"), req.body));
+    } catch (error) {
+      next(error);
+    }
+  },
+  archiveAssignment: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      res.json(await academyService.archiveAssignment(requester(req), param(req, "id")));
+    } catch (error) {
+      next(error);
+    }
+  },
+  publishAssignmentChanges: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      res.json(await academyService.publishAssignmentChanges(requester(req), param(req, "id")));
+    } catch (error) {
+      next(error);
+    }
+  },
   assignments: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     try {
       res.json(await academyService.assignments(requester(req), req.query));
@@ -226,6 +247,27 @@ export const academyController = {
   publishExam: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     try {
       res.status(201).json(await academyService.publishExam(requester(req), req.body));
+    } catch (error) {
+      next(error);
+    }
+  },
+  updateExam: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      res.json(await academyService.updateExam(requester(req), param(req, "id"), req.body));
+    } catch (error) {
+      next(error);
+    }
+  },
+  archiveExam: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      res.json(await academyService.archiveExam(requester(req), param(req, "id")));
+    } catch (error) {
+      next(error);
+    }
+  },
+  publishExamChanges: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      res.json(await academyService.publishExamChanges(requester(req), param(req, "id")));
     } catch (error) {
       next(error);
     }

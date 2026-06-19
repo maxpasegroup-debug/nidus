@@ -1841,6 +1841,97 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
     }
   }
 
+  async function editExamRecord(exam: ExamRecord) {
+    const title = window.prompt("Exam title", exam.title || "");
+    if (title === null) return;
+    const topic = window.prompt("Topic", exam.topic || "");
+    if (topic === null) return;
+    const duration = window.prompt("Duration in minutes", String(exam.durationMinutes ?? 30));
+    if (duration === null) return;
+    setExamMessage(null);
+    try {
+      await apiPatch<{ ok?: boolean }>([`/api/academy/exams/${exam.id}`], {
+        title: title.trim() || exam.title,
+        topic: topic.trim() || exam.topic,
+        durationMinutes: Number(duration) || exam.durationMinutes || 30,
+        status: exam.status || "PUBLISHED",
+      });
+      setExamMessage("Exam updated.");
+      if (selectedClass?.id) await loadClassWorkspace(selectedClass.id);
+    } catch (error) {
+      setExamMessage(error instanceof Error ? error.message : "Could not update exam.");
+    }
+  }
+
+  async function cancelExamRecord(exam: ExamRecord) {
+    if (!window.confirm(`Cancel ${exam.title || "this exam"}?`)) return;
+    setExamMessage(null);
+    try {
+      await apiPost<{ ok?: boolean }>([`/api/academy/exams/${exam.id}/archive`], {});
+      setExamMessage("Exam cancelled.");
+      if (selectedClass?.id) await loadClassWorkspace(selectedClass.id);
+    } catch (error) {
+      setExamMessage(error instanceof Error ? error.message : "Could not cancel exam.");
+    }
+  }
+
+  async function publishExamRecordChanges(exam: ExamRecord) {
+    setExamMessage(null);
+    try {
+      await apiPost<{ ok?: boolean }>([`/api/academy/exams/${exam.id}/publish`], {});
+      setExamMessage("Exam changes published.");
+      if (selectedClass?.id) await loadClassWorkspace(selectedClass.id);
+    } catch (error) {
+      setExamMessage(error instanceof Error ? error.message : "Could not publish exam changes.");
+    }
+  }
+
+  async function editAssignmentRecord(assignment: AssignmentRecord) {
+    const title = window.prompt("Assignment title", assignment.title || "");
+    if (title === null) return;
+    const topic = window.prompt("Topic", assignment.topic || "");
+    if (topic === null) return;
+    const instructions = window.prompt("Instructions", assignment.instructions || "");
+    if (instructions === null) return;
+    setAssignmentMessage(null);
+    try {
+      await apiPatch<{ ok?: boolean }>([`/api/academy/assignments/${assignment.id}`], {
+        title: title.trim() || assignment.title,
+        topic: topic.trim() || assignment.topic,
+        instructions: instructions.trim() || assignment.instructions,
+        dueDate: assignment.dueDate || undefined,
+        status: assignment.status || "PUBLISHED",
+      });
+      setAssignmentMessage("Assignment updated.");
+      if (selectedClass?.id) await loadClassWorkspace(selectedClass.id);
+    } catch (error) {
+      setAssignmentMessage(error instanceof Error ? error.message : "Could not update assignment.");
+    }
+  }
+
+  async function cancelAssignmentRecord(assignment: AssignmentRecord) {
+    if (!window.confirm(`Cancel ${assignment.title || "this assignment"}?`)) return;
+    setAssignmentMessage(null);
+    try {
+      await apiPost<{ ok?: boolean }>([`/api/academy/assignments/${assignment.id}/archive`], {});
+      setAssignmentMessage("Assignment cancelled.");
+      if (selectedClass?.id) await loadClassWorkspace(selectedClass.id);
+    } catch (error) {
+      setAssignmentMessage(error instanceof Error ? error.message : "Could not cancel assignment.");
+    }
+  }
+
+  async function publishAssignmentRecordChanges(assignment: AssignmentRecord) {
+    setAssignmentMessage(null);
+    try {
+      await apiPost<{ ok?: boolean }>([`/api/academy/assignments/${assignment.id}/publish`], {});
+      setAssignmentMessage("Assignment changes published.");
+      if (selectedClass?.id) await loadClassWorkspace(selectedClass.id);
+    } catch (error) {
+      setAssignmentMessage(error instanceof Error ? error.message : "Could not publish assignment changes.");
+    }
+  }
+
   const viewTitles: Record<TeacherView, string> = {
     classes: "Classes",
     exams: "Exams",
@@ -2036,7 +2127,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
         >
           {localDraftExam ? <ExamWorkflowCard exam={localDraftExam} courseName={selectedProgram?.name ?? "Program pending"} batchName={selectedClass?.name ?? "Batch pending"} mode="draft" onPrimary={openExamCreator} /> : null}
           {draftExamCards.map((exam) => (
-            <ExamWorkflowCard key={exam.id} exam={exam} batchName={exam.batchName ?? selectedClass?.name ?? "Batch"} courseName={exam.course ?? selectedProgram?.name ?? "Program"} mode="draft" onPrimary={openExamCreator} />
+            <ExamWorkflowCard key={exam.id} exam={exam} batchName={exam.batchName ?? selectedClass?.name ?? "Batch"} courseName={exam.course ?? selectedProgram?.name ?? "Program"} mode="draft" onPrimary={openExamCreator} onEdit={() => void editExamRecord(exam)} onCancel={() => void cancelExamRecord(exam)} onPublishChanges={() => void publishExamRecordChanges(exam)} />
           ))}
         </ExamWorkflowSection>
         <ExamWorkflowSection
@@ -2045,7 +2136,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
           empty="No scheduled exams yet. Send a reviewed paper for approval first."
         >
           {scheduledExamCards.map((exam) => (
-            <ExamWorkflowCard key={exam.id} exam={exam} batchName={exam.batchName ?? selectedClass?.name ?? "Batch"} courseName={exam.course ?? selectedProgram?.name ?? "Program"} mode="scheduled" onPrimary={openExamCreator} />
+            <ExamWorkflowCard key={exam.id} exam={exam} batchName={exam.batchName ?? selectedClass?.name ?? "Batch"} courseName={exam.course ?? selectedProgram?.name ?? "Program"} mode="scheduled" onPrimary={() => void editExamRecord(exam)} onEdit={() => void editExamRecord(exam)} onCancel={() => void cancelExamRecord(exam)} onPublishChanges={() => void publishExamRecordChanges(exam)} />
           ))}
         </ExamWorkflowSection>
         <ExamWorkflowSection
@@ -2118,6 +2209,9 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
                 batchName={selectedClass?.name ?? assignment.batchName ?? "Batch"}
                 courseName={selectedProgram?.name ?? assignment.course ?? "Course"}
                 onOpen={() => setSelectedAssignmentId(assignment.id)}
+                onEdit={() => void editAssignmentRecord(assignment)}
+                onCancel={() => void cancelAssignmentRecord(assignment)}
+                onPublishChanges={() => void publishAssignmentRecordChanges(assignment)}
               />
             ))}
             {!classWorkspace.assignments.length ? <AssignmentEmptyState onCreate={openAssignmentCreator} /> : null}
@@ -3210,17 +3304,22 @@ function ExamWorkflowCard({
   batchName,
   mode,
   onPrimary,
+  onEdit,
+  onCancel,
+  onPublishChanges,
 }: {
   exam: Partial<ExamRecord> & { id: string };
   courseName: string;
   batchName: string;
   mode: ExamWorkflowMode;
   onPrimary: () => void;
+  onEdit?: () => void;
+  onCancel?: () => void;
+  onPublishChanges?: () => void;
 }) {
   const status = mode === "draft" ? "Draft" : mode === "scheduled" ? "Scheduled" : "Completed";
   const scheduledDate = exam.createdAt ? new Date(exam.createdAt).toLocaleDateString() : "Date pending";
   const primaryLabel = mode === "draft" ? "Continue with NIDUS GURU" : mode === "scheduled" ? "View" : "View Results";
-  const secondaryActions = mode === "draft" ? ["Open", "Edit", "Delete"] : mode === "scheduled" ? ["Edit", "Cancel", "Publish Changes"] : ["Export Results"];
 
   return (
     <div className="rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm">
@@ -3238,9 +3337,10 @@ function ExamWorkflowCard({
       </div>
       <div className="mt-4 flex flex-wrap gap-2">
         <button type="button" onClick={onPrimary} className="rounded-xl bg-[var(--ink)] px-4 py-2 text-xs font-black text-white">{primaryLabel}</button>
-        {secondaryActions.map((action) => (
-          <button key={action} type="button" className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-4 py-2 text-xs font-black">{action}</button>
-        ))}
+        {mode !== "completed" && onEdit ? <button type="button" onClick={onEdit} className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-4 py-2 text-xs font-black">Edit</button> : null}
+        {mode !== "completed" && onCancel ? <button type="button" onClick={onCancel} className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-2 text-xs font-black text-rose-700">Cancel</button> : null}
+        {mode !== "completed" && onPublishChanges ? <button type="button" onClick={onPublishChanges} className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-xs font-black text-emerald-700">Publish Changes</button> : null}
+        {mode === "completed" ? <button type="button" onClick={onPrimary} className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-4 py-2 text-xs font-black">Export Results</button> : null}
       </div>
     </div>
   );
@@ -3531,14 +3631,20 @@ function AssignmentWorkflowCard({
   courseName,
   batchName,
   onOpen,
+  onEdit,
+  onCancel,
+  onPublishChanges,
 }: {
   assignment: AssignmentRecord;
   courseName: string;
   batchName: string;
   onOpen: () => void;
+  onEdit: () => void;
+  onCancel: () => void;
+  onPublishChanges: () => void;
 }) {
   return (
-    <button type="button" onClick={onOpen} className="rounded-2xl border border-[var(--border)] bg-white p-4 text-left shadow-sm transition hover:-translate-y-1 hover:bg-[var(--page-bg)]">
+    <article className="rounded-2xl border border-[var(--border)] bg-white p-4 text-left shadow-sm">
       <div className="flex items-start justify-between gap-3">
         <span className={`rounded-full px-3 py-1 text-xs font-black ${statusTone(assignment.status)}`}>{assignment.status || "PUBLISHED"}</span>
         <span className="text-xs font-black text-[var(--gold-dark)]">{assignment.dueDate ? `Due ${new Date(assignment.dueDate).toLocaleDateString()}` : "Due date pending"}</span>
@@ -3551,8 +3657,13 @@ function AssignmentWorkflowCard({
         <span className="rounded-xl bg-[var(--page-bg)] p-2">{assignment.submissionStats?.pending ?? 0} pending</span>
         <span className="rounded-xl bg-[var(--page-bg)] p-2">{assignment.submissionStats?.totalStudents ?? 0} total</span>
       </div>
-      <span className="mt-4 inline-flex rounded-xl bg-[var(--ink)] px-4 py-2 text-xs font-black text-white">Open Details</span>
-    </button>
+      <div className="mt-4 flex flex-wrap gap-2">
+        <button type="button" onClick={onOpen} className="rounded-xl bg-[var(--ink)] px-4 py-2 text-xs font-black text-white">Open Details</button>
+        <button type="button" onClick={onEdit} className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-4 py-2 text-xs font-black">Edit</button>
+        <button type="button" onClick={onCancel} className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-2 text-xs font-black text-rose-700">Cancel</button>
+        <button type="button" onClick={onPublishChanges} className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-xs font-black text-emerald-700">Publish Changes</button>
+      </div>
+    </article>
   );
 }
 

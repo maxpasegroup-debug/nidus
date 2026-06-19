@@ -67,6 +67,9 @@ router.post("/academic-calendar", requireAcademyRoles(academicRoles), academyCon
 router.patch("/academic-calendar/:id", requireAcademyRoles(academicRoles), academyController.updateAcademicCalendarItem);
 router.post("/attendance", requireAcademyRoles(academicRoles), academyController.saveAttendance);
 router.post("/assignments", requireAcademyRoles(academicRoles), academyController.createAssignment);
+router.patch("/assignments/:id", requireAcademyRoles(academicRoles), academyController.updateAssignment);
+router.post("/assignments/:id/archive", requireAcademyRoles(academicRoles), academyController.archiveAssignment);
+router.post("/assignments/:id/publish", requireAcademyRoles(academicRoles), academyController.publishAssignmentChanges);
 router.post("/assignments/:id/submit", requireAcademyRoles(studentAcademicRoles), academyController.submitAssignment);
 router.patch("/assignment-submissions/:id", requireAcademyRoles(academicRoles), academyController.reviewAssignmentSubmission);
 router.post("/study-materials", requireAcademyRoles(academicRoles), academyController.publishStudyMaterial);
@@ -77,6 +80,9 @@ router.delete("/study-materials/:id", requireAcademyRoles(academicRoles), academ
 router.patch("/study-materials/:id/review", requireAcademyRoles(academicRoles), academyController.reviewStudyMaterial);
 router.post("/exams/ai-draft", requireAcademyRoles(academicRoles), academyController.createExamDraft);
 router.post("/exams", requireAcademyRoles(academicRoles), academyController.publishExam);
+router.patch("/exams/:id", requireAcademyRoles(academicRoles), academyController.updateExam);
+router.post("/exams/:id/archive", requireAcademyRoles(academicRoles), academyController.archiveExam);
+router.post("/exams/:id/publish", requireAcademyRoles(academicRoles), academyController.publishExamChanges);
 
 router.post("/batches", requireAcademyRoles(academicManagementRoles), academyController.createBatch);
 router.post("/director-expenses", requireAcademyRoles(managementRoles), academyController.createDirectorExpense);
