@@ -398,4 +398,11 @@ export const academyController = {
       next(error);
     }
   },
+  unlockEmployeeAccount: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      res.json(await academyService.unlockEmployeeAccount(requester(req), param(req, "id")));
+    } catch (error) {
+      next(error);
+    }
+  },
 };

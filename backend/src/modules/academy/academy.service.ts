@@ -1382,6 +1382,11 @@ export const academyService = {
         mobile: true,
         role: true,
         roleMetadata: true,
+        isDisabled: true,
+        loginFailureCount: true,
+        lockedUntil: true,
+        lastLoginAt: true,
+        roleOnboardingStatus: true,
         createdAt: true,
         updatedAt: true,
       },
@@ -1506,6 +1511,10 @@ export const academyService = {
       where: { id: employeeId },
       data: {
         password,
+        isDisabled: false,
+        disabledAt: null,
+        loginFailureCount: 0,
+        lockedUntil: null,
         roleMetadata: toJsonObject({
           ...existingMetadata,
           defaultPassword: true,
@@ -1517,7 +1526,13 @@ export const academyService = {
         id: true,
         name: true,
         email: true,
+        mobile: true,
         role: true,
+        isDisabled: true,
+        loginFailureCount: true,
+        lockedUntil: true,
+        lastLoginAt: true,
+        roleOnboardingStatus: true,
         roleMetadata: true,
       },
     });
@@ -1530,6 +1545,42 @@ export const academyService = {
         mustChangePassword: true,
       },
     };
+  },
+
+  async unlockEmployeeAccount(user: Requester, employeeId: string) {
+    requireManagement(user);
+    const employee = await prisma.user.findUnique({ where: { id: employeeId } });
+    if (!employee) {
+      throw Object.assign(new Error("Employee not found"), { statusCode: 404 });
+    }
+    const existingMetadata = (employee.roleMetadata ?? {}) as Record<string, unknown>;
+    return prisma.user.update({
+      where: { id: employeeId },
+      data: {
+        isDisabled: false,
+        disabledAt: null,
+        loginFailureCount: 0,
+        lockedUntil: null,
+        roleMetadata: toJsonObject({
+          ...existingMetadata,
+          accountUnlockedBy: user.id,
+          accountUnlockedAt: new Date().toISOString(),
+        }),
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        mobile: true,
+        role: true,
+        isDisabled: true,
+        loginFailureCount: true,
+        lockedUntil: true,
+        lastLoginAt: true,
+        roleOnboardingStatus: true,
+        roleMetadata: true,
+      },
+    });
   },
 
   async academicCalendar(user: Requester, query: Record<string, unknown>) {

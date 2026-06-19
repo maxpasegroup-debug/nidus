@@ -23,6 +23,11 @@ type Employee = {
   mobile?: string | null;
   role: string;
   roleMetadata?: Record<string, unknown> | null;
+  isDisabled?: boolean;
+  loginFailureCount?: number;
+  lockedUntil?: string | null;
+  lastLoginAt?: string | null;
+  roleOnboardingStatus?: string;
 };
 
 type EmployeePayload = {
@@ -193,10 +198,20 @@ export default function DirectorManagementPage() {
         body: JSON.stringify({ password: "123456789" }),
       }),
     onSuccess: (data) => {
-      setNotice(`Password reset. Login: ${data.credentials.email} / Password: ${data.credentials.temporaryPassword}`);
+      setNotice(`Password reset and account unlocked. Login: ${data.credentials.email} / Password: ${data.credentials.temporaryPassword}`);
       setLastCredentials(data.credentials);
+      void queryClient.invalidateQueries({ queryKey: ["director", "employees"] });
     },
     onError: (error) => setNotice(error instanceof Error ? error.message : "Could not reset password."),
+  });
+
+  const unlockMutation = useMutation({
+    mutationFn: (id: string) => apiJson<Employee>(`/api/academy/employees/${id}/unlock`, { method: "POST" }),
+    onSuccess: (employee) => {
+      setNotice(`${employee.name} is unlocked and active.`);
+      void queryClient.invalidateQueries({ queryKey: ["director", "employees"] });
+    },
+    onError: (error) => setNotice(error instanceof Error ? error.message : "Could not unlock account."),
   });
 
   const submit = (event: FormEvent<HTMLFormElement>) => {
@@ -212,6 +227,7 @@ export default function DirectorManagementPage() {
 
   const activeEmployees = (employeesQuery.data ?? []).filter((employee) => employee.roleMetadata?.status !== "ARCHIVED");
   const archivedEmployees = (employeesQuery.data ?? []).filter((employee) => employee.roleMetadata?.status === "ARCHIVED");
+  const lockedEmployees = activeEmployees.filter((employee) => Boolean(employee.isDisabled || (employee.lockedUntil && new Date(employee.lockedUntil) > new Date())));
   const visibleEmployees = activeTab === "ACTIVE" ? activeEmployees : archivedEmployees;
 
   const applyQuickProfile = (profile: (typeof quickProfiles)[number]) => {
@@ -241,7 +257,7 @@ export default function DirectorManagementPage() {
           <Metric icon={Users} label="Active Users" value={activeEmployees.length} />
           <Metric icon={Archive} label="Archived History" value={archivedEmployees.length} />
           <Metric icon={GraduationCap} label="Faculty Roles" value={activeEmployees.filter((employee) => employee.role === "TEACHER").length} />
-          <Metric icon={ShieldCheck} label="Admin Roles" value={activeEmployees.filter((employee) => employee.role === "ADMIN").length} />
+          <Metric icon={ShieldCheck} label="Locked Accounts" value={lockedEmployees.length} />
         </div>
 
         {notice && <div className="rounded-2xl border border-[var(--gold-border)] bg-[var(--gold-soft)] p-4 text-sm font-bold">{notice}</div>}
@@ -374,6 +390,16 @@ export default function DirectorManagementPage() {
         </section>
 
         <section className="rounded-3xl border border-[var(--border)] bg-white/90 p-5 shadow-sm">
+          <div className="rounded-2xl border border-[var(--border)] bg-white p-4">
+            <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Credential Readiness</p>
+            <h2 className="mt-2 text-2xl font-black">Account unlock and password reset</h2>
+            <p className="mt-2 text-sm leading-7 text-[var(--muted-blue)]">
+              Director can reset any launch user to the default temporary password and clear lockout counters from this screen.
+            </p>
+          </div>
+        </section>
+
+        <section className="rounded-3xl border border-[var(--border)] bg-white/90 p-5 shadow-sm">
           <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Employees</p>
           <div className="mt-2 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <h2 className="text-2xl font-black">{activeTab === "ACTIVE" ? "Active users" : "Archived history"}</h2>
@@ -405,7 +431,12 @@ export default function DirectorManagementPage() {
                     archiveMutation.mutate(employee.id);
                   }
                 }}
-                onReset={() => resetMutation.mutate(employee.id)}
+                onReset={() => {
+                  if (window.confirm(`Reset password and unlock ${employee.name}?`)) {
+                    resetMutation.mutate(employee.id);
+                  }
+                }}
+                onUnlock={() => unlockMutation.mutate(employee.id)}
               />
             ))}
             {!visibleEmployees.length && <Empty text={activeTab === "ACTIVE" ? "No active users found." : "No archived users yet."} />}
@@ -459,8 +490,22 @@ function Info({ icon: Icon, text }: { icon: LucideIcon; text: string }) {
   );
 }
 
-function EmployeeRow({ employee, archived, onArchive, onReset }: { employee: Employee; archived?: boolean; onArchive?: () => void; onReset?: () => void }) {
+function EmployeeRow({
+  employee,
+  archived,
+  onArchive,
+  onReset,
+  onUnlock,
+}: {
+  employee: Employee;
+  archived?: boolean;
+  onArchive?: () => void;
+  onReset?: () => void;
+  onUnlock?: () => void;
+}) {
   const metadata = employee.roleMetadata ?? {};
+  const lockedUntil = employee.lockedUntil ? new Date(employee.lockedUntil) : null;
+  const isLocked = Boolean(employee.isDisabled || (lockedUntil && lockedUntil > new Date()));
   return (
     <article className="rounded-2xl border border-[var(--border)] bg-white p-4">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -470,12 +515,29 @@ function EmployeeRow({ employee, archived, onArchive, onReset }: { employee: Emp
           <p className="mt-2 text-xs font-black uppercase tracking-[0.25em] text-[var(--gold)]">
             {String(metadata.designation ?? employee.role)} / {String(metadata.employmentType ?? "FULL_TIME")} / {String(metadata.department ?? "Academy")}
           </p>
+          <div className="mt-3 flex flex-wrap gap-2 text-xs font-black">
+            <span className={`rounded-full px-3 py-1 ${isLocked ? "bg-rose-100 text-rose-800" : "bg-emerald-100 text-emerald-800"}`}>
+              {isLocked ? "LOCKED" : "ACTIVE"}
+            </span>
+            {employee.roleOnboardingStatus && <span className="rounded-full bg-slate-100 px-3 py-1 text-slate-700">{employee.roleOnboardingStatus}</span>}
+            {typeof employee.loginFailureCount === "number" && employee.loginFailureCount > 0 && (
+              <span className="rounded-full bg-amber-100 px-3 py-1 text-amber-800">{employee.loginFailureCount} failed login(s)</span>
+            )}
+            {lockedUntil && <span className="rounded-full bg-rose-100 px-3 py-1 text-rose-800">Locked until {lockedUntil.toLocaleString()}</span>}
+            {employee.lastLoginAt && <span className="rounded-full bg-slate-100 px-3 py-1 text-slate-700">Last login {new Date(employee.lastLoginAt).toLocaleString()}</span>}
+          </div>
         </div>
         {!archived && (
           <div className="flex flex-wrap gap-2">
+            {isLocked && (
+              <button onClick={onUnlock} className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-black text-emerald-800">
+                <ShieldCheck className="mr-1 inline h-4 w-4" />
+                Unlock
+              </button>
+            )}
             <button onClick={onReset} className="rounded-xl border border-[var(--border)] bg-white px-4 py-2 text-sm font-black">
               <KeyRound className="mr-1 inline h-4 w-4" />
-              Reset Password
+              Reset + Unlock
             </button>
             <button onClick={onArchive} className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-black text-rose-800">
               <Archive className="mr-1 inline h-4 w-4" />
