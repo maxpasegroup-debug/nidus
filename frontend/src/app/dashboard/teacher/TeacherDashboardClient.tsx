@@ -247,7 +247,13 @@ type LiveClassForm = {
 
 export type TeacherView = "classes" | "exams" | "assignments" | "attendance" | "library" | "academic-calendar";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") || "";
+function resolveApiBase() {
+  const configured = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_API_BASE_URL || "";
+  const trimmed = configured.replace(/\/+$/, "");
+  return trimmed.endsWith("/api") ? trimmed.slice(0, -4) : trimmed;
+}
+
+const API_BASE = resolveApiBase();
 
 const emptyWorkspace: ClassWorkspace = {
   attendance: [],
@@ -275,11 +281,6 @@ const initialLibraryForm = {
   lessonName: "",
 };
 
-function getStoredToken() {
-  if (typeof window === "undefined") return null;
-  return window.localStorage.getItem("token") || window.localStorage.getItem("accessToken");
-}
-
 function readStoredUser(): StoredUser | null {
   if (typeof window === "undefined") return null;
   const raw = window.localStorage.getItem("user");
@@ -291,13 +292,18 @@ function readStoredUser(): StoredUser | null {
   }
 }
 
+function unwrapApiPayload<T>(payload: unknown): T {
+  if (payload && typeof payload === "object" && "data" in payload) {
+    return (payload as { data: T }).data;
+  }
+  return payload as T;
+}
+
 async function requestJson<T>(path: string, init?: RequestInit): Promise<T | null> {
-  const token = getStoredToken();
   const response = await fetch(`${API_BASE}${path}`, {
     ...init,
     headers: {
       "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...(init?.headers ?? {}),
     },
     credentials: "include",
@@ -305,7 +311,7 @@ async function requestJson<T>(path: string, init?: RequestInit): Promise<T | nul
   if (!response.ok) {
     throw new Error((await response.text().catch(() => "")) || `Request failed: ${response.status}`);
   }
-  return response.json() as Promise<T>;
+  return unwrapApiPayload<T>(await response.json());
 }
 
 async function apiGet<T>(paths: string[]): Promise<T | null> {
