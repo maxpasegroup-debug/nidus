@@ -1387,6 +1387,22 @@ export const academyService = {
         lockedUntil: true,
         lastLoginAt: true,
         roleOnboardingStatus: true,
+        batchEnrollments: {
+          where: { status: "ACTIVE" },
+          select: {
+            id: true,
+            status: true,
+            batch: {
+              select: {
+                id: true,
+                name: true,
+                programSlug: true,
+                batchType: true,
+                status: true,
+              },
+            },
+          },
+        },
         createdAt: true,
         updatedAt: true,
       },

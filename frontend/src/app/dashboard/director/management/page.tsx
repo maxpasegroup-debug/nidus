@@ -28,6 +28,17 @@ type Employee = {
   lockedUntil?: string | null;
   lastLoginAt?: string | null;
   roleOnboardingStatus?: string;
+  batchEnrollments?: Array<{
+    id: string;
+    status: string;
+    batch: {
+      id: string;
+      name: string;
+      programSlug?: string | null;
+      batchType?: string | null;
+      status?: string | null;
+    };
+  }>;
 };
 
 type EmployeePayload = {
@@ -132,6 +143,7 @@ export default function DirectorManagementPage() {
   const queryClient = useQueryClient();
   const [notice, setNotice] = useState("");
   const [activeTab, setActiveTab] = useState<"ACTIVE" | "ARCHIVED">("ACTIVE");
+  const [accountGroup, setAccountGroup] = useState<"TEAM" | "STUDENTS">("TEAM");
   const [lastCredentials, setLastCredentials] = useState<{ email: string; temporaryPassword: string } | null>(null);
   const [form, setForm] = useState<EmployeePayload>({
     name: "",
@@ -225,10 +237,15 @@ export default function DirectorManagementPage() {
     });
   };
 
-  const activeEmployees = (employeesQuery.data ?? []).filter((employee) => employee.roleMetadata?.status !== "ARCHIVED");
-  const archivedEmployees = (employeesQuery.data ?? []).filter((employee) => employee.roleMetadata?.status === "ARCHIVED");
-  const lockedEmployees = activeEmployees.filter((employee) => Boolean(employee.isDisabled || (employee.lockedUntil && new Date(employee.lockedUntil) > new Date())));
-  const visibleEmployees = activeTab === "ACTIVE" ? activeEmployees : archivedEmployees;
+  const activeAccounts = (employeesQuery.data ?? []).filter((employee) => employee.roleMetadata?.status !== "ARCHIVED");
+  const archivedAccounts = (employeesQuery.data ?? []).filter((employee) => employee.roleMetadata?.status === "ARCHIVED");
+  const lockedAccounts = activeAccounts.filter((employee) => isAccountLocked(employee));
+  const activeTeam = activeAccounts.filter(isTeamAccount);
+  const activeStudents = activeAccounts.filter(isStudentAccount);
+  const visibleAccounts = activeTab === "ACTIVE" ? activeAccounts : archivedAccounts;
+  const visibleTeam = visibleAccounts.filter(isTeamAccount);
+  const visibleStudents = visibleAccounts.filter(isStudentAccount);
+  const studentGroups = groupStudentsByBatch(visibleStudents);
 
   const applyQuickProfile = (profile: (typeof quickProfiles)[number]) => {
     setForm((item) => ({
@@ -254,10 +271,10 @@ export default function DirectorManagementPage() {
         </div>
 
         <div className="grid gap-4 md:grid-cols-4">
-          <Metric icon={Users} label="Active Users" value={activeEmployees.length} />
-          <Metric icon={Archive} label="Archived History" value={archivedEmployees.length} />
-          <Metric icon={GraduationCap} label="Faculty Roles" value={activeEmployees.filter((employee) => employee.role === "TEACHER").length} />
-          <Metric icon={ShieldCheck} label="Locked Accounts" value={lockedEmployees.length} />
+          <Metric icon={Users} label="Team Accounts" value={activeTeam.length} />
+          <Metric icon={GraduationCap} label="Students" value={activeStudents.length} />
+          <Metric icon={Archive} label="Archived History" value={archivedAccounts.length} />
+          <Metric icon={ShieldCheck} label="Locked Accounts" value={lockedAccounts.length} />
         </div>
 
         {notice && <div className="rounded-2xl border border-[var(--gold-border)] bg-[var(--gold-soft)] p-4 text-sm font-bold">{notice}</div>}
@@ -400,46 +417,112 @@ export default function DirectorManagementPage() {
         </section>
 
         <section className="rounded-3xl border border-[var(--border)] bg-white/90 p-5 shadow-sm">
-          <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Employees</p>
+          <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Credential Directory</p>
           <div className="mt-2 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-            <h2 className="text-2xl font-black">{activeTab === "ACTIVE" ? "Active users" : "Archived history"}</h2>
-            <div className="flex rounded-xl border border-[var(--border)] bg-white p-1">
-              <button
-                className={`rounded-lg px-4 py-2 text-sm font-black ${activeTab === "ACTIVE" ? "bg-[var(--gold-gradient)] text-[var(--navy)]" : "text-[var(--muted-blue)]"}`}
-                onClick={() => setActiveTab("ACTIVE")}
-                type="button"
-              >
-                Active
-              </button>
-              <button
-                className={`rounded-lg px-4 py-2 text-sm font-black ${activeTab === "ARCHIVED" ? "bg-[var(--gold-gradient)] text-[var(--navy)]" : "text-[var(--muted-blue)]"}`}
-                onClick={() => setActiveTab("ARCHIVED")}
-                type="button"
-              >
-                Archived
-              </button>
+            <div>
+              <h2 className="text-2xl font-black">{accountGroup === "TEAM" ? "Team accounts" : "Students by batch"}</h2>
+              <p className="mt-1 text-sm text-[var(--muted-blue)]">
+                {accountGroup === "TEAM"
+                  ? "Teachers, trainers, academic heads, directors and operations staff."
+                  : "Student accounts grouped by their active batch allocation."}
+              </p>
+            </div>
+            <div className="flex flex-col gap-2 md:items-end">
+              <div className="flex rounded-xl border border-[var(--border)] bg-white p-1">
+                <button
+                  className={`rounded-lg px-4 py-2 text-sm font-black ${accountGroup === "TEAM" ? "bg-[var(--gold-gradient)] text-[var(--navy)]" : "text-[var(--muted-blue)]"}`}
+                  onClick={() => setAccountGroup("TEAM")}
+                  type="button"
+                >
+                  Team
+                </button>
+                <button
+                  className={`rounded-lg px-4 py-2 text-sm font-black ${accountGroup === "STUDENTS" ? "bg-[var(--gold-gradient)] text-[var(--navy)]" : "text-[var(--muted-blue)]"}`}
+                  onClick={() => setAccountGroup("STUDENTS")}
+                  type="button"
+                >
+                  Students
+                </button>
+              </div>
+              <div className="flex rounded-xl border border-[var(--border)] bg-white p-1">
+                <button
+                  className={`rounded-lg px-4 py-2 text-sm font-black ${activeTab === "ACTIVE" ? "bg-[var(--navy)] text-white" : "text-[var(--muted-blue)]"}`}
+                  onClick={() => setActiveTab("ACTIVE")}
+                  type="button"
+                >
+                  Active
+                </button>
+                <button
+                  className={`rounded-lg px-4 py-2 text-sm font-black ${activeTab === "ARCHIVED" ? "bg-[var(--navy)] text-white" : "text-[var(--muted-blue)]"}`}
+                  onClick={() => setActiveTab("ARCHIVED")}
+                  type="button"
+                >
+                  Archived
+                </button>
+              </div>
             </div>
           </div>
           <div className="mt-5 grid gap-3">
-            {visibleEmployees.map((employee) => (
-              <EmployeeRow
-                key={employee.id}
-                employee={employee}
-                archived={activeTab === "ARCHIVED"}
-                onArchive={() => {
-                  if (window.confirm(`Archive ${employee.name}? This will move the account into history.`)) {
-                    archiveMutation.mutate(employee.id);
-                  }
-                }}
-                onReset={() => {
-                  if (window.confirm(`Reset password and unlock ${employee.name}?`)) {
-                    resetMutation.mutate(employee.id);
-                  }
-                }}
-                onUnlock={() => unlockMutation.mutate(employee.id)}
-              />
-            ))}
-            {!visibleEmployees.length && <Empty text={activeTab === "ACTIVE" ? "No active users found." : "No archived users yet."} />}
+            {accountGroup === "TEAM" ? (
+              <>
+                {visibleTeam.map((employee) => (
+                  <EmployeeRow
+                    key={employee.id}
+                    employee={employee}
+                    archived={activeTab === "ARCHIVED"}
+                    groupLabel={teamGroupLabel(employee)}
+                    onArchive={() => {
+                      if (window.confirm(`Archive ${employee.name}? This will move the account into history.`)) {
+                        archiveMutation.mutate(employee.id);
+                      }
+                    }}
+                    onReset={() => {
+                      if (window.confirm(`Reset password and unlock ${employee.name}?`)) {
+                        resetMutation.mutate(employee.id);
+                      }
+                    }}
+                    onUnlock={() => unlockMutation.mutate(employee.id)}
+                  />
+                ))}
+                {!visibleTeam.length && <Empty text={activeTab === "ACTIVE" ? "No active team accounts found." : "No archived team accounts yet."} />}
+              </>
+            ) : (
+              <>
+                {studentGroups.map((group) => (
+                  <div key={group.batchId} className="rounded-2xl border border-[var(--border)] bg-white/80 p-4">
+                    <div className="flex flex-col gap-1 md:flex-row md:items-end md:justify-between">
+                      <div>
+                        <p className="text-xs font-black uppercase tracking-[0.3em] text-[var(--gold)]">Batch</p>
+                        <h3 className="mt-1 text-xl font-black">{group.batchName}</h3>
+                      </div>
+                      <span className="rounded-full border border-[var(--border)] bg-white px-4 py-2 text-sm font-black">{group.students.length} student(s)</span>
+                    </div>
+                    <div className="mt-4 grid gap-3">
+                      {group.students.map((student) => (
+                        <EmployeeRow
+                          key={student.id}
+                          employee={student}
+                          archived={activeTab === "ARCHIVED"}
+                          groupLabel="Student"
+                          onArchive={() => {
+                            if (window.confirm(`Archive ${student.name}? This will move the account into history.`)) {
+                              archiveMutation.mutate(student.id);
+                            }
+                          }}
+                          onReset={() => {
+                            if (window.confirm(`Reset password and unlock ${student.name}?`)) {
+                              resetMutation.mutate(student.id);
+                            }
+                          }}
+                          onUnlock={() => unlockMutation.mutate(student.id)}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                ))}
+                {!studentGroups.length && <Empty text={activeTab === "ACTIVE" ? "No active student accounts found." : "No archived student accounts yet."} />}
+              </>
+            )}
           </div>
         </section>
       </section>
@@ -490,15 +573,61 @@ function Info({ icon: Icon, text }: { icon: LucideIcon; text: string }) {
   );
 }
 
+function isStudentAccount(account: Employee) {
+  return account.role === "STUDENT";
+}
+
+function isTeamAccount(account: Employee) {
+  return account.role !== "STUDENT" && account.role !== "PARENT";
+}
+
+function isAccountLocked(account: Employee) {
+  return Boolean(account.isDisabled || (account.lockedUntil && new Date(account.lockedUntil) > new Date()));
+}
+
+function teamGroupLabel(account: Employee) {
+  const metadata = account.roleMetadata ?? {};
+  const template = String(metadata.dashboardTemplate ?? "");
+  const designation = String(metadata.designation ?? "");
+  if (template === "ACADEMIC_HEAD" || designation.toLowerCase().includes("academic head")) return "Academic Head";
+  if (template === "PHYSICAL_TRAINER" || designation.toLowerCase().includes("trainer")) return "Physical Trainer";
+  if (account.role === "TEACHER") return "Teacher";
+  if (account.role === "DIRECTOR") return "Director";
+  if (account.role === "BUSINESS_DEVELOPMENT_EXECUTIVE") return "BDE";
+  if (template === "ADMISSION_CELL" || designation.toLowerCase().includes("administrative")) return "Administrative Officer";
+  return "Team";
+}
+
+function groupStudentsByBatch(students: Employee[]) {
+  const groups = new Map<string, { batchId: string; batchName: string; students: Employee[] }>();
+  for (const student of students) {
+    const enrollments = student.batchEnrollments?.length ? student.batchEnrollments : [{ id: "unassigned", status: "ACTIVE", batch: { id: "unassigned", name: "Unassigned Students" } }];
+    for (const enrollment of enrollments) {
+      const batchId = enrollment.batch.id;
+      const batchName = enrollment.batch.name;
+      const existing = groups.get(batchId) ?? { batchId, batchName, students: [] };
+      existing.students.push(student);
+      groups.set(batchId, existing);
+    }
+  }
+  return Array.from(groups.values()).sort((first, second) => {
+    if (first.batchId === "unassigned") return 1;
+    if (second.batchId === "unassigned") return -1;
+    return first.batchName.localeCompare(second.batchName);
+  });
+}
+
 function EmployeeRow({
   employee,
   archived,
+  groupLabel,
   onArchive,
   onReset,
   onUnlock,
 }: {
   employee: Employee;
   archived?: boolean;
+  groupLabel?: string;
   onArchive?: () => void;
   onReset?: () => void;
   onUnlock?: () => void;
@@ -513,7 +642,7 @@ function EmployeeRow({
           <h3 className="text-lg font-black">{employee.name}</h3>
           <p className="mt-1 text-sm text-[var(--muted-blue)]">{employee.email} / {employee.phone || employee.mobile || "No phone"}</p>
           <p className="mt-2 text-xs font-black uppercase tracking-[0.25em] text-[var(--gold)]">
-            {String(metadata.designation ?? employee.role)} / {String(metadata.employmentType ?? "FULL_TIME")} / {String(metadata.department ?? "Academy")}
+            {groupLabel ? `${groupLabel} / ` : ""}{String(metadata.designation ?? employee.role)} / {String(metadata.employmentType ?? "FULL_TIME")} / {String(metadata.department ?? "Academy")}
           </p>
           <div className="mt-3 flex flex-wrap gap-2 text-xs font-black">
             <span className={`rounded-full px-3 py-1 ${isLocked ? "bg-rose-100 text-rose-800" : "bg-emerald-100 text-emerald-800"}`}>
