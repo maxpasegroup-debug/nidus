@@ -50,6 +50,35 @@ export type TestAttempt = {
   startedAt: string;
   submittedAt?: string | null;
   test: Test;
+  status?: string;
+  currentQuestionId?: string | null;
+  sectionState?: {
+    currentIndex?: number;
+    skippedMode?: boolean;
+    [key: string]: unknown;
+  } | null;
+  answerStates?: AnswerState[];
+  timing?: {
+    serverTime: string;
+    startedAt: string;
+    expiresAt: string;
+    durationSeconds: number;
+    elapsedSeconds: number;
+    remainingSeconds: number;
+    isExpired: boolean;
+  };
+};
+
+export type AnswerState = {
+  id?: string;
+  attemptId?: string;
+  questionId: string;
+  selectedAnswer?: string | null;
+  status?: string | null;
+  confidence?: string | null;
+  timeSpent?: number | null;
+  visitCount?: number | null;
+  markedForReview?: boolean | null;
 };
 
 export type ResultAnswer = {

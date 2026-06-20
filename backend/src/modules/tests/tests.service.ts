@@ -88,6 +88,23 @@ const testInclude = {
   }
 };
 
+function attemptTiming(attempt: { startedAt: Date; submittedAt?: Date | null; test: { duration: number } }) {
+  const serverNow = new Date();
+  const durationSeconds = Math.max(60, Number(attempt.test.duration || 0) * 60);
+  const elapsedSeconds = Math.max(0, Math.floor((serverNow.getTime() - attempt.startedAt.getTime()) / 1000));
+  const remainingSeconds = Math.max(0, durationSeconds - elapsedSeconds);
+  const expiresAt = new Date(attempt.startedAt.getTime() + durationSeconds * 1000);
+  return {
+    serverTime: serverNow.toISOString(),
+    startedAt: attempt.startedAt.toISOString(),
+    expiresAt: expiresAt.toISOString(),
+    durationSeconds,
+    elapsedSeconds,
+    remainingSeconds,
+    isExpired: !attempt.submittedAt && remainingSeconds <= 0
+  };
+}
+
 const topicSeeds = [
   "concept clarity",
   "application",
@@ -443,7 +460,7 @@ export const testsService = {
       throw new Error("This test has already been submitted.");
     }
     if (existingAttempt) {
-      return existingAttempt;
+      return this.resume(userId, existingAttempt.id);
     }
 
     const attempt = await prisma.testAttempt.create({
@@ -458,7 +475,7 @@ export const testsService = {
       data: test.questions.map((question) => ({ attemptId: attempt.id, questionId: question.id })),
       skipDuplicates: true
     });
-    return attempt;
+    return this.resume(userId, attempt.id);
   },
 
   async resume(userId: string, attemptId: string) {
@@ -471,7 +488,11 @@ export const testsService = {
       }
     });
     if (!attempt) throw new Error("Attempt not found");
-    return attempt;
+    const timing = attemptTiming(attempt);
+    if (timing.isExpired) {
+      return this.submitFromSavedState(userId, attempt.id, "TIMER_EXPIRED");
+    }
+    return { ...attempt, timing };
   },
 
   async saveState(userId: string, input: SaveStateInput) {
@@ -481,6 +502,10 @@ export const testsService = {
     });
     if (!attempt) throw new Error("Attempt not found");
     if (attempt.submittedAt) throw new Error("Attempt already submitted");
+    const timing = attemptTiming(attempt);
+    if (timing.isExpired) {
+      return this.submitFromSavedState(userId, input.attemptId, "TIMER_EXPIRED");
+    }
 
     const questionIds = new Set(attempt.test.questions.map((question) => question.id));
     await prisma.$transaction([
@@ -536,7 +561,11 @@ export const testsService = {
   },
 
   async reviewPlan(userId: string, attemptId: string) {
-    const attempt = await this.resume(userId, attemptId);
+    const attempt = await prisma.testAttempt.findFirst({
+      where: { id: attemptId, userId },
+      include: { answerStates: true }
+    });
+    if (!attempt) throw new Error("Attempt not found");
     const states = attempt.answerStates;
     const skipped = states.filter((state) => state.status === "SKIPPED" || !state.selectedAnswer);
     const review = states.filter((state) => state.markedForReview);
@@ -587,10 +616,10 @@ export const testsService = {
     });
   },
 
-  async submit(userId: string, attemptId: string, answers: SubmitAnswer[], timeTaken: number) {
+  async submitFromSavedState(userId: string, attemptId: string, reason = "MANUAL_SUBMIT") {
     const attempt = await prisma.testAttempt.findFirst({
       where: { id: attemptId, userId },
-      include: { test: { include: { questions: true } } }
+      include: { test: { include: { questions: true } }, answerStates: true }
     });
 
     if (!attempt) {
@@ -602,6 +631,9 @@ export const testsService = {
     }
 
     const questions = new Map(attempt.test.questions.map((question) => [question.id, question]));
+    const answers = attempt.answerStates
+      .filter((state) => state.selectedAnswer && questions.has(state.questionId))
+      .map((state) => ({ questionId: state.questionId, selectedAnswer: state.selectedAnswer! }));
     let score = 0;
     let totalCorrect = 0;
     let totalWrong = 0;
@@ -623,7 +655,10 @@ export const testsService = {
         };
       });
 
-    await prisma.answer.createMany({ data: answerData, skipDuplicates: true });
+    if (answerData.length) {
+      await prisma.answer.createMany({ data: answerData, skipDuplicates: true });
+    }
+    const timing = attemptTiming(attempt);
 
     return prisma.testAttempt.update({
       where: { id: attemptId },
@@ -631,15 +666,61 @@ export const testsService = {
         score,
         totalCorrect,
         totalWrong,
-        timeTaken,
+        timeTaken: timing.elapsedSeconds,
         submittedAt: new Date(),
-        status: "SUBMITTED"
+        status: "SUBMITTED",
+        sectionState: {
+          ...(attempt.sectionState && typeof attempt.sectionState === "object" ? attempt.sectionState : {}),
+          submitReason: reason
+        }
       },
       include: {
         test: true,
         answers: { include: { question: true } }
       }
     });
+  },
+
+  async submit(userId: string, attemptId: string, answers: SubmitAnswer[], timeTaken: number) {
+    const attempt = await prisma.testAttempt.findFirst({
+      where: { id: attemptId, userId },
+      include: { test: { include: { questions: true } } }
+    });
+
+    if (!attempt) {
+      throw new Error("Attempt not found");
+    }
+
+    if (attempt.submittedAt) {
+      throw new Error("Attempt already submitted");
+    }
+
+    const timing = attemptTiming(attempt);
+    const questions = new Map(attempt.test.questions.map((question) => [question.id, question]));
+    const cleanAnswers = answers.filter((answer) => answer.selectedAnswer && questions.has(answer.questionId));
+
+    if (cleanAnswers.length) {
+      await prisma.$transaction(
+        cleanAnswers.map((answer) =>
+        prisma.cBTAnswerState.upsert({
+          where: { attemptId_questionId: { attemptId, questionId: answer.questionId } },
+          update: {
+            selectedAnswer: answer.selectedAnswer,
+            status: "ANSWERED",
+            markedForReview: false
+          },
+          create: {
+            attemptId,
+            questionId: answer.questionId,
+            selectedAnswer: answer.selectedAnswer,
+            status: "ANSWERED"
+          }
+        })
+        )
+      );
+    }
+
+    return this.submitFromSavedState(userId, attemptId, timing.isExpired ? "TIMER_EXPIRED" : "MANUAL_SUBMIT");
   },
 
   async history(userId: string) {

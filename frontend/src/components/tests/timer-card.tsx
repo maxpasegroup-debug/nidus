@@ -1,9 +1,22 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
-export function TimerCard({ minutes, onExpire }: { minutes: number; onExpire: () => void }) {
-  const [secondsLeft, setSecondsLeft] = useState(minutes * 60);
+export function TimerCard({
+  minutes,
+  remainingSeconds,
+  onExpire
+}: {
+  minutes: number;
+  remainingSeconds?: number;
+  onExpire: () => void;
+}) {
+  const initialSeconds = useMemo(() => Math.max(0, Math.floor(remainingSeconds ?? minutes * 60)), [minutes, remainingSeconds]);
+  const [secondsLeft, setSecondsLeft] = useState(initialSeconds);
+
+  useEffect(() => {
+    setSecondsLeft(initialSeconds);
+  }, [initialSeconds]);
 
   useEffect(() => {
     const timer = window.setInterval(() => {

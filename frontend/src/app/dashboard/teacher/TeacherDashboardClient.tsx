@@ -3389,6 +3389,7 @@ function ExamGuruModal({
   selectedBatchName: string;
   examSourceName: string;
 }) {
+  const [examStep, setExamStep] = useState<1 | 2 | 3 | 4>(1);
   const activeProgram = programGroups.find((program) => program.key === selectedProgramKey) ?? programGroups[0] ?? null;
   const activeBatch = activeProgram?.classes.find((batch) => batch.id === selectedClassId) ?? activeProgram?.classes[0] ?? null;
   const assignedSubjects = subjectsForBatch(activeBatch);
@@ -3424,6 +3425,14 @@ function ExamGuruModal({
     if (!value) return;
     setExamSourceName([examSourceName, `${label}: ${value}`].filter(Boolean).join(" | "));
   };
+  const stepItems = [
+    { id: 1 as const, label: "Create Exam" },
+    { id: 2 as const, label: "Add Questions" },
+    { id: 3 as const, label: "Preview Paper" },
+    { id: 4 as const, label: "Publish" },
+  ];
+  const hasQuestionSource = Boolean(examSourceName || examForm.pastedQuestions.trim() || examDraft?.questions?.length);
+  const basicsReady = Boolean(selectedClassId && (examForm.subject || assignedSubjects.length) && examForm.title && examForm.publishDate && examForm.publishTime && examForm.duration && examForm.totalMarks);
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-[#f7f5ef] text-[var(--ink)]">
@@ -3431,106 +3440,117 @@ function ExamGuruModal({
         <div className="mb-4 flex items-center justify-between rounded-2xl border border-[var(--border)] bg-white px-5 py-4 shadow-sm">
           <div>
             <p className="text-xs font-black uppercase tracking-[0.3em] text-[var(--gold-dark)]">Exams V3</p>
-            <h2 className="text-2xl font-black">Question paper first exam creator</h2>
-            <p className="mt-1 text-sm text-[var(--muted-blue)]">Select batch, subject, upload or paste the paper, review, then send for approval.</p>
+            <h2 className="text-2xl font-black">Create an exam</h2>
+            <p className="mt-1 text-sm text-[var(--muted-blue)]">Start with the few details a teacher naturally knows. Builder tools appear only after that.</p>
           </div>
           <button type="button" onClick={onClose} className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] p-3" aria-label="Close exam creator">
             <X size={18} />
           </button>
         </div>
 
-        <div className="grid gap-4 xl:grid-cols-[1.2fr_0.8fr]">
-          <section className="grid gap-4">
-            <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
-              <SectionHeader eyebrow="Step 1" title="Select batch" description="Choose the batch that should receive this exam." icon={<Users size={20} />} />
-              <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+        <div className="mb-4 grid gap-2 rounded-2xl border border-[var(--border)] bg-white p-2 shadow-sm md:grid-cols-4">
+          {stepItems.map((step) => (
+            <button
+              key={step.id}
+              type="button"
+              onClick={() => setExamStep(step.id)}
+              className={`rounded-xl px-4 py-3 text-sm font-black ${examStep === step.id ? "bg-slate-950 text-white" : "bg-[var(--page-bg)] text-[var(--muted-blue)]"}`}
+            >
+              {step.label}
+            </button>
+          ))}
+        </div>
+
+        {examStep === 1 ? (
+          <section className="mx-auto max-w-4xl rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
+            <SectionHeader eyebrow="Step 1" title="Create Exam" description="A teacher should finish this screen in under one minute." icon={<ClipboardCheck size={20} />} />
+            <div className="mt-5 grid gap-4">
+              <Select label="Batch" value={selectedClassId ?? activeBatch?.id ?? ""} onChange={(value) => {
+                const program = programGroups.find((item) => item.classes.some((batch) => batch.id === value));
+                if (program) onProgram(program.key);
+                onBatch(value);
+              }}>
                 {programGroups.flatMap((program) => program.classes.map((batch) => (
-                  <button
-                    key={batch.id}
-                    type="button"
-                    onClick={() => { onProgram(program.key); onBatch(batch.id); }}
-                    className={`rounded-2xl border p-4 text-left transition hover:-translate-y-0.5 ${selectedClassId === batch.id ? "border-slate-950 bg-slate-950 text-white" : "border-[var(--border)] bg-[var(--page-bg)] text-[var(--ink)]"}`}
-                  >
-                    <p className={`text-xs font-black uppercase tracking-[0.22em] ${selectedClassId === batch.id ? "text-[#e7c873]" : "text-[var(--gold-dark)]"}`}>{program.name}</p>
-                    <h3 className="mt-2 text-lg font-black">{batch.name}</h3>
-                    <p className="mt-2 text-xs font-bold opacity-80">{batch.students?.length ?? batch._count?.students ?? 0} students</p>
-                  </button>
+                  <option key={batch.id} value={batch.id}>{batch.name}</option>
                 )))}
-                {!programGroups.length ? <EmptyState text="No assigned batches are available yet." /> : null}
-              </div>
-            </div>
-
-            <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
-              <SectionHeader eyebrow="Step 2" title="Select subject" description="Show only the subjects assigned to this batch." icon={<BookOpen size={20} />} />
-              <div className="mt-4 flex flex-wrap gap-3">
-                {assignedSubjects.map((subject) => (
-                  <button
-                    key={subject}
-                    type="button"
-                    onClick={() => setExamForm((form) => ({ ...form, subject, topic: form.topic || subject }))}
-                    className={`min-h-12 rounded-xl border px-5 py-3 text-sm font-black ${examForm.subject === subject ? "border-slate-950 bg-slate-950 text-white" : "border-[var(--border)] bg-[var(--page-bg)] text-[var(--ink)]"}`}
-                  >
-                    {subject}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
-              <SectionHeader eyebrow="Step 3" title="Create exam" description="Only the basics teachers need before adding the question paper." icon={<ClipboardCheck size={20} />} />
-              <div className="mt-4 grid gap-3 md:grid-cols-2">
-                <Input label="Exam Name" value={examForm.title} onChange={(value) => setExamForm((form) => ({ ...form, title: value }))} />
+              </Select>
+              <Select label="Subject" value={examForm.subject || assignedSubjects[0] || ""} onChange={(value) => setExamForm((form) => ({ ...form, subject: value, topic: form.topic || value }))}>
+                {assignedSubjects.map((subject) => <option key={subject} value={subject}>{subject}</option>)}
+              </Select>
+              <Input label="Exam Name" value={examForm.title} onChange={(value) => setExamForm((form) => ({ ...form, title: value }))} />
+              <div className="grid gap-3 md:grid-cols-2">
+                <Input label="Date" type="date" value={examForm.publishDate} onChange={(value) => setExamForm((form) => ({ ...form, publishDate: value }))} />
+                <Input label="Time" type="time" value={examForm.publishTime} onChange={(value) => setExamForm((form) => ({ ...form, publishTime: value }))} />
+                <Input label="Duration in minutes" type="number" value={examForm.duration} onChange={(value) => setExamForm((form) => ({ ...form, duration: value }))} />
+                <Input label="Total Marks" type="number" value={examForm.totalMarks} onChange={(value) => setExamForm((form) => ({ ...form, totalMarks: value }))} />
                 <Select label="Exam Type" value={examForm.examType} onChange={(value) => setExamForm((form) => ({ ...form, examType: value }))}>
                   <option value="Class Test">Class Test</option>
                   <option value="Unit Test">Unit Test</option>
                   <option value="Mock Test">Mock Test</option>
                   <option value="Final Exam">Final Exam</option>
                 </Select>
-                <Input label="Marks" type="number" value={examForm.totalMarks} onChange={(value) => setExamForm((form) => ({ ...form, totalMarks: value }))} />
-                <Input label="Duration" type="number" value={examForm.duration} onChange={(value) => setExamForm((form) => ({ ...form, duration: value }))} />
-                <Input label="Date" type="date" value={examForm.publishDate} onChange={(value) => setExamForm((form) => ({ ...form, publishDate: value }))} />
-                <Input label="Time" type="time" value={examForm.publishTime} onChange={(value) => setExamForm((form) => ({ ...form, publishTime: value }))} />
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  if (!examForm.subject && assignedSubjects[0]) setExamForm((form) => ({ ...form, subject: assignedSubjects[0], topic: form.topic || assignedSubjects[0] }));
+                  setExamStep(2);
+                }}
+                disabled={!basicsReady}
+                className="rounded-xl bg-emerald-700 px-5 py-4 text-base font-black text-white disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Create Exam
+              </button>
+            </div>
+          </section>
+        ) : null}
+
+        {examStep === 2 ? (
+          <section className="mx-auto max-w-5xl rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
+            <SectionHeader eyebrow="Step 2" title="How do you want to create questions?" description="Choose one simple path. NIDUS handles the structure later." icon={<FileText size={20} />} />
+            <div className="mt-5 grid gap-4 lg:grid-cols-4">
+              <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
+                <h3 className="text-lg font-black">Upload PDF</h3>
+                <p className="mt-2 min-h-12 text-sm text-[var(--muted-blue)]">Use a ready question paper.</p>
+                <FileInput label="Choose PDF" accept=".pdf" onChange={appendSourceName("PDF")} />
+              </div>
+              <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
+                <h3 className="text-lg font-black">Upload Word</h3>
+                <p className="mt-2 min-h-12 text-sm text-[var(--muted-blue)]">DOC or DOCX from staff notes.</p>
+                <FileInput label="Choose Word" accept=".doc,.docx" onChange={appendSourceName("Word")} />
+              </div>
+              <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
+                <h3 className="text-lg font-black">Paste Questions</h3>
+                <p className="mt-2 min-h-12 text-sm text-[var(--muted-blue)]">Paste from WhatsApp, Word or notes.</p>
+                <textarea value={examForm.pastedQuestions} onChange={(event) => setExamForm((form) => ({ ...form, pastedQuestions: event.target.value }))} rows={7} placeholder={"1. Question...\n2. Question...\n3. Question..."} className="mt-3 min-h-36 w-full resize-y rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-sm outline-none" />
+              </div>
+              <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
+                <h3 className="text-lg font-black">Generate with AI</h3>
+                <p className="mt-2 min-h-12 text-sm text-[var(--muted-blue)]">Use when no paper is ready.</p>
+                <div className="mt-3 grid gap-3">
+                  <Input label="Topic" value={examForm.topic} onChange={(value) => setExamForm((form) => ({ ...form, topic: value }))} />
+                  <Select label="Difficulty" value={examForm.difficulty} onChange={(value) => setExamForm((form) => ({ ...form, difficulty: value }))}>
+                    <option value="EASY">Easy</option>
+                    <option value="MEDIUM">Medium</option>
+                    <option value="HARD">Hard</option>
+                  </Select>
+                  <Input label="Question Count" type="number" value={examForm.questionCount} onChange={(value) => setExamForm((form) => ({ ...form, questionCount: value }))} />
+                </div>
               </div>
             </div>
-
-            <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
-              <SectionHeader eyebrow="Step 4" title="Add questions" description="Choose the fastest way to prepare tomorrow's exam." icon={<FileText size={20} />} />
-              <div className="mt-4 grid gap-4 lg:grid-cols-3">
-                <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
-                  <h3 className="text-lg font-black">Upload Question Paper</h3>
-                  <p className="mt-2 text-sm text-[var(--muted-blue)]">PDF, Word or image. NIDUS GURU structures the questions.</p>
-                  <div className="mt-4 grid gap-2">
-                    <FileInput label="Upload PDF" accept=".pdf" onChange={appendSourceName("PDF")} />
-                    <FileInput label="Upload Word" accept=".doc,.docx" onChange={appendSourceName("Word")} />
-                    <FileInput label="Upload Image" accept="image/*" onChange={appendSourceName("Image")} />
-                  </div>
-                </div>
-                <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
-                  <h3 className="text-lg font-black">Paste Questions</h3>
-                  <p className="mt-2 text-sm text-[var(--muted-blue)]">Paste questions from ChatGPT, WhatsApp, Word or notes.</p>
-                  <textarea value={examForm.pastedQuestions} onChange={(event) => setExamForm((form) => ({ ...form, pastedQuestions: event.target.value }))} rows={8} placeholder={"1. Question...\n2. Question...\n3. Question..."} className="mt-4 min-h-44 w-full resize-y rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-sm outline-none" />
-                </div>
-                <div className="rounded-2xl border border-slate-950 bg-slate-950 p-4 text-white">
-                  <h3 className="text-lg font-black">Create With NIDUS GURU</h3>
-                  <p className="mt-2 text-sm text-white/75">Use only when the teacher wants AI to generate the paper.</p>
-                  <div className="mt-4 grid gap-3">
-                    <Input label="Topic" value={examForm.topic} onChange={(value) => setExamForm((form) => ({ ...form, topic: value }))} />
-                    <Select label="Difficulty" value={examForm.difficulty} onChange={(value) => setExamForm((form) => ({ ...form, difficulty: value }))}>
-                      <option value="EASY">Easy</option>
-                      <option value="MEDIUM">Medium</option>
-                      <option value="HARD">Hard</option>
-                    </Select>
-                    <Input label="Question Count" type="number" value={examForm.questionCount} onChange={(value) => setExamForm((form) => ({ ...form, questionCount: value }))} />
-                    <button type="button" onClick={onDraft} className="rounded-xl bg-white px-5 py-3 text-sm font-black text-slate-950">Generate</button>
-                  </div>
-                </div>
-              </div>
-              {examSourceName ? <p className="mt-3 rounded-xl bg-[var(--page-bg)] px-3 py-2 text-xs font-black">Attached: {examSourceName}</p> : null}
-              <button type="button" onClick={onDraft} className="mt-4 w-full rounded-xl bg-[var(--ink)] px-5 py-3 font-black text-white">Review Question Paper With NIDUS GURU</button>
+            {examSourceName ? <p className="mt-4 rounded-xl bg-[var(--page-bg)] px-3 py-2 text-xs font-black">Attached: {examSourceName}</p> : null}
+            <div className="mt-5 flex flex-col gap-3 md:flex-row">
+              <button type="button" onClick={() => setExamStep(1)} className="rounded-xl border border-[var(--border)] bg-white px-5 py-3 font-black">Back</button>
+              <button type="button" onClick={() => { void onDraft(); setExamStep(3); }} disabled={!hasQuestionSource && !examForm.topic} className="flex-1 rounded-xl bg-slate-950 px-5 py-3 font-black text-white disabled:cursor-not-allowed disabled:opacity-50">Prepare Question Paper</button>
             </div>
+          </section>
+        ) : null}
 
+        {examStep === 3 ? (
+          <div className="grid gap-4 xl:grid-cols-[1.2fr_0.8fr]">
+            <section className="grid gap-4">
             <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
-              <SectionHeader eyebrow="Step 5" title="Exam Review" description="Review the student-facing question paper before sending for approval." icon={<BookOpen size={20} />} />
+              <SectionHeader eyebrow="Step 3" title="Preview paper" description="Now review the exam paper. AI tools appear here only after questions exist." icon={<BookOpen size={20} />} />
               <div className="mt-4 grid gap-3 md:grid-cols-3">
                 <ReviewMetric label="Batch" value={selectedBatchName} />
                 <ReviewMetric label="Subject" value={examForm.subject || "Subject pending"} />
@@ -3558,6 +3578,10 @@ function ExamGuruModal({
                 ))}
                 {!draftQuestions.length ? <EmptyState text="Generate a draft or paste questions to let NIDUS GURU prepare the preview." /> : null}
                 <button type="button" onClick={() => setExamDraft((draft) => ({ ...(draft ?? {}), questions: [...(draft?.questions ?? []), { question: "New question", marks: 1, difficultyLevel: examForm.difficulty }] }))} className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-sm font-black">Add Question</button>
+              </div>
+              <div className="mt-5 flex flex-col gap-3 md:flex-row">
+                <button type="button" onClick={() => setExamStep(2)} className="rounded-xl border border-[var(--border)] bg-white px-5 py-3 font-black">Back</button>
+                <button type="button" onClick={() => setExamStep(4)} className="flex-1 rounded-xl bg-slate-950 px-5 py-3 font-black text-white">Preview Looks Good</button>
               </div>
             </div>
           </section>
@@ -3600,17 +3624,32 @@ function ExamGuruModal({
             </div>
 
             <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
-              <SectionHeader eyebrow="Step 6" title="Send for approval" description="Draft, review, approval and publish workflow remains mandatory." icon={<ClipboardCheck size={20} />} />
-              <div className="mt-4 grid grid-cols-4 gap-2 text-center text-xs font-black">
-                {["Draft", "Review", "Approve", "Publish"].map((step, index) => (
-                  <span key={step} className={`rounded-xl border px-2 py-3 ${index === 0 || examDraft ? "border-emerald-200 bg-emerald-50 text-emerald-800" : "border-[var(--border)] bg-[var(--page-bg)] text-[var(--muted-blue)]"}`}>{step}</span>
-                ))}
-              </div>
+              <SectionHeader eyebrow="Next" title="Ready for Academic Head review" description="When the paper looks correct, send it forward. NIDUS handles the internal approval steps." icon={<ClipboardCheck size={20} />} />
               <Textarea label="Instructions and exam rules" value={examForm.instructions} onChange={(value) => setExamForm((form) => ({ ...form, instructions: value }))} />
-              <button type="button" onClick={onPublish} className="mt-4 w-full rounded-xl bg-emerald-700 px-5 py-3 font-black text-white">Send For Review</button>
+              <button type="button" onClick={() => setExamStep(4)} className="mt-4 w-full rounded-xl bg-emerald-700 px-5 py-3 font-black text-white">Go To Publish</button>
             </div>
           </aside>
         </div>
+        ) : null}
+
+        {examStep === 4 ? (
+          <section className="mx-auto max-w-4xl rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
+            <SectionHeader eyebrow="Step 4" title="Submit for approval" description="The teacher only needs to submit. NIDUS handles Draft to Review in the background." icon={<ClipboardCheck size={20} />} />
+            <div className="mt-5 grid gap-3 md:grid-cols-2">
+              <ReviewMetric label="Batch" value={selectedBatchName} />
+              <ReviewMetric label="Subject" value={examForm.subject || "Subject pending"} />
+              <ReviewMetric label="Exam" value={examForm.title || "Untitled exam"} />
+              <ReviewMetric label="Questions" value={detectedQuestionCount || "Pending"} />
+              <ReviewMetric label="Date" value={examForm.publishDate || "Date pending"} />
+              <ReviewMetric label="Duration" value={`${examForm.duration || 0} min`} />
+            </div>
+            <Textarea label="Optional instructions for Academic Head" value={examForm.instructions} onChange={(value) => setExamForm((form) => ({ ...form, instructions: value }))} />
+            <div className="mt-5 flex flex-col gap-3 md:flex-row">
+              <button type="button" onClick={() => setExamStep(3)} className="rounded-xl border border-[var(--border)] bg-white px-5 py-3 font-black">Back To Preview</button>
+              <button type="button" onClick={onPublish} className="flex-1 rounded-xl bg-emerald-700 px-5 py-4 text-base font-black text-white">Submit For Approval</button>
+            </div>
+          </section>
+        ) : null}
       </div>
     </div>
   );
