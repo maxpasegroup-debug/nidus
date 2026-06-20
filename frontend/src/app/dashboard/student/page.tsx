@@ -120,6 +120,16 @@ type StudentPlan = {
   }>;
 };
 
+type StudentLeaveRequest = {
+  id: string;
+  fromDate: string;
+  toDate: string;
+  reason: string;
+  attachmentName?: string | null;
+  status: string;
+  reviewNote?: string | null;
+};
+
 type ExamSummary = {
   id: string;
   testId?: string | null;
@@ -194,7 +204,8 @@ async function apiPost<T>(path: string, body: unknown): Promise<T> {
   });
 
   if (!response.ok) {
-    throw new Error("Unable to submit assignment");
+    const payload = await response.json().catch(() => null) as { message?: string } | null;
+    throw new Error(payload?.message || "Unable to complete request");
   }
 
   return response.json() as Promise<T>;
@@ -205,6 +216,8 @@ export default function StudentDashboardPage() {
   const [assignmentMessage, setAssignmentMessage] = useState<string | null>(null);
   const [parentIdentity, setParentIdentity] = useState("");
   const [parentLinkMessage, setParentLinkMessage] = useState<string | null>(null);
+  const [leaveForm, setLeaveForm] = useState({ fromDate: "", toDate: "", reason: "", attachmentName: "" });
+  const [leaveMessage, setLeaveMessage] = useState<string | null>(null);
   const academicPlan = useQuery({
     queryKey: ["student", "academic-plan"],
     queryFn: () => apiJson<StudentPlan>("/api/academy/my-plan"),
@@ -216,6 +229,10 @@ export default function StudentDashboardPage() {
   const attemptHistory = useQuery({
     queryKey: ["student", "exam-attempt-history"],
     queryFn: () => apiJson<{ attempts: AttemptHistory[] }>("/api/tests/attempts/history"),
+  });
+  const leaveRequests = useQuery({
+    queryKey: ["student", "leave-requests"],
+    queryFn: () => apiJson<{ leaves: StudentLeaveRequest[] }>("/api/academy/leave-requests"),
   });
 
   const batches = academicPlan.data?.batches ?? [];
@@ -479,6 +496,63 @@ export default function StudentDashboardPage() {
         </Panel>
 
         <Panel id="attendance" title="Attendance" eyebrow="Teacher marked sessions">
+          <div className="mb-5 rounded-2xl border border-[var(--border)] bg-white p-5">
+            <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold)]">Apply Leave</p>
+                <h3 className="mt-2 text-2xl font-black text-[var(--navy)]">Request student leave</h3>
+                <p className="mt-2 text-sm text-[var(--muted-blue)]">Your Academic Head will approve or reject the request.</p>
+              </div>
+              <span className="rounded-full border border-[var(--gold-border)] bg-[var(--gold-soft)] px-3 py-2 text-xs font-black">{leaveRequests.data?.leaves.filter((leave) => leave.status === "PENDING").length ?? 0} pending</span>
+            </div>
+            <div className="mt-4 grid gap-3 md:grid-cols-2">
+              <label className="grid gap-2 text-sm font-black">
+                From Date
+                <input type="date" value={leaveForm.fromDate} onChange={(event) => setLeaveForm((form) => ({ ...form, fromDate: event.target.value }))} className="min-h-12 rounded-xl border border-[var(--border)] bg-white px-3 text-sm" />
+              </label>
+              <label className="grid gap-2 text-sm font-black">
+                To Date
+                <input type="date" value={leaveForm.toDate} onChange={(event) => setLeaveForm((form) => ({ ...form, toDate: event.target.value }))} className="min-h-12 rounded-xl border border-[var(--border)] bg-white px-3 text-sm" />
+              </label>
+              <label className="grid gap-2 text-sm font-black md:col-span-2">
+                Reason
+                <textarea value={leaveForm.reason} onChange={(event) => setLeaveForm((form) => ({ ...form, reason: event.target.value }))} rows={3} placeholder="Reason for leave" className="rounded-xl border border-[var(--border)] bg-white px-3 py-3 text-sm font-normal" />
+              </label>
+              <label className="grid gap-2 text-sm font-black md:col-span-2">
+                Attachment (Optional)
+                <input type="file" accept=".pdf,.doc,.docx,image/*" onChange={(event) => setLeaveForm((form) => ({ ...form, attachmentName: event.target.files?.[0]?.name ?? "" }))} className="min-h-12 rounded-xl border border-[var(--border)] bg-white px-3 py-3 text-sm font-normal" />
+              </label>
+              <button
+                type="button"
+                onClick={async () => {
+                  setLeaveMessage("Submitting leave request...");
+                  try {
+                    await apiPost("/api/academy/leave-requests", { ...leaveForm, batchId: primaryBatch?.id });
+                    setLeaveForm({ fromDate: "", toDate: "", reason: "", attachmentName: "" });
+                    setLeaveMessage("Leave request submitted.");
+                    await leaveRequests.refetch();
+                  } catch (error) {
+                    setLeaveMessage(error instanceof Error ? error.message : "Could not submit leave request.");
+                  }
+                }}
+                className="min-h-12 rounded-xl bg-[var(--gold-gradient)] px-5 py-3 text-sm font-black text-[var(--navy)] md:col-span-2"
+              >
+                Submit Leave Request
+              </button>
+            </div>
+            {leaveMessage ? <p className="mt-3 rounded-xl bg-[var(--page-bg)] px-4 py-3 text-sm font-bold">{leaveMessage}</p> : null}
+            <div className="mt-4 grid gap-2">
+              {(leaveRequests.data?.leaves ?? []).slice(0, 5).map((leave) => (
+                <div key={leave.id} className="flex flex-col gap-2 rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <p className="font-black">{new Date(leave.fromDate).toLocaleDateString()} - {new Date(leave.toDate).toLocaleDateString()}</p>
+                    <p className="mt-1 text-sm text-[var(--muted-blue)]">{leave.reason}</p>
+                  </div>
+                  <span className="rounded-full bg-white px-3 py-1 text-xs font-black">{leave.status}</span>
+                </div>
+              ))}
+            </div>
+          </div>
           <div className="grid gap-4 lg:grid-cols-[0.8fr_1.2fr]">
             <div className="rounded-2xl border border-[var(--border)] bg-white p-5">
               <p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold)]">Overall</p>

@@ -111,6 +111,13 @@ export const academyController = {
       next(error);
     }
   },
+  updateAttendance: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      res.json(await academyService.updateAttendance(requester(req), param(req, "id"), req.body));
+    } catch (error) {
+      next(error);
+    }
+  },
   attendanceHistory: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     try {
       res.json(await academyService.attendanceHistory(requester(req), req.query));
@@ -121,6 +128,27 @@ export const academyController = {
   attendanceSummary: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     try {
       res.json(await academyService.attendanceSummary(requester(req), req.query));
+    } catch (error) {
+      next(error);
+    }
+  },
+  createLeaveRequest: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      res.status(201).json(await academyService.createLeaveRequest(requester(req), req.body));
+    } catch (error) {
+      next(error);
+    }
+  },
+  leaveRequests: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      res.json(await academyService.leaveRequests(requester(req), req.query));
+    } catch (error) {
+      next(error);
+    }
+  },
+  reviewLeaveRequest: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      res.json(await academyService.reviewLeaveRequest(requester(req), param(req, "id"), req.body));
     } catch (error) {
       next(error);
     }

@@ -3747,3 +3747,29 @@ model AiWorkflowAuditEvent {
   @@index([createdAt])
   @@map("ai_workflow_audit_events")
 }
+
+model AcademicLeaveRequest {
+  id             String   @id @default(cuid())
+  studentId      String
+  studentName    String?
+  batchId        String?
+  batchName      String?
+  fromDate       DateTime
+  toDate         DateTime
+  reason         String
+  attachmentName String?
+  attachmentUrl  String?
+  status         String   @default("PENDING")
+  reviewedById   String?
+  reviewedByName String?
+  reviewedAt     DateTime?
+  reviewNote     String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([studentId])
+  @@index([batchId])
+  @@index([status])
+  @@index([fromDate, toDate])
+  @@map("AcademicLeaveRequest")
+}

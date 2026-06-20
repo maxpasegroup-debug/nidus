@@ -63,10 +63,68 @@ type CalendarItem = {
   classType?: string | null;
   batchId?: string | null;
   batchName?: string | null;
+  teacherId?: string | null;
+  teacherName?: string | null;
   status?: string;
   completionStatus?: string;
   teacherLog?: string | null;
   nextAction?: string | null;
+};
+
+type CalendarMonitorItem = {
+  batchId?: string | null;
+  batchName?: string | null;
+  teacherId?: string | null;
+  teacherName?: string | null;
+  subject: string;
+  plannedClasses: number;
+  completedClasses: number;
+  delayedClasses: number;
+  missedClasses: number;
+  completionPercentage: number;
+  status: "GREEN" | "ORANGE" | "RED";
+};
+
+type TeacherPerformanceItem = {
+  teacherId: string;
+  teacherName: string;
+  assignedBatches: number;
+  assignedSubjects: string[];
+  classesConducted: number;
+  syllabusCompletionPercentage: number | null;
+  attendanceMarkingPercentage: number | null;
+  assignmentsPublished: number;
+  examsPublished: number;
+  libraryMaterialsUploaded: number;
+  status: "GREEN" | "ORANGE" | "RED";
+};
+
+type BatchProgressItem = {
+  batchId: string;
+  batchName: string;
+  programSlug?: string | null;
+  studentCount: number;
+  batchHealthScore: number | null;
+  attendancePercentage: number | null;
+  assignmentCompletionPercentage: number | null;
+  examAveragePercentage: number | null;
+  materialCount: number;
+  riskStudentCount: number;
+  overallStatus: "Healthy" | "Attention Needed" | "Critical" | "No Data";
+};
+
+type CalendarTab = "TODAY" | "WEEK" | "MONTH" | "LOGS" | "FACULTY" | "BATCHES";
+
+type CompletionReportForm = {
+  topicCovered: string;
+  subtopicCovered: string;
+  completionPercentage: string;
+  homeworkGiven: string;
+  participation: string;
+  studentsNeedingAttention: string;
+  supportRequired: string;
+  teacherRemarks: string;
+  completionStatus: string;
 };
 
 type LiveClassRecord = {
@@ -97,9 +155,30 @@ type TeachingPlan = {
 type AttendanceRecord = {
   id: string;
   batchId: string;
+  batchName?: string | null;
   date?: string;
   subject?: string | null;
+  teacherId?: string | null;
+  teacherName?: string | null;
+  status?: string | null;
+  createdAt?: string;
   records?: Array<{ studentId?: string; studentName?: string; status?: string; remarks?: string }>;
+};
+
+type LeaveRequestRecord = {
+  id: string;
+  studentId: string;
+  studentName?: string | null;
+  batchId?: string | null;
+  batchName?: string | null;
+  fromDate: string;
+  toDate: string;
+  reason: string;
+  attachmentName?: string | null;
+  attachmentUrl?: string | null;
+  status: string;
+  reviewNote?: string | null;
+  createdAt?: string;
 };
 
 type AssignmentRecord = {
@@ -433,6 +512,34 @@ function monthStartDate(date: Date) {
   return new Date(date.getFullYear(), date.getMonth(), 1);
 }
 
+function startOfWeek(date: Date) {
+  const value = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  const day = value.getDay();
+  value.setDate(value.getDate() - (day === 0 ? 6 : day - 1));
+  return value;
+}
+
+function addDays(date: Date, days: number) {
+  const value = new Date(date);
+  value.setDate(value.getDate() + days);
+  return value;
+}
+
+function calendarStatus(item: CalendarItem) {
+  const status = String(item.completionStatus || item.status || "PENDING").toUpperCase();
+  if (status === "PARTIAL") return "PARTIALLY_COMPLETED";
+  if (["PLANNED", "SCHEDULED", "UPCOMING"].includes(status)) return "PENDING";
+  return status;
+}
+
+function calendarStatusTone(status?: string | null) {
+  const normalized = String(status || "PENDING").toUpperCase();
+  if (normalized === "COMPLETED") return "border-emerald-200 bg-emerald-50 text-emerald-800";
+  if (normalized === "PARTIAL" || normalized === "PARTIALLY_COMPLETED" || normalized === "RESCHEDULED") return "border-amber-200 bg-amber-50 text-amber-800";
+  if (normalized === "CANCELLED") return "border-rose-200 bg-rose-50 text-rose-800";
+  return "border-slate-200 bg-slate-100 text-slate-700";
+}
+
 function sameDate(value: Date, isoDate?: string) {
   if (!isoDate) return false;
   const date = new Date(isoDate);
@@ -621,8 +728,11 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
   const [examMessage, setExamMessage] = useState<string | null>(null);
   const [liveClassMessage, setLiveClassMessage] = useState<string | null>(null);
   const [attendanceDate, setAttendanceDate] = useState(todayDate());
-  const [attendance, setAttendance] = useState<Record<string, "PRESENT" | "ABSENT" | "LEAVE">>({});
+  const [attendance, setAttendance] = useState<Record<string, "PRESENT" | "ABSENT" | "LEAVE" | "HALF_DAY">>({});
   const [attendanceComments, setAttendanceComments] = useState<Record<string, string>>({});
+  const [attendanceRegisterOpen, setAttendanceRegisterOpen] = useState(false);
+  const [editingAttendanceId, setEditingAttendanceId] = useState<string | null>(null);
+  const [leaveRequests, setLeaveRequests] = useState<LeaveRequestRecord[]>([]);
   const [showExamCreator, setShowExamCreator] = useState(false);
   const [showAssignmentCreator, setShowAssignmentCreator] = useState(false);
   const [showLiveClassCreator, setShowLiveClassCreator] = useState(false);
@@ -655,8 +765,29 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
   const [showArchivedLibrary, setShowArchivedLibrary] = useState(false);
   const [showLibraryUpload, setShowLibraryUpload] = useState(false);
   const [calendarMonth, setCalendarMonth] = useState(() => monthStartDate(new Date()));
+  const [calendarWeek, setCalendarWeek] = useState(() => startOfWeek(new Date()));
+  const [calendarTab, setCalendarTab] = useState<CalendarTab>("TODAY");
+  const [calendarBatchFilter, setCalendarBatchFilter] = useState("ALL");
+  const [calendarSearch, setCalendarSearch] = useState("");
+  const [calendarStatusFilter, setCalendarStatusFilter] = useState("ALL");
+  const [showClassDetails, setShowClassDetails] = useState(false);
+  const [showCompletionReport, setShowCompletionReport] = useState(false);
+  const [calendarMonitor, setCalendarMonitor] = useState<CalendarMonitorItem[]>([]);
+  const [facultyProgress, setFacultyProgress] = useState<TeacherPerformanceItem[]>([]);
+  const [batchProgress, setBatchProgress] = useState<BatchProgressItem[]>([]);
+  const [calendarAnalyticsLoading, setCalendarAnalyticsLoading] = useState(false);
   const [classWorkspace, setClassWorkspace] = useState<ClassWorkspace>(emptyWorkspace);
-  const [calendarLog, setCalendarLog] = useState({ completionStatus: "COMPLETED", teacherLog: "", nextAction: "" });
+  const [completionReport, setCompletionReport] = useState<CompletionReportForm>({
+    topicCovered: "",
+    subtopicCovered: "",
+    completionPercentage: "100",
+    homeworkGiven: "",
+    participation: "Good",
+    studentsNeedingAttention: "",
+    supportRequired: "",
+    teacherRemarks: "",
+    completionStatus: "COMPLETED",
+  });
   const [libraryForm, setLibraryForm] = useState(initialLibraryForm);
   const [assignmentForm, setAssignmentForm] = useState<AssignmentForm>({ title: "", subject: "", topic: "", difficulty: "MEDIUM", instructions: "", pastedContent: "", dueDate: "", attachmentName: "", link: "" });
   const [liveClassForm, setLiveClassForm] = useState<LiveClassForm>({ subject: "", topic: "", date: todayDate(), time: "", duration: "60", description: "", meetingLink: "" });
@@ -738,6 +869,66 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
     selectedCalendarItems.find((item) => item.batchId === selectedClass?.id) ??
     selectedCalendarItems[0] ??
     null;
+  const calendarScopeItems = useMemo(() => {
+    const query = calendarSearch.trim().toLowerCase();
+    return calendar.filter((item) => {
+      const matchesBatch = calendarBatchFilter === "ALL" || item.batchId === calendarBatchFilter;
+      const matchesStatus = calendarStatusFilter === "ALL" || calendarStatus(item) === calendarStatusFilter;
+      const matchesSearch = !query || [item.subject, item.topic, item.batchName, item.teacherName, item.classType]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase()
+        .includes(query);
+      return matchesBatch && matchesStatus && matchesSearch;
+    });
+  }, [calendar, calendarBatchFilter, calendarSearch, calendarStatusFilter]);
+  const todayCalendarItems = useMemo(
+    () => calendarScopeItems.filter((item) => dateKey(item.plannedDate) === todayDate()).sort((a, b) => String(a.startTime || "").localeCompare(String(b.startTime || ""))),
+    [calendarScopeItems],
+  );
+  const weekDays = useMemo(() => Array.from({ length: 6 }, (_, index) => addDays(calendarWeek, index)), [calendarWeek]);
+  const weekCalendarItems = useMemo(() => {
+    const keys = new Set(weekDays.map((day) => dateKey(day)));
+    return calendarScopeItems.filter((item) => keys.has(dateKey(item.plannedDate)));
+  }, [calendarScopeItems, weekDays]);
+  const weekTimeSlots = useMemo(
+    () => Array.from(new Set(weekCalendarItems.map((item) => `${item.startTime || "Time pending"}|${item.endTime || ""}`))).sort(),
+    [weekCalendarItems],
+  );
+  const completedCalendarItems = useMemo(
+    () => calendarScopeItems.filter((item) => ["COMPLETED", "PARTIALLY_COMPLETED", "PARTIAL", "RESCHEDULED", "CANCELLED"].includes(calendarStatus(item))),
+    [calendarScopeItems],
+  );
+  const calendarSummary = useMemo(() => {
+    const completed = todayCalendarItems.filter((item) => calendarStatus(item) === "COMPLETED").length;
+    const cancelled = todayCalendarItems.filter((item) => calendarStatus(item) === "CANCELLED").length;
+    const pending = Math.max(0, todayCalendarItems.length - completed - cancelled);
+    const attendancePending = todayCalendarItems.filter((item) => {
+      const recordDate = dateKey(item.plannedDate);
+      return !classWorkspace.attendance.some((record) => record.batchId === item.batchId && dateKey(record.date) === recordDate);
+    }).length;
+    return {
+      today: todayCalendarItems.length,
+      completed,
+      pending,
+      cancelled,
+      attendancePending,
+      assignmentPending: classWorkspace.assignments.filter((item) => ["DRAFT", "PENDING_REVIEW"].includes(String(item.status || "").toUpperCase())).length,
+      examPending: classWorkspace.exams.filter((item) => ["DRAFT", "PENDING_REVIEW"].includes(String(item.status || "").toUpperCase())).length,
+      reportingPending: todayCalendarItems.filter((item) => calendarStatus(item) !== "COMPLETED" && new Date(item.plannedDate || "").getTime() < Date.now()).length,
+    };
+  }, [classWorkspace.assignments, classWorkspace.attendance, classWorkspace.exams, todayCalendarItems]);
+  const batchCalendarProgress = useMemo(() => {
+    const grouped = new Map<string, { batchId: string; batchName: string; planned: number; completed: number; cancelled: number }>();
+    for (const item of calendarMonitor) {
+      if (!item.batchId) continue;
+      const current = grouped.get(item.batchId) ?? { batchId: item.batchId, batchName: item.batchName || "Batch", planned: 0, completed: 0, cancelled: 0 };
+      current.planned += item.plannedClasses;
+      current.completed += item.completedClasses;
+      grouped.set(item.batchId, current);
+    }
+    return Array.from(grouped.values());
+  }, [calendarMonitor]);
   const liveClassesByBatch = useMemo(() => {
     const map = new Map<string, LiveClassRecord[]>();
     for (const item of liveClasses) {
@@ -754,7 +945,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
   const selectedBatchLiveClasses = selectedClass?.id ? liveClassesByBatch.get(selectedClass.id) ?? [] : [];
   const selectedDayTasks = useMemo<CalendarDayTask[]>(() => {
     const tasks: CalendarDayTask[] = [];
-    for (const item of selectedCalendarItems) {
+    for (const item of calendarScopeItems) {
       const classType = (item.classType || "").toUpperCase();
       tasks.push({
         id: `calendar-${item.id}`,
@@ -807,7 +998,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
       if (dateDiff) return dateDiff;
       return String(a.time || "").localeCompare(String(b.time || ""));
     });
-  }, [classWorkspace.assignments, classWorkspace.exams, selectedBatchLiveClasses, selectedCalendarItems, selectedClass?.name]);
+  }, [calendarScopeItems, classWorkspace.assignments, classWorkspace.exams, selectedBatchLiveClasses, selectedClass?.name]);
   const selectedDayTaskMap = useMemo(() => {
     const map = new Map<string, CalendarDayTask[]>();
     for (const task of selectedDayTasks) {
@@ -956,7 +1147,8 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
   const todaysAttendanceClasses = todayOperations.filter((item) => item.batchId);
   const attendanceAbsentCount = selectedStudents.filter((entry, index) => (attendance[studentId(entry, index)] ?? "PRESENT") === "ABSENT").length;
   const attendanceLeaveCount = selectedStudents.filter((entry, index) => (attendance[studentId(entry, index)] ?? "PRESENT") === "LEAVE").length;
-  const attendancePresentCount = Math.max(0, selectedStudents.length - attendanceAbsentCount - attendanceLeaveCount);
+  const attendanceHalfDayCount = selectedStudents.filter((entry, index) => (attendance[studentId(entry, index)] ?? "PRESENT") === "HALF_DAY").length;
+  const attendancePresentCount = Math.max(0, selectedStudents.length - attendanceAbsentCount - attendanceLeaveCount - attendanceHalfDayCount);
   const selectedAttendanceRate = selectedStudents.length ? Math.round((attendancePresentCount / selectedStudents.length) * 100) : 0;
   const lowAttendanceStudents = selectedStudents
     .map((entry, index) => {
@@ -1073,6 +1265,34 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
     }
   }
 
+  async function loadCalendarAnalytics() {
+    setCalendarAnalyticsLoading(true);
+    try {
+      const [monitorData, facultyData, batchData] = await Promise.all([
+        apiGet<{ items?: CalendarMonitorItem[] }>(["/api/academy/academic-calendar-monitor"]),
+        isAcademicHead ? apiGet<{ teachers?: TeacherPerformanceItem[] }>(["/api/academy/teacher-performance-summary"]) : Promise.resolve(null),
+        isAcademicHead ? apiGet<{ batches?: BatchProgressItem[] }>(["/api/academy/student-progress-summary"]) : Promise.resolve(null),
+      ]);
+      setCalendarMonitor(monitorData?.items ?? []);
+      setFacultyProgress(facultyData?.teachers ?? []);
+      setBatchProgress(batchData?.batches ?? []);
+    } catch (error) {
+      setCalendarMessage(error instanceof Error ? error.message : "Could not load academic progress summaries.");
+    } finally {
+      setCalendarAnalyticsLoading(false);
+    }
+  }
+
+  async function loadLeaveRequests(batchId?: string) {
+    try {
+      const suffix = batchId ? `?batchId=${encodeURIComponent(batchId)}` : "";
+      const data = await apiGet<{ leaves?: LeaveRequestRecord[] }>([`/api/academy/leave-requests${suffix}`]);
+      setLeaveRequests(data?.leaves ?? []);
+    } catch {
+      setLeaveRequests([]);
+    }
+  }
+
   useEffect(() => {
     setUser(readStoredUser());
     void loadTeachingPlan();
@@ -1084,8 +1304,14 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
       Object.fromEntries(selectedStudents.map((entry, index) => [studentId(entry, index), attendance[studentId(entry, index)] ?? "PRESENT"])),
     );
     void loadClassWorkspace(selectedClass.id);
+    if (view === "attendance") void loadLeaveRequests(isAcademicHead ? undefined : selectedClass.id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedClass?.id]);
+  }, [selectedClass?.id, view, isAcademicHead]);
+
+  useEffect(() => {
+    if (view === "academic-calendar") void loadCalendarAnalytics();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [view, isAcademicHead]);
 
   useEffect(() => {
     if (!selectedProgramKey && programGroups[0]) setSelectedProgramKey(programGroups[0].key);
@@ -1100,6 +1326,20 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
     const subjects = subjectsForBatch(selectedClass);
     if (!librarySubject || !subjects.includes(librarySubject)) setLibrarySubject(subjects[0] ?? "General");
   }, [librarySubject, selectedClass, view]);
+
+  useEffect(() => {
+    if (!attendanceRegisterOpen || editingAttendanceId || !selectedClass?.id) return;
+    const target = new Date(`${attendanceDate}T00:00:00`);
+    const approvedStudentIds = new Set(
+      leaveRequests
+        .filter((leave) => leave.status === "APPROVED" && leave.batchId === selectedClass.id && target >= new Date(leave.fromDate) && target <= new Date(leave.toDate))
+        .map((leave) => leave.studentId),
+    );
+    setAttendance(Object.fromEntries(selectedStudents.map((entry, index) => {
+      const id = studentId(entry, index);
+      return [id, approvedStudentIds.has(entry.student?.id || id) ? "LEAVE" : "PRESENT"];
+    })));
+  }, [attendanceDate, attendanceRegisterOpen, editingAttendanceId, leaveRequests, selectedClass?.id, selectedStudents]);
 
   useEffect(() => {
     setLibraryPage(1);
@@ -1140,7 +1380,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
     setShowLibraryUpload(true);
   }
 
-  function setAllAttendance(status: "PRESENT" | "ABSENT" | "LEAVE") {
+  function setAllAttendance(status: "PRESENT" | "ABSENT" | "LEAVE" | "HALF_DAY") {
     setAttendance(Object.fromEntries(selectedStudents.map((entry, index) => [studentId(entry, index), status])));
   }
 
@@ -1154,6 +1394,29 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
       ...value,
       [id]: value[id] === "ABSENT" ? "PRESENT" : "ABSENT",
     }));
+  }
+
+  function setStudentAttendance(id: string, status: "PRESENT" | "ABSENT" | "LEAVE" | "HALF_DAY") {
+    setAttendance((value) => ({ ...value, [id]: status }));
+  }
+
+  function openAttendanceRegister(batchId: string, date = todayDate()) {
+    chooseBatch(batchId);
+    setAttendanceDate(date);
+    setEditingAttendanceId(null);
+    setAttendanceRegisterOpen(true);
+    setAttendanceComments({});
+  }
+
+  function openAttendanceHistoryRecord(record: AttendanceRecord) {
+    if (record.batchId) chooseBatch(record.batchId);
+    setAttendanceDate(record.date ? record.date.slice(0, 10) : todayDate());
+    setEditingAttendanceId(record.id);
+    setAttendanceRegisterOpen(true);
+    setAttendance(
+      Object.fromEntries((record.records ?? []).map((entry) => [entry.studentId || entry.studentName || "", (entry.status || "PRESENT") as "PRESENT" | "ABSENT" | "LEAVE" | "HALF_DAY"])),
+    );
+    setAttendanceComments(Object.fromEntries((record.records ?? []).map((entry) => [entry.studentId || entry.studentName || "", entry.remarks || ""])));
   }
 
   function openExamCreator() {
@@ -1426,7 +1689,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
     if (!selectedClass) return;
     setAttendanceMessage(null);
     try {
-      await apiPost<{ ok?: boolean }>(["/api/academy/attendance"], {
+      const payload = {
         batchId: selectedClass.id,
         batchName: selectedClass.name,
         subject: selectedClass.subject,
@@ -1440,29 +1703,80 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
             remarks: attendanceComments[id] || undefined,
           };
         }),
-      });
-      setAttendanceMessage("Attendance saved.");
+      };
+      if (editingAttendanceId) {
+        await apiPatch<{ ok?: boolean }>([`/api/academy/attendance/${editingAttendanceId}`], payload);
+      } else {
+        await apiPost<{ ok?: boolean }>(["/api/academy/attendance"], payload);
+      }
+      setAttendanceMessage(editingAttendanceId ? "Attendance record updated." : "Attendance saved.");
+      setAttendanceRegisterOpen(false);
+      setEditingAttendanceId(null);
       await loadClassWorkspace(selectedClass.id);
     } catch (error) {
       setAttendanceMessage(error instanceof Error ? error.message : "Could not save attendance.");
     }
   }
 
-  async function submitCalendarLog() {
-    if (!selectedCalendarItem) return;
-    setCalendarMessage(null);
+  async function reviewLeaveRequest(leaveId: string, status: "APPROVED" | "REJECTED") {
+    setAttendanceMessage(null);
     try {
-      await apiPatch<CalendarItem>([`/api/academy/academic-calendar/${selectedCalendarItem.id}`], {
-        completionStatus: calendarLog.completionStatus,
-        teacherLog: calendarLog.teacherLog,
-        nextAction: calendarLog.nextAction,
-        status: calendarLog.completionStatus === "COMPLETED" ? "COMPLETED" : "IN_PROGRESS",
-      });
-      setCalendarMessage("Calendar log saved.");
-      await loadTeachingPlan();
+      await apiPatch<{ ok?: boolean }>([`/api/academy/leave-requests/${leaveId}`], { status });
+      setAttendanceMessage(status === "APPROVED" ? "Leave request approved." : "Leave request rejected.");
+      await loadLeaveRequests();
       if (selectedClass?.id) await loadClassWorkspace(selectedClass.id);
     } catch (error) {
-      setCalendarMessage(error instanceof Error ? error.message : "Could not save calendar log.");
+      setAttendanceMessage(error instanceof Error ? error.message : "Could not update leave request.");
+    }
+  }
+
+  function openCalendarClass(item: CalendarItem) {
+    setSelectedCalendarId(item.id);
+    if (item.batchId) {
+      setSelectedClassId(item.batchId);
+      setCalendarBatchFilter((current) => current === "ALL" ? current : item.batchId || current);
+    }
+    setCompletionReport({
+      topicCovered: item.topic || "",
+      subtopicCovered: "",
+      completionPercentage: calendarStatus(item) === "COMPLETED" ? "100" : "",
+      homeworkGiven: "",
+      participation: "Good",
+      studentsNeedingAttention: "",
+      supportRequired: item.nextAction || "",
+      teacherRemarks: item.teacherLog || "",
+      completionStatus: item.completionStatus || "COMPLETED",
+    });
+    setShowClassDetails(true);
+  }
+
+  async function submitCompletionReport() {
+    if (!selectedCalendarItem) return;
+    setCalendarMessage(null);
+    const teacherLog = [
+      `Topic covered: ${completionReport.topicCovered || selectedCalendarItem.topic || "Not recorded"}`,
+      `Subtopic covered: ${completionReport.subtopicCovered || "Not recorded"}`,
+      `Completion: ${completionReport.completionPercentage || "0"}%`,
+      `Homework: ${completionReport.homeworkGiven || "None"}`,
+      `Participation: ${completionReport.participation || "Not recorded"}`,
+      `Students needing attention: ${completionReport.studentsNeedingAttention || "None"}`,
+      `Teacher remarks: ${completionReport.teacherRemarks || "None"}`,
+    ].join("\n");
+    try {
+      await apiPatch<CalendarItem>([`/api/academy/academic-calendar/${selectedCalendarItem.id}`], {
+        topic: completionReport.topicCovered || selectedCalendarItem.topic,
+        completionStatus: completionReport.completionStatus,
+        teacherLog,
+        nextAction: completionReport.supportRequired || null,
+        status: completionReport.completionStatus === "COMPLETED" ? "COMPLETED" : completionReport.completionStatus,
+      });
+      setCalendarMessage("Class completion report saved.");
+      setShowCompletionReport(false);
+      setShowClassDetails(false);
+      await Promise.all([loadTeachingPlan(), loadCalendarAnalytics()]);
+      if (selectedClass?.id) await loadClassWorkspace(selectedClass.id);
+    } catch (error) {
+      setCalendarMessage(error instanceof Error ? error.message : "Could not save the completion report.");
     }
   }
 
@@ -2421,7 +2735,41 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
         ) : null}
       </section> : null}
 
-      {view === "attendance" ? <section className="grid gap-5">
+      {view === "attendance" ? (
+        <AttendanceWorkspace
+          isAcademicHead={isAcademicHead}
+          todayClasses={todaysAttendanceClasses}
+          activeClasses={activeClasses}
+          selectedClass={selectedClass}
+          students={selectedStudents}
+          facultyName={user?.name || user?.email || "Teacher"}
+          date={attendanceDate}
+          attendance={attendance}
+          comments={attendanceComments}
+          registerOpen={attendanceRegisterOpen}
+          editing={Boolean(editingAttendanceId)}
+          history={classWorkspace.attendance}
+          leaveRequests={leaveRequests}
+          message={attendanceMessage}
+          onOpenRegister={openAttendanceRegister}
+          onOpenHistory={openAttendanceHistoryRecord}
+          onChooseBatch={chooseBatch}
+          onDate={setAttendanceDate}
+          onStatus={setStudentAttendance}
+          onComment={(id, value) => setAttendanceComments((current) => ({ ...current, [id]: value }))}
+          onAllPresent={() => setAllAttendance("PRESENT")}
+          onAllAbsent={() => setAllAttendance("ABSENT")}
+          onReset={resetAttendance}
+          onSave={() => void saveAttendance()}
+          onCloseRegister={() => {
+            setAttendanceRegisterOpen(false);
+            setEditingAttendanceId(null);
+          }}
+          onReviewLeave={(id, status) => void reviewLeaveRequest(id, status)}
+        />
+      ) : null}
+
+      {false ? <section className="grid gap-5">
         <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div className="flex items-start gap-4">
@@ -2547,7 +2895,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
                 <button type="button" onClick={() => void saveAttendance()} className="min-h-12 rounded-xl border border-slate-950 bg-slate-950 px-5 py-3 text-sm font-black text-white">Save Attendance</button>
               </div>
             </div>
-            {attendanceMessage ? <Notice text={attendanceMessage} /> : null}
+            {attendanceMessage ? <Notice text={attendanceMessage || ""} /> : null}
             <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
               {selectedStudents.map((entry, index) => {
                 const id = studentId(entry, index);
@@ -2593,7 +2941,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
 
         {modalStudent ? (
           <StudentProgressModal
-            student={modalStudent}
+            student={modalStudent!}
             programName={selectedProgram?.name ?? "Program"}
             batchName={selectedClass?.name ?? "Batch"}
             attendance={modalStudentAttendance}
@@ -2741,83 +3089,72 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
         {libraryMessage ? <Notice text={libraryMessage} /> : null}
       </section> : null}
 
-      {view === "academic-calendar" ? <section className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
-        <SectionHeader eyebrow="Academic Calendar" title="Calendar and class logs" description="Click a date/topic, update completion, and management sees progress." icon={<CalendarDays size={20} />} />
-        <ProgramBatchPicker programGroups={programGroups} selectedProgramKey={selectedProgram?.key} selectedClassId={selectedClass?.id} onProgram={chooseProgram} onBatch={chooseBatch} />
-        <div className="mt-5 grid gap-4 lg:grid-cols-[1fr_360px]">
-          <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
-            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-              <h3 className="text-xl font-black">{calendarMonth.toLocaleDateString(undefined, { month: "long", year: "numeric" })}</h3>
-              <div className="flex gap-2">
-                <button type="button" onClick={() => setCalendarMonth((date) => new Date(date.getFullYear(), date.getMonth() - 1, 1))} className="rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-sm font-black">Prev</button>
-                <button type="button" onClick={() => setCalendarMonth(monthStartDate(new Date()))} className="rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-sm font-black">Today</button>
-                <button type="button" onClick={() => setCalendarMonth((date) => new Date(date.getFullYear(), date.getMonth() + 1, 1))} className="rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-sm font-black">Next</button>
-              </div>
-            </div>
-            <div className="grid grid-cols-7 gap-2 text-center text-xs font-black uppercase tracking-[0.12em] text-[var(--muted-blue)]">
-              {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => <span key={day}>{day}</span>)}
-            </div>
-            <div className="mt-2 grid grid-cols-7 gap-2">
-              {calendarDays.map((day, index) => {
-                const key = day ? dateKey(day) : "";
-                const dayTasks = key ? selectedDayTaskMap.get(key) ?? [] : [];
-                const dayItems = day ? selectedCalendarItems.filter((item) => sameDate(day, item.plannedDate)) : [];
-                return (
-                  <button
-                    key={day?.toISOString() ?? `empty-${index}`}
-                    type="button"
-                    disabled={!day}
-                    onClick={() => {
-                      if (!day) return;
-                      setSelectedTaskDate(key);
-                      const firstClass = dayItems[0];
-                      if (firstClass) {
-                        setSelectedCalendarId(firstClass.id);
-                        setCalendarLog({ completionStatus: firstClass.completionStatus || "COMPLETED", teacherLog: firstClass.teacherLog || "", nextAction: firstClass.nextAction || "" });
-                      }
-                    }}
-                    className={`min-h-28 rounded-2xl border border-[var(--border)] bg-white p-2 text-left transition hover:border-slate-950 hover:shadow-sm disabled:cursor-default disabled:bg-transparent disabled:hover:border-[var(--border)] disabled:hover:shadow-none ${dayTasks.length ? "ring-1 ring-slate-950/10" : ""}`}
-                  >
-                    {day ? <p className="text-xs font-black">{day.getDate()}</p> : null}
-                    <div className="mt-2 grid gap-1">
-                      {dayTasks.slice(0, 3).map((item) => (
-                        <span key={item.id} className={`truncate rounded-lg border px-2 py-1 text-[0.68rem] font-black ${taskKindTone(item.kind)}`}>
-                          {item.time ? `${item.time} ` : ""}{item.title}
-                        </span>
-                      ))}
-                      {dayTasks.length > 3 ? <span className="rounded-lg bg-slate-100 px-2 py-1 text-[0.68rem] font-black text-slate-700">+{dayTasks.length - 3} more</span> : null}
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-            {!selectedDayTasks.length ? <EmptyState text="No timetable, exam, assignment or live-class plan is assigned yet." /> : null}
-          </div>
-          <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
-            <h3 className="font-black">Class completion log</h3>
-            <p className="mt-2 text-sm text-[var(--muted-blue)]">{selectedCalendarItem?.topic || "Select a calendar item to update."}</p>
-            <div className="mt-4 grid gap-3">
-              <Select label="Completion" value={calendarLog.completionStatus} onChange={(value) => setCalendarLog((form) => ({ ...form, completionStatus: value }))}><option value="COMPLETED">Completed</option><option value="PARTIAL">Partial</option><option value="PENDING">Pending</option></Select>
-              <Textarea label="Teacher report / class log" value={calendarLog.teacherLog} onChange={(value) => setCalendarLog((form) => ({ ...form, teacherLog: value }))} />
-              <Textarea label="Next action / support needed" value={calendarLog.nextAction} onChange={(value) => setCalendarLog((form) => ({ ...form, nextAction: value }))} />
-              <button type="button" onClick={() => void submitCalendarLog()} className="rounded-xl bg-[var(--ink)] px-5 py-3 font-black text-white">Save Calendar Log</button>
-            </div>
-            {calendarMessage ? <Notice text={calendarMessage} /> : null}
-          </div>
-        </div>
+      {view === "academic-calendar" ? <section>
+        <AcademicCalendarOperationsCenter
+          isAcademicHead={isAcademicHead}
+          dashboardBasePath={dashboardBasePath}
+          tab={calendarTab}
+          onTab={setCalendarTab}
+          batches={activeClasses}
+          batchFilter={calendarBatchFilter}
+          onBatchFilter={setCalendarBatchFilter}
+          search={calendarSearch}
+          onSearch={setCalendarSearch}
+          statusFilter={calendarStatusFilter}
+          onStatusFilter={setCalendarStatusFilter}
+          todayItems={todayCalendarItems}
+          weekDays={weekDays}
+          weekItems={weekCalendarItems}
+          weekTimeSlots={weekTimeSlots}
+          week={calendarWeek}
+          onWeek={setCalendarWeek}
+          month={calendarMonth}
+          onMonth={setCalendarMonth}
+          monthDays={calendarDays}
+          dayTaskMap={selectedDayTaskMap}
+          calendarItems={calendarScopeItems}
+          completedItems={completedCalendarItems}
+          summary={calendarSummary}
+          facultyProgress={facultyProgress}
+          batchProgress={batchProgress}
+          batchCalendarProgress={batchCalendarProgress}
+          monitor={calendarMonitor}
+          loading={loadingPlan || calendarAnalyticsLoading}
+          onOpenClass={openCalendarClass}
+          onOpenDay={setSelectedTaskDate}
+        />
+        {calendarMessage ? <Notice text={calendarMessage} /> : null}
         {selectedTaskDate ? (
           <CalendarDayTasksModal
             date={selectedTaskDate}
-            batchName={selectedClass?.name}
+            batchName={calendarBatchFilter === "ALL" ? "All assigned batches" : activeClasses.find((batch) => batch.id === calendarBatchFilter)?.name}
             tasks={activeDayTasks}
             onClose={() => setSelectedTaskDate(null)}
             onSelectClass={(calendarId) => {
-              const item = selectedCalendarItems.find((entry) => entry.id === calendarId);
+              const item = calendarScopeItems.find((entry) => entry.id === calendarId);
               if (!item) return;
-              setSelectedCalendarId(item.id);
-              setCalendarLog({ completionStatus: item.completionStatus || "COMPLETED", teacherLog: item.teacherLog || "", nextAction: item.nextAction || "" });
               setSelectedTaskDate(null);
+              openCalendarClass(item);
             }}
+          />
+        ) : null}
+        {showClassDetails && selectedCalendarItem ? (
+          <CalendarClassDetailsModal
+            item={selectedCalendarItem}
+            batch={activeClasses.find((batch) => batch.id === selectedCalendarItem.batchId) ?? selectedClass}
+            workspace={classWorkspace}
+            dashboardBasePath={dashboardBasePath}
+            onClose={() => setShowClassDetails(false)}
+            onComplete={() => setShowCompletionReport(true)}
+          />
+        ) : null}
+        {showCompletionReport && selectedCalendarItem ? (
+          <ClassCompletionReportModal
+            item={selectedCalendarItem}
+            form={completionReport}
+            onChange={setCompletionReport}
+            onClose={() => setShowCompletionReport(false)}
+            onSave={() => void submitCompletionReport()}
           />
         ) : null}
       </section> : null}
@@ -3439,6 +3776,258 @@ function CourseSummaryCards({ students, progress, exams, assignments }: { studen
       <SummaryCard label="Exams" value={exams} />
       <SummaryCard label="Assignments" value={assignments} />
     </div>
+  );
+}
+
+type AttendanceStatus = "PRESENT" | "ABSENT" | "LEAVE" | "HALF_DAY";
+
+function AttendanceWorkspace({
+  isAcademicHead,
+  todayClasses,
+  activeClasses,
+  selectedClass,
+  students,
+  facultyName,
+  date,
+  attendance,
+  comments,
+  registerOpen,
+  editing,
+  history,
+  leaveRequests,
+  message,
+  onOpenRegister,
+  onOpenHistory,
+  onChooseBatch,
+  onDate,
+  onStatus,
+  onComment,
+  onAllPresent,
+  onAllAbsent,
+  onReset,
+  onSave,
+  onCloseRegister,
+  onReviewLeave,
+}: {
+  isAcademicHead: boolean;
+  todayClasses: Array<{ id: string; batchId?: string | null; time: string; batchName: string; subject: string; teacherName: string }>;
+  activeClasses: AssignedClass[];
+  selectedClass: AssignedClass | null;
+  students: NonNullable<AssignedClass["students"]>;
+  facultyName: string;
+  date: string;
+  attendance: Record<string, AttendanceStatus>;
+  comments: Record<string, string>;
+  registerOpen: boolean;
+  editing: boolean;
+  history: AttendanceRecord[];
+  leaveRequests: LeaveRequestRecord[];
+  message: string | null;
+  onOpenRegister: (batchId: string, date?: string) => void;
+  onOpenHistory: (record: AttendanceRecord) => void;
+  onChooseBatch: (batchId: string) => void;
+  onDate: (value: string) => void;
+  onStatus: (id: string, status: AttendanceStatus) => void;
+  onComment: (id: string, value: string) => void;
+  onAllPresent: () => void;
+  onAllAbsent: () => void;
+  onReset: () => void;
+  onSave: () => void;
+  onCloseRegister: () => void;
+  onReviewLeave: (id: string, status: "APPROVED" | "REJECTED") => void;
+}) {
+  const selectedHistory = history.filter((record) => !date || record.date?.slice(0, 10) === date);
+  const pendingLeaves = leaveRequests.filter((leave) => leave.status === "PENDING");
+  const allRecords = history.flatMap((record) => record.records ?? []);
+  const present = allRecords.filter((record) => record.status === "PRESENT").length;
+  const overallRate = allRecords.length ? Math.round((present / allRecords.length) * 100) : 0;
+
+  return (
+    <section className="grid gap-5">
+      <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
+        <div className="flex items-start gap-4">
+          <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-[var(--border)] bg-[var(--page-bg)]"><ClipboardCheck size={22} /></span>
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold-dark)]">{isAcademicHead ? "Academic Head Attendance" : "Attendance Register"}</p>
+            <h2 className="mt-2 text-3xl font-black">{isAcademicHead ? "Attendance reports and leave requests." : "Mark the class register."}</h2>
+            <p className="mt-2 text-sm leading-6 text-[var(--muted-blue)]">{isAcademicHead ? "Monitoring and approvals stay separate from the teacher’s attendance entry." : "Open today’s class, mark exceptions, and save."}</p>
+          </div>
+        </div>
+      </div>
+      {message ? <Notice text={message} /> : null}
+
+      {!isAcademicHead ? (
+        <>
+          <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.3em] text-[var(--gold-dark)]">Today's Classes</p>
+                <h3 className="mt-2 text-2xl font-black">Choose a class</h3>
+              </div>
+              <span className="rounded-full border border-[var(--border)] px-4 py-2 text-xs font-black">{todayClasses.length} class(es)</span>
+            </div>
+            <div className="mt-4 divide-y divide-[var(--border)] overflow-hidden rounded-2xl border border-[var(--border)]">
+              {todayClasses.map((item) => {
+                const batch = activeClasses.find((entry) => entry.id === item.batchId);
+                const studentCount = batch?._count?.students ?? batch?.students?.length ?? 0;
+                return (
+                  <div key={item.id} className="grid gap-4 bg-white p-4 md:grid-cols-[1fr_auto] md:items-center">
+                    <div>
+                      <p className="text-sm font-black text-[var(--gold-dark)]">{item.time}</p>
+                      <h4 className="mt-1 text-xl font-black">{item.batchName}</h4>
+                      <p className="mt-1 text-sm text-[var(--muted-blue)]">{item.subject} / {studentCount} students</p>
+                    </div>
+                    <button type="button" onClick={() => item.batchId && onOpenRegister(item.batchId)} className="min-h-12 rounded-xl border border-slate-950 bg-slate-950 px-5 py-3 text-sm font-black text-white">Mark Attendance</button>
+                  </div>
+                );
+              })}
+              {!todayClasses.length ? <EmptyState text="No class is scheduled for today in the academic calendar." /> : null}
+            </div>
+          </div>
+
+          {registerOpen ? (
+            <div className="rounded-2xl border border-[var(--border)] bg-white shadow-sm">
+              <div className="border-b border-[var(--border)] p-5">
+                <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                  <div>
+                    <p className="text-xs font-black uppercase tracking-[0.3em] text-[var(--gold-dark)]">{editing ? "Edit Attendance" : "Attendance Register"}</p>
+                    <h3 className="mt-2 text-3xl font-black">{selectedClass?.name || "Class"}</h3>
+                    <p className="mt-2 text-sm text-[var(--muted-blue)]">{selectedClass?.subject || subjectsForBatch(selectedClass)[0] || "Subject"} / {facultyName} / {students.length} students</p>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <button type="button" onClick={onAllPresent} className="min-h-11 rounded-xl bg-emerald-700 px-4 py-2 text-sm font-black text-white">Mark All Present</button>
+                    <button type="button" onClick={onAllAbsent} className="min-h-11 rounded-xl border border-rose-300 bg-rose-50 px-4 py-2 text-sm font-black text-rose-700">Mark All Absent</button>
+                    <button type="button" onClick={onReset} className="min-h-11 rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-4 py-2 text-sm font-black">Reset</button>
+                    <button type="button" onClick={onCloseRegister} className="min-h-11 rounded-xl border border-[var(--border)] bg-white px-4 py-2 text-sm font-black">Close</button>
+                  </div>
+                </div>
+                <div className="mt-4 max-w-xs"><Input label="Date" type="date" value={date} onChange={onDate} /></div>
+              </div>
+
+              <div className="hidden grid-cols-[5rem_minmax(12rem,1fr)_repeat(4,5.5rem)_minmax(10rem,1fr)] border-b border-[var(--border)] bg-[var(--page-bg)] px-4 py-3 text-xs font-black uppercase tracking-[0.12em] md:grid">
+                <span>Roll No</span><span>Student Name</span><span>Present</span><span>Absent</span><span>Leave</span><span>Half Day</span><span>Remarks</span>
+              </div>
+              <div className="divide-y divide-[var(--border)]">
+                {students.map((entry, index) => {
+                  const id = studentId(entry, index);
+                  const current = attendance[id] ?? "PRESENT";
+                  const studentRecords = history.flatMap((record) => (record.records ?? []).filter((item) => item.studentId === entry.student?.id));
+                  const studentPresent = studentRecords.filter((record) => record.status === "PRESENT").length;
+                  const studentRate = studentRecords.length ? Math.round((studentPresent / studentRecords.length) * 100) : 0;
+                  return (
+                    <div key={id} className="grid gap-3 p-4 md:grid-cols-[5rem_minmax(12rem,1fr)_repeat(4,5.5rem)_minmax(10rem,1fr)] md:items-center">
+                      <span className="text-sm font-black">{entry.student?.rollNumber || index + 1}</span>
+                      <details>
+                        <summary className="cursor-pointer list-none font-black">{entry.student?.name || entry.student?.email || "Student"}</summary>
+                        <p className="mt-1 text-xs text-[var(--muted-blue)]">{studentRate}% / {studentPresent} present / {studentRecords.filter((record) => record.status === "ABSENT").length} absent / {studentRecords.filter((record) => record.status === "LEAVE").length} leave</p>
+                      </details>
+                      {(["PRESENT", "ABSENT", "LEAVE", "HALF_DAY"] as AttendanceStatus[]).map((status) => (
+                        <button key={status} type="button" onClick={() => onStatus(id, status)} className={`min-h-11 rounded-xl border px-2 text-xs font-black ${current === status ? status === "PRESENT" ? "border-emerald-700 bg-emerald-700 text-white" : status === "ABSENT" ? "border-rose-700 bg-rose-700 text-white" : status === "LEAVE" ? "border-amber-600 bg-amber-500 text-white" : "border-blue-700 bg-blue-700 text-white" : "border-[var(--border)] bg-white text-[var(--ink)]"}`}>
+                          {status === "HALF_DAY" ? "Half Day" : status.charAt(0) + status.slice(1).toLowerCase()}
+                        </button>
+                      ))}
+                      <input value={comments[id] ?? ""} onChange={(event) => onComment(id, event.target.value)} placeholder="Optional remark" className="min-h-11 rounded-xl border border-[var(--border)] bg-white px-3 text-sm outline-none" />
+                    </div>
+                  );
+                })}
+                {!students.length ? <EmptyState text="No students are assigned to this batch." /> : null}
+              </div>
+              <div className="sticky bottom-0 flex flex-wrap items-center justify-between gap-3 border-t border-[var(--border)] bg-white p-5">
+                <p className="text-sm font-black">
+                  {Object.values(attendance).filter((value) => value === "PRESENT").length} present / {Object.values(attendance).filter((value) => value === "ABSENT").length} absent / {Object.values(attendance).filter((value) => value === "LEAVE").length} leave / {Object.values(attendance).filter((value) => value === "HALF_DAY").length} half day
+                </p>
+                <button type="button" onClick={onSave} className="min-h-12 rounded-xl bg-slate-950 px-6 py-3 text-sm font-black text-white">{editing ? "Update Attendance" : "Save Attendance"}</button>
+              </div>
+            </div>
+          ) : null}
+
+          <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.3em] text-[var(--gold-dark)]">Attendance History</p>
+                <h3 className="mt-2 text-2xl font-black">{selectedClass?.name || "Selected batch"}</h3>
+              </div>
+              <Input label="Select Date" type="date" value={date} onChange={onDate} />
+            </div>
+            <div className="mt-4 divide-y divide-[var(--border)] overflow-hidden rounded-2xl border border-[var(--border)]">
+              {selectedHistory.map((record) => (
+                <button key={record.id} type="button" onClick={() => onOpenHistory(record)} className="grid w-full gap-2 bg-white p-4 text-left hover:bg-[var(--page-bg)] md:grid-cols-[1fr_auto] md:items-center">
+                  <div>
+                    <p className="font-black">{record.subject || "Class Attendance"}</p>
+                    <p className="mt-1 text-sm text-[var(--muted-blue)]">{record.date ? new Date(record.date).toLocaleDateString() : "Date pending"} / {record.records?.length ?? 0} students / {record.teacherName || "Teacher"}</p>
+                  </div>
+                  <span className="text-sm font-black">Open & Edit</span>
+                </button>
+              ))}
+              {!selectedHistory.length ? <EmptyState text="No attendance record found for this date." /> : null}
+            </div>
+          </div>
+        </>
+      ) : (
+        <>
+          <div className="grid gap-3 md:grid-cols-4">
+            <SummaryCard label="Overall Attendance" value={`${overallRate}%`} />
+            <SummaryCard label="Pending Entries" value={Math.max(0, todayClasses.length - history.filter((record) => record.date?.slice(0, 10) === todayDate()).length)} />
+            <SummaryCard label="Pending Leave" value={pendingLeaves.length} />
+            <SummaryCard label="Recorded Sessions" value={history.length} />
+          </div>
+
+          <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.3em] text-[var(--gold-dark)]">Leave Requests</p>
+                <h3 className="mt-2 text-2xl font-black">Review student leave</h3>
+              </div>
+              <span className="rounded-full border border-[var(--border)] px-4 py-2 text-xs font-black">{pendingLeaves.length} pending</span>
+            </div>
+            <div className="mt-4 divide-y divide-[var(--border)] overflow-hidden rounded-2xl border border-[var(--border)]">
+              {leaveRequests.map((leave) => (
+                <div key={leave.id} className="grid gap-4 bg-white p-4 lg:grid-cols-[1fr_auto] lg:items-center">
+                  <div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h4 className="text-lg font-black">{leave.studentName || "Student"}</h4>
+                      <span className={`rounded-full px-3 py-1 text-xs font-black ${statusTone(leave.status)}`}>{leave.status}</span>
+                    </div>
+                    <p className="mt-1 text-sm text-[var(--muted-blue)]">{leave.batchName || "Batch"} / {new Date(leave.fromDate).toLocaleDateString()} - {new Date(leave.toDate).toLocaleDateString()}</p>
+                    <p className="mt-2 text-sm">{leave.reason}</p>
+                    {leave.attachmentName ? <p className="mt-1 text-xs font-bold text-[var(--muted-blue)]">Attachment: {leave.attachmentName}</p> : null}
+                  </div>
+                  {leave.status === "PENDING" ? (
+                    <div className="flex gap-2">
+                      <button type="button" onClick={() => onReviewLeave(leave.id, "APPROVED")} className="min-h-11 rounded-xl bg-emerald-700 px-4 py-2 text-sm font-black text-white">Approve</button>
+                      <button type="button" onClick={() => onReviewLeave(leave.id, "REJECTED")} className="min-h-11 rounded-xl border border-rose-300 bg-rose-50 px-4 py-2 text-sm font-black text-rose-700">Reject</button>
+                    </div>
+                  ) : null}
+                </div>
+              ))}
+              {!leaveRequests.length ? <EmptyState text="No leave requests are available." /> : null}
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
+            <p className="text-xs font-black uppercase tracking-[0.3em] text-[var(--gold-dark)]">Batch Attendance</p>
+            <h3 className="mt-2 text-2xl font-black">Select a batch</h3>
+            <div className="mt-4 flex flex-wrap gap-2">
+              {activeClasses.map((batch) => (
+                <button key={batch.id} type="button" onClick={() => onChooseBatch(batch.id)} className={`rounded-xl border px-4 py-3 text-sm font-black ${selectedClass?.id === batch.id ? "border-slate-950 bg-slate-950 text-white" : "border-[var(--border)] bg-[var(--page-bg)]"}`}>{batch.name}</button>
+              ))}
+            </div>
+            <div className="mt-4 divide-y divide-[var(--border)] overflow-hidden rounded-2xl border border-[var(--border)]">
+              {history.map((record) => (
+                <div key={record.id} className="grid gap-2 bg-white p-4 md:grid-cols-[1fr_auto] md:items-center">
+                  <div>
+                    <p className="font-black">{record.subject || "Attendance"}</p>
+                    <p className="mt-1 text-sm text-[var(--muted-blue)]">{record.date ? new Date(record.date).toLocaleDateString() : "Date pending"} / Marked by {record.teacherName || "Faculty"}</p>
+                  </div>
+                  <span className="text-sm font-black">{record.records?.length ?? 0} students</span>
+                </div>
+              ))}
+              {!history.length ? <EmptyState text="No attendance entries are recorded for this batch." /> : null}
+            </div>
+          </div>
+        </>
+      )}
+    </section>
   );
 }
 
@@ -4504,6 +5093,296 @@ function MaterialCard({
           <button type="button" onClick={onArchive} className="rounded-xl border border-amber-200 bg-white px-4 py-2 text-xs font-black text-amber-700">Archive</button>
         )}
         <button type="button" onClick={onDelete} className="rounded-xl border border-rose-200 bg-white px-4 py-2 text-xs font-black text-rose-700">Delete</button>
+      </div>
+    </div>
+  );
+}
+
+function AcademicCalendarOperationsCenter({
+  isAcademicHead,
+  dashboardBasePath,
+  tab,
+  onTab,
+  batches,
+  batchFilter,
+  onBatchFilter,
+  search,
+  onSearch,
+  statusFilter,
+  onStatusFilter,
+  todayItems,
+  weekDays,
+  weekItems,
+  weekTimeSlots,
+  week,
+  onWeek,
+  month,
+  onMonth,
+  monthDays,
+  dayTaskMap,
+  calendarItems,
+  completedItems,
+  summary,
+  facultyProgress,
+  batchProgress,
+  batchCalendarProgress,
+  monitor,
+  loading,
+  onOpenClass,
+  onOpenDay,
+}: {
+  isAcademicHead: boolean;
+  dashboardBasePath: string;
+  tab: CalendarTab;
+  onTab: (tab: CalendarTab) => void;
+  batches: AssignedClass[];
+  batchFilter: string;
+  onBatchFilter: (value: string) => void;
+  search: string;
+  onSearch: (value: string) => void;
+  statusFilter: string;
+  onStatusFilter: (value: string) => void;
+  todayItems: CalendarItem[];
+  weekDays: Date[];
+  weekItems: CalendarItem[];
+  weekTimeSlots: string[];
+  week: Date;
+  onWeek: (value: Date) => void;
+  month: Date;
+  onMonth: (value: Date) => void;
+  monthDays: Array<Date | null>;
+  dayTaskMap: Map<string, CalendarDayTask[]>;
+  calendarItems: CalendarItem[];
+  completedItems: CalendarItem[];
+  summary: { today: number; completed: number; pending: number; cancelled: number; attendancePending: number; assignmentPending: number; examPending: number; reportingPending: number };
+  facultyProgress: TeacherPerformanceItem[];
+  batchProgress: BatchProgressItem[];
+  batchCalendarProgress: Array<{ batchId: string; batchName: string; planned: number; completed: number; cancelled: number }>;
+  monitor: CalendarMonitorItem[];
+  loading: boolean;
+  onOpenClass: (item: CalendarItem) => void;
+  onOpenDay: (date: string) => void;
+}) {
+  const tabs: Array<{ key: CalendarTab; label: string }> = [
+    { key: "TODAY", label: "Today" },
+    { key: "WEEK", label: "This Week" },
+    { key: "MONTH", label: "Month Calendar" },
+    { key: "LOGS", label: "Class Logs" },
+    ...(isAcademicHead ? [{ key: "FACULTY" as CalendarTab, label: "Faculty Progress" }, { key: "BATCHES" as CalendarTab, label: "Batch Progress" }] : []),
+  ];
+  const selectedBatch = batchFilter === "ALL" ? null : batches.find((batch) => batch.id === batchFilter) ?? null;
+  const selectedStudentCount = selectedBatch?.students?.length ?? selectedBatch?._count?.students ?? 0;
+
+  return (
+    <div className="grid gap-5">
+      <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.3em] text-[var(--gold-dark)]">Academic Operations</p>
+            <h1 className="mt-2 text-3xl font-black">{isAcademicHead ? "Academic operations center" : "My teaching timetable"}</h1>
+            <p className="mt-2 max-w-2xl text-sm text-[var(--muted-blue)]">Classes first. Open any session to take attendance, add work, start a live class, or complete the teaching log.</p>
+          </div>
+          <label className="grid gap-1 text-sm font-black lg:min-w-80">
+            Batch
+            <select value={batchFilter} onChange={(event) => onBatchFilter(event.target.value)} className="min-h-12 rounded-xl border border-[var(--border)] bg-white px-4">
+              <option value="ALL">All assigned batches</option>
+              {batches.map((batch) => <option key={batch.id} value={batch.id}>{batch.name}</option>)}
+            </select>
+          </label>
+        </div>
+        <div className="mt-5 flex gap-2 overflow-x-auto border-b border-[var(--border)] pb-2">
+          {tabs.map((item) => (
+            <button key={item.key} type="button" onClick={() => onTab(item.key)} className={`min-h-11 shrink-0 rounded-lg px-4 text-sm font-black ${tab === item.key ? "bg-slate-950 text-white" : "bg-[var(--page-bg)] text-slate-800"}`}>
+              {item.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {isAcademicHead && tab === "TODAY" ? (
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-8">
+          {[
+            ["Today's Classes", summary.today], ["Completed", summary.completed], ["Pending", summary.pending], ["Cancelled", summary.cancelled],
+            ["Attendance Pending", summary.attendancePending], ["Assignments Pending", summary.assignmentPending], ["Exam Reviews", summary.examPending], ["Logs Pending", summary.reportingPending],
+          ].map(([label, value]) => <div key={String(label)} className="rounded-xl border border-[var(--border)] bg-white p-4"><p className="text-xs font-black uppercase tracking-[0.12em] text-[var(--muted-blue)]">{label}</p><p className="mt-2 text-2xl font-black">{value}</p></div>)}
+        </div>
+      ) : null}
+
+      {tab === "TODAY" ? (
+        <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
+          <section className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
+            <div className="flex flex-wrap items-end justify-between gap-3">
+              <div><p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold-dark)]">Today</p><h2 className="mt-2 text-2xl font-black">{new Date().toLocaleDateString([], { weekday: "long", day: "numeric", month: "long" })}</h2></div>
+              <span className="rounded-full border border-[var(--border)] px-3 py-1 text-xs font-black">{todayItems.length} class(es)</span>
+            </div>
+            <div className="mt-5 grid gap-3">
+              {todayItems.map((item) => {
+                const batch = batches.find((entry) => entry.id === item.batchId);
+                const students = batch?.students?.length ?? batch?._count?.students ?? 0;
+                return <CalendarClassCard key={item.id} item={item} students={students} onOpen={() => onOpenClass(item)} />;
+              })}
+              {!todayItems.length ? <EmptyState text={loading ? "Loading today's timetable..." : "No classes are scheduled for today in the selected batch."} /> : null}
+            </div>
+          </section>
+          <aside className="grid content-start gap-4">
+            <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
+              <p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold-dark)]">Current Scope</p>
+              <h3 className="mt-2 text-xl font-black">{selectedBatch?.name || "All assigned batches"}</h3>
+              <p className="mt-2 text-sm text-[var(--muted-blue)]">{selectedBatch ? `${selectedStudentCount} students` : `${batches.length} active batches`}</p>
+            </div>
+            {isAcademicHead ? (
+              <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
+                <p className="text-xs font-black uppercase tracking-[0.25em] text-rose-700">Needs Attention</p>
+                <div className="mt-4 grid gap-3 text-sm font-bold">
+                  <p className="flex justify-between"><span>Classes not conducted</span><b>{summary.reportingPending}</b></p>
+                  <p className="flex justify-between"><span>Missing attendance</span><b>{summary.attendancePending}</b></p>
+                  <p className="flex justify-between"><span>Low progress groups</span><b>{monitor.filter((item) => item.status === "RED").length}</b></p>
+                  <p className="flex justify-between"><span>Faculty follow-up</span><b>{facultyProgress.filter((item) => item.status === "RED").length}</b></p>
+                </div>
+              </div>
+            ) : null}
+          </aside>
+        </div>
+      ) : null}
+
+      {tab === "WEEK" ? (
+        <section className="rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm md:p-5">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div><p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold-dark)]">This Week</p><h2 className="mt-2 text-2xl font-black">{week.toLocaleDateString([], { day: "numeric", month: "short" })} - {addDays(week, 5).toLocaleDateString([], { day: "numeric", month: "short", year: "numeric" })}</h2></div>
+            <div className="flex gap-2"><button type="button" onClick={() => onWeek(addDays(week, -7))} className="rounded-lg border border-[var(--border)] px-3 py-2 font-black">Prev</button><button type="button" onClick={() => onWeek(startOfWeek(new Date()))} className="rounded-lg border border-[var(--border)] px-3 py-2 font-black">Today</button><button type="button" onClick={() => onWeek(addDays(week, 7))} className="rounded-lg border border-[var(--border)] px-3 py-2 font-black">Next</button></div>
+          </div>
+          <div className="mt-5 hidden overflow-x-auto md:block">
+            <div className="min-w-[980px] overflow-hidden rounded-xl border border-[var(--border)]">
+              <div className="grid grid-cols-[110px_repeat(6,minmax(140px,1fr))] bg-slate-950 text-white"><div className="p-3 text-xs font-black uppercase">Time</div>{weekDays.map((day) => <div key={dateKey(day)} className="border-l border-white/20 p-3 text-center text-sm font-black">{day.toLocaleDateString([], { weekday: "short", day: "numeric" })}</div>)}</div>
+              {weekTimeSlots.map((slot) => {
+                const [start, end] = slot.split("|");
+                return <div key={slot} className="grid min-h-28 grid-cols-[110px_repeat(6,minmax(140px,1fr))] border-t border-[var(--border)]"><div className="bg-[var(--page-bg)] p-3 text-sm font-black">{start}<br/><span className="text-xs text-[var(--muted-blue)]">{end}</span></div>{weekDays.map((day) => { const items = weekItems.filter((item) => dateKey(item.plannedDate) === dateKey(day) && `${item.startTime || "Time pending"}|${item.endTime || ""}` === slot); return <div key={dateKey(day)} className="grid content-start gap-2 border-l border-[var(--border)] p-2">{items.map((item) => <button key={item.id} type="button" onClick={() => onOpenClass(item)} className={`rounded-lg border p-2 text-left text-xs ${calendarStatusTone(calendarStatus(item))}`}><b className="block">{item.subject}</b><span className="mt-1 block">{item.batchName}</span><span className="mt-1 block opacity-75">{item.teacherName || "Teacher pending"}</span></button>)}</div>; })}</div>;
+              })}
+              {!weekTimeSlots.length ? <EmptyState text="No classes are scheduled for this week." /> : null}
+            </div>
+          </div>
+          <div className="mt-5 grid gap-4 md:hidden">{weekDays.map((day) => { const items = weekItems.filter((item) => dateKey(item.plannedDate) === dateKey(day)).sort((a,b) => String(a.startTime).localeCompare(String(b.startTime))); return <div key={dateKey(day)}><h3 className="mb-2 font-black">{day.toLocaleDateString([], { weekday: "long", day: "numeric", month: "short" })}</h3><div className="grid gap-2">{items.map((item) => <CalendarClassCard key={item.id} item={item} students={batches.find((batch) => batch.id === item.batchId)?.students?.length ?? 0} compact onOpen={() => onOpenClass(item)} />)}{!items.length ? <p className="rounded-xl bg-[var(--page-bg)] p-3 text-sm text-[var(--muted-blue)]">No class</p> : null}</div></div>; })}</div>
+        </section>
+      ) : null}
+
+      {tab === "MONTH" ? (
+        <section className="rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm md:p-5">
+          <div className="flex flex-wrap items-center justify-between gap-3"><h2 className="text-2xl font-black">{month.toLocaleDateString([], { month: "long", year: "numeric" })}</h2><div className="flex gap-2"><button type="button" onClick={() => onMonth(new Date(month.getFullYear(), month.getMonth() - 1, 1))} className="rounded-lg border border-[var(--border)] px-3 py-2 font-black">Prev</button><button type="button" onClick={() => onMonth(monthStartDate(new Date()))} className="rounded-lg border border-[var(--border)] px-3 py-2 font-black">Today</button><button type="button" onClick={() => onMonth(new Date(month.getFullYear(), month.getMonth() + 1, 1))} className="rounded-lg border border-[var(--border)] px-3 py-2 font-black">Next</button></div></div>
+          <div className="mt-5 overflow-x-auto"><div className="min-w-[700px]"><div className="grid grid-cols-7 text-center text-xs font-black uppercase tracking-[0.12em] text-[var(--muted-blue)]">{["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].map((day)=><span key={day} className="p-2">{day}</span>)}</div><div className="grid grid-cols-7 border-l border-t border-[var(--border)]">{monthDays.map((day,index) => { const key=day?dateKey(day):""; const tasks=key?dayTaskMap.get(key)??[]:[]; const classes=day?calendarItems.filter((item)=>sameDate(day,item.plannedDate)):[]; const completed=classes.filter((item)=>calendarStatus(item)==="COMPLETED").length; const pending=Math.max(0,classes.length-completed-classes.filter((item)=>calendarStatus(item)==="CANCELLED").length); return <button key={day?.toISOString()??`empty-${index}`} type="button" disabled={!day} onClick={()=>day&&onOpenDay(key)} className="min-h-28 border-b border-r border-[var(--border)] bg-white p-2 text-left disabled:bg-slate-50"><b>{day?.getDate()}</b>{day?<div className="mt-3 grid gap-1 text-xs"><span className="font-black">{classes.length} Classes</span>{completed?<span className="text-emerald-700">Completed {completed}</span>:null}{pending?<span className="text-amber-700">Pending {pending}</span>:null}{tasks.length>classes.length?<span className="text-blue-700">+{tasks.length-classes.length} activities</span>:null}</div>:null}</button>; })}</div></div></div>
+        </section>
+      ) : null}
+
+      {tab === "LOGS" ? (
+        <section className="rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm md:p-5">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between"><div><p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold-dark)]">Class Logs</p><h2 className="mt-2 text-2xl font-black">Teaching completion reports</h2></div><div className="grid gap-2 sm:grid-cols-2"><input value={search} onChange={(event)=>onSearch(event.target.value)} placeholder="Search batch, subject or teacher" className="min-h-11 rounded-lg border border-[var(--border)] px-3"/><select value={statusFilter} onChange={(event)=>onStatusFilter(event.target.value)} className="min-h-11 rounded-lg border border-[var(--border)] px-3"><option value="ALL">All statuses</option><option value="COMPLETED">Completed</option><option value="PARTIALLY_COMPLETED">Partially completed</option><option value="RESCHEDULED">Rescheduled</option><option value="CANCELLED">Cancelled</option></select></div></div>
+          <div className="mt-5 overflow-x-auto"><table className="w-full min-w-[820px] border-collapse text-left text-sm"><thead><tr className="border-b border-[var(--border)] text-xs uppercase tracking-[0.1em] text-[var(--muted-blue)]">{["Date","Time","Batch","Subject","Teacher","Completion","Status",""] .map((head)=><th key={head} className="p-3">{head}</th>)}</tr></thead><tbody>{completedItems.map((item)=><tr key={item.id} className="border-b border-[var(--border)]"><td className="p-3 font-bold">{displayDate(item.plannedDate)}</td><td className="p-3">{item.startTime || "-"}</td><td className="p-3">{item.batchName || "-"}</td><td className="p-3 font-black">{item.subject}</td><td className="p-3">{item.teacherName || "Teacher pending"}</td><td className="p-3">{completionPercentFromLog(item.teacherLog, calendarStatus(item)==="COMPLETED"?100:0)}%</td><td className="p-3"><span className={`rounded-full border px-3 py-1 text-xs font-black ${calendarStatusTone(calendarStatus(item))}`}>{calendarStatus(item).replace(/_/g," ")}</span></td><td className="p-3"><button type="button" onClick={()=>onOpenClass(item)} className="rounded-lg border border-slate-950 px-3 py-2 font-black">View Report</button></td></tr>)}</tbody></table>{!completedItems.length?<EmptyState text="No completion reports match the current filters."/>:null}</div>
+        </section>
+      ) : null}
+
+      {tab === "FACULTY" && isAcademicHead ? (
+        <section className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm"><p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold-dark)]">Faculty Progress</p><h2 className="mt-2 text-2xl font-black">Teaching delivery</h2><div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">{facultyProgress.map((teacher)=><article key={teacher.teacherId} className="rounded-xl border border-[var(--border)] p-4"><div className="flex items-start justify-between gap-3"><div><h3 className="text-lg font-black">{teacher.teacherName}</h3><p className="mt-1 text-sm text-[var(--muted-blue)]">{teacher.assignedBatches} batches / {teacher.assignedSubjects.length} subjects</p></div><span className={`h-3 w-3 rounded-full ${teacher.status==="GREEN"?"bg-emerald-500":teacher.status==="ORANGE"?"bg-amber-500":"bg-rose-500"}`}/></div><div className="mt-4 grid gap-2 text-sm"><p className="flex justify-between"><span>Classes conducted</span><b>{teacher.classesConducted}</b></p><p className="flex justify-between"><span>Syllabus completion</span><b>{teacher.syllabusCompletionPercentage ?? 0}%</b></p><p className="flex justify-between"><span>Attendance submitted</span><b>{teacher.attendanceMarkingPercentage ?? 0}%</b></p><p className="flex justify-between"><span>Assignments</span><b>{teacher.assignmentsPublished}</b></p><p className="flex justify-between"><span>Exams</span><b>{teacher.examsPublished}</b></p></div></article>)}{!facultyProgress.length?<EmptyState text={loading?"Loading faculty progress...":"No faculty progress records are available."}/>:null}</div></section>
+      ) : null}
+
+      {tab === "BATCHES" && isAcademicHead ? (
+        <section className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm"><p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold-dark)]">Batch Progress</p><h2 className="mt-2 text-2xl font-black">Planned versus delivered</h2><div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">{batchCalendarProgress.map((calendarBatch)=>{const health=batchProgress.find((item)=>item.batchId===calendarBatch.batchId);const progress=calendarBatch.planned?Math.round(calendarBatch.completed/calendarBatch.planned*100):0;return <article key={calendarBatch.batchId} className="rounded-xl border border-[var(--border)] p-4"><h3 className="text-lg font-black">{calendarBatch.batchName}</h3><p className="mt-1 text-sm text-[var(--muted-blue)]">{health?.studentCount ?? batches.find((batch)=>batch.id===calendarBatch.batchId)?.students?.length ?? 0} students</p><div className="mt-4 h-2 overflow-hidden rounded-full bg-slate-100"><div className={`h-full ${progress>=75?"bg-emerald-500":progress>=50?"bg-amber-500":"bg-rose-500"}`} style={{width:`${Math.min(100,progress)}%`}}/></div><div className="mt-4 grid gap-2 text-sm"><p className="flex justify-between"><span>Classes planned</span><b>{calendarBatch.planned}</b></p><p className="flex justify-between"><span>Completed</span><b>{calendarBatch.completed}</b></p><p className="flex justify-between"><span>Progress</span><b>{progress}%</b></p><p className="flex justify-between"><span>Attendance</span><b>{health?.attendancePercentage ?? 0}%</b></p><p className="flex justify-between"><span>Assignments</span><b>{health?.assignmentCompletionPercentage ?? 0}%</b></p><p className="flex justify-between"><span>Exam average</span><b>{health?.examAveragePercentage ?? 0}%</b></p></div></article>;})}{!batchCalendarProgress.length?<EmptyState text={loading?"Loading batch progress...":"No batch timetable progress is available."}/>:null}</div></section>
+      ) : null}
+    </div>
+  );
+}
+
+function CalendarClassCard({ item, students, onOpen, compact = false }: { item: CalendarItem; students: number; onOpen: () => void; compact?: boolean }) {
+  const status = calendarStatus(item);
+  return (
+    <article className={`rounded-xl border border-[var(--border)] bg-[var(--page-bg)] ${compact ? "p-3" : "p-4"}`}>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex min-w-0 gap-4"><div className="w-28 shrink-0"><p className="font-black">{item.startTime || "Time pending"}</p><p className="text-xs text-[var(--muted-blue)]">{item.endTime || ""}</p></div><div className="min-w-0"><h3 className={`${compact ? "text-base" : "text-xl"} font-black`}>{item.subject || "Scheduled class"}</h3><p className="mt-1 text-sm font-bold">{item.batchName || "Batch pending"}</p><p className="mt-1 text-sm text-[var(--muted-blue)]">{item.teacherName || "Teacher pending"} / {students} students</p>{item.topic?<p className="mt-1 text-sm text-[var(--muted-blue)]">{item.topic}</p>:null}</div></div>
+        <div className="flex items-center gap-2"><span className={`rounded-full border px-3 py-1 text-xs font-black ${calendarStatusTone(status)}`}>{status.replace(/_/g," ")}</span><button type="button" onClick={onOpen} className="rounded-lg border border-slate-950 bg-white px-3 py-2 text-sm font-black text-slate-950">View Details</button></div>
+      </div>
+    </article>
+  );
+}
+
+function completionPercentFromLog(log?: string | null, fallback = 0) {
+  const match = String(log || "").match(/Completion:\s*(\d+)%/i);
+  return match ? Number(match[1]) : fallback;
+}
+
+function CalendarClassDetailsModal({
+  item,
+  batch,
+  workspace,
+  dashboardBasePath,
+  onClose,
+  onComplete,
+}: {
+  item: CalendarItem;
+  batch: AssignedClass | null;
+  workspace: ClassWorkspace;
+  dashboardBasePath: string;
+  onClose: () => void;
+  onComplete: () => void;
+}) {
+  const date = dateKey(item.plannedDate);
+  const attendance = workspace.attendance.find((record) => record.batchId === item.batchId && dateKey(record.date) === date);
+  const present = attendance?.records?.filter((record) => record.status === "PRESENT").length ?? 0;
+  const totalStudents = batch?.students?.length ?? batch?._count?.students ?? 0;
+  const assignments = workspace.assignments.filter((record) => !item.subject || record.subject === item.subject);
+  const exams = workspace.exams.filter((record) => !item.subject || record.topic === item.topic || record.course === item.subject);
+  const syllabus = workspace.progress.find((record) => record.subject === item.subject && record.topic === item.topic);
+
+  return (
+    <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/50 p-3 md:p-5">
+      <div className="max-h-[94vh] w-full max-w-3xl overflow-y-auto rounded-2xl border border-[var(--border)] bg-white shadow-2xl">
+        <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-[var(--border)] bg-white p-5">
+          <div><p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold-dark)]">Class Details</p><h2 className="mt-2 text-2xl font-black">{item.subject}</h2><p className="mt-1 text-sm text-[var(--muted-blue)]">{item.topic || "Topic pending"}</p></div>
+          <button type="button" onClick={onClose} aria-label="Close class details" className="rounded-lg border border-[var(--border)] p-3"><X size={18}/></button>
+        </div>
+        <div className="p-5">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              ["Batch", item.batchName || batch?.name || "Pending"],
+              ["Teacher", item.teacherName || "Teacher pending"],
+              ["Date", new Date(item.plannedDate || "").toLocaleDateString()],
+              ["Time", `${item.startTime || "Pending"}${item.endTime ? ` - ${item.endTime}` : ""}`],
+              ["Students", totalStudents],
+              ["Attendance", attendance ? `${present}/${attendance.records?.length ?? totalStudents}` : "Pending"],
+              ["Assignments", assignments.length],
+              ["Exams", exams.length],
+            ].map(([label,value])=><div key={String(label)} className="rounded-xl bg-[var(--page-bg)] p-3"><p className="text-xs font-black uppercase tracking-[0.12em] text-[var(--muted-blue)]">{label}</p><p className="mt-2 font-black">{value}</p></div>)}
+          </div>
+          <div className="mt-4 rounded-xl border border-[var(--border)] p-4"><div className="flex items-center justify-between gap-3"><div><p className="text-xs font-black uppercase tracking-[0.12em] text-[var(--muted-blue)]">Syllabus Progress</p><p className="mt-2 font-black">{syllabus?.completionStatus || item.completionStatus || "Pending"}</p></div><span className={`rounded-full border px-3 py-1 text-xs font-black ${calendarStatusTone(calendarStatus(item))}`}>{calendarStatus(item).replace(/_/g," ")}</span></div>{item.teacherLog?<pre className="mt-4 whitespace-pre-wrap font-sans text-sm text-[var(--muted-blue)]">{item.teacherLog}</pre>:null}</div>
+          <div className="mt-5 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+            <Link href={`${dashboardBasePath}/classes`} className="rounded-xl bg-slate-950 px-4 py-3 text-center text-sm font-black text-white">Start Live Class</Link>
+            <Link href={`${dashboardBasePath}/attendance`} className="rounded-xl border border-slate-950 px-4 py-3 text-center text-sm font-black">Open Attendance</Link>
+            <Link href={`${dashboardBasePath}/assignments`} className="rounded-xl border border-slate-950 px-4 py-3 text-center text-sm font-black">Create Assignment</Link>
+            <Link href={`${dashboardBasePath}/exams`} className="rounded-xl border border-slate-950 px-4 py-3 text-center text-sm font-black">Create Exam</Link>
+            <Link href={`${dashboardBasePath}/library`} className="rounded-xl border border-slate-950 px-4 py-3 text-center text-sm font-black">Open Library</Link>
+            <button type="button" onClick={onComplete} className="rounded-xl bg-emerald-600 px-4 py-3 text-sm font-black text-white">Mark Completed / Save Log</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ClassCompletionReportModal({ item, form, onChange, onClose, onSave }: { item: CalendarItem; form: CompletionReportForm; onChange: (form: CompletionReportForm) => void; onClose: () => void; onSave: () => void }) {
+  const update = (key: keyof CompletionReportForm, value: string) => onChange({ ...form, [key]: value });
+  return (
+    <div className="fixed inset-0 z-[60] grid place-items-center bg-slate-950/55 p-3 md:p-5">
+      <div className="max-h-[94vh] w-full max-w-3xl overflow-y-auto rounded-2xl border border-[var(--border)] bg-white shadow-2xl">
+        <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-[var(--border)] bg-white p-5"><div><p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold-dark)]">Completion Report</p><h2 className="mt-2 text-2xl font-black">{item.subject} / {item.batchName}</h2></div><button type="button" onClick={onClose} className="rounded-lg border border-[var(--border)] p-3" aria-label="Close completion report"><X size={18}/></button></div>
+        <div className="grid gap-4 p-5 md:grid-cols-2">
+          <Input label="Topic Covered" value={form.topicCovered} onChange={(value)=>update("topicCovered",value)} />
+          <Input label="Subtopic Covered" value={form.subtopicCovered} onChange={(value)=>update("subtopicCovered",value)} />
+          <Input label="Completion Percentage" type="number" value={form.completionPercentage} onChange={(value)=>update("completionPercentage",value)} />
+          <Select label="Status" value={form.completionStatus} onChange={(value)=>update("completionStatus",value)}><option value="COMPLETED">Completed</option><option value="PARTIAL">Partially Completed</option><option value="RESCHEDULED">Rescheduled</option><option value="CANCELLED">Cancelled</option></Select>
+          <div className="md:col-span-2"><Textarea label="Homework Given" value={form.homeworkGiven} onChange={(value)=>update("homeworkGiven",value)} /></div>
+          <Select label="Student Participation" value={form.participation} onChange={(value)=>update("participation",value)}><option>Excellent</option><option>Good</option><option>Average</option><option>Low</option></Select>
+          <Input label="Students Needing Attention" value={form.studentsNeedingAttention} onChange={(value)=>update("studentsNeedingAttention",value)} />
+          <div className="md:col-span-2"><Textarea label="Support Required" value={form.supportRequired} onChange={(value)=>update("supportRequired",value)} /></div>
+          <div className="md:col-span-2"><Textarea label="Teacher Remarks" value={form.teacherRemarks} onChange={(value)=>update("teacherRemarks",value)} /></div>
+          <div className="flex gap-2 md:col-span-2 md:justify-end"><button type="button" onClick={onClose} className="rounded-xl border border-[var(--border)] px-5 py-3 font-black">Cancel</button><button type="button" onClick={onSave} className="rounded-xl bg-emerald-600 px-5 py-3 font-black text-white">Save Completion Report</button></div>
+        </div>
       </div>
     </div>
   );

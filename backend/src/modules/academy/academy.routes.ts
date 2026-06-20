@@ -48,6 +48,7 @@ router.get("/my-plan", academyController.myAcademicPlan);
 router.get("/academic-calendar", requireAcademyRoles(academicRoles), academyController.academicCalendar);
 router.get("/attendance", requireAcademyRoles(academicRoles), academyController.attendanceHistory);
 router.get("/attendance-summary", requireAcademyRoles(academicRoles), academyController.attendanceSummary);
+router.get("/leave-requests", requireAcademyRoles(studentAcademicRoles), academyController.leaveRequests);
 router.get("/assignments", requireAcademyRoles(academicRoles), academyController.assignments);
 router.get("/assignment-summary", requireAcademyRoles(academicRoles), academyController.assignmentSummary);
 router.get("/study-materials", requireAcademyRoles(academicRoles), academyController.studyMaterials);
@@ -66,6 +67,9 @@ router.get("/director-expenses", requireAcademyRoles(managementRoles), academyCo
 router.post("/academic-calendar", requireAcademyRoles(academicRoles), academyController.createAcademicCalendarItem);
 router.patch("/academic-calendar/:id", requireAcademyRoles(academicRoles), academyController.updateAcademicCalendarItem);
 router.post("/attendance", requireAcademyRoles(academicRoles), academyController.saveAttendance);
+router.patch("/attendance/:id", requireAcademyRoles(academicRoles), academyController.updateAttendance);
+router.post("/leave-requests", requireAcademyRoles([Role.STUDENT]), academyController.createLeaveRequest);
+router.patch("/leave-requests/:id", requireAcademyRoles(academicManagementRoles), academyController.reviewLeaveRequest);
 router.post("/assignments", requireAcademyRoles(academicRoles), academyController.createAssignment);
 router.patch("/assignments/:id", requireAcademyRoles(academicRoles), academyController.updateAssignment);
 router.post("/assignments/:id/archive", requireAcademyRoles(academicRoles), academyController.archiveAssignment);

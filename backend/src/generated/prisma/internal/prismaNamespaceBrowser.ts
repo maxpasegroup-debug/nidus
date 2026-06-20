@@ -240,7 +240,8 @@ export const ModelName = {
   AiWorkflowApproval: 'AiWorkflowApproval',
   AiWorkflowFeedback: 'AiWorkflowFeedback',
   AiWorkflowPublication: 'AiWorkflowPublication',
-  AiWorkflowAuditEvent: 'AiWorkflowAuditEvent'
+  AiWorkflowAuditEvent: 'AiWorkflowAuditEvent',
+  AcademicLeaveRequest: 'AcademicLeaveRequest'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -3319,6 +3320,29 @@ export const AiWorkflowAuditEventScalarFieldEnum = {
 } as const
 
 export type AiWorkflowAuditEventScalarFieldEnum = (typeof AiWorkflowAuditEventScalarFieldEnum)[keyof typeof AiWorkflowAuditEventScalarFieldEnum]
+
+
+export const AcademicLeaveRequestScalarFieldEnum = {
+  id: 'id',
+  studentId: 'studentId',
+  studentName: 'studentName',
+  batchId: 'batchId',
+  batchName: 'batchName',
+  fromDate: 'fromDate',
+  toDate: 'toDate',
+  reason: 'reason',
+  attachmentName: 'attachmentName',
+  attachmentUrl: 'attachmentUrl',
+  status: 'status',
+  reviewedById: 'reviewedById',
+  reviewedByName: 'reviewedByName',
+  reviewedAt: 'reviewedAt',
+  reviewNote: 'reviewNote',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AcademicLeaveRequestScalarFieldEnum = (typeof AcademicLeaveRequestScalarFieldEnum)[keyof typeof AcademicLeaveRequestScalarFieldEnum]
 
 
 export const SortOrder = {

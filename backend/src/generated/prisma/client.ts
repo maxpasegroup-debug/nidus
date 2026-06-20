@@ -991,3 +991,8 @@ export type AiWorkflowPublication = Prisma.AiWorkflowPublicationModel
  * 
  */
 export type AiWorkflowAuditEvent = Prisma.AiWorkflowAuditEventModel
+/**
+ * Model AcademicLeaveRequest
+ * 
+ */
+export type AcademicLeaveRequest = Prisma.AcademicLeaveRequestModel

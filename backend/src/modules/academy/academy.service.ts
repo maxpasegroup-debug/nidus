@@ -77,6 +77,15 @@ type AttendanceInput = {
   status?: string;
 };
 
+type LeaveRequestInput = {
+  fromDate?: string;
+  toDate?: string;
+  reason?: string;
+  attachmentName?: string;
+  attachmentUrl?: string;
+  batchId?: string;
+};
+
 type AssignmentInput = {
   batchId?: string;
   batchName?: string;
@@ -702,7 +711,7 @@ function mergeAssignments(primary: BatchTeacherAssignmentRow[], secondary: Batch
   return merged;
 }
 
-function attendanceRecordList(row: Record<string, any>) {
+function attendanceRecordList(row: Record<string, any>): Array<{ studentId?: string; studentName?: string; status?: string; remarks?: string }> {
   const records = row.records;
   if (Array.isArray(records)) return records as Array<{ studentId?: string; studentName?: string; status?: string }>;
   if (typeof records === "string") {
@@ -1760,6 +1769,39 @@ export const academyService = {
     return { ok: true, attendance };
   },
 
+  async updateAttendance(user: Requester, attendanceId: string, input: AttendanceInput) {
+    requireAcademic(user);
+    const rows = await prisma.$queryRaw<any[]>`
+      SELECT * FROM "TeacherAttendanceRecord" WHERE "id" = ${attendanceId} LIMIT 1
+    `;
+    const current = rows[0];
+    if (!current) {
+      throw Object.assign(new Error("Attendance record not found"), { statusCode: 404 });
+    }
+    await assertBatchSubjectAccess(user, current.batchId, input.subject ?? current.subject);
+    if (user.role === Role.TEACHER && current.teacherId !== user.id && !isAcademicManager(user)) {
+      throw Object.assign(new Error("Only the marking teacher can edit this attendance record"), { statusCode: 403 });
+    }
+    if (!Array.isArray(input.records) || !input.records.length) {
+      throw Object.assign(new Error("Attendance records are required"), { statusCode: 400 });
+    }
+    await prisma.$executeRaw`
+      UPDATE "TeacherAttendanceRecord"
+      SET "subject" = ${input.subject ?? current.subject},
+          "date" = ${input.date ? new Date(input.date) : current.date},
+          "records" = ${JSON.stringify(input.records)}::jsonb,
+          "status" = ${input.status ?? current.status},
+          "updatedAt" = ${new Date()}
+      WHERE "id" = ${attendanceId}
+    `;
+    const updated = await prisma.$queryRaw<any[]>`
+      SELECT * FROM "TeacherAttendanceRecord" WHERE "id" = ${attendanceId} LIMIT 1
+    `;
+    const attendance = normalizeRows(updated)[0];
+    await auditAcademicAction(user, "ATTENDANCE_UPDATED", "TeacherAttendanceRecord", attendanceId, attendance);
+    return { ok: true, attendance };
+  },
+
   async attendanceHistory(user: Requester, query: Record<string, unknown>) {
     requireAcademic(user);
     const batchId = typeof query.batchId === "string" ? query.batchId : undefined;
@@ -1813,6 +1855,125 @@ export const academyService = {
       summary: summarizeAttendance(rows),
       attendance: normalizeRows(rows),
     };
+  },
+
+  async createLeaveRequest(user: Requester, input: LeaveRequestInput) {
+    if (user.role !== Role.STUDENT) {
+      throw Object.assign(new Error("Student access required"), { statusCode: 403 });
+    }
+    if (!input.fromDate || !input.toDate || !input.reason?.trim()) {
+      throw Object.assign(new Error("From date, to date and reason are required"), { statusCode: 400 });
+    }
+    const fromDate = new Date(input.fromDate);
+    const toDate = new Date(input.toDate);
+    if (Number.isNaN(fromDate.getTime()) || Number.isNaN(toDate.getTime()) || toDate < fromDate) {
+      throw Object.assign(new Error("Enter a valid leave date range"), { statusCode: 400 });
+    }
+    const enrollment = await prisma.batchStudent.findFirst({
+      where: {
+        studentId: user.id,
+        status: "ACTIVE",
+        ...(input.batchId ? { batchId: input.batchId } : {}),
+      },
+      include: { batch: true },
+      orderBy: { joinedAt: "desc" },
+    });
+    if (!enrollment) {
+      throw Object.assign(new Error("An active batch is required before applying for leave"), { statusCode: 400 });
+    }
+    const leave = await db.academicLeaveRequest.create({
+      data: {
+        studentId: user.id,
+        studentName: user.name || user.email || "Student",
+        batchId: enrollment.batchId,
+        batchName: enrollment.batch.name,
+        fromDate,
+        toDate,
+        reason: input.reason.trim(),
+        attachmentName: input.attachmentName || null,
+        attachmentUrl: input.attachmentUrl || null,
+        status: "PENDING",
+      },
+    });
+    await auditAcademicAction(user, "LEAVE_REQUESTED", "AcademicLeaveRequest", leave.id, leave);
+    return { ok: true, leave: normalizeRows([leave])[0] };
+  },
+
+  async leaveRequests(user: Requester, query: Record<string, unknown>) {
+    const status = typeof query.status === "string" ? query.status.toUpperCase() : undefined;
+    const batchId = typeof query.batchId === "string" ? query.batchId : undefined;
+    if (user.role === Role.STUDENT) {
+      const leaves = await db.academicLeaveRequest.findMany({
+        where: { studentId: user.id, ...(status ? { status } : {}) },
+        orderBy: { createdAt: "desc" },
+      });
+      return { leaves: normalizeRows(leaves) };
+    }
+    requireAcademic(user);
+    if (!isAcademicManager(user)) {
+      throw Object.assign(new Error("Academic Head access required"), { statusCode: 403 });
+    }
+    if (batchId) await assertBatchAccess(user, batchId);
+    const leaves = await db.academicLeaveRequest.findMany({
+      where: {
+        ...(batchId ? { batchId } : {}),
+        ...(status ? { status } : {}),
+      },
+      orderBy: [{ status: "asc" }, { createdAt: "desc" }],
+    });
+    return { leaves: normalizeRows(leaves) };
+  },
+
+  async reviewLeaveRequest(user: Requester, leaveId: string, input: { status?: string; reviewNote?: string }) {
+    requireAcademic(user);
+    if (!isAcademicManager(user)) {
+      throw Object.assign(new Error("Academic Head access required"), { statusCode: 403 });
+    }
+    const status = String(input.status || "").toUpperCase();
+    if (!["APPROVED", "REJECTED"].includes(status)) {
+      throw Object.assign(new Error("Leave status must be APPROVED or REJECTED"), { statusCode: 400 });
+    }
+    const existing = await db.academicLeaveRequest.findUnique({ where: { id: leaveId } });
+    if (!existing) {
+      throw Object.assign(new Error("Leave request not found"), { statusCode: 404 });
+    }
+    if (existing.batchId) await assertBatchAccess(user, existing.batchId);
+    const leave = await db.academicLeaveRequest.update({
+      where: { id: leaveId },
+      data: {
+        status,
+        reviewedById: user.id,
+        reviewedByName: user.name || user.email || "Academic Head",
+        reviewedAt: new Date(),
+        reviewNote: input.reviewNote || null,
+      },
+    });
+
+    if (status === "APPROVED" && existing.batchId) {
+      const attendanceRows = await prisma.$queryRaw<any[]>`
+        SELECT * FROM "TeacherAttendanceRecord"
+        WHERE "batchId" = ${existing.batchId}
+          AND "date" >= ${existing.fromDate}
+          AND "date" <= ${existing.toDate}
+      `;
+      for (const row of attendanceRows) {
+        const records = attendanceRecordList(row);
+        const nextRecords = records.map((record) =>
+          record.studentId === existing.studentId
+            ? { ...record, status: "LEAVE", remarks: record.remarks || existing.reason }
+            : record,
+        );
+        await prisma.$executeRaw`
+          UPDATE "TeacherAttendanceRecord"
+          SET "records" = ${JSON.stringify(nextRecords)}::jsonb,
+              "updatedAt" = ${new Date()}
+          WHERE "id" = ${row.id}
+        `;
+      }
+    }
+
+    await auditAcademicAction(user, `LEAVE_${status}`, "AcademicLeaveRequest", leaveId, leave);
+    return { ok: true, leave: normalizeRows([leave])[0] };
   },
 
   async createAssignment(user: Requester, input: AssignmentInput) {
