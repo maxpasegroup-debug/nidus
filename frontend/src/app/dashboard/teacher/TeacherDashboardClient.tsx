@@ -60,6 +60,7 @@ type CalendarItem = {
   endTime?: string | null;
   subject?: string;
   topic?: string;
+  classType?: string | null;
   batchId?: string | null;
   batchName?: string | null;
   status?: string;
@@ -174,6 +175,18 @@ type ClassWorkspace = {
   materials: MaterialRecord[];
   exams: ExamRecord[];
   progress: SyllabusProgressRecord[];
+};
+
+type CalendarDayTask = {
+  id: string;
+  kind: "CLASS" | "LIVE_CLASS" | "ASSIGNMENT" | "EXAM" | "MEETING" | "ACTIVITY";
+  title: string;
+  subtitle?: string;
+  date?: string | null;
+  time?: string | null;
+  endTime?: string | null;
+  status?: string | null;
+  sourceId?: string;
 };
 
 type ExamDraft = {
@@ -425,6 +438,34 @@ function sameDate(value: Date, isoDate?: string) {
   return date.getFullYear() === value.getFullYear() && date.getMonth() === value.getMonth() && date.getDate() === value.getDate();
 }
 
+function dateKey(value?: string | Date | null) {
+  if (!value) return "";
+  if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}/.test(value)) return value.slice(0, 10);
+  const date = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function taskKindLabel(kind: CalendarDayTask["kind"]) {
+  if (kind === "LIVE_CLASS") return "Live Class";
+  if (kind === "ASSIGNMENT") return "Assignment";
+  if (kind === "EXAM") return "Exam";
+  if (kind === "MEETING") return "Meeting";
+  if (kind === "CLASS") return "Class";
+  return "Activity";
+}
+
+function taskKindTone(kind: CalendarDayTask["kind"]) {
+  if (kind === "EXAM") return "border-rose-200 bg-rose-50 text-rose-800";
+  if (kind === "ASSIGNMENT") return "border-amber-200 bg-amber-50 text-amber-800";
+  if (kind === "LIVE_CLASS") return "border-blue-200 bg-blue-50 text-blue-800";
+  if (kind === "MEETING") return "border-violet-200 bg-violet-50 text-violet-800";
+  return "border-emerald-200 bg-emerald-50 text-emerald-800";
+}
+
 function statusTone(status?: string | null) {
   const normalized = status?.toUpperCase();
   if (normalized === "COMPLETED" || normalized === "PUBLISHED" || normalized === "APPROVED") return "bg-emerald-50 text-emerald-700";
@@ -567,6 +608,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
   const [studentSearch, setStudentSearch] = useState("");
   const [progressFilter, setProgressFilter] = useState("ALL");
   const [selectedCalendarId, setSelectedCalendarId] = useState<string | null>(null);
+  const [selectedTaskDate, setSelectedTaskDate] = useState<string | null>(null);
   const [loadingPlan, setLoadingPlan] = useState(true);
   const [workspaceLoading, setWorkspaceLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -708,6 +750,81 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
     return map;
   }, [liveClasses]);
   const selectedBatchLiveClasses = selectedClass?.id ? liveClassesByBatch.get(selectedClass.id) ?? [] : [];
+  const selectedDayTasks = useMemo<CalendarDayTask[]>(() => {
+    const tasks: CalendarDayTask[] = [];
+    for (const item of selectedCalendarItems) {
+      const classType = (item.classType || "").toUpperCase();
+      tasks.push({
+        id: `calendar-${item.id}`,
+        kind: classType.includes("MEETING") ? "MEETING" : classType.includes("EXAM") || classType.includes("TEST") || classType.includes("MOCK") ? "EXAM" : "CLASS",
+        title: item.topic || item.subject || item.classType || "Scheduled class",
+        subtitle: [item.subject, item.batchName || selectedClass?.name, item.classType].filter(Boolean).join(" / "),
+        date: item.plannedDate,
+        time: item.startTime,
+        endTime: item.endTime,
+        status: item.completionStatus || item.status,
+        sourceId: item.id,
+      });
+    }
+    for (const item of selectedBatchLiveClasses) {
+      tasks.push({
+        id: `live-${item.id}`,
+        kind: "LIVE_CLASS",
+        title: item.title || item.topic || "Live class",
+        subtitle: [item.subject, item.topic, item.instructorName].filter(Boolean).join(" / "),
+        date: item.scheduledAt,
+        time: displayTime(item.scheduledAt),
+        status: classStatus(item),
+        sourceId: item.id,
+      });
+    }
+    for (const item of classWorkspace.assignments) {
+      tasks.push({
+        id: `assignment-${item.id}`,
+        kind: "ASSIGNMENT",
+        title: item.title || "Assignment due",
+        subtitle: [item.topic, item.instructions ? "Homework" : null].filter(Boolean).join(" / "),
+        date: item.dueDate || item.createdAt,
+        status: item.status || "PUBLISHED",
+        sourceId: item.id,
+      });
+    }
+    for (const item of classWorkspace.exams) {
+      tasks.push({
+        id: `exam-${item.id}`,
+        kind: "EXAM",
+        title: item.title || "Scheduled exam",
+        subtitle: [item.topic, item.questionCount ? `${item.questionCount} questions` : null, item.durationMinutes ? `${item.durationMinutes} min` : null].filter(Boolean).join(" / "),
+        date: item.createdAt,
+        status: item.status || "PUBLISHED",
+        sourceId: item.id,
+      });
+    }
+    return tasks.sort((a, b) => {
+      const dateDiff = dateKey(a.date).localeCompare(dateKey(b.date));
+      if (dateDiff) return dateDiff;
+      return String(a.time || "").localeCompare(String(b.time || ""));
+    });
+  }, [classWorkspace.assignments, classWorkspace.exams, selectedBatchLiveClasses, selectedCalendarItems, selectedClass?.name]);
+  const selectedDayTaskMap = useMemo(() => {
+    const map = new Map<string, CalendarDayTask[]>();
+    for (const task of selectedDayTasks) {
+      const key = dateKey(task.date);
+      if (!key) continue;
+      const current = map.get(key) ?? [];
+      current.push(task);
+      map.set(key, current);
+    }
+    return map;
+  }, [selectedDayTasks]);
+  const activeDayTasks = selectedTaskDate ? selectedDayTaskMap.get(selectedTaskDate) ?? [] : [];
+  useEffect(() => {
+    if (!selectedClass?.id || !selectedDayTasks.length) return;
+    const firstTaskDate = selectedDayTasks.find((task) => dateKey(task.date))?.date;
+    if (!firstTaskDate) return;
+    const parsed = new Date(firstTaskDate);
+    if (!Number.isNaN(parsed.getTime())) setCalendarMonth(monthStartDate(parsed));
+  }, [selectedClass?.id]);
   const activeLibraryRecords = useMemo(
     () => classWorkspace.materials.filter((item) => showArchivedLibrary || item.status !== "ARCHIVED"),
     [classWorkspace.materials, showArchivedLibrary],
@@ -2588,22 +2705,39 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
             </div>
             <div className="mt-2 grid grid-cols-7 gap-2">
               {calendarDays.map((day, index) => {
+                const key = day ? dateKey(day) : "";
+                const dayTasks = key ? selectedDayTaskMap.get(key) ?? [] : [];
                 const dayItems = day ? selectedCalendarItems.filter((item) => sameDate(day, item.plannedDate)) : [];
                 return (
-                  <div key={day?.toISOString() ?? `empty-${index}`} className="min-h-28 rounded-2xl border border-[var(--border)] bg-white p-2">
+                  <button
+                    key={day?.toISOString() ?? `empty-${index}`}
+                    type="button"
+                    disabled={!day}
+                    onClick={() => {
+                      if (!day) return;
+                      setSelectedTaskDate(key);
+                      const firstClass = dayItems[0];
+                      if (firstClass) {
+                        setSelectedCalendarId(firstClass.id);
+                        setCalendarLog({ completionStatus: firstClass.completionStatus || "COMPLETED", teacherLog: firstClass.teacherLog || "", nextAction: firstClass.nextAction || "" });
+                      }
+                    }}
+                    className={`min-h-28 rounded-2xl border border-[var(--border)] bg-white p-2 text-left transition hover:border-slate-950 hover:shadow-sm disabled:cursor-default disabled:bg-transparent disabled:hover:border-[var(--border)] disabled:hover:shadow-none ${dayTasks.length ? "ring-1 ring-slate-950/10" : ""}`}
+                  >
                     {day ? <p className="text-xs font-black">{day.getDate()}</p> : null}
                     <div className="mt-2 grid gap-1">
-                      {dayItems.slice(0, 2).map((item) => (
-                        <button key={item.id} type="button" onClick={() => { setSelectedCalendarId(item.id); setCalendarLog({ completionStatus: item.completionStatus || "COMPLETED", teacherLog: item.teacherLog || "", nextAction: item.nextAction || "" }); }} className={`rounded-lg px-2 py-1 text-left text-[0.68rem] font-black ${statusTone(item.completionStatus)}`}>
-                          {item.topic || "Topic"}
-                        </button>
+                      {dayTasks.slice(0, 3).map((item) => (
+                        <span key={item.id} className={`truncate rounded-lg border px-2 py-1 text-[0.68rem] font-black ${taskKindTone(item.kind)}`}>
+                          {item.time ? `${item.time} ` : ""}{item.title}
+                        </span>
                       ))}
+                      {dayTasks.length > 3 ? <span className="rounded-lg bg-slate-100 px-2 py-1 text-[0.68rem] font-black text-slate-700">+{dayTasks.length - 3} more</span> : null}
                     </div>
-                  </div>
+                  </button>
                 );
               })}
             </div>
-            {!selectedCalendarItems.length ? <EmptyState text="No timetable or syllabus plan is assigned yet." /> : null}
+            {!selectedDayTasks.length ? <EmptyState text="No timetable, exam, assignment or live-class plan is assigned yet." /> : null}
           </div>
           <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
             <h3 className="font-black">Class completion log</h3>
@@ -2617,6 +2751,21 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
             {calendarMessage ? <Notice text={calendarMessage} /> : null}
           </div>
         </div>
+        {selectedTaskDate ? (
+          <CalendarDayTasksModal
+            date={selectedTaskDate}
+            batchName={selectedClass?.name}
+            tasks={activeDayTasks}
+            onClose={() => setSelectedTaskDate(null)}
+            onSelectClass={(calendarId) => {
+              const item = selectedCalendarItems.find((entry) => entry.id === calendarId);
+              if (!item) return;
+              setSelectedCalendarId(item.id);
+              setCalendarLog({ completionStatus: item.completionStatus || "COMPLETED", teacherLog: item.teacherLog || "", nextAction: item.nextAction || "" });
+              setSelectedTaskDate(null);
+            }}
+          />
+        ) : null}
       </section> : null}
 
       {workspaceLoading ? <p className="mt-4 text-sm text-[var(--muted-blue)]">Refreshing selected batch data...</p> : null}
@@ -4457,6 +4606,63 @@ function FolderColumn({ title, emptyText, children }: { title: string; emptyText
     <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
       <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold-dark)]">{title}</p>
       <div className="mt-4 grid gap-3">{Children.count(children) ? children : <EmptyState text={emptyText} />}</div>
+    </div>
+  );
+}
+
+function CalendarDayTasksModal({
+  date,
+  batchName,
+  tasks,
+  onClose,
+  onSelectClass,
+}: {
+  date: string;
+  batchName?: string;
+  tasks: CalendarDayTask[];
+  onClose: () => void;
+  onSelectClass: (calendarId: string) => void;
+}) {
+  const display = new Date(date).toLocaleDateString([], { weekday: "long", day: "2-digit", month: "long", year: "numeric" });
+
+  return (
+    <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/45 p-4">
+      <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-[var(--border)] bg-white p-5 shadow-2xl">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold-dark)]">Today's Task</p>
+            <h3 className="mt-2 text-2xl font-black">{display}</h3>
+            <p className="mt-1 text-sm font-bold text-[var(--muted-blue)]">{batchName || "Selected batch"}</p>
+          </div>
+          <button type="button" onClick={onClose} className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] p-3" aria-label="Close day tasks">
+            <X size={18} />
+          </button>
+        </div>
+
+        <div className="mt-5 grid gap-3">
+          {tasks.map((task) => (
+            <div key={task.id} className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-black ${taskKindTone(task.kind)}`}>{taskKindLabel(task.kind)}</span>
+                  <h4 className="mt-3 text-lg font-black">{task.title}</h4>
+                  {task.subtitle ? <p className="mt-1 text-sm text-[var(--muted-blue)]">{task.subtitle}</p> : null}
+                </div>
+                <div className="text-right text-sm font-black">
+                  <p>{task.time || "Time pending"}{task.endTime ? ` - ${task.endTime}` : ""}</p>
+                  <p className="mt-1 text-xs text-[var(--muted-blue)]">{task.status || "Planned"}</p>
+                </div>
+              </div>
+              {task.kind === "CLASS" && task.sourceId ? (
+                <button type="button" onClick={() => onSelectClass(task.sourceId!)} className="mt-4 rounded-xl border border-slate-950 bg-white px-4 py-2 text-sm font-black text-slate-950">
+                  Open Class Log
+                </button>
+              ) : null}
+            </div>
+          ))}
+          {!tasks.length ? <EmptyState text="No classes, exams, assignments, live classes or announcements are scheduled for this date." /> : null}
+        </div>
+      </div>
     </div>
   );
 }
