@@ -508,104 +508,164 @@ function collectPdf(doc: PDFKit.PDFDocument) {
   });
 }
 
-function addPdfSection(doc: PDFKit.PDFDocument, title: string, body: string | string[]) {
-  doc.moveDown(0.8);
-  doc.fontSize(13).fillColor("#111827").font("Helvetica-Bold").text(title);
-  doc.moveDown(0.35);
-  doc.fontSize(10).fillColor("#374151").font("Helvetica");
-  const lines = Array.isArray(body) ? body : [body];
+const PDF = {
+  margin: 44,
+  width: 507,
+  bottom: 770,
+  navy: "#071d36",
+  gold: "#b9913f",
+  goldSoft: "#fff7de",
+  ink: "#111827",
+  muted: "#4b5563",
+  border: "#d8d2c3",
+  panel: "#fffdf8"
+};
+
+function ensurePdfSpace(doc: PDFKit.PDFDocument, height: number) {
+  if (doc.y + height > PDF.bottom) {
+    doc.addPage();
+    doc.y = PDF.margin;
+  }
+}
+
+function addPdfHeading(doc: PDFKit.PDFDocument, eyebrow: string, title: string) {
+  ensurePdfSpace(doc, 52);
+  doc.font("Helvetica-Bold").fontSize(8).fillColor(PDF.gold).text(eyebrow.toUpperCase(), PDF.margin, doc.y, { width: PDF.width, characterSpacing: 1.2 });
+  doc.moveDown(0.25);
+  doc.font("Helvetica-Bold").fontSize(16).fillColor(PDF.ink).text(title, PDF.margin, doc.y, { width: PDF.width, lineGap: 2 });
+  doc.moveDown(0.55);
+}
+
+function addPdfSection(doc: PDFKit.PDFDocument, title: string, body: string | string[], options: { eyebrow?: string; boxed?: boolean } = {}) {
+  const lines = (Array.isArray(body) ? body : [body]).filter(Boolean);
+  if (!lines.length) return;
+  addPdfHeading(doc, options.eyebrow ?? "Report Section", title);
   for (const line of lines) {
-    doc.text(Array.isArray(body) ? `- ${line}` : line, { lineGap: 3 });
+    const text = Array.isArray(body) ? `• ${line}` : line;
+    const estimatedHeight = doc.heightOfString(text, { width: PDF.width - (options.boxed ? 28 : 0), lineGap: 4 }) + (options.boxed ? 26 : 8);
+    ensurePdfSpace(doc, Math.max(estimatedHeight, 36));
+    if (options.boxed) {
+      const y = doc.y;
+      doc.roundedRect(PDF.margin, y, PDF.width, estimatedHeight, 12).fillAndStroke(PDF.panel, PDF.border);
+      doc.font("Helvetica").fontSize(10).fillColor(PDF.muted).text(text, PDF.margin + 14, y + 13, { width: PDF.width - 28, lineGap: 4 });
+      doc.y = y + estimatedHeight + 8;
+    } else {
+      doc.font("Helvetica").fontSize(10.5).fillColor(PDF.muted).text(text, PDF.margin, doc.y, { width: PDF.width, lineGap: 4 });
+      doc.moveDown(0.4);
+    }
   }
 }
 
 function drawScoreCard(doc: PDFKit.PDFDocument, label: string, value: string, x: number, y: number, width: number) {
-  doc.roundedRect(x, y, width, 64, 10).fillAndStroke("#f8fafc", "#e5e7eb");
-  doc.fillColor("#6b7280").fontSize(8).font("Helvetica-Bold").text(label.toUpperCase(), x + 14, y + 13, { width: width - 28 });
-  doc.fillColor("#111827").fontSize(17).font("Helvetica-Bold").text(value, x + 14, y + 30, { width: width - 28 });
+  doc.roundedRect(x, y, width, 70, 12).fillAndStroke("#ffffff", PDF.border);
+  doc.fillColor(PDF.gold).fontSize(7.5).font("Helvetica-Bold").text(label.toUpperCase(), x + 14, y + 13, { width: width - 28, characterSpacing: 0.8 });
+  doc.fillColor(PDF.ink).fontSize(18).font("Helvetica-Bold").text(value, x + 14, y + 34, { width: width - 28 });
+}
+
+function addPdfBand(doc: PDFKit.PDFDocument, label: string, value: string, color: string) {
+  ensurePdfSpace(doc, 38);
+  const y = doc.y;
+  doc.roundedRect(PDF.margin, y, PDF.width, 34, 10).fillAndStroke("#ffffff", PDF.border);
+  doc.circle(PDF.margin + 18, y + 17, 5).fill(color);
+  doc.font("Helvetica-Bold").fontSize(9).fillColor(PDF.ink).text(label, PDF.margin + 34, y + 11, { width: 180 });
+  doc.font("Helvetica-Bold").fontSize(9).fillColor(color).text(value, PDF.margin + 220, y + 11, { width: PDF.width - 230, align: "right" });
+  doc.y = y + 44;
+}
+
+function scoreColor(score: number) {
+  if (score >= 90) return "#b9913f";
+  if (score >= 75) return "#059669";
+  if (score >= 60) return "#ca8a04";
+  if (score >= 45) return "#ea580c";
+  return "#dc2626";
 }
 
 function writeAssessmentPdf(result: { attempt: { test: { title: string } }; report: StructuredReport; scoring: PublicScoring; recommendations: string[] }) {
-  const doc = new PDFDocument({ size: "A4", margin: 44, bufferPages: true });
+  const doc = new PDFDocument({ size: "A4", margin: PDF.margin, bufferPages: true });
   const buffer = collectPdf(doc);
   const { attempt, report, scoring, recommendations } = result;
   const generatedAt = new Date().toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
 
-  doc.rect(0, 0, doc.page.width, 118).fill("#07111f");
-  doc.fillColor("#c9a646").fontSize(10).font("Helvetica-Bold").text("NIDUS ACADEMY", 44, 34, { characterSpacing: 1.4 });
-  doc.fillColor("#ffffff").fontSize(22).font("Helvetica-Bold").text(`${attempt.test.title} Report`, 44, 52, { width: 370 });
-  doc.fillColor("#d1d5db").fontSize(10).font("Helvetica").text(`Generated on ${generatedAt}`, 44, 82);
-  doc.fillColor("#f8fafc").fontSize(28).font("Helvetica-Bold").text(`${report.score}/100`, 442, 40, { width: 90, align: "right" });
-  doc.fillColor("#c9a646").fontSize(9).font("Helvetica-Bold").text(report.level, 342, 76, { width: 190, align: "right" });
+  doc.rect(0, 0, doc.page.width, 164).fill(PDF.navy);
+  doc.fillColor(PDF.gold).fontSize(9).font("Helvetica-Bold").text("NIDUS DEFENCE ASSESSMENT REPORT", PDF.margin, 34, { width: PDF.width, characterSpacing: 1.4 });
+  doc.fillColor("#ffffff").fontSize(24).font("Helvetica-Bold").text(`${attempt.test.title}`, PDF.margin, 56, { width: 330, lineGap: 2 });
+  doc.fillColor("#d1d5db").fontSize(10).font("Helvetica").text(`Generated on ${generatedAt}`, PDF.margin, 116, { width: 260 });
+  doc.roundedRect(392, 42, 146, 86, 16).fillAndStroke("#fffdf8", "#e7c873");
+  doc.fillColor(PDF.navy).fontSize(32).font("Helvetica-Bold").text(`${report.score}`, 412, 58, { width: 65, align: "center" });
+  doc.fillColor(PDF.gold).fontSize(9).font("Helvetica-Bold").text("/ 100", 478, 72, { width: 40 });
+  doc.fillColor(PDF.navy).fontSize(9).font("Helvetica-Bold").text(report.level, 410, 101, { width: 108, align: "center" });
 
-  const cardY = 146;
-  drawScoreCard(doc, "Overall score", `${scoring.score}/100`, 44, cardY, 150);
-  drawScoreCard(doc, "Response quality", `${scoring.qualityScore}/100`, 216, cardY, 150);
-  drawScoreCard(doc, "Completion", `${scoring.answered}/${scoring.totalQuestions}`, 388, cardY, 150);
-  doc.y = cardY + 80;
+  doc.y = 190;
+  const cardY = doc.y;
+  drawScoreCard(doc, "Overall score", `${scoring.score}/100`, PDF.margin, cardY, 155);
+  drawScoreCard(doc, "Response quality", `${scoring.qualityScore}/100`, PDF.margin + 176, cardY, 155);
+  drawScoreCard(doc, "Completion", `${scoring.answered}/${scoring.totalQuestions}`, PDF.margin + 352, cardY, 155);
+  doc.y = cardY + 95;
 
-  addPdfSection(doc, "Executive summary", report.executiveSummary ?? report.simpleMeaning);
-  addPdfSection(doc, "Simple interpretation", report.simpleMeaning);
-  addPdfSection(doc, "Benchmark context", report.percentileContext ?? "Benchmark context will appear for newly generated reports.");
-  addPdfSection(doc, "Report confidence", report.reportConfidence ?? "Report confidence is available for newly generated reports.");
-  addPdfSection(doc, "Strengths", report.strengths);
-  addPdfSection(doc, "Improvement areas", report.improvementAreas);
+  addPdfSection(doc, "Executive Summary", report.executiveSummary ?? report.simpleMeaning, { eyebrow: "Consulting Summary", boxed: true });
+  addPdfSection(doc, "What This Means", [report.simpleMeaning, report.behaviourPattern], { eyebrow: "Interpretation", boxed: true });
 
-  doc.moveDown(0.8);
-  doc.fontSize(13).fillColor("#111827").font("Helvetica-Bold").text("Dimension scores");
-  doc.moveDown(0.35);
+  addPdfHeading(doc, "Visual Projection", "Dimension score dashboard");
   for (const dimension of report.dimensionScores) {
-    const x = 44;
-    const y = doc.y + 3;
-    const barWidth = 270;
-    const scoreWidth = Math.max(3, Math.round((dimension.score / 100) * barWidth));
-    doc.fillColor("#374151").fontSize(9).font("Helvetica").text(dimension.label, x, y, { width: 160 });
-    doc.roundedRect(x + 174, y + 2, barWidth, 8, 4).fill("#e5e7eb");
-    doc.roundedRect(x + 174, y + 2, scoreWidth, 8, 4).fill(dimension.score >= 70 ? "#1f7a4d" : dimension.score >= 50 ? "#c9a646" : "#b91c1c");
-    doc.fillColor("#111827").fontSize(9).font("Helvetica-Bold").text(`${dimension.score}`, x + 454, y - 1, { width: 42, align: "right" });
-    doc.moveDown(0.65);
-    if (doc.y > 720) doc.addPage();
+    ensurePdfSpace(doc, 34);
+    const x = PDF.margin;
+    const y = doc.y;
+    const labelWidth = 165;
+    const barWidth = 250;
+    const color = scoreColor(dimension.score);
+    doc.font("Helvetica-Bold").fontSize(9).fillColor(PDF.ink).text(dimension.label, x, y, { width: labelWidth });
+    doc.roundedRect(x + labelWidth + 12, y + 4, barWidth, 8, 4).fill("#edf0f4");
+    doc.roundedRect(x + labelWidth + 12, y + 4, Math.max(4, Math.round((dimension.score / 100) * barWidth)), 8, 4).fill(color);
+    doc.font("Helvetica-Bold").fontSize(9).fillColor(color).text(`${dimension.score}/100`, x + labelWidth + barWidth + 24, y - 1, { width: 54, align: "right" });
+    doc.y = y + 27;
   }
+  doc.moveDown(0.4);
 
   if (report.dimensionInsights?.length) {
     addPdfSection(
       doc,
-      "Dimension insight summary",
-      report.dimensionInsights.slice(0, 8).map((dimension) => `${dimension.label} ${dimension.score}/100: ${dimension.action}`)
+      "Trait Diagnosis",
+      report.dimensionInsights.slice(0, 10).map((dimension) => `${dimension.label} (${dimension.score}/100): ${dimension.interpretation} Action: ${dimension.action}`),
+      { eyebrow: "Expert Interpretation", boxed: true }
     );
   }
 
-  addPdfSection(doc, "Behaviour pattern", report.behaviourPattern);
-  addPdfSection(doc, "Officer readiness signal", report.officerReadinessSignal);
-  addPdfSection(doc, "Parent summary", report.parentSummary);
-  addPdfSection(doc, "Parent guidance", report.parentGuidance ?? []);
-  addPdfSection(doc, "Counsellor summary", report.counsellorSummary);
-  addPdfSection(doc, "Recommended next test", report.recommendedNextTest);
-  addPdfSection(doc, "Recommended NIDUS Guru quest", report.recommendedGuruQuest);
-  addPdfSection(doc, "Counselling action", report.counsellingAction);
-  addPdfSection(doc, "Response integrity", report.integritySignals);
-  addPdfSection(doc, "Risk review", report.riskReview ?? []);
-  addPdfSection(doc, "Seven day action plan", report.sevenDayActionPlan);
-  addPdfSection(doc, "30 day plan", report.thirtyDayPlan ?? []);
-  addPdfSection(doc, "90 day plan", report.ninetyDayPlan ?? []);
-  addPdfSection(doc, "Mentor review checklist", report.mentorReviewChecklist ?? []);
-  addPdfSection(doc, "Mentor notes", report.mentorNotes ?? []);
-  addPdfSection(doc, "NIDUS AI recommendations", recommendations);
-  addPdfSection(doc, "Educational disclaimer", report.disclaimer ?? "This report is for educational guidance only and is not a clinical diagnosis.");
+  addPdfSection(doc, "Strength Pattern", report.strengths, { eyebrow: "Strengths", boxed: true });
+  addPdfSection(doc, "Development Priorities", report.improvementAreas, { eyebrow: "Training Needs", boxed: true });
+  addPdfSection(doc, "Officer Readiness Signal", report.officerReadinessSignal, { eyebrow: "Defence Interpretation", boxed: true });
+  addPdfSection(doc, "Risk Review", report.riskReview ?? [], { eyebrow: "Intervention", boxed: true });
+  addPdfSection(doc, "Response Integrity", report.integritySignals, { eyebrow: "Validity", boxed: true });
+
+  addPdfSection(doc, "Parent Summary", report.parentSummary, { eyebrow: "Family Guidance", boxed: true });
+  addPdfSection(doc, "Parent Guidance", report.parentGuidance ?? [], { eyebrow: "Family Action", boxed: true });
+  addPdfSection(doc, "Mentor / Academic Head Summary", report.counsellorSummary, { eyebrow: "Mentor View", boxed: true });
+  addPdfSection(doc, "Mentor Review Checklist", report.mentorReviewChecklist ?? [], { eyebrow: "Mentor Action", boxed: true });
+
+  addPdfHeading(doc, "Action Plan", "Next steps recommended by NIDUS");
+  addPdfBand(doc, "Recommended next assessment", report.recommendedNextTest, PDF.gold);
+  addPdfBand(doc, "Recommended NIDUS Guru quest", report.recommendedGuruQuest, "#059669");
+  addPdfBand(doc, "Counselling action", report.counsellingAction, "#2563eb");
+  addPdfSection(doc, "7-Day Action Plan", report.sevenDayActionPlan, { eyebrow: "Immediate Execution", boxed: true });
+  addPdfSection(doc, "30-Day Training Plan", report.thirtyDayPlan ?? [], { eyebrow: "Growth Plan", boxed: true });
+  addPdfSection(doc, "90-Day Roadmap", report.ninetyDayPlan ?? [], { eyebrow: "Transformation Plan", boxed: true });
+  addPdfSection(doc, "NIDUS AI Recommendations", recommendations, { eyebrow: "AI Guidance", boxed: true });
 
   if (report.answerSignals?.length) {
     addPdfSection(
       doc,
-      "Response signals",
-      report.answerSignals.slice(0, 12).map((signal) => `${signal.dimensionLabel}: ${signal.interpretation}`)
+      "Answer-Level Evidence",
+      report.answerSignals.slice(0, 12).map((signal) => `${signal.dimensionLabel}: ${signal.interpretation}`),
+      { eyebrow: "Evidence", boxed: true }
     );
   }
+
+  addPdfSection(doc, "Educational Disclaimer", report.disclaimer ?? "This report is for educational guidance only and is not a clinical diagnosis.", { eyebrow: "Disclaimer", boxed: true });
 
   const pages = doc.bufferedPageRange();
   for (let index = 0; index < pages.count; index += 1) {
     doc.switchToPage(index);
-    doc.fillColor("#9ca3af").fontSize(8).font("Helvetica").text(`NIDUS Psychometric Report | Page ${index + 1} of ${pages.count}`, 44, 806, {
-      width: 494,
+    doc.fillColor("#9ca3af").fontSize(8).font("Helvetica").text(`NIDUS Defence Assessment Report | Page ${index + 1} of ${pages.count}`, PDF.margin, 806, {
+      width: PDF.width,
       align: "center"
     });
   }
