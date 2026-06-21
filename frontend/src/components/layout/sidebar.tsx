@@ -5,12 +5,38 @@ import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/components/providers/auth-provider-v2";
-import { getNavItems } from "./nav-items";
+import { getNavItems, guestMenu, studentMenu } from "./nav-items";
+
+type StudentPlanProbe = {
+  batches?: Array<{ id: string }>;
+};
+
+async function probeStudentActivation() {
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_API_BASE_URL || "";
+  const token =
+    typeof window !== "undefined"
+      ? localStorage.getItem("token") ||
+        localStorage.getItem("accessToken") ||
+        localStorage.getItem("authToken") ||
+        localStorage.getItem("nidus_token")
+      : null;
+  const response = await fetch(`${baseUrl}/api/academy/my-plan`, {
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+  });
+  if (!response.ok) return false;
+  const payload = (await response.json().catch(() => null)) as StudentPlanProbe | null;
+  return Boolean(payload?.batches?.length);
+}
 
 export function Sidebar() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const { user, isLoading } = useAuth();
+  const [studentActivated, setStudentActivated] = useState<boolean | null>(null);
 
   const userMetadata = user?.roleMetadata && typeof user.roleMetadata === "object" ? user.roleMetadata : {};
   const dashboardTemplate =
@@ -20,15 +46,43 @@ export function Sidebar() {
   const designation = typeof userMetadata.designation === "string" ? userMetadata.designation : null;
   const rawRoleLabel = designation ?? dashboardTemplate ?? user?.role ?? "STUDENT";
   const roleLabel =
-    rawRoleLabel === "GUEST" || rawRoleLabel === "STUDENT"
-      ? "Learner"
+    rawRoleLabel === "GUEST"
+      ? "Applicant"
+      : rawRoleLabel === "STUDENT"
+        ? studentActivated === false
+          ? "Applicant"
+          : "Learner"
       : rawRoleLabel === "TELECALLER"
         ? "Business Development Executive"
         : rawRoleLabel === "ADMISSION_CELL"
           ? "Administrative Officer"
           : rawRoleLabel;
 
-  const navItems = useMemo(() => getNavItems(user?.role, dashboardTemplate), [dashboardTemplate, user?.role]);
+  useEffect(() => {
+    let cancelled = false;
+    setStudentActivated(null);
+    if (!user || user.role !== "STUDENT") return;
+    probeStudentActivation()
+      .then((isActivated) => {
+        if (!cancelled) setStudentActivated(isActivated);
+      })
+      .catch(() => {
+        if (!cancelled) setStudentActivated(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.id, user?.role]);
+
+  const navItems = useMemo(() => {
+    if (user?.role === "GUEST") return guestMenu;
+    if (user?.role === "STUDENT") {
+      if (studentActivated === false) return guestMenu;
+      if (studentActivated === true) return studentMenu;
+      return [];
+    }
+    return getNavItems(user?.role, dashboardTemplate);
+  }, [dashboardTemplate, studentActivated, user?.role]);
 
   useEffect(() => {
     setOpen(false);

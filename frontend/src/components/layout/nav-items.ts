@@ -6,14 +6,20 @@ export type DashboardNavItem = {
 export type NavItem = DashboardNavItem;
 
 const studentMenu: DashboardNavItem[] = [
-  { label: "My Journey", href: "/dashboard/student" },
+  { label: "Academic", href: "/dashboard/student" },
   { label: "Classes", href: "/dashboard/student#classes" },
-  { label: "Exams", href: "/dashboard/student#exams" },
   { label: "Assignments", href: "/dashboard/student#assignments" },
-  { label: "Attendance", href: "/dashboard/student#attendance" },
+  { label: "Exams", href: "/dashboard/student#exams" },
+  { label: "Attendance & Leaves", href: "/dashboard/student#attendance" },
   { label: "Library", href: "/dashboard/student#library" },
-  { label: "Assessments", href: "/dashboard/student#assessments" },
-  { label: "Digital Profile", href: "/dashboard/student#profile" },
+  { label: "NIDUS Digital Profile", href: "/dashboard/student#profile" },
+];
+
+const guestMenu: DashboardNavItem[] = [
+  { label: "Assessments", href: "/dashboard/guest#assessments" },
+  { label: "TOP RANK", href: "/dashboard/guest#top-rank" },
+  { label: "NIDUS Guru", href: "/dashboard/guest#guru" },
+  { label: "Academy", href: "/dashboard/guest#academy" },
 ];
 
 const teacherMenu: DashboardNavItem[] = [
@@ -102,7 +108,7 @@ export function getNavItems(role?: string | null, dashboardTemplate?: string | n
   }
 
   if (normalizedRole === "GUEST") {
-    return studentMenu;
+    return guestMenu;
   }
 
   if (normalizedRole === "SUPER_ADMIN" || normalizedRole === "MANAGEMENT") {
@@ -111,3 +117,5 @@ export function getNavItems(role?: string | null, dashboardTemplate?: string | n
 
   return studentMenu;
 }
+
+export { guestMenu, studentMenu };

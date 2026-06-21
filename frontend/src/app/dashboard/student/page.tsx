@@ -17,6 +17,8 @@ import {
   UserRound,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { useAuth } from "@/components/providers/auth-provider-v2";
+import { GuestApplicantDashboard } from "@/components/dashboard/guest-applicant-dashboard";
 
 type StudentBatch = {
   id: string;
@@ -212,6 +214,7 @@ async function apiPost<T>(path: string, body: unknown): Promise<T> {
 }
 
 export default function StudentDashboardPage() {
+  const { user } = useAuth();
   const [assignmentDrafts, setAssignmentDrafts] = useState<Record<string, { answerText: string; link: string; attachmentName: string }>>({});
   const [assignmentMessage, setAssignmentMessage] = useState<string | null>(null);
   const [parentIdentity, setParentIdentity] = useState("");
@@ -261,6 +264,10 @@ export default function StudentDashboardPage() {
         .slice(0, 6),
     [batches],
   );
+
+  if (!academicPlan.isLoading && (!batches.length || user?.role === "GUEST")) {
+    return <GuestApplicantDashboard name={user?.name} />;
+  }
 
   return (
     <main className="min-h-screen bg-[var(--page-bg)] px-5 py-6 text-[var(--navy)] md:px-8">
@@ -329,19 +336,17 @@ export default function StudentDashboardPage() {
           </Panel>
         </section>
 
-        <section id="classes" className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          <StudentModule title="Classes" text="Upcoming live classes and recorded lessons appear batch-wise." icon={PlayCircle} href="#classes" />
-          <StudentModule title="My Learning" text="Program, subject, topic and lesson view for your batch materials." icon={Library} href="/dashboard/student/learning" />
-          <StudentModule title="TOP RANK" text="Practice tests, weekly tests and NIDUS-owned CBT coaching." icon={ClipboardCheck} href="#exams" />
-          <StudentModule title="Assessments" text="Open psychometric and defence-readiness assessments." icon={ShieldCheck} href="/dashboard/student#assessments" />
-          <StudentModule title="NIDUS Guru" text="Focus, discipline and dream-building quests." icon={UserRound} href="/dashboard/student#nidus-guru" />
-        </section>
-
-        <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          <StudentModule title="Assignments" text="Submit homework and teacher-given tasks." icon={FileText} href="#assignments" />
-          <StudentModule title="Attendance" text="Track class attendance and marked sessions." icon={CalendarDays} href="#attendance" />
-          <StudentModule title="Progress" text="See attendance, assignments, exams, learning and fitness together." icon={GraduationCap} href="/dashboard/student/progress" />
-          <StudentModule title="Library" text="Access notes, videos, files and topic materials." icon={Library} href="#library" />
+        <section className="rounded-3xl border border-[var(--border)] bg-white/90 p-5 shadow-sm md:p-7">
+          <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Academic</p>
+          <h2 className="mt-2 text-3xl font-black">Your learner workspace</h2>
+          <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            <StudentModule title="Classes" text="Live classes, recorded sessions and today&apos;s timetable." icon={PlayCircle} href="#classes" />
+            <StudentModule title="Assignments" text="Open homework, submit files and view feedback." icon={FileText} href="#assignments" />
+            <StudentModule title="Exams" text="Upcoming exams, attempts and results." icon={ClipboardCheck} href="#exams" />
+            <StudentModule title="Attendance & Leaves" text="Track attendance and apply for leave." icon={CalendarDays} href="#attendance" />
+            <StudentModule title="Library" text="Access notes, videos and topic materials." icon={Library} href="#library" />
+            <StudentModule title="NIDUS Digital Profile" text="Progress, portfolio and shareable learner profile." icon={UserRound} href="#profile" />
+          </div>
         </section>
 
         <Panel id="classes" title="My Classes" eyebrow="Upcoming live classes">
