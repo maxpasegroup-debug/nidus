@@ -1253,17 +1253,27 @@ export const academyService = {
     const batches = await hydrateTeachingPlanBatches(rows);
     const batchIds = batches.map((batch: any) => batch.id).filter(Boolean);
     const academicHeadWorkspace = isAcademicHeadWorkspace(user);
+    const calendarWindowStart = new Date();
+    calendarWindowStart.setHours(0, 0, 0, 0);
+    calendarWindowStart.setDate(calendarWindowStart.getDate() - 45);
+    const calendarWindowEnd = new Date();
+    calendarWindowEnd.setHours(23, 59, 59, 999);
+    calendarWindowEnd.setDate(calendarWindowEnd.getDate() + 120);
     const calendar = batchIds.length
       ? teacherWorkspace && !academicHeadWorkspace
         ? await prisma.$queryRaw<AcademicCalendarRow[]>`
             SELECT * FROM "AcademicCalendarItem"
             WHERE "batchId" IN (${Prisma.join(batchIds)})
             AND ("teacherId" = ${user.id} OR "teacherId" IS NULL)
+            AND "plannedDate" >= ${calendarWindowStart}
+            AND "plannedDate" <= ${calendarWindowEnd}
             ORDER BY "plannedDate" ASC, "startTime" ASC
           `
         : await prisma.$queryRaw<AcademicCalendarRow[]>`
             SELECT * FROM "AcademicCalendarItem"
             WHERE "batchId" IN (${Prisma.join(batchIds)})
+            AND "plannedDate" >= ${calendarWindowStart}
+            AND "plannedDate" <= ${calendarWindowEnd}
             ORDER BY "plannedDate" ASC, "startTime" ASC
           `
       : [];
@@ -1611,7 +1621,14 @@ export const academyService = {
   async academicCalendar(user: Requester, query: Record<string, unknown>) {
     requireAcademic(user);
     const batchId = typeof query.batchId === "string" ? query.batchId : undefined;
-    const teacherId = user.role === Role.TEACHER ? user.id : typeof query.teacherId === "string" ? query.teacherId : undefined;
+    if (batchId) await assertBatchAccess(user, batchId);
+    const teacherId = user.role === Role.TEACHER && !isAcademicHeadWorkspace(user)
+      ? user.id
+      : typeof query.teacherId === "string" && query.teacherId.trim()
+        ? query.teacherId.trim()
+        : undefined;
+    const from = typeof query.from === "string" && !Number.isNaN(Date.parse(query.from)) ? new Date(query.from) : null;
+    const to = typeof query.to === "string" && !Number.isNaN(Date.parse(query.to)) ? new Date(query.to) : null;
 
     const rows = batchId
       ? await prisma.$queryRaw<AcademicCalendarRow[]>`
@@ -1630,7 +1647,11 @@ export const academyService = {
             ORDER BY "plannedDate" ASC, "startTime" ASC
           `;
 
-    return rows.filter((row) => !isTemporaryActivationCalendarRow(row)).map(sanitizeCalendarRow);
+    return rows
+      .filter((row) => !from || row.plannedDate >= from)
+      .filter((row) => !to || row.plannedDate < to)
+      .filter((row) => !isTemporaryActivationCalendarRow(row))
+      .map(sanitizeCalendarRow);
   },
 
   async createAcademicCalendarItem(user: Requester, input: AcademicCalendarInput) {
