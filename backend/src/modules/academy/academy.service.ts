@@ -63,6 +63,34 @@ type AcademicCalendarInput = {
   nextAction?: string;
 };
 
+type AcademicCalendarPlannerSession = {
+  dayOfWeek?: number;
+  subject?: string;
+  topic?: string;
+  classType?: string;
+  startTime?: string;
+  endTime?: string;
+  teacherId?: string;
+};
+
+type AcademicCalendarPlannerInput = {
+  batchId?: string;
+  startDate?: string;
+  endDate?: string;
+  academicYear?: string;
+  sessions?: AcademicCalendarPlannerSession[];
+};
+
+type NormalizedPlannerSession = {
+  dayOfWeek: number;
+  subject: string;
+  topic: string;
+  classType: string;
+  startTime: string;
+  endTime?: string;
+  teacherId?: string;
+};
+
 type AttendanceInput = {
   batchId?: string;
   batchName?: string;
@@ -851,6 +879,46 @@ function isTemporaryActivationCalendarRow(row: AcademicCalendarRow) {
   );
 }
 
+function parsePlannerDate(value: string, label: string) {
+  const date = new Date(`${value}T00:00:00.000Z`);
+  if (Number.isNaN(date.getTime())) {
+    throw Object.assign(new Error(`${label} is invalid`), { statusCode: 400 });
+  }
+  return date;
+}
+
+function normalizePlannerSession(session: AcademicCalendarPlannerSession): NormalizedPlannerSession | null {
+  const dayOfWeek = Number(session.dayOfWeek);
+  const subject = String(session.subject || "").trim();
+  const topic = String(session.topic || "").trim();
+  const startTime = String(session.startTime || "").trim();
+  if (!Number.isInteger(dayOfWeek) || dayOfWeek < 0 || dayOfWeek > 6 || !subject || !topic || !startTime) {
+    return null;
+  }
+  return {
+    dayOfWeek,
+    subject,
+    topic,
+    startTime,
+    endTime: String(session.endTime || "").trim() || undefined,
+    teacherId: String(session.teacherId || "").trim() || undefined,
+    classType: String(session.classType || "").trim() || "LECTURE",
+  };
+}
+
+function datesForDayOfWeek(startDate: Date, endDate: Date, dayOfWeek: number) {
+  const dates: Date[] = [];
+  const cursor = new Date(startDate);
+  while (cursor.getUTCDay() !== dayOfWeek) {
+    cursor.setUTCDate(cursor.getUTCDate() + 1);
+  }
+  while (cursor <= endDate) {
+    dates.push(new Date(cursor));
+    cursor.setUTCDate(cursor.getUTCDate() + 7);
+  }
+  return dates;
+}
+
 function isTemporaryActivationAcademicRecord(row: Record<string, any>) {
   const title = String(row.title || "").trim().toLowerCase();
   const topic = String(row.topic || "").trim().toLowerCase();
@@ -864,6 +932,22 @@ function isTemporaryActivationAcademicRecord(row: Record<string, any>) {
     title.includes("homework 2 -") ||
     instructions.includes("starter homework") ||
     ["number system basics", "modern india basics", "motion basics", "indian geography basics", "grammar foundation"].includes(topic)
+  );
+}
+
+function isDemoAcademyUser(user?: { name?: string | null; email?: string | null; mobile?: string | null; roleMetadata?: unknown } | null) {
+  if (!user) return false;
+  const haystack = [
+    user.name,
+    user.email,
+    user.mobile,
+    JSON.stringify(user.roleMetadata ?? {}),
+  ].join(" ").toLowerCase();
+  return (
+    haystack.includes("maj. vikram") ||
+    haystack.includes("maj vikram") ||
+    haystack.includes("faculty.ssb@nidusacademy") ||
+    haystack.includes("ssb mentor")
   );
 }
 
@@ -939,10 +1023,10 @@ async function batchWithCounts(options?: BatchWithCountsOptions) {
   const teacherUsers = teacherIds.length
     ? await prisma.user.findMany({
         where: { id: { in: teacherIds }, isDisabled: false },
-        select: { id: true, name: true, email: true, mobile: true, role: true },
+        select: { id: true, name: true, email: true, mobile: true, role: true, roleMetadata: true },
       })
     : [];
-  const teacherMap = new Map(teacherUsers.map((teacher) => [teacher.id, teacher]));
+  const teacherMap = new Map(teacherUsers.filter((teacher) => !isDemoAcademyUser(teacher)).map((teacher) => [teacher.id, teacher]));
   const visibleTeacherAssignments = teacherAssignments.filter((assignment) => teacherMap.has(assignment.teacherId));
 
   const hydrated = batches.map((batch: any) => ({
@@ -1377,8 +1461,8 @@ export const academyService = {
   },
 
   async teachers() {
-    return prisma.user.findMany({
-      where: { role: { in: [Role.TEACHER, Role.DIRECTOR] } },
+    const teachers = await prisma.user.findMany({
+      where: { role: { in: [Role.TEACHER, Role.ACADEMIC_HEAD, Role.PHYSICAL_TRAINER] }, isDisabled: false },
       select: {
         id: true,
         name: true,
@@ -1389,6 +1473,7 @@ export const academyService = {
       },
       orderBy: { name: "asc" },
     });
+    return teachers.filter((teacher) => !isDemoAcademyUser(teacher));
   },
 
   async employees(user: Requester, includeArchived = false) {
@@ -1430,7 +1515,7 @@ export const academyService = {
 
     return users.filter((employee) => {
       const metadata = (employee.roleMetadata ?? {}) as Record<string, unknown>;
-      return includeArchived || metadata.status !== "ARCHIVED";
+      return !isDemoAcademyUser(employee) && (includeArchived || metadata.status !== "ARCHIVED");
     });
   },
 
@@ -1681,6 +1766,144 @@ export const academyService = {
     const item = sanitizeCalendarRow(rows[0]);
     await auditAcademicAction(user, "ACADEMIC_CALENDAR_CREATED", "AcademicCalendarItem", id, item);
     return item;
+  },
+
+  async generateAcademicCalendarPlan(user: Requester, input: AcademicCalendarPlannerInput) {
+    requireAcademicManagement(user);
+    if (!input.batchId || !input.startDate || !input.endDate) {
+      throw Object.assign(new Error("Batch, start date and end date are required"), { statusCode: 400 });
+    }
+    if (!Array.isArray(input.sessions) || !input.sessions.length) {
+      throw Object.assign(new Error("At least one weekly session is required"), { statusCode: 400 });
+    }
+
+    const startDate = parsePlannerDate(input.startDate, "Start date");
+    const endDate = parsePlannerDate(input.endDate, "End date");
+    if (endDate < startDate) {
+      throw Object.assign(new Error("End date must be after start date"), { statusCode: 400 });
+    }
+
+    const batch = await db.batch.findUnique({
+      where: { id: input.batchId },
+      include: { course: true },
+    });
+    if (!batch) {
+      throw Object.assign(new Error("Batch not found"), { statusCode: 404 });
+    }
+    await assertBatchAccess(user, batch.id);
+
+    const normalizedSessions: NormalizedPlannerSession[] = input.sessions
+      .map(normalizePlannerSession)
+      .filter((session): session is NormalizedPlannerSession => Boolean(session));
+
+    if (!normalizedSessions.length) {
+      throw Object.assign(new Error("No valid sessions found. Add day, subject, topic and start time."), { statusCode: 400 });
+    }
+
+    const teacherIds = Array.from(new Set(normalizedSessions.map((session) => session.teacherId).filter(Boolean))) as string[];
+    const teachers = teacherIds.length
+      ? await prisma.user.findMany({
+          where: { id: { in: teacherIds } },
+          select: { id: true, name: true, email: true, mobile: true, roleMetadata: true },
+        })
+      : [];
+    const teacherMap = new Map(teachers.filter((teacher) => !isDemoAcademyUser(teacher)).map((teacher) => [teacher.id, teacher]));
+    const created = [];
+    const skipped = [];
+    const conflicts = [];
+
+    for (const session of normalizedSessions) {
+      if (session.teacherId && !teacherMap.has(session.teacherId)) {
+        conflicts.push({
+          reason: "Teacher not found",
+          subject: session.subject,
+          teacherId: session.teacherId,
+        });
+        continue;
+      }
+
+      if (session.teacherId) {
+        await this.assignTeacher(user, batch.id, {
+          teacherId: session.teacherId,
+          subject: session.subject,
+          role: session.classType === "Physical Training" ? "Physical Trainer" : "Subject Teacher",
+        });
+      }
+
+      for (const plannedDate of datesForDayOfWeek(startDate, endDate, session.dayOfWeek)) {
+        const existingRows = await prisma.$queryRaw<AcademicCalendarRow[]>`
+          SELECT * FROM "AcademicCalendarItem"
+          WHERE "batchId" = ${batch.id}
+          AND "plannedDate" = ${plannedDate}
+          AND "startTime" = ${session.startTime}
+          AND LOWER("subject") = LOWER(${session.subject})
+          LIMIT 1
+        `;
+        if (existingRows[0]) {
+          skipped.push({
+            date: plannedDate.toISOString(),
+            subject: session.subject,
+            startTime: session.startTime,
+            reason: "Already exists for this batch, subject and time",
+          });
+          continue;
+        }
+
+        if (session.teacherId) {
+          const teacherConflict = await prisma.$queryRaw<AcademicCalendarRow[]>`
+            SELECT * FROM "AcademicCalendarItem"
+            WHERE "teacherId" = ${session.teacherId}
+            AND "plannedDate" = ${plannedDate}
+            AND "startTime" = ${session.startTime}
+            LIMIT 1
+          `;
+          if (teacherConflict[0]) {
+            conflicts.push({
+              date: plannedDate.toISOString(),
+              subject: session.subject,
+              startTime: session.startTime,
+              teacherId: session.teacherId,
+              reason: "Teacher already has a class at this time",
+            });
+            continue;
+          }
+        }
+
+        const id = randomUUID();
+        const now = new Date();
+        const teacher = session.teacherId ? teacherMap.get(session.teacherId) : null;
+        await prisma.$executeRaw`
+          INSERT INTO "AcademicCalendarItem"
+          ("id", "batchId", "batchName", "programSlug", "subject", "topic", "classType", "plannedDate", "startTime", "endTime", "teacherId", "teacherName", "status", "completionStatus", "teacherLog", "nextAction", "createdAt", "updatedAt")
+          VALUES
+          (${id}, ${batch.id}, ${batch.name}, ${batch.programSlug || batch.course?.slug || null}, ${session.subject}, ${session.topic}, ${session.classType || "LECTURE"}, ${plannedDate}, ${session.startTime}, ${session.endTime || null}, ${session.teacherId || null}, ${teacher?.name || teacher?.email || null}, 'SCHEDULED', 'PENDING', null, null, ${now}, ${now})
+        `;
+        created.push({
+          id,
+          date: plannedDate.toISOString(),
+          batchId: batch.id,
+          batchName: batch.name,
+          subject: session.subject,
+          topic: session.topic,
+          startTime: session.startTime,
+          endTime: session.endTime || null,
+          teacherId: session.teacherId || null,
+          teacherName: teacher?.name || teacher?.email || null,
+        });
+      }
+    }
+
+    const result = {
+      batch: { id: batch.id, name: batch.name },
+      createdCount: created.length,
+      skippedCount: skipped.length,
+      conflictCount: conflicts.length,
+      created,
+      skipped,
+      conflicts,
+    };
+    await auditAcademicAction(user, "ACADEMIC_CALENDAR_PLAN_GENERATED", "AcademicCalendarItem", batch.id, result);
+    return result;
   },
 
   async updateAcademicCalendarItem(user: Requester, id: string, input: AcademicCalendarInput) {
@@ -2633,7 +2856,7 @@ export const academyService = {
       prisma.$queryRaw<any[]>`SELECT * FROM "TeacherSyllabusProgressRecord"`,
     ]);
 
-    const cards = teacherIds.map((teacherId) => {
+    const cards = teacherIds.filter((teacherId) => teacherMap.has(teacherId)).map((teacherId) => {
       const teacherAssignments = assignments.filter((assignment) => assignment.teacherId === teacherId);
       const teacherProgress = progressRows.filter((item) => item.teacherId === teacherId);
       const completedProgress = teacherProgress.filter((item) => String(item.completionStatus).toUpperCase() === "COMPLETED").length;

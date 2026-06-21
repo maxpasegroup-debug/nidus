@@ -58,6 +58,24 @@ export type AcademyTeacher = {
   roleMetadata?: Record<string, unknown> | null;
 };
 
+function isDemoAcademyPerson(person?: { name?: string | null; email?: string | null; mobile?: string | null; roleMetadata?: Record<string, unknown> | null } | null) {
+  if (!person) return false;
+  const value = [person.name, person.email, person.mobile, JSON.stringify(person.roleMetadata ?? {})].join(" ").toLowerCase();
+  return value.includes("maj. vikram") || value.includes("maj vikram") || value.includes("faculty.ssb@nidusacademy") || value.includes("ssb mentor");
+}
+
+function withoutDemoTeachers(batch: AcademyBatch): AcademyBatch {
+  const teachers = (batch.teachers ?? []).filter((entry) => !isDemoAcademyPerson(entry.teacher));
+  return {
+    ...batch,
+    teachers,
+    _count: {
+      ...(batch._count ?? {}),
+      teachers: teachers.length,
+    },
+  };
+}
+
 export type AcademyTeacherPayload = {
   name: string;
   email: string;
@@ -91,6 +109,26 @@ export type AcademicCalendarItem = {
   nextAction?: string | null;
   createdAt: string;
   updatedAt: string;
+};
+
+export type AcademicCalendarPlannerSession = {
+  dayOfWeek: number;
+  subject: string;
+  topic: string;
+  classType?: string;
+  startTime: string;
+  endTime?: string;
+  teacherId?: string;
+};
+
+export type AcademicCalendarPlannerResult = {
+  batch: { id: string; name: string };
+  createdCount: number;
+  skippedCount: number;
+  conflictCount: number;
+  created: Array<Record<string, unknown>>;
+  skipped: Array<Record<string, unknown>>;
+  conflicts: Array<Record<string, unknown>>;
 };
 
 export type AttendanceSummary = {
@@ -346,12 +384,14 @@ export type BatchFilters = {
 
 export async function getAcademyBatches(filters: BatchFilters = {}) {
   const response = await apiClient.get<{ batches: AcademyBatch[] } | AcademyBatch[]>("/academy/batches", { params: filters });
-  return Array.isArray(response.data) ? response.data : response.data.batches;
+  const batches = Array.isArray(response.data) ? response.data : response.data.batches;
+  return batches.map(withoutDemoTeachers);
 }
 
 export async function getAcademyTeachers() {
   const response = await apiClient.get<{ teachers: AcademyTeacher[] } | AcademyTeacher[]>("/academy/teachers");
-  return Array.isArray(response.data) ? response.data : response.data.teachers;
+  const teachers = Array.isArray(response.data) ? response.data : response.data.teachers;
+  return teachers.filter((teacher) => !isDemoAcademyPerson(teacher));
 }
 
 export async function createAcademyTeacher(payload: AcademyTeacherPayload) {
@@ -497,6 +537,22 @@ export async function createAcademicCalendarItem(payload: {
 export async function updateAcademicCalendarItem(id: string, payload: Partial<Pick<AcademicCalendarItem, "status" | "completionStatus" | "teacherLog" | "nextAction" | "classType">>) {
   const response = await apiClient.patch<{ item: AcademicCalendarItem }>(`/academy/academic-calendar/${id}`, payload);
   return response.data.item;
+}
+
+export async function updateAcademicCalendarSchedule(id: string, payload: Partial<Pick<AcademicCalendarItem, "subject" | "topic" | "classType" | "plannedDate" | "startTime" | "endTime" | "teacherId" | "teacherName" | "status" | "completionStatus" | "teacherLog" | "nextAction">>) {
+  const response = await apiClient.patch<{ item: AcademicCalendarItem }>(`/academy/academic-calendar/${id}`, payload);
+  return response.data.item;
+}
+
+export async function generateAcademicCalendarPlan(payload: {
+  batchId: string;
+  startDate: string;
+  endDate: string;
+  academicYear?: string;
+  sessions: AcademicCalendarPlannerSession[];
+}) {
+  const response = await apiClient.post<AcademicCalendarPlannerResult>("/academy/academic-calendar/generate", payload);
+  return response.data;
 }
 
 export async function getDirectorExpenses() {

@@ -1,10 +1,12 @@
 import { prisma } from "../config/prisma.js";
+import { Prisma } from "../generated/prisma/client.js";
 import { TEST_ACCOUNT_EMAIL } from "../modules/auth/auth.v2.service.js";
 
 const confirmToken = "NIDUS_PRODUCTION_CLEANUP";
 const shouldDelete = process.env.CONFIRM_CLEANUP === confirmToken;
 const targetEmail = process.env.CLEANUP_USER_EMAIL || TEST_ACCOUNT_EMAIL;
 const cleanupDemoContent = process.env.CLEANUP_DEMO_CONTENT === "true";
+const cleanupDemoFaculty = process.env.CLEANUP_DEMO_FACULTY === "true";
 
 type CountMap = Record<string, number>;
 
@@ -108,17 +110,86 @@ async function cleanupDemoContentRecords() {
   return { planned, deleted };
 }
 
+async function cleanupDemoFacultyAccounts() {
+  const planned: CountMap = {};
+  const deleted: CountMap = {};
+  const demoUsers = await countRows(
+    "demoFacultyUsers",
+    prisma.user.findMany({
+      where: {
+        OR: [
+          { name: { contains: "Maj. Vikram", mode: "insensitive" } },
+          { name: { contains: "Maj Vikram", mode: "insensitive" } },
+          { email: { contains: "faculty.ssb@nidusacademy", mode: "insensitive" } },
+          { mobile: { contains: "9000000003" } },
+        ],
+      },
+      select: { id: true, email: true },
+    }),
+    planned,
+  );
+  const demoUserIds = demoUsers.map((user) => user.id);
+  if (!demoUserIds.length) return { planned, deleted };
+
+  await countRows("demoTeacherBatchAssignments", prisma.teacherBatchAssignment.findMany({ where: { teacherId: { in: demoUserIds } }, select: { id: true } }), planned);
+  await countRows("demoTests", prisma.test.findMany({ where: { teacherId: { in: demoUserIds } }, select: { id: true } }), planned);
+
+  const rawCounts = await prisma.$queryRaw<Array<{ tableName: string; count: bigint }>>`
+    SELECT 'BatchTeacherAssignment' AS "tableName", COUNT(*) AS "count" FROM "BatchTeacherAssignment" WHERE "teacherId" IN (${Prisma.join(demoUserIds)})
+    UNION ALL SELECT 'AcademicCalendarItem', COUNT(*) FROM "AcademicCalendarItem" WHERE "teacherId" IN (${Prisma.join(demoUserIds)}) OR LOWER(COALESCE("teacherName", '')) LIKE '%vikram%'
+    UNION ALL SELECT 'TeacherCalendarLogRecord', COUNT(*) FROM "TeacherCalendarLogRecord" WHERE "teacherId" IN (${Prisma.join(demoUserIds)}) OR LOWER(COALESCE("teacherName", '')) LIKE '%vikram%'
+    UNION ALL SELECT 'TeacherAttendanceRecord', COUNT(*) FROM "TeacherAttendanceRecord" WHERE "teacherId" IN (${Prisma.join(demoUserIds)}) OR LOWER(COALESCE("teacherName", '')) LIKE '%vikram%'
+    UNION ALL SELECT 'TeacherAssignmentRecord', COUNT(*) FROM "TeacherAssignmentRecord" WHERE "teacherId" IN (${Prisma.join(demoUserIds)}) OR LOWER(COALESCE("teacherName", '')) LIKE '%vikram%'
+    UNION ALL SELECT 'TeacherExamRecord', COUNT(*) FROM "TeacherExamRecord" WHERE "teacherId" IN (${Prisma.join(demoUserIds)}) OR LOWER(COALESCE("teacherName", '')) LIKE '%vikram%'
+    UNION ALL SELECT 'TeacherStudyMaterialRecord', COUNT(*) FROM "TeacherStudyMaterialRecord" WHERE "teacherId" IN (${Prisma.join(demoUserIds)}) OR LOWER(COALESCE("teacherName", '')) LIKE '%vikram%'
+    UNION ALL SELECT 'TeacherSyllabusProgressRecord', COUNT(*) FROM "TeacherSyllabusProgressRecord" WHERE "teacherId" IN (${Prisma.join(demoUserIds)}) OR LOWER(COALESCE("teacherName", '')) LIKE '%vikram%'
+  `;
+  for (const row of rawCounts) {
+    planned[`demo${row.tableName}`] = Number(row.count);
+  }
+
+  if (!shouldDelete || !cleanupDemoFaculty) return { planned, deleted };
+
+  await runDelete("demoTeacherBatchAssignments", prisma.teacherBatchAssignment.deleteMany({ where: { teacherId: { in: demoUserIds } } }), deleted);
+  await runDelete("demoTests", prisma.test.deleteMany({ where: { teacherId: { in: demoUserIds } } }), deleted);
+  await prisma.$executeRaw`DELETE FROM "BatchTeacherAssignment" WHERE "teacherId" IN (${Prisma.join(demoUserIds)})`;
+  await prisma.$executeRaw`DELETE FROM "AcademicCalendarItem" WHERE "teacherId" IN (${Prisma.join(demoUserIds)}) OR LOWER(COALESCE("teacherName", '')) LIKE '%vikram%'`;
+  await prisma.$executeRaw`DELETE FROM "TeacherCalendarLogRecord" WHERE "teacherId" IN (${Prisma.join(demoUserIds)}) OR LOWER(COALESCE("teacherName", '')) LIKE '%vikram%'`;
+  await prisma.$executeRaw`DELETE FROM "TeacherAttendanceRecord" WHERE "teacherId" IN (${Prisma.join(demoUserIds)}) OR LOWER(COALESCE("teacherName", '')) LIKE '%vikram%'`;
+  await prisma.$executeRaw`DELETE FROM "TeacherAssignmentRecord" WHERE "teacherId" IN (${Prisma.join(demoUserIds)}) OR LOWER(COALESCE("teacherName", '')) LIKE '%vikram%'`;
+  await prisma.$executeRaw`DELETE FROM "TeacherExamRecord" WHERE "teacherId" IN (${Prisma.join(demoUserIds)}) OR LOWER(COALESCE("teacherName", '')) LIKE '%vikram%'`;
+  await prisma.$executeRaw`DELETE FROM "TeacherStudyMaterialRecord" WHERE "teacherId" IN (${Prisma.join(demoUserIds)}) OR LOWER(COALESCE("teacherName", '')) LIKE '%vikram%'`;
+  await prisma.$executeRaw`DELETE FROM "TeacherSyllabusProgressRecord" WHERE "teacherId" IN (${Prisma.join(demoUserIds)}) OR LOWER(COALESCE("teacherName", '')) LIKE '%vikram%'`;
+  const archived = await prisma.user.updateMany({
+    where: { id: { in: demoUserIds } },
+    data: {
+      isDisabled: true,
+      disabledAt: new Date(),
+      roleOnboardingStatus: "ARCHIVED",
+      roleMetadata: {
+        status: "ARCHIVED",
+        archivedReason: "Removed demo SSB faculty account before production launch",
+      },
+    },
+  });
+  deleted.demoFacultyUsersArchived = archived.count;
+  return { planned, deleted };
+}
+
 const user = await prisma.user.findUnique({ where: { email: targetEmail }, select: { id: true, email: true, role: true } });
 const userCleanup = user ? await cleanupUserActivity(user.id) : null;
 const demoContentCleanup = await cleanupDemoContentRecords();
+const demoFacultyCleanup = await cleanupDemoFacultyAccounts();
 
 console.log(JSON.stringify({
   dryRun: !shouldDelete,
   confirmRequired: confirmToken,
   targetUser: user,
   cleanupDemoContent,
+  cleanupDemoFaculty,
   userCleanup,
-  demoContentCleanup
+  demoContentCleanup,
+  demoFacultyCleanup
 }, null, 2));
 
 await prisma.$disconnect();

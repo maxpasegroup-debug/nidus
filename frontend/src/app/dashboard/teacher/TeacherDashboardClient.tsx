@@ -568,6 +568,24 @@ function dateKey(value?: string | Date | null) {
   return `${year}-${month}-${day}`;
 }
 
+function isFutureOrToday(value?: string | null) {
+  if (!value) return false;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return false;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return date >= today;
+}
+
+function nextCalendarForBatch(calendar: CalendarItem[], batchId: string) {
+  return calendar
+    .filter((item) => item.batchId === batchId && isFutureOrToday(item.plannedDate))
+    .sort((a, b) => {
+      const dayCompare = dateKey(a.plannedDate).localeCompare(dateKey(b.plannedDate));
+      return dayCompare || String(a.startTime || "").localeCompare(String(b.startTime || ""));
+    })[0];
+}
+
 function taskKindLabel(kind: CalendarDayTask["kind"]) {
   if (kind === "LIVE_CLASS") return "Live Class";
   if (kind === "ASSIGNMENT") return "Assignment";
@@ -2434,8 +2452,8 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
                     href={`${dashboardBasePath}/classes/${programKey(batch)}/${batch.id}`}
                     attendanceHref={`${dashboardBasePath}/attendance`}
                     scheduleHref={`${dashboardBasePath}/academic-calendar`}
-                    upcomingClass={(liveClassesByBatch.get(batch.id) ?? [])[0]}
-                    calendarItem={calendar.find((item) => item.batchId === batch.id)}
+                    upcomingClass={(liveClassesByBatch.get(batch.id) ?? []).find((item) => isFutureOrToday(item.scheduledAt))}
+                    calendarItem={nextCalendarForBatch(calendar, batch.id)}
                     onStartLive={() => openLiveClassCreator(batch)}
                     onRemember={() => chooseBatch(batch.id)}
                   />
@@ -3395,8 +3413,8 @@ function AcademicOperationsCommandCenter({
           {batches.map((batch) => {
             const subjects = subjectsForBatch(batch);
             const students = batch.students?.length ?? batch._count?.students ?? 0;
-            const upcomingClass = (liveClassesByBatch.get(batch.id) ?? [])[0];
-            const calendarItem = calendar.find((item) => item.batchId === batch.id);
+            const upcomingClass = (liveClassesByBatch.get(batch.id) ?? []).find((item) => isFutureOrToday(item.scheduledAt));
+            const calendarItem = nextCalendarForBatch(calendar, batch.id);
             const selected = selectedBatch?.id === batch.id;
             const completion = selected ? selectedAverage : 0;
             return (

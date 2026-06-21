@@ -97,6 +97,13 @@ export const academyController = {
       next(error);
     }
   },
+  generateAcademicCalendarPlan: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      res.status(201).json(await academyService.generateAcademicCalendarPlan(requester(req), req.body));
+    } catch (error) {
+      next(error);
+    }
+  },
   updateAcademicCalendarItem: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     try {
       res.json(await academyService.updateAcademicCalendarItem(requester(req), param(req, "id"), req.body));

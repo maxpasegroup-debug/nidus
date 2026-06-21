@@ -65,6 +65,7 @@ router.get("/academic-audit", requireAcademyRoles(managementRoles), academyContr
 router.get("/director-expenses", requireAcademyRoles(managementRoles), academyController.directorExpenses);
 
 router.post("/academic-calendar", requireAcademyRoles(academicRoles), academyController.createAcademicCalendarItem);
+router.post("/academic-calendar/generate", requireAcademyRoles(academicManagementRoles), academyController.generateAcademicCalendarPlan);
 router.patch("/academic-calendar/:id", requireAcademyRoles(academicRoles), academyController.updateAcademicCalendarItem);
 router.post("/attendance", requireAcademyRoles(academicRoles), academyController.saveAttendance);
 router.patch("/attendance/:id", requireAcademyRoles(academicRoles), academyController.updateAttendance);

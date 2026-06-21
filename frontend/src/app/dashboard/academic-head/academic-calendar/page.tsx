@@ -1,5 +1,5 @@
-import TeacherDashboardClient from "../../teacher/TeacherDashboardClient";
+import { AcademicTimetablePlanner } from "@/components/academy/academic-timetable-planner";
 
 export default function AcademicHeadAcademicCalendarPage() {
-  return <TeacherDashboardClient view="academic-calendar" />;
+  return <AcademicTimetablePlanner audience="academic-head" />;
 }
