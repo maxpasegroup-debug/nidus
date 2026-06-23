@@ -105,6 +105,15 @@ type AttendanceInput = {
   status?: string;
 };
 
+type StudentAttendanceInput = {
+  batchId?: string;
+  subject?: string;
+  studentId?: string;
+  status?: string;
+  remarks?: string;
+  date?: string;
+};
+
 type LeaveRequestInput = {
   fromDate?: string;
   toDate?: string;
@@ -2044,6 +2053,91 @@ export const academyService = {
     const attendance = normalizeRows(updated)[0];
     await auditAcademicAction(user, "ATTENDANCE_UPDATED", "TeacherAttendanceRecord", attendanceId, attendance);
     return { ok: true, attendance };
+  },
+
+  async markStudentAttendance(user: Requester, input: StudentAttendanceInput) {
+    const batchId = String(input.batchId || "").trim();
+    const subject = String(input.subject || "").trim();
+    const studentId = String(input.studentId || "").trim();
+    const attendanceStatus = String(input.status || "").trim().toUpperCase();
+    if (!batchId || !subject || !studentId) {
+      throw Object.assign(new Error("Batch, subject and student are required"), { statusCode: 400 });
+    }
+    if (!["PRESENT", "ABSENT", "HALF_DAY", "LEAVE"].includes(attendanceStatus)) {
+      throw Object.assign(new Error("Attendance status is invalid"), { statusCode: 400 });
+    }
+    await assertBatchSubjectAccess(user, batchId, subject);
+
+    const enrollment = await db.batchStudent.findFirst({
+      where: { batchId, studentId, status: "ACTIVE" },
+    });
+    if (!enrollment) {
+      throw Object.assign(new Error("Student is not enrolled in this assigned batch"), { statusCode: 403 });
+    }
+    const [batch, student] = await Promise.all([
+      db.batch.findUnique({ where: { id: batchId }, select: { id: true, name: true } }),
+      prisma.user.findUnique({ where: { id: studentId }, select: { id: true, name: true } }),
+    ]);
+    if (!batch || !student) {
+      throw Object.assign(new Error("Batch or student not found"), { statusCode: 404 });
+    }
+
+    const attendanceDate = input.date && !Number.isNaN(Date.parse(input.date)) ? new Date(input.date) : new Date();
+    attendanceDate.setHours(0, 0, 0, 0);
+    const existingRows = await prisma.$queryRaw<any[]>`
+      SELECT * FROM "TeacherAttendanceRecord"
+      WHERE "batchId" = ${batchId}
+      AND "teacherId" = ${user.id}
+      AND LOWER(COALESCE("subject", '')) = LOWER(${subject})
+      AND DATE("date") = DATE(${attendanceDate})
+      ORDER BY "updatedAt" DESC
+      LIMIT 1
+    `;
+    const existing = existingRows[0];
+    const records = Array.isArray(existing?.records) ? [...existing.records] : [];
+    const markedAt = new Date().toISOString();
+    const nextRecord = {
+      studentId,
+      studentName: student.name,
+      status: attendanceStatus,
+      remarks: String(input.remarks || "").trim() || null,
+      markedAt,
+    };
+    const recordIndex = records.findIndex((record: any) => record?.studentId === studentId);
+    if (recordIndex >= 0) records[recordIndex] = { ...records[recordIndex], ...nextRecord };
+    else records.push(nextRecord);
+
+    const now = new Date();
+    const attendanceId = existing?.id || randomUUID();
+    if (existing) {
+      await prisma.$executeRaw`
+        UPDATE "TeacherAttendanceRecord"
+        SET "records" = ${JSON.stringify(records)}::jsonb,
+            "status" = 'SAVED',
+            "updatedAt" = ${now}
+        WHERE "id" = ${attendanceId}
+      `;
+    } else {
+      await prisma.$executeRaw`
+        INSERT INTO "TeacherAttendanceRecord"
+        ("id", "batchId", "batchName", "subject", "teacherId", "teacherName", "date", "records", "status", "createdAt", "updatedAt")
+        VALUES
+        (${attendanceId}, ${batchId}, ${batch.name}, ${subject}, ${user.id}, ${user.name || user.email || null}, ${attendanceDate}, ${JSON.stringify(records)}::jsonb, 'SAVED', ${now}, ${now})
+      `;
+    }
+
+    const savedRows = await prisma.$queryRaw<any[]>`
+      SELECT * FROM "TeacherAttendanceRecord" WHERE "id" = ${attendanceId} LIMIT 1
+    `;
+    const attendance = normalizeRows(savedRows)[0];
+    await auditAcademicAction(user, "STUDENT_ATTENDANCE_MARKED", "TeacherAttendanceRecord", attendanceId, {
+      batchId,
+      subject,
+      studentId,
+      attendanceStatus,
+      markedAt,
+    });
+    return { ok: true, attendance, student: nextRecord };
   },
 
   async attendanceHistory(user: Requester, query: Record<string, unknown>) {

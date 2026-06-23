@@ -4,8 +4,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Children, useEffect, useMemo, useState } from "react";
 import { uploadMediaFile } from "@/services/media";
-import { CompactBatchTile, TeacherModuleHeader, TeacherTileGrid } from "@/components/teacher/teacher-dashboard-primitives";
 import { TeacherTodayView, type TeacherTodayScheduleItem } from "@/components/teacher/teacher-today-view";
+import { TeacherStudentsView, type TeacherRosterBatch } from "@/components/teacher/teacher-students-view";
 import {
   BarChart3,
   Bell,
@@ -842,6 +842,25 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
   const isAcademicHead = isAcademicHeadRoute || user?.role?.toUpperCase() === "ACADEMIC_HEAD" || dashboardTemplate === "ACADEMIC_HEAD";
   const dashboardBasePath = isAcademicHead ? "/dashboard/academic-head" : "/dashboard/teacher";
   const activeClasses = useMemo(() => classes.filter((batch) => isTeacherClassAllocation(batch, isAcademicHead)), [classes, isAcademicHead]);
+  const teacherRosterBatches = useMemo<TeacherRosterBatch[]>(() => activeClasses.map((batch) => {
+    const students = (batch.students ?? []).flatMap((entry) => {
+      const student = entry.student;
+      if (!student?.id) return [];
+      return [{
+        id: student.id,
+        name: student.name || student.email || "Student",
+        email: student.email,
+        mobile: student.mobile,
+      }];
+    });
+    return {
+      id: batch.id,
+      name: batch.name,
+      program: programName(batch),
+      subjects: subjectsForBatch(batch).length ? subjectsForBatch(batch) : [batch.subject || "General"],
+      students,
+    };
+  }), [activeClasses]);
   const activeCourseKey = courseKey ? decodeURIComponent(courseKey) : null;
   const activeBatchId = batchId ? decodeURIComponent(batchId) : null;
   const programGroups = useMemo(() => {
@@ -2429,6 +2448,12 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
     }
   }
 
+  async function markRosterAttendance(input: { batchId: string; subject: string; studentId: string; status: "PRESENT" | "ABSENT" | "HALF_DAY" | "LEAVE"; remarks: string; date: string }) {
+    const response = await apiPatch<{ ok?: boolean }>(["/api/academy/attendance/student"], input);
+    if (!response?.ok) throw new Error("Attendance could not be saved.");
+    if (selectedClass?.id === input.batchId) await loadClassWorkspace(input.batchId);
+  }
+
   const viewTitles: Record<TeacherView, string> = {
     classes: "Today",
     students: "My Students",
@@ -2579,33 +2604,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
       ) : null}
 
       {view === "students" ? (
-        <section className="grid gap-5">
-          <TeacherModuleHeader
-            eyebrow="My Students"
-            title="Assigned batch rosters"
-            description="Only batches and students allocated to this teacher appear here. Open a batch to view its current roster."
-          />
-          {activeClasses.length ? (
-            <TeacherTileGrid>
-              {activeClasses.map((batch) => {
-                const subjects = subjectsForBatch(batch);
-                const students = batch.students?.length ?? batch._count?.students ?? 0;
-                return (
-                  <CompactBatchTile
-                    key={batch.id}
-                    name={batch.name}
-                    program={programName(batch)}
-                    students={students}
-                    subjects={subjects.length}
-                    href={`${dashboardBasePath}/classes/${programKey(batch)}/${batch.id}`}
-                  />
-                );
-              })}
-            </TeacherTileGrid>
-          ) : (
-            <EmptyState text="No assigned batches are available. Only active teacher allocations can appear here." />
-          )}
-        </section>
+        <TeacherStudentsView batches={teacherRosterBatches} loading={loadingPlan} onMarkAttendance={markRosterAttendance} />
       ) : null}
 
       {view === "exams" ? <section className="grid gap-5">

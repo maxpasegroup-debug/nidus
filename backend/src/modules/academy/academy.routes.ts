@@ -68,6 +68,7 @@ router.post("/academic-calendar", requireAcademyRoles(academicRoles), academyCon
 router.post("/academic-calendar/generate", requireAcademyRoles(academicManagementRoles), academyController.generateAcademicCalendarPlan);
 router.patch("/academic-calendar/:id", requireAcademyRoles(academicRoles), academyController.updateAcademicCalendarItem);
 router.post("/attendance", requireAcademyRoles(academicRoles), academyController.saveAttendance);
+router.patch("/attendance/student", requireAcademyRoles(academicRoles), academyController.markStudentAttendance);
 router.patch("/attendance/:id", requireAcademyRoles(academicRoles), academyController.updateAttendance);
 router.post("/leave-requests", requireAcademyRoles([Role.STUDENT]), academyController.createLeaveRequest);
 router.patch("/leave-requests/:id", requireAcademyRoles(academicManagementRoles), academyController.reviewLeaveRequest);

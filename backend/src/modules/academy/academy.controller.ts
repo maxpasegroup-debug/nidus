@@ -118,6 +118,13 @@ export const academyController = {
       next(error);
     }
   },
+  markStudentAttendance: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      res.json(await academyService.markStudentAttendance(requester(req), req.body));
+    } catch (error) {
+      next(error);
+    }
+  },
   updateAttendance: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     try {
       res.json(await academyService.updateAttendance(requester(req), param(req, "id"), req.body));
