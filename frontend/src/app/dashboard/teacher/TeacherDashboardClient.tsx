@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { Children, useEffect, useMemo, useState } from "react";
 import { uploadMediaFile } from "@/services/media";
 import { CompactBatchTile, TeacherModuleHeader, TeacherTileGrid } from "@/components/teacher/teacher-dashboard-primitives";
+import { TeacherTodayView, type TeacherTodayScheduleItem } from "@/components/teacher/teacher-today-view";
 import {
   BarChart3,
   Bell,
@@ -1161,6 +1162,40 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
       });
     return calendarOps.sort((a, b) => a.time.localeCompare(b.time));
   }, [activeClasses, calendar]);
+  const teacherScheduleItems = useMemo<TeacherTodayScheduleItem[]>(() => {
+    const items: TeacherTodayScheduleItem[] = [];
+    for (const item of calendar) {
+      if (!item.plannedDate || !item.batchId) continue;
+      const batch = activeClasses.find((entry) => entry.id === item.batchId);
+      if (!batch) continue;
+      items.push({
+        id: item.id,
+        date: item.plannedDate,
+        startTime: item.startTime,
+        endTime: item.endTime,
+        batchName: item.batchName || batch.name,
+        programName: programName(batch),
+        subject: item.subject || batch.subject || "Assigned activity",
+        topic: item.topic || "Topic to be updated",
+        classType: item.classType || "LECTURE",
+        status: item.status || "SCHEDULED",
+        completionStatus: item.completionStatus || "PENDING",
+        href: `${dashboardBasePath}/classes/${programKey(batch)}/${batch.id}`,
+      });
+    }
+    return items.sort((first, second) => {
+      const dateCompare = dateKey(first.date).localeCompare(dateKey(second.date));
+      return dateCompare || String(first.startTime || "").localeCompare(String(second.startTime || ""));
+    });
+  }, [activeClasses, calendar, dashboardBasePath]);
+  const teacherTodayItems = useMemo(
+    () => teacherScheduleItems.filter((item) => dateKey(item.date) === todayDate()),
+    [teacherScheduleItems],
+  );
+  const teacherUpcomingItems = useMemo(
+    () => teacherScheduleItems.filter((item) => dateKey(item.date) > todayDate() && !["COMPLETED", "CANCELLED"].includes(String(item.status || item.completionStatus).toUpperCase())),
+    [teacherScheduleItems],
+  );
   const academicOperationsStats = useMemo(() => {
     const completed = todayOperations.filter((item) => item.status === "Completed").length;
     const live = todayOperations.filter((item) => item.status === "Live").length;
@@ -2441,28 +2476,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
               onStartLive={openLiveClassCreator}
             />
           ) : (
-            <>
-              <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
-                <SectionHeader eyebrow="Classes" title="Teaching workspace" description="Only assigned batches appear here. Use each card to take attendance, start live classes, view students or check the schedule." icon={<GraduationCap size={20} />} />
-              </div>
-              {liveClassMessage ? <Notice text={liveClassMessage} /> : null}
-              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                {activeClasses.map((batch) => (
-                  <TeachingWorkspaceCard
-                    key={batch.id}
-                    batch={batch}
-                    href={`${dashboardBasePath}/classes/${programKey(batch)}/${batch.id}`}
-                    attendanceHref={`${dashboardBasePath}/attendance`}
-                    scheduleHref={`${dashboardBasePath}/academic-calendar`}
-                    upcomingClass={(liveClassesByBatch.get(batch.id) ?? []).find((item) => isFutureOrToday(item.scheduledAt))}
-                    calendarItem={nextCalendarForBatch(calendar, batch.id)}
-                    onStartLive={() => openLiveClassCreator(batch)}
-                    onRemember={() => chooseBatch(batch.id)}
-                  />
-                ))}
-                {!activeClasses.length ? <ClassesEmptyState /> : null}
-              </div>
-            </>
+            <TeacherTodayView today={teacherTodayItems} upcoming={teacherUpcomingItems} loading={loadingPlan} />
           )}
           </>
         ) : activeCourseKey && !activeBatchId ? (
@@ -3625,67 +3639,6 @@ function ClassesEmptyState() {
       </p>
       <p className="mt-2 text-sm font-black text-[var(--gold-dark)]">Please contact administration if you believe this is incorrect.</p>
     </div>
-  );
-}
-
-function TeachingWorkspaceCard({
-  batch,
-  href,
-  attendanceHref,
-  scheduleHref,
-  upcomingClass,
-  calendarItem,
-  onStartLive,
-  onRemember,
-}: {
-  batch: AssignedClass;
-  href: string;
-  attendanceHref: string;
-  scheduleHref: string;
-  upcomingClass?: LiveClassRecord;
-  calendarItem?: CalendarItem;
-  onStartLive: () => void;
-  onRemember: () => void;
-}) {
-  const subjects = Array.from(new Set([batch.subject, ...(batch.teachers?.map((teacher) => teacher.subject) ?? [])].filter(Boolean))) as string[];
-  const mode = batch.batchType || (batch.name.toUpperCase().includes("ONLINE") ? "ONLINE" : "OFFLINE");
-  const studentCount = batch.students?.length ?? batch._count?.students ?? 0;
-  const upcoming = upcomingClass
-    ? `${upcomingClass.subject || "Class"} / ${new Date(upcomingClass.scheduledAt).toLocaleString()}`
-    : calendarItem
-      ? `${calendarItem.subject || "Class"} / ${calendarItem.plannedDate ? new Date(calendarItem.plannedDate).toLocaleDateString() : "planned"}`
-      : "No upcoming class";
-  const status = upcomingClass?.status || calendarItem?.status || "Planning pending";
-
-  return (
-    <article className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold-dark)]">{programName(batch)}</p>
-          <h3 className="mt-3 text-2xl font-black">{batch.name}</h3>
-        </div>
-        <span className="rounded-full border border-[var(--border)] bg-[var(--page-bg)] px-3 py-1 text-xs font-black">{mode}</span>
-      </div>
-      <div className="mt-4 grid grid-cols-2 gap-3">
-        <MetricPill label="Students" value={studentCount} />
-        <MetricPill label="Subjects" value={subjects.length || "Pending"} />
-      </div>
-      <div className="mt-4 rounded-xl border border-[var(--border)] bg-[var(--page-bg)] p-3 text-sm">
-        <p className="font-black">Assigned Subjects</p>
-        <p className="mt-1 text-[var(--muted-blue)]">{subjects.join(", ") || batch.subject || "Subject allocation pending"}</p>
-      </div>
-      <div className="mt-3 rounded-xl border border-[var(--border)] bg-[var(--page-bg)] p-3 text-sm">
-        <p className="font-black">Upcoming Class</p>
-        <p className="mt-1 text-[var(--muted-blue)]">{upcoming}</p>
-        <span className="mt-2 inline-flex rounded-full bg-white px-3 py-1 text-xs font-black">{status}</span>
-      </div>
-      <div className="mt-4 grid grid-cols-2 gap-2">
-        <Link onClick={onRemember} href={attendanceHref} className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-3 py-3 text-center text-xs font-black">Take Attendance</Link>
-        <button type="button" onClick={onStartLive} className="rounded-xl bg-[var(--ink)] px-3 py-3 text-xs font-black text-white">Start Live Class</button>
-        <Link onClick={onRemember} href={href} className="rounded-xl border border-[var(--border)] bg-white px-3 py-3 text-center text-xs font-black">View Students</Link>
-        <Link onClick={onRemember} href={scheduleHref} className="rounded-xl border border-[var(--border)] bg-white px-3 py-3 text-center text-xs font-black">View Schedule</Link>
-      </div>
-    </article>
   );
 }
 
