@@ -6,6 +6,7 @@ import { Children, useEffect, useMemo, useState } from "react";
 import { uploadMediaFile } from "@/services/media";
 import { TeacherTodayView, type TeacherTodayScheduleItem } from "@/components/teacher/teacher-today-view";
 import { TeacherStudentsView, type TeacherRosterBatch } from "@/components/teacher/teacher-students-view";
+import { TeacherSimpleCalendar } from "@/components/teacher/teacher-simple-calendar";
 import {
   BarChart3,
   Bell,
@@ -185,6 +186,7 @@ type LeaveRequestRecord = {
 
 type AssignmentRecord = {
   id: string;
+  batchId?: string | null;
   batchName?: string | null;
   course?: string | null;
   subject?: string | null;
@@ -740,6 +742,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
   const [classes, setClasses] = useState<AssignedClass[]>([]);
   const [calendar, setCalendar] = useState<CalendarItem[]>([]);
   const [liveClasses, setLiveClasses] = useState<LiveClassRecord[]>([]);
+  const [calendarAssignments, setCalendarAssignments] = useState<AssignmentRecord[]>([]);
   const [selectedProgramKey, setSelectedProgramKey] = useState<string | null>(null);
   const [selectedClassId, setSelectedClassId] = useState<string | null>(null);
   const [studentModalId, setStudentModalId] = useState<string | null>(null);
@@ -1009,36 +1012,27 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
         sourceId: item.id,
       });
     }
-    for (const item of selectedBatchLiveClasses) {
+    for (const item of liveClasses.filter((entry) => entry.batchId && activeClasses.some((batch) => batch.id === entry.batchId))) {
+      const batch = activeClasses.find((entry) => entry.id === item.batchId);
       tasks.push({
         id: `live-${item.id}`,
         kind: "LIVE_CLASS",
         title: item.title || item.topic || "Live class",
-        subtitle: [item.subject, item.topic, item.instructorName].filter(Boolean).join(" / "),
+        subtitle: [item.subject, item.topic, batch?.name, item.instructorName].filter(Boolean).join(" / "),
         date: item.scheduledAt,
         time: displayTime(item.scheduledAt),
         status: classStatus(item),
         sourceId: item.id,
       });
     }
-    for (const item of classWorkspace.assignments) {
+    for (const item of calendarAssignments) {
+      const batch = activeClasses.find((entry) => entry.id === item.batchId);
       tasks.push({
         id: `assignment-${item.id}`,
         kind: "ASSIGNMENT",
         title: item.title || "Assignment due",
-        subtitle: [item.topic, item.instructions ? "Homework" : null].filter(Boolean).join(" / "),
-        date: item.dueDate || item.createdAt,
-        status: item.status || "PUBLISHED",
-        sourceId: item.id,
-      });
-    }
-    for (const item of classWorkspace.exams) {
-      tasks.push({
-        id: `exam-${item.id}`,
-        kind: "EXAM",
-        title: item.title || "Scheduled exam",
-        subtitle: [item.topic, item.questionCount ? `${item.questionCount} questions` : null, item.durationMinutes ? `${item.durationMinutes} min` : null].filter(Boolean).join(" / "),
-        date: item.createdAt,
+        subtitle: [item.subject, item.topic, item.batchName || batch?.name, item.instructions ? "Homework" : null].filter(Boolean).join(" / "),
+        date: item.dueDate,
         status: item.status || "PUBLISHED",
         sourceId: item.id,
       });
@@ -1048,7 +1042,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
       if (dateDiff) return dateDiff;
       return String(a.time || "").localeCompare(String(b.time || ""));
     });
-  }, [calendarScopeItems, classWorkspace.assignments, classWorkspace.exams, selectedBatchLiveClasses, selectedClass?.name]);
+  }, [activeClasses, calendarAssignments, calendarScopeItems, liveClasses]);
   const selectedDayTaskMap = useMemo(() => {
     const map = new Map<string, CalendarDayTask[]>();
     for (const task of selectedDayTasks) {
@@ -1340,6 +1334,11 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
     setCalendar((data ?? []).filter((item) => !isTemporaryActivationCalendarItem(item)));
   }
 
+  async function loadTeacherCalendarActivities() {
+    const assignmentData = await apiGet<{ assignments?: AssignmentRecord[] }>(["/api/academy/assignments"]);
+    setCalendarAssignments((assignmentData?.assignments ?? []).filter((item) => Boolean(item.dueDate) && item.status !== "ARCHIVED"));
+  }
+
   async function loadClassWorkspace(batchId: string) {
     setWorkspaceLoading(true);
     try {
@@ -1410,6 +1409,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
   useEffect(() => {
     if (view === "academic-calendar") {
       void loadCalendarAnalytics();
+      void loadTeacherCalendarActivities().catch(() => setCalendarAssignments([]));
       void loadCalendarMonth(calendarMonth).catch((error) => {
         setCalendarMessage(error instanceof Error ? error.message : "Could not load the academic calendar.");
       });
@@ -3237,41 +3237,54 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
       </section> : null}
 
       {view === "academic-calendar" ? <section>
-        <AcademicCalendarOperationsCenter
-          isAcademicHead={isAcademicHead}
-          dashboardBasePath={dashboardBasePath}
-          tab={calendarTab}
-          onTab={setCalendarTab}
-          batches={activeClasses}
-          batchFilter={calendarBatchFilter}
-          onBatchFilter={setCalendarBatchFilter}
-          search={calendarSearch}
-          onSearch={setCalendarSearch}
-          statusFilter={calendarStatusFilter}
-          onStatusFilter={setCalendarStatusFilter}
-          todayItems={todayCalendarItems}
-          weekDays={weekDays}
-          weekItems={weekCalendarItems}
-          weekTimeSlots={weekTimeSlots}
-          week={calendarWeek}
-          onWeek={setCalendarWeek}
-          month={calendarMonth}
-          onMonth={setCalendarMonth}
-          monthDays={calendarDays}
-          dayTaskMap={selectedDayTaskMap}
-          calendarItems={calendarScopeItems}
-          completedItems={completedCalendarItems}
-          summary={calendarSummary}
-          facultyProgress={facultyProgress}
-          batchProgress={batchProgress}
-          batchCalendarProgress={batchCalendarProgress}
-          monitor={calendarMonitor}
-          loading={loadingPlan || calendarAnalyticsLoading}
-          onOpenClass={openCalendarClass}
-          onOpenDay={setSelectedTaskDate}
-        />
+        {isAcademicHead ? (
+          <AcademicCalendarOperationsCenter
+            isAcademicHead={isAcademicHead}
+            dashboardBasePath={dashboardBasePath}
+            tab={calendarTab}
+            onTab={setCalendarTab}
+            batches={activeClasses}
+            batchFilter={calendarBatchFilter}
+            onBatchFilter={setCalendarBatchFilter}
+            search={calendarSearch}
+            onSearch={setCalendarSearch}
+            statusFilter={calendarStatusFilter}
+            onStatusFilter={setCalendarStatusFilter}
+            todayItems={todayCalendarItems}
+            weekDays={weekDays}
+            weekItems={weekCalendarItems}
+            weekTimeSlots={weekTimeSlots}
+            week={calendarWeek}
+            onWeek={setCalendarWeek}
+            month={calendarMonth}
+            onMonth={setCalendarMonth}
+            monthDays={calendarDays}
+            dayTaskMap={selectedDayTaskMap}
+            calendarItems={calendarScopeItems}
+            completedItems={completedCalendarItems}
+            summary={calendarSummary}
+            facultyProgress={facultyProgress}
+            batchProgress={batchProgress}
+            batchCalendarProgress={batchCalendarProgress}
+            monitor={calendarMonitor}
+            loading={loadingPlan || calendarAnalyticsLoading}
+            onOpenClass={openCalendarClass}
+            onOpenDay={setSelectedTaskDate}
+          />
+        ) : (
+          <TeacherSimpleCalendar
+            month={calendarMonth}
+            onMonth={setCalendarMonth}
+            tasks={selectedDayTaskMap}
+            loading={loadingPlan}
+            onOpenClass={(calendarId) => {
+              const item = calendarScopeItems.find((entry) => entry.id === calendarId);
+              if (item) openCalendarClass(item);
+            }}
+          />
+        )}
         {calendarMessage ? <Notice text={calendarMessage} /> : null}
-        {selectedTaskDate ? (
+        {isAcademicHead && selectedTaskDate ? (
           <CalendarDayTasksModal
             date={selectedTaskDate}
             batchName={calendarBatchFilter === "ALL" ? "All assigned batches" : activeClasses.find((batch) => batch.id === calendarBatchFilter)?.name}
