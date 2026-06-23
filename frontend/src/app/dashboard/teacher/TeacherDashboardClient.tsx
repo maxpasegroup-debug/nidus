@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Children, useEffect, useMemo, useState } from "react";
 import { uploadMediaFile } from "@/services/media";
+import { CompactBatchTile, TeacherModuleHeader, TeacherTileGrid } from "@/components/teacher/teacher-dashboard-primitives";
 import {
   BarChart3,
   Bell,
@@ -338,7 +339,7 @@ type LiveClassForm = {
   meetingLink: string;
 };
 
-export type TeacherView = "classes" | "exams" | "assignments" | "attendance" | "library" | "academic-calendar";
+export type TeacherView = "classes" | "students" | "exams" | "assignments" | "attendance" | "library" | "academic-calendar";
 
 function resolveApiBase() {
   const configured = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_API_BASE_URL || "";
@@ -2394,7 +2395,8 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
   }
 
   const viewTitles: Record<TeacherView, string> = {
-    classes: "Classes",
+    classes: "Today",
+    students: "My Students",
     exams: "Exams",
     assignments: "Assignments",
     attendance: "Attendance",
@@ -2560,6 +2562,36 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
           onPublish={() => void publishLiveClass()}
           message={liveClassMessage}
         />
+      ) : null}
+
+      {view === "students" ? (
+        <section className="grid gap-5">
+          <TeacherModuleHeader
+            eyebrow="My Students"
+            title="Assigned batch rosters"
+            description="Only batches and students allocated to this teacher appear here. Open a batch to view its current roster."
+          />
+          {activeClasses.length ? (
+            <TeacherTileGrid>
+              {activeClasses.map((batch) => {
+                const subjects = subjectsForBatch(batch);
+                const students = batch.students?.length ?? batch._count?.students ?? 0;
+                return (
+                  <CompactBatchTile
+                    key={batch.id}
+                    name={batch.name}
+                    program={programName(batch)}
+                    students={students}
+                    subjects={subjects.length}
+                    href={`${dashboardBasePath}/classes/${programKey(batch)}/${batch.id}`}
+                  />
+                );
+              })}
+            </TeacherTileGrid>
+          ) : (
+            <EmptyState text="No assigned batches are available. Only active teacher allocations can appear here." />
+          )}
+        </section>
       ) : null}
 
       {view === "exams" ? <section className="grid gap-5">
