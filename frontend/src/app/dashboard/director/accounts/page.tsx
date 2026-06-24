@@ -120,16 +120,24 @@ export default function DirectorAccountsPage() {
   const subscriptions = subscriptionsQuery.data ?? [];
   const expenses = expensesQuery.data?.expenses ?? [];
   const activeExpenses = expenses.filter((expense) => expense.status !== "ARCHIVED");
+  const pendingFees = fees.filter((fee) => fee.paidStatus !== "PAID");
+  const overdueFees = pendingFees.filter((fee) => new Date(fee.dueDate) < new Date());
+  const generatedInvoices = invoices.filter((invoice) => invoice.status !== "PAID");
+  const activeSubscriptions = subscriptions.filter((subscription) => subscription.status === "ACTIVE");
+  const totalExpenses = expensesQuery.data?.summary.total ?? 0;
+  const monthlyRevenue = analytics?.monthlyRevenue ?? 0;
+  const pendingDues = analytics?.pendingDues ?? 0;
+  const netPosition = monthlyRevenue - totalExpenses;
 
   return (
     <main className="min-h-screen bg-[var(--page-bg)] px-5 py-6 text-[var(--navy)] md:px-8">
       <section className="mx-auto max-w-7xl space-y-8">
         <div className="rounded-3xl border border-[var(--border)] bg-white/90 p-6 shadow-xl md:p-8">
-          <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Admin & Accounts</p>
-          <h1 className="mt-3 text-4xl font-black tracking-tight md:text-6xl">Finance and operations control</h1>
+          <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Director Finance</p>
+          <h1 className="mt-3 text-4xl font-black tracking-tight md:text-6xl">Money, fees and receipts in one room.</h1>
           <p className="mt-4 max-w-3xl text-base leading-8 text-[var(--muted-blue)]">
-            A clean Director-owned accounts room for fee status, invoices, expenses, subscriptions, settings and audit readiness.
-            Revenue, dues, invoices and expenses are loaded from finance records only.
+            Track collected fees, pending dues, receipts, subscriptions and operating expenses from live finance records.
+            Manual fee and expense entries stay available for launch operations.
           </p>
         </div>
 
@@ -158,10 +166,10 @@ export default function DirectorAccountsPage() {
         </section>
 
         <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          <AccountMetric label="Monthly Revenue" value={`Rs ${(analytics?.monthlyRevenue ?? 0).toLocaleString()}`} />
-          <AccountMetric label="Pending Dues" value={`Rs ${(analytics?.pendingDues ?? 0).toLocaleString()}`} />
-          <AccountMetric label="Open Fees" value={fees.filter((fee) => fee.paidStatus !== "PAID").length} />
-          <AccountMetric label="Expenses" value={`Rs ${(expensesQuery.data?.summary.total ?? 0).toLocaleString()}`} />
+          <AccountMetric label="Monthly Revenue" value={`Rs ${monthlyRevenue.toLocaleString()}`} />
+          <AccountMetric label="Pending Dues" value={`Rs ${pendingDues.toLocaleString()}`} />
+          <AccountMetric label="Open Fees" value={pendingFees.length} />
+          <AccountMetric label="Expenses" value={`Rs ${totalExpenses.toLocaleString()}`} />
         </section>
 
         {notice && (
@@ -169,6 +177,25 @@ export default function DirectorAccountsPage() {
             {notice}
           </div>
         )}
+
+        <section className="grid gap-6 lg:grid-cols-[1fr_0.9fr]">
+          <Panel id="finance-attention" title="Finance attention" eyebrow="What to check first">
+            <div className="grid gap-3">
+              <DecisionRow title="Overdue fees" value={overdueFees.length} text="Collect or follow up through AO/accounts." tone={overdueFees.length ? "warn" : "ok"} />
+              <DecisionRow title="Pending dues" value={`Rs ${pendingDues.toLocaleString()}`} text="Total amount still to be collected." tone={pendingDues > 0 ? "warn" : "ok"} />
+              <DecisionRow title="Generated invoices" value={generatedInvoices.length} text="Receipts and invoices still open." tone={generatedInvoices.length ? "warn" : "ok"} />
+              <DecisionRow title="Net position" value={`Rs ${netPosition.toLocaleString()}`} text="Monthly revenue minus recorded expenses." tone={netPosition >= 0 ? "ok" : "danger"} />
+            </div>
+          </Panel>
+
+          <Panel id="finance-split" title="Money lanes" eyebrow="Director summary">
+            <div className="grid gap-3">
+              <AccountMetric label="Active Subscriptions" value={activeSubscriptions.length} />
+              <AccountMetric label="Successful Transactions" value={analytics?.successfulTransactions ?? 0} />
+              <AccountMetric label="Expense Categories" value={Object.keys(expensesQuery.data?.summary.byCategory ?? {}).length} />
+            </div>
+          </Panel>
+        </section>
 
         <section className="grid gap-6 lg:grid-cols-2">
           <Panel id="fees" title="Fee Management" eyebrow="Manual launch control">
@@ -196,10 +223,10 @@ export default function DirectorAccountsPage() {
               </button>
             </form>
             <div className="mt-5 grid gap-3">
-              {fees.slice(0, 4).map((fee) => (
+              {pendingFees.slice(0, 5).map((fee) => (
                 <FinanceRow key={fee.id} title={fee.title} meta={`${fee.student?.name ?? fee.studentId} / due ${new Date(fee.dueDate).toLocaleDateString()}`} amount={fee.dueAmount ?? fee.amount} status={fee.paidStatus} />
               ))}
-              {!fees.length ? <Empty text="No fee installments recorded yet." icon={BadgeIndianRupee} /> : null}
+              {!pendingFees.length ? <Empty text="No pending fee installments recorded." icon={BadgeIndianRupee} /> : null}
             </div>
           </Panel>
 
@@ -329,6 +356,27 @@ function FinanceRow({ title, meta, amount, status }: { title: string; meta: stri
         <span className="rounded-full border border-[var(--gold-border)] bg-[var(--gold-soft)] px-3 py-1 text-xs font-black">
           Rs {amount.toLocaleString()} / {status}
         </span>
+      </div>
+    </div>
+  );
+}
+
+function DecisionRow({ title, value, text, tone }: { title: string; value: string | number; text: string; tone: "ok" | "warn" | "danger" }) {
+  const toneClass =
+    tone === "ok"
+      ? "bg-emerald-100 text-emerald-800"
+      : tone === "warn"
+        ? "bg-amber-100 text-amber-800"
+        : "bg-rose-100 text-rose-800";
+
+  return (
+    <div className="rounded-2xl border border-[var(--border)] bg-white p-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p className="font-black">{title}</p>
+          <p className="mt-1 text-sm text-[var(--muted-blue)]">{text}</p>
+        </div>
+        <span className={`rounded-full px-4 py-2 text-sm font-black ${toneClass}`}>{value}</span>
       </div>
     </div>
   );

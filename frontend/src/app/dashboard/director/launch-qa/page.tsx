@@ -3,12 +3,12 @@
 import Link from "next/link";
 import {
   BadgeCheck,
+  BarChart3,
   BookOpen,
   Building2,
   CheckCircle2,
   ClipboardCheck,
   GraduationCap,
-  Megaphone,
   ShieldCheck,
   UserPlus,
   Users,
@@ -21,9 +21,9 @@ const qaGroups = [
     icon: Building2,
     checks: [
       "Director login opens /dashboard/director without sidebar gap.",
-      "Five master thumbnails are visible: Academics, Administrative Officer, Advertisement & Marketing, HRM, Admin & Accounts.",
-      "Every service tile opens an internal dashboard page or section.",
-      "No service tile points to the public landing page.",
+      "Six command tiles are visible: Admissions, Academics, Students, Team, Finance and Reports.",
+      "Every command tile opens a Director-owned workspace.",
+      "Command center metrics use live dashboard, CRM, academy and finance APIs.",
     ],
   },
   {
@@ -52,8 +52,8 @@ const qaGroups = [
     icon: Users,
     checks: [
       "Director can create employee credentials.",
-      "Quick profiles work for Teacher, Academic Head, Physical Trainer, Admission Staff, Marketing Staff and Administration.",
-      "Active users and archived users are visible.",
+      "Quick profiles work for Teacher, Academic Head, Physical Trainer, Admission Staff, BDE and Administration.",
+      "Team accounts are grouped by role and student accounts are grouped by batch.",
       "Password reset shows fresh credentials.",
       "Archive moves user into history instead of deleting.",
     ],
@@ -80,13 +80,13 @@ const qaGroups = [
     ],
   },
   {
-    title: "Marketing",
-    icon: Megaphone,
+    title: "Reports",
+    icon: BarChart3,
     checks: [
-      "Sales Booster opens without session expiry.",
-      "Campaign draft form works.",
-      "Connection status is visible for Meta, WhatsApp, YouTube and Analytics.",
-      "Only captured leads and campaign analytics are shown.",
+      "Director Reports opens without session expiry.",
+      "Admissions, Academics, Students, Team, Finance and Learning report lanes load.",
+      "Launch readiness rows use live records.",
+      "Action list routes to the correct Director workspace.",
     ],
   },
   {
@@ -109,8 +109,8 @@ const quickLinks = [
   { title: "Employee Control", href: "/dashboard/director/management", icon: Users },
   { title: "Exam Command", href: "/dashboard/director/exams", icon: BookOpen },
   { title: "Materials Control", href: "/dashboard/director/materials", icon: BadgeCheck },
-  { title: "Sales Booster", href: "/dashboard/director#sales-booster", icon: Megaphone },
-  { title: "Accounts", href: "/dashboard/director/accounts", icon: ShieldCheck },
+  { title: "Finance", href: "/dashboard/director/accounts", icon: ShieldCheck },
+  { title: "Reports", href: "/dashboard/director/reports", icon: BarChart3 },
 ];
 
 export default function DirectorLaunchQaPage() {
@@ -119,7 +119,7 @@ export default function DirectorLaunchQaPage() {
       <section className="mx-auto max-w-7xl space-y-8">
         <div className="rounded-3xl border border-[var(--border)] bg-white/90 p-6 shadow-xl md:p-8">
           <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Launch QA</p>
-          <h1 className="mt-3 text-4xl font-black tracking-tight md:text-6xl">Director dashboard launch checklist</h1>
+          <h1 className="mt-3 text-4xl font-black tracking-tight md:text-6xl">Director launch readiness checklist</h1>
           <p className="mt-4 max-w-3xl text-base leading-8 text-[var(--muted-blue)]">
             Use this page before launch to verify every Director module opens, every workflow is safe, and only live records are shown.
           </p>

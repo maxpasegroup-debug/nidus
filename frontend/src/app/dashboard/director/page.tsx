@@ -5,16 +5,10 @@ import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   AlertTriangle,
-  BadgeIndianRupee,
   BarChart3,
-  BookOpen,
-  CalendarDays,
   ClipboardCheck,
-  FileText,
   GraduationCap,
   KeyRound,
-  Megaphone,
-  PieChart,
   ShieldCheck,
   UserCheck,
   UserPlus,
@@ -33,11 +27,20 @@ type DirectorAction = {
   tone: "blue" | "green" | "gold" | "red";
 };
 
+type DirectorDecision = {
+  title: string;
+  value: string | number;
+  text: string;
+  href: string;
+  action: string;
+  status: "clear" | "watch" | "urgent";
+};
+
 const primaryActions: DirectorAction[] = [
   {
     title: "Admissions",
     text: "Leads, applications, documents, fees and student activation.",
-    href: "/dashboard/admission-cell",
+    href: "/dashboard/director/admissions",
     icon: UserPlus,
     tone: "green",
   },
@@ -72,7 +75,7 @@ const primaryActions: DirectorAction[] = [
   {
     title: "Reports",
     text: "Academic, admissions, finance, staff and launch readiness reports.",
-    href: "/dashboard/director/academic/reports",
+    href: "/dashboard/director/reports",
     icon: BarChart3,
     tone: "gold",
   },
@@ -100,7 +103,7 @@ export default function DirectorDashboardPage() {
       {
         label: "Admissions waiting",
         value: commandCenter?.operationalAlerts.pendingAdmissions ?? 0,
-        href: "/dashboard/admission-cell",
+        href: "/dashboard/director/admissions",
         action: "Open admissions",
       },
       {
@@ -163,6 +166,41 @@ export default function DirectorDashboardPage() {
     ["BDE Team", commandCenter?.staff.businessDevelopmentExecutives.active ?? 0],
   ] as const;
 
+  const decisionBoard: DirectorDecision[] = [
+    {
+      title: "Admission follow-up",
+      value: commandCenter?.admissions.newLeads ?? director?.admissionsAnalytics.leads ?? 0,
+      text: "New enquiries and applications requiring counselling or AO action.",
+      href: "/dashboard/director/admissions",
+      action: "Review pipeline",
+      status: (commandCenter?.admissions.newLeads ?? 0) > 0 ? "watch" : "clear",
+    },
+    {
+      title: "Academic review",
+      value: commandCenter?.academics.activeBatches ?? director?.academyArchitecture.batches ?? 0,
+      text: "Active batches that should have classes, teachers, timetable and syllabus plans.",
+      href: "/dashboard/director/academic",
+      action: "Open academics",
+      status: (commandCenter?.academics.activeBatches ?? 0) > 0 ? "clear" : "urgent",
+    },
+    {
+      title: "Fee collection",
+      value: `Rs ${(commandCenter?.finance.pendingFees ?? director?.revenueAnalytics.pending ?? 0).toLocaleString()}`,
+      text: "Pending amount to be followed up by accounts/admission team.",
+      href: "/dashboard/director/accounts",
+      action: "Check fees",
+      status: (commandCenter?.finance.pendingFees ?? director?.revenueAnalytics.pending ?? 0) > 0 ? "urgent" : "clear",
+    },
+    {
+      title: "Team readiness",
+      value: (commandCenter?.staff.teachers.active ?? 0) + (commandCenter?.staff.physicalTrainers.active ?? 0),
+      text: "Teaching and training staff available for academic delivery.",
+      href: "/dashboard/director/management",
+      action: "Open team",
+      status: ((commandCenter?.staff.teachers.active ?? 0) + (commandCenter?.staff.physicalTrainers.active ?? 0)) > 0 ? "clear" : "urgent",
+    },
+  ];
+
   return (
     <main className="min-h-screen bg-[var(--page-bg)] px-4 py-5 text-[var(--navy)] md:px-8">
       <section className="mx-auto max-w-7xl space-y-5">
@@ -196,6 +234,21 @@ export default function DirectorDashboardPage() {
           {todayMetrics.map((metric) => (
             <MetricTile key={metric.label} label={metric.label} value={metric.value} hint={metric.hint} />
           ))}
+        </section>
+
+        <section className="rounded-[28px] border border-[var(--border)] bg-white p-5 shadow-sm md:p-6">
+          <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.3em] text-[var(--gold)]">Today's Operations</p>
+              <h2 className="mt-2 text-2xl font-black">Director decision board</h2>
+            </div>
+            <p className="text-sm font-semibold text-[var(--muted-blue)]">Four checks before the day starts.</p>
+          </div>
+          <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            {decisionBoard.map((decision) => (
+              <DecisionCard key={decision.title} decision={decision} />
+            ))}
+          </div>
         </section>
 
         <section className="grid gap-5 xl:grid-cols-[0.95fr_1.05fr]">
@@ -241,6 +294,31 @@ export default function DirectorDashboardPage() {
           {primaryActions.map((action) => (
             <CommandCard key={action.title} action={action} />
           ))}
+        </section>
+
+        <section className="rounded-[28px] border border-[var(--border)] bg-white p-5 shadow-sm md:p-6">
+          <p className="text-xs font-black uppercase tracking-[0.3em] text-[var(--gold)]">Quick Decisions</p>
+          <h2 className="mt-2 text-2xl font-black">What the Director should decide next</h2>
+          <div className="mt-5 grid gap-3 md:grid-cols-3">
+            <DecisionPrompt
+              icon={UserPlus}
+              title="Should admissions be pushed today?"
+              text={`${commandCenter?.admissions.newLeads ?? director?.admissionsAnalytics.leads ?? 0} lead(s), ${commandCenter?.admissions.readyForAdmission ?? 0} ready for admission.`}
+              href="/dashboard/director/admissions"
+            />
+            <DecisionPrompt
+              icon={GraduationCap}
+              title="Are classes running properly?"
+              text={`${commandCenter?.academics.activeBatches ?? director?.academyArchitecture.batches ?? 0} active batch(es), ${syllabus?.completionPercentage ?? 0}% syllabus completion.`}
+              href="/dashboard/director/academic"
+            />
+            <DecisionPrompt
+              icon={WalletCards}
+              title="Is fee collection healthy?"
+              text={`Rs ${(director?.revenueAnalytics.collected ?? 0).toLocaleString()} collected, Rs ${(director?.revenueAnalytics.pending ?? 0).toLocaleString()} pending.`}
+              href="/dashboard/director/accounts"
+            />
+          </div>
         </section>
 
         <section className="grid gap-5 xl:grid-cols-[1fr_1fr]">
@@ -311,6 +389,29 @@ function MetricTile({ label, value, hint }: { label: string; value: string | num
   );
 }
 
+function DecisionCard({ decision }: { decision: DirectorDecision }) {
+  const statusClass =
+    decision.status === "urgent"
+      ? "bg-red-100 text-red-800"
+      : decision.status === "watch"
+        ? "bg-amber-100 text-amber-800"
+        : "bg-emerald-100 text-emerald-800";
+  const statusText = decision.status === "urgent" ? "Action" : decision.status === "watch" ? "Watch" : "Clear";
+  return (
+    <Link href={decision.href} className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4 transition hover:border-[var(--gold-border)] hover:bg-white">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-sm font-black text-[var(--muted-blue)]">{decision.title}</p>
+          <p className="mt-2 text-3xl font-black">{decision.value}</p>
+        </div>
+        <span className={`rounded-full px-3 py-1 text-xs font-black ${statusClass}`}>{statusText}</span>
+      </div>
+      <p className="mt-3 min-h-12 text-sm leading-6 text-[var(--muted-blue)]">{decision.text}</p>
+      <span className="mt-4 inline-flex rounded-2xl border border-[var(--border)] bg-white px-4 py-2 text-sm font-black">{decision.action}</span>
+    </Link>
+  );
+}
+
 function HealthLane({ label, value, suffix, text }: { label: string; value: number; suffix: string; text: string }) {
   const capped = Math.max(0, Math.min(100, value));
   const color = capped >= 75 ? "bg-emerald-600" : capped >= 50 ? "bg-amber-500" : "bg-red-500";
@@ -325,6 +426,17 @@ function HealthLane({ label, value, suffix, text }: { label: string; value: numb
       </div>
       <p className="mt-2 text-sm text-[var(--muted-blue)]">{text}</p>
     </div>
+  );
+}
+
+function DecisionPrompt({ icon: Icon, title, text, href }: { icon: LucideIcon; title: string; text: string; href: string }) {
+  return (
+    <Link href={href} className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4 transition hover:border-[var(--gold-border)] hover:bg-white">
+      <Icon className="h-6 w-6 text-[var(--navy)]" />
+      <h3 className="mt-4 text-lg font-black">{title}</h3>
+      <p className="mt-2 text-sm leading-6 text-[var(--muted-blue)]">{text}</p>
+      <span className="mt-4 inline-flex text-sm font-black">Open +</span>
+    </Link>
   );
 }
 

@@ -246,6 +246,8 @@ export default function DirectorManagementPage() {
   const visibleTeam = visibleAccounts.filter(isTeamAccount);
   const visibleStudents = visibleAccounts.filter(isStudentAccount);
   const studentGroups = groupStudentsByBatch(visibleStudents);
+  const activeTeamGroups = groupTeamAccounts(activeTeam);
+  const visibleTeamGroups = groupTeamAccounts(visibleTeam);
 
   const applyQuickProfile = (profile: (typeof quickProfiles)[number]) => {
     setForm((item) => ({
@@ -270,12 +272,26 @@ export default function DirectorManagementPage() {
           </p>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-4">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           <Metric icon={Users} label="Team Accounts" value={activeTeam.length} />
           <Metric icon={GraduationCap} label="Students" value={activeStudents.length} />
           <Metric icon={Archive} label="Archived History" value={archivedAccounts.length} />
           <Metric icon={ShieldCheck} label="Locked Accounts" value={lockedAccounts.length} />
         </div>
+
+        <section className="rounded-3xl border border-[var(--border)] bg-white/90 p-5 shadow-sm">
+          <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">People Structure</p>
+          <h2 className="mt-2 text-2xl font-black">Team grouped by duty</h2>
+          <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            {activeTeamGroups.map((group) => (
+              <div key={group.label} className="rounded-2xl border border-[var(--border)] bg-white p-4">
+                <p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold)]">{group.label}</p>
+                <p className="mt-3 text-3xl font-black">{group.accounts.length}</p>
+                <p className="mt-1 text-sm text-[var(--muted-blue)]">{group.description}</p>
+              </div>
+            ))}
+          </div>
+        </section>
 
         {notice && <div className="rounded-2xl border border-[var(--gold-border)] bg-[var(--gold-soft)] p-4 text-sm font-bold">{notice}</div>}
 
@@ -465,24 +481,38 @@ export default function DirectorManagementPage() {
           <div className="mt-5 grid gap-3">
             {accountGroup === "TEAM" ? (
               <>
-                {visibleTeam.map((employee) => (
-                  <EmployeeRow
-                    key={employee.id}
-                    employee={employee}
-                    archived={activeTab === "ARCHIVED"}
-                    groupLabel={teamGroupLabel(employee)}
-                    onArchive={() => {
-                      if (window.confirm(`Archive ${employee.name}? This will move the account into history.`)) {
-                        archiveMutation.mutate(employee.id);
-                      }
-                    }}
-                    onReset={() => {
-                      if (window.confirm(`Reset password and unlock ${employee.name}?`)) {
-                        resetMutation.mutate(employee.id);
-                      }
-                    }}
-                    onUnlock={() => unlockMutation.mutate(employee.id)}
-                  />
+                {visibleTeamGroups.map((group) => (
+                  <div key={group.label} className="rounded-2xl border border-[var(--border)] bg-white/80 p-4">
+                    <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+                      <div>
+                        <p className="text-xs font-black uppercase tracking-[0.3em] text-[var(--gold)]">{group.label}</p>
+                        <h3 className="mt-1 text-xl font-black">{group.title}</h3>
+                        <p className="mt-1 text-sm text-[var(--muted-blue)]">{group.description}</p>
+                      </div>
+                      <span className="rounded-full border border-[var(--border)] bg-white px-4 py-2 text-sm font-black">{group.accounts.length} account(s)</span>
+                    </div>
+                    <div className="mt-4 grid gap-3">
+                      {group.accounts.map((employee) => (
+                        <EmployeeRow
+                          key={employee.id}
+                          employee={employee}
+                          archived={activeTab === "ARCHIVED"}
+                          groupLabel={group.label}
+                          onArchive={() => {
+                            if (window.confirm(`Archive ${employee.name}? This will move the account into history.`)) {
+                              archiveMutation.mutate(employee.id);
+                            }
+                          }}
+                          onReset={() => {
+                            if (window.confirm(`Reset password and unlock ${employee.name}?`)) {
+                              resetMutation.mutate(employee.id);
+                            }
+                          }}
+                          onUnlock={() => unlockMutation.mutate(employee.id)}
+                        />
+                      ))}
+                    </div>
+                  </div>
                 ))}
                 {!visibleTeam.length && <Empty text={activeTab === "ACTIVE" ? "No active team accounts found." : "No archived team accounts yet."} />}
               </>
@@ -615,6 +645,25 @@ function groupStudentsByBatch(students: Employee[]) {
     if (second.batchId === "unassigned") return -1;
     return first.batchName.localeCompare(second.batchName);
   });
+}
+
+function groupTeamAccounts(accounts: Employee[]) {
+  const definitions = [
+    { label: "Directors", title: "Leadership", description: "Owners and senior management users.", match: (account: Employee) => account.role === "DIRECTOR" },
+    { label: "Academic Heads", title: "Academic command", description: "HOD and academic operations control.", match: (account: Employee) => teamGroupLabel(account) === "Academic Head" },
+    { label: "Teachers", title: "Classroom faculty", description: "Subject teachers assigned to batches.", match: (account: Employee) => teamGroupLabel(account) === "Teacher" },
+    { label: "Physical Trainers", title: "Fitness faculty", description: "PT, running, BMI and fitness users.", match: (account: Employee) => teamGroupLabel(account) === "Physical Trainer" },
+    { label: "Administrative Officers", title: "Admissions and records", description: "AO users handling documents, fees and activation.", match: (account: Employee) => teamGroupLabel(account) === "Administrative Officer" },
+    { label: "BDE Team", title: "Lead and counselling", description: "Business development and follow-up users.", match: (account: Employee) => teamGroupLabel(account) === "BDE" },
+    { label: "Other Team", title: "Support accounts", description: "Admin, operations and uncategorized staff.", match: (account: Employee) => teamGroupLabel(account) === "Team" },
+  ];
+
+  return definitions
+    .map((definition) => ({
+      ...definition,
+      accounts: accounts.filter(definition.match).sort((first, second) => first.name.localeCompare(second.name)),
+    }))
+    .filter((group) => group.accounts.length > 0);
 }
 
 function EmployeeRow({
