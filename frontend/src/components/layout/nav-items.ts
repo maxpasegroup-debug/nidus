@@ -25,8 +25,11 @@ const guestMenu: DashboardNavItem[] = [
 const teacherMenu: DashboardNavItem[] = [
   { label: "Today", href: "/dashboard/teacher/classes" },
   { label: "My Students", href: "/dashboard/teacher/students" },
-  { label: "Academic Calendar", href: "/dashboard/teacher/academic-calendar" },
+  { label: "Calendar", href: "/dashboard/teacher/academic-calendar" },
+  { label: "Attendance", href: "/dashboard/teacher/attendance" },
+  { label: "Assignments", href: "/dashboard/teacher/assignments" },
   { label: "Exams", href: "/dashboard/teacher/exams" },
+  { label: "Library", href: "/dashboard/teacher/library" },
 ];
 
 const physicalTrainerMenu: DashboardNavItem[] = [

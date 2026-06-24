@@ -2510,7 +2510,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
     assignments: "Assignments",
     attendance: "Attendance",
     library: "Library",
-    "academic-calendar": "Academic Calendar",
+    "academic-calendar": "Calendar",
   };
 
   return (

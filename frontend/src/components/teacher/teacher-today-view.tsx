@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, CalendarClock, CheckCircle2, Clock3 } from "lucide-react";
+import { ArrowRight, CalendarClock, CheckCircle2, ClipboardCheck, Clock3, FileText, Library, Users } from "lucide-react";
 import { TeacherModuleHeader } from "@/components/teacher/teacher-dashboard-primitives";
 
 export type TeacherTodayScheduleItem = {
@@ -59,6 +59,13 @@ export function TeacherTodayView({ today, upcoming, loading }: { today: TeacherT
   const current = today.find((item) => statusLabel(item) === "Now");
   const next = today.find((item) => statusLabel(item) === "Upcoming") ?? upcoming[0];
   const focus = current ?? next ?? null;
+  const afterClassActions = [
+    { label: "Attendance", note: "Mark present, absent, leave", href: "/dashboard/teacher/attendance", icon: ClipboardCheck },
+    { label: "Upload Lesson", note: "Add recording or notes", href: "/dashboard/teacher/library", icon: Library },
+    { label: "Homework", note: "Publish worksheet", href: "/dashboard/teacher/assignments", icon: FileText },
+    { label: "Exam", note: "Create class test", href: "/dashboard/teacher/exams", icon: CheckCircle2 },
+    { label: "Students", note: "Open class roster", href: "/dashboard/teacher/students", icon: Users },
+  ];
 
   if (loading) {
     return <div className="rounded-2xl border border-[var(--border)] bg-white p-6 text-sm font-bold text-[var(--muted-blue)]">Loading today&apos;s timetable...</div>;
@@ -66,20 +73,20 @@ export function TeacherTodayView({ today, upcoming, loading }: { today: TeacherT
 
   return (
     <section className="grid gap-5">
-      <TeacherModuleHeader eyebrow="Today" title="Your teaching day" description="Live timetable, syllabus topic and upcoming academic work from your assigned calendar." />
+      <TeacherModuleHeader eyebrow="Today" title="Start today's teaching" description="See the next class, open the batch, and finish the after-class work from one simple place." />
 
       {focus ? (
         <article className="rounded-2xl border border-slate-950 bg-slate-950 p-5 text-white shadow-sm sm:p-6">
           <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
             <div className="min-w-0">
-              <p className="text-xs font-black uppercase tracking-[0.3em] text-[#e7c873]">{current ? "Happening now" : "Next program"}</p>
+              <p className="text-xs font-black uppercase tracking-[0.3em] text-[#e7c873]">{current ? "Teach now" : "Next class"}</p>
               <p className="mt-3 text-3xl font-black sm:text-4xl">{displayTime(focus.startTime)}</p>
               <h2 className="mt-3 text-xl font-black sm:text-2xl">{focus.batchName} / {focus.subject}</h2>
               <p className="mt-2 text-sm text-slate-300">Topic: {focus.topic}</p>
               <p className="mt-1 text-xs font-bold uppercase tracking-[0.15em] text-slate-400">{focus.classType.replaceAll("_", " ")} / {focus.programName}</p>
             </div>
             <Link href={focus.href} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-white bg-white px-5 py-3 text-sm font-black text-slate-950">
-              Open program <ArrowRight size={16} />
+              Open Class <ArrowRight size={16} />
             </Link>
           </div>
         </article>
@@ -90,6 +97,28 @@ export function TeacherTodayView({ today, upcoming, loading }: { today: TeacherT
           <p className="mt-2 text-sm text-[var(--muted-blue)]">Your next assigned timetable entry will appear here when the Academic Head publishes it.</p>
         </div>
       )}
+
+      <section className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold-dark)]">After Class</p>
+            <h2 className="mt-2 text-2xl font-black">Finish the class work</h2>
+          </div>
+          <p className="text-sm font-bold text-[var(--muted-blue)]">Recommended order: attendance, lesson, homework.</p>
+        </div>
+        <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+          {afterClassActions.map((action) => {
+            const Icon = action.icon;
+            return (
+              <Link key={action.label} href={action.href} className="min-h-28 rounded-xl border border-[var(--border)] bg-[var(--page-bg)] p-4 transition hover:-translate-y-0.5 hover:border-slate-950 hover:bg-white">
+                <Icon className="h-5 w-5 text-[var(--gold-dark)]" />
+                <h3 className="mt-3 font-black">{action.label}</h3>
+                <p className="mt-1 text-sm leading-5 text-[var(--muted-blue)]">{action.note}</p>
+              </Link>
+            );
+          })}
+        </div>
+      </section>
 
       <section className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
         <div className="flex items-center justify-between gap-3">
