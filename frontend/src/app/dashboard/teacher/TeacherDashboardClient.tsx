@@ -2046,6 +2046,24 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
     }
   }
 
+  async function renameLibraryMaterial(material: MaterialRecord) {
+    if (!selectedClass) return;
+    const currentName = material.title || material.lessonName || material.fileName || "Lesson";
+    const nextName = typeof window !== "undefined" ? window.prompt("Rename lesson", currentName) : null;
+    if (!nextName?.trim() || nextName.trim() === currentName) return;
+    try {
+      await apiPatch<{ ok?: boolean }>([`/api/academy/study-materials/${material.id}`], {
+        batchId: material.batchId,
+        title: nextName.trim(),
+        lessonName: nextName.trim(),
+      });
+      await loadClassWorkspace(selectedClass.id);
+      setLibraryMessage("Lesson renamed.");
+    } catch (error) {
+      setLibraryMessage(error instanceof Error ? error.message : "Could not rename lesson.");
+    }
+  }
+
   async function createLibraryFolder(kind: "SUBJECT" | "TOPIC", name: string) {
     if (!selectedClass || !name.trim()) return;
     const subject = kind === "SUBJECT" ? name.trim() : activeLibrarySubject || "General";
@@ -2972,8 +2990,8 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
               </span>
               <div>
                 <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold-dark)]">My Library</p>
-                <h2 className="mt-2 text-3xl font-black">Batch folders</h2>
-                <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--muted-blue)]">Open a batch, open a subject, then upload videos and files into topic folders.</p>
+                <h2 className="mt-2 text-3xl font-black">Teaching files</h2>
+                <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--muted-blue)]">Open batch folder, subject folder and topic folder. Upload videos, notes and worksheets like a simple computer drive.</p>
               </div>
             </div>
             {selectedClass && activeLibrarySubject ? (
@@ -2995,7 +3013,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
             <div className="flex flex-wrap items-end justify-between gap-3">
               <div>
                 <p className="text-xs font-black uppercase tracking-[0.3em] text-[var(--gold-dark)]">This PC</p>
-                <h3 className="mt-2 text-2xl font-black">Assigned batch folders</h3>
+                <h3 className="mt-2 text-2xl font-black">Batch folders</h3>
               </div>
               <span className="rounded-full border border-[var(--border)] bg-[var(--page-bg)] px-4 py-2 text-xs font-black">{activeClasses.length} folder(s)</span>
             </div>
@@ -3006,7 +3024,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
                   <ExplorerFolder
                     key={batch.id}
                     title={batch.name}
-                    subtitle={`${batch._count?.students ?? batch.students?.length ?? 0} students / ${subjects.length} subjects`}
+                    subtitle={`${batch._count?.students ?? batch.students?.length ?? 0} students / ${subjects.length} subject folders`}
                     active={false}
                     onOpen={() => chooseBatch(batch.id)}
                   />
@@ -3023,7 +3041,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
               <div>
                 <p className="text-xs font-black uppercase tracking-[0.3em] text-[var(--gold-dark)]">Batch Folder</p>
                 <h3 className="mt-2 text-2xl font-black">{selectedClass.name}</h3>
-                <p className="mt-2 text-sm text-[var(--muted-blue)]">{programName(selectedClass)} / Choose a subject folder.</p>
+                <p className="mt-2 text-sm text-[var(--muted-blue)]">{programName(selectedClass)} / Open the subject you taught.</p>
               </div>
               <button type="button" onClick={() => { setSelectedClassId(null); setLibrarySubject(null); setLibraryTopic(null); }} className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-4 py-3 text-sm font-black">Back to Batches</button>
             </div>
@@ -3056,15 +3074,15 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
               <div>
                 <p className="text-xs font-black uppercase tracking-[0.3em] text-[var(--gold-dark)]">Subject Folder</p>
                 <h3 className="mt-2 text-2xl font-black">{activeLibrarySubject}</h3>
-                <p className="mt-2 text-sm text-[var(--muted-blue)]">{selectedClass.name} / Create or open a topic folder.</p>
+                <p className="mt-2 text-sm text-[var(--muted-blue)]">{selectedClass.name} / Open a topic folder or create one.</p>
               </div>
               <div className="flex flex-wrap gap-2">
                 <button type="button" onClick={() => setLibrarySubject(null)} className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-4 py-3 text-sm font-black">Back to Subjects</button>
-                <button type="button" onClick={openLibraryUpload} className="rounded-xl bg-[var(--ink)] px-4 py-3 text-sm font-black text-white">Upload Here</button>
+                <button type="button" onClick={openLibraryUpload} className="rounded-xl bg-[var(--ink)] px-4 py-3 text-sm font-black text-white">Upload Lesson</button>
               </div>
             </div>
             <div className="mt-5 grid gap-4 lg:grid-cols-[320px_1fr]">
-              <FolderCreateBox label="Create topic folder" placeholder="Example: Algebra" value={libraryForm.topic} onChange={(value) => setLibraryForm((form) => ({ ...form, subject: activeLibrarySubject, folder: activeLibrarySubject, topic: value }))} onCreate={() => void createLibraryFolder("TOPIC", libraryForm.topic)} />
+              <FolderCreateBox label="New topic folder" placeholder="Example: Algebra" value={libraryForm.topic} onChange={(value) => setLibraryForm((form) => ({ ...form, subject: activeLibrarySubject, folder: activeLibrarySubject, topic: value }))} onCreate={() => void createLibraryFolder("TOPIC", libraryForm.topic)} />
               <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                 {libraryTopics.map((topic) => {
                   const files = topic.materials.filter((item) => !isFolderMaterial(item));
@@ -3100,7 +3118,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
               <div className="flex flex-wrap gap-2">
                 <button type="button" onClick={() => setLibraryTopic(null)} className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-4 py-3 text-sm font-black">Back to Topics</button>
                 <button type="button" onClick={openLibraryUpload} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[var(--ink)] px-5 py-3 text-sm font-black text-white">
-                  <Plus size={18} /> Upload Video / File
+                  <Plus size={18} /> Upload Lesson
                 </button>
               </div>
             </div>
@@ -3116,6 +3134,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
                 <MaterialCard
                   key={material.id}
                   material={material}
+                  onRename={() => void renameLibraryMaterial(material)}
                   onArchive={() => void archiveLibraryMaterial(material.id)}
                   onRestore={() => void restoreLibraryMaterial(material.id)}
                   onDelete={() => void deleteLibraryMaterial(material.id)}
@@ -4992,12 +5011,15 @@ function ExplorerFolder({
         </div>
       </button>
       {(onRename || onArchive || onRestore || onDelete) ? (
-        <div className="mt-4 flex flex-wrap gap-2 border-t border-current/10 pt-3">
-          {onRename ? <button type="button" onClick={onRename} className="rounded-lg border border-current/20 bg-white px-2 py-1 text-[10px] font-black text-slate-950">Rename</button> : null}
-          {archived && onRestore ? <button type="button" onClick={onRestore} className="rounded-lg border border-emerald-200 bg-white px-2 py-1 text-[10px] font-black text-emerald-700">Restore</button> : null}
-          {!archived && onArchive ? <button type="button" onClick={onArchive} className="rounded-lg border border-amber-200 bg-white px-2 py-1 text-[10px] font-black text-amber-700">Archive</button> : null}
-          {onDelete ? <button type="button" onClick={onDelete} className="rounded-lg border border-rose-200 bg-white px-2 py-1 text-[10px] font-black text-rose-700">Delete</button> : null}
-        </div>
+        <details className="relative mt-4 border-t border-current/10 pt-3">
+          <summary className={`inline-flex min-h-9 cursor-pointer list-none items-center justify-center rounded-lg border px-3 text-xs font-black ${active ? "border-white/30 text-white" : "border-[var(--border)] bg-white text-[var(--ink)]"}`}>More</summary>
+          <div className="absolute left-0 z-20 mt-2 grid min-w-40 gap-1 rounded-xl border border-[var(--border)] bg-white p-2 text-slate-950 shadow-xl">
+            {onRename ? <button type="button" onClick={onRename} className="rounded-lg px-3 py-2 text-left text-xs font-black hover:bg-[var(--page-bg)]">Rename</button> : null}
+            {archived && onRestore ? <button type="button" onClick={onRestore} className="rounded-lg px-3 py-2 text-left text-xs font-black text-emerald-700 hover:bg-emerald-50">Restore</button> : null}
+            {!archived && onArchive ? <button type="button" onClick={onArchive} className="rounded-lg px-3 py-2 text-left text-xs font-black text-amber-700 hover:bg-amber-50">Archive</button> : null}
+            {onDelete ? <button type="button" onClick={onDelete} className="rounded-lg px-3 py-2 text-left text-xs font-black text-rose-700 hover:bg-rose-50">Delete</button> : null}
+          </div>
+        </details>
       ) : null}
     </article>
   );
@@ -5040,7 +5062,7 @@ function LibraryUploadPanel({
         <div className="flex min-w-0 items-start justify-between gap-4">
           <div className="min-w-0">
             <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold-dark)]">Upload Lesson</p>
-            <h4 className="mt-2 text-2xl font-black">Add recorded class</h4>
+            <h4 className="mt-2 text-2xl font-black">Upload lesson</h4>
             <div className="mt-3 flex min-w-0 flex-wrap gap-2 text-xs font-black">
               <span className="max-w-full rounded-full border border-[var(--border)] bg-[var(--page-bg)] px-3 py-2 text-[var(--ink)]">
                 Subject: <span className="break-words">{selectedSubject}</span>
@@ -5061,7 +5083,7 @@ function LibraryUploadPanel({
           <div className="min-w-0 rounded-2xl border border-dashed border-[var(--border)] bg-[var(--page-bg)] p-5">
             <div className="flex min-w-0 flex-col gap-1">
               <p className="text-base font-black text-[var(--ink)]">Upload class file</p>
-              <p className="text-xs font-bold leading-5 text-[var(--muted-blue)]">Video, PDF, DOCX, PPTX, image or notes. NIDUS handles file type, thumbnail and storage.</p>
+              <p className="text-xs font-bold leading-5 text-[var(--muted-blue)]">Video, PDF, DOCX, PPTX, image or notes. NIDUS handles the rest.</p>
             </div>
             <div className="mt-4 min-w-0">
               <FileInput label="Choose file" accept="video/*,.pdf,.doc,.docx,.ppt,.pptx,image/*,.txt" onChange={(_value, file) => file ? onUploadMaterial(file) : undefined} />
@@ -5095,11 +5117,13 @@ function MaterialPreview({ title, type, thumbnailName }: { title: string; type: 
 
 function MaterialCard({
   material,
+  onRename,
   onArchive,
   onRestore,
   onDelete,
 }: {
   material: MaterialRecord;
+  onRename: () => void;
   onArchive: () => void;
   onRestore: () => void;
   onDelete: () => void;
@@ -5130,7 +5154,7 @@ function MaterialCard({
           <h4 className="font-black">{material.title || "Untitled material"}</h4>
           <p className="mt-1 text-sm text-[var(--muted-blue)]">{material.lessonName || material.topic || "Lesson"} / {date}</p>
           {material.description ? <p className="mt-2 line-clamp-2 text-sm text-[var(--muted-blue)]">{material.description}</p> : null}
-          <p className="mt-2 text-xs font-black text-[var(--muted-blue)]">{[fileSize, duration].filter(Boolean).join(" / ") || "File metadata pending"}</p>
+          <p className="mt-2 text-xs font-black text-[var(--muted-blue)]">{[fileSize, duration].filter(Boolean).join(" / ") || "Details pending"}</p>
         </div>
         <span className={`rounded-full px-3 py-1 text-xs font-black ${statusTone(material.reviewStatus || material.status)}`}>{material.reviewStatus || material.status || "LIVE"}</span>
       </div>
@@ -5140,13 +5164,18 @@ function MaterialCard({
         ) : (
           <button type="button" disabled className="rounded-xl bg-slate-200 px-4 py-2 text-xs font-black text-slate-500">View</button>
         )}
-        <button type="button" className="rounded-xl border border-[var(--border)] bg-white px-4 py-2 text-xs font-black">Edit</button>
-        {archived ? (
-          <button type="button" onClick={onRestore} className="rounded-xl border border-emerald-200 bg-white px-4 py-2 text-xs font-black text-emerald-700">Restore</button>
-        ) : (
-          <button type="button" onClick={onArchive} className="rounded-xl border border-amber-200 bg-white px-4 py-2 text-xs font-black text-amber-700">Archive</button>
-        )}
-        <button type="button" onClick={onDelete} className="rounded-xl border border-rose-200 bg-white px-4 py-2 text-xs font-black text-rose-700">Delete</button>
+        <button type="button" onClick={onRename} className="rounded-xl border border-[var(--border)] bg-white px-4 py-2 text-xs font-black">Rename</button>
+        <details className="relative">
+          <summary className="inline-flex min-h-9 cursor-pointer list-none items-center justify-center rounded-xl border border-[var(--border)] bg-white px-4 text-xs font-black">More</summary>
+          <div className="absolute right-0 z-20 mt-2 grid min-w-36 gap-1 rounded-xl border border-[var(--border)] bg-white p-2 shadow-xl">
+            {archived ? (
+              <button type="button" onClick={onRestore} className="rounded-lg px-3 py-2 text-left text-xs font-black text-emerald-700 hover:bg-emerald-50">Restore</button>
+            ) : (
+              <button type="button" onClick={onArchive} className="rounded-lg px-3 py-2 text-left text-xs font-black text-amber-700 hover:bg-amber-50">Archive</button>
+            )}
+            <button type="button" onClick={onDelete} className="rounded-lg px-3 py-2 text-left text-xs font-black text-rose-700 hover:bg-rose-50">Delete</button>
+          </div>
+        </details>
       </div>
     </div>
   );
