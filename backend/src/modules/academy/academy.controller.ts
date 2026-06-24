@@ -328,6 +328,20 @@ export const academyController = {
       next(error);
     }
   },
+  examResults: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      res.json(await academyService.examResults(requester(req), param(req, "id")));
+    } catch (error) {
+      next(error);
+    }
+  },
+  releaseExamResults: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      res.json(await academyService.releaseExamResults(requester(req), param(req, "id")));
+    } catch (error) {
+      next(error);
+    }
+  },
   syllabusProgress: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     try {
       res.json(await academyService.syllabusProgress(requester(req), req.query));

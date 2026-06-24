@@ -55,6 +55,7 @@ router.get("/study-materials", requireAcademyRoles(academicRoles), academyContro
 router.get("/material-summary", requireAcademyRoles(academicRoles), academyController.materialSummary);
 router.get("/exams", requireAcademyRoles(academicRoles), academyController.exams);
 router.get("/exam-summary", requireAcademyRoles(academicRoles), academyController.examSummary);
+router.get("/exams/:id/results", requireAcademyRoles(academicRoles), academyController.examResults);
 router.get("/syllabus-progress", requireAcademyRoles(academicRoles), academyController.syllabusProgress);
 router.get("/syllabus-summary", requireAcademyRoles(academicRoles), academyController.syllabusSummary);
 router.get("/teacher-performance-summary", requireAcademyRoles(academicRoles), academyController.teacherPerformanceSummary);
@@ -89,6 +90,7 @@ router.post("/exams", requireAcademyRoles(academicRoles), academyController.publ
 router.patch("/exams/:id", requireAcademyRoles(academicRoles), academyController.updateExam);
 router.post("/exams/:id/archive", requireAcademyRoles(academicRoles), academyController.archiveExam);
 router.post("/exams/:id/publish", requireAcademyRoles(academicRoles), academyController.publishExamChanges);
+router.post("/exams/:id/release-results", requireAcademyRoles(academicRoles), academyController.releaseExamResults);
 
 router.post("/batches", requireAcademyRoles(academicManagementRoles), academyController.createBatch);
 router.post("/director-expenses", requireAcademyRoles(managementRoles), academyController.createDirectorExpense);

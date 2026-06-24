@@ -724,7 +724,7 @@ export const testsService = {
   },
 
   async history(userId: string) {
-    return prisma.testAttempt.findMany({
+    const attempts = await prisma.testAttempt.findMany({
       where: { userId },
       orderBy: { startedAt: "desc" },
       include: {
@@ -739,13 +739,20 @@ export const testsService = {
         }
       }
     });
+    const testIds = attempts.map((attempt) => attempt.testId);
+    const released = testIds.length ? await prisma.teacherExamRecord.findMany({
+      where: { testId: { in: testIds }, status: "RESULTS_RELEASED" },
+      select: { testId: true }
+    }) : [];
+    const releasedIds = new Set(released.map((record) => record.testId).filter(Boolean));
+    return attempts.map((attempt) => ({ ...attempt, resultsReleased: releasedIds.has(attempt.testId) }));
   },
 
   async result(userId: string, attemptId: string) {
     const attempt = await prisma.testAttempt.findFirst({
       where: { id: attemptId, userId },
       include: {
-        test: true,
+        test: { include: { questions: true } },
         answers: { include: { question: true } }
       }
     });
@@ -754,11 +761,24 @@ export const testsService = {
       throw new Error("Result not found");
     }
 
+    const releaseRecord = await prisma.teacherExamRecord.findFirst({
+      where: { testId: attempt.testId, status: "RESULTS_RELEASED" },
+      select: { id: true }
+    });
+    if (!releaseRecord) {
+      throw Object.assign(new Error("Results are awaiting teacher release."), { statusCode: 403 });
+    }
+
     const attempted = attempt.answers.length;
     const accuracy = attempted > 0 ? Math.round((attempt.totalCorrect / attempted) * 100) : 0;
     const topicAnalysis = getTopicAnalysis(attempt.answers);
     const weakTopics = topicAnalysis.filter((topic) => topic.accuracy < 60).map((topic) => topic.topic);
-    const estimatedRank = Math.max(1, 500 - Math.round(attempt.score * 3));
+    const rankedAttempts = await prisma.testAttempt.findMany({
+      where: { testId: attempt.testId, status: "SUBMITTED", submittedAt: { not: null } },
+      orderBy: [{ score: "desc" }, { totalCorrect: "desc" }, { timeTaken: "asc" }, { submittedAt: "asc" }],
+      select: { id: true }
+    });
+    const actualRank = Math.max(1, rankedAttempts.findIndex((item) => item.id === attempt.id) + 1);
 
     return {
       attempt,
@@ -769,7 +789,9 @@ export const testsService = {
           timeTaken: attempt.timeTaken,
           averagePerQuestion: attempted > 0 ? Math.round(attempt.timeTaken / attempted) : 0
         },
-        rankEstimation: estimatedRank,
+        rankEstimation: actualRank,
+        batchRank: actualRank,
+        rankedStudents: rankedAttempts.length,
         topicAnalysis,
         aiInsights:
           weakTopics.length > 0

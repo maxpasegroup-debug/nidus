@@ -1,0 +1,568 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+import type { ReactNode } from "react";
+import { BookOpen, CheckCircle2, Clock3, Eye, FileText, Plus, Trophy, X } from "lucide-react";
+
+export type TeacherExamBatch = {
+  id: string;
+  name: string;
+  program?: string;
+  studentCount: number;
+  subjects: string[];
+};
+
+export type TeacherExamRecord = {
+  id: string;
+  batchId?: string | null;
+  batchName?: string | null;
+  course?: string | null;
+  subject?: string | null;
+  title?: string;
+  topic?: string | null;
+  questionCount?: number;
+  durationMinutes?: number;
+  difficulty?: string | null;
+  status?: string;
+  createdAt?: string;
+  attemptStats?: { attempts?: number; submitted?: number; averageScore?: number };
+};
+
+type QuestionDraft = {
+  questionText: string;
+  optionA: string;
+  optionB: string;
+  optionC: string;
+  optionD: string;
+  correctAnswer: string;
+  explanation: string;
+  marks: number;
+  negativeMarks: number;
+  difficultyLevel: string;
+  topic: string;
+};
+
+type ResultRow = {
+  rank: number;
+  attemptId: string;
+  studentName?: string | null;
+  studentEmail?: string | null;
+  score: number;
+  totalMarks: number;
+  percentage: number;
+  correct: number;
+  wrong: number;
+  timeTaken: number;
+  submittedAt?: string | null;
+};
+
+type ResultsPayload = {
+  exam: TeacherExamRecord;
+  released: boolean;
+  releasedAt?: string;
+  results: ResultRow[];
+};
+
+type Props = {
+  batches: TeacherExamBatch[];
+  selectedBatchId?: string | null;
+  exams: TeacherExamRecord[];
+  loading?: boolean;
+  onSelectBatch: (id: string) => void;
+  onRefresh: () => void | Promise<void>;
+};
+
+function resolveApiBase() {
+  const configured = (process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_API_BASE_URL || "").replace(/\/+$/, "").replace(/\/api$/, "");
+  if (typeof window !== "undefined" && configured) {
+    try {
+      const configuredUrl = new URL(configured);
+      if (window.location.hostname === "nidusacademy.in" && configuredUrl.hostname !== window.location.hostname) return "";
+    } catch {
+      return "";
+    }
+  }
+  return configured;
+}
+
+const API_BASE = resolveApiBase();
+
+const initialForm = {
+  title: "",
+  topic: "",
+  date: "",
+  time: "",
+  duration: "60",
+  marks: "100",
+  instructions: "",
+};
+
+function unwrap<T>(payload: unknown): T {
+  if (payload && typeof payload === "object" && "data" in payload) return (payload as { data: T }).data;
+  return payload as T;
+}
+
+async function requestJson<T>(path: string, init?: RequestInit) {
+  const response = await fetch(`${API_BASE}${path}`, {
+    ...init,
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+      ...(init?.headers ?? {}),
+    },
+  });
+  if (!response.ok) throw new Error((await response.text().catch(() => "")) || `Request failed: ${response.status}`);
+  return unwrap<T>(await response.json());
+}
+
+function parseNumberedBlocks(text: string) {
+  const normalized = text.replace(/\r/g, "").trim();
+  if (!normalized) return [];
+  const parts = normalized.split(/\n(?=\s*\d+[\).]\s+)/g);
+  return parts.map((part) => part.trim()).filter(Boolean);
+}
+
+function stripNumber(line: string) {
+  return line.replace(/^\s*\d+[\).]\s*/, "").trim();
+}
+
+function parseAnswerMap(text: string) {
+  const map = new Map<number, string>();
+  text.split(/\n+/).forEach((line) => {
+    const match = line.match(/^\s*(\d+)\D+([A-D])\b/i);
+    if (match) map.set(Number(match[1]), match[2].toUpperCase());
+  });
+  return map;
+}
+
+function parseExplanationMap(text: string) {
+  const map = new Map<number, string>();
+  parseNumberedBlocks(text).forEach((block, index) => {
+    const number = Number(block.match(/^\s*(\d+)/)?.[1] || index + 1);
+    map.set(number, stripNumber(block));
+  });
+  return map;
+}
+
+function buildQuestions(source: string, answerKey: string, explanations: string, topic: string, totalMarks: number): QuestionDraft[] {
+  const answerMap = parseAnswerMap(answerKey);
+  const explanationMap = parseExplanationMap(explanations);
+  const blocks = parseNumberedBlocks(source);
+  const perQuestionMarks = Math.max(1, Math.round((Number.isFinite(totalMarks) ? totalMarks : 100) / Math.max(1, blocks.length)));
+
+  return blocks.map((block, index) => {
+    const lines = block.split(/\n+/).map((line) => line.trim()).filter(Boolean);
+    const number = Number(lines[0]?.match(/^\s*(\d+)/)?.[1] || index + 1);
+    const optionLines = lines.filter((line) => /^[A-D][\).]\s+/i.test(line));
+    const questionLines = lines.filter((line) => !/^[A-D][\).]\s+/i.test(line));
+    const options = optionLines.map((line) => line.replace(/^[A-D][\).]\s+/i, "").trim());
+    return {
+      questionText: stripNumber(questionLines.join(" ")),
+      optionA: options[0] || "Option A",
+      optionB: options[1] || "Option B",
+      optionC: options[2] || "Option C",
+      optionD: options[3] || "Option D",
+      correctAnswer: answerMap.get(number) || "A",
+      explanation: explanationMap.get(number) || "Explanation will be reviewed by faculty.",
+      marks: perQuestionMarks,
+      negativeMarks: 0,
+      difficultyLevel: "MEDIUM",
+      topic: topic || "General",
+    };
+  }).filter((question) => question.questionText);
+}
+
+function statusLabel(status?: string) {
+  const value = String(status || "DRAFT").replace(/_/g, " ").toLowerCase();
+  return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
+function optionText(question: QuestionDraft, option: "A" | "B" | "C" | "D") {
+  if (option === "A") return question.optionA;
+  if (option === "B") return question.optionB;
+  if (option === "C") return question.optionC;
+  return question.optionD;
+}
+
+export function TeacherExamWorkspace({ batches, selectedBatchId, exams, loading, onSelectBatch, onRefresh }: Props) {
+  const [activeBatchId, setActiveBatchId] = useState(selectedBatchId || batches[0]?.id || "");
+  const activeBatch = useMemo(() => batches.find((batch) => batch.id === activeBatchId) || batches[0] || null, [activeBatchId, batches]);
+  const [subject, setSubject] = useState(activeBatch?.subjects[0] || "General");
+  const [showCreator, setShowCreator] = useState(false);
+  const [step, setStep] = useState(1);
+  const [form, setForm] = useState(initialForm);
+  const [questionSource, setQuestionSource] = useState("");
+  const [answerKey, setAnswerKey] = useState("");
+  const [explanations, setExplanations] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState("");
+  const [resultsExam, setResultsExam] = useState<TeacherExamRecord | null>(null);
+  const [results, setResults] = useState<ResultsPayload | null>(null);
+
+  useEffect(() => {
+    if (selectedBatchId && selectedBatchId !== activeBatchId) setActiveBatchId(selectedBatchId);
+  }, [activeBatchId, selectedBatchId]);
+
+  useEffect(() => {
+    if (activeBatch?.subjects?.length && !activeBatch.subjects.includes(subject)) {
+      setSubject(activeBatch.subjects[0]);
+    }
+  }, [activeBatch, subject]);
+
+  const batchExams = useMemo(() => {
+    if (!activeBatch) return [];
+    return exams.filter((exam) => exam.batchId === activeBatch.id || exam.batchName === activeBatch.name);
+  }, [activeBatch, exams]);
+
+  const questions = useMemo(() => buildQuestions(questionSource, answerKey, explanations, form.topic, Number(form.marks)), [answerKey, explanations, form.marks, form.topic, questionSource]);
+
+  function openBatch(batchId: string) {
+    setActiveBatchId(batchId);
+    onSelectBatch(batchId);
+  }
+
+  async function appendFileText(file: File | null, setter: (value: string) => void, current: string) {
+    if (!file) return;
+    const text = await file.text().catch(() => "");
+    setter([current, text].filter(Boolean).join("\n\n"));
+  }
+
+  function openCreator() {
+    setForm({
+      ...initialForm,
+      title: activeBatch && subject ? `${subject} Test - ${activeBatch.name}` : "",
+      date: new Date().toISOString().slice(0, 10),
+    });
+    setQuestionSource("");
+    setAnswerKey("");
+    setExplanations("");
+    setStep(1);
+    setMessage("");
+    setShowCreator(true);
+  }
+
+  async function publishExam() {
+    if (!activeBatch) return;
+    if (!questions.length) {
+      setMessage("Add at least one question before publishing.");
+      return;
+    }
+    setBusy(true);
+    setMessage("");
+    try {
+      await requestJson("/api/academy/exams", {
+        method: "POST",
+        body: JSON.stringify({
+          batchId: activeBatch.id,
+          batchName: activeBatch.name,
+          course: activeBatch.program,
+          subject,
+          title: form.title,
+          topic: form.topic,
+          questionCount: questions.length,
+          durationMinutes: Number(form.duration),
+          difficulty: "MEDIUM",
+          instructions: form.instructions,
+          publishDate: form.date,
+          publishTime: form.time,
+          draft: {
+            title: form.title,
+            description: form.instructions || `Faculty published ${subject} exam for ${activeBatch.name}.`,
+            examType: "Teacher Exam",
+            category: "Defence LMS",
+            subject,
+            topic: form.topic,
+            duration: Number(form.duration),
+            totalMarks: Number(form.marks),
+            questions,
+          },
+        }),
+      });
+      setShowCreator(false);
+      await onRefresh();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Unable to publish exam.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function openResults(exam: TeacherExamRecord) {
+    setResultsExam(exam);
+    setResults(null);
+    setMessage("");
+    try {
+      setResults(await requestJson<ResultsPayload>(`/api/academy/exams/${exam.id}/results`));
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Unable to load results.");
+    }
+  }
+
+  async function releaseResults() {
+    if (!resultsExam) return;
+    setBusy(true);
+    try {
+      setResults(await requestJson<ResultsPayload>(`/api/academy/exams/${resultsExam.id}/release-results`, { method: "POST", body: JSON.stringify({}) }));
+      await onRefresh();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Unable to release results.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <section className="grid gap-5">
+      <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div className="flex items-start gap-4">
+            <span className="grid h-12 w-12 place-items-center rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] text-[var(--ink)]">
+              <BookOpen size={22} />
+            </span>
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold-dark)]">Exams</p>
+              <h2 className="mt-2 text-3xl font-black">Create and publish an exam.</h2>
+              <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--muted-blue)]">Choose a class, add questions, answer key and explanations, preview once, then publish to students.</p>
+            </div>
+          </div>
+          <button type="button" onClick={openCreator} disabled={!activeBatch} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-slate-950 bg-slate-950 px-5 py-3 text-sm font-black text-white disabled:opacity-50">
+            <Plus size={18} /> New Exam
+          </button>
+        </div>
+      </div>
+
+      {message ? <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-black text-rose-700">{message}</div> : null}
+
+      <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold-dark)]">My Classes</p>
+            <h3 className="mt-2 text-2xl font-black">Select batch</h3>
+          </div>
+          <span className="rounded-full border border-[var(--border)] px-4 py-2 text-xs font-black">{batches.length} batch(es)</span>
+        </div>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          {batches.map((batch) => (
+            <button key={batch.id} type="button" onClick={() => openBatch(batch.id)} className={`rounded-2xl border p-4 text-left transition ${activeBatch?.id === batch.id ? "border-slate-950 bg-slate-950 text-white" : "border-[var(--border)] bg-white text-[var(--ink)] hover:-translate-y-0.5"}`}>
+              <p className="text-lg font-black">{batch.name}</p>
+              <p className="mt-2 text-sm opacity-80">{batch.studentCount} students</p>
+              <p className="mt-1 text-xs font-black uppercase tracking-[0.18em] opacity-70">{batch.subjects.length} subjects</p>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {activeBatch ? (
+        <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
+          <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold-dark)]">Batch Workspace</p>
+              <h3 className="mt-2 text-2xl font-black">{activeBatch.name}</h3>
+              <p className="mt-1 text-sm text-[var(--muted-blue)]">{activeBatch.studentCount} students will receive published exams.</p>
+            </div>
+            <label className="grid gap-2 text-sm font-black">
+              Subject
+              <select value={subject} onChange={(event) => setSubject(event.target.value)} className="min-h-12 rounded-xl border border-[var(--border)] bg-white px-4">
+                {activeBatch.subjects.map((item) => <option key={item} value={item}>{item}</option>)}
+              </select>
+            </label>
+          </div>
+
+          <div className="mt-5 grid gap-4 xl:grid-cols-3">
+            {loading ? <p className="rounded-2xl border border-dashed border-[var(--border)] p-5 text-sm">Loading exams...</p> : null}
+            {!loading && !batchExams.length ? <p className="rounded-2xl border border-dashed border-[var(--border)] p-5 text-sm">No exams published for this batch yet.</p> : null}
+            {batchExams.map((exam) => (
+              <article key={exam.id} className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-5">
+                <div className="flex items-start justify-between gap-3">
+                  <span className="rounded-full bg-white px-3 py-1 text-xs font-black text-[var(--ink)]">{statusLabel(exam.status)}</span>
+                  <span className="text-xs font-black text-[var(--muted-blue)]">{exam.createdAt ? new Date(exam.createdAt).toLocaleDateString() : ""}</span>
+                </div>
+                <h4 className="mt-4 text-xl font-black">{exam.title || "Exam"}</h4>
+                <p className="mt-2 text-sm text-[var(--muted-blue)]">{exam.subject || subject} / {exam.topic || "Topic"}</p>
+                <div className="mt-4 grid grid-cols-3 gap-2 text-center text-xs font-black">
+                  <span>{exam.questionCount ?? 0} Qs</span>
+                  <span>{exam.durationMinutes ?? 0} min</span>
+                  <span>{exam.attemptStats?.submitted ?? 0} done</span>
+                </div>
+                <button type="button" onClick={() => void openResults(exam)} className="mt-5 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-slate-950 bg-white px-4 text-sm font-black text-slate-950">
+                  <Trophy size={16} /> Review Results
+                </button>
+              </article>
+            ))}
+          </div>
+        </div>
+      ) : null}
+
+      {showCreator ? (
+        <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/55 p-3">
+          <div className="max-h-[92vh] w-full max-w-5xl overflow-y-auto rounded-3xl border border-slate-950 bg-white p-5 shadow-2xl">
+            <div className="flex items-start justify-between gap-4 border-b border-[var(--border)] pb-4">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold-dark)]">New Exam</p>
+                <h3 className="mt-2 text-2xl font-black">{activeBatch?.name}</h3>
+                <p className="mt-1 text-sm text-[var(--muted-blue)]">Step {step} of 4</p>
+              </div>
+              <button type="button" onClick={() => setShowCreator(false)} className="grid h-11 w-11 place-items-center rounded-full border border-[var(--border)]">
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="mt-5">
+              {step === 1 ? (
+                <div className="grid gap-4 md:grid-cols-2">
+                  <Field label="Exam Name" value={form.title} onChange={(value) => setForm((current) => ({ ...current, title: value }))} />
+                  <Field label="Topic" value={form.topic} onChange={(value) => setForm((current) => ({ ...current, topic: value }))} placeholder="Algebra, Constitution, Motion..." />
+                  <Field label="Date" type="date" value={form.date} onChange={(value) => setForm((current) => ({ ...current, date: value }))} />
+                  <Field label="Time" type="time" value={form.time} onChange={(value) => setForm((current) => ({ ...current, time: value }))} />
+                  <Field label="Duration" type="number" value={form.duration} onChange={(value) => setForm((current) => ({ ...current, duration: value }))} />
+                  <Field label="Marks" type="number" value={form.marks} onChange={(value) => setForm((current) => ({ ...current, marks: value }))} />
+                </div>
+              ) : null}
+
+              {step === 2 ? (
+                <div className="grid gap-4 lg:grid-cols-3">
+                  <ExamInputCard title="Questions" description="Paste questions or upload a text-based paper. Use 1., 2., 3. with A/B/C/D options.">
+                    <textarea value={questionSource} onChange={(event) => setQuestionSource(event.target.value)} rows={12} className="w-full rounded-xl border border-[var(--border)] p-3 text-sm" placeholder={"1. Question...\nA. Option\nB. Option\nC. Option\nD. Option"} />
+                    <input type="file" accept=".txt,.doc,.docx,.pdf" onChange={(event) => void appendFileText(event.target.files?.[0] ?? null, setQuestionSource, questionSource)} className="mt-3 w-full rounded-xl border border-[var(--border)] p-3 text-sm" />
+                  </ExamInputCard>
+                  <ExamInputCard title="Answer Key" description="One line per answer. Example: 1 - A">
+                    <textarea value={answerKey} onChange={(event) => setAnswerKey(event.target.value)} rows={12} className="w-full rounded-xl border border-[var(--border)] p-3 text-sm" placeholder={"1 - A\n2 - C\n3 - B"} />
+                    <input type="file" accept=".txt" onChange={(event) => void appendFileText(event.target.files?.[0] ?? null, setAnswerKey, answerKey)} className="mt-3 w-full rounded-xl border border-[var(--border)] p-3 text-sm" />
+                  </ExamInputCard>
+                  <ExamInputCard title="Explanations" description="These become the final student report after release.">
+                    <textarea value={explanations} onChange={(event) => setExplanations(event.target.value)} rows={12} className="w-full rounded-xl border border-[var(--border)] p-3 text-sm" placeholder={"1. Explanation...\n2. Explanation..."} />
+                    <input type="file" accept=".txt" onChange={(event) => void appendFileText(event.target.files?.[0] ?? null, setExplanations, explanations)} className="mt-3 w-full rounded-xl border border-[var(--border)] p-3 text-sm" />
+                  </ExamInputCard>
+                </div>
+              ) : null}
+
+              {step === 3 ? (
+                <div className="grid gap-4">
+                  <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
+                    <p className="font-black">{questions.length} questions / {form.marks} marks / {form.duration} minutes</p>
+                    <p className="mt-1 text-sm text-[var(--muted-blue)]">{subject} - {form.topic || "General"}</p>
+                  </div>
+                  <div className="grid max-h-[55vh] gap-3 overflow-y-auto pr-2">
+                    {questions.map((question, index) => (
+                      <div key={`${question.questionText}-${index}`} className="rounded-2xl border border-[var(--border)] p-4">
+                        <p className="font-black">Q{index + 1}. {question.questionText}</p>
+                        <div className="mt-3 grid gap-2 text-sm md:grid-cols-2">
+                          {["A", "B", "C", "D"].map((option) => (
+                            <span key={option} className={`rounded-xl border px-3 py-2 ${question.correctAnswer === option ? "border-emerald-500 bg-emerald-50 font-black" : "border-[var(--border)]"}`}>
+                              {option}. {optionText(question, option as "A" | "B" | "C" | "D")}
+                            </span>
+                          ))}
+                        </div>
+                        <p className="mt-3 text-sm text-[var(--muted-blue)]">Explanation: {question.explanation}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
+
+              {step === 4 ? (
+                <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-5">
+                  <div className="grid gap-3 md:grid-cols-4">
+                    <Summary label="Batch" value={activeBatch?.name || "Batch"} />
+                    <Summary label="Subject" value={subject} />
+                    <Summary label="Questions" value={String(questions.length)} />
+                    <Summary label="Timer" value={`${form.duration} min`} />
+                  </div>
+                  <p className="mt-5 text-sm leading-6 text-[var(--muted-blue)]">Publish sends this exam to students in this batch. Student result reports stay hidden until you review and release results.</p>
+                </div>
+              ) : null}
+            </div>
+
+            {message ? <p className="mt-4 rounded-2xl border border-rose-200 bg-rose-50 p-3 text-sm font-black text-rose-700">{message}</p> : null}
+            <div className="mt-5 flex flex-wrap justify-between gap-3 border-t border-[var(--border)] pt-4">
+              <button type="button" onClick={() => setStep((value) => Math.max(1, value - 1))} className="min-h-12 rounded-xl border border-[var(--border)] px-5 font-black">Back</button>
+              {step < 4 ? (
+                <button type="button" onClick={() => setStep((value) => Math.min(4, value + 1))} className="min-h-12 rounded-xl border border-slate-950 bg-slate-950 px-6 font-black text-white">Continue</button>
+              ) : (
+                <button type="button" onClick={() => void publishExam()} disabled={busy} className="min-h-12 rounded-xl border border-emerald-700 bg-emerald-700 px-6 font-black text-white disabled:opacity-60">
+                  {busy ? "Publishing..." : "Publish To Students"}
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {resultsExam ? (
+        <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/55 p-3">
+          <div className="max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-3xl border border-slate-950 bg-white p-5 shadow-2xl">
+            <div className="flex items-start justify-between gap-4 border-b border-[var(--border)] pb-4">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold-dark)]">Result Review</p>
+                <h3 className="mt-2 text-2xl font-black">{resultsExam.title}</h3>
+              </div>
+              <button type="button" onClick={() => setResultsExam(null)} className="grid h-11 w-11 place-items-center rounded-full border border-[var(--border)]">
+                <X size={18} />
+              </button>
+            </div>
+            {!results ? <p className="mt-5 rounded-2xl border border-dashed border-[var(--border)] p-5">Loading results...</p> : null}
+            {results ? (
+              <>
+                <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
+                  <p className="text-sm font-black">{results.results.length} submitted / {results.released ? "Released" : "Not released"}</p>
+                  <button type="button" onClick={() => void releaseResults()} disabled={busy || results.released} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-emerald-700 bg-emerald-700 px-5 text-sm font-black text-white disabled:opacity-50">
+                    <CheckCircle2 size={16} /> Release Results
+                  </button>
+                </div>
+                <div className="mt-4 grid gap-3">
+                  {results.results.map((row) => (
+                    <div key={row.attemptId} className="grid gap-3 rounded-2xl border border-[var(--border)] p-4 md:grid-cols-[80px_1fr_120px_120px] md:items-center">
+                      <span className="text-2xl font-black">#{row.rank}</span>
+                      <div>
+                        <p className="font-black">{row.studentName || row.studentEmail || "Student"}</p>
+                        <p className="text-sm text-[var(--muted-blue)]">{row.correct} correct / {row.wrong} wrong</p>
+                      </div>
+                      <span className="font-black">{row.score}/{row.totalMarks}</span>
+                      <span className="font-black">{row.percentage}%</span>
+                    </div>
+                  ))}
+                  {!results.results.length ? <p className="rounded-2xl border border-dashed border-[var(--border)] p-5">No submitted attempts yet.</p> : null}
+                </div>
+              </>
+            ) : null}
+          </div>
+        </div>
+      ) : null}
+    </section>
+  );
+}
+
+function Field({ label, value, onChange, type = "text", placeholder }: { label: string; value: string; onChange: (value: string) => void; type?: string; placeholder?: string }) {
+  return (
+    <label className="grid gap-2 text-sm font-black">
+      {label}
+      <input type={type} value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} className="min-h-12 rounded-xl border border-[var(--border)] bg-white px-4" />
+    </label>
+  );
+}
+
+function ExamInputCard({ title, description, children }: { title: string; description: string; children: ReactNode }) {
+  return (
+    <div className="rounded-2xl border border-[var(--border)] p-4">
+      <div className="mb-4 flex items-start gap-3">
+        <span className="grid h-10 w-10 place-items-center rounded-xl bg-[var(--page-bg)]">
+          <FileText size={18} />
+        </span>
+        <div>
+          <p className="font-black">{title}</p>
+          <p className="mt-1 text-xs leading-5 text-[var(--muted-blue)]">{description}</p>
+        </div>
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function Summary({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-2xl border border-[var(--border)] bg-white p-4">
+      <p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold-dark)]">{label}</p>
+      <p className="mt-2 font-black">{value}</p>
+    </div>
+  );
+}

@@ -199,6 +199,8 @@ type ExamInput = {
   duration?: number;
   difficulty?: string;
   instructions?: string;
+  publishDate?: string;
+  publishTime?: string;
   draft?: unknown;
   status?: string;
 };
@@ -2745,6 +2747,12 @@ export const academyService = {
     const providedDraft = asDraftPayload(input);
     const generatedDraft = providedDraft?.questions?.length ? providedDraft : await buildExamDraft(user, input);
     const questions = generatedDraft.questions ?? [];
+    const publishAt = input.publishDate
+      ? new Date(`${input.publishDate}T${input.publishTime || "00:00"}:00`)
+      : null;
+    if (publishAt && Number.isNaN(publishAt.getTime())) {
+      throw Object.assign(new Error("Exam date or time is invalid"), { statusCode: 400 });
+    }
     const testPayload: TestPayload = {
       title: input.title,
       description: input.instructions || `Teacher-created exam on ${input.topic}`,
@@ -2754,6 +2762,7 @@ export const academyService = {
       topic: input.topic || generatedDraft.topic,
       batchId: input.batchId,
       teacherId: user.id,
+      publishAt: publishAt?.toISOString(),
       duration: Number(input.durationMinutes || input.duration || generatedDraft.duration || 20),
       totalMarks: questions.reduce((sum, question) => sum + Number(question.marks || 1), 0),
       isMockTest: true,
@@ -2871,6 +2880,62 @@ export const academyService = {
       { exams: 0, liveTests: 0, attempts: 0, submitted: 0, scoreTotal: 0, scored: 0, averageScore: 0 },
     );
     return { summary, exams };
+  },
+
+  async examResults(user: Requester, examId: string) {
+    requireAcademic(user);
+    const rows = await prisma.$queryRaw<any[]>`
+      SELECT * FROM "TeacherExamRecord" WHERE "id" = ${examId} LIMIT 1
+    `;
+    const exam = rows[0];
+    if (!exam) throw Object.assign(new Error("Exam not found"), { statusCode: 404 });
+    await assertBatchSubjectAccess(user, exam.batchId, exam.subject);
+    if (user.role === Role.TEACHER && exam.teacherId !== user.id && !isAcademicManager(user)) {
+      throw Object.assign(new Error("Only the creating teacher can review these results"), { statusCode: 403 });
+    }
+    if (!exam.testId) return { exam: normalizeRows(rows)[0], results: [], released: exam.status === "RESULTS_RELEASED" };
+
+    const test = await prisma.test.findUnique({ where: { id: exam.testId }, select: { totalMarks: true } });
+    const attempts = await prisma.testAttempt.findMany({
+      where: { testId: exam.testId, status: "SUBMITTED", submittedAt: { not: null } },
+      orderBy: [{ score: "desc" }, { totalCorrect: "desc" }, { timeTaken: "asc" }, { submittedAt: "asc" }],
+      include: { user: { select: { id: true, name: true, email: true } } },
+    });
+    return {
+      exam: normalizeRows(rows)[0],
+      released: exam.status === "RESULTS_RELEASED",
+      results: attempts.map((attempt, index) => ({
+        rank: index + 1,
+        attemptId: attempt.id,
+        studentId: attempt.userId,
+        studentName: attempt.user.name,
+        studentEmail: attempt.user.email,
+        score: attempt.score,
+        totalMarks: test?.totalMarks ?? 0,
+        percentage: test?.totalMarks ? Math.round((attempt.score / test.totalMarks) * 100) : 0,
+        correct: attempt.totalCorrect,
+        wrong: attempt.totalWrong,
+        timeTaken: attempt.timeTaken,
+        submittedAt: attempt.submittedAt?.toISOString() ?? null,
+      })),
+    };
+  },
+
+  async releaseExamResults(user: Requester, examId: string) {
+    const result = await this.examResults(user, examId);
+    const releasedAt = new Date();
+    await prisma.$executeRaw`
+      UPDATE "TeacherExamRecord"
+      SET "status" = 'RESULTS_RELEASED',
+          "analytics" = ${JSON.stringify({ releasedAt: releasedAt.toISOString(), releasedBy: user.id, rankedStudents: result.results.length })}::jsonb,
+          "updatedAt" = ${releasedAt}
+      WHERE "id" = ${examId}
+    `;
+    await auditAcademicAction(user, "EXAM_RESULTS_RELEASED", "TeacherExamRecord", examId, {
+      releasedAt: releasedAt.toISOString(),
+      rankedStudents: result.results.length,
+    });
+    return { ...result, released: true, releasedAt: releasedAt.toISOString() };
   },
 
   async syllabusProgress(user: Requester, query: Record<string, unknown>) {

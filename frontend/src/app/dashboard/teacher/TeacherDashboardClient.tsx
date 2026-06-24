@@ -7,6 +7,7 @@ import { uploadMediaFile } from "@/services/media";
 import { TeacherTodayView, type TeacherTodayScheduleItem } from "@/components/teacher/teacher-today-view";
 import { TeacherStudentsView, type TeacherRosterBatch } from "@/components/teacher/teacher-students-view";
 import { TeacherSimpleCalendar } from "@/components/teacher/teacher-simple-calendar";
+import { TeacherExamWorkspace, type TeacherExamBatch } from "@/components/teacher/teacher-exam-workspace";
 import {
   BarChart3,
   Bell,
@@ -232,8 +233,10 @@ type LibraryFolderItem = {
 
 type ExamRecord = {
   id: string;
+  batchId?: string | null;
   batchName?: string | null;
   course?: string | null;
+  subject?: string | null;
   title?: string;
   topic?: string | null;
   questionCount?: number;
@@ -864,6 +867,13 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
       students,
     };
   }), [activeClasses]);
+  const teacherExamBatches = useMemo<TeacherExamBatch[]>(() => activeClasses.map((batch) => ({
+    id: batch.id,
+    name: batch.name,
+    program: programName(batch),
+    studentCount: batch._count?.students ?? batch.students?.length ?? 0,
+    subjects: subjectsForBatch(batch),
+  })), [activeClasses]);
   const activeCourseKey = courseKey ? decodeURIComponent(courseKey) : null;
   const activeBatchId = batchId ? decodeURIComponent(batchId) : null;
   const programGroups = useMemo(() => {
@@ -2607,78 +2617,18 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
         <TeacherStudentsView batches={teacherRosterBatches} loading={loadingPlan} onMarkAttendance={markRosterAttendance} />
       ) : null}
 
-      {view === "exams" ? <section className="grid gap-5">
-        <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div className="flex items-start gap-4">
-              <span className="grid h-12 w-12 place-items-center rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] text-[var(--ink)]">
-                <BookOpen size={22} />
-              </span>
-              <div>
-                <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold-dark)]">Exams</p>
-                <h2 className="mt-2 text-3xl font-black">Create tomorrow's exam in minutes.</h2>
-                <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--muted-blue)]">Select batch, select subject, upload or paste the question paper, let NIDUS GURU review it, then send for approval.</p>
-              </div>
-            </div>
-            <button type="button" onClick={openExamCreator} className="relative z-10 inline-flex min-h-14 shrink-0 items-center justify-center gap-2 rounded-2xl border border-slate-950 !bg-slate-950 px-6 py-4 text-base font-black !text-white shadow-sm transition hover:-translate-y-0.5">
-              <Plus size={20} /> Create New Exam
-            </button>
-          </div>
-        </div>
-        {examMessage ? <Notice text={examMessage} /> : null}
-        <ExamWorkflowSection
-          title="Draft Exams"
-          description="Question papers being prepared or waiting for teacher review."
-          empty="No draft exams yet. Upload, paste or create a question paper."
-        >
-          {localDraftExam ? <ExamWorkflowCard exam={localDraftExam} courseName={selectedProgram?.name ?? "Program pending"} batchName={selectedClass?.name ?? "Batch pending"} mode="draft" onPrimary={openExamCreator} /> : null}
-          {draftExamCards.map((exam) => (
-            <ExamWorkflowCard key={exam.id} exam={exam} batchName={exam.batchName ?? selectedClass?.name ?? "Batch"} courseName={exam.course ?? selectedProgram?.name ?? "Program"} mode="draft" onPrimary={openExamCreator} onEdit={() => void editExamRecord(exam)} onCancel={() => void cancelExamRecord(exam)} onPublishChanges={() => void publishExamRecordChanges(exam)} />
-          ))}
-        </ExamWorkflowSection>
-        <ExamWorkflowSection
-          title="Scheduled Exams"
-          description="Approved exams waiting for students to attempt."
-          empty="No scheduled exams yet. Send a reviewed paper for approval first."
-        >
-          {scheduledExamCards.map((exam) => (
-            <ExamWorkflowCard key={exam.id} exam={exam} batchName={exam.batchName ?? selectedClass?.name ?? "Batch"} courseName={exam.course ?? selectedProgram?.name ?? "Program"} mode="scheduled" onPrimary={() => void editExamRecord(exam)} onEdit={() => void editExamRecord(exam)} onCancel={() => void cancelExamRecord(exam)} onPublishChanges={() => void publishExamRecordChanges(exam)} />
-          ))}
-        </ExamWorkflowSection>
-        <ExamWorkflowSection
-          title="Completed Exams"
-          description="Attempts, average marks and result actions."
-          empty="Completed exams will appear after students submit attempts."
-        >
-          {completedExamCards.map((exam) => (
-            <ExamWorkflowCard key={exam.id} exam={exam} batchName={exam.batchName ?? selectedClass?.name ?? "Batch"} courseName={exam.course ?? selectedProgram?.name ?? "Program"} mode="completed" onPrimary={openExamCreator} />
-          ))}
-        </ExamWorkflowSection>
-        {showExamCreator ? (
-          <ExamGuruModal
-            messages={examChatMessages}
-            chatInput={examChatInput}
-            setChatInput={setExamChatInput}
-            onSend={sendExamChatMessage}
-            onClose={() => setShowExamCreator(false)}
-            onDraft={() => void createExamDraft()}
-            onPublish={() => void publishExam()}
-            examDraft={examDraft}
-            examForm={examForm}
-            setExamForm={setExamForm}
-            setExamDraft={setExamDraft}
-            setExamSourceName={setExamSourceName}
-            programGroups={programGroups}
-            selectedProgramKey={selectedProgram?.key}
-            selectedClassId={selectedClass?.id}
-            onProgram={chooseProgram}
-            onBatch={chooseBatch}
-            selectedProgramName={selectedProgram?.name ?? "Course"}
-            selectedBatchName={selectedClass?.name ?? "Batch"}
-            examSourceName={examSourceName}
-          />
-        ) : null}
-      </section> : null}
+      {view === "exams" ? (
+        <TeacherExamWorkspace
+          batches={teacherExamBatches}
+          selectedBatchId={selectedClass?.id ?? null}
+          exams={classWorkspace.exams}
+          loading={workspaceLoading}
+          onSelectBatch={chooseBatch}
+          onRefresh={async () => {
+            if (selectedClass?.id) await loadClassWorkspace(selectedClass.id);
+          }}
+        />
+      ) : null}
 
       {view === "assignments" ? <section className="grid gap-5">
         <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">

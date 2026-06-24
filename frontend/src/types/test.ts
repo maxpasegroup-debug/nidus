@@ -83,6 +83,7 @@ export type AnswerState = {
 
 export type ResultAnswer = {
   id: string;
+  questionId: string;
   selectedAnswer: string;
   isCorrect: boolean;
   question: Question;
@@ -100,6 +101,8 @@ export type TestResult = {
       averagePerQuestion: number;
     };
     rankEstimation: number;
+    batchRank: number;
+    rankedStudents: number;
     topicAnalysis: Array<{ topic: string; correct: number; total: number; accuracy: number }>;
     aiInsights: string;
   };
