@@ -198,7 +198,7 @@ type AssignmentRecord = {
   status?: string;
   createdAt?: string;
   submissionStats?: { submitted?: number; pending?: number; totalStudents?: number };
-  submissions?: Array<{ id?: string; studentId?: string; studentName?: string; status?: string; marks?: number | null; feedback?: string | null; submittedAt?: string | null }>;
+  submissions?: Array<{ id?: string; studentId?: string; studentName?: string; status?: string; reviewStatus?: string | null; score?: number | null; marks?: number | null; feedback?: string | null; answerText?: string | null; attachmentName?: string | null; link?: string | null; submittedAt?: string | null }>;
 };
 
 type MaterialRecord = {
@@ -1573,9 +1573,17 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
   }
 
   function openAssignmentCreator() {
+    const defaultSubject = selectedClass ? subjectsForBatch(selectedClass)[0] : "";
     setShowAssignmentCreator(true);
     setAssignmentMessage(null);
     setAssignmentChatInput("");
+    setAssignmentForm((form) => ({
+      ...form,
+      title: form.title || "Homework",
+      subject: form.subject || defaultSubject,
+      dueDate: form.dueDate || todayDate(),
+      difficulty: "MEDIUM",
+    }));
     setAssignmentChatMessages([
       {
         id: "welcome",
@@ -1949,6 +1957,19 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
       await loadClassWorkspace(selectedClass.id);
     } catch (error) {
       setAssignmentMessage(error instanceof Error ? error.message : "Could not save assignment.");
+    }
+  }
+
+  async function reviewAssignmentSubmission(submissionId: string, reviewStatus: "REVIEWED" | "RETURNED") {
+    try {
+      await apiPatch<{ ok?: boolean }>([`/api/academy/assignment-submissions/${submissionId}`], {
+        reviewStatus,
+        feedback: reviewStatus === "RETURNED" ? "Needs correction. Please revise and resubmit." : "Approved.",
+      });
+      setAssignmentMessage(reviewStatus === "RETURNED" ? "Submission returned for correction." : "Submission approved.");
+      if (selectedClass?.id) await loadClassWorkspace(selectedClass.id);
+    } catch (error) {
+      setAssignmentMessage(error instanceof Error ? error.message : "Could not update submission review.");
     }
   }
 
@@ -2639,12 +2660,12 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
               </span>
               <div>
                 <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold-dark)]">Assignments</p>
-                <h2 className="mt-2 text-3xl font-black">Homework workspace.</h2>
-                <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--muted-blue)]">Open a class, add homework, publish, then track submissions. No ERP controls on the main screen.</p>
+                <h2 className="mt-2 text-3xl font-black">Give homework in 60 seconds.</h2>
+                <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--muted-blue)]">Choose a class, write instructions, attach worksheet if needed, then publish to students.</p>
               </div>
             </div>
-            <button type="button" onClick={openAssignmentCreator} className="relative z-10 inline-flex min-h-14 shrink-0 items-center justify-center gap-2 rounded-2xl border border-slate-950 !bg-slate-950 px-6 py-4 text-base font-black !text-white shadow-sm transition hover:-translate-y-0.5">
-              <Plus size={20} /> New Assignment
+            <button type="button" onClick={openAssignmentCreator} disabled={!selectedClass} className="relative z-10 inline-flex min-h-14 shrink-0 items-center justify-center gap-2 rounded-2xl border border-slate-950 !bg-slate-950 px-6 py-4 text-base font-black !text-white shadow-sm transition hover:-translate-y-0.5 disabled:opacity-50">
+              <Plus size={20} /> New Homework
             </button>
           </div>
         </div>
@@ -2654,20 +2675,17 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
               <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold-dark)]">My Classes</p>
-              <h3 className="mt-2 text-2xl font-black">Choose a batch</h3>
+              <h3 className="mt-2 text-2xl font-black">Select class</h3>
             </div>
             <span className="rounded-full border border-[var(--border)] bg-[var(--page-bg)] px-4 py-2 text-xs font-black">{activeClasses.length} class(es)</span>
           </div>
-          <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+          <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
             {activeClasses.map((batch) => (
               <AssignmentClassTile
                 key={batch.id}
                 batch={batch}
                 active={selectedClass?.id === batch.id}
-                onOpen={() => {
-                  chooseBatch(batch.id);
-                  setAssignmentWorkspaceTab("assignments");
-                }}
+                onOpen={() => chooseBatch(batch.id)}
               />
             ))}
             {!activeClasses.length ? <EmptyState text="No assigned classes are available yet." /> : null}
@@ -2675,86 +2693,28 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
         </div>
 
         <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
-              <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold-dark)]">Batch Workspace</p>
-              <h3 className="mt-2 text-3xl font-black">{selectedClass?.name ?? "Open a batch"}</h3>
+              <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold-dark)]">Homework</p>
+              <h3 className="mt-2 text-3xl font-black">{selectedClass?.name ?? "Open a class"}</h3>
               <p className="mt-2 text-sm leading-6 text-[var(--muted-blue)]">
-                {selectedClass ? `${selectedStudents.length} students / ${subjectsForBatch(selectedClass).length} subjects` : "Select a batch above to create and track homework."}
+                {selectedClass ? `${selectedStudents.length} students / ${subjectsForBatch(selectedClass).join(", ")}` : "Select a class above to create and track homework."}
               </p>
             </div>
-            <div className="flex flex-wrap gap-2">
-              {(["assignments", "students", "attendance", "library"] as const).map((tab) => (
-                <button
-                  key={tab}
-                  type="button"
-                  onClick={() => setAssignmentWorkspaceTab(tab)}
-                  className={`min-h-11 rounded-xl border px-4 py-2 text-sm font-black capitalize ${assignmentWorkspaceTab === tab ? "border-slate-950 bg-slate-950 text-white" : "border-[var(--border)] bg-[var(--page-bg)] text-[var(--ink)]"}`}
-                >
-                  {tab}
-                </button>
-              ))}
-            </div>
+            <button type="button" onClick={openAssignmentCreator} disabled={!selectedClass} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-slate-950 bg-slate-950 px-5 py-3 text-sm font-black text-white disabled:opacity-50">
+              <Plus size={18} /> New Homework
+            </button>
           </div>
-
-          {assignmentWorkspaceTab === "assignments" ? (
-            <div className="mt-5">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div>
-                  <h4 className="text-2xl font-black">Assignments</h4>
-                  <p className="mt-1 text-sm text-[var(--muted-blue)]">Create, publish and track homework for this batch.</p>
-                </div>
-                <button type="button" onClick={openAssignmentCreator} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-slate-950 bg-slate-950 px-5 py-3 text-sm font-black text-white">
-                  <Plus size={18} /> New Assignment
-                </button>
-              </div>
-              <div className="mt-4 overflow-hidden rounded-2xl border border-[var(--border)]">
-                {classWorkspace.assignments.map((assignment) => (
-                  <AssignmentListItem
-                    key={assignment.id}
-                    assignment={assignment}
-                    onOpen={() => setSelectedAssignmentId(assignment.id)}
-                    onEdit={() => void editAssignmentRecord(assignment)}
-                    onCancel={() => void cancelAssignmentRecord(assignment)}
-                    onPublishChanges={() => void publishAssignmentRecordChanges(assignment)}
-                  />
-                ))}
-                {!classWorkspace.assignments.length ? <AssignmentEmptyState onCreate={openAssignmentCreator} /> : null}
-              </div>
-            </div>
-          ) : null}
-
-          {assignmentWorkspaceTab === "students" ? (
-            <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-              {selectedStudents.map((entry, index) => (
-                <div key={studentId(entry, index)} className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
-                  <p className="text-lg font-black">{entry.student?.name || entry.student?.email || "Student"}</p>
-                  <p className="mt-1 text-sm text-[var(--muted-blue)]">{entry.student?.mobile || entry.student?.email || "Contact pending"}</p>
-                </div>
-              ))}
-              {!selectedStudents.length ? <EmptyState text="No students are visible for this batch yet." /> : null}
-            </div>
-          ) : null}
-
-          {assignmentWorkspaceTab === "attendance" ? (
-            <div className="mt-5 grid gap-3 md:grid-cols-3">
-              <SummaryCard label="Attendance" value={`${selectedAttendanceRate}%`} />
-              <SummaryCard label="Present Today" value={attendancePresentCount} />
-              <SummaryCard label="Absent Today" value={attendanceAbsentCount} />
-            </div>
-          ) : null}
-
-          {assignmentWorkspaceTab === "library" ? (
-            <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-              {classWorkspace.materials.map((material) => (
-                <div key={material.id} className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
-                  <p className="text-lg font-black">{material.title || "Lesson"}</p>
-                  <p className="mt-1 text-sm text-[var(--muted-blue)]">{material.subject || "Subject"} / {material.topic || "General"}</p>
-                </div>
-              ))}
-              {!classWorkspace.materials.length ? <EmptyState text="No library materials are visible for this batch yet." /> : null}
-            </div>
-          ) : null}
+          <div className="mt-5 grid gap-3">
+            {classWorkspace.assignments.map((assignment) => (
+              <AssignmentListItem
+                key={assignment.id}
+                assignment={assignment}
+                onOpen={() => setSelectedAssignmentId(assignment.id)}
+              />
+            ))}
+            {!classWorkspace.assignments.length ? <AssignmentEmptyState onCreate={openAssignmentCreator} /> : null}
+          </div>
         </div>
 
         {showAssignmentCreator ? (
@@ -2778,6 +2738,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
             courseName={selectedProgram?.name ?? selectedAssignment.course ?? "Course"}
             batchName={selectedClass?.name ?? selectedAssignment.batchName ?? "Batch"}
             onClose={() => setSelectedAssignmentId(null)}
+            onReview={reviewAssignmentSubmission}
           />
         ) : null}
       </section> : null}
@@ -4515,16 +4476,18 @@ function AssignmentClassTile({ batch, active, onOpen }: { batch: AssignedClass; 
     <button
       type="button"
       onClick={onOpen}
-      className={`min-h-28 rounded-2xl border p-4 text-left shadow-sm transition hover:-translate-y-0.5 ${active ? "border-slate-950 bg-slate-950 text-white" : "border-[var(--border)] bg-[var(--page-bg)] text-[var(--ink)]"}`}
+      className={`aspect-[1.45] rounded-2xl border p-4 text-left shadow-sm transition hover:-translate-y-0.5 ${active ? "border-slate-950 bg-slate-950 text-white" : "border-[var(--border)] bg-[var(--page-bg)] text-[var(--ink)]"}`}
     >
-      <div className="flex items-start justify-between gap-3">
+      <div className="flex h-full flex-col justify-between">
         <div>
-          <h3 className="text-lg font-black">{batch.name}</h3>
-          <p className={`mt-2 text-sm ${active ? "text-white/75" : "text-[var(--muted-blue)]"}`}>{batch._count?.students ?? batch.students?.length ?? 0} students</p>
+          <p className={`text-xs font-black uppercase tracking-[0.24em] ${active ? "text-[#e7c873]" : "text-[var(--gold-dark)]"}`}>Class</p>
+          <h3 className="mt-2 text-lg font-black leading-tight">{batch.name}</h3>
         </div>
-        <span className={`rounded-full border px-3 py-1 text-xs font-black ${active ? "border-white/30 text-white" : "border-[var(--border)] text-[var(--ink)]"}`}>Open</span>
+        <div className="flex flex-wrap gap-2 text-xs font-black">
+          <span className={`rounded-full border px-3 py-1 ${active ? "border-white/30 text-white" : "border-[var(--border)] text-[var(--ink)]"}`}>{batch._count?.students ?? batch.students?.length ?? 0} students</span>
+          <span className={`rounded-full border px-3 py-1 ${active ? "border-white/30 text-white" : "border-[var(--border)] text-[var(--ink)]"}`}>{subjectsForBatch(batch).length} subjects</span>
+        </div>
       </div>
-      <p className={`mt-3 text-xs font-black uppercase tracking-[0.2em] ${active ? "text-[#e7c873]" : "text-[var(--gold-dark)]"}`}>{subjectsForBatch(batch).slice(0, 3).join(" / ") || batch.subject || "Subjects pending"}</p>
     </button>
   );
 }
@@ -4532,22 +4495,16 @@ function AssignmentClassTile({ batch, active, onOpen }: { batch: AssignedClass; 
 function AssignmentListItem({
   assignment,
   onOpen,
-  onEdit,
-  onCancel,
-  onPublishChanges,
 }: {
   assignment: AssignmentRecord;
   onOpen: () => void;
-  onEdit: () => void;
-  onCancel: () => void;
-  onPublishChanges: () => void;
 }) {
   const submitted = assignment.submissionStats?.submitted ?? assignment.submissions?.length ?? 0;
   const total = assignment.submissionStats?.totalStudents ?? 0;
   const dueLabel = assignment.dueDate ? new Date(assignment.dueDate).toLocaleDateString() : "No due date";
 
   return (
-    <div className="grid gap-3 border-b border-[var(--border)] bg-white p-4 last:border-b-0 md:grid-cols-[1fr_auto] md:items-center">
+    <article className="grid gap-4 rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4 md:grid-cols-[1fr_auto] md:items-center">
       <button type="button" onClick={onOpen} className="text-left">
         <div className="flex flex-wrap items-center gap-2">
           <span className={`rounded-full px-3 py-1 text-xs font-black ${statusTone(assignment.status)}`}>{assignment.status || "PUBLISHED"}</span>
@@ -4558,19 +4515,9 @@ function AssignmentListItem({
       </button>
       <div className="flex flex-col gap-3 md:items-end">
         <p className="text-sm font-black">{submitted}/{total || "?"} submitted</p>
-        <div className="flex flex-wrap gap-2">
-          <button type="button" onClick={onOpen} className="min-h-10 rounded-xl border border-slate-950 bg-slate-950 px-4 py-2 text-sm font-black text-white">Open</button>
-          <details className="relative">
-            <summary className="min-h-10 cursor-pointer list-none rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-4 py-2 text-sm font-black">More</summary>
-            <div className="absolute right-0 z-20 mt-2 grid w-48 gap-2 rounded-2xl border border-[var(--border)] bg-white p-2 shadow-xl">
-              <button type="button" onClick={onEdit} className="rounded-xl px-3 py-2 text-left text-sm font-black hover:bg-[var(--page-bg)]">Edit Assignment</button>
-              <button type="button" onClick={onPublishChanges} className="rounded-xl px-3 py-2 text-left text-sm font-black hover:bg-[var(--page-bg)]">Publish Changes</button>
-              <button type="button" onClick={onCancel} className="rounded-xl px-3 py-2 text-left text-sm font-black text-rose-700 hover:bg-rose-50">Archive</button>
-            </div>
-          </details>
-        </div>
+        <button type="button" onClick={onOpen} className="min-h-10 rounded-xl border border-slate-950 bg-slate-950 px-4 py-2 text-sm font-black text-white">Open Submissions</button>
       </div>
-    </div>
+    </article>
   );
 }
 
@@ -4580,7 +4527,7 @@ function AssignmentEmptyState({ onCreate }: { onCreate: () => void }) {
       <h3 className="text-2xl font-black">No homework yet</h3>
       <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-[var(--muted-blue)]">Create the first assignment for this batch. Add a title, due date, instructions and optional attachment.</p>
       <button type="button" onClick={onCreate} className="mt-5 inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-slate-950 !bg-slate-950 px-6 py-3 text-sm font-black !text-white">
-        <Plus size={18} /> New Assignment
+        <Plus size={18} /> New Homework
       </button>
     </div>
   );
@@ -4592,19 +4539,19 @@ function AssignmentDetailsModal({
   courseName,
   batchName,
   onClose,
+  onReview,
 }: {
   assignment: AssignmentRecord;
   students: NonNullable<AssignedClass["students"]>;
   courseName: string;
   batchName: string;
   onClose: () => void;
+  onReview: (submissionId: string, reviewStatus: "REVIEWED" | "RETURNED") => void;
 }) {
   const submissions = assignment.submissions ?? [];
   const submittedStudentIds = new Set(submissions.map((submission) => submission.studentId).filter(Boolean));
   const submittedNames = new Set(submissions.map((submission) => submission.studentName).filter(Boolean));
-  const pendingStudents = submissions.length
-    ? students.filter((entry) => !submittedStudentIds.has(entry.student?.id) && !submittedNames.has(entry.student?.name))
-    : [];
+  const pendingStudents = students.filter((entry) => !submittedStudentIds.has(entry.student?.id) && !submittedNames.has(entry.student?.name));
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 px-4 py-6">
@@ -4627,17 +4574,6 @@ function AssignmentDetailsModal({
           <SummaryCard label="Status" value={assignment.status || "PUBLISHED"} />
         </div>
 
-        <details className="mt-5 rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
-          <summary className="cursor-pointer text-sm font-black">Advanced Tools</summary>
-          <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-            {["Review Assignment", "Improve Questions", "Simplify Language", "Generate Rubric", "Convert To MCQ", "Convert To Descriptive", "Generate Model Answers"].map((action) => (
-              <button key={action} type="button" className="rounded-xl border border-[var(--border)] bg-white px-3 py-3 text-left text-xs font-black hover:bg-[var(--page-bg)]">
-                {action}
-              </button>
-            ))}
-          </div>
-        </details>
-
         <div className="mt-5 grid gap-4 lg:grid-cols-2">
           <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
             <h3 className="text-xl font-black">Submitted students</h3>
@@ -4646,14 +4582,16 @@ function AssignmentDetailsModal({
                 <div key={submission.id ?? `${submission.studentName}-${index}`} className="rounded-xl border border-[var(--border)] bg-white p-3">
                   <div className="flex flex-wrap items-start justify-between gap-2">
                     <p className="font-black">{submission.studentName || "Student"}</p>
-                    <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-black text-emerald-700">{submission.status || "SUBMITTED"}</span>
+                    <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-black text-emerald-700">{submission.reviewStatus || submission.status || "SUBMITTED"}</span>
                   </div>
                   <p className="mt-2 text-sm text-[var(--muted-blue)]">Submitted: {submission.submittedAt ? new Date(submission.submittedAt).toLocaleString() : "Time pending"}</p>
-                  <p className="mt-2 text-sm text-[var(--muted-blue)]">Marks: {typeof submission.marks === "number" ? submission.marks : "Pending"}</p>
+                  {submission.answerText ? <p className="mt-2 rounded-xl bg-[var(--page-bg)] p-3 text-sm leading-6">{submission.answerText}</p> : null}
+                  {submission.attachmentName || submission.link ? <p className="mt-2 text-sm text-[var(--muted-blue)]">Attachment: {submission.attachmentName || submission.link}</p> : null}
+                  <p className="mt-2 text-sm text-[var(--muted-blue)]">Marks: {typeof submission.score === "number" ? submission.score : typeof submission.marks === "number" ? submission.marks : "Pending"}</p>
                   <p className="mt-1 text-sm text-[var(--muted-blue)]">Feedback: {submission.feedback || "No feedback yet"}</p>
                   <div className="mt-3 flex flex-wrap gap-2">
-                    <button type="button" className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-black text-emerald-700">Approve</button>
-                    <button type="button" className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-black text-amber-700">Needs Correction</button>
+                    {submission.id ? <button type="button" onClick={() => onReview(submission.id as string, "REVIEWED")} className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-black text-emerald-700">Approve</button> : null}
+                    {submission.id ? <button type="button" onClick={() => onReview(submission.id as string, "RETURNED")} className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-black text-amber-700">Needs Correction</button> : null}
                   </div>
                 </div>
               ))}
@@ -4673,6 +4611,16 @@ function AssignmentDetailsModal({
             </div>
           </div>
         </div>
+        <details className="mt-5 rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
+          <summary className="cursor-pointer text-sm font-black">Advanced Tools</summary>
+          <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+            {["Review Assignment", "Improve Questions", "Simplify Language", "Generate Rubric", "Convert To MCQ", "Convert To Descriptive", "Generate Model Answers"].map((action) => (
+              <button key={action} type="button" className="rounded-xl border border-[var(--border)] bg-white px-3 py-3 text-left text-xs font-black hover:bg-[var(--page-bg)]">
+                {action}
+              </button>
+            ))}
+          </div>
+        </details>
       </div>
     </div>
   );
@@ -4712,7 +4660,7 @@ function AssignmentCreateModal({
       <div className="flex max-h-[92vh] w-full max-w-3xl flex-col overflow-hidden rounded-2xl border border-[var(--border)] bg-white shadow-2xl">
         <div className="sticky top-0 z-10 flex items-start justify-between gap-3 border-b border-[var(--border)] bg-white px-5 py-4">
           <div>
-            <p className="text-xs font-black uppercase tracking-[0.3em] text-[var(--gold-dark)]">New Assignment</p>
+            <p className="text-xs font-black uppercase tracking-[0.3em] text-[var(--gold-dark)]">New Homework</p>
             <h2 className="mt-2 text-2xl font-black">{selectedBatchName}</h2>
             <p className="mt-1 text-sm text-[var(--muted-blue)]">{selectedStudentCount} students will receive this homework.</p>
           </div>
