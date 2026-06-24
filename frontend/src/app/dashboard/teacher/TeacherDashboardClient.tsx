@@ -3879,7 +3879,7 @@ function AttendanceWorkspace({
           <div>
             <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold-dark)]">{isAcademicHead ? "Academic Head Attendance" : "Attendance Register"}</p>
             <h2 className="mt-2 text-3xl font-black">{isAcademicHead ? "Attendance reports and leave requests." : "Mark the class register."}</h2>
-            <p className="mt-2 text-sm leading-6 text-[var(--muted-blue)]">{isAcademicHead ? "Monitoring and approvals stay separate from the teacher’s attendance entry." : "Open today’s class, mark exceptions, and save."}</p>
+            <p className="mt-2 text-sm leading-6 text-[var(--muted-blue)]">{isAcademicHead ? "Monitoring and approvals stay separate from the teacher's attendance entry." : "Open today's class, mark exceptions, and save."}</p>
           </div>
         </div>
       </div>
