@@ -95,14 +95,14 @@ router.post("/exams/:id/release-results", requireAcademyRoles(academicRoles), ac
 router.post("/batches", requireAcademyRoles(academicManagementRoles), academyController.createBatch);
 router.post("/director-expenses", requireAcademyRoles(managementRoles), academyController.createDirectorExpense);
 router.post("/director-expenses/:id/archive", requireAcademyRoles(managementRoles), academyController.archiveDirectorExpense);
-router.post("/employees", requireAcademyRoles(academicRoles), academyController.createEmployee);
+router.post("/employees", requireAcademyRoles(academicManagementRoles), academyController.createEmployee);
 router.patch("/batches/:id", requireAcademyRoles(academicManagementRoles), academyController.updateBatch);
 router.patch("/employees/:id", requireAcademyRoles(managementRoles), academyController.updateEmployee);
 router.post("/employees/:id/archive", requireAcademyRoles(managementRoles), academyController.archiveEmployee);
 router.post("/employees/:id/reset-password", requireAcademyRoles(managementRoles), academyController.resetEmployeePassword);
 router.post("/employees/:id/unlock", requireAcademyRoles(managementRoles), academyController.unlockEmployeeAccount);
 router.post("/batches/:id/students", requireAcademyRoles(academicManagementRoles), academyController.addStudent);
-router.post("/batches/:id/teachers", requireAcademyRoles(academicRoles), academyController.assignTeacher);
+router.post("/batches/:id/teachers", requireAcademyRoles(academicManagementRoles), academyController.assignTeacher);
 router.post("/admissions/approve", requireAcademyRoles(managementRoles), academyController.approveAdmissionToBatch);
 
 export { router as academyRouter, router as academyRoutes };

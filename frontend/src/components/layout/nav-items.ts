@@ -49,7 +49,7 @@ const academicHeadMenu: DashboardNavItem[] = [
   { label: "Assignments", href: "/dashboard/academic-head/assignments" },
   { label: "Exams", href: "/dashboard/academic-head/exams" },
   { label: "Library", href: "/dashboard/academic-head/library" },
-  { label: "HOD Control", href: "/dashboard/director/academic" },
+  { label: "HOD Control", href: "/dashboard/academic-head/hod" },
 ];
 
 const administrativeOfficerMenu: DashboardNavItem[] = [
