@@ -4,6 +4,7 @@ import bcrypt from "bcryptjs";
 import { Prisma, Role } from "../../generated/prisma/client.js";
 import { prisma } from "../../config/prisma.js";
 import { deleteCloudinaryAsset } from "../../config/cloudinary.js";
+import { enqueuePDF } from "../../queues/pdf.queue.js";
 import { testsService, type TestPayload } from "../tests/tests.service.js";
 
 const db = prisma as any;
@@ -3325,6 +3326,7 @@ export const academyService = {
 
     if (amountPaid > 0) {
       const method = (input.paymentMethod || "OFFICE_COLLECTION").toUpperCase();
+      const receiptNumber = `NIDUS-ADMISSION-${Date.now()}-${Math.random().toString(36).slice(2, 7).toUpperCase()}`;
       payment = await prisma.payment.create({
         data: {
           userId: student.id,
@@ -3338,6 +3340,7 @@ export const academyService = {
           paymentMethod: method,
           paymentMode: method === "RAZORPAY_LINK" ? "ONLINE" : "MANUAL",
           transactionRef: input.transactionRef || undefined,
+          receiptNumber,
           receiptUploadUrl: input.receiptUploadUrl || undefined,
           remarks: approvalNotes || undefined,
           verifiedBy: user.id,
@@ -3353,6 +3356,42 @@ export const academyService = {
           statusTo: "SUCCESS",
           metadata: { batchId: input.batchId, leadId: input.leadId || null, method },
         },
+      });
+
+      const receiptDocument = await prisma.financeDocument.create({
+        data: {
+          ownerId: student.id,
+          documentType: "PAYMENT_RECEIPT",
+          targetType: "Payment",
+          targetId: payment.id as string,
+          documentNumber: receiptNumber,
+          status: "QUEUED",
+          metadata: {
+            admissionId: admission?.id || null,
+            batchId: batch.id,
+            batchName: batch.name,
+            amount: amountPaid,
+            currency: "INR",
+            method,
+          },
+        },
+      });
+      await enqueuePDF({
+        title: "NIDUS Academy Admission Receipt",
+        lines: [
+          `Receipt: ${receiptNumber}`,
+          `Student: ${student.name || student.email}`,
+          `Batch: ${batch.name}`,
+          `Amount: INR ${amountPaid}`,
+          `Method: ${method}`,
+          input.transactionRef ? `Reference: ${input.transactionRef}` : "",
+        ].filter(Boolean),
+        storageKey: `payment_receipt/${receiptDocument.id}.pdf`,
+      }).catch(async () => {
+        await prisma.financeDocument.update({
+          where: { id: receiptDocument.id },
+          data: { status: "FAILED" },
+        }).catch(() => undefined);
       });
     }
 

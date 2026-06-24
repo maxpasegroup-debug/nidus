@@ -53,12 +53,14 @@ const academicHeadMenu: DashboardNavItem[] = [
 ];
 
 const administrativeOfficerMenu: DashboardNavItem[] = [
-  { label: "New Admissions", href: "/dashboard/admission-cell#new-admissions" },
-  { label: "Document Verification", href: "/dashboard/admission-cell#document-verification" },
-  { label: "Fees & Enrollment", href: "/dashboard/admission-cell#fees-enrollment" },
-  { label: "Batch Allocation", href: "/dashboard/admission-cell#batch-allocation" },
-  { label: "Student Activation", href: "/dashboard/admission-cell#student-activation" },
-  { label: "Admission Reports", href: "/dashboard/admission-cell#admission-reports" },
+  { label: "Today", href: "/dashboard/admission-cell#today" },
+  { label: "Applications", href: "/dashboard/admission-cell#applications" },
+  { label: "Documents", href: "/dashboard/admission-cell#documents" },
+  { label: "Fees & Receipts", href: "/dashboard/admission-cell#fees" },
+  { label: "Batch Allocation", href: "/dashboard/admission-cell#batch" },
+  { label: "Student Activation", href: "/dashboard/admission-cell#activation" },
+  { label: "Students", href: "/dashboard/admission-cell#students" },
+  { label: "Reports", href: "/dashboard/admission-cell#reports" },
 ];
 
 const businessDevelopmentMenu: DashboardNavItem[] = [
