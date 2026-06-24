@@ -185,6 +185,7 @@ export type TeacherDashboardData = {
 };
 
 export type DirectorDashboardData = {
+  lastUpdatedAt?: string;
   scope: { instituteId: string | null; branchId: string | null };
   customDashboard: StaffDashboardProfile;
   instituteAnalytics: { students: number; teachers: number; attendance: number; cbtCompletion: number };

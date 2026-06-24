@@ -93,6 +93,7 @@ export default function DirectorDashboardPage() {
   const materials = materialQuery.data?.summary;
   const exams = examQuery.data?.summary;
   const syllabus = syllabusQuery.data?.summary;
+  const displayValue = (value: string | number | undefined | null) => directorQuery.isLoading ? "..." : value ?? 0;
 
   const attentionItems = useMemo(
     () => [
@@ -137,12 +138,12 @@ export default function DirectorDashboardPage() {
   );
 
   const todayMetrics = [
-    { label: "Admissions", value: commandCenter?.admissions.newLeads ?? director?.admissionsAnalytics.leads ?? 0, hint: "new leads" },
-    { label: "Active Batches", value: commandCenter?.academics.activeBatches ?? director?.academyArchitecture.batches ?? 0, hint: "running now" },
-    { label: "Teachers", value: commandCenter?.academics.teachers ?? director?.instituteAnalytics.teachers ?? 0, hint: "academic faculty" },
-    { label: "Students", value: commandCenter?.students.active ?? director?.instituteAnalytics.students ?? 0, hint: "active learners" },
-    { label: "Pending Fees", value: `Rs ${(commandCenter?.finance.pendingFees ?? director?.revenueAnalytics.pending ?? 0).toLocaleString()}`, hint: "to collect" },
-    { label: "Syllabus", value: `${syllabus?.completionPercentage ?? 0}%`, hint: "completion" },
+    { label: "Admissions", value: displayValue(commandCenter?.admissions.newLeads ?? director?.admissionsAnalytics.leads), hint: "new leads" },
+    { label: "Active Batches", value: displayValue(commandCenter?.academics.activeBatches ?? director?.academyArchitecture.batches), hint: "running now" },
+    { label: "Teachers", value: displayValue(commandCenter?.academics.teachers ?? director?.instituteAnalytics.teachers), hint: "academic faculty" },
+    { label: "Students", value: displayValue(commandCenter?.students.active ?? director?.instituteAnalytics.students), hint: "active learners" },
+    { label: "Pending Fees", value: directorQuery.isLoading ? "..." : `Rs ${(commandCenter?.finance.pendingFees ?? director?.revenueAnalytics.pending ?? 0).toLocaleString()}`, hint: "to collect" },
+    { label: "Syllabus", value: syllabusQuery.isLoading ? "..." : `${syllabus?.completionPercentage ?? 0}%`, hint: "completion" },
   ];
 
   const healthRows = [
@@ -178,6 +179,9 @@ export default function DirectorDashboardPage() {
               <h1 className="mt-3 max-w-4xl text-4xl font-black tracking-tight md:text-6xl">Run NIDUS from one calm control room.</h1>
               <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--muted-blue)]">
                 See admissions, academics, students, team, finance and reports without opening ten different admin screens.
+              </p>
+              <p className="mt-3 text-sm font-semibold text-[var(--muted-blue)]">
+                Last updated: {director?.lastUpdatedAt ? new Date(director.lastUpdatedAt).toLocaleString() : directorQuery.isLoading ? "Loading..." : "Not available"}
               </p>
             </div>
             <div className="rounded-3xl border border-[var(--border)] bg-[var(--page-bg)] p-5">
@@ -255,7 +259,7 @@ export default function DirectorDashboardPage() {
 
           <div className="rounded-[28px] border border-[var(--border)] bg-white p-5 shadow-sm md:p-6">
             <p className="text-xs font-black uppercase tracking-[0.3em] text-[var(--gold)]">Students</p>
-            <h2 className="mt-2 text-2xl font-black">Program spread</h2>
+            <h2 className="mt-2 text-2xl font-black">Batchwise active students</h2>
             <div className="mt-5 space-y-3">
               {(commandCenter?.students.batchDistribution ?? []).slice(0, 6).map((item) => (
                 <div key={item.program} className="flex items-center justify-between rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] px-4 py-3">

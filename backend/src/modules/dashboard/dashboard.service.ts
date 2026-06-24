@@ -652,6 +652,15 @@ export const dashboardService = {
     });
     const customDashboard = staffDashboard(metadataObject(director?.roleMetadata), "EXECUTIVE_COMMAND");
     const scopedWhere = user.role === "DIRECTOR" ? { instituteId: director?.instituteId ?? undefined, branchId: director?.branchId ?? undefined } : {};
+    const subjectTeacherWhere = {
+      role: "TEACHER" as Role,
+      ...scopedWhere,
+      NOT: [
+        { roleMetadata: { path: ["dashboardTemplate"], equals: "PHYSICAL_TRAINER" } },
+        { roleMetadata: { path: ["dashboardTemplate"], equals: "PHYSICAL_INSTRUCTOR" } },
+        { roleMetadata: { path: ["dashboardTemplate"], equals: "ACADEMIC_HEAD" } }
+      ]
+    };
     const [
       students,
       activeStudents,
@@ -675,7 +684,6 @@ export const dashboardService = {
       academySummary,
       batchTypes,
       programCounts,
-      batchDistribution,
       programDistribution,
       liveClasses,
       lessonsUploaded,
@@ -696,8 +704,16 @@ export const dashboardService = {
       prisma.batch.count({ where: { status: "ACTIVE" } }),
       prisma.course.count(),
       prisma.user.count({ where: { OR: [{ role: "ACADEMIC_HEAD" }, { role: "TEACHER", roleMetadata: { path: ["dashboardTemplate"], equals: "ACADEMIC_HEAD" } }] } }),
-      prisma.user.count({ where: { role: "TEACHER", ...scopedWhere } }),
-      prisma.user.count({ where: { OR: [{ role: "PHYSICAL_TRAINER" }, { role: "TEACHER", roleMetadata: { path: ["dashboardTemplate"], equals: "PHYSICAL_TRAINER" } }] } }),
+      prisma.user.count({ where: subjectTeacherWhere }),
+      prisma.user.count({
+        where: {
+          OR: [
+            { role: "PHYSICAL_TRAINER" },
+            { role: "TEACHER", roleMetadata: { path: ["dashboardTemplate"], equals: "PHYSICAL_TRAINER" } },
+            { role: "TEACHER", roleMetadata: { path: ["dashboardTemplate"], equals: "PHYSICAL_INSTRUCTOR" } }
+          ]
+        }
+      }),
       prisma.user.count({ where: { OR: [{ role: "ADMINISTRATIVE_OFFICER" }, { role: "ADMIN", roleMetadata: { path: ["dashboardTemplate"], equals: "ADMISSION_CELL" } }] } }),
       prisma.user.count({ where: { role: { in: ["BUSINESS_DEVELOPMENT_EXECUTIVE", "TELECALLER", "MARKETING_COORDINATOR"] } } }),
       prisma.attendance.findMany({ orderBy: { date: "desc" }, take: 500 }),
@@ -710,7 +726,6 @@ export const dashboardService = {
       academyArchitectureSummary(),
       prisma.batch.groupBy({ by: ["batchType"], _count: { id: true } }),
       prisma.course.groupBy({ by: ["category"], _count: { id: true } }),
-      prisma.batch.groupBy({ by: ["programSlug"], _count: { id: true } }),
       prisma.batch.groupBy({ by: ["courseId"], _count: { id: true }, where: { courseId: { not: null } } }),
       prisma.liveClass.count(),
       prisma.teacherStudyMaterialRecord.count({ where: { archivedAt: null } }),
@@ -723,11 +738,24 @@ export const dashboardService = {
       prisma.teacherExamRecord.count({ where: { status: { in: ["DRAFT", "REVIEW", "PENDING_REVIEW"] } } }),
       prisma.user.count({ where: { role: { in: staffRoles }, roleOnboardingStatus: "ARCHIVED" } })
     ]);
+    const batchStudentGroups = await prisma.batchStudent.groupBy({
+      by: ["batchId"],
+      where: { status: "ACTIVE" },
+      _count: { id: true },
+      orderBy: { _count: { id: "desc" } },
+      take: 12
+    });
+    const batchNames = await prisma.batch.findMany({
+      where: { id: { in: batchStudentGroups.map((item) => item.batchId) } },
+      select: { id: true, name: true, programSlug: true, course: { select: { title: true } } }
+    });
+    const batchNameById = new Map(batchNames.map((batch) => [batch.id, batch.name || batch.course?.title || batch.programSlug]));
     const present = attendanceRows.filter((row) => attendanceStatus(row.status) === "PRESENT").length;
     const collectedAmount = collected._sum.amount ?? 0;
     const pendingAmount = pending._sum.dueAmount ?? pending._sum.amount ?? 0;
 
     return {
+      lastUpdatedAt: new Date().toISOString(),
       scope: { instituteId: director?.instituteId ?? null, branchId: director?.branchId ?? null },
       instituteAnalytics: { students, teachers, attendance: percentage(present, attendanceRows.length), cbtCompletion: percentage(completedAttempts, totalAttempts) },
       admissionsAnalytics: { leads, admissions, conversionRate: leads ? Math.round((admissions / leads) * 100) : 0 },
@@ -748,7 +776,7 @@ export const dashboardService = {
         students: {
           total: students,
           active: activeStudents,
-          batchDistribution: batchDistribution.map((item) => ({ program: item.programSlug, count: item._count.id })),
+          batchDistribution: batchStudentGroups.map((item) => ({ program: batchNameById.get(item.batchId) ?? item.batchId, count: item._count.id })),
           programDistribution: programDistribution.map((item) => ({ courseId: item.courseId ?? "unassigned", count: item._count.id }))
         },
         operationalAlerts: {
