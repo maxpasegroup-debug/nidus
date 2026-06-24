@@ -10,12 +10,6 @@ const facultyAccounts = [
     mobile: "9000001101",
     roleMetadata: { subjects: ["Physics"], seededBy: "faculty-completion-sprint", contactPlaceholder: true },
   },
-  {
-    name: "Ananya",
-    email: "ananya.teacher@nidusacademy.in",
-    mobile: "9000001102",
-    roleMetadata: { subjects: ["History / Polity / Current Affairs"], seededBy: "faculty-completion-sprint", contactPlaceholder: true },
-  },
 ];
 
 const report = {

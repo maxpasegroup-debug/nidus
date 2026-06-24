@@ -10,7 +10,7 @@ const crashBatchNames = [
 
 const aisseeBatchNames = ["AISSEE 6th Offline 2026", "AISSEE 9th Offline 2026"];
 
-const requiredFaculty = ["Priyanka", "Ritwik", "Sumitha", "Suma", "Anjali", "Nimisha", "Santhosh", "Vidhya", "Silmiya", "Ananya", "Anjusha"];
+const requiredFaculty = ["Priyanka", "Ritwik", "Sumitha", "Suma", "Anjali", "Nimisha", "Santhosh", "Vidhya", "Silmiya", "Anjusha"];
 
 const ndaDesired = [
   ["Mathematics", "Anjusha", "Subject Teacher"],
@@ -23,7 +23,6 @@ const ndaDesired = [
   ["Biology", "Suma", "Subject Teacher"],
   ["Geography / Economics", "Silmiya", "Subject Teacher"],
   ["Geography / Economics", "Ritwik", "Subject Teacher"],
-  ["History / Polity / Current Affairs", "Ananya", "Subject Teacher"],
   ["History / Polity / Current Affairs", "Ritwik", "Subject Teacher"],
   ["Academic Coordination", "Priyanka", "ACADEMIC_HEAD"],
   ["Academic Coordination", "Ritwik", "ACADEMIC_HEAD"],
@@ -35,7 +34,6 @@ const cdsDesired = [
   ["English", "Anjali", "Subject Teacher"],
   ["Geography / Economics", "Silmiya", "Subject Teacher"],
   ["Geography / Economics", "Ritwik", "Subject Teacher"],
-  ["History / Polity / Current Affairs", "Ananya", "Subject Teacher"],
   ["History / Polity / Current Affairs", "Ritwik", "Subject Teacher"],
   ["Chemistry", "Nimisha", "Subject Teacher"],
   ["Physics", "Vidhya", "Subject Teacher"],

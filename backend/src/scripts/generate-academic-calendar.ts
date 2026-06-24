@@ -87,8 +87,6 @@ const facultySearchNames = [
   "Vidhya",
   "Nimisha",
   "Suma",
-  "Anagha",
-  "Ananya",
   "Silmiya",
   "SILMIYA",
   "Priyanka",
@@ -102,16 +100,16 @@ const facultyPreferences: Record<string, string[]> = {
   Physics: ["Vidhya"],
   Chemistry: ["Nimisha"],
   Biology: ["Suma"],
-  History: ["Anagha", "Ananya"],
-  Polity: ["Anagha", "Ananya"],
-  "Current Affairs": ["Anagha", "Ananya"],
-  "Defence Awareness": ["Anagha", "Ananya"],
+  History: ["Ritwik"],
+  Polity: ["Ritwik"],
+  "Current Affairs": ["Ritwik"],
+  "Defence Awareness": ["Ritwik"],
   Geography: ["Silmiya", "SILMIYA"],
   Economics: ["Silmiya", "SILMIYA"],
-  "General Knowledge": ["Anagha", "Ananya", "Suma"],
+  "General Knowledge": ["Suma"],
   "General Science": ["Vidhya", "Suma"],
   Science: ["Vidhya", "Suma"],
-  "Social Science": ["Anagha", "Ananya", "Silmiya"],
+  "Social Science": ["Silmiya", "Ritwik"],
   Test: ["Priyanka", "Ritwik"],
 };
 
@@ -382,7 +380,6 @@ async function findFaculty() {
   for (const required of ["Anjusha", "Sumitha", "Anjali", "Vidhya", "Nimisha", "Suma", "Silmiya"]) {
     if (!byName.has(required.toLowerCase())) report.faculty.missing.push(required);
   }
-  if (!byName.has("anagha") && !byName.has("ananya")) report.faculty.missing.push("Anagha");
   return byName;
 }
 
