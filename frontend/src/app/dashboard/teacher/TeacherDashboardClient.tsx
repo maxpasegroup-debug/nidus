@@ -5056,9 +5056,23 @@ function LibraryUploadPanel({
 }) {
   const selectedSubject = activeSubject || form.subject || "Selected subject";
   const selectedTopic = form.topic.trim() || activeTopic || "General Lessons";
+  const [localPreview, setLocalPreview] = useState<{ url: string; name: string; type: string } | null>(null);
+  useEffect(() => {
+    return () => {
+      if (localPreview?.url) URL.revokeObjectURL(localPreview.url);
+    };
+  }, [localPreview?.url]);
+  const previewUrl = form.url || localPreview?.url || "";
+  const previewName = form.fileName || localPreview?.name || "";
+  const previewType = (form.type || localPreview?.type || "").toUpperCase();
+  const isPreviewVideo = previewType.includes("VIDEO") || (localPreview?.type || "").startsWith("video/");
+  const isPreviewPdf = previewType.includes("PDF") || (localPreview?.type || "").includes("pdf") || previewName.toLowerCase().endsWith(".pdf");
+  const isPreviewImage = previewType.includes("IMAGE") || (localPreview?.type || "").startsWith("image/");
+  const isPreviewPresentation = previewType.includes("PPT") || previewName.toLowerCase().endsWith(".ppt") || previewName.toLowerCase().endsWith(".pptx");
+  const isPreviewWord = previewType.includes("WORD") || previewName.toLowerCase().endsWith(".doc") || previewName.toLowerCase().endsWith(".docx");
   return (
     <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/55 p-4 backdrop-blur-sm">
-      <div className="max-h-[92dvh] w-full max-w-xl overflow-y-auto overflow-x-hidden rounded-2xl border border-[var(--border)] bg-white p-5 shadow-2xl">
+      <div className="max-h-[92dvh] w-full max-w-5xl overflow-y-auto overflow-x-hidden rounded-2xl border border-[var(--border)] bg-white p-5 shadow-2xl">
         <div className="flex min-w-0 items-start justify-between gap-4">
           <div className="min-w-0">
             <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold-dark)]">Upload Lesson</p>
@@ -5077,20 +5091,66 @@ function LibraryUploadPanel({
           </button>
         </div>
 
-        <div className="mt-5 grid min-w-0 grid-cols-1 gap-4">
-          <Input label="Lesson Title" value={form.title} onChange={(value) => onChange((current) => ({ ...current, title: value, lessonName: value, subject: activeSubject || current.subject, folder: activeSubject || current.folder }))} />
-          <Input label="Topic (Optional)" value={form.topic} onChange={(value) => onChange((current) => ({ ...current, topic: value, subject: activeSubject || current.subject, folder: activeSubject || current.folder }))} />
-          <div className="min-w-0 rounded-2xl border border-dashed border-[var(--border)] bg-[var(--page-bg)] p-5">
-            <div className="flex min-w-0 flex-col gap-1">
-              <p className="text-base font-black text-[var(--ink)]">Upload class file</p>
-              <p className="text-xs font-bold leading-5 text-[var(--muted-blue)]">Video, PDF, DOCX, PPTX, image or notes. NIDUS handles the rest.</p>
+        <div className="mt-5 grid min-w-0 grid-cols-1 gap-5 lg:grid-cols-[0.85fr_1.15fr]">
+          <div className="grid min-w-0 gap-4">
+            <Input label="Lesson Title" value={form.title} onChange={(value) => onChange((current) => ({ ...current, title: value, lessonName: value, subject: activeSubject || current.subject, folder: activeSubject || current.folder }))} />
+            <Input label="Topic (Optional)" value={form.topic} onChange={(value) => onChange((current) => ({ ...current, topic: value, subject: activeSubject || current.subject, folder: activeSubject || current.folder }))} />
+            <div className="min-w-0 rounded-2xl border border-dashed border-[var(--border)] bg-[var(--page-bg)] p-5">
+              <div className="flex min-w-0 flex-col gap-1">
+                <p className="text-base font-black text-[var(--ink)]">Upload class file</p>
+                <p className="text-xs font-bold leading-5 text-[var(--muted-blue)]">Video, PDF, DOCX, PPTX, image or notes. Preview appears before publishing.</p>
+              </div>
+              <div className="mt-4 min-w-0">
+                <FileInput
+                  label="Choose file"
+                  accept="video/*,.pdf,.doc,.docx,.ppt,.pptx,image/*,.txt"
+                  onChange={(_value, file) => {
+                    if (!file) return;
+                    if (localPreview?.url) URL.revokeObjectURL(localPreview.url);
+                    setLocalPreview({ url: URL.createObjectURL(file), name: file.name, type: file.type });
+                    onUploadMaterial(file);
+                  }}
+                />
+              </div>
+              {previewName ? <p className="mt-3 break-all rounded-xl bg-white px-3 py-2 text-xs font-black text-emerald-700">{form.url ? "Upload Complete" : "Preview Ready"}: {previewName}</p> : null}
             </div>
-            <div className="mt-4 min-w-0">
-              <FileInput label="Choose file" accept="video/*,.pdf,.doc,.docx,.ppt,.pptx,image/*,.txt" onChange={(_value, file) => file ? onUploadMaterial(file) : undefined} />
-            </div>
-            {form.fileName ? <p className="mt-3 break-all rounded-xl bg-white px-3 py-2 text-xs font-black text-emerald-700">Upload Complete: {form.fileName}</p> : null}
+            <Textarea label="Lesson Notes (Optional)" value={form.description} onChange={(value) => onChange((current) => ({ ...current, description: value }))} />
           </div>
-          <Textarea label="Lesson Notes (Optional)" value={form.description} onChange={(value) => onChange((current) => ({ ...current, description: value }))} />
+          <div className="min-w-0 rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold-dark)]">Preview</p>
+                <h5 className="mt-1 text-xl font-black">Check before publishing</h5>
+              </div>
+              {previewName ? <span className="rounded-full border border-[var(--border)] bg-white px-3 py-1 text-xs font-black">{previewType || "FILE"}</span> : null}
+            </div>
+            <div className="mt-4 overflow-hidden rounded-2xl border border-[var(--border)] bg-white">
+              {previewUrl && isPreviewVideo ? (
+                <video className="aspect-video w-full bg-black" controls src={previewUrl} />
+              ) : previewUrl && isPreviewImage ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={previewUrl} alt={previewName || "Lesson preview"} className="max-h-[420px] w-full object-contain bg-white" />
+              ) : previewUrl && isPreviewPdf ? (
+                <iframe src={previewUrl} title="PDF preview" className="h-[420px] w-full bg-white" />
+              ) : previewUrl && (isPreviewPresentation || isPreviewWord) ? (
+                <div className="grid min-h-[280px] place-items-center p-6 text-center">
+                  <FileText className="mx-auto h-10 w-10 text-[var(--gold-dark)]" />
+                  <h6 className="mt-3 text-lg font-black">Document selected</h6>
+                  <p className="mt-2 text-sm leading-6 text-[var(--muted-blue)]">Word and PowerPoint files may not preview inside every browser. Open the file to verify it before publishing.</p>
+                  <a href={previewUrl} target="_blank" rel="noreferrer" className="mt-4 rounded-xl border border-slate-950 bg-white px-4 py-3 text-sm font-black text-slate-950">Open File</a>
+                </div>
+              ) : (
+                <div className="grid min-h-[280px] place-items-center p-6 text-center">
+                  <FileText className="mx-auto h-10 w-10 text-[var(--gold-dark)]" />
+                  <h6 className="mt-3 text-lg font-black">No file selected yet</h6>
+                  <p className="mt-2 text-sm leading-6 text-[var(--muted-blue)]">Choose a video, PDF, image, Word or PowerPoint file. The teacher preview will appear here.</p>
+                </div>
+              )}
+            </div>
+            {previewUrl && !isPreviewVideo ? (
+              <a href={previewUrl} target="_blank" rel="noreferrer" className="mt-3 inline-flex w-full items-center justify-center rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-sm font-black text-[var(--ink)]">Open in new tab</a>
+            ) : null}
+          </div>
         </div>
 
         <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
