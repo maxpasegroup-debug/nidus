@@ -42,13 +42,14 @@ const physicalTrainerMenu: DashboardNavItem[] = [
 ];
 
 const academicHeadMenu: DashboardNavItem[] = [
-  { label: "Classes", href: "/dashboard/academic-head/classes" },
-  { label: "Exams", href: "/dashboard/academic-head/exams" },
-  { label: "Assignments", href: "/dashboard/academic-head/assignments" },
+  { label: "Today", href: "/dashboard/academic-head/classes" },
+  { label: "My Students", href: "/dashboard/academic-head/students" },
+  { label: "Calendar", href: "/dashboard/academic-head/academic-calendar" },
   { label: "Attendance", href: "/dashboard/academic-head/attendance" },
+  { label: "Assignments", href: "/dashboard/academic-head/assignments" },
+  { label: "Exams", href: "/dashboard/academic-head/exams" },
   { label: "Library", href: "/dashboard/academic-head/library" },
-  { label: "Academic Calendar", href: "/dashboard/academic-head/academic-calendar" },
-  { label: "HOD", href: "/dashboard/director/academic" },
+  { label: "HOD Control", href: "/dashboard/director/academic" },
 ];
 
 const administrativeOfficerMenu: DashboardNavItem[] = [
