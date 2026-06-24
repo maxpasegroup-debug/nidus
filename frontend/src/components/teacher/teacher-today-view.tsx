@@ -1,9 +1,10 @@
 import Link from "next/link";
-import { ArrowRight, CalendarClock, CheckCircle2, ClipboardCheck, Clock3, FileText, Library, Users } from "lucide-react";
+import { ArrowRight, CalendarClock, CheckCircle2, ClipboardCheck, Clock3, FileText, Library, Radio, Users } from "lucide-react";
 import { TeacherModuleHeader } from "@/components/teacher/teacher-dashboard-primitives";
 
 export type TeacherTodayScheduleItem = {
   id: string;
+  batchId: string;
   date: string;
   startTime?: string | null;
   endTime?: string | null;
@@ -55,7 +56,12 @@ function displayTime(value?: string | null) {
   return new Date(2000, 0, 1, hours, minutes || 0).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
 }
 
-export function TeacherTodayView({ today, upcoming, loading }: { today: TeacherTodayScheduleItem[]; upcoming: TeacherTodayScheduleItem[]; loading: boolean }) {
+export function TeacherTodayView({ today, upcoming, loading, onStartLive }: {
+  today: TeacherTodayScheduleItem[];
+  upcoming: TeacherTodayScheduleItem[];
+  loading: boolean;
+  onStartLive: (batchId: string) => void;
+}) {
   const current = today.find((item) => statusLabel(item) === "Now");
   const next = today.find((item) => statusLabel(item) === "Upcoming") ?? upcoming[0];
   const focus = current ?? next ?? null;
@@ -88,6 +94,20 @@ export function TeacherTodayView({ today, upcoming, loading }: { today: TeacherT
             <Link href={focus.href} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-white bg-white px-5 py-3 text-sm font-black text-slate-950">
               Open Class <ArrowRight size={16} />
             </Link>
+          </div>
+          <div className="mt-5 grid grid-cols-2 gap-2 border-t border-white/15 pt-5 sm:grid-cols-4">
+            <Link href="/dashboard/teacher/attendance" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-white/25 px-3 text-sm font-black transition hover:bg-white hover:text-slate-950">
+              <ClipboardCheck size={17} /> Attendance
+            </Link>
+            <Link href="/dashboard/teacher/students" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-white/25 px-3 text-sm font-black transition hover:bg-white hover:text-slate-950">
+              <Users size={17} /> Students
+            </Link>
+            <Link href="/dashboard/teacher/library" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-white/25 px-3 text-sm font-black transition hover:bg-white hover:text-slate-950">
+              <Library size={17} /> Add Lesson
+            </Link>
+            <button type="button" onClick={() => onStartLive(focus.batchId)} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-white px-3 text-sm font-black text-slate-950">
+              <Radio size={17} /> Start Live
+            </button>
           </div>
         </article>
       ) : (

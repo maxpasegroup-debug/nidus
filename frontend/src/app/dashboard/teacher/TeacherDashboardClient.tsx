@@ -1193,6 +1193,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
       if (!batch) continue;
       items.push({
         id: item.id,
+        batchId: batch.id,
         date: item.plannedDate,
         startTime: item.startTime,
         endTime: item.endTime,
@@ -2550,7 +2551,15 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
               onStartLive={openLiveClassCreator}
             />
           ) : (
-            <TeacherTodayView today={teacherTodayItems} upcoming={teacherUpcomingItems} loading={loadingPlan} />
+            <TeacherTodayView
+              today={teacherTodayItems}
+              upcoming={teacherUpcomingItems}
+              loading={loadingPlan}
+              onStartLive={(batchId) => {
+                const batch = activeClasses.find((item) => item.id === batchId);
+                if (batch) openLiveClassCreator(batch);
+              }}
+            />
           )}
           </>
         ) : activeCourseKey && !activeBatchId ? (
