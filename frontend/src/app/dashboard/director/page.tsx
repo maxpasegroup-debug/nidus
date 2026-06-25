@@ -81,6 +81,13 @@ const primaryActions: DirectorAction[] = [
     tone: "gold",
   },
   {
+    title: "Launch QA",
+    text: "Live readiness board for CRM, LMS, staff, finance, admissions and launch blockers.",
+    href: "/dashboard/director/launch-qa",
+    icon: ShieldCheck,
+    tone: "green",
+  },
+  {
     title: "Teaching Mode",
     text: "Open your own classes, students, attendance, assignments, exams, library and live teaching tools.",
     href: "/dashboard/director/teaching",
