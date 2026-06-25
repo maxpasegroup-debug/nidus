@@ -6,7 +6,7 @@ export type DashboardNavItem = {
 export type NavItem = DashboardNavItem;
 
 const studentMenu: DashboardNavItem[] = [
-  { label: "Academic", href: "/dashboard/student" },
+  { label: "Today", href: "/dashboard/student#today" },
   { label: "Classes", href: "/dashboard/student#classes" },
   { label: "Assignments", href: "/dashboard/student#assignments" },
   { label: "Exams", href: "/dashboard/student#exams" },
@@ -19,7 +19,8 @@ const guestMenu: DashboardNavItem[] = [
   { label: "Assessments", href: "/dashboard/guest#assessments" },
   { label: "TOP RANK", href: "/dashboard/guest#top-rank" },
   { label: "NIDUS Guru", href: "/dashboard/guest#guru" },
-  { label: "Academy", href: "/dashboard/guest#academy" },
+  { label: "Academy Courses", href: "/dashboard/guest#academy" },
+  { label: "My Applications", href: "/dashboard/guest#applications" },
 ];
 
 const teacherMenu: DashboardNavItem[] = [

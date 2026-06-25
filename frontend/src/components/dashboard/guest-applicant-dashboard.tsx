@@ -58,6 +58,32 @@ export function GuestApplicantDashboard({ name }: { name?: string | null }) {
           </div>
         </section>
 
+        <section id="applications" className="rounded-3xl border border-[var(--border)] bg-white/95 p-5 shadow-sm md:p-7">
+          <div className="grid gap-5 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">My Applications</p>
+              <h2 className="mt-2 text-3xl font-black">Admission unlocks your learner dashboard.</h2>
+              <p className="mt-3 text-sm leading-7 text-[var(--muted-blue)]">
+                Apply for a course first. After the Administrative Officer verifies documents, records fee payment and assigns your batch, this lobby changes into the full academic dashboard.
+              </p>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {[
+                ["1", "Apply", "Choose your course and submit details."],
+                ["2", "AO Review", "Documents, fee and batch are verified."],
+                ["3", "Activation", "Classes, exams, assignments and library unlock."],
+                ["4", "Start Learning", "Your academic dashboard becomes live."],
+              ].map(([step, title, text]) => (
+                <div key={step} className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
+                  <span className="grid h-9 w-9 place-items-center rounded-full border border-[var(--gold-border)] bg-[var(--gold-soft)] text-sm font-black">{step}</span>
+                  <h3 className="mt-4 text-lg font-black">{title}</h3>
+                  <p className="mt-2 text-sm leading-6 text-[var(--muted-blue)]">{text}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
         <section id="assessments" className="rounded-3xl border border-[var(--border)] bg-white/95 p-5 shadow-sm md:p-7">
           <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
             <div>
