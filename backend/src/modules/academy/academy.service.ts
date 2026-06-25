@@ -3426,6 +3426,12 @@ export const academyService = {
       message: "Admission approved and student dashboard activated.",
       applicationId: input.applicationId || null,
       leadId: input.leadId || null,
+      student: {
+        id: student.id,
+        name: student.name,
+        email: student.email,
+        mobile: student.mobile,
+      },
       enrollment,
       admission,
       payment,

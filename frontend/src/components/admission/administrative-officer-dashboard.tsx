@@ -67,6 +67,8 @@ type ApprovalResponse = {
   message?: string;
   payment?: { id?: string; receiptNumber?: string | null; amount?: number; currency?: string } | null;
   enrollment?: { id?: string };
+  student?: { id?: string; name?: string | null; email?: string | null; mobile?: string | null } | null;
+  admission?: { id?: string; status?: string; paymentStatus?: string; dueAmount?: number | null } | null;
 };
 
 const tabs: Array<{ key: OfficerTab; label: string }> = [
@@ -130,10 +132,19 @@ function noteHas(lead: LeadApplication, text: string) {
 }
 
 function leadStage(lead: LeadApplication) {
+  if (lead.status === "ENROLLED") return "Activated";
   if (noteHas(lead, "FEES: PAID") || noteHas(lead, "FEES: APPROVED")) return "Ready for batch";
   if (noteHas(lead, "DOCUMENTS: VERIFIED")) return "Fee confirmation";
+  if (noteHas(lead, "APPLICATION_STATUS: SUBMITTED")) return "Submitted";
   if (lead.status === "COUNSELLING") return "Verification";
   return "New application";
+}
+
+function paymentLabel(status: string, totalFee: number, amountPaid: number) {
+  if (status === "APPROVED") return "Management approved";
+  if (totalFee > 0 && amountPaid >= totalFee) return "Paid in full";
+  if (amountPaid > 0) return "Partial payment";
+  return "Payment pending";
 }
 
 function parseDocumentDetails(notes?: string | null) {
@@ -182,16 +193,19 @@ export function AdministrativeOfficerDashboard() {
   const batches = useMemo(() => normalizeBatches(batchesQuery.data).filter((item) => item.status !== "ARCHIVED"), [batchesQuery.data]);
   const applications = useMemo(() => (leadsQuery.data?.leads ?? []).filter((lead) => !["ENROLLED", "LOST"].includes(lead.status)), [leadsQuery.data]);
   const selectedLead = applications.find((lead) => lead.id === selectedLeadId) ?? null;
+  const selectedBatch = batches.find((batch) => batch.id === form.batchId) ?? null;
   const visibleApplications = applications.filter((lead) => [lead.fullName, lead.mobile, lead.email, lead.targetExam].join(" ").toLowerCase().includes(search.trim().toLowerCase()));
 
   const requiredDocumentsVerified = documentStatuses.photo === "Verified" && documentStatuses.aadhaar === "Verified" && documentStatuses.parentDetails === "Verified";
   const rejectedDocuments = Object.entries(documentStatuses).filter(([, value]) => value === "Rejected").map(([key]) => documentLabels[key as DocumentKey]);
   const totalFee = Number(form.totalFee || 0);
   const amountPaid = Number(form.amountPaid || 0);
-  const feesReady = ["PAID", "APPROVED"].includes(form.paymentStatus) || (totalFee > 0 && amountPaid >= totalFee);
-  const readyForEnrollment = requiredDocumentsVerified && !rejectedDocuments.length && feesReady && admissionStatus === "Ready For Admission";
+  const identityReady = Boolean(form.name.trim()) && Boolean(form.phone.trim() || form.email.trim());
+  const feesReady = form.paymentStatus === "APPROVED" || (form.paymentStatus === "PAID" && totalFee > 0 && amountPaid >= totalFee);
+  const readyForEnrollment = Boolean(selectedLead) && identityReady && requiredDocumentsVerified && !rejectedDocuments.length && feesReady && Boolean(form.batchId) && admissionStatus === "Ready For Admission";
   const readiness = [
     { label: "Application selected", ready: Boolean(selectedLead) },
+    { label: "Student identity ready", ready: identityReady },
     { label: "Required documents verified", ready: requiredDocumentsVerified && !rejectedDocuments.length },
     { label: "Required fee confirmed", ready: feesReady },
     { label: "Batch selected", ready: Boolean(form.batchId) },
@@ -217,6 +231,7 @@ export function AdministrativeOfficerDashboard() {
       setActivationResult(result);
       setMessage(result.message || "Student account activated.");
       void queryClient.invalidateQueries({ queryKey: ["admission-cell"] });
+      void queryClient.invalidateQueries({ queryKey: ["dashboard"] });
     },
     onError: (error) => setMessage(error instanceof Error ? error.message : "Could not activate student."),
   });
@@ -245,7 +260,7 @@ export function AdministrativeOfficerDashboard() {
   function submitActivation(event: FormEvent) {
     event.preventDefault();
     if (!readyForEnrollment || !form.batchId) { setMessage("Complete every activation check before activating the learner account."); return; }
-    activateMutation.mutate({ ...form, paymentStatus: feesReady ? "PAID" : form.paymentStatus, notes: [form.notes, `Document status: ${JSON.stringify(documentStatuses)}`].filter(Boolean).join("\n") });
+    activateMutation.mutate({ ...form, paymentStatus: form.paymentStatus === "APPROVED" ? "APPROVED" : "PAID", notes: [form.notes, `Document status: ${JSON.stringify(documentStatuses)}`, selectedBatch ? `Activated batch: ${selectedBatch.name}` : ""].filter(Boolean).join("\n") });
   }
 
   return (
@@ -289,6 +304,11 @@ export function AdministrativeOfficerDashboard() {
       {tab === "FEES" ? (
         <ApplicantPanel lead={selectedLead} title="Record admission fee" onChoose={() => openTab("APPLICATIONS")}>
           <div className="grid gap-3 sm:grid-cols-2"><NumberField label="Total fee" value={form.totalFee} onChange={(value) => setForm((item) => ({ ...item, totalFee: value }))} /><NumberField label="Amount paid" value={form.amountPaid} onChange={(value) => setForm((item) => ({ ...item, amountPaid: value }))} /><SelectField label="Payment status" value={form.paymentStatus} onChange={(value) => setForm((item) => ({ ...item, paymentStatus: value }))}><option value="PENDING">Pending</option><option value="PARTIAL">Partially paid</option><option value="PAID">Paid</option><option value="APPROVED">Approved by management</option></SelectField><SelectField label="Payment method" value={form.paymentMethod} onChange={(value) => setForm((item) => ({ ...item, paymentMethod: value }))}><option value="OFFICE_COLLECTION">Office collection</option><option value="CASH">Cash</option><option value="UPI">UPI</option><option value="BANK_TRANSFER">Bank transfer</option><option value="CHEQUE">Cheque</option></SelectField><Field label="Transaction reference" value={form.transactionRef} onChange={(value) => setForm((item) => ({ ...item, transactionRef: value }))} /><Field label="Existing receipt upload URL (optional)" value={form.receiptUploadUrl} onChange={(value) => setForm((item) => ({ ...item, receiptUploadUrl: value }))} /></div>
+          <div className={`rounded-xl border p-4 text-sm ${feesReady ? "border-emerald-200 bg-emerald-50 text-emerald-900" : "border-amber-200 bg-amber-50 text-amber-900"}`}>
+            <strong className="block">{paymentLabel(form.paymentStatus, totalFee, amountPaid)}</strong>
+            <span className="mt-1 block">Total fee: Rs {totalFee.toLocaleString("en-IN")} / Paid: Rs {amountPaid.toLocaleString("en-IN")} / Due: Rs {Math.max(totalFee - amountPaid, 0).toLocaleString("en-IN")}</span>
+            {!feesReady ? <span className="mt-2 block font-bold">Activation unlocks only after full payment or management approval.</span> : null}
+          </div>
           <TextArea label="Payment note" value={note} onChange={setNote} />
           <button type="button" onClick={saveFees} disabled={saveLeadMutation.isPending} className="inline-flex min-h-12 items-center justify-center rounded-xl bg-slate-950 px-5 text-sm font-black text-white disabled:opacity-50">Save Fee Confirmation</button>
         </ApplicantPanel>
@@ -297,6 +317,7 @@ export function AdministrativeOfficerDashboard() {
       {tab === "BATCH" ? (
         <ApplicantPanel lead={selectedLead} title="Allocate an active batch" onChoose={() => openTab("APPLICATIONS")}>
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">{batches.filter((item) => item.status === "ACTIVE").map((batch) => <button key={batch.id} type="button" onClick={() => setForm((item) => ({ ...item, batchId: batch.id }))} className={`rounded-xl border p-4 text-left ${form.batchId === batch.id ? "border-slate-950 bg-slate-950 text-white" : "border-[var(--border)]"}`}><span className="text-xs font-black uppercase tracking-[0.14em] opacity-70">{batch.course?.title || batch.programSlug}</span><strong className="mt-2 block">{batch.name}</strong><span className="mt-3 block text-xs opacity-75">{batch.batchType || "Mode pending"} / {batch._count?.students ?? batch.students?.length ?? 0} students / {batch._count?.teachers ?? 0} teachers</span></button>)}</div>
+          {selectedBatch ? <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-900"><strong className="block">Selected batch: {selectedBatch.name}</strong><span className="mt-1 block text-sm">{selectedBatch.course?.title || selectedBatch.programSlug || "Program pending"} / {selectedBatch.batchType || "Mode pending"} / Current students: {selectedBatch._count?.students ?? selectedBatch.students?.length ?? 0}</span></div> : null}
           <div className="grid gap-3 sm:grid-cols-2"><Field label="Student login email" value={form.email} onChange={(value) => setForm((item) => ({ ...item, email: value }))} /><Field label="Student name" value={form.name} onChange={(value) => setForm((item) => ({ ...item, name: value }))} /><Field label="Mobile" value={form.phone} onChange={(value) => setForm((item) => ({ ...item, phone: value }))} /><Field label="Roll number (optional)" value={form.rollNumber} onChange={(value) => setForm((item) => ({ ...item, rollNumber: value }))} /></div>
           <button type="button" onClick={() => openTab("ACTIVATION")} disabled={!form.batchId} className="inline-flex min-h-12 items-center justify-center rounded-xl bg-slate-950 px-5 text-sm font-black text-white disabled:opacity-50">Continue to Activation</button>
         </ApplicantPanel>
@@ -305,7 +326,7 @@ export function AdministrativeOfficerDashboard() {
       {tab === "ACTIVATION" ? (
         <ApplicantPanel lead={selectedLead} title="Final activation check" onChoose={() => openTab("APPLICATIONS")}>
           <form onSubmit={submitActivation} className="grid gap-4"><div className="grid gap-2">{readiness.map((item) => <div key={item.label} className="flex min-h-12 items-center justify-between rounded-xl border border-[var(--border)] px-4"><span className="font-bold">{item.label}</span><span className={`inline-flex items-center gap-1 text-sm font-black ${item.ready ? "text-emerald-700" : "text-amber-700"}`}>{item.ready ? <Check size={16} /> : null}{item.ready ? "Ready" : "Pending"}</span></div>)}</div><SelectField label="Enrollment status" value={admissionStatus} onChange={setAdmissionStatus}><option>Received</option><option>Documents Pending</option><option>Verification Pending</option><option>Ready For Admission</option></SelectField><TextArea label="Final admission note" value={form.notes} onChange={(value) => setForm((item) => ({ ...item, notes: value }))} /><button type="submit" disabled={!readyForEnrollment || !form.batchId || activateMutation.isPending} className="inline-flex min-h-12 items-center justify-center rounded-xl bg-emerald-700 px-5 text-sm font-black text-white disabled:opacity-50">{activateMutation.isPending ? "Activating..." : "Activate Learner Account"}</button></form>
-          {activationResult ? <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-900"><div className="flex items-center gap-2 font-black"><CheckCircle2 size={18} /> Learner activated</div><p className="mt-2 text-sm">LMS access and batch membership are active.</p>{activationResult.payment?.receiptNumber ? <p className="mt-3 rounded-lg bg-white px-3 py-2 text-sm font-black">Receipt: {activationResult.payment.receiptNumber}</p> : <p className="mt-3 text-sm">No payment receipt was required for this activation.</p>}</div> : null}
+          {activationResult ? <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-900"><div className="flex items-center gap-2 font-black"><CheckCircle2 size={18} /> Learner activated</div><p className="mt-2 text-sm">LMS access and batch membership are active. The applicant is removed from the open AO queue.</p>{activationResult.student ? <p className="mt-3 rounded-lg bg-white px-3 py-2 text-sm font-black">Student: {activationResult.student.name || activationResult.student.email || activationResult.student.mobile}</p> : null}{activationResult.payment?.receiptNumber ? <p className="mt-3 rounded-lg bg-white px-3 py-2 text-sm font-black">Receipt: {activationResult.payment.receiptNumber}</p> : <p className="mt-3 text-sm">No payment receipt was required for this activation.</p>}</div> : null}
         </ApplicantPanel>
       ) : null}
 
