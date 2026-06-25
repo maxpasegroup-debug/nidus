@@ -238,7 +238,7 @@ export default function StudentDashboardPage() {
     queryFn: () => apiJson<{ leaves: StudentLeaveRequest[] }>("/api/academy/leave-requests"),
   });
 
-  const batches = academicPlan.data?.batches ?? [];
+  const batches = (academicPlan.data?.batches ?? []).filter((batch) => batch.status === "ACTIVE");
   const isActivatedLearner = Boolean(batches.length) && user?.role !== "GUEST";
   const shouldOpenApplicantLobby = !academicPlan.isLoading && !isActivatedLearner;
 

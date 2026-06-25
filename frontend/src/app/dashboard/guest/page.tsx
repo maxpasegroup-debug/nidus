@@ -7,7 +7,7 @@ import { useAuth } from "@/components/providers/auth-provider-v2";
 import { GuestApplicantDashboard } from "@/components/dashboard/guest-applicant-dashboard";
 
 type StudentPlanProbe = {
-  batches?: Array<{ id: string }>;
+  batches?: Array<{ id: string; status?: string | null }>;
 };
 
 async function apiJson<T>(path: string): Promise<T> {
@@ -39,7 +39,7 @@ export default function GuestDashboardPage() {
     enabled: user?.role === "STUDENT",
     retry: false,
   });
-  const isActivatedLearner = Boolean(planQuery.data?.batches?.length);
+  const isActivatedLearner = Boolean(planQuery.data?.batches?.some((batch) => batch.status === "ACTIVE"));
 
   useEffect(() => {
     if (user?.role === "STUDENT" && isActivatedLearner) router.replace("/dashboard/student");

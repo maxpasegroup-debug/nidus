@@ -1,10 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, Activity, CalendarDays, Dumbbell, FileText, GraduationCap, Library } from "lucide-react";
 
 type StudentPlan = {
+  batches?: Array<{ id: string; status?: string | null }>;
   attendance?: { summary?: { present: number; total: number; percentage: number } };
   assignments?: Array<{ submissionStatus?: string }>;
   materials?: Array<{ id: string }>;
@@ -24,23 +27,39 @@ type FitnessProfile = {
 
 async function apiJson<T>(path: string): Promise<T> {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_API_BASE_URL || "";
-  const response = await fetch(`${baseUrl}${path}`, { credentials: "include", headers: { "Content-Type": "application/json" } });
+  const token =
+    typeof window !== "undefined"
+      ? localStorage.getItem("token") ||
+        localStorage.getItem("accessToken") ||
+        localStorage.getItem("authToken") ||
+        localStorage.getItem("nidus_token")
+      : null;
+  const response = await fetch(`${baseUrl}${path}`, { credentials: "include", headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) } });
   if (!response.ok) throw new Error("Unable to load progress data");
   return response.json() as Promise<T>;
 }
 
 export default function StudentProgressPage() {
+  const router = useRouter();
   const planQuery = useQuery({ queryKey: ["student", "progress-plan"], queryFn: () => apiJson<StudentPlan>("/api/academy/my-plan") });
   const attemptsQuery = useQuery({ queryKey: ["student", "progress-attempts"], queryFn: () => apiJson<AttemptHistory>("/api/tests/attempts/history") });
   const fitnessQuery = useQuery({ queryKey: ["student", "progress-fitness"], queryFn: () => apiJson<{ profile: FitnessProfile | null }>("/api/fitness/profile") });
 
   const plan = planQuery.data;
+  const activeBatches = (plan?.batches ?? []).filter((batch) => batch.status === "ACTIVE");
+  const shouldOpenApplicantLobby = !planQuery.isLoading && !activeBatches.length;
   const assignments = plan?.assignments ?? [];
   const submittedAssignments = assignments.filter((item) => item.submissionStatus === "SUBMITTED").length;
   const assignmentCompletion = assignments.length ? Math.round((submittedAssignments / assignments.length) * 100) : 0;
   const attempts = attemptsQuery.data?.attempts ?? [];
   const examAverage = attempts.length ? Math.round(attempts.reduce((sum, attempt) => sum + Number(attempt.score ?? 0), 0) / attempts.length) : 0;
   const profile = fitnessQuery.data?.profile;
+
+  useEffect(() => {
+    if (shouldOpenApplicantLobby) router.replace("/dashboard/guest");
+  }, [router, shouldOpenApplicantLobby]);
+
+  if (shouldOpenApplicantLobby) return null;
 
   return (
     <main className="min-h-screen bg-[var(--page-bg)] px-5 py-6 text-[var(--navy)] md:px-8">

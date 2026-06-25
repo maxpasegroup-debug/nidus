@@ -1387,9 +1387,10 @@ export const academyService = {
       orderBy: { joinedAt: "desc" },
     });
 
-    const batchIds = enrollments.map((enrollment: any) => enrollment.batchId);
-    const batches = batchIds.length ? await batchWithCounts() : [];
-    const assignedBatches = Array.isArray(batches) ? batches.filter((batch: any) => batchIds.includes(batch.id)) : [];
+    const enrollmentBatchIds = enrollments.map((enrollment: any) => enrollment.batchId);
+    const batches = enrollmentBatchIds.length ? await batchWithCounts() : [];
+    const assignedBatches = Array.isArray(batches) ? batches.filter((batch: any) => enrollmentBatchIds.includes(batch.id) && batch.status === "ACTIVE") : [];
+    const batchIds = assignedBatches.map((batch: any) => batch.id).filter(Boolean);
     const calendar = batchIds.length
       ? await prisma.$queryRaw<AcademicCalendarRow[]>`
           SELECT * FROM "AcademicCalendarItem"
@@ -1447,7 +1448,7 @@ export const academyService = {
       : [];
 
     return {
-      enrollments,
+      enrollments: enrollments.filter((enrollment: any) => batchIds.includes(enrollment.batchId)),
       batches: assignedBatches,
       calendar: calendar.map(sanitizeCalendarRow),
       attendance: {

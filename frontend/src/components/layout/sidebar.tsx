@@ -8,7 +8,7 @@ import { useAuth } from "@/components/providers/auth-provider-v2";
 import { getNavItems, guestMenu, studentMenu } from "./nav-items";
 
 type StudentPlanProbe = {
-  batches?: Array<{ id: string }>;
+  batches?: Array<{ id: string; status?: string | null }>;
 };
 
 async function probeStudentActivation() {
@@ -29,7 +29,7 @@ async function probeStudentActivation() {
   });
   if (!response.ok) return false;
   const payload = (await response.json().catch(() => null)) as StudentPlanProbe | null;
-  return Boolean(payload?.batches?.length);
+  return Boolean(payload?.batches?.some((batch) => batch.status === "ACTIVE"));
 }
 
 export function Sidebar() {

@@ -27,8 +27,21 @@ type StudyMaterial = {
 };
 
 async function apiJson<T>(path: string) {
-  const base = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
-  const response = await fetch(`${base}${path}`, { credentials: "include" });
+  const base = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000/api";
+  const token =
+    typeof window !== "undefined"
+      ? localStorage.getItem("token") ||
+        localStorage.getItem("accessToken") ||
+        localStorage.getItem("authToken") ||
+        localStorage.getItem("nidus_token")
+      : null;
+  const response = await fetch(`${base}${path}`, {
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+  });
   if (!response.ok) throw new Error("Unable to load lesson");
   return response.json() as Promise<T>;
 }

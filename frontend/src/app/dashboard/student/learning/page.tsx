@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, CalendarDays, FileText, Library, PlayCircle } from "lucide-react";
 
@@ -28,26 +29,42 @@ type LiveClass = {
 };
 
 type StudentPlan = {
-  batches?: Array<{ id: string; name: string; course?: { title?: string | null } | null }>;
+  batches?: Array<{ id: string; name: string; status?: string | null; course?: { title?: string | null } | null }>;
   materials?: Material[];
   liveClasses?: LiveClass[];
 };
 
 async function apiJson<T>(path: string): Promise<T> {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_API_BASE_URL || "";
-  const response = await fetch(`${baseUrl}${path}`, { credentials: "include", headers: { "Content-Type": "application/json" } });
+  const token =
+    typeof window !== "undefined"
+      ? localStorage.getItem("token") ||
+        localStorage.getItem("accessToken") ||
+        localStorage.getItem("authToken") ||
+        localStorage.getItem("nidus_token")
+      : null;
+  const response = await fetch(`${baseUrl}${path}`, { credentials: "include", headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) } });
   if (!response.ok) throw new Error("Unable to load learning data");
   return response.json() as Promise<T>;
 }
 
 export default function StudentLearningPage() {
+  const router = useRouter();
   const planQuery = useQuery({ queryKey: ["student", "my-learning"], queryFn: () => apiJson<StudentPlan>("/api/academy/my-plan") });
+  const activeBatches = (planQuery.data?.batches ?? []).filter((batch) => batch.status === "ACTIVE");
+  const shouldOpenApplicantLobby = !planQuery.isLoading && !activeBatches.length;
   const materials = planQuery.data?.materials ?? [];
   const liveClasses = planQuery.data?.liveClasses ?? [];
   const upcomingLiveClasses = liveClasses.filter((item) => new Date(item.scheduledAt) >= new Date()).slice(0, 4);
   const recentLessons = [...materials].sort((left, right) => String(right.createdAt ?? "").localeCompare(String(left.createdAt ?? ""))).slice(0, 4);
   const grouped = useMemo(() => groupMaterials(materials), [materials]);
   const lessonCount = materials.length;
+
+  useEffect(() => {
+    if (shouldOpenApplicantLobby) router.replace("/dashboard/guest");
+  }, [router, shouldOpenApplicantLobby]);
+
+  if (shouldOpenApplicantLobby) return null;
 
   return (
     <main className="min-h-screen bg-[var(--page-bg)] px-5 py-6 text-[var(--navy)] md:px-8">
