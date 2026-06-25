@@ -1,4 +1,6 @@
 import { prisma } from "../../config/prisma.js";
+import { env } from "../../config/env.js";
+import { getRuntimeState } from "../../runtime/lifecycle.js";
 import type { Role } from "../../generated/prisma/client.js";
 
 type DashboardUser = {
@@ -15,6 +17,12 @@ function percentage(part: number, total: number) {
 
 function clampPercentage(value: number) {
   return Math.max(0, Math.min(100, Math.round(Number.isFinite(value) ? value : 0)));
+}
+
+function opsStatus(condition: boolean, partialCondition = false) {
+  if (condition) return "PASS";
+  if (partialCondition) return "PARTIAL";
+  return "FAIL";
 }
 
 function monthLabel(date: Date) {
@@ -822,6 +830,109 @@ export const dashboardService = {
       riskAlerts: customDashboard.focusAreas.length ? customDashboard.focusAreas.map((item) => `Track ${item.toLowerCase()} in today's review.`) : [],
       executiveInsights: customDashboard.permissions.length ? customDashboard.permissions.map((item) => `Access enabled: ${item.replace(/_/g, " ")}.`) : [],
       growthForecast: []
+    };
+  },
+
+  async getDirectorOpsReadiness(_user: DashboardUser) {
+    const runtime = getRuntimeState();
+    let databaseOk = runtime.ready;
+    let databaseMessage = runtime.ready ? "Runtime reports database connected." : "Runtime is still starting.";
+
+    try {
+      await prisma.$queryRaw`SELECT 1`;
+      databaseOk = true;
+      databaseMessage = "Database query succeeded.";
+    } catch (error) {
+      databaseOk = false;
+      databaseMessage = error instanceof Error ? error.message : "Database query failed.";
+    }
+
+    const checks = [
+      {
+        key: "database",
+        title: "Database",
+        status: opsStatus(databaseOk),
+        detail: databaseMessage,
+      },
+      {
+        key: "runtime",
+        title: "Backend runtime",
+        status: opsStatus(runtime.ready || !env.HEALTHCHECK_STRICT, runtime.ready),
+        detail: `Environment ${env.NODE_ENV}. Uptime ${Math.round(process.uptime())} seconds.`,
+      },
+      {
+        key: "auth",
+        title: "Authentication",
+        status: opsStatus(env.JWT_SECRET.length >= 32),
+        detail: "JWT secret and session protection are configured.",
+      },
+      {
+        key: "cors",
+        title: "Public URLs and CORS",
+        status: opsStatus(Boolean(env.FRONTEND_APP_URL && env.BACKEND_PUBLIC_URL && env.APP_DOMAIN)),
+        detail: `${env.FRONTEND_APP_URL} / ${env.BACKEND_PUBLIC_URL}`,
+      },
+      {
+        key: "storage",
+        title: "Cloudinary storage",
+        status: opsStatus(Boolean(env.CLOUDINARY_CLOUD_NAME && env.CLOUDINARY_API_KEY && env.CLOUDINARY_API_SECRET)),
+        detail: env.CLOUDINARY_CLOUD_NAME ? "Cloudinary credentials are present." : "Cloudinary credentials are missing.",
+      },
+      {
+        key: "payments",
+        title: "Razorpay payments",
+        status: opsStatus(Boolean(env.RAZORPAY_KEY_ID && env.RAZORPAY_KEY_SECRET && env.RAZORPAY_WEBHOOK_SECRET), Boolean(env.RAZORPAY_KEY_ID && env.RAZORPAY_KEY_SECRET)),
+        detail: env.RAZORPAY_WEBHOOK_SECRET ? "Payment keys and webhook secret are present." : "Payment webhook secret needs confirmation.",
+      },
+      {
+        key: "email",
+        title: "Email delivery",
+        status: opsStatus(Boolean(env.RESEND_API_KEY), Boolean(env.RESEND_FROM_EMAIL)),
+        detail: env.RESEND_API_KEY ? `Resend configured from ${env.RESEND_FROM_EMAIL}.` : "Resend API key is missing.",
+      },
+      {
+        key: "ai",
+        title: "AI services",
+        status: opsStatus(Boolean(env.OPENAI_API_KEY)),
+        detail: env.OPENAI_API_KEY ? "OpenAI key is present." : "OpenAI key is missing.",
+      },
+      {
+        key: "monitoring",
+        title: "Monitoring",
+        status: opsStatus(Boolean(env.SENTRY_DSN), env.NODE_ENV !== "production"),
+        detail: env.SENTRY_DSN ? "Sentry DSN is configured." : "Sentry DSN is not configured.",
+      },
+      {
+        key: "backup",
+        title: "Backup target",
+        status: opsStatus(Boolean(env.BACKUP_BUCKET), Boolean(env.MEDIA_BACKUP_PREFIX)),
+        detail: env.BACKUP_BUCKET ? `Backup bucket: ${env.BACKUP_BUCKET}.` : `Backup prefix only: ${env.MEDIA_BACKUP_PREFIX}.`,
+      },
+      {
+        key: "queue",
+        title: "Redis and queues",
+        status: opsStatus(!env.REDIS_REQUIRED || Boolean(env.REDIS_URL), Boolean(env.REDIS_URL) || !env.QUEUE_WORKERS_ENABLED),
+        detail: env.REDIS_URL ? `Redis configured. Workers ${env.QUEUE_WORKERS_ENABLED ? "enabled" : "disabled"}.` : "Redis is optional or not configured.",
+      },
+      {
+        key: "maintenance",
+        title: "Maintenance mode",
+        status: opsStatus(!env.MAINTENANCE_MODE),
+        detail: env.MAINTENANCE_MODE ? "Maintenance mode is ON." : "Maintenance mode is OFF.",
+      },
+    ];
+    const pass = checks.filter((check) => check.status === "PASS").length;
+    const partial = checks.filter((check) => check.status === "PARTIAL").length;
+    const fail = checks.filter((check) => check.status === "FAIL").length;
+    const score = Math.round(((pass + partial * 0.5) / checks.length) * 100);
+
+    return {
+      checkedAt: new Date().toISOString(),
+      environment: env.NODE_ENV,
+      score,
+      verdict: fail > 0 ? "OPERATIONS NEED ATTENTION" : score >= 90 ? "OPERATIONS READY" : "OPERATIONS PARTIAL",
+      summary: { pass, partial, fail, total: checks.length },
+      checks,
     };
   },
 

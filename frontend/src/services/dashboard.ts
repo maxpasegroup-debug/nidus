@@ -240,6 +240,20 @@ export type DirectorDashboardData = {
   growthForecast: Array<{ month: string; forecast: number }>;
 };
 
+export type DirectorOpsReadinessData = {
+  checkedAt: string;
+  environment: string;
+  score: number;
+  verdict: string;
+  summary: { pass: number; partial: number; fail: number; total: number };
+  checks: Array<{
+    key: string;
+    title: string;
+    status: "PASS" | "PARTIAL" | "FAIL";
+    detail: string;
+  }>;
+};
+
 export type BusinessDevelopmentDashboardData = {
   leadPipeline: { new: number; contacted: number; counselling: number; enrolled: number; lost: number; assignedLeads: number };
   scheduling: { callbacksToday: number; counselling: number; overdueFollowUps: number };
@@ -282,6 +296,10 @@ export function getTeacherDashboard() {
 
 export function getDirectorDashboard() {
   return getDashboard<DirectorDashboardData>("/dashboard/director");
+}
+
+export function getDirectorOpsReadiness() {
+  return getDashboard<DirectorOpsReadinessData>("/dashboard/director/ops-readiness");
 }
 
 export function getBusinessDevelopmentDashboard() {
