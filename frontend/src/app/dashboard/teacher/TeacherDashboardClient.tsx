@@ -845,8 +845,9 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
 
   const dashboardTemplate = typeof user?.roleMetadata?.dashboardTemplate === "string" ? user.roleMetadata.dashboardTemplate.toUpperCase() : "";
   const isAcademicHeadRoute = pathname?.startsWith("/dashboard/academic-head") ?? false;
+  const isDirectorTeachingRoute = pathname?.startsWith("/dashboard/director/teaching") ?? false;
   const isAcademicHead = isAcademicHeadRoute || user?.role?.toUpperCase() === "ACADEMIC_HEAD" || dashboardTemplate === "ACADEMIC_HEAD";
-  const dashboardBasePath = isAcademicHead ? "/dashboard/academic-head" : "/dashboard/teacher";
+  const dashboardBasePath = isDirectorTeachingRoute ? "/dashboard/director/teaching" : isAcademicHead ? "/dashboard/academic-head" : "/dashboard/teacher";
   const activeClasses = useMemo(() => classes.filter((batch) => isTeacherClassAllocation(batch, isAcademicHead)), [classes, isAcademicHead]);
   const teacherRosterBatches = useMemo<TeacherRosterBatch[]>(() => activeClasses.map((batch) => {
     const students = (batch.students ?? []).flatMap((entry) => {

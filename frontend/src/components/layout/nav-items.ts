@@ -53,6 +53,22 @@ const physicalTrainerMenu: DashboardNavItem[] = [
   { label: "Reports", href: "/fitness/logs" },
 ];
 
+const directorMenu: DashboardNavItem[] = [
+  { label: "Command Center", href: "/dashboard/director" },
+  { label: "Admissions", href: "/dashboard/director/admissions" },
+  { label: "Academics", href: "/dashboard/director/academic" },
+  { label: "Team", href: "/dashboard/director/management" },
+  { label: "Finance", href: "/dashboard/director/accounts" },
+  { label: "Reports", href: "/dashboard/director/reports" },
+  { label: "Teaching Today", href: "/dashboard/director/teaching/classes" },
+  { label: "My Students", href: "/dashboard/director/teaching/students" },
+  { label: "Teaching Calendar", href: "/dashboard/director/teaching/academic-calendar" },
+  { label: "Attendance", href: "/dashboard/director/teaching/attendance" },
+  { label: "Assignments", href: "/dashboard/director/teaching/assignments" },
+  { label: "Exams", href: "/dashboard/director/teaching/exams" },
+  { label: "Library", href: "/dashboard/director/teaching/library" },
+];
+
 const academicHeadMenu: DashboardNavItem[] = [
   { label: "Today", href: "/dashboard/academic-head/classes" },
   { label: "My Students", href: "/dashboard/academic-head/students" },
@@ -96,7 +112,7 @@ export function getNavItems(role?: string | null, dashboardTemplate?: string | n
   const normalizedTemplate = dashboardTemplate?.toUpperCase();
 
   if (normalizedRole === "DIRECTOR") {
-    return [];
+    return directorMenu;
   }
 
   if (normalizedRole === "ACADEMIC_HEAD" || normalizedTemplate === "ACADEMIC_HEAD") {
@@ -138,4 +154,4 @@ export function getNavItems(role?: string | null, dashboardTemplate?: string | n
   return studentMenu;
 }
 
-export { guestMenu, parentMenu, studentMenu };
+export { directorMenu, guestMenu, parentMenu, studentMenu };

@@ -6,6 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import {
   AlertTriangle,
   BarChart3,
+  BookOpen,
   ClipboardCheck,
   GraduationCap,
   KeyRound,
@@ -78,6 +79,13 @@ const primaryActions: DirectorAction[] = [
     href: "/dashboard/director/reports",
     icon: BarChart3,
     tone: "gold",
+  },
+  {
+    title: "Teaching Mode",
+    text: "Open your own classes, students, attendance, assignments, exams, library and live teaching tools.",
+    href: "/dashboard/director/teaching",
+    icon: BookOpen,
+    tone: "blue",
   },
 ];
 
@@ -357,11 +365,12 @@ export default function DirectorDashboardPage() {
         <section className="rounded-[28px] border border-[var(--border)] bg-white p-5 shadow-sm md:p-6">
           <p className="text-xs font-black uppercase tracking-[0.3em] text-[var(--gold)]">Director Manual</p>
           <h2 className="mt-2 text-2xl font-black">How to use this dashboard</h2>
-          <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-5">
             <ManualCard icon={ShieldCheck} title="Start With Attention" text="Clear pending admissions, fees, batch allocation, low attendance and exam delays before reviewing reports." />
             <ManualCard icon={GraduationCap} title="Check Academics" text="Open Academics for batches, timetable, syllabus, teacher allocation, exams and learning materials." />
             <ManualCard icon={WalletCards} title="Watch Money" text="Use Finance to monitor collected fees, pending dues, receipts and operational expenses." />
             <ManualCard icon={KeyRound} title="Control Access" text="Use Team to create staff, reset passwords, unlock accounts, assign roles and archive employees." />
+            <ManualCard icon={BookOpen} title="Teach Your Classes" text="Open Teaching Mode when the Director is personally allocated to a batch or subject." />
           </div>
         </section>
       </section>
