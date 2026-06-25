@@ -254,6 +254,19 @@ export type DirectorOpsReadinessData = {
   }>;
 };
 
+export type DirectorSecurityReadinessData = {
+  checkedAt: string;
+  score: number;
+  verdict: string;
+  summary: { pass: number; partial: number; fail: number; total: number };
+  checks: Array<{
+    key: string;
+    title: string;
+    status: "PASS" | "PARTIAL" | "FAIL";
+    detail: string;
+  }>;
+};
+
 export type BusinessDevelopmentDashboardData = {
   leadPipeline: { new: number; contacted: number; counselling: number; enrolled: number; lost: number; assignedLeads: number };
   scheduling: { callbacksToday: number; counselling: number; overdueFollowUps: number };
@@ -300,6 +313,10 @@ export function getDirectorDashboard() {
 
 export function getDirectorOpsReadiness() {
   return getDashboard<DirectorOpsReadinessData>("/dashboard/director/ops-readiness");
+}
+
+export function getDirectorSecurityReadiness() {
+  return getDashboard<DirectorSecurityReadinessData>("/dashboard/director/security-readiness");
 }
 
 export function getBusinessDevelopmentDashboard() {

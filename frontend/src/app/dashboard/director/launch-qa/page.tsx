@@ -17,7 +17,13 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useDirectorDashboard } from "@/hooks/use-dashboard";
-import { getDirectorOpsReadiness, type DirectorDashboardData, type DirectorOpsReadinessData } from "@/services/dashboard";
+import {
+  getDirectorOpsReadiness,
+  getDirectorSecurityReadiness,
+  type DirectorDashboardData,
+  type DirectorOpsReadinessData,
+  type DirectorSecurityReadinessData,
+} from "@/services/dashboard";
 import { useQuery } from "@tanstack/react-query";
 
 type LaunchCheck = {
@@ -239,6 +245,7 @@ function statusTone(status: LaunchCheck["status"]) {
 export default function DirectorLaunchQaPage() {
   const { data, isLoading, isError, refetch, isFetching } = useDirectorDashboard();
   const opsQuery = useQuery({ queryKey: ["dashboard", "director", "ops-readiness"], queryFn: getDirectorOpsReadiness });
+  const securityQuery = useQuery({ queryKey: ["dashboard", "director", "security-readiness"], queryFn: getDirectorSecurityReadiness });
   const checks = buildChecks(data);
   const passed = checks.filter((check) => check.status === "PASS").length;
   const partial = checks.filter((check) => check.status === "PARTIAL").length;
@@ -247,7 +254,9 @@ export default function DirectorLaunchQaPage() {
   const roleLanes = buildRoleLanes(data, checks);
   const blockers = checks.filter((check) => check.status !== "PASS");
   const opsFail = opsQuery.data?.summary.fail ?? 0;
-  const finalVerdict = verdictText(Math.round((readinessScore + (opsQuery.data?.score ?? readinessScore)) / 2), failed + opsFail);
+  const securityFail = securityQuery.data?.summary.fail ?? 0;
+  const combinedScore = Math.round((readinessScore + (opsQuery.data?.score ?? readinessScore) + (securityQuery.data?.score ?? readinessScore)) / 3);
+  const finalVerdict = verdictText(combinedScore, failed + opsFail + securityFail);
   const lastUpdatedAt = data?.lastUpdatedAt ? new Date(data.lastUpdatedAt).toLocaleString() : "Live refresh pending";
 
   return (
@@ -270,6 +279,7 @@ export default function DirectorLaunchQaPage() {
                   onClick={() => {
                     refetch();
                     opsQuery.refetch();
+                    securityQuery.refetch();
                   }}
                   className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-sm font-black"
                 >
@@ -287,7 +297,10 @@ export default function DirectorLaunchQaPage() {
               <p className="mt-2 text-sm font-black text-[var(--muted-blue)]">
                 Ops: {opsQuery.isLoading ? "..." : `${opsQuery.data?.score ?? 0}%`}
               </p>
-              <p className={`mt-4 rounded-xl border px-3 py-2 text-xs font-black ${failed + opsFail ? statusTone("FAIL") : statusTone(readinessScore >= 75 ? "PASS" : "PARTIAL")}`}>
+              <p className="mt-1 text-sm font-black text-[var(--muted-blue)]">
+                Security: {securityQuery.isLoading ? "..." : `${securityQuery.data?.score ?? 0}%`}
+              </p>
+              <p className={`mt-4 rounded-xl border px-3 py-2 text-xs font-black ${failed + opsFail + securityFail ? statusTone("FAIL") : statusTone(combinedScore >= 75 ? "PASS" : "PARTIAL")}`}>
                 {isLoading ? "VERDICT PENDING" : finalVerdict}
               </p>
               <button
@@ -346,6 +359,35 @@ export default function DirectorLaunchQaPage() {
         <section className="rounded-3xl border border-[var(--border)] bg-white/95 p-5 shadow-sm md:p-6">
           <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
             <div>
+              <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Security Certification</p>
+              <h2 className="mt-2 text-3xl font-black">Access and isolation readiness</h2>
+              <p className="mt-2 text-sm leading-6 text-[var(--muted-blue)]">
+                Session auth, guest lock, rate limits, parent scope, batch filtering, role coverage and locked account checks.
+              </p>
+            </div>
+            <span className={`rounded-full border px-4 py-2 text-sm font-black ${statusTone((securityQuery.data?.summary.fail ?? 0) > 0 ? "FAIL" : (securityQuery.data?.score ?? 0) >= 90 ? "PASS" : "PARTIAL")}`}>
+              {securityQuery.isLoading ? "Checking..." : securityQuery.data?.verdict ?? "Unavailable"}
+            </span>
+          </div>
+          {securityQuery.isError ? (
+            <div className="mt-5 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-black text-red-700">
+              Security readiness endpoint could not be loaded.
+            </div>
+          ) : (
+            <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+              {(securityQuery.data?.checks ?? []).map((check) => (
+                <SecurityCheckCard key={check.key} check={check} loading={securityQuery.isLoading} />
+              ))}
+              {securityQuery.isLoading
+                ? Array.from({ length: 6 }).map((_, index) => <SecurityCheckCard key={index} loading />)
+                : null}
+            </div>
+          )}
+        </section>
+
+        <section className="rounded-3xl border border-[var(--border)] bg-white/95 p-5 shadow-sm md:p-6">
+          <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+            <div>
               <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Role Certification</p>
               <h2 className="mt-2 text-3xl font-black">Who can operate tomorrow?</h2>
             </div>
@@ -377,10 +419,22 @@ export default function DirectorLaunchQaPage() {
                     href: "/dashboard/director/launch-qa",
                     icon: ShieldCheck,
                   } satisfies LaunchCheck)),
+                ...(securityQuery.data?.checks ?? [])
+                  .filter((check) => check.status !== "PASS")
+                  .map((check) => ({
+                    title: check.title,
+                    detail: check.detail,
+                    value: check.status,
+                    status: check.status,
+                    href: "/dashboard/director/launch-qa",
+                    icon: ShieldCheck,
+                  } satisfies LaunchCheck)),
               ].map((check) => (
                 <BlockerRow key={check.title} check={check} loading={isLoading} />
               ))}
-              {!blockers.length && !(opsQuery.data?.checks ?? []).some((check) => check.status !== "PASS") ? (
+              {!blockers.length &&
+              !(opsQuery.data?.checks ?? []).some((check) => check.status !== "PASS") &&
+              !(securityQuery.data?.checks ?? []).some((check) => check.status !== "PASS") ? (
                 <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-black text-emerald-900">
                   No live blockers found in the Director launch board.
                 </div>
@@ -496,6 +550,25 @@ function OpsCheckCard({ check, loading }: { check?: DirectorOpsReadinessData["ch
         <div>
           <h3 className="font-black">{loading ? "Checking..." : check?.title}</h3>
           <p className="mt-2 text-sm leading-6 text-[var(--muted-blue)]">{loading ? "Production signal is loading." : check?.detail}</p>
+        </div>
+        <span className={`inline-flex shrink-0 items-center gap-1 rounded-full border px-3 py-1 text-xs font-black ${statusTone(status)}`}>
+          <StatusIcon className="h-4 w-4" />
+          {loading ? "..." : status}
+        </span>
+      </div>
+    </article>
+  );
+}
+
+function SecurityCheckCard({ check, loading }: { check?: DirectorSecurityReadinessData["checks"][number]; loading: boolean }) {
+  const status = check?.status ?? "PARTIAL";
+  const StatusIcon = status === "PASS" ? CheckCircle2 : status === "PARTIAL" ? AlertTriangle : XCircle;
+  return (
+    <article className="rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h3 className="font-black">{loading ? "Checking..." : check?.title}</h3>
+          <p className="mt-2 text-sm leading-6 text-[var(--muted-blue)]">{loading ? "Security signal is loading." : check?.detail}</p>
         </div>
         <span className={`inline-flex shrink-0 items-center gap-1 rounded-full border px-3 py-1 text-xs font-black ${statusTone(status)}`}>
           <StatusIcon className="h-4 w-4" />

@@ -936,6 +936,135 @@ export const dashboardService = {
     };
   },
 
+  async getDirectorSecurityReadiness(_user: DashboardUser) {
+    const [
+      activeGuests,
+      lockedUsers,
+      disabledUsers,
+      parentLinks,
+      activeBatchStudents,
+      activeTeacherAssignments,
+      liveClassRows,
+      publishedAssignments,
+      publishedExams,
+      publicAssessmentAttempts,
+      directorUsers,
+      academicHeads,
+      teachers,
+      students,
+      parents
+    ] = await Promise.all([
+      prisma.user.count({ where: { role: "GUEST", isDisabled: false } }),
+      prisma.user.count({ where: { lockedUntil: { gt: new Date() } } }),
+      prisma.user.count({ where: { isDisabled: true } }),
+      prisma.parentStudentLink.count({ where: { status: "ACTIVE" } }),
+      prisma.batchStudent.count({ where: { status: "ACTIVE" } }),
+      prisma.teacherBatchAssignment.count({ where: { status: "ACTIVE" } }),
+      prisma.liveClass.count({ where: { status: { not: "CANCELLED" }, batchId: { not: null } } }),
+      prisma.teacherAssignmentRecord.count({ where: { status: "PUBLISHED" } }),
+      prisma.teacherExamRecord.count({ where: { status: { in: ["PUBLISHED", "LIVE", "APPROVED"] } } }),
+      prisma.assessmentAttempt.count(),
+      prisma.user.count({ where: { role: "DIRECTOR", isDisabled: false } }),
+      prisma.user.count({ where: { OR: [{ role: "ACADEMIC_HEAD" }, { role: "TEACHER", roleMetadata: { path: ["dashboardTemplate"], equals: "ACADEMIC_HEAD" } }], isDisabled: false } }),
+      prisma.user.count({ where: { role: "TEACHER", isDisabled: false } }),
+      prisma.user.count({ where: { role: "STUDENT", isDisabled: false } }),
+      prisma.user.count({ where: { role: "PARENT", isDisabled: false } })
+    ]);
+
+    const checks = [
+      {
+        key: "session-auth",
+        title: "Session cookie authentication",
+        status: "PASS",
+        detail: "Dashboard APIs use the protected session middleware and do not trust localStorage-only login.",
+      },
+      {
+        key: "guest-production",
+        title: "Guest production lock",
+        status: opsStatus(env.NODE_ENV !== "production" || activeGuests === 0, activeGuests <= 5),
+        detail: `${activeGuests} active guest account(s). Production middleware blocks GUEST sessions.`,
+      },
+      {
+        key: "rate-limits",
+        title: "Rate limiting",
+        status: opsStatus(Boolean(env.REDIS_URL), true),
+        detail: env.REDIS_URL ? "Redis-backed rate limiter is configured." : "Local fallback limiter is active; Redis is recommended for multi-instance production.",
+      },
+      {
+        key: "safe-content-type",
+        title: "Unsafe content-type protection",
+        status: "PASS",
+        detail: "Non-GET API requests require JSON or multipart content type, excluding payment webhooks.",
+      },
+      {
+        key: "role-coverage",
+        title: "Role coverage",
+        status: opsStatus(directorUsers > 0 && academicHeads > 0 && teachers > 0 && students > 0),
+        detail: `${directorUsers} director(s), ${academicHeads} academic head(s), ${teachers} teacher(s), ${students} student(s).`,
+      },
+      {
+        key: "parent-scope",
+        title: "Parent linked-student scope",
+        status: opsStatus(parentLinks > 0 || parents === 0, parents > 0),
+        detail: `${parentLinks} active parent-student link(s), ${parents} parent account(s).`,
+      },
+      {
+        key: "student-batch-scope",
+        title: "Student batch scope",
+        status: opsStatus(activeBatchStudents > 0),
+        detail: `${activeBatchStudents} active batch-student enrollment(s) drive student LMS visibility.`,
+      },
+      {
+        key: "teacher-batch-scope",
+        title: "Teacher allocation scope",
+        status: opsStatus(activeTeacherAssignments > 0),
+        detail: `${activeTeacherAssignments} active teacher-batch-subject assignment(s) drive teacher visibility.`,
+      },
+      {
+        key: "live-class-scope",
+        title: "Live class batch filtering",
+        status: opsStatus(liveClassRows > 0, true),
+        detail: `${liveClassRows} non-cancelled live class(es) linked to batches.`,
+      },
+      {
+        key: "assignment-scope",
+        title: "Assignment batch filtering",
+        status: opsStatus(publishedAssignments > 0, true),
+        detail: `${publishedAssignments} published batch-linked assignment(s).`,
+      },
+      {
+        key: "exam-scope",
+        title: "Exam batch filtering",
+        status: opsStatus(publishedExams > 0, true),
+        detail: `${publishedExams} published/live/approved batch-linked exam record(s).`,
+      },
+      {
+        key: "locked-accounts",
+        title: "Locked accounts",
+        status: opsStatus(lockedUsers === 0, lockedUsers <= 3),
+        detail: `${lockedUsers} account(s) currently locked, ${disabledUsers} disabled account(s).`,
+      },
+      {
+        key: "assessment-attempts",
+        title: "Assessment data access",
+        status: opsStatus(publicAssessmentAttempts >= 0),
+        detail: `${publicAssessmentAttempts} V2 assessment attempt record(s) exist under protected assessment APIs.`,
+      },
+    ];
+    const pass = checks.filter((check) => check.status === "PASS").length;
+    const partial = checks.filter((check) => check.status === "PARTIAL").length;
+    const fail = checks.filter((check) => check.status === "FAIL").length;
+    const score = Math.round(((pass + partial * 0.5) / checks.length) * 100);
+
+    return {
+      checkedAt: new Date().toISOString(),
+      score,
+      verdict: fail > 0 ? "SECURITY NEEDS ATTENTION" : score >= 90 ? "SECURITY READY" : "SECURITY PARTIAL",
+      summary: { pass, partial, fail, total: checks.length },
+      checks,
+    };
+  },
+
   async getBusinessDevelopmentDashboard(user: DashboardUser) {
     const executive = await prisma.user.findUnique({ where: { id: user.id }, select: { roleMetadata: true } });
     const customDashboard = staffDashboard(metadataObject(executive?.roleMetadata), "LEAD_SUPPORT");

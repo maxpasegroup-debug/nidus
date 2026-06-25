@@ -65,6 +65,15 @@ export const dashboardController = {
     }
   },
 
+  async directorSecurityReadiness(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      const data = await dashboardService.getDirectorSecurityReadiness(getAuthenticatedUser(req));
+      res.json({ role: "DIRECTOR", data });
+    } catch (error) {
+      next(error);
+    }
+  },
+
   async businessDevelopment(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
       const data = await dashboardService.getBusinessDevelopmentDashboard(getAuthenticatedUser(req));
