@@ -34,12 +34,12 @@ const teacherMenu: DashboardNavItem[] = [
 ];
 
 const physicalTrainerMenu: DashboardNavItem[] = [
-  { label: "Assigned Batches", href: "/dashboard/teacher/classes" },
-  { label: "Attendance", href: "/dashboard/teacher/attendance" },
-  { label: "PT Schedule", href: "/fitness/pt-schedule" },
-  { label: "Fitness Scores", href: "/fitness" },
-  { label: "Eligibility", href: "/fitness/eligibility" },
-  { label: "Running Records", href: "/fitness/logs" },
+  { label: "Today", href: "/fitness" },
+  { label: "My Batches", href: "/fitness/pt-schedule" },
+  { label: "Attendance", href: "/fitness/pt-schedule" },
+  { label: "Fitness Records", href: "/fitness/eligibility" },
+  { label: "Student Fitness", href: "/fitness/eligibility" },
+  { label: "Reports", href: "/fitness/logs" },
 ];
 
 const academicHeadMenu: DashboardNavItem[] = [
