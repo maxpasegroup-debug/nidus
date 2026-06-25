@@ -285,6 +285,20 @@ export type DirectorLaunchCertificationData = {
   };
   blockers: DirectorLaunchCertificationCheck[];
   nextActions: string[];
+  handoff: {
+    releaseGate: {
+      canOpenForPublic: boolean;
+      canOpenForControlledPilot: boolean;
+      requiredScore: number;
+      currentScore: number;
+      rule: string;
+    };
+    launchMorningChecklist: string[];
+    roleSignOff: Array<{ role: string; responsibility: string }>;
+    rollbackPlan: string[];
+    goLiveRunbook: Array<{ time: string; action: string }>;
+    launchSignOffManifest: Array<{ gate: string; owner: string; status: "READY" | "BLOCKED"; evidence: string }>;
+  };
 };
 
 export type DirectorLaunchCertificationCheck = {

@@ -266,6 +266,16 @@ export default function DirectorLaunchQaPage() {
   const finalPartial = certification?.summary.partial ?? partial;
   const finalTotal = certification?.summary.total ?? checks.length;
   const lastUpdatedAt = data?.lastUpdatedAt ? new Date(data.lastUpdatedAt).toLocaleString() : "Live refresh pending";
+  const downloadCertificate = () => {
+    if (!certification) return;
+    const blob = new Blob([JSON.stringify(certification, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = `${certification.certificationId.toLowerCase()}-handoff.json`;
+    anchor.click();
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <main className="min-h-screen bg-[var(--page-bg)] px-5 py-6 text-[var(--navy)] md:px-8">
@@ -350,6 +360,19 @@ export default function DirectorLaunchQaPage() {
                 <p className="mt-2 text-sm font-black">
                   {certification ? `${certification.certificationId} / ${new Date(certification.generatedAt).toLocaleString()}` : "Waiting for live certificate."}
                 </p>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={downloadCertificate}
+                    disabled={!certification}
+                    className="rounded-xl border border-current bg-white/70 px-4 py-2 text-sm font-black disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    Download handoff JSON
+                  </button>
+                  <button type="button" onClick={() => window.print()} className="rounded-xl border border-current bg-white/70 px-4 py-2 text-sm font-black">
+                    Print certificate
+                  </button>
+                </div>
               </div>
             </div>
             <div className="grid gap-3 md:grid-cols-2">
@@ -370,6 +393,72 @@ export default function DirectorLaunchQaPage() {
             </div>
           ) : null}
         </section>
+
+        {certification?.handoff ? (
+          <section className="rounded-3xl border border-[var(--border)] bg-white/95 p-5 shadow-sm md:p-6">
+            <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Launch Handoff Pack</p>
+                <h2 className="mt-2 text-3xl font-black">What management does on launch morning</h2>
+                <p className="mt-2 max-w-3xl text-sm leading-7 text-[var(--muted-blue)]">{certification.handoff.releaseGate.rule}</p>
+              </div>
+              <span className={`rounded-full border px-4 py-2 text-sm font-black ${certification.handoff.releaseGate.canOpenForPublic ? statusTone("PASS") : certification.handoff.releaseGate.canOpenForControlledPilot ? statusTone("PARTIAL") : statusTone("FAIL")}`}>
+                {certification.handoff.releaseGate.canOpenForPublic
+                  ? "Public launch gate open"
+                  : certification.handoff.releaseGate.canOpenForControlledPilot
+                    ? "Pilot gate open"
+                    : "Launch gate closed"}
+              </span>
+            </div>
+            <div className="mt-5 grid gap-4 xl:grid-cols-3">
+              <HandoffList title="Morning checklist" items={certification.handoff.launchMorningChecklist} />
+              <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
+                <p className="text-sm font-black uppercase tracking-[0.24em] text-[var(--gold)]">Role sign-off</p>
+                <div className="mt-3 grid gap-3">
+                  {certification.handoff.roleSignOff.map((item) => (
+                    <div key={item.role} className="rounded-xl border border-[var(--border)] bg-white p-3">
+                      <p className="font-black">{item.role}</p>
+                      <p className="mt-1 text-sm leading-6 text-[var(--muted-blue)]">{item.responsibility}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <HandoffList title="Recovery plan" items={certification.handoff.rollbackPlan} />
+            </div>
+            <div className="mt-5 grid gap-4 lg:grid-cols-[1fr_0.9fr]">
+              <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
+                <p className="text-sm font-black uppercase tracking-[0.24em] text-[var(--gold)]">Go-live runbook</p>
+                <div className="mt-3 grid gap-3">
+                  {certification.handoff.goLiveRunbook.map((item) => (
+                    <div key={`${item.time}-${item.action}`} className="grid gap-2 rounded-xl border border-[var(--border)] bg-white p-3 md:grid-cols-[130px_1fr]">
+                      <p className="font-black text-[var(--navy)]">{item.time}</p>
+                      <p className="text-sm font-bold leading-6 text-[var(--muted-blue)]">{item.action}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
+                <p className="text-sm font-black uppercase tracking-[0.24em] text-[var(--gold)]">Final sign-off gates</p>
+                <div className="mt-3 grid gap-3">
+                  {certification.handoff.launchSignOffManifest.map((item) => (
+                    <div key={item.gate} className="rounded-xl border border-[var(--border)] bg-white p-3">
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <p className="font-black">{item.gate}</p>
+                          <p className="mt-1 text-sm font-bold text-[var(--muted-blue)]">Owner: {item.owner}</p>
+                        </div>
+                        <span className={`rounded-full border px-3 py-1 text-xs font-black ${item.status === "READY" ? statusTone("PASS") : statusTone("FAIL")}`}>
+                          {item.status}
+                        </span>
+                      </div>
+                      <p className="mt-2 text-sm leading-6 text-[var(--muted-blue)]">{item.evidence}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </section>
+        ) : null}
 
         <section className="rounded-3xl border border-[var(--border)] bg-white/95 p-5 shadow-sm md:p-6">
           <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
@@ -542,6 +631,24 @@ function CertificationScoreCard({ title, value, strong = false }: { title: strin
       <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold)]">{title}</p>
       <p className="mt-3 text-4xl font-black">{value}%</p>
       <p className="mt-1 text-sm font-black">{readinessLabel(value)}</p>
+    </div>
+  );
+}
+
+function HandoffList({ title, items }: { title: string; items: string[] }) {
+  return (
+    <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
+      <p className="text-sm font-black uppercase tracking-[0.24em] text-[var(--gold)]">{title}</p>
+      <div className="mt-3 grid gap-3">
+        {items.map((item, index) => (
+          <div key={item} className="flex gap-3 rounded-xl border border-[var(--border)] bg-white p-3">
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[var(--border)] text-xs font-black">
+              {index + 1}
+            </span>
+            <p className="text-sm font-bold leading-6 text-[var(--muted-blue)]">{item}</p>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

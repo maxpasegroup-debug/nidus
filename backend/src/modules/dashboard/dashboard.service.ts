@@ -1251,6 +1251,53 @@ export const dashboardService = {
       },
       blockers,
       nextActions: blockers.slice(0, 6).map((check) => `${check.area}: ${check.title} - ${check.detail}`),
+      handoff: {
+        releaseGate: {
+          canOpenForPublic: verdict === "CERTIFIED FOR CONTROLLED PRODUCTION",
+          canOpenForControlledPilot: verdict !== "NOT CERTIFIED",
+          requiredScore: 90,
+          currentScore: overallScore,
+          rule: "Open public launch only when there are no failed checks and the overall score is 90 or higher.",
+        },
+        launchMorningChecklist: [
+          "Director opens Launch QA and refreshes all checks before staff login.",
+          "Administrative Officer clears admissions, fees, documents and batch allocation queues.",
+          "Academic Head opens HOD, verifies today's timetable, teacher coverage and attendance pending list.",
+          "Teachers verify Today's classes, Students, Attendance, Library, Assignments and Exams before the first class.",
+          "Student support verifies at least one active learner can open classes, library, assignments, exams and attendance.",
+          "Director keeps Launch QA open during the first operating hour and clears red or amber rows first.",
+        ],
+        roleSignOff: [
+          { role: "Director", responsibility: "Final go/no-go decision, finance, reports, team access and launch QA." },
+          { role: "Academic Head", responsibility: "Batches, teachers, timetable, attendance, exams, assignments and academic health." },
+          { role: "Administrative Officer", responsibility: "Applications, documents, fee receipts, batch allocation and student activation." },
+          { role: "Teachers", responsibility: "Classes, attendance, assignments, exams, library lessons and student visibility." },
+          { role: "Technical Owner", responsibility: "Database, deployment, authentication, storage, monitoring and recovery readiness." },
+        ],
+        rollbackPlan: [
+          "If login or dashboard APIs fail, pause new admissions and keep existing students informed through the Director channel.",
+          "If payment or receipt flow fails, record fee collection offline and reconcile once Finance returns green.",
+          "If live class or library upload fails, continue offline teaching and upload the recording after storage returns green.",
+          "If database connectivity fails, stop write operations and restore service before creating assignments, exams or admissions.",
+          "If security checks fail, keep the platform in controlled pilot mode until isolation and account checks return green.",
+        ],
+        goLiveRunbook: [
+          { time: "T-60 minutes", action: "Refresh Launch QA, confirm certificate verdict, and keep the certificate open on the Director screen." },
+          { time: "T-45 minutes", action: "AO verifies admissions, documents, fees, receipts, student activation and batch allocation." },
+          { time: "T-30 minutes", action: "Academic Head verifies timetable, teacher allocations, today's classes and attendance readiness." },
+          { time: "T-15 minutes", action: "Teachers verify dashboard access, student lists, library upload, assignments, exams and live class button." },
+          { time: "T-0", action: "Director gives controlled pilot or production go-live based on the active certificate verdict." },
+          { time: "First hour", action: "Track login failures, dashboard errors, live class issues, uploads, payments and student support requests." },
+          { time: "End of day", action: "Review attendance, assignments, exams, library usage, admissions, fees and support issues before next-day operation." },
+        ],
+        launchSignOffManifest: [
+          { gate: "Data", owner: "Director", status: activeBatches > 0 && activeStudents > 0 ? "READY" : "BLOCKED", evidence: `${activeBatches} batch(es), ${activeStudents} learner(s).` },
+          { gate: "Academics", owner: "Academic Head", status: teachers > 0 && timetableSlots > 0 ? "READY" : "BLOCKED", evidence: `${teachers} teacher(s), ${timetableSlots} timetable slot(s).` },
+          { gate: "Admissions", owner: "Administrative Officer", status: administrativeOfficers > 0 ? "READY" : "BLOCKED", evidence: `${administrativeOfficers} AO account(s), ${pendingBatchAllocation} batch allocation case(s).` },
+          { gate: "Operations", owner: "Technical Owner", status: ops.summary.fail === 0 ? "READY" : "BLOCKED", evidence: `${ops.summary.pass}/${ops.summary.total} operations check(s) passed.` },
+          { gate: "Security", owner: "Technical Owner", status: security.summary.fail === 0 ? "READY" : "BLOCKED", evidence: `${security.summary.pass}/${security.summary.total} security check(s) passed.` },
+        ],
+      },
     };
   },
 
