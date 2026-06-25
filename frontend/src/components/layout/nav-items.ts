@@ -23,6 +23,17 @@ const guestMenu: DashboardNavItem[] = [
   { label: "My Applications", href: "/dashboard/guest#applications" },
 ];
 
+const parentMenu: DashboardNavItem[] = [
+  { label: "Today", href: "/dashboard/parent#today" },
+  { label: "Attendance", href: "/dashboard/parent#attendance" },
+  { label: "Assignments", href: "/dashboard/parent#assignments" },
+  { label: "Exams", href: "/dashboard/parent#exams" },
+  { label: "Progress", href: "/dashboard/parent#progress" },
+  { label: "Fees", href: "/dashboard/parent#fees" },
+  { label: "Reports", href: "/dashboard/parent#reports" },
+  { label: "Notifications", href: "/dashboard/parent#notifications-list" },
+];
+
 const teacherMenu: DashboardNavItem[] = [
   { label: "Today", href: "/dashboard/teacher/classes" },
   { label: "My Students", href: "/dashboard/teacher/students" },
@@ -112,6 +123,10 @@ export function getNavItems(role?: string | null, dashboardTemplate?: string | n
     return studentMenu;
   }
 
+  if (normalizedRole === "PARENT") {
+    return parentMenu;
+  }
+
   if (normalizedRole === "GUEST") {
     return guestMenu;
   }
@@ -123,4 +138,4 @@ export function getNavItems(role?: string | null, dashboardTemplate?: string | n
   return studentMenu;
 }
 
-export { guestMenu, studentMenu };
+export { guestMenu, parentMenu, studentMenu };

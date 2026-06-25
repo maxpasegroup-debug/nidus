@@ -2,182 +2,330 @@
 
 import { motion } from "framer-motion";
 import {
-  ActivityTimeline,
-  AnnouncementCard,
-  AttendanceCard,
+  AlertCircle,
+  Bell,
+  BookOpen,
+  CalendarDays,
+  ClipboardList,
+  CreditCard,
+  FileText,
+  GraduationCap,
+  HeartPulse,
+  ShieldCheck
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
   DashboardError,
   DashboardSkeleton,
-  ProgressCard,
-  QuickActionCard,
-  RoleDashboardGuard,
-  SectionHeader,
-  StatCard
+  RoleDashboardGuard
 } from "@/components/dashboard";
-import { PerformanceChart } from "@/components/charts/performance-chart";
-import { Button } from "@/components/ui/button";
-import { PageHero } from "@/components/layout/page-hero";
 import { useParentDashboard } from "@/hooks/use-dashboard";
+import type { ParentDashboardData } from "@/services/dashboard";
+
+type MetricCardProps = {
+  label: string;
+  value: string | number;
+  note: string;
+  tone?: "good" | "warn" | "quiet";
+};
+
+function metricTone(tone: MetricCardProps["tone"]) {
+  if (tone === "good") return "bg-emerald-50 text-emerald-900";
+  if (tone === "warn") return "bg-amber-50 text-amber-950";
+  return "bg-slate-50 text-slate-950";
+}
+
+function MetricCard({ label, value, note, tone = "quiet" }: MetricCardProps) {
+  return (
+    <div className="rounded-[8px] border border-slate-950 bg-white p-5">
+      <p className="text-xs font-black uppercase tracking-[0.3em] text-slate-600">{label}</p>
+      <div className={`mt-4 inline-flex min-w-20 items-center justify-center rounded-[8px] px-4 py-3 text-3xl font-black ${metricTone(tone)}`}>
+        {value}
+      </div>
+      <p className="mt-3 text-sm leading-6 text-slate-700">{note}</p>
+    </div>
+  );
+}
+
+function Section({ id, eyebrow, title, children }: { id: string; eyebrow: string; title: string; children: React.ReactNode }) {
+  return (
+    <section id={id} className="rounded-[8px] border border-slate-950 bg-white p-5 shadow-sm md:p-6">
+      <p className="text-xs font-black uppercase tracking-[0.32em] text-slate-700">{eyebrow}</p>
+      <h2 className="mt-2 text-2xl font-black text-slate-950">{title}</h2>
+      <div className="mt-5">{children}</div>
+    </section>
+  );
+}
+
+function StatusRow({ title, detail, value }: { title: string; detail: string; value?: string | number }) {
+  return (
+    <div className="flex flex-col gap-3 rounded-[8px] border border-slate-200 bg-slate-50 p-4 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <h3 className="font-black text-slate-950">{title}</h3>
+        <p className="mt-1 text-sm leading-6 text-slate-700">{detail}</p>
+      </div>
+      {value !== undefined ? (
+        <span className="rounded-full border border-slate-950 bg-white px-4 py-2 text-sm font-black text-slate-950">{value}</span>
+      ) : null}
+    </div>
+  );
+}
+
+function EmptyState({ title, detail }: { title: string; detail: string }) {
+  return (
+    <div className="rounded-[8px] border border-dashed border-slate-300 bg-slate-50 p-5 text-sm leading-6 text-slate-700">
+      <b className="text-slate-950">{title}</b>
+      <br />
+      {detail}
+    </div>
+  );
+}
+
+function attendanceTone(percentage: number): MetricCardProps["tone"] {
+  if (percentage >= 85) return "good";
+  if (percentage >= 75) return "quiet";
+  return "warn";
+}
+
+function formatDate(value?: string | null) {
+  if (!value) return "Not scheduled";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return date.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+}
+
+function buildTodayActions(data: ParentDashboardData) {
+  const pendingAssignments = data.assignments?.pending ?? 0;
+  const feeDue = data.feeStatus.dueAmount ?? 0;
+  const attendance = data.attendance.percentage ?? 0;
+  const examAverage = data.exams?.averageScore ?? data.studentPerformance.averageScore ?? 0;
+
+  return [
+    {
+      title: pendingAssignments > 0 ? "Homework pending" : "Homework clear",
+      detail: pendingAssignments > 0 ? `${pendingAssignments} assignment(s) need attention.` : "No pending homework is reported now.",
+      value: pendingAssignments
+    },
+    {
+      title: attendance < 75 ? "Attendance needs attention" : "Attendance is under watch",
+      detail: `${data.attendance.present}/${data.attendance.total} sessions marked. Keep the student above 75%.`,
+      value: `${attendance}%`
+    },
+    {
+      title: feeDue > 0 ? "Fee payment pending" : "Fees clear",
+      detail: feeDue > 0 ? `Next due date: ${data.feeStatus.nextDueDate}.` : "No pending fee amount is shown.",
+      value: feeDue > 0 ? `Rs ${feeDue}` : "Clear"
+    },
+    {
+      title: "Exam performance",
+      detail: `${data.exams?.submitted ?? 0} submitted exam(s). Track weak areas after every test.`,
+      value: `${examAverage}%`
+    }
+  ];
+}
 
 export default function ParentDashboardPage() {
   const { data, isLoading, error, refetch, isFetching } = useParentDashboard();
 
-  if (isLoading) return <RoleDashboardGuard role="PARENT"><DashboardSkeleton /></RoleDashboardGuard>;
-  if (error || !data) return <RoleDashboardGuard role="PARENT"><DashboardError error={error} onRefresh={() => refetch()} /></RoleDashboardGuard>;
+  if (isLoading) {
+    return (
+      <RoleDashboardGuard role="PARENT">
+        <DashboardSkeleton />
+      </RoleDashboardGuard>
+    );
+  }
 
-  const chartData = data.studentPerformance.trend.map((item) => ({ label: item.month, score: item.score ?? 0, attendance: item.attendance ?? 0 }));
+  if (error || !data) {
+    return (
+      <RoleDashboardGuard role="PARENT">
+        <DashboardError error={error} onRefresh={() => refetch()} />
+      </RoleDashboardGuard>
+    );
+  }
+
+  const linkedStudent = data.linkedStudent;
   const assessmentProfile = data.assessmentProfile;
+  const todayActions = buildTodayActions(data);
+  const pendingAssignments = data.assignments?.pending ?? 0;
+  const assignmentTotal = data.assignments?.total ?? 0;
+  const submittedAssignments = data.assignments?.submitted ?? 0;
+  const examAverage = data.exams?.averageScore ?? data.studentPerformance.averageScore ?? 0;
+  const feeDue = data.feeStatus.dueAmount ?? 0;
 
   return (
     <RoleDashboardGuard role="PARENT">
-      <motion.div className="space-y-8" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-        <PageHero
-          eyebrow="Parent Dashboard"
-          title={data.linkedStudent ? `${data.linkedStudent.name}'s progress` : "Student progress and wellbeing"}
-          description="A simple trust view for marks, attendance, discipline, fees, monthly reports, and academy communication."
-          actions={<Button type="button" onClick={() => refetch()} disabled={isFetching} variant="secondary">{isFetching ? "Refreshing..." : "Refresh"}</Button>}
-          stats={[
-            { value: `${data.studentPerformance.averageScore}%`, label: "academic score" },
-            { value: `${data.attendance.percentage}%`, label: "attendance" },
-            { value: assessmentProfile ? `${assessmentProfile.profileAccuracy}%` : data.disciplineScore.grade, label: assessmentProfile ? "assessment profile" : "discipline" }
-          ]}
-        />
-
-        <section className="grid gap-4 md:grid-cols-5">
-          <StatCard label="Academic Progress" value={`${data.studentPerformance.averageScore}%`} note={`${data.studentPerformance.improvement}% improvement this month`} />
-          <StatCard label="Attendance" value={`${data.attendance.percentage}%`} note={`${data.attendance.present}/${data.attendance.total} sessions`} />
-          <StatCard label="Assessment Reports" value={`${assessmentProfile?.completedCount ?? 0}/${assessmentProfile?.totalAssessments ?? 15}`} note={assessmentProfile?.latestReport?.title ?? "No report completed"} />
-          <StatCard label="Discipline" value={data.disciplineScore.grade} note={data.disciplineScore.notes} />
-          <StatCard label="Fee Status" value={data.feeStatus.status} note={`Due Rs ${data.feeStatus.dueAmount}`} />
+      <motion.main className="mx-auto w-full max-w-7xl space-y-6 px-4 py-8 md:px-6 lg:px-8" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+        <section className="rounded-[8px] border border-slate-950 bg-white p-6 shadow-sm md:p-8" id="today">
+          <div className="grid gap-6 lg:grid-cols-[1fr_320px] lg:items-center">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.34em] text-slate-700">Parent Command View</p>
+              <h1 className="mt-3 max-w-4xl text-4xl font-black leading-tight text-slate-950 md:text-6xl">
+                {linkedStudent ? `${linkedStudent.name}'s academy update.` : "Link a student to start monitoring."}
+              </h1>
+              <p className="mt-4 max-w-3xl text-base leading-7 text-slate-700">
+                Attendance, homework, exams, progress, fees and academy notices in one simple parent view.
+              </p>
+            </div>
+            <div className="rounded-[8px] border border-slate-950 bg-slate-50 p-5">
+              <p className="text-xs font-black uppercase tracking-[0.3em] text-slate-700">Linked Student</p>
+              <h2 className="mt-3 text-2xl font-black text-slate-950">{linkedStudent?.name ?? "No student linked"}</h2>
+              <p className="mt-2 text-sm leading-6 text-slate-700">
+                {linkedStudent ? `${linkedStudent.mobile ?? linkedStudent.email ?? "Student account linked"}` : "Ask the student to send a parent invitation from their account."}
+              </p>
+              <Button type="button" onClick={() => refetch()} disabled={isFetching} className="mt-5 w-full">
+                {isFetching ? "Refreshing..." : "Refresh Parent View"}
+              </Button>
+            </div>
+          </div>
         </section>
 
-        {!data.linkedStudent ? (
-          <AnnouncementCard title="No student linked" description="Ask the student to send a parent invitation from the student dashboard. Parent access remains read-only and restricted to linked students." tag="Link Required" />
+        {!linkedStudent ? (
+          <section className="rounded-[8px] border border-amber-300 bg-amber-50 p-5 text-amber-950">
+            <div className="flex gap-3">
+              <AlertCircle className="mt-1 h-5 w-5 shrink-0" />
+              <div>
+                <h2 className="font-black">Parent access is not active yet</h2>
+                <p className="mt-1 text-sm leading-6">The parent dashboard stays read-only and empty until a student account is linked by invitation.</p>
+              </div>
+            </div>
+          </section>
         ) : null}
 
-        <section className="grid gap-4 lg:grid-cols-[1.3fr_0.9fr]">
-          <PerformanceChart title="Monthly progress trend" data={chartData} />
-          <div className="space-y-4">
-            <AttendanceCard title="Attendance tracking" present={data.attendance.present} total={data.attendance.total} />
-            <ProgressCard title="Assessment profile" value={assessmentProfile?.profileAccuracy ?? 0} label={assessmentProfile?.readinessBand ?? "Assessment reports pending"} />
-            <ProgressCard title="Discipline score" value={data.disciplineScore.score} label={data.disciplineScore.notes} />
-            <AnnouncementCard title="Next fee date" description={data.feeStatus.nextDueDate} tag="Finance" />
-          </div>
+        <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <MetricCard label="Attendance" value={`${data.attendance.percentage}%`} note={`${data.attendance.present}/${data.attendance.total} sessions marked`} tone={attendanceTone(data.attendance.percentage)} />
+          <MetricCard label="Homework" value={`${submittedAssignments}/${assignmentTotal}`} note={`${pendingAssignments} pending assignment(s)`} tone={pendingAssignments === 0 ? "good" : "warn"} />
+          <MetricCard label="Exam Score" value={`${examAverage}%`} note={`${data.exams?.submitted ?? 0} submitted exam(s)`} tone={examAverage >= 70 ? "good" : "quiet"} />
+          <MetricCard label="Fees" value={feeDue > 0 ? `Rs ${feeDue}` : "Clear"} note={data.feeStatus.nextDueDate ?? data.feeStatus.status} tone={feeDue > 0 ? "warn" : "good"} />
         </section>
 
-        <SectionHeader eyebrow="Student Operations" title="Academy status visible to parent" />
-        <section className="grid gap-4 lg:grid-cols-3">
-          <div className="premium-surface rounded-lg p-5">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-gold-soft">Assignments</p>
-            <h2 className="mt-3 text-3xl font-semibold text-ink">{data.assignments?.submitted ?? 0}/{data.assignments?.total ?? 0}</h2>
-            <p className="mt-2 text-sm text-muted">{data.assignments?.pending ?? 0} pending assignment(s)</p>
-            <div className="mt-4 grid gap-2">
-              {(data.assignments?.recent ?? []).slice(0, 4).map((item) => (
-                <div key={item.id} className="rounded border border-white/10 bg-navy-deep/55 p-3 text-sm text-muted">
-                  <b className="text-ink">{item.title}</b><br />{item.status}{item.score !== null && item.score !== undefined ? ` / ${item.score}` : ""}
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="premium-surface rounded-lg p-5">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-gold-soft">Exams</p>
-            <h2 className="mt-3 text-3xl font-semibold text-ink">{data.exams?.averageScore ?? data.studentPerformance.averageScore}%</h2>
-            <p className="mt-2 text-sm text-muted">{data.exams?.submitted ?? 0} submitted / {data.exams?.published ?? 0} published</p>
-            <div className="mt-4 grid gap-2">
-              {(data.exams?.recent ?? []).slice(0, 4).map((item) => (
-                <div key={item.id} className="rounded border border-white/10 bg-navy-deep/55 p-3 text-sm text-muted">
-                  Score {item.score ?? 0} / {item.status}
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="premium-surface rounded-lg p-5">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-gold-soft">Fitness</p>
-            <h2 className="mt-3 text-3xl font-semibold text-ink">{data.fitness ? `${Math.round(data.fitness.staminaScore)}%` : "--"}</h2>
-            <p className="mt-2 text-sm text-muted">{data.fitness ? `BMI ${data.fitness.bmi} / Run ${data.fitness.runningTime} min / ${data.fitness.fitnessLevel}` : "Fitness profile pending"}</p>
-            <div className="mt-4 grid gap-2">
-              {(data.fitness?.recentLogs ?? []).slice(0, 3).map((item) => (
-                <div key={item.id} className="rounded border border-white/10 bg-navy-deep/55 p-3 text-sm text-muted">
-                  {item.runningDistance} km / {item.workoutDuration} min {item.notes ? `/ ${item.notes}` : ""}
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <SectionHeader eyebrow="Read Only Details" title="Attendance and fees" />
-        <section className="grid gap-4 lg:grid-cols-2">
-          <div className="premium-surface rounded-lg p-5">
-            <h2 className="text-2xl font-semibold text-ink">Recent attendance</h2>
-            <div className="mt-4 grid gap-2">
-              {(data.attendance.recent ?? []).slice(0, 6).map((item, index) => (
-                <div key={`${item.date}-${index}`} className="rounded border border-white/10 bg-navy-deep/55 p-3 text-sm text-muted">
-                  <b className="text-ink">{item.subject ?? "Class"}</b> / {item.status} / {new Date(item.date).toLocaleDateString()}
-                </div>
-              ))}
-              {data.attendance.recent?.length ? null : <AnnouncementCard title="No attendance records" description="Attendance will appear after teachers mark class attendance." tag="Pending" />}
-            </div>
-          </div>
-          <div className="premium-surface rounded-lg p-5">
-            <h2 className="text-2xl font-semibold text-ink">Fee status</h2>
-            <div className="mt-4 grid gap-2">
-              {(data.feeStatus.installments ?? []).slice(0, 6).map((fee) => (
-                <div key={fee.id} className="rounded border border-white/10 bg-navy-deep/55 p-3 text-sm text-muted">
-                  <b className="text-ink">{fee.title}</b> / Rs {fee.dueAmount || fee.amount - fee.paidAmount} / {fee.paidStatus}
-                </div>
-              ))}
-              {data.feeStatus.installments?.length ? null : <AnnouncementCard title="No fee plan" description="Fee details will appear after the Administrative Officer records enrollment fees." tag="Finance" />}
-            </div>
-          </div>
-        </section>
-
-        <SectionHeader eyebrow="Assessment Intelligence" title="Psychometric report visibility" action={`${assessmentProfile?.reportReadyCount ?? 0} ready`} />
-        <section className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
-          <div className="premium-surface rounded-lg p-5">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-gold-soft">NIDUS AI Report Summary</p>
-            <h2 className="mt-3 text-2xl font-semibold text-ink">{assessmentProfile?.readinessBand ?? "Reports pending"}</h2>
-            <div className="mt-5 grid gap-3">
-              {[
-                assessmentProfile ? `Completed reports: ${assessmentProfile.completedCount}/${assessmentProfile.totalAssessments}.` : "No psychometric report has been completed yet.",
-                assessmentProfile?.averageScore ? `Average assessment score: ${assessmentProfile.averageScore}/100.` : "Average assessment score will appear after completion.",
-                assessmentProfile?.strongestSignal ? `Strongest signal: ${assessmentProfile.strongestSignal.title} at ${assessmentProfile.strongestSignal.score}/100.` : "Strongest signal is pending.",
-                assessmentProfile?.latestReport ? `Latest report: ${assessmentProfile.latestReport.title}.` : "Latest report will appear here."
-              ].map((item) => <div key={item} className="rounded border border-white/10 bg-navy-deep/55 p-4 text-sm leading-6 text-muted">{item}</div>)}
-            </div>
-          </div>
-          <div className="grid gap-4 md:grid-cols-2">
-            {(assessmentProfile?.completed ?? []).slice(0, 4).map((report) => (
-              <AnnouncementCard key={report.attemptId} title={report.title} description={`${report.score}/100 • ${report.readinessBand}`} tag="Report" />
+        <Section id="notifications" eyebrow="Today" title="What needs parent attention">
+          <div className="grid gap-3 md:grid-cols-2">
+            {todayActions.map((item) => (
+              <StatusRow key={item.title} title={item.title} detail={item.detail} value={item.value} />
             ))}
-            {assessmentProfile?.completed.length ? null : (
-              <AnnouncementCard title="Start Officer Readiness" description="Ask the student to complete the first free assessment to unlock parent-friendly report intelligence." tag="Action" />
-            )}
           </div>
-        </section>
+        </Section>
 
-        <section className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
-          <div className="premium-surface rounded-lg p-5">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-gold-soft">Ask NIDUS</p>
-            <h2 className="mt-3 text-2xl font-semibold text-ink">Parent summary</h2>
-            <div className="mt-5 grid gap-3">
-              {[
-                "Check the monthly progress report before the next counselling call.",
-                assessmentProfile ? `Review ${assessmentProfile.latestReport?.title ?? "the latest assessment report"} before counselling.` : "Ask the student to complete a psychometric assessment for deeper guidance.",
-                "Attendance is the fastest signal for discipline and performance consistency.",
-                "Use messages for fee, report, or teacher follow-up questions."
-              ].map((item) => <div key={item} className="rounded border border-white/10 bg-navy-deep/55 p-4 text-sm leading-6 text-muted">{item}</div>)}
+        <section className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
+          <Section id="attendance" eyebrow="Attendance" title="Attendance and leave visibility">
+            <div className="grid gap-3">
+              <StatusRow title="Attendance percentage" detail="This is the official academy attendance visible to parent." value={`${data.attendance.percentage}%`} />
+              <StatusRow title="Present sessions" detail="Classes where student was marked present." value={data.attendance.present} />
+              <StatusRow title="Total sessions" detail="All sessions recorded by faculty." value={data.attendance.total} />
+              {(data.attendance.recent ?? []).slice(0, 5).map((item, index) => (
+                <StatusRow
+                  key={`${item.date}-${index}`}
+                  title={item.subject ?? item.batchName ?? "Class attendance"}
+                  detail={`${item.status} on ${formatDate(item.date)}`}
+                />
+              ))}
+              {data.attendance.recent?.length ? null : <EmptyState title="No recent attendance yet" detail="Attendance will appear here after teachers mark class registers." />}
             </div>
-          </div>
-          <ActivityTimeline title="Notifications" items={data.notifications} />
+          </Section>
+
+          <Section id="assignments" eyebrow="Assignments" title="Homework tracking">
+            <div className="grid gap-3">
+              <StatusRow title="Submitted homework" detail="Assignments already turned in by the student." value={submittedAssignments} />
+              <StatusRow title="Pending homework" detail="Assignments that need parent follow-up." value={pendingAssignments} />
+              {(data.assignments?.recent ?? []).slice(0, 5).map((item) => (
+                <StatusRow
+                  key={item.id}
+                  title={item.title}
+                  detail={`${item.status}${item.dueDate ? ` / due ${formatDate(item.dueDate)}` : ""}${item.subject ? ` / ${item.subject}` : ""}`}
+                  value={item.score !== null && item.score !== undefined ? `${item.score}` : undefined}
+                />
+              ))}
+              {data.assignments?.recent?.length ? null : <EmptyState title="No assignments yet" detail="Published homework will appear here with submission status." />}
+            </div>
+          </Section>
         </section>
 
-        <SectionHeader eyebrow="Quick Actions" title="Parent actions" />
-        <section className="grid gap-4 md:grid-cols-4">
-          <QuickActionCard title="Open progress report" description="See marks, attendance, discipline, aptitude, and AI recommendations." href="/progress-reports" />
-          <QuickActionCard title="Assessment guidance" description="Ask academy support to explain completed psychometric report signals." href="/messages" />
-          <QuickActionCard title="Pay or view fees" description="Check dues, invoices, subscriptions, and receipts." href="/payments" />
-          <QuickActionCard title="Message academy" description="Contact teacher, counsellor, or admin team." href="/messages" />
+        <section className="grid gap-6 lg:grid-cols-[1fr_0.9fr]">
+          <Section id="exams" eyebrow="Exams" title="Exam performance">
+            <div className="grid gap-3">
+              <StatusRow title="Average score" detail="Current exam performance across submitted exams." value={`${examAverage}%`} />
+              <StatusRow title="Published exams" detail="Exams made available to the student." value={data.exams?.published ?? 0} />
+              <StatusRow title="Submitted exams" detail="Exams attempted by the student." value={data.exams?.submitted ?? 0} />
+              {(data.exams?.recent ?? []).slice(0, 5).map((item) => (
+                <StatusRow
+                  key={item.id}
+                  title="Recent exam"
+                  detail={`${item.status}${item.submittedAt ? ` / submitted ${formatDate(item.submittedAt)}` : ""}`}
+                  value={item.score !== null && item.score !== undefined ? `${item.score}%` : undefined}
+                />
+              ))}
+              {data.exams?.recent?.length ? null : <EmptyState title="No exams submitted yet" detail="Exam results will appear after student attempts published exams." />}
+            </div>
+          </Section>
+
+          <Section id="fees" eyebrow="Fees" title="Fee and receipt watch">
+            <div className="grid gap-3">
+              <StatusRow title="Fee status" detail="Administrative Officer recorded fee position." value={data.feeStatus.status} />
+              <StatusRow title="Pending amount" detail="Amount currently pending in academy accounts." value={`Rs ${feeDue}`} />
+              <StatusRow title="Next due date" detail="Upcoming fee reminder date." value={data.feeStatus.nextDueDate} />
+              {(data.feeStatus.installments ?? []).slice(0, 4).map((fee) => (
+                <StatusRow key={fee.id} title={fee.title} detail={`${fee.paidStatus} / due ${formatDate(fee.dueDate)}`} value={`Rs ${fee.dueAmount || fee.amount - fee.paidAmount}`} />
+              ))}
+            </div>
+          </Section>
         </section>
-      </motion.div>
+
+        <section className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
+          <Section id="progress" eyebrow="Progress" title="Student growth summary">
+            <div className="grid gap-3">
+              <StatusRow title="Academic score" detail={`${data.studentPerformance.improvement}% improvement this month.`} value={`${data.studentPerformance.averageScore}%`} />
+              <StatusRow title="Discipline" detail={data.disciplineScore.notes} value={data.disciplineScore.grade} />
+              <StatusRow title="Fitness" detail={data.fitness ? `BMI ${data.fitness.bmi} / Run ${data.fitness.runningTime} min / ${data.fitness.fitnessLevel}` : "Fitness profile pending."} value={data.fitness ? `${Math.round(data.fitness.staminaScore)}%` : "Pending"} />
+              <StatusRow title="Assessment profile" detail={assessmentProfile?.latestReport?.title ?? "Assessment reports pending."} value={assessmentProfile ? `${assessmentProfile.completedCount}/${assessmentProfile.totalAssessments}` : "0/15"} />
+            </div>
+          </Section>
+
+          <Section id="reports" eyebrow="Reports" title="Assessment report guidance">
+            <div className="grid gap-3 md:grid-cols-2">
+              {(assessmentProfile?.completed ?? []).slice(0, 4).map((report) => (
+                <div key={report.attemptId} className="rounded-[8px] border border-slate-200 bg-slate-50 p-4">
+                  <FileText className="h-5 w-5 text-slate-950" />
+                  <h3 className="mt-3 font-black text-slate-950">{report.title}</h3>
+                  <p className="mt-2 text-sm leading-6 text-slate-700">{report.score}/100 / {report.readinessBand}</p>
+                </div>
+              ))}
+              {assessmentProfile?.completed?.length ? null : (
+                <EmptyState title="No reports completed" detail="Psychometric and readiness reports will appear here after student completion." />
+              )}
+            </div>
+          </Section>
+        </section>
+
+        <Section id="quick-actions" eyebrow="Parent Guide" title="How to use this dashboard">
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            {[
+              { icon: ShieldCheck, title: "Start with attendance", detail: "Low attendance is the first warning signal for discipline and performance." },
+              { icon: ClipboardList, title: "Check homework", detail: "Pending assignments tell you where the student needs daily follow-up." },
+              { icon: GraduationCap, title: "Watch exams", detail: "Use exam scores to understand weak topics and improvement direction." },
+              { icon: CreditCard, title: "Track fees", detail: "Fee and receipt status stays visible without calling the office." },
+              { icon: HeartPulse, title: "Fitness matters", detail: "Defence readiness includes stamina, BMI and consistency." },
+              { icon: BookOpen, title: "Ask for reports", detail: "Use assessment reports during parent-teacher counselling." },
+              { icon: CalendarDays, title: "Follow dates", detail: "Due dates and scheduled actions should guide home routines." },
+              { icon: Bell, title: "Read notices", detail: "Notifications are the official parent communication channel." }
+            ].map((item) => (
+              <div key={item.title} className="rounded-[8px] border border-slate-200 bg-slate-50 p-4">
+                <item.icon className="h-5 w-5 text-slate-950" />
+                <h3 className="mt-3 font-black text-slate-950">{item.title}</h3>
+                <p className="mt-2 text-sm leading-6 text-slate-700">{item.detail}</p>
+              </div>
+            ))}
+          </div>
+        </Section>
+
+        <Section id="notifications-list" eyebrow="Notifications" title="Academy messages">
+          <div className="grid gap-3">
+            {(data.notifications ?? []).slice(0, 8).map((message) => (
+              <StatusRow key={message} title="Academy update" detail={message} />
+            ))}
+            {data.notifications?.length ? null : <EmptyState title="No notices now" detail="Important updates from the academy will appear here." />}
+          </div>
+        </Section>
+      </motion.main>
     </RoleDashboardGuard>
   );
 }
