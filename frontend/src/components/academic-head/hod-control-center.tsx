@@ -66,7 +66,21 @@ function Metric({ label, value, note }: { label: string; value: string | number;
 }
 
 function Empty({ children }: { children: string }) {
-  return <p className="rounded-xl border border-dashed border-[var(--border)] p-5 text-sm text-[var(--muted-blue)]">{children}</p>;
+  const [title, ...rest] = children.split(". ");
+  const detail = rest.join(". ").trim();
+  return (
+    <div className="rounded-xl border border-dashed border-[var(--border)] bg-[var(--page-bg)] p-5 text-sm text-[var(--muted-blue)]">
+      <div className="flex gap-3">
+        <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-white text-[var(--gold-dark)]">
+          <CheckCircle2 size={16} />
+        </span>
+        <div>
+          <p className="font-black text-[var(--ink)]">{title}</p>
+          {detail ? <p className="mt-1 leading-6">{detail}</p> : null}
+        </div>
+      </div>
+    </div>
+  );
 }
 
 function ActionLink({ href, icon: Icon, title, note }: { href: string; icon: LucideIcon; title: string; note: string }) {
@@ -79,8 +93,8 @@ function ActionLink({ href, icon: Icon, title, note }: { href: string; icon: Luc
   );
 }
 
-export function HodControlCenter() {
-  const [tab, setTab] = useState<HodTab>("TODAY");
+export function HodControlCenter({ initialTab = "TODAY" }: { initialTab?: HodTab }) {
+  const [tab, setTab] = useState<HodTab>(initialTab);
   const batchesQuery = useQuery({ queryKey: ["hod", "batches"], queryFn: () => getAcademyBatches() });
   const teachersQuery = useQuery({ queryKey: ["hod", "teachers"], queryFn: getAcademyTeachers });
   const calendarQuery = useQuery({ queryKey: ["hod", "calendar"], queryFn: () => getAcademicCalendar() });
@@ -123,8 +137,8 @@ export function HodControlCenter() {
       <header className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm sm:p-6">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <p className="text-xs font-black uppercase tracking-[0.3em] text-[var(--gold-dark)]">HOD Control</p>
-            <h1 className="mt-2 text-3xl font-black sm:text-4xl">Academic operations</h1>
+            <p className="text-xs font-black uppercase tracking-[0.3em] text-[var(--gold-dark)]">Academic Operations</p>
+            <h1 className="mt-2 text-3xl font-black sm:text-4xl">Run classes, batches and faculty from one place</h1>
             <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--muted-blue)]">Run batches, timetable, faculty allocation, approvals and academic follow-up from one live workspace.</p>
           </div>
           <div className="grid grid-cols-2 gap-2 sm:flex">
@@ -165,11 +179,11 @@ export function HodControlCenter() {
             </div>
           </div>
           <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
-            <p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold-dark)]">Action Center</p><h2 className="mt-2 text-2xl font-black">Do this next</h2>
+            <p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold-dark)]">Next Actions</p><h2 className="mt-2 text-2xl font-black">Clear today&apos;s academic work</h2>
             <div className="mt-5 grid gap-3">
-              <ActionLink href="/dashboard/academic-head/attendance" icon={ClipboardCheck} title={`${pendingAttendance} attendance entries`} note="Review missing class attendance." />
-              <ActionLink href="/dashboard/academic-head/assignments" icon={FileText} title={`${pendingAssignments.length} assignment reviews`} note="Approve or request corrections." />
-              <ActionLink href="/dashboard/academic-head/exams" icon={BookOpenCheck} title={`${pendingExams.length} exam reviews`} note="Review approved papers and publication." />
+              <ActionLink href="/dashboard/academic-head/hod/reports" icon={ClipboardCheck} title={`${pendingAttendance} attendance entries`} note="Review missing class attendance." />
+              <ActionLink href="/dashboard/academic-head/hod/approvals" icon={FileText} title={`${pendingAssignments.length} assignment reviews`} note="Approve or request corrections." />
+              <ActionLink href="/dashboard/academic-head/hod/approvals" icon={BookOpenCheck} title={`${pendingExams.length} exam reviews`} note="Review approved papers and publication." />
               <ActionLink href="/dashboard/academic-head/hod/teacher-monitoring" icon={AlertTriangle} title={`${attentionTeachers.length} faculty follow-ups`} note="Check delivery and reporting compliance." />
             </div>
           </div>
@@ -192,7 +206,7 @@ export function HodControlCenter() {
 
       {tab === "TIMETABLE" ? <WorkspaceGrid items={[
         { href: "/dashboard/academic-head/hod/timetable", icon: CalendarDays, title: "Plan Timetable", note: "Generate recurring weekly sessions and assign faculty." },
-        { href: "/dashboard/academic-head/academic-calendar", icon: CalendarClock, title: "Academic Calendar", note: "Open day, week and month execution views." },
+        { href: "/dashboard/academic-head/hod/timetable", icon: CalendarClock, title: "Academic Calendar", note: "Open day, week and month execution views." },
         { href: "/dashboard/academic-head/hod/calendar-monitor", icon: CheckCircle2, title: "Class Completion", note: "Track completed, delayed and missed sessions." },
       ]} /> : null}
 
@@ -205,8 +219,8 @@ export function HodControlCenter() {
 
       {tab === "APPROVALS" ? (
         <section className="grid gap-5 lg:grid-cols-2">
-          <ApprovalPanel title="Assignments awaiting action" href="/dashboard/academic-head/assignments" items={pendingAssignments.map((item) => ({ id: item.id, title: item.title, meta: `${item.batchName || "Batch"} / ${item.subject || "Subject"}`, status: item.status }))} />
-          <ApprovalPanel title="Exams awaiting action" href="/dashboard/academic-head/exams" items={pendingExams.map((item) => ({ id: item.id, title: item.title, meta: `${item.batchName || "Batch"} / ${item.subject || "Subject"}`, status: item.status }))} />
+          <ApprovalPanel title="Assignments awaiting action" href="/dashboard/academic-head/hod/approvals" items={pendingAssignments.map((item) => ({ id: item.id, title: item.title, meta: `${item.batchName || "Batch"} / ${item.subject || "Subject"}`, status: item.status }))} />
+          <ApprovalPanel title="Exams awaiting action" href="/dashboard/academic-head/hod/approvals" items={pendingExams.map((item) => ({ id: item.id, title: item.title, meta: `${item.batchName || "Batch"} / ${item.subject || "Subject"}`, status: item.status }))} />
         </section>
       ) : null}
 
@@ -214,7 +228,7 @@ export function HodControlCenter() {
         { href: "/dashboard/academic-head/hod/teacher-monitoring", icon: Users, title: "Teacher Monitoring", note: `${attentionTeachers.length} teachers currently need follow-up.` },
         { href: "/dashboard/academic-head/hod/student-monitoring", icon: GraduationCap, title: "Student Monitoring", note: `${attentionBatches.reduce((total, item) => total + item.riskStudentCount, 0)} students are currently flagged.` },
         { href: "/dashboard/academic-head/hod/syllabus", icon: BarChart3, title: "Syllabus Progress", note: `${syllabusQuery.data?.summary.completionPercentage ?? 0}% overall completion.` },
-        { href: "/dashboard/academic-head/library", icon: Library, title: "Library Delivery", note: `${materialsQuery.data?.summary.total ?? 0} learning materials available.` },
+        { href: "/dashboard/academic-head/hod/reports", icon: Library, title: "Library Delivery", note: `${materialsQuery.data?.summary.total ?? 0} learning materials available.` },
       ]} /> : null}
 
       {tab === "REPORTS" ? <WorkspaceGrid items={[
@@ -231,5 +245,5 @@ function WorkspaceGrid({ items }: { items: Array<{ href: string; icon: LucideIco
 }
 
 function ApprovalPanel({ title, href, items }: { title: string; href: string; items: Array<{ id: string; title: string; meta: string; status: string }> }) {
-  return <section className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm"><div className="flex items-end justify-between gap-3"><h2 className="text-xl font-black">{title}</h2><Link href={href} className="text-sm font-black text-[var(--gold-dark)]">Open all</Link></div><div className="mt-5 grid gap-3">{items.slice(0, 8).map((item) => <Link href={href} key={item.id} className="rounded-xl border border-[var(--border)] p-4"><div className="flex items-start justify-between gap-3"><div><h3 className="font-black">{item.title}</h3><p className="mt-1 text-sm text-[var(--muted-blue)]">{item.meta}</p></div><span className={`rounded-full border px-2 py-1 text-[10px] font-black ${statusTone(item.status)}`}>{item.status.replaceAll("_", " ")}</span></div></Link>)}{!items.length ? <Empty>No records are waiting for approval.</Empty> : null}</div></section>;
+  return <section className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm"><div className="flex items-end justify-between gap-3"><h2 className="text-xl font-black">{title}</h2><Link href={href} className="text-sm font-black text-[var(--gold-dark)]">View queue</Link></div><div className="mt-5 grid gap-3">{items.slice(0, 8).map((item) => <Link href={href} key={item.id} className="rounded-xl border border-[var(--border)] p-4"><div className="flex items-start justify-between gap-3"><div><h3 className="font-black">{item.title}</h3><p className="mt-1 text-sm text-[var(--muted-blue)]">{item.meta}</p></div><span className={`rounded-full border px-2 py-1 text-[10px] font-black ${statusTone(item.status)}`}>{item.status.replaceAll("_", " ")}</span></div></Link>)}{!items.length ? <Empty>No records are waiting for approval.</Empty> : null}</div></section>;
 }

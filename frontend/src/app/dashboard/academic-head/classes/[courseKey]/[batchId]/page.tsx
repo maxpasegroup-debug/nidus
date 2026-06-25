@@ -1,7 +1,7 @@
-import TeacherDashboardClient from "../../../../teacher/TeacherDashboardClient";
+import { redirect } from "next/navigation";
 
 export default async function AcademicHeadBatchDetailPage({ params }: { params: Promise<{ courseKey: string; batchId: string }> }) {
-  const { courseKey, batchId } = await params;
+  await params;
 
-  return <TeacherDashboardClient view="classes" courseKey={courseKey} batchId={batchId} />;
+  redirect("/dashboard/academic-head/hod/batches");
 }

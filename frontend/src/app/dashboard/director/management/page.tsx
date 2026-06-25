@@ -388,7 +388,7 @@ export default function DirectorManagementPage() {
           </div>
 
           <div className="rounded-3xl border border-[var(--border)] bg-white/90 p-5 shadow-sm">
-            <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Director Teaching Access</p>
+            <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Director Teaching Mode</p>
             <h2 className="mt-2 text-2xl font-black">Director can teach when required</h2>
             <div className="mt-5 grid gap-3">
               <Info icon={CheckCircle2} text="Director can open Academic Department and assign himself/herself as teacher to any batch." />
@@ -399,7 +399,7 @@ export default function DirectorManagementPage() {
               <Link className="rounded-xl bg-[var(--gold-gradient)] px-5 py-3 font-black text-[var(--navy)] shadow-lg" href="/dashboard/director/academic">
                 Assign Teaching Role
               </Link>
-              <Link className="rounded-xl border border-[var(--border)] bg-white px-5 py-3 font-black" href="/dashboard/teacher">
+              <Link className="rounded-xl border border-[var(--border)] bg-white px-5 py-3 font-black" href="/dashboard/director/teaching">
                 Open Teaching View
               </Link>
             </div>
@@ -650,7 +650,7 @@ function groupStudentsByBatch(students: Employee[]) {
 function groupTeamAccounts(accounts: Employee[]) {
   const definitions = [
     { label: "Directors", title: "Leadership", description: "Owners and senior management users.", match: (account: Employee) => account.role === "DIRECTOR" },
-    { label: "Academic Heads", title: "Academic command", description: "HOD and academic operations control.", match: (account: Employee) => teamGroupLabel(account) === "Academic Head" },
+    { label: "Academic Heads", title: "Academic operations", description: "Batch, timetable, teacher and student monitoring control.", match: (account: Employee) => teamGroupLabel(account) === "Academic Head" },
     { label: "Teachers", title: "Classroom faculty", description: "Subject teachers assigned to batches.", match: (account: Employee) => teamGroupLabel(account) === "Teacher" },
     { label: "Physical Trainers", title: "Fitness faculty", description: "PT, running, BMI and fitness users.", match: (account: Employee) => teamGroupLabel(account) === "Physical Trainer" },
     { label: "Administrative Officers", title: "Admissions and records", description: "AO users handling documents, fees and activation.", match: (account: Employee) => teamGroupLabel(account) === "Administrative Officer" },

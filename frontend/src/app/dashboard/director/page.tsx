@@ -21,6 +21,7 @@ type DirectorAction = {
   title: string;
   text: string;
   href: string;
+  action: string;
   icon: LucideIcon;
   tone: "blue" | "green" | "gold" | "red";
 };
@@ -39,6 +40,7 @@ const primaryActions: DirectorAction[] = [
     title: "Admissions",
     text: "Leads, applications, documents, fees and student activation.",
     href: "/dashboard/director/admissions",
+    action: "Review admissions",
     icon: UserPlus,
     tone: "green",
   },
@@ -46,6 +48,7 @@ const primaryActions: DirectorAction[] = [
     title: "Academics",
     text: "Programs, batches, timetable, teachers, syllabus and reports.",
     href: "/dashboard/director/academic",
+    action: "Open academics",
     icon: GraduationCap,
     tone: "gold",
   },
@@ -53,6 +56,7 @@ const primaryActions: DirectorAction[] = [
     title: "Students",
     text: "Student progress, attendance, exam health and risk signals.",
     href: "/dashboard/director/academic/student-progress",
+    action: "Review students",
     icon: Users,
     tone: "blue",
   },
@@ -60,6 +64,7 @@ const primaryActions: DirectorAction[] = [
     title: "Team",
     text: "Teachers, academic heads, trainers, staff roles and credentials.",
     href: "/dashboard/director/management",
+    action: "Manage team",
     icon: UserCheck,
     tone: "blue",
   },
@@ -67,13 +72,26 @@ const primaryActions: DirectorAction[] = [
     title: "Finance",
     text: "Collected fees, pending dues, receipts, expenses and accounts.",
     href: "/dashboard/director/accounts",
+    action: "Check finance",
     icon: WalletCards,
     tone: "green",
   },
   {
+    title: "Teaching Mode",
+    text: "Open your own classes, students, attendance, assignments, exams, library and live teaching tools.",
+    href: "/dashboard/director/teaching",
+    action: "Start teaching",
+    icon: BookOpen,
+    tone: "blue",
+  },
+];
+
+const supportActions: DirectorAction[] = [
+  {
     title: "Reports",
     text: "Academic, admissions, finance, staff and launch readiness reports.",
     href: "/dashboard/director/reports",
+    action: "Open reports",
     icon: BarChart3,
     tone: "gold",
   },
@@ -81,15 +99,9 @@ const primaryActions: DirectorAction[] = [
     title: "Launch QA",
     text: "Live readiness board for CRM, LMS, staff, finance, admissions and launch blockers.",
     href: "/dashboard/director/launch-qa",
+    action: "Check readiness",
     icon: ShieldCheck,
     tone: "green",
-  },
-  {
-    title: "Teaching Mode",
-    text: "Open your own classes, students, attendance, assignments, exams, library and live teaching tools.",
-    href: "/dashboard/director/teaching",
-    icon: BookOpen,
-    tone: "blue",
   },
 ];
 
@@ -191,7 +203,7 @@ export default function DirectorDashboardPage() {
       <section className="mx-auto max-w-7xl space-y-5">
         {directorQuery.isError ? (
           <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-black text-red-700">
-            Director data could not be loaded. Please refresh after backend is online.
+            Director data could not be loaded. Please refresh once the backend connection is restored.
           </div>
         ) : null}
 
@@ -199,12 +211,12 @@ export default function DirectorDashboardPage() {
           <div className="grid gap-5 lg:grid-cols-[1fr_360px] lg:items-center">
             <div>
               <p className="text-xs font-black uppercase tracking-[0.34em] text-[var(--gold)]">Director Command Center</p>
-              <h1 className="mt-3 max-w-4xl text-4xl font-black tracking-tight md:text-6xl">Run NIDUS from one calm control room.</h1>
+              <h1 className="mt-3 max-w-4xl text-3xl font-black tracking-tight sm:text-4xl md:text-6xl">Run NIDUS from one calm control room.</h1>
               <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--muted-blue)]">
                 See admissions, academics, students, team, finance and reports without opening ten different admin screens.
               </p>
               <p className="mt-3 text-sm font-semibold text-[var(--muted-blue)]">
-                Last updated: {director?.lastUpdatedAt ? new Date(director.lastUpdatedAt).toLocaleString() : directorQuery.isLoading ? "Loading..." : "Not available"}
+                Last updated: {director?.lastUpdatedAt ? new Date(director.lastUpdatedAt).toLocaleString() : directorQuery.isLoading ? "Loading..." : "Awaiting first sync"}
               </p>
             </div>
             <div className="rounded-3xl border border-[var(--border)] bg-[var(--page-bg)] p-5">
@@ -269,6 +281,20 @@ export default function DirectorDashboardPage() {
           ))}
         </section>
 
+        <section className="rounded-[24px] border border-[var(--border)] bg-white p-4 shadow-sm">
+          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold)]">Support Tools</p>
+              <h2 className="mt-1 text-xl font-black">Reports and launch checks</h2>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {supportActions.map((action) => (
+                <SupportAction key={action.title} action={action} />
+              ))}
+            </div>
+          </div>
+        </section>
+
       </section>
     </main>
   );
@@ -329,7 +355,17 @@ function CommandCard({ action }: { action: DirectorAction }) {
       </div>
       <h3 className="mt-5 text-2xl font-black">{action.title}</h3>
       <p className="mt-2 min-h-12 text-sm leading-6 text-[var(--muted-blue)]">{action.text}</p>
-      <span className="mt-5 inline-flex rounded-2xl border border-[var(--border)] px-4 py-2 text-sm font-black text-[var(--navy)]">Open</span>
+      <span className="mt-5 inline-flex rounded-2xl border border-[var(--border)] px-4 py-2 text-sm font-black text-[var(--navy)]">{action.action}</span>
+    </Link>
+  );
+}
+
+function SupportAction({ action }: { action: DirectorAction }) {
+  const Icon = action.icon;
+  return (
+    <Link href={action.href} className="inline-flex min-h-12 items-center gap-2 rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] px-4 py-3 text-sm font-black transition hover:border-[var(--gold-border)] hover:bg-white">
+      <Icon className="h-4 w-4" />
+      {action.title}
     </Link>
   );
 }

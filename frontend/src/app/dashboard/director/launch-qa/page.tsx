@@ -105,7 +105,7 @@ function buildChecks(data?: DirectorDashboardData): LaunchCheck[] {
     },
     {
       title: "Academic head coverage",
-      detail: "Academic Heads must be available for timetable, HOD and academic control.",
+      detail: "Academic Heads must be available for timetable and academic operations control.",
       value: academicHeads,
       status: statusFromCount(academicHeads),
       href: "/dashboard/director/academic/teacher-performance",

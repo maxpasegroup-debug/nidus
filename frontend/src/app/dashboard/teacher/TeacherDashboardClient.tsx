@@ -2514,16 +2514,22 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
     library: "Library",
     "academic-calendar": "Calendar",
   };
+  const workspaceLabel = isDirectorTeachingRoute
+    ? "Director Teaching Mode"
+    : isAcademicHead
+      ? "Academic Operations"
+      : "Teacher Workspace";
+  const workspaceActionLabel = isAcademicHead ? "HOD Operations" : "Refresh";
 
   return (
     <div className="w-full">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold-dark)]">Teacher Dashboard</p>
+          <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold-dark)]">{workspaceLabel}</p>
           <h1 className="mt-1 text-2xl font-black text-[var(--ink)]">{viewTitles[view]}</h1>
         </div>
         <div className="flex items-center gap-2">
-          {isAcademicHead ? <Link className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-sm font-black" href="/dashboard/academic-head/hod">HOD</Link> : null}
+          {isAcademicHead ? <Link className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-sm font-black" href="/dashboard/academic-head/hod">{workspaceActionLabel}</Link> : null}
           <button type="button" onClick={() => void loadTeachingPlan()} className="inline-flex items-center gap-2 rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-sm font-black">
             <RefreshCw size={16} /> Refresh
           </button>
@@ -3312,6 +3318,9 @@ function AcademicOperationsCommandCenter({
   const selectedBatch = batches.find((batch) => batch.id === selectedBatchId) ?? batches[0] ?? null;
   const selectedLiveClasses = selectedBatch ? liveClassesByBatch.get(selectedBatch.id) ?? [] : [];
   const selectedAverage = Math.round((selectedBatchHealth.attendance + selectedBatchHealth.assignments + selectedBatchHealth.exams) / 3);
+  const teacherAllocationPath = dashboardBasePath.startsWith("/dashboard/academic-head")
+    ? "/dashboard/academic-head/hod/teacher-allocation"
+    : "/dashboard/director/academic/teachers";
   const teacherOperationGroups = useMemo(() => {
     const map = new Map<string, typeof teachers>();
     for (const teacher of teachers) {
@@ -3328,14 +3337,14 @@ function AcademicOperationsCommandCenter({
         <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
           <SectionHeader
             eyebrow="Today's Academic Operations"
-            title="Academic command center"
+            title="Academic operations center"
             description="See today's classes, active batches, teacher activity and academic health from one practical control room."
             icon={<GraduationCap size={20} />}
           />
           <div className="flex flex-wrap gap-2">
             <Link href={`${dashboardBasePath}/academic-calendar`} className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-4 py-3 text-sm font-black">Calendar</Link>
             <Link href={`${dashboardBasePath}/attendance`} className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-4 py-3 text-sm font-black">Attendance</Link>
-            <Link href="/dashboard/director/academic/teachers" className="rounded-xl bg-[var(--ink)] px-4 py-3 text-sm font-black text-white">Teacher Allocation</Link>
+            <Link href={teacherAllocationPath} className="rounded-xl bg-[var(--ink)] px-4 py-3 text-sm font-black text-white">Teacher Allocation</Link>
           </div>
         </div>
       </div>
@@ -3486,7 +3495,7 @@ function AcademicOperationsCommandCenter({
           </div>
           <div className="mt-5 grid gap-2 md:grid-cols-4 xl:grid-cols-8">
             <Link href={`${dashboardBasePath}/academic-calendar`} className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-3 py-3 text-center text-xs font-black">Schedule Class</Link>
-            <Link href="/dashboard/director/academic/teachers" className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-3 py-3 text-center text-xs font-black">Allocate Teacher</Link>
+            <Link href={teacherAllocationPath} className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-3 py-3 text-center text-xs font-black">Allocate Teacher</Link>
             <Link href={`${dashboardBasePath}/library`} className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-3 py-3 text-center text-xs font-black">Study Material</Link>
             <Link href={`${dashboardBasePath}/assignments`} className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-3 py-3 text-center text-xs font-black">Assignment</Link>
             <Link href={`${dashboardBasePath}/exams`} className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-3 py-3 text-center text-xs font-black">Exam</Link>
@@ -3579,11 +3588,12 @@ function MetricPill({ label, value }: { label: string; value: string | number })
 function ClassesEmptyState() {
   return (
     <div className="md:col-span-2 xl:col-span-3 rounded-2xl border border-dashed border-[var(--border)] bg-white p-8 text-center shadow-sm">
-      <h3 className="text-2xl font-black">No classes assigned yet</h3>
+      <Bell className="mx-auto h-8 w-8 text-[var(--gold-dark)]" />
+      <h3 className="mt-3 text-2xl font-black">Teaching space is ready</h3>
       <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-[var(--muted-blue)]">
-        Programs and batches assigned by the Academic Head or Director will appear here.
+        Assigned batches will appear here after the Academic Head or Director publishes teacher allocation.
       </p>
-      <p className="mt-2 text-sm font-black text-[var(--gold-dark)]">Please contact administration if you believe this is incorrect.</p>
+      <p className="mt-2 text-sm font-black text-[var(--gold-dark)]">Next step: ask the Academic Head or Director to connect this teacher to a batch.</p>
     </div>
   );
 }
@@ -4553,9 +4563,10 @@ function AssignmentListItem({
 
 function AssignmentEmptyState({ onCreate }: { onCreate: () => void }) {
   return (
-    <div className="bg-[var(--page-bg)] p-8 text-center">
-      <h3 className="text-2xl font-black">No homework yet</h3>
-      <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-[var(--muted-blue)]">Create the first assignment for this batch. Add a title, due date, instructions and optional attachment.</p>
+    <div className="rounded-2xl border border-dashed border-[var(--border)] bg-[var(--page-bg)] p-8 text-center">
+      <FileText className="mx-auto h-8 w-8 text-[var(--gold-dark)]" />
+      <h3 className="mt-3 text-2xl font-black">No homework published</h3>
+      <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-[var(--muted-blue)]">Create a simple homework sheet for this batch. Students will see it immediately after publishing.</p>
       <button type="button" onClick={onCreate} className="mt-5 inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-slate-950 !bg-slate-950 px-6 py-3 text-sm font-black !text-white">
         <Plus size={18} /> New Homework
       </button>
@@ -5722,7 +5733,21 @@ function Notice({ text, tone = "info" }: { text: string; tone?: "info" | "error"
 }
 
 function EmptyState({ text }: { text: string }) {
-  return <div className="rounded-2xl border border-dashed border-[var(--border)] bg-white p-5 text-sm text-[var(--muted-blue)]">{text}</div>;
+  const [title, ...rest] = text.split(". ");
+  const detail = rest.join(". ").trim();
+  return (
+    <div className="rounded-2xl border border-dashed border-[var(--border)] bg-white p-5 text-sm text-[var(--muted-blue)]">
+      <div className="flex gap-3">
+        <span className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-[var(--page-bg)] text-[var(--gold-dark)]">
+          <Bell size={16} />
+        </span>
+        <div>
+          <p className="font-black text-[var(--ink)]">{title}</p>
+          {detail ? <p className="mt-1 leading-6">{detail}</p> : null}
+        </div>
+      </div>
+    </div>
+  );
 }
 
 function SimpleCard({ eyebrow, title, children }: { eyebrow: string; title: string; children: React.ReactNode }) {

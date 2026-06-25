@@ -313,7 +313,7 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, exams, loading,
 
   return (
     <section className="grid gap-5">
-      <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
+      <div className="rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm sm:p-5">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="flex items-start gap-4">
             <span className="grid h-12 w-12 place-items-center rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] text-[var(--ink)]">
@@ -321,11 +321,11 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, exams, loading,
             </span>
             <div>
               <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold-dark)]">Exams</p>
-              <h2 className="mt-2 text-3xl font-black">Create and publish an exam.</h2>
+              <h2 className="mt-2 text-2xl font-black sm:text-3xl">Create and publish an exam.</h2>
               <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--muted-blue)]">Choose a class, add questions, answer key and explanations, preview once, then publish to students.</p>
             </div>
           </div>
-          <button type="button" onClick={openCreator} disabled={!activeBatch} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-slate-950 bg-slate-950 px-5 py-3 text-sm font-black text-white disabled:opacity-50">
+          <button type="button" onClick={openCreator} disabled={!activeBatch} className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl border border-slate-950 bg-slate-950 px-5 py-3 text-sm font-black text-white disabled:opacity-50 sm:w-auto">
             <Plus size={18} /> New Exam
           </button>
         </div>
@@ -394,20 +394,22 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, exams, loading,
       ) : null}
 
       {showCreator ? (
-        <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/55 p-3">
-          <div className="max-h-[92vh] w-full max-w-5xl overflow-y-auto rounded-3xl border border-slate-950 bg-white p-5 shadow-2xl">
-            <div className="flex items-start justify-between gap-4 border-b border-[var(--border)] pb-4">
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-slate-950/55 p-0 sm:items-center sm:p-3">
+          <div className="flex max-h-[94dvh] w-full max-w-5xl flex-col overflow-hidden rounded-t-3xl border border-slate-950 bg-white shadow-2xl sm:rounded-3xl">
+            <div className="shrink-0 border-b border-[var(--border)] p-4 sm:p-5">
+              <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold-dark)]">New Exam</p>
-                <h3 className="mt-2 text-2xl font-black">{activeBatch?.name}</h3>
+                <h3 className="mt-2 text-xl font-black sm:text-2xl">{activeBatch?.name}</h3>
                 <p className="mt-1 text-sm text-[var(--muted-blue)]">Step {step} of 4</p>
               </div>
               <button type="button" onClick={() => setShowCreator(false)} className="grid h-11 w-11 place-items-center rounded-full border border-[var(--border)]">
                 <X size={18} />
               </button>
+              </div>
             </div>
 
-            <div className="mt-5">
+            <div className="min-h-0 flex-1 overflow-y-auto p-4 sm:p-5">
               {step === 1 ? (
                 <div className="grid gap-4 md:grid-cols-2">
                   <Field label="Exam Name" value={form.title} onChange={(value) => setForm((current) => ({ ...current, title: value }))} />
@@ -471,10 +473,10 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, exams, loading,
                   <p className="mt-5 text-sm leading-6 text-[var(--muted-blue)]">Publish sends this exam to students in this batch. Student result reports stay hidden until you review and release results.</p>
                 </div>
               ) : null}
-            </div>
 
-            {message ? <p className="mt-4 rounded-2xl border border-rose-200 bg-rose-50 p-3 text-sm font-black text-rose-700">{message}</p> : null}
-            <div className="mt-5 flex flex-wrap justify-between gap-3 border-t border-[var(--border)] pt-4">
+              {message ? <p className="mt-4 rounded-2xl border border-rose-200 bg-rose-50 p-3 text-sm font-black text-rose-700">{message}</p> : null}
+            </div>
+            <div className="grid shrink-0 gap-3 border-t border-[var(--border)] bg-white p-4 sm:flex sm:justify-between sm:p-5">
               <button type="button" onClick={() => setStep((value) => Math.max(1, value - 1))} className="min-h-12 rounded-xl border border-[var(--border)] px-5 font-black">Back</button>
               {step < 4 ? (
                 <button type="button" onClick={() => setStep((value) => Math.min(4, value + 1))} className="min-h-12 rounded-xl border border-slate-950 bg-slate-950 px-6 font-black text-white">Continue</button>
@@ -489,20 +491,21 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, exams, loading,
       ) : null}
 
       {resultsExam ? (
-        <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/55 p-3">
-          <div className="max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-3xl border border-slate-950 bg-white p-5 shadow-2xl">
-            <div className="flex items-start justify-between gap-4 border-b border-[var(--border)] pb-4">
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-slate-950/55 p-0 sm:items-center sm:p-3">
+          <div className="flex max-h-[92dvh] w-full max-w-4xl flex-col overflow-hidden rounded-t-3xl border border-slate-950 bg-white shadow-2xl sm:rounded-3xl">
+            <div className="flex shrink-0 items-start justify-between gap-4 border-b border-[var(--border)] p-4 sm:p-5">
               <div>
                 <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold-dark)]">Result Review</p>
-                <h3 className="mt-2 text-2xl font-black">{resultsExam.title}</h3>
+                <h3 className="mt-2 text-xl font-black sm:text-2xl">{resultsExam.title}</h3>
               </div>
               <button type="button" onClick={() => setResultsExam(null)} className="grid h-11 w-11 place-items-center rounded-full border border-[var(--border)]">
                 <X size={18} />
               </button>
             </div>
-            {!results ? <p className="mt-5 rounded-2xl border border-dashed border-[var(--border)] p-5">Loading results...</p> : null}
-            {results ? (
-              <>
+            <div className="min-h-0 flex-1 overflow-y-auto p-4 sm:p-5">
+              {!results ? <p className="rounded-2xl border border-dashed border-[var(--border)] p-5">Loading results...</p> : null}
+              {results ? (
+                <>
                 <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
                   <p className="text-sm font-black">{results.results.length} submitted / {results.released ? "Released" : "Not released"}</p>
                   <button type="button" onClick={() => void releaseResults()} disabled={busy || results.released} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-emerald-700 bg-emerald-700 px-5 text-sm font-black text-white disabled:opacity-50">
@@ -523,8 +526,9 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, exams, loading,
                   ))}
                   {!results.results.length ? <p className="rounded-2xl border border-dashed border-[var(--border)] p-5">No submitted attempts yet.</p> : null}
                 </div>
-              </>
-            ) : null}
+                </>
+              ) : null}
+            </div>
           </div>
         </div>
       ) : null}

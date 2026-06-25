@@ -60,8 +60,7 @@ const directorMenu: DashboardNavItem[] = [
   { label: "Students", href: "/dashboard/director/academic/student-progress" },
   { label: "Team", href: "/dashboard/director/management" },
   { label: "Finance", href: "/dashboard/director/accounts" },
-  { label: "Reports", href: "/dashboard/director/reports" },
-  { label: "Launch QA", href: "/dashboard/director/launch-qa" },
+  { label: "Teaching Mode", href: "/dashboard/director/teaching" },
 ];
 
 const academicHeadMenu: DashboardNavItem[] = [
@@ -69,7 +68,7 @@ const academicHeadMenu: DashboardNavItem[] = [
   { label: "Batches", href: "/dashboard/academic-head/hod/batches" },
   { label: "Teachers", href: "/dashboard/academic-head/hod/teacher-monitoring" },
   { label: "Timetable", href: "/dashboard/academic-head/hod/timetable" },
-  { label: "Approvals", href: "/dashboard/academic-head/hod/reports" },
+  { label: "Approvals", href: "/dashboard/academic-head/hod/approvals" },
   { label: "Student Watch", href: "/dashboard/academic-head/hod/student-monitoring" },
   { label: "Reports", href: "/dashboard/academic-head/hod/reports" },
 ];

@@ -1,5 +1,5 @@
-import { AcademicTimetablePlanner } from "@/components/academy/academic-timetable-planner";
+import { redirect } from "next/navigation";
 
 export default function AcademicHeadAcademicCalendarPage() {
-  return <AcademicTimetablePlanner audience="academic-head" />;
+  redirect("/dashboard/academic-head/hod/timetable");
 }
