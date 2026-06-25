@@ -18,6 +18,7 @@ import {
 import type { LucideIcon } from "lucide-react";
 import { useDirectorDashboard } from "@/hooks/use-dashboard";
 import {
+  getDirectorLaunchCertification,
   getDirectorOpsReadiness,
   getDirectorSecurityReadiness,
   type DirectorDashboardData,
@@ -246,6 +247,7 @@ export default function DirectorLaunchQaPage() {
   const { data, isLoading, isError, refetch, isFetching } = useDirectorDashboard();
   const opsQuery = useQuery({ queryKey: ["dashboard", "director", "ops-readiness"], queryFn: getDirectorOpsReadiness });
   const securityQuery = useQuery({ queryKey: ["dashboard", "director", "security-readiness"], queryFn: getDirectorSecurityReadiness });
+  const certificationQuery = useQuery({ queryKey: ["dashboard", "director", "launch-certification"], queryFn: getDirectorLaunchCertification });
   const checks = buildChecks(data);
   const passed = checks.filter((check) => check.status === "PASS").length;
   const partial = checks.filter((check) => check.status === "PARTIAL").length;
@@ -256,7 +258,13 @@ export default function DirectorLaunchQaPage() {
   const opsFail = opsQuery.data?.summary.fail ?? 0;
   const securityFail = securityQuery.data?.summary.fail ?? 0;
   const combinedScore = Math.round((readinessScore + (opsQuery.data?.score ?? readinessScore) + (securityQuery.data?.score ?? readinessScore)) / 3);
-  const finalVerdict = verdictText(combinedScore, failed + opsFail + securityFail);
+  const certification = certificationQuery.data;
+  const certifiedScore = certification?.scores.overall ?? combinedScore;
+  const finalVerdict = certification?.verdict ?? verdictText(combinedScore, failed + opsFail + securityFail);
+  const finalFailed = certification?.summary.fail ?? failed + opsFail + securityFail;
+  const finalPassed = certification?.summary.pass ?? passed;
+  const finalPartial = certification?.summary.partial ?? partial;
+  const finalTotal = certification?.summary.total ?? checks.length;
   const lastUpdatedAt = data?.lastUpdatedAt ? new Date(data.lastUpdatedAt).toLocaleString() : "Live refresh pending";
 
   return (
@@ -280,6 +288,7 @@ export default function DirectorLaunchQaPage() {
                     refetch();
                     opsQuery.refetch();
                     securityQuery.refetch();
+                    certificationQuery.refetch();
                   }}
                   className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-sm font-black"
                 >
@@ -291,16 +300,16 @@ export default function DirectorLaunchQaPage() {
               </div>
             </div>
             <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-5">
-              <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold)]">Launch Score</p>
-              <p className="mt-3 text-5xl font-black">{isLoading ? "..." : `${readinessScore}%`}</p>
-              <p className="mt-2 text-sm font-black">{isLoading ? "Checking live data" : readinessLabel(readinessScore)}</p>
+              <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold)]">Certification Score</p>
+              <p className="mt-3 text-5xl font-black">{isLoading || certificationQuery.isLoading ? "..." : `${certifiedScore}%`}</p>
+              <p className="mt-2 text-sm font-black">{isLoading ? "Checking live data" : readinessLabel(certifiedScore)}</p>
               <p className="mt-2 text-sm font-black text-[var(--muted-blue)]">
                 Ops: {opsQuery.isLoading ? "..." : `${opsQuery.data?.score ?? 0}%`}
               </p>
               <p className="mt-1 text-sm font-black text-[var(--muted-blue)]">
                 Security: {securityQuery.isLoading ? "..." : `${securityQuery.data?.score ?? 0}%`}
               </p>
-              <p className={`mt-4 rounded-xl border px-3 py-2 text-xs font-black ${failed + opsFail + securityFail ? statusTone("FAIL") : statusTone(combinedScore >= 75 ? "PASS" : "PARTIAL")}`}>
+              <p className={`mt-4 rounded-xl border px-3 py-2 text-xs font-black ${finalFailed ? statusTone("FAIL") : statusTone(certifiedScore >= 75 ? "PASS" : "PARTIAL")}`}>
                 {isLoading ? "VERDICT PENDING" : finalVerdict}
               </p>
               <button
@@ -321,10 +330,45 @@ export default function DirectorLaunchQaPage() {
         ) : null}
 
         <section className="grid gap-3 md:grid-cols-4">
-          <SummaryCard title="Passed" value={passed} tone="PASS" />
-          <SummaryCard title="Partial" value={partial} tone="PARTIAL" />
-          <SummaryCard title="Failed" value={failed} tone="FAIL" />
-          <SummaryCard title="Total Checks" value={checks.length} tone="PASS" />
+          <SummaryCard title="Passed" value={finalPassed} tone="PASS" />
+          <SummaryCard title="Partial" value={finalPartial} tone="PARTIAL" />
+          <SummaryCard title="Failed" value={finalFailed} tone="FAIL" />
+          <SummaryCard title="Total Checks" value={finalTotal} tone="PASS" />
+        </section>
+
+        <section className="rounded-3xl border border-[var(--border)] bg-white/95 p-5 shadow-sm md:p-6">
+          <div className="grid gap-5 lg:grid-cols-[0.9fr_1.1fr]">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Final Certification</p>
+              <h2 className="mt-2 text-3xl font-black">Management launch certificate</h2>
+              <p className="mt-2 text-sm leading-7 text-[var(--muted-blue)]">
+                This is the single live verdict computed from academy data, production operations and security isolation checks.
+              </p>
+              <div className={`mt-5 rounded-2xl border p-5 ${finalFailed ? statusTone("FAIL") : statusTone(certifiedScore >= 75 ? "PASS" : "PARTIAL")}`}>
+                <p className="text-xs font-black uppercase tracking-[0.28em]">Verdict</p>
+                <p className="mt-2 text-2xl font-black">{certificationQuery.isLoading ? "CERTIFICATION RUNNING" : finalVerdict}</p>
+                <p className="mt-2 text-sm font-black">
+                  {certification ? `${certification.certificationId} / ${new Date(certification.generatedAt).toLocaleString()}` : "Waiting for live certificate."}
+                </p>
+              </div>
+            </div>
+            <div className="grid gap-3 md:grid-cols-2">
+              <CertificationScoreCard title="Academy LMS" value={certification?.scores.academy ?? readinessScore} />
+              <CertificationScoreCard title="Operations" value={certification?.scores.operations ?? opsQuery.data?.score ?? 0} />
+              <CertificationScoreCard title="Security" value={certification?.scores.security ?? securityQuery.data?.score ?? 0} />
+              <CertificationScoreCard title="Overall" value={certifiedScore} strong />
+            </div>
+          </div>
+          {certification?.nextActions.length ? (
+            <div className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 p-4">
+              <p className="text-sm font-black uppercase tracking-[0.2em] text-amber-950">Next actions before green signal</p>
+              <div className="mt-3 grid gap-2">
+                {certification.nextActions.map((action) => (
+                  <p key={action} className="text-sm font-bold leading-6 text-amber-950">{action}</p>
+                ))}
+              </div>
+            </div>
+          ) : null}
         </section>
 
         <section className="rounded-3xl border border-[var(--border)] bg-white/95 p-5 shadow-sm md:p-6">
@@ -487,6 +531,17 @@ function SummaryCard({ title, value, tone }: { title: string; value: number; ton
     <div className={`rounded-2xl border p-5 ${statusTone(tone)}`}>
       <p className="text-xs font-black uppercase tracking-[0.28em]">{title}</p>
       <p className="mt-3 text-4xl font-black">{value}</p>
+    </div>
+  );
+}
+
+function CertificationScoreCard({ title, value, strong = false }: { title: string; value: number; strong?: boolean }) {
+  const status = value >= 90 ? "PASS" : value >= 75 ? "PARTIAL" : "FAIL";
+  return (
+    <div className={`rounded-2xl border p-5 ${strong ? statusTone(status) : "border-[var(--border)] bg-[var(--page-bg)]"}`}>
+      <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold)]">{title}</p>
+      <p className="mt-3 text-4xl font-black">{value}%</p>
+      <p className="mt-1 text-sm font-black">{readinessLabel(value)}</p>
     </div>
   );
 }

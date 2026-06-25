@@ -25,6 +25,14 @@ function opsStatus(condition: boolean, partialCondition = false) {
   return "FAIL";
 }
 
+function readinessSummary(checks: Array<{ status: string }>) {
+  const pass = checks.filter((check) => check.status === "PASS").length;
+  const partial = checks.filter((check) => check.status === "PARTIAL").length;
+  const fail = checks.filter((check) => check.status === "FAIL").length;
+  const score = checks.length ? Math.round(((pass + partial * 0.5) / checks.length) * 100) : 0;
+  return { pass, partial, fail, total: checks.length, score };
+}
+
 function monthLabel(date: Date) {
   return date.toLocaleString("en-US", { month: "short" });
 }
@@ -1062,6 +1070,187 @@ export const dashboardService = {
       verdict: fail > 0 ? "SECURITY NEEDS ATTENTION" : score >= 90 ? "SECURITY READY" : "SECURITY PARTIAL",
       summary: { pass, partial, fail, total: checks.length },
       checks,
+    };
+  },
+
+  async getDirectorLaunchCertification(user: DashboardUser) {
+    const [directorData, ops, security] = await Promise.all([
+      this.getDirectorDashboard(user),
+      this.getDirectorOpsReadiness(user),
+      this.getDirectorSecurityReadiness(user),
+    ]);
+    const command = directorData.commandCenter;
+    const staff = command.staff;
+    const activeBatches = command.academics.activeBatches ?? directorData.academyArchitecture.batches ?? 0;
+    const activeStudents = command.students.active ?? directorData.instituteAnalytics.students ?? 0;
+    const teachers = command.academics.teachers ?? directorData.instituteAnalytics.teachers ?? 0;
+    const academicHeads = command.academics.academicHeads ?? staff.academicHeads.active ?? 0;
+    const physicalTrainers = staff.physicalTrainers.active ?? 0;
+    const administrativeOfficers = staff.administrativeOfficers.active ?? 0;
+    const businessDevelopmentExecutives = staff.businessDevelopmentExecutives.active ?? 0;
+    const assignments = command.learning.assignmentsPublished ?? 0;
+    const exams = command.learning.examsPublished ?? 0;
+    const lessons = command.learning.lessonsUploaded ?? 0;
+    const timetableSlots = directorData.academyArchitecture.timetableSlots ?? 0;
+    const pendingBatchAllocation = command.operationalAlerts.pendingBatchAllocation ?? 0;
+    const pendingDocuments = command.operationalAlerts.pendingDocuments ?? 0;
+    const lowAttendanceAlerts = command.operationalAlerts.lowAttendanceAlerts ?? 0;
+    const pendingFees = command.operationalAlerts.pendingFees ?? 0;
+
+    const academyChecks = [
+      {
+        key: "active-batches",
+        area: "LMS",
+        title: "Active batches",
+        status: opsStatus(activeBatches > 0),
+        detail: `${activeBatches} active batch(es) available for academy operations.`,
+        href: "/dashboard/director/academic/batches",
+      },
+      {
+        key: "student-enrollment",
+        area: "LMS",
+        title: "Student enrollment",
+        status: opsStatus(activeStudents > 0),
+        detail: `${activeStudents} active learner(s) visible to Director.`,
+        href: "/dashboard/director/students",
+      },
+      {
+        key: "teacher-coverage",
+        area: "LMS",
+        title: "Teacher coverage",
+        status: opsStatus(teachers > 0 && academicHeads > 0),
+        detail: `${teachers} teacher(s) and ${academicHeads} academic head(s) available.`,
+        href: "/dashboard/director/academic/teachers",
+      },
+      {
+        key: "physical-training",
+        area: "LMS",
+        title: "Physical training coverage",
+        status: opsStatus(physicalTrainers > 0, true),
+        detail: `${physicalTrainers} physical trainer(s) available.`,
+        href: "/dashboard/director/team",
+      },
+      {
+        key: "admission-ops",
+        area: "CRM",
+        title: "Admission operations",
+        status: opsStatus(administrativeOfficers > 0 && businessDevelopmentExecutives > 0, administrativeOfficers > 0 || businessDevelopmentExecutives > 0),
+        detail: `${administrativeOfficers} AO account(s), ${businessDevelopmentExecutives} BDE account(s).`,
+        href: "/dashboard/director/admissions",
+      },
+      {
+        key: "timetable",
+        area: "Calendar",
+        title: "Academic calendar",
+        status: opsStatus(timetableSlots > 0, activeBatches > 0),
+        detail: `${timetableSlots} timetable slot(s) available for operational planning.`,
+        href: "/dashboard/director/academic/calendar",
+      },
+      {
+        key: "library-content",
+        area: "Library",
+        title: "Library activation",
+        status: opsStatus(lessons > 0, activeStudents > 0),
+        detail: `${lessons} library item(s) visible in launch signals.`,
+        href: "/dashboard/director/library",
+      },
+      {
+        key: "assignments",
+        area: "Assignments",
+        title: "Assignment activation",
+        status: opsStatus(assignments > 0, activeStudents > 0),
+        detail: `${assignments} published assignment(s).`,
+        href: "/dashboard/director/academic/assignments",
+      },
+      {
+        key: "exams",
+        area: "Exams",
+        title: "Exam activation",
+        status: opsStatus(exams > 0, activeStudents > 0),
+        detail: `${exams} published/live/approved exam(s).`,
+        href: "/dashboard/director/academic/exams",
+      },
+      {
+        key: "batch-allocation-queue",
+        area: "Admissions",
+        title: "Batch allocation queue",
+        status: opsStatus(pendingBatchAllocation === 0, pendingBatchAllocation <= 3),
+        detail: `${pendingBatchAllocation} learner(s) waiting for batch allocation.`,
+        href: "/dashboard/director/admissions",
+      },
+      {
+        key: "document-queue",
+        area: "Admissions",
+        title: "Document queue",
+        status: opsStatus(pendingDocuments === 0, pendingDocuments <= 3),
+        detail: `${pendingDocuments} document case(s) pending.`,
+        href: "/dashboard/director/admissions",
+      },
+      {
+        key: "fee-queue",
+        area: "Finance",
+        title: "Fee queue",
+        status: opsStatus(pendingFees === 0, pendingFees <= 3),
+        detail: `${pendingFees} fee case(s) need attention.`,
+        href: "/dashboard/director/accounts",
+      },
+      {
+        key: "attendance-risk",
+        area: "Attendance",
+        title: "Attendance risk",
+        status: opsStatus(lowAttendanceAlerts === 0, lowAttendanceAlerts <= 3),
+        detail: `${lowAttendanceAlerts} low-attendance alert(s).`,
+        href: "/dashboard/director/reports",
+      },
+    ];
+    const academySummary = readinessSummary(academyChecks);
+    const opsChecks = ops.checks.map((check) => ({
+      key: `ops-${check.key}`,
+      area: "Operations",
+      title: check.title,
+      status: check.status,
+      detail: check.detail,
+      href: "/dashboard/director/launch-qa",
+    }));
+    const securityChecks = security.checks.map((check) => ({
+      key: `security-${check.key}`,
+      area: "Security",
+      title: check.title,
+      status: check.status,
+      detail: check.detail,
+      href: "/dashboard/director/launch-qa",
+    }));
+    const allChecks = [...academyChecks, ...opsChecks, ...securityChecks];
+    const overallSummary = readinessSummary(allChecks);
+    const blockers = allChecks.filter((check) => check.status !== "PASS");
+    const overallScore = Math.round((academySummary.score + ops.score + security.score) / 3);
+    const verdict =
+      overallSummary.fail > 0
+        ? "NOT CERTIFIED"
+        : overallScore >= 90
+          ? "CERTIFIED FOR CONTROLLED PRODUCTION"
+          : overallScore >= 75
+            ? "CERTIFIED FOR CONTROLLED PILOT"
+            : "NOT CERTIFIED";
+
+    return {
+      generatedAt: new Date().toISOString(),
+      certificationId: `NIDUS-LAUNCH-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}`,
+      verdict,
+      scores: {
+        academy: academySummary.score,
+        operations: ops.score,
+        security: security.score,
+        overall: overallScore,
+      },
+      summary: overallSummary,
+      sections: {
+        academy: { summary: academySummary, checks: academyChecks },
+        operations: { summary: ops.summary, checks: opsChecks },
+        security: { summary: security.summary, checks: securityChecks },
+      },
+      blockers,
+      nextActions: blockers.slice(0, 6).map((check) => `${check.area}: ${check.title} - ${check.detail}`),
     };
   },
 

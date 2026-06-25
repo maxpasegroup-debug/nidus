@@ -49,6 +49,7 @@ dashboardRouter.get("/academic-head", allowDashboard("academicHead"), dashboardC
 dashboardRouter.get("/director", allowDashboard("director"), dashboardController.director);
 dashboardRouter.get("/director/ops-readiness", allowDashboard("director"), dashboardController.directorOpsReadiness);
 dashboardRouter.get("/director/security-readiness", allowDashboard("director"), dashboardController.directorSecurityReadiness);
+dashboardRouter.get("/director/launch-certification", allowDashboard("director"), dashboardController.directorLaunchCertification);
 dashboardRouter.get("/business-development", allowDashboard("businessDevelopment"), dashboardController.businessDevelopment);
 dashboardRouter.get("/telecaller", allowDashboard("businessDevelopment"), dashboardController.businessDevelopment);
 dashboardRouter.get("/marketing", allowDashboard("marketing"), dashboardController.marketing);

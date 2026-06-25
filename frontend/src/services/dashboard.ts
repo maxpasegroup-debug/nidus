@@ -267,6 +267,35 @@ export type DirectorSecurityReadinessData = {
   }>;
 };
 
+export type DirectorLaunchCertificationData = {
+  generatedAt: string;
+  certificationId: string;
+  verdict: string;
+  scores: {
+    academy: number;
+    operations: number;
+    security: number;
+    overall: number;
+  };
+  summary: { pass: number; partial: number; fail: number; total: number; score: number };
+  sections: {
+    academy: { summary: { pass: number; partial: number; fail: number; total: number; score: number }; checks: DirectorLaunchCertificationCheck[] };
+    operations: { summary: { pass: number; partial: number; fail: number; total: number }; checks: DirectorLaunchCertificationCheck[] };
+    security: { summary: { pass: number; partial: number; fail: number; total: number }; checks: DirectorLaunchCertificationCheck[] };
+  };
+  blockers: DirectorLaunchCertificationCheck[];
+  nextActions: string[];
+};
+
+export type DirectorLaunchCertificationCheck = {
+  key: string;
+  area: string;
+  title: string;
+  status: "PASS" | "PARTIAL" | "FAIL";
+  detail: string;
+  href: string;
+};
+
 export type BusinessDevelopmentDashboardData = {
   leadPipeline: { new: number; contacted: number; counselling: number; enrolled: number; lost: number; assignedLeads: number };
   scheduling: { callbacksToday: number; counselling: number; overdueFollowUps: number };
@@ -317,6 +346,10 @@ export function getDirectorOpsReadiness() {
 
 export function getDirectorSecurityReadiness() {
   return getDashboard<DirectorSecurityReadinessData>("/dashboard/director/security-readiness");
+}
+
+export function getDirectorLaunchCertification() {
+  return getDashboard<DirectorLaunchCertificationData>("/dashboard/director/launch-certification");
 }
 
 export function getBusinessDevelopmentDashboard() {
