@@ -36,7 +36,7 @@ function parentName(lead: Lead) {
 }
 
 function isReadyForAdmission(lead: Lead) {
-  return /Ready For Admission/i.test(lead.notes ?? "");
+  return /Ready For Admission|AO_QUEUE:\s*YES/i.test(lead.notes ?? "");
 }
 
 function mapFollowUpStatus(status: string): LeadStatus {
@@ -159,6 +159,8 @@ export default function BusinessDevelopmentDashboardPage() {
 
   function handoverToAo(lead: Lead) {
     const note = appendNote(lead.notes, "Ready For Admission", [
+      "APPLICATION_STATUS: READY_FOR_ADMISSION",
+      "AO_QUEUE: YES",
       `BDE Name: ${user?.name ?? lead.assignee?.name ?? "Business Development Executive"}`,
       `Program: ${lead.targetExam}`,
       "Handover To Administrative Officer: YES"
@@ -344,7 +346,8 @@ export default function BusinessDevelopmentDashboardPage() {
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                       <h3 className="text-xl font-black text-[#071d36]">Admission Handover</h3>
-                      <p className="mt-1 text-sm text-[#52627a]">Send this case to Administrative Officer after counselling is complete.</p>
+                      <p className="mt-1 text-sm text-[#52627a]">Send this case to Administrative Officer after counselling is complete. AO will receive it in the application queue.</p>
+                      {isReadyForAdmission(selectedLead) ? <p className="mt-2 inline-flex rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-black text-emerald-800">Already handed over to AO</p> : null}
                     </div>
                     <div className="flex flex-wrap gap-2">
                       <Button type="button" onClick={() => handoverToAo(selectedLead)} disabled={leads.update.isPending}>

@@ -61,6 +61,8 @@ export const crmService = {
     const email = input.email.trim().toLowerCase();
     const mobile = input.mobile.trim();
     const notes = [
+      "APPLICATION_STATUS: SUBMITTED",
+      "AO_QUEUE: YES",
       input.studentClass ? `Student Class: ${input.studentClass}` : "",
       input.message ? `Message: ${input.message}` : "",
       "Public website enquiry. Follow up quickly."

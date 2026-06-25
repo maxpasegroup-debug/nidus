@@ -133,6 +133,7 @@ function noteHas(lead: LeadApplication, text: string) {
 
 function leadStage(lead: LeadApplication) {
   if (lead.status === "ENROLLED") return "Activated";
+  if (noteHas(lead, "AO_QUEUE: YES") && noteHas(lead, "READY_FOR_ADMISSION")) return "Ready for AO";
   if (noteHas(lead, "FEES: PAID") || noteHas(lead, "FEES: APPROVED")) return "Ready for batch";
   if (noteHas(lead, "DOCUMENTS: VERIFIED")) return "Fee confirmation";
   if (noteHas(lead, "APPLICATION_STATUS: SUBMITTED")) return "Submitted";
@@ -194,7 +195,9 @@ export function AdministrativeOfficerDashboard() {
   const applications = useMemo(() => (leadsQuery.data?.leads ?? []).filter((lead) => !["ENROLLED", "LOST"].includes(lead.status)), [leadsQuery.data]);
   const selectedLead = applications.find((lead) => lead.id === selectedLeadId) ?? null;
   const selectedBatch = batches.find((batch) => batch.id === form.batchId) ?? null;
-  const visibleApplications = applications.filter((lead) => [lead.fullName, lead.mobile, lead.email, lead.targetExam].join(" ").toLowerCase().includes(search.trim().toLowerCase()));
+  const visibleApplications = applications
+    .filter((lead) => [lead.fullName, lead.mobile, lead.email, lead.targetExam].join(" ").toLowerCase().includes(search.trim().toLowerCase()))
+    .sort((a, b) => Number(noteHas(b, "AO_QUEUE: YES")) - Number(noteHas(a, "AO_QUEUE: YES")) || new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
   const requiredDocumentsVerified = documentStatuses.photo === "Verified" && documentStatuses.aadhaar === "Verified" && documentStatuses.parentDetails === "Verified";
   const rejectedDocuments = Object.entries(documentStatuses).filter(([, value]) => value === "Rejected").map(([key]) => documentLabels[key as DocumentKey]);
@@ -215,6 +218,7 @@ export function AdministrativeOfficerDashboard() {
   const documentPending = applications.filter((lead) => !noteHas(lead, "DOCUMENTS: VERIFIED")).length;
   const feePending = applications.filter((lead) => !noteHas(lead, "FEES: PAID") && !noteHas(lead, "FEES: APPROVED")).length;
   const batchPending = applications.filter((lead) => noteHas(lead, "DOCUMENTS: VERIFIED") && (noteHas(lead, "FEES: PAID") || noteHas(lead, "FEES: APPROVED"))).length;
+  const aoReady = applications.filter((lead) => noteHas(lead, "AO_QUEUE: YES")).length;
   const allStudentRows = useMemo(() => batches.flatMap((batch) => (batch.students ?? []).map((entry) => ({ batch, entry, student: entry.student ?? entry.user ?? null }))).filter((row) => row.student), [batches]);
   const uniqueStudents = new Set(allStudentRows.map((row) => row.student?.id)).size;
   const visibleStudentRows = allStudentRows.filter((row) => (!studentBatchId || row.batch.id === studentBatchId) && [row.student?.name, row.student?.email, row.student?.mobile, row.batch.name].join(" ").toLowerCase().includes(studentSearch.trim().toLowerCase()));
@@ -273,7 +277,7 @@ export function AdministrativeOfficerDashboard() {
         <Metric label="Applications" value={applications.length} icon={FileText} />
         <Metric label="Documents Pending" value={documentPending} icon={FileArchive} />
         <Metric label="Fees Pending" value={feePending} icon={BadgeIndianRupee} />
-        <Metric label="Batch Pending" value={batchPending} icon={GraduationCap} />
+        <Metric label="AO Ready" value={aoReady} icon={GraduationCap} />
         <Metric label="Active Students" value={uniqueStudents} icon={Users} />
         <Metric label="Active Batches" value={batches.filter((item) => item.status === "ACTIVE").length} icon={ShieldCheck} />
       </section>
@@ -284,12 +288,12 @@ export function AdministrativeOfficerDashboard() {
         {tabs.map((item) => <button key={item.key} type="button" onClick={() => openTab(item.key)} className={`min-h-11 shrink-0 rounded-xl px-4 text-sm font-black ${tab === item.key ? "bg-slate-950 text-white" : "hover:bg-[var(--page-bg)]"}`}>{item.label}</button>)}
       </nav>
 
-      {tab === "TODAY" ? <TodayView applications={applications} documentPending={documentPending} feePending={feePending} batchPending={batchPending} onOpenApplications={() => openTab("APPLICATIONS")} /> : null}
+      {tab === "TODAY" ? <TodayView applications={applications} documentPending={documentPending} feePending={feePending} batchPending={batchPending} aoReady={aoReady} onOpenApplications={() => openTab("APPLICATIONS")} /> : null}
 
       {tab === "APPLICATIONS" ? (
         <Panel eyebrow="Applications" title="Applicants waiting for processing">
           <SearchField value={search} onChange={setSearch} placeholder="Search name, phone, email or program" />
-          <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">{visibleApplications.map((lead) => <button key={lead.id} type="button" onClick={() => openLead(lead)} className="rounded-xl border border-[var(--border)] p-4 text-left transition hover:border-slate-950"><div className="flex items-start justify-between gap-3"><span className="min-w-0"><span className="block truncate text-lg font-black">{lead.fullName}</span><span className="mt-1 block text-sm text-[var(--muted-blue)]">{lead.targetExam} / {lead.mobile}</span></span><span className="rounded-full bg-[var(--page-bg)] px-2 py-1 text-[10px] font-black">{leadStage(lead)}</span></div><p className="mt-3 text-xs text-[var(--muted-blue)]">From {lead.source} / {lead.assignee?.name || "Unassigned"}</p></button>)}{!visibleApplications.length ? <Empty>No matching applications.</Empty> : null}</div>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">{visibleApplications.map((lead) => <button key={lead.id} type="button" onClick={() => openLead(lead)} className={`rounded-xl border p-4 text-left transition hover:border-slate-950 ${noteHas(lead, "AO_QUEUE: YES") ? "border-emerald-200 bg-emerald-50/60" : "border-[var(--border)]"}`}><div className="flex items-start justify-between gap-3"><span className="min-w-0"><span className="block truncate text-lg font-black">{lead.fullName}</span><span className="mt-1 block text-sm text-[var(--muted-blue)]">{lead.targetExam} / {lead.mobile}</span></span><span className="rounded-full bg-white px-2 py-1 text-[10px] font-black">{leadStage(lead)}</span></div><p className="mt-3 text-xs text-[var(--muted-blue)]">From {lead.source} / {lead.assignee?.name || "Unassigned"}</p>{noteHas(lead, "AO_QUEUE: YES") ? <p className="mt-3 rounded-lg bg-white px-3 py-2 text-xs font-black text-emerald-800">Ready for AO processing</p> : null}</button>)}{!visibleApplications.length ? <Empty>No matching applications.</Empty> : null}</div>
         </Panel>
       ) : null}
 
@@ -339,8 +343,8 @@ export function AdministrativeOfficerDashboard() {
   );
 }
 
-function TodayView({ applications, documentPending, feePending, batchPending, onOpenApplications }: { applications: LeadApplication[]; documentPending: number; feePending: number; batchPending: number; onOpenApplications: () => void }) {
-  const actions = [{ label: "New applications", value: applications.length, note: "Open and begin verification", icon: FileText }, { label: "Documents pending", value: documentPending, note: "Verify or request replacements", icon: FileArchive }, { label: "Fees pending", value: feePending, note: "Confirm payment readiness", icon: BadgeIndianRupee }, { label: "Batch allocation", value: batchPending, note: "Assign and activate learners", icon: GraduationCap }];
+function TodayView({ applications, documentPending, feePending, batchPending, aoReady, onOpenApplications }: { applications: LeadApplication[]; documentPending: number; feePending: number; batchPending: number; aoReady: number; onOpenApplications: () => void }) {
+  const actions = [{ label: "AO ready", value: aoReady, note: "Process handovers first", icon: GraduationCap }, { label: "New applications", value: applications.length, note: "Open and begin verification", icon: FileText }, { label: "Documents pending", value: documentPending, note: "Verify or request replacements", icon: FileArchive }, { label: "Fees pending", value: feePending, note: "Confirm payment readiness", icon: BadgeIndianRupee }, { label: "Batch allocation", value: batchPending, note: "Assign and activate learners", icon: GraduationCap }];
   return <section className="grid gap-5 lg:grid-cols-[1.1fr_0.9fr]"><Panel eyebrow="Today" title="What needs action now"><div className="grid gap-3 sm:grid-cols-2">{actions.map(({ icon: Icon, ...item }) => <button key={item.label} type="button" onClick={onOpenApplications} className="flex min-h-28 items-start gap-3 rounded-xl border border-[var(--border)] p-4 text-left hover:border-slate-950"><span className="grid h-10 w-10 place-items-center rounded-lg bg-[var(--page-bg)]"><Icon size={18} /></span><span><strong className="text-2xl">{item.value}</strong><span className="block font-black">{item.label}</span><span className="mt-1 block text-sm text-[var(--muted-blue)]">{item.note}</span></span></button>)}</div></Panel><Panel eyebrow="Admission Flow" title="One applicant, five checks"><ol className="grid gap-3">{["Open application", "Verify documents", "Confirm payment", "Allocate batch", "Activate learner"].map((item, index) => <li key={item} className="flex items-center gap-3 rounded-xl border border-[var(--border)] p-3"><span className="grid h-8 w-8 place-items-center rounded-full bg-slate-950 text-sm font-black text-white">{index + 1}</span><strong>{item}</strong></li>)}</ol></Panel></section>;
 }
 
