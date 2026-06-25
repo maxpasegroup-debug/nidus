@@ -10,6 +10,7 @@ import {
   CalendarDays,
   CheckCircle2,
   ClipboardCheck,
+  CreditCard,
   FileText,
   GraduationCap,
   Library,
@@ -108,6 +109,38 @@ type StudentPlan = {
     batchId?: string | null;
     recordingUrl?: string | null;
   }>;
+  finance?: {
+    status: string;
+    totalPaid: number;
+    totalDue: number;
+    latestReceiptNumber?: string | null;
+    payments: Array<{
+      id: string;
+      amount: number;
+      currency: string;
+      method?: string | null;
+      receiptNumber?: string | null;
+      receiptUrl?: string | null;
+      paidAt: string;
+      status: string;
+    }>;
+    receipts: Array<{
+      id: string;
+      documentNumber?: string | null;
+      fileUrl?: string | null;
+      status: string;
+      createdAt: string;
+    }>;
+    installments: Array<{
+      id: string;
+      title: string;
+      amount: number;
+      paidAmount: number;
+      dueAmount: number;
+      dueDate: string;
+      paidStatus: string;
+    }>;
+  };
 };
 
 type StudentLeaveRequest = {
@@ -255,6 +288,7 @@ export default function StudentDashboardPage() {
   const assignments = academicPlan.data?.assignments ?? [];
   const materials = academicPlan.data?.materials ?? [];
   const liveClasses = academicPlan.data?.liveClasses ?? [];
+  const finance = academicPlan.data?.finance;
   const attendanceSummary = academicPlan.data?.attendance?.summary ?? { present: 0, absent: 0, leave: 0, total: 0, percentage: 0 };
   const attendanceSessions = academicPlan.data?.attendance?.sessions ?? [];
   const exams = availableExams.data?.tests ?? [];
@@ -302,6 +336,25 @@ export default function StudentDashboardPage() {
           <Metric label="Attendance" value={attendanceSummary.percentage} note="%" icon={CheckCircle2} />
           <Metric label="Library" value={materials.length} note="items" icon={Library} />
         </section>
+
+        <Panel id="fees" title="Fees & Receipt" eyebrow="Admission handoff">
+          <div className="grid gap-4 md:grid-cols-3">
+            <ProfileCard title="Fee Paid" value={`Rs ${finance?.totalPaid ?? 0}`} note={finance?.status ?? "AO record pending"} icon={CreditCard} />
+            <ProfileCard title="Fee Due" value={`Rs ${finance?.totalDue ?? 0}`} note="pending amount" icon={FileText} />
+            <ProfileCard title="Latest Receipt" value={finance?.latestReceiptNumber ?? "Pending"} note="issued by office" icon={CheckCircle2} />
+          </div>
+          <div className="mt-5 grid gap-3 md:grid-cols-2">
+            {(finance?.payments ?? []).slice(0, 3).map((payment) => (
+              <div key={payment.id} className="rounded-2xl border border-[var(--border)] bg-white p-4 text-sm">
+                <p className="font-black">Rs {payment.amount} {payment.currency}</p>
+                <p className="mt-1 text-[var(--muted-blue)]">
+                  {payment.method ?? "Payment"} / {payment.receiptNumber ?? "Receipt pending"} / {new Date(payment.paidAt).toLocaleDateString()}
+                </p>
+              </div>
+            ))}
+            {finance?.payments?.length ? null : <SoftNote text="Fee receipts will appear after the Administrative Officer records payment." />}
+          </div>
+        </Panel>
 
         <section id="today" className="grid gap-5 lg:grid-cols-[1.15fr_0.85fr]">
           <Panel title="Today" eyebrow="Immediate work">

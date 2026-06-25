@@ -151,6 +151,8 @@ export default function ParentDashboardPage() {
   const submittedAssignments = data.assignments?.submitted ?? 0;
   const examAverage = data.exams?.averageScore ?? data.studentPerformance.averageScore ?? 0;
   const feeDue = data.feeStatus.dueAmount ?? 0;
+  const totalPaid = data.feeStatus.totalPaid ?? 0;
+  const latestReceipt = data.feeStatus.latestReceiptNumber ?? "Pending";
 
   return (
     <RoleDashboardGuard role="PARENT">
@@ -261,8 +263,18 @@ export default function ParentDashboardPage() {
           <Section id="fees" eyebrow="Fees" title="Fee and receipt watch">
             <div className="grid gap-3">
               <StatusRow title="Fee status" detail="Administrative Officer recorded fee position." value={data.feeStatus.status} />
+              <StatusRow title="Fee paid" detail="Total successful payment recorded by the office." value={`Rs ${totalPaid}`} />
               <StatusRow title="Pending amount" detail="Amount currently pending in academy accounts." value={`Rs ${feeDue}`} />
+              <StatusRow title="Latest receipt" detail="Most recent official receipt number." value={latestReceipt} />
               <StatusRow title="Next due date" detail="Upcoming fee reminder date." value={data.feeStatus.nextDueDate} />
+              {(data.feeStatus.payments ?? []).slice(0, 3).map((payment) => (
+                <StatusRow
+                  key={payment.id}
+                  title={`Payment ${payment.receiptNumber ?? payment.id.slice(0, 6)}`}
+                  detail={`${payment.method ?? "Payment"} / ${payment.status} / ${formatDate(payment.paidAt)}`}
+                  value={`Rs ${payment.amount}`}
+                />
+              ))}
               {(data.feeStatus.installments ?? []).slice(0, 4).map((fee) => (
                 <StatusRow key={fee.id} title={fee.title} detail={`${fee.paidStatus} / due ${formatDate(fee.dueDate)}`} value={`Rs ${fee.dueAmount || fee.amount - fee.paidAmount}`} />
               ))}

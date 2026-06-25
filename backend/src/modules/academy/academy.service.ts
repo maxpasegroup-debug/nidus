@@ -1446,6 +1446,27 @@ export const academyService = {
           ORDER BY "scheduledAt" ASC
         `
       : [];
+    const [feeRows, paymentRows, receiptRows] = await Promise.all([
+      prisma.feeInstallment.findMany({
+        where: { studentId: user.id },
+        orderBy: { dueDate: "asc" },
+        take: 12,
+      }),
+      prisma.payment.findMany({
+        where: { userId: user.id },
+        orderBy: { createdAt: "desc" },
+        take: 8,
+      }),
+      prisma.financeDocument.findMany({
+        where: { ownerId: user.id, documentType: "PAYMENT_RECEIPT" },
+        orderBy: { createdAt: "desc" },
+        take: 8,
+      }),
+    ]);
+    const dueFees = feeRows.filter((fee) => fee.paidStatus !== "PAID");
+    const successfulPayments = paymentRows.filter((payment) => payment.paymentStatus === "SUCCESS");
+    const totalPaid = successfulPayments.reduce((sum, payment) => sum + payment.amount, 0);
+    const totalDue = dueFees.reduce((sum, fee) => sum + (fee.dueAmount || Math.max(fee.amount - fee.paidAmount, 0)), 0);
 
     return {
       enrollments: enrollments.filter((enrollment: any) => batchIds.includes(enrollment.batchId)),
@@ -1470,6 +1491,38 @@ export const academyService = {
       })),
       materials: normalizeRows(materialRows),
       liveClasses: normalizeRows(liveClassRows),
+      finance: {
+        status: totalDue > 0 ? "PENDING" : successfulPayments.length ? "PAID" : feeRows.length ? "PLAN_CREATED" : "NO_FEE_PLAN",
+        totalPaid,
+        totalDue,
+        latestReceiptNumber: successfulPayments[0]?.receiptNumber ?? receiptRows[0]?.documentNumber ?? null,
+        payments: successfulPayments.map((payment) => ({
+          id: payment.id,
+          amount: payment.amount,
+          currency: payment.currency,
+          method: payment.paymentMethod ?? payment.paymentMode,
+          receiptNumber: payment.receiptNumber,
+          receiptUrl: payment.receiptUrl ?? payment.receiptUploadUrl,
+          paidAt: payment.verifiedAt ?? payment.createdAt,
+          status: payment.paymentStatus,
+        })),
+        receipts: receiptRows.map((receipt) => ({
+          id: receipt.id,
+          documentNumber: receipt.documentNumber,
+          fileUrl: receipt.fileUrl,
+          status: receipt.status,
+          createdAt: receipt.createdAt,
+        })),
+        installments: feeRows.map((fee) => ({
+          id: fee.id,
+          title: fee.title,
+          amount: fee.amount,
+          paidAmount: fee.paidAmount,
+          dueAmount: fee.dueAmount,
+          dueDate: fee.dueDate,
+          paidStatus: fee.paidStatus,
+        })),
+      },
     };
   },
 

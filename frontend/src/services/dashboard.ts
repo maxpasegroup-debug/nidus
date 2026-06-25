@@ -105,8 +105,12 @@ export type ParentDashboardData = {
   feeStatus: {
     status: string;
     dueAmount: number;
+    totalPaid?: number;
+    latestReceiptNumber?: string | null;
     nextDueDate: string;
     installments?: Array<{ id: string; title: string; amount: number; paidAmount: number; dueAmount: number; dueDate: string; paidStatus: string }>;
+    payments?: Array<{ id: string; amount: number; currency: string; method?: string | null; receiptNumber?: string | null; receiptUrl?: string | null; paidAt: string; status: string }>;
+    receipts?: Array<{ id: string; documentNumber?: string | null; fileUrl?: string | null; status: string; createdAt: string }>;
   };
   fitness?: {
     bmi: number;

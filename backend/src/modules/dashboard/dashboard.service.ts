@@ -288,10 +288,12 @@ export const dashboardService = {
     }
 
     const studentId = linkedStudent?.id;
-    const [attempts, attendanceRows, fees, notifications, discipline, psychometricAttempts, academyAttendanceRows, assignmentRows, submissionRows, teacherExamRows, fitness, fitnessLogs] = await Promise.all([
+    const [attempts, attendanceRows, fees, payments, receipts, notifications, discipline, psychometricAttempts, academyAttendanceRows, assignmentRows, submissionRows, teacherExamRows, fitness, fitnessLogs] = await Promise.all([
       studentId ? prisma.testAttempt.findMany({ where: { userId: studentId, submittedAt: { not: null } }, orderBy: { submittedAt: "asc" }, take: 12 }) : [],
       studentId ? prisma.attendance.findMany({ where: { userId: studentId }, orderBy: { date: "asc" } }) : [],
       studentId ? prisma.feeInstallment.findMany({ where: { studentId }, orderBy: { dueDate: "asc" } }) : [],
+      studentId ? prisma.payment.findMany({ where: { userId: studentId }, orderBy: { createdAt: "desc" }, take: 8 }) : [],
+      studentId ? prisma.financeDocument.findMany({ where: { ownerId: studentId, documentType: "PAYMENT_RECEIPT" }, orderBy: { createdAt: "desc" }, take: 8 }) : [],
       prisma.notification.findMany({ where: { userId: user.id }, orderBy: { createdAt: "desc" }, take: 5 }),
       studentId ? prisma.disciplineRecord.findMany({ where: { studentId }, orderBy: { createdAt: "desc" }, take: 5 }) : [],
       studentId
@@ -352,6 +354,8 @@ export const dashboardService = {
     const firstScore = attempts[0]?.score ?? 0;
     const lastScore = attempts.at(-1)?.score ?? 0;
     const dueFees = fees.filter((fee) => fee.paidStatus !== "PAID");
+    const successfulPayments = payments.filter((payment) => payment.paymentStatus === "SUCCESS");
+    const totalPaid = successfulPayments.reduce((sum, payment) => sum + payment.amount, 0);
     const submissionByAssignment = new Map(submissionRows.map((item) => [item.assignmentId, item]));
     const submittedAssignments = assignmentRows.filter((assignment) => submissionByAssignment.has(assignment.id)).length;
 
@@ -406,6 +410,8 @@ export const dashboardService = {
       feeStatus: {
         status: dueFees.length ? "PENDING" : fees.length ? "PAID" : "NO_FEE_PLAN",
         dueAmount: dueFees.reduce((sum, fee) => sum + (fee.dueAmount || fee.amount - fee.paidAmount), 0),
+        totalPaid,
+        latestReceiptNumber: successfulPayments[0]?.receiptNumber ?? receipts[0]?.documentNumber ?? null,
         nextDueDate: dueFees[0]?.dueDate.toISOString() ?? "",
         installments: fees.map((fee) => ({
           id: fee.id,
@@ -415,6 +421,23 @@ export const dashboardService = {
           dueAmount: fee.dueAmount,
           dueDate: fee.dueDate,
           paidStatus: fee.paidStatus
+        })),
+        payments: successfulPayments.map((payment) => ({
+          id: payment.id,
+          amount: payment.amount,
+          currency: payment.currency,
+          method: payment.paymentMethod ?? payment.paymentMode,
+          receiptNumber: payment.receiptNumber,
+          receiptUrl: payment.receiptUrl ?? payment.receiptUploadUrl,
+          paidAt: payment.verifiedAt ?? payment.createdAt,
+          status: payment.paymentStatus
+        })),
+        receipts: receipts.map((receipt) => ({
+          id: receipt.id,
+          documentNumber: receipt.documentNumber,
+          fileUrl: receipt.fileUrl,
+          status: receipt.status,
+          createdAt: receipt.createdAt
         }))
       },
       fitness: fitness
