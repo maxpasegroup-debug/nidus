@@ -41,6 +41,8 @@ export function ProgramEnquiryForm({ programTitle, source = "Academy Program Pag
         targetExam: programTitle,
         source: `${source} - Academy Application`,
         message: [
+          "APPLICATION_STATUS: SUBMITTED",
+          "AO_QUEUE: YES",
           "ACADEMY APPLICATION",
           `Program: ${programTitle}`,
           `Student Name: ${form.fullName}`,

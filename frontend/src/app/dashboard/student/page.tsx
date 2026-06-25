@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -212,6 +213,7 @@ function todayKey() {
 
 export default function StudentDashboardPage() {
   const { user } = useAuth();
+  const router = useRouter();
   const [assignmentDrafts, setAssignmentDrafts] = useState<Record<string, AssignmentDraft>>({});
   const [assignmentMessage, setAssignmentMessage] = useState<string | null>(null);
   const [leaveForm, setLeaveForm] = useState({ fromDate: "", toDate: "", reason: "", attachmentName: "" });
@@ -238,8 +240,13 @@ export default function StudentDashboardPage() {
 
   const batches = academicPlan.data?.batches ?? [];
   const isActivatedLearner = Boolean(batches.length) && user?.role !== "GUEST";
+  const shouldOpenApplicantLobby = !academicPlan.isLoading && !isActivatedLearner;
 
-  if (!academicPlan.isLoading && !isActivatedLearner) {
+  useEffect(() => {
+    if (shouldOpenApplicantLobby) router.replace("/dashboard/guest");
+  }, [router, shouldOpenApplicantLobby]);
+
+  if (shouldOpenApplicantLobby) {
     return <GuestApplicantDashboard name={user?.name} />;
   }
 

@@ -4,8 +4,33 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { BookOpenCheck, CalendarDays, ClipboardCheck, FileText, Library, Menu, Users, X } from "lucide-react";
-import { getNavItems } from "@/components/layout/nav-items";
+import { getNavItems, guestMenu, studentMenu } from "@/components/layout/nav-items";
 import { useAuth } from "@/components/providers/auth-provider-v2";
+
+type StudentPlanProbe = {
+  batches?: Array<{ id: string }>;
+};
+
+async function probeStudentActivation() {
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_API_BASE_URL || "";
+  const token =
+    typeof window !== "undefined"
+      ? localStorage.getItem("token") ||
+        localStorage.getItem("accessToken") ||
+        localStorage.getItem("authToken") ||
+        localStorage.getItem("nidus_token")
+      : null;
+  const response = await fetch(`${baseUrl}/api/academy/my-plan`, {
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+  });
+  if (!response.ok) return false;
+  const payload = (await response.json().catch(() => null)) as StudentPlanProbe | null;
+  return Boolean(payload?.batches?.length);
+}
 
 function NavIcon({ label }: { label: string }) {
   const value = label.toLowerCase();
@@ -22,10 +47,36 @@ export function BottomNav() {
   const pathname = usePathname();
   const { user } = useAuth();
   const [moreOpen, setMoreOpen] = useState(false);
+  const [studentActivated, setStudentActivated] = useState<boolean | null>(null);
   const dashboardTemplate = typeof user?.roleMetadata?.dashboardTemplate === "string" ? user.roleMetadata.dashboardTemplate : null;
-  const navItems = getNavItems(user?.role, dashboardTemplate);
+  const navItems =
+    user?.role === "STUDENT"
+      ? studentActivated === false
+        ? guestMenu
+        : studentActivated === true
+          ? studentMenu
+          : []
+      : user?.role === "GUEST"
+        ? guestMenu
+        : getNavItems(user?.role, dashboardTemplate);
   const primaryItems = navItems.slice(0, 4);
   const remainingItems = navItems.slice(4);
+
+  useEffect(() => {
+    let cancelled = false;
+    setStudentActivated(null);
+    if (!user || user.role !== "STUDENT") return;
+    probeStudentActivation()
+      .then((isActivated) => {
+        if (!cancelled) setStudentActivated(isActivated);
+      })
+      .catch(() => {
+        if (!cancelled) setStudentActivated(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.id, user?.role]);
 
   useEffect(() => setMoreOpen(false), [pathname]);
 

@@ -72,7 +72,10 @@ export default function StartFreePage() {
         targetExam: form.goal,
         source: `Universal Start Free - ${selectedIntent}`,
         message: [
+          "APPLICATION_STATUS: SUBMITTED",
+          "AO_QUEUE: YES",
           `Intent: ${selectedIntent}`,
+          `Selected Program: ${form.goal}`,
           form.message || "Student requested free onboarding and NIDUS AI guidance.",
           "Pipeline: NEW_LEAD -> STUDENT_CREATED -> APPLICATION_READY"
         ].join("\n")
@@ -88,7 +91,7 @@ export default function StartFreePage() {
       if (result.success) {
         setSubmitted(true);
         showToast("Free NIDUS student account created. Opening your journey.", "success");
-        window.setTimeout(() => window.location.assign("/dashboard/student"), 650);
+        window.setTimeout(() => window.location.assign("/dashboard/guest"), 650);
       } else {
         throw new Error(result.message || "Could not create account");
       }
