@@ -3068,9 +3068,6 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
                     archived={archived}
                     onOpen={() => { setLibrarySubject(subject.name); setLibraryTopic(null); setShowLibraryUpload(false); }}
                     onRename={subject.materials.length ? () => void renameLibraryFolder("SUBJECT", subject.name) : undefined}
-                    onArchive={subject.materials.length ? () => void archiveLibraryFolder("SUBJECT", subject.name) : undefined}
-                    onRestore={subject.materials.some((item) => item.status === "ARCHIVED") ? () => void restoreLibraryFolder("SUBJECT", subject.name) : undefined}
-                    onDelete={subject.materials.length ? () => void deleteLibraryFolder("SUBJECT", subject.name) : undefined}
                   />
                 );
               })}
@@ -3106,9 +3103,6 @@ export default function TeacherDashboardClient({ view, courseKey, batchId }: { v
                       archived={archived}
                       onOpen={() => { setLibraryTopic(topic.name); setShowLibraryUpload(false); }}
                       onRename={() => void renameLibraryFolder("TOPIC", topic.name)}
-                      onArchive={topic.materials.length ? () => void archiveLibraryFolder("TOPIC", topic.name) : undefined}
-                      onRestore={topic.materials.some((item) => item.status === "ARCHIVED") ? () => void restoreLibraryFolder("TOPIC", topic.name) : undefined}
-                      onDelete={topic.materials.length ? () => void deleteLibraryFolder("TOPIC", topic.name) : undefined}
                     />
                   );
                 })}
@@ -4422,41 +4416,48 @@ function ExamGuruModal({
           </section>
 
           <aside className="grid content-start gap-4">
-            <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
-              <SectionHeader eyebrow="NIDUS GURU" title="Review panel" description="Academic quality checks before this paper goes for approval." icon={<GraduationCap size={20} />} />
-              <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                <ReviewMetric label="Questions detected" value={detectedQuestionCount || "Pending"} />
-                <ReviewMetric label="Duplicate questions" value={duplicateCount} tone={duplicateCount ? "warn" : "ok"} />
-                <ReviewMetric label="Syllabus mismatch" value={examForm.topic || examForm.subject ? "Check ready" : "Topic missing"} tone={examForm.topic || examForm.subject ? "ok" : "warn"} />
-                <ReviewMetric label="Difficulty analysis" value={Object.entries(difficultyCounts).map(([key, value]) => `${key} ${value}`).join(", ") || examForm.difficulty} />
-                <ReviewMetric label="Topic coverage" value={examForm.topic || examForm.subject || "Pending"} />
-                <ReviewMetric label="Estimated duration" value={`${examForm.duration || 0} min`} />
-              </div>
-              <p className="mt-3 text-xs text-[var(--muted-blue)]">Total marks target: {markTotal || "Pending"}</p>
-            </div>
+            <details className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
+              <summary className="cursor-pointer list-none text-sm font-black">
+                <span className="inline-flex min-h-11 items-center rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-4">Advanced review tools</span>
+              </summary>
+              <div className="mt-4 grid gap-4">
+                <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
+                  <SectionHeader eyebrow="NIDUS GURU" title="Review panel" description="Academic quality checks before this paper goes for approval." icon={<GraduationCap size={20} />} />
+                  <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                    <ReviewMetric label="Questions detected" value={detectedQuestionCount || "Pending"} />
+                    <ReviewMetric label="Duplicate questions" value={duplicateCount} tone={duplicateCount ? "warn" : "ok"} />
+                    <ReviewMetric label="Syllabus mismatch" value={examForm.topic || examForm.subject ? "Check ready" : "Topic missing"} tone={examForm.topic || examForm.subject ? "ok" : "warn"} />
+                    <ReviewMetric label="Difficulty analysis" value={Object.entries(difficultyCounts).map(([key, value]) => `${key} ${value}`).join(", ") || examForm.difficulty} />
+                    <ReviewMetric label="Topic coverage" value={examForm.topic || examForm.subject || "Pending"} />
+                    <ReviewMetric label="Estimated duration" value={`${examForm.duration || 0} min`} />
+                  </div>
+                  <p className="mt-3 text-xs text-[var(--muted-blue)]">Total marks target: {markTotal || "Pending"}</p>
+                </div>
 
-            <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
-              <SectionHeader eyebrow="Quick Fixes" title="AI actions" description="Use these only after a paper is uploaded, pasted or generated." icon={<Plus size={20} />} />
-              <div className="mt-4 grid grid-cols-2 gap-2">
-                {["Balance Difficulty", "Remove Duplicates", "Improve Language", "Add Answer Key", "Add Explanations", "Convert MCQ", "Convert Descriptive"].map((action) => (
-                  <button key={action} type="button" onClick={() => addInstruction(action)} className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-3 py-3 text-left text-xs font-black hover:bg-white">
-                    {action}
-                  </button>
-                ))}
-              </div>
-              <button type="button" onClick={onDraft} className="mt-4 w-full rounded-xl bg-[var(--ink)] px-5 py-3 font-black text-white">Run Review</button>
-            </div>
+                <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
+                  <SectionHeader eyebrow="Quick Fixes" title="AI actions" description="Use these only after a paper is uploaded, pasted or generated." icon={<Plus size={20} />} />
+                  <div className="mt-4 grid grid-cols-2 gap-2">
+                    {["Balance Difficulty", "Remove Duplicates", "Improve Language", "Add Answer Key", "Add Explanations", "Convert MCQ", "Convert Descriptive"].map((action) => (
+                      <button key={action} type="button" onClick={() => addInstruction(action)} className="rounded-xl border border-[var(--border)] bg-white px-3 py-3 text-left text-xs font-black hover:bg-[var(--page-bg)]">
+                        {action}
+                      </button>
+                    ))}
+                  </div>
+                  <button type="button" onClick={onDraft} className="mt-4 w-full rounded-xl bg-[var(--ink)] px-5 py-3 font-black text-white">Run Review</button>
+                </div>
 
-            <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
-              <SectionHeader eyebrow="Optional" title="Teacher instructions" description="Use this only for corrections like changing question 5." icon={<FileText size={20} />} />
-              <textarea value={chatInput} onChange={(event) => setChatInput(event.target.value)} rows={4} placeholder="Example: Make question 5 easier and add explanations for all MCQs." className="mt-4 min-h-28 w-full resize-y rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-3 py-2 text-sm outline-none" />
-              <button type="button" onClick={onSend} className="mt-3 rounded-xl border border-[var(--border)] bg-white px-5 py-3 text-sm font-black">Add Instruction</button>
-              <div className="mt-3 grid gap-2">
-                {messages.slice(-2).map((message) => (
-                  <p key={message.id} className="rounded-xl bg-[var(--page-bg)] px-3 py-2 text-xs leading-5 text-[var(--muted-blue)]">{message.text}</p>
-                ))}
+                <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
+                  <SectionHeader eyebrow="Optional" title="Teacher instructions" description="Use this only for corrections like changing question 5." icon={<FileText size={20} />} />
+                  <textarea value={chatInput} onChange={(event) => setChatInput(event.target.value)} rows={4} placeholder="Example: Make question 5 easier and add explanations for all MCQs." className="mt-4 min-h-28 w-full resize-y rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-sm outline-none" />
+                  <button type="button" onClick={onSend} className="mt-3 rounded-xl border border-[var(--border)] bg-white px-5 py-3 text-sm font-black">Add Instruction</button>
+                  <div className="mt-3 grid gap-2">
+                    {messages.slice(-2).map((message) => (
+                      <p key={message.id} className="rounded-xl bg-white px-3 py-2 text-xs leading-5 text-[var(--muted-blue)]">{message.text}</p>
+                    ))}
+                  </div>
+                </div>
               </div>
-            </div>
+            </details>
 
             <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
               <SectionHeader eyebrow="Next" title="Ready for Academic Head review" description="When the paper looks correct, send it forward. NIDUS handles the internal approval steps." icon={<ClipboardCheck size={20} />} />

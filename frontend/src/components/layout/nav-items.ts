@@ -37,11 +37,11 @@ const parentMenu: DashboardNavItem[] = [
 const teacherMenu: DashboardNavItem[] = [
   { label: "Today", href: "/dashboard/teacher/classes" },
   { label: "My Students", href: "/dashboard/teacher/students" },
-  { label: "Calendar", href: "/dashboard/teacher/academic-calendar" },
   { label: "Attendance", href: "/dashboard/teacher/attendance" },
   { label: "Assignments", href: "/dashboard/teacher/assignments" },
   { label: "Exams", href: "/dashboard/teacher/exams" },
   { label: "Library", href: "/dashboard/teacher/library" },
+  { label: "Calendar", href: "/dashboard/teacher/academic-calendar" },
 ];
 
 const physicalTrainerMenu: DashboardNavItem[] = [
@@ -57,27 +57,21 @@ const directorMenu: DashboardNavItem[] = [
   { label: "Command Center", href: "/dashboard/director" },
   { label: "Admissions", href: "/dashboard/director/admissions" },
   { label: "Academics", href: "/dashboard/director/academic" },
+  { label: "Students", href: "/dashboard/director/academic/student-progress" },
   { label: "Team", href: "/dashboard/director/management" },
   { label: "Finance", href: "/dashboard/director/accounts" },
   { label: "Reports", href: "/dashboard/director/reports" },
-  { label: "Teaching Today", href: "/dashboard/director/teaching/classes" },
-  { label: "My Students", href: "/dashboard/director/teaching/students" },
-  { label: "Teaching Calendar", href: "/dashboard/director/teaching/academic-calendar" },
-  { label: "Attendance", href: "/dashboard/director/teaching/attendance" },
-  { label: "Assignments", href: "/dashboard/director/teaching/assignments" },
-  { label: "Exams", href: "/dashboard/director/teaching/exams" },
-  { label: "Library", href: "/dashboard/director/teaching/library" },
+  { label: "Launch QA", href: "/dashboard/director/launch-qa" },
 ];
 
 const academicHeadMenu: DashboardNavItem[] = [
-  { label: "Today", href: "/dashboard/academic-head/classes" },
-  { label: "My Students", href: "/dashboard/academic-head/students" },
-  { label: "Calendar", href: "/dashboard/academic-head/academic-calendar" },
-  { label: "Attendance", href: "/dashboard/academic-head/attendance" },
-  { label: "Assignments", href: "/dashboard/academic-head/assignments" },
-  { label: "Exams", href: "/dashboard/academic-head/exams" },
-  { label: "Library", href: "/dashboard/academic-head/library" },
-  { label: "HOD Control", href: "/dashboard/academic-head/hod" },
+  { label: "Today's Operations", href: "/dashboard/academic-head/hod" },
+  { label: "Batches", href: "/dashboard/academic-head/hod/batches" },
+  { label: "Teachers", href: "/dashboard/academic-head/hod/teacher-monitoring" },
+  { label: "Timetable", href: "/dashboard/academic-head/hod/timetable" },
+  { label: "Approvals", href: "/dashboard/academic-head/hod/reports" },
+  { label: "Student Watch", href: "/dashboard/academic-head/hod/student-monitoring" },
+  { label: "Reports", href: "/dashboard/academic-head/hod/reports" },
 ];
 
 const administrativeOfficerMenu: DashboardNavItem[] = [
