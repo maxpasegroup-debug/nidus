@@ -47,6 +47,15 @@ function leadNoteEntry(title: string, lines: string[]) {
   return `[${new Date().toISOString()}] ${title}${body ? `\n${body}` : ""}`;
 }
 
+type BulkLeadInput = {
+  fullName: string;
+  mobile: string;
+  email?: string;
+  targetExam: string;
+  source: string;
+  notes?: string;
+};
+
 export const crmService = {
   leads(filters: { status?: LeadStatus; search?: string }, requester?: Requester) {
     return prisma.lead.findMany({
@@ -74,6 +83,66 @@ export const crmService = {
       },
       include: leadInclude
     });
+  },
+  async createBulkLeads(requester: Requester, input: { leads: BulkLeadInput[]; source?: string; notes?: string }) {
+    if (requester.role !== Role.ADMIN && requester.role !== Role.DIRECTOR) {
+      throw Object.assign(new Error("Bulk lead import requires director or admin access"), { statusCode: 403 });
+    }
+
+    const cleaned = input.leads
+      .map((lead) => ({
+        fullName: lead.fullName.trim(),
+        mobile: lead.mobile.trim(),
+        email: lead.email?.trim().toLowerCase() || "",
+        targetExam: lead.targetExam.trim(),
+        source: (lead.source || input.source || "Director Import").trim(),
+        notes: lead.notes?.trim() || input.notes?.trim() || "",
+      }))
+      .filter((lead) => lead.fullName && lead.mobile && lead.targetExam);
+
+    const seen = new Set<string>();
+    const unique = cleaned.filter((lead) => {
+      const key = `${lead.mobile}|${lead.email}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+
+    const results: Array<{ mobile: string; email?: string; status: "CREATED" | "SKIPPED"; reason?: string; lead?: unknown }> = [];
+    for (const lead of unique) {
+      const email = normalizeLeadEmail({ email: lead.email, mobile: lead.mobile });
+      const existing = await prisma.lead.findFirst({ where: { OR: [{ mobile: lead.mobile }, { email }] } });
+      if (existing) {
+        results.push({ mobile: lead.mobile, email, status: "SKIPPED", reason: "Duplicate mobile or email already exists" });
+        continue;
+      }
+
+      const created = await prisma.lead.create({
+        data: {
+          fullName: lead.fullName,
+          mobile: lead.mobile,
+          email,
+          targetExam: lead.targetExam,
+          source: lead.source,
+          status: "NEW",
+          notes: leadNoteEntry("Director bulk import", [
+            "APPLICATION_STATUS: IMPORTED",
+            "AO_QUEUE: NO",
+            `Imported By: ${requester.id}`,
+            lead.notes ? `Notes: ${lead.notes}` : "",
+          ]),
+        },
+        include: leadInclude,
+      });
+      results.push({ mobile: lead.mobile, email, status: "CREATED", lead: created });
+    }
+
+    return {
+      created: results.filter((item) => item.status === "CREATED").length,
+      skipped: results.filter((item) => item.status === "SKIPPED").length + (cleaned.length - unique.length),
+      invalid: input.leads.length - cleaned.length,
+      results,
+    };
   },
   async createGuestApplicant(requester: Requester, input: { fullName: string; mobile: string; email?: string; targetExam: string; source: string; parentName?: string; notes?: string }) {
     const mobile = input.mobile.trim();

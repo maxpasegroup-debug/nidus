@@ -32,6 +32,22 @@ export type GuestApplicantResult = {
   mustChangePassword: boolean;
 };
 
+export type BulkLeadInput = {
+  fullName: string;
+  mobile: string;
+  email?: string;
+  targetExam: string;
+  source: string;
+  notes?: string;
+};
+
+export type BulkLeadResult = {
+  created: number;
+  skipped: number;
+  invalid: number;
+  results: Array<{ mobile: string; email?: string; status: "CREATED" | "SKIPPED"; reason?: string; lead?: Lead }>;
+};
+
 export type FollowUp = {
   id: string;
   leadId: string;
