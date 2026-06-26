@@ -1,5 +1,7 @@
 import { prisma } from "../../config/prisma.js";
 import { Role, type CounsellingMode, type LeadStatus } from "../../generated/prisma/client.js";
+import bcrypt from "bcryptjs";
+import { DEFAULT_ACCOUNT_PASSWORD } from "../auth/auth.v2.service.js";
 import { crmNotificationService } from "./crm-notification.service.js";
 
 const userSelect = { id: true, name: true, email: true, mobile: true, role: true } as const;
@@ -29,6 +31,22 @@ function normalizeLeadEmail(input: { email?: string; mobile: string }) {
   return email || `${input.mobile.trim()}@lead.nidus.local`;
 }
 
+function metadataObject(value: unknown) {
+  return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
+}
+
+function normalizeGuestEmail(input: { email?: string; mobile: string }) {
+  const email = input.email?.trim().toLowerCase();
+  if (email) return email;
+  const digits = input.mobile.replace(/\D/g, "");
+  return `guest.${digits}@nidusacademy.in`;
+}
+
+function leadNoteEntry(title: string, lines: string[]) {
+  const body = lines.filter(Boolean).join("\n");
+  return `[${new Date().toISOString()}] ${title}${body ? `\n${body}` : ""}`;
+}
+
 export const crmService = {
   leads(filters: { status?: LeadStatus; search?: string }, requester?: Requester) {
     return prisma.lead.findMany({
@@ -56,6 +74,117 @@ export const crmService = {
       },
       include: leadInclude
     });
+  },
+  async createGuestApplicant(requester: Requester, input: { fullName: string; mobile: string; email?: string; targetExam: string; source: string; parentName?: string; notes?: string }) {
+    const mobile = input.mobile.trim();
+    const email = normalizeGuestEmail({ email: input.email, mobile });
+    const existingUser = await prisma.user.findFirst({ where: { OR: [{ email }, { mobile }] } });
+    const now = new Date();
+    const shouldUseDefaultPassword = !existingUser || existingUser.role === Role.GUEST;
+    const baseMetadata = {
+      ...(!existingUser || existingUser.role === Role.GUEST ? { dashboardTemplate: "GUEST_APPLICANT" } : {}),
+      ...(shouldUseDefaultPassword ? { defaultPassword: true } : {}),
+      admissionStage: "ENQUIRY_CREATED",
+      createdFrom: "BDE_QUICK_GUEST",
+      interestedProgram: input.targetExam,
+      parentName: input.parentName || undefined,
+      createdByBdeId: requester.id,
+    };
+    const defaultPasswordHash = shouldUseDefaultPassword ? await bcrypt.hash(DEFAULT_ACCOUNT_PASSWORD, 12) : null;
+
+    const user = existingUser
+      ? await prisma.user.update({
+          where: { id: existingUser.id },
+          data: {
+            name: input.fullName,
+            email: existingUser.email,
+            mobile: existingUser.mobile,
+            isDisabled: false,
+            lockedUntil: null,
+            loginFailureCount: 0,
+            ...(existingUser.role === Role.GUEST && defaultPasswordHash ? { password: defaultPasswordHash } : {}),
+            roleMetadata: { ...metadataObject(existingUser.roleMetadata), ...baseMetadata, reusedForNewEnquiryAt: now.toISOString() },
+            roleOnboardingStatus: existingUser.role === Role.STUDENT ? existingUser.roleOnboardingStatus : "PENDING",
+            lastRoleActivityAt: now,
+          },
+          select: userSelect,
+        })
+      : await prisma.user.create({
+          data: {
+            name: input.fullName,
+            email,
+            mobile,
+            password: defaultPasswordHash ?? await bcrypt.hash(DEFAULT_ACCOUNT_PASSWORD, 12),
+            role: Role.GUEST,
+            emailVerified: Boolean(input.email),
+            mobileVerified: false,
+            isDisabled: false,
+            roleOnboardingStatus: "PENDING",
+            lastRoleActivityAt: now,
+            roleMetadata: baseMetadata,
+          },
+          select: userSelect,
+        });
+
+    await prisma.roleActivity.create({
+      data: {
+        userId: user.id,
+        role: user.role,
+        activity: existingUser ? "BDE_REUSED_GUEST_APPLICANT" : "BDE_CREATED_GUEST_APPLICANT",
+      },
+    }).catch(() => undefined);
+
+    const notes = leadNoteEntry("Guest login created by BDE", [
+      "APPLICATION_STATUS: ENQUIRY_CREATED",
+      "AO_QUEUE: NO",
+      `Guest User ID: ${user.id}`,
+      `Login Identity: ${user.mobile || user.email}`,
+      input.parentName ? `Parent: ${input.parentName}` : "",
+      input.notes ? `Notes: ${input.notes}` : "",
+      "Temporary password issued through launch policy. Plaintext is not stored in metadata.",
+    ]);
+    const existingLead = await prisma.lead.findFirst({
+      where: { OR: [{ email: user.email }, { mobile: user.mobile ?? mobile }] },
+      orderBy: { createdAt: "desc" },
+    });
+
+    const lead = existingLead
+      ? await prisma.lead.update({
+          where: { id: existingLead.id },
+          data: {
+            fullName: input.fullName,
+            mobile: user.mobile ?? mobile,
+            email: user.email,
+            targetExam: input.targetExam,
+            source: input.source,
+            status: existingLead.status === "LOST" ? "NEW" : existingLead.status,
+            assignedTo: isLeadOwnerScoped(requester) ? requester.id : existingLead.assignedTo,
+            notes: `${existingLead.notes ? `${existingLead.notes}\n\n` : ""}${notes}`,
+          },
+          include: leadInclude,
+        })
+      : await prisma.lead.create({
+          data: {
+            fullName: input.fullName,
+            mobile: user.mobile ?? mobile,
+            email: user.email,
+            targetExam: input.targetExam,
+            source: input.source,
+            status: "NEW",
+            assignedTo: isLeadOwnerScoped(requester) ? requester.id : undefined,
+            notes,
+          },
+          include: leadInclude,
+        });
+
+    return {
+      user,
+      lead,
+      reusedExistingUser: Boolean(existingUser),
+      temporaryPasswordIssued: !existingUser,
+      loginIdentity: user.mobile || user.email,
+      mustChangePassword: shouldUseDefaultPassword,
+    };
   },
   async createPublicLead(input: { fullName: string; mobile: string; email: string; targetExam: string; source: string; studentClass?: string; message?: string }) {
     const email = input.email.trim().toLowerCase();

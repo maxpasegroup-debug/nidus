@@ -3,7 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/components/providers/toast-provider";
 import { getApiErrorMessage } from "@/services/api";
-import { approveAdmission, createAdmission, createCounselling, createFollowup, createLead, createReferral, createScholarship, deleteLead, getAdmissions, getApprovals, getCounselling, getFollowups, getLeads, getReferrals, reviewScholarship, updateLead } from "@/services/crm";
+import { approveAdmission, createAdmission, createCounselling, createFollowup, createGuestApplicant, createLead, createReferral, createScholarship, deleteLead, getAdmissions, getApprovals, getCounselling, getFollowups, getLeads, getReferrals, reviewScholarship, updateLead } from "@/services/crm";
 import type { LeadStatus } from "@/types/crm";
 
 function useToastMutation<TPayload, TResult>(mutationFn: (payload: TPayload) => Promise<TResult>, keys: unknown[][], message: string) {
@@ -23,6 +23,7 @@ export function useLeads(filters?: { status?: LeadStatus; search?: string }) {
   return {
     ...useQuery({ queryKey: ["crm", "leads", filters], queryFn: () => getLeads(filters) }),
     create: useToastMutation(createLead, [["crm", "leads"]], "Lead created"),
+    createGuest: useToastMutation(createGuestApplicant, [["crm", "leads"]], "Guest login and lead created"),
     update: useToastMutation(updateLead, [["crm", "leads"]], "Lead updated"),
     remove: useToastMutation(deleteLead, [["crm", "leads"]], "Lead deleted")
   };

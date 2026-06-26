@@ -23,6 +23,15 @@ export type Lead = {
   followUps?: FollowUp[];
 };
 
+export type GuestApplicantResult = {
+  user: CRMUser;
+  lead: Lead;
+  reusedExistingUser: boolean;
+  temporaryPasswordIssued: boolean;
+  loginIdentity: string;
+  mustChangePassword: boolean;
+};
+
 export type FollowUp = {
   id: string;
   leadId: string;

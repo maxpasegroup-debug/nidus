@@ -7,7 +7,7 @@ import { useAuth } from "@/components/providers/auth-provider-v2";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useCounselling, useFollowups, useLeads } from "@/hooks/use-crm";
-import type { Lead, LeadStatus } from "@/types/crm";
+import type { GuestApplicantResult, Lead, LeadStatus } from "@/types/crm";
 
 const leadStatuses: Array<{ label: string; value: LeadStatus | "" }> = [
   { label: "All Leads", value: "" },
@@ -73,6 +73,7 @@ export default function BusinessDevelopmentDashboardPage() {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<LeadStatus | undefined>();
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
+  const [guestResult, setGuestResult] = useState<GuestApplicantResult | null>(null);
   const leads = useLeads({ status, search: search || undefined });
   const followups = useFollowups();
   const counselling = useCounselling();
@@ -94,21 +95,23 @@ export default function BusinessDevelopmentDashboardPage() {
     const form = event.currentTarget;
     const mobile = value(form, "mobile");
     const parent = value(form, "parentName");
-    const notes = appendNote(undefined, "Lead created by BDE", [
-      parent ? `Parent: ${parent}` : "",
-      value(form, "notes") ? `Notes: ${value(form, "notes")}` : ""
-    ]);
-    leads.create.mutate(
+    setGuestResult(null);
+    leads.createGuest.mutate(
       {
         fullName: value(form, "fullName"),
         mobile,
-        email: value(form, "email") || `${mobile}@lead.nidus.local`,
+        email: value(form, "email") || undefined,
         targetExam: value(form, "targetExam"),
         source: value(form, "source"),
-        status: "NEW",
-        notes
+        parentName: parent || undefined,
+        notes: value(form, "notes") || undefined
       },
-      { onSuccess: () => form.reset() }
+      {
+        onSuccess: (result) => {
+          setGuestResult(result);
+          form.reset();
+        }
+      }
     );
   }
 
@@ -176,8 +179,8 @@ export default function BusinessDevelopmentDashboardPage() {
           <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
             <div>
               <p className="text-xs font-bold uppercase tracking-[0.28em] text-[#3f4a32]">Business Development Executive</p>
-              <h1 className="mt-3 text-4xl font-black text-[#071d36]">Leads, follow-ups, counselling and AO handover.</h1>
-              <p className="mt-3 max-w-3xl text-sm leading-7 text-[#52627a]">Capture enquiries, record every call, complete counselling, and send ready cases to the Administrative Officer for documents, fees and activation.</p>
+              <h1 className="mt-3 text-4xl font-black text-[#071d36]">Enquiry to admission handoff.</h1>
+              <p className="mt-3 max-w-3xl text-sm leading-7 text-[#52627a]">Create the guest login, record every call, complete counselling, and send ready applicants to the Administrative Officer for documents, fees, receipts and batch activation.</p>
             </div>
             <Button type="button" onClick={() => leads.refetch()} disabled={leads.isFetching} variant="secondary">
               {leads.isFetching ? "Refreshing..." : "Refresh"}
@@ -198,8 +201,19 @@ export default function BusinessDevelopmentDashboardPage() {
           <div className="rounded-lg border border-[#071d36]/15 bg-white/95 p-5 shadow-[0_14px_34px_rgba(7,29,54,0.06)]">
             <div className="flex items-center gap-3">
               <UserPlus className="h-5 w-5 text-[#b9913f]" />
-              <h2 className="text-2xl font-black text-[#071d36]">Create Lead</h2>
+              <h2 className="text-2xl font-black text-[#071d36]">Create Guest Login</h2>
             </div>
+            <p className="mt-3 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-900">
+              Enter mobile or email once. NIDUS reuses an existing account if found, otherwise creates a guest login with the launch temporary password.
+            </p>
+            {guestResult ? (
+              <div className="mt-4 rounded-lg border border-[#071d36]/15 bg-[#f7f9fc] p-4 text-sm text-[#071d36]">
+                <p className="text-base font-black">{guestResult.reusedExistingUser ? "Existing account reused" : "Guest account ready"}</p>
+                <p className="mt-2">Ask the applicant to login using <strong>{guestResult.loginIdentity}</strong>.</p>
+                {guestResult.mustChangePassword ? <p className="mt-1">Temporary password: <strong>123456789</strong>. They must change it after login.</p> : <p className="mt-1">This account already had its own password. Do not share the launch password.</p>}
+                <p className="mt-1">Lead is now available for follow-up and AO handover.</p>
+              </div>
+            ) : null}
             <form onSubmit={createLead} className="mt-5 grid gap-3">
               <Input name="fullName" label="Student Name" required />
               <Input name="parentName" label="Parent Name" />
@@ -208,7 +222,7 @@ export default function BusinessDevelopmentDashboardPage() {
               <Input name="targetExam" label="Program Interested" required />
               <Input name="source" label="Source" required placeholder="Website, WhatsApp, referral, walk-in" />
               <Input name="notes" label="Notes" />
-              <Button disabled={leads.create.isPending}>{leads.create.isPending ? "Saving..." : "Create Lead"}</Button>
+              <Button disabled={leads.createGuest.isPending}>{leads.createGuest.isPending ? "Creating login..." : "Create Guest Login + Lead"}</Button>
             </form>
           </div>
 

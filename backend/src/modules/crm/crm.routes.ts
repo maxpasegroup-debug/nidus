@@ -27,6 +27,7 @@ crmRouter.post(
 
 crmRouter.get("/leads", ...leadRoles, [query("status").optional().isIn(leadStatuses), query("search").optional().trim()], crmController.leads);
 crmRouter.post("/leads", ...leadRoles, [body("fullName").trim().notEmpty(), body("mobile").trim().isLength({ min: 7 }), body("email").optional({ values: "falsy" }).isEmail().normalizeEmail(), body("targetExam").trim().notEmpty(), body("source").trim().notEmpty(), body("status").optional().isIn(leadStatuses), body("assignedTo").optional({ nullable: true }).trim(), body("notes").optional().trim()], crmController.createLead);
+crmRouter.post("/guest-applicants", ...leadRoles, [body("fullName").trim().notEmpty(), body("mobile").trim().isLength({ min: 7 }), body("email").optional({ values: "falsy" }).isEmail().normalizeEmail(), body("targetExam").trim().notEmpty(), body("source").trim().notEmpty(), body("parentName").optional().trim(), body("notes").optional().trim()], crmController.createGuestApplicant);
 crmRouter.put("/leads/:id", ...leadRoles, [body("fullName").optional().trim().notEmpty(), body("mobile").optional().trim().isLength({ min: 7 }), body("email").optional().isEmail().normalizeEmail(), body("targetExam").optional().trim().notEmpty(), body("source").optional().trim().notEmpty(), body("status").optional().isIn(leadStatuses), body("assignedTo").optional({ nullable: true }).trim(), body("notes").optional().trim()], crmController.updateLead);
 crmRouter.delete("/leads/:id", ...leadRoles, crmController.deleteLead);
 
