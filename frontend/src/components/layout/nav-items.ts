@@ -36,7 +36,8 @@ const parentMenu: DashboardNavItem[] = [
 
 const teacherMenu: DashboardNavItem[] = [
   { label: "Today", href: "/dashboard/teacher/classes" },
-  { label: "My Students", href: "/dashboard/teacher/students" },
+  { label: "My Classes", href: "/dashboard/teacher/my-classes" },
+  { label: "My Workspace", href: "/dashboard/teacher/workspace" },
   { label: "Attendance", href: "/dashboard/teacher/attendance" },
   { label: "Assignments", href: "/dashboard/teacher/assignments" },
   { label: "Exams", href: "/dashboard/teacher/exams" },
@@ -64,8 +65,9 @@ const directorMenu: DashboardNavItem[] = [
 ];
 
 const academicHeadMenu: DashboardNavItem[] = [
-  { label: "Today's Operations", href: "/dashboard/academic-head/hod" },
-  { label: "Batches", href: "/dashboard/academic-head/hod/batches" },
+  { label: "Today", href: "/dashboard/academic-head/hod" },
+  { label: "My Classes", href: "/dashboard/academic-head/my-classes" },
+  { label: "My Workspace", href: "/dashboard/academic-head/workspace" },
   { label: "Teachers", href: "/dashboard/academic-head/hod/teacher-monitoring" },
   { label: "Timetable", href: "/dashboard/academic-head/hod/timetable" },
   { label: "Approvals", href: "/dashboard/academic-head/hod/approvals" },
