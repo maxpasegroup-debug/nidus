@@ -38,11 +38,8 @@ const teacherMenu: DashboardNavItem[] = [
   { label: "Today", href: "/dashboard/teacher/classes" },
   { label: "My Classes", href: "/dashboard/teacher/my-classes" },
   { label: "My Workspace", href: "/dashboard/teacher/workspace" },
-  { label: "Attendance", href: "/dashboard/teacher/attendance" },
-  { label: "Assignments", href: "/dashboard/teacher/assignments" },
-  { label: "Exams", href: "/dashboard/teacher/exams" },
-  { label: "Library", href: "/dashboard/teacher/library" },
-  { label: "Calendar", href: "/dashboard/teacher/academic-calendar" },
+  { label: "Messages & Notifications", href: "/dashboard/teacher/communications" },
+  { label: "My Profile", href: "/dashboard/teacher/profile" },
 ];
 
 const physicalTrainerMenu: DashboardNavItem[] = [
@@ -68,11 +65,9 @@ const academicHeadMenu: DashboardNavItem[] = [
   { label: "Today", href: "/dashboard/academic-head/hod" },
   { label: "My Classes", href: "/dashboard/academic-head/my-classes" },
   { label: "My Workspace", href: "/dashboard/academic-head/workspace" },
-  { label: "Teachers", href: "/dashboard/academic-head/hod/teacher-monitoring" },
-  { label: "Timetable", href: "/dashboard/academic-head/hod/timetable" },
-  { label: "Approvals", href: "/dashboard/academic-head/hod/approvals" },
-  { label: "Student Watch", href: "/dashboard/academic-head/hod/student-monitoring" },
-  { label: "Reports", href: "/dashboard/academic-head/hod/reports" },
+  { label: "Messages & Notifications", href: "/dashboard/academic-head/communications" },
+  { label: "My Profile", href: "/dashboard/academic-head/profile" },
+  { label: "HOD Control", href: "/dashboard/academic-head/hod/control" },
 ];
 
 const administrativeOfficerMenu: DashboardNavItem[] = [

@@ -46,7 +46,7 @@ export default function DashboardSettingsPage() {
   }
 
   return (
-    <RoleDashboardGuard role={["ADMIN", "DIRECTOR", "TEACHER", "STUDENT", "PARENT", "TELECALLER", "MARKETING_COORDINATOR", "GUEST"]}>
+    <RoleDashboardGuard role={["ADMIN", "DIRECTOR", "ACADEMIC_HEAD", "TEACHER", "STUDENT", "PARENT", "TELECALLER", "MARKETING_COORDINATOR", "GUEST"]}>
       <main className="min-h-screen px-4 py-6 sm:px-6 lg:px-8">
         <section className="mx-auto max-w-5xl space-y-6">
           <div className="premium-surface rounded-lg p-6">
