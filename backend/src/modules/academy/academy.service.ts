@@ -891,6 +891,107 @@ function isTemporaryActivationCalendarRow(row: AcademicCalendarRow) {
   );
 }
 
+function academyDateKey(value = new Date()) {
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Asia/Kolkata",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(value);
+  const year = parts.find((part) => part.type === "year")?.value ?? String(value.getFullYear());
+  const month = parts.find((part) => part.type === "month")?.value ?? String(value.getMonth() + 1).padStart(2, "0");
+  const day = parts.find((part) => part.type === "day")?.value ?? String(value.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function dateKeyToUtcDate(key: string) {
+  return new Date(`${key}T00:00:00.000Z`);
+}
+
+function addUtcDays(date: Date, days: number) {
+  const value = new Date(date);
+  value.setUTCDate(value.getUTCDate() + days);
+  return value;
+}
+
+function calendarRowDateKey(row: AcademicCalendarRow) {
+  return row.plannedDate.toISOString().slice(0, 10);
+}
+
+function normalizedSubjectKey(value?: string | null) {
+  return String(value || "").trim().toLowerCase();
+}
+
+function calendarTaskType(row: AcademicCalendarRow) {
+  const type = String(row.classType || "CLASS").toUpperCase();
+  if (type.includes("RECORD")) return "COURSE_RECORDING";
+  if (type.includes("ASSIGN")) return "ASSIGNMENT";
+  if (type.includes("EXAM") || type.includes("TEST") || type.includes("MOCK")) return "EXAMINATION";
+  if (type.includes("MEETING") || type.includes("PTA")) return "MEETING";
+  if (type.includes("ATTENDANCE")) return "ATTENDANCE";
+  if (type.includes("LIVE")) return "LIVE_CLASS";
+  return "CLASS";
+}
+
+function todayTaskStatus(row: AcademicCalendarRow) {
+  const status = String(row.completionStatus || row.status || "PENDING").toUpperCase();
+  if (status === "COMPLETED") return "DONE";
+  if (status === "CANCELLED") return "CANCELLED";
+  if (status === "PARTIAL" || status === "PARTIALLY_COMPLETED") return "PARTIAL";
+  return "TODO";
+}
+
+function calendarTodayTask(row: AcademicCalendarRow, source: "TODAY_CALENDAR" | "UPCOMING_CALENDAR") {
+  const status = todayTaskStatus(row);
+  return {
+    id: `calendar-${row.id}`,
+    source,
+    sourceId: row.id,
+    type: calendarTaskType(row),
+    date: calendarRowDateKey(row),
+    time: row.startTime,
+    endTime: row.endTime,
+    title: `${row.batchName || "Batch"} / ${row.subject || "Subject"}`,
+    detail: row.topic || "Topic pending",
+    batchId: row.batchId,
+    batchName: row.batchName,
+    subject: row.subject,
+    topic: row.topic,
+    teacherId: row.teacherId,
+    teacherName: row.teacherName,
+    status,
+    done: status === "DONE" || status === "CANCELLED",
+    actions: [
+      { key: "OPEN_CLASS", label: "Open Class" },
+      { key: "ATTENDANCE", label: "Attendance" },
+      { key: "LIVE_CLASS", label: "Live Class" },
+    ],
+  };
+}
+
+function academicReviewTask(kind: "ASSIGNMENT_REVIEW" | "EXAM_REVIEW", item: Record<string, any>) {
+  return {
+    id: `${kind.toLowerCase()}-${item.id}`,
+    source: kind,
+    sourceId: item.id,
+    type: kind,
+    date: item.dueDate ? new Date(item.dueDate).toISOString().slice(0, 10) : academyDateKey(),
+    time: null,
+    endTime: null,
+    title: item.title || (kind === "ASSIGNMENT_REVIEW" ? "Assignment review" : "Exam review"),
+    detail: [item.batchName || "Batch", item.subject || "Subject", item.status || "Pending"].filter(Boolean).join(" / "),
+    batchId: item.batchId || null,
+    batchName: item.batchName || null,
+    subject: item.subject || null,
+    topic: item.topic || null,
+    teacherId: item.teacherId || null,
+    teacherName: item.teacherName || null,
+    status: "TODO",
+    done: false,
+    actions: [{ key: "REVIEW", label: "Review" }],
+  };
+}
+
 function parsePlannerDate(value: string, label: string) {
   const date = new Date(`${value}T00:00:00.000Z`);
   if (Number.isNaN(date.getTime())) {
@@ -1381,6 +1482,164 @@ export const academyService = {
     };
   },
 
+  async today(user: Requester, query: Record<string, unknown>) {
+    requireAcademic(user);
+    const todayKey = typeof query.date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(query.date)
+      ? query.date
+      : academyDateKey();
+    const todayStart = dateKeyToUtcDate(todayKey);
+    const tomorrowStart = addUtcDays(todayStart, 1);
+    const upcomingEnd = addUtcDays(todayStart, 15);
+    const academicManager = isAcademicManager(user);
+
+    let batches: any[] = [];
+    let assignmentRows: BatchTeacherAssignmentRow[] = [];
+    const subjectsByBatch = new Map<string, Set<string>>();
+
+    if (academicManager) {
+      const allBatches = await batchWithCounts({ where: { status: "ACTIVE" } });
+      batches = Array.isArray(allBatches) ? allBatches : allBatches ? [allBatches] : [];
+    } else {
+      const [normalizedRows, legacyRows] = await Promise.all([
+        prisma.$queryRaw<BatchTeacherAssignmentRow[]>`
+          SELECT * FROM "TeacherBatchAssignment"
+          WHERE "teacherId" = ${user.id}
+          AND "status" = 'ACTIVE'
+          ORDER BY "createdAt" DESC
+        `,
+        prisma.$queryRaw<BatchTeacherAssignmentRow[]>`
+          SELECT * FROM "BatchTeacherAssignment"
+          WHERE "teacherId" = ${user.id}
+          AND "status" = 'ACTIVE'
+          ORDER BY "createdAt" DESC
+        `.catch(() => []),
+      ]);
+      assignmentRows = mergeAssignments(normalizedRows, legacyRows).filter((row) => isVisibleTeacherWorkspaceAllocation(row, user));
+      batches = await hydrateTeachingPlanBatches(assignmentRows);
+      for (const row of assignmentRows) {
+        if (!row.batchId || !row.subject) continue;
+        const subjects = subjectsByBatch.get(row.batchId) ?? new Set<string>();
+        subjects.add(normalizedSubjectKey(row.subject));
+        subjectsByBatch.set(row.batchId, subjects);
+      }
+    }
+
+    const batchIds = batches.map((batch) => batch.id).filter(Boolean);
+    const rawCalendarRows = batchIds.length
+      ? await prisma.$queryRaw<AcademicCalendarRow[]>`
+          SELECT * FROM "AcademicCalendarItem"
+          WHERE "batchId" IN (${Prisma.join(batchIds)})
+          AND "plannedDate" >= ${todayStart}
+          AND "plannedDate" < ${upcomingEnd}
+          ORDER BY "plannedDate" ASC, "startTime" ASC
+        `
+      : [];
+
+    const productionCalendarRows = rawCalendarRows.filter((row) => !isTemporaryActivationCalendarRow(row));
+    const visibleCalendarRows = academicManager
+      ? productionCalendarRows
+      : productionCalendarRows.filter((row) => {
+          if (!row.batchId) return false;
+          if (row.teacherId === user.id || !row.teacherId) return true;
+          return subjectsByBatch.get(row.batchId)?.has(normalizedSubjectKey(row.subject)) ?? false;
+        });
+
+    const todayRows = visibleCalendarRows.filter((row) => row.plannedDate >= todayStart && row.plannedDate < tomorrowStart);
+    const upcomingRows = visibleCalendarRows.filter((row) => row.plannedDate >= tomorrowStart && row.plannedDate < upcomingEnd).slice(0, 12);
+
+    const [assignmentData, examData] = await Promise.all([
+      this.assignmentSummary(user, {}),
+      this.examSummary(user, {}),
+    ]);
+    const reviewStatuses = new Set(["DRAFT", "REVIEW", "PENDING_REVIEW", "REVISION_REQUIRED"]);
+    const examReviewStatuses = new Set(["DRAFT", "REVIEW", "PENDING_REVIEW", "REVISION_REQUIRED", "APPROVED"]);
+    const pendingAssignments = (assignmentData.assignments ?? [])
+      .filter((item: any) => reviewStatuses.has(String(item.status || "").toUpperCase()))
+      .slice(0, 10);
+    const pendingExams = (examData.exams ?? [])
+      .filter((item: any) => examReviewStatuses.has(String(item.status || "").toUpperCase()))
+      .slice(0, 10);
+
+    const attendanceRows = batchIds.length
+      ? await prisma.$queryRaw<any[]>`
+          SELECT * FROM "TeacherAttendanceRecord"
+          WHERE "batchId" IN (${Prisma.join(batchIds)})
+          AND DATE("date") = DATE(${todayStart})
+          ORDER BY "updatedAt" DESC
+        `
+      : [];
+    const attendedBatchSubjectKeys = new Set(attendanceRows.map((row) => `${row.batchId}:${normalizedSubjectKey(row.subject)}`));
+    const attendancePendingCount = todayRows.filter((row) => {
+      if (todayTaskStatus(row) === "CANCELLED") return false;
+      return !attendedBatchSubjectKeys.has(`${row.batchId}:${normalizedSubjectKey(row.subject)}`);
+    }).length;
+
+    const todayTasks = [
+      ...todayRows.map((row) => calendarTodayTask(row, "TODAY_CALENDAR")),
+      ...pendingAssignments.map((item: any) => academicReviewTask("ASSIGNMENT_REVIEW", item)),
+      ...pendingExams.map((item: any) => academicReviewTask("EXAM_REVIEW", item)),
+      ...(attendancePendingCount > 0 ? [{
+        id: "attendance-pending",
+        source: "ATTENDANCE_PENDING",
+        sourceId: null,
+        type: "ATTENDANCE",
+        date: todayKey,
+        time: null,
+        endTime: null,
+        title: `${attendancePendingCount} attendance ${attendancePendingCount === 1 ? "entry" : "entries"} pending`,
+        detail: "Complete today's class attendance.",
+        batchId: null,
+        batchName: null,
+        subject: null,
+        topic: null,
+        teacherId: academicManager ? null : user.id,
+        teacherName: academicManager ? null : user.name || user.email || null,
+        status: "TODO",
+        done: false,
+        actions: [{ key: "ATTENDANCE", label: "Attendance" }],
+      }] : []),
+    ];
+
+    const nextUpcomingTask = upcomingRows[0] ? calendarTodayTask(upcomingRows[0], "UPCOMING_CALENDAR") : null;
+    const rawTodayRows = productionCalendarRows.filter((row) => row.plannedDate >= todayStart && row.plannedDate < tomorrowStart);
+    const emptyReason = todayTasks.length
+      ? null
+      : !batchIds.length
+        ? academicManager ? "NO_ACTIVE_BATCHES" : "NO_ASSIGNED_BATCHES"
+        : rawTodayRows.length && !todayRows.length
+          ? "CALENDAR_ROWS_NOT_VISIBLE_TO_USER"
+          : upcomingRows.length
+            ? "NO_CLASSES_TODAY"
+            : "NO_CALENDAR_IN_RANGE";
+
+    return {
+      date: todayKey,
+      generatedAt: new Date().toISOString(),
+      roleMode: academicManager ? "ACADEMIC_MANAGER" : "TEACHER",
+      todayTasks,
+      upcomingTasks: upcomingRows.map((row) => calendarTodayTask(row, "UPCOMING_CALENDAR")),
+      nextUpcomingTask,
+      diagnostics: {
+        emptyReason,
+        batchCount: batchIds.length,
+        assignmentCount: assignmentRows.length,
+        rawCalendarRows: rawCalendarRows.length,
+        productionCalendarRows: productionCalendarRows.length,
+        rawTodayCalendarRows: rawTodayRows.length,
+        visibleTodayCalendarRows: todayRows.length,
+        visibleUpcomingCalendarRows: upcomingRows.length,
+        pendingAssignmentReviews: pendingAssignments.length,
+        pendingExamReviews: pendingExams.length,
+        attendancePendingCount,
+        window: {
+          today: todayKey,
+          from: todayStart.toISOString(),
+          to: upcomingEnd.toISOString(),
+        },
+      },
+    };
+  },
+
   async myAcademicPlan(user: Requester) {
     const enrollments = await db.batchStudent.findMany({
       where: { studentId: user.id, status: "ACTIVE" },
@@ -1591,7 +1850,7 @@ export const academyService = {
       throw Object.assign(new Error("Name, email and role are required"), { statusCode: 400 });
     }
 
-    if (![Role.ADMIN, Role.DIRECTOR, Role.TEACHER, Role.TELECALLER].includes(input.role as any)) {
+    if (![Role.ADMIN, Role.DIRECTOR, Role.TEACHER, Role.TELECALLER, Role.BUSINESS_DEVELOPMENT_EXECUTIVE, Role.MARKETING_COORDINATOR].includes(input.role as any)) {
       throw Object.assign(new Error("Only employee roles can be created here"), { statusCode: 400 });
     }
 

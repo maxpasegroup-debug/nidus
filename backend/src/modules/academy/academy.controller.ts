@@ -69,6 +69,13 @@ export const academyController = {
       next(error);
     }
   },
+  today: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      res.json(await academyService.today(requester(req), req.query));
+    } catch (error) {
+      next(error);
+    }
+  },
   myAcademicPlan: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     try {
       res.json(await academyService.myAcademicPlan(requester(req)));

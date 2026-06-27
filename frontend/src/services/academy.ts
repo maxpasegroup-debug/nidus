@@ -131,6 +131,54 @@ export type AcademicCalendarPlannerResult = {
   conflicts: Array<Record<string, unknown>>;
 };
 
+export type AcademyTodayTask = {
+  id: string;
+  source: string;
+  sourceId?: string | null;
+  type: string;
+  date: string;
+  time?: string | null;
+  endTime?: string | null;
+  title: string;
+  detail: string;
+  batchId?: string | null;
+  batchName?: string | null;
+  subject?: string | null;
+  topic?: string | null;
+  teacherId?: string | null;
+  teacherName?: string | null;
+  status: string;
+  done: boolean;
+  actions: Array<{ key: string; label: string }>;
+};
+
+export type AcademyTodayResponse = {
+  date: string;
+  generatedAt: string;
+  roleMode: "ACADEMIC_MANAGER" | "TEACHER";
+  todayTasks: AcademyTodayTask[];
+  upcomingTasks: AcademyTodayTask[];
+  nextUpcomingTask: AcademyTodayTask | null;
+  diagnostics: {
+    emptyReason: string | null;
+    batchCount: number;
+    assignmentCount: number;
+    rawCalendarRows: number;
+    productionCalendarRows: number;
+    rawTodayCalendarRows: number;
+    visibleTodayCalendarRows: number;
+    visibleUpcomingCalendarRows: number;
+    pendingAssignmentReviews: number;
+    pendingExamReviews: number;
+    attendancePendingCount: number;
+    window: {
+      today: string;
+      from: string;
+      to: string;
+    };
+  };
+};
+
 export type AttendanceSummary = {
   sessions: number;
   records: number;
@@ -438,6 +486,11 @@ export async function assignTeacherToBatch(batchId: string, payload: { teacherId
 export async function getAcademicCalendar(filters: { batchId?: string; status?: string } = {}) {
   const response = await apiClient.get<{ items: AcademicCalendarItem[] }>("/academy/academic-calendar", { params: filters });
   return response.data.items;
+}
+
+export async function getAcademyToday(filters: { date?: string } = {}) {
+  const response = await apiClient.get<AcademyTodayResponse>("/academy/today", { params: filters });
+  return response.data;
 }
 
 export async function getAttendanceSummary(filters: { batchId?: string } = {}) {
