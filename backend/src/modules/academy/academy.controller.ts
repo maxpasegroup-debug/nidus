@@ -69,6 +69,20 @@ export const academyController = {
       next(error);
     }
   },
+  batchAnnouncements: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      res.json(await academyService.batchAnnouncements(requester(req), param(req, "batchId")));
+    } catch (error) {
+      next(error);
+    }
+  },
+  createBatchAnnouncement: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      res.status(201).json(await academyService.createBatchAnnouncement(requester(req), param(req, "batchId"), req.body));
+    } catch (error) {
+      next(error);
+    }
+  },
   today: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     try {
       res.json(await academyService.today(requester(req), req.query));

@@ -34,6 +34,7 @@ import {
   Radio,
   RefreshCw,
   Users,
+  Wrench,
   X,
 } from "lucide-react";
 
@@ -60,6 +61,7 @@ type AssignedClass = {
   name: string;
   batchType?: string | null;
   subject?: string | null;
+  assignedSubjects?: string[];
   role?: string | null;
   status?: string | null;
   course?: { title?: string | null; name?: string | null; slug?: string | null } | null;
@@ -162,9 +164,22 @@ type LiveClassRecord = {
 };
 
 type TeachingPlan = {
-  batches?: AssignedClass[];
+  version: number;
+  scope: {
+    mode: "ASSIGNED_TEACHING";
+    userId: string;
+    role: string;
+    academicHead: boolean;
+  };
+  summary: {
+    batchCount: number;
+    studentCount: number;
+    subjectCount: number;
+    calendarCount: number;
+  };
+  batches: AssignedClass[];
   assignments?: AssignedClass[];
-  calendar?: CalendarItem[];
+  calendar: CalendarItem[];
 };
 
 type AttendanceRecord = {
@@ -258,6 +273,17 @@ type ExamRecord = {
   attemptStats?: { attempts?: number; submitted?: number; averageScore?: number };
 };
 
+type ExamResultEntry = {
+  examId: string;
+  examTitle: string;
+  studentId: string;
+  score: number;
+  totalMarks: number;
+  percentage: number;
+  rank: number;
+  submittedAt?: string | null;
+};
+
 type SyllabusProgressRecord = {
   id: string;
   subject?: string | null;
@@ -267,12 +293,21 @@ type SyllabusProgressRecord = {
   remarks?: string | null;
 };
 
+type BatchAnnouncement = {
+  id: string;
+  title: string;
+  description: string;
+  createdAt: string;
+  creator?: { id: string; name: string } | null;
+};
+
 type ClassWorkspace = {
   attendance: AttendanceRecord[];
   assignments: AssignmentRecord[];
   materials: MaterialRecord[];
   exams: ExamRecord[];
   progress: SyllabusProgressRecord[];
+  announcements: BatchAnnouncement[];
 };
 
 type CalendarDayTask = {
@@ -383,6 +418,7 @@ const emptyWorkspace: ClassWorkspace = {
   materials: [],
   exams: [],
   progress: [],
+  announcements: [],
 };
 
 const initialLibraryForm = {
@@ -488,10 +524,11 @@ async function apiDelete<T>(paths: string[]): Promise<T | null> {
   return null;
 }
 
-function normalizeAssignedClasses(data: TeachingPlan | AssignedClass[] | null): AssignedClass[] {
-  if (!data) return [];
-  if (Array.isArray(data)) return data;
-  return data.batches ?? data.assignments ?? [];
+function normalizeAssignedClasses(data: TeachingPlan | null): AssignedClass[] {
+  if (!data || !Array.isArray(data.batches)) {
+    throw new Error("My Classes returned an invalid response. Refresh or contact administration.");
+  }
+  return data.batches;
 }
 
 function programName(batch: AssignedClass) {
@@ -509,12 +546,17 @@ function studentId(entry: NonNullable<AssignedClass["students"]>[number], index:
 function subjectsForBatch(batch: AssignedClass | null) {
   if (!batch) return ["General"];
   const subjects = new Set<string>();
-  if (batch.subject) subjects.add(batch.subject);
-  for (const teacher of batch.teachers ?? []) {
-    if (teacher.subject) subjects.add(teacher.subject);
+  for (const subject of batch.assignedSubjects ?? []) {
+    if (subject) subjects.add(subject);
+  }
+  if (!subjects.size && batch.subject) subjects.add(batch.subject);
+  if (!subjects.size) {
+    for (const teacher of batch.teachers ?? []) {
+      if (teacher.subject) subjects.add(teacher.subject);
+    }
   }
   const fromSchedule = (batch as AssignedClass & { schedule?: { subjects?: string[] } | null }).schedule?.subjects;
-  if (Array.isArray(fromSchedule)) {
+  if (!subjects.size && Array.isArray(fromSchedule)) {
     for (const subject of fromSchedule) {
       if (subject) subjects.add(subject);
     }
@@ -524,6 +566,15 @@ function subjectsForBatch(batch: AssignedClass | null) {
 
 function todayDate() {
   return new Date().toISOString().slice(0, 10);
+}
+
+function classroomRequestContext() {
+  if (typeof window === "undefined") return { batchId: null, subject: null };
+  const params = new URLSearchParams(window.location.search);
+  return {
+    batchId: params.get("batchId"),
+    subject: params.get("subject"),
+  };
 }
 
 function monthStartDate(date: Date) {
@@ -809,6 +860,8 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
   const [selectedTaskDate, setSelectedTaskDate] = useState<string | null>(null);
   const [loadingPlan, setLoadingPlan] = useState(true);
   const [workspaceLoading, setWorkspaceLoading] = useState(false);
+  const [workspaceError, setWorkspaceError] = useState<string | null>(null);
+  const [classroomSubject, setClassroomSubject] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [calendarMessage, setCalendarMessage] = useState<string | null>(null);
   const [attendanceMessage, setAttendanceMessage] = useState<string | null>(null);
@@ -825,6 +878,9 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
   const [showExamCreator, setShowExamCreator] = useState(false);
   const [showAssignmentCreator, setShowAssignmentCreator] = useState(false);
   const [showLiveClassCreator, setShowLiveClassCreator] = useState(false);
+  const [liveClassPublishing, setLiveClassPublishing] = useState(false);
+  const [studentExamResults, setStudentExamResults] = useState<ExamResultEntry[]>([]);
+  const [studentExamResultsLoading, setStudentExamResultsLoading] = useState(false);
   const [examDraft, setExamDraft] = useState<ExamDraft | null>(null);
   const [examWorkflow, setExamWorkflow] = useState<ExamWorkflowState | null>(null);
   const [examChatInput, setExamChatInput] = useState("");
@@ -938,16 +994,25 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
       current.classes.push(batch);
       map.set(key, current);
     }
-    return Array.from(map.values());
+    return Array.from(map.values())
+      .map((program) => ({
+        ...program,
+        classes: [...program.classes].sort((first, second) => {
+          const modeOrder = { ONLINE: 0, OFFLINE: 1, HYBRID: 2 } as const;
+          const modeDifference = modeOrder[batchMode(first)] - modeOrder[batchMode(second)];
+          return modeDifference || first.name.localeCompare(second.name);
+        }),
+      }))
+      .sort((first, second) => first.name.localeCompare(second.name));
   }, [activeClasses]);
-  const selectedProgram =
-    programGroups.find((program) => program.key === activeCourseKey) ??
-    programGroups.find((program) => program.key === selectedProgramKey) ??
-    programGroups[0] ??
-    null;
+  const selectedProgram = activeCourseKey
+    ? programGroups.find((program) => program.key === activeCourseKey) ?? null
+    : programGroups.find((program) => program.key === selectedProgramKey) ?? programGroups[0] ?? null;
   const programClasses = selectedProgram?.classes ?? [];
   const selectedClass = selectedProgram
-    ? programClasses.find((item) => item.id === activeBatchId) ?? programClasses.find((item) => item.id === selectedClassId) ?? programClasses[0] ?? null
+    ? activeBatchId
+      ? programClasses.find((item) => item.id === activeBatchId) ?? null
+      : programClasses.find((item) => item.id === selectedClassId) ?? programClasses[0] ?? null
     : activeClasses.find((item) => item.id === selectedClassId) ?? (!activeCourseKey ? activeClasses[0] : null) ?? null;
   const selectedStudents = useMemo(() => selectedClass?.students ?? [], [selectedClass?.students]);
   const filteredStudents = useMemo(() => {
@@ -1387,7 +1452,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
     setAcademyTodayError(null);
     try {
       const [data, liveData, todayData] = await Promise.all([
-        apiGet<TeachingPlan | AssignedClass[]>(["/api/academy/my-teaching-plan", "/api/academy/teacher-assignments"]),
+        apiGet<TeachingPlan>(["/api/academy/my-teaching-plan"]),
         apiGet<{ liveClasses?: LiveClassRecord[] }>(["/api/live-classes"]).catch(() => null),
         apiGet<AcademyTodayResponse>(["/api/academy/today"]).catch((error) => {
           setAcademyTodayError(error instanceof Error ? error.message : "Could not load today's work.");
@@ -1395,15 +1460,28 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
         }),
       ]);
       const assigned = normalizeAssignedClasses(data);
-      const plannedCalendar = (Array.isArray(data) ? [] : data?.calendar ?? []).filter((item) => !isTemporaryActivationCalendarItem(item));
+      if (data && data.summary.batchCount !== assigned.length) {
+        throw new Error("My Classes data is incomplete. Refresh or contact administration.");
+      }
+      const plannedCalendar = (data?.calendar ?? []).filter((item) => !isTemporaryActivationCalendarItem(item));
+      const requested = classroomRequestContext();
+      const requestedBatch = requested.batchId ? assigned.find((batch) => batch.id === requested.batchId) : null;
       const rememberedBatchId = typeof window !== "undefined" ? window.localStorage.getItem("teacherSelectedBatchId") : null;
       const rememberedBatch = rememberedBatchId ? assigned.find((batch) => batch.id === rememberedBatchId) : null;
+      const initialBatch = requestedBatch ?? rememberedBatch ?? assigned[0] ?? null;
+      const requestedSubject = initialBatch && requested.subject && subjectsForBatch(initialBatch).includes(requested.subject) ? requested.subject : null;
       setClasses(assigned);
       setCalendar(plannedCalendar);
       setLiveClasses(liveData?.liveClasses ?? []);
       setAcademyToday(todayData);
-      setSelectedProgramKey((current) => current ?? (rememberedBatch ? programKey(rememberedBatch) : assigned[0] ? programKey(assigned[0]) : null));
-      setSelectedClassId((current) => current ?? rememberedBatch?.id ?? assigned[0]?.id ?? null);
+      setSelectedProgramKey((current) => current ?? (initialBatch ? programKey(initialBatch) : null));
+      setSelectedClassId((current) => requestedBatch?.id ?? current ?? initialBatch?.id ?? null);
+      if (requestedBatch && typeof window !== "undefined") window.localStorage.setItem("teacherSelectedBatchId", requestedBatch.id);
+      if (requestedSubject) {
+        setExamForm((form) => ({ ...form, subject: requestedSubject, topic: form.topic || requestedSubject }));
+        setAssignmentForm((form) => ({ ...form, subject: requestedSubject }));
+        if (view === "library") setLibrarySubject(requestedSubject);
+      }
       setSelectedCalendarId((current) => current ?? plannedCalendar[0]?.id ?? null);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Could not load teacher plan.");
@@ -1427,13 +1505,15 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
 
   async function loadClassWorkspace(batchId: string) {
     setWorkspaceLoading(true);
+    setWorkspaceError(null);
     try {
-      const [attendanceData, assignmentData, materialData, examData, progressData] = await Promise.all([
+      const [attendanceData, assignmentData, materialData, examData, progressData, announcementData] = await Promise.all([
         apiGet<{ attendance?: AttendanceRecord[] }>([`/api/academy/attendance?batchId=${batchId}`]),
         apiGet<{ assignments?: AssignmentRecord[] }>([`/api/academy/assignments?batchId=${batchId}`]),
         apiGet<{ materials?: MaterialRecord[] }>([`/api/academy/study-materials?batchId=${batchId}&includeArchived=true`]),
         apiGet<{ exams?: ExamRecord[] }>([`/api/academy/exams?batchId=${batchId}`]),
         apiGet<{ progress?: SyllabusProgressRecord[] }>([`/api/academy/syllabus-progress?batchId=${batchId}`]),
+        apiGet<{ announcements?: BatchAnnouncement[] }>([`/api/academy/batches/${encodeURIComponent(batchId)}/announcements`]),
       ]);
       setClassWorkspace({
         attendance: attendanceData?.attendance ?? [],
@@ -1441,9 +1521,11 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
         materials: materialData?.materials ?? [],
         exams: examData?.exams ?? [],
         progress: progressData?.progress ?? [],
+        announcements: announcementData?.announcements ?? [],
       });
-    } catch {
+    } catch (error) {
       setClassWorkspace(emptyWorkspace);
+      setWorkspaceError(error instanceof Error ? error.message : "Classroom records could not be loaded.");
     } finally {
       setWorkspaceLoading(false);
     }
@@ -1484,6 +1566,8 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
 
   useEffect(() => {
     if (!selectedClass?.id) return;
+    const allowedSubjects = subjectsForBatch(selectedClass);
+    setClassroomSubject((current) => current && allowedSubjects.includes(current) ? current : allowedSubjects[0] ?? "General");
     setAttendance(
       Object.fromEntries(selectedStudents.map((entry, index) => [studentId(entry, index), attendance[studentId(entry, index)] ?? "PRESENT"])),
     );
@@ -1491,6 +1575,27 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
     if (view === "attendance") void loadLeaveRequests(isAcademicHead ? undefined : selectedClass.id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedClass?.id, view, isAcademicHead]);
+
+  useEffect(() => {
+    if (!modalStudent?.id || !classWorkspace.exams.length) {
+      setStudentExamResults([]);
+      setStudentExamResultsLoading(false);
+      return;
+    }
+    let active = true;
+    setStudentExamResultsLoading(true);
+    void Promise.allSettled(classWorkspace.exams.map(async (exam) => {
+      const response = await apiGet<{ results?: Array<Omit<ExamResultEntry, "examId" | "examTitle">> }>([`/api/academy/exams/${encodeURIComponent(exam.id)}/results`]);
+      return (response?.results ?? [])
+        .filter((result) => result.studentId === modalStudent.id)
+        .map((result) => ({ ...result, examId: exam.id, examTitle: exam.title || "Exam" }));
+    })).then((settled) => {
+      if (!active) return;
+      setStudentExamResults(settled.flatMap((item) => item.status === "fulfilled" ? item.value : []));
+      setStudentExamResultsLoading(false);
+    });
+    return () => { active = false; };
+  }, [modalStudent?.id, classWorkspace.exams]);
 
   useEffect(() => {
     if (view === "academic-calendar") {
@@ -1672,15 +1777,21 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
   function openLiveClassCreator(batch?: AssignedClass) {
     const target = batch ?? selectedClass;
     if (target) chooseBatch(target.id);
+    const subject = classroomSubject && subjectsForBatch(target ?? null).includes(classroomSubject)
+      ? classroomSubject
+      : subjectsForBatch(target ?? null)[0] || "";
+    const savedMeetingLink = liveClasses
+      .filter((item) => item.batchId === target?.id && item.meetingLink)
+      .sort((first, second) => new Date(second.scheduledAt).getTime() - new Date(first.scheduledAt).getTime())[0]?.meetingLink ?? "";
     setLiveClassMessage(null);
     setLiveClassForm({
-      subject: target?.subject || "",
+      subject,
       topic: "",
       date: todayDate(),
       time: "",
       duration: "60",
       description: "",
-      meetingLink: "",
+      meetingLink: savedMeetingLink,
     });
     setShowLiveClassCreator(true);
   }
@@ -1729,6 +1840,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
   }
 
   async function publishLiveClass() {
+    if (liveClassPublishing) return;
     if (!selectedClass) {
       setLiveClassMessage("Select an assigned batch before publishing a live class.");
       return;
@@ -1738,6 +1850,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
       return;
     }
     setLiveClassMessage(null);
+    setLiveClassPublishing(true);
     try {
       const scheduledAt = new Date(`${liveClassForm.date}T${liveClassForm.time}`).toISOString();
       const response = await apiPost<{ liveClass?: LiveClassRecord }>(["/api/live-classes"], {
@@ -1764,6 +1877,8 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
       setLiveClassMessage("Live class published to assigned students.");
     } catch (error) {
       setLiveClassMessage(error instanceof Error ? error.message : "Could not publish live class.");
+    } finally {
+      setLiveClassPublishing(false);
     }
   }
 
@@ -2663,7 +2778,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
           {classesMode === "CATALOG" ? (
             <MyClassesCatalog
               programs={programGroups}
-              dashboardBasePath={dashboardBasePath}
+              classesBasePath={classesCatalogPath}
               loading={loadingPlan}
             />
           ) : isAcademicHead ? (
@@ -2700,7 +2815,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
           <CourseBatchSelector
             program={selectedProgram}
             courseKey={activeCourseKey}
-            dashboardBasePath={dashboardBasePath}
+            classesBasePath={classesCatalogPath}
             catalogPath={classesCatalogPath}
             loading={loadingPlan}
           />
@@ -2714,27 +2829,37 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
                 students={filteredStudents}
                 totalStudents={selectedStudents.length}
                 workspace={classWorkspace}
+                workspaceLoading={workspaceLoading}
+                workspaceError={workspaceError}
                 dashboardBasePath={dashboardBasePath}
+                classesBasePath={classesCatalogPath}
                 courseKey={activeCourseKey}
                 search={studentSearch}
                 onSearch={setStudentSearch}
+                selectedSubject={classroomSubject ?? subjectsForBatch(selectedClass)[0] ?? "General"}
+                onSubject={setClassroomSubject}
+                onRetry={() => void loadClassWorkspace(selectedClass.id)}
                 selectedStudentId={studentModalId}
                 onSelectStudent={setStudentModalId}
                 onStartLive={() => openLiveClassCreator(selectedClass)}
-                isAcademicHead={isAcademicHead}
               />
             ) : null}
             {modalStudent ? (
               <StudentProgressModal
                 student={modalStudent}
+                batchId={selectedClass?.id ?? ""}
                 programName={selectedProgram?.name ?? "Program"}
                 batchName={selectedClass?.name ?? "Batch"}
+                subjects={subjectsForBatch(selectedClass)}
                 attendance={modalStudentAttendance}
                 attendancePercent={modalAttendancePercent}
                 assignments={classWorkspace.assignments}
                 materials={classWorkspace.materials}
                 exams={classWorkspace.exams}
+                examResults={studentExamResults}
+                examResultsLoading={studentExamResultsLoading}
                 progress={classWorkspace.progress}
+                onMarkAttendance={markRosterAttendance}
                 onClose={() => setStudentModalId(null)}
               />
             ) : null}
@@ -2751,6 +2876,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
           programName={selectedClass ? programName(selectedClass) : "Program"}
           onClose={() => setShowLiveClassCreator(false)}
           onPublish={() => void publishLiveClass()}
+          publishing={liveClassPublishing}
           message={liveClassMessage}
         />
       ) : null}
@@ -3071,14 +3197,19 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
         {modalStudent ? (
           <StudentProgressModal
             student={modalStudent!}
+            batchId={selectedClass?.id ?? ""}
             programName={selectedProgram?.name ?? "Program"}
             batchName={selectedClass?.name ?? "Batch"}
+            subjects={subjectsForBatch(selectedClass)}
             attendance={modalStudentAttendance}
             attendancePercent={modalAttendancePercent}
             assignments={classWorkspace.assignments}
             materials={classWorkspace.materials}
             exams={classWorkspace.exams}
+            examResults={studentExamResults}
+            examResultsLoading={studentExamResultsLoading}
             progress={classWorkspace.progress}
+            onMarkAttendance={markRosterAttendance}
             onClose={() => setStudentModalId(null)}
           />
         ) : null}
@@ -3701,9 +3832,9 @@ function matchingAssignedProgram(program: { slug: string; title: string }, assig
   });
 }
 
-function MyClassesCatalog({ programs, dashboardBasePath, loading }: {
+function MyClassesCatalog({ programs, classesBasePath, loading }: {
   programs: AssignedProgramGroup[];
-  dashboardBasePath: string;
+  classesBasePath: string;
   loading: boolean;
 }) {
   const knownKeys = new Set<string>();
@@ -3745,7 +3876,7 @@ function MyClassesCatalog({ programs, dashboardBasePath, loading }: {
             </>
           );
           const classes = `flex min-h-48 flex-col rounded-2xl border p-4 text-left ${active ? "border-[var(--border)] bg-white shadow-sm transition hover:-translate-y-0.5 hover:border-slate-950" : "border-slate-200 bg-slate-50/70"}`;
-          return active ? <Link key={program.slug} href={`${dashboardBasePath}/classes/${program.assigned?.key}`} className={classes}>{content}</Link> : <div key={program.slug} className={classes} aria-disabled="true">{content}</div>;
+          return active ? <Link key={program.slug} href={`${classesBasePath}/${encodeURIComponent(program.assigned?.key ?? program.slug)}`} className={classes}>{content}</Link> : <div key={program.slug} className={classes} aria-disabled="true">{content}</div>;
         })}
       </section>
     </div>
@@ -3759,10 +3890,10 @@ function batchMode(batch: AssignedClass) {
   return "OFFLINE";
 }
 
-function CourseBatchSelector({ program, courseKey, dashboardBasePath, catalogPath, loading }: {
+function CourseBatchSelector({ program, courseKey, classesBasePath, catalogPath, loading }: {
   program: AssignedProgramGroup | null;
   courseKey: string;
-  dashboardBasePath: string;
+  classesBasePath: string;
   catalogPath: string;
   loading: boolean;
 }) {
@@ -3782,7 +3913,8 @@ function CourseBatchSelector({ program, courseKey, dashboardBasePath, catalogPat
           <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {group.batches.map((batch, index) => {
               const students = batch.students?.length ?? batch._count?.students ?? 0;
-              return <Link key={batch.id} href={`${dashboardBasePath}/classes/${courseKey}/${batch.id}`} className="group flex min-h-32 items-center gap-4 rounded-xl border border-[var(--border)] bg-[var(--page-bg)] p-4 transition hover:border-slate-950 hover:bg-white"><span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-slate-950 text-lg font-black text-white">{index + 1}</span><span className="min-w-0 flex-1"><span className="block text-xs font-black uppercase tracking-[0.14em] text-[var(--gold-dark)]">Batch {index + 1}</span><strong className="mt-1 block leading-5">{batch.name}</strong><span className="mt-2 block text-sm text-[var(--muted-blue)]">{students} students</span></span><ChevronRight className="shrink-0 transition group-hover:translate-x-1" size={18} /></Link>;
+              const subjects = subjectsForBatch(batch);
+              return <Link key={batch.id} href={`${classesBasePath}/${encodeURIComponent(courseKey)}/${encodeURIComponent(batch.id)}`} className="group flex min-h-32 items-center gap-4 rounded-xl border border-[var(--border)] bg-[var(--page-bg)] p-4 transition hover:border-slate-950 hover:bg-white"><span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-slate-950 text-lg font-black text-white">{index + 1}</span><span className="min-w-0 flex-1"><span className="block text-xs font-black uppercase tracking-[0.14em] text-[var(--gold-dark)]">Batch {index + 1}</span><strong className="mt-1 block leading-5">{batch.name}</strong><span className="mt-2 block text-sm text-[var(--muted-blue)]">{students} students / {subjects.length} {subjects.length === 1 ? "subject" : "subjects"}</span></span><ChevronRight className="shrink-0 transition group-hover:translate-x-1" size={18} /></Link>;
             })}
           </div>
         </section>
@@ -3793,67 +3925,125 @@ function CourseBatchSelector({ program, courseKey, dashboardBasePath, catalogPat
   );
 }
 
-function ClassroomWorkspace({ batch, programName: courseName, students, totalStudents, dashboardBasePath, courseKey, search, onSearch, selectedStudentId, onSelectStudent, onStartLive, isAcademicHead }: {
+function ClassroomWorkspace({ batch, programName: courseName, students, totalStudents, workspace, workspaceLoading, workspaceError, dashboardBasePath, classesBasePath, courseKey, search, onSearch, selectedSubject, onSubject, onRetry, selectedStudentId, onSelectStudent, onStartLive }: {
   batch: AssignedClass;
   programName: string;
   students: NonNullable<AssignedClass["students"]>;
   totalStudents: number;
   workspace: ClassWorkspace;
+  workspaceLoading: boolean;
+  workspaceError: string | null;
   dashboardBasePath: string;
+  classesBasePath: string;
   courseKey: string;
   search: string;
   onSearch: (value: string) => void;
+  selectedSubject: string;
+  onSubject: (value: string) => void;
+  onRetry: () => void;
   selectedStudentId: string | null;
   onSelectStudent: (id: string) => void;
   onStartLive: () => void;
-  isAcademicHead: boolean;
 }) {
+  const [rosterPage, setRosterPage] = useState(1);
+  const [mobileToolsOpen, setMobileToolsOpen] = useState(false);
+  const [announcementOpen, setAnnouncementOpen] = useState(false);
+  const [announcementTitle, setAnnouncementTitle] = useState("");
+  const [announcementMessage, setAnnouncementMessage] = useState("");
+  const [announcementSaving, setAnnouncementSaving] = useState(false);
+  const [announcementNotice, setAnnouncementNotice] = useState<string | null>(null);
+  const pageSize = 24;
+  const subjects = subjectsForBatch(batch);
+  const totalPages = Math.max(1, Math.ceil(students.length / pageSize));
+  const safePage = Math.min(rosterPage, totalPages);
+  const pageStudents = students.slice((safePage - 1) * pageSize, safePage * pageSize);
+  const toolQuery = `batchId=${encodeURIComponent(batch.id)}&subject=${encodeURIComponent(selectedSubject)}`;
   const tools = [
-    { label: "Attendance", icon: ClipboardCheck, href: `${dashboardBasePath}/attendance?batchId=${batch.id}` },
-    { label: "Assignments", icon: ClipboardList, href: `${dashboardBasePath}/assignments?batchId=${batch.id}` },
-    { label: "Exams", icon: BookOpenCheck, href: `${dashboardBasePath}/exams?batchId=${batch.id}` },
-    { label: "Library", icon: Library, href: `${dashboardBasePath}/library?batchId=${batch.id}` },
-    { label: "Syllabus", icon: NotebookTabs, href: isAcademicHead ? "/dashboard/academic-head/hod/syllabus" : `${dashboardBasePath}/academic-calendar?batchId=${batch.id}` },
-    { label: "Calendar", icon: CalendarDays, href: `${dashboardBasePath}/academic-calendar?batchId=${batch.id}` },
-    { label: "Announcements", icon: Megaphone, href: "/announcements" },
+    { label: "Attendance", icon: ClipboardCheck, href: `${dashboardBasePath}/attendance?${toolQuery}` },
+    { label: "Assignments", icon: ClipboardList, href: `${dashboardBasePath}/assignments?${toolQuery}` },
+    { label: "Exams", icon: BookOpenCheck, href: `${dashboardBasePath}/exams?${toolQuery}` },
+    { label: "Library", icon: Library, href: `${dashboardBasePath}/library?${toolQuery}` },
+    { label: "Syllabus", icon: NotebookTabs, href: `${dashboardBasePath}/academic-calendar?${toolQuery}` },
+    { label: "Calendar", icon: CalendarDays, href: `${dashboardBasePath}/academic-calendar?${toolQuery}` },
   ];
+  const publishAnnouncement = async () => {
+    if (!announcementTitle.trim() || !announcementMessage.trim() || announcementSaving) return;
+    setAnnouncementSaving(true);
+    setAnnouncementNotice(null);
+    try {
+      const response = await apiPost<{ recipientCount?: number }>([`/api/academy/batches/${encodeURIComponent(batch.id)}/announcements`], {
+        title: announcementTitle.trim(),
+        description: announcementMessage.trim(),
+      });
+      setAnnouncementNotice(`Announcement sent to ${response?.recipientCount ?? totalStudents} students.`);
+      setAnnouncementTitle("");
+      setAnnouncementMessage("");
+      onRetry();
+    } catch (error) {
+      setAnnouncementNotice(error instanceof Error ? error.message : "Announcement could not be sent.");
+    } finally {
+      setAnnouncementSaving(false);
+    }
+  };
   return (
     <div className="grid gap-5">
       <header className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm sm:p-6">
-        <Link href={`${dashboardBasePath}/classes/${courseKey}`} className="text-sm font-black text-[var(--gold-dark)]">Back to batches</Link>
+        <Link href={`${classesBasePath}/${encodeURIComponent(courseKey)}`} className="text-sm font-black text-[var(--gold-dark)]">Back to batches</Link>
         <div className="mt-3 flex flex-wrap items-end justify-between gap-3">
-          <div><p className="text-xs font-black uppercase tracking-[0.2em] text-[var(--gold-dark)]">My Classroom</p><h2 className="mt-1 text-3xl font-black">{batch.name}</h2><p className="mt-2 text-sm text-[var(--muted-blue)]">{courseName} / {batchMode(batch).toLowerCase()}</p></div>
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.2em] text-[var(--gold-dark)]">My Classroom</p>
+            <h2 className="mt-1 text-3xl font-black">{batch.name}</h2>
+            <p className="mt-2 text-sm text-[var(--muted-blue)]">{courseName} / {batchMode(batch).toLowerCase()}</p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {subjects.map((subject) => <button type="button" key={subject} onClick={() => onSubject(subject)} className={`rounded-full border px-3 py-2 text-xs font-black ${selectedSubject === subject ? "border-slate-950 bg-slate-950 text-white" : "border-[var(--border)] bg-[var(--page-bg)]"}`}>{subject}</button>)}
+            </div>
+          </div>
           <span className="rounded-full border border-[var(--border)] px-3 py-1 text-xs font-black">{totalStudents} students</span>
         </div>
       </header>
+
+      {workspaceLoading ? <ClassroomLoadingState /> : null}
+      {workspaceError ? <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm font-bold text-rose-800"><span>{workspaceError}</span><button type="button" onClick={onRetry} className="rounded-xl border border-rose-300 bg-white px-4 py-2 font-black">Retry</button></div> : null}
+      {workspace.announcements[0] ? <div className="flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4"><Megaphone size={18} className="mt-0.5 shrink-0 text-amber-800" /><div><p className="font-black text-amber-950">{workspace.announcements[0].title}</p><p className="mt-1 text-sm text-amber-900">{workspace.announcements[0].description}</p><p className="mt-2 text-xs font-bold text-amber-700">Sent {new Date(workspace.announcements[0].createdAt).toLocaleString()}</p></div></div> : null}
 
       <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_230px]">
         <section className="rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm sm:p-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div><p className="text-xs font-black uppercase tracking-[0.2em] text-[var(--gold-dark)]">Classroom</p><h3 className="mt-1 text-xl font-black">Students</h3></div>
-            <input value={search} onChange={(event) => onSearch(event.target.value)} placeholder="Find a student" className="min-h-11 w-full rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-4 text-sm outline-none sm:w-60" />
+            <input value={search} onChange={(event) => { onSearch(event.target.value); setRosterPage(1); }} placeholder="Find a student" className="min-h-11 w-full rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-4 text-sm outline-none sm:w-60" />
           </div>
           <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
-            {students.map((entry, index) => {
-              const id = studentId(entry, index);
+            {pageStudents.map((entry, index) => {
+              const absoluteIndex = (safePage - 1) * pageSize + index;
+              const id = studentId(entry, absoluteIndex);
               const selected = selectedStudentId === id;
               const name = entry.student?.name || entry.student?.email || "Student";
-              return <button key={id} type="button" onClick={() => onSelectStudent(id)} className={`min-h-32 rounded-xl border p-3 text-center transition hover:-translate-y-0.5 hover:border-slate-950 ${selected ? "border-slate-950 bg-slate-950 text-white" : "border-[var(--border)] bg-[var(--page-bg)]"}`}><span className={`mx-auto grid h-12 w-12 place-items-center rounded-full text-base font-black ${selected ? "bg-white text-slate-950" : "bg-white text-slate-950 shadow-sm"}`}>{name.slice(0, 1).toUpperCase()}</span><strong className="mt-3 block line-clamp-2 text-sm">{name}</strong><span className={`mt-1 block text-xs ${selected ? "text-slate-300" : "text-[var(--muted-blue)]"}`}>Roll {entry.student?.rollNumber || String(index + 1).padStart(2, "0")}</span></button>;
+              const photo = entry.student?.photoUrl || entry.student?.avatarUrl;
+              return <button key={id} type="button" onClick={() => onSelectStudent(id)} className={`min-h-32 rounded-xl border p-3 text-center transition hover:-translate-y-0.5 hover:border-slate-950 ${selected ? "border-slate-950 bg-slate-950 text-white" : "border-[var(--border)] bg-[var(--page-bg)]"}`}><span className={`mx-auto grid h-12 w-12 overflow-hidden rounded-full bg-cover bg-center text-base font-black ${selected ? "bg-white text-slate-950" : "bg-white text-slate-950 shadow-sm"}`} style={photo ? { backgroundImage: `url(${photo})` } : undefined}>{photo ? null : <span className="m-auto">{name.slice(0, 1).toUpperCase()}</span>}</span><strong className="mt-3 block line-clamp-2 text-sm">{name}</strong><span className={`mt-1 block text-xs ${selected ? "text-slate-300" : "text-[var(--muted-blue)]"}`}>Roll {entry.student?.rollNumber || String(absoluteIndex + 1).padStart(2, "0")}</span></button>;
             })}
           </div>
+          {students.length > pageSize ? <div className="mt-5 flex items-center justify-between gap-3 border-t border-[var(--border)] pt-4"><button type="button" disabled={safePage === 1} onClick={() => setRosterPage((page) => Math.max(1, page - 1))} className="rounded-xl border border-[var(--border)] px-4 py-2 text-sm font-black disabled:opacity-40">Previous</button><span className="text-sm font-bold text-[var(--muted-blue)]">Page {safePage} of {totalPages}</span><button type="button" disabled={safePage === totalPages} onClick={() => setRosterPage((page) => Math.min(totalPages, page + 1))} className="rounded-xl border border-[var(--border)] px-4 py-2 text-sm font-black disabled:opacity-40">Next</button></div> : null}
           {!students.length ? <div className="mt-5 rounded-xl border border-dashed border-[var(--border)] p-8 text-center text-sm text-[var(--muted-blue)]">Students will appear after admission and batch allocation.</div> : null}
         </section>
 
-        <aside className="sticky top-24 rounded-2xl border border-[var(--border)] bg-white p-3 shadow-sm">
+        <aside className="sticky top-24 hidden rounded-2xl border border-[var(--border)] bg-white p-3 shadow-sm lg:block">
           <p className="px-2 py-2 text-xs font-black uppercase tracking-[0.2em] text-[var(--gold-dark)]">Class Tools</p>
           <div className="grid grid-cols-2 gap-2 lg:grid-cols-1">
             <button type="button" onClick={onStartLive} className="flex min-h-12 items-center gap-3 rounded-xl bg-slate-950 px-3 text-left text-sm font-black text-white"><Radio size={17} /> Go Live</button>
+            <button type="button" onClick={() => setAnnouncementOpen(true)} className="flex min-h-12 items-center gap-3 rounded-xl px-3 text-left text-sm font-black transition hover:bg-[var(--page-bg)]"><Megaphone size={17} /> Announcement</button>
             {tools.map((tool) => { const Icon = tool.icon; return <Link key={tool.label} href={tool.href} className="flex min-h-12 items-center gap-3 rounded-xl px-3 text-sm font-black transition hover:bg-[var(--page-bg)]"><Icon size={17} /><span className="min-w-0 flex-1">{tool.label}</span><ChevronRight size={14} className="opacity-40" /></Link>; })}
           </div>
         </aside>
       </div>
+      <button type="button" onClick={() => setMobileToolsOpen(true)} className="fixed bottom-4 left-1/2 z-30 flex min-h-12 -translate-x-1/2 items-center gap-2 rounded-full bg-slate-950 px-6 text-sm font-black text-white shadow-xl lg:hidden"><Wrench size={17} /> Class Tools</button>
+      {mobileToolsOpen ? <div className="fixed inset-0 z-50 flex items-end bg-slate-950/45 lg:hidden" onClick={() => setMobileToolsOpen(false)}><div className="w-full rounded-t-3xl bg-white p-4 pb-8 shadow-2xl" onClick={(event) => event.stopPropagation()}><div className="flex items-center justify-between"><div><p className="text-xs font-black uppercase tracking-[0.2em] text-[var(--gold-dark)]">Class Tools</p><p className="mt-1 text-sm font-bold">{selectedSubject}</p></div><button type="button" onClick={() => setMobileToolsOpen(false)} aria-label="Close class tools" className="rounded-xl border border-[var(--border)] p-3"><X size={18} /></button></div><div className="mt-4 grid grid-cols-2 gap-2"><button type="button" onClick={() => { setMobileToolsOpen(false); onStartLive(); }} className="flex min-h-14 items-center gap-3 rounded-xl bg-slate-950 px-4 text-left text-sm font-black text-white"><Radio size={17} /> Go Live</button><button type="button" onClick={() => { setMobileToolsOpen(false); setAnnouncementOpen(true); }} className="flex min-h-14 items-center gap-3 rounded-xl border border-[var(--border)] px-4 text-left text-sm font-black"><Megaphone size={17} /> Announcement</button>{tools.map((tool) => { const Icon = tool.icon; return <Link key={tool.label} href={tool.href} className="flex min-h-14 items-center gap-3 rounded-xl border border-[var(--border)] px-4 text-sm font-black"><Icon size={17} />{tool.label}</Link>; })}</div></div></div> : null}
+      {announcementOpen ? <div className="fixed inset-0 z-[60] grid place-items-center bg-slate-950/50 p-4"><div className="w-full max-w-lg rounded-2xl bg-white p-5 shadow-2xl"><div className="flex items-start justify-between gap-3"><div><p className="text-xs font-black uppercase tracking-[0.2em] text-[var(--gold-dark)]">Class Announcement</p><h3 className="mt-2 text-2xl font-black">Message this batch</h3><p className="mt-1 text-sm text-[var(--muted-blue)]">{batch.name} / {totalStudents} students</p></div><button type="button" onClick={() => setAnnouncementOpen(false)} aria-label="Close announcement" className="rounded-xl border border-[var(--border)] p-3"><X size={18} /></button></div><div className="mt-5 grid gap-4"><Input label="Title" value={announcementTitle} onChange={setAnnouncementTitle} /><Textarea label="Message" value={announcementMessage} onChange={setAnnouncementMessage} />{announcementNotice ? <Notice text={announcementNotice} tone={announcementNotice.includes("could not") ? "error" : "info"} /> : null}<div className="flex justify-end gap-2"><button type="button" onClick={() => setAnnouncementOpen(false)} className="rounded-xl border border-[var(--border)] px-5 py-3 font-black">Close</button><button type="button" disabled={announcementSaving || !announcementTitle.trim() || !announcementMessage.trim()} onClick={() => void publishAnnouncement()} className="rounded-xl bg-slate-950 px-5 py-3 font-black text-white disabled:opacity-50">{announcementSaving ? "Sending..." : "Send to Students"}</button></div></div></div></div> : null}
     </div>
   );
+}
+
+function ClassroomLoadingState() {
+  return <div className="grid gap-3 rounded-2xl border border-[var(--border)] bg-white p-4" aria-label="Loading classroom records"><div className="h-4 w-48 animate-pulse rounded bg-slate-200" /><div className="grid grid-cols-2 gap-3 sm:grid-cols-4">{Array.from({ length: 4 }).map((_, index) => <div key={index} className="h-24 animate-pulse rounded-xl bg-slate-100" />)}</div></div>;
 }
 
 function BatchCard({ batch, href }: { batch: AssignedClass; href: string }) {
@@ -3927,6 +4117,7 @@ function LiveClassCreatorModal({
   programName,
   onClose,
   onPublish,
+  publishing,
   message,
 }: {
   form: LiveClassForm;
@@ -3935,6 +4126,7 @@ function LiveClassCreatorModal({
   programName: string;
   onClose: () => void;
   onPublish: () => void;
+  publishing: boolean;
   message?: string | null;
 }) {
   return (
@@ -3959,14 +4151,14 @@ function LiveClassCreatorModal({
           <Input label="Date" type="date" value={form.date} onChange={(value) => setForm((current) => ({ ...current, date: value }))} />
           <Input label="Time" type="time" value={form.time} onChange={(value) => setForm((current) => ({ ...current, time: value }))} />
           <Input label="Duration" type="number" value={form.duration} onChange={(value) => setForm((current) => ({ ...current, duration: value }))} />
-          <Input label="Meeting Link" value={form.meetingLink} onChange={(value) => setForm((current) => ({ ...current, meetingLink: value }))} />
+          <div><Input label="Zoom Meeting Link" value={form.meetingLink} onChange={(value) => setForm((current) => ({ ...current, meetingLink: value }))} /><p className="mt-2 text-xs text-[var(--muted-blue)]">The latest saved link for this batch is reused automatically. Paste a different Zoom link when needed.</p></div>
         </div>
         <div className="mt-4">
           <Textarea label="Description" value={form.description} onChange={(value) => setForm((current) => ({ ...current, description: value }))} />
         </div>
         <div className="mt-5 flex flex-wrap justify-end gap-3">
           <button type="button" onClick={onClose} className="rounded-xl border border-[var(--border)] bg-white px-5 py-3 text-sm font-black">Cancel</button>
-          <button type="button" onClick={onPublish} className="rounded-xl bg-[var(--ink)] px-5 py-3 text-sm font-black text-white">Publish Live Class</button>
+          <button type="button" disabled={publishing} onClick={onPublish} className="rounded-xl bg-[var(--ink)] px-5 py-3 text-sm font-black text-white disabled:opacity-50">{publishing ? "Publishing..." : "Publish Live Class"}</button>
         </div>
       </div>
     </div>
@@ -5030,34 +5222,77 @@ function AssignmentCreateModal({
 
 function StudentProgressModal({
   student,
+  batchId,
   programName,
   batchName,
+  subjects,
   attendance,
   attendancePercent,
   assignments,
   materials,
   exams,
+  examResults,
+  examResultsLoading,
   progress,
+  onMarkAttendance,
   onClose,
 }: {
   student: AssignedStudent;
+  batchId: string;
   programName: string;
   batchName: string;
+  subjects: string[];
   attendance: Array<{ date?: string; subject?: string | null; status?: string; remarks?: string }>;
   attendancePercent: number;
   assignments: AssignmentRecord[];
   materials: MaterialRecord[];
   exams: ExamRecord[];
+  examResults: ExamResultEntry[];
+  examResultsLoading: boolean;
   progress: SyllabusProgressRecord[];
+  onMarkAttendance: (input: { batchId: string; subject: string; studentId: string; status: "PRESENT" | "ABSENT" | "HALF_DAY" | "LEAVE"; remarks: string; date: string }) => Promise<void>;
   onClose: () => void;
 }) {
+  const [attendanceSubject, setAttendanceSubject] = useState(subjects[0] ?? "");
+  const [attendanceDate, setAttendanceDate] = useState(todayDate());
+  const [attendanceStatus, setAttendanceStatus] = useState<"PRESENT" | "ABSENT" | "HALF_DAY" | "LEAVE">("PRESENT");
+  const [attendanceRemarks, setAttendanceRemarks] = useState("");
+  const [attendanceSaving, setAttendanceSaving] = useState(false);
+  const [attendanceNotice, setAttendanceNotice] = useState<string | null>(null);
   const presentDays = attendance.filter((item) => item.status === "PRESENT").length;
   const absentDays = attendance.filter((item) => item.status === "ABSENT").length;
-  const completedAssignments = assignments.reduce((total, assignment) => total + Number(assignment.submissionStats?.submitted ?? 0), 0);
-  const pendingAssignments = assignments.reduce((total, assignment) => total + Number(assignment.submissionStats?.pending ?? 0), 0);
-  const examAttempts = exams.reduce((total, exam) => total + Number(exam.attemptStats?.submitted ?? exam.attemptStats?.attempts ?? 0), 0);
-  const averageScore = exams.length ? Math.round(exams.reduce((total, exam) => total + Number(exam.attemptStats?.averageScore ?? 0), 0) / exams.length) : 0;
+  const studentAssignments = assignments.map((assignment) => ({
+    assignment,
+    submission: assignment.submissions?.find((submission) => submission.studentId === student.id),
+  }));
+  const completedAssignments = studentAssignments.filter(({ submission }) => submission && !["PENDING", "RETURNED"].includes(String(submission.status || submission.reviewStatus || "").toUpperCase())).length;
+  const pendingAssignments = Math.max(0, assignments.length - completedAssignments);
+  const examAttempts = examResults.length;
+  const averageScore = examResults.length ? Math.round(examResults.reduce((total, result) => total + result.percentage, 0) / examResults.length) : 0;
   const completedTopics = progress.filter((item) => item.completionStatus === "COMPLETED").length;
+  const saveStudentAttendance = async () => {
+    if (!student.id || !batchId || !attendanceSubject) {
+      setAttendanceNotice("Student, batch and subject are required.");
+      return;
+    }
+    setAttendanceSaving(true);
+    setAttendanceNotice(null);
+    try {
+      await onMarkAttendance({
+        batchId,
+        subject: attendanceSubject,
+        studentId: student.id,
+        status: attendanceStatus,
+        remarks: attendanceRemarks,
+        date: attendanceDate,
+      });
+      setAttendanceNotice(`Attendance saved at ${new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}.`);
+    } catch (error) {
+      setAttendanceNotice(error instanceof Error ? error.message : "Attendance could not be saved.");
+    } finally {
+      setAttendanceSaving(false);
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 px-4 py-6">
@@ -5077,6 +5312,29 @@ function StudentProgressModal({
           </button>
         </div>
 
+        <section className="mt-5 rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.2em] text-[var(--gold-dark)]">Quick Attendance</p>
+              <h3 className="mt-1 text-lg font-black">Mark and save</h3>
+            </div>
+            <div className="grid w-full gap-3 sm:grid-cols-2 md:w-auto">
+              <label className="grid gap-1 text-xs font-black">Subject<select value={attendanceSubject} onChange={(event) => setAttendanceSubject(event.target.value)} className="min-h-11 rounded-xl border border-[var(--border)] bg-white px-3 text-sm font-normal">{subjects.map((subject) => <option key={subject} value={subject}>{subject}</option>)}</select></label>
+              <label className="grid gap-1 text-xs font-black">Date<input type="date" value={attendanceDate} onChange={(event) => setAttendanceDate(event.target.value)} className="min-h-11 rounded-xl border border-[var(--border)] bg-white px-3 text-sm font-normal" /></label>
+            </div>
+          </div>
+          <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
+            {(["PRESENT", "ABSENT", "HALF_DAY", "LEAVE"] as const).map((status) => (
+              <button key={status} type="button" onClick={() => setAttendanceStatus(status)} className={`min-h-11 rounded-xl border px-3 text-xs font-black ${attendanceStatus === status ? status === "PRESENT" ? "border-emerald-700 bg-emerald-700 text-white" : status === "ABSENT" ? "border-rose-700 bg-rose-700 text-white" : "border-amber-600 bg-amber-600 text-white" : "border-[var(--border)] bg-white"}`}>{status.replace("_", " ")}</button>
+            ))}
+          </div>
+          <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+            <input value={attendanceRemarks} onChange={(event) => setAttendanceRemarks(event.target.value)} placeholder="Short remark (optional)" className="min-h-12 min-w-0 flex-1 rounded-xl border border-[var(--border)] bg-white px-4 text-sm outline-none" />
+            <button type="button" disabled={attendanceSaving || !attendanceSubject} onClick={() => void saveStudentAttendance()} className="min-h-12 rounded-xl bg-slate-950 px-5 text-sm font-black text-white disabled:opacity-50">{attendanceSaving ? "Saving..." : "Save Attendance"}</button>
+          </div>
+          {attendanceNotice ? <p className="mt-3 text-sm font-bold text-[var(--muted-blue)]">{attendanceNotice}</p> : null}
+        </section>
+
         <div className="mt-5 grid gap-3 md:grid-cols-4">
           <SummaryCard label="Attendance" value={`${attendancePercent}%`} />
           <SummaryCard label="Present Days" value={presentDays} />
@@ -5089,7 +5347,7 @@ function StudentProgressModal({
             <p>{pendingAssignments} pending</p>
           </SimpleCard>
           <SimpleCard eyebrow="Exams" title={`${examAttempts} attempts`}>
-            <p>Average score {averageScore}%</p>
+            <p>{examResultsLoading ? "Loading student results..." : examAttempts ? `Average score ${averageScore}%` : "No submitted result found"}</p>
           </SimpleCard>
           <SimpleCard eyebrow="Library Progress" title={`${materials.length} materials`}>
             <p>{completedTopics} topics completed</p>
@@ -5122,23 +5380,23 @@ function StudentProgressModal({
           />
           <ProgressPanel
             title="Assignments"
-            items={assignments.map((item) => ({
-              id: item.id,
-              title: item.title || "Assignment",
-              meta: `Submitted ${item.submissionStats?.submitted ?? 0} / ${item.submissionStats?.totalStudents ?? 0}, pending ${item.submissionStats?.pending ?? 0}`,
-              status: item.status || "PUBLISHED",
+            items={studentAssignments.map(({ assignment, submission }) => ({
+              id: assignment.id,
+              title: assignment.title || "Assignment",
+              meta: submission?.submittedAt ? `Submitted ${new Date(submission.submittedAt).toLocaleDateString()}` : "Not submitted",
+              status: submission?.reviewStatus || submission?.status || "PENDING",
             }))}
             empty="No assignments published yet."
           />
           <ProgressPanel
             title="Exams"
-            items={exams.map((item) => ({
-              id: item.id,
-              title: item.title || "Exam",
-              meta: `${item.topic || "Topic"} / average ${item.attemptStats?.averageScore ?? 0}`,
-              status: item.status || "PUBLISHED",
+            items={examResults.map((item) => ({
+              id: item.examId,
+              title: item.examTitle,
+              meta: `${item.score}/${item.totalMarks} / rank ${item.rank}`,
+              status: `${item.percentage}%`,
             }))}
-            empty="No exams conducted yet."
+            empty={examResultsLoading ? "Loading this student's exam results." : "No submitted exam result found for this student."}
           />
           <ProgressPanel
             title="Recent activity"

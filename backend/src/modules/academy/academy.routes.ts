@@ -44,6 +44,7 @@ router.get("/employees", requireAcademyRoles(managementRoles), academyController
 router.get("/teachers", requireAcademyRoles(academicRoles), academyController.teachers);
 router.get("/teacher-assignments", requireAcademyRoles(academicRoles), academyController.teacherAssignments);
 router.get("/my-teaching-plan", requireAcademyRoles(academicRoles), academyController.teacherTeachingPlan);
+router.get("/batches/:batchId/announcements", requireAcademyRoles(academicRoles), academyController.batchAnnouncements);
 router.get("/today", requireAcademyRoles(academicRoles), academyController.today);
 router.post("/today/actions", requireAcademyRoles(academicRoles), academyController.todayAction);
 router.get("/my-plan", academyController.myAcademicPlan);
@@ -68,6 +69,7 @@ router.get("/academic-audit", requireAcademyRoles(managementRoles), academyContr
 router.get("/director-expenses", requireAcademyRoles(managementRoles), academyController.directorExpenses);
 
 router.post("/academic-calendar", requireAcademyRoles(academicRoles), academyController.createAcademicCalendarItem);
+router.post("/batches/:batchId/announcements", requireAcademyRoles(academicRoles), academyController.createBatchAnnouncement);
 router.post("/academic-calendar/generate", requireAcademyRoles(academicManagementRoles), academyController.generateAcademicCalendarPlan);
 router.patch("/academic-calendar/:id", requireAcademyRoles(academicRoles), academyController.updateAcademicCalendarItem);
 router.post("/attendance", requireAcademyRoles(academicRoles), academyController.saveAttendance);

@@ -1128,10 +1128,16 @@ async function batchWithCounts(options?: BatchWithCountsOptions) {
     return normalized.batchId ? null : [];
   }
 
+  const activeStudentsByBatch = new Map(
+    batches.map((batch: any) => [
+      batch.id,
+      (batch.students ?? []).filter((student: any) => student.status === "ACTIVE"),
+    ]),
+  );
   const studentIds = Array.from(
     new Set(
       batches
-        .flatMap((batch: any) => batch.students ?? [])
+        .flatMap((batch: any) => activeStudentsByBatch.get(batch.id) ?? [])
         .map((student: any) => student.studentId)
         .filter(Boolean),
     ),
@@ -1139,7 +1145,7 @@ async function batchWithCounts(options?: BatchWithCountsOptions) {
   const users = studentIds.length
     ? await prisma.user.findMany({
         where: { id: { in: studentIds as string[] } },
-        select: { id: true, name: true, email: true, mobile: true, role: true },
+        select: { id: true, name: true, email: true, mobile: true, role: true, roleMetadata: true },
       })
     : [];
   const userMap = new Map(users.map((user) => [user.id, user]));
@@ -1178,24 +1184,41 @@ async function batchWithCounts(options?: BatchWithCountsOptions) {
   const teacherMap = new Map(teacherUsers.filter((teacher) => !isDemoAcademyUser(teacher)).map((teacher) => [teacher.id, teacher]));
   const visibleTeacherAssignments = teacherAssignments.filter((assignment) => teacherMap.has(assignment.teacherId));
 
-  const hydrated = batches.map((batch: any) => ({
-    ...batch,
-    students: (batch.students ?? []).map((student: any) => ({
-      ...student,
-      user: userMap.get(student.studentId) ?? null,
-      student: userMap.get(student.studentId) ?? null,
-    })),
-    teachers: visibleTeacherAssignments
-      .filter((assignment) => assignment.batchId === batch.id)
-      .map((assignment) => ({
-        ...assignment,
-        teacher: teacherMap.get(assignment.teacherId) ?? null,
+  const profileValue = (metadata: unknown, key: string) => {
+    if (!metadata || typeof metadata !== "object" || Array.isArray(metadata)) return null;
+    const value = (metadata as Record<string, unknown>)[key];
+    return typeof value === "string" && value.trim() ? value : null;
+  };
+
+  const hydrated = batches.map((batch: any) => {
+    const activeStudents = activeStudentsByBatch.get(batch.id) ?? [];
+    return {
+      ...batch,
+      students: activeStudents.map((student: any) => ({
+        ...student,
+        user: userMap.get(student.studentId) ?? null,
+        student: userMap.has(student.studentId)
+          ? {
+              ...userMap.get(student.studentId),
+              rollNumber: student.remarks || null,
+              photoUrl: profileValue(userMap.get(student.studentId)?.roleMetadata, "photoUrl"),
+              avatarUrl: profileValue(userMap.get(student.studentId)?.roleMetadata, "avatarUrl"),
+            }
+          : null,
       })),
-    _count: {
-      ...(batch._count ?? {}),
-      teachers: visibleTeacherAssignments.filter((assignment) => assignment.batchId === batch.id).length,
-    },
-  }));
+      teachers: visibleTeacherAssignments
+        .filter((assignment) => assignment.batchId === batch.id)
+        .map((assignment) => ({
+          ...assignment,
+          teacher: teacherMap.get(assignment.teacherId) ?? null,
+        })),
+      _count: {
+        ...(batch._count ?? {}),
+        students: activeStudents.length,
+        teachers: visibleTeacherAssignments.filter((assignment) => assignment.batchId === batch.id).length,
+      },
+    };
+  });
 
   return normalized.batchId ? hydrated[0] : hydrated;
 }
@@ -1511,11 +1534,84 @@ export const academyService = {
           `
       : [];
 
+    const subjects = Array.from(new Set(
+      batches.flatMap((batch: any) => Array.isArray(batch.assignedSubjects) ? batch.assignedSubjects : []),
+    ));
+    const studentIds = new Set(
+      batches.flatMap((batch: any) => (batch.students ?? []).map((entry: any) => entry.studentId).filter(Boolean)),
+    );
+    const visibleCalendar = calendar.filter((row) => !isTemporaryActivationCalendarRow(row)).map(sanitizeCalendarRow);
+
     return {
+      version: 1,
+      scope: {
+        mode: "ASSIGNED_TEACHING",
+        userId: user.id,
+        role: user.role,
+        academicHead: academicHeadWorkspace,
+      },
+      summary: {
+        batchCount: batches.length,
+        studentCount: studentIds.size,
+        subjectCount: subjects.length,
+        calendarCount: visibleCalendar.length,
+      },
       assignments: batches,
       batches,
-      calendar: calendar.filter((row) => !isTemporaryActivationCalendarRow(row)).map(sanitizeCalendarRow),
+      calendar: visibleCalendar,
     };
+  },
+
+  async batchAnnouncements(user: Requester, batchId: string) {
+    requireAcademic(user);
+    await assertBatchAccess(user, batchId);
+    const audience = `BATCH:${batchId}`;
+    const announcements = await prisma.announcement.findMany({
+      where: { OR: [{ audience }, { targetAudience: audience }] },
+      orderBy: { createdAt: "desc" },
+      take: 20,
+      include: { creator: { select: { id: true, name: true } } },
+    });
+    return { announcements };
+  },
+
+  async createBatchAnnouncement(user: Requester, batchId: string, input: { title?: string; description?: string }) {
+    requireAcademic(user);
+    await assertBatchAccess(user, batchId);
+    const title = input.title?.trim();
+    const description = input.description?.trim();
+    if (!title || !description) {
+      throw Object.assign(new Error("Announcement title and message are required"), { statusCode: 400 });
+    }
+    const batch = await prisma.batch.findUnique({
+      where: { id: batchId },
+      select: { id: true, name: true, students: { where: { status: "ACTIVE" }, select: { studentId: true } } },
+    });
+    if (!batch) throw Object.assign(new Error("Batch not found"), { statusCode: 404 });
+    const audience = `BATCH:${batchId}`;
+    const announcement = await prisma.$transaction(async (transaction) => {
+      const created = await transaction.announcement.create({
+        data: { title, description, audience, targetAudience: audience, createdBy: user.id },
+        include: { creator: { select: { id: true, name: true } } },
+      });
+      if (batch.students.length) {
+        await transaction.notification.createMany({
+          data: batch.students.map(({ studentId }) => ({
+            userId: studentId,
+            title,
+            message: description,
+            type: "BATCH_ANNOUNCEMENT",
+          })),
+        });
+      }
+      return created;
+    });
+    await auditAcademicAction(user, "BATCH_ANNOUNCEMENT_CREATED", "Batch", batchId, {
+      announcementId: announcement.id,
+      batchName: batch.name,
+      recipients: batch.students.length,
+    });
+    return { announcement, recipientCount: batch.students.length };
   },
 
   async today(user: Requester, query: Record<string, unknown>) {
