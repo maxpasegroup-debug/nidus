@@ -45,6 +45,7 @@ router.get("/teachers", requireAcademyRoles(academicRoles), academyController.te
 router.get("/teacher-assignments", requireAcademyRoles(academicRoles), academyController.teacherAssignments);
 router.get("/my-teaching-plan", requireAcademyRoles(academicRoles), academyController.teacherTeachingPlan);
 router.get("/today", requireAcademyRoles(academicRoles), academyController.today);
+router.post("/today/actions", requireAcademyRoles(academicRoles), academyController.todayAction);
 router.get("/my-plan", academyController.myAcademicPlan);
 router.get("/academic-calendar", requireAcademyRoles(academicRoles), academyController.academicCalendar);
 router.get("/attendance", requireAcademyRoles(academicRoles), academyController.attendanceHistory);

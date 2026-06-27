@@ -206,6 +206,26 @@ type ExamInput = {
   status?: string;
 };
 
+type TodayActionInput = {
+  action?: string;
+  taskId?: string;
+  calendarId?: string;
+  batchId?: string;
+  subject?: string;
+  topic?: string;
+  date?: string;
+  startTime?: string;
+  endTime?: string;
+  completionStatus?: string;
+  teacherLog?: string;
+  nextAction?: string;
+  homeworkGiven?: string;
+  supportNeeded?: string;
+  meetingLink?: string;
+  recordingUrl?: string;
+  records?: AttendanceInput["records"];
+};
+
 type ApproveAdmissionInput = StudentInput & {
   batchId: string;
   applicationId?: string;
@@ -943,11 +963,31 @@ function todayTaskStatus(row: AcademicCalendarRow) {
 
 function calendarTodayTask(row: AcademicCalendarRow, source: "TODAY_CALENDAR" | "UPCOMING_CALENDAR") {
   const status = todayTaskStatus(row);
+  const type = calendarTaskType(row);
+  const actions = [
+    { key: "OPEN_CLASS", label: "Open Class" },
+    { key: "COMPLETE", label: type === "MEETING" ? "Mark Done" : "Complete Class" },
+  ];
+  if (type === "CLASS" || type === "LIVE_CLASS" || type === "COURSE_RECORDING") {
+    actions.push(
+      { key: "ATTENDANCE", label: "Attendance" },
+      { key: "LIVE_CLASS", label: "Go Live" },
+      { key: "ASSIGNMENT", label: "Assignment" },
+      { key: "EXAM", label: "Exam" },
+      { key: "LIBRARY", label: type === "COURSE_RECORDING" ? "Upload Recording" : "Library" },
+    );
+  } else if (type === "ASSIGNMENT") {
+    actions.push({ key: "ASSIGNMENT", label: "Create Assignment" });
+  } else if (type === "EXAMINATION") {
+    actions.push({ key: "EXAM", label: "Create Exam" });
+  } else if (type === "ATTENDANCE") {
+    actions.push({ key: "ATTENDANCE", label: "Mark Attendance" });
+  }
   return {
     id: `calendar-${row.id}`,
     source,
     sourceId: row.id,
-    type: calendarTaskType(row),
+    type,
     date: calendarRowDateKey(row),
     time: row.startTime,
     endTime: row.endTime,
@@ -961,11 +1001,7 @@ function calendarTodayTask(row: AcademicCalendarRow, source: "TODAY_CALENDAR" | 
     teacherName: row.teacherName,
     status,
     done: status === "DONE" || status === "CANCELLED",
-    actions: [
-      { key: "OPEN_CLASS", label: "Open Class" },
-      { key: "ATTENDANCE", label: "Attendance" },
-      { key: "LIVE_CLASS", label: "Live Class" },
-    ],
+    actions,
   };
 }
 
@@ -1638,6 +1674,189 @@ export const academyService = {
         },
       },
     };
+  },
+
+  async todayAction(user: Requester, input: TodayActionInput) {
+    requireAcademic(user);
+    const action = String(input.action || "").trim().toUpperCase();
+    if (!action) {
+      throw Object.assign(new Error("Today action is required"), { statusCode: 400 });
+    }
+    const calendarId = String(input.calendarId || input.taskId || "").replace(/^calendar-/, "").trim();
+    const calendarRows = calendarId
+      ? await prisma.$queryRaw<AcademicCalendarRow[]>`
+          SELECT * FROM "AcademicCalendarItem" WHERE "id" = ${calendarId} LIMIT 1
+        `
+      : [];
+    const calendar = calendarRows[0] ?? null;
+    const batchId = String(input.batchId || calendar?.batchId || "").trim();
+    const subject = String(input.subject || calendar?.subject || "").trim();
+    if ((calendarId || batchId) && batchId) {
+      await assertBatchSubjectAccess(user, batchId, subject || null);
+    }
+
+    if (["COMPLETE", "COMPLETE_CLASS", "COMPLETE_MEETING"].includes(action)) {
+      if (!calendar) throw Object.assign(new Error("Calendar item is required to complete a Today task"), { statusCode: 400 });
+      const logParts = [
+        input.teacherLog?.trim() || `Completed ${calendar.subject || "class"}${calendar.topic ? `: ${calendar.topic}` : ""}.`,
+        input.homeworkGiven?.trim() ? `Homework: ${input.homeworkGiven.trim()}` : null,
+        input.supportNeeded?.trim() ? `Support needed: ${input.supportNeeded.trim()}` : null,
+      ].filter(Boolean);
+      const item = await this.updateAcademicCalendarItem(user, calendar.id, {
+        completionStatus: input.completionStatus || "COMPLETED",
+        status: "COMPLETED",
+        teacherLog: logParts.join("\n"),
+        nextAction: input.nextAction || "Class log saved",
+      });
+      return { ok: true, action, item };
+    }
+
+    if (["MARK_ATTENDANCE", "ATTENDANCE"].includes(action)) {
+      if (!batchId || !subject) throw Object.assign(new Error("Batch and subject are required for attendance"), { statusCode: 400 });
+      const batch = await db.batch.findUnique({ where: { id: batchId }, select: { id: true, name: true } });
+      if (!batch) throw Object.assign(new Error("Batch not found"), { statusCode: 404 });
+      const students = await db.batchStudent.findMany({
+        where: { batchId, status: "ACTIVE" },
+        include: { student: { select: { id: true, name: true } } },
+        orderBy: { joinedAt: "asc" },
+      });
+      const records = Array.isArray(input.records) && input.records.length
+        ? input.records
+        : students.map((enrollment: any) => ({
+            studentId: enrollment.studentId,
+            studentName: enrollment.student?.name || "Student",
+            status: "PRESENT",
+            remarks: "",
+          }));
+      if (!records.length) throw Object.assign(new Error("No active students found for attendance"), { statusCode: 400 });
+      const attendance = await this.saveAttendance(user, {
+        batchId,
+        batchName: batch.name,
+        subject,
+        date: input.date || calendarRowDateKey(calendar ?? { plannedDate: new Date() } as AcademicCalendarRow),
+        records,
+        status: "SAVED",
+      });
+      if (calendar) {
+        await this.updateAcademicCalendarItem(user, calendar.id, {
+          nextAction: "Attendance marked",
+          teacherLog: calendar.teacherLog || `Attendance marked for ${records.length} students.`,
+        });
+      }
+      return { ok: true, action, attendance };
+    }
+
+    if (["START_LIVE_CLASS", "LIVE_CLASS"].includes(action)) {
+      if (!batchId || !subject) throw Object.assign(new Error("Batch and subject are required for live class"), { statusCode: 400 });
+      const batch = await db.batch.findUnique({ where: { id: batchId }, select: { id: true, name: true, programSlug: true } });
+      if (!batch) throw Object.assign(new Error("Batch not found"), { statusCode: 404 });
+      const dateKey = input.date || (calendar ? calendarRowDateKey(calendar) : academyDateKey());
+      const startTime = input.startTime || calendar?.startTime || "09:00";
+      const scheduledAt = new Date(`${dateKey}T${startTime}:00.000+05:30`);
+      const title = `${batch.name} - ${subject}${(input.topic || calendar?.topic) ? ` - ${input.topic || calendar?.topic}` : ""}`;
+      const existing = await prisma.liveClass.findFirst({
+        where: {
+          batchId,
+          subject,
+          scheduledAt,
+          status: { not: "CANCELLED" },
+        },
+        orderBy: { createdAt: "desc" },
+      });
+      const liveClass = existing ?? await prisma.liveClass.create({
+        data: {
+          title,
+          description: input.teacherLog || calendar?.topic || "Scheduled from Today workspace",
+          examType: batch.programSlug || calendar?.programSlug || "NIDUS",
+          instructorName: user.name || user.email || "Teacher",
+          scheduledAt,
+          duration: 60,
+          meetingLink: input.meetingLink || "https://zoom.us/start/videomeeting",
+          thumbnail: "",
+          isLive: true,
+          batchId,
+          programSlug: batch.programSlug || calendar?.programSlug || null,
+          subject,
+          topic: input.topic || calendar?.topic || null,
+          teacherId: user.id,
+          status: "LIVE",
+        },
+      });
+      if (calendar) {
+        await this.updateAcademicCalendarItem(user, calendar.id, {
+          status: "LIVE",
+          nextAction: "Live class started",
+          teacherLog: calendar.teacherLog || `Live class started: ${liveClass.meetingLink}`,
+        });
+      }
+      await auditAcademicAction(user, "TODAY_LIVE_CLASS_STARTED", "LiveClass", liveClass.id, { batchId, subject, calendarId: calendar?.id ?? null });
+      return { ok: true, action, liveClass };
+    }
+
+    if (["RECORDING_UPLOADED", "UPLOAD_RECORDING"].includes(action)) {
+      if (!batchId || !subject) throw Object.assign(new Error("Batch and subject are required for recording upload"), { statusCode: 400 });
+      if (!input.recordingUrl) throw Object.assign(new Error("Recording URL is required"), { statusCode: 400 });
+      const material = await this.publishStudyMaterial(user, {
+        batchId,
+        batchName: calendar?.batchName || undefined,
+        subject,
+        topic: input.topic || calendar?.topic || "General Lessons",
+        title: input.teacherLog || calendar?.topic || `${subject} recorded class`,
+        description: "Recorded class uploaded from Today workspace.",
+        type: "VIDEO",
+        url: input.recordingUrl,
+        status: "PUBLISHED",
+        reviewStatus: "APPROVED",
+      });
+      if (calendar) {
+        await this.updateAcademicCalendarItem(user, calendar.id, {
+          completionStatus: "COMPLETED",
+          status: "COMPLETED",
+          nextAction: "Recording uploaded",
+          teacherLog: calendar.teacherLog || `Recording uploaded: ${input.recordingUrl}`,
+        });
+      }
+      return { ok: true, action, material };
+    }
+
+    if (["CREATE_ASSIGNMENT", "ASSIGNMENT"].includes(action)) {
+      if (!batchId || !subject) throw Object.assign(new Error("Batch and subject are required for assignment"), { statusCode: 400 });
+      const assignment = await this.createAssignment(user, {
+        batchId,
+        batchName: calendar?.batchName || undefined,
+        subject,
+        title: input.teacherLog || `${subject} Homework - ${input.topic || calendar?.topic || academyDateKey()}`,
+        topic: input.topic || calendar?.topic || subject,
+        instructions: input.nextAction || "Complete the homework based on today's class.",
+        dueDate: addUtcDays(new Date(), 2).toISOString(),
+        status: "PENDING_REVIEW",
+      });
+      if (calendar) await this.updateAcademicCalendarItem(user, calendar.id, { nextAction: "Assignment created for review" });
+      return { ok: true, action, assignment };
+    }
+
+    if (["CREATE_EXAM", "EXAM"].includes(action)) {
+      if (!batchId || !subject) throw Object.assign(new Error("Batch and subject are required for exam"), { statusCode: 400 });
+      const exam = await this.publishExam(user, {
+        batchId,
+        batchName: calendar?.batchName || undefined,
+        subject,
+        course: calendar?.programSlug || undefined,
+        title: input.teacherLog || `${subject} Test - ${input.topic || calendar?.topic || academyDateKey()}`,
+        topic: input.topic || calendar?.topic || subject,
+        questionCount: 0,
+        durationMinutes: 60,
+        difficulty: "MEDIUM",
+        instructions: input.nextAction || "Teacher-created exam from Today workspace.",
+        publishDate: input.date || academyDateKey(),
+        publishTime: input.startTime || "09:00",
+        status: "PENDING_REVIEW",
+      });
+      if (calendar) await this.updateAcademicCalendarItem(user, calendar.id, { nextAction: "Exam created for review" });
+      return { ok: true, action, exam };
+    }
+
+    throw Object.assign(new Error(`Unsupported Today action: ${action}`), { statusCode: 400 });
   },
 
   async myAcademicPlan(user: Requester) {

@@ -493,6 +493,29 @@ export async function getAcademyToday(filters: { date?: string } = {}) {
   return response.data;
 }
 
+export async function runAcademyTodayAction(payload: {
+  action: string;
+  taskId?: string;
+  calendarId?: string;
+  batchId?: string;
+  subject?: string;
+  topic?: string;
+  date?: string;
+  startTime?: string;
+  endTime?: string;
+  completionStatus?: string;
+  teacherLog?: string;
+  nextAction?: string;
+  homeworkGiven?: string;
+  supportNeeded?: string;
+  meetingLink?: string;
+  recordingUrl?: string;
+  records?: Array<{ studentId?: string; studentName?: string; status?: string; remarks?: string }>;
+}) {
+  const response = await apiClient.post<{ ok: boolean; action: string; [key: string]: unknown }>("/academy/today/actions", payload);
+  return response.data;
+}
+
 export async function getAttendanceSummary(filters: { batchId?: string } = {}) {
   const response = await apiClient.get<{ summary: AttendanceSummary; attendance: AttendanceSession[] }>("/academy/attendance-summary", { params: filters });
   return response.data;

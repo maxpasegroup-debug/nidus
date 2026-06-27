@@ -21,6 +21,7 @@ import type { LucideIcon } from "lucide-react";
 import {
   getAcademicCalendar,
   getAcademicCalendarMonitor,
+  getAcademyToday,
   getAcademyBatches,
   getAcademyTeachers,
   getAssignmentSummary,
@@ -30,9 +31,22 @@ import {
   getStudentProgressSummary,
   getSyllabusSummary,
   getTeacherPerformanceSummary,
+  runAcademyTodayAction,
 } from "@/services/academy";
+import type { AcademyTodayTask } from "@/services/academy";
 
 type HodTab = "TODAY" | "BATCHES" | "TIMETABLE" | "ALLOCATION" | "APPROVALS" | "MONITORING" | "REPORTS";
+type HodTodayTask = {
+  id: string;
+  time: string;
+  endTime?: string | null;
+  type: string;
+  title: string;
+  detail: string;
+  done: boolean;
+  href: string;
+  actions?: Array<{ key: string; label: string; href: string }>;
+};
 
 const tabs: Array<{ key: HodTab; label: string }> = [
   { key: "TODAY", label: "Today" },
@@ -93,6 +107,44 @@ function ActionLink({ href, icon: Icon, title, note }: { href: string; icon: Luc
   );
 }
 
+function displayTaskTime(value?: string | null) {
+  if (!value) return "Today";
+  if (!value.includes(":")) return value;
+  const [hours, minutes] = value.split(":").map(Number);
+  if (!Number.isFinite(hours)) return value;
+  return new Date(2000, 0, 1, hours, minutes || 0).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+}
+
+function hodActionHref(actionKey: string, task: AcademyTodayTask) {
+  if (actionKey === "REVIEW" && task.type === "ASSIGNMENT_REVIEW") return "/dashboard/academic-head/hod/approvals";
+  if (actionKey === "REVIEW" && task.type === "EXAM_REVIEW") return "/dashboard/academic-head/hod/approvals";
+  if (actionKey === "ATTENDANCE") return "/dashboard/academic-head/hod/reports";
+  if (actionKey === "ASSIGNMENT") return "/dashboard/academic-head/assignments";
+  if (actionKey === "EXAM") return "/dashboard/academic-head/exams";
+  if (actionKey === "LIBRARY") return "/dashboard/academic-head/library";
+  if (actionKey === "LIVE_CLASS") return "/dashboard/academic-head/classes";
+  return task.batchId ? `/dashboard/academic-head/classes/assigned-program/${task.batchId}` : "/dashboard/academic-head/hod/timetable";
+}
+
+function academyTaskToHodTask(task: AcademyTodayTask): HodTodayTask {
+  const defaultHref = task.type === "ASSIGNMENT_REVIEW" || task.type === "EXAM_REVIEW"
+    ? "/dashboard/academic-head/hod/approvals"
+    : task.batchId
+      ? `/dashboard/academic-head/classes/assigned-program/${task.batchId}`
+      : "/dashboard/academic-head/hod/timetable";
+  return {
+    id: task.id,
+    time: displayTaskTime(task.time),
+    endTime: task.endTime,
+    type: String(task.type || "TASK").replaceAll("_", " "),
+    title: task.title || `${task.batchName || "Academy"} / ${task.subject || "Task"}`,
+    detail: task.detail || task.topic || "Action needed",
+    done: task.done,
+    href: defaultHref,
+    actions: task.actions?.map((action) => ({ ...action, href: hodActionHref(action.key, task) })) ?? [],
+  };
+}
+
 export function HodControlCenter({ initialTab = "TODAY" }: { initialTab?: HodTab }) {
   const [tab, setTab] = useState<HodTab>(initialTab);
   const batchesQuery = useQuery({ queryKey: ["hod", "batches"], queryFn: () => getAcademyBatches() });
@@ -106,6 +158,7 @@ export function HodControlCenter({ initialTab = "TODAY" }: { initialTab?: HodTab
   const teachersPerformanceQuery = useQuery({ queryKey: ["hod", "teacher-performance"], queryFn: getTeacherPerformanceSummary });
   const studentsProgressQuery = useQuery({ queryKey: ["hod", "student-progress"], queryFn: getStudentProgressSummary });
   const monitorQuery = useQuery({ queryKey: ["hod", "calendar-monitor"], queryFn: getAcademicCalendarMonitor });
+  const todayQuery = useQuery({ queryKey: ["hod", "today"], queryFn: () => getAcademyToday() });
 
   const batches = batchesQuery.data ?? [];
   const teachers = teachersQuery.data ?? [];
@@ -132,6 +185,156 @@ export function HodControlCenter({ initialTab = "TODAY" }: { initialTab?: HodTab
   const classIssues = monitor.reduce((total, item) => total + item.delayedClasses + item.missedClasses, 0);
   const loading = batchesQuery.isLoading || calendarQuery.isLoading || teachersQuery.isLoading;
 
+  const fallbackTodayTasks = useMemo<HodTodayTask[]>(() => {
+    const classTasks = todayClasses.map((item) => ({
+      id: `calendar-${item.id}`,
+      time: displayTaskTime(item.startTime),
+      endTime: item.endTime,
+      type: String(item.classType || "CLASS").replaceAll("_", " "),
+      title: `${item.batchName} / ${item.subject}`,
+      detail: item.topic || "Topic pending",
+      done: [item.completionStatus, item.status].some((value) => String(value).toUpperCase() === "COMPLETED"),
+      href: "/dashboard/academic-head/hod/timetable",
+    }));
+    const reviewTasks = [
+      ...pendingAssignments.map((item) => ({ id: `assignment-${item.id}`, time: "Today", type: "ASSIGNMENT REVIEW", title: item.title, detail: `${item.batchName || "Batch"} / ${item.subject || "Subject"}`, done: false, href: "/dashboard/academic-head/hod/approvals" })),
+      ...pendingExams.map((item) => ({ id: `exam-${item.id}`, time: "Today", type: "EXAMINATION REVIEW", title: item.title, detail: `${item.batchName || "Batch"} / ${item.subject || "Subject"}`, done: false, href: "/dashboard/academic-head/hod/approvals" })),
+    ];
+    if (pendingAttendance > 0) {
+      reviewTasks.push({ id: "attendance-pending", time: "Today", type: "ATTENDANCE", title: `${pendingAttendance} attendance ${pendingAttendance === 1 ? "entry" : "entries"} pending`, detail: "Complete today's class attendance.", done: false, href: "/dashboard/academic-head/hod/reports" });
+    }
+    return [...classTasks, ...reviewTasks];
+  }, [pendingAssignments, pendingAttendance, pendingExams, todayClasses]);
+  const todayTasks = useMemo<HodTodayTask[]>(() => {
+    if (todayQuery.data) return todayQuery.data.todayTasks.map(academyTaskToHodTask);
+    return fallbackTodayTasks;
+  }, [fallbackTodayTasks, todayQuery.data]);
+  const nextUpcomingTask = todayQuery.data?.nextUpcomingTask ? academyTaskToHodTask(todayQuery.data.nextUpcomingTask) : null;
+  const todayEmptyReason = todayQuery.data?.diagnostics.emptyReason;
+
+  async function refreshHodToday() {
+    await Promise.all([
+      todayQuery.refetch(),
+      calendarQuery.refetch(),
+      attendanceQuery.refetch(),
+      assignmentsQuery.refetch(),
+      examsQuery.refetch(),
+      monitorQuery.refetch(),
+    ]);
+  }
+
+  async function runHodTodayAction(item: HodTodayTask, action: { key: string; label: string; href: string }) {
+    const calendarId = item.id.replace(/^calendar-/, "");
+    const source = todayQuery.data?.todayTasks.find((task) => task.id === item.id)
+      ?? todayQuery.data?.upcomingTasks.find((task) => task.id === item.id)
+      ?? todayQuery.data?.nextUpcomingTask;
+    if (!source || source.id !== item.id) return;
+    const basePayload = {
+      taskId: source.id,
+      calendarId,
+      batchId: source.batchId || undefined,
+      subject: source.subject || undefined,
+      topic: source.topic || undefined,
+      date: source.date,
+      startTime: source.time || undefined,
+      endTime: source.endTime || undefined,
+    };
+    if (action.key === "COMPLETE") {
+      const teacherLog = window.prompt("What academic work is completed?", source.topic || source.detail || "Completed.");
+      if (teacherLog === null) return;
+      await runAcademyTodayAction({ ...basePayload, action: "COMPLETE", teacherLog, completionStatus: "COMPLETED" });
+      await refreshHodToday();
+      return;
+    }
+    if (action.key === "ATTENDANCE") {
+      if (!window.confirm(`Mark all students present for ${source.batchName || "this batch"} / ${source.subject || "this subject"}?`)) return;
+      await runAcademyTodayAction({ ...basePayload, action: "MARK_ATTENDANCE" });
+      await refreshHodToday();
+      return;
+    }
+    if (action.key === "LIVE_CLASS") {
+      await runAcademyTodayAction({ ...basePayload, action: "START_LIVE_CLASS" });
+      await refreshHodToday();
+      return;
+    }
+    if (action.key === "RECORDING_UPLOADED") {
+      const recordingUrl = window.prompt("Paste the uploaded recording URL");
+      if (!recordingUrl) return;
+      await runAcademyTodayAction({ ...basePayload, action: "RECORDING_UPLOADED", recordingUrl });
+      await refreshHodToday();
+    }
+  }
+
+  if (tab === "TODAY") {
+    const remaining = todayTasks.filter((item) => !item.done).length;
+    return (
+      <main className="mx-auto grid w-full max-w-4xl gap-4">
+        <header className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm sm:p-6">
+          <p className="text-xs font-black uppercase tracking-[0.3em] text-[var(--gold-dark)]">Today</p>
+          <div className="mt-2 flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <h1 className="text-3xl font-black">Academic to-do list</h1>
+              <p className="mt-2 text-sm text-[var(--muted-blue)]">Only the academic work that needs attention today.</p>
+            </div>
+            <span className="rounded-full border border-[var(--border)] px-3 py-1 text-xs font-black">{remaining} remaining</span>
+          </div>
+        </header>
+
+        {nextUpcomingTask ? (
+          <section className="rounded-2xl border border-slate-950 bg-slate-950 p-5 text-white shadow-sm">
+            <p className="text-xs font-black uppercase tracking-[0.3em] text-[var(--gold)]">Next academic action</p>
+            <div className="mt-3 grid gap-4 sm:grid-cols-[110px_1fr_auto] sm:items-center">
+              <div>
+                <p className="text-2xl font-black">{nextUpcomingTask.time}</p>
+                {nextUpcomingTask.endTime ? <p className="text-xs text-white/70">to {displayTaskTime(nextUpcomingTask.endTime)}</p> : null}
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs font-black uppercase tracking-[0.16em] text-[var(--gold)]">{nextUpcomingTask.type}</p>
+                <h2 className="mt-1 text-xl font-black">{nextUpcomingTask.title}</h2>
+                <p className="mt-1 text-sm text-white/75">{nextUpcomingTask.detail}</p>
+              </div>
+              <Link href={nextUpcomingTask.href} className="inline-flex min-h-11 items-center justify-center rounded-xl bg-white px-4 text-sm font-black text-slate-950">Open</Link>
+            </div>
+          </section>
+        ) : null}
+
+        <section className="grid gap-3">
+          {todayTasks.map((item) => (
+            <article key={item.id} className={`grid gap-3 rounded-2xl border p-4 transition sm:grid-cols-[96px_1fr_auto] sm:items-center ${item.done ? "border-emerald-200 bg-emerald-50/60" : "border-[var(--border)] bg-white"}`}>
+              <div>
+                <strong className="text-sm">{item.time}</strong>
+                {item.endTime ? <p className="mt-1 text-xs text-[var(--muted-blue)]">to {displayTaskTime(item.endTime)}</p> : null}
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs font-black uppercase tracking-[0.16em] text-[var(--gold-dark)]">{item.type}</p>
+                <Link href={item.href} className="mt-1 block font-black hover:underline">{item.title}</Link>
+                <p className="mt-1 text-sm text-[var(--muted-blue)]">{item.detail}</p>
+                {item.actions?.length ? (
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {item.actions.map((action) => ["COMPLETE", "ATTENDANCE", "LIVE_CLASS", "RECORDING_UPLOADED"].includes(action.key) ? (
+                      <button key={`${item.id}-${action.key}`} type="button" onClick={() => runHodTodayAction(item, action)} className="rounded-lg border border-[var(--border)] px-3 py-2 text-xs font-black hover:border-slate-950">
+                        {action.label}
+                      </button>
+                    ) : (
+                      <Link key={`${item.id}-${action.key}`} href={action.href} className="rounded-lg border border-[var(--border)] px-3 py-2 text-xs font-black hover:border-slate-950">
+                        {action.label}
+                      </Link>
+                    ))}
+                  </div>
+                ) : null}
+              </div>
+              <span className={`inline-flex w-fit items-center gap-2 rounded-full border px-3 py-1 text-xs font-black ${item.done ? "border-emerald-200 bg-white text-emerald-800" : "border-slate-200 bg-slate-50 text-slate-700"}`}>
+                <CheckCircle2 size={14} /> {item.done ? "Done" : "To do"}
+              </span>
+            </article>
+          ))}
+          {!todayTasks.length && !loading && !todayQuery.isLoading ? <Empty>{todayEmptyReason === "NO_CALENDAR_IN_RANGE" ? "No timetable is generated for the next two weeks." : "Nothing is assigned for today."}</Empty> : null}
+          {loading || todayQuery.isLoading ? <Empty>Loading today&apos;s academic work.</Empty> : null}
+        </section>
+      </main>
+    );
+  }
+
   return (
     <main className="grid gap-5">
       <header className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm sm:p-6">
@@ -143,7 +346,7 @@ export function HodControlCenter({ initialTab = "TODAY" }: { initialTab?: HodTab
           </div>
           <div className="grid grid-cols-2 gap-2 sm:flex">
             <Link href="/dashboard/academic-head/hod/timetable" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-slate-950 px-4 text-sm font-black"><CalendarDays size={17} /> Plan Timetable</Link>
-            <Link href="/dashboard/academic-head/hod/teacher-allocation" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 text-sm font-black text-white"><Users size={17} /> Allocate Teacher</Link>
+            <Link href="/dashboard/academic-head/hod/teacher-allocation" style={{ color: "#ffffff" }} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 text-sm font-black"><Users size={17} /> Allocate Teacher</Link>
           </div>
         </div>
       </header>
@@ -162,33 +365,6 @@ export function HodControlCenter({ initialTab = "TODAY" }: { initialTab?: HodTab
       <nav className="flex gap-2 overflow-x-auto rounded-2xl border border-[var(--border)] bg-white p-2 shadow-sm" aria-label="HOD workspaces">
         {tabs.map((item) => <button key={item.key} type="button" onClick={() => setTab(item.key)} className={`min-h-11 shrink-0 rounded-xl px-4 text-sm font-black ${tab === item.key ? "bg-slate-950 text-white" : "hover:bg-[var(--page-bg)]"}`}>{item.label}</button>)}
       </nav>
-
-      {tab === "TODAY" ? (
-        <section className="grid gap-5 xl:grid-cols-[1.25fr_0.75fr]">
-          <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
-            <div className="flex items-end justify-between gap-3"><div><p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold-dark)]">Today</p><h2 className="mt-2 text-2xl font-black">Class operations</h2></div><span className="rounded-full border border-[var(--border)] px-3 py-1 text-xs font-black">{todayClasses.length} classes</span></div>
-            <div className="mt-5 grid gap-3">
-              {todayClasses.slice(0, 12).map((item) => (
-                <article key={item.id} className="grid gap-3 rounded-xl border border-[var(--border)] p-4 sm:grid-cols-[100px_1fr_auto] sm:items-center">
-                  <strong className="text-lg">{item.startTime || "Time pending"}</strong>
-                  <div><h3 className="font-black">{item.batchName} / {item.subject}</h3><p className="mt-1 text-sm text-[var(--muted-blue)]">{item.topic || "Topic pending"} / {item.teacherName || "Teacher pending"}</p></div>
-                  <span className={`w-fit rounded-full border px-3 py-1 text-xs font-black ${statusTone(item.completionStatus || item.status)}`}>{item.completionStatus || item.status}</span>
-                </article>
-              ))}
-              {!todayClasses.length ? <Empty>No classes are scheduled for today.</Empty> : null}
-            </div>
-          </div>
-          <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
-            <p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold-dark)]">Next Actions</p><h2 className="mt-2 text-2xl font-black">Clear today&apos;s academic work</h2>
-            <div className="mt-5 grid gap-3">
-              <ActionLink href="/dashboard/academic-head/hod/reports" icon={ClipboardCheck} title={`${pendingAttendance} attendance entries`} note="Review missing class attendance." />
-              <ActionLink href="/dashboard/academic-head/hod/approvals" icon={FileText} title={`${pendingAssignments.length} assignment reviews`} note="Approve or request corrections." />
-              <ActionLink href="/dashboard/academic-head/hod/approvals" icon={BookOpenCheck} title={`${pendingExams.length} exam reviews`} note="Review approved papers and publication." />
-              <ActionLink href="/dashboard/academic-head/hod/teacher-monitoring" icon={AlertTriangle} title={`${attentionTeachers.length} faculty follow-ups`} note="Check delivery and reporting compliance." />
-            </div>
-          </div>
-        </section>
-      ) : null}
 
       {tab === "BATCHES" ? (
         <section className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
