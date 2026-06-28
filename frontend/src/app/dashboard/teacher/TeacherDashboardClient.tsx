@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Children, useEffect, useMemo, useRef, useState } from "react";
 import { Files, Video } from "lucide-react";
-import { uploadMediaFile } from "@/services/media";
+import { deleteMediaFile, uploadMediaFile } from "@/services/media";
 import { TeacherTodayView, type TeacherTodayScheduleItem } from "@/components/teacher/teacher-today-view";
 import { runAcademyTodayAction } from "@/services/academy";
 import type { AcademyTodayResponse, AcademyTodayTask } from "@/services/academy";
@@ -251,6 +251,7 @@ type MaterialRecord = {
 
 type LibraryUploadResource = {
   id: string;
+  mediaId?: string;
   name: string;
   mimeType: string;
   materialType: string;
@@ -2323,24 +2324,24 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
   }
 
   async function publishLibraryMaterial(resources: LibraryUploadResource[] = [], targetBatch: AssignedClass | null = selectedClass) {
-    if (!targetBatch) return;
+    if (!targetBatch) return false;
     if (!libraryForm.title.trim()) {
       setLibraryMessage("Lesson title is required.");
-      return;
+      return false;
     }
     const readyResources = resources.filter((resource) => resource.status === "READY" && resource.url);
     const hasYouTube = libraryForm.type === "YOUTUBE" && Boolean(libraryForm.url.trim());
     if (!readyResources.length && !hasYouTube) {
       setLibraryMessage("Upload a video or supporting file, or paste a YouTube link before publishing.");
-      return;
+      return false;
     }
     if (hasYouTube && !isYouTubeUrl(libraryForm.url)) {
       setLibraryMessage("Paste a valid YouTube video link and preview it before publishing.");
-      return;
+      return false;
     }
     if (resources.some((resource) => resource.status === "UPLOADING")) {
       setLibraryMessage("Please wait for every selected file to finish uploading.");
-      return;
+      return false;
     }
     setLibraryMessage(null);
     try {
@@ -2385,11 +2386,12 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
       }
       await Promise.all(resourcePayloads.map((payload) => apiPost<{ ok?: boolean }>(["/api/academy/study-materials"], payload)));
       setLibraryForm(initialLibraryForm);
-      setShowLibraryUpload(false);
       setLibraryMessage(`${resourcePayloads.length} lesson resource${resourcePayloads.length === 1 ? "" : "s"} published to ${targetBatch.name}.`);
       await loadClassWorkspace(targetBatch.id);
+      return true;
     } catch (error) {
       setLibraryMessage(error instanceof Error ? error.message : "Could not publish material.");
+      return false;
     }
   }
 
@@ -2573,6 +2575,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
                 : "FILE";
       setLibraryMessage(`${uploaded.originalName} uploaded.`);
       return {
+        mediaId: uploaded.id,
         name: uploaded.originalName,
         mimeType: uploaded.fileType,
         materialType: normalizedType,
@@ -2987,7 +2990,14 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
                 onSelectStudent={setStudentModalId}
                 onStartLive={() => openLiveClassCreator(selectedClass)}
                 onUploadLesson={() => openLibraryUpload(classroomSubject ?? subjectsForBatch(selectedClass)[0] ?? "General")}
-                onMarkAttendance={() => openAttendanceRegister(selectedClass.id)}
+                onMarkAttendance={() => {
+                  if (typeof window !== "undefined") {
+                    const subject = classroomSubject ?? subjectsForBatch(selectedClass)[0] ?? "General";
+                    window.location.href = `${dashboardBasePath}/attendance?batchId=${encodeURIComponent(selectedClass.id)}&subject=${encodeURIComponent(subject)}&action=mark-attendance`;
+                  } else {
+                    openAttendanceRegister(selectedClass.id);
+                  }
+                }}
                 onCreateExam={() => openExamCreator(classroomSubject ?? subjectsForBatch(selectedClass)[0] ?? "General")}
                 onCreateAssignment={() => openAssignmentCreator(classroomSubject ?? subjectsForBatch(selectedClass)[0] ?? "General")}
               />
@@ -3012,7 +3022,6 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
               />
             ) : null}
             {liveClassMessage ? <Notice text={liveClassMessage} /> : null}
-            <LiveClassStrip items={selectedBatchLiveClasses} onSaveRecording={saveLiveRecordingToLibrary} />
           </div>
         )}
       </section> : null}
@@ -3080,7 +3089,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
           onClose={() => setShowLibraryUpload(false)}
           onChange={setLibraryForm}
           onUploadMaterial={uploadLibraryFile}
-          onPublish={(resources, targetBatch) => void publishLibraryMaterial(resources, targetBatch)}
+          onPublish={(resources, targetBatch) => publishLibraryMaterial(resources, targetBatch)}
         />
       ) : null}
       {assignmentMessage && view === "classes" && activeCourseKey && activeBatchId ? <Notice text={assignmentMessage} /> : null}
@@ -3198,7 +3207,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
 
       {view === "attendance" ? (
         <AttendanceWorkspace
-          isAcademicHead={isAcademicHead}
+          isAcademicHead={isAcademicHead && workspaceAction !== "mark-attendance"}
           todayClasses={todaysAttendanceClasses}
           activeClasses={activeClasses}
           selectedClass={selectedClass}
@@ -3600,7 +3609,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
             onClose={() => setShowLibraryUpload(false)}
             onChange={setLibraryForm}
             onUploadMaterial={uploadLibraryFile}
-            onPublish={(resources, targetBatch) => void publishLibraryMaterial(resources, targetBatch)}
+            onPublish={(resources, targetBatch) => publishLibraryMaterial(resources, targetBatch)}
           />
         ) : null}
         {libraryMessage ? <Notice text={libraryMessage} /> : null}
@@ -5855,8 +5864,8 @@ function LibraryUploadPanel({
   onBatch: (batchId: string) => void;
   onClose: () => void;
   onChange: React.Dispatch<React.SetStateAction<typeof initialLibraryForm>>;
-  onUploadMaterial: (file: File, storagePath: string) => Promise<{ name: string; mimeType: string; materialType: string; url: string; publicId: string; fileSize: number }>;
-  onPublish: (resources: LibraryUploadResource[], targetBatch: AssignedClass | null) => void;
+  onUploadMaterial: (file: File, storagePath: string) => Promise<{ mediaId?: string; name: string; mimeType: string; materialType: string; url: string; publicId: string; fileSize: number }>;
+  onPublish: (resources: LibraryUploadResource[], targetBatch: AssignedClass | null) => Promise<boolean>;
 }) {
   const activeProgram = programGroups.find((program) => program.key === selectedProgramKey) ?? programGroups.find((program) => program.classes.some((batch) => batch.id === selectedClassId)) ?? programGroups[0] ?? null;
   const activeBatch = activeProgram?.classes.find((batch) => batch.id === selectedClassId) ?? activeProgram?.classes[0] ?? null;
@@ -5878,11 +5887,27 @@ function LibraryUploadPanel({
   const [customChapter, setCustomChapter] = useState(!chapterOptions.includes(form.chapter) && Boolean(form.chapter));
   const [customTopic, setCustomTopic] = useState(!topicOptions.includes(form.topic) && Boolean(form.topic));
   const previewUrls = useRef<string[]>([]);
+  const resourcesRef = useRef<LibraryUploadResource[]>([]);
+  const publishedRef = useRef(false);
+  const disposedRef = useRef(false);
+  const removedResourceIds = useRef<Set<string>>(new Set());
+  const cleanupTempUploads = (items: LibraryUploadResource[]) => {
+    const uploaded = items.filter((resource) => resource.mediaId && resource.status === "READY");
+    if (!uploaded.length) return;
+    void Promise.all(uploaded.map((resource) => deleteMediaFile(resource.mediaId as string).catch(() => undefined)));
+  };
   useEffect(() => {
     const urls = previewUrls.current;
     return () => {
       urls.forEach((url) => URL.revokeObjectURL(url));
     };
+  }, []);
+  useEffect(() => {
+    resourcesRef.current = resources;
+  }, [resources]);
+  useEffect(() => () => {
+    disposedRef.current = true;
+    if (!publishedRef.current) cleanupTempUploads(resourcesRef.current);
   }, []);
   const selectedResource = resources.find((resource) => resource.id === selectedPreviewId) ?? resources[0] ?? null;
   const youtubePreviewUrl = youtubeEmbedUrl(form.url);
@@ -5926,6 +5951,10 @@ function LibraryUploadPanel({
     await Promise.all(queued.map(async ({ file, resource }) => {
       try {
         const uploaded = await onUploadMaterial(file, storagePath);
+        if ((disposedRef.current || removedResourceIds.current.has(resource.id)) && uploaded.mediaId && !publishedRef.current) {
+          await deleteMediaFile(uploaded.mediaId).catch(() => undefined);
+          return;
+        }
         setResources((current) => current.map((item) => item.id === resource.id ? {
           ...item,
           ...uploaded,
@@ -5942,8 +5971,26 @@ function LibraryUploadPanel({
   };
 
   const removeResource = (resourceId: string) => {
-    setResources((current) => current.filter((resource) => resource.id !== resourceId));
+    removedResourceIds.current.add(resourceId);
+    const resource = resourcesRef.current.find((item) => item.id === resourceId);
+    if (resource?.mediaId && resource.status === "READY") {
+      void deleteMediaFile(resource.mediaId).catch(() => undefined);
+    }
+    setResources((current) => current.filter((item) => item.id !== resourceId));
     if (selectedPreviewId === resourceId) setSelectedPreviewId(null);
+  };
+
+  const closeUpload = () => {
+    cleanupTempUploads(resourcesRef.current);
+    onClose();
+  };
+
+  const publishUpload = async () => {
+    const published = await onPublish(resources, activeBatch);
+    if (published) {
+      publishedRef.current = true;
+      onClose();
+    }
   };
 
   const compactSelectClass = "mt-1 h-10 w-full min-w-0 rounded-lg border border-[var(--border)] bg-white px-3 text-sm font-bold text-[var(--ink)] outline-none focus:border-slate-950";
@@ -5956,7 +6003,7 @@ function LibraryUploadPanel({
           <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.18em] text-[var(--gold-dark)]"><Library size={15} /> Recorded Class Library</div>
           <h1 className="mt-1 truncate text-xl font-black sm:text-2xl">Upload lesson resources</h1>
         </div>
-        <button type="button" onClick={onClose} className="inline-flex h-11 shrink-0 items-center gap-2 rounded-xl border border-[var(--border)] bg-white px-4 text-sm font-black text-[var(--ink)] hover:bg-[var(--page-bg)]" aria-label="Close upload lesson">
+        <button type="button" onClick={closeUpload} className="inline-flex h-11 shrink-0 items-center gap-2 rounded-xl border border-[var(--border)] bg-white px-4 text-sm font-black text-[var(--ink)] hover:bg-[var(--page-bg)]" aria-label="Close upload lesson">
           <X size={17} /> <span className="hidden sm:inline">Back to class</span>
         </button>
       </header>
@@ -6108,7 +6155,7 @@ function LibraryUploadPanel({
 
       <footer className="flex shrink-0 flex-col gap-2 border-t border-[var(--border)] bg-white px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-6">
         <p className="min-w-0 truncate text-xs font-bold text-[var(--muted-blue)]">{activeProgram?.name} / {activeBatch?.name} / {selectedSubject} / {selectedChapter} / {selectedTopic}</p>
-        <button type="button" disabled={!canPublish} onClick={() => onPublish(resources, activeBatch)} className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-emerald-700 px-6 font-black text-white disabled:cursor-not-allowed disabled:opacity-50"><Plus size={17} /> {hasUploading ? "Uploading..." : "Publish to students"}</button>
+        <button type="button" disabled={!canPublish} onClick={() => void publishUpload()} className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-emerald-700 px-6 font-black text-white disabled:cursor-not-allowed disabled:opacity-50"><Plus size={17} /> {hasUploading ? "Uploading..." : "Publish to students"}</button>
       </footer>
     </div>
   );
