@@ -16,6 +16,7 @@ import {
   FileText,
   History,
   Library,
+  Search,
   Megaphone,
   Presentation,
   RefreshCw,
@@ -47,6 +48,7 @@ type WorkspaceBatch = {
 
 type WorkspaceCalendarItem = {
   id: string;
+  batchId?: string | null;
   batchName?: string | null;
   subject?: string | null;
   topic?: string | null;
@@ -93,7 +95,9 @@ function recordDate(record: WorkspaceRecord) {
 }
 
 function latestRecord(records: WorkspaceRecord[]) {
-  return [...records].sort((left, right) => Date.parse(recordDate(right)) - Date.parse(recordDate(left)))[0];
+  return records
+    .filter((record) => Number.isFinite(Date.parse(recordDate(record))))
+    .sort((left, right) => Date.parse(recordDate(right)) - Date.parse(recordDate(left)))[0];
 }
 
 function displayDate(value?: string | null) {
@@ -115,6 +119,9 @@ export function MyWorkspace({ role }: { role: WorkspaceRole }) {
   const [workspace, setWorkspace] = useState<WorkspaceData>(EMPTY_WORKSPACE);
   const [workspaceLoading, setWorkspaceLoading] = useState(true);
   const [workspaceError, setWorkspaceError] = useState<string | null>(null);
+  const [toolQuery, setToolQuery] = useState("");
+  const [hodExpanded, setHodExpanded] = useState(true);
+  const [loadedAt, setLoadedAt] = useState(0);
 
   const loadWorkspace = useCallback(async () => {
     setWorkspaceLoading(true);
@@ -137,16 +144,20 @@ export function MyWorkspace({ role }: { role: WorkspaceRole }) {
       exams: recordsFrom<WorkspaceRecord>(exams, "exams"),
       materials: recordsFrom<WorkspaceRecord>(materials, "materials"),
     });
-    if (results.every((result) => result.status === "rejected")) {
+    const failedSources = results.filter((result) => result.status === "rejected").length;
+    if (failedSources === results.length) {
       setWorkspaceError("Workspace activity could not be loaded. Refresh to try again.");
+    } else if (failedSources > 0) {
+      setWorkspaceError("Some workspace activity is temporarily unavailable. The available records are shown below.");
     }
+    setLoadedAt(Date.now());
     setWorkspaceLoading(false);
   }, []);
 
   useEffect(() => {
     void loadWorkspace();
   }, [loadWorkspace]);
-  const teacherTools: WorkspaceTool[] = [
+  const teacherTools = useMemo<WorkspaceTool[]>(() => [
     {
       title: "Create Exam",
       description: "Prepare, preview and publish exams for assigned classes.",
@@ -248,9 +259,9 @@ export function MyWorkspace({ role }: { role: WorkspaceRole }) {
       href: academicHead ? `${base}/hod/reports` : `${base}/students`,
       label: "Review",
     },
-  ];
+  ], [academicHead, base]);
 
-  const hodTools: WorkspaceTool[] = [
+  const hodTools = useMemo<WorkspaceTool[]>(() => [
     { title: "Review Exams", description: "Approve, request changes or publish exam papers.", icon: ClipboardCheck, href: `${base}/hod/approvals`, label: "Approval" },
     { title: "Review Assignments", description: "Review homework drafts and publication requests.", icon: ClipboardList, href: `${base}/hod/approvals`, label: "Approval" },
     { title: "Plan Timetable", description: "Create and update academic schedules.", icon: CalendarRange, href: `${base}/hod/timetable`, label: "Schedule" },
@@ -263,10 +274,20 @@ export function MyWorkspace({ role }: { role: WorkspaceRole }) {
     { title: "Library Review", description: "Review materials and teaching resources.", icon: Library, href: `${base}/library`, label: "Resources" },
     { title: "Faculty Workload", description: "Check allocation balance and overload risks.", icon: AlertCircle, href: `${base}/hod/teacher-monitoring`, label: "Workload" },
     { title: "Batch Health Alerts", description: "Open delayed batches and action-needed signals.", icon: ShieldAlert, href: `${base}/hod/reports`, label: "Alerts" },
-  ];
+  ], [base]);
+
+  const normalizedToolQuery = toolQuery.trim().toLowerCase();
+  const visibleTeacherTools = useMemo(
+    () => teacherTools.filter((tool) => !normalizedToolQuery || `${tool.title} ${tool.description} ${tool.label}`.toLowerCase().includes(normalizedToolQuery)),
+    [normalizedToolQuery, teacherTools],
+  );
+  const visibleHodTools = useMemo(
+    () => hodTools.filter((tool) => !normalizedToolQuery || `${tool.title} ${tool.description} ${tool.label}`.toLowerCase().includes(normalizedToolQuery)),
+    [hodTools, normalizedToolQuery],
+  );
 
   const pendingActions = useMemo(() => {
-    const now = Date.now();
+    const now = loadedAt;
     const openStatuses = new Set(["DRAFT", "REVIEW", "PENDING_REVIEW", "REVISION_REQUIRED", "APPROVED"]);
     const upcoming = workspace.calendar
       .filter((item) => !["COMPLETED", "CANCELLED"].includes(String(item.completionStatus || item.status || "").toUpperCase()))
@@ -274,7 +295,7 @@ export function MyWorkspace({ role }: { role: WorkspaceRole }) {
       .sort((left, right) => calendarMoment(left) - calendarMoment(right));
     const pendingAssignments = workspace.assignments.filter((item) => openStatuses.has(String(item.reviewStatus || item.status || "").toUpperCase()));
     const pendingExams = workspace.exams.filter((item) => openStatuses.has(String(item.reviewStatus || item.status || "").toUpperCase()));
-    const batchesWithoutSchedule = workspace.batches.filter((batch) => !workspace.calendar.some((item) => item.id && (item as WorkspaceCalendarItem & { batchId?: string }).batchId === batch.id));
+    const batchesWithoutSchedule = workspace.batches.filter((batch) => !workspace.calendar.some((item) => item.batchId === batch.id));
     const nextClass = upcoming[0];
 
     if (academicHead) {
@@ -314,10 +335,12 @@ export function MyWorkspace({ role }: { role: WorkspaceRole }) {
         href: `${base}/exams`,
       },
     ];
-  }, [academicHead, base, workspace]);
+  }, [academicHead, base, loadedAt, workspace]);
 
   const recentItems = useMemo(() => {
-    const recentClass = [...workspace.calendar].sort((left, right) => calendarMoment(right) - calendarMoment(left))[0];
+    const recentClass = workspace.calendar
+      .filter((item) => Number.isFinite(calendarMoment(item)))
+      .sort((left, right) => calendarMoment(right) - calendarMoment(left))[0];
     const recentLesson = latestRecord(workspace.materials);
     const recentAssignment = latestRecord(workspace.assignments);
     return [
@@ -342,6 +365,22 @@ export function MyWorkspace({ role }: { role: WorkspaceRole }) {
     ];
   }, [base, workspace]);
 
+  const workspaceSummary = useMemo(() => {
+    const now = loadedAt;
+    const upcoming = workspace.calendar.filter((item) => {
+      const status = String(item.completionStatus || item.status || "").toUpperCase();
+      return !["COMPLETED", "CANCELLED"].includes(status) && calendarMoment(item) >= now;
+    }).length;
+    const openStatuses = new Set(["DRAFT", "REVIEW", "PENDING_REVIEW", "REVISION_REQUIRED", "APPROVED"]);
+    const pendingWork = [...workspace.assignments, ...workspace.exams].filter((item) => openStatuses.has(String(item.reviewStatus || item.status || "").toUpperCase())).length;
+    return [
+      { label: "Assigned batches", value: workspace.batches.length },
+      { label: "Upcoming sessions", value: upcoming },
+      { label: "Work in progress", value: pendingWork },
+      { label: "Library items", value: workspace.materials.length },
+    ];
+  }, [loadedAt, workspace]);
+
   return (
     <main className="mx-auto grid w-full max-w-7xl gap-5">
       <header className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm sm:p-6">
@@ -361,7 +400,28 @@ export function MyWorkspace({ role }: { role: WorkspaceRole }) {
         </div>
       </header>
 
-      <section className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
+      <section aria-label="Workspace summary" aria-busy={workspaceLoading} className="grid grid-cols-2 overflow-hidden rounded-2xl border border-[var(--border)] bg-white shadow-sm lg:grid-cols-4">
+        {workspaceSummary.map((item) => (
+          <div key={item.label} className="min-w-0 border-b border-r border-[var(--border)] p-4 last:border-r-0 lg:border-b-0">
+            <p className="truncate text-[11px] font-black uppercase tracking-[0.14em] text-[var(--muted-blue)]">{item.label}</p>
+            <p className="mt-2 text-2xl font-black" aria-live="polite">{workspaceLoading ? "--" : item.value}</p>
+          </div>
+        ))}
+      </section>
+
+      {!workspaceLoading && !workspace.batches.length ? (
+        <section role="status" className="flex flex-col gap-3 rounded-2xl border border-amber-300 bg-amber-50 p-5 text-amber-950 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 className="font-black">No teaching batch is assigned</h2>
+            <p className="mt-1 text-sm leading-6">Teaching tools remain available, but batch-linked work needs an active faculty allocation.</p>
+          </div>
+          <Link href={academicHead ? `${base}/hod/teacher-allocation` : `${base}/profile`} className="inline-flex min-h-11 items-center justify-center rounded-xl border border-amber-900 px-4 text-sm font-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-950">
+            {academicHead ? "Open allocation" : "View profile"}
+          </Link>
+        </section>
+      ) : null}
+
+      <section aria-busy={workspaceLoading} className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold-dark)]">Pending My Action</p>
@@ -372,26 +432,60 @@ export function MyWorkspace({ role }: { role: WorkspaceRole }) {
             {workspaceLoading ? "Loading" : "Refresh"}
           </button>
         </div>
-        {workspaceError ? <p className="mt-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold text-red-700">{workspaceError}</p> : null}
-        <div className="mt-4 grid gap-3 md:grid-cols-3">
-          {pendingActions.map((item) => (
+        {workspaceError ? <p role="status" className="mt-3 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm font-bold text-amber-900">{workspaceError}</p> : null}
+        {workspaceLoading ? <WorkspaceCardSkeletons /> : (
+          <div className="mt-4 grid gap-3 md:grid-cols-3">
+            {pendingActions.map((item) => (
             <Link key={item.title} href={item.href} className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4 transition hover:border-slate-950">
               <h3 className="font-black">{item.title}</h3>
               <p className="mt-2 text-sm leading-6 text-[var(--muted-blue)]">{item.text}</p>
             </Link>
-          ))}
+            ))}
+          </div>
+        )}
+      </section>
+
+      <section className="rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm">
+        <label htmlFor="workspace-tool-search" className="text-xs font-black uppercase tracking-[0.2em] text-[var(--gold-dark)]">Find a tool</label>
+        <div className="mt-2 flex min-h-12 items-center gap-3 rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-4 focus-within:border-slate-950 focus-within:ring-2 focus-within:ring-slate-200">
+          <Search size={19} aria-hidden="true" />
+          <input
+            id="workspace-tool-search"
+            value={toolQuery}
+            onChange={(event) => setToolQuery(event.target.value)}
+            placeholder="Search exams, attendance, timetable..."
+            className="min-w-0 flex-1 bg-transparent py-3 text-sm font-bold outline-none placeholder:font-normal"
+          />
+          {toolQuery ? <button type="button" onClick={() => setToolQuery("")} className="rounded-lg px-2 py-1 text-xs font-black hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950">Clear</button> : null}
         </div>
       </section>
 
-      <WorkspaceSection eyebrow="Teaching Tools" title="Create, upload, mark and review" tools={teacherTools} />
+      <WorkspaceSection eyebrow="Teaching Tools" title="Create, upload, mark and review" tools={visibleTeacherTools} emptyMessage="No teaching tool matches your search." />
 
-      {academicHead ? <WorkspaceSection eyebrow="HOD Controls" title="Academic Head add-ons" tools={hodTools} /> : null}
+      {academicHead ? (
+        <section className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
+          <button
+            type="button"
+            onClick={() => setHodExpanded((current) => !current)}
+            aria-expanded={hodExpanded}
+            className="flex min-h-12 w-full items-center justify-between gap-4 rounded-xl text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950"
+          >
+            <span>
+              <span className="block text-xs font-black uppercase tracking-[0.25em] text-[var(--gold-dark)]">HOD Controls</span>
+              <span className="mt-1 block text-2xl font-black">Academic Head add-ons</span>
+            </span>
+            <span className="rounded-full border border-[var(--border)] px-3 py-1 text-xs font-black">{hodExpanded ? "Hide" : "Show"}</span>
+          </button>
+          {hodExpanded ? <WorkspaceToolGrid eyebrow="HOD Controls" tools={visibleHodTools} emptyMessage="No HOD control matches your search." /> : null}
+        </section>
+      ) : null}
 
-      <section className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
+      <section aria-busy={workspaceLoading} className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
         <p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold-dark)]">Recently Used</p>
         <h2 className="mt-1 text-2xl font-black">Return to recent work</h2>
-        <div className="mt-4 grid gap-3 md:grid-cols-3">
-          {recentItems.map((item) => {
+        {workspaceLoading ? <WorkspaceCardSkeletons /> : (
+          <div className="mt-4 grid gap-3 md:grid-cols-3">
+            {recentItems.map((item) => {
             const Icon = item.icon;
             return (
               <Link key={`${item.title}-${item.href}`} href={item.href} className="rounded-2xl border border-dashed border-[var(--border)] bg-[var(--page-bg)] p-4 transition hover:border-slate-950">
@@ -400,14 +494,29 @@ export function MyWorkspace({ role }: { role: WorkspaceRole }) {
                 <p className="mt-2 text-sm text-[var(--muted-blue)]">{item.text}</p>
               </Link>
             );
-          })}
-        </div>
+            })}
+          </div>
+        )}
       </section>
     </main>
   );
 }
 
-function WorkspaceSection({ eyebrow, title, tools }: { eyebrow: string; title: string; tools: WorkspaceTool[] }) {
+function WorkspaceCardSkeletons() {
+  return (
+    <div className="mt-4 grid gap-3 md:grid-cols-3" aria-label="Loading workspace activity">
+      {[0, 1, 2].map((item) => (
+        <div key={item} className="min-h-28 animate-pulse rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
+          <div className="h-4 w-2/3 rounded bg-slate-200" />
+          <div className="mt-4 h-3 w-full rounded bg-slate-200" />
+          <div className="mt-2 h-3 w-4/5 rounded bg-slate-200" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function WorkspaceSection({ eyebrow, title, tools, emptyMessage }: { eyebrow: string; title: string; tools: WorkspaceTool[]; emptyMessage: string }) {
   return (
     <section className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
       <div className="flex flex-wrap items-end justify-between gap-3">
@@ -417,14 +526,24 @@ function WorkspaceSection({ eyebrow, title, tools }: { eyebrow: string; title: s
         </div>
         <span className="rounded-full border border-[var(--border)] px-3 py-1 text-xs font-black">{tools.length} tool(s)</span>
       </div>
-      <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-4">
+      <WorkspaceToolGrid eyebrow={eyebrow} tools={tools} emptyMessage={emptyMessage} />
+    </section>
+  );
+}
+
+function WorkspaceToolGrid({ eyebrow, tools, emptyMessage }: { eyebrow: string; tools: WorkspaceTool[]; emptyMessage: string }) {
+  if (!tools.length) {
+    return <p className="mt-4 rounded-xl border border-dashed border-[var(--border)] bg-[var(--page-bg)] p-5 text-sm font-bold text-[var(--muted-blue)]">{emptyMessage}</p>;
+  }
+  return (
+      <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
         {tools.map((tool) => {
           const Icon = tool.icon;
           return (
             <Link
               key={`${eyebrow}-${tool.title}`}
               href={tool.href}
-              className={`group flex min-h-44 flex-col rounded-2xl border p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-slate-950 ${
+              className={`group flex min-h-40 flex-col rounded-2xl border p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-slate-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2 sm:min-h-44 ${
                 tool.primary ? "border-slate-950 bg-slate-950 text-white" : "border-[var(--border)] bg-white"
               }`}
             >
@@ -441,6 +560,5 @@ function WorkspaceSection({ eyebrow, title, tools }: { eyebrow: string; title: s
           );
         })}
       </div>
-    </section>
   );
 }

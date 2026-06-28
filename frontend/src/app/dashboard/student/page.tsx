@@ -271,7 +271,18 @@ export default function StudentDashboardPage() {
     queryFn: () => apiJson<{ leaves: StudentLeaveRequest[] }>("/api/academy/leave-requests"),
   });
 
-  const batches = (academicPlan.data?.batches ?? []).filter((batch) => batch.status === "ACTIVE");
+  const batches = useMemo(
+    () => (academicPlan.data?.batches ?? []).filter((batch) => batch.status === "ACTIVE"),
+    [academicPlan.data?.batches],
+  );
+  const teacherList = useMemo(
+    () =>
+      batches
+        .flatMap((batch) => batch.teachers ?? [])
+        .filter((teacher) => teacher.teacher?.name)
+        .slice(0, 8),
+    [batches],
+  );
   const isActivatedLearner = Boolean(batches.length) && user?.role !== "GUEST";
   const shouldOpenApplicantLobby = !academicPlan.isLoading && !isActivatedLearner;
 
@@ -299,14 +310,6 @@ export default function StudentDashboardPage() {
   const upcomingLiveClasses = liveClasses.filter((item) => item.scheduledAt.slice(0, 10) >= today).slice(0, 4);
   const recentMaterials = [...materials].sort((left, right) => String(right.createdAt ?? "").localeCompare(String(left.createdAt ?? ""))).slice(0, 6);
   const primaryBatch = batches[0];
-  const teacherList = useMemo(
-    () =>
-      batches
-        .flatMap((batch) => batch.teachers ?? [])
-        .filter((teacher) => teacher.teacher?.name)
-        .slice(0, 8),
-    [batches],
-  );
 
   return (
     <main className="min-h-screen bg-[var(--page-bg)] px-4 py-5 text-[var(--navy)] md:px-6">
