@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Children, useEffect, useMemo, useState } from "react";
+import { Children, useEffect, useMemo, useRef, useState } from "react";
 import { uploadMediaFile } from "@/services/media";
 import { TeacherTodayView, type TeacherTodayScheduleItem } from "@/components/teacher/teacher-today-view";
 import { runAcademyTodayAction } from "@/services/academy";
@@ -248,6 +248,19 @@ type MaterialRecord = {
   reviewStatus?: string | null;
 };
 
+type LibraryUploadResource = {
+  id: string;
+  name: string;
+  mimeType: string;
+  materialType: string;
+  url: string;
+  publicId: string;
+  fileSize: number;
+  localPreviewUrl: string;
+  status: "UPLOADING" | "READY" | "ERROR";
+  error?: string;
+};
+
 type LibraryFolderItem = {
   name: string;
   materials: MaterialRecord[];
@@ -421,6 +434,7 @@ const emptyWorkspace: ClassWorkspace = {
 const initialLibraryForm = {
   folder: "",
   subject: "",
+  chapter: "",
   topic: "",
   title: "",
   description: "",
@@ -1733,6 +1747,28 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
     setShowLibraryUpload(false);
   }
 
+  function chooseLibraryProgram(key: string) {
+    const program = programGroups.find((item) => item.key === key);
+    const nextBatch = program?.classes[0] ?? null;
+    setSelectedProgramKey(key);
+    setSelectedClassId(nextBatch?.id ?? null);
+    if (nextBatch?.id && typeof window !== "undefined") window.localStorage.setItem("teacherSelectedBatchId", nextBatch.id);
+    const nextSubject = nextBatch ? subjectsForBatch(nextBatch)[0] || "General" : "General";
+    setLibrarySubject(nextSubject);
+    setLibraryTopic(null);
+    setLibraryForm((form) => ({ ...form, subject: nextSubject, folder: "", chapter: "", topic: "" }));
+  }
+
+  function chooseLibraryBatch(batchId: string) {
+    const nextBatch = activeClasses.find((item) => item.id === batchId) ?? null;
+    setSelectedClassId(batchId);
+    if (typeof window !== "undefined") window.localStorage.setItem("teacherSelectedBatchId", batchId);
+    const nextSubject = nextBatch ? subjectsForBatch(nextBatch)[0] || "General" : "General";
+    setLibrarySubject(nextSubject);
+    setLibraryTopic(null);
+    setLibraryForm((form) => ({ ...form, subject: nextSubject, folder: "", chapter: "", topic: "" }));
+  }
+
   function openLibraryUpload(subjectOverride?: string, topicOverride?: string) {
     const subject = subjectOverride || activeLibrarySubject || (selectedClass ? subjectsForBatch(selectedClass)[0] : "") || "General";
     const topic = topicOverride ?? activeLibraryTopic;
@@ -2285,45 +2321,72 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
     }
   }
 
-  async function publishLibraryMaterial() {
-    if (!selectedClass) return;
+  async function publishLibraryMaterial(resources: LibraryUploadResource[] = [], targetBatch: AssignedClass | null = selectedClass) {
+    if (!targetBatch) return;
     if (!libraryForm.title.trim()) {
       setLibraryMessage("Lesson title is required.");
       return;
     }
-    if (!libraryForm.url && !libraryForm.fileName) {
-      setLibraryMessage("Upload a video, PDF, document, image or paste a YouTube link before publishing.");
+    const readyResources = resources.filter((resource) => resource.status === "READY" && resource.url);
+    const hasYouTube = libraryForm.type === "YOUTUBE" && Boolean(libraryForm.url.trim());
+    if (!readyResources.length && !hasYouTube) {
+      setLibraryMessage("Upload a video or supporting file, or paste a YouTube link before publishing.");
       return;
     }
-    if (libraryForm.type === "YOUTUBE" && !isYouTubeUrl(libraryForm.url)) {
+    if (hasYouTube && !isYouTubeUrl(libraryForm.url)) {
       setLibraryMessage("Paste a valid YouTube video link and preview it before publishing.");
+      return;
+    }
+    if (resources.some((resource) => resource.status === "UPLOADING")) {
+      setLibraryMessage("Please wait for every selected file to finish uploading.");
       return;
     }
     setLibraryMessage(null);
     try {
-      await apiPost<{ ok?: boolean }>(["/api/academy/study-materials"], {
-        batchId: selectedClass.id,
-        batchName: selectedClass.name,
-        course: programName(selectedClass),
-        folder: libraryForm.folder || activeLibrarySubject,
-        subject: libraryForm.subject || activeLibrarySubject,
-        topic: libraryForm.topic.trim() || "General Lessons",
-        title: libraryForm.title,
+      const subject = libraryForm.subject || activeLibrarySubject || "General";
+      const chapter = libraryForm.chapter.trim() || libraryForm.folder || subject;
+      const topic = libraryForm.topic.trim() || "General Lessons";
+      const resourcePayloads = readyResources.map((resource, index) => ({
+        batchId: targetBatch.id,
+        batchName: targetBatch.name,
+        course: programName(targetBatch),
+        folder: chapter,
+        subject,
+        topic,
+        title: index === 0 ? libraryForm.title : `${libraryForm.title} - ${resource.name}`,
         description: libraryForm.description,
-        type: libraryForm.type,
-        url: libraryForm.url || undefined,
-        fileName: libraryForm.fileName || undefined,
-        cloudinaryPublicId: libraryForm.cloudinaryPublicId || undefined,
-        thumbnailUrl: libraryForm.thumbnailUrl || undefined,
-        thumbnailPublicId: libraryForm.thumbnailPublicId || undefined,
-        fileSize: libraryForm.fileSize ? Number(libraryForm.fileSize) : undefined,
-        durationSeconds: libraryForm.durationSeconds ? Number(libraryForm.durationSeconds) : undefined,
-        lessonName: libraryForm.lessonName || libraryForm.title || undefined,
-      });
+        type: resource.materialType,
+        url: resource.url,
+        fileName: resource.name,
+        cloudinaryPublicId: resource.publicId,
+        fileSize: resource.fileSize,
+        lessonName: libraryForm.lessonName || libraryForm.title,
+        status: "PUBLISHED",
+      }));
+      if (hasYouTube) {
+        resourcePayloads.push({
+          batchId: targetBatch.id,
+          batchName: targetBatch.name,
+          course: programName(targetBatch),
+          folder: chapter,
+          subject,
+          topic,
+          title: readyResources.length ? `${libraryForm.title} - YouTube` : libraryForm.title,
+          description: libraryForm.description,
+          type: "YOUTUBE",
+          url: libraryForm.url.trim(),
+          fileName: "YouTube lesson link",
+          cloudinaryPublicId: "",
+          fileSize: 0,
+          lessonName: libraryForm.lessonName || libraryForm.title,
+          status: "PUBLISHED",
+        });
+      }
+      await Promise.all(resourcePayloads.map((payload) => apiPost<{ ok?: boolean }>(["/api/academy/study-materials"], payload)));
       setLibraryForm(initialLibraryForm);
       setShowLibraryUpload(false);
-      setLibraryMessage("Lesson published for students.");
-      await loadClassWorkspace(selectedClass.id);
+      setLibraryMessage(`${resourcePayloads.length} lesson resource${resourcePayloads.length === 1 ? "" : "s"} published to ${targetBatch.name}.`);
+      await loadClassWorkspace(targetBatch.id);
     } catch (error) {
       setLibraryMessage(error instanceof Error ? error.message : "Could not publish material.");
     }
@@ -2492,10 +2555,10 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
     }
   }
 
-  async function uploadLibraryFile(file: File) {
-    setLibraryMessage("Uploading...");
+  async function uploadLibraryFile(file: File, storagePath: string) {
+    setLibraryMessage(`Uploading ${file.name}...`);
     try {
-      const uploaded = await uploadMediaFile({ file });
+      const uploaded = await uploadMediaFile({ file, storagePath });
       const normalizedType = uploaded.fileType.startsWith("video/")
         ? "VIDEO"
         : uploaded.fileType.includes("pdf")
@@ -2505,21 +2568,20 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
             : uploaded.fileType.includes("word") || uploaded.originalName.toLowerCase().endsWith(".doc") || uploaded.originalName.toLowerCase().endsWith(".docx")
               ? "WORD"
               : uploaded.fileType.startsWith("image/")
-                ? "IMAGE"
+              ? "IMAGE"
                 : "FILE";
-      setLibraryForm((form) => ({
-        ...form,
-        title: form.title || uploaded.originalName.replace(/\.[^.]+$/, ""),
-        lessonName: form.lessonName || uploaded.originalName.replace(/\.[^.]+$/, ""),
-        type: normalizedType,
-        url: uploaded.cloudinaryUrl,
-        fileName: uploaded.originalName,
-        cloudinaryPublicId: uploaded.publicId,
-        fileSize: String(uploaded.fileSize),
-      }));
-      setLibraryMessage("Upload complete.");
+      setLibraryMessage(`${uploaded.originalName} uploaded.`);
+      return {
+        name: uploaded.originalName,
+        mimeType: uploaded.fileType,
+        materialType: normalizedType,
+        url: uploaded.signedUrl || uploaded.cloudinaryUrl,
+        publicId: uploaded.publicId,
+        fileSize: uploaded.fileSize,
+      };
     } catch (error) {
       setLibraryMessage(error instanceof Error ? error.message : "Could not upload file.");
+      throw error;
     }
   }
 
@@ -2996,8 +3058,8 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
           programGroups={programGroups}
           selectedProgramKey={selectedProgramKey ?? undefined}
           selectedClassId={selectedClass?.id}
-          onProgram={chooseProgram}
-          onBatch={chooseBatch}
+          onProgram={chooseLibraryProgram}
+          onBatch={chooseLibraryBatch}
           selectedProgramName={selectedProgram?.name ?? ""}
           selectedBatchName={selectedClass?.name ?? ""}
           examSourceName={examSourceName}
@@ -3008,10 +3070,16 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
           form={libraryForm}
           activeSubject={librarySubject ?? classroomSubject ?? subjectsForBatch(selectedClass)[0] ?? "General"}
           activeTopic={libraryTopic}
+          programGroups={programGroups}
+          selectedProgramKey={selectedProgramKey ?? undefined}
+          selectedClassId={selectedClass.id}
+          existingMaterials={classWorkspace.materials}
+          onProgram={chooseLibraryProgram}
+          onBatch={chooseLibraryBatch}
           onClose={() => setShowLibraryUpload(false)}
           onChange={setLibraryForm}
-          onUploadMaterial={(file) => void uploadLibraryFile(file)}
-          onPublish={() => void publishLibraryMaterial()}
+          onUploadMaterial={uploadLibraryFile}
+          onPublish={(resources, targetBatch) => void publishLibraryMaterial(resources, targetBatch)}
         />
       ) : null}
       {assignmentMessage && view === "classes" && activeCourseKey && activeBatchId ? <Notice text={assignmentMessage} /> : null}
@@ -3522,10 +3590,16 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
             form={libraryForm}
             activeSubject={activeLibrarySubject}
             activeTopic={activeLibraryTopic}
+            programGroups={programGroups}
+            selectedProgramKey={selectedProgramKey ?? undefined}
+            selectedClassId={selectedClass.id}
+            existingMaterials={classWorkspace.materials}
+            onProgram={chooseLibraryProgram}
+            onBatch={chooseLibraryBatch}
             onClose={() => setShowLibraryUpload(false)}
             onChange={setLibraryForm}
-            onUploadMaterial={(file) => void uploadLibraryFile(file)}
-            onPublish={() => void publishLibraryMaterial()}
+            onUploadMaterial={uploadLibraryFile}
+            onPublish={(resources, targetBatch) => void publishLibraryMaterial(resources, targetBatch)}
           />
         ) : null}
         {libraryMessage ? <Notice text={libraryMessage} /> : null}
@@ -5758,6 +5832,12 @@ function LibraryUploadPanel({
   form,
   activeSubject,
   activeTopic,
+  programGroups,
+  selectedProgramKey,
+  selectedClassId,
+  existingMaterials,
+  onProgram,
+  onBatch,
   onClose,
   onChange,
   onUploadMaterial,
@@ -5766,111 +5846,248 @@ function LibraryUploadPanel({
   form: typeof initialLibraryForm;
   activeSubject: string | null;
   activeTopic: string | null;
+  programGroups: Array<{ key: string; name: string; classes: AssignedClass[] }>;
+  selectedProgramKey?: string;
+  selectedClassId?: string;
+  existingMaterials: MaterialRecord[];
+  onProgram: (key: string) => void;
+  onBatch: (batchId: string) => void;
   onClose: () => void;
   onChange: React.Dispatch<React.SetStateAction<typeof initialLibraryForm>>;
-  onUploadMaterial: (file: File) => void;
-  onPublish: () => void;
+  onUploadMaterial: (file: File, storagePath: string) => Promise<{ name: string; mimeType: string; materialType: string; url: string; publicId: string; fileSize: number }>;
+  onPublish: (resources: LibraryUploadResource[], targetBatch: AssignedClass | null) => void;
 }) {
-  const selectedSubject = activeSubject || form.subject || "Selected subject";
+  const activeProgram = programGroups.find((program) => program.key === selectedProgramKey) ?? programGroups.find((program) => program.classes.some((batch) => batch.id === selectedClassId)) ?? programGroups[0] ?? null;
+  const activeBatch = activeProgram?.classes.find((batch) => batch.id === selectedClassId) ?? activeProgram?.classes[0] ?? null;
+  const selectedSubject = form.subject || activeSubject || subjectsForBatch(activeBatch)[0] || "General";
+  const selectedChapter = form.chapter.trim() || "General Chapter";
   const selectedTopic = form.topic.trim() || activeTopic || "General Lessons";
-  const [localPreview, setLocalPreview] = useState<{ url: string; name: string; type: string } | null>(null);
+  const subjectOptions = subjectsForBatch(activeBatch);
+  const chapterOptions = Array.from(new Set(existingMaterials
+    .filter((material) => (material.subject || material.folder || "General") === selectedSubject)
+    .map((material) => material.folder?.trim())
+    .filter((value): value is string => Boolean(value && value !== selectedSubject)))).sort();
+  const topicOptions = Array.from(new Set(existingMaterials
+    .filter((material) => (material.subject || material.folder || "General") === selectedSubject)
+    .filter((material) => !form.chapter || material.folder === form.chapter)
+    .map((material) => material.topic?.trim())
+    .filter((value): value is string => Boolean(value)))).sort();
+  const [resources, setResources] = useState<LibraryUploadResource[]>([]);
+  const [selectedPreviewId, setSelectedPreviewId] = useState<string | "YOUTUBE" | null>(null);
+  const [customChapter, setCustomChapter] = useState(!chapterOptions.includes(form.chapter) && Boolean(form.chapter));
+  const [customTopic, setCustomTopic] = useState(!topicOptions.includes(form.topic) && Boolean(form.topic));
+  const previewUrls = useRef<string[]>([]);
   useEffect(() => {
+    const urls = previewUrls.current;
     return () => {
-      if (localPreview?.url) URL.revokeObjectURL(localPreview.url);
+      urls.forEach((url) => URL.revokeObjectURL(url));
     };
-  }, [localPreview?.url]);
-  const previewUrl = form.url || localPreview?.url || "";
-  const previewName = form.fileName || localPreview?.name || "";
-  const previewType = (form.type || localPreview?.type || "").toUpperCase();
-  const isPreviewYoutube = form.type === "YOUTUBE" || isYouTubeUrl(form.url);
-  const youtubePreviewUrl = isPreviewYoutube ? youtubeEmbedUrl(form.url) : "";
-  const isPreviewVideo = previewType.includes("VIDEO") || (localPreview?.type || "").startsWith("video/");
-  const isPreviewPdf = previewType.includes("PDF") || (localPreview?.type || "").includes("pdf") || previewName.toLowerCase().endsWith(".pdf");
-  const isPreviewImage = previewType.includes("IMAGE") || (localPreview?.type || "").startsWith("image/");
-  const isPreviewPresentation = previewType.includes("PPT") || previewName.toLowerCase().endsWith(".ppt") || previewName.toLowerCase().endsWith(".pptx");
-  const isPreviewWord = previewType.includes("WORD") || previewName.toLowerCase().endsWith(".doc") || previewName.toLowerCase().endsWith(".docx");
+  }, []);
+  const selectedResource = resources.find((resource) => resource.id === selectedPreviewId) ?? resources[0] ?? null;
+  const youtubePreviewUrl = youtubeEmbedUrl(form.url);
+  const storagePath = [
+    activeProgram?.name || "course",
+    activeBatch?.name || "batch",
+    selectedSubject,
+    form.chapter || "general-chapter",
+    form.topic || "general-lessons",
+  ].join("/");
+  const hasUploading = resources.some((resource) => resource.status === "UPLOADING");
+  const hasReadyResource = resources.some((resource) => resource.status === "READY");
+  const canPublish = Boolean(form.title.trim() && selectedSubject && (hasReadyResource || youtubePreviewUrl) && !hasUploading);
+
+  const queueFiles = async (files: File[]) => {
+    if (!files.length) return;
+    if (!form.title && files[0]) {
+      const title = files[0].name.replace(/\.[^.]+$/, "");
+      onChange((current) => ({ ...current, title, lessonName: title }));
+    }
+    const queued = files.map((file, index) => {
+      const localPreviewUrl = URL.createObjectURL(file);
+      previewUrls.current.push(localPreviewUrl);
+      return {
+        file,
+        resource: {
+          id: `${Date.now()}-${index}-${file.name}`,
+          name: file.name,
+          mimeType: file.type,
+          materialType: file.type.startsWith("video/") ? "VIDEO" : "FILE",
+          url: "",
+          publicId: "",
+          fileSize: file.size,
+          localPreviewUrl,
+          status: "UPLOADING" as const,
+        },
+      };
+    });
+    setResources((current) => [...current, ...queued.map((item) => item.resource)]);
+    setSelectedPreviewId(queued[0]?.resource.id ?? null);
+    await Promise.all(queued.map(async ({ file, resource }) => {
+      try {
+        const uploaded = await onUploadMaterial(file, storagePath);
+        setResources((current) => current.map((item) => item.id === resource.id ? {
+          ...item,
+          ...uploaded,
+          status: "READY",
+        } : item));
+      } catch (error) {
+        setResources((current) => current.map((item) => item.id === resource.id ? {
+          ...item,
+          status: "ERROR",
+          error: error instanceof Error ? error.message : "Upload failed",
+        } : item));
+      }
+    }));
+  };
+
+  const removeResource = (resourceId: string) => {
+    setResources((current) => current.filter((resource) => resource.id !== resourceId));
+    if (selectedPreviewId === resourceId) setSelectedPreviewId(null);
+  };
+
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/55 p-4 backdrop-blur-sm">
-      <div className="max-h-[92dvh] w-full max-w-5xl overflow-y-auto overflow-x-hidden rounded-2xl border border-[var(--border)] bg-white p-5 shadow-2xl">
+    <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/55 p-3 backdrop-blur-sm sm:p-5">
+      <div className="max-h-[94dvh] w-full max-w-7xl overflow-y-auto overflow-x-hidden rounded-2xl border border-[var(--border)] bg-white p-4 shadow-2xl sm:p-6">
         <div className="flex min-w-0 items-start justify-between gap-4">
           <div className="min-w-0">
-            <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold-dark)]">Upload Lesson</p>
-            <h4 className="mt-2 text-2xl font-black">Upload lesson</h4>
-            <div className="mt-3 flex min-w-0 flex-wrap gap-2 text-xs font-black">
-              <span className="max-w-full rounded-full border border-[var(--border)] bg-[var(--page-bg)] px-3 py-2 text-[var(--ink)]">
-                Subject: <span className="break-words">{selectedSubject}</span>
-              </span>
-              <span className="max-w-full rounded-full border border-[var(--border)] bg-[var(--page-bg)] px-3 py-2 text-[var(--muted-blue)]">
-                Topic: <span className="break-words">{selectedTopic}</span>
-              </span>
-            </div>
+            <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold-dark)]">Recorded Class Library</p>
+            <h4 className="mt-2 text-2xl font-black">Upload lesson resources</h4>
+            <p className="mt-2 text-sm text-[var(--muted-blue)]">Choose exactly where the lesson belongs, verify every resource, then publish it to the selected batch.</p>
           </div>
           <button type="button" onClick={onClose} className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-[var(--border)] bg-[var(--page-bg)]" aria-label="Close upload lesson">
             <X size={18} />
           </button>
         </div>
 
-        <div className="mt-5 grid min-w-0 grid-cols-1 gap-5 lg:grid-cols-[0.85fr_1.15fr]">
-          <div className="grid min-w-0 gap-4">
-            <Input label="Lesson Title" value={form.title} onChange={(value) => onChange((current) => ({ ...current, title: value, lessonName: value, subject: activeSubject || current.subject, folder: activeSubject || current.folder }))} />
-            <Input label="Topic (Optional)" value={form.topic} onChange={(value) => onChange((current) => ({ ...current, topic: value, subject: activeSubject || current.subject, folder: activeSubject || current.folder }))} />
-            <div className="min-w-0 rounded-2xl border border-dashed border-[var(--border)] bg-[var(--page-bg)] p-5">
-              <div className="flex min-w-0 flex-col gap-1">
-                <p className="text-base font-black text-[var(--ink)]">Upload class file</p>
-                <p className="text-xs font-bold leading-5 text-[var(--muted-blue)]">Video, PDF, DOCX, PPTX, image or notes. Preview appears before publishing.</p>
-              </div>
-              <div className="mt-4 min-w-0">
-                <FileInput
-                  label="Choose file"
-                  accept="video/*,.pdf,.doc,.docx,.ppt,.pptx,image/*,.txt"
-                  onChange={(_value, file) => {
-                    if (!file) return;
-                    if (localPreview?.url) URL.revokeObjectURL(localPreview.url);
-                    setLocalPreview({ url: URL.createObjectURL(file), name: file.name, type: file.type });
-                    onUploadMaterial(file);
-                  }}
-                />
-              </div>
-              {previewName ? <p className="mt-3 break-all rounded-xl bg-white px-3 py-2 text-xs font-black text-emerald-700">{form.url ? "Upload Complete" : "Preview Ready"}: {previewName}</p> : null}
+        <div className="mt-5 grid min-w-0 grid-cols-1 gap-5 lg:grid-cols-[320px_minmax(0,1fr)]">
+          <aside className="grid content-start gap-4 rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.22em] text-[var(--gold-dark)]">Lesson Location</p>
+              <h5 className="mt-2 text-xl font-black">Choose where to store it</h5>
             </div>
-            <div className="min-w-0 rounded-2xl border border-[var(--border)] bg-white p-5">
-              <div className="flex min-w-0 flex-col gap-1">
-                <p className="text-base font-black text-[var(--ink)]">Or paste YouTube link</p>
-                <p className="text-xs font-bold leading-5 text-[var(--muted-blue)]">Teacher may upload the class to YouTube first, paste the link here, preview it, then publish to students.</p>
+            <Select label="Course" value={activeProgram?.key ?? ""} onChange={onProgram}>
+              {programGroups.map((program) => <option key={program.key} value={program.key}>{program.name}</option>)}
+            </Select>
+            <Select label="Batch" value={activeBatch?.id ?? ""} onChange={onBatch}>
+              {(activeProgram?.classes ?? []).map((batch) => <option key={batch.id} value={batch.id}>{batch.name}</option>)}
+            </Select>
+            <Select label="Subject" value={selectedSubject} onChange={(value) => {
+              onChange((current) => ({ ...current, subject: value, folder: "", chapter: "", topic: "" }));
+              setCustomChapter(false);
+              setCustomTopic(false);
+            }}>
+              {subjectOptions.map((subject) => <option key={subject} value={subject}>{subject}</option>)}
+            </Select>
+            <Select label="Chapter" value={customChapter ? "__NEW__" : form.chapter} onChange={(value) => {
+              if (value === "__NEW__") {
+                setCustomChapter(true);
+                onChange((current) => ({ ...current, chapter: "", folder: "", topic: "" }));
+              } else {
+                setCustomChapter(false);
+                onChange((current) => ({ ...current, chapter: value, folder: value, topic: "" }));
+              }
+            }}>
+              <option value="">General Chapter</option>
+              {chapterOptions.map((chapter) => <option key={chapter} value={chapter}>{chapter}</option>)}
+              <option value="__NEW__">+ Create new chapter</option>
+            </Select>
+            {customChapter ? <Input label="New Chapter Name" value={form.chapter} onChange={(value) => onChange((current) => ({ ...current, chapter: value, folder: value }))} /> : null}
+            <Select label="Topic" value={customTopic ? "__NEW__" : form.topic} onChange={(value) => {
+              if (value === "__NEW__") {
+                setCustomTopic(true);
+                onChange((current) => ({ ...current, topic: "" }));
+              } else {
+                setCustomTopic(false);
+                onChange((current) => ({ ...current, topic: value }));
+              }
+            }}>
+              <option value="">General Lessons</option>
+              {topicOptions.map((topic) => <option key={topic} value={topic}>{topic}</option>)}
+              <option value="__NEW__">+ Create new topic</option>
+            </Select>
+            {customTopic ? <Input label="New Topic Name" value={form.topic} onChange={(value) => onChange((current) => ({ ...current, topic: value }))} /> : null}
+            <Input label="Lesson Title" value={form.title} onChange={(value) => onChange((current) => ({ ...current, title: value, lessonName: value, subject: selectedSubject, folder: form.chapter || selectedSubject }))} />
+            <Textarea label="Teacher Notes (Optional)" value={form.description} onChange={(value) => onChange((current) => ({ ...current, description: value }))} />
+            <div className="rounded-xl border border-[var(--border)] bg-white p-3 text-xs leading-5 text-[var(--muted-blue)]">
+              <strong className="block text-[var(--ink)]">Student access</strong>
+              Only students enrolled in <strong>{activeBatch?.name ?? "the selected batch"}</strong> will receive these resources.
+            </div>
+          </aside>
+
+          <section className="grid min-w-0 content-start gap-4">
+            <div className="grid gap-4 xl:grid-cols-2">
+              <div className="rounded-2xl border border-[var(--border)] bg-white p-4">
+                <p className="text-xs font-black uppercase tracking-[0.22em] text-[var(--gold-dark)]">1. Recorded Class</p>
+                <h5 className="mt-2 text-lg font-black">Upload video</h5>
+                <p className="mt-1 text-sm text-[var(--muted-blue)]">MP4, WebM or MOV. The video can be played before publishing.</p>
+                <label className="mt-4 flex min-h-14 cursor-pointer items-center justify-center rounded-xl border border-dashed border-slate-400 bg-[var(--page-bg)] px-4 text-center text-sm font-black hover:border-slate-950">
+                  Choose Video
+                  <input type="file" accept="video/mp4,video/webm,video/quicktime" className="sr-only" onChange={(event) => {
+                    const files = Array.from(event.target.files ?? []);
+                    void queueFiles(files);
+                    event.target.value = "";
+                  }} />
+                </label>
               </div>
+              <div className="rounded-2xl border border-[var(--border)] bg-white p-4">
+                <p className="text-xs font-black uppercase tracking-[0.22em] text-[var(--gold-dark)]">2. Supporting Files</p>
+                <h5 className="mt-2 text-lg font-black">Upload PPT, PDF, Word or images</h5>
+                <p className="mt-1 text-sm text-[var(--muted-blue)]">Select multiple files in one action.</p>
+                <label className="mt-4 flex min-h-14 cursor-pointer items-center justify-center rounded-xl border border-dashed border-slate-400 bg-[var(--page-bg)] px-4 text-center text-sm font-black hover:border-slate-950">
+                  Choose Multiple Files
+                  <input type="file" multiple accept=".pdf,.doc,.docx,.ppt,.pptx,image/jpeg,image/png,image/webp,image/gif" className="sr-only" onChange={(event) => {
+                    const files = Array.from(event.target.files ?? []);
+                    void queueFiles(files);
+                    event.target.value = "";
+                  }} />
+                </label>
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-[var(--border)] bg-white p-4">
+              <p className="text-xs font-black uppercase tracking-[0.22em] text-[var(--gold-dark)]">3. YouTube</p>
+              <h5 className="mt-2 text-lg font-black">Paste YouTube link</h5>
+              <p className="mt-1 text-sm text-[var(--muted-blue)]">Upload the class to YouTube, paste its link here, and verify the player before publishing.</p>
               <input
                 value={form.type === "YOUTUBE" ? form.url : ""}
                 onChange={(event) => {
                   const value = event.target.value;
-                  onChange((current) => ({
-                    ...current,
-                    type: value.trim() ? "YOUTUBE" : current.type === "YOUTUBE" ? "VIDEO" : current.type,
-                    url: value,
-                    fileName: value.trim() ? "YouTube lesson link" : current.fileName,
-                    cloudinaryPublicId: value.trim() ? "" : current.cloudinaryPublicId,
-                    fileSize: value.trim() ? "" : current.fileSize,
-                    lessonName: current.lessonName || current.title,
-                  }));
+                  onChange((current) => ({ ...current, type: value.trim() ? "YOUTUBE" : "VIDEO", url: value }));
+                  if (value.trim()) setSelectedPreviewId("YOUTUBE");
                 }}
                 placeholder="https://www.youtube.com/watch?v=..."
                 className="mt-4 min-h-12 w-full rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-4 text-sm font-bold outline-none focus:border-[var(--ink)]"
               />
-              {form.type === "YOUTUBE" && form.url && !youtubePreviewUrl ? (
-                <p className="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-black text-amber-800">Paste a valid YouTube video link to preview it before publishing.</p>
-              ) : null}
+              {form.url && !youtubePreviewUrl ? <p className="mt-2 text-xs font-black text-amber-700">Paste a valid YouTube watch, short or share link.</p> : null}
             </div>
-            <Textarea label="Lesson Notes (Optional)" value={form.description} onChange={(value) => onChange((current) => ({ ...current, description: value }))} />
-          </div>
-          <div className="min-w-0 rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div>
-                <p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold-dark)]">Preview</p>
-                <h5 className="mt-1 text-xl font-black">Check before publishing</h5>
+
+            {resources.length ? (
+              <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
+                <div className="flex items-center justify-between gap-3">
+                  <h5 className="font-black">Selected resources</h5>
+                  <span className="text-xs font-black text-[var(--muted-blue)]">{resources.filter((resource) => resource.status === "READY").length}/{resources.length} ready</span>
+                </div>
+                <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                  {resources.map((resource) => (
+                    <div key={resource.id} className={`flex min-w-0 items-center gap-3 rounded-xl border p-3 ${selectedPreviewId === resource.id ? "border-slate-950 bg-white" : "border-[var(--border)] bg-white/70"}`}>
+                      <button type="button" onClick={() => setSelectedPreviewId(resource.id)} className="min-w-0 flex-1 text-left">
+                        <strong className="block truncate text-sm">{resource.name}</strong>
+                        <span className={`mt-1 block text-xs font-black ${resource.status === "READY" ? "text-emerald-700" : resource.status === "ERROR" ? "text-rose-700" : "text-amber-700"}`}>{resource.status === "UPLOADING" ? "Uploading..." : resource.status === "ERROR" ? resource.error || "Upload failed" : "Ready to publish"}</span>
+                      </button>
+                      <button type="button" onClick={() => removeResource(resource.id)} aria-label={`Remove ${resource.name}`} className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-[var(--border)] bg-white"><X size={15} /></button>
+                    </div>
+                  ))}
+                </div>
               </div>
-              {previewName ? <span className="rounded-full border border-[var(--border)] bg-white px-3 py-1 text-xs font-black">{previewType || "FILE"}</span> : null}
-            </div>
-            <div className="mt-4 overflow-hidden rounded-2xl border border-[var(--border)] bg-white">
-              {youtubePreviewUrl ? (
+            ) : null}
+
+            <div className="min-w-0 rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div><p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold-dark)]">Preview</p><h5 className="mt-1 text-xl font-black">Check before publishing</h5></div>
+                <span className="rounded-full border border-[var(--border)] bg-white px-3 py-1 text-xs font-black">{selectedPreviewId === "YOUTUBE" ? "YOUTUBE" : selectedResource?.materialType || "NO FILE"}</span>
+              </div>
+              <div className="mt-4 overflow-hidden rounded-2xl border border-[var(--border)] bg-white">
+              {selectedPreviewId === "YOUTUBE" && youtubePreviewUrl ? (
                 <iframe
                   src={youtubePreviewUrl}
                   title="YouTube lesson preview"
@@ -5878,37 +6095,32 @@ function LibraryUploadPanel({
                   allowFullScreen
                   className="aspect-video w-full bg-black"
                 />
-              ) : previewUrl && isPreviewVideo ? (
-                <video className="aspect-video w-full bg-black" controls src={previewUrl} />
-              ) : previewUrl && isPreviewImage ? (
+              ) : selectedResource?.mimeType.startsWith("video/") ? (
+                <video className="aspect-video w-full bg-black" controls src={selectedResource.localPreviewUrl || selectedResource.url} />
+              ) : selectedResource?.mimeType.startsWith("image/") ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={previewUrl} alt={previewName || "Lesson preview"} className="max-h-[420px] w-full object-contain bg-white" />
-              ) : previewUrl && isPreviewPdf ? (
-                <iframe src={previewUrl} title="PDF preview" className="h-[420px] w-full bg-white" />
-              ) : previewUrl && (isPreviewPresentation || isPreviewWord) ? (
-                <div className="grid min-h-[280px] place-items-center p-6 text-center">
-                  <FileText className="mx-auto h-10 w-10 text-[var(--gold-dark)]" />
-                  <h6 className="mt-3 text-lg font-black">Document selected</h6>
-                  <p className="mt-2 text-sm leading-6 text-[var(--muted-blue)]">Word and PowerPoint files may not preview inside every browser. Open the file to verify it before publishing.</p>
-                  <a href={previewUrl} target="_blank" rel="noreferrer" className="mt-4 rounded-xl border border-slate-950 bg-white px-4 py-3 text-sm font-black text-slate-950">Open File</a>
-                </div>
+                <img src={selectedResource.localPreviewUrl || selectedResource.url} alt={selectedResource.name} className="max-h-[440px] w-full object-contain bg-white" />
+              ) : selectedResource?.mimeType.includes("pdf") || selectedResource?.name.toLowerCase().endsWith(".pdf") ? (
+                <iframe src={selectedResource.localPreviewUrl || selectedResource.url} title={`${selectedResource.name} preview`} className="h-[440px] w-full bg-white" />
+              ) : selectedResource && (selectedResource.name.toLowerCase().endsWith(".ppt") || selectedResource.name.toLowerCase().endsWith(".pptx") || selectedResource.name.toLowerCase().endsWith(".doc") || selectedResource.name.toLowerCase().endsWith(".docx")) ? (
+                selectedResource.url ? <iframe src={`https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(selectedResource.url)}`} title={`${selectedResource.name} preview`} className="h-[440px] w-full bg-white" /> : <div className="grid min-h-[280px] place-items-center p-6 text-center"><FileText className="h-10 w-10 text-[var(--gold-dark)]" /><p className="mt-3 font-black">Uploading document preview...</p></div>
               ) : (
                 <div className="grid min-h-[280px] place-items-center p-6 text-center">
                   <FileText className="mx-auto h-10 w-10 text-[var(--gold-dark)]" />
-                  <h6 className="mt-3 text-lg font-black">No file selected yet</h6>
-                  <p className="mt-2 text-sm leading-6 text-[var(--muted-blue)]">Choose a video, PDF, image, Word or PowerPoint file. The teacher preview will appear here.</p>
+                  <h6 className="mt-3 text-lg font-black">Choose a resource to preview</h6>
+                  <p className="mt-2 text-sm leading-6 text-[var(--muted-blue)]">Video, PDF, Word, PowerPoint, image and YouTube previews appear here before publishing.</p>
                 </div>
               )}
+              </div>
+              {selectedResource?.url ? <a href={selectedResource.url} target="_blank" rel="noreferrer" className="mt-3 inline-flex min-h-11 items-center justify-center rounded-xl border border-[var(--border)] bg-white px-4 text-sm font-black">Open original file</a> : null}
             </div>
-            {previewUrl && !isPreviewVideo && !youtubePreviewUrl ? (
-              <a href={previewUrl} target="_blank" rel="noreferrer" className="mt-3 inline-flex w-full items-center justify-center rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-sm font-black text-[var(--ink)]">Open in new tab</a>
-            ) : null}
-          </div>
+          </section>
         </div>
 
-        <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
-          <button type="button" onClick={onPublish} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-emerald-700 px-5 py-3 font-black text-white">
-            <Plus size={18} /> Publish
+        <div className="mt-5 flex flex-col gap-3 border-t border-[var(--border)] pt-5 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-xs font-bold text-[var(--muted-blue)]">{activeProgram?.name} / {activeBatch?.name} / {selectedSubject} / {selectedChapter} / {selectedTopic}</p>
+          <button type="button" disabled={!canPublish} onClick={() => onPublish(resources, activeBatch)} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-emerald-700 px-6 py-3 font-black text-white disabled:cursor-not-allowed disabled:opacity-50">
+            <Plus size={18} /> {hasUploading ? "Uploading..." : "Publish To Students"}
           </button>
         </div>
       </div>

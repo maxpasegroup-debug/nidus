@@ -59,7 +59,8 @@ export const mediaController = {
       if (!req.file) throw new Error("File is required");
 
       const folderId = typeof req.body.folderId === "string" && req.body.folderId.length > 0 ? req.body.folderId : undefined;
-      const file = await mediaService.uploadFile(req.file, folderId, uploadedBy);
+      const storagePath = typeof req.body.storagePath === "string" && req.body.storagePath.length > 0 ? req.body.storagePath : undefined;
+      const file = await mediaService.uploadFile(req.file, folderId, uploadedBy, storagePath);
       res.status(201).json({ file });
     } catch (error) {
       next(error);

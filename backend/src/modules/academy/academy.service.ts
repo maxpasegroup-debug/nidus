@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 
 import { Prisma, Role } from "../../generated/prisma/client.js";
 import { prisma } from "../../config/prisma.js";
-import { deleteCloudinaryAsset } from "../../config/cloudinary.js";
+import { deleteCloudinaryAsset, signedMediaUrl } from "../../config/cloudinary.js";
 import { enqueuePDF } from "../../queues/pdf.queue.js";
 import { testsService, type TestPayload } from "../tests/tests.service.js";
 
@@ -399,12 +399,14 @@ function isVisibleTeacherWorkspaceAllocation(row: BatchTeacherAssignmentRow, use
   return true;
 }
 
-function materialMimeType(type?: string | null) {
-  const normalized = (type || "").toUpperCase();
-  if (normalized.includes("VIDEO")) return "video/mp4";
-  if (normalized.includes("PDF")) return "application/pdf";
-  if (normalized.includes("PPT")) return "application/vnd.openxmlformats-officedocument.presentationml.presentation";
-  if (normalized.includes("DOC") || normalized.includes("WORD")) return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+function materialMimeType(type?: unknown, fileName?: unknown) {
+  const normalized = String(type || "").toUpperCase();
+  const normalizedName = String(fileName || "").toLowerCase();
+  if (normalized.includes("VIDEO") || /\.(mp4|webm|mov)$/.test(normalizedName)) return "video/mp4";
+  if (normalized.includes("PDF") || normalizedName.endsWith(".pdf")) return "application/pdf";
+  if (normalized.includes("PPT") || /\.(ppt|pptx)$/.test(normalizedName)) return "application/vnd.openxmlformats-officedocument.presentationml.presentation";
+  if (normalized.includes("DOC") || normalized.includes("WORD") || /\.(doc|docx)$/.test(normalizedName)) return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+  if (normalized.includes("IMAGE") || /\.(png|jpe?g|webp|gif)$/.test(normalizedName)) return "image/jpeg";
   return "image/jpeg";
 }
 
@@ -456,6 +458,20 @@ function normalizeRows<T extends Record<string, any>>(rows: T[]) {
       }
     }
     return normalized;
+  });
+}
+
+function withSignedMaterialUrls<T extends Record<string, any>>(rows: T[]) {
+  return normalizeRows(rows).map((row) => {
+    if (!row.cloudinaryPublicId) return row;
+    try {
+      return {
+        ...row,
+        url: signedMediaUrl(String(row.cloudinaryPublicId), materialMimeType(row.type, row.fileName)),
+      };
+    } catch {
+      return row;
+    }
   });
 }
 
@@ -2063,7 +2079,7 @@ export const academyService = {
         submission: submissionMap.get(assignment.id) ? normalizeRows([submissionMap.get(assignment.id) as any])[0] : null,
         submissionStatus: submissionMap.has(assignment.id) ? "SUBMITTED" : "PENDING",
       })),
-      materials: normalizeRows(materialRows),
+      materials: withSignedMaterialUrls(materialRows),
       liveClasses: normalizeRows(liveClassRows),
       finance: {
         status: totalDue > 0 ? "PENDING" : successfulPayments.length ? "PAID" : feeRows.length ? "PLAN_CREATED" : "NO_FEE_PLAN",
@@ -3183,7 +3199,7 @@ export const academyService = {
       prisma.teacherStudyMaterialRecord.findMany({ where, orderBy: { createdAt: "desc" }, skip, take: limit }),
       prisma.teacherStudyMaterialRecord.count({ where })
     ]);
-    return { materials: normalizeRows(rows), pagination: { page, limit, total, totalPages: Math.max(1, Math.ceil(total / limit)) } };
+    return { materials: withSignedMaterialUrls(rows), pagination: { page, limit, total, totalPages: Math.max(1, Math.ceil(total / limit)) } };
   },
 
   async materialSummary(user: Requester, query: Record<string, unknown>) {

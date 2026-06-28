@@ -13,10 +13,11 @@ export async function getMediaFiles(params?: { folderId?: string; search?: strin
   return (await apiClient.get<{ files: MediaFile[]; analytics: StorageAnalyticsData }>("/media/files", { params })).data;
 }
 
-export async function uploadMediaFile(payload: { file: File; folderId?: string }) {
+export async function uploadMediaFile(payload: { file: File; folderId?: string; storagePath?: string }) {
   const formData = new FormData();
   formData.append("file", payload.file);
   if (payload.folderId) formData.append("folderId", payload.folderId);
+  if (payload.storagePath) formData.append("storagePath", payload.storagePath);
 
   return (
     await apiClient.post<{ file: MediaFile }>("/media/upload", formData, {

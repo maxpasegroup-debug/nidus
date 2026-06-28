@@ -17,6 +17,7 @@ export type MediaFile = {
   fileType: string;
   fileSize: number;
   cloudinaryUrl: string;
+  signedUrl?: string;
   publicId: string;
   folderId?: string | null;
   uploadedBy: string;

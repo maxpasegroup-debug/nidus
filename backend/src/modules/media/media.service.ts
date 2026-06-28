@@ -22,6 +22,16 @@ type DocumentInput = {
   file?: Express.Multer.File;
 };
 
+function cloudinaryFolder(storagePath?: string) {
+  if (!storagePath) return "nidus/media";
+  const safeSegments = storagePath
+    .split("/")
+    .map((segment) => segment.trim().toLowerCase().replace(/[^a-z0-9-_]+/g, "-").replace(/^-+|-+$/g, ""))
+    .filter(Boolean)
+    .slice(0, 8);
+  return safeSegments.length ? `nidus/academy/${safeSegments.join("/")}` : "nidus/media";
+}
+
 export const mediaService = {
   async listFolders(parentId?: string) {
     return prisma.mediaFolder.findMany({
@@ -50,15 +60,15 @@ export const mediaService = {
     });
   },
 
-  async uploadFile(file: Express.Multer.File, folderId: string | undefined, uploadedBy: string) {
+  async uploadFile(file: Express.Multer.File, folderId: string | undefined, uploadedBy: string, storagePath?: string) {
     if (folderId) {
       const folder = await prisma.mediaFolder.findUnique({ where: { id: folderId } });
       if (!folder) throw new Error("Folder not found");
     }
 
-    const result = await uploadBufferToCloudinary(file, "nidus/media");
+    const result = await uploadBufferToCloudinary(file, cloudinaryFolder(storagePath));
 
-    return prisma.mediaFile.create({
+    const mediaFile = await prisma.mediaFile.create({
       data: {
         fileName: file.originalname.replace(/\s+/g, "-"),
         originalName: file.originalname,
@@ -70,6 +80,10 @@ export const mediaService = {
         uploadedBy
       }
     });
+    return {
+      ...mediaFile,
+      signedUrl: signedMediaUrl(mediaFile.publicId, mediaFile.fileType)
+    };
   },
 
   async listFiles(filters: FileFilters) {
