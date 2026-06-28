@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { apiGet } from "@/services/api";
 import {
   AlertCircle,
   BarChart3,
@@ -16,6 +18,7 @@ import {
   Library,
   Megaphone,
   Presentation,
+  RefreshCw,
   RotateCcw,
   ShieldAlert,
   Target,
@@ -37,9 +40,112 @@ type WorkspaceTool = {
   primary?: boolean;
 };
 
+type WorkspaceBatch = {
+  id: string;
+  name?: string | null;
+};
+
+type WorkspaceCalendarItem = {
+  id: string;
+  batchName?: string | null;
+  subject?: string | null;
+  topic?: string | null;
+  plannedDate?: string | null;
+  startTime?: string | null;
+  status?: string | null;
+  completionStatus?: string | null;
+};
+
+type WorkspaceRecord = {
+  id: string;
+  title?: string | null;
+  batchName?: string | null;
+  subject?: string | null;
+  status?: string | null;
+  reviewStatus?: string | null;
+  dueDate?: string | null;
+  scheduledAt?: string | null;
+  createdAt?: string | null;
+};
+
+type WorkspaceData = {
+  batches: WorkspaceBatch[];
+  calendar: WorkspaceCalendarItem[];
+  assignments: WorkspaceRecord[];
+  exams: WorkspaceRecord[];
+  materials: WorkspaceRecord[];
+};
+
+const EMPTY_WORKSPACE: WorkspaceData = { batches: [], calendar: [], assignments: [], exams: [], materials: [] };
+
+function recordsFrom<T>(value: unknown, key: string): T[] {
+  if (!value || typeof value !== "object") return [];
+  const record = value as Record<string, unknown>;
+  if (Array.isArray(record[key])) return record[key] as T[];
+  if (record.data && typeof record.data === "object" && Array.isArray((record.data as Record<string, unknown>)[key])) {
+    return (record.data as Record<string, unknown>)[key] as T[];
+  }
+  return [];
+}
+
+function recordDate(record: WorkspaceRecord) {
+  return record.createdAt || record.scheduledAt || record.dueDate || "";
+}
+
+function latestRecord(records: WorkspaceRecord[]) {
+  return [...records].sort((left, right) => Date.parse(recordDate(right)) - Date.parse(recordDate(left)))[0];
+}
+
+function displayDate(value?: string | null) {
+  if (!value) return "Date not set";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return new Intl.DateTimeFormat("en-IN", { day: "numeric", month: "short", year: "numeric" }).format(date);
+}
+
+function calendarMoment(item: WorkspaceCalendarItem) {
+  const date = item.plannedDate?.slice(0, 10);
+  if (!date) return Number.POSITIVE_INFINITY;
+  return Date.parse(`${date}T${item.startTime || "00:00"}`);
+}
+
 export function MyWorkspace({ role }: { role: WorkspaceRole }) {
   const academicHead = role === "ACADEMIC_HEAD";
   const base = academicHead ? "/dashboard/academic-head" : "/dashboard/teacher";
+  const [workspace, setWorkspace] = useState<WorkspaceData>(EMPTY_WORKSPACE);
+  const [workspaceLoading, setWorkspaceLoading] = useState(true);
+  const [workspaceError, setWorkspaceError] = useState<string | null>(null);
+
+  const loadWorkspace = useCallback(async () => {
+    setWorkspaceLoading(true);
+    setWorkspaceError(null);
+    const results = await Promise.allSettled([
+      apiGet<unknown>("/api/academy/my-teaching-plan"),
+      apiGet<unknown>("/api/academy/assignments"),
+      apiGet<unknown>("/api/academy/exams"),
+      apiGet<unknown>("/api/academy/study-materials?limit=100"),
+    ]);
+    const [planResult, assignmentResult, examResult, materialResult] = results;
+    const plan = planResult.status === "fulfilled" ? planResult.value : null;
+    const assignments = assignmentResult.status === "fulfilled" ? assignmentResult.value : null;
+    const exams = examResult.status === "fulfilled" ? examResult.value : null;
+    const materials = materialResult.status === "fulfilled" ? materialResult.value : null;
+    setWorkspace({
+      batches: recordsFrom<WorkspaceBatch>(plan, "batches"),
+      calendar: recordsFrom<WorkspaceCalendarItem>(plan, "calendar"),
+      assignments: recordsFrom<WorkspaceRecord>(assignments, "assignments"),
+      exams: recordsFrom<WorkspaceRecord>(exams, "exams"),
+      materials: recordsFrom<WorkspaceRecord>(materials, "materials"),
+    });
+    if (results.every((result) => result.status === "rejected")) {
+      setWorkspaceError("Workspace activity could not be loaded. Refresh to try again.");
+    }
+    setWorkspaceLoading(false);
+  }, []);
+
+  useEffect(() => {
+    void loadWorkspace();
+  }, [loadWorkspace]);
   const teacherTools: WorkspaceTool[] = [
     {
       title: "Create Exam",
@@ -159,23 +265,82 @@ export function MyWorkspace({ role }: { role: WorkspaceRole }) {
     { title: "Batch Health Alerts", description: "Open delayed batches and action-needed signals.", icon: ShieldAlert, href: `${base}/hod/reports`, label: "Alerts" },
   ];
 
-  const pendingActions = academicHead
-    ? [
-        { title: "Review academic approvals", text: "Exam and assignment reviews appear here once Phase 3 live counts are connected.", href: `${base}/hod/approvals` },
-        { title: "Check timetable gaps", text: "Open timetable control to verify today and this week.", href: `${base}/hod/timetable` },
-        { title: "Monitor at-risk batches", text: "Use HOD reports for attendance, syllabus and activity issues.", href: `${base}/hod/reports` },
-      ]
-    : [
-        { title: "Prepare today's class", text: "Open My Classes, choose batch and subject, then teach from the classroom.", href: `${base}/my-classes` },
-        { title: "Create work for students", text: "Use exam, assignment or lesson upload tools when needed.", href: `${base}/assignments` },
-        { title: "Complete class records", text: "Open calendar to mark class logs and attendance after teaching.", href: `${base}/academic-calendar` },
-      ];
+  const pendingActions = useMemo(() => {
+    const now = Date.now();
+    const openStatuses = new Set(["DRAFT", "REVIEW", "PENDING_REVIEW", "REVISION_REQUIRED", "APPROVED"]);
+    const upcoming = workspace.calendar
+      .filter((item) => !["COMPLETED", "CANCELLED"].includes(String(item.completionStatus || item.status || "").toUpperCase()))
+      .filter((item) => calendarMoment(item) >= now)
+      .sort((left, right) => calendarMoment(left) - calendarMoment(right));
+    const pendingAssignments = workspace.assignments.filter((item) => openStatuses.has(String(item.reviewStatus || item.status || "").toUpperCase()));
+    const pendingExams = workspace.exams.filter((item) => openStatuses.has(String(item.reviewStatus || item.status || "").toUpperCase()));
+    const batchesWithoutSchedule = workspace.batches.filter((batch) => !workspace.calendar.some((item) => item.id && (item as WorkspaceCalendarItem & { batchId?: string }).batchId === batch.id));
+    const nextClass = upcoming[0];
 
-  const recentItems = [
-    { title: "Last opened class", text: "Connect to live activity in Phase 3.", icon: History },
-    { title: "Recent lesson", text: "Connect to latest upload in Phase 3.", icon: Library },
-    { title: "Recent homework", text: "Connect to latest assignment in Phase 3.", icon: RotateCcw },
-  ];
+    if (academicHead) {
+      return [
+        {
+          title: `${pendingAssignments.length + pendingExams.length} approval${pendingAssignments.length + pendingExams.length === 1 ? "" : "s"} pending`,
+          text: pendingAssignments.length + pendingExams.length ? `${pendingAssignments.length} assignment and ${pendingExams.length} exam item(s) need action.` : "No assignment or exam approvals are waiting.",
+          href: `${base}/hod/approvals`,
+        },
+        {
+          title: nextClass ? "Next academic session" : "No upcoming session",
+          text: nextClass ? `${nextClass.subject || "Class"} · ${nextClass.batchName || "Assigned batch"} · ${displayDate(nextClass.plannedDate)}` : "The current teaching plan has no future session.",
+          href: `${base}/hod/timetable`,
+        },
+        {
+          title: `${batchesWithoutSchedule.length} batch${batchesWithoutSchedule.length === 1 ? "" : "es"} without schedule`,
+          text: batchesWithoutSchedule.length ? "Open timetable control and complete the missing academic plan." : "Every assigned batch has calendar activity.",
+          href: `${base}/hod/timetable`,
+        },
+      ];
+    }
+
+    return [
+      {
+        title: nextClass ? "Prepare next class" : "No upcoming class",
+        text: nextClass ? `${nextClass.subject || "Class"} · ${nextClass.batchName || "Assigned batch"} · ${displayDate(nextClass.plannedDate)}` : "No future class is currently assigned in the calendar.",
+        href: `${base}/my-classes`,
+      },
+      {
+        title: `${pendingAssignments.length} assignment${pendingAssignments.length === 1 ? "" : "s"} in progress`,
+        text: pendingAssignments.length ? "Open homework drafts and complete the next action." : "No assignment draft or review is pending.",
+        href: `${base}/assignments`,
+      },
+      {
+        title: `${pendingExams.length} exam${pendingExams.length === 1 ? "" : "s"} in progress`,
+        text: pendingExams.length ? "Open exam drafts and complete the next action." : "No exam draft or review is pending.",
+        href: `${base}/exams`,
+      },
+    ];
+  }, [academicHead, base, workspace]);
+
+  const recentItems = useMemo(() => {
+    const recentClass = [...workspace.calendar].sort((left, right) => calendarMoment(right) - calendarMoment(left))[0];
+    const recentLesson = latestRecord(workspace.materials);
+    const recentAssignment = latestRecord(workspace.assignments);
+    return [
+      {
+        title: recentClass?.subject || "No class activity yet",
+        text: recentClass ? `${recentClass.batchName || "Assigned batch"} · ${displayDate(recentClass.plannedDate)}` : "Calendar activity will appear here.",
+        icon: History,
+        href: `${base}/academic-calendar`,
+      },
+      {
+        title: recentLesson?.title || "No lesson uploaded yet",
+        text: recentLesson ? `${recentLesson.subject || "Study material"} · ${displayDate(recordDate(recentLesson))}` : "Your latest library upload will appear here.",
+        icon: Library,
+        href: `${base}/library`,
+      },
+      {
+        title: recentAssignment?.title || "No assignment created yet",
+        text: recentAssignment ? `${recentAssignment.subject || "Homework"} · ${displayDate(recordDate(recentAssignment))}` : "Your latest homework will appear here.",
+        icon: RotateCcw,
+        href: `${base}/assignments`,
+      },
+    ];
+  }, [base, workspace]);
 
   return (
     <main className="mx-auto grid w-full max-w-7xl gap-5">
@@ -202,8 +367,12 @@ export function MyWorkspace({ role }: { role: WorkspaceRole }) {
             <p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold-dark)]">Pending My Action</p>
             <h2 className="mt-1 text-2xl font-black">Start here</h2>
           </div>
-          <span className="rounded-full border border-[var(--border)] px-3 py-1 text-xs font-black">Live counts in Phase 3</span>
+          <button type="button" onClick={() => void loadWorkspace()} disabled={workspaceLoading} className="inline-flex items-center gap-2 rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-xs font-black disabled:opacity-50">
+            <RefreshCw size={14} className={workspaceLoading ? "animate-spin" : ""} />
+            {workspaceLoading ? "Loading" : "Refresh"}
+          </button>
         </div>
+        {workspaceError ? <p className="mt-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold text-red-700">{workspaceError}</p> : null}
         <div className="mt-4 grid gap-3 md:grid-cols-3">
           {pendingActions.map((item) => (
             <Link key={item.title} href={item.href} className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4 transition hover:border-slate-950">
@@ -225,11 +394,11 @@ export function MyWorkspace({ role }: { role: WorkspaceRole }) {
           {recentItems.map((item) => {
             const Icon = item.icon;
             return (
-              <div key={item.title} className="rounded-2xl border border-dashed border-[var(--border)] bg-[var(--page-bg)] p-4">
+              <Link key={`${item.title}-${item.href}`} href={item.href} className="rounded-2xl border border-dashed border-[var(--border)] bg-[var(--page-bg)] p-4 transition hover:border-slate-950">
                 <Icon size={20} className="text-[var(--gold-dark)]" />
                 <h3 className="mt-3 font-black">{item.title}</h3>
                 <p className="mt-2 text-sm text-[var(--muted-blue)]">{item.text}</p>
-              </div>
+              </Link>
             );
           })}
         </div>
