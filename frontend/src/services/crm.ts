@@ -3,7 +3,7 @@ import type { Admission, ApprovalRequest, BulkLeadInput, BulkLeadResult, Counsel
 
 export async function getLeads(params?: { status?: LeadStatus; search?: string }) { return (await apiClient.get<{ leads: Lead[] }>("/crm/leads", { params })).data.leads; }
 export async function createLead(payload: Omit<Lead, "id" | "createdAt" | "assignee" | "followUps">) { return (await apiClient.post<{ lead: Lead }>("/crm/leads", payload)).data.lead; }
-export async function createBulkLeads(payload: { leads: BulkLeadInput[]; source?: string; notes?: string }) { return (await apiClient.post<BulkLeadResult>("/crm/leads/bulk", payload)).data; }
+export async function createBulkLeads(payload: { leads: BulkLeadInput[]; source?: string; notes?: string; allocationMode?: "ROUND_ROBIN" | "UNASSIGNED" }) { return (await apiClient.post<BulkLeadResult>("/crm/leads/bulk", payload)).data; }
 export async function createGuestApplicant(payload: { fullName: string; mobile: string; email?: string; targetExam: string; source: string; parentName?: string; notes?: string }) { return (await apiClient.post<GuestApplicantResult>("/crm/guest-applicants", payload)).data; }
 export async function createPublicLead(payload: { fullName: string; mobile: string; email: string; targetExam: string; source: string; studentClass?: string; message?: string }) { return (await apiClient.post<{ lead: Lead }>("/crm/public-leads", payload)).data.lead; }
 export async function updateLead(payload: Partial<Omit<Lead, "createdAt" | "assignee" | "followUps">> & { id: string }) { const { id, ...data } = payload; return (await apiClient.put<{ lead: Lead }>(`/crm/leads/${id}`, data)).data.lead; }

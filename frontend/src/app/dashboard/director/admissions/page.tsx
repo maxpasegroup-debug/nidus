@@ -8,7 +8,23 @@ import { AcademicHero, AcademicShell, EmptyState, Panel, StatCard } from "../aca
 import { createBulkLeads, getAdmissions, getApprovals, getFollowups, getLeads } from "@/services/crm";
 import type { BulkLeadInput, Lead } from "@/types/crm";
 
-type PreviewLead = BulkLeadInput & { rowId: string; warning?: string };
+type Employee = { id: string; name: string; email: string; mobile?: string | null; role: string; roleMetadata?: Record<string, unknown> | null; isDisabled?: boolean };
+type PreviewLead = BulkLeadInput & { rowId: string; warning?: string; assignedName?: string };
+
+async function apiJson<T>(path: string, init?: RequestInit): Promise<T> {
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_API_BASE_URL || "";
+  const token = typeof window === "undefined" ? null : localStorage.getItem("token") || localStorage.getItem("accessToken") || localStorage.getItem("authToken") || localStorage.getItem("nidus_token");
+  const response = await fetch(`${baseUrl}${path}`, {
+    credentials: "include",
+    headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}), ...(init?.headers ?? {}) },
+    ...init,
+  });
+  if (!response.ok) {
+    const body = await response.json().catch(() => null);
+    throw new Error(body?.message || "Request failed");
+  }
+  return response.json() as Promise<T>;
+}
 
 export default function DirectorAdmissionsPage() {
   const queryClient = useQueryClient();
@@ -21,11 +37,13 @@ export default function DirectorAdmissionsPage() {
   const admissionsQuery = useQuery({ queryKey: ["director", "admissions", "admissions"], queryFn: getAdmissions });
   const followupsQuery = useQuery({ queryKey: ["director", "admissions", "followups"], queryFn: getFollowups });
   const approvalsQuery = useQuery({ queryKey: ["director", "admissions", "approvals"], queryFn: getApprovals });
+  const employeesQuery = useQuery({ queryKey: ["director", "admissions", "employees"], queryFn: () => apiJson<Employee[]>("/api/academy/employees") });
 
   const leads = leadsQuery.data ?? [];
   const admissions = admissionsQuery.data ?? [];
   const followups = followupsQuery.data ?? [];
   const approvals = approvalsQuery.data ?? [];
+  const leadExecutives = useMemo(() => (employeesQuery.data ?? []).filter(isLeadExecutive), [employeesQuery.data]);
 
   const activeLeads = leads.filter((lead) => lead.status !== "ENROLLED" && lead.status !== "LOST");
   const readyForAdmission = activeLeads.filter((lead) => hasNote(lead, "Ready For Admission"));
@@ -51,9 +69,17 @@ export default function DirectorAdmissionsPage() {
   const isLoading = leadsQuery.isLoading || admissionsQuery.isLoading || followupsQuery.isLoading || approvalsQuery.isLoading;
   const isError = leadsQuery.isError || admissionsQuery.isError || followupsQuery.isError || approvalsQuery.isError;
   const existingLeadKeys = useMemo(() => new Set(leads.flatMap((lead) => [lead.mobile, lead.email].filter((item): item is string => Boolean(item)).map((item) => item.toLowerCase()))), [leads]);
+  const leadLoadByExecutive = useMemo(() => {
+    const result = new Map<string, number>();
+    for (const lead of leads) {
+      if (!lead.assignedTo || !["NEW", "CONTACTED", "COUNSELLING"].includes(lead.status)) continue;
+      result.set(lead.assignedTo, (result.get(lead.assignedTo) ?? 0) + 1);
+    }
+    return result;
+  }, [leads]);
 
   const bulkMutation = useMutation({
-    mutationFn: () => createBulkLeads({ leads: previewRows.map(({ rowId: _rowId, warning: _warning, ...row }) => row), source: bulkSource, notes: bulkNote }),
+    mutationFn: () => createBulkLeads({ leads: previewRows.map(({ rowId: _rowId, warning: _warning, assignedName: _assignedName, ...row }) => row), source: bulkSource, notes: bulkNote, allocationMode: "ROUND_ROBIN" }),
     onSuccess: async (result) => {
       setImportMessage(`Import complete: ${result.created} created, ${result.skipped} skipped, ${result.invalid} invalid.`);
       setPreviewRows([]);
@@ -69,15 +95,19 @@ export default function DirectorAdmissionsPage() {
   function preparePreview(text: string) {
     const parsed = parseLeadRows(text, bulkSource);
     const seen = new Set<string>();
+    const previewLoads = new Map(leadLoadByExecutive);
     setPreviewRows(parsed.map((row, index) => {
       const keys = [row.mobile, row.email].filter((item): item is string => Boolean(item)).map((item) => item.toLowerCase());
       const duplicateInImport = keys.some((key) => seen.has(key));
       keys.forEach((key) => seen.add(key));
       const duplicateExisting = keys.some((key) => existingLeadKeys.has(key));
       const warning = duplicateInImport ? "Duplicate in this import" : duplicateExisting ? "Already exists in CRM" : undefined;
-      return { ...row, rowId: `${row.mobile}-${index}`, warning };
+      const orderedExecutives = [...leadExecutives].sort((a, b) => (previewLoads.get(a.id) ?? 0) - (previewLoads.get(b.id) ?? 0) || a.name.localeCompare(b.name));
+      const assignee = orderedExecutives.length ? orderedExecutives[index % orderedExecutives.length] : null;
+      if (assignee && !warning) previewLoads.set(assignee.id, (previewLoads.get(assignee.id) ?? 0) + 1);
+      return { ...row, assignedTo: assignee?.id, assignedName: assignee?.name || "Unassigned", rowId: `${row.mobile}-${index}`, warning };
     }));
-    setImportMessage(parsed.length ? `${parsed.length} lead(s) ready for preview.` : "No valid leads found. Use: Name, Mobile, Course, Email(optional), Source(optional).");
+    setImportMessage(parsed.length ? `${parsed.length} lead(s) ready for preview. ${leadExecutives.length ? `Round robin across ${leadExecutives.length} BDE(s).` : "No BDE found; leads will remain unassigned."}` : "No valid leads found. Use: Name, Mobile, Course, Email(optional), Source(optional).");
   }
 
   async function handleFileUpload(event: ChangeEvent<HTMLInputElement>) {
@@ -141,9 +171,16 @@ export default function DirectorAdmissionsPage() {
         </Panel>
       </section>
 
-      <Panel eyebrow="Lead Management" title="Bulk import leads">
+      <Panel eyebrow="Lead Management" title="Bulk import and auto-allocate leads">
         <div className="grid gap-5 xl:grid-cols-[0.9fr_1.1fr]">
           <div className="space-y-4">
+            <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
+              <p className="text-sm font-black text-[var(--navy)]">Round robin allocation</p>
+              <p className="mt-1 text-sm text-[var(--muted-blue)]">
+                {leadExecutives.length ? `${leadExecutives.length} active BDE/telecaller account(s) available. Preview shows the assigned person before publishing.` : "No active BDE/telecaller account found. Create a BDE from Director Management before bulk allocation."}
+              </p>
+              {leadExecutives.length ? <p className="mt-2 text-xs font-black text-[var(--navy)]">{leadExecutives.map((item) => item.name).join(" / ")}</p> : null}
+            </div>
             <div className="grid gap-3 sm:grid-cols-2">
               <label className="grid gap-2 text-sm font-black text-[var(--navy)]">
                 Lead source
@@ -185,7 +222,7 @@ export default function DirectorAdmissionsPage() {
             <div className="max-h-96 overflow-auto">
               <table className="w-full min-w-[720px] text-left text-sm">
                 <thead className="bg-[var(--page-bg)] text-xs uppercase tracking-[0.15em] text-[var(--muted-blue)]">
-                  <tr><th className="p-3">Name</th><th className="p-3">Mobile</th><th className="p-3">Course</th><th className="p-3">Email</th><th className="p-3">Status</th></tr>
+                  <tr><th className="p-3">Name</th><th className="p-3">Mobile</th><th className="p-3">Course</th><th className="p-3">Assigned BDE</th><th className="p-3">Status</th></tr>
                 </thead>
                 <tbody>
                   {previewRows.map((row) => (
@@ -193,7 +230,7 @@ export default function DirectorAdmissionsPage() {
                       <td className="p-3 font-black">{row.fullName}</td>
                       <td className="p-3">{row.mobile}</td>
                       <td className="p-3">{row.targetExam}</td>
-                      <td className="p-3">{row.email || "-"}</td>
+                      <td className="p-3">{row.assignedName || "Unassigned"}</td>
                       <td className="p-3"><span className={row.warning ? "rounded-full bg-amber-100 px-2 py-1 text-xs font-black text-amber-800" : "rounded-full bg-emerald-100 px-2 py-1 text-xs font-black text-emerald-800"}>{row.warning || "Ready"}</span></td>
                     </tr>
                   ))}
@@ -264,6 +301,22 @@ function parseLeadRows(text: string, fallbackSource: string): BulkLeadInput[] {
       notes: noteParts.join(" ").trim(),
     }))
     .filter((lead) => lead.fullName && lead.mobile && lead.targetExam);
+}
+
+function isLeadExecutive(employee: Employee) {
+  const metadata = employee.roleMetadata ?? {};
+  const status = typeof metadata.status === "string" ? metadata.status : "";
+  const template = typeof metadata.dashboardTemplate === "string" ? metadata.dashboardTemplate.toUpperCase() : "";
+  return (
+    !employee.isDisabled &&
+    status !== "ARCHIVED" &&
+    (
+      employee.role === "BUSINESS_DEVELOPMENT_EXECUTIVE" ||
+      employee.role === "TELECALLER" ||
+      employee.role === "MARKETING_COORDINATOR" ||
+      template === "LEAD_SUPPORT"
+    )
+  );
 }
 
 function PipelineCard({ icon: Icon, title, value, text, href }: { icon: typeof UserPlus; title: string; value: number; text: string; href: string }) {

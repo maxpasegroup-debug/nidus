@@ -39,13 +39,16 @@ export type BulkLeadInput = {
   targetExam: string;
   source: string;
   notes?: string;
+  assignedTo?: string;
 };
 
 export type BulkLeadResult = {
   created: number;
   skipped: number;
   invalid: number;
-  results: Array<{ mobile: string; email?: string; status: "CREATED" | "SKIPPED"; reason?: string; lead?: Lead }>;
+  allocationMode?: "ROUND_ROBIN" | "UNASSIGNED";
+  assigneeCount?: number;
+  results: Array<{ mobile: string; email?: string; status: "CREATED" | "SKIPPED"; reason?: string; lead?: Lead; assignedTo?: string | null }>;
 };
 
 export type FollowUp = {

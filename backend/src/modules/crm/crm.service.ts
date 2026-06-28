@@ -54,7 +54,40 @@ type BulkLeadInput = {
   targetExam: string;
   source: string;
   notes?: string;
+  assignedTo?: string;
 };
+
+async function activeLeadExecutives() {
+  const users = await prisma.user.findMany({
+    where: {
+      role: { in: [Role.BUSINESS_DEVELOPMENT_EXECUTIVE, Role.TELECALLER, Role.MARKETING_COORDINATOR] },
+      isDisabled: false,
+    },
+    select: { id: true, name: true, email: true, mobile: true, role: true, roleMetadata: true },
+    orderBy: { createdAt: "asc" },
+  });
+  return users.filter((user) => metadataObject(user.roleMetadata).status !== "ARCHIVED");
+}
+
+async function leadLoads(executiveIds: string[]) {
+  if (!executiveIds.length) return new Map<string, number>();
+  const rows = await prisma.lead.groupBy({
+    by: ["assignedTo"],
+    where: { assignedTo: { in: executiveIds }, status: { in: ["NEW", "CONTACTED", "COUNSELLING"] } },
+    _count: { _all: true },
+  });
+  return new Map(rows.map((row) => [row.assignedTo || "", row._count._all]));
+}
+
+async function nextRoundRobinAssignee(index: number, manualAssignee: string | undefined, executives: Awaited<ReturnType<typeof activeLeadExecutives>>, loads: Map<string, number>) {
+  if (manualAssignee && executives.some((executive) => executive.id === manualAssignee)) return manualAssignee;
+  if (!executives.length) return undefined;
+  const ordered = [...executives].sort((a, b) => (loads.get(a.id) ?? 0) - (loads.get(b.id) ?? 0) || a.name.localeCompare(b.name));
+  const assignee = ordered[index % ordered.length];
+  if (!assignee) return undefined;
+  loads.set(assignee.id, (loads.get(assignee.id) ?? 0) + 1);
+  return assignee.id;
+}
 
 export const crmService = {
   leads(filters: { status?: LeadStatus; search?: string }, requester?: Requester) {
@@ -84,7 +117,7 @@ export const crmService = {
       include: leadInclude
     });
   },
-  async createBulkLeads(requester: Requester, input: { leads: BulkLeadInput[]; source?: string; notes?: string }) {
+  async createBulkLeads(requester: Requester, input: { leads: BulkLeadInput[]; source?: string; notes?: string; allocationMode?: "ROUND_ROBIN" | "UNASSIGNED" }) {
     if (requester.role !== Role.ADMIN && requester.role !== Role.DIRECTOR) {
       throw Object.assign(new Error("Bulk lead import requires director or admin access"), { statusCode: 403 });
     }
@@ -97,6 +130,7 @@ export const crmService = {
         targetExam: lead.targetExam.trim(),
         source: (lead.source || input.source || "Director Import").trim(),
         notes: lead.notes?.trim() || input.notes?.trim() || "",
+        assignedTo: lead.assignedTo?.trim() || undefined,
       }))
       .filter((lead) => lead.fullName && lead.mobile && lead.targetExam);
 
@@ -108,7 +142,10 @@ export const crmService = {
       return true;
     });
 
-    const results: Array<{ mobile: string; email?: string; status: "CREATED" | "SKIPPED"; reason?: string; lead?: unknown }> = [];
+    const executives = input.allocationMode === "UNASSIGNED" ? [] : await activeLeadExecutives();
+    const loads = await leadLoads(executives.map((executive) => executive.id));
+    const results: Array<{ mobile: string; email?: string; status: "CREATED" | "SKIPPED"; reason?: string; lead?: unknown; assignedTo?: string | null }> = [];
+    let createdIndex = 0;
     for (const lead of unique) {
       const email = normalizeLeadEmail({ email: lead.email, mobile: lead.mobile });
       const existing = await prisma.lead.findFirst({ where: { OR: [{ mobile: lead.mobile }, { email }] } });
@@ -116,6 +153,7 @@ export const crmService = {
         results.push({ mobile: lead.mobile, email, status: "SKIPPED", reason: "Duplicate mobile or email already exists" });
         continue;
       }
+      const assignedTo = await nextRoundRobinAssignee(createdIndex, lead.assignedTo, executives, loads);
 
       const created = await prisma.lead.create({
         data: {
@@ -125,22 +163,27 @@ export const crmService = {
           targetExam: lead.targetExam,
           source: lead.source,
           status: "NEW",
+          assignedTo,
           notes: leadNoteEntry("Director bulk import", [
             "APPLICATION_STATUS: IMPORTED",
             "AO_QUEUE: NO",
             `Imported By: ${requester.id}`,
+            assignedTo ? `Assigned To: ${assignedTo}` : "Assigned To: Unassigned",
             lead.notes ? `Notes: ${lead.notes}` : "",
           ]),
         },
         include: leadInclude,
       });
-      results.push({ mobile: lead.mobile, email, status: "CREATED", lead: created });
+      createdIndex += 1;
+      results.push({ mobile: lead.mobile, email, status: "CREATED", lead: created, assignedTo });
     }
 
     return {
       created: results.filter((item) => item.status === "CREATED").length,
       skipped: results.filter((item) => item.status === "SKIPPED").length + (cleaned.length - unique.length),
       invalid: input.leads.length - cleaned.length,
+      allocationMode: input.allocationMode === "UNASSIGNED" ? "UNASSIGNED" : "ROUND_ROBIN",
+      assigneeCount: executives.length,
       results,
     };
   },
