@@ -439,6 +439,35 @@ const initialLibraryForm = {
   lessonName: "",
 };
 
+function youtubeEmbedUrl(value: string) {
+  const trimmed = value.trim();
+  if (!trimmed) return "";
+  try {
+    const url = new URL(trimmed);
+    const host = url.hostname.replace(/^www\./, "");
+    if (host === "youtu.be") {
+      const videoId = url.pathname.split("/").filter(Boolean)[0];
+      return videoId ? `https://www.youtube.com/embed/${videoId}` : "";
+    }
+    if (host === "youtube.com" || host === "m.youtube.com") {
+      if (url.pathname.startsWith("/embed/")) return `https://www.youtube.com${url.pathname}`;
+      if (url.pathname.startsWith("/shorts/")) {
+        const videoId = url.pathname.split("/").filter(Boolean)[1];
+        return videoId ? `https://www.youtube.com/embed/${videoId}` : "";
+      }
+      const videoId = url.searchParams.get("v");
+      return videoId ? `https://www.youtube.com/embed/${videoId}` : "";
+    }
+  } catch {
+    return "";
+  }
+  return "";
+}
+
+function isYouTubeUrl(value: string) {
+  return Boolean(youtubeEmbedUrl(value));
+}
+
 function readStoredUser(): StoredUser | null {
   if (typeof window === "undefined") return null;
   const raw = window.localStorage.getItem("user");
@@ -842,6 +871,8 @@ function statusHealth(value: number) {
 
 export default function TeacherDashboardClient({ view, courseKey, batchId, classesMode = "TODAY" }: { view: TeacherView; courseKey?: string; batchId?: string; classesMode?: "TODAY" | "CATALOG" }) {
   const pathname = usePathname();
+  const [workspaceAction, setWorkspaceAction] = useState<string | null>(null);
+  const [workspaceActionHandled, setWorkspaceActionHandled] = useState<string | null>(null);
   const [user, setUser] = useState<StoredUser | null>(null);
   const [classes, setClasses] = useState<AssignedClass[]>([]);
   const [calendar, setCalendar] = useState<CalendarItem[]>([]);
@@ -1565,6 +1596,12 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
   }, []);
 
   useEffect(() => {
+    if (typeof window === "undefined") return;
+    setWorkspaceAction(new URLSearchParams(window.location.search).get("action"));
+    setWorkspaceActionHandled(null);
+  }, [pathname]);
+
+  useEffect(() => {
     if (!selectedClass?.id) return;
     const allowedSubjects = subjectsForBatch(selectedClass);
     setClassroomSubject((current) => current && allowedSubjects.includes(current) ? current : allowedSubjects[0] ?? "General");
@@ -1575,6 +1612,34 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
     if (view === "attendance") void loadLeaveRequests(isAcademicHead ? undefined : selectedClass.id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedClass?.id, view, isAcademicHead]);
+
+  useEffect(() => {
+    if (!workspaceAction || !selectedClass?.id) return;
+    const actionKey = `${view}:${workspaceAction}:${selectedClass.id}`;
+    if (workspaceActionHandled === actionKey) return;
+    if (workspaceAction === "create-exam" && view === "exams") {
+      openExamCreator();
+      setWorkspaceActionHandled(actionKey);
+      return;
+    }
+    if (workspaceAction === "create-assignment" && view === "assignments") {
+      openAssignmentCreator();
+      setWorkspaceActionHandled(actionKey);
+      return;
+    }
+    if (workspaceAction === "upload-lesson" && view === "library") {
+      const subjects = subjectsForBatch(selectedClass);
+      if (!librarySubject && subjects[0]) setLibrarySubject(subjects[0]);
+      openLibraryUpload();
+      setWorkspaceActionHandled(actionKey);
+      return;
+    }
+    if (workspaceAction === "mark-attendance" && view === "attendance") {
+      openAttendanceRegister(selectedClass.id);
+      setWorkspaceActionHandled(actionKey);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [workspaceAction, workspaceActionHandled, view, selectedClass?.id]);
 
   useEffect(() => {
     if (!modalStudent?.id || !classWorkspace.exams.length) {
@@ -2214,7 +2279,11 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
       return;
     }
     if (!libraryForm.url && !libraryForm.fileName) {
-      setLibraryMessage("Upload a video, PDF, document, image or file before publishing.");
+      setLibraryMessage("Upload a video, PDF, document, image or paste a YouTube link before publishing.");
+      return;
+    }
+    if (libraryForm.type === "YOUTUBE" && !isYouTubeUrl(libraryForm.url)) {
+      setLibraryMessage("Paste a valid YouTube video link and preview it before publishing.");
       return;
     }
     setLibraryMessage(null);
@@ -5603,6 +5672,8 @@ function LibraryUploadPanel({
   const previewUrl = form.url || localPreview?.url || "";
   const previewName = form.fileName || localPreview?.name || "";
   const previewType = (form.type || localPreview?.type || "").toUpperCase();
+  const isPreviewYoutube = form.type === "YOUTUBE" || isYouTubeUrl(form.url);
+  const youtubePreviewUrl = isPreviewYoutube ? youtubeEmbedUrl(form.url) : "";
   const isPreviewVideo = previewType.includes("VIDEO") || (localPreview?.type || "").startsWith("video/");
   const isPreviewPdf = previewType.includes("PDF") || (localPreview?.type || "").includes("pdf") || previewName.toLowerCase().endsWith(".pdf");
   const isPreviewImage = previewType.includes("IMAGE") || (localPreview?.type || "").startsWith("image/");
@@ -5652,6 +5723,32 @@ function LibraryUploadPanel({
               </div>
               {previewName ? <p className="mt-3 break-all rounded-xl bg-white px-3 py-2 text-xs font-black text-emerald-700">{form.url ? "Upload Complete" : "Preview Ready"}: {previewName}</p> : null}
             </div>
+            <div className="min-w-0 rounded-2xl border border-[var(--border)] bg-white p-5">
+              <div className="flex min-w-0 flex-col gap-1">
+                <p className="text-base font-black text-[var(--ink)]">Or paste YouTube link</p>
+                <p className="text-xs font-bold leading-5 text-[var(--muted-blue)]">Teacher may upload the class to YouTube first, paste the link here, preview it, then publish to students.</p>
+              </div>
+              <input
+                value={form.type === "YOUTUBE" ? form.url : ""}
+                onChange={(event) => {
+                  const value = event.target.value;
+                  onChange((current) => ({
+                    ...current,
+                    type: value.trim() ? "YOUTUBE" : current.type === "YOUTUBE" ? "VIDEO" : current.type,
+                    url: value,
+                    fileName: value.trim() ? "YouTube lesson link" : current.fileName,
+                    cloudinaryPublicId: value.trim() ? "" : current.cloudinaryPublicId,
+                    fileSize: value.trim() ? "" : current.fileSize,
+                    lessonName: current.lessonName || current.title,
+                  }));
+                }}
+                placeholder="https://www.youtube.com/watch?v=..."
+                className="mt-4 min-h-12 w-full rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-4 text-sm font-bold outline-none focus:border-[var(--ink)]"
+              />
+              {form.type === "YOUTUBE" && form.url && !youtubePreviewUrl ? (
+                <p className="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-black text-amber-800">Paste a valid YouTube video link to preview it before publishing.</p>
+              ) : null}
+            </div>
             <Textarea label="Lesson Notes (Optional)" value={form.description} onChange={(value) => onChange((current) => ({ ...current, description: value }))} />
           </div>
           <div className="min-w-0 rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
@@ -5663,7 +5760,15 @@ function LibraryUploadPanel({
               {previewName ? <span className="rounded-full border border-[var(--border)] bg-white px-3 py-1 text-xs font-black">{previewType || "FILE"}</span> : null}
             </div>
             <div className="mt-4 overflow-hidden rounded-2xl border border-[var(--border)] bg-white">
-              {previewUrl && isPreviewVideo ? (
+              {youtubePreviewUrl ? (
+                <iframe
+                  src={youtubePreviewUrl}
+                  title="YouTube lesson preview"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowFullScreen
+                  className="aspect-video w-full bg-black"
+                />
+              ) : previewUrl && isPreviewVideo ? (
                 <video className="aspect-video w-full bg-black" controls src={previewUrl} />
               ) : previewUrl && isPreviewImage ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -5685,7 +5790,7 @@ function LibraryUploadPanel({
                 </div>
               )}
             </div>
-            {previewUrl && !isPreviewVideo ? (
+            {previewUrl && !isPreviewVideo && !youtubePreviewUrl ? (
               <a href={previewUrl} target="_blank" rel="noreferrer" className="mt-3 inline-flex w-full items-center justify-center rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-sm font-black text-[var(--ink)]">Open in new tab</a>
             ) : null}
           </div>
