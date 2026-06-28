@@ -10,7 +10,6 @@ import type { AcademyTodayResponse, AcademyTodayTask } from "@/services/academy"
 import { TeacherStudentsView, type TeacherRosterBatch } from "@/components/teacher/teacher-students-view";
 import { TeacherSimpleCalendar } from "@/components/teacher/teacher-simple-calendar";
 import { TeacherExamWorkspace, type TeacherExamBatch } from "@/components/teacher/teacher-exam-workspace";
-import { allAcademyPrograms } from "@/data/academy-programs";
 import {
   BarChart3,
   Bell,
@@ -25,7 +24,6 @@ import {
   FolderPlus,
   GraduationCap,
   Library,
-  LockKeyhole,
   Megaphone,
   MonitorPlay,
   NotebookTabs,
@@ -1637,6 +1635,11 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
     if (workspaceAction === "mark-attendance" && view === "attendance") {
       openAttendanceRegister(selectedClass.id);
       setWorkspaceActionHandled(actionKey);
+      return;
+    }
+    if (workspaceAction === "start-live-class" && view === "academic-calendar") {
+      openLiveClassCreator(selectedClass);
+      setWorkspaceActionHandled(actionKey);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [workspaceAction, workspaceActionHandled, view, selectedClass?.id]);
@@ -2910,7 +2913,6 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
                 onRetry={() => void loadClassWorkspace(selectedClass.id)}
                 selectedStudentId={studentModalId}
                 onSelectStudent={setStudentModalId}
-                onStartLive={() => openLiveClassCreator(selectedClass)}
               />
             ) : null}
             {modalStudent ? (
@@ -3887,65 +3889,48 @@ function ClassesEmptyState() {
 
 type AssignedProgramGroup = { key: string; name: string; classes: AssignedClass[] };
 
-function normalizedProgram(value: string) {
-  return value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-}
-
-function matchingAssignedProgram(program: { slug: string; title: string }, assigned: AssignedProgramGroup[]) {
-  const slug = normalizedProgram(program.slug);
-  const title = normalizedProgram(program.title);
-  return assigned.find((item) => {
-    const key = normalizedProgram(item.key);
-    const name = normalizedProgram(item.name);
-    return key === slug || name === title || key.includes(slug) || slug.includes(key);
-  });
-}
-
 function MyClassesCatalog({ programs, classesBasePath, loading }: {
   programs: AssignedProgramGroup[];
   classesBasePath: string;
   loading: boolean;
 }) {
-  const knownKeys = new Set<string>();
-  const catalog = allAcademyPrograms.map((program) => {
-    const assigned = matchingAssignedProgram(program, programs);
-    if (assigned) knownKeys.add(assigned.key);
-    return { slug: program.slug, title: program.title, group: program.groupTitle, assigned };
-  });
-  for (const assigned of programs) {
-    if (!knownKeys.has(assigned.key)) catalog.unshift({ slug: assigned.key, title: assigned.name, group: "My Academy Programs", assigned });
-  }
+  const catalog = programs.map((program) => ({
+    slug: program.key,
+    title: program.name,
+    group: "Assigned Class",
+    assigned: program,
+  }));
 
   return (
     <div className="grid gap-5">
       <header className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm sm:p-6">
         <p className="text-xs font-black uppercase tracking-[0.3em] text-[var(--gold-dark)]">My Classes</p>
-        <h2 className="mt-2 text-3xl font-black">Choose a course</h2>
-        <p className="mt-2 text-sm text-[var(--muted-blue)]">Assigned courses are ready to open. Other academy courses remain locked.</p>
+        <h2 className="mt-2 text-3xl font-black">Open your assigned classes</h2>
+        <p className="mt-2 text-sm text-[var(--muted-blue)]">Only programs assigned to this teacher are shown here.</p>
       </header>
 
       {loading ? <Notice text="Loading assigned courses..." /> : null}
+      {!loading && !catalog.length ? <ClassesEmptyState /> : null}
       <section className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
         {catalog.map((program) => {
-          const active = Boolean(program.assigned);
           const content = (
             <>
               <div className="flex items-start justify-between gap-2">
-                <span className={`grid h-10 w-10 place-items-center rounded-xl ${active ? "bg-slate-950 text-white" : "bg-slate-100 text-slate-400"}`}>
-                  {active ? <GraduationCap size={19} /> : <LockKeyhole size={17} />}
+                <span className="grid h-10 w-10 place-items-center rounded-xl bg-slate-950 text-white">
+                  <GraduationCap size={19} />
                 </span>
-                <span className={`rounded-full px-2 py-1 text-[10px] font-black uppercase ${active ? "bg-emerald-50 text-emerald-800" : "bg-slate-100 text-slate-500"}`}>{active ? "Assigned" : "Locked"}</span>
+                <span className="rounded-full bg-emerald-50 px-2 py-1 text-[10px] font-black uppercase text-emerald-800">Assigned</span>
               </div>
               <p className="mt-4 text-[10px] font-black uppercase tracking-[0.15em] text-[var(--gold-dark)]">{program.group}</p>
-              <h3 className={`mt-2 text-base font-black leading-5 sm:text-lg ${active ? "text-[var(--ink)]" : "text-slate-500"}`}>{program.title}</h3>
+              <h3 className="mt-2 text-base font-black leading-5 text-[var(--ink)] sm:text-lg">{program.title}</h3>
               <div className="mt-auto flex items-center justify-between gap-2 pt-4 text-xs font-black">
                 <span>{program.assigned?.classes.length ?? 0} batches</span>
-                {active ? <ChevronRight size={16} /> : null}
+                <ChevronRight size={16} />
               </div>
             </>
           );
-          const classes = `flex min-h-48 flex-col rounded-2xl border p-4 text-left ${active ? "border-[var(--border)] bg-white shadow-sm transition hover:-translate-y-0.5 hover:border-slate-950" : "border-slate-200 bg-slate-50/70"}`;
-          return active ? <Link key={program.slug} href={`${classesBasePath}/${encodeURIComponent(program.assigned?.key ?? program.slug)}`} className={classes}>{content}</Link> : <div key={program.slug} className={classes} aria-disabled="true">{content}</div>;
+          const classes = "flex min-h-48 flex-col rounded-2xl border border-[var(--border)] bg-white p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-slate-950";
+          return <Link key={program.slug} href={`${classesBasePath}/${encodeURIComponent(program.assigned.key)}`} className={classes}>{content}</Link>;
         })}
       </section>
     </div>
@@ -3994,7 +3979,7 @@ function CourseBatchSelector({ program, courseKey, classesBasePath, catalogPath,
   );
 }
 
-function ClassroomWorkspace({ batch, programName: courseName, students, totalStudents, workspace, workspaceLoading, workspaceError, dashboardBasePath, classesBasePath, courseKey, search, onSearch, selectedSubject, onSubject, onRetry, selectedStudentId, onSelectStudent, onStartLive }: {
+function ClassroomWorkspace({ batch, programName: courseName, students, totalStudents, workspace, workspaceLoading, workspaceError, dashboardBasePath, classesBasePath, courseKey, search, onSearch, selectedSubject, onSubject, onRetry, selectedStudentId, onSelectStudent }: {
   batch: AssignedClass;
   programName: string;
   students: NonNullable<AssignedClass["students"]>;
@@ -4012,7 +3997,6 @@ function ClassroomWorkspace({ batch, programName: courseName, students, totalStu
   onRetry: () => void;
   selectedStudentId: string | null;
   onSelectStudent: (id: string) => void;
-  onStartLive: () => void;
 }) {
   const [rosterPage, setRosterPage] = useState(1);
   const [mobileToolsOpen, setMobileToolsOpen] = useState(false);
@@ -4028,6 +4012,8 @@ function ClassroomWorkspace({ batch, programName: courseName, students, totalStu
   const pageStudents = students.slice((safePage - 1) * pageSize, safePage * pageSize);
   const toolQuery = `batchId=${encodeURIComponent(batch.id)}&subject=${encodeURIComponent(selectedSubject)}`;
   const tools = [
+    { label: "Go Live", icon: Radio, href: `${dashboardBasePath}/academic-calendar?${toolQuery}&action=start-live-class`, primary: true },
+    { label: "Announcement", icon: Megaphone, href: `${dashboardBasePath}/communications?${toolQuery}&action=announcement` },
     { label: "Attendance", icon: ClipboardCheck, href: `${dashboardBasePath}/attendance?${toolQuery}` },
     { label: "Assignments", icon: ClipboardList, href: `${dashboardBasePath}/assignments?${toolQuery}` },
     { label: "Exams", icon: BookOpenCheck, href: `${dashboardBasePath}/exams?${toolQuery}` },
@@ -4098,14 +4084,12 @@ function ClassroomWorkspace({ batch, programName: courseName, students, totalStu
         <aside className="sticky top-24 hidden rounded-2xl border border-[var(--border)] bg-white p-3 shadow-sm lg:block">
           <p className="px-2 py-2 text-xs font-black uppercase tracking-[0.2em] text-[var(--gold-dark)]">Class Tools</p>
           <div className="grid grid-cols-2 gap-2 lg:grid-cols-1">
-            <button type="button" onClick={onStartLive} className="flex min-h-12 items-center gap-3 rounded-xl bg-slate-950 px-3 text-left text-sm font-black text-white"><Radio size={17} /> Go Live</button>
-            <button type="button" onClick={() => setAnnouncementOpen(true)} className="flex min-h-12 items-center gap-3 rounded-xl px-3 text-left text-sm font-black transition hover:bg-[var(--page-bg)]"><Megaphone size={17} /> Announcement</button>
-            {tools.map((tool) => { const Icon = tool.icon; return <Link key={tool.label} href={tool.href} className="flex min-h-12 items-center gap-3 rounded-xl px-3 text-sm font-black transition hover:bg-[var(--page-bg)]"><Icon size={17} /><span className="min-w-0 flex-1">{tool.label}</span><ChevronRight size={14} className="opacity-40" /></Link>; })}
+            {tools.map((tool) => { const Icon = tool.icon; return <Link key={tool.label} href={tool.href} className={`flex min-h-12 items-center gap-3 rounded-xl px-3 text-sm font-black transition ${tool.primary ? "bg-slate-950 text-white hover:bg-slate-800" : "hover:bg-[var(--page-bg)]"}`}><Icon size={17} /><span className="min-w-0 flex-1">{tool.label}</span><ChevronRight size={14} className={tool.primary ? "opacity-70" : "opacity-40"} /></Link>; })}
           </div>
         </aside>
       </div>
       <button type="button" onClick={() => setMobileToolsOpen(true)} className="fixed bottom-4 left-1/2 z-30 flex min-h-12 -translate-x-1/2 items-center gap-2 rounded-full bg-slate-950 px-6 text-sm font-black text-white shadow-xl lg:hidden"><Wrench size={17} /> Class Tools</button>
-      {mobileToolsOpen ? <div className="fixed inset-0 z-50 flex items-end bg-slate-950/45 lg:hidden" onClick={() => setMobileToolsOpen(false)}><div className="w-full rounded-t-3xl bg-white p-4 pb-8 shadow-2xl" onClick={(event) => event.stopPropagation()}><div className="flex items-center justify-between"><div><p className="text-xs font-black uppercase tracking-[0.2em] text-[var(--gold-dark)]">Class Tools</p><p className="mt-1 text-sm font-bold">{selectedSubject}</p></div><button type="button" onClick={() => setMobileToolsOpen(false)} aria-label="Close class tools" className="rounded-xl border border-[var(--border)] p-3"><X size={18} /></button></div><div className="mt-4 grid grid-cols-2 gap-2"><button type="button" onClick={() => { setMobileToolsOpen(false); onStartLive(); }} className="flex min-h-14 items-center gap-3 rounded-xl bg-slate-950 px-4 text-left text-sm font-black text-white"><Radio size={17} /> Go Live</button><button type="button" onClick={() => { setMobileToolsOpen(false); setAnnouncementOpen(true); }} className="flex min-h-14 items-center gap-3 rounded-xl border border-[var(--border)] px-4 text-left text-sm font-black"><Megaphone size={17} /> Announcement</button>{tools.map((tool) => { const Icon = tool.icon; return <Link key={tool.label} href={tool.href} className="flex min-h-14 items-center gap-3 rounded-xl border border-[var(--border)] px-4 text-sm font-black"><Icon size={17} />{tool.label}</Link>; })}</div></div></div> : null}
+      {mobileToolsOpen ? <div className="fixed inset-0 z-50 flex items-end bg-slate-950/45 lg:hidden" onClick={() => setMobileToolsOpen(false)}><div className="w-full rounded-t-3xl bg-white p-4 pb-8 shadow-2xl" onClick={(event) => event.stopPropagation()}><div className="flex items-center justify-between"><div><p className="text-xs font-black uppercase tracking-[0.2em] text-[var(--gold-dark)]">Class Tools</p><p className="mt-1 text-sm font-bold">{selectedSubject}</p></div><button type="button" onClick={() => setMobileToolsOpen(false)} aria-label="Close class tools" className="rounded-xl border border-[var(--border)] p-3"><X size={18} /></button></div><div className="mt-4 grid grid-cols-2 gap-2">{tools.map((tool) => { const Icon = tool.icon; return <Link key={tool.label} href={tool.href} className={`flex min-h-14 items-center gap-3 rounded-xl border px-4 text-sm font-black ${tool.primary ? "border-slate-950 bg-slate-950 text-white" : "border-[var(--border)]"}`}><Icon size={17} />{tool.label}</Link>; })}</div></div></div> : null}
       {announcementOpen ? <div className="fixed inset-0 z-[60] grid place-items-center bg-slate-950/50 p-4"><div className="w-full max-w-lg rounded-2xl bg-white p-5 shadow-2xl"><div className="flex items-start justify-between gap-3"><div><p className="text-xs font-black uppercase tracking-[0.2em] text-[var(--gold-dark)]">Class Announcement</p><h3 className="mt-2 text-2xl font-black">Message this batch</h3><p className="mt-1 text-sm text-[var(--muted-blue)]">{batch.name} / {totalStudents} students</p></div><button type="button" onClick={() => setAnnouncementOpen(false)} aria-label="Close announcement" className="rounded-xl border border-[var(--border)] p-3"><X size={18} /></button></div><div className="mt-5 grid gap-4"><Input label="Title" value={announcementTitle} onChange={setAnnouncementTitle} /><Textarea label="Message" value={announcementMessage} onChange={setAnnouncementMessage} />{announcementNotice ? <Notice text={announcementNotice} tone={announcementNotice.includes("could not") ? "error" : "info"} /> : null}<div className="flex justify-end gap-2"><button type="button" onClick={() => setAnnouncementOpen(false)} className="rounded-xl border border-[var(--border)] px-5 py-3 font-black">Close</button><button type="button" disabled={announcementSaving || !announcementTitle.trim() || !announcementMessage.trim()} onClick={() => void publishAnnouncement()} className="rounded-xl bg-slate-950 px-5 py-3 font-black text-white disabled:opacity-50">{announcementSaving ? "Sending..." : "Send to Students"}</button></div></div></div></div> : null}
     </div>
   );
