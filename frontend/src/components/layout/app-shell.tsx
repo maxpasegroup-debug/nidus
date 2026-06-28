@@ -35,7 +35,8 @@ export function AppShell({ children }: { children: ReactNode }) {
   const { isLoading, user } = useAuth();
   const isPublicRoute = pathname ? publicRoutes.has(pathname) || publicPrefixes.some((prefix) => pathname.startsWith(prefix)) : false;
   const dashboardTemplate = typeof user?.roleMetadata?.dashboardTemplate === "string" ? user.roleMetadata.dashboardTemplate : null;
-  const hasSidebar = !isLoading && !!user && getNavItems(user.role, dashboardTemplate).length > 0;
+  const isFocusedClassroom = Boolean(pathname?.match(/^\/dashboard\/(?:teacher|academic-head)\/my-classes(?:\/|$)/));
+  const hasSidebar = !isFocusedClassroom && !isLoading && !!user && getNavItems(user.role, dashboardTemplate).length > 0;
 
   if (isPublicRoute) {
     return (
@@ -59,7 +60,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       >
         <div className="mx-auto w-full max-w-7xl">{children}</div>
       </main>
-      <BottomNav />
+      {!isFocusedClassroom ? <BottomNav /> : null}
     </div>
   );
 }

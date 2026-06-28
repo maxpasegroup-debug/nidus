@@ -15,7 +15,6 @@ import {
   Bell,
   BookOpen,
   BookOpenCheck,
-  CalendarDays,
   ChevronRight,
   ClipboardCheck,
   ClipboardList,
@@ -1734,13 +1733,16 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
     setShowLibraryUpload(false);
   }
 
-  function openLibraryUpload() {
-    const subject = activeLibrarySubject || (selectedClass ? subjectsForBatch(selectedClass)[0] : "") || "General";
+  function openLibraryUpload(subjectOverride?: string, topicOverride?: string) {
+    const subject = subjectOverride || activeLibrarySubject || (selectedClass ? subjectsForBatch(selectedClass)[0] : "") || "General";
+    const topic = topicOverride ?? activeLibraryTopic;
+    setLibrarySubject(subject);
+    setLibraryTopic(topic && topic !== "General Lessons" ? topic : null);
     setLibraryForm({
       ...initialLibraryForm,
       folder: subject,
       subject,
-      topic: activeLibraryTopic && activeLibraryTopic !== "General Lessons" ? activeLibraryTopic : "",
+      topic: topic && topic !== "General Lessons" ? topic : "",
     });
     setLibraryMessage(null);
     setShowLibraryUpload(true);
@@ -1785,11 +1787,19 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
     setAttendanceComments(Object.fromEntries((record.records ?? []).map((entry) => [entry.studentId || entry.studentName || "", entry.remarks || ""])));
   }
 
-  function openExamCreator() {
+  function openExamCreator(subjectOverride?: string) {
+    const defaultSubject = subjectOverride || (selectedClass ? subjectsForBatch(selectedClass)[0] : "") || "";
     setShowExamCreator(true);
     setExamMessage(null);
     setExamDraft(null);
     setExamChatInput("");
+    setExamForm((form) => ({
+      ...form,
+      subject: form.subject || defaultSubject,
+      topic: form.topic || defaultSubject,
+      title: form.title || (defaultSubject ? `${defaultSubject} Test` : ""),
+      publishDate: form.publishDate || todayDate(),
+    }));
     setExamChatMessages([
       {
         id: "welcome",
@@ -1821,8 +1831,8 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
     setExamChatInput("");
   }
 
-  function openAssignmentCreator() {
-    const defaultSubject = selectedClass ? subjectsForBatch(selectedClass)[0] : "";
+  function openAssignmentCreator(subjectOverride?: string) {
+    const defaultSubject = subjectOverride || (selectedClass ? subjectsForBatch(selectedClass)[0] : "");
     setShowAssignmentCreator(true);
     setAssignmentMessage(null);
     setAssignmentChatInput("");
@@ -2903,7 +2913,6 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
                 workspace={classWorkspace}
                 workspaceLoading={workspaceLoading}
                 workspaceError={workspaceError}
-                dashboardBasePath={dashboardBasePath}
                 classesBasePath={classesCatalogPath}
                 courseKey={activeCourseKey}
                 search={studentSearch}
@@ -2913,6 +2922,11 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
                 onRetry={() => void loadClassWorkspace(selectedClass.id)}
                 selectedStudentId={studentModalId}
                 onSelectStudent={setStudentModalId}
+                onStartLive={() => openLiveClassCreator(selectedClass)}
+                onUploadLesson={() => openLibraryUpload(classroomSubject ?? subjectsForBatch(selectedClass)[0] ?? "General")}
+                onMarkAttendance={() => openAttendanceRegister(selectedClass.id)}
+                onCreateExam={() => openExamCreator(classroomSubject ?? subjectsForBatch(selectedClass)[0] ?? "General")}
+                onCreateAssignment={() => openAssignmentCreator(classroomSubject ?? subjectsForBatch(selectedClass)[0] ?? "General")}
               />
             ) : null}
             {modalStudent ? (
@@ -2951,6 +2965,58 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
           message={liveClassMessage}
         />
       ) : null}
+      {showAssignmentCreator && view === "classes" && activeCourseKey && activeBatchId ? (
+        <AssignmentCreateModal
+          onClose={() => setShowAssignmentCreator(false)}
+          onSaveDraft={() => void publishAssignment("DRAFT")}
+          onPublish={() => void publishAssignment("PUBLISHED")}
+          assignmentForm={assignmentForm}
+          setAssignmentForm={setAssignmentForm}
+          setAssignmentSourceName={setAssignmentSourceName}
+          selectedClass={selectedClass}
+          selectedBatchName={selectedClass?.name ?? "Batch"}
+          selectedStudentCount={selectedStudents.length}
+          assignmentSourceName={assignmentSourceName}
+        />
+      ) : null}
+      {showExamCreator && view === "classes" && activeCourseKey && activeBatchId ? (
+        <ExamGuruModal
+          messages={examChatMessages}
+          chatInput={examChatInput}
+          setChatInput={setExamChatInput}
+          onSend={sendExamChatMessage}
+          onClose={() => setShowExamCreator(false)}
+          onDraft={() => void createExamDraft()}
+          onPublish={() => void publishExam()}
+          examDraft={examDraft}
+          examForm={examForm}
+          setExamForm={setExamForm}
+          setExamDraft={setExamDraft}
+          setExamSourceName={setExamSourceName}
+          programGroups={programGroups}
+          selectedProgramKey={selectedProgramKey ?? undefined}
+          selectedClassId={selectedClass?.id}
+          onProgram={chooseProgram}
+          onBatch={chooseBatch}
+          selectedProgramName={selectedProgram?.name ?? ""}
+          selectedBatchName={selectedClass?.name ?? ""}
+          examSourceName={examSourceName}
+        />
+      ) : null}
+      {showLibraryUpload && view === "classes" && activeCourseKey && activeBatchId && selectedClass ? (
+        <LibraryUploadPanel
+          form={libraryForm}
+          activeSubject={librarySubject ?? classroomSubject ?? subjectsForBatch(selectedClass)[0] ?? "General"}
+          activeTopic={libraryTopic}
+          onClose={() => setShowLibraryUpload(false)}
+          onChange={setLibraryForm}
+          onUploadMaterial={(file) => void uploadLibraryFile(file)}
+          onPublish={() => void publishLibraryMaterial()}
+        />
+      ) : null}
+      {assignmentMessage && view === "classes" && activeCourseKey && activeBatchId ? <Notice text={assignmentMessage} /> : null}
+      {examMessage && view === "classes" && activeCourseKey && activeBatchId ? <Notice text={examMessage} /> : null}
+      {libraryMessage && view === "classes" && activeCourseKey && activeBatchId ? <Notice text={libraryMessage} /> : null}
 
       {view === "students" ? (
         <TeacherStudentsView batches={teacherRosterBatches} loading={loadingPlan} onMarkAttendance={markRosterAttendance} />
@@ -2982,7 +3048,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
                 <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--muted-blue)]">Choose a class, write instructions, attach worksheet if needed, then publish to students.</p>
               </div>
             </div>
-            <button type="button" onClick={openAssignmentCreator} disabled={!selectedClass} className="relative z-10 inline-flex min-h-14 shrink-0 items-center justify-center gap-2 rounded-2xl border border-slate-950 !bg-slate-950 px-6 py-4 text-base font-black !text-white shadow-sm transition hover:-translate-y-0.5 disabled:opacity-50">
+            <button type="button" onClick={() => openAssignmentCreator()} disabled={!selectedClass} className="relative z-10 inline-flex min-h-14 shrink-0 items-center justify-center gap-2 rounded-2xl border border-slate-950 !bg-slate-950 px-6 py-4 text-base font-black !text-white shadow-sm transition hover:-translate-y-0.5 disabled:opacity-50">
               <Plus size={20} /> New Homework
             </button>
           </div>
@@ -3019,7 +3085,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
                 {selectedClass ? `${selectedStudents.length} students / ${subjectsForBatch(selectedClass).join(", ")}` : "Select a class above to create and track homework."}
               </p>
             </div>
-            <button type="button" onClick={openAssignmentCreator} disabled={!selectedClass} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-slate-950 bg-slate-950 px-5 py-3 text-sm font-black text-white disabled:opacity-50">
+            <button type="button" onClick={() => openAssignmentCreator()} disabled={!selectedClass} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-slate-950 bg-slate-950 px-5 py-3 text-sm font-black text-white disabled:opacity-50">
               <Plus size={18} /> New Homework
             </button>
           </div>
@@ -3031,7 +3097,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
                 onOpen={() => setSelectedAssignmentId(assignment.id)}
               />
             ))}
-            {!classWorkspace.assignments.length ? <AssignmentEmptyState onCreate={openAssignmentCreator} /> : null}
+            {!classWorkspace.assignments.length ? <AssignmentEmptyState onCreate={() => openAssignmentCreator()} /> : null}
           </div>
         </div>
 
@@ -3300,7 +3366,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
               </div>
             </div>
             {selectedClass && activeLibrarySubject ? (
-              <button type="button" onClick={openLibraryUpload} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-slate-950 !bg-slate-950 px-5 py-3 text-sm font-black !text-white">
+              <button type="button" onClick={() => openLibraryUpload()} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-slate-950 !bg-slate-950 px-5 py-3 text-sm font-black !text-white">
                 <Plus size={18} /> Upload
               </button>
             ) : null}
@@ -3380,7 +3446,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
               </div>
               <div className="flex flex-wrap gap-2">
                 <button type="button" onClick={() => setLibrarySubject(null)} className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-4 py-3 text-sm font-black">Back to Subjects</button>
-                <button type="button" onClick={openLibraryUpload} className="rounded-xl bg-[var(--ink)] px-4 py-3 text-sm font-black text-white">Upload Lesson</button>
+                <button type="button" onClick={() => openLibraryUpload()} className="rounded-xl bg-[var(--ink)] px-4 py-3 text-sm font-black text-white">Upload Lesson</button>
               </div>
             </div>
             <div className="mt-5 grid gap-4 lg:grid-cols-[320px_1fr]">
@@ -3416,7 +3482,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
               </div>
               <div className="flex flex-wrap gap-2">
                 <button type="button" onClick={() => setLibraryTopic(null)} className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-4 py-3 text-sm font-black">Back to Topics</button>
-                <button type="button" onClick={openLibraryUpload} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[var(--ink)] px-5 py-3 text-sm font-black text-white">
+                <button type="button" onClick={() => openLibraryUpload()} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[var(--ink)] px-5 py-3 text-sm font-black text-white">
                   <Plus size={18} /> Upload Lesson
                 </button>
               </div>
@@ -3979,7 +4045,7 @@ function CourseBatchSelector({ program, courseKey, classesBasePath, catalogPath,
   );
 }
 
-function ClassroomWorkspace({ batch, programName: courseName, students, totalStudents, workspace, workspaceLoading, workspaceError, dashboardBasePath, classesBasePath, courseKey, search, onSearch, selectedSubject, onSubject, onRetry, selectedStudentId, onSelectStudent }: {
+function ClassroomWorkspace({ batch, programName: courseName, students, totalStudents, workspace, workspaceLoading, workspaceError, classesBasePath, courseKey, search, onSearch, selectedSubject, onSubject, onRetry, selectedStudentId, onSelectStudent, onStartLive, onUploadLesson, onMarkAttendance, onCreateExam, onCreateAssignment }: {
   batch: AssignedClass;
   programName: string;
   students: NonNullable<AssignedClass["students"]>;
@@ -3987,7 +4053,6 @@ function ClassroomWorkspace({ batch, programName: courseName, students, totalStu
   workspace: ClassWorkspace;
   workspaceLoading: boolean;
   workspaceError: string | null;
-  dashboardBasePath: string;
   classesBasePath: string;
   courseKey: string;
   search: string;
@@ -3997,49 +4062,29 @@ function ClassroomWorkspace({ batch, programName: courseName, students, totalStu
   onRetry: () => void;
   selectedStudentId: string | null;
   onSelectStudent: (id: string) => void;
+  onStartLive: () => void;
+  onUploadLesson: () => void;
+  onMarkAttendance: () => void;
+  onCreateExam: () => void;
+  onCreateAssignment: () => void;
 }) {
   const [rosterPage, setRosterPage] = useState(1);
   const [mobileToolsOpen, setMobileToolsOpen] = useState(false);
-  const [announcementOpen, setAnnouncementOpen] = useState(false);
-  const [announcementTitle, setAnnouncementTitle] = useState("");
-  const [announcementMessage, setAnnouncementMessage] = useState("");
-  const [announcementSaving, setAnnouncementSaving] = useState(false);
-  const [announcementNotice, setAnnouncementNotice] = useState<string | null>(null);
+  const [activeTool, setActiveTool] = useState<"OVERVIEW" | "ATTENDANCE" | "SYLLABUS">("OVERVIEW");
   const pageSize = 24;
   const subjects = subjectsForBatch(batch);
   const totalPages = Math.max(1, Math.ceil(students.length / pageSize));
   const safePage = Math.min(rosterPage, totalPages);
   const pageStudents = students.slice((safePage - 1) * pageSize, safePage * pageSize);
-  const toolQuery = `batchId=${encodeURIComponent(batch.id)}&subject=${encodeURIComponent(selectedSubject)}`;
   const tools = [
-    { label: "Go Live", icon: Radio, href: `${dashboardBasePath}/academic-calendar?${toolQuery}&action=start-live-class`, primary: true },
-    { label: "Announcement", icon: Megaphone, href: `${dashboardBasePath}/communications?${toolQuery}&action=announcement` },
-    { label: "Attendance", icon: ClipboardCheck, href: `${dashboardBasePath}/attendance?${toolQuery}` },
-    { label: "Assignments", icon: ClipboardList, href: `${dashboardBasePath}/assignments?${toolQuery}` },
-    { label: "Exams", icon: BookOpenCheck, href: `${dashboardBasePath}/exams?${toolQuery}` },
-    { label: "Library", icon: Library, href: `${dashboardBasePath}/library?${toolQuery}` },
-    { label: "Syllabus", icon: NotebookTabs, href: `${dashboardBasePath}/academic-calendar?${toolQuery}` },
-    { label: "Calendar", icon: CalendarDays, href: `${dashboardBasePath}/academic-calendar?${toolQuery}` },
+    { label: "Go Live", icon: Radio, onClick: onStartLive },
+    { label: "Upload Recorded Class", icon: MonitorPlay, onClick: onUploadLesson },
+    { label: "Mark Attendance", icon: ClipboardCheck, onClick: () => { setActiveTool("ATTENDANCE"); onMarkAttendance(); } },
+    { label: "Host Exam", icon: BookOpenCheck, onClick: onCreateExam },
+    { label: "Homework / Assignment", icon: ClipboardList, onClick: onCreateAssignment },
+    { label: "Syllabus Tracker", icon: NotebookTabs, onClick: () => setActiveTool("SYLLABUS") },
   ];
-  const publishAnnouncement = async () => {
-    if (!announcementTitle.trim() || !announcementMessage.trim() || announcementSaving) return;
-    setAnnouncementSaving(true);
-    setAnnouncementNotice(null);
-    try {
-      const response = await apiPost<{ recipientCount?: number }>([`/api/academy/batches/${encodeURIComponent(batch.id)}/announcements`], {
-        title: announcementTitle.trim(),
-        description: announcementMessage.trim(),
-      });
-      setAnnouncementNotice(`Announcement sent to ${response?.recipientCount ?? totalStudents} students.`);
-      setAnnouncementTitle("");
-      setAnnouncementMessage("");
-      onRetry();
-    } catch (error) {
-      setAnnouncementNotice(error instanceof Error ? error.message : "Announcement could not be sent.");
-    } finally {
-      setAnnouncementSaving(false);
-    }
-  };
+  const selectedSubjectProgress = workspace.progress.filter((item) => !selectedSubject || item.subject === selectedSubject);
   return (
     <div className="grid gap-5">
       <header className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm sm:p-6">
@@ -4084,13 +4129,94 @@ function ClassroomWorkspace({ batch, programName: courseName, students, totalStu
         <aside className="sticky top-24 hidden rounded-2xl border border-[var(--border)] bg-white p-3 shadow-sm lg:block">
           <p className="px-2 py-2 text-xs font-black uppercase tracking-[0.2em] text-[var(--gold-dark)]">Class Tools</p>
           <div className="grid grid-cols-2 gap-2 lg:grid-cols-1">
-            {tools.map((tool) => { const Icon = tool.icon; return <Link key={tool.label} href={tool.href} className={`flex min-h-12 items-center gap-3 rounded-xl border px-3 text-sm font-black text-[var(--ink)] transition hover:border-slate-950 hover:bg-[var(--page-bg)] ${tool.primary ? "border-slate-950 bg-white shadow-sm" : "border-transparent bg-white"}`}><Icon size={17} /><span className="min-w-0 flex-1">{tool.label}</span><ChevronRight size={14} className="opacity-40" /></Link>; })}
+            {tools.map((tool) => {
+              const Icon = tool.icon;
+              return (
+                <button
+                  key={tool.label}
+                  type="button"
+                  onClick={tool.onClick}
+                  className="flex min-h-12 items-center gap-3 rounded-xl border border-transparent bg-white px-3 text-left text-sm font-black text-[var(--ink)] transition hover:border-slate-950 hover:bg-[var(--page-bg)]"
+                >
+                  <Icon size={17} />
+                  <span className="min-w-0 flex-1">{tool.label}</span>
+                  <ChevronRight size={14} className="opacity-40" />
+                </button>
+              );
+            })}
           </div>
         </aside>
       </div>
+      {activeTool === "ATTENDANCE" ? (
+        <section className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
+          <p className="text-xs font-black uppercase tracking-[0.2em] text-[var(--gold-dark)]">Mark Attendance</p>
+          <h3 className="mt-2 text-2xl font-black">Tap a student to mark attendance</h3>
+          <p className="mt-2 text-sm text-[var(--muted-blue)]">This attendance register is already scoped to {batch.name}. Student cards above open present, absent, half day and remarks.</p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <button type="button" onClick={onMarkAttendance} className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-4 py-3 text-sm font-black">Open Full Register</button>
+            <button type="button" onClick={() => setActiveTool("OVERVIEW")} className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-sm font-black">Done</button>
+          </div>
+        </section>
+      ) : null}
+      {activeTool === "SYLLABUS" ? (
+        <section className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.2em] text-[var(--gold-dark)]">Syllabus Tracker</p>
+              <h3 className="mt-2 text-2xl font-black">{selectedSubject}</h3>
+              <p className="mt-2 text-sm text-[var(--muted-blue)]">Track completed topics for this batch and subject.</p>
+            </div>
+            <button type="button" onClick={() => setActiveTool("OVERVIEW")} className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-4 py-3 text-sm font-black">Close</button>
+          </div>
+          <div className="mt-4 grid gap-3 md:grid-cols-2">
+            {selectedSubjectProgress.map((item) => {
+              const progressValue = Number((item as { completionPercentage?: number; completionPercent?: number; progress?: number }).completionPercentage ?? (item as { completionPercent?: number }).completionPercent ?? (item as { progress?: number }).progress ?? 0);
+              return (
+                <article key={item.id} className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <h4 className="font-black">{item.topic || "Topic"}</h4>
+                      <p className="mt-1 text-sm text-[var(--muted-blue)]">{item.remarks || item.subject || selectedSubject}</p>
+                    </div>
+                    <span className="rounded-full bg-white px-3 py-1 text-xs font-black">{progressValue}%</span>
+                  </div>
+                  <ProgressBar label="Completion" value={progressValue} compact />
+                </article>
+              );
+            })}
+            {!selectedSubjectProgress.length ? <EmptyState text="No syllabus progress is recorded for this subject yet." /> : null}
+          </div>
+        </section>
+      ) : null}
       <button type="button" onClick={() => setMobileToolsOpen(true)} className="fixed bottom-4 left-1/2 z-30 flex min-h-12 -translate-x-1/2 items-center gap-2 rounded-full bg-slate-950 px-6 text-sm font-black text-white shadow-xl lg:hidden"><Wrench size={17} /> Class Tools</button>
-      {mobileToolsOpen ? <div className="fixed inset-0 z-50 flex items-end bg-slate-950/45 lg:hidden" onClick={() => setMobileToolsOpen(false)}><div className="w-full rounded-t-3xl bg-white p-4 pb-8 shadow-2xl" onClick={(event) => event.stopPropagation()}><div className="flex items-center justify-between"><div><p className="text-xs font-black uppercase tracking-[0.2em] text-[var(--gold-dark)]">Class Tools</p><p className="mt-1 text-sm font-bold">{selectedSubject}</p></div><button type="button" onClick={() => setMobileToolsOpen(false)} aria-label="Close class tools" className="rounded-xl border border-[var(--border)] p-3"><X size={18} /></button></div><div className="mt-4 grid grid-cols-2 gap-2">{tools.map((tool) => { const Icon = tool.icon; return <Link key={tool.label} href={tool.href} className={`flex min-h-14 items-center gap-3 rounded-xl border bg-white px-4 text-sm font-black text-[var(--ink)] ${tool.primary ? "border-slate-950 shadow-sm" : "border-[var(--border)]"}`}><Icon size={17} />{tool.label}</Link>; })}</div></div></div> : null}
-      {announcementOpen ? <div className="fixed inset-0 z-[60] grid place-items-center bg-slate-950/50 p-4"><div className="w-full max-w-lg rounded-2xl bg-white p-5 shadow-2xl"><div className="flex items-start justify-between gap-3"><div><p className="text-xs font-black uppercase tracking-[0.2em] text-[var(--gold-dark)]">Class Announcement</p><h3 className="mt-2 text-2xl font-black">Message this batch</h3><p className="mt-1 text-sm text-[var(--muted-blue)]">{batch.name} / {totalStudents} students</p></div><button type="button" onClick={() => setAnnouncementOpen(false)} aria-label="Close announcement" className="rounded-xl border border-[var(--border)] p-3"><X size={18} /></button></div><div className="mt-5 grid gap-4"><Input label="Title" value={announcementTitle} onChange={setAnnouncementTitle} /><Textarea label="Message" value={announcementMessage} onChange={setAnnouncementMessage} />{announcementNotice ? <Notice text={announcementNotice} tone={announcementNotice.includes("could not") ? "error" : "info"} /> : null}<div className="flex justify-end gap-2"><button type="button" onClick={() => setAnnouncementOpen(false)} className="rounded-xl border border-[var(--border)] px-5 py-3 font-black">Close</button><button type="button" disabled={announcementSaving || !announcementTitle.trim() || !announcementMessage.trim()} onClick={() => void publishAnnouncement()} className="rounded-xl bg-slate-950 px-5 py-3 font-black text-white disabled:opacity-50">{announcementSaving ? "Sending..." : "Send to Students"}</button></div></div></div></div> : null}
+      {mobileToolsOpen ? (
+        <div className="fixed inset-0 z-50 flex items-end bg-slate-950/45 lg:hidden" onClick={() => setMobileToolsOpen(false)}>
+          <div className="w-full rounded-t-3xl bg-white p-4 pb-8 shadow-2xl" onClick={(event) => event.stopPropagation()}>
+            <div className="flex items-center justify-between">
+              <div><p className="text-xs font-black uppercase tracking-[0.2em] text-[var(--gold-dark)]">Class Tools</p><p className="mt-1 text-sm font-bold">{selectedSubject}</p></div>
+              <button type="button" onClick={() => setMobileToolsOpen(false)} aria-label="Close class tools" className="rounded-xl border border-[var(--border)] p-3"><X size={18} /></button>
+            </div>
+            <div className="mt-4 grid grid-cols-2 gap-2">
+              {tools.map((tool) => {
+                const Icon = tool.icon;
+                return (
+                  <button
+                    key={tool.label}
+                    type="button"
+                    onClick={() => {
+                      tool.onClick();
+                      setMobileToolsOpen(false);
+                    }}
+                    className="flex min-h-14 items-center gap-3 rounded-xl border border-[var(--border)] bg-white px-4 text-left text-sm font-black text-[var(--ink)]"
+                  >
+                    <Icon size={17} />{tool.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
