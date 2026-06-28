@@ -1128,7 +1128,7 @@ async function batchWithCounts(options?: BatchWithCountsOptions) {
     return normalized.batchId ? null : [];
   }
 
-  const activeStudentsByBatch = new Map(
+  const activeStudentsByBatch = new Map<string, any[]>(
     batches.map((batch: any) => [
       batch.id,
       (batch.students ?? []).filter((student: any) => student.status === "ACTIVE"),
