@@ -544,18 +544,18 @@ function WorkspaceToolGrid({ eyebrow, tools, emptyMessage }: { eyebrow: string; 
               key={`${eyebrow}-${tool.title}`}
               href={tool.href}
               className={`group flex min-h-40 flex-col rounded-2xl border p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-slate-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2 sm:min-h-44 ${
-                tool.primary ? "border-slate-950 bg-slate-950 text-white" : "border-[var(--border)] bg-white"
+                tool.primary ? "border-slate-950 bg-white text-[var(--ink)]" : "border-[var(--border)] bg-white"
               }`}
             >
               <div className="flex items-start justify-between gap-3">
-                <span className={`grid h-11 w-11 place-items-center rounded-xl ${tool.primary ? "bg-white text-slate-950" : "bg-slate-950 text-white"}`}>
+                <span className={`grid h-11 w-11 place-items-center rounded-xl ${tool.primary ? "border border-slate-950 bg-white text-slate-950" : "bg-slate-950 text-white"}`}>
                   <Icon size={20} />
                 </span>
                 <ChevronRight size={18} className="mt-3 opacity-35 transition group-hover:translate-x-1 group-hover:opacity-100" />
               </div>
               <h3 className="mt-4 text-base font-black sm:text-xl">{tool.title}</h3>
-              <p className={`mt-2 line-clamp-2 text-xs leading-5 sm:text-sm ${tool.primary ? "text-white/75" : "text-[var(--muted-blue)]"}`}>{tool.description}</p>
-              <span className={`mt-auto pt-3 text-[10px] font-black uppercase tracking-[0.15em] ${tool.primary ? "text-amber-200" : "text-[var(--gold-dark)]"}`}>{tool.label}</span>
+              <p className="mt-2 line-clamp-2 text-xs leading-5 text-[var(--muted-blue)] sm:text-sm">{tool.description}</p>
+              <span className="mt-auto pt-3 text-[10px] font-black uppercase tracking-[0.15em] text-[var(--gold-dark)]">{tool.label}</span>
             </Link>
           );
         })}
