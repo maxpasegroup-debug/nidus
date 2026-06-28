@@ -4044,43 +4044,51 @@ function MyClassesCatalog({ programs, classesBasePath, loading }: {
   classesBasePath: string;
   loading: boolean;
 }) {
-  const catalog = programs.map((program) => ({
-    slug: program.key,
-    title: program.name,
-    group: "Assigned Class",
-    assigned: program,
-  }));
+  const assignedBatches = programs.flatMap((program) =>
+    program.classes.map((batch, index) => ({
+      batch,
+      courseKey: program.key,
+      courseName: program.name,
+      batchNumber: index + 1,
+      href: `${classesBasePath}/${encodeURIComponent(program.key)}/${encodeURIComponent(batch.id)}`,
+    })),
+  );
 
   return (
     <div className="grid gap-5">
       <header className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm sm:p-6">
         <p className="text-xs font-black uppercase tracking-[0.3em] text-[var(--gold-dark)]">My Classes</p>
-        <h2 className="mt-2 text-3xl font-black">Open your assigned classes</h2>
-        <p className="mt-2 text-sm text-[var(--muted-blue)]">Only programs assigned to this teacher are shown here.</p>
+        <h2 className="mt-2 text-3xl font-black">MY CLASSES</h2>
+        <p className="mt-2 text-sm text-[var(--muted-blue)]">Open any assigned batch and start teaching from its classroom tools.</p>
       </header>
 
-      {loading ? <Notice text="Loading assigned courses..." /> : null}
-      {!loading && !catalog.length ? <ClassesEmptyState /> : null}
-      <section className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
-        {catalog.map((program) => {
-          const content = (
-            <>
+      {loading ? <Notice text="Loading assigned batches..." /> : null}
+      {!loading && !assignedBatches.length ? <ClassesEmptyState /> : null}
+      <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        {assignedBatches.map(({ batch, courseName, batchNumber, href }) => {
+          const subjects = subjectsForBatch(batch);
+          const students = Array.isArray(batch.students) ? batch.students.length : batch.students ?? 0;
+          return (
+            <Link
+              key={batch.id}
+              href={href}
+              className="group flex min-h-36 flex-col rounded-2xl border border-[var(--border)] bg-white p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-slate-950"
+            >
               <div className="flex items-start justify-between gap-2">
                 <span className="grid h-10 w-10 place-items-center rounded-xl bg-slate-950 text-white">
                   <GraduationCap size={19} />
                 </span>
                 <span className="rounded-full bg-emerald-50 px-2 py-1 text-[10px] font-black uppercase text-emerald-800">Assigned</span>
               </div>
-              <p className="mt-4 text-[10px] font-black uppercase tracking-[0.15em] text-[var(--gold-dark)]">{program.group}</p>
-              <h3 className="mt-2 text-base font-black leading-5 text-[var(--ink)] sm:text-lg">{program.title}</h3>
+              <p className="mt-4 text-[10px] font-black uppercase tracking-[0.15em] text-[var(--gold-dark)]">Batch {batchNumber}</p>
+              <h3 className="mt-2 text-base font-black leading-5 text-[var(--ink)] sm:text-lg">{batch.name}</h3>
+              <p className="mt-1 line-clamp-1 text-xs font-bold text-[var(--muted-blue)]">{courseName}</p>
               <div className="mt-auto flex items-center justify-between gap-2 pt-4 text-xs font-black">
-                <span>{program.assigned?.classes.length ?? 0} batches</span>
-                <ChevronRight size={16} />
+                <span>{students} students / {subjects.length} subject{subjects.length === 1 ? "" : "s"}</span>
+                <ChevronRight size={16} className="transition group-hover:translate-x-1" />
               </div>
-            </>
+            </Link>
           );
-          const classes = "flex min-h-48 flex-col rounded-2xl border border-[var(--border)] bg-white p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-slate-950";
-          return <Link key={program.slug} href={`${classesBasePath}/${encodeURIComponent(program.assigned.key)}`} className={classes}>{content}</Link>;
         })}
       </section>
     </div>
