@@ -1,5 +1,5 @@
-import { redirect } from "next/navigation";
+import TeacherDashboardClient from "../../teacher/TeacherDashboardClient";
 
 export default function AcademicHeadAcademicCalendarPage() {
-  redirect("/dashboard/academic-head/hod/timetable");
+  return <TeacherDashboardClient view="academic-calendar" />;
 }
