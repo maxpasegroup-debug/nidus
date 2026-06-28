@@ -154,15 +154,15 @@ export function MyWorkspace({ role }: { role: WorkspaceRole }) {
     },
     { title: "Lesson Planner", description: "Plan topics, timetable and syllabus completion.", icon: CalendarRange, href: `${base}/academic-calendar?action=plan-class`, label: "Plan" },
     { title: "Attendance & Leave", description: "Mark attendance and review leave connected to classes.", icon: CalendarCheck, href: `${base}/attendance?action=mark-attendance#leave`, label: "Register" },
-    { title: "Question Bank", description: "Open reusable questions for tests and practice.", icon: FileQuestion, href: "/examination-center/question-bank", label: "Questions" },
-    { title: "PPT Generator", description: "Use NIDUS Guru to draft teaching slides.", icon: Presentation, href: "/dashboard/nidus-guru", label: "AI assisted" },
+    { title: "Question Bank", description: "Open reusable questions for tests and practice.", icon: FileQuestion, href: `${base}/question-bank`, label: "Questions" },
+    { title: "PPT Generator", description: "Use NIDUS Guru to draft teaching slides.", icon: Presentation, href: `${base}/ppt-generator`, label: "AI assisted" },
     { title: "Study Material Library", description: "Manage notes, videos and class resources.", icon: Library, href: `${base}/library`, label: "Resources" },
     { title: "My Students", description: "Open assigned students, progress and class notes.", icon: Users, href: `${base}/my-classes?action=students`, label: "Classroom" },
     { title: "Class Logs", description: "Complete class reports and teaching notes.", icon: FileText, href: `${base}/academic-calendar?action=class-logs`, label: "Logs" },
     { title: "Syllabus Tracker", description: "Track subject-wise completion and support needed.", icon: Target, href: `${base}/academic-calendar?action=syllabus`, label: "Progress" },
-    { title: "Announcements", description: "Send simple updates to assigned batches.", icon: Megaphone, href: `${base}/my-classes?action=announcement`, label: "Update" },
-    { title: "Doubts", description: "Review student questions and follow-up items.", icon: UserSearch, href: `${base}/students`, label: "Support" },
-    { title: "Reports", description: "Open class, batch and student progress views.", icon: BarChart3, href: academicHead ? `${base}/hod/reports` : `${base}/students`, label: "Review" },
+    { title: "Announcements", description: "Send simple updates to assigned batches.", icon: Megaphone, href: `${base}/communications`, label: "Update" },
+    { title: "Doubts", description: "Review student questions and follow-up items.", icon: UserSearch, href: `${base}/communications`, label: "Support" },
+    { title: "Reports", description: "Open class, batch and student progress views.", icon: BarChart3, href: academicHead ? `${base}/hod/reports` : `${base}/reports`, label: "Review" },
   ], [academicHead, base]);
 
   const hodTools = useMemo<WorkspaceTool[]>(() => [
