@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Children, useEffect, useMemo, useRef, useState } from "react";
+import { Files, Video } from "lucide-react";
 import { uploadMediaFile } from "@/services/media";
 import { TeacherTodayView, type TeacherTodayScheduleItem } from "@/components/teacher/teacher-today-view";
 import { runAcademyTodayAction } from "@/services/academy";
@@ -5945,185 +5946,170 @@ function LibraryUploadPanel({
     if (selectedPreviewId === resourceId) setSelectedPreviewId(null);
   };
 
+  const compactSelectClass = "mt-1 h-10 w-full min-w-0 rounded-lg border border-[var(--border)] bg-white px-3 text-sm font-bold text-[var(--ink)] outline-none focus:border-slate-950";
+  const compactInputClass = "mt-1 h-10 w-full min-w-0 rounded-lg border border-[var(--border)] bg-white px-3 text-sm font-bold text-[var(--ink)] outline-none focus:border-slate-950";
+
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/55 p-3 backdrop-blur-sm sm:p-5">
-      <div className="max-h-[94dvh] w-full max-w-7xl overflow-y-auto overflow-x-hidden rounded-2xl border border-[var(--border)] bg-white p-4 shadow-2xl sm:p-6">
-        <div className="flex min-w-0 items-start justify-between gap-4">
-          <div className="min-w-0">
-            <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold-dark)]">Recorded Class Library</p>
-            <h4 className="mt-2 text-2xl font-black">Upload lesson resources</h4>
-            <p className="mt-2 text-sm text-[var(--muted-blue)]">Choose exactly where the lesson belongs, verify every resource, then publish it to the selected batch.</p>
-          </div>
-          <button type="button" onClick={onClose} className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-[var(--border)] bg-[var(--page-bg)]" aria-label="Close upload lesson">
-            <X size={18} />
-          </button>
+    <div className="fixed inset-0 z-50 flex min-h-0 flex-col overflow-y-auto bg-[var(--page-bg)] xl:overflow-hidden">
+      <header className="flex shrink-0 items-center justify-between gap-4 border-b border-[var(--border)] bg-white px-4 py-3 sm:px-6">
+        <div className="min-w-0">
+          <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.18em] text-[var(--gold-dark)]"><Library size={15} /> Recorded Class Library</div>
+          <h1 className="mt-1 truncate text-xl font-black sm:text-2xl">Upload lesson resources</h1>
         </div>
+        <button type="button" onClick={onClose} className="inline-flex h-11 shrink-0 items-center gap-2 rounded-xl border border-[var(--border)] bg-white px-4 text-sm font-black text-[var(--ink)] hover:bg-[var(--page-bg)]" aria-label="Close upload lesson">
+          <X size={17} /> <span className="hidden sm:inline">Back to class</span>
+        </button>
+      </header>
 
-        <div className="mt-5 grid min-w-0 grid-cols-1 gap-5 lg:grid-cols-[320px_minmax(0,1fr)]">
-          <aside className="grid content-start gap-4 rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
-            <div>
-              <p className="text-xs font-black uppercase tracking-[0.22em] text-[var(--gold-dark)]">Lesson Location</p>
-              <h5 className="mt-2 text-xl font-black">Choose where to store it</h5>
-            </div>
-            <Select label="Course" value={activeProgram?.key ?? ""} onChange={onProgram}>
-              {programGroups.map((program) => <option key={program.key} value={program.key}>{program.name}</option>)}
-            </Select>
-            <Select label="Batch" value={activeBatch?.id ?? ""} onChange={onBatch}>
-              {(activeProgram?.classes ?? []).map((batch) => <option key={batch.id} value={batch.id}>{batch.name}</option>)}
-            </Select>
-            <Select label="Subject" value={selectedSubject} onChange={(value) => {
-              onChange((current) => ({ ...current, subject: value, folder: "", chapter: "", topic: "" }));
-              setCustomChapter(false);
-              setCustomTopic(false);
-            }}>
-              {subjectOptions.map((subject) => <option key={subject} value={subject}>{subject}</option>)}
-            </Select>
-            <Select label="Chapter" value={customChapter ? "__NEW__" : form.chapter} onChange={(value) => {
-              if (value === "__NEW__") {
-                setCustomChapter(true);
-                onChange((current) => ({ ...current, chapter: "", folder: "", topic: "" }));
-              } else {
+      <main className="grid min-h-0 flex-1 grid-cols-1 gap-3 p-3 sm:p-4 xl:grid-cols-[300px_350px_minmax(0,1fr)]">
+        <section className="min-w-0 rounded-xl border border-[var(--border)] bg-white p-4 xl:overflow-hidden">
+          <div className="mb-3">
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-[var(--gold-dark)]">1. Lesson Details</p>
+            <h2 className="mt-1 text-lg font-black">Where does this belong?</h2>
+          </div>
+          <div className="grid gap-2.5">
+            <label className="min-w-0 text-xs font-black">Course
+              <select value={activeProgram?.key ?? ""} onChange={(event) => onProgram(event.target.value)} className={compactSelectClass}>
+                {programGroups.map((program) => <option key={program.key} value={program.key}>{program.name}</option>)}
+              </select>
+            </label>
+            <label className="min-w-0 text-xs font-black">Batch
+              <select value={activeBatch?.id ?? ""} onChange={(event) => onBatch(event.target.value)} className={compactSelectClass}>
+                {(activeProgram?.classes ?? []).map((batch) => <option key={batch.id} value={batch.id}>{batch.name}</option>)}
+              </select>
+            </label>
+            <label className="min-w-0 text-xs font-black">Subject
+              <select value={selectedSubject} onChange={(event) => {
+                onChange((current) => ({ ...current, subject: event.target.value, folder: "", chapter: "", topic: "" }));
                 setCustomChapter(false);
-                onChange((current) => ({ ...current, chapter: value, folder: value, topic: "" }));
-              }
-            }}>
-              <option value="">General Chapter</option>
-              {chapterOptions.map((chapter) => <option key={chapter} value={chapter}>{chapter}</option>)}
-              <option value="__NEW__">+ Create new chapter</option>
-            </Select>
-            {customChapter ? <Input label="New Chapter Name" value={form.chapter} onChange={(value) => onChange((current) => ({ ...current, chapter: value, folder: value }))} /> : null}
-            <Select label="Topic" value={customTopic ? "__NEW__" : form.topic} onChange={(value) => {
-              if (value === "__NEW__") {
-                setCustomTopic(true);
-                onChange((current) => ({ ...current, topic: "" }));
-              } else {
                 setCustomTopic(false);
-                onChange((current) => ({ ...current, topic: value }));
-              }
-            }}>
-              <option value="">General Lessons</option>
-              {topicOptions.map((topic) => <option key={topic} value={topic}>{topic}</option>)}
-              <option value="__NEW__">+ Create new topic</option>
-            </Select>
-            {customTopic ? <Input label="New Topic Name" value={form.topic} onChange={(value) => onChange((current) => ({ ...current, topic: value }))} /> : null}
-            <Input label="Lesson Title" value={form.title} onChange={(value) => onChange((current) => ({ ...current, title: value, lessonName: value, subject: selectedSubject, folder: form.chapter || selectedSubject }))} />
-            <Textarea label="Teacher Notes (Optional)" value={form.description} onChange={(value) => onChange((current) => ({ ...current, description: value }))} />
-            <div className="rounded-xl border border-[var(--border)] bg-white p-3 text-xs leading-5 text-[var(--muted-blue)]">
-              <strong className="block text-[var(--ink)]">Student access</strong>
-              Only students enrolled in <strong>{activeBatch?.name ?? "the selected batch"}</strong> will receive these resources.
-            </div>
-          </aside>
-
-          <section className="grid min-w-0 content-start gap-4">
-            <div className="grid gap-4 xl:grid-cols-2">
-              <div className="rounded-2xl border border-[var(--border)] bg-white p-4">
-                <p className="text-xs font-black uppercase tracking-[0.22em] text-[var(--gold-dark)]">1. Recorded Class</p>
-                <h5 className="mt-2 text-lg font-black">Upload video</h5>
-                <p className="mt-1 text-sm text-[var(--muted-blue)]">MP4, WebM or MOV. The video can be played before publishing.</p>
-                <label className="mt-4 flex min-h-14 cursor-pointer items-center justify-center rounded-xl border border-dashed border-slate-400 bg-[var(--page-bg)] px-4 text-center text-sm font-black hover:border-slate-950">
-                  Choose Video
-                  <input type="file" accept="video/mp4,video/webm,video/quicktime" className="sr-only" onChange={(event) => {
-                    const files = Array.from(event.target.files ?? []);
-                    void queueFiles(files);
-                    event.target.value = "";
-                  }} />
-                </label>
-              </div>
-              <div className="rounded-2xl border border-[var(--border)] bg-white p-4">
-                <p className="text-xs font-black uppercase tracking-[0.22em] text-[var(--gold-dark)]">2. Supporting Files</p>
-                <h5 className="mt-2 text-lg font-black">Upload PPT, PDF, Word or images</h5>
-                <p className="mt-1 text-sm text-[var(--muted-blue)]">Select multiple files in one action.</p>
-                <label className="mt-4 flex min-h-14 cursor-pointer items-center justify-center rounded-xl border border-dashed border-slate-400 bg-[var(--page-bg)] px-4 text-center text-sm font-black hover:border-slate-950">
-                  Choose Multiple Files
-                  <input type="file" multiple accept=".pdf,.doc,.docx,.ppt,.pptx,image/jpeg,image/png,image/webp,image/gif" className="sr-only" onChange={(event) => {
-                    const files = Array.from(event.target.files ?? []);
-                    void queueFiles(files);
-                    event.target.value = "";
-                  }} />
-                </label>
-              </div>
-            </div>
-
-            <div className="rounded-2xl border border-[var(--border)] bg-white p-4">
-              <p className="text-xs font-black uppercase tracking-[0.22em] text-[var(--gold-dark)]">3. YouTube</p>
-              <h5 className="mt-2 text-lg font-black">Paste YouTube link</h5>
-              <p className="mt-1 text-sm text-[var(--muted-blue)]">Upload the class to YouTube, paste its link here, and verify the player before publishing.</p>
-              <input
-                value={form.type === "YOUTUBE" ? form.url : ""}
-                onChange={(event) => {
+              }} className={compactSelectClass}>
+                {subjectOptions.map((subject) => <option key={subject} value={subject}>{subject}</option>)}
+              </select>
+            </label>
+            <div className="grid grid-cols-2 gap-2">
+              <label className="min-w-0 text-xs font-black">Chapter
+                <select value={customChapter ? "__NEW__" : form.chapter} onChange={(event) => {
                   const value = event.target.value;
-                  onChange((current) => ({ ...current, type: value.trim() ? "YOUTUBE" : "VIDEO", url: value }));
-                  if (value.trim()) setSelectedPreviewId("YOUTUBE");
-                }}
-                placeholder="https://www.youtube.com/watch?v=..."
-                className="mt-4 min-h-12 w-full rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-4 text-sm font-bold outline-none focus:border-[var(--ink)]"
-              />
-              {form.url && !youtubePreviewUrl ? <p className="mt-2 text-xs font-black text-amber-700">Paste a valid YouTube watch, short or share link.</p> : null}
+                  if (value === "__NEW__") {
+                    setCustomChapter(true);
+                    onChange((current) => ({ ...current, chapter: "", folder: "", topic: "" }));
+                  } else {
+                    setCustomChapter(false);
+                    onChange((current) => ({ ...current, chapter: value, folder: value, topic: "" }));
+                  }
+                }} className={compactSelectClass}>
+                  <option value="">General</option>
+                  {chapterOptions.map((chapter) => <option key={chapter} value={chapter}>{chapter}</option>)}
+                  <option value="__NEW__">+ New</option>
+                </select>
+              </label>
+              <label className="min-w-0 text-xs font-black">Topic
+                <select value={customTopic ? "__NEW__" : form.topic} onChange={(event) => {
+                  const value = event.target.value;
+                  if (value === "__NEW__") {
+                    setCustomTopic(true);
+                    onChange((current) => ({ ...current, topic: "" }));
+                  } else {
+                    setCustomTopic(false);
+                    onChange((current) => ({ ...current, topic: value }));
+                  }
+                }} className={compactSelectClass}>
+                  <option value="">General</option>
+                  {topicOptions.map((topic) => <option key={topic} value={topic}>{topic}</option>)}
+                  <option value="__NEW__">+ New</option>
+                </select>
+              </label>
             </div>
+            {customChapter ? <label className="text-xs font-black">New Chapter<input value={form.chapter} onChange={(event) => onChange((current) => ({ ...current, chapter: event.target.value, folder: event.target.value }))} className={compactInputClass} /></label> : null}
+            {customTopic ? <label className="text-xs font-black">New Topic<input value={form.topic} onChange={(event) => onChange((current) => ({ ...current, topic: event.target.value }))} className={compactInputClass} /></label> : null}
+            <label className="min-w-0 text-xs font-black">Lesson Title
+              <input value={form.title} onChange={(event) => onChange((current) => ({ ...current, title: event.target.value, lessonName: event.target.value, subject: selectedSubject, folder: form.chapter || selectedSubject }))} className={compactInputClass} placeholder="Example: Algebra - Part 1" />
+            </label>
+            <label className="min-w-0 text-xs font-black">Teacher Notes <span className="font-normal text-[var(--muted-blue)]">(optional)</span>
+              <textarea value={form.description} onChange={(event) => onChange((current) => ({ ...current, description: event.target.value }))} className="mt-1 h-16 w-full resize-none rounded-lg border border-[var(--border)] bg-white px-3 py-2 text-sm outline-none focus:border-slate-950" />
+            </label>
+          </div>
+          <p className="mt-3 rounded-lg bg-emerald-50 px-3 py-2 text-xs leading-5 text-emerald-900"><strong>{activeBatch?.name ?? "Selected batch"}</strong> students only.</p>
+        </section>
 
-            {resources.length ? (
-              <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
-                <div className="flex items-center justify-between gap-3">
-                  <h5 className="font-black">Selected resources</h5>
-                  <span className="text-xs font-black text-[var(--muted-blue)]">{resources.filter((resource) => resource.status === "READY").length}/{resources.length} ready</span>
+        <section className="flex min-w-0 flex-col gap-3 rounded-xl border border-[var(--border)] bg-white p-4 xl:overflow-hidden">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-[var(--gold-dark)]">2. Add Resources</p>
+            <h2 className="mt-1 text-lg font-black">Choose files or paste a link</h2>
+          </div>
+          <label className="flex min-h-24 cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-slate-400 bg-[var(--page-bg)] p-4 text-center hover:border-slate-950">
+            <Video size={24} />
+            <strong className="mt-2 text-sm">Upload Recorded Video</strong>
+            <span className="mt-1 text-xs text-[var(--muted-blue)]">MP4, WebM or MOV</span>
+            <input type="file" accept="video/mp4,video/webm,video/quicktime" className="sr-only" onChange={(event) => {
+              void queueFiles(Array.from(event.target.files ?? []));
+              event.target.value = "";
+            }} />
+          </label>
+          <label className="flex min-h-20 cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-slate-400 bg-[var(--page-bg)] p-3 text-center hover:border-slate-950">
+            <Files size={22} />
+            <strong className="mt-1 text-sm">Add Notes and Files</strong>
+            <span className="mt-1 text-xs text-[var(--muted-blue)]">PDF, PPT, Word or images - multiple allowed</span>
+            <input type="file" multiple accept=".pdf,.doc,.docx,.ppt,.pptx,image/jpeg,image/png,image/webp,image/gif" className="sr-only" onChange={(event) => {
+              void queueFiles(Array.from(event.target.files ?? []));
+              event.target.value = "";
+            }} />
+          </label>
+          <label className="text-xs font-black">YouTube Link
+            <input value={form.type === "YOUTUBE" ? form.url : ""} onChange={(event) => {
+              const value = event.target.value;
+              onChange((current) => ({ ...current, type: value.trim() ? "YOUTUBE" : "VIDEO", url: value }));
+              if (value.trim()) setSelectedPreviewId("YOUTUBE");
+            }} placeholder="Paste YouTube link" className={compactInputClass} />
+          </label>
+          {form.url && !youtubePreviewUrl ? <p className="text-xs font-black text-amber-700">Enter a valid YouTube link.</p> : null}
+          <div className="min-h-0 flex-1 overflow-y-auto rounded-xl bg-[var(--page-bg)] p-3">
+            <div className="flex items-center justify-between"><strong className="text-sm">Files</strong><span className="text-xs font-bold text-[var(--muted-blue)]">{resources.filter((resource) => resource.status === "READY").length}/{resources.length} ready</span></div>
+            {!resources.length ? <p className="mt-3 text-xs leading-5 text-[var(--muted-blue)]">Your selected files will appear here.</p> : null}
+            <div className="mt-2 grid gap-2">
+              {resources.map((resource) => (
+                <div key={resource.id} className={`flex min-w-0 items-center gap-2 rounded-lg border bg-white p-2 ${selectedPreviewId === resource.id ? "border-slate-950" : "border-[var(--border)]"}`}>
+                  <button type="button" onClick={() => setSelectedPreviewId(resource.id)} className="min-w-0 flex-1 text-left"><strong className="block truncate text-xs">{resource.name}</strong><span className={`text-[11px] font-bold ${resource.status === "READY" ? "text-emerald-700" : resource.status === "ERROR" ? "text-rose-700" : "text-amber-700"}`}>{resource.status === "UPLOADING" ? "Uploading..." : resource.status === "ERROR" ? resource.error || "Failed" : "Ready"}</span></button>
+                  <button type="button" onClick={() => removeResource(resource.id)} className="grid h-8 w-8 shrink-0 place-items-center rounded-lg border border-[var(--border)]" aria-label={`Remove ${resource.name}`}><X size={14} /></button>
                 </div>
-                <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                  {resources.map((resource) => (
-                    <div key={resource.id} className={`flex min-w-0 items-center gap-3 rounded-xl border p-3 ${selectedPreviewId === resource.id ? "border-slate-950 bg-white" : "border-[var(--border)] bg-white/70"}`}>
-                      <button type="button" onClick={() => setSelectedPreviewId(resource.id)} className="min-w-0 flex-1 text-left">
-                        <strong className="block truncate text-sm">{resource.name}</strong>
-                        <span className={`mt-1 block text-xs font-black ${resource.status === "READY" ? "text-emerald-700" : resource.status === "ERROR" ? "text-rose-700" : "text-amber-700"}`}>{resource.status === "UPLOADING" ? "Uploading..." : resource.status === "ERROR" ? resource.error || "Upload failed" : "Ready to publish"}</span>
-                      </button>
-                      <button type="button" onClick={() => removeResource(resource.id)} aria-label={`Remove ${resource.name}`} className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-[var(--border)] bg-white"><X size={15} /></button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ) : null}
+              ))}
+            </div>
+          </div>
+        </section>
 
-            <div className="min-w-0 rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div><p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold-dark)]">Preview</p><h5 className="mt-1 text-xl font-black">Check before publishing</h5></div>
-                <span className="rounded-full border border-[var(--border)] bg-white px-3 py-1 text-xs font-black">{selectedPreviewId === "YOUTUBE" ? "YOUTUBE" : selectedResource?.materialType || "NO FILE"}</span>
-              </div>
-              <div className="mt-4 overflow-hidden rounded-2xl border border-[var(--border)] bg-white">
+        <section className="flex min-h-[420px] min-w-0 flex-col rounded-xl border border-[var(--border)] bg-white p-4 xl:min-h-0 xl:overflow-hidden">
+          <div className="flex shrink-0 items-center justify-between gap-3"><div><p className="text-xs font-black uppercase tracking-[0.18em] text-[var(--gold-dark)]">3. Preview</p><h2 className="mt-1 text-lg font-black">Check before publishing</h2></div><span className="rounded-full border border-[var(--border)] px-3 py-1 text-xs font-black">{selectedPreviewId === "YOUTUBE" ? "YOUTUBE" : selectedResource?.materialType || "NO FILE"}</span></div>
+          <div className="mt-3 min-h-0 flex-1 overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--page-bg)]">
               {selectedPreviewId === "YOUTUBE" && youtubePreviewUrl ? (
                 <iframe
                   src={youtubePreviewUrl}
                   title="YouTube lesson preview"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                   allowFullScreen
-                  className="aspect-video w-full bg-black"
+                  className="h-full min-h-[360px] w-full bg-black xl:min-h-0"
                 />
               ) : selectedResource?.mimeType.startsWith("video/") ? (
-                <video className="aspect-video w-full bg-black" controls src={selectedResource.localPreviewUrl || selectedResource.url} />
+                <video className="h-full min-h-[360px] w-full bg-black object-contain xl:min-h-0" controls src={selectedResource.localPreviewUrl || selectedResource.url} />
               ) : selectedResource?.mimeType.startsWith("image/") ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={selectedResource.localPreviewUrl || selectedResource.url} alt={selectedResource.name} className="max-h-[440px] w-full object-contain bg-white" />
+                <img src={selectedResource.localPreviewUrl || selectedResource.url} alt={selectedResource.name} className="h-full w-full object-contain bg-white" />
               ) : selectedResource?.mimeType.includes("pdf") || selectedResource?.name.toLowerCase().endsWith(".pdf") ? (
-                <iframe src={selectedResource.localPreviewUrl || selectedResource.url} title={`${selectedResource.name} preview`} className="h-[440px] w-full bg-white" />
+                <iframe src={selectedResource.localPreviewUrl || selectedResource.url} title={`${selectedResource.name} preview`} className="h-full min-h-[420px] w-full bg-white xl:min-h-0" />
               ) : selectedResource && (selectedResource.name.toLowerCase().endsWith(".ppt") || selectedResource.name.toLowerCase().endsWith(".pptx") || selectedResource.name.toLowerCase().endsWith(".doc") || selectedResource.name.toLowerCase().endsWith(".docx")) ? (
-                selectedResource.url ? <iframe src={`https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(selectedResource.url)}`} title={`${selectedResource.name} preview`} className="h-[440px] w-full bg-white" /> : <div className="grid min-h-[280px] place-items-center p-6 text-center"><FileText className="h-10 w-10 text-[var(--gold-dark)]" /><p className="mt-3 font-black">Uploading document preview...</p></div>
+                selectedResource.url ? <iframe src={`https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(selectedResource.url)}`} title={`${selectedResource.name} preview`} className="h-full min-h-[420px] w-full bg-white xl:min-h-0" /> : <div className="grid h-full min-h-[360px] place-items-center p-6 text-center"><FileText className="h-10 w-10 text-[var(--gold-dark)]" /><p className="mt-3 font-black">Uploading document preview...</p></div>
               ) : (
-                <div className="grid min-h-[280px] place-items-center p-6 text-center">
-                  <FileText className="mx-auto h-10 w-10 text-[var(--gold-dark)]" />
-                  <h6 className="mt-3 text-lg font-black">Choose a resource to preview</h6>
-                  <p className="mt-2 text-sm leading-6 text-[var(--muted-blue)]">Video, PDF, Word, PowerPoint, image and YouTube previews appear here before publishing.</p>
-                </div>
+                <div className="grid h-full min-h-[360px] place-items-center p-6 text-center"><div><FileText className="mx-auto h-10 w-10 text-[var(--gold-dark)]" /><h3 className="mt-3 text-lg font-black">Nothing to preview yet</h3><p className="mt-2 text-sm text-[var(--muted-blue)]">Choose a video, file or YouTube link.</p></div></div>
               )}
-              </div>
-              {selectedResource?.url ? <a href={selectedResource.url} target="_blank" rel="noreferrer" className="mt-3 inline-flex min-h-11 items-center justify-center rounded-xl border border-[var(--border)] bg-white px-4 text-sm font-black">Open original file</a> : null}
-            </div>
-          </section>
-        </div>
+          </div>
+          {selectedResource?.url ? <a href={selectedResource.url} target="_blank" rel="noreferrer" className="mt-2 inline-flex h-10 shrink-0 items-center justify-center rounded-lg border border-[var(--border)] text-sm font-black">Open original</a> : null}
+        </section>
+      </main>
 
-        <div className="mt-5 flex flex-col gap-3 border-t border-[var(--border)] pt-5 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-xs font-bold text-[var(--muted-blue)]">{activeProgram?.name} / {activeBatch?.name} / {selectedSubject} / {selectedChapter} / {selectedTopic}</p>
-          <button type="button" disabled={!canPublish} onClick={() => onPublish(resources, activeBatch)} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-emerald-700 px-6 py-3 font-black text-white disabled:cursor-not-allowed disabled:opacity-50">
-            <Plus size={18} /> {hasUploading ? "Uploading..." : "Publish To Students"}
-          </button>
-        </div>
-      </div>
+      <footer className="flex shrink-0 flex-col gap-2 border-t border-[var(--border)] bg-white px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+        <p className="min-w-0 truncate text-xs font-bold text-[var(--muted-blue)]">{activeProgram?.name} / {activeBatch?.name} / {selectedSubject} / {selectedChapter} / {selectedTopic}</p>
+        <button type="button" disabled={!canPublish} onClick={() => onPublish(resources, activeBatch)} className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-emerald-700 px-6 font-black text-white disabled:cursor-not-allowed disabled:opacity-50"><Plus size={17} /> {hasUploading ? "Uploading..." : "Publish to students"}</button>
+      </footer>
     </div>
   );
 }
