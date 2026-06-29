@@ -2843,9 +2843,6 @@ export const academyService = {
   },
 
   async createLeaveRequest(user: Requester, input: LeaveRequestInput) {
-    if (user.role !== Role.STUDENT) {
-      throw Object.assign(new Error("Student access required"), { statusCode: 403 });
-    }
     if (!input.fromDate || !input.toDate || !input.reason?.trim()) {
       throw Object.assign(new Error("From date, to date and reason are required"), { statusCode: 400 });
     }
@@ -2854,24 +2851,27 @@ export const academyService = {
     if (Number.isNaN(fromDate.getTime()) || Number.isNaN(toDate.getTime()) || toDate < fromDate) {
       throw Object.assign(new Error("Enter a valid leave date range"), { statusCode: 400 });
     }
-    const enrollment = await prisma.batchStudent.findFirst({
-      where: {
-        studentId: user.id,
-        status: "ACTIVE",
-        ...(input.batchId ? { batchId: input.batchId } : {}),
-      },
-      include: { batch: true },
-      orderBy: { joinedAt: "desc" },
-    });
-    if (!enrollment) {
+    const isStudent = user.role === Role.STUDENT;
+    const enrollment = isStudent
+      ? await prisma.batchStudent.findFirst({
+          where: {
+            studentId: user.id,
+            status: "ACTIVE",
+            ...(input.batchId ? { batchId: input.batchId } : {}),
+          },
+          include: { batch: true },
+          orderBy: { joinedAt: "desc" },
+        })
+      : null;
+    if (isStudent && !enrollment) {
       throw Object.assign(new Error("An active batch is required before applying for leave"), { statusCode: 400 });
     }
     const leave = await db.academicLeaveRequest.create({
       data: {
         studentId: user.id,
-        studentName: user.name || user.email || "Student",
-        batchId: enrollment.batchId,
-        batchName: enrollment.batch.name,
+        studentName: user.name || user.email || (isStudent ? "Student" : "Faculty"),
+        batchId: enrollment?.batchId || input.batchId || null,
+        batchName: enrollment?.batch?.name || null,
         fromDate,
         toDate,
         reason: input.reason.trim(),
@@ -2896,7 +2896,11 @@ export const academyService = {
     }
     requireAcademic(user);
     if (!isAcademicManager(user)) {
-      throw Object.assign(new Error("Academic Head access required"), { statusCode: 403 });
+      const leaves = await db.academicLeaveRequest.findMany({
+        where: { studentId: user.id, ...(status ? { status } : {}) },
+        orderBy: { createdAt: "desc" },
+      });
+      return { leaves: normalizeRows(leaves) };
     }
     if (batchId) await assertBatchAccess(user, batchId);
     const leaves = await db.academicLeaveRequest.findMany({
@@ -3878,6 +3882,52 @@ export const academyService = {
     `;
     const expense = normalizeRows(rows)[0];
     await auditAcademicAction(user, "DIRECTOR_EXPENSE_CREATED", "DirectorExpenseRecord", id, expense);
+    return { expense };
+  },
+
+  async expenseClaims(user: Requester) {
+    requireAcademic(user);
+    const rows = isAcademicManager(user)
+      ? await prisma.$queryRaw<any[]>`
+          SELECT * FROM "DirectorExpenseRecord"
+          WHERE "status" <> 'ARCHIVED'
+          ORDER BY "createdAt" DESC
+        `
+      : await prisma.$queryRaw<any[]>`
+          SELECT * FROM "DirectorExpenseRecord"
+          WHERE "createdBy" = ${user.id}
+          ORDER BY "createdAt" DESC
+        `;
+    const expenses = normalizeRows(rows);
+    return {
+      summary: {
+        total: expenses.reduce((sum: number, item: any) => sum + Number(item.amount || 0), 0),
+        pending: expenses.filter((item: any) => item.status === "PENDING").length,
+        approved: expenses.filter((item: any) => item.status === "APPROVED" || item.status === "ACTIVE").length,
+        paid: expenses.filter((item: any) => item.status === "PAID").length,
+      },
+      expenses,
+    };
+  },
+
+  async createExpenseClaim(user: Requester, input: DirectorExpenseInput) {
+    requireAcademic(user);
+    if (!input.title || !input.amount || Number(input.amount) <= 0) {
+      throw Object.assign(new Error("Expense title and amount are required"), { statusCode: 400 });
+    }
+    const id = randomUUID();
+    const now = new Date();
+    await prisma.$executeRaw`
+      INSERT INTO "DirectorExpenseRecord"
+      ("id", "title", "category", "amount", "currency", "note", "status", "createdBy", "createdAt", "updatedAt")
+      VALUES
+      (${id}, ${input.title}, ${input.category || "Staff Claim"}, ${Number(input.amount)}, ${input.currency || "INR"}, ${input.note || null}, 'PENDING', ${user.id}, ${now}, ${now})
+    `;
+    const rows = await prisma.$queryRaw<any[]>`
+      SELECT * FROM "DirectorExpenseRecord" WHERE "id" = ${id} LIMIT 1
+    `;
+    const expense = normalizeRows(rows)[0];
+    await auditAcademicAction(user, "EXPENSE_CLAIM_CREATED", "DirectorExpenseRecord", id, expense);
     return { expense };
   },
 

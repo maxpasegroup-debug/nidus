@@ -67,6 +67,7 @@ router.get("/student-progress-summary", requireAcademyRoles(academicRoles), acad
 router.get("/assessment-ecosystem", requireAcademyRoles(academicRoles), academyController.academicAssessmentEcosystem);
 router.get("/academic-audit", requireAcademyRoles(managementRoles), academyController.academicAuditTrail);
 router.get("/director-expenses", requireAcademyRoles(managementRoles), academyController.directorExpenses);
+router.get("/expense-claims", requireAcademyRoles([...academicRoles, ...managementRoles]), academyController.expenseClaims);
 
 router.post("/academic-calendar", requireAcademyRoles(academicRoles), academyController.createAcademicCalendarItem);
 router.post("/batches/:batchId/announcements", requireAcademyRoles(academicRoles), academyController.createBatchAnnouncement);
@@ -75,7 +76,7 @@ router.patch("/academic-calendar/:id", requireAcademyRoles(academicRoles), acade
 router.post("/attendance", requireAcademyRoles(academicRoles), academyController.saveAttendance);
 router.patch("/attendance/student", requireAcademyRoles(academicRoles), academyController.markStudentAttendance);
 router.patch("/attendance/:id", requireAcademyRoles(academicRoles), academyController.updateAttendance);
-router.post("/leave-requests", requireAcademyRoles([Role.STUDENT]), academyController.createLeaveRequest);
+router.post("/leave-requests", requireAcademyRoles(studentAcademicRoles), academyController.createLeaveRequest);
 router.patch("/leave-requests/:id", requireAcademyRoles(academicManagementRoles), academyController.reviewLeaveRequest);
 router.post("/assignments", requireAcademyRoles(academicRoles), academyController.createAssignment);
 router.patch("/assignments/:id", requireAcademyRoles(academicRoles), academyController.updateAssignment);
@@ -99,6 +100,7 @@ router.post("/exams/:id/release-results", requireAcademyRoles(academicRoles), ac
 router.post("/batches", requireAcademyRoles(academicManagementRoles), academyController.createBatch);
 router.post("/director-expenses", requireAcademyRoles(managementRoles), academyController.createDirectorExpense);
 router.post("/director-expenses/:id/archive", requireAcademyRoles(managementRoles), academyController.archiveDirectorExpense);
+router.post("/expense-claims", requireAcademyRoles([...academicRoles, ...managementRoles]), academyController.createExpenseClaim);
 router.post("/employees", requireAcademyRoles(academicManagementRoles), academyController.createEmployee);
 router.patch("/batches/:id", requireAcademyRoles(academicManagementRoles), academyController.updateBatch);
 router.patch("/employees/:id", requireAcademyRoles(managementRoles), academyController.updateEmployee);

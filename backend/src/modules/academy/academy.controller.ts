@@ -426,9 +426,23 @@ export const academyController = {
       next(error);
     }
   },
+  expenseClaims: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      res.json(await academyService.expenseClaims(requester(req)));
+    } catch (error) {
+      next(error);
+    }
+  },
   createDirectorExpense: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     try {
       res.status(201).json(await academyService.createDirectorExpense(requester(req), req.body));
+    } catch (error) {
+      next(error);
+    }
+  },
+  createExpenseClaim: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      res.status(201).json(await academyService.createExpenseClaim(requester(req), req.body));
     } catch (error) {
       next(error);
     }

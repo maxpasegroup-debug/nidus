@@ -150,7 +150,7 @@ export function MyWorkspace({ role }: { role: WorkspaceRole }) {
       label: "Library",
       primary: true,
     },
-    { title: "Lesson Planner", description: "Plan topics, timetable and syllabus completion.", icon: CalendarRange, href: `${base}/academic-calendar?action=plan-class`, label: "Plan" },
+    { title: "Lesson Planner", description: "Plan topics, timetable and syllabus completion.", icon: CalendarRange, href: `${base}/lesson-planner`, label: "Plan" },
     { title: "Attendance", description: "Mark class attendance and review registers.", icon: CalendarCheck, href: `${base}/attendance?action=mark-attendance`, label: "Register" },
     { title: "My Students", description: "Open assigned students, progress and class notes.", icon: Users, href: `${base}/my-classes?action=students`, label: "Classroom" },
     { title: "Library", description: "Manage notes, videos and class resources.", icon: Library, href: `${base}/library`, label: "Resources" },
