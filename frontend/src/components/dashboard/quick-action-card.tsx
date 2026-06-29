@@ -11,10 +11,9 @@ export function QuickActionCard({ title, description, href }: QuickActionCardPro
   return (
     <Link href={href}>
       <DashboardCard className="h-full p-5">
-        <p className="font-semibold text-white">{title}</p>
-        <p className="mt-2 text-sm leading-6 text-muted">{description}</p>
+        <p className="font-black text-[var(--ink)]">{title}</p>
+        <p className="mt-2 text-sm font-medium leading-6 text-[var(--muted-blue)]">{description}</p>
       </DashboardCard>
     </Link>
   );
 }
-

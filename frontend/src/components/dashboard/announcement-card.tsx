@@ -9,12 +9,11 @@ type AnnouncementCardProps = {
 export function AnnouncementCard({ title, description, tag }: AnnouncementCardProps) {
   return (
     <DashboardCard className="p-5">
-      <span className="rounded border border-gold/30 bg-gold/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-gold">
+      <span className="inline-flex rounded-full border border-[var(--gold-border)] bg-[var(--gold-soft)] px-3 py-1 text-xs font-black uppercase tracking-[0.14em] text-[var(--gold-dark)]">
         {tag}
       </span>
-      <p className="mt-4 font-semibold text-white">{title}</p>
-      <p className="mt-2 text-sm leading-6 text-muted">{description}</p>
+      <p className="mt-4 font-black text-[var(--ink)]">{title}</p>
+      <p className="mt-2 text-sm font-medium leading-6 text-[var(--muted-blue)]">{description}</p>
     </DashboardCard>
   );
 }
-
