@@ -112,7 +112,7 @@ export function PptGeneratorPage({ role, backHref }: { role: "TEACHER" | "ACADEM
     setLoading(true);
     setError(null);
     try {
-      const plan = await apiGet<unknown>("/api/academy/my-teaching-plan");
+      const plan = await apiGet<unknown>("/academy/my-teaching-plan");
       const nextBatches = recordsFrom<PptBatch>(plan, "batches");
       setBatches(nextBatches);
       setBatchId((current) => current || nextBatches[0]?.id || "");

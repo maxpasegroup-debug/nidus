@@ -94,10 +94,10 @@ export function MyWorkspace({ role }: { role: WorkspaceRole }) {
     setWorkspaceLoading(true);
     setWorkspaceError(null);
     const results = await Promise.allSettled([
-      apiGet<unknown>("/api/academy/my-teaching-plan"),
-      apiGet<unknown>("/api/academy/assignments"),
-      apiGet<unknown>("/api/academy/exams"),
-      apiGet<unknown>("/api/academy/study-materials?limit=100"),
+      apiGet<unknown>("/academy/my-teaching-plan"),
+      apiGet<unknown>("/academy/assignments"),
+      apiGet<unknown>("/academy/exams"),
+      apiGet<unknown>("/academy/study-materials?limit=100"),
     ]);
     const [planResult, assignmentResult, examResult, materialResult] = results;
     const plan = planResult.status === "fulfilled" ? planResult.value : null;
@@ -112,9 +112,11 @@ export function MyWorkspace({ role }: { role: WorkspaceRole }) {
       materials: recordsFrom<WorkspaceRecord>(materials, "materials"),
     });
     const failedSources = results.filter((result) => result.status === "rejected").length;
-    if (failedSources === results.length) {
+    if (planResult.status === "rejected") {
+      setWorkspaceError("Teaching allocation could not be loaded. Refresh once or check your login session.");
+    } else if (failedSources === results.length) {
       setWorkspaceError("Workspace activity could not be loaded. Refresh to try again.");
-    } else if (failedSources > 0) {
+    } else if (failedSources > 1) {
       setWorkspaceError("Some activity is temporarily unavailable. Tools still work.");
     }
     setLoadedAt(Date.now());

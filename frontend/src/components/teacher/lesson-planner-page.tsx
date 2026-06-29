@@ -86,7 +86,7 @@ export function LessonPlannerPage({ role, backHref }: { role: "TEACHER" | "ACADE
     setLoading(true);
     setError(null);
     try {
-      const plan = await apiGet<unknown>("/api/academy/my-teaching-plan");
+      const plan = await apiGet<unknown>("/academy/my-teaching-plan");
       const nextData = {
         batches: recordsFrom<PlannerBatch>(plan, "batches"),
         calendar: recordsFrom<PlannerCalendarItem>(plan, "calendar"),
