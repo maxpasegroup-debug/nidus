@@ -102,6 +102,16 @@ function unwrap<T>(payload: unknown): T {
   return payload as T;
 }
 
+function extractErrorMessage(raw: string, fallback: string) {
+  if (!raw) return fallback;
+  try {
+    const parsed = JSON.parse(raw) as { message?: string; error?: string };
+    return parsed.message || parsed.error || fallback;
+  } catch {
+    return raw;
+  }
+}
+
 async function requestJson<T>(path: string, init?: RequestInit) {
   const response = await fetch(`${API_BASE}${path}`, {
     ...init,
@@ -111,7 +121,10 @@ async function requestJson<T>(path: string, init?: RequestInit) {
       ...(init?.headers ?? {}),
     },
   });
-  if (!response.ok) throw new Error((await response.text().catch(() => "")) || `Request failed: ${response.status}`);
+  if (!response.ok) {
+    const raw = await response.text().catch(() => "");
+    throw new Error(extractErrorMessage(raw, `Request failed: ${response.status}`));
+  }
   return unwrap<T>(await response.json());
 }
 
@@ -298,6 +311,21 @@ function optionText(question: QuestionDraft, option: "A" | "B" | "C" | "D") {
   return question.optionD;
 }
 
+function inferExamTitle(source: string, subject: string, batchName?: string) {
+  const upperSource = source.toUpperCase();
+  const subjectTitle = subject && subject !== "General" ? subject : "Exam";
+  if (upperSource.includes("MATHEMATICS MOCK TEST")) return "Mathematics Mock Test";
+  const mockLine = source.split(/\n+/).map((line) => line.trim()).find((line) => /mock\s+test/i.test(line));
+  if (mockLine) return mockLine.replace(/\s+/g, " ");
+  return batchName ? `${subjectTitle} Test - ${batchName}` : `${subjectTitle} Test`;
+}
+
+function inferExamTopic(source: string, fallback: string) {
+  const match = source.match(/Topics?\s*:\s*([\s\S]*?)(?=\n\s*(?:Q\s*)?\d+[\).]|\s+(?:Q\s*)?1[\).])/i);
+  const topic = match?.[1]?.replace(/\s+/g, " ").trim();
+  return topic || fallback || "General";
+}
+
 export function TeacherExamWorkspace({ batches, selectedBatchId, exams, loading, onSelectBatch, onRefresh }: Props) {
   const [activeBatchId, setActiveBatchId] = useState(selectedBatchId || batches[0]?.id || "");
   const activeBatch = useMemo(() => batches.find((batch) => batch.id === activeBatchId) || batches[0] || null, [activeBatchId, batches]);
@@ -340,6 +368,15 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, exams, loading,
   const submittedCount = batchExams.reduce((total, exam) => total + Number(exam.attemptStats?.submitted ?? 0), 0);
 
   const questions = useMemo(() => buildQuestions(questionSource, answerKey, explanations, form.topic, Number(form.marks)), [answerKey, explanations, form.marks, form.topic, questionSource]);
+  const effectiveTopic = useMemo(() => inferExamTopic(questionSource, form.topic), [form.topic, questionSource]);
+  const effectiveTitle = useMemo(() => form.title.trim() || inferExamTitle(questionSource, subject, activeBatch?.name), [activeBatch?.name, form.title, questionSource, subject]);
+
+  useEffect(() => {
+    if (!questionSource || !activeBatch?.subjects?.length) return;
+    if (/mathematics|maths/i.test(questionSource) && activeBatch.subjects.includes("Mathematics") && subject !== "Mathematics") {
+      setSubject("Mathematics");
+    }
+  }, [activeBatch?.subjects, questionSource, subject]);
 
   function openBatch(batchId: string) {
     setActiveBatchId(batchId);
@@ -431,6 +468,10 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, exams, loading,
       setMessage("Add at least one question before publishing.");
       return;
     }
+    if (!effectiveTitle.trim() || !effectiveTopic.trim()) {
+      setMessage("Enter or upload an exam name and topic before publishing.");
+      return;
+    }
     setBusy(true);
     setMessage("");
     try {
@@ -439,8 +480,8 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, exams, loading,
           method: "PATCH",
           body: JSON.stringify({
             subject,
-            title: form.title,
-            topic: form.topic,
+            title: effectiveTitle,
+            topic: effectiveTopic,
             durationMinutes: Number(form.duration),
             difficulty: editingExam.difficulty || "MEDIUM",
             instructions: form.instructions,
@@ -460,8 +501,8 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, exams, loading,
             batchName: targetBatch.name,
             course: targetBatch.program,
             subject,
-            title: form.title,
-            topic: form.topic,
+            title: effectiveTitle,
+            topic: effectiveTopic,
             questionCount: questions.length,
             durationMinutes: Number(form.duration),
             difficulty: "MEDIUM",
@@ -472,12 +513,12 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, exams, loading,
             publishDate: form.date,
             publishTime: form.time,
             draft: {
-              title: form.title,
+              title: effectiveTitle,
               description: form.instructions || `Faculty published ${subject} exam for ${targetBatch.name}.`,
               examType: "Teacher Exam",
               category: "Defence LMS",
               subject,
-              topic: form.topic,
+              topic: effectiveTopic,
               duration: Number(form.duration),
               totalMarks: Number(form.marks),
               questions,
@@ -546,6 +587,25 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, exams, loading,
     } finally {
       setBusy(false);
     }
+  }
+
+  function goNextStep() {
+    if (step === 1) {
+      if (!(targetBatchIds.length || activeBatch?.id)) {
+        setMessage("Select at least one batch.");
+        return;
+      }
+      if (!subject) {
+        setMessage("Select a subject.");
+        return;
+      }
+    }
+    if (step === 2 && !editingExam && !questions.length) {
+      setMessage("Upload or paste the question paper before continuing.");
+      return;
+    }
+    setMessage("");
+    setStep((value) => Math.min(4, value + 1));
   }
 
   return (
@@ -730,7 +790,7 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, exams, loading,
                 <div className="grid gap-4">
                   <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
                     <p className="font-black">{questions.length} questions / {form.marks} marks / {form.duration} minutes</p>
-                    <p className="mt-1 text-sm text-[var(--muted-blue)]">{subject} - {form.topic || "General"}</p>
+                    <p className="mt-1 text-sm text-[var(--muted-blue)]">{subject} - {effectiveTopic}</p>
                   </div>
                   <div className="grid max-h-[55vh] gap-3 overflow-y-auto pr-2">
                     {questions.map((question, index) => (
@@ -758,6 +818,11 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, exams, loading,
                     <Summary label="Questions" value={String(editingExam?.questionCount ?? questions.length)} />
                     <Summary label="Timer" value={`${form.duration} min`} />
                   </div>
+                  <div className="mt-4 rounded-2xl border border-[var(--border)] bg-white p-4">
+                    <p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold-dark)]">Exam</p>
+                    <p className="mt-2 text-lg font-black">{effectiveTitle}</p>
+                    <p className="mt-1 text-sm text-[var(--muted-blue)]">{effectiveTopic}</p>
+                  </div>
                   <p className="mt-5 text-sm leading-6 text-[var(--muted-blue)]">Publish sends this exam to students in this batch. Student result reports stay hidden until you review and release results.</p>
                 </div>
               ) : null}
@@ -767,7 +832,7 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, exams, loading,
             <div className="grid shrink-0 gap-3 border-t border-[var(--border)] bg-white p-4 sm:flex sm:justify-between sm:p-5">
               <button type="button" onClick={() => setStep((value) => Math.max(1, value - 1))} className="min-h-12 rounded-xl border border-[var(--border)] px-5 font-black">Back</button>
               {step < 4 ? (
-                <button type="button" onClick={() => setStep((value) => Math.min(4, value + 1))} className="min-h-12 rounded-xl border border-slate-950 bg-slate-950 px-6 font-black text-white">Continue</button>
+                <button type="button" onClick={goNextStep} className="min-h-12 rounded-xl border border-slate-950 bg-slate-950 px-6 font-black text-white">Continue</button>
               ) : (
                 <button type="button" onClick={() => void publishExam()} disabled={busy} className="min-h-12 rounded-xl border border-emerald-700 bg-emerald-700 px-6 font-black text-white disabled:opacity-60">
                   {busy ? (editingExam ? "Saving..." : "Publishing...") : editingExam ? "Save Exam Changes" : "Publish To Students"}
