@@ -257,6 +257,80 @@ export function StudentClassesPage() {
   );
 }
 
+export function StudentTodayPage() {
+  const { plan, activeBatches } = useStudentPlan();
+  const availableExams = useQuery({ queryKey: ["student", "available-exams"], queryFn: () => apiJson<{ tests: ExamSummary[] }>("/api/tests/available") });
+  const today = todayKey();
+  const calendar = plan.data?.calendar ?? [];
+  const assignments = plan.data?.assignments ?? [];
+  const materials = plan.data?.materials ?? [];
+  const liveClasses = plan.data?.liveClasses ?? [];
+  const exams = availableExams.data?.tests ?? [];
+  const todayClasses = calendar.filter((item) => item.plannedDate.slice(0, 10) === today);
+  const pendingAssignments = assignments.filter((assignment) => assignment.submissionStatus !== "SUBMITTED");
+  const urgentAssignments = [...pendingAssignments]
+    .sort((left, right) => String(left.dueDate ?? "").localeCompare(String(right.dueDate ?? "")))
+    .slice(0, 3);
+  const upcomingExams = [...exams]
+    .sort((left, right) => String(left.publishAt ?? "").localeCompare(String(right.publishAt ?? "")))
+    .slice(0, 3);
+  const upcomingLive = liveClasses.filter((item) => new Date(item.scheduledAt) >= new Date()).slice(0, 2);
+  const primaryBatch = activeBatches[0];
+
+  return (
+    <Shell title="Today" subtitle="Only the work that needs your attention now. Open the sidebar for full modules.">
+      <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+        <Metric label="Classes Today" value={todayClasses.length} />
+        <Metric label="Assignments Due" value={pendingAssignments.length} />
+        <Metric label="Exams" value={exams.length} />
+        <Metric label="Live Classes" value={upcomingLive.length} />
+        <Metric label="Library Items" value={materials.length} />
+      </section>
+
+      <section className="grid gap-4 xl:grid-cols-[1fr_0.9fr]">
+        <ModuleCard title="Immediate Reminders">
+          <div className="grid gap-3">
+            {todayClasses.map((item) => <ClassCard key={item.id} item={item} />)}
+            {urgentAssignments.map((assignment) => (
+              <Link key={assignment.id} href="/dashboard/student/assignments" className="rounded-2xl border border-[var(--gold-border)] bg-[var(--gold-soft)] p-4 transition hover:-translate-y-0.5">
+                <p className="text-xs font-black uppercase tracking-[0.22em] text-[var(--gold)]">Assignment</p>
+                <h3 className="mt-2 text-lg font-black">{assignment.title}</h3>
+                <p className="mt-1 text-sm text-[var(--muted-blue)]">{assignment.subject ?? "Subject"} / {dueCountdown(assignment.dueDate)}</p>
+              </Link>
+            ))}
+            {upcomingExams.map((exam) => (
+              <Link key={exam.id || exam.testId || exam.title || "exam"} href="/dashboard/student/exams" className="rounded-2xl border border-[var(--gold-border)] bg-[var(--gold-soft)] p-4 transition hover:-translate-y-0.5">
+                <p className="text-xs font-black uppercase tracking-[0.22em] text-[var(--gold)]">Exam</p>
+                <h3 className="mt-2 text-lg font-black">{exam.examName ?? exam.title ?? exam.name ?? "Assigned Exam"}</h3>
+                <p className="mt-1 text-sm text-[var(--muted-blue)]">{exam.subject ?? "Subject"} / {countdownLabel(exam.publishAt)}</p>
+              </Link>
+            ))}
+            {!todayClasses.length && !urgentAssignments.length && !upcomingExams.length ? (
+              <Empty text="No urgent class, assignment or exam is pending right now." />
+            ) : null}
+          </div>
+        </ModuleCard>
+
+        <ModuleCard title="My Access">
+          <div className="grid gap-3">
+            <div className="rounded-2xl border border-[var(--border)] bg-white p-4">
+              <p className="text-xs font-black uppercase tracking-[0.22em] text-[var(--gold)]">Current Batch</p>
+              <h3 className="mt-2 text-xl font-black">{primaryBatch?.name ?? "Batch pending"}</h3>
+              <p className="mt-1 text-sm text-[var(--muted-blue)]">{primaryBatch?.course?.title ?? "NIDUS Academy"}</p>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <QuickLink href="/dashboard/student/classes" label="Classes" icon={PlayCircle} />
+              <QuickLink href="/dashboard/student/assignments" label="Assignments" icon={FileText} />
+              <QuickLink href="/dashboard/student/exams" label="Exams" icon={ClipboardCheck} />
+              <QuickLink href="/dashboard/student/learning" label="Library" icon={Library} />
+            </div>
+          </div>
+        </ModuleCard>
+      </section>
+    </Shell>
+  );
+}
+
 export function StudentAssignmentsPage() {
   const { plan } = useStudentPlan();
   const [drafts, setDrafts] = useState<Record<string, AssignmentDraft>>({});
@@ -428,6 +502,15 @@ function ModuleCard({ title, children }: { title: string; children: React.ReactN
       <h2 className="text-2xl font-black">{title}</h2>
       <div className="mt-4">{children}</div>
     </section>
+  );
+}
+
+function QuickLink({ href, label, icon: Icon }: { href: string; label: string; icon: typeof PlayCircle }) {
+  return (
+    <Link href={href} className="rounded-2xl border border-[var(--border)] bg-white p-4 text-sm font-black transition hover:-translate-y-0.5 hover:border-[var(--gold-border)]">
+      <Icon className="h-5 w-5 text-[var(--gold)]" />
+      <span className="mt-3 block">{label}</span>
+    </Link>
   );
 }
 
