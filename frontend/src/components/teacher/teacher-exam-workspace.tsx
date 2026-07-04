@@ -116,10 +116,16 @@ async function requestJson<T>(path: string, init?: RequestInit) {
 }
 
 function parseNumberedBlocks(text: string) {
-  const normalized = text.replace(/\r/g, "").trim();
+  const normalized = text
+    .replace(/\r/g, "")
+    .replace(/\s+(?=Q\s*\d+[\).])/gi, "\n")
+    .replace(/\s+(?=\d+[\).]\s+)/g, "\n")
+    .trim();
   if (!normalized) return [];
-  const parts = normalized.split(/\n(?=\s*\d+[\).]\s+)/g);
-  return parts.map((part) => part.trim()).filter(Boolean);
+  const parts = normalized.split(/\n(?=\s*(?:Q\s*)?\d+[\).]\s+)/gi);
+  return parts
+    .map((part) => part.trim())
+    .filter((part) => /^(?:Q\s*)?\d+[\).]\s+/i.test(part));
 }
 
 function readUInt16(view: DataView, offset: number) {
@@ -202,7 +208,40 @@ async function extractDocxText(file: File) {
 }
 
 function stripNumber(line: string) {
-  return line.replace(/^\s*\d+[\).]\s*/, "").trim();
+  return line.replace(/^\s*(?:Q\s*)?\d+[\).]\s*/i, "").trim();
+}
+
+function stripQuestionNumber(line: string) {
+  return line.replace(/^\s*(?:Q\s*)?(\d+)[\).]\s*/i, "").trim();
+}
+
+function extractOptionText(block: string, option: "A" | "B" | "C" | "D") {
+  const nextOption = option === "A" ? "B" : option === "B" ? "C" : option === "C" ? "D" : null;
+  const pattern = nextOption
+    ? new RegExp(`(?:^|\\s)[\\(\\[]?${option}[\\)\\].]\\s*([\\s\\S]*?)(?=\\s*[\\(\\[]?${nextOption}[\\)\\].]\\s*)`, "i")
+    : new RegExp(`(?:^|\\s)[\\(\\[]?${option}[\\)\\].]\\s*([\\s\\S]*)$`, "i");
+  const match = block.match(pattern);
+  return match?.[1]?.trim().replace(/\s+/g, " ") || "";
+}
+
+function parseQuestionBlock(block: string, index: number) {
+  const number = Number(block.match(/^\s*(?:Q\s*)?(\d+)[\).]/i)?.[1] || index + 1);
+  const normalized = block
+    .replace(/\n+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  const withoutNumber = stripQuestionNumber(normalized);
+  const firstOptionIndex = withoutNumber.search(/\s[\(\[]?A[\)\].]\s+/i);
+  const questionText = (firstOptionIndex >= 0 ? withoutNumber.slice(0, firstOptionIndex) : withoutNumber)
+    .trim()
+    .replace(/\s+/g, " ");
+  const optionText = firstOptionIndex >= 0 ? withoutNumber.slice(firstOptionIndex) : "";
+  const optionA = extractOptionText(optionText, "A");
+  const optionB = extractOptionText(optionText, "B");
+  const optionC = extractOptionText(optionText, "C");
+  const optionD = extractOptionText(optionText, "D");
+
+  return { number, questionText, options: [optionA, optionB, optionC, optionD] };
 }
 
 function parseAnswerMap(text: string) {
@@ -227,22 +266,18 @@ function buildQuestions(source: string, answerKey: string, explanations: string,
   const answerMap = parseAnswerMap(answerKey);
   const explanationMap = parseExplanationMap(explanations);
   const blocks = parseNumberedBlocks(source);
-  const perQuestionMarks = Math.max(1, Math.round((Number.isFinite(totalMarks) ? totalMarks : 100) / Math.max(1, blocks.length)));
+  const perQuestionMarks = Math.max(1, Number(((Number.isFinite(totalMarks) ? totalMarks : 100) / Math.max(1, blocks.length)).toFixed(2)));
 
   return blocks.map((block, index) => {
-    const lines = block.split(/\n+/).map((line) => line.trim()).filter(Boolean);
-    const number = Number(lines[0]?.match(/^\s*(\d+)/)?.[1] || index + 1);
-    const optionLines = lines.filter((line) => /^[A-D][\).]\s+/i.test(line));
-    const questionLines = lines.filter((line) => !/^[A-D][\).]\s+/i.test(line));
-    const options = optionLines.map((line) => line.replace(/^[A-D][\).]\s+/i, "").trim());
+    const parsed = parseQuestionBlock(block, index);
     return {
-      questionText: stripNumber(questionLines.join(" ")),
-      optionA: options[0] || "Option A",
-      optionB: options[1] || "Option B",
-      optionC: options[2] || "Option C",
-      optionD: options[3] || "Option D",
-      correctAnswer: answerMap.get(number) || "A",
-      explanation: explanationMap.get(number) || "Explanation will be reviewed by faculty.",
+      questionText: parsed.questionText,
+      optionA: parsed.options[0] || "Option A",
+      optionB: parsed.options[1] || "Option B",
+      optionC: parsed.options[2] || "Option C",
+      optionD: parsed.options[3] || "Option D",
+      correctAnswer: answerMap.get(parsed.number) || "A",
+      explanation: explanationMap.get(parsed.number) || "Explanation will be reviewed by faculty.",
       marks: perQuestionMarks,
       negativeMarks: 0,
       difficultyLevel: "MEDIUM",
