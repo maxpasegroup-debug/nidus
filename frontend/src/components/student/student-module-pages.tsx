@@ -2,16 +2,18 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   ArrowRight,
   CalendarDays,
-  CheckCircle2,
   ClipboardCheck,
   FileText,
   Library,
   PlayCircle,
+  Radio,
+  Sparkles,
+  Timer,
 } from "lucide-react";
 import { useAuth } from "@/components/providers/auth-provider-v2";
 
@@ -92,6 +94,11 @@ type ExamSummary = {
   subject?: string | null;
   topic?: string | null;
   publishAt?: string | null;
+  scheduledAt?: string | null;
+  examDate?: string | null;
+  date?: string | null;
+  time?: string | null;
+  startTime?: string | null;
   durationMinutes?: number | null;
   duration?: number | null;
   totalQuestions?: number | null;
@@ -116,6 +123,27 @@ type AssignmentDraft = {
   attachmentName: string;
 };
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+function unwrapPayload<T>(payload: unknown): T {
+  if (isRecord(payload)) {
+    if (payload.data !== undefined) return unwrapPayload<T>(payload.data);
+    if (payload.result !== undefined) return unwrapPayload<T>(payload.result);
+    if (payload.payload !== undefined) return unwrapPayload<T>(payload.payload);
+  }
+  return payload as T;
+}
+
+function listPayload<T>(payload: unknown, key: string): T[] {
+  const unwrapped = unwrapPayload<unknown>(payload);
+  if (Array.isArray(unwrapped)) return unwrapped as T[];
+  if (!isRecord(unwrapped)) return [];
+  const keyed = unwrapPayload<unknown>(unwrapped[key]);
+  return Array.isArray(keyed) ? (keyed as T[]) : [];
+}
+
 async function apiJson<T>(path: string): Promise<T> {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_API_BASE_URL || "";
   const token =
@@ -130,7 +158,13 @@ async function apiJson<T>(path: string): Promise<T> {
     headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
   });
   if (!response.ok) throw new Error("Unable to load learner data");
-  return response.json() as Promise<T>;
+  const payload = await response.json().catch(() => ({}));
+  return unwrapPayload<T>(payload);
+}
+
+async function apiList<T>(path: string, key: string): Promise<T[]> {
+  const payload = await apiJson<unknown>(path);
+  return listPayload<T>(payload, key);
 }
 
 async function apiPost<T>(path: string, body: unknown): Promise<T> {
@@ -152,7 +186,8 @@ async function apiPost<T>(path: string, body: unknown): Promise<T> {
     const payload = (await response.json().catch(() => null)) as { message?: string } | null;
     throw new Error(payload?.message || "Unable to submit");
   }
-  return response.json() as Promise<T>;
+  const payload = await response.json().catch(() => ({}));
+  return unwrapPayload<T>(payload);
 }
 
 function todayKey() {
@@ -160,8 +195,9 @@ function todayKey() {
 }
 
 function countdownLabel(dateValue?: string | null) {
-  if (!dateValue) return "Open now";
-  const diff = new Date(dateValue).getTime() - Date.now();
+  const timestamp = toTimestamp(dateValue);
+  if (!timestamp) return "Open now";
+  const diff = timestamp - Date.now();
   if (diff <= 0) return "Open now";
   const hours = Math.ceil(diff / (1000 * 60 * 60));
   if (hours < 24) return `${hours} hour${hours === 1 ? "" : "s"} to go`;
@@ -170,13 +206,77 @@ function countdownLabel(dateValue?: string | null) {
 }
 
 function dueCountdown(dateValue?: string | null) {
-  if (!dateValue) return "No due date";
-  const diff = new Date(dateValue).getTime() - Date.now();
+  const timestamp = toTimestamp(dateValue, "end");
+  if (!timestamp) return "No due date";
+  const diff = timestamp - Date.now();
   if (diff <= 0) return "Due now";
   const hours = Math.ceil(diff / (1000 * 60 * 60));
   if (hours < 24) return `${hours} hour${hours === 1 ? "" : "s"} left`;
   const days = Math.ceil(hours / 24);
   return `${days} day${days === 1 ? "" : "s"} left`;
+}
+
+function calendarDate(item: CalendarItem) {
+  const date = item.plannedDate.slice(0, 10);
+  const time = item.startTime?.match(/^\d{2}:\d{2}/)?.[0] ?? "00:00";
+  return `${date}T${time}:00`;
+}
+
+function toTimestamp(value?: string | null, dateOnlyMode: "start" | "end" = "start") {
+  if (!value) return null;
+  const normalized = /^\d{4}-\d{2}-\d{2}$/.test(value) ? `${value}T${dateOnlyMode === "end" ? "23:59:00" : "00:00:00"}` : value;
+  const time = new Date(normalized).getTime();
+  return Number.isFinite(time) ? time : null;
+}
+
+function examDateTime(exam: ExamSummary) {
+  if (exam.publishAt || exam.scheduledAt) return exam.publishAt ?? exam.scheduledAt ?? "";
+  const date = exam.examDate ?? exam.date;
+  const time = exam.time ?? exam.startTime;
+  if (date && time) return `${date.slice(0, 10)}T${time.match(/^\d{2}:\d{2}/)?.[0] ?? "00:00"}:00`;
+  return date ?? "";
+}
+
+function Countdown({ value, mode = "start" }: { value?: string | null; mode?: "start" | "end" }) {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const timer = window.setInterval(() => setNow(Date.now()), 30_000);
+    return () => window.clearInterval(timer);
+  }, []);
+  const timestamp = toTimestamp(value, mode);
+  const diff = timestamp ? timestamp - now : 0;
+  const label = !value || diff <= 0
+    ? "Now"
+    : diff < 3_600_000
+      ? `${Math.max(1, Math.ceil(diff / 60_000))}m`
+      : diff < 86_400_000
+        ? `${Math.floor(diff / 3_600_000)}h ${Math.ceil((diff % 3_600_000) / 60_000)}m`
+        : `${Math.ceil(diff / 86_400_000)}d`;
+  const hot = diff > 0 && diff < 86_400_000;
+  return (
+    <span className={`inline-flex min-h-9 items-center gap-2 rounded-full border px-3 text-xs font-black shadow-sm ${hot ? "border-rose-200 bg-rose-50 text-rose-700" : "border-[var(--gold-border)] bg-[var(--gold-soft)] text-[var(--ink)]"}`}>
+      <Timer className={`h-4 w-4 ${hot ? "animate-pulse" : ""}`} />
+      {label}
+    </span>
+  );
+}
+
+function reminderUrgency(at?: string | null, mode: "start" | "end" = "start") {
+  const timestamp = toTimestamp(at, mode);
+  if (!timestamp) return 4;
+  const diff = timestamp - Date.now();
+  if (diff <= 0) return 0;
+  if (diff <= 3_600_000) return 1;
+  if (diff <= 86_400_000) return 2;
+  return 3;
+}
+
+function reminderTone(type: string, at?: string | null, mode: "start" | "end" = "start") {
+  const urgency = reminderUrgency(at, mode);
+  if (type === "Exam") return urgency <= 2 ? "border-rose-200 bg-rose-50" : "border-[var(--border)] bg-white";
+  if (type === "Assignment") return urgency <= 2 ? "border-amber-200 bg-amber-50" : "border-[var(--gold-border)] bg-[var(--gold-soft)]";
+  if (type === "Live Class") return "border-emerald-200 bg-emerald-50";
+  return "border-sky-200 bg-sky-50";
 }
 
 function useStudentPlan() {
@@ -194,12 +294,22 @@ function useStudentPlan() {
 
 function Shell({ title, subtitle, children }: { title: string; subtitle: string; children: React.ReactNode }) {
   return (
-    <main className="min-h-[calc(100dvh-var(--nav-height))] bg-[var(--page-bg)] px-4 py-5 text-[var(--navy)] md:px-6">
+    <main className="min-h-[calc(100dvh-var(--nav-height))] bg-[var(--page-bg)] px-4 py-4 text-[var(--navy)] md:px-6">
       <section className="mx-auto grid max-w-7xl gap-4">
-        <section className="rounded-2xl border border-[var(--border)] bg-white/95 p-5 shadow-sm">
-          <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold)]">Student Module</p>
-          <h1 className="mt-2 text-3xl font-black tracking-tight md:text-5xl">{title}</h1>
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--muted-blue)]">{subtitle}</p>
+        <section className="rounded-[24px] border border-[var(--border)] bg-white/95 p-5 shadow-sm md:p-6">
+          <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold)]">Student Module</p>
+              <h1 className="mt-2 text-3xl font-black tracking-tight md:text-5xl">{title}</h1>
+              <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--muted-blue)]">{subtitle}</p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <QuickPill href="/dashboard/student" label="Today" />
+              <QuickPill href="/dashboard/student/exams" label="Exams" />
+              <QuickPill href="/dashboard/student/assignments" label="Homework" />
+              <QuickPill href="/dashboard/student/progress" label="NDP" />
+            </div>
+          </div>
         </section>
         {children}
       </section>
@@ -208,124 +318,150 @@ function Shell({ title, subtitle, children }: { title: string; subtitle: string;
 }
 
 function Empty({ text }: { text: string }) {
-  return <div className="rounded-2xl border border-dashed border-[var(--border)] bg-white/80 p-5 text-sm font-bold text-[var(--muted-blue)]">{text}</div>;
+  return (
+    <div className="grid min-h-32 place-items-center rounded-2xl border border-dashed border-[var(--border)] bg-white/80 p-5 text-center">
+      <div>
+        <span className="mx-auto grid h-11 w-11 place-items-center rounded-2xl bg-[var(--gold-soft)] text-[var(--gold)]">
+          <Sparkles className="h-5 w-5" />
+        </span>
+        <p className="mt-3 text-sm font-bold text-[var(--muted-blue)]">{text}</p>
+      </div>
+    </div>
+  );
 }
 
 export function StudentClassesPage() {
   const { plan, activeBatches } = useStudentPlan();
-  const today = todayKey();
   const calendar = plan.data?.calendar ?? [];
-  const liveClasses = plan.data?.liveClasses ?? [];
-  const todayClasses = calendar.filter((item) => item.plannedDate.slice(0, 10) === today);
-  const upcomingClasses = calendar.filter((item) => item.plannedDate.slice(0, 10) >= today).slice(0, 8);
-  const upcomingLiveClasses = liveClasses.filter((item) => new Date(item.scheduledAt) >= new Date()).slice(0, 4);
+  const materials = plan.data?.materials ?? [];
+  const subjects = Array.from(new Set([...calendar.map((item) => item.subject), ...materials.map((item) => item.subject ?? "General")])).sort();
 
   return (
-    <Shell title="Classes" subtitle="Today, upcoming timetable and live classes for your assigned batch only.">
-      <section className="grid gap-4 lg:grid-cols-[1fr_0.9fr]">
-        <ModuleCard title="Today">
-          <div className="grid gap-3">
-            {todayClasses.map((item) => <ClassCard key={item.id} item={item} />)}
-            {!todayClasses.length ? <Empty text="No class is scheduled today." /> : null}
-          </div>
-        </ModuleCard>
-        <ModuleCard title="Live Classes">
-          <div className="grid gap-3">
-            {upcomingLiveClasses.map((item) => <LiveCard key={item.id} item={item} />)}
-            {!upcomingLiveClasses.length ? <Empty text="No live class is scheduled right now." /> : null}
-          </div>
-        </ModuleCard>
+    <Shell title="My Classes" subtitle="Open a subject to see its timetable, teacher and learning resources.">
+      <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        {subjects.map((subject) => {
+          const sessions = calendar.filter((item) => item.subject === subject).sort((a, b) => calendarDate(a).localeCompare(calendarDate(b)));
+          const next = sessions.find((item) => new Date(calendarDate(item)).getTime() >= Date.now());
+          const resourceCount = materials.filter((item) => (item.subject ?? "General") === subject).length;
+          return (
+            <article key={subject} className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-[var(--gold-border)]">
+              <div className="flex items-start justify-between gap-3">
+                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-[var(--gold-soft)]"><PlayCircle className="h-5 w-5 text-[var(--gold)]" /></span>
+                <span className="rounded-full border border-[var(--border)] bg-[var(--page-bg)] px-3 py-1 text-xs font-black">{sessions.length} classes</span>
+              </div>
+              <h2 className="mt-4 line-clamp-2 text-xl font-black">{subject}</h2>
+              <p className="mt-2 text-sm text-[var(--muted-blue)]">{sessions[0]?.teacherName ?? "Faculty assigned"}</p>
+              <p className="mt-1 line-clamp-2 text-xs font-bold text-[var(--muted-blue)]">{activeBatches.map((batch) => batch.name).join(" / ")}</p>
+              <div className="mt-4 flex items-center justify-between gap-3 border-t border-[var(--border)] pt-4 text-xs font-black">
+                <span>{resourceCount} resources</span>
+                <span>{next ? new Date(calendarDate(next)).toLocaleDateString() : "No class due"}</span>
+              </div>
+            </article>
+          );
+        })}
+        {!subjects.length ? <Empty text="Subjects will appear after your timetable is published." /> : null}
       </section>
-      <ModuleCard title="Upcoming Classes">
-        <div className="grid gap-3 md:grid-cols-2">
-          {upcomingClasses.map((item) => <ClassCard key={item.id} item={item} />)}
-          {!upcomingClasses.length ? <Empty text="Upcoming classes will appear when the timetable is published." /> : null}
-        </div>
-      </ModuleCard>
-      <ModuleCard title="My Batches">
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {activeBatches.map((batch) => (
-            <div key={batch.id} className="rounded-2xl border border-[var(--border)] bg-white p-4">
-              <p className="text-xs font-black uppercase tracking-[0.2em] text-[var(--gold)]">{batch.batchType ?? "Batch"}</p>
-              <h3 className="mt-2 text-lg font-black">{batch.name}</h3>
-              <p className="mt-1 text-sm text-[var(--muted-blue)]">{batch.course?.title ?? "NIDUS Academy"}</p>
-            </div>
-          ))}
-        </div>
-      </ModuleCard>
     </Shell>
   );
 }
 
 export function StudentTodayPage() {
-  const { plan, activeBatches } = useStudentPlan();
-  const availableExams = useQuery({ queryKey: ["student", "available-exams"], queryFn: () => apiJson<{ tests: ExamSummary[] }>("/api/tests/available") });
+  const { plan } = useStudentPlan();
+  const availableExams = useQuery({ queryKey: ["student", "available-exams"], queryFn: () => apiList<ExamSummary>("/api/tests/available", "tests") });
   const today = todayKey();
   const calendar = plan.data?.calendar ?? [];
   const assignments = plan.data?.assignments ?? [];
-  const materials = plan.data?.materials ?? [];
   const liveClasses = plan.data?.liveClasses ?? [];
-  const exams = availableExams.data?.tests ?? [];
-  const todayClasses = calendar.filter((item) => item.plannedDate.slice(0, 10) === today);
+  const exams = availableExams.data ?? [];
   const pendingAssignments = assignments.filter((assignment) => assignment.submissionStatus !== "SUBMITTED");
-  const urgentAssignments = [...pendingAssignments]
-    .sort((left, right) => String(left.dueDate ?? "").localeCompare(String(right.dueDate ?? "")))
-    .slice(0, 3);
-  const upcomingExams = [...exams]
-    .sort((left, right) => String(left.publishAt ?? "").localeCompare(String(right.publishAt ?? "")))
-    .slice(0, 3);
-  const upcomingLive = liveClasses.filter((item) => new Date(item.scheduledAt) >= new Date()).slice(0, 2);
-  const primaryBatch = activeBatches[0];
+  const reminders = [
+    ...exams.map((item) => {
+      const at = examDateTime(item) || today;
+      return {
+        id: `exam-${item.id || item.testId}`,
+        type: "Exam",
+        title: item.examName ?? item.title ?? item.name ?? "Assigned exam",
+        detail: `${item.subject ?? "Exam"}${item.batchName || item.batch?.name ? ` / ${item.batchName ?? item.batch?.name}` : ""}`,
+        at,
+        href: "/dashboard/student/exams",
+        icon: ClipboardCheck,
+        mode: "start" as const,
+        action: toTimestamp(at) && Number(toTimestamp(at)) > Date.now() ? "Get ready" : "Start now",
+      };
+    }),
+    ...pendingAssignments.map((item) => ({
+      id: `assignment-${item.id}`,
+      type: "Assignment",
+      title: item.title,
+      detail: `${item.subject ?? "Homework"}${item.batchName ? ` / ${item.batchName}` : ""}`,
+      at: item.dueDate ?? "",
+      href: "/dashboard/student/assignments",
+      icon: FileText,
+      mode: "end" as const,
+      action: "Submit",
+    })),
+    ...liveClasses.filter((item) => new Date(item.scheduledAt).getTime() >= Date.now()).map((item) => ({
+      id: `live-${item.id}`,
+      type: "Live Class",
+      title: item.topic || item.title,
+      detail: item.subject ?? "Live session",
+      at: item.scheduledAt,
+      href: item.meetingLink,
+      icon: Radio,
+      mode: "start" as const,
+      action: "Join",
+    })),
+    ...calendar.filter((item) => item.plannedDate.slice(0, 10) >= today).map((item) => ({
+      id: `class-${item.id}`,
+      type: "Class",
+      title: `${item.subject}: ${item.topic}`,
+      detail: item.batchName ?? "Assigned class",
+      at: calendarDate(item),
+      href: "/dashboard/student/classes",
+      icon: PlayCircle,
+      mode: "start" as const,
+      action: "Open",
+    })),
+  ].sort((a, b) => {
+    const priority = { Exam: 0, Assignment: 1, "Live Class": 2, Class: 3 } as Record<string, number>;
+    const urgency = reminderUrgency(a.at, a.mode) - reminderUrgency(b.at, b.mode);
+    if (urgency !== 0) return urgency;
+    const typePriority = (priority[a.type] ?? 9) - (priority[b.type] ?? 9);
+    if (typePriority !== 0) return typePriority;
+    return (toTimestamp(a.at, a.mode) ?? Number.MAX_SAFE_INTEGER) - (toTimestamp(b.at, b.mode) ?? Number.MAX_SAFE_INTEGER);
+  }).slice(0, 8);
 
   return (
-    <Shell title="Today" subtitle="Only the work that needs your attention now. Open the sidebar for full modules.">
-      <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-        <Metric label="Classes Today" value={todayClasses.length} />
-        <Metric label="Assignments Due" value={pendingAssignments.length} />
-        <Metric label="Exams" value={exams.length} />
-        <Metric label="Live Classes" value={upcomingLive.length} />
-        <Metric label="Library Items" value={materials.length} />
-      </section>
-
-      <section className="grid gap-4 xl:grid-cols-[1fr_0.9fr]">
-        <ModuleCard title="Immediate Reminders">
-          <div className="grid gap-3">
-            {todayClasses.map((item) => <ClassCard key={item.id} item={item} />)}
-            {urgentAssignments.map((assignment) => (
-              <Link key={assignment.id} href="/dashboard/student/assignments" className="rounded-2xl border border-[var(--gold-border)] bg-[var(--gold-soft)] p-4 transition hover:-translate-y-0.5">
-                <p className="text-xs font-black uppercase tracking-[0.22em] text-[var(--gold)]">Assignment</p>
-                <h3 className="mt-2 text-lg font-black">{assignment.title}</h3>
-                <p className="mt-1 text-sm text-[var(--muted-blue)]">{assignment.subject ?? "Subject"} / {dueCountdown(assignment.dueDate)}</p>
-              </Link>
-            ))}
-            {upcomingExams.map((exam) => (
-              <Link key={exam.id || exam.testId || exam.title || "exam"} href="/dashboard/student/exams" className="rounded-2xl border border-[var(--gold-border)] bg-[var(--gold-soft)] p-4 transition hover:-translate-y-0.5">
-                <p className="text-xs font-black uppercase tracking-[0.22em] text-[var(--gold)]">Exam</p>
-                <h3 className="mt-2 text-lg font-black">{exam.examName ?? exam.title ?? exam.name ?? "Assigned Exam"}</h3>
-                <p className="mt-1 text-sm text-[var(--muted-blue)]">{exam.subject ?? "Subject"} / {countdownLabel(exam.publishAt)}</p>
-              </Link>
-            ))}
-            {!todayClasses.length && !urgentAssignments.length && !upcomingExams.length ? (
-              <Empty text="No urgent class, assignment or exam is pending right now." />
-            ) : null}
-          </div>
-        </ModuleCard>
-
-        <ModuleCard title="My Access">
-          <div className="grid gap-3">
-            <div className="rounded-2xl border border-[var(--border)] bg-white p-4">
-              <p className="text-xs font-black uppercase tracking-[0.22em] text-[var(--gold)]">Current Batch</p>
-              <h3 className="mt-2 text-xl font-black">{primaryBatch?.name ?? "Batch pending"}</h3>
-              <p className="mt-1 text-sm text-[var(--muted-blue)]">{primaryBatch?.course?.title ?? "NIDUS Academy"}</p>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <QuickLink href="/dashboard/student/classes" label="Classes" icon={PlayCircle} />
-              <QuickLink href="/dashboard/student/assignments" label="Assignments" icon={FileText} />
-              <QuickLink href="/dashboard/student/exams" label="Exams" icon={ClipboardCheck} />
-              <QuickLink href="/dashboard/student/learning" label="Library" icon={Library} />
-            </div>
-          </div>
-        </ModuleCard>
+    <Shell title="Today" subtitle="Your urgent exams, homework, live classes and academy sessions with live countdowns.">
+      <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        {reminders.map((item) => {
+          const Icon = item.icon;
+          const external = item.href.startsWith("http");
+          const cardClassName = `group min-h-44 rounded-[22px] border p-5 shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-md ${reminderTone(item.type, item.at, item.mode)}`;
+          const content = (
+            <>
+              <div className="flex items-start justify-between gap-3">
+                <span className="grid h-11 w-11 place-items-center rounded-xl border border-current/10 bg-white/85 shadow-sm">
+                  <Icon className="h-5 w-5 text-[var(--gold)]" />
+                </span>
+                <Countdown value={item.at} mode={item.mode} />
+              </div>
+              <p className="mt-4 text-xs font-black uppercase tracking-[0.22em] text-[var(--gold)]">{item.type}</p>
+              <h2 className="mt-2 line-clamp-2 text-lg font-black">{item.title}</h2>
+              <p className="mt-2 line-clamp-2 text-sm text-[var(--muted-blue)]">{item.detail}</p>
+              <span className="mt-4 inline-flex items-center gap-2 text-sm font-black">
+                {item.action} <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
+              </span>
+            </>
+          );
+          if (external) {
+            return <a key={item.id} href={item.href} target="_blank" rel="noreferrer" className={cardClassName}>{content}</a>;
+          }
+          return (
+            <Link key={item.id} href={item.href} className={cardClassName}>{content}</Link>
+          );
+        })}
+        {!reminders.length ? <Empty text="Nothing is due now. Your next academy activity will appear here." /> : null}
       </section>
     </Shell>
   );
@@ -340,19 +476,26 @@ export function StudentAssignmentsPage() {
 
   return (
     <Shell title="Assignments" subtitle="Published homework, due date countdown and one-screen submission.">
-      <section className="grid gap-4 xl:grid-cols-2">
+      <section className="grid gap-3 xl:grid-cols-2">
         {sorted.map((assignment) => {
           const submitted = assignment.submissionStatus === "SUBMITTED";
           const draft = drafts[assignment.id] ?? { answerText: "", link: "", attachmentName: "" };
           return (
-            <article key={assignment.id} className={`rounded-2xl border p-5 shadow-sm ${submitted ? "border-[var(--border)] bg-white" : "border-[var(--gold-border)] bg-[var(--gold-soft)]"}`}>
+            <article key={assignment.id} className={`rounded-[22px] border p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${submitted ? "border-[var(--border)] bg-white" : "border-[var(--gold-border)] bg-[var(--gold-soft)]"}`}>
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
                   <p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold)]">{assignment.subject ?? "Homework"}</p>
                   <h2 className="mt-2 text-2xl font-black">{assignment.title}</h2>
                   <p className="mt-1 text-sm text-[var(--muted-blue)]">{assignment.batchName ?? "Assigned batch"} / {assignment.topic ?? "General"}</p>
                 </div>
-                <span className="rounded-full border border-[var(--border)] bg-white px-3 py-1 text-xs font-black">{submitted ? "Submitted" : dueCountdown(assignment.dueDate)}</span>
+                {submitted ? (
+                  <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-black text-emerald-700">Submitted</span>
+                ) : (
+                  <div className="grid justify-items-end gap-2">
+                    <Countdown value={assignment.dueDate} mode="end" />
+                    <span className="text-xs font-black text-[var(--muted-blue)]">{dueCountdown(assignment.dueDate)}</span>
+                  </div>
+                )}
               </div>
               <p className="mt-4 text-sm leading-6">{assignment.instructions}</p>
               {assignment.attachmentName || assignment.link ? <p className="mt-2 text-sm font-bold text-[var(--muted-blue)]">{assignment.attachmentName || assignment.link}</p> : null}
@@ -397,10 +540,10 @@ export function StudentAssignmentsPage() {
 
 export function StudentExamsPage() {
   useStudentPlan();
-  const availableExams = useQuery({ queryKey: ["student", "available-exams"], queryFn: () => apiJson<{ tests: ExamSummary[] }>("/api/tests/available") });
-  const attemptHistory = useQuery({ queryKey: ["student", "exam-attempt-history"], queryFn: () => apiJson<{ attempts: AttemptHistory[] }>("/api/tests/attempts/history") });
-  const exams = availableExams.data?.tests ?? [];
-  const results = attemptHistory.data?.attempts ?? [];
+  const availableExams = useQuery({ queryKey: ["student", "available-exams"], queryFn: () => apiList<ExamSummary>("/api/tests/available", "tests") });
+  const attemptHistory = useQuery({ queryKey: ["student", "exam-attempt-history"], queryFn: () => apiList<AttemptHistory>("/api/tests/attempts/history", "attempts") });
+  const exams = availableExams.data ?? [];
+  const results = attemptHistory.data ?? [];
 
   return (
     <Shell title="Exams" subtitle="Published and scheduled exams are shown with countdown reminders.">
@@ -428,13 +571,199 @@ export function StudentExamsPage() {
   );
 }
 
+export function StudentCalendarPage() {
+  const { plan } = useStudentPlan();
+  const availableExams = useQuery({ queryKey: ["student", "calendar-exams"], queryFn: () => apiList<ExamSummary>("/api/tests/available", "tests") });
+  const [view, setView] = useState<"day" | "week" | "month">("day");
+  const [selectedDate, setSelectedDate] = useState(todayKey());
+  const calendarItems = plan.data?.calendar ?? [];
+  const assignments = plan.data?.assignments ?? [];
+  const liveClasses = plan.data?.liveClasses ?? [];
+  const exams = availableExams.data ?? [];
+  const events = [
+    ...calendarItems.map((item) => ({
+      id: `class-${item.id}`,
+      kind: "Class",
+      title: `${item.subject}: ${item.topic}`,
+      detail: `${item.batchName ?? "Assigned batch"}${item.teacherName ? ` / ${item.teacherName}` : ""}`,
+      at: calendarDate(item),
+      date: item.plannedDate.slice(0, 10),
+      time: item.startTime ?? "",
+      status: item.completionStatus ?? "Scheduled",
+      href: "/dashboard/student/classes",
+      tone: "blue",
+    })),
+    ...liveClasses.map((item) => ({
+      id: `live-${item.id}`,
+      kind: "Live Class",
+      title: item.topic || item.title,
+      detail: `${item.subject ?? "Live session"}${item.instructorName ? ` / ${item.instructorName}` : ""}`,
+      at: item.scheduledAt,
+      date: item.scheduledAt.slice(0, 10),
+      time: new Date(item.scheduledAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+      status: "Join",
+      href: item.meetingLink,
+      tone: "green",
+    })),
+    ...assignments.map((item) => ({
+      id: `assignment-${item.id}`,
+      kind: "Assignment",
+      title: item.title,
+      detail: `${item.subject ?? "Homework"}${item.batchName ? ` / ${item.batchName}` : ""}`,
+      at: item.dueDate ?? `${todayKey()}T23:59:00`,
+      date: (item.dueDate ?? todayKey()).slice(0, 10),
+      time: item.dueDate ? new Date(item.dueDate).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "Due",
+      status: item.submissionStatus === "SUBMITTED" ? "Submitted" : "Pending",
+      href: "/dashboard/student/assignments",
+      tone: item.submissionStatus === "SUBMITTED" ? "green" : "gold",
+    })),
+    ...exams.map((item) => ({
+      id: `exam-${item.id || item.testId}`,
+      kind: "Exam",
+      title: item.examName ?? item.title ?? item.name ?? "Assigned exam",
+      detail: `${item.subject ?? "Exam"}${item.batchName || item.batch?.name ? ` / ${item.batchName ?? item.batch?.name}` : ""}`,
+      at: item.publishAt ?? `${todayKey()}T00:00:00`,
+      date: (item.publishAt ?? todayKey()).slice(0, 10),
+      time: item.publishAt ? new Date(item.publishAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "Open",
+      status: item.publishAt && new Date(item.publishAt).getTime() > Date.now() ? "Scheduled" : "Open",
+      href: "/dashboard/student/exams",
+      tone: "red",
+    })),
+  ].sort((a, b) => a.at.localeCompare(b.at));
+  const selected = new Date(`${selectedDate}T00:00:00`);
+  const weekStart = new Date(selected);
+  weekStart.setDate(selected.getDate() - ((selected.getDay() + 6) % 7));
+  const weekDays = Array.from({ length: 7 }, (_, index) => {
+    const date = new Date(weekStart);
+    date.setDate(weekStart.getDate() + index);
+    return date;
+  });
+  const monthStart = new Date(selected.getFullYear(), selected.getMonth(), 1);
+  const monthSlots = Array.from({ length: 42 }, (_, index) => {
+    const date = new Date(monthStart);
+    date.setDate(index - ((monthStart.getDay() + 6) % 7) + 1);
+    return date;
+  });
+  const keyFor = (date: Date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
+  return (
+    <Shell title="Academic Calendar" subtitle="Your classes, exams, assignments and academy events in one timetable.">
+      <section className="flex flex-wrap items-center justify-between gap-3 rounded-[22px] border border-[var(--border)] bg-white p-3 shadow-sm">
+        <div className="flex gap-2">
+          {(["day", "week", "month"] as const).map((mode) => <button key={mode} type="button" onClick={() => setView(mode)} className={`min-h-11 rounded-xl px-4 text-sm font-black capitalize transition hover:-translate-y-0.5 ${view === mode ? "bg-[var(--ink)] text-white shadow-sm" : "border border-[var(--border)] bg-white"}`}>{mode}</button>)}
+        </div>
+        <input type="date" value={selectedDate} onChange={(event) => setSelectedDate(event.target.value)} className="min-h-11 rounded-xl border border-[var(--border)] bg-white px-3 text-sm font-bold" />
+      </section>
+
+      {view === "day" ? (
+        <ModuleCard title={selected.toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long" })}>
+          <div className="grid gap-3 md:grid-cols-2">
+            {events.filter((item) => item.date === selectedDate).map((item) => <StudentCalendarEventCard key={item.id} event={item} />)}
+            {!events.some((item) => item.date === selectedDate) ? <Empty text="No class, exam, assignment or live session is scheduled for this date." /> : null}
+          </div>
+        </ModuleCard>
+      ) : null}
+
+      {view === "week" ? (
+        <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-7">
+          {weekDays.map((date) => {
+            const key = keyFor(date);
+            const dayItems = events.filter((item) => item.date === key);
+            return (
+              <article key={key} className="min-h-48 rounded-[22px] border border-[var(--border)] bg-white p-4 shadow-sm">
+                <p className="text-xs font-black uppercase tracking-[0.18em] text-[var(--gold)]">{date.toLocaleDateString(undefined, { weekday: "short" })}</p>
+                <h2 className="mt-1 text-xl font-black">{date.getDate()}</h2>
+                <div className="mt-3 grid gap-2">
+                  {dayItems.map((item) => (
+                    <button key={item.id} type="button" onClick={() => { setSelectedDate(key); setView("day"); }} className={`rounded-xl border p-3 text-left transition hover:-translate-y-0.5 ${calendarEventTone(item.tone)}`}>
+                      <span className="block text-xs font-black">{item.time || item.kind}</span>
+                      <span className="mt-1 block line-clamp-2 text-sm font-black">{item.title}</span>
+                    </button>
+                  ))}
+                  {!dayItems.length ? <p className="text-xs text-[var(--muted-blue)]">No activity</p> : null}
+                </div>
+              </article>
+            );
+          })}
+        </section>
+      ) : null}
+
+      {view === "month" ? (
+        <section className="rounded-[22px] border border-[var(--border)] bg-white p-4 shadow-sm">
+          <h2 className="mb-4 text-2xl font-black">{selected.toLocaleDateString(undefined, { month: "long", year: "numeric" })}</h2>
+          <div className="grid grid-cols-7 gap-1">
+            {monthSlots.map((date) => {
+              const key = keyFor(date);
+              const dayItems = events.filter((item) => item.date === key);
+              const currentMonth = date.getMonth() === selected.getMonth();
+              return (
+                <button key={key} type="button" onClick={() => { setSelectedDate(key); setView("day"); }} className={`min-h-20 rounded-xl border p-2 text-left transition hover:-translate-y-0.5 hover:border-[var(--gold-border)] ${currentMonth ? "border-[var(--border)] bg-white" : "border-transparent bg-slate-50 text-slate-400"}`}>
+                  <span className="text-sm font-black">{date.getDate()}</span>
+                  {dayItems.length ? (
+                    <span className="mt-2 block rounded-lg bg-[var(--gold-soft)] px-2 py-1 text-[0.65rem] font-black">
+                      {dayItems.length} item{dayItems.length === 1 ? "" : "s"}
+                    </span>
+                  ) : null}
+                  <span className="mt-1 block truncate text-[0.65rem] font-bold text-[var(--muted-blue)]">{dayItems[0]?.kind ?? ""}</span>
+                </button>
+              );
+            })}
+          </div>
+        </section>
+      ) : null}
+    </Shell>
+  );
+}
+
+function calendarEventTone(tone: string) {
+  if (tone === "red") return "border-rose-200 bg-rose-50 text-rose-900";
+  if (tone === "green") return "border-emerald-200 bg-emerald-50 text-emerald-900";
+  if (tone === "gold") return "border-[var(--gold-border)] bg-[var(--gold-soft)] text-[var(--ink)]";
+  return "border-sky-200 bg-sky-50 text-sky-950";
+}
+
+function StudentCalendarEventCard({ event }: { event: { kind: string; title: string; detail: string; at: string; time: string; status: string; href: string; tone: string } }) {
+  const isExternal = event.href.startsWith("http");
+  const className = `block rounded-[22px] border p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${calendarEventTone(event.tone)}`;
+  const content = (
+    <>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-black uppercase tracking-[0.22em] opacity-75">{event.kind}</p>
+          <h3 className="mt-2 text-lg font-black">{event.title}</h3>
+          <p className="mt-1 text-sm font-bold opacity-75">{event.detail}</p>
+        </div>
+        <span className="rounded-full border border-current/15 bg-white/70 px-3 py-1 text-xs font-black">{event.status}</span>
+      </div>
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-current/10 pt-3 text-sm font-black">
+        <span>{event.time || new Date(event.at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
+        <Countdown value={event.at} />
+      </div>
+    </>
+  );
+
+  if (isExternal) {
+    return <a href={event.href} target="_blank" rel="noreferrer" className={className}>{content}</a>;
+  }
+
+  return <Link href={event.href} className={className}>{content}</Link>;
+}
+
 export function StudentAttendancePage() {
   const { plan, activeBatches } = useStudentPlan();
   const [leaveForm, setLeaveForm] = useState({ fromDate: "", toDate: "", reason: "", attachmentName: "" });
   const [message, setMessage] = useState<string | null>(null);
   const summary = plan.data?.attendance?.summary ?? { present: 0, absent: 0, leave: 0, total: 0, percentage: 0 };
   const sessions = plan.data?.attendance?.sessions ?? [];
-  const leaveRequests = useQuery({ queryKey: ["student", "leave-requests"], queryFn: () => apiJson<{ leaves: Array<{ id: string; fromDate: string; toDate: string; status: string; reason: string }> }>("/api/academy/leave-requests") });
+  const leaveRequests = useQuery({
+    queryKey: ["student", "leave-requests"],
+    queryFn: () => apiList<{ id: string; fromDate: string; toDate: string; status: string; reason: string }>("/api/academy/leave-requests", "leaves"),
+  });
 
   return (
     <Shell title="Attendance & Leave" subtitle="Track attendance and apply leave without opening the full dashboard.">
@@ -483,7 +812,7 @@ export function StudentAttendancePage() {
           </div>
           {message ? <div className="mt-3 rounded-xl border border-[var(--gold-border)] bg-[var(--gold-soft)] p-3 text-sm font-black">{message}</div> : null}
           <div className="mt-4 grid gap-2">
-            {(leaveRequests.data?.leaves ?? []).slice(0, 4).map((leave) => (
+            {(leaveRequests.data ?? []).slice(0, 4).map((leave) => (
               <div key={leave.id} className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-sm">
                 <span className="font-black">{leave.status}</span>
                 <span className="text-[var(--muted-blue)]"> / {new Date(leave.fromDate).toLocaleDateString()} - {new Date(leave.toDate).toLocaleDateString()} / {leave.reason}</span>
@@ -498,8 +827,8 @@ export function StudentAttendancePage() {
 
 function ModuleCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-2xl border border-[var(--border)] bg-white/95 p-5 shadow-sm">
-      <h2 className="text-2xl font-black">{title}</h2>
+    <section className="rounded-[24px] border border-[var(--border)] bg-white/95 p-5 shadow-sm">
+      <h2 className="text-xl font-black md:text-2xl">{title}</h2>
       <div className="mt-4">{children}</div>
     </section>
   );
@@ -507,17 +836,25 @@ function ModuleCard({ title, children }: { title: string; children: React.ReactN
 
 function QuickLink({ href, label, icon: Icon }: { href: string; label: string; icon: typeof PlayCircle }) {
   return (
-    <Link href={href} className="rounded-2xl border border-[var(--border)] bg-white p-4 text-sm font-black transition hover:-translate-y-0.5 hover:border-[var(--gold-border)]">
+    <Link href={href} className="rounded-2xl border border-[var(--border)] bg-white p-4 text-sm font-black shadow-sm transition hover:-translate-y-0.5 hover:border-[var(--gold-border)] hover:shadow-md">
       <Icon className="h-5 w-5 text-[var(--gold)]" />
       <span className="mt-3 block">{label}</span>
     </Link>
   );
 }
 
+function QuickPill({ href, label }: { href: string; label: string }) {
+  return (
+    <Link href={href} className="inline-flex min-h-9 items-center rounded-full border border-[var(--border)] bg-white px-3 text-xs font-black text-[var(--navy)] shadow-sm transition hover:-translate-y-0.5 hover:border-[var(--gold-border)] hover:bg-[var(--gold-soft)]">
+      {label}
+    </Link>
+  );
+}
+
 function Metric({ label, value }: { label: string; value: string | number }) {
   return (
-    <div className="rounded-2xl border border-[var(--border)] bg-white p-4">
-      <p className="text-3xl font-black">{value}</p>
+    <div className="rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm">
+      <p className="text-2xl font-black md:text-3xl">{value}</p>
       <p className="text-sm text-[var(--muted-blue)]">{label}</p>
     </div>
   );
@@ -525,7 +862,7 @@ function Metric({ label, value }: { label: string; value: string | number }) {
 
 function ClassCard({ item }: { item: CalendarItem }) {
   return (
-    <article className="rounded-2xl border border-[var(--border)] bg-white p-4">
+    <article className="rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="text-sm font-black">{item.startTime ?? new Date(item.plannedDate).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</p>
@@ -540,7 +877,7 @@ function ClassCard({ item }: { item: CalendarItem }) {
 
 function LiveCard({ item }: { item: LiveClass }) {
   return (
-    <article className="rounded-2xl border border-[var(--border)] bg-white p-4">
+    <article className="rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
       <p className="text-xs font-black uppercase tracking-[0.22em] text-[var(--gold)]">{item.subject ?? "Live Class"}</p>
       <h3 className="mt-2 text-lg font-black">{item.topic || item.title}</h3>
       <p className="mt-1 text-sm text-[var(--muted-blue)]">{item.instructorName ?? "NIDUS Teacher"} / {new Date(item.scheduledAt).toLocaleString()}</p>
@@ -554,22 +891,26 @@ function LiveCard({ item }: { item: LiveClass }) {
 
 function ExamCard({ exam }: { exam: ExamSummary }) {
   const examId = exam.testId || exam.id;
-  const locked = exam.publishAt ? new Date(exam.publishAt).getTime() > Date.now() : false;
+  const at = examDateTime(exam);
+  const timestamp = toTimestamp(at);
+  const locked = timestamp ? timestamp > Date.now() : false;
   return (
-    <article className={`rounded-2xl border p-4 ${locked ? "border-[var(--gold-border)] bg-[var(--gold-soft)]" : "border-[var(--border)] bg-white"}`}>
+    <article className={`rounded-[22px] border p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${locked ? "border-[var(--gold-border)] bg-[var(--gold-soft)]" : "border-[var(--border)] bg-white"}`}>
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="text-xs font-black uppercase tracking-[0.22em] text-[var(--gold)]">{exam.subject ?? "Exam"}</p>
           <h3 className="mt-2 text-xl font-black">{exam.examName ?? exam.title ?? exam.name ?? "Assigned Exam"}</h3>
           <p className="mt-1 text-sm text-[var(--muted-blue)]">{exam.batchName ?? exam.batch?.name ?? "Assigned batch"} / {exam.topic ?? "General"}</p>
         </div>
-        <span className="rounded-full border border-[var(--border)] bg-white px-3 py-1 text-xs font-black">{countdownLabel(exam.publishAt)}</span>
+        <Countdown value={at} />
       </div>
       <p className="mt-3 text-sm text-[var(--muted-blue)]">
         {exam.totalQuestions ? `${exam.totalQuestions} questions` : "Questions assigned"} / {exam.durationMinutes ?? exam.duration ?? "Timed"} min
       </p>
       {locked ? (
-        <button type="button" disabled className="mt-4 rounded-xl border border-[var(--border)] bg-white px-4 py-2 text-sm font-black text-[var(--muted-blue)]">Opens at scheduled time</button>
+        <button type="button" disabled className="mt-4 rounded-xl border border-[var(--border)] bg-white px-4 py-2 text-sm font-black text-[var(--muted-blue)]">
+          Opens {countdownLabel(at)}
+        </button>
       ) : (
         <Link href={`/test-attempt/${examId}`} className="mt-4 inline-flex rounded-xl bg-[var(--gold-gradient)] px-4 py-2 text-sm font-black">
           Start Exam <ArrowRight className="ml-2 h-4 w-4" />

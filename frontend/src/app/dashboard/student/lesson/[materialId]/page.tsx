@@ -26,6 +26,19 @@ type StudyMaterial = {
   status?: string | null;
 };
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+function unwrapPayload<T>(payload: unknown): T {
+  if (isRecord(payload)) {
+    if (payload.data !== undefined) return unwrapPayload<T>(payload.data);
+    if (payload.result !== undefined) return unwrapPayload<T>(payload.result);
+    if (payload.payload !== undefined) return unwrapPayload<T>(payload.payload);
+  }
+  return payload as T;
+}
+
 async function apiJson<T>(path: string) {
   const base = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000/api";
   const token =
@@ -43,7 +56,8 @@ async function apiJson<T>(path: string) {
     },
   });
   if (!response.ok) throw new Error("Unable to load lesson");
-  return response.json() as Promise<T>;
+  const payload = await response.json().catch(() => ({}));
+  return unwrapPayload<T>(payload);
 }
 
 function isVideo(material?: StudyMaterial) {

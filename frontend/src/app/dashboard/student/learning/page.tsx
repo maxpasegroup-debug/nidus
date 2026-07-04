@@ -34,6 +34,19 @@ type StudentPlan = {
   liveClasses?: LiveClass[];
 };
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+function unwrapPayload<T>(payload: unknown): T {
+  if (isRecord(payload)) {
+    if (payload.data !== undefined) return unwrapPayload<T>(payload.data);
+    if (payload.result !== undefined) return unwrapPayload<T>(payload.result);
+    if (payload.payload !== undefined) return unwrapPayload<T>(payload.payload);
+  }
+  return payload as T;
+}
+
 async function apiJson<T>(path: string): Promise<T> {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_API_BASE_URL || "";
   const token =
@@ -45,7 +58,8 @@ async function apiJson<T>(path: string): Promise<T> {
       : null;
   const response = await fetch(`${baseUrl}${path}`, { credentials: "include", headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) } });
   if (!response.ok) throw new Error("Unable to load learning data");
-  return response.json() as Promise<T>;
+  const payload = await response.json().catch(() => ({}));
+  return unwrapPayload<T>(payload);
 }
 
 export default function StudentLearningPage() {

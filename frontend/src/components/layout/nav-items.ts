@@ -7,14 +7,14 @@ export type NavItem = DashboardNavItem;
 
 const studentMenu: DashboardNavItem[] = [
   { label: "Today", href: "/dashboard/student" },
-  { label: "Classes", href: "/dashboard/student/classes" },
-  { label: "Assignments", href: "/dashboard/student/assignments" },
+  { label: "My Classes", href: "/dashboard/student/classes" },
   { label: "Exams", href: "/dashboard/student/exams" },
-  { label: "Attendance & Leaves", href: "/dashboard/student/attendance" },
-  { label: "Library", href: "/dashboard/student/learning" },
-  { label: "Assessments", href: "/psychometric" },
-  { label: "TOP RANK Exam Coaching", href: "/top-rank" },
-  { label: "NIDUS Digital Profile", href: "/dashboard/student/progress" },
+  { label: "Assignments", href: "/dashboard/student/assignments" },
+  { label: "Calendar", href: "/dashboard/student/calendar" },
+  { label: "Academic Library", href: "/dashboard/student/learning" },
+  { label: "TOP RANK", href: "/dashboard/student/top-rank" },
+  { label: "Assessments", href: "/dashboard/student/assessments" },
+  { label: "NDP", href: "/dashboard/student/progress" },
 ];
 
 const guestMenu: DashboardNavItem[] = [
