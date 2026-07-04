@@ -159,6 +159,7 @@ type ExamSummary = {
   title?: string | null;
   name?: string | null;
   examName?: string | null;
+  publishAt?: string | null;
   durationMinutes?: number | null;
   duration?: number | null;
   totalQuestions?: number | null;
@@ -242,6 +243,16 @@ async function apiPost<T>(path: string, body: unknown): Promise<T> {
 
 function todayKey() {
   return new Date().toISOString().slice(0, 10);
+}
+
+function countdownLabel(dateValue?: string | null) {
+  if (!dateValue) return "Open now";
+  const diff = new Date(dateValue).getTime() - Date.now();
+  if (diff <= 0) return "Open now";
+  const hours = Math.ceil(diff / (1000 * 60 * 60));
+  if (hours < 24) return `${hours} hour${hours === 1 ? "" : "s"} to go`;
+  const days = Math.ceil(hours / 24);
+  return `${days} day${days === 1 ? "" : "s"} to go`;
 }
 
 export default function StudentDashboardPage() {
@@ -392,12 +403,12 @@ export default function StudentDashboardPage() {
           <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Learning Tools</p>
           <h2 className="mt-2 text-3xl font-black">Open what you need</h2>
           <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-6">
-            <WorkspaceTile title="Classes" text="Today, live and timetable" icon={PlayCircle} href="#classes" />
-            <WorkspaceTile title="Assignments" text="Submit homework" icon={FileText} href="#assignments" />
-            <WorkspaceTile title="Exams" text="Take CBT and see results" icon={ClipboardCheck} href="#exams" />
-            <WorkspaceTile title="Attendance" text="Track and apply leave" icon={CalendarDays} href="#attendance" />
-            <WorkspaceTile title="Library" text="Videos, notes and files" icon={Library} href="#library" />
-            <WorkspaceTile title="Digital Profile" text="Progress and portfolio" icon={UserRound} href="#profile" />
+            <WorkspaceTile title="Classes" text="Today, live and timetable" icon={PlayCircle} href="/dashboard/student/classes" />
+            <WorkspaceTile title="Assignments" text="Submit homework" icon={FileText} href="/dashboard/student/assignments" />
+            <WorkspaceTile title="Exams" text="Take CBT and see results" icon={ClipboardCheck} href="/dashboard/student/exams" />
+            <WorkspaceTile title="Attendance" text="Track and apply leave" icon={CalendarDays} href="/dashboard/student/attendance" />
+            <WorkspaceTile title="Library" text="Videos, notes and files" icon={Library} href="/dashboard/student/learning" />
+            <WorkspaceTile title="Digital Profile" text="Progress and portfolio" icon={UserRound} href="/dashboard/student/progress" />
           </div>
         </section>
 
@@ -709,16 +720,26 @@ function AssignmentCard({
 
 function ExamCard({ exam }: { exam: ExamSummary }) {
   const examId = exam.testId || exam.id;
+  const locked = exam.publishAt ? new Date(exam.publishAt).getTime() > Date.now() : false;
   return (
-    <article className="rounded-2xl border border-[var(--border)] bg-white p-4">
-      <p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold)]">{exam.studentStatus ?? exam.status ?? "Available"}</p>
+    <article className={`rounded-2xl border p-4 ${locked ? "border-[var(--gold-border)] bg-[var(--gold-soft)]" : "border-[var(--border)] bg-white"}`}>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold)]">{exam.studentStatus ?? exam.status ?? "Available"}</p>
+        <span className="rounded-full border border-[var(--border)] bg-white px-3 py-1 text-xs font-black">{countdownLabel(exam.publishAt)}</span>
+      </div>
       <h3 className="mt-2 text-xl font-black">{exam.examName ?? exam.title ?? exam.name ?? "Assigned Exam"}</h3>
       <p className="mt-2 text-sm text-[var(--muted-blue)]">
         {exam.totalQuestions ? `${exam.totalQuestions} questions` : "Questions assigned"} / {exam.durationMinutes ?? exam.duration ?? "Timed"} min
       </p>
-      <Link href={`/test-attempt/${examId}`} className="mt-4 inline-flex rounded-xl bg-[var(--gold-gradient)] px-4 py-2 text-sm font-black">
-        Start Exam
-      </Link>
+      {locked ? (
+        <button type="button" disabled className="mt-4 rounded-xl border border-[var(--border)] bg-white px-4 py-2 text-sm font-black text-[var(--muted-blue)]">
+          Opens at scheduled time
+        </button>
+      ) : (
+        <Link href={`/test-attempt/${examId}`} className="mt-4 inline-flex rounded-xl bg-[var(--gold-gradient)] px-4 py-2 text-sm font-black">
+          Start Exam
+        </Link>
+      )}
     </article>
   );
 }

@@ -276,10 +276,9 @@ export const testsService = {
       where: {
         batchId: { in: batchIds },
         status: "PUBLISHED",
-        isLive: true,
-        OR: [{ publishAt: null }, { publishAt: { lte: new Date() } }]
+        isLive: true
       },
-      orderBy: [{ publishAt: "desc" }, { createdAt: "desc" }],
+      orderBy: [{ publishAt: "asc" }, { createdAt: "desc" }],
       include: {
         batch: { select: { id: true, name: true, batchType: true, programSlug: true } },
         _count: { select: { attempts: true, questions: true } }

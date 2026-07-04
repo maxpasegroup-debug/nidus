@@ -6,13 +6,13 @@ export type DashboardNavItem = {
 export type NavItem = DashboardNavItem;
 
 const studentMenu: DashboardNavItem[] = [
-  { label: "Today", href: "/dashboard/student#today" },
-  { label: "Classes", href: "/dashboard/student#classes" },
-  { label: "Assignments", href: "/dashboard/student#assignments" },
-  { label: "Exams", href: "/dashboard/student#exams" },
-  { label: "Attendance & Leaves", href: "/dashboard/student#attendance" },
-  { label: "Library", href: "/dashboard/student#library" },
-  { label: "NIDUS Digital Profile", href: "/dashboard/student#profile" },
+  { label: "Today", href: "/dashboard/student" },
+  { label: "Classes", href: "/dashboard/student/classes" },
+  { label: "Assignments", href: "/dashboard/student/assignments" },
+  { label: "Exams", href: "/dashboard/student/exams" },
+  { label: "Attendance & Leaves", href: "/dashboard/student/attendance" },
+  { label: "Library", href: "/dashboard/student/learning" },
+  { label: "NIDUS Digital Profile", href: "/dashboard/student/progress" },
 ];
 
 const guestMenu: DashboardNavItem[] = [
