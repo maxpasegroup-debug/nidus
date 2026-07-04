@@ -12,6 +12,8 @@ const studentMenu: DashboardNavItem[] = [
   { label: "Exams", href: "/dashboard/student/exams" },
   { label: "Attendance & Leaves", href: "/dashboard/student/attendance" },
   { label: "Library", href: "/dashboard/student/learning" },
+  { label: "Assessments", href: "/psychometric" },
+  { label: "TOP RANK Exam Coaching", href: "/top-rank" },
   { label: "NIDUS Digital Profile", href: "/dashboard/student/progress" },
 ];
 
