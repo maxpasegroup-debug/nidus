@@ -122,6 +122,85 @@ function parseNumberedBlocks(text: string) {
   return parts.map((part) => part.trim()).filter(Boolean);
 }
 
+function readUInt16(view: DataView, offset: number) {
+  return view.getUint16(offset, true);
+}
+
+function readUInt32(view: DataView, offset: number) {
+  return view.getUint32(offset, true);
+}
+
+async function inflateZipEntry(bytes: Uint8Array, method: number) {
+  if (method === 0) return bytes;
+  if (method !== 8) throw new Error("Unsupported Word compression.");
+  const Decompression = (globalThis as unknown as { DecompressionStream?: new (format: string) => TransformStream }).DecompressionStream;
+  if (!Decompression) throw new Error("Word extraction is not supported in this browser.");
+  const part = bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) as ArrayBuffer;
+  const stream = new Blob([part]).stream().pipeThrough(new Decompression("deflate-raw"));
+  return new Uint8Array(await new Response(stream).arrayBuffer());
+}
+
+function xmlToPlainText(xml: string) {
+  const paragraphs = xml
+    .split(/<\/w:p>/i)
+    .map((paragraph) => {
+      const runs = [...paragraph.matchAll(/<w:t[^>]*>([\s\S]*?)<\/w:t>/gi)]
+        .map((match) => match[1]
+          .replace(/&amp;/g, "&")
+          .replace(/&lt;/g, "<")
+          .replace(/&gt;/g, ">")
+          .replace(/&quot;/g, '"')
+          .replace(/&apos;/g, "'"));
+      return runs.join("");
+    })
+    .map((line) => line.trim())
+    .filter(Boolean);
+  return paragraphs.join("\n");
+}
+
+async function extractDocxText(file: File) {
+  const buffer = await file.arrayBuffer();
+  const view = new DataView(buffer);
+  const bytes = new Uint8Array(buffer);
+  let eocdOffset = -1;
+  for (let offset = bytes.length - 22; offset >= 0; offset -= 1) {
+    if (readUInt32(view, offset) === 0x06054b50) {
+      eocdOffset = offset;
+      break;
+    }
+  }
+  if (eocdOffset < 0) throw new Error("This Word file could not be opened.");
+
+  const centralDirectorySize = readUInt32(view, eocdOffset + 12);
+  const centralDirectoryOffset = readUInt32(view, eocdOffset + 16);
+  const decoder = new TextDecoder();
+  let offset = centralDirectoryOffset;
+  const end = centralDirectoryOffset + centralDirectorySize;
+
+  while (offset < end && readUInt32(view, offset) === 0x02014b50) {
+    const method = readUInt16(view, offset + 10);
+    const compressedSize = readUInt32(view, offset + 20);
+    const fileNameLength = readUInt16(view, offset + 28);
+    const extraLength = readUInt16(view, offset + 30);
+    const commentLength = readUInt16(view, offset + 32);
+    const localHeaderOffset = readUInt32(view, offset + 42);
+    const name = decoder.decode(bytes.slice(offset + 46, offset + 46 + fileNameLength));
+
+    if (name === "word/document.xml") {
+      const localNameLength = readUInt16(view, localHeaderOffset + 26);
+      const localExtraLength = readUInt16(view, localHeaderOffset + 28);
+      const dataStart = localHeaderOffset + 30 + localNameLength + localExtraLength;
+      const compressed = bytes.slice(dataStart, dataStart + compressedSize);
+      const uncompressed = await inflateZipEntry(compressed, method);
+      return xmlToPlainText(decoder.decode(uncompressed));
+    }
+
+    offset += 46 + fileNameLength + extraLength + commentLength;
+  }
+
+  throw new Error("No readable Word document body was found.");
+}
+
 function stripNumber(line: string) {
   return line.replace(/^\s*\d+[\).]\s*/, "").trim();
 }
@@ -195,6 +274,9 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, exams, loading,
   const [questionSource, setQuestionSource] = useState("");
   const [answerKey, setAnswerKey] = useState("");
   const [explanations, setExplanations] = useState("");
+  const [uploadedQuestionPaper, setUploadedQuestionPaper] = useState("");
+  const [uploadedAnswerKey, setUploadedAnswerKey] = useState("");
+  const [uploadedExplanations, setUploadedExplanations] = useState("");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const [resultsExam, setResultsExam] = useState<TeacherExamRecord | null>(null);
@@ -234,10 +316,28 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, exams, loading,
     setTargetBatchIds((ids) => ids.includes(batchId) ? ids.filter((id) => id !== batchId) : [...ids, batchId]);
   }
 
-  async function appendFileText(file: File | null, setter: (value: string) => void, current: string) {
+  async function appendFileText(file: File | null, setter: (value: string) => void, current: string, setUploadedName?: (value: string) => void) {
     if (!file) return;
-    const text = await file.text().catch(() => "");
-    setter([current, text].filter(Boolean).join("\n\n"));
+    setUploadedName?.(file.name);
+    try {
+      const fileName = file.name.toLowerCase();
+      const isTxt = file.type.startsWith("text/") || fileName.endsWith(".txt");
+      const isDocx = fileName.endsWith(".docx");
+      if (!isTxt && !isDocx) {
+        setMessage(`${file.name} is attached, but automatic extraction is available only for TXT and DOCX here. Paste the question text if this is a PDF or old DOC file.`);
+        return;
+      }
+      const text = isDocx ? await extractDocxText(file) : await file.text().catch(() => "");
+      if (!text.trim()) {
+        setMessage(`No readable text was found in ${file.name}.`);
+        return;
+      }
+      setter([current, text].filter(Boolean).join("\n\n"));
+      setMessage(isDocx ? `${file.name} extracted successfully. Review the questions before continuing.` : `${file.name} added successfully.`);
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : `Unable to read ${file.name}.`);
+      return;
+    }
   }
 
   function openCreator() {
@@ -250,6 +350,9 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, exams, loading,
     setQuestionSource("");
     setAnswerKey("");
     setExplanations("");
+    setUploadedQuestionPaper("");
+    setUploadedAnswerKey("");
+    setUploadedExplanations("");
     setTargetBatchIds(activeBatch?.id ? [activeBatch.id] : []);
     setStep(1);
     setMessage("");
@@ -272,6 +375,9 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, exams, loading,
     setQuestionSource("");
     setAnswerKey("");
     setExplanations("");
+    setUploadedQuestionPaper("");
+    setUploadedAnswerKey("");
+    setUploadedExplanations("");
     setStep(1);
     setMessage("");
     setShowCreator(true);
@@ -546,17 +652,32 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, exams, loading,
 
               {step === 2 && !editingExam ? (
                 <div className="grid gap-4 lg:grid-cols-3">
-                  <ExamInputCard title="Questions" description="Paste questions or upload a text-based paper. Use 1., 2., 3. with A/B/C/D options.">
-                    <textarea value={questionSource} onChange={(event) => setQuestionSource(event.target.value)} rows={12} className="w-full rounded-xl border border-[var(--border)] p-3 text-sm" placeholder={"1. Question...\nA. Option\nB. Option\nC. Option\nD. Option"} />
-                    <input type="file" accept=".txt,.doc,.docx,.pdf" onChange={(event) => void appendFileText(event.target.files?.[0] ?? null, setQuestionSource, questionSource)} className="mt-3 w-full rounded-xl border border-[var(--border)] p-3 text-sm" />
+                  <ExamInputCard title="Questions" description="Paste questions or upload a DOCX/TXT paper. PDF and old DOC can be attached, but paste the extracted text before publishing.">
+                    <textarea value={questionSource} onChange={(event) => setQuestionSource(event.target.value)} rows={12} className="w-full rounded-xl border border-[var(--border)] bg-white p-3 text-sm leading-6" placeholder={"1. Question...\nA. Option\nB. Option\nC. Option\nD. Option"} />
+                    <FileUploadRow
+                      label="Upload question paper"
+                      fileName={uploadedQuestionPaper}
+                      accept=".txt,.doc,.docx,.pdf"
+                      onChange={(file) => void appendFileText(file, setQuestionSource, questionSource, setUploadedQuestionPaper)}
+                    />
                   </ExamInputCard>
                   <ExamInputCard title="Answer Key" description="One line per answer. Example: 1 - A">
-                    <textarea value={answerKey} onChange={(event) => setAnswerKey(event.target.value)} rows={12} className="w-full rounded-xl border border-[var(--border)] p-3 text-sm" placeholder={"1 - A\n2 - C\n3 - B"} />
-                    <input type="file" accept=".txt" onChange={(event) => void appendFileText(event.target.files?.[0] ?? null, setAnswerKey, answerKey)} className="mt-3 w-full rounded-xl border border-[var(--border)] p-3 text-sm" />
+                    <textarea value={answerKey} onChange={(event) => setAnswerKey(event.target.value)} rows={12} className="w-full rounded-xl border border-[var(--border)] bg-white p-3 text-sm leading-6" placeholder={"1 - A\n2 - C\n3 - B"} />
+                    <FileUploadRow
+                      label="Upload answer key"
+                      fileName={uploadedAnswerKey}
+                      accept=".txt,.docx"
+                      onChange={(file) => void appendFileText(file, setAnswerKey, answerKey, setUploadedAnswerKey)}
+                    />
                   </ExamInputCard>
                   <ExamInputCard title="Explanations" description="These become the final student report after release.">
-                    <textarea value={explanations} onChange={(event) => setExplanations(event.target.value)} rows={12} className="w-full rounded-xl border border-[var(--border)] p-3 text-sm" placeholder={"1. Explanation...\n2. Explanation..."} />
-                    <input type="file" accept=".txt" onChange={(event) => void appendFileText(event.target.files?.[0] ?? null, setExplanations, explanations)} className="mt-3 w-full rounded-xl border border-[var(--border)] p-3 text-sm" />
+                    <textarea value={explanations} onChange={(event) => setExplanations(event.target.value)} rows={12} className="w-full rounded-xl border border-[var(--border)] bg-white p-3 text-sm leading-6" placeholder={"1. Explanation...\n2. Explanation..."} />
+                    <FileUploadRow
+                      label="Upload explanations"
+                      fileName={uploadedExplanations}
+                      accept=".txt,.docx"
+                      onChange={(file) => void appendFileText(file, setExplanations, explanations, setUploadedExplanations)}
+                    />
                   </ExamInputCard>
                 </div>
               ) : null}
@@ -679,7 +800,7 @@ function Field({ label, value, onChange, type = "text", placeholder }: { label: 
 
 function ExamInputCard({ title, description, children }: { title: string; description: string; children: ReactNode }) {
   return (
-    <div className="rounded-2xl border border-[var(--border)] p-4">
+    <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
       <div className="mb-4 flex items-start gap-3">
         <span className="grid h-10 w-10 place-items-center rounded-xl bg-[var(--page-bg)]">
           <FileText size={18} />
@@ -690,6 +811,22 @@ function ExamInputCard({ title, description, children }: { title: string; descri
         </div>
       </div>
       {children}
+    </div>
+  );
+}
+
+function FileUploadRow({ label, fileName, accept, onChange }: { label: string; fileName: string; accept: string; onChange: (file: File | null) => void }) {
+  return (
+    <div className="mt-3 rounded-xl border border-[var(--border)] bg-white p-3">
+      <label className="flex min-h-12 cursor-pointer items-center justify-between gap-3 rounded-lg border border-dashed border-slate-300 px-3 py-2 text-sm font-black transition hover:border-slate-950">
+        <span>{label}</span>
+        <span className="rounded-full bg-[var(--page-bg)] px-3 py-1 text-xs">Choose File</span>
+        <input type="file" accept={accept} onChange={(event) => onChange(event.target.files?.[0] ?? null)} className="sr-only" />
+      </label>
+      <div className="mt-2 flex min-h-7 items-center justify-between gap-2 text-xs">
+        <span className="truncate font-black text-[var(--ink)]">{fileName || "No document selected"}</span>
+        {fileName ? <span className="shrink-0 rounded-full bg-emerald-50 px-2 py-1 font-black text-emerald-700">Attached</span> : null}
+      </div>
     </div>
   );
 }
