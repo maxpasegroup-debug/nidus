@@ -269,8 +269,20 @@ export function AdministrativeOfficerDashboard() {
 
   return (
     <main className="grid gap-5">
-      <header className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm sm:p-6">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"><div><p className="text-xs font-black uppercase tracking-[0.3em] text-[var(--gold-dark)]">Administrative Officer</p><h1 className="mt-2 text-3xl font-black sm:text-4xl">Admission and activation desk</h1><p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--muted-blue)]">Move every applicant from documents and payment to batch allocation and learner access.</p></div>{selectedLead ? <button type="button" onClick={() => openTab("ACTIVATION")} className="min-h-12 rounded-xl bg-slate-950 px-5 text-sm font-black text-white">Continue {selectedLead.fullName}</button> : null}</div>
+      <header className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm sm:p-7">
+        <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.3em] text-[var(--gold-dark)]">Administrative Officer</p>
+            <h1 className="mt-3 text-3xl font-black leading-tight sm:text-5xl">Admission and activation desk</h1>
+            <p className="mt-3 max-w-4xl text-sm font-medium leading-7 text-[var(--muted-blue)]">
+              Process applications, verify documents, confirm fees, allocate batches and activate learners from one clean workspace.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] px-5 py-4">
+            <p className="text-[0.68rem] font-black uppercase tracking-[0.22em] text-[var(--muted-blue)]">Next step</p>
+            <p className="mt-2 text-lg font-black text-[var(--ink)]">{selectedLead ? "Continue selected application from the workflow tabs." : "Open applications and choose a learner."}</p>
+          </div>
+        </div>
       </header>
 
       <section className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-6">
