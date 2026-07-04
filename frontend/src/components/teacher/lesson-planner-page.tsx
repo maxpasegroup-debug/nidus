@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { ArrowLeft, CalendarDays, CheckCircle2, Clock, Plus, RefreshCw } from "lucide-react";
+import { ArrowLeft, CalendarDays, CheckCircle2, Clock, Lightbulb, Plus, RefreshCw } from "lucide-react";
 import { apiClient, apiGet, getApiErrorMessage } from "@/services/api";
 
 type PlannerBatch = {
@@ -156,6 +156,21 @@ export function LessonPlannerPage({ role, backHref }: { role: "TEACHER" | "ACADE
     }
   }
 
+  function generateTeacherPlan() {
+    const cleanTopic = topic.trim() || "today's topic";
+    const cleanSubject = subject || "the subject";
+    setObjectives((current) => current || [
+      `Students should understand the core idea of ${cleanTopic}.`,
+      `Students should solve at least 3 ${cleanSubject} questions from easy to exam level.`,
+      "Teacher should identify students who need extra revision support.",
+    ].join("\n"));
+    setHomework((current) => current || [
+      `Practice 10 questions from ${cleanTopic}.`,
+      "Revise class notes before the next session.",
+      "Bring doubts in the first 5 minutes of the next class.",
+    ].join("\n"));
+  }
+
   return (
     <main className="mx-auto flex min-h-[calc(100vh-92px)] w-full max-w-7xl flex-col gap-4 px-4 py-4">
       <header className="rounded-3xl border border-[var(--border)] bg-white p-5 shadow-sm">
@@ -226,6 +241,9 @@ export function LessonPlannerPage({ role, backHref }: { role: "TEACHER" | "ACADE
           <div className="mt-5 flex flex-wrap gap-3">
             <button type="submit" disabled={saving || loading || !data.batches.length} className="inline-flex min-h-12 items-center gap-2 rounded-xl bg-emerald-700 px-5 text-sm font-black text-white disabled:opacity-50">
               <Plus size={18} /> {saving ? "Saving..." : "Save to Calendar"}
+            </button>
+            <button type="button" onClick={generateTeacherPlan} className="inline-flex min-h-12 items-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-5 text-sm font-black">
+              <Lightbulb size={17} /> Draft Plan
             </button>
             <Link href={role === "ACADEMIC_HEAD" ? "/dashboard/academic-head/academic-calendar" : "/dashboard/teacher/academic-calendar"} className="inline-flex min-h-12 items-center rounded-xl border border-[var(--border)] bg-white px-5 text-sm font-black">Open Calendar</Link>
           </div>

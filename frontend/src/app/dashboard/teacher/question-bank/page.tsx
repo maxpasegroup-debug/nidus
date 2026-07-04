@@ -1,5 +1,5 @@
-import { ExaminationCenterShell } from "@/components/examination/examination-center-shell";
+import { TeacherQuestionBankPage as TeacherQuestionBankWorkspace } from "@/components/teacher/teacher-question-bank-page";
 
 export default function TeacherQuestionBankPage() {
-  return <ExaminationCenterShell view="question-bank" />;
+  return <TeacherQuestionBankWorkspace role="TEACHER" backHref="/dashboard/teacher/workspace" />;
 }

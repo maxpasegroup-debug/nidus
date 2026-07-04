@@ -51,6 +51,7 @@ export function TeacherStudentsView({ batches, loading, onMarkAttendance }: {
     if (!query) return batch.students;
     return batch.students.filter((item) => [item.name, item.email, item.mobile].filter(Boolean).join(" ").toLowerCase().includes(query));
   }, [batch, search]);
+  const markedCount = batch ? batch.students.filter((item) => marked[item.id]).length : 0;
 
   const openBatch = (nextBatch: TeacherRosterBatch) => {
     setBatchId(nextBatch.id);
@@ -165,6 +166,20 @@ export function TeacherStudentsView({ batches, loading, onMarkAttendance }: {
                       </div>
 
                       <div className="mt-5 grid gap-4">
+                        <div className="grid gap-3 sm:grid-cols-3">
+                          <div className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] p-3">
+                            <p className="text-[10px] font-black uppercase tracking-[0.16em] text-[var(--gold-dark)]">Batch</p>
+                            <p className="mt-1 text-sm font-black">{batch.name}</p>
+                          </div>
+                          <div className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] p-3">
+                            <p className="text-[10px] font-black uppercase tracking-[0.16em] text-[var(--gold-dark)]">Today</p>
+                            <p className="mt-1 text-sm font-black">{marked[student.id]?.replace("_", " ") || "Not marked"}</p>
+                          </div>
+                          <div className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] p-3">
+                            <p className="text-[10px] font-black uppercase tracking-[0.16em] text-[var(--gold-dark)]">Class Progress</p>
+                            <p className="mt-1 text-sm font-black">{markedCount}/{batch.students.length} marked</p>
+                          </div>
+                        </div>
                         <label className="grid gap-2 text-sm font-black">Subject
                           <select value={subject} onChange={(event) => setSubject(event.target.value)} className="min-h-12 rounded-xl border border-[var(--border)] bg-white px-3">
                             {batch.subjects.map((item) => <option key={item} value={item}>{item}</option>)}

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { ArrowLeft, ClipboardCopy, FileText, LayoutTemplate, Presentation, RefreshCw, Sparkles } from "lucide-react";
+import { ArrowLeft, ClipboardCopy, Download, FileText, LayoutTemplate, Presentation, RefreshCw, Sparkles } from "lucide-react";
 import { apiGet, getApiErrorMessage } from "@/services/api";
 
 type PptBatch = {
@@ -145,6 +145,25 @@ export function PptGeneratorPage({ role, backHref }: { role: "TEACHER" | "ACADEM
     setCopied(true);
   }
 
+  function downloadOutline() {
+    if (!slides.length) return;
+    const text = [
+      `NIDUS Slide Plan`,
+      `Batch: ${batchName(selectedBatch)}`,
+      `Subject: ${subject}`,
+      `Topic: ${topic.trim() || "Topic"}`,
+      "",
+      ...slides.map((slide, index) => [`Slide ${index + 1}: ${slide.title}`, ...slide.bullets.map((bullet) => `- ${bullet}`), `Teacher note: ${slide.note}`].join("\n")),
+    ].join("\n\n");
+    const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = `${(topic || "nidus-slide-plan").trim().replace(/[^a-z0-9]+/gi, "-").toLowerCase()}.txt`;
+    anchor.click();
+    URL.revokeObjectURL(url);
+  }
+
   return (
     <main className="mx-auto grid w-full max-w-7xl gap-4 px-4 py-4">
       <header className="rounded-3xl border border-[var(--border)] bg-white p-5 shadow-sm">
@@ -226,9 +245,14 @@ export function PptGeneratorPage({ role, backHref }: { role: "TEACHER" | "ACADEM
               <p className="text-[10px] font-black uppercase tracking-[0.25em] text-[var(--gold-dark)]">Preview</p>
               <h2 className="text-2xl font-black">Slide outline</h2>
             </div>
-            <button type="button" onClick={() => void copyOutline()} disabled={!slides.length} className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-[var(--border)] bg-white px-4 text-sm font-black disabled:opacity-50">
-              <ClipboardCopy size={16} /> {copied ? "Copied" : "Copy Outline"}
-            </button>
+            <div className="flex flex-wrap gap-2">
+              <button type="button" onClick={() => void copyOutline()} disabled={!slides.length} className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-[var(--border)] bg-white px-4 text-sm font-black disabled:opacity-50">
+                <ClipboardCopy size={16} /> {copied ? "Copied" : "Copy"}
+              </button>
+              <button type="button" onClick={downloadOutline} disabled={!slides.length} className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-[var(--border)] bg-white px-4 text-sm font-black disabled:opacity-50">
+                <Download size={16} /> Download
+              </button>
+            </div>
           </div>
 
           <div className="mt-5 grid gap-3 md:grid-cols-2">
@@ -258,7 +282,7 @@ export function PptGeneratorPage({ role, backHref }: { role: "TEACHER" | "ACADEM
           <div className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
             <div className="flex gap-3">
               <FileText size={18} className="mt-0.5 shrink-0" />
-              <p><b>Teacher note:</b> Phase 5 creates the dedicated slide-planning workspace. Direct PPTX/Canva export can be connected in the next AI content sprint.</p>
+              <p><b>Teacher note:</b> Use Copy for Canva, PowerPoint or Google Slides. Use Download to keep the slide plan as a reusable class resource.</p>
             </div>
           </div>
         </section>

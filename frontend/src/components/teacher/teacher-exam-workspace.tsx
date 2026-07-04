@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
-import { BookOpen, CheckCircle2, Clock3, Eye, FileText, Plus, Trophy, X } from "lucide-react";
+import { BookOpen, CheckCircle2, Clock3, Eye, FileText, Pencil, Plus, Send, Trash2, Trophy, X } from "lucide-react";
 
 export type TeacherExamBatch = {
   id: string;
@@ -187,6 +187,7 @@ function optionText(question: QuestionDraft, option: "A" | "B" | "C" | "D") {
 export function TeacherExamWorkspace({ batches, selectedBatchId, exams, loading, onSelectBatch, onRefresh }: Props) {
   const [activeBatchId, setActiveBatchId] = useState(selectedBatchId || batches[0]?.id || "");
   const activeBatch = useMemo(() => batches.find((batch) => batch.id === activeBatchId) || batches[0] || null, [activeBatchId, batches]);
+  const [targetBatchIds, setTargetBatchIds] = useState<string[]>(activeBatch?.id ? [activeBatch.id] : []);
   const [subject, setSubject] = useState(activeBatch?.subjects[0] || "General");
   const [showCreator, setShowCreator] = useState(false);
   const [step, setStep] = useState(1);
@@ -198,10 +199,15 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, exams, loading,
   const [message, setMessage] = useState("");
   const [resultsExam, setResultsExam] = useState<TeacherExamRecord | null>(null);
   const [results, setResults] = useState<ResultsPayload | null>(null);
+  const [editingExam, setEditingExam] = useState<TeacherExamRecord | null>(null);
 
   useEffect(() => {
     if (selectedBatchId && selectedBatchId !== activeBatchId) setActiveBatchId(selectedBatchId);
   }, [activeBatchId, selectedBatchId]);
+
+  useEffect(() => {
+    if (activeBatch?.id && !targetBatchIds.length) setTargetBatchIds([activeBatch.id]);
+  }, [activeBatch?.id, targetBatchIds.length]);
 
   useEffect(() => {
     if (activeBatch?.subjects?.length && !activeBatch.subjects.includes(subject)) {
@@ -213,12 +219,19 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, exams, loading,
     if (!activeBatch) return [];
     return exams.filter((exam) => exam.batchId === activeBatch.id || exam.batchName === activeBatch.name);
   }, [activeBatch, exams]);
+  const liveExamCount = batchExams.filter((exam) => !["ARCHIVED", "CANCELLED"].includes(String(exam.status || "").toUpperCase())).length;
+  const submittedCount = batchExams.reduce((total, exam) => total + Number(exam.attemptStats?.submitted ?? 0), 0);
 
   const questions = useMemo(() => buildQuestions(questionSource, answerKey, explanations, form.topic, Number(form.marks)), [answerKey, explanations, form.marks, form.topic, questionSource]);
 
   function openBatch(batchId: string) {
     setActiveBatchId(batchId);
+    setTargetBatchIds((ids) => ids.length ? Array.from(new Set([...ids, batchId])) : [batchId]);
     onSelectBatch(batchId);
+  }
+
+  function toggleTargetBatch(batchId: string) {
+    setTargetBatchIds((ids) => ids.includes(batchId) ? ids.filter((id) => id !== batchId) : [...ids, batchId]);
   }
 
   async function appendFileText(file: File | null, setter: (value: string) => void, current: string) {
@@ -228,10 +241,33 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, exams, loading,
   }
 
   function openCreator() {
+    setEditingExam(null);
     setForm({
       ...initialForm,
       title: activeBatch && subject ? `${subject} Test - ${activeBatch.name}` : "",
       date: new Date().toISOString().slice(0, 10),
+    });
+    setQuestionSource("");
+    setAnswerKey("");
+    setExplanations("");
+    setTargetBatchIds(activeBatch?.id ? [activeBatch.id] : []);
+    setStep(1);
+    setMessage("");
+    setShowCreator(true);
+  }
+
+  function openEditor(exam: TeacherExamRecord) {
+    if (exam.batchId && exam.batchId !== activeBatchId) openBatch(exam.batchId);
+    setEditingExam(exam);
+    setSubject(exam.subject || subject || activeBatch?.subjects[0] || "General");
+    setForm({
+      title: exam.title || "",
+      topic: exam.topic || "",
+      date: exam.createdAt ? new Date(exam.createdAt).toISOString().slice(0, 10) : new Date().toISOString().slice(0, 10),
+      time: "",
+      duration: String(exam.durationMinutes ?? 60),
+      marks: "100",
+      instructions: "",
     });
     setQuestionSource("");
     setAnswerKey("");
@@ -243,45 +279,105 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, exams, loading,
 
   async function publishExam() {
     if (!activeBatch) return;
-    if (!questions.length) {
+    const selectedBatches = (targetBatchIds.length ? targetBatchIds : [activeBatch.id])
+      .map((id) => batches.find((batch) => batch.id === id))
+      .filter((batch): batch is TeacherExamBatch => Boolean(batch));
+    if (!selectedBatches.length) {
+      setMessage("Select at least one assigned batch.");
+      return;
+    }
+    if (!editingExam && !questions.length) {
       setMessage("Add at least one question before publishing.");
       return;
     }
     setBusy(true);
     setMessage("");
     try {
-      await requestJson("/api/academy/exams", {
-        method: "POST",
-        body: JSON.stringify({
-          batchId: activeBatch.id,
-          batchName: activeBatch.name,
-          course: activeBatch.program,
-          subject,
-          title: form.title,
-          topic: form.topic,
-          questionCount: questions.length,
-          durationMinutes: Number(form.duration),
-          difficulty: "MEDIUM",
-          instructions: form.instructions,
-          publishDate: form.date,
-          publishTime: form.time,
-          draft: {
-            title: form.title,
-            description: form.instructions || `Faculty published ${subject} exam for ${activeBatch.name}.`,
-            examType: "Teacher Exam",
-            category: "Defence LMS",
+      if (editingExam) {
+        await requestJson(`/api/academy/exams/${editingExam.id}`, {
+          method: "PATCH",
+          body: JSON.stringify({
             subject,
+            title: form.title,
             topic: form.topic,
-            duration: Number(form.duration),
-            totalMarks: Number(form.marks),
-            questions,
-          },
+            durationMinutes: Number(form.duration),
+            difficulty: editingExam.difficulty || "MEDIUM",
+            instructions: form.instructions,
+            status: editingExam.status || "PUBLISHED",
+          }),
+        });
+        setShowCreator(false);
+        setEditingExam(null);
+        await onRefresh();
+        return;
+      }
+      await Promise.all(selectedBatches.map((targetBatch) =>
+        requestJson("/api/academy/exams", {
+          method: "POST",
+          body: JSON.stringify({
+            batchId: targetBatch.id,
+            batchName: targetBatch.name,
+            course: targetBatch.program,
+            subject,
+            title: form.title,
+            topic: form.topic,
+            questionCount: questions.length,
+            durationMinutes: Number(form.duration),
+            difficulty: "MEDIUM",
+            instructions: [
+              form.instructions,
+              selectedBatches.length > 1 ? `Common exam published to: ${selectedBatches.map((batch) => batch.name).join(", ")}` : "",
+            ].filter(Boolean).join("\n"),
+            publishDate: form.date,
+            publishTime: form.time,
+            draft: {
+              title: form.title,
+              description: form.instructions || `Faculty published ${subject} exam for ${targetBatch.name}.`,
+              examType: "Teacher Exam",
+              category: "Defence LMS",
+              subject,
+              topic: form.topic,
+              duration: Number(form.duration),
+              totalMarks: Number(form.marks),
+              questions,
+            },
+          }),
         }),
-      });
+      ));
       setShowCreator(false);
+      setMessage(`Exam published to ${selectedBatches.length} batch(es).`);
       await onRefresh();
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : "Unable to publish exam.");
+      setMessage(error instanceof Error ? error.message : editingExam ? "Unable to update exam." : "Unable to publish exam.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function cancelExam(exam: TeacherExamRecord) {
+    if (!window.confirm(`Cancel ${exam.title || "this exam"}? Students will no longer see it.`)) return;
+    setBusy(true);
+    setMessage("");
+    try {
+      await requestJson(`/api/academy/exams/${exam.id}/archive`, { method: "POST", body: JSON.stringify({}) });
+      setMessage("Exam cancelled.");
+      await onRefresh();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Unable to cancel exam.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function publishChanges(exam: TeacherExamRecord) {
+    setBusy(true);
+    setMessage("");
+    try {
+      await requestJson(`/api/academy/exams/${exam.id}/publish`, { method: "POST", body: JSON.stringify({}) });
+      setMessage("Exam changes published.");
+      await onRefresh();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Unable to publish exam changes.");
     } finally {
       setBusy(false);
     }
@@ -360,12 +456,16 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, exams, loading,
               <h3 className="mt-2 text-2xl font-black">{activeBatch.name}</h3>
               <p className="mt-1 text-sm text-[var(--muted-blue)]">{activeBatch.studentCount} students will receive published exams.</p>
             </div>
-            <label className="grid gap-2 text-sm font-black">
-              Subject
-              <select value={subject} onChange={(event) => setSubject(event.target.value)} className="min-h-12 rounded-xl border border-[var(--border)] bg-white px-4">
-                {activeBatch.subjects.map((item) => <option key={item} value={item}>{item}</option>)}
-              </select>
-            </label>
+            <div className="grid gap-3 sm:grid-cols-3 md:min-w-[440px]">
+              <Summary label="Live Exams" value={String(liveExamCount)} />
+              <Summary label="Submitted" value={String(submittedCount)} />
+              <label className="grid gap-2 text-sm font-black">
+                Subject
+                <select value={subject} onChange={(event) => setSubject(event.target.value)} className="min-h-12 rounded-xl border border-[var(--border)] bg-white px-4">
+                  {activeBatch.subjects.map((item) => <option key={item} value={item}>{item}</option>)}
+                </select>
+              </label>
+            </div>
           </div>
 
           <div className="mt-5 grid gap-4 xl:grid-cols-3">
@@ -384,9 +484,20 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, exams, loading,
                   <span>{exam.durationMinutes ?? 0} min</span>
                   <span>{exam.attemptStats?.submitted ?? 0} done</span>
                 </div>
-                <button type="button" onClick={() => void openResults(exam)} className="mt-5 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-slate-950 bg-white px-4 text-sm font-black text-slate-950">
-                  <Trophy size={16} /> Review Results
-                </button>
+                <div className="mt-5 grid grid-cols-2 gap-2">
+                  <button type="button" onClick={() => openEditor(exam)} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[var(--border)] bg-white px-3 text-sm font-black text-slate-950">
+                    <Pencil size={16} /> Edit
+                  </button>
+                  <button type="button" onClick={() => void cancelExam(exam)} disabled={busy} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-3 text-sm font-black text-rose-700 disabled:opacity-50">
+                    <Trash2 size={16} /> Cancel
+                  </button>
+                  <button type="button" onClick={() => void publishChanges(exam)} disabled={busy} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-3 text-sm font-black text-emerald-700 disabled:opacity-50">
+                    <Send size={16} /> Publish
+                  </button>
+                  <button type="button" onClick={() => void openResults(exam)} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-slate-950 bg-white px-3 text-sm font-black text-slate-950">
+                    <Trophy size={16} /> Results
+                  </button>
+                </div>
               </article>
             ))}
           </div>
@@ -399,7 +510,7 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, exams, loading,
             <div className="shrink-0 border-b border-[var(--border)] p-4 sm:p-5">
               <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold-dark)]">New Exam</p>
+                <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold-dark)]">{editingExam ? "Edit Exam" : "New Exam"}</p>
                 <h3 className="mt-2 text-xl font-black sm:text-2xl">{activeBatch?.name}</h3>
                 <p className="mt-1 text-sm text-[var(--muted-blue)]">Step {step} of 4</p>
               </div>
@@ -412,6 +523,18 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, exams, loading,
             <div className="min-h-0 flex-1 overflow-y-auto p-4 sm:p-5">
               {step === 1 ? (
                 <div className="grid gap-4 md:grid-cols-2">
+                  <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4 md:col-span-2">
+                    <p className="text-sm font-black">Publish To Batches</p>
+                    <p className="mt-1 text-xs text-[var(--muted-blue)]">Select one or more assigned batches for a common exam.</p>
+                    <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                      {batches.map((batch) => (
+                        <label key={batch.id} className={`flex cursor-pointer items-center gap-3 rounded-xl border px-3 py-3 text-sm font-black ${targetBatchIds.includes(batch.id) ? "border-emerald-300 bg-emerald-50 text-emerald-950" : "border-[var(--border)] bg-white text-[var(--ink)]"}`}>
+                          <input type="checkbox" checked={targetBatchIds.includes(batch.id)} onChange={() => toggleTargetBatch(batch.id)} />
+                          <span>{batch.name}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
                   <Field label="Exam Name" value={form.title} onChange={(value) => setForm((current) => ({ ...current, title: value }))} />
                   <Field label="Topic" value={form.topic} onChange={(value) => setForm((current) => ({ ...current, topic: value }))} placeholder="Algebra, Constitution, Motion..." />
                   <Field label="Date" type="date" value={form.date} onChange={(value) => setForm((current) => ({ ...current, date: value }))} />
@@ -421,7 +544,7 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, exams, loading,
                 </div>
               ) : null}
 
-              {step === 2 ? (
+              {step === 2 && !editingExam ? (
                 <div className="grid gap-4 lg:grid-cols-3">
                   <ExamInputCard title="Questions" description="Paste questions or upload a text-based paper. Use 1., 2., 3. with A/B/C/D options.">
                     <textarea value={questionSource} onChange={(event) => setQuestionSource(event.target.value)} rows={12} className="w-full rounded-xl border border-[var(--border)] p-3 text-sm" placeholder={"1. Question...\nA. Option\nB. Option\nC. Option\nD. Option"} />
@@ -435,6 +558,15 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, exams, loading,
                     <textarea value={explanations} onChange={(event) => setExplanations(event.target.value)} rows={12} className="w-full rounded-xl border border-[var(--border)] p-3 text-sm" placeholder={"1. Explanation...\n2. Explanation..."} />
                     <input type="file" accept=".txt" onChange={(event) => void appendFileText(event.target.files?.[0] ?? null, setExplanations, explanations)} className="mt-3 w-full rounded-xl border border-[var(--border)] p-3 text-sm" />
                   </ExamInputCard>
+                </div>
+              ) : null}
+
+              {step === 2 && editingExam ? (
+                <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-5">
+                  <h4 className="text-xl font-black">Question paper already exists</h4>
+                  <p className="mt-2 text-sm leading-6 text-[var(--muted-blue)]">
+                    This edit updates the title, subject, topic and timer. Create a fresh exam if the full question paper must be replaced.
+                  </p>
                 </div>
               ) : null}
 
@@ -465,9 +597,9 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, exams, loading,
               {step === 4 ? (
                 <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-5">
                   <div className="grid gap-3 md:grid-cols-4">
-                    <Summary label="Batch" value={activeBatch?.name || "Batch"} />
+                    <Summary label="Batches" value={String((targetBatchIds.length ? targetBatchIds : activeBatch?.id ? [activeBatch.id] : []).length)} />
                     <Summary label="Subject" value={subject} />
-                    <Summary label="Questions" value={String(questions.length)} />
+                    <Summary label="Questions" value={String(editingExam?.questionCount ?? questions.length)} />
                     <Summary label="Timer" value={`${form.duration} min`} />
                   </div>
                   <p className="mt-5 text-sm leading-6 text-[var(--muted-blue)]">Publish sends this exam to students in this batch. Student result reports stay hidden until you review and release results.</p>
@@ -482,7 +614,7 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, exams, loading,
                 <button type="button" onClick={() => setStep((value) => Math.min(4, value + 1))} className="min-h-12 rounded-xl border border-slate-950 bg-slate-950 px-6 font-black text-white">Continue</button>
               ) : (
                 <button type="button" onClick={() => void publishExam()} disabled={busy} className="min-h-12 rounded-xl border border-emerald-700 bg-emerald-700 px-6 font-black text-white disabled:opacity-60">
-                  {busy ? "Publishing..." : "Publish To Students"}
+                  {busy ? (editingExam ? "Saving..." : "Publishing...") : editingExam ? "Save Exam Changes" : "Publish To Students"}
                 </button>
               )}
             </div>

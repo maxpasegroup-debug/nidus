@@ -367,6 +367,7 @@ type AssignmentChatMessage = {
 };
 
 type ExamForm = {
+  targetBatchIds: string[];
   title: string;
   subject: string;
   examType: string;
@@ -382,6 +383,7 @@ type ExamForm = {
 };
 
 type AssignmentForm = {
+  targetBatchIds: string[];
   title: string;
   subject: string;
   topic: string;
@@ -588,19 +590,29 @@ function studentId(entry: NonNullable<AssignedClass["students"]>[number], index:
 function subjectsForBatch(batch: AssignedClass | null) {
   if (!batch) return ["General"];
   const subjects = new Set<string>();
+  const addSubject = (value?: string | null) => {
+    if (!value) return;
+    const normalized = value.trim();
+    if (!normalized) return;
+    normalized
+      .split(/\s*(?:,|\/|\+|&)\s*/g)
+      .map((item) => item.trim())
+      .filter(Boolean)
+      .forEach((item) => subjects.add(item));
+  };
   for (const subject of batch.assignedSubjects ?? []) {
-    if (subject) subjects.add(subject);
+    addSubject(subject);
   }
-  if (!subjects.size && batch.subject) subjects.add(batch.subject);
+  if (!subjects.size && batch.subject) addSubject(batch.subject);
   if (!subjects.size) {
     for (const teacher of batch.teachers ?? []) {
-      if (teacher.subject) subjects.add(teacher.subject);
+      addSubject(teacher.subject);
     }
   }
   const fromSchedule = (batch as AssignedClass & { schedule?: { subjects?: string[] } | null }).schedule?.subjects;
   if (!subjects.size && Array.isArray(fromSchedule)) {
     for (const subject of fromSchedule) {
-      if (subject) subjects.add(subject);
+      addSubject(subject);
     }
   }
   return Array.from(subjects).filter(Boolean).length ? Array.from(subjects).filter(Boolean) : ["General"];
@@ -978,9 +990,10 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
     completionStatus: "COMPLETED",
   });
   const [libraryForm, setLibraryForm] = useState(initialLibraryForm);
-  const [assignmentForm, setAssignmentForm] = useState<AssignmentForm>({ title: "", subject: "", topic: "", difficulty: "MEDIUM", instructions: "", pastedContent: "", dueDate: "", attachmentName: "", link: "" });
+  const [assignmentForm, setAssignmentForm] = useState<AssignmentForm>({ targetBatchIds: [], title: "", subject: "", topic: "", difficulty: "MEDIUM", instructions: "", pastedContent: "", dueDate: "", attachmentName: "", link: "" });
   const [liveClassForm, setLiveClassForm] = useState<LiveClassForm>({ subject: "", topic: "", date: todayDate(), time: "", duration: "60", description: "", meetingLink: "" });
   const [examForm, setExamForm] = useState<ExamForm>({
+    targetBatchIds: [],
     title: "",
     subject: "",
     examType: "Weekly Test",
@@ -1827,12 +1840,14 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
 
   function openExamCreator(subjectOverride?: string) {
     const defaultSubject = subjectOverride || (selectedClass ? subjectsForBatch(selectedClass)[0] : "") || "";
+    const defaultBatchId = selectedClass?.id ? [selectedClass.id] : [];
     setShowExamCreator(true);
     setExamMessage(null);
     setExamDraft(null);
     setExamChatInput("");
     setExamForm((form) => ({
       ...form,
+      targetBatchIds: form.targetBatchIds.length ? form.targetBatchIds : defaultBatchId,
       subject: form.subject || defaultSubject,
       topic: form.topic || defaultSubject,
       title: form.title || (defaultSubject ? `${defaultSubject} Test` : ""),
@@ -1871,11 +1886,13 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
 
   function openAssignmentCreator(subjectOverride?: string) {
     const defaultSubject = subjectOverride || (selectedClass ? subjectsForBatch(selectedClass)[0] : "");
+    const defaultBatchId = selectedClass?.id ? [selectedClass.id] : [];
     setShowAssignmentCreator(true);
     setAssignmentMessage(null);
     setAssignmentChatInput("");
     setAssignmentForm((form) => ({
       ...form,
+      targetBatchIds: form.targetBatchIds.length ? form.targetBatchIds : defaultBatchId,
       title: form.title || "Homework",
       subject: form.subject || defaultSubject,
       dueDate: form.dueDate || todayDate(),
@@ -2257,6 +2274,13 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
 
   async function publishAssignment(status: "DRAFT" | "PUBLISHED" = "PUBLISHED") {
     if (!selectedClass) return;
+    const targetBatches = (assignmentForm.targetBatchIds.length ? assignmentForm.targetBatchIds : [selectedClass.id])
+      .map((id) => activeClasses.find((batch) => batch.id === id))
+      .filter((batch): batch is AssignedClass => Boolean(batch));
+    if (!targetBatches.length) {
+      setAssignmentMessage("Select at least one assigned batch.");
+      return;
+    }
     if (!assignmentForm.title.trim()) {
       setAssignmentMessage("Assignment title is required.");
       return;
@@ -2271,24 +2295,27 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
     }
     setAssignmentMessage(null);
     try {
-      await apiPost<{ ok?: boolean }>(["/api/academy/assignments"], {
-        batchId: selectedClass.id,
-        batchName: selectedClass.name,
-        subject: assignmentForm.subject || selectedClass.subject,
-        course: programName(selectedClass),
-        title: assignmentForm.title,
-        topic: assignmentForm.topic,
-        instructions: [
-          assignmentForm.instructions,
-          assignmentForm.difficulty ? `Difficulty: ${assignmentForm.difficulty}` : "",
-          assignmentForm.pastedContent ? `Pasted assignment content:\n${assignmentForm.pastedContent}` : "",
-        ].filter(Boolean).join("\n"),
-        dueDate: assignmentForm.dueDate || undefined,
-        attachmentName: assignmentForm.attachmentName || assignmentSourceName || undefined,
-        link: assignmentForm.link || undefined,
-        status,
-      });
+      await Promise.all(targetBatches.map((targetBatch) =>
+        apiPost<{ ok?: boolean }>(["/api/academy/assignments"], {
+          batchId: targetBatch.id,
+          batchName: targetBatch.name,
+          subject: assignmentForm.subject || targetBatch.subject,
+          course: programName(targetBatch),
+          title: assignmentForm.title,
+          topic: assignmentForm.topic,
+          instructions: [
+            assignmentForm.instructions,
+            assignmentForm.difficulty ? `Difficulty: ${assignmentForm.difficulty}` : "",
+            assignmentForm.pastedContent ? `Pasted assignment content:\n${assignmentForm.pastedContent}` : "",
+          ].filter(Boolean).join("\n"),
+          dueDate: assignmentForm.dueDate || undefined,
+          attachmentName: assignmentForm.attachmentName || assignmentSourceName || undefined,
+          link: assignmentForm.link || undefined,
+          status,
+        }),
+      ));
       setAssignmentForm({
+        targetBatchIds: [],
         title: "",
         subject: "",
         topic: "",
@@ -2303,7 +2330,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
       setAssignmentWorkflow(null);
       setAssignmentChatInput("");
       setShowAssignmentCreator(false);
-      setAssignmentMessage(status === "DRAFT" ? "Assignment saved as draft." : "Assignment published to students.");
+      setAssignmentMessage(status === "DRAFT" ? `Assignment saved as draft for ${targetBatches.length} batch(es).` : `Assignment published to ${targetBatches.length} batch(es).`);
       await loadClassWorkspace(selectedClass.id);
     } catch (error) {
       setAssignmentMessage(error instanceof Error ? error.message : "Could not save assignment.");
@@ -2700,6 +2727,13 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
       setExamMessage("Select a program and batch inside NIDUS Guru before publishing.");
       return;
     }
+    const targetBatches = (examForm.targetBatchIds.length ? examForm.targetBatchIds : [selectedClass.id])
+      .map((id) => activeClasses.find((batch) => batch.id === id))
+      .filter((batch): batch is AssignedClass => Boolean(batch));
+    if (!targetBatches.length) {
+      setExamMessage("Select at least one assigned batch.");
+      return;
+    }
     if (!examWorkflow?.requestId || !examWorkflow.draftId) {
       setExamMessage("Run NIDUS GURU Review first. Draft, review and approval are mandatory before publish.");
       return;
@@ -2749,20 +2783,24 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
         draftId: examWorkflow.draftId,
         notes: "Teacher approved exam draft after review.",
       });
-      await apiPost<{ status?: string }>(["/api/ai/exam/publish"], {
-        requestId: examWorkflow.requestId,
-        draftId: examWorkflow.draftId,
-        batchId: selectedClass.id,
-        durationMinutes: Number(examForm.duration || 30),
-        date: examForm.publishDate || undefined,
-        time: examForm.publishTime || undefined,
-        instructions: [
-          examForm.instructions,
-          examForm.examType ? `Exam type: ${examForm.examType}` : "",
-        ].filter(Boolean).join("\n"),
-        rules: { teacherApprovalMandatory: true, sourceMaterialReviewed: Boolean(examForm.pastedQuestions || examSourceName) },
-      });
+      for (const targetBatch of targetBatches) {
+        await apiPost<{ status?: string }>(["/api/ai/exam/publish"], {
+          requestId: examWorkflow.requestId,
+          draftId: examWorkflow.draftId,
+          batchId: targetBatch.id,
+          durationMinutes: Number(examForm.duration || 30),
+          date: examForm.publishDate || undefined,
+          time: examForm.publishTime || undefined,
+          instructions: [
+            examForm.instructions,
+            examForm.examType ? `Exam type: ${examForm.examType}` : "",
+            targetBatches.length > 1 ? `Common exam published to: ${targetBatches.map((batch) => batch.name).join(", ")}` : "",
+          ].filter(Boolean).join("\n"),
+          rules: { teacherApprovalMandatory: true, sourceMaterialReviewed: Boolean(examForm.pastedQuestions || examSourceName) },
+        });
+      }
       setExamForm({
+        targetBatchIds: [],
         title: "",
         subject: "",
         examType: "Weekly Test",
@@ -2781,7 +2819,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
       setExamWorkflow(null);
       setShowExamCreator(false);
       setExamChatInput("");
-      setExamMessage("Exam published to students.");
+      setExamMessage(`Exam published to ${targetBatches.length} batch(es).`);
       await loadClassWorkspace(selectedClass.id);
     } catch (error) {
       setExamMessage(error instanceof Error ? error.message : "Could not publish exam.");
@@ -3045,6 +3083,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
           assignmentForm={assignmentForm}
           setAssignmentForm={setAssignmentForm}
           setAssignmentSourceName={setAssignmentSourceName}
+          assignedBatches={activeClasses}
           selectedClass={selectedClass}
           selectedBatchName={selectedClass?.name ?? "Batch"}
           selectedStudentCount={selectedStudents.length}
@@ -3173,6 +3212,9 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
                 key={assignment.id}
                 assignment={assignment}
                 onOpen={() => setSelectedAssignmentId(assignment.id)}
+                onEdit={() => void editAssignmentRecord(assignment)}
+                onCancel={() => void cancelAssignmentRecord(assignment)}
+                onPublish={() => void publishAssignmentRecordChanges(assignment)}
               />
             ))}
             {!classWorkspace.assignments.length ? <AssignmentEmptyState onCreate={() => openAssignmentCreator()} /> : null}
@@ -3187,6 +3229,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
             assignmentForm={assignmentForm}
             setAssignmentForm={setAssignmentForm}
             setAssignmentSourceName={setAssignmentSourceName}
+            assignedBatches={activeClasses}
             selectedClass={selectedClass}
             selectedBatchName={selectedClass?.name ?? "Batch"}
             selectedStudentCount={selectedStudents.length}
@@ -3201,6 +3244,9 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
             batchName={selectedClass?.name ?? selectedAssignment.batchName ?? "Batch"}
             onClose={() => setSelectedAssignmentId(null)}
             onReview={reviewAssignmentSubmission}
+            onEdit={() => void editAssignmentRecord(selectedAssignment)}
+            onCancel={() => void cancelAssignmentRecord(selectedAssignment)}
+            onPublish={() => void publishAssignmentRecordChanges(selectedAssignment)}
           />
         ) : null}
       </section> : null}
@@ -4948,6 +4994,7 @@ function ExamGuruModal({
   const [examStep, setExamStep] = useState<1 | 2 | 3 | 4>(1);
   const activeProgram = programGroups.find((program) => program.key === selectedProgramKey) ?? programGroups[0] ?? null;
   const activeBatch = activeProgram?.classes.find((batch) => batch.id === selectedClassId) ?? activeProgram?.classes[0] ?? null;
+  const allAssignedBatches = programGroups.flatMap((program) => program.classes);
   const assignedSubjects = subjectsForBatch(activeBatch);
   const draftQuestions = examDraft?.questions ?? [];
   const pastedQuestionCount = examForm.pastedQuestions
@@ -4988,7 +5035,15 @@ function ExamGuruModal({
     { id: 4 as const, label: "Publish" },
   ];
   const hasQuestionSource = Boolean(examSourceName || examForm.pastedQuestions.trim() || examDraft?.questions?.length);
-  const basicsReady = Boolean(selectedClassId && (examForm.subject || assignedSubjects.length) && examForm.title && examForm.publishDate && examForm.publishTime && examForm.duration && examForm.totalMarks);
+  const selectedExamBatchIds = examForm.targetBatchIds.length ? examForm.targetBatchIds : activeBatch?.id ? [activeBatch.id] : [];
+  const toggleExamBatch = (batchId: string) => {
+    setExamForm((form) => {
+      const current = form.targetBatchIds.length ? form.targetBatchIds : activeBatch?.id ? [activeBatch.id] : [];
+      const next = current.includes(batchId) ? current.filter((id) => id !== batchId) : [...current, batchId];
+      return { ...form, targetBatchIds: next };
+    });
+  };
+  const basicsReady = Boolean(selectedExamBatchIds.length && selectedClassId && (examForm.subject || assignedSubjects.length) && examForm.title && examForm.publishDate && examForm.publishTime && examForm.duration && examForm.totalMarks);
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-[#f7f5ef] text-[var(--ink)]">
@@ -5025,11 +5080,24 @@ function ExamGuruModal({
                 const program = programGroups.find((item) => item.classes.some((batch) => batch.id === value));
                 if (program) onProgram(program.key);
                 onBatch(value);
+                setExamForm((form) => ({ ...form, targetBatchIds: form.targetBatchIds.length ? Array.from(new Set([...form.targetBatchIds, value])) : [value] }));
               }}>
                 {programGroups.flatMap((program) => program.classes.map((batch) => (
                   <option key={batch.id} value={batch.id}>{batch.name}</option>
                 )))}
               </Select>
+              <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
+                <p className="text-sm font-black">Publish To Batches</p>
+                <p className="mt-1 text-xs text-[var(--muted-blue)]">Select one or more assigned batches for a common exam.</p>
+                <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                  {allAssignedBatches.map((batch) => (
+                    <label key={batch.id} className={`flex cursor-pointer items-center gap-3 rounded-xl border px-3 py-3 text-sm font-black ${selectedExamBatchIds.includes(batch.id) ? "border-emerald-300 bg-emerald-50 text-emerald-950" : "border-[var(--border)] bg-white text-[var(--ink)]"}`}>
+                      <input type="checkbox" checked={selectedExamBatchIds.includes(batch.id)} onChange={() => toggleExamBatch(batch.id)} />
+                      <span>{batch.name}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
               <Select label="Subject" value={examForm.subject || assignedSubjects[0] || ""} onChange={(value) => setExamForm((form) => ({ ...form, subject: value, topic: form.topic || value }))}>
                 {assignedSubjects.map((subject) => <option key={subject} value={subject}>{subject}</option>)}
               </Select>
@@ -5256,9 +5324,15 @@ function AssignmentClassTile({ batch, active, onOpen }: { batch: AssignedClass; 
 function AssignmentListItem({
   assignment,
   onOpen,
+  onEdit,
+  onCancel,
+  onPublish,
 }: {
   assignment: AssignmentRecord;
   onOpen: () => void;
+  onEdit: () => void;
+  onCancel: () => void;
+  onPublish: () => void;
 }) {
   const submitted = assignment.submissionStats?.submitted ?? assignment.submissions?.length ?? 0;
   const total = assignment.submissionStats?.totalStudents ?? 0;
@@ -5276,7 +5350,12 @@ function AssignmentListItem({
       </button>
       <div className="flex flex-col gap-3 md:items-end">
         <p className="text-sm font-black">{submitted}/{total || "?"} submitted</p>
-        <button type="button" onClick={onOpen} className="min-h-10 rounded-xl border border-slate-950 bg-slate-950 px-4 py-2 text-sm font-black text-white">Open Submissions</button>
+        <div className="flex flex-wrap justify-end gap-2">
+          <button type="button" onClick={onOpen} className="min-h-10 rounded-xl border border-slate-950 bg-slate-950 px-4 py-2 text-sm font-black text-white">Submissions</button>
+          <button type="button" onClick={onEdit} className="min-h-10 rounded-xl border border-[var(--border)] bg-white px-4 py-2 text-sm font-black">Edit</button>
+          <button type="button" onClick={onPublish} className="min-h-10 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-black text-emerald-700">Publish</button>
+          <button type="button" onClick={onCancel} className="min-h-10 rounded-xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-black text-rose-700">Cancel</button>
+        </div>
       </div>
     </article>
   );
@@ -5302,6 +5381,9 @@ function AssignmentDetailsModal({
   batchName,
   onClose,
   onReview,
+  onEdit,
+  onCancel,
+  onPublish,
 }: {
   assignment: AssignmentRecord;
   students: NonNullable<AssignedClass["students"]>;
@@ -5309,6 +5391,9 @@ function AssignmentDetailsModal({
   batchName: string;
   onClose: () => void;
   onReview: (submissionId: string, reviewStatus: "REVIEWED" | "RETURNED") => void;
+  onEdit: () => void;
+  onCancel: () => void;
+  onPublish: () => void;
 }) {
   const submissions = assignment.submissions ?? [];
   const submittedStudentIds = new Set(submissions.map((submission) => submission.studentId).filter(Boolean));
@@ -5327,6 +5412,12 @@ function AssignmentDetailsModal({
           <button type="button" onClick={onClose} className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] p-3" aria-label="Close assignment details">
             <X size={18} />
           </button>
+        </div>
+
+        <div className="mt-5 flex flex-wrap gap-2">
+          <button type="button" onClick={onEdit} className="min-h-11 rounded-xl border border-[var(--border)] bg-white px-4 py-2 text-sm font-black">Edit Assignment</button>
+          <button type="button" onClick={onPublish} className="min-h-11 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-black text-emerald-700">Publish Changes</button>
+          <button type="button" onClick={onCancel} className="min-h-11 rounded-xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-black text-rose-700">Cancel Assignment</button>
         </div>
 
         <div className="mt-5 grid gap-3 md:grid-cols-4">
@@ -5395,6 +5486,7 @@ function AssignmentCreateModal({
   assignmentForm,
   setAssignmentForm,
   setAssignmentSourceName,
+  assignedBatches,
   selectedClass,
   selectedBatchName,
   selectedStudentCount,
@@ -5406,12 +5498,21 @@ function AssignmentCreateModal({
   assignmentForm: AssignmentForm;
   setAssignmentForm: React.Dispatch<React.SetStateAction<AssignmentForm>>;
   setAssignmentSourceName: (value: string) => void;
+  assignedBatches: AssignedClass[];
   selectedClass: AssignedClass | null;
   selectedBatchName: string;
   selectedStudentCount: number;
   assignmentSourceName: string;
 }) {
   const assignedSubjects = subjectsForBatch(selectedClass);
+  const selectedAssignmentBatchIds = assignmentForm.targetBatchIds.length ? assignmentForm.targetBatchIds : selectedClass?.id ? [selectedClass.id] : [];
+  const toggleAssignmentBatch = (batchId: string) => {
+    setAssignmentForm((form) => {
+      const current = form.targetBatchIds.length ? form.targetBatchIds : selectedClass?.id ? [selectedClass.id] : [];
+      const next = current.includes(batchId) ? current.filter((id) => id !== batchId) : [...current, batchId];
+      return { ...form, targetBatchIds: next };
+    });
+  };
   const appendAssignmentSource = (label: string) => (value: string) => {
     if (!value) return;
     setAssignmentSourceName([assignmentSourceName, `${label}: ${value}`].filter(Boolean).join(" | "));
@@ -5437,6 +5538,19 @@ function AssignmentCreateModal({
               <span>Assignment Title</span>
               <input value={assignmentForm.title} onChange={(event) => setAssignmentForm((form) => ({ ...form, title: event.target.value }))} placeholder="English Grammar Worksheet" className="min-h-12 w-full min-w-0 rounded-xl border border-[var(--border)] bg-white px-3 text-base font-bold outline-none focus:border-[var(--ink)]" />
             </label>
+
+            <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
+              <p className="text-sm font-black">Publish To Batches</p>
+              <p className="mt-1 text-xs text-[var(--muted-blue)]">Select one or more assigned batches for common homework.</p>
+              <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                {assignedBatches.map((batch) => (
+                  <label key={batch.id} className={`flex cursor-pointer items-center gap-3 rounded-xl border px-3 py-3 text-sm font-black ${selectedAssignmentBatchIds.includes(batch.id) ? "border-emerald-300 bg-emerald-50 text-emerald-950" : "border-[var(--border)] bg-white text-[var(--ink)]"}`}>
+                    <input type="checkbox" checked={selectedAssignmentBatchIds.includes(batch.id)} onChange={() => toggleAssignmentBatch(batch.id)} />
+                    <span>{batch.name}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
 
             <div className="grid min-w-0 gap-4 sm:grid-cols-2">
               <label className="grid min-w-0 gap-2 text-sm font-black">

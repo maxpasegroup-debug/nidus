@@ -1,5 +1,5 @@
-import { ExaminationCenterShell } from "@/components/examination/examination-center-shell";
+import { TeacherQuestionBankPage } from "@/components/teacher/teacher-question-bank-page";
 
 export default function AcademicHeadQuestionBankPage() {
-  return <ExaminationCenterShell view="question-bank" />;
+  return <TeacherQuestionBankPage role="ACADEMIC_HEAD" backHref="/dashboard/academic-head/workspace" />;
 }
