@@ -577,6 +577,16 @@ export async function publishStudyMaterial(payload: {
   url?: string;
   fileName?: string;
   status?: string;
+  description?: string;
+  cloudinaryPublicId?: string;
+  thumbnailUrl?: string;
+  thumbnailPublicId?: string;
+  fileSize?: number;
+  durationSeconds?: number;
+  lessonName?: string;
+  reviewStatus?: string;
+  targetTeacherId?: string;
+  targetTeacherName?: string;
 }) {
   const response = await apiClient.post<{ material: StudyMaterialRecord }>("/academy/study-materials", payload);
   return response.data.material;

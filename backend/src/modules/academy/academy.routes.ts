@@ -14,6 +14,17 @@ function requireAcademyRoles(roles: Role[]) {
     }
     const metadata = req.user.roleMetadata && typeof req.user.roleMetadata === "object" ? req.user.roleMetadata : {};
     const template = typeof metadata.dashboardTemplate === "string" ? metadata.dashboardTemplate.toUpperCase() : "";
+    if (template === "VIDEO_EDITOR") {
+      const allowed =
+        (req.method === "GET" && ["/batches", "/teachers", "/study-materials", "/material-summary"].includes(req.path)) ||
+        (req.method === "POST" && req.path === "/study-materials");
+      if (!allowed) {
+        res.status(403).json({ message: "Video Editor access is limited to lesson library operations" });
+        return;
+      }
+      next();
+      return;
+    }
     const restrictedAdmin = req.user.role === Role.ADMIN && ["ADMISSION_CELL", "MARKETING", "SALES_BOOSTER"].includes(template);
     const admissionAllowed = (template === "ADMISSION_CELL" || req.user.role === Role.ADMINISTRATIVE_OFFICER) && (
       (req.method === "GET" && req.path === "/batches") ||

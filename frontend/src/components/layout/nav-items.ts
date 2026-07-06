@@ -44,6 +44,10 @@ const teacherMenu: DashboardNavItem[] = [
   { label: "My Profile", href: "/dashboard/teacher/profile" },
 ];
 
+const videoEditorMenu: DashboardNavItem[] = [
+  { label: "Upload Lessons", href: "/dashboard/video-editor" },
+];
+
 const physicalTrainerMenu: DashboardNavItem[] = [
   { label: "Today", href: "/fitness" },
   { label: "My Batches", href: "/fitness/pt-schedule" },
@@ -105,6 +109,10 @@ export function getNavItems(role?: string | null, dashboardTemplate?: string | n
 
   if (normalizedRole === "DIRECTOR") {
     return directorMenu;
+  }
+
+  if (normalizedTemplate === "VIDEO_EDITOR") {
+    return videoEditorMenu;
   }
 
   if (normalizedRole === "ACADEMIC_HEAD" || normalizedTemplate === "ACADEMIC_HEAD") {

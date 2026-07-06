@@ -173,6 +173,8 @@ type StudyMaterialInput = {
   status?: string;
   reviewStatus?: string;
   reviewNote?: string;
+  targetTeacherId?: string;
+  targetTeacherName?: string;
 };
 
 type MaterialReviewInput = {
@@ -320,6 +322,10 @@ function isManagement(user: Requester) {
 
 function staffTemplate(user: Requester) {
   return typeof user.roleMetadata?.dashboardTemplate === "string" ? user.roleMetadata.dashboardTemplate.toUpperCase() : "";
+}
+
+function isVideoEditor(user: Requester) {
+  return staffTemplate(user) === "VIDEO_EDITOR";
 }
 
 function isRestrictedAdminTemplate(user: Requester) {
@@ -571,7 +577,7 @@ async function assertBatchAccess(user: Requester, batchId?: string) {
   if (!batchId) {
     throw Object.assign(new Error("Batch is required"), { statusCode: 400 });
   }
-  if (isAcademicManager(user)) {
+  if (isAcademicManager(user) || isVideoEditor(user)) {
     return;
   }
 
@@ -625,6 +631,26 @@ async function assertBatchSubjectAccess(user: Requester, batchId?: string, subje
   if (legacyRows[0]) return;
 
   throw Object.assign(new Error("This subject is not assigned to this teacher for the selected batch"), { statusCode: 403 });
+}
+
+async function resolveMaterialTeacher(user: Requester, input: StudyMaterialInput) {
+  if (!isVideoEditor(user)) return { id: user.id, name: user.name || user.email || null };
+  if (!input.targetTeacherId || !input.batchId || !input.subject) {
+    throw Object.assign(new Error("Batch, subject and faculty are required for editor uploads"), { statusCode: 400 });
+  }
+  const assignment = await prisma.teacherBatchAssignment.findFirst({
+    where: {
+      batchId: input.batchId,
+      teacherId: input.targetTeacherId,
+      subject: { equals: input.subject, mode: "insensitive" },
+      status: "ACTIVE",
+    },
+    include: { teacher: { select: { id: true, name: true, email: true } } },
+  });
+  if (!assignment) {
+    throw Object.assign(new Error("Selected faculty is not allocated to this batch and subject"), { statusCode: 400 });
+  }
+  return { id: assignment.teacher.id, name: assignment.teacher.name || assignment.teacher.email };
 }
 
 async function assertStudentBatchAccess(user: Requester, batchId?: string) {
@@ -1275,7 +1301,7 @@ export const academyService = {
     }
 
     let where = batchWhereFromQuery(query);
-    if (!isManagement(user) && !isAdmissionCell(user)) {
+    if (!isManagement(user) && !isAdmissionCell(user) && !isVideoEditor(user)) {
       const assignedBatchIds = await assignedBatchIdsForUser(user.id);
       if (!assignedBatchIds.length) return [];
       where = mergeBatchWhere(where, { id: { in: assignedBatchIds } });
@@ -3157,17 +3183,23 @@ export const academyService = {
     }
     const id = randomUUID();
     const now = new Date();
+    const materialTeacher = await resolveMaterialTeacher(user, input);
     await prisma.$executeRaw`
       INSERT INTO "TeacherStudyMaterialRecord"
       ("id", "batchId", "batchName", "course", "folder", "subject", "topic", "teacherId", "teacherName", "title", "description", "type", "url", "fileName", "cloudinaryPublicId", "thumbnailUrl", "thumbnailPublicId", "fileSize", "durationSeconds", "lessonName", "status", "reviewStatus", "createdAt", "updatedAt")
       VALUES
-      (${id}, ${input.batchId}, ${input.batchName || null}, ${input.course || null}, ${input.folder || null}, ${input.subject || null}, ${input.topic || null}, ${user.id}, ${user.name || user.email || null}, ${input.title}, ${input.description || null}, ${input.type || "PDF"}, ${input.url || null}, ${input.fileName || null}, ${input.cloudinaryPublicId || null}, ${input.thumbnailUrl || null}, ${input.thumbnailPublicId || null}, ${typeof input.fileSize === "number" ? input.fileSize : null}, ${typeof input.durationSeconds === "number" ? input.durationSeconds : null}, ${input.lessonName || input.title || null}, ${input.status || "PUBLISHED"}, ${input.reviewStatus || "PENDING_REVIEW"}, ${now}, ${now})
+      (${id}, ${input.batchId}, ${input.batchName || null}, ${input.course || null}, ${input.folder || null}, ${input.subject || null}, ${input.topic || null}, ${materialTeacher.id}, ${materialTeacher.name}, ${input.title}, ${input.description || null}, ${input.type || "PDF"}, ${input.url || null}, ${input.fileName || null}, ${input.cloudinaryPublicId || null}, ${input.thumbnailUrl || null}, ${input.thumbnailPublicId || null}, ${typeof input.fileSize === "number" ? input.fileSize : null}, ${typeof input.durationSeconds === "number" ? input.durationSeconds : null}, ${input.lessonName || input.title || null}, ${input.status || "PUBLISHED"}, ${input.reviewStatus || "PENDING_REVIEW"}, ${now}, ${now})
     `;
     const rows = await prisma.$queryRaw<any[]>`
       SELECT * FROM "TeacherStudyMaterialRecord" WHERE "id" = ${id} LIMIT 1
     `;
     const material = normalizeRows(rows)[0];
-    await auditAcademicAction(user, "MATERIAL_PUBLISHED", "TeacherStudyMaterialRecord", id, material);
+    await auditAcademicAction(user, "MATERIAL_PUBLISHED", "TeacherStudyMaterialRecord", id, {
+      ...material,
+      uploadedByUserId: user.id,
+      uploadedByName: user.name || user.email || null,
+      uploadedOnBehalfOf: materialTeacher.name,
+    });
     return { ok: true, material };
   },
 
@@ -3182,8 +3214,8 @@ export const academyService = {
     if (batchId) await assertBatchAccess(user, batchId);
     const where: Prisma.TeacherStudyMaterialRecordWhereInput = {};
     if (batchId) where.batchId = batchId;
-    if (!batchId && user.role === Role.TEACHER && !isAcademicManager(user)) where.teacherId = user.id;
-    if (batchId && user.role === Role.TEACHER && !isAcademicManager(user)) {
+    if (!batchId && user.role === Role.TEACHER && !isAcademicManager(user) && !isVideoEditor(user)) where.teacherId = user.id;
+    if (batchId && user.role === Role.TEACHER && !isAcademicManager(user) && !isVideoEditor(user)) {
       const subjects = await assignedSubjectsForUserBatch(user.id, batchId);
       if (!subjects.length) return { materials: [], pagination: { page, limit, total: 0, totalPages: 1 } };
       where.OR = subjects.map((subject) => ({ subject: { equals: subject, mode: "insensitive" as const } }));

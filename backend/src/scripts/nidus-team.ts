@@ -198,6 +198,17 @@ export const nidusTeamMembers: TeamMemberSeed[] = [
     resetDefaultPassword: true,
     permissions: ["plan_campaigns", "review_creatives", "manage_campaign_leads", "prepare_whatsapp_followups", "review_campaign_reports"],
     focusAreas: ["Academy promotions", "Exam coaching campaigns", "NIDUS Guru campaigns", "Assessment lead magnets", "WhatsApp follow-up"]
+  },
+  {
+    name: "Jenifer KM",
+    email: "ilabdtlp@gmail.com",
+    mobile: "+919000001016",
+    role: Role.TEACHER,
+    designation: "Video Editor",
+    department: "Academic Media",
+    dashboardTemplate: "VIDEO_EDITOR",
+    permissions: ["view_all_batches", "view_subject_allocations", "upload_materials_on_behalf"],
+    focusAreas: ["Recorded class uploads", "Lesson resource quality", "Batch library publishing"]
   }
 ];
 

@@ -24,6 +24,7 @@ function dashboardTemplate(user?: Pick<AuthUser, "roleMetadata"> | null) {
 export function effectiveDashboardPath(user?: Pick<AuthUser, "role" | "roleMetadata"> | null) {
   if (!user) return "/login";
   const template = dashboardTemplate(user);
+  if (template === "VIDEO_EDITOR") return "/dashboard/video-editor";
   if (user.role === "DIRECTOR") return "/dashboard/director";
   if (user.role === "ACADEMIC_HEAD") return "/dashboard/academic-head";
   if (user.role === "ADMINISTRATIVE_OFFICER") return "/dashboard/admission-cell";
@@ -39,6 +40,7 @@ export function canAccessDashboardPath(user: Pick<AuthUser, "role" | "roleMetada
   if (!user) return false;
   if (path === "/dashboard/settings") return true;
   const template = dashboardTemplate(user);
+  if (template === "VIDEO_EDITOR") return path.startsWith("/dashboard/video-editor");
   if (user.role === "ACADEMIC_HEAD" || template === "ACADEMIC_HEAD") {
     return path.startsWith("/dashboard/academic-head") || path.startsWith("/dashboard/teacher") || path.startsWith("/dashboard/director/academic") || path.startsWith("/dashboard/director/materials") || path.startsWith("/dashboard/director/exams");
   }
