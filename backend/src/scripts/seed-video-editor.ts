@@ -63,8 +63,31 @@ export async function ensureVideoEditor() {
   return { id: user.id, name: user.name, email: user.email, role: user.role, dashboardTemplate: "VIDEO_EDITOR", action: existing ? "updated" : "created" };
 }
 
+function databaseTarget() {
+  try {
+    const parsed = new URL(process.env.DATABASE_URL ?? "");
+    return `${parsed.hostname}:${parsed.port || "5432"}/${parsed.pathname.replace(/^\//, "")}`;
+  } catch {
+    return "DATABASE_URL is missing or invalid";
+  }
+}
+
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
-  const result = await ensureVideoEditor();
-  console.log(JSON.stringify({ seeded: true, result }, null, 2));
-  await prisma.$disconnect();
+  try {
+    const result = await ensureVideoEditor();
+    console.log(JSON.stringify({ seeded: true, database: databaseTarget(), result }, null, 2));
+  } catch (error: any) {
+    if (error?.code === "P1000") {
+      console.error(JSON.stringify({
+        seeded: false,
+        database: databaseTarget(),
+        error: "Database authentication failed. The local DATABASE_URL credentials are invalid or point to the retired database. Run this seed with Railway production environment variables, or update backend/.env with the current production DATABASE_URL.",
+      }, null, 2));
+    } else {
+      console.error(error);
+    }
+    process.exitCode = 1;
+  } finally {
+    await prisma.$disconnect();
+  }
 }
