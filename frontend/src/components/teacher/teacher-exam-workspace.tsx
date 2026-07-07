@@ -26,6 +26,7 @@ export type TeacherExamRecord = {
   status?: string;
   createdAt?: string;
   attemptStats?: { attempts?: number; submitted?: number; averageScore?: number };
+  draft?: { questions?: QuestionDraft[] } | null;
 };
 
 type QuestionDraft = {
@@ -299,6 +300,19 @@ function buildQuestions(source: string, answerKey: string, explanations: string,
   }).filter((question) => question.questionText);
 }
 
+function paperReadiness(questions: QuestionDraft[]) {
+  const missingOptions = questions.filter((question) => [question.optionA, question.optionB, question.optionC, question.optionD]
+    .some((option) => !option || /^Option [A-D]$/i.test(option))).length;
+  const missingAnswers = questions.filter((question) => !/^[A-D]$/i.test(question.correctAnswer)).length;
+  const missingExplanations = questions.filter((question) => !question.explanation || /^Explanation will be reviewed/i.test(question.explanation)).length;
+  return {
+    missingOptions,
+    missingAnswers,
+    missingExplanations,
+    ready: questions.length > 0 && missingOptions === 0 && missingAnswers === 0 && missingExplanations === 0,
+  };
+}
+
 function statusLabel(status?: string) {
   const value = String(status || "DRAFT").replace(/_/g, " ").toLowerCase();
   return value.charAt(0).toUpperCase() + value.slice(1);
@@ -368,6 +382,7 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, exams, loading,
   const submittedCount = batchExams.reduce((total, exam) => total + Number(exam.attemptStats?.submitted ?? 0), 0);
 
   const questions = useMemo(() => buildQuestions(questionSource, answerKey, explanations, form.topic, Number(form.marks)), [answerKey, explanations, form.marks, form.topic, questionSource]);
+  const readiness = useMemo(() => paperReadiness(questions), [questions]);
   const effectiveTopic = useMemo(() => inferExamTopic(questionSource, form.topic), [form.topic, questionSource]);
   const effectiveTitle = useMemo(() => form.title.trim() || inferExamTitle(questionSource, subject, activeBatch?.name), [activeBatch?.name, form.title, questionSource, subject]);
 
@@ -444,9 +459,16 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, exams, loading,
       marks: "100",
       instructions: "",
     });
-    setQuestionSource("");
-    setAnswerKey("");
-    setExplanations("");
+    const savedQuestions = Array.isArray(exam.draft?.questions) ? exam.draft.questions : [];
+    setQuestionSource(savedQuestions.map((question, index) => [
+      `Q${index + 1}. ${question.questionText}`,
+      `(A) ${question.optionA}`,
+      `(B) ${question.optionB}`,
+      `(C) ${question.optionC}`,
+      `(D) ${question.optionD}`,
+    ].join("\n")).join("\n\n"));
+    setAnswerKey(savedQuestions.map((question, index) => `${index + 1} - ${question.correctAnswer}`).join("\n"));
+    setExplanations(savedQuestions.map((question, index) => `${index + 1}. ${question.explanation}`).join("\n"));
     setUploadedQuestionPaper("");
     setUploadedAnswerKey("");
     setUploadedExplanations("");
@@ -464,8 +486,8 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, exams, loading,
       setMessage("Select at least one assigned batch.");
       return;
     }
-    if (!editingExam && !questions.length) {
-      setMessage("Add at least one question before publishing.");
+    if (!editingExam && !readiness.ready) {
+      setMessage(`Paper is incomplete: ${readiness.missingOptions} question(s) need options, ${readiness.missingAnswers} need answer keys, and ${readiness.missingExplanations} need explanations.`);
       return;
     }
     if (!effectiveTitle.trim() || !effectiveTopic.trim()) {
@@ -476,6 +498,10 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, exams, loading,
     setMessage("");
     try {
       if (editingExam) {
+        if (questionSource && !readiness.ready) {
+          setMessage(`Paper is incomplete: ${readiness.missingOptions} question(s) need options, ${readiness.missingAnswers} need answer keys, and ${readiness.missingExplanations} need explanations.`);
+          return;
+        }
         await requestJson(`/api/academy/exams/${editingExam.id}`, {
           method: "PATCH",
           body: JSON.stringify({
@@ -486,6 +512,14 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, exams, loading,
             difficulty: editingExam.difficulty || "MEDIUM",
             instructions: form.instructions,
             status: editingExam.status || "PUBLISHED",
+            draft: readiness.ready ? {
+              title: effectiveTitle,
+              subject,
+              topic: effectiveTopic,
+              duration: Number(form.duration),
+              totalMarks: Number(form.marks),
+              questions,
+            } : undefined,
           }),
         });
         setShowCreator(false);
@@ -600,8 +634,8 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, exams, loading,
         return;
       }
     }
-    if (step === 2 && !editingExam && !questions.length) {
-      setMessage("Upload or paste the question paper before continuing.");
+    if (step === 2 && !editingExam && !readiness.ready) {
+      setMessage(`Review required: ${questions.length} question(s) found; ${readiness.missingOptions} need options, ${readiness.missingAnswers} need answer keys, and ${readiness.missingExplanations} need explanations.`);
       return;
     }
     setMessage("");
@@ -745,7 +779,7 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, exams, loading,
                 </div>
               ) : null}
 
-              {step === 2 && !editingExam ? (
+              {step === 2 ? (
                 <div className="grid gap-4 lg:grid-cols-3">
                   <ExamInputCard title="Questions" description="Paste questions or upload a DOCX/TXT paper. PDF and old DOC can be attached, but paste the extracted text before publishing.">
                     <textarea value={questionSource} onChange={(event) => setQuestionSource(event.target.value)} rows={12} className="w-full rounded-xl border border-[var(--border)] bg-white p-3 text-sm leading-6" placeholder={"1. Question...\nA. Option\nB. Option\nC. Option\nD. Option"} />
@@ -777,20 +811,16 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, exams, loading,
                 </div>
               ) : null}
 
-              {step === 2 && editingExam ? (
-                <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-5">
-                  <h4 className="text-xl font-black">Question paper already exists</h4>
-                  <p className="mt-2 text-sm leading-6 text-[var(--muted-blue)]">
-                    This edit updates the title, subject, topic and timer. Create a fresh exam if the full question paper must be replaced.
-                  </p>
-                </div>
-              ) : null}
-
               {step === 3 ? (
                 <div className="grid gap-4">
                   <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
                     <p className="font-black">{questions.length} questions / {form.marks} marks / {form.duration} minutes</p>
                     <p className="mt-1 text-sm text-[var(--muted-blue)]">{subject} - {effectiveTopic}</p>
+                    <div className={`mt-3 rounded-xl border px-3 py-2 text-sm font-black ${readiness.ready ? "border-emerald-200 bg-emerald-50 text-emerald-800" : "border-amber-200 bg-amber-50 text-amber-900"}`}>
+                      {readiness.ready
+                        ? "Paper ready: every question has four options, an answer key and an explanation."
+                        : `${readiness.missingOptions} missing options / ${readiness.missingAnswers} missing answers / ${readiness.missingExplanations} missing explanations`}
+                    </div>
                   </div>
                   <div className="grid max-h-[55vh] gap-3 overflow-y-auto pr-2">
                     {questions.map((question, index) => (
@@ -834,7 +864,7 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, exams, loading,
               {step < 4 ? (
                 <button type="button" onClick={goNextStep} className="min-h-12 rounded-xl border border-slate-950 bg-slate-950 px-6 font-black text-white">Continue</button>
               ) : (
-                <button type="button" onClick={() => void publishExam()} disabled={busy} className="min-h-12 rounded-xl border border-emerald-700 bg-emerald-700 px-6 font-black text-white disabled:opacity-60">
+                <button type="button" onClick={() => void publishExam()} disabled={busy || (!editingExam && !readiness.ready)} className="min-h-12 rounded-xl border border-emerald-700 bg-emerald-700 px-6 font-black text-white disabled:cursor-not-allowed disabled:opacity-60">
                   {busy ? (editingExam ? "Saving..." : "Publishing...") : editingExam ? "Save Exam Changes" : "Publish To Students"}
                 </button>
               )}

@@ -73,6 +73,39 @@ type PublishDraftInput = TestPayload & {
   publishAt?: string;
 };
 
+export function validatePublishedQuestions(questions: QuestionPayload[]) {
+  const errors: string[] = [];
+  const seen = new Set<string>();
+
+  questions.forEach((question, index) => {
+    const label = `Question ${index + 1}`;
+    const normalizedText = question.questionText?.trim().replace(/\s+/g, " ").toLowerCase();
+    if (!normalizedText || normalizedText.length < 3) errors.push(`${label} has no readable question text.`);
+    if (normalizedText && seen.has(normalizedText)) errors.push(`${label} duplicates an earlier question.`);
+    if (normalizedText) seen.add(normalizedText);
+
+    const options = [question.optionA, question.optionB, question.optionC, question.optionD].map((value) => value?.trim());
+    if (options.some((value) => !value || /^option\s+[a-d]$/i.test(value))) {
+      errors.push(`${label} must contain four real answer options.`);
+    }
+    if (!/^[A-D]$/i.test(question.correctAnswer?.trim() || "")) {
+      errors.push(`${label} has an invalid answer key.`);
+    }
+    if (!question.explanation?.trim() || /^(explanation (will be reviewed|pending)|teacher reviewed answer)/i.test(question.explanation.trim())) {
+      errors.push(`${label} needs a reviewed answer explanation.`);
+    }
+    if (!Number.isFinite(Number(question.marks)) || Number(question.marks) <= 0) {
+      errors.push(`${label} must have positive marks.`);
+    }
+  });
+
+  if (errors.length) {
+    const visible = errors.slice(0, 8).join(" ");
+    const remaining = errors.length > 8 ? ` Plus ${errors.length - 8} more issue(s).` : "";
+    throw Object.assign(new Error(`Exam paper is not ready to publish. ${visible}${remaining}`), { statusCode: 400 });
+  }
+}
+
 const testInclude = {
   questions: {
     orderBy: { id: "asc" as const }
@@ -409,6 +442,13 @@ export const testsService = {
 
   async publishDraft(requester: Requester, payload: PublishDraftInput) {
     if (!payload.questions?.length) throw new Error("At least one reviewed question is required before publishing.");
+    validatePublishedQuestions(payload.questions);
+    if (!payload.title?.trim() || !payload.topic?.trim()) {
+      throw Object.assign(new Error("Exam title and topic are required before publishing."), { statusCode: 400 });
+    }
+    if (!Number.isFinite(Number(payload.duration)) || Number(payload.duration) <= 0) {
+      throw Object.assign(new Error("Exam duration must be greater than zero."), { statusCode: 400 });
+    }
     await assertTeacherBatchSubjectAccess(requester, payload.batchId, payload.subject);
     return prisma.test.create({
       data: {

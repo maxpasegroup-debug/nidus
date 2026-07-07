@@ -5,7 +5,7 @@ import { Prisma, Role } from "../../generated/prisma/client.js";
 import { prisma } from "../../config/prisma.js";
 import { deleteCloudinaryAsset, signedMediaUrl } from "../../config/cloudinary.js";
 import { enqueuePDF } from "../../queues/pdf.queue.js";
-import { testsService, type TestPayload } from "../tests/tests.service.js";
+import { testsService, validatePublishedQuestions, type TestPayload } from "../tests/tests.service.js";
 
 const db = prisma as any;
 
@@ -3483,6 +3483,31 @@ export const academyService = {
       throw Object.assign(new Error("Only the publishing teacher can edit this exam"), { statusCode: 403 });
     }
 
+    const replacementDraft = asDraftPayload(input);
+    const replacementQuestions = replacementDraft?.questions;
+    if (replacementQuestions?.length) {
+      validatePublishedQuestions(replacementQuestions);
+      if (!current.testId) throw Object.assign(new Error("This legacy exam has no editable question paper."), { statusCode: 409 });
+      const attemptCount = await prisma.testAttempt.count({ where: { testId: current.testId } });
+      if (attemptCount > 0) {
+        throw Object.assign(new Error("Question paper changes are locked because a student has already started this exam."), { statusCode: 409 });
+      }
+      await prisma.$transaction([
+        prisma.question.deleteMany({ where: { testId: current.testId } }),
+        prisma.question.createMany({ data: replacementQuestions.map((question) => ({ ...question, testId: current.testId })) }),
+        prisma.test.update({
+          where: { id: current.testId },
+          data: {
+            totalMarks: replacementQuestions.reduce((sum, question) => sum + Number(question.marks || 0), 0),
+            title: input.title ?? current.title,
+            subject: input.subject ?? current.subject,
+            topic: input.topic ?? current.topic,
+            duration: typeof input.durationMinutes === "number" ? input.durationMinutes : current.durationMinutes,
+          },
+        }),
+      ]);
+    }
+
     await prisma.$executeRaw`
       UPDATE "TeacherExamRecord"
       SET "subject" = ${input.subject ?? current.subject},
@@ -3492,6 +3517,7 @@ export const academyService = {
           "durationMinutes" = ${typeof input.durationMinutes === "number" ? input.durationMinutes : typeof input.duration === "number" ? input.duration : current.durationMinutes},
           "difficulty" = ${input.difficulty ?? current.difficulty},
           "instructions" = ${input.instructions ?? current.instructions},
+          "draft" = ${replacementDraft ? JSON.stringify(replacementDraft) : JSON.stringify(current.draft)}::jsonb,
           "status" = ${input.status ?? current.status},
           "updatedAt" = ${new Date()}
       WHERE "id" = ${examId}

@@ -339,7 +339,7 @@ type ExamDraft = {
   title?: string;
   topic?: string;
   duration?: number;
-  questions?: Array<{ question: string; options?: string[]; answer?: string; marks?: number; difficultyLevel?: string }>;
+  questions?: Array<{ question: string; options?: string[]; answer?: string; explanation?: string; marks?: number; difficultyLevel?: string }>;
 };
 
 type ExamWorkflowState = {
@@ -2655,6 +2655,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
               optionC?: string;
               optionD?: string;
               correctAnswer?: string;
+              explanation?: string;
               marks?: number;
               difficultyLevel?: string;
             }>;
@@ -2693,6 +2694,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
           question: question.questionText || "Question pending",
           options: [question.optionA, question.optionB, question.optionC, question.optionD].filter((option): option is string => Boolean(option)),
           answer: question.correctAnswer,
+          explanation: question.explanation,
           marks: question.marks,
           difficultyLevel: question.difficultyLevel,
         })),
@@ -2769,7 +2771,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
               optionC: question.options?.[2] || "Option C",
               optionD: question.options?.[3] || "Option D",
               correctAnswer: question.answer || "A",
-              explanation: "Teacher reviewed answer.",
+              explanation: question.explanation?.trim() || "Explanation pending faculty review.",
               marks: Number(question.marks || 1),
               negativeMarks: 0,
               difficultyLevel: question.difficultyLevel || examForm.difficulty,
