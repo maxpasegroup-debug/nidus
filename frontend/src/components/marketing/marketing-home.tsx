@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, BrainCircuit, ClipboardCheck, GraduationCap, ShieldCheck, Sparkles, Target } from "lucide-react";
+import { ArrowRight, ClipboardCheck, GraduationCap, ShieldCheck, Sparkles, Target } from "lucide-react";
 
 const exams = ["NDA", "CDS", "AFCAT", "SSB", "AISSEE", "RIMC", "Agniveer", "INET", "Physical Training", "Interview Guidance"];
 
@@ -12,15 +12,6 @@ const modules = [
     cta: "Explore Academy",
     icon: GraduationCap,
     className: "bg-[#f7f3ea] text-[#101827]"
-  },
-  {
-    label: "TOP RANK",
-    title: "Defence Career Hub",
-    text: "Army, Navy, Air Force, Coast Guard and officer-entry exam coaching paths under the public defence career division of NIDUS.",
-    href: "/top-rank",
-    cta: "Explore TOP RANK",
-    icon: BrainCircuit,
-    className: "bg-[#dce9f3] text-[#101827]"
   },
   {
     label: "NIDUS Guru",
@@ -154,7 +145,6 @@ export function MarketingHome() {
               <h3 className="text-sm font-semibold">Academy</h3>
               <div className="mt-5 grid gap-3 text-sm text-white/66">
                 <Link href="/programs">Programs</Link>
-                <Link href="/top-rank">TOP RANK</Link>
                 <Link href="/start-free?intent=academy">Join NIDUS</Link>
               </div>
             </div>

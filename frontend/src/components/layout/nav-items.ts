@@ -12,14 +12,12 @@ const studentMenu: DashboardNavItem[] = [
   { label: "Assignments", href: "/dashboard/student/assignments" },
   { label: "Calendar", href: "/dashboard/student/calendar" },
   { label: "Academic Library", href: "/dashboard/student/learning" },
-  { label: "TOP RANK", href: "/dashboard/student/top-rank" },
   { label: "Assessments", href: "/dashboard/student/assessments" },
   { label: "NDP", href: "/dashboard/student/progress" },
 ];
 
 const guestMenu: DashboardNavItem[] = [
   { label: "Assessments", href: "/dashboard/guest#assessments" },
-  { label: "TOP RANK", href: "/dashboard/guest#top-rank" },
   { label: "NIDUS Guru", href: "/dashboard/guest#guru" },
   { label: "Academy Courses", href: "/dashboard/guest#academy" },
   { label: "My Applications", href: "/dashboard/guest#applications" },

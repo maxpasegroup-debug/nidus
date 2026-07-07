@@ -2,7 +2,7 @@
 
 import { type FormEvent, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, BrainCircuit, ClipboardCheck, GraduationCap, LockKeyhole, MessageCircle, Sparkles } from "lucide-react";
+import { ArrowRight, ClipboardCheck, GraduationCap, LockKeyhole, MessageCircle, Sparkles } from "lucide-react";
 import { AssistantOrbit } from "@/components/marketing/public-branding";
 import { useToast } from "@/components/providers/toast-provider";
 import { getApiErrorMessage } from "@/services/api";
@@ -11,15 +11,13 @@ import { createPublicLead } from "@/services/crm";
 
 const intentLabels: Record<string, string> = {
   academy: "Academy Admission",
-  exam: "TOP RANK",
-  "top-rank": "TOP RANK",
   guru: "NIDUS Guru",
   assessment: "Assessments",
   counselling: "Counselling",
   general: "Start Free"
 };
 
-const goals = ["NDA", "CDS", "AFCAT", "SSB", "AISSEE", "RIMC", "Agniveer", "SSR", "MR", "Navik", "Foundation Programs", "TOP RANK", "NIDUS Guru", "Assessments", "Not sure"];
+const goals = ["NDA", "CDS", "AFCAT", "SSB", "AISSEE", "RIMC", "Agniveer", "SSR", "MR", "Navik", "Foundation Programs", "NIDUS Guru", "Assessments", "Not sure"];
 
 const initialForm = {
   fullName: "",
@@ -116,12 +114,11 @@ export default function StartFreePage() {
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#3f4a32]">Universal Onboarding</p>
             <h1 className="mt-5 text-5xl font-semibold leading-[0.95] text-[#071d36] sm:text-7xl">Start free. Continue with NIDUS.</h1>
-            <p className="mt-6 max-w-2xl text-base leading-8 text-[#64748b]">One free account for academy admission, TOP RANK defence career guidance, NIDUS Guru and assessments. Your interest reaches the admissions team, and your My Journey dashboard opens next.</p>
+            <p className="mt-6 max-w-2xl text-base leading-8 text-[#64748b]">One free account for academy admission, NIDUS Guru and assessments. Your interest reaches the admissions team, and your My Journey dashboard opens next.</p>
             <AssistantOrbit message={mentorMessage} />
             <div className="mt-8 grid gap-3 sm:grid-cols-3">
               {[
                 [GraduationCap, "Academy"],
-                [BrainCircuit, "TOP RANK"],
                 [ClipboardCheck, "Assessments"]
               ].map(([Icon, label]) => {
                 const ItemIcon = Icon as typeof GraduationCap;

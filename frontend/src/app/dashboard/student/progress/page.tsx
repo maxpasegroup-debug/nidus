@@ -152,7 +152,7 @@ export default function StudentProgressPage() {
     { value: fitnessScore, weight: 10 },
     { value: assessmentAccuracy, weight: 10 },
   ]);
-  const topRankBand = readinessBand(readinessScore);
+  const readinessStatus = readinessBand(readinessScore);
   const activeBatch = activeBatches[0];
 
   useEffect(() => {
@@ -174,7 +174,7 @@ export default function StudentProgressPage() {
               <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">NIDUS Digital Profile</p>
               <h1 className="mt-3 text-4xl font-black leading-tight md:text-6xl">My complete progress profile</h1>
               <p className="mt-4 max-w-3xl text-sm leading-7 text-[var(--muted-blue)]">
-                Academic performance, attendance, assignments, exams, learning materials, fitness, psychometric insights and TOP RANK readiness in one student profile.
+                Academic performance, attendance, assignments, exams, learning materials, fitness and psychometric insights in one student profile.
               </p>
             </div>
             <div className="rounded-3xl border border-[var(--gold-border)] bg-[var(--gold-soft)] p-5">
@@ -191,12 +191,9 @@ export default function StudentProgressPage() {
             <div className="mt-4 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
               <div>
                 <p className="text-7xl font-black leading-none">{readinessScore}</p>
-                <p className="mt-2 text-xl font-black">{topRankBand.label}</p>
-                <p className="mt-2 max-w-xl text-sm leading-6 text-white/70">{topRankBand.description}</p>
+                <p className="mt-2 text-xl font-black">{readinessStatus.label}</p>
+                <p className="mt-2 max-w-xl text-sm leading-6 text-white/70">{readinessStatus.description}</p>
               </div>
-              <Link href="/dashboard/student/top-rank" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-white/15 bg-white px-5 py-3 text-sm font-black text-[var(--ink)] transition hover:-translate-y-0.5">
-                Open TOP RANK <ArrowRight className="h-4 w-4" />
-              </Link>
             </div>
             <div className="mt-6 h-3 overflow-hidden rounded-full bg-white/10">
               <div className="h-full rounded-full bg-[var(--gold)]" style={{ width: `${readinessScore}%` }} />
@@ -238,10 +235,10 @@ export default function StudentProgressPage() {
             <LinkCard href="/dashboard/student/assessments" label="Open assessments" note="Psychometric and defence readiness tests" />
           </ProgressPanel>
 
-          <ProgressPanel title="Fitness & TOP RANK" icon={Dumbbell}>
+          <ProgressPanel title="Fitness & Readiness" icon={Dumbbell}>
             <Metric icon={Dumbbell} label="Fitness Score" value={`${fitnessScore}%`} note={profile?.fitnessLevel ?? "Fitness profile pending"} />
             <Metric icon={Activity} label="Running Benchmark" value={profile?.runningTime ? `${profile.runningTime}m` : "--"} note="1.6 KM benchmark" />
-            <Metric icon={TrendingUp} label="TOP RANK Readiness" value={`${readinessScore}%`} note={topRankBand.short} />
+            <Metric icon={TrendingUp} label="Academy Readiness" value={`${readinessScore}%`} note={readinessStatus.short} />
           </ProgressPanel>
         </section>
       </section>
@@ -318,7 +315,7 @@ function weightedAverage(items: Array<{ value: number; weight: number }>) {
 function readinessBand(score: number) {
   if (score >= 90) return { label: "Elite Readiness", short: "Elite", description: "You are showing strong discipline, performance and learning consistency. Keep the loop strict." };
   if (score >= 75) return { label: "Green Readiness", short: "Strong", description: "You are on track. Focus on regular mock tests, daily revision and attendance consistency." };
-  if (score >= 60) return { label: "Yellow Readiness", short: "Building", description: "Your profile is improving, but one or two habits need attention before TOP RANK intensity." };
+  if (score >= 60) return { label: "Yellow Readiness", short: "Building", description: "Your profile is improving, but one or two habits need attention before advanced academic intensity." };
   if (score >= 45) return { label: "Orange Readiness", short: "Needs support", description: "You need stronger routine discipline, assignment completion and guided practice." };
   return { label: "Red Readiness", short: "Start with basics", description: "Begin with a starter routine: attend classes, submit homework and complete assessments first." };
 }

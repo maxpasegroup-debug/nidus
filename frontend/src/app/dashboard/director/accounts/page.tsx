@@ -23,7 +23,7 @@ const accountSections = [
   { id: "fees", title: "Fee Management", text: "Course fees, student payments and pending dues.", icon: BadgeIndianRupee, status: "Manual Ready" },
   { id: "invoices", title: "Invoices & Receipts", text: "Generate and track payment receipts.", icon: ReceiptText, status: "Ready" },
   { id: "expenses", title: "Expenses", text: "Office, salary, rent, marketing and operational expenses.", icon: CreditCard, status: "Manual Ready" },
-  { id: "subscriptions", title: "Subscriptions", text: "Assessments, TOP RANK and premium module subscriptions.", icon: WalletCards, status: "Ready" },
+  { id: "subscriptions", title: "Subscriptions", text: "Assessments and premium module subscriptions.", icon: WalletCards, status: "Ready" },
   { id: "reports", title: "Reports", text: "Academic, admissions, marketing, finance and staff reports.", icon: BarChart3, status: "Monitor" },
   { id: "settings", title: "Settings", text: "Company details, contact number, branch and system controls.", icon: Settings, status: "Ready" },
   { id: "audit", title: "Audit Logs", text: "Track important actions by staff and management.", icon: FileText, status: "Monitor" },

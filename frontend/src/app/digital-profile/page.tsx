@@ -98,11 +98,10 @@ export default function DigitalProfilePage() {
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#e7c873]">Next Profile Upgrade</p>
               <h2 className="mt-3 text-3xl font-semibold">Make your profile stronger.</h2>
-              <p className="mt-3 max-w-2xl text-sm leading-7 text-white/70">Complete assessments, choose a TOP RANK defence career path and apply to the academy to convert this into a full student portfolio.</p>
+              <p className="mt-3 max-w-2xl text-sm leading-7 text-white/70">Complete assessments and apply to the academy to convert this into a full student portfolio.</p>
             </div>
             <div className="flex flex-col gap-3 sm:flex-row">
               <Button href="/dashboard/student#assessments">Assessments</Button>
-              <Link href="/top-rank" className="inline-flex min-h-12 items-center justify-center rounded border border-white/15 bg-white px-5 py-3 text-sm font-semibold text-[#071d36]">TOP RANK</Link>
             </div>
           </div>
         </section>
