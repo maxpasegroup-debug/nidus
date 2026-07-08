@@ -16,10 +16,8 @@ function cleanTitle(title: string) {
   return title.replace("(TM)", "").replace("â„¢", "").trim();
 }
 
-function academyApplyHref(program?: string) {
-  const params = new URLSearchParams({ intent: "academy" });
-  if (program) params.set("program", program);
-  return `/start-free?${params.toString()}`;
+function academyApplyHref(programSlug?: string) {
+  return programSlug ? `/programs/${programSlug}#apply` : "/programs";
 }
 
 export function GuestApplicantDashboard({ name }: { name?: string | null }) {
@@ -122,7 +120,7 @@ export function GuestApplicantDashboard({ name }: { name?: string | null }) {
               <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Academy</p>
               <h2 className="mt-2 text-3xl font-black">Apply for NIDUS Academy courses</h2>
             </div>
-            <Link href={academyApplyHref("NIDUS Academy")} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[var(--gold-gradient)] px-4 py-3 text-sm font-black text-[var(--navy)]">
+            <Link href={academyApplyHref()} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[var(--gold-gradient)] px-4 py-3 text-sm font-black text-[var(--navy)]">
               Apply Now <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
@@ -133,7 +131,7 @@ export function GuestApplicantDashboard({ name }: { name?: string | null }) {
                 <p className="mt-2 text-sm leading-6 text-[var(--muted-blue)]">{group.subtitle}</p>
                 <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                   {group.programs.map((program) => (
-                    <Link key={program.slug} href={academyApplyHref(program.title)} className="rounded-2xl border border-[var(--border)] bg-white p-5 transition hover:-translate-y-1 hover:border-[var(--gold-border)]">
+                    <Link key={program.slug} href={academyApplyHref(program.slug)} className="rounded-2xl border border-[var(--border)] bg-white p-5 transition hover:-translate-y-1 hover:border-[var(--gold-border)]">
                       <BookOpenCheck className="h-6 w-6 text-[var(--gold)]" />
                       <h4 className="mt-4 text-xl font-black">{program.title}</h4>
                       <p className="mt-2 text-sm leading-6 text-[var(--muted-blue)]">{program.outcome}</p>

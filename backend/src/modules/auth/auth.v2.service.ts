@@ -219,7 +219,10 @@ export const AuthServiceV2 = {
 
   async login(identifier: string, password: string, ip: string, userAgent = "") {
     const identity = identifier.trim();
-    const userRecord = await this.findByIdentity(identity);
+    const userRecord = await this.findByIdentity(identity) ??
+      (identity.toLowerCase() === "admissioncell@nidusacademy.in"
+        ? await this.findByIdentity("admisioncell@nidusacademy.in")
+        : null);
     const user = userRecord
       ? await prisma.user.findUnique({
           where: { id: userRecord.id },

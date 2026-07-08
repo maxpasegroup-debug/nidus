@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, CheckCircle2, Phone, ShieldCheck } from "lucide-react";
 
+import { ProgramEnquiryForm } from "@/components/academy/program-enquiry-form";
 import { allAcademyPrograms } from "@/data/academy-programs";
 
 type ProgramPageProps = {
@@ -39,9 +40,9 @@ export default async function ProgramDetailPage({ params }: ProgramPageProps) {
           </div>
 
           <div className="mt-7 flex flex-wrap gap-3">
-            <Link className="rounded-xl bg-[var(--gold-gradient)] px-5 py-3 font-black text-[var(--navy)] shadow-lg" href="/start-free">
-              Book Free Career Clarity
-            </Link>
+            <a className="rounded-xl bg-[var(--gold-gradient)] px-5 py-3 font-black text-[var(--navy)] shadow-lg" href="#apply">
+              Apply for Admission
+            </a>
             <a className="rounded-xl border border-[var(--border)] bg-white px-5 py-3 font-black" href="tel:+918593950774">
               Call +91 85939 50774
             </a>
@@ -69,11 +70,15 @@ export default async function ProgramDetailPage({ params }: ProgramPageProps) {
               Parents and students can book a free clarity session. Our team will explain eligibility, pathway, class mode and
               next steps in simple language.
             </p>
-            <Link className="mt-6 inline-flex items-center justify-center gap-2 rounded-xl bg-[var(--gold-gradient)] px-5 py-3 font-black text-[var(--navy)] shadow-lg" href="/start-free">
+            <a className="mt-6 inline-flex items-center justify-center gap-2 rounded-xl bg-[var(--gold-gradient)] px-5 py-3 font-black text-[var(--navy)] shadow-lg" href="#apply">
               <Phone className="h-4 w-4" />
-              Start Free
-            </Link>
+              Apply Now
+            </a>
           </aside>
+        </section>
+
+        <section id="apply" className="mt-8 scroll-mt-24">
+          <ProgramEnquiryForm programTitle={program.title} source="Academy Program Application" />
         </section>
       </section>
     </main>

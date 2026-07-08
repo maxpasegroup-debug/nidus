@@ -34,7 +34,7 @@ export function getRedis() {
     },
     reconnectOnError(error: Error) {
       logger.warn("Redis reconnect requested", { error: error.message });
-      return true;
+      return !/WRONGPASS|invalid username-password/i.test(error.message);
     }
   });
 
@@ -70,7 +70,12 @@ export async function verifyRedisConnection() {
     return true;
   } catch (error) {
     redisReady = false;
-    logger.error("Redis health check failed", { error: error instanceof Error ? error.message : "Unknown error" });
+    const message = error instanceof Error ? error.message : "Unknown error";
+    logger.error("Redis health check failed", { error: message });
+    if (/WRONGPASS|invalid username-password/i.test(message)) {
+      redis?.disconnect();
+      redis = null;
+    }
     if (env.REDIS_REQUIRED) throw error;
     return false;
   }

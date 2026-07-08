@@ -19,7 +19,11 @@ async function startupChecks() {
   await AuthServiceV2.ensureSuperAdmin();
   await AuthServiceV2.ensureTestAccount();
   await ensureNidusTeam();
-  await verifyRedisConnection();
+  await verifyRedisConnection().catch((error) => {
+    logger.warn("Redis startup check failed. Continuing without Redis-backed cache/queues.", {
+      error: error instanceof Error ? error.message : "Unknown error"
+    });
+  });
   if (!assertCloudinaryReady()) {
     logger.warn("Cloudinary credentials are not configured. Media upload features will stay disabled until Cloudinary env vars are added.");
   }
