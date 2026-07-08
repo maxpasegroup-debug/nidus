@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
-import { BookOpen, CheckCircle2, Clock3, Eye, FileText, Pencil, Plus, Send, Trash2, Trophy, X } from "lucide-react";
+import { BookOpen, CheckCircle2, ChevronLeft, ChevronRight, Clock3, Eye, FileText, Pencil, Plus, Send, Trash2, Trophy, X } from "lucide-react";
 
 export type TeacherExamBatch = {
   id: string;
@@ -221,6 +221,28 @@ async function extractDocxText(file: File) {
   throw new Error("No readable Word document body was found.");
 }
 
+async function extractPdfText(file: File) {
+  const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
+  pdfjs.GlobalWorkerOptions.workerSrc = new URL("pdfjs-dist/legacy/build/pdf.worker.min.mjs", import.meta.url).toString();
+  const document = await pdfjs.getDocument({ data: new Uint8Array(await file.arrayBuffer()) }).promise;
+  const pages: string[] = [];
+  for (let pageNumber = 1; pageNumber <= document.numPages; pageNumber += 1) {
+    const page = await document.getPage(pageNumber);
+    const content = await page.getTextContent();
+    const lines: string[] = [];
+    let previousY: number | null = null;
+    for (const item of content.items) {
+      if (!("str" in item)) continue;
+      const y: number | null = Array.isArray(item.transform) ? Number(item.transform[5]) : previousY;
+      if (previousY !== null && y !== null && Math.abs(y - previousY) > 2) lines.push("\n");
+      lines.push(item.str, " ");
+      previousY = y;
+    }
+    pages.push(lines.join("").replace(/[ \t]+\n/g, "\n").replace(/\n[ \t]+/g, "\n").trim());
+  }
+  return pages.join("\n\n");
+}
+
 function stripNumber(line: string) {
   return line.replace(/^\s*(?:Q\s*)?\d+[\).]\s*/i, "").trim();
 }
@@ -359,6 +381,7 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, exams, loading,
   const [resultsExam, setResultsExam] = useState<TeacherExamRecord | null>(null);
   const [results, setResults] = useState<ResultsPayload | null>(null);
   const [editingExam, setEditingExam] = useState<TeacherExamRecord | null>(null);
+  const [previewIndex, setPreviewIndex] = useState(0);
 
   useEffect(() => {
     if (selectedBatchId && selectedBatchId !== activeBatchId) setActiveBatchId(selectedBatchId);
@@ -410,11 +433,12 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, exams, loading,
       const fileName = file.name.toLowerCase();
       const isTxt = file.type.startsWith("text/") || fileName.endsWith(".txt");
       const isDocx = fileName.endsWith(".docx");
-      if (!isTxt && !isDocx) {
-        setMessage(`${file.name} is attached, but automatic extraction is available only for TXT and DOCX here. Paste the question text if this is a PDF or old DOC file.`);
+      const isPdf = fileName.endsWith(".pdf") || file.type === "application/pdf";
+      if (!isTxt && !isDocx && !isPdf) {
+        setMessage(`${file.name} is attached, but only PDF, DOCX and TXT documents can be extracted.`);
         return;
       }
-      const text = isDocx ? await extractDocxText(file) : await file.text().catch(() => "");
+      const text = isDocx ? await extractDocxText(file) : isPdf ? await extractPdfText(file) : await file.text().catch(() => "");
       if (!text.trim()) {
         setMessage(`No readable text was found in ${file.name}.`);
         return;
@@ -442,6 +466,7 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, exams, loading,
     setUploadedExplanations("");
     setTargetBatchIds(activeBatch?.id ? [activeBatch.id] : []);
     setStep(1);
+    setPreviewIndex(0);
     setMessage("");
     setShowCreator(true);
   }
@@ -473,6 +498,7 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, exams, loading,
     setUploadedAnswerKey("");
     setUploadedExplanations("");
     setStep(1);
+    setPreviewIndex(0);
     setMessage("");
     setShowCreator(true);
   }
@@ -637,6 +663,14 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, exams, loading,
         setMessage("Select a subject.");
         return;
       }
+      if (!effectiveTitle.trim() || !form.topic.trim() || !form.date || !form.time) {
+        setMessage("Exam name, topic, date and start time are required.");
+        return;
+      }
+      if (Number(form.duration) <= 0 || Number(form.marks) <= 0) {
+        setMessage("Duration and total marks must be greater than zero.");
+        return;
+      }
     }
     if (step === 2 && !editingExam && !readiness.ready) {
       setMessage(`Review required: ${questions.length} question(s) found; ${readiness.missingOptions} need options, ${readiness.missingAnswers} need answer keys, and ${readiness.missingExplanations} need explanations.`);
@@ -744,9 +778,10 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, exams, loading,
       ) : null}
 
       {showCreator ? (
-        <div className="fixed inset-0 z-50 flex items-end justify-center bg-slate-950/55 p-0 sm:items-center sm:p-3">
-          <div className="flex max-h-[94dvh] w-full max-w-5xl flex-col overflow-hidden rounded-t-3xl border border-slate-950 bg-white shadow-2xl sm:rounded-3xl">
-            <div className="shrink-0 border-b border-[var(--border)] p-4 sm:p-5">
+        <div className="fixed inset-0 z-50 bg-white">
+          <div className="flex h-dvh w-full flex-col overflow-hidden bg-white">
+            <div className="shrink-0 border-b border-[var(--border)] px-4 py-4 sm:px-8">
+              <div className="mx-auto max-w-7xl">
               <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold-dark)]">{editingExam ? "Edit Exam" : "New Exam"}</p>
@@ -757,9 +792,16 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, exams, loading,
                 <X size={18} />
               </button>
               </div>
+              <div className="mt-4 grid grid-cols-4 gap-2">
+                {["Exam details", "Upload paper", "Student preview", "Publish"].map((label, index) => (
+                  <button key={label} type="button" onClick={() => index + 1 < step && setStep(index + 1)} className={`min-h-10 rounded-xl border px-2 text-xs font-black sm:text-sm ${step === index + 1 ? "border-slate-950 bg-slate-950 text-white" : index + 1 < step ? "border-emerald-200 bg-emerald-50 text-emerald-800" : "border-[var(--border)] bg-white text-[var(--muted-blue)]"}`}>{index + 1}. {label}</button>
+                ))}
+              </div>
+              </div>
             </div>
 
-            <div className="min-h-0 flex-1 overflow-y-auto p-4 sm:p-5">
+            <div className="min-h-0 flex-1 overflow-y-auto px-4 py-5 sm:px-8">
+              <div className="mx-auto max-w-7xl">
               {step === 1 ? (
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4 md:col-span-2">
@@ -774,6 +816,12 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, exams, loading,
                       ))}
                     </div>
                   </div>
+                  <label className="grid gap-2 text-sm font-black">
+                    Subject
+                    <select value={subject} onChange={(event) => setSubject(event.target.value)} className="min-h-12 rounded-xl border border-[var(--border)] bg-white px-4">
+                      {Array.from(new Set(targetBatchIds.flatMap((id) => batches.find((batch) => batch.id === id)?.subjects ?? []).concat(activeBatch?.subjects ?? []))).map((item) => <option key={item} value={item}>{item}</option>)}
+                    </select>
+                  </label>
                   <Field label="Exam Name" value={form.title} onChange={(value) => setForm((current) => ({ ...current, title: value }))} />
                   <Field label="Topic" value={form.topic} onChange={(value) => setForm((current) => ({ ...current, topic: value }))} placeholder="Algebra, Constitution, Motion..." />
                   <Field label="Date" type="date" value={form.date} onChange={(value) => setForm((current) => ({ ...current, date: value }))} />
@@ -785,12 +833,12 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, exams, loading,
 
               {step === 2 ? (
                 <div className="grid gap-4 lg:grid-cols-3">
-                  <ExamInputCard title="Questions" description="Paste questions or upload a DOCX/TXT paper. PDF and old DOC can be attached, but paste the extracted text before publishing.">
+                  <ExamInputCard title="Question Paper" description="Upload PDF, Word or TXT. NIDUS extracts numbered questions and A/B/C/D options for review.">
                     <textarea value={questionSource} onChange={(event) => setQuestionSource(event.target.value)} rows={12} className="w-full rounded-xl border border-[var(--border)] bg-white p-3 text-sm leading-6" placeholder={"1. Question...\nA. Option\nB. Option\nC. Option\nD. Option"} />
                     <FileUploadRow
                       label="Upload question paper"
                       fileName={uploadedQuestionPaper}
-                      accept=".txt,.doc,.docx,.pdf"
+                      accept=".txt,.docx,.pdf,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                       onChange={(file) => void appendFileText(file, setQuestionSource, questionSource, setUploadedQuestionPaper)}
                     />
                   </ExamInputCard>
@@ -799,7 +847,7 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, exams, loading,
                     <FileUploadRow
                       label="Upload answer key"
                       fileName={uploadedAnswerKey}
-                      accept=".txt,.docx"
+                      accept=".txt,.docx,.pdf"
                       onChange={(file) => void appendFileText(file, setAnswerKey, answerKey, setUploadedAnswerKey)}
                     />
                   </ExamInputCard>
@@ -808,7 +856,7 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, exams, loading,
                     <FileUploadRow
                       label="Upload explanations"
                       fileName={uploadedExplanations}
-                      accept=".txt,.docx"
+                      accept=".txt,.docx,.pdf"
                       onChange={(file) => void appendFileText(file, setExplanations, explanations, setUploadedExplanations)}
                     />
                   </ExamInputCard>
@@ -817,29 +865,38 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, exams, loading,
 
               {step === 3 ? (
                 <div className="grid gap-4">
-                  <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
-                    <p className="font-black">{questions.length} questions / {form.marks} marks / {form.duration} minutes</p>
-                    <p className="mt-1 text-sm text-[var(--muted-blue)]">{subject} - {effectiveTopic}</p>
-                    <div className={`mt-3 rounded-xl border px-3 py-2 text-sm font-black ${readiness.ready ? "border-emerald-200 bg-emerald-50 text-emerald-800" : "border-amber-200 bg-amber-50 text-amber-900"}`}>
+                  <div className="rounded-2xl bg-slate-950 p-5 text-white">
+                    <p className="text-xs font-black uppercase tracking-[0.25em] text-amber-300">Student exam preview</p>
+                    <h3 className="mt-2 text-2xl font-black">{effectiveTitle}</h3>
+                    <div className="mt-3 flex flex-wrap gap-2 text-xs font-black">
+                      <span className="rounded-full bg-white/10 px-3 py-2">{subject}</span>
+                      <span className="rounded-full bg-white/10 px-3 py-2">{questions.length} questions</span>
+                      <span className="rounded-full bg-white/10 px-3 py-2">{form.marks} marks</span>
+                      <span className="rounded-full bg-white/10 px-3 py-2"><Clock3 className="mr-1 inline h-4 w-4" />{form.duration} minutes</span>
+                    </div>
+                    <div className={`mt-3 rounded-xl border px-3 py-2 text-sm font-black ${readiness.ready ? "border-emerald-400/40 bg-emerald-500/15 text-emerald-100" : "border-amber-300 bg-amber-50 text-amber-900"}`}>
                       {readiness.ready
                         ? "Paper ready: every question has four options, an answer key and an explanation."
                         : `${readiness.missingOptions} missing options / ${readiness.missingAnswers} missing answers / ${readiness.missingExplanations} missing explanations`}
                     </div>
                   </div>
-                  <div className="grid max-h-[55vh] gap-3 overflow-y-auto pr-2">
-                    {questions.map((question, index) => (
-                      <div key={`${question.questionText}-${index}`} className="rounded-2xl border border-[var(--border)] p-4">
-                        <p className="font-black">Q{index + 1}. {question.questionText}</p>
-                        <div className="mt-3 grid gap-2 text-sm md:grid-cols-2">
-                          {["A", "B", "C", "D"].map((option) => (
-                            <span key={option} className={`rounded-xl border px-3 py-2 ${question.correctAnswer === option ? "border-emerald-500 bg-emerald-50 font-black" : "border-[var(--border)]"}`}>
-                              {option}. {optionText(question, option as "A" | "B" | "C" | "D")}
-                            </span>
-                          ))}
-                        </div>
-                        <p className="mt-3 text-sm text-[var(--muted-blue)]">Explanation: {question.explanation}</p>
+                  <div className="grid gap-4 lg:grid-cols-[220px_minmax(0,1fr)]">
+                    <aside className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
+                      <p className="text-sm font-black">Question palette</p>
+                      <div className="mt-3 grid grid-cols-5 gap-2 lg:grid-cols-4">
+                        {questions.map((_, index) => <button key={index} type="button" onClick={() => setPreviewIndex(index)} className={`aspect-square rounded-lg border text-xs font-black ${previewIndex === index ? "border-slate-950 bg-slate-950 text-white" : "border-[var(--border)] bg-white"}`}>{index + 1}</button>)}
                       </div>
-                    ))}
+                    </aside>
+                    {questions[previewIndex] ? (
+                      <article className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm sm:p-7">
+                        <div className="flex items-center justify-between gap-3"><span className="text-sm font-black text-[var(--gold-dark)]">Question {previewIndex + 1} of {questions.length}</span><span className="rounded-full bg-[var(--page-bg)] px-3 py-1 text-xs font-black">{questions[previewIndex].marks} mark(s)</span></div>
+                        <h4 className="mt-5 text-lg font-black leading-7 sm:text-xl">{questions[previewIndex].questionText}</h4>
+                        <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                          {(["A", "B", "C", "D"] as const).map((option) => <div key={option} className="flex min-h-14 items-center gap-3 rounded-xl border border-[var(--border)] bg-white px-4 text-sm font-bold"><span className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-[var(--border)] bg-[var(--page-bg)] font-black">{option}</span>{optionText(questions[previewIndex], option)}</div>)}
+                        </div>
+                        <div className="mt-6 flex items-center justify-between gap-3 border-t border-[var(--border)] pt-5"><button type="button" disabled={previewIndex === 0} onClick={() => setPreviewIndex((value) => Math.max(0, value - 1))} className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-[var(--border)] px-4 text-sm font-black disabled:opacity-40"><ChevronLeft size={16} />Previous</button><button type="button" disabled={previewIndex >= questions.length - 1} onClick={() => setPreviewIndex((value) => Math.min(questions.length - 1, value + 1))} className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-slate-950 px-4 text-sm font-black text-white disabled:opacity-40">Next<ChevronRight size={16} /></button></div>
+                      </article>
+                    ) : <p className="rounded-2xl border border-dashed border-[var(--border)] p-8 text-center font-bold text-[var(--muted-blue)]">Upload a valid question paper to preview the student exam.</p>}
                   </div>
                 </div>
               ) : null}
@@ -856,12 +913,17 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, exams, loading,
                     <p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold-dark)]">Exam</p>
                     <p className="mt-2 text-lg font-black">{effectiveTitle}</p>
                     <p className="mt-1 text-sm text-[var(--muted-blue)]">{effectiveTopic}</p>
+                    <div className="mt-4 grid gap-2 text-sm sm:grid-cols-2">
+                      <p><b>Date:</b> {form.date || "Not set"}</p><p><b>Time:</b> {form.time || "Not set"}</p>
+                      <p><b>Duration:</b> {form.duration} minutes</p><p><b>Total marks:</b> {form.marks}</p>
+                    </div>
                   </div>
                   <p className="mt-5 text-sm leading-6 text-[var(--muted-blue)]">Publish sends this exam to students in this batch. Student result reports stay hidden until you review and release results.</p>
                 </div>
               ) : null}
 
               {message ? <p className="mt-4 rounded-2xl border border-rose-200 bg-rose-50 p-3 text-sm font-black text-rose-700">{message}</p> : null}
+              </div>
             </div>
             <div className="grid shrink-0 gap-3 border-t border-[var(--border)] bg-white p-4 sm:flex sm:justify-between sm:p-5">
               <button type="button" onClick={() => setStep((value) => Math.max(1, value - 1))} className="min-h-12 rounded-xl border border-[var(--border)] px-5 font-black">Back</button>
