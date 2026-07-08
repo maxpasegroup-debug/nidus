@@ -316,9 +316,7 @@ function parseAnswerGuide(text: string) {
 function buildQuestions(source: string, answerGuide: string, topic: string, totalMarks: number): QuestionDraft[] {
   const answerGuideMap = parseAnswerGuide(answerGuide);
   const blocks = parseNumberedBlocks(source);
-  const perQuestionMarks = Math.max(1, Number(((Number.isFinite(totalMarks) ? totalMarks : 100) / Math.max(1, blocks.length)).toFixed(2)));
-
-  return blocks.map((block, index) => {
+  const parsedQuestions = blocks.map((block, index) => {
     const parsed = parseQuestionBlock(block, index);
     const answerGuideEntry = answerGuideMap.get(parsed.number);
     return {
@@ -329,12 +327,18 @@ function buildQuestions(source: string, answerGuide: string, topic: string, tota
       optionD: parsed.options[3] || "Option D",
       correctAnswer: answerGuideEntry?.answer || "A",
       explanation: answerGuideEntry?.explanation || "Explanation will be reviewed by faculty.",
-      marks: perQuestionMarks,
+      marks: 1,
       negativeMarks: 0,
       difficultyLevel: "MEDIUM",
       topic: topic || "General",
     };
-  }).filter((question) => question.questionText);
+  }).filter((question) => {
+    const realOptionCount = [question.optionA, question.optionB, question.optionC, question.optionD]
+      .filter((option) => option && !/^Option [A-D]$/i.test(option)).length;
+    return question.questionText && realOptionCount >= 2;
+  });
+  const perQuestionMarks = Math.max(1, Number(((Number.isFinite(totalMarks) ? totalMarks : 100) / Math.max(1, parsedQuestions.length)).toFixed(2)));
+  return parsedQuestions.map((question) => ({ ...question, marks: perQuestionMarks }));
 }
 
 function paperReadiness(questions: QuestionDraft[]) {
@@ -694,11 +698,19 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
         return;
       }
     }
-    if (step === 2 && !editingExam && !readiness.ready) {
-      setMessage(`Review required: ${questions.length} question(s) found; ${readiness.missingOptions} need options, ${readiness.missingAnswers} need answer keys, and ${readiness.missingExplanations} need explanations.`);
+    if (step === 2 && !editingExam && questions.length === 0) {
+      setMessage("No valid MCQ questions were found. Please upload or paste questions with A, B, C and D options.");
       return;
     }
-    setMessage("");
+    if (step === 2 && !editingExam && readiness.missingAnswers > 0) {
+      setMessage(`Answer key review required: ${readiness.missingAnswers} question(s) need answer keys before preview.`);
+      return;
+    }
+    if (step === 2 && !editingExam && (readiness.missingOptions > 0 || readiness.missingExplanations > 0)) {
+      setMessage(`Preview opened with ${questions.length} valid question(s). Review ${readiness.missingOptions} option issue(s) and ${readiness.missingExplanations} explanation issue(s) before publishing.`);
+    } else {
+      setMessage("");
+    }
     setStep((value) => Math.min(4, value + 1));
   }
 
