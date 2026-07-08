@@ -1,6 +1,7 @@
 import PDFDocument from "pdfkit";
 import { prisma } from "../../config/prisma.js";
 import type { Prisma, Role } from "../../generated/prisma/client.js";
+import { ensurePsychometricAssessments } from "../../scripts/psychometric-assessments.js";
 import { psychometricAiService } from "./psychometric-ai.service.js";
 
 type SubmitAnswer = {
@@ -34,6 +35,7 @@ const includeQuestions = {
 
 const attemptGraceMinutes = 15;
 const maxStartsPerHour = 8;
+let psychometricSeedPromise: Promise<unknown> | null = null;
 
 const assessmentAccess: Record<string, AssessmentAccess> = {
   "officer-readiness": "FREE",
@@ -52,6 +54,15 @@ const assessmentAccess: Record<string, AssessmentAccess> = {
   "warrior-fitness-mindset": "CORE",
   "ssb-psychology-simulator": "PREMIUM"
 };
+
+async function ensureSeededPsychometricCatalog() {
+  if (!psychometricSeedPromise) {
+    psychometricSeedPromise = ensurePsychometricAssessments().finally(() => {
+      psychometricSeedPromise = null;
+    });
+  }
+  await psychometricSeedPromise;
+}
 
 const olqKeys = [
   "effectiveIntelligence",
@@ -783,15 +794,28 @@ function compactReportSummary(
 
 export const psychometricService = {
   async listTests() {
-    return prisma.psychometricTest.findMany({
+    let tests = await prisma.psychometricTest.findMany({
       where: { isActive: true },
       orderBy: { createdAt: "desc" },
       include: { _count: { select: { questions: true } } }
     });
+    if (!tests.length) {
+      await ensureSeededPsychometricCatalog();
+      tests = await prisma.psychometricTest.findMany({
+        where: { isActive: true },
+        orderBy: { createdAt: "desc" },
+        include: { _count: { select: { questions: true } } }
+      });
+    }
+    return tests;
   },
 
   async getTest(id: string) {
-    const test = await prisma.psychometricTest.findUnique({ where: { id }, include: includeQuestions });
+    let test = await prisma.psychometricTest.findUnique({ where: { id }, include: includeQuestions });
+    if (!test) {
+      await ensureSeededPsychometricCatalog();
+      test = await prisma.psychometricTest.findUnique({ where: { id }, include: includeQuestions });
+    }
     if (!test) throw new Error("Psychometric test not found");
     if (!test.isActive) throw new Error("Assessment is currently inactive");
     return { ...test, access: accessForTest(test.id, test.access) };

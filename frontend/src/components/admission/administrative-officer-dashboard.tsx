@@ -49,6 +49,7 @@ type LeadApplication = {
 
 type ApprovalPayload = {
   batchId: string;
+  batchIds: string[];
   email: string;
   name: string;
   phone: string;
@@ -103,7 +104,7 @@ const documentLabels: Record<DocumentKey, string> = {
 
 const blankDocuments = (): Record<DocumentKey, DocumentStatus> => ({ photo: "Pending", aadhaar: "Pending", marksheet: "Pending", parentDetails: "Pending", otherFiles: "Pending" });
 const blankForm = (): ApprovalPayload => ({
-  batchId: "", email: "", name: "", phone: "", rollNumber: "", notes: "", totalFee: 0, amountPaid: 0,
+  batchId: "", batchIds: [], email: "", name: "", phone: "", rollNumber: "", notes: "", totalFee: 0, amountPaid: 0,
   paymentStatus: "PENDING", paymentMethod: "OFFICE_COLLECTION", transactionRef: "", receiptUploadUrl: "",
 });
 
@@ -193,7 +194,8 @@ export function AdministrativeOfficerDashboard() {
   const batches = useMemo(() => normalizeBatches(batchesQuery.data).filter((item) => item.status !== "ARCHIVED"), [batchesQuery.data]);
   const applications = useMemo(() => (leadsQuery.data?.leads ?? []).filter((lead) => !["ENROLLED", "LOST"].includes(lead.status)), [leadsQuery.data]);
   const selectedLead = applications.find((lead) => lead.id === selectedLeadId) ?? null;
-  const selectedBatch = batches.find((batch) => batch.id === form.batchId) ?? null;
+  const selectedBatchIds = form.batchIds.length ? form.batchIds : form.batchId ? [form.batchId] : [];
+  const selectedBatches = batches.filter((batch) => selectedBatchIds.includes(batch.id));
   const visibleApplications = applications
     .filter((lead) => [lead.fullName, lead.mobile, lead.email, lead.targetExam].join(" ").toLowerCase().includes(search.trim().toLowerCase()))
     .sort((a, b) => Number(noteHas(b, "AO_QUEUE: YES")) - Number(noteHas(a, "AO_QUEUE: YES")) || new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
@@ -204,13 +206,13 @@ export function AdministrativeOfficerDashboard() {
   const amountPaid = Number(form.amountPaid || 0);
   const identityReady = Boolean(form.name.trim()) && Boolean(form.phone.trim() || form.email.trim());
   const feesReady = form.paymentStatus === "APPROVED" || (form.paymentStatus === "PAID" && totalFee > 0 && amountPaid >= totalFee);
-  const readyForEnrollment = Boolean(selectedLead) && identityReady && requiredDocumentsVerified && !rejectedDocuments.length && feesReady && Boolean(form.batchId) && admissionStatus === "Ready For Admission";
+  const readyForEnrollment = Boolean(selectedLead) && identityReady && requiredDocumentsVerified && !rejectedDocuments.length && feesReady && selectedBatchIds.length > 0 && admissionStatus === "Ready For Admission";
   const readiness = [
     { label: "Application selected", ready: Boolean(selectedLead) },
     { label: "Student identity ready", ready: identityReady },
     { label: "Required documents verified", ready: requiredDocumentsVerified && !rejectedDocuments.length },
     { label: "Required fee confirmed", ready: feesReady },
-    { label: "Batch selected", ready: Boolean(form.batchId) },
+    { label: "Batch selected", ready: selectedBatchIds.length > 0 },
     { label: "Ready for admission", ready: admissionStatus === "Ready For Admission" },
   ];
 
@@ -262,8 +264,8 @@ export function AdministrativeOfficerDashboard() {
 
   function submitActivation(event: FormEvent) {
     event.preventDefault();
-    if (!readyForEnrollment || !form.batchId) { setMessage("Complete every activation check before activating the learner account."); return; }
-    activateMutation.mutate({ ...form, paymentStatus: form.paymentStatus === "APPROVED" ? "APPROVED" : "PAID", notes: [form.notes, `Document status: ${JSON.stringify(documentStatuses)}`, selectedBatch ? `Activated batch: ${selectedBatch.name}` : ""].filter(Boolean).join("\n") });
+    if (!readyForEnrollment || !selectedBatchIds.length) { setMessage("Complete every activation check before activating the learner account."); return; }
+    activateMutation.mutate({ ...form, batchId: selectedBatchIds[0], batchIds: selectedBatchIds, paymentStatus: form.paymentStatus === "APPROVED" ? "APPROVED" : "PAID", notes: [form.notes, `Document status: ${JSON.stringify(documentStatuses)}`, selectedBatches.length ? `Activated batches: ${selectedBatches.map((batch) => batch.name).join(", ")}` : ""].filter(Boolean).join("\n") });
   }
 
   return (
@@ -331,10 +333,16 @@ export function AdministrativeOfficerDashboard() {
 
       {tab === "BATCH" ? (
         <ApplicantPanel lead={selectedLead} title="Allocate an active batch" onChoose={() => openTab("APPLICATIONS")}>
-          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">{batches.filter((item) => item.status === "ACTIVE").map((batch) => <button key={batch.id} type="button" onClick={() => setForm((item) => ({ ...item, batchId: batch.id }))} className={`rounded-xl border p-4 text-left ${form.batchId === batch.id ? "border-slate-950 bg-slate-950 text-white" : "border-[var(--border)]"}`}><span className="text-xs font-black uppercase tracking-[0.14em] opacity-70">{batch.course?.title || batch.programSlug}</span><strong className="mt-2 block">{batch.name}</strong><span className="mt-3 block text-xs opacity-75">{batch.batchType || "Mode pending"} / {batch._count?.students ?? batch.students?.length ?? 0} students / {batch._count?.teachers ?? 0} teachers</span></button>)}</div>
-          {selectedBatch ? <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-900"><strong className="block">Selected batch: {selectedBatch.name}</strong><span className="mt-1 block text-sm">{selectedBatch.course?.title || selectedBatch.programSlug || "Program pending"} / {selectedBatch.batchType || "Mode pending"} / Current students: {selectedBatch._count?.students ?? selectedBatch.students?.length ?? 0}</span></div> : null}
+          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">{batches.filter((item) => item.status === "ACTIVE").map((batch) => {
+            const checked = selectedBatchIds.includes(batch.id);
+            return <button key={batch.id} type="button" onClick={() => setForm((item) => {
+              const nextBatchIds = checked ? item.batchIds.filter((id) => id !== batch.id) : [...item.batchIds, batch.id];
+              return { ...item, batchId: nextBatchIds[0] || "", batchIds: nextBatchIds };
+            })} className={`rounded-xl border p-4 text-left ${checked ? "border-slate-950 bg-slate-950 text-white" : "border-[var(--border)]"}`}><span className="text-xs font-black uppercase tracking-[0.14em] opacity-70">{batch.course?.title || batch.programSlug}</span><strong className="mt-2 block">{batch.name}</strong><span className="mt-3 block text-xs opacity-75">{batch.batchType || "Mode pending"} / {batch._count?.students ?? batch.students?.length ?? 0} students / {batch._count?.teachers ?? 0} teachers</span><span className="mt-3 inline-flex rounded-full bg-white/15 px-3 py-1 text-xs font-black">{checked ? "Selected" : "Tap to select"}</span></button>;
+          })}</div>
+          {selectedBatches.length ? <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-900"><strong className="block">Selected batches: {selectedBatches.map((batch) => batch.name).join(", ")}</strong><span className="mt-1 block text-sm">{selectedBatches.length} batch(es) will be activated for this learner. Only students enrolled in these batches will receive LMS content.</span></div> : null}
           <div className="grid gap-3 sm:grid-cols-2"><Field label="Student login email" value={form.email} onChange={(value) => setForm((item) => ({ ...item, email: value }))} /><Field label="Student name" value={form.name} onChange={(value) => setForm((item) => ({ ...item, name: value }))} /><Field label="Mobile" value={form.phone} onChange={(value) => setForm((item) => ({ ...item, phone: value }))} /><Field label="Roll number (optional)" value={form.rollNumber} onChange={(value) => setForm((item) => ({ ...item, rollNumber: value }))} /></div>
-          <button type="button" onClick={() => openTab("ACTIVATION")} disabled={!form.batchId} className="inline-flex min-h-12 items-center justify-center rounded-xl bg-slate-950 px-5 text-sm font-black text-white disabled:opacity-50">Continue to Activation</button>
+          <button type="button" onClick={() => openTab("ACTIVATION")} disabled={!selectedBatchIds.length} className="inline-flex min-h-12 items-center justify-center rounded-xl bg-slate-950 px-5 text-sm font-black text-white disabled:opacity-50">Continue to Activation</button>
         </ApplicantPanel>
       ) : null}
 

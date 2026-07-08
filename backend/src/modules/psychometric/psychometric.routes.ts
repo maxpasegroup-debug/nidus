@@ -6,7 +6,7 @@ import { psychometricController } from "./psychometric.controller.js";
 
 export const psychometricRouter = Router();
 
-psychometricRouter.get("/tests", protect, allowRoles(Role.STUDENT, Role.ADMIN, Role.DIRECTOR), psychometricController.list);
+psychometricRouter.get("/tests", protect, allowRoles(Role.GUEST, Role.STUDENT, Role.ADMIN, Role.DIRECTOR), psychometricController.list);
 psychometricRouter.get("/admin/overview", protect, allowRoles(Role.ADMIN, Role.DIRECTOR), psychometricController.adminOverview);
 psychometricRouter.get("/admin/analytics", protect, allowRoles(Role.ADMIN, Role.DIRECTOR), psychometricController.adminAnalytics);
 psychometricRouter.get("/admin/readiness", protect, allowRoles(Role.ADMIN, Role.DIRECTOR), psychometricController.adminReadiness);
@@ -38,28 +38,28 @@ psychometricRouter.patch(
   ],
   psychometricController.updateQuestion
 );
-psychometricRouter.get("/tests/:id/history", protect, allowRoles(Role.STUDENT, Role.ADMIN), psychometricController.history);
-psychometricRouter.get("/tests/:id", protect, allowRoles(Role.STUDENT, Role.ADMIN, Role.DIRECTOR), psychometricController.details);
-psychometricRouter.get("/reports", protect, allowRoles(Role.STUDENT, Role.ADMIN), psychometricController.reports);
+psychometricRouter.get("/tests/:id/history", protect, allowRoles(Role.GUEST, Role.STUDENT, Role.ADMIN), psychometricController.history);
+psychometricRouter.get("/tests/:id", protect, allowRoles(Role.GUEST, Role.STUDENT, Role.ADMIN, Role.DIRECTOR), psychometricController.details);
+psychometricRouter.get("/reports", protect, allowRoles(Role.GUEST, Role.STUDENT, Role.ADMIN), psychometricController.reports);
 psychometricRouter.post(
   "/start",
   protect,
-  allowRoles(Role.STUDENT, Role.ADMIN),
+  allowRoles(Role.GUEST, Role.STUDENT, Role.ADMIN),
   [body("testId").notEmpty().withMessage("Test id is required")],
   psychometricController.start
 );
-psychometricRouter.get("/attempts/:attemptId", protect, allowRoles(Role.STUDENT, Role.ADMIN), psychometricController.activeAttempt);
+psychometricRouter.get("/attempts/:attemptId", protect, allowRoles(Role.GUEST, Role.STUDENT, Role.ADMIN), psychometricController.activeAttempt);
 psychometricRouter.post(
   "/submit",
   protect,
-  allowRoles(Role.STUDENT, Role.ADMIN),
+  allowRoles(Role.GUEST, Role.STUDENT, Role.ADMIN),
   [
     body("attemptId").notEmpty().withMessage("Attempt id is required"),
     body("answers").isArray().withMessage("Answers must be an array")
   ],
   psychometricController.submit
 );
-psychometricRouter.get("/results/:attemptId", protect, allowRoles(Role.STUDENT, Role.ADMIN, Role.DIRECTOR), psychometricController.result);
-psychometricRouter.get("/results/:attemptId/pdf", protect, allowRoles(Role.STUDENT, Role.ADMIN, Role.DIRECTOR), psychometricController.resultPdf);
-psychometricRouter.get("/olq-report", protect, allowRoles(Role.STUDENT, Role.ADMIN), psychometricController.olqReport);
-psychometricRouter.get("/intelligence", protect, allowRoles(Role.STUDENT, Role.TEACHER, Role.ADMIN), psychometricController.intelligence);
+psychometricRouter.get("/results/:attemptId", protect, allowRoles(Role.GUEST, Role.STUDENT, Role.ADMIN, Role.DIRECTOR), psychometricController.result);
+psychometricRouter.get("/results/:attemptId/pdf", protect, allowRoles(Role.GUEST, Role.STUDENT, Role.ADMIN, Role.DIRECTOR), psychometricController.resultPdf);
+psychometricRouter.get("/olq-report", protect, allowRoles(Role.GUEST, Role.STUDENT, Role.ADMIN), psychometricController.olqReport);
+psychometricRouter.get("/intelligence", protect, allowRoles(Role.GUEST, Role.STUDENT, Role.TEACHER, Role.ADMIN), psychometricController.intelligence);
