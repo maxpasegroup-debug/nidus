@@ -14,7 +14,9 @@ import {
   Radio,
   Sparkles,
   Timer,
+  UserRound,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { useAuth } from "@/components/providers/auth-provider-v2";
 
 type StudentBatch = {
@@ -71,6 +73,27 @@ type LiveClass = {
   duration: number;
   meetingLink: string;
   recordingUrl?: string | null;
+  batchId?: string | null;
+};
+
+type ReminderItem = {
+  id: string;
+  type: string;
+  title: string;
+  detail: string;
+  at: string;
+  href: string;
+  icon: LucideIcon;
+  mode: "start" | "end";
+  action: string;
+  schedule?: {
+    date: string;
+    time: string;
+    batch: string;
+    teacher: string;
+    duration: string;
+    status: string;
+  };
 };
 
 type StudentPlan = {
@@ -231,6 +254,12 @@ function examWindow(exam: ExamSummary) {
   return { startsAt, start, end };
 }
 
+function liveClassWindow(item: LiveClass) {
+  const start = toTimestamp(item.scheduledAt);
+  const end = start ? start + Math.max(1, Number(item.duration || 60)) * 60_000 : null;
+  return { start, end };
+}
+
 function Countdown({ value, mode = "start", activeLabel = "Now" }: { value?: string | null; mode?: "start" | "end"; activeLabel?: string }) {
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
@@ -328,10 +357,19 @@ export function StudentClassesPage() {
   const { plan, activeBatches } = useStudentPlan();
   const calendar = plan.data?.calendar ?? [];
   const materials = plan.data?.materials ?? [];
+  const liveClasses = (plan.data?.liveClasses ?? []).filter((item) => {
+    const window = liveClassWindow(item);
+    return Boolean(window.end && window.end > Date.now());
+  });
   const subjects = Array.from(new Set([...calendar.map((item) => item.subject), ...materials.map((item) => item.subject ?? "General")])).sort();
 
   return (
     <Shell title="My Classes" subtitle="Open a subject to see its timetable, teacher and learning resources.">
+      {liveClasses.length ? (
+        <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {liveClasses.map((item) => <LiveCard key={item.id} item={item} />)}
+        </section>
+      ) : null}
       <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {subjects.map((subject) => {
           const sessions = calendar.filter((item) => item.subject === subject).sort((a, b) => calendarDate(a).localeCompare(calendarDate(b)));
@@ -360,7 +398,7 @@ export function StudentClassesPage() {
 }
 
 export function StudentTodayPage() {
-  const { plan } = useStudentPlan();
+  const { plan, activeBatches } = useStudentPlan();
   const availableExams = useQuery({ queryKey: ["student", "available-exams"], queryFn: () => apiList<ExamSummary>("/api/tests/available", "tests") });
   const today = todayKey();
   const calendar = plan.data?.calendar ?? [];
@@ -368,7 +406,7 @@ export function StudentTodayPage() {
   const liveClasses = plan.data?.liveClasses ?? [];
   const exams = availableExams.data ?? [];
   const pendingAssignments = assignments.filter((assignment) => assignment.submissionStatus !== "SUBMITTED");
-  const reminders = [
+  const reminders: ReminderItem[] = [
     ...exams.map((item) => {
       const window = examWindow(item);
       const isUpcoming = Boolean(window.start && window.start > Date.now());
@@ -397,17 +435,34 @@ export function StudentTodayPage() {
       mode: "end" as const,
       action: "Submit",
     })),
-    ...liveClasses.filter((item) => new Date(item.scheduledAt).getTime() >= Date.now()).map((item) => ({
-      id: `live-${item.id}`,
-      type: "Live Class",
-      title: item.topic || item.title,
-      detail: item.subject ?? "Live session",
-      at: item.scheduledAt,
-      href: item.meetingLink,
-      icon: Radio,
-      mode: "start" as const,
-      action: "Join",
-    })),
+    ...liveClasses.flatMap((item) => {
+      const window = liveClassWindow(item);
+      if (!window.end || window.end <= Date.now()) return [];
+      const upcoming = Boolean(window.start && window.start > Date.now());
+      const canJoin = Boolean(window.start && window.start <= Date.now() + 10 * 60_000);
+      const startsAt = new Date(item.scheduledAt);
+      const endsAt = new Date(window.end);
+      const batch = activeBatches.find((entry) => entry.id === item.batchId)?.name ?? "Assigned batch";
+      return [{
+        id: `live-${item.id}`,
+        type: "Live Class",
+        title: item.topic || item.title,
+        detail: item.subject ?? "Live session",
+        at: upcoming ? item.scheduledAt : new Date(window.end).toISOString(),
+        href: canJoin ? item.meetingLink : "/dashboard/student/classes",
+        icon: Radio,
+        mode: (upcoming ? "start" : "end") as "start" | "end",
+        action: canJoin ? "Join class" : "View schedule",
+        schedule: {
+          date: startsAt.toLocaleDateString([], { weekday: "short", day: "numeric", month: "short", year: "numeric" }),
+          time: `${startsAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} - ${endsAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`,
+          batch,
+          teacher: item.instructorName ?? "Faculty assigned",
+          duration: `${item.duration || 60} minutes`,
+          status: upcoming ? "Upcoming" : "Live now",
+        },
+      }];
+    }),
     ...calendar.filter((item) => item.plannedDate.slice(0, 10) >= today).map((item) => ({
       id: `class-${item.id}`,
       type: "Class",
@@ -434,7 +489,7 @@ export function StudentTodayPage() {
         {reminders.map((item) => {
           const Icon = item.icon;
           const external = item.href.startsWith("http");
-          const cardClassName = `group min-h-44 rounded-[22px] border p-5 shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-md ${reminderTone(item.type, item.at, item.mode)}`;
+          const cardClassName = `group rounded-[22px] border p-5 shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-md ${reminderTone(item.type, item.at, item.mode)}`;
           const content = (
             <>
               <div className="flex items-start justify-between gap-3">
@@ -446,6 +501,17 @@ export function StudentTodayPage() {
               <p className="mt-4 text-xs font-black uppercase tracking-[0.22em] text-[var(--gold)]">{item.type}</p>
               <h2 className="mt-2 line-clamp-2 text-lg font-black">{item.title}</h2>
               <p className="mt-2 line-clamp-2 text-sm text-[var(--muted-blue)]">{item.detail}</p>
+              {item.schedule ? (
+                <div className="mt-4 grid gap-2 rounded-2xl border border-emerald-200/80 bg-white/75 p-3 text-xs">
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="inline-flex items-center gap-2 font-black"><CalendarDays className="h-4 w-4 text-emerald-700" />{item.schedule.date}</span>
+                    <span className={`rounded-full px-2.5 py-1 font-black ${item.schedule.status === "Live now" ? "bg-emerald-600 text-white" : "bg-emerald-100 text-emerald-800"}`}>{item.schedule.status}</span>
+                  </div>
+                  <p className="font-black text-[var(--ink)]">{item.schedule.time} / {item.schedule.duration}</p>
+                  <p className="truncate font-bold text-[var(--muted-blue)]">{item.schedule.batch}</p>
+                  <p className="inline-flex items-center gap-2 font-bold text-[var(--muted-blue)]"><UserRound className="h-4 w-4" />{item.schedule.teacher}</p>
+                </div>
+              ) : null}
               <span className="mt-4 inline-flex items-center gap-2 text-sm font-black">
                 {item.action} <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
               </span>
@@ -873,11 +939,15 @@ function ClassCard({ item }: { item: CalendarItem }) {
 }
 
 function LiveCard({ item }: { item: LiveClass }) {
+  const window = liveClassWindow(item);
+  const upcoming = Boolean(window.start && window.start > Date.now());
+  const countdownAt = upcoming ? item.scheduledAt : window.end ? new Date(window.end).toISOString() : item.scheduledAt;
   return (
     <article className="rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
       <p className="text-xs font-black uppercase tracking-[0.22em] text-[var(--gold)]">{item.subject ?? "Live Class"}</p>
       <h3 className="mt-2 text-lg font-black">{item.topic || item.title}</h3>
       <p className="mt-1 text-sm text-[var(--muted-blue)]">{item.instructorName ?? "NIDUS Teacher"} / {new Date(item.scheduledAt).toLocaleString()}</p>
+      <div className="mt-3"><Countdown value={countdownAt} mode={upcoming ? "start" : "end"} activeLabel="Live now" /></div>
       <div className="mt-3 flex flex-wrap gap-2">
         <a href={item.meetingLink} target="_blank" rel="noreferrer" className="rounded-xl bg-[var(--gold-gradient)] px-4 py-2 text-sm font-black">Join Class</a>
         {item.recordingUrl ? <a href={item.recordingUrl} target="_blank" rel="noreferrer" className="rounded-xl border border-[var(--border)] bg-white px-4 py-2 text-sm font-black">Watch Recording</a> : null}
