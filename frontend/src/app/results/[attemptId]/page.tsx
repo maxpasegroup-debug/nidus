@@ -47,14 +47,25 @@ export default function ResultPage() {
       <section className="rounded-lg border border-[#d9c79d] bg-white p-5 shadow-sm">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <p className="font-semibold text-[#071d36]">Faculty released performance report</p>
-            <p className="mt-2 text-sm leading-7 text-[#64748b]">{data.analytics.aiInsights}</p>
+            <p className="font-semibold text-[#071d36]">Performance feedback</p>
+            <p className="mt-2 text-sm leading-7 text-[#64748b]">{data.analytics.feedbackSummary || data.analytics.aiInsights}</p>
           </div>
           <span className="inline-flex items-center justify-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-xs font-black uppercase tracking-[0.18em] text-emerald-700">
             <Trophy className="h-4 w-4" />
             Official Result
           </span>
         </div>
+        {data.analytics.improvementAreas?.length ? (
+          <div className="mt-5 grid gap-3 md:grid-cols-3">
+            {data.analytics.improvementAreas.slice(0, 6).map((area) => (
+              <div key={area.topic} className="rounded-lg border border-amber-200 bg-amber-50 p-4">
+                <p className="text-xs font-black uppercase tracking-[0.16em] text-amber-700">{area.accuracy}% accuracy</p>
+                <h3 className="mt-2 font-black text-[#071d36]">{area.topic}</h3>
+                <p className="mt-2 text-sm leading-6 text-amber-900">{area.message}</p>
+              </div>
+            ))}
+          </div>
+        ) : null}
       </section>
 
       <section className="space-y-3">

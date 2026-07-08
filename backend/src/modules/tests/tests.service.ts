@@ -806,18 +806,21 @@ export const testsService = {
       throw new Error("Result not found");
     }
 
-    const releaseRecord = await prisma.teacherExamRecord.findFirst({
-      where: { testId: attempt.testId, status: "RESULTS_RELEASED" },
-      select: { id: true }
-    });
-    if (!releaseRecord) {
-      throw Object.assign(new Error("Results are awaiting teacher release."), { statusCode: 403 });
-    }
-
     const attempted = attempt.answers.length;
     const accuracy = attempted > 0 ? Math.round((attempt.totalCorrect / attempted) * 100) : 0;
     const topicAnalysis = getTopicAnalysis(attempt.answers);
     const weakTopics = topicAnalysis.filter((topic) => topic.accuracy < 60).map((topic) => topic.topic);
+    const improvementAreas = topicAnalysis
+      .filter((topic) => topic.accuracy < 75)
+      .map((topic) => ({
+        topic: topic.topic,
+        accuracy: topic.accuracy,
+        message: topic.accuracy < 40
+          ? `Restart the basics of ${topic.topic}, then solve short timed drills.`
+          : topic.accuracy < 60
+            ? `Revise ${topic.topic} and practise mixed questions before the next exam.`
+            : `Polish speed and accuracy in ${topic.topic}.`
+      }));
     const rankedAttempts = await prisma.testAttempt.findMany({
       where: { testId: attempt.testId, status: "SUBMITTED", submittedAt: { not: null } },
       orderBy: [{ score: "desc" }, { totalCorrect: "desc" }, { timeTaken: "asc" }, { submittedAt: "asc" }],
@@ -838,6 +841,11 @@ export const testsService = {
         batchRank: actualRank,
         rankedStudents: rankedAttempts.length,
         topicAnalysis,
+        improvementAreas,
+        feedbackSummary:
+          improvementAreas.length > 0
+            ? `Priority improvement: ${improvementAreas.slice(0, 3).map((area) => area.topic).join(", ")}.`
+            : "No weak area detected. Keep practising full-length timed papers.",
         aiInsights:
           weakTopics.length > 0
             ? `Focus revision on ${weakTopics.join(", ")} before the next mock.`

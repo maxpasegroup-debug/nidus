@@ -104,6 +104,8 @@ export type TestResult = {
     batchRank: number;
     rankedStudents: number;
     topicAnalysis: Array<{ topic: string; correct: number; total: number; accuracy: number }>;
+    improvementAreas?: Array<{ topic: string; accuracy: number; message: string }>;
+    feedbackSummary?: string;
     aiInsights: string;
   };
 };

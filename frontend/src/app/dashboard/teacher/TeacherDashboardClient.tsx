@@ -524,6 +524,19 @@ async function apiPost<T>(paths: string[], body: unknown): Promise<T | null> {
   return null;
 }
 
+async function apiPut<T>(paths: string[], body: unknown): Promise<T | null> {
+  let lastError: unknown;
+  for (const path of paths) {
+    try {
+      return await requestJson<T>(path, { method: "PUT", body: JSON.stringify(body) });
+    } catch (error) {
+      lastError = error;
+    }
+  }
+  if (lastError) throw lastError;
+  return null;
+}
+
 async function apiPatch<T>(paths: string[], body: unknown): Promise<T | null> {
   let lastError: unknown;
   for (const path of paths) {
@@ -996,6 +1009,9 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
   const isAcademicHead = isAcademicHeadRoute || user?.role?.toUpperCase() === "ACADEMIC_HEAD" || dashboardTemplate === "ACADEMIC_HEAD";
   const dashboardBasePath = isDirectorTeachingRoute ? "/dashboard/director/teaching" : isAcademicHead ? "/dashboard/academic-head" : "/dashboard/teacher";
   const classesCatalogPath = `${dashboardBasePath}/my-classes`;
+  const browserSearchParams = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
+  const scopedExamBatchId = browserSearchParams?.get("batchId") ?? null;
+  const scopedExamSubject = browserSearchParams?.get("subject") ?? null;
   const activeClasses = useMemo(() => classes.filter((batch) => isTeacherClassAllocation(batch, isAcademicHead)), [classes, isAcademicHead]);
   const teacherRosterBatches = useMemo<TeacherRosterBatch[]>(() => activeClasses.map((batch) => {
     const students = (batch.students ?? []).flatMap((entry) => {
@@ -1053,6 +1069,13 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
       ? programClasses.find((item) => item.id === activeBatchId) ?? null
       : programClasses.find((item) => item.id === selectedClassId) ?? programClasses[0] ?? null
     : activeClasses.find((item) => item.id === selectedClassId) ?? (!activeCourseKey ? activeClasses[0] : null) ?? null;
+
+  useEffect(() => {
+    if (view !== "exams" || !scopedExamBatchId || !activeClasses.some((item) => item.id === scopedExamBatchId)) return;
+    setSelectedClassId((current) => current === scopedExamBatchId ? current : scopedExamBatchId);
+    if (scopedExamSubject) setClassroomSubject(scopedExamSubject);
+  }, [activeClasses, scopedExamBatchId, scopedExamSubject, view]);
+
   const selectedStudents = useMemo(() => selectedClass?.students ?? [], [selectedClass?.students]);
   const filteredStudents = useMemo(() => {
     const query = studentSearch.trim().toLowerCase();
@@ -1625,7 +1648,6 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
     const actionKey = `${view}:${workspaceAction}:${selectedClass.id}`;
     if (workspaceActionHandled === actionKey) return;
     if (workspaceAction === "create-exam" && view === "exams") {
-      openExamCreator();
       setWorkspaceActionHandled(actionKey);
       return;
     }
@@ -2992,36 +3014,79 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
           <div>
             {!selectedClass && !loadingPlan ? <EmptyState text="This batch is not assigned to this teacher." /> : null}
             {selectedClass ? (
-              <ClassroomWorkspace
-                batch={selectedClass}
-                programName={selectedProgram?.name ?? programName(selectedClass)}
-                students={filteredStudents}
-                totalStudents={selectedStudents.length}
-                workspace={classWorkspace}
-                workspaceLoading={workspaceLoading}
-                workspaceError={workspaceError}
-                classesBasePath={classesCatalogPath}
-                courseKey={activeCourseKey}
-                search={studentSearch}
-                onSearch={setStudentSearch}
-                selectedSubject={classroomSubject ?? subjectsForBatch(selectedClass)[0] ?? "General"}
-                onSubject={setClassroomSubject}
-                onRetry={() => void loadClassWorkspace(selectedClass.id)}
-                selectedStudentId={studentModalId}
-                onSelectStudent={setStudentModalId}
-                onStartLive={() => openLiveClassCreator(selectedClass)}
-                onUploadLesson={() => openLibraryUpload(classroomSubject ?? subjectsForBatch(selectedClass)[0] ?? "General")}
-                onMarkAttendance={() => {
-                  if (typeof window !== "undefined") {
+              <div className="grid gap-5">
+                <ClassroomWorkspace
+                  batch={selectedClass}
+                  programName={selectedProgram?.name ?? programName(selectedClass)}
+                  students={filteredStudents}
+                  totalStudents={selectedStudents.length}
+                  workspace={classWorkspace}
+                  workspaceLoading={workspaceLoading}
+                  workspaceError={workspaceError}
+                  classesBasePath={classesCatalogPath}
+                  courseKey={activeCourseKey}
+                  search={studentSearch}
+                  onSearch={setStudentSearch}
+                  selectedSubject={classroomSubject ?? subjectsForBatch(selectedClass)[0] ?? "General"}
+                  onSubject={setClassroomSubject}
+                  onRetry={() => void loadClassWorkspace(selectedClass.id)}
+                  selectedStudentId={studentModalId}
+                  onSelectStudent={setStudentModalId}
+                  onStartLive={() => openLiveClassCreator(selectedClass)}
+                  onUploadLesson={() => openLibraryUpload(classroomSubject ?? subjectsForBatch(selectedClass)[0] ?? "General")}
+                  onMarkAttendance={() => {
+                    if (typeof window !== "undefined") {
+                      const subject = classroomSubject ?? subjectsForBatch(selectedClass)[0] ?? "General";
+                      window.location.href = `${dashboardBasePath}/attendance?batchId=${encodeURIComponent(selectedClass.id)}&subject=${encodeURIComponent(subject)}&action=mark-attendance`;
+                    } else {
+                      openAttendanceRegister(selectedClass.id);
+                    }
+                  }}
+                  onCreateExam={() => {
                     const subject = classroomSubject ?? subjectsForBatch(selectedClass)[0] ?? "General";
-                    window.location.href = `${dashboardBasePath}/attendance?batchId=${encodeURIComponent(selectedClass.id)}&subject=${encodeURIComponent(subject)}&action=mark-attendance`;
-                  } else {
-                    openAttendanceRegister(selectedClass.id);
-                  }
-                }}
-                onCreateExam={() => openExamCreator(classroomSubject ?? subjectsForBatch(selectedClass)[0] ?? "General")}
-                onCreateAssignment={() => openAssignmentCreator(classroomSubject ?? subjectsForBatch(selectedClass)[0] ?? "General")}
-              />
+                    window.location.href = `${dashboardBasePath}/exams?batchId=${encodeURIComponent(selectedClass.id)}&subject=${encodeURIComponent(subject)}`;
+                  }}
+                  onCreateAssignment={() => openAssignmentCreator(classroomSubject ?? subjectsForBatch(selectedClass)[0] ?? "General")}
+                />
+                <LiveClassStrip
+                  items={selectedBatchLiveClasses}
+                  onEdit={async (item) => {
+                    if (typeof window === "undefined") return;
+                    const currentDate = item.scheduledAt ? new Date(item.scheduledAt) : new Date();
+                    const dateValue = currentDate.toISOString().slice(0, 10);
+                    const timeValue = currentDate.toTimeString().slice(0, 5);
+                    const topic = window.prompt("Live class topic", item.topic || item.title || "")?.trim();
+                    if (!topic) return;
+                    const date = window.prompt("Date (YYYY-MM-DD)", dateValue)?.trim() || dateValue;
+                    const time = window.prompt("Time (HH:mm)", timeValue)?.trim() || timeValue;
+                    const durationInput = window.prompt("Duration in minutes", String(item.duration || 60))?.trim();
+                    const meetingLink = window.prompt("Meeting link", item.meetingLink || "")?.trim() || item.meetingLink;
+                    const duration = Math.max(1, Number(durationInput || item.duration || 60));
+                    const scheduledAt = new Date(`${date}T${time}`).toISOString();
+                    const response = await apiPut<{ liveClass?: LiveClassRecord }>([`/api/live-classes/${item.id}`], {
+                      title: topic,
+                      topic,
+                      subject: item.subject || classroomSubject || subjectsForBatch(selectedClass)[0] || "General",
+                      scheduledAt,
+                      duration,
+                      meetingLink,
+                      batchId: item.batchId || selectedClass.id,
+                      programSlug: item.programSlug || selectedClass.course?.slug || selectedProgram?.key || "academy",
+                      status: item.status || "SCHEDULED",
+                    });
+                    const next = response?.liveClass ?? { ...item, title: topic, topic, scheduledAt, duration, meetingLink };
+                    setLiveClasses((records) => records.map((record) => record.id === item.id ? next : record));
+                    setLiveClassMessage("Live class updated.");
+                  }}
+                  onCancel={async (item) => {
+                    if (typeof window !== "undefined" && !window.confirm("Cancel this live class for the selected batch?")) return;
+                    await apiDelete<{ ok?: boolean }>([`/api/live-classes/${item.id}`]);
+                    setLiveClasses((records) => records.filter((record) => record.id !== item.id));
+                    setLiveClassMessage("Live class cancelled.");
+                  }}
+                  onSaveRecording={saveLiveRecordingToLibrary}
+                />
+              </div>
             ) : null}
             {modalStudent ? (
               <StudentProgressModal
@@ -3125,9 +3190,11 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
       {view === "exams" ? (
         <TeacherExamWorkspace
           batches={teacherExamBatches}
-          selectedBatchId={selectedClass?.id ?? null}
+          selectedBatchId={scopedExamBatchId || selectedClass?.id || null}
+          selectedSubject={scopedExamSubject}
           exams={classWorkspace.exams}
           loading={workspaceLoading}
+          autoOpenCreatorKey={workspaceAction === "create-exam" ? `${workspaceAction}:${selectedClass?.id ?? scopedExamBatchId ?? "batch"}` : null}
           onSelectBatch={chooseBatch}
           onRefresh={async () => {
             if (selectedClass?.id) await loadClassWorkspace(selectedClass.id);
@@ -4375,39 +4442,86 @@ function BatchHealthOverview({ health }: { health: ReturnType<typeof calculateBa
   );
 }
 
-function LiveClassStrip({ items, onSaveRecording }: { items: LiveClassRecord[]; onSaveRecording: (item: LiveClassRecord) => void }) {
+function LiveClassStrip({
+  items,
+  onEdit,
+  onCancel,
+  onSaveRecording,
+}: {
+  items: LiveClassRecord[];
+  onEdit: (item: LiveClassRecord) => void;
+  onCancel: (item: LiveClassRecord) => void;
+  onSaveRecording: (item: LiveClassRecord) => void;
+}) {
+  const sortedItems = [...items].sort((a, b) => new Date(b.scheduledAt).getTime() - new Date(a.scheduledAt).getTime());
   return (
     <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <p className="text-xs font-black uppercase tracking-[0.3em] text-[var(--gold-dark)]">Live Classes</p>
-          <h3 className="mt-2 text-2xl font-black">Upcoming and recorded sessions</h3>
+          <h3 className="mt-2 text-2xl font-black">Manage live classes</h3>
+          <p className="mt-1 text-sm text-[var(--muted-blue)]">Published live classes for this batch stay here for editing, joining, cancellation and recording.</p>
         </div>
         <span className="rounded-full bg-[var(--page-bg)] px-4 py-2 text-xs font-black">{items.length} class(es)</span>
       </div>
       <div className="mt-4 grid gap-3 md:grid-cols-2">
-        {items.map((item) => (
+        {sortedItems.map((item) => (
           <article key={item.id} className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
             <div className="flex items-start gap-3">
               <span className="grid h-11 w-11 place-items-center rounded-xl border border-[var(--border)] bg-white">
                 <PlayCircle size={18} />
               </span>
               <div className="min-w-0 flex-1">
-                <p className="text-xs font-black uppercase tracking-[0.22em] text-[var(--gold-dark)]">{item.subject || "Live Class"}</p>
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <p className="text-xs font-black uppercase tracking-[0.22em] text-[var(--gold-dark)]">{item.subject || "Live Class"}</p>
+                  <span className="rounded-full border border-[var(--border)] bg-white px-3 py-1 text-[11px] font-black uppercase text-[var(--muted-blue)]">{item.status || "Scheduled"}</span>
+                </div>
                 <h4 className="mt-1 text-lg font-black">{item.topic || item.title}</h4>
-                <p className="mt-1 text-sm text-[var(--muted-blue)]">{new Date(item.scheduledAt).toLocaleString()} / {item.duration} min</p>
+                <p className="mt-1 text-sm text-[var(--muted-blue)]">
+                  {new Date(item.scheduledAt).toLocaleDateString()} at {new Date(item.scheduledAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} / {item.duration} min
+                </p>
+                <div className="mt-3">
+                  <LiveClassCountdown item={item} />
+                </div>
                 <div className="mt-3 flex flex-wrap gap-2">
-                  <a href={item.meetingLink} target="_blank" rel="noreferrer" className="rounded-xl bg-[var(--ink)] px-4 py-2 text-xs font-black text-white">Join</a>
-                  <button type="button" onClick={() => onSaveRecording(item)} className="rounded-xl border border-[var(--border)] bg-white px-4 py-2 text-xs font-black">Save Recording To Library</button>
+                  <a href={item.meetingLink} target="_blank" rel="noreferrer" className="rounded-xl border border-[var(--border)] bg-white px-4 py-2 text-xs font-black text-[var(--ink)] shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">Join</a>
+                  <button type="button" onClick={() => onEdit(item)} className="rounded-xl border border-[var(--border)] bg-white px-4 py-2 text-xs font-black text-[var(--ink)] shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">Edit</button>
+                  <button type="button" onClick={() => onCancel(item)} className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-2 text-xs font-black text-rose-700 transition hover:-translate-y-0.5 hover:shadow-md">Cancel</button>
+                  <button type="button" onClick={() => onSaveRecording(item)} className="rounded-xl border border-[var(--border)] bg-white px-4 py-2 text-xs font-black text-[var(--ink)] shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">Save Recording</button>
                 </div>
               </div>
             </div>
           </article>
         ))}
-        {!items.length ? <EmptyState text="No live classes are scheduled for this batch yet." /> : null}
+        {!items.length ? <EmptyState text="No live classes are published for this batch yet." /> : null}
       </div>
     </div>
   );
+}
+
+function liveClassEndsAt(item: LiveClassRecord) {
+  const start = new Date(item.scheduledAt).getTime();
+  return Number.isFinite(start) ? start + Math.max(1, Number(item.duration || 60)) * 60_000 : 0;
+}
+
+function LiveClassCountdown({ item }: { item: LiveClassRecord }) {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const timer = window.setInterval(() => setNow(Date.now()), 30_000);
+    return () => window.clearInterval(timer);
+  }, []);
+  const start = new Date(item.scheduledAt).getTime();
+  const end = liveClassEndsAt(item);
+  const target = now < start ? start : end;
+  const diff = Math.max(0, target - now);
+  const hours = Math.floor(diff / 3_600_000);
+  const minutes = Math.max(1, Math.ceil((diff % 3_600_000) / 60_000));
+  const label = now < start
+    ? `Starts in ${hours ? `${hours}h ` : ""}${minutes}m`
+    : now < end
+      ? `Live now / ${hours ? `${hours}h ` : ""}${minutes}m left`
+      : "Class ended";
+  return <span className="inline-flex rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-black text-emerald-800">{label}</span>;
 }
 
 function LiveClassCreatorModal({

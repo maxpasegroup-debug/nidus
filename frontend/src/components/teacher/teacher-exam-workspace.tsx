@@ -67,8 +67,10 @@ type ResultsPayload = {
 type Props = {
   batches: TeacherExamBatch[];
   selectedBatchId?: string | null;
+  selectedSubject?: string | null;
   exams: TeacherExamRecord[];
   loading?: boolean;
+  autoOpenCreatorKey?: string | null;
   onSelectBatch: (id: string) => void;
   onRefresh: () => void | Promise<void>;
 };
@@ -129,17 +131,26 @@ async function requestJson<T>(path: string, init?: RequestInit) {
   return unwrap<T>(await response.json());
 }
 
-function parseNumberedBlocks(text: string) {
-  const normalized = text
+function normalizeExtractedText(text: string) {
+  return text
     .replace(/\r/g, "")
-    .replace(/\s+(?=Q\s*\d+[\).])/gi, "\n")
-    .replace(/\s+(?=\d+[\).]\s+)/g, "\n")
+    .replace(/\u00a0/g, " ")
+    .replace(/[ \t]+/g, " ")
+    .trim();
+}
+
+function parseNumberedBlocks(text: string) {
+  const normalized = (text
+    ? normalizeExtractedText(text)
+      .replace(/(^|\s)(Q\s*\d+\s*[\).])/gi, "\n$2")
+      .replace(/\s+(?=\d+\s*[\).]\s+)/g, "\n")
+    : "")
     .trim();
   if (!normalized) return [];
-  const parts = normalized.split(/\n(?=\s*(?:Q\s*)?\d+[\).]\s+)/gi);
+  const parts = normalized.split(/\n(?=\s*(?:Q\s*)?\d+\s*[\).])/gi);
   return parts
     .map((part) => part.trim())
-    .filter((part) => /^(?:Q\s*)?\d+[\).]\s+/i.test(part));
+    .filter((part) => /^(?:Q\s*)?\d+\s*[\).]/i.test(part));
 }
 
 function readUInt16(view: DataView, offset: number) {
@@ -244,11 +255,11 @@ async function extractPdfText(file: File) {
 }
 
 function stripNumber(line: string) {
-  return line.replace(/^\s*(?:Q\s*)?\d+[\).]\s*/i, "").trim();
+  return line.replace(/^\s*(?:Q\s*)?\d+\s*[\).:-]\s*/i, "").trim();
 }
 
 function stripQuestionNumber(line: string) {
-  return line.replace(/^\s*(?:Q\s*)?(\d+)[\).]\s*/i, "").trim();
+  return line.replace(/^\s*(?:Q\s*)?(\d+)\s*[\).]\s*/i, "").trim();
 }
 
 function extractOptionText(block: string, option: "A" | "B" | "C" | "D") {
@@ -261,13 +272,13 @@ function extractOptionText(block: string, option: "A" | "B" | "C" | "D") {
 }
 
 function parseQuestionBlock(block: string, index: number) {
-  const number = Number(block.match(/^\s*(?:Q\s*)?(\d+)[\).]/i)?.[1] || index + 1);
+  const number = Number(block.match(/^\s*(?:Q\s*)?(\d+)\s*[\).]/i)?.[1] || index + 1);
   const normalized = block
     .replace(/\n+/g, " ")
     .replace(/\s+/g, " ")
     .trim();
   const withoutNumber = stripQuestionNumber(normalized);
-  const firstOptionIndex = withoutNumber.search(/\s[\(\[]?A[\)\].]\s+/i);
+  const firstOptionIndex = withoutNumber.search(/(?:^|\s)[\(\[]?A[\)\].]\s+/i);
   const questionText = (firstOptionIndex >= 0 ? withoutNumber.slice(0, firstOptionIndex) : withoutNumber)
     .trim()
     .replace(/\s+/g, " ");
@@ -280,40 +291,43 @@ function parseQuestionBlock(block: string, index: number) {
   return { number, questionText, options: [optionA, optionB, optionC, optionD] };
 }
 
-function parseAnswerMap(text: string) {
-  const map = new Map<number, string>();
-  text.split(/\n+/).forEach((line) => {
-    const match = line.match(/^\s*(\d+)\D+([A-D])\b/i);
-    if (match) map.set(Number(match[1]), match[2].toUpperCase());
-  });
-  return map;
-}
-
-function parseExplanationMap(text: string) {
-  const map = new Map<number, string>();
-  parseNumberedBlocks(text).forEach((block, index) => {
+function parseAnswerGuide(text: string) {
+  const map = new Map<number, { answer?: string; explanation?: string }>();
+  const normalized = normalizeExtractedText(text)
+    .replace(/(^|\s)(?:Q\s*)?(\d+)\s*[-:.)]\s*(?=(?:answer\s*)?\(?[A-D]\)?)/gi, "\n$2 - ")
+    .trim();
+  if (!normalized) return map;
+  const blocks = normalized.split(/\n(?=\s*\d+\s*[-:.)]\s*)/g).map((block) => block.trim()).filter(Boolean);
+  blocks.forEach((block, index) => {
     const number = Number(block.match(/^\s*(\d+)/)?.[1] || index + 1);
-    map.set(number, stripNumber(block));
+    const withoutNumber = stripNumber(block);
+    const answerMatch = withoutNumber.match(/^(?:answer|ans|correct answer)?\s*[:\-]?\s*\(?([A-D])\)?\b/i);
+    const answer = answerMatch?.[1]?.toUpperCase();
+    const explanation = withoutNumber
+      .replace(/^(?:answer|ans|correct answer)?\s*[:\-]?\s*\(?[A-D]\)?[\).:\-\s]*/i, "")
+      .replace(/^explanation\s*[:\-]\s*/i, "")
+      .trim();
+    if (answer || explanation) map.set(number, { answer, explanation });
   });
   return map;
 }
 
-function buildQuestions(source: string, answerKey: string, explanations: string, topic: string, totalMarks: number): QuestionDraft[] {
-  const answerMap = parseAnswerMap(answerKey);
-  const explanationMap = parseExplanationMap(explanations);
+function buildQuestions(source: string, answerGuide: string, topic: string, totalMarks: number): QuestionDraft[] {
+  const answerGuideMap = parseAnswerGuide(answerGuide);
   const blocks = parseNumberedBlocks(source);
   const perQuestionMarks = Math.max(1, Number(((Number.isFinite(totalMarks) ? totalMarks : 100) / Math.max(1, blocks.length)).toFixed(2)));
 
   return blocks.map((block, index) => {
     const parsed = parseQuestionBlock(block, index);
+    const answerGuideEntry = answerGuideMap.get(parsed.number);
     return {
       questionText: parsed.questionText,
       optionA: parsed.options[0] || "Option A",
       optionB: parsed.options[1] || "Option B",
       optionC: parsed.options[2] || "Option C",
       optionD: parsed.options[3] || "Option D",
-      correctAnswer: answerMap.get(parsed.number) || "A",
-      explanation: explanationMap.get(parsed.number) || "Explanation will be reviewed by faculty.",
+      correctAnswer: answerGuideEntry?.answer || "A",
+      explanation: answerGuideEntry?.explanation || "Explanation will be reviewed by faculty.",
       marks: perQuestionMarks,
       negativeMarks: 0,
       difficultyLevel: "MEDIUM",
@@ -362,7 +376,7 @@ function inferExamTopic(source: string, fallback: string) {
   return topic || fallback || "General";
 }
 
-export function TeacherExamWorkspace({ batches, selectedBatchId, exams, loading, onSelectBatch, onRefresh }: Props) {
+export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject, exams, loading, autoOpenCreatorKey, onSelectBatch, onRefresh }: Props) {
   const [activeBatchId, setActiveBatchId] = useState(selectedBatchId || batches[0]?.id || "");
   const activeBatch = useMemo(() => batches.find((batch) => batch.id === activeBatchId) || batches[0] || null, [activeBatchId, batches]);
   const [targetBatchIds, setTargetBatchIds] = useState<string[]>(activeBatch?.id ? [activeBatch.id] : []);
@@ -371,17 +385,16 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, exams, loading,
   const [step, setStep] = useState(1);
   const [form, setForm] = useState(initialForm);
   const [questionSource, setQuestionSource] = useState("");
-  const [answerKey, setAnswerKey] = useState("");
-  const [explanations, setExplanations] = useState("");
+  const [answerGuide, setAnswerGuide] = useState("");
   const [uploadedQuestionPaper, setUploadedQuestionPaper] = useState("");
-  const [uploadedAnswerKey, setUploadedAnswerKey] = useState("");
-  const [uploadedExplanations, setUploadedExplanations] = useState("");
+  const [uploadedAnswerGuide, setUploadedAnswerGuide] = useState("");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const [resultsExam, setResultsExam] = useState<TeacherExamRecord | null>(null);
   const [results, setResults] = useState<ResultsPayload | null>(null);
   const [editingExam, setEditingExam] = useState<TeacherExamRecord | null>(null);
   const [previewIndex, setPreviewIndex] = useState(0);
+  const [handledAutoOpenKey, setHandledAutoOpenKey] = useState<string | null>(null);
 
   useEffect(() => {
     if (selectedBatchId && selectedBatchId !== activeBatchId) setActiveBatchId(selectedBatchId);
@@ -397,6 +410,12 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, exams, loading,
     }
   }, [activeBatch, subject]);
 
+  useEffect(() => {
+    if (selectedSubject && activeBatch?.subjects?.includes(selectedSubject) && subject !== selectedSubject) {
+      setSubject(selectedSubject);
+    }
+  }, [activeBatch?.subjects, selectedSubject, subject]);
+
   const batchExams = useMemo(() => {
     if (!activeBatch) return [];
     return exams.filter((exam) => exam.batchId === activeBatch.id || exam.batchName === activeBatch.name);
@@ -404,7 +423,7 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, exams, loading,
   const liveExamCount = batchExams.filter((exam) => !["ARCHIVED", "CANCELLED"].includes(String(exam.status || "").toUpperCase())).length;
   const submittedCount = batchExams.reduce((total, exam) => total + Number(exam.attemptStats?.submitted ?? 0), 0);
 
-  const questions = useMemo(() => buildQuestions(questionSource, answerKey, explanations, form.topic, Number(form.marks)), [answerKey, explanations, form.marks, form.topic, questionSource]);
+  const questions = useMemo(() => buildQuestions(questionSource, answerGuide, form.topic, Number(form.marks)), [answerGuide, form.marks, form.topic, questionSource]);
   const readiness = useMemo(() => paperReadiness(questions), [questions]);
   const effectiveTopic = useMemo(() => inferExamTopic(questionSource, form.topic), [form.topic, questionSource]);
   const effectiveTitle = useMemo(() => form.title.trim() || inferExamTitle(questionSource, subject, activeBatch?.name), [activeBatch?.name, form.title, questionSource, subject]);
@@ -415,6 +434,12 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, exams, loading,
       setSubject("Mathematics");
     }
   }, [activeBatch?.subjects, questionSource, subject]);
+
+  useEffect(() => {
+    if (!autoOpenCreatorKey || autoOpenCreatorKey === handledAutoOpenKey || !activeBatch) return;
+    setHandledAutoOpenKey(autoOpenCreatorKey);
+    openCreator();
+  }, [activeBatch, autoOpenCreatorKey, handledAutoOpenKey]);
 
   function openBatch(batchId: string) {
     setActiveBatchId(batchId);
@@ -459,11 +484,9 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, exams, loading,
       date: new Date().toISOString().slice(0, 10),
     });
     setQuestionSource("");
-    setAnswerKey("");
-    setExplanations("");
+    setAnswerGuide("");
     setUploadedQuestionPaper("");
-    setUploadedAnswerKey("");
-    setUploadedExplanations("");
+    setUploadedAnswerGuide("");
     setTargetBatchIds(activeBatch?.id ? [activeBatch.id] : []);
     setStep(1);
     setPreviewIndex(0);
@@ -492,11 +515,9 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, exams, loading,
       `(C) ${question.optionC}`,
       `(D) ${question.optionD}`,
     ].join("\n")).join("\n\n"));
-    setAnswerKey(savedQuestions.map((question, index) => `${index + 1} - ${question.correctAnswer}`).join("\n"));
-    setExplanations(savedQuestions.map((question, index) => `${index + 1}. ${question.explanation}`).join("\n"));
+    setAnswerGuide(savedQuestions.map((question, index) => `${index + 1} - ${question.correctAnswer}\nExplanation: ${question.explanation}`).join("\n\n"));
     setUploadedQuestionPaper("");
-    setUploadedAnswerKey("");
-    setUploadedExplanations("");
+    setUploadedAnswerGuide("");
     setStep(1);
     setPreviewIndex(0);
     setMessage("");
@@ -691,7 +712,7 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, exams, loading,
             <div>
               <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold-dark)]">Exams</p>
               <h2 className="mt-2 text-2xl font-black sm:text-3xl">Create and publish an exam.</h2>
-              <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--muted-blue)]">Choose a class, add questions, answer key and explanations, preview once, then publish to students.</p>
+              <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--muted-blue)]">Choose a class, add questions plus answer explanations, preview once, then publish to students.</p>
             </div>
           </div>
           <button type="button" onClick={openCreator} disabled={!activeBatch} className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl border border-slate-950 bg-slate-950 px-5 py-3 text-sm font-black text-white disabled:opacity-50 sm:w-auto">
@@ -793,7 +814,7 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, exams, loading,
               </button>
               </div>
               <div className="mt-4 grid grid-cols-4 gap-2">
-                {["Exam details", "Upload paper", "Student preview", "Publish"].map((label, index) => (
+                {["Exam details", "Upload paper", "Preview answers", "Publish"].map((label, index) => (
                   <button key={label} type="button" onClick={() => index + 1 < step && setStep(index + 1)} className={`min-h-10 rounded-xl border px-2 text-xs font-black sm:text-sm ${step === index + 1 ? "border-slate-950 bg-slate-950 text-white" : index + 1 < step ? "border-emerald-200 bg-emerald-50 text-emerald-800" : "border-[var(--border)] bg-white text-[var(--muted-blue)]"}`}>{index + 1}. {label}</button>
                 ))}
               </div>
@@ -832,7 +853,7 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, exams, loading,
               ) : null}
 
               {step === 2 ? (
-                <div className="grid gap-4 lg:grid-cols-3">
+                <div className="grid gap-4 lg:grid-cols-2">
                   <ExamInputCard title="Question Paper" description="Upload PDF, Word or TXT. NIDUS extracts numbered questions and A/B/C/D options for review.">
                     <textarea value={questionSource} onChange={(event) => setQuestionSource(event.target.value)} rows={12} className="w-full rounded-xl border border-[var(--border)] bg-white p-3 text-sm leading-6" placeholder={"1. Question...\nA. Option\nB. Option\nC. Option\nD. Option"} />
                     <FileUploadRow
@@ -842,22 +863,13 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, exams, loading,
                       onChange={(file) => void appendFileText(file, setQuestionSource, questionSource, setUploadedQuestionPaper)}
                     />
                   </ExamInputCard>
-                  <ExamInputCard title="Answer Key" description="One line per answer. Example: 1 - A">
-                    <textarea value={answerKey} onChange={(event) => setAnswerKey(event.target.value)} rows={12} className="w-full rounded-xl border border-[var(--border)] bg-white p-3 text-sm leading-6" placeholder={"1 - A\n2 - C\n3 - B"} />
+                  <ExamInputCard title="Answer Key + Explanations" description="Keep each answer and explanation together. Example: 1 - A Explanation: Sets common to both are 2 and 4.">
+                    <textarea value={answerGuide} onChange={(event) => setAnswerGuide(event.target.value)} rows={12} className="w-full rounded-xl border border-[var(--border)] bg-white p-3 text-sm leading-6" placeholder={"1 - A\nExplanation: Sets common to both are 2 and 4.\n\n2 - C\nExplanation: Substitute x = 4."} />
                     <FileUploadRow
-                      label="Upload answer key"
-                      fileName={uploadedAnswerKey}
+                      label="Upload answer key + explanations"
+                      fileName={uploadedAnswerGuide}
                       accept=".txt,.docx,.pdf"
-                      onChange={(file) => void appendFileText(file, setAnswerKey, answerKey, setUploadedAnswerKey)}
-                    />
-                  </ExamInputCard>
-                  <ExamInputCard title="Explanations" description="These become the final student report after release.">
-                    <textarea value={explanations} onChange={(event) => setExplanations(event.target.value)} rows={12} className="w-full rounded-xl border border-[var(--border)] bg-white p-3 text-sm leading-6" placeholder={"1. Explanation...\n2. Explanation..."} />
-                    <FileUploadRow
-                      label="Upload explanations"
-                      fileName={uploadedExplanations}
-                      accept=".txt,.docx,.pdf"
-                      onChange={(file) => void appendFileText(file, setExplanations, explanations, setUploadedExplanations)}
+                      onChange={(file) => void appendFileText(file, setAnswerGuide, answerGuide, setUploadedAnswerGuide)}
                     />
                   </ExamInputCard>
                 </div>
@@ -894,6 +906,10 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, exams, loading,
                         <div className="mt-5 grid gap-3 sm:grid-cols-2">
                           {(["A", "B", "C", "D"] as const).map((option) => <div key={option} className="flex min-h-14 items-center gap-3 rounded-xl border border-[var(--border)] bg-white px-4 text-sm font-bold"><span className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-[var(--border)] bg-[var(--page-bg)] font-black">{option}</span>{optionText(questions[previewIndex], option)}</div>)}
                         </div>
+                        <div className="mt-5 rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
+                          <p className="text-sm font-black text-emerald-900">Correct Answer: {questions[previewIndex].correctAnswer}</p>
+                          <p className="mt-2 text-sm leading-6 text-emerald-900">{questions[previewIndex].explanation}</p>
+                        </div>
                         <div className="mt-6 flex items-center justify-between gap-3 border-t border-[var(--border)] pt-5"><button type="button" disabled={previewIndex === 0} onClick={() => setPreviewIndex((value) => Math.max(0, value - 1))} className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-[var(--border)] px-4 text-sm font-black disabled:opacity-40"><ChevronLeft size={16} />Previous</button><button type="button" disabled={previewIndex >= questions.length - 1} onClick={() => setPreviewIndex((value) => Math.min(questions.length - 1, value + 1))} className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-slate-950 px-4 text-sm font-black text-white disabled:opacity-40">Next<ChevronRight size={16} /></button></div>
                       </article>
                     ) : <p className="rounded-2xl border border-dashed border-[var(--border)] p-8 text-center font-bold text-[var(--muted-blue)]">Upload a valid question paper to preview the student exam.</p>}
@@ -918,7 +934,7 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, exams, loading,
                       <p><b>Duration:</b> {form.duration} minutes</p><p><b>Total marks:</b> {form.marks}</p>
                     </div>
                   </div>
-                  <p className="mt-5 text-sm leading-6 text-[var(--muted-blue)]">Publish sends this exam to students in this batch. Student result reports stay hidden until you review and release results.</p>
+                  <p className="mt-5 text-sm leading-6 text-[var(--muted-blue)]">Publish sends this exam to students. Students see only the question paper during the exam; after submission they receive score, correct answers, explanations and improvement feedback.</p>
                 </div>
               ) : null}
 
