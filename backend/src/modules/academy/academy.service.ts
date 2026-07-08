@@ -204,6 +204,7 @@ type ExamInput = {
   instructions?: string;
   publishDate?: string;
   publishTime?: string;
+  publishAt?: string;
   draft?: unknown;
   status?: string;
 };
@@ -230,6 +231,7 @@ type TodayActionInput = {
 
 type ApproveAdmissionInput = StudentInput & {
   batchId: string;
+  batchIds?: string[];
   applicationId?: string;
   leadId?: string;
   totalFee?: number;
@@ -1269,17 +1271,30 @@ async function findStudentUserForAdmission(input: StudentInput) {
   if (input.userId) {
     return prisma.user.update({
       where: { id: input.userId },
-      data: { role: Role.STUDENT },
+      data: {
+        role: Role.STUDENT,
+        roleOnboardingStatus: "ACTIVE",
+        roleActivatedAt: new Date(),
+        isDisabled: false,
+        lockedUntil: null,
+        loginFailureCount: 0,
+      },
     });
   }
 
-  if (!input.email) {
-    throw Object.assign(new Error("Student email or user id is required"), { statusCode: 400 });
+  const email = input.email?.trim().toLowerCase();
+  const mobile = input.phone?.trim();
+  if (!email && !mobile) {
+    throw Object.assign(new Error("Student email, mobile or user id is required"), { statusCode: 400 });
   }
 
-  const existing = await prisma.user.findUnique({ where: { email: input.email.toLowerCase() } });
+  const existing = email
+    ? await prisma.user.findUnique({ where: { email } })
+    : mobile
+      ? await prisma.user.findUnique({ where: { mobile } })
+      : null;
   if (!existing) {
-    throw Object.assign(new Error("Student account not found. Ask the applicant to create a free account first."), {
+    throw Object.assign(new Error("Student account not found. Ask the applicant to sign up first, or create a guest account from BDE."), {
       statusCode: 404,
     });
   }
@@ -1290,6 +1305,11 @@ async function findStudentUserForAdmission(input: StudentInput) {
       name: input.name || existing.name,
       mobile: input.phone || existing.mobile,
       role: Role.STUDENT,
+      roleOnboardingStatus: "ACTIVE",
+      roleActivatedAt: new Date(),
+      isDisabled: false,
+      lockedUntil: null,
+      loginFailureCount: 0,
     },
   });
 }
@@ -3428,9 +3448,13 @@ export const academyService = {
     const providedDraft = asDraftPayload(input);
     const generatedDraft = providedDraft?.questions?.length ? providedDraft : await buildExamDraft(user, input);
     const questions = generatedDraft.questions ?? [];
-    const publishAt = input.publishDate
-      ? new Date(`${input.publishDate}T${input.publishTime || "00:00"}:00`)
-      : null;
+    // Browser clients send an ISO instant. The explicit IST fallback keeps older
+    // clients correct even though Railway runs in UTC.
+    const publishAt = input.publishAt
+      ? new Date(input.publishAt)
+      : input.publishDate
+        ? new Date(`${input.publishDate}T${input.publishTime || "00:00"}:00+05:30`)
+        : null;
     if (publishAt && Number.isNaN(publishAt.getTime())) {
       throw Object.assign(new Error("Exam date or time is invalid"), { statusCode: 400 });
     }
@@ -4009,17 +4033,27 @@ export const academyService = {
 
   async approveAdmissionToBatch(user: Requester, input: ApproveAdmissionInput) {
     requireAdmissionAccess(user);
-    if (!input.batchId) {
+    const requestedBatchIds = Array.from(new Set([...(input.batchIds || []), input.batchId].filter(Boolean)));
+    if (!requestedBatchIds.length) {
       throw Object.assign(new Error("Batch is required"), { statusCode: 400 });
     }
 
-    const batch = await db.batch.findUnique({ where: { id: input.batchId }, include: { course: true } });
-    if (!batch) {
+    const batches = await db.batch.findMany({
+      where: { id: { in: requestedBatchIds } },
+      include: { course: true },
+    });
+    if (batches.length !== requestedBatchIds.length) {
       throw Object.assign(new Error("Batch not found"), { statusCode: 404 });
     }
+    const batch = batches[0];
+    const batchNames = batches.map((item: any) => item.name).join(", ");
 
     const student = await findStudentUserForAdmission(input);
-    const enrollment = await this.addStudent(user, input.batchId, input);
+    const enrollments = [];
+    for (const activeBatch of batches) {
+      enrollments.push(await this.addStudent(user, activeBatch.id, input));
+    }
+    const enrollment = enrollments[0];
     const now = new Date();
     const totalFee = Number(input.totalFee || 0);
     const amountPaid = Math.max(0, Number(input.amountPaid || 0));
@@ -4028,20 +4062,23 @@ export const academyService = {
       input.notes || "",
       amountPaid > 0 ? `Payment confirmed: INR ${amountPaid} via ${input.paymentMethod || "MANUAL"}.` : "",
       input.transactionRef ? `Transaction reference: ${input.transactionRef}.` : "",
+      `Batch allocation: ${batchNames}.`,
     ].filter(Boolean).join("\n");
     let admission: Record<string, unknown> | null = null;
     let payment: Record<string, unknown> | null = null;
+    let feePlan: Record<string, unknown> | null = null;
+    let feeInstallment: Record<string, unknown> | null = null;
 
     if (batch.courseId) {
       const existingAdmission = input.leadId
         ? await prisma.admission.findFirst({ where: { leadId: input.leadId, studentId: student.id, courseId: batch.courseId } })
-        : await prisma.admission.findFirst({ where: { studentId: student.id, courseId: batch.courseId, batch: batch.name } });
+        : await prisma.admission.findFirst({ where: { studentId: student.id, courseId: batch.courseId, batch: { in: [batch.name, batchNames] } } });
 
       admission = existingAdmission
         ? await prisma.admission.update({
             where: { id: existingAdmission.id },
             data: {
-              batch: batch.name,
+              batch: batchNames,
               status: "ENROLLED",
               approvalStatus: "APPROVED",
               approvedBy: user.id,
@@ -4067,13 +4104,44 @@ export const academyService = {
               approvedBy: user.id,
               approvedAt: now,
               onboardingStatus: "ACTIVE",
-              batch: batch.name,
+              batch: batchNames,
               totalFee,
               paidAmount: amountPaid,
               dueAmount: Math.max(totalFee - amountPaid, 0),
               remarks: approvalNotes || null,
             },
           });
+    }
+
+    if (totalFee > 0) {
+      feePlan = await prisma.feePlan.create({
+        data: {
+          studentId: student.id,
+          admissionId: typeof admission?.id === "string" ? admission.id : undefined,
+          courseId: batch.courseId || undefined,
+          title: `Admission fee - ${batchNames}`,
+          totalAmount: totalFee,
+          netAmount: totalFee,
+          paidAmount: amountPaid,
+          dueAmount: Math.max(totalFee - amountPaid, 0),
+          status: Math.max(totalFee - amountPaid, 0) > 0 ? "ACTIVE" : "PAID",
+          createdBy: user.id,
+        },
+      });
+      feeInstallment = await prisma.feeInstallment.create({
+        data: {
+          studentId: student.id,
+          feePlanId: feePlan.id as string,
+          title: "Admission fee",
+          amount: totalFee,
+          paidAmount: amountPaid,
+          dueAmount: Math.max(totalFee - amountPaid, 0),
+          dueDate: now,
+          paidStatus: Math.max(totalFee - amountPaid, 0) > 0 ? (amountPaid > 0 ? "PARTIAL" : "PENDING") : "PAID",
+          paidAt: amountPaid > 0 ? now : undefined,
+          sequence: 1,
+        },
+      });
     }
 
     if (amountPaid > 0) {
@@ -4084,6 +4152,7 @@ export const academyService = {
           userId: student.id,
           courseId: batch.courseId || undefined,
           admissionId: typeof admission?.id === "string" ? admission.id : undefined,
+          feeInstallmentId: typeof feeInstallment?.id === "string" ? feeInstallment.id : undefined,
           collectorId: user.id,
           amount: amountPaid,
           currency: "INR",
@@ -4120,8 +4189,8 @@ export const academyService = {
           status: "QUEUED",
           metadata: {
             admissionId: admission?.id || null,
-            batchId: batch.id,
-            batchName: batch.name,
+            batchIds: requestedBatchIds,
+            batchName: batchNames,
             amount: amountPaid,
             currency: "INR",
             method,
@@ -4133,7 +4202,7 @@ export const academyService = {
         lines: [
           `Receipt: ${receiptNumber}`,
           `Student: ${student.name || student.email}`,
-          `Batch: ${batch.name}`,
+          `Batch: ${batchNames}`,
           `Amount: INR ${amountPaid}`,
           `Method: ${method}`,
           input.transactionRef ? `Reference: ${input.transactionRef}` : "",
@@ -4155,7 +4224,7 @@ export const academyService = {
           where: { id: input.leadId },
           data: {
             status: "ENROLLED",
-            notes: `${existingNotes}[${now.toISOString()}] Admission approved into ${batch.name}.${approvalNotes ? `\n${approvalNotes}` : ""}`,
+            notes: `${existingNotes}[${now.toISOString()}] Admission approved into ${batchNames}.${approvalNotes ? `\n${approvalNotes}` : ""}`,
           },
         });
       }
@@ -4163,12 +4232,14 @@ export const academyService = {
 
     await auditAcademicAction(user, "ADMISSION_APPROVED_AND_ACTIVATED", "BatchStudent", enrollment.id, {
       batchId: input.batchId,
-      batchName: batch.name,
+      batchIds: requestedBatchIds,
+      batchName: batchNames,
       studentId: student.id,
       studentEmail: student.email,
       leadId: input.leadId || null,
       admissionId: admission?.id || null,
       paymentId: payment?.id || null,
+      feePlanId: feePlan?.id || null,
       paymentStatus,
       amountPaid,
     });
@@ -4185,8 +4256,11 @@ export const academyService = {
         mobile: student.mobile,
       },
       enrollment,
+      enrollments,
       admission,
       payment,
+      feePlan,
+      feeInstallment,
     };
   },
 };

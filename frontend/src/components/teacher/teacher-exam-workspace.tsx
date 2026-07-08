@@ -527,6 +527,9 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, exams, loading,
         await onRefresh();
         return;
       }
+      const publishAt = form.date && form.time
+        ? new Date(`${form.date}T${form.time}:00`).toISOString()
+        : undefined;
       await Promise.all(selectedBatches.map((targetBatch) =>
         requestJson("/api/academy/exams", {
           method: "POST",
@@ -546,6 +549,7 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, exams, loading,
             ].filter(Boolean).join("\n"),
             publishDate: form.date,
             publishTime: form.time,
+            publishAt,
             draft: {
               title: effectiveTitle,
               description: form.instructions || `Faculty published ${subject} exam for ${targetBatch.name}.`,

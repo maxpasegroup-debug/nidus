@@ -485,6 +485,12 @@ export const testsService = {
     if (test.publishAt && test.publishAt > new Date()) {
       throw new Error("This test will open at the scheduled time.");
     }
+    if (test.publishAt) {
+      const closesAt = new Date(test.publishAt.getTime() + test.duration * 60_000);
+      if (closesAt <= new Date()) {
+        throw new Error("This test window has closed.");
+      }
+    }
 
     const existingAttempt = await prisma.testAttempt.findFirst({
       where: { userId, testId },

@@ -485,7 +485,7 @@ function publishAtFrom(input: Body) {
   if (explicit) return explicit;
   const date = optionalText(input.date) ?? optionalText(input.scheduledDate);
   const time = optionalText(input.time) ?? optionalText(input.scheduledTime);
-  if (date && time) return new Date(`${date}T${time}:00`).toISOString();
+  if (date && time) return new Date(`${date}T${time}:00+05:30`).toISOString();
   return undefined;
 }
 

@@ -223,7 +223,15 @@ function examDateTime(exam: ExamSummary) {
   return date ?? "";
 }
 
-function Countdown({ value, mode = "start" }: { value?: string | null; mode?: "start" | "end" }) {
+function examWindow(exam: ExamSummary) {
+  const startsAt = examDateTime(exam);
+  const start = toTimestamp(startsAt);
+  const duration = Number(exam.durationMinutes ?? exam.duration ?? 0);
+  const end = start && duration > 0 ? start + duration * 60_000 : null;
+  return { startsAt, start, end };
+}
+
+function Countdown({ value, mode = "start", activeLabel = "Now" }: { value?: string | null; mode?: "start" | "end"; activeLabel?: string }) {
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
     const timer = window.setInterval(() => setNow(Date.now()), 30_000);
@@ -232,7 +240,7 @@ function Countdown({ value, mode = "start" }: { value?: string | null; mode?: "s
   const timestamp = toTimestamp(value, mode);
   const diff = timestamp ? timestamp - now : 0;
   const label = !value || diff <= 0
-    ? "Now"
+    ? activeLabel
     : diff < 3_600_000
       ? `${Math.max(1, Math.ceil(diff / 60_000))}m`
       : diff < 86_400_000
@@ -362,7 +370,10 @@ export function StudentTodayPage() {
   const pendingAssignments = assignments.filter((assignment) => assignment.submissionStatus !== "SUBMITTED");
   const reminders = [
     ...exams.map((item) => {
-      const at = examDateTime(item) || today;
+      const window = examWindow(item);
+      const isUpcoming = Boolean(window.start && window.start > Date.now());
+      const isOpen = Boolean(window.start && window.start <= Date.now() && (!window.end || window.end > Date.now()));
+      const at = isUpcoming ? window.startsAt : isOpen && window.end ? new Date(window.end).toISOString() : window.startsAt || today;
       return {
         id: `exam-${item.id || item.testId}`,
         type: "Exam",
@@ -371,8 +382,8 @@ export function StudentTodayPage() {
         at,
         href: "/dashboard/student/exams",
         icon: ClipboardCheck,
-        mode: "start" as const,
-        action: toTimestamp(at) && Number(toTimestamp(at)) > Date.now() ? "Get ready" : "Start now",
+        mode: (isUpcoming ? "start" : "end") as "start" | "end",
+        action: isUpcoming ? "Get ready" : isOpen ? "Start now" : "View exam",
       };
     }),
     ...pendingAssignments.map((item) => ({
@@ -877,9 +888,10 @@ function LiveCard({ item }: { item: LiveClass }) {
 
 function ExamCard({ exam }: { exam: ExamSummary }) {
   const examId = exam.testId || exam.id;
-  const at = examDateTime(exam);
-  const timestamp = toTimestamp(at);
-  const locked = timestamp ? timestamp > Date.now() : false;
+  const window = examWindow(exam);
+  const locked = window.start ? window.start > Date.now() : false;
+  const expired = window.end ? window.end <= Date.now() : false;
+  const countdownAt = locked ? window.startsAt : window.end ? new Date(window.end).toISOString() : window.startsAt;
   return (
     <article className={`rounded-[22px] border p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${locked ? "border-[var(--gold-border)] bg-[var(--gold-soft)]" : "border-[var(--border)] bg-white"}`}>
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -888,14 +900,18 @@ function ExamCard({ exam }: { exam: ExamSummary }) {
           <h3 className="mt-2 text-xl font-black">{exam.examName ?? exam.title ?? exam.name ?? "Assigned Exam"}</h3>
           <p className="mt-1 text-sm text-[var(--muted-blue)]">{exam.batchName ?? exam.batch?.name ?? "Assigned batch"} / {exam.topic ?? "General"}</p>
         </div>
-        <Countdown value={at} />
+        <Countdown value={countdownAt} mode={locked ? "start" : "end"} activeLabel={expired ? "Closed" : "Open now"} />
       </div>
       <p className="mt-3 text-sm text-[var(--muted-blue)]">
         {exam.totalQuestions ? `${exam.totalQuestions} questions` : "Questions assigned"} / {exam.durationMinutes ?? exam.duration ?? "Timed"} min
       </p>
       {locked ? (
         <button type="button" disabled className="mt-4 rounded-xl border border-[var(--border)] bg-white px-4 py-2 text-sm font-black text-[var(--muted-blue)]">
-          Opens {countdownLabel(at)}
+          Opens {countdownLabel(window.startsAt)}
+        </button>
+      ) : expired ? (
+        <button type="button" disabled className="mt-4 rounded-xl border border-slate-200 bg-slate-100 px-4 py-2 text-sm font-black text-slate-500">
+          Exam closed
         </button>
       ) : (
         <Link href={`/test-attempt/${examId}`} className="mt-4 inline-flex rounded-xl bg-[var(--gold-gradient)] px-4 py-2 text-sm font-black">
