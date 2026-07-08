@@ -294,18 +294,19 @@ function parseQuestionBlock(block: string, index: number) {
 function parseAnswerGuide(text: string) {
   const map = new Map<number, { answer?: string; explanation?: string }>();
   const normalized = normalizeExtractedText(text)
-    .replace(/(^|\s)(?:Q\s*)?(\d+)\s*[-:.)]\s*(?=(?:answer\s*)?\(?[A-D]\)?)/gi, "\n$2 - ")
+    .replace(/(^|\s)(Q\s*\d+\s*[\).])/gi, "\n$2")
+    .replace(/\s+(?=\d+\s*[\).]\s+)/g, "\n")
     .trim();
   if (!normalized) return map;
-  const blocks = normalized.split(/\n(?=\s*\d+\s*[-:.)]\s*)/g).map((block) => block.trim()).filter(Boolean);
+  const blocks = normalized.split(/\n(?=\s*(?:Q\s*)?\d+\s*[\).])/gi).map((block) => block.trim()).filter(Boolean);
   blocks.forEach((block, index) => {
-    const number = Number(block.match(/^\s*(\d+)/)?.[1] || index + 1);
+    const number = Number(block.match(/^\s*(?:Q\s*)?(\d+)/i)?.[1] || index + 1);
     const withoutNumber = stripNumber(block);
-    const answerMatch = withoutNumber.match(/^(?:answer|ans|correct answer)?\s*[:\-]?\s*\(?([A-D])\)?\b/i);
+    const answerMatch = withoutNumber.match(/(?:^|\s)(?:answer|ans|correct answer)\s*[:\-]?\s*\(?([A-D])\)?\b/i)
+      || withoutNumber.match(/^\s*\(?([A-D])\)?[\).:\-\s]/i);
     const answer = answerMatch?.[1]?.toUpperCase();
-    const explanation = withoutNumber
-      .replace(/^(?:answer|ans|correct answer)?\s*[:\-]?\s*\(?[A-D]\)?[\).:\-\s]*/i, "")
-      .replace(/^explanation\s*[:\-]\s*/i, "")
+    const explanationMatch = withoutNumber.match(/explanation\s*[:\-]\s*([\s\S]*?)(?=\s*(?:topic\/reference|reference|topic)\s*[:\-]|$)/i);
+    const explanation = (explanationMatch?.[1] || "")
       .trim();
     if (answer || explanation) map.set(number, { answer, explanation });
   });
