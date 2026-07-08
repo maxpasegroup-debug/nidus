@@ -146,16 +146,9 @@ function listPayload<T>(payload: unknown, key: string): T[] {
 
 async function apiJson<T>(path: string): Promise<T> {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_API_BASE_URL || "";
-  const token =
-    typeof window !== "undefined"
-      ? localStorage.getItem("token") ||
-        localStorage.getItem("accessToken") ||
-        localStorage.getItem("authToken") ||
-        localStorage.getItem("nidus_token")
-      : null;
   const response = await fetch(`${baseUrl}${path}`, {
     credentials: "include",
-    headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+    headers: { "Content-Type": "application/json" },
   });
   if (!response.ok) throw new Error("Unable to load learner data");
   const payload = await response.json().catch(() => ({}));
@@ -169,17 +162,10 @@ async function apiList<T>(path: string, key: string): Promise<T[]> {
 
 async function apiPost<T>(path: string, body: unknown): Promise<T> {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_API_BASE_URL || "";
-  const token =
-    typeof window !== "undefined"
-      ? localStorage.getItem("token") ||
-        localStorage.getItem("accessToken") ||
-        localStorage.getItem("authToken") ||
-        localStorage.getItem("nidus_token")
-      : null;
   const response = await fetch(`${baseUrl}${path}`, {
     method: "POST",
     credentials: "include",
-    headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
   if (!response.ok) {

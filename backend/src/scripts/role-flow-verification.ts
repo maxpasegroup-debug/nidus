@@ -11,7 +11,7 @@ const authMiddleware = read("src/middlewares/session.middleware.ts");
 const dashboardRoutes = read("src/modules/dashboard/dashboard.routes.ts");
 const dashboardService = read("src/modules/dashboard/dashboard.service.ts");
 
-for (const role of ["ADMIN", "GUEST", "STUDENT", "PARENT", "TEACHER", "DIRECTOR", "TELECALLER", "MARKETING_COORDINATOR"]) {
+for (const role of ["ADMIN", "GUEST", "STUDENT", "PARENT", "TEACHER", "ACADEMIC_HEAD", "PHYSICAL_TRAINER", "ADMINISTRATIVE_OFFICER", "BUSINESS_DEVELOPMENT_EXECUTIVE", "DIRECTOR", "TELECALLER", "MARKETING_COORDINATOR"]) {
   assert.match(schema, new RegExp(`\\b${role}\\b`), `Role ${role} must exist in Prisma enum`);
 }
 
@@ -28,7 +28,7 @@ assert.match(authService, /role: Role\.ADMIN/, "bootstrap admin must force ADMIN
 assert.match(authService, /emailVerified: true/, "bootstrap admin must bypass verification");
 assert.match(authMiddleware, /requireInstituteScope/, "institute access middleware must exist");
 
-for (const route of ["teacher", "director", "business-development"]) {
+for (const route of ["teacher", "director", "business-development", "student", "parent"]) {
   assert.match(dashboardRoutes, new RegExp(`/${route}`), `${route} dashboard route must exist`);
 }
 

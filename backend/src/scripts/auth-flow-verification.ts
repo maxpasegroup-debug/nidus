@@ -52,7 +52,7 @@ assert.doesNotMatch(schema, /model RefreshToken|model TokenBlacklist|model AuthS
 
 assert.doesNotMatch(app, /csrfProtection/, "global CSRF middleware must not be active");
 assert.match(server, /AuthServiceV2\.ensureSuperAdmin\(\)/, "server startup must bootstrap super admin");
-assert.match(usersRoutes, /usersRouter\.use\(protect, allowRoles\(Role\.ADMIN\)\)/, "user management routes must be admin protected");
+assert.match(usersRoutes, /usersRouter\.use\(protect, allowRoles\(Role\.ADMIN, Role\.DIRECTOR\)\)/, "user management routes must be admin/director protected");
 assert.match(usersRoutes, /DEFAULT_ACCOUNT_PASSWORD/, "admin-created users must use default password");
 assert.match(usersRoutes, /\/:id\/reset-password/, "admin reset password endpoint must exist");
 assert.doesNotMatch(usersRoutes, /password: z\.string/, "admin user creation must not accept custom passwords");

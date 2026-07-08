@@ -13,10 +13,9 @@ type PreviewLead = BulkLeadInput & { rowId: string; warning?: string; assignedNa
 
 async function apiJson<T>(path: string, init?: RequestInit): Promise<T> {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_API_BASE_URL || "";
-  const token = typeof window === "undefined" ? null : localStorage.getItem("token") || localStorage.getItem("accessToken") || localStorage.getItem("authToken") || localStorage.getItem("nidus_token");
   const response = await fetch(`${baseUrl}${path}`, {
     credentials: "include",
-    headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}), ...(init?.headers ?? {}) },
+    headers: { "Content-Type": "application/json", ...(init?.headers ?? {}) },
     ...init,
   });
   if (!response.ok) {

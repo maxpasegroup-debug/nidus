@@ -40,20 +40,10 @@ function unwrapPayload<T>(payload: unknown): T {
 }
 
 async function apiJson<T>(path: string) {
-  const base = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000/api";
-  const token =
-    typeof window !== "undefined"
-      ? localStorage.getItem("token") ||
-        localStorage.getItem("accessToken") ||
-        localStorage.getItem("authToken") ||
-        localStorage.getItem("nidus_token")
-      : null;
+  const base = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_API_BASE_URL || "";
   const response = await fetch(`${base}${path}`, {
     credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
+    headers: { "Content-Type": "application/json" },
   });
   if (!response.ok) throw new Error("Unable to load lesson");
   const payload = await response.json().catch(() => ({}));

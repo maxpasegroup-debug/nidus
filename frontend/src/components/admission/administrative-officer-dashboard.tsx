@@ -109,11 +109,10 @@ const blankForm = (): ApprovalPayload => ({
 
 async function apiJson<T>(path: string, init?: RequestInit): Promise<T> {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_API_BASE_URL || "";
-  const token = typeof window === "undefined" ? null : localStorage.getItem("token") || localStorage.getItem("accessToken") || localStorage.getItem("authToken") || localStorage.getItem("nidus_token");
   const response = await fetch(`${baseUrl}${path}`, {
     credentials: "include",
     ...init,
-    headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}), ...(init?.headers ?? {}) },
+    headers: { "Content-Type": "application/json", ...(init?.headers ?? {}) },
   });
   if (!response.ok) {
     const body = await response.json().catch(() => null);

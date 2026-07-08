@@ -44,16 +44,16 @@ export function canAccessDashboardPath(user: Pick<AuthUser, "role" | "roleMetada
   if (user.role === "ACADEMIC_HEAD" || template === "ACADEMIC_HEAD") {
     return path.startsWith("/dashboard/academic-head") || path.startsWith("/dashboard/teacher") || path.startsWith("/dashboard/director/academic") || path.startsWith("/dashboard/director/materials") || path.startsWith("/dashboard/director/exams");
   }
-  if (user.role === "ADMINISTRATIVE_OFFICER") return path === "/dashboard/admission-cell";
-  if (user.role === "BUSINESS_DEVELOPMENT_EXECUTIVE") return path === "/dashboard/business-development";
-  if (template === "ADMISSION_CELL") return path === "/dashboard/admission-cell";
+  if (user.role === "ADMINISTRATIVE_OFFICER") return path.startsWith("/dashboard/admission-cell");
+  if (user.role === "BUSINESS_DEVELOPMENT_EXECUTIVE") return path.startsWith("/dashboard/business-development");
+  if (template === "ADMISSION_CELL") return path.startsWith("/dashboard/admission-cell");
   if (template === "MARKETING" || template === "SALES_BOOSTER") {
-    return path === "/dashboard/business-development";
+    return path.startsWith("/dashboard/business-development");
   }
   if (user.role === "ADMIN") return true;
   if (user.role === "DIRECTOR") {
     return path.startsWith("/dashboard/director") ||
-      path === "/dashboard/teacher" ||
+      path.startsWith("/dashboard/teacher") ||
       path.startsWith("/admin-center") ||
       path.startsWith("/crm") ||
       path.startsWith("/fees") ||
@@ -64,17 +64,17 @@ export function canAccessDashboardPath(user: Pick<AuthUser, "role" | "roleMetada
   }
   if (user.role === "PHYSICAL_TRAINER") return path.startsWith("/dashboard/teacher") || path.startsWith("/fitness");
   if (user.role === "TEACHER") return path.startsWith("/dashboard/teacher");
-  if (user.role === "MARKETING_COORDINATOR") return path === "/dashboard/business-development";
-  if (user.role === "TELECALLER") return path === "/dashboard/business-development";
+  if (user.role === "MARKETING_COORDINATOR") return path.startsWith("/dashboard/business-development");
+  if (user.role === "TELECALLER") return path.startsWith("/dashboard/business-development");
   if (user.role === "STUDENT") {
-    return path === "/dashboard/student" ||
+    return path.startsWith("/dashboard/student") ||
       path === "/dashboard/guest" ||
       path.startsWith("/psychometric") ||
       path.startsWith("/programs") ||
       path === "/guru" ||
       path === "/start-free";
   }
-  if (user.role === "PARENT") return path === "/dashboard/parent";
+  if (user.role === "PARENT") return path.startsWith("/dashboard/parent");
   if (user.role === "GUEST") return path === "/dashboard/guest" || path.startsWith("/psychometric") || path.startsWith("/programs") || path === "/guru" || path === "/start-free";
   return false;
 }

@@ -24,11 +24,6 @@ function clearLegacyAuthStorage() {
   }
 }
 
-function cacheVerifiedUser(user: AuthUser) {
-  if (typeof window === "undefined") return;
-  window.localStorage.setItem("user", JSON.stringify(user));
-}
-
 export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
   const { showToast } = useToast();
@@ -38,7 +33,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const refreshUser = useCallback(async () => {
     try {
       const currentUser = await getMe();
-      cacheVerifiedUser(currentUser);
+      clearLegacyAuthStorage();
       setUser(currentUser);
       return currentUser;
     } catch (_error) {

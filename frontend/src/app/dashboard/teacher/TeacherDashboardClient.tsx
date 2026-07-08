@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { Children, useEffect, useMemo, useRef, useState } from "react";
 import { Files, Video } from "lucide-react";
 import { deleteMediaFile, uploadMediaFile } from "@/services/media";
+import { useAuth } from "@/components/providers/auth-provider-v2";
 import { TeacherTodayView, type TeacherTodayScheduleItem } from "@/components/teacher/teacher-today-view";
 import { runAcademyTodayAction } from "@/services/academy";
 import type { AcademyTodayResponse, AcademyTodayTask } from "@/services/academy";
@@ -35,14 +36,6 @@ import {
   Wrench,
   X,
 } from "lucide-react";
-
-type StoredUser = {
-  id?: string;
-  name?: string;
-  email?: string;
-  role?: string;
-  roleMetadata?: Record<string, unknown> | null;
-};
 
 type AssignedStudent = {
   id?: string;
@@ -483,17 +476,6 @@ function isYouTubeUrl(value: string) {
   return Boolean(youtubeEmbedUrl(value));
 }
 
-function readStoredUser(): StoredUser | null {
-  if (typeof window === "undefined") return null;
-  const raw = window.localStorage.getItem("user");
-  if (!raw) return null;
-  try {
-    return JSON.parse(raw) as StoredUser;
-  } catch {
-    return null;
-  }
-}
-
 function unwrapApiPayload<T>(payload: unknown): T {
   if (payload && typeof payload === "object" && "data" in payload) {
     return (payload as { data: T }).data;
@@ -896,9 +878,9 @@ function statusHealth(value: number) {
 
 export default function TeacherDashboardClient({ view, courseKey, batchId, classesMode = "TODAY" }: { view: TeacherView; courseKey?: string; batchId?: string; classesMode?: "TODAY" | "CATALOG" }) {
   const pathname = usePathname();
+  const { user } = useAuth();
   const [workspaceAction, setWorkspaceAction] = useState<string | null>(null);
   const [workspaceActionHandled, setWorkspaceActionHandled] = useState<string | null>(null);
-  const [user, setUser] = useState<StoredUser | null>(null);
   const [classes, setClasses] = useState<AssignedClass[]>([]);
   const [calendar, setCalendar] = useState<CalendarItem[]>([]);
   const [liveClasses, setLiveClasses] = useState<LiveClassRecord[]>([]);
@@ -1617,7 +1599,6 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
   }
 
   useEffect(() => {
-    setUser(readStoredUser());
     void loadTeachingPlan();
   }, []);
 

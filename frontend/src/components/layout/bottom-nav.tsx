@@ -13,19 +13,9 @@ type StudentPlanProbe = {
 
 async function probeStudentActivation() {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_API_BASE_URL || "";
-  const token =
-    typeof window !== "undefined"
-      ? localStorage.getItem("token") ||
-        localStorage.getItem("accessToken") ||
-        localStorage.getItem("authToken") ||
-        localStorage.getItem("nidus_token")
-      : null;
   const response = await fetch(`${baseUrl}/api/academy/my-plan`, {
     credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
+    headers: { "Content-Type": "application/json" },
   });
   if (!response.ok) return false;
   const payload = (await response.json().catch(() => null)) as StudentPlanProbe | null;
