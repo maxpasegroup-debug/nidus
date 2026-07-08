@@ -604,6 +604,8 @@ export async function archiveStudyMaterial(id: string) {
 
 export async function createAcademicCalendarItem(payload: {
   batchId?: string;
+  batchName?: string;
+  programSlug?: string;
   subject: string;
   topic: string;
   classType?: string;
@@ -611,23 +613,24 @@ export async function createAcademicCalendarItem(payload: {
   startTime?: string;
   endTime?: string;
   teacherId?: string;
+  teacherName?: string;
   status?: string;
   completionStatus?: string;
   teacherLog?: string;
   nextAction?: string;
 }) {
-  const response = await apiClient.post<{ item: AcademicCalendarItem }>("/academy/academic-calendar", payload);
-  return response.data.item;
+  const response = await apiClient.post<{ item: AcademicCalendarItem } | AcademicCalendarItem>("/academy/academic-calendar", payload);
+  return "item" in response.data ? response.data.item : response.data;
 }
 
 export async function updateAcademicCalendarItem(id: string, payload: Partial<Pick<AcademicCalendarItem, "status" | "completionStatus" | "teacherLog" | "nextAction" | "classType">>) {
-  const response = await apiClient.patch<{ item: AcademicCalendarItem }>(`/academy/academic-calendar/${id}`, payload);
-  return response.data.item;
+  const response = await apiClient.patch<{ item: AcademicCalendarItem } | AcademicCalendarItem>(`/academy/academic-calendar/${id}`, payload);
+  return "item" in response.data ? response.data.item : response.data;
 }
 
 export async function updateAcademicCalendarSchedule(id: string, payload: Partial<Pick<AcademicCalendarItem, "subject" | "topic" | "classType" | "plannedDate" | "startTime" | "endTime" | "teacherId" | "teacherName" | "status" | "completionStatus" | "teacherLog" | "nextAction">>) {
-  const response = await apiClient.patch<{ item: AcademicCalendarItem }>(`/academy/academic-calendar/${id}`, payload);
-  return response.data.item;
+  const response = await apiClient.patch<{ item: AcademicCalendarItem } | AcademicCalendarItem>(`/academy/academic-calendar/${id}`, payload);
+  return "item" in response.data ? response.data.item : response.data;
 }
 
 export async function generateAcademicCalendarPlan(payload: {

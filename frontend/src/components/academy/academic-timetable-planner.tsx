@@ -1,132 +1,225 @@
 "use client";
 
-import type { FormEvent, ReactNode } from "react";
-import { useMemo, useState } from "react";
+import type { ReactNode } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { CalendarDays, CheckCircle2, Clock, Pencil, Plus, Trash2, Users } from "lucide-react";
+import { CalendarDays, CheckCircle2, ChevronLeft, ChevronRight, Clock, Plus, RotateCcw, Users } from "lucide-react";
 import {
-  generateAcademicCalendarPlan,
+  createAcademicCalendarItem,
   getAcademyBatches,
   getAcademyTeachers,
   getAcademicCalendar,
   updateAcademicCalendarSchedule,
   type AcademicCalendarItem,
-  type AcademicCalendarPlannerSession,
 } from "@/services/academy";
-
-const days = [
-  { value: 1, label: "Monday" },
-  { value: 2, label: "Tuesday" },
-  { value: 3, label: "Wednesday" },
-  { value: 4, label: "Thursday" },
-  { value: 5, label: "Friday" },
-  { value: 6, label: "Saturday" },
-  { value: 0, label: "Sunday" },
-];
 
 const classTypes = ["LECTURE", "PRACTICE", "REVISION", "TEST", "MOCK_TEST", "DISCUSSION", "LIVE_CLASS"];
 
-const blankSession = (): AcademicCalendarPlannerSession => ({
-  dayOfWeek: 1,
-  subject: "",
-  topic: "",
-  classType: "LECTURE",
-  startTime: "09:30",
-  endTime: "10:30",
-  teacherId: "",
-});
+const defaultSlots = [
+  { startTime: "09:00", endTime: "10:15" },
+  { startTime: "10:30", endTime: "11:45" },
+  { startTime: "12:00", endTime: "13:15" },
+  { startTime: "14:00", endTime: "16:00" },
+];
 
 type Props = {
   audience: "director" | "academic-head";
 };
 
+type PlannerSlot = {
+  calendarId?: string;
+  startTime: string;
+  endTime: string;
+  batchId: string;
+  subject: string;
+  topic: string;
+  teacherId: string;
+  classType: string;
+  status: string;
+};
+
+function localDateKey(date: Date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function monthLabel(date: Date) {
+  return date.toLocaleDateString("en-IN", { month: "long", year: "numeric" });
+}
+
+function itemDateKey(item: AcademicCalendarItem) {
+  return item.plannedDate.slice(0, 10);
+}
+
+function blankSlot(template = defaultSlots[0]): PlannerSlot {
+  return {
+    startTime: template.startTime,
+    endTime: template.endTime,
+    batchId: "",
+    subject: "",
+    topic: "",
+    teacherId: "",
+    classType: "LECTURE",
+    status: "SCHEDULED",
+  };
+}
+
+function slotFromCalendar(item: AcademicCalendarItem): PlannerSlot {
+  return {
+    calendarId: item.id,
+    startTime: item.startTime ?? "",
+    endTime: item.endTime ?? "",
+    batchId: item.batchId ?? "",
+    subject: item.subject ?? "",
+    topic: item.topic ?? "",
+    teacherId: item.teacherId ?? "",
+    classType: item.classType ?? "LECTURE",
+    status: item.status ?? "SCHEDULED",
+  };
+}
+
+function buildMonthDays(monthDate: Date) {
+  const first = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1);
+  const last = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0);
+  const cells: Array<Date | null> = [];
+  for (let index = 0; index < first.getDay(); index += 1) cells.push(null);
+  for (let day = 1; day <= last.getDate(); day += 1) cells.push(new Date(monthDate.getFullYear(), monthDate.getMonth(), day));
+  while (cells.length % 7) cells.push(null);
+  return cells;
+}
+
 export function AcademicTimetablePlanner({ audience }: Props) {
   const queryClient = useQueryClient();
-  const [selectedBatchId, setSelectedBatchId] = useState("");
-  const [startDate, setStartDate] = useState("2026-06-22");
-  const [endDate, setEndDate] = useState("2026-09-30");
-  const [academicYear, setAcademicYear] = useState("2026-2027");
-  const [sessions, setSessions] = useState<AcademicCalendarPlannerSession[]>([blankSession()]);
+  const today = useMemo(() => new Date(), []);
+  const [selectedDate, setSelectedDate] = useState(localDateKey(today));
+  const [monthDate, setMonthDate] = useState(new Date(today.getFullYear(), today.getMonth(), 1));
+  const [batchFilter, setBatchFilter] = useState("");
+  const [slots, setSlots] = useState<PlannerSlot[]>(defaultSlots.map(blankSlot));
   const [notice, setNotice] = useState("");
-  const [editing, setEditing] = useState<Record<string, Partial<AcademicCalendarItem>>>({});
 
   const batchesQuery = useQuery({ queryKey: ["academy", "batches"], queryFn: () => getAcademyBatches() });
   const teachersQuery = useQuery({ queryKey: ["academy", "teachers"], queryFn: () => getAcademyTeachers() });
   const calendarQuery = useQuery({
-    queryKey: ["academy", "academic-calendar", selectedBatchId],
-    queryFn: () => getAcademicCalendar(selectedBatchId ? { batchId: selectedBatchId } : {}),
+    queryKey: ["academy", "academic-calendar", batchFilter],
+    queryFn: () => getAcademicCalendar(batchFilter ? { batchId: batchFilter } : {}),
   });
 
   const batches = batchesQuery.data ?? [];
   const teachers = teachersQuery.data ?? [];
   const calendar = calendarQuery.data ?? [];
-  const selectedBatch = batches.find((batch) => batch.id === selectedBatchId);
+  const monthCells = useMemo(() => buildMonthDays(monthDate), [monthDate]);
 
-  const summary = useMemo(() => {
-    const todayKey = new Date().toISOString().slice(0, 10);
-    return {
-      planned: calendar.length,
-      today: calendar.filter((item) => item.plannedDate.slice(0, 10) === todayKey).length,
-      completed: calendar.filter((item) => String(item.completionStatus).toUpperCase() === "COMPLETED").length,
-      pending: calendar.filter((item) => String(item.completionStatus).toUpperCase() !== "COMPLETED").length,
-    };
+  const calendarByDate = useMemo(() => {
+    const map = new Map<string, AcademicCalendarItem[]>();
+    calendar.forEach((item) => {
+      const key = itemDateKey(item);
+      const items = map.get(key) ?? [];
+      items.push(item);
+      map.set(key, items);
+    });
+    return map;
   }, [calendar]);
 
-  const generateMutation = useMutation({
-    mutationFn: generateAcademicCalendarPlan,
-    onSuccess: (result) => {
-      setNotice(`Planner saved: ${result.createdCount} classes created, ${result.skippedCount} skipped, ${result.conflictCount} conflicts.`);
+  const selectedDayItems = useMemo(
+    () => [...(calendarByDate.get(selectedDate) ?? [])].sort((first, second) => String(first.startTime ?? "").localeCompare(String(second.startTime ?? ""))),
+    [calendarByDate, selectedDate],
+  );
+
+  const summary = useMemo(() => {
+    const monthKey = localDateKey(monthDate).slice(0, 7);
+    const monthItems = calendar.filter((item) => itemDateKey(item).startsWith(monthKey));
+    return {
+      month: monthItems.length,
+      selected: selectedDayItems.length,
+      teachers: new Set(monthItems.map((item) => item.teacherId).filter(Boolean)).size,
+      batches: new Set(monthItems.map((item) => item.batchId).filter(Boolean)).size,
+    };
+  }, [calendar, monthDate, selectedDayItems.length]);
+
+  useEffect(() => {
+    if (selectedDayItems.length) {
+      setSlots(selectedDayItems.map(slotFromCalendar));
+      return;
+    }
+    setSlots(defaultSlots.map(blankSlot));
+  }, [selectedDayItems]);
+
+  const createMutation = useMutation({
+    mutationFn: createAcademicCalendarItem,
+    onSuccess: () => {
+      setNotice("Timetable session saved. Teacher dashboard and student calendar will use this session.");
       void queryClient.invalidateQueries({ queryKey: ["academy", "academic-calendar"] });
-      void queryClient.invalidateQueries({ queryKey: ["academy", "batches"] });
+      void queryClient.invalidateQueries({ queryKey: ["academy", "today"] });
     },
-    onError: (error) => setNotice(error instanceof Error ? error.message : "Could not generate timetable."),
+    onError: (error) => setNotice(error instanceof Error ? error.message : "Could not save timetable session."),
   });
 
   const updateMutation = useMutation({
     mutationFn: ({ id, payload }: { id: string; payload: Partial<AcademicCalendarItem> }) => updateAcademicCalendarSchedule(id, payload),
     onSuccess: () => {
-      setNotice("Class plan updated.");
-      setEditing({});
+      setNotice("Timetable session updated.");
       void queryClient.invalidateQueries({ queryKey: ["academy", "academic-calendar"] });
+      void queryClient.invalidateQueries({ queryKey: ["academy", "today"] });
     },
-    onError: (error) => setNotice(error instanceof Error ? error.message : "Could not update class plan."),
+    onError: (error) => setNotice(error instanceof Error ? error.message : "Could not update timetable session."),
   });
 
-  const updateSession = (index: number, patch: Partial<AcademicCalendarPlannerSession>) => {
-    setSessions((current) => current.map((session, itemIndex) => itemIndex === index ? { ...session, ...patch } : session));
+  const setSlot = (index: number, patch: Partial<PlannerSlot>) => {
+    setSlots((current) => current.map((slot, slotIndex) => (slotIndex === index ? { ...slot, ...patch } : slot)));
   };
 
-  const submitPlanner = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (!selectedBatchId) {
-      setNotice("Select a batch first.");
+  const saveSlot = (slot: PlannerSlot, index: number) => {
+    setNotice("");
+    if (!slot.batchId || !slot.subject || !slot.teacherId || !slot.startTime || !slot.endTime) {
+      setNotice("Select batch, subject, teacher, start time and end time before saving this session.");
       return;
     }
-    generateMutation.mutate({
-      batchId: selectedBatchId,
-      startDate,
-      endDate,
-      academicYear,
-      sessions,
-    });
+    const batch = batches.find((item) => item.id === slot.batchId);
+    const teacher = teachers.find((item) => item.id === slot.teacherId);
+    const topic = slot.topic.trim() || `${slot.subject} class`;
+    const payload = {
+      batchId: slot.batchId,
+      batchName: batch?.name,
+      programSlug: batch?.programSlug,
+      subject: slot.subject.trim(),
+      topic,
+      classType: slot.classType,
+      plannedDate: selectedDate,
+      startTime: slot.startTime,
+      endTime: slot.endTime,
+      teacherId: slot.teacherId,
+      teacherName: teacher?.name,
+      status: slot.status || "SCHEDULED",
+      completionStatus: "PENDING",
+      nextAction: "Class scheduled from timetable planner",
+    };
+    if (slot.calendarId) {
+      updateMutation.mutate({ id: slot.calendarId, payload });
+    } else {
+      createMutation.mutate(payload, {
+        onSuccess: (item) => {
+          setSlots((current) => current.map((currentSlot, slotIndex) => (slotIndex === index ? slotFromCalendar(item) : currentSlot)));
+        },
+      });
+    }
   };
 
-  const saveEdit = (item: AcademicCalendarItem) => {
-    const draft = editing[item.id] ?? {};
-    updateMutation.mutate({
-      id: item.id,
-      payload: {
-        subject: draft.subject ?? item.subject,
-        topic: draft.topic ?? item.topic,
-        classType: draft.classType ?? item.classType ?? "LECTURE",
-        plannedDate: draft.plannedDate ?? item.plannedDate.slice(0, 10),
-        startTime: draft.startTime ?? item.startTime ?? "",
-        endTime: draft.endTime ?? item.endTime ?? "",
-        teacherId: draft.teacherId ?? item.teacherId ?? "",
-        status: draft.status ?? item.status,
-        completionStatus: draft.completionStatus ?? item.completionStatus,
-      },
-    });
+  const addCustomSlot = () => {
+    const last = slots[slots.length - 1];
+    setSlots((current) => [...current, blankSlot({ startTime: last?.endTime || "16:00", endTime: "17:00" })]);
+  };
+
+  const resetDefaultSlots = () => setSlots(defaultSlots.map(blankSlot));
+
+  const changeMonth = (offset: number) => {
+    setMonthDate((current) => new Date(current.getFullYear(), current.getMonth() + offset, 1));
+  };
+
+  const selectDate = (date: Date) => {
+    setSelectedDate(localDateKey(date));
+    setMonthDate(new Date(date.getFullYear(), date.getMonth(), 1));
   };
 
   return (
@@ -136,189 +229,153 @@ export function AcademicTimetablePlanner({ audience }: Props) {
           <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
             <div>
               <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">{audience === "director" ? "Director Planner" : "Academic Head Planner"}</p>
-              <h1 className="mt-2 text-3xl font-black md:text-5xl">Timetable command center</h1>
+              <h1 className="mt-2 text-3xl font-black md:text-5xl">Plan timetable by day.</h1>
               <p className="mt-3 max-w-3xl text-sm leading-6 text-[var(--muted-blue)]">
-                Build weekly timetables, assign faculty, edit sessions and keep the academic calendar live from one practical workspace.
+                Open a date, edit the day&apos;s class slots, choose batch, subject and teacher, then save. Teachers and students receive the timetable automatically.
               </p>
             </div>
             <div className="grid grid-cols-2 gap-3 text-sm md:grid-cols-4">
-              <Metric label="Planned" value={summary.planned} />
-              <Metric label="Today" value={summary.today} />
-              <Metric label="Completed" value={summary.completed} />
-              <Metric label="Pending" value={summary.pending} />
+              <Metric label="Month classes" value={summary.month} />
+              <Metric label="Selected day" value={summary.selected} />
+              <Metric label="Teachers" value={summary.teachers} />
+              <Metric label="Batches" value={summary.batches} />
             </div>
           </div>
         </section>
 
-        {notice ? (
-          <div className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-sm font-bold text-[var(--navy)] shadow-sm">
-            {notice}
-          </div>
-        ) : null}
+        {notice ? <div className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-sm font-bold text-[var(--navy)] shadow-sm">{notice}</div> : null}
 
         <section className="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
           <section className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
-            <div className="flex items-start gap-3">
-              <CalendarDays className="mt-1 h-5 w-5" />
+            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
               <div>
-                <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Plan Batch</p>
-                <h2 className="text-2xl font-black">Generate weekly timetable</h2>
+                <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Calendar</p>
+                <h2 className="text-2xl font-black">{monthLabel(monthDate)}</h2>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <select className="field min-w-[220px]" value={batchFilter} onChange={(event) => setBatchFilter(event.target.value)}>
+                  <option value="">All batches</option>
+                  {batches.map((batch) => <option key={batch.id} value={batch.id}>{batch.name}</option>)}
+                </select>
+                <button type="button" className="icon-button" onClick={() => changeMonth(-1)} aria-label="Previous month"><ChevronLeft className="h-4 w-4" /></button>
+                <button type="button" className="btn-light" onClick={() => selectDate(today)}>Today</button>
+                <button type="button" className="icon-button" onClick={() => changeMonth(1)} aria-label="Next month"><ChevronRight className="h-4 w-4" /></button>
               </div>
             </div>
 
-            <form onSubmit={submitPlanner} className="mt-5 space-y-5">
-              <div className="grid gap-3 md:grid-cols-2">
-                <Label title="Batch">
-                  <select className="field" value={selectedBatchId} onChange={(event) => setSelectedBatchId(event.target.value)} required>
-                    <option value="">Select batch</option>
-                    {batches.map((batch) => <option key={batch.id} value={batch.id}>{batch.name}</option>)}
-                  </select>
-                </Label>
-                <Label title="Academic year">
-                  <input className="field" value={academicYear} onChange={(event) => setAcademicYear(event.target.value)} />
-                </Label>
-                <Label title="Start date">
-                  <input className="field" type="date" value={startDate} onChange={(event) => setStartDate(event.target.value)} required />
-                </Label>
-                <Label title="End date">
-                  <input className="field" type="date" value={endDate} onChange={(event) => setEndDate(event.target.value)} required />
-                </Label>
-              </div>
-
-              <div className="space-y-3">
-                <div className="flex items-center justify-between gap-3">
-                  <h3 className="text-lg font-black">Weekly sessions</h3>
-                  <button type="button" className="btn-light" onClick={() => setSessions((current) => [...current, blankSession()])}>
-                    <Plus className="h-4 w-4" /> Add slot
+            <div className="mt-5 grid grid-cols-7 gap-2 text-center text-xs font-black uppercase tracking-[0.18em] text-[var(--muted-blue)]">
+              {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => <div key={day}>{day}</div>)}
+            </div>
+            <div className="mt-2 grid grid-cols-7 gap-2">
+              {monthCells.map((date, index) => {
+                if (!date) return <div key={`empty-${index}`} className="min-h-24 rounded-xl border border-transparent" />;
+                const key = localDateKey(date);
+                const items = calendarByDate.get(key) ?? [];
+                const isSelected = key === selectedDate;
+                const isToday = key === localDateKey(today);
+                return (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() => selectDate(date)}
+                    className={`min-h-24 rounded-xl border p-3 text-left transition hover:-translate-y-0.5 hover:shadow-sm ${isSelected ? "border-[var(--navy)] bg-[var(--navy)] text-white" : "border-[var(--border)] bg-white"} ${isToday && !isSelected ? "ring-2 ring-[var(--gold)]" : ""}`}
+                  >
+                    <span className="text-sm font-black">{date.getDate()}</span>
+                    <span className={`mt-4 block text-xs font-black ${isSelected ? "text-white" : "text-[var(--muted-blue)]"}`}>
+                      {items.length ? `${items.length} class${items.length === 1 ? "" : "es"}` : "Plan day"}
+                    </span>
+                    {items[0] ? <span className="mt-1 block truncate text-xs">{items[0].subject}</span> : null}
                   </button>
-                </div>
-                {sessions.map((session, index) => (
-                  <div key={index} className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] p-3">
-                    <div className="grid gap-3 md:grid-cols-2">
-                      <Label title="Day">
-                        <select className="field" value={session.dayOfWeek} onChange={(event) => updateSession(index, { dayOfWeek: Number(event.target.value) })}>
-                          {days.map((day) => <option key={day.value} value={day.value}>{day.label}</option>)}
-                        </select>
-                      </Label>
-                      <Label title="Teacher">
-                        <select className="field" value={session.teacherId ?? ""} onChange={(event) => updateSession(index, { teacherId: event.target.value })}>
-                          <option value="">Assign later</option>
-                          {teachers.map((teacher) => <option key={teacher.id} value={teacher.id}>{teacher.name}</option>)}
-                        </select>
-                      </Label>
-                      <Label title="Subject">
-                        <input className="field" value={session.subject} onChange={(event) => updateSession(index, { subject: event.target.value })} placeholder="Mathematics" required />
-                      </Label>
-                      <Label title="Topic">
-                        <input className="field" value={session.topic} onChange={(event) => updateSession(index, { topic: event.target.value })} placeholder="Number System" required />
-                      </Label>
-                      <Label title="Class type">
-                        <select className="field" value={session.classType} onChange={(event) => updateSession(index, { classType: event.target.value })}>
-                          {classTypes.map((type) => <option key={type} value={type}>{type.replaceAll("_", " ")}</option>)}
-                        </select>
-                      </Label>
-                      <div className="grid grid-cols-2 gap-3">
-                        <Label title="Start">
-                          <input className="field" type="time" value={session.startTime} onChange={(event) => updateSession(index, { startTime: event.target.value })} required />
-                        </Label>
-                        <Label title="End">
-                          <input className="field" type="time" value={session.endTime ?? ""} onChange={(event) => updateSession(index, { endTime: event.target.value })} />
-                        </Label>
-                      </div>
-                    </div>
-                    {sessions.length > 1 ? (
-                      <button type="button" className="mt-3 inline-flex items-center gap-2 text-sm font-bold text-red-600" onClick={() => setSessions((current) => current.filter((_, itemIndex) => itemIndex !== index))}>
-                        <Trash2 className="h-4 w-4" /> Remove slot
-                      </button>
-                    ) : null}
-                  </div>
-                ))}
-              </div>
-
-              <button className="btn-primary w-full" disabled={generateMutation.isPending}>
-                {generateMutation.isPending ? "Generating..." : "Generate Timetable"}
-              </button>
-            </form>
+                );
+              })}
+            </div>
           </section>
 
           <section className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
             <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
               <div>
-                <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Live Calendar</p>
-                <h2 className="text-2xl font-black">{selectedBatch?.name ?? "All scheduled classes"}</h2>
+                <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Daily Slots</p>
+                <h2 className="text-2xl font-black">{new Date(`${selectedDate}T12:00:00`).toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" })}</h2>
               </div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-[var(--border)] px-4 py-2 text-sm font-black">
-                <Users className="h-4 w-4" /> {selectedBatch?._count?.students ?? selectedBatch?.students?.length ?? 0} students
+              <div className="flex flex-wrap gap-2">
+                <button className="btn-light" type="button" onClick={resetDefaultSlots}><RotateCcw className="h-4 w-4" /> Default day</button>
+                <button className="btn-primary" type="button" onClick={addCustomSlot}><Plus className="h-4 w-4" /> Add session</button>
               </div>
             </div>
 
-            <div className="mt-5 max-h-[720px] space-y-3 overflow-y-auto pr-1">
-              {!calendar.length ? (
-                <div className="rounded-xl border border-dashed border-[var(--border)] p-5 text-sm text-[var(--muted-blue)]">
-                  No classes found for this scope. Generate the official timetable from the left panel.
-                </div>
-              ) : null}
-              {calendar.slice(0, 80).map((item) => {
-                const draft = editing[item.id] ?? {};
-                const isEditing = Boolean(editing[item.id]);
+            <div className="mt-5 space-y-4">
+              {slots.map((slot, index) => {
+                const currentBatch = batches.find((batch) => batch.id === slot.batchId);
+                const subjects = Array.from(new Set((currentBatch?.teachers ?? []).map((teacher) => teacher.subject).filter(Boolean)));
+                const teacherOptions = currentBatch?.teachers?.length ? currentBatch.teachers.map((entry) => entry.teacher) : teachers;
                 return (
-                  <article key={item.id} className="rounded-xl border border-[var(--border)] bg-white p-4">
-                    {!isEditing ? (
-                      <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-                        <div>
-                          <p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold)]">{item.batchName}</p>
-                          <h3 className="mt-1 text-xl font-black">{item.subject}</h3>
-                          <p className="text-sm text-[var(--muted-blue)]">{item.topic} / {item.teacherName ?? "Teacher pending"}</p>
-                          <p className="mt-3 inline-flex items-center gap-2 text-sm font-bold">
-                            <Clock className="h-4 w-4" />
-                            {new Date(item.plannedDate).toLocaleDateString()} {item.startTime ?? ""}{item.endTime ? ` - ${item.endTime}` : ""}
-                          </p>
-                        </div>
-                        <div className="flex flex-wrap gap-2">
-                          <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-black">{item.status}</span>
-                          <button className="btn-light" type="button" onClick={() => setEditing({ [item.id]: {
-                            subject: item.subject,
-                            topic: item.topic,
-                            classType: item.classType ?? "LECTURE",
-                            plannedDate: item.plannedDate.slice(0, 10),
-                            startTime: item.startTime ?? "",
-                            endTime: item.endTime ?? "",
-                            teacherId: item.teacherId ?? "",
-                            status: item.status,
-                            completionStatus: item.completionStatus,
-                          } })}>
-                            <Pencil className="h-4 w-4" /> Edit
-                          </button>
-                        </div>
+                  <article key={`${slot.calendarId ?? "new"}-${index}`} className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
+                    <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                      <div className="inline-flex items-center gap-2 text-sm font-black">
+                        <Clock className="h-4 w-4" />
+                        Session {index + 1}
+                        {slot.calendarId ? <span className="rounded-full bg-emerald-100 px-2 py-1 text-xs text-emerald-800">Saved</span> : <span className="rounded-full bg-amber-100 px-2 py-1 text-xs text-amber-800">New</span>}
                       </div>
-                    ) : (
-                      <div className="space-y-3">
-                        <div className="grid gap-3 md:grid-cols-2">
-                          <Label title="Subject"><input className="field" value={draft.subject ?? ""} onChange={(event) => setEditing({ [item.id]: { ...draft, subject: event.target.value } })} /></Label>
-                          <Label title="Topic"><input className="field" value={draft.topic ?? ""} onChange={(event) => setEditing({ [item.id]: { ...draft, topic: event.target.value } })} /></Label>
-                          <Label title="Teacher">
-                            <select className="field" value={draft.teacherId ?? ""} onChange={(event) => setEditing({ [item.id]: { ...draft, teacherId: event.target.value } })}>
-                              <option value="">Assign later</option>
-                              {teachers.map((teacher) => <option key={teacher.id} value={teacher.id}>{teacher.name}</option>)}
-                            </select>
-                          </Label>
-                          <Label title="Class type">
-                            <select className="field" value={draft.classType ?? "LECTURE"} onChange={(event) => setEditing({ [item.id]: { ...draft, classType: event.target.value } })}>
-                              {classTypes.map((type) => <option key={type} value={type}>{type.replaceAll("_", " ")}</option>)}
-                            </select>
-                          </Label>
-                          <Label title="Date"><input className="field" type="date" value={String(draft.plannedDate ?? "")} onChange={(event) => setEditing({ [item.id]: { ...draft, plannedDate: event.target.value } })} /></Label>
-                          <div className="grid grid-cols-2 gap-3">
-                            <Label title="Start"><input className="field" type="time" value={draft.startTime ?? ""} onChange={(event) => setEditing({ [item.id]: { ...draft, startTime: event.target.value } })} /></Label>
-                            <Label title="End"><input className="field" type="time" value={draft.endTime ?? ""} onChange={(event) => setEditing({ [item.id]: { ...draft, endTime: event.target.value } })} /></Label>
-                          </div>
-                        </div>
-                        <div className="flex flex-wrap gap-2">
-                          <button className="btn-primary" type="button" onClick={() => saveEdit(item)}><CheckCircle2 className="h-4 w-4" /> Save Class</button>
-                          <button className="btn-light" type="button" onClick={() => setEditing({})}>Cancel</button>
-                        </div>
+                      <div className="grid grid-cols-2 gap-2 md:w-56">
+                        <input className="field" type="time" value={slot.startTime} onChange={(event) => setSlot(index, { startTime: event.target.value })} />
+                        <input className="field" type="time" value={slot.endTime} onChange={(event) => setSlot(index, { endTime: event.target.value })} />
                       </div>
-                    )}
+                    </div>
+
+                    <div className="mt-4 grid gap-3 md:grid-cols-2">
+                      <Label title="Batch">
+                        <select className="field" value={slot.batchId} onChange={(event) => setSlot(index, { batchId: event.target.value, subject: "", teacherId: "" })}>
+                          <option value="">Select batch</option>
+                          {batches.map((batch) => <option key={batch.id} value={batch.id}>{batch.name}</option>)}
+                        </select>
+                      </Label>
+                      <Label title="Subject">
+                        <select className="field" value={slot.subject} onChange={(event) => setSlot(index, { subject: event.target.value })}>
+                          <option value="">Select subject</option>
+                          {subjects.length ? subjects.map((subject) => <option key={subject} value={subject}>{subject}</option>) : null}
+                          <option value="Mathematics">Mathematics</option>
+                          <option value="English">English</option>
+                          <option value="Physics">Physics</option>
+                          <option value="Chemistry">Chemistry</option>
+                          <option value="Biology">Biology</option>
+                          <option value="History">History</option>
+                          <option value="Polity">Polity</option>
+                          <option value="Geography">Geography</option>
+                          <option value="Economics">Economics</option>
+                          <option value="Current Affairs">Current Affairs</option>
+                          <option value="Reasoning">Reasoning</option>
+                        </select>
+                      </Label>
+                      <Label title="Teacher">
+                        <select className="field" value={slot.teacherId} onChange={(event) => setSlot(index, { teacherId: event.target.value })}>
+                          <option value="">Select teacher</option>
+                          {teacherOptions.map((teacher) => <option key={teacher.id} value={teacher.id}>{teacher.name}</option>)}
+                        </select>
+                      </Label>
+                      <Label title="Session type">
+                        <select className="field" value={slot.classType} onChange={(event) => setSlot(index, { classType: event.target.value })}>
+                          {classTypes.map((type) => <option key={type} value={type}>{type.replaceAll("_", " ")}</option>)}
+                        </select>
+                      </Label>
+                      <Label title="Topic / chapter">
+                        <input className="field" value={slot.topic} onChange={(event) => setSlot(index, { topic: event.target.value })} placeholder="Algebra - continued" />
+                      </Label>
+                      <Label title="Status">
+                        <select className="field" value={slot.status} onChange={(event) => setSlot(index, { status: event.target.value })}>
+                          <option value="SCHEDULED">Scheduled</option>
+                          <option value="PLANNED">Planned</option>
+                          <option value="RESCHEDULED">Rescheduled</option>
+                          <option value="CANCELLED">Cancelled</option>
+                        </select>
+                      </Label>
+                    </div>
+
+                    <div className="mt-4 flex flex-wrap justify-between gap-2">
+                      <button className="btn-light" type="button" onClick={() => setSlots((current) => current.filter((_, slotIndex) => slotIndex !== index))}>Remove</button>
+                      <button className="btn-primary" type="button" onClick={() => saveSlot(slot, index)} disabled={createMutation.isPending || updateMutation.isPending}>
+                        <CheckCircle2 className="h-4 w-4" /> Save session
+                      </button>
+                    </div>
                   </article>
                 );
               })}
@@ -327,48 +384,61 @@ export function AcademicTimetablePlanner({ audience }: Props) {
         </section>
 
         <section className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
-          <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Operating Model</p>
-          <h2 className="mt-2 text-2xl font-black">How this planner runs the academy</h2>
-          <div className="mt-5 grid gap-3 md:grid-cols-3">
-            <Info title="Existing batches" body="Select any active or upcoming batch and generate its full academic plan without creating another calendar system." />
-            <Info title="Faculty sync" body="When a teacher is attached to a session, the batch-subject allocation is kept active for dashboard visibility." />
-            <Info title="Execution ready" body="Generated sessions immediately feed teacher calendars, attendance, class logs, assignments, exams and library actions." />
+          <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">What Gets Updated</p>
+          <div className="mt-4 grid gap-3 md:grid-cols-3">
+            <Info title="Teacher timetable" body="Saved sessions appear in the assigned teacher's Today, My Classes and calendar views." />
+            <Info title="Student schedule" body="Students in the selected batch receive the class in their calendar and upcoming work." />
+            <Info title="Editable day plan" body="Any day can be opened again to change times, teacher, subject, topic or status." />
           </div>
         </section>
       </section>
       <style jsx>{`
         .field {
-          min-height: 46px;
+          min-height: 44px;
           width: 100%;
           border-radius: 12px;
           border: 1px solid var(--border);
           background: white;
-          padding: 0.7rem 0.9rem;
+          padding: 0.65rem 0.85rem;
           color: var(--navy);
           outline: none;
         }
         .field:focus {
           border-color: var(--gold);
+          box-shadow: 0 0 0 3px rgba(186, 141, 54, 0.16);
         }
         .btn-primary,
-        .btn-light {
+        .btn-light,
+        .icon-button {
           display: inline-flex;
-          min-height: 46px;
+          min-height: 44px;
           align-items: center;
           justify-content: center;
           gap: 0.5rem;
           border-radius: 12px;
-          padding: 0.7rem 1rem;
+          padding: 0.65rem 1rem;
           font-weight: 900;
+          transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease;
         }
         .btn-primary {
           background: var(--navy);
           color: white;
         }
-        .btn-light {
+        .btn-light,
+        .icon-button {
           border: 1px solid var(--border);
           background: white;
           color: var(--navy);
+        }
+        .btn-primary:hover,
+        .btn-light:hover,
+        .icon-button:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 10px 20px rgba(15, 23, 42, 0.08);
+        }
+        .icon-button {
+          width: 44px;
+          padding: 0;
         }
       `}</style>
     </main>
