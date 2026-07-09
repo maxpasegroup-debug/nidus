@@ -444,6 +444,13 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
 
   const questions = useMemo(() => buildQuestions(questionSource, answerGuide, form.topic, Number(form.marks)), [answerGuide, form.marks, form.topic, questionSource]);
   const readiness = useMemo(() => paperReadiness(questions), [questions]);
+  const canPublishPaper = questions.length > 0 && readiness.missingOptions === 0 && readiness.missingAnswers === 0;
+  const questionsForPublish = useMemo(() => questions.map((question) => ({
+    ...question,
+    explanation: question.explanation && !/^Explanation will be reviewed/i.test(question.explanation)
+      ? question.explanation
+      : `The correct answer is option ${question.correctAnswer}. Review this answer against the uploaded faculty key and topic notes.`,
+  })), [questions]);
   const duplicateQuestionIndexes = useMemo(() => new Set(readiness.duplicateQuestions.flatMap((item) => [item.firstIndex, item.index])), [readiness.duplicateQuestions]);
   const effectiveTopic = useMemo(() => inferExamTopic(questionSource, form.topic), [form.topic, questionSource]);
   const effectiveTitle = useMemo(() => form.title.trim() || inferExamTitle(questionSource, subject, activeBatch?.name), [activeBatch?.name, form.title, questionSource, subject]);
@@ -560,8 +567,8 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
       setMessage("Select at least one assigned batch.");
       return;
     }
-    if (!editingExam && !readiness.ready) {
-      setMessage(`Paper is incomplete: ${readiness.missingOptions} question(s) need options, ${readiness.missingAnswers} need answer keys, ${readiness.missingExplanations} need explanations, and ${readiness.duplicateQuestions.length} duplicate question(s) must be fixed.`);
+    if (!editingExam && !canPublishPaper) {
+      setMessage(`Paper is incomplete: ${readiness.missingOptions} question(s) need options and ${readiness.missingAnswers} question(s) need answer keys before publishing.`);
       return;
     }
     if (!effectiveTitle.trim() || !effectiveTopic.trim()) {
@@ -572,8 +579,8 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
     setMessage("");
     try {
       if (editingExam) {
-        if (questionSource && !readiness.ready) {
-          setMessage(`Paper is incomplete: ${readiness.missingOptions} question(s) need options, ${readiness.missingAnswers} need answer keys, ${readiness.missingExplanations} need explanations, and ${readiness.duplicateQuestions.length} duplicate question(s) must be fixed.`);
+        if (questionSource && !canPublishPaper) {
+          setMessage(`Paper is incomplete: ${readiness.missingOptions} question(s) need options and ${readiness.missingAnswers} question(s) need answer keys before saving.`);
           return;
         }
         await requestJson(`/api/academy/exams/${editingExam.id}`, {
@@ -586,13 +593,13 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
             difficulty: editingExam.difficulty || "MEDIUM",
             instructions: form.instructions,
             status: editingExam.status || "PUBLISHED",
-            draft: readiness.ready ? {
+            draft: canPublishPaper ? {
               title: effectiveTitle,
               subject,
               topic: effectiveTopic,
               duration: Number(form.duration),
               totalMarks: Number(form.marks),
-              questions,
+              questions: questionsForPublish,
             } : undefined,
           }),
         });
@@ -614,7 +621,7 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
             subject,
             title: effectiveTitle,
             topic: effectiveTopic,
-            questionCount: questions.length,
+            questionCount: questionsForPublish.length,
             durationMinutes: Number(form.duration),
             difficulty: "MEDIUM",
             instructions: [
@@ -633,7 +640,7 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
               topic: effectiveTopic,
               duration: Number(form.duration),
               totalMarks: Number(form.marks),
-              questions,
+              questions: questionsForPublish,
             },
           }),
         }),
@@ -921,13 +928,15 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
                     <h3 className="mt-2 text-2xl font-black">{effectiveTitle}</h3>
                     <div className="mt-3 flex flex-wrap gap-2 text-xs font-black">
                       <span className="rounded-full bg-white/10 px-3 py-2">{subject}</span>
-                      <span className="rounded-full bg-white/10 px-3 py-2">{questions.length} questions</span>
+                      <span className="rounded-full bg-white/10 px-3 py-2">{questionsForPublish.length} questions</span>
                       <span className="rounded-full bg-white/10 px-3 py-2">{form.marks} marks</span>
                       <span className="rounded-full bg-white/10 px-3 py-2"><Clock3 className="mr-1 inline h-4 w-4" />{form.duration} minutes</span>
                     </div>
-                    <div className={`mt-3 rounded-xl border px-3 py-2 text-sm font-black ${readiness.ready ? "border-emerald-400/40 bg-emerald-500/15 text-emerald-100" : "border-amber-300 bg-amber-50 text-amber-900"}`}>
-                      {readiness.ready
-                        ? "Paper ready: every question has four options, an answer key and an explanation."
+                    <div className={`mt-3 rounded-xl border px-3 py-2 text-sm font-black ${canPublishPaper ? "border-emerald-400/40 bg-emerald-500/15 text-emerald-100" : "border-amber-300 bg-amber-50 text-amber-900"}`}>
+                      {canPublishPaper
+                        ? readiness.missingExplanations > 0
+                          ? `Paper ready to publish. ${readiness.missingExplanations} explanation(s) will use the faculty-key fallback until edited.`
+                          : "Paper ready: every question has four options, an answer key and an explanation."
                         : `${readiness.missingOptions} missing options / ${readiness.missingAnswers} missing answers / ${readiness.missingExplanations} missing explanations / ${readiness.duplicateQuestions.length} duplicates`}
                     </div>
                   </div>
@@ -982,7 +991,7 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
                   <div className="grid gap-3 md:grid-cols-4">
                     <Summary label="Batches" value={String((targetBatchIds.length ? targetBatchIds : activeBatch?.id ? [activeBatch.id] : []).length)} />
                     <Summary label="Subject" value={subject} />
-                    <Summary label="Questions" value={String(editingExam?.questionCount ?? questions.length)} />
+                    <Summary label="Questions" value={String(editingExam?.questionCount ?? questionsForPublish.length)} />
                     <Summary label="Timer" value={`${form.duration} min`} />
                   </div>
                   <div className="mt-4 rounded-2xl border border-[var(--border)] bg-white p-4">
@@ -1011,7 +1020,7 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
               {step < 4 ? (
                 <button type="button" onClick={goNextStep} className="min-h-12 rounded-xl border border-slate-950 bg-slate-950 px-6 font-black text-white">Continue</button>
               ) : (
-                <button type="button" onClick={() => void publishExam()} disabled={busy || (!editingExam && !readiness.ready)} className="min-h-12 rounded-xl border border-emerald-700 bg-emerald-700 px-6 font-black text-white disabled:cursor-not-allowed disabled:opacity-60">
+                <button type="button" onClick={() => void publishExam()} disabled={busy || (!editingExam && !canPublishPaper)} className="min-h-12 rounded-xl border border-emerald-700 bg-emerald-700 px-6 font-black text-white disabled:cursor-not-allowed disabled:opacity-60">
                   {busy ? (editingExam ? "Saving..." : "Publishing...") : editingExam ? "Save Exam Changes" : "Publish To Students"}
                 </button>
               )}

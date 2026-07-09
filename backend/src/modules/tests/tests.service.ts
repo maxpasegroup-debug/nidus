@@ -138,6 +138,20 @@ function attemptTiming(attempt: { startedAt: Date; submittedAt?: Date | null; te
   };
 }
 
+function sanitizeActiveAttempt<T extends { test?: { questions?: Array<Record<string, unknown>> } }>(attempt: T): T {
+  if (!attempt.test?.questions) return attempt;
+  return {
+    ...attempt,
+    test: {
+      ...attempt.test,
+      questions: attempt.test.questions.map((question) => {
+        const { correctAnswer: _correctAnswer, explanation: _explanation, ...safeQuestion } = question;
+        return safeQuestion;
+      })
+    }
+  };
+}
+
 const topicSeeds = [
   "concept clarity",
   "application",
@@ -537,7 +551,7 @@ export const testsService = {
     if (timing.isExpired) {
       return this.submitFromSavedState(userId, attempt.id, "TIMER_EXPIRED");
     }
-    return { ...attempt, timing };
+    return sanitizeActiveAttempt({ ...attempt, timing });
   },
 
   async saveState(userId: string, input: SaveStateInput) {
