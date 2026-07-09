@@ -341,16 +341,30 @@ function buildQuestions(source: string, answerGuide: string, topic: string, tota
   return parsedQuestions.map((question) => ({ ...question, marks: perQuestionMarks }));
 }
 
+function normalizeQuestionText(value?: string) {
+  return value?.trim().replace(/\s+/g, " ").toLowerCase() || "";
+}
+
 function paperReadiness(questions: QuestionDraft[]) {
   const missingOptions = questions.filter((question) => [question.optionA, question.optionB, question.optionC, question.optionD]
     .some((option) => !option || /^Option [A-D]$/i.test(option))).length;
   const missingAnswers = questions.filter((question) => !/^[A-D]$/i.test(question.correctAnswer)).length;
   const missingExplanations = questions.filter((question) => !question.explanation || /^Explanation will be reviewed/i.test(question.explanation)).length;
+  const seenQuestions = new Map<string, number>();
+  const duplicateQuestions = questions.flatMap((question, index) => {
+    const normalizedText = normalizeQuestionText(question.questionText);
+    if (!normalizedText) return [];
+    const firstIndex = seenQuestions.get(normalizedText);
+    if (firstIndex !== undefined) return [{ index, firstIndex }];
+    seenQuestions.set(normalizedText, index);
+    return [];
+  });
   return {
     missingOptions,
     missingAnswers,
     missingExplanations,
-    ready: questions.length > 0 && missingOptions === 0 && missingAnswers === 0 && missingExplanations === 0,
+    duplicateQuestions,
+    ready: questions.length > 0 && missingOptions === 0 && missingAnswers === 0 && missingExplanations === 0 && duplicateQuestions.length === 0,
   };
 }
 
@@ -430,6 +444,7 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
 
   const questions = useMemo(() => buildQuestions(questionSource, answerGuide, form.topic, Number(form.marks)), [answerGuide, form.marks, form.topic, questionSource]);
   const readiness = useMemo(() => paperReadiness(questions), [questions]);
+  const duplicateQuestionIndexes = useMemo(() => new Set(readiness.duplicateQuestions.flatMap((item) => [item.firstIndex, item.index])), [readiness.duplicateQuestions]);
   const effectiveTopic = useMemo(() => inferExamTopic(questionSource, form.topic), [form.topic, questionSource]);
   const effectiveTitle = useMemo(() => form.title.trim() || inferExamTitle(questionSource, subject, activeBatch?.name), [activeBatch?.name, form.title, questionSource, subject]);
 
@@ -531,6 +546,13 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
 
   async function publishExam() {
     if (!activeBatch) return;
+    const firstDuplicate = readiness.duplicateQuestions[0];
+    if (!editingExam && firstDuplicate) {
+      setPreviewIndex(firstDuplicate.index);
+      setStep(3);
+      setMessage(`Duplicate question found: Question ${firstDuplicate.index + 1} repeats Question ${firstDuplicate.firstIndex + 1}. Please edit the uploaded paper before publishing.`);
+      return;
+    }
     const selectedBatches = (targetBatchIds.length ? targetBatchIds : [activeBatch.id])
       .map((id) => batches.find((batch) => batch.id === id))
       .filter((batch): batch is TeacherExamBatch => Boolean(batch));
@@ -539,7 +561,7 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
       return;
     }
     if (!editingExam && !readiness.ready) {
-      setMessage(`Paper is incomplete: ${readiness.missingOptions} question(s) need options, ${readiness.missingAnswers} need answer keys, and ${readiness.missingExplanations} need explanations.`);
+      setMessage(`Paper is incomplete: ${readiness.missingOptions} question(s) need options, ${readiness.missingAnswers} need answer keys, ${readiness.missingExplanations} need explanations, and ${readiness.duplicateQuestions.length} duplicate question(s) must be fixed.`);
       return;
     }
     if (!effectiveTitle.trim() || !effectiveTopic.trim()) {
@@ -551,7 +573,7 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
     try {
       if (editingExam) {
         if (questionSource && !readiness.ready) {
-          setMessage(`Paper is incomplete: ${readiness.missingOptions} question(s) need options, ${readiness.missingAnswers} need answer keys, and ${readiness.missingExplanations} need explanations.`);
+          setMessage(`Paper is incomplete: ${readiness.missingOptions} question(s) need options, ${readiness.missingAnswers} need answer keys, ${readiness.missingExplanations} need explanations, and ${readiness.duplicateQuestions.length} duplicate question(s) must be fixed.`);
           return;
         }
         await requestJson(`/api/academy/exams/${editingExam.id}`, {
@@ -706,7 +728,11 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
       setMessage(`Answer key review required: ${readiness.missingAnswers} question(s) need answer keys before preview.`);
       return;
     }
-    if (step === 2 && !editingExam && (readiness.missingOptions > 0 || readiness.missingExplanations > 0)) {
+    if (step === 2 && !editingExam && readiness.duplicateQuestions.length > 0) {
+      const firstDuplicate = readiness.duplicateQuestions[0];
+      setPreviewIndex(firstDuplicate.index);
+      setMessage(`Preview opened with duplicate questions flagged. Question ${firstDuplicate.index + 1} repeats Question ${firstDuplicate.firstIndex + 1}; fix it before publishing.`);
+    } else if (step === 2 && !editingExam && (readiness.missingOptions > 0 || readiness.missingExplanations > 0)) {
       setMessage(`Preview opened with ${questions.length} valid question(s). Review ${readiness.missingOptions} option issue(s) and ${readiness.missingExplanations} explanation issue(s) before publishing.`);
     } else {
       setMessage("");
@@ -902,18 +928,24 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
                     <div className={`mt-3 rounded-xl border px-3 py-2 text-sm font-black ${readiness.ready ? "border-emerald-400/40 bg-emerald-500/15 text-emerald-100" : "border-amber-300 bg-amber-50 text-amber-900"}`}>
                       {readiness.ready
                         ? "Paper ready: every question has four options, an answer key and an explanation."
-                        : `${readiness.missingOptions} missing options / ${readiness.missingAnswers} missing answers / ${readiness.missingExplanations} missing explanations`}
+                        : `${readiness.missingOptions} missing options / ${readiness.missingAnswers} missing answers / ${readiness.missingExplanations} missing explanations / ${readiness.duplicateQuestions.length} duplicates`}
                     </div>
                   </div>
-                  <div className="grid gap-4 lg:grid-cols-[220px_minmax(0,1fr)]">
-                    <aside className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
-                      <p className="text-sm font-black">Question palette</p>
-                      <div className="mt-3 grid grid-cols-5 gap-2 lg:grid-cols-4">
-                        {questions.map((_, index) => <button key={index} type="button" onClick={() => setPreviewIndex(index)} className={`aspect-square rounded-lg border text-xs font-black ${previewIndex === index ? "border-slate-950 bg-slate-950 text-white" : "border-[var(--border)] bg-white"}`}>{index + 1}</button>)}
+                  <div className="grid items-start gap-4 lg:grid-cols-[260px_minmax(0,1fr)]">
+                    <aside className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4 shadow-sm lg:sticky lg:top-4 lg:max-h-[calc(100dvh-22rem)] lg:min-h-[24rem] lg:overflow-y-auto">
+                      <div className="flex items-center justify-between gap-3">
+                        <p className="text-sm font-black">Question palette</p>
+                        <span className="rounded-full bg-white px-3 py-1 text-xs font-black text-[var(--muted-blue)]">{questions.length} Qs</span>
+                      </div>
+                      <div className="mt-3 grid grid-cols-5 gap-2">
+                        {questions.map((_, index) => {
+                          const isDuplicate = duplicateQuestionIndexes.has(index);
+                          return <button key={index} type="button" onClick={() => setPreviewIndex(index)} className={`grid h-11 w-full place-items-center rounded-lg border text-xs font-black transition ${isDuplicate ? "animate-pulse border-rose-500 bg-rose-100 text-rose-900 shadow-sm shadow-rose-200 hover:border-rose-600" : previewIndex === index ? "border-slate-950 bg-slate-950 text-white shadow-sm" : "border-[var(--border)] bg-white hover:border-slate-300 hover:bg-slate-50"}`}>{index + 1}</button>;
+                        })}
                       </div>
                     </aside>
                     {questions[previewIndex] ? (
-                      <article className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm sm:p-7">
+                      <article className={`rounded-2xl border p-5 shadow-sm sm:p-7 lg:self-start ${duplicateQuestionIndexes.has(previewIndex) ? "animate-pulse border-rose-500 bg-rose-50 shadow-rose-100" : "border-[var(--border)] bg-white"}`}>
                         <div className="flex items-center justify-between gap-3"><span className="text-sm font-black text-[var(--gold-dark)]">Question {previewIndex + 1} of {questions.length}</span><span className="rounded-full bg-[var(--page-bg)] px-3 py-1 text-xs font-black">{questions[previewIndex].marks} mark(s)</span></div>
                         <h4 className="mt-5 text-lg font-black leading-7 sm:text-xl">{questions[previewIndex].questionText}</h4>
                         <div className="mt-5 grid gap-3 sm:grid-cols-2">
@@ -923,6 +955,21 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
                           <p className="text-sm font-black text-emerald-900">Correct Answer: {questions[previewIndex].correctAnswer}</p>
                           <p className="mt-2 text-sm leading-6 text-emerald-900">{questions[previewIndex].explanation}</p>
                         </div>
+                        {readiness.duplicateQuestions.filter((item) => item.index === previewIndex || item.firstIndex === previewIndex).map((item) => (
+                          <div key={`${item.firstIndex}-${item.index}`} className="mt-4 animate-pulse rounded-2xl border border-rose-500 bg-rose-100 p-4 text-sm font-black text-rose-900 shadow-sm shadow-rose-200">
+                            <p>{previewIndex === item.index ? `Duplicate warning: this repeats Question ${item.firstIndex + 1}.` : `Duplicate warning: Question ${item.index + 1} repeats this question.`}</p>
+                            <div className="mt-3 grid gap-2 text-xs leading-5 sm:grid-cols-2">
+                              <div className="rounded-xl border border-rose-300 bg-white/75 p-3">
+                                <span className="block text-rose-700">Question {item.firstIndex + 1}</span>
+                                {questions[item.firstIndex]?.questionText}
+                              </div>
+                              <div className="rounded-xl border border-rose-300 bg-white/75 p-3">
+                                <span className="block text-rose-700">Question {item.index + 1}</span>
+                                {questions[item.index]?.questionText}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
                         <div className="mt-6 flex items-center justify-between gap-3 border-t border-[var(--border)] pt-5"><button type="button" disabled={previewIndex === 0} onClick={() => setPreviewIndex((value) => Math.max(0, value - 1))} className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-[var(--border)] px-4 text-sm font-black disabled:opacity-40"><ChevronLeft size={16} />Previous</button><button type="button" disabled={previewIndex >= questions.length - 1} onClick={() => setPreviewIndex((value) => Math.min(questions.length - 1, value + 1))} className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-slate-950 px-4 text-sm font-black text-white disabled:opacity-40">Next<ChevronRight size={16} /></button></div>
                       </article>
                     ) : <p className="rounded-2xl border border-dashed border-[var(--border)] p-8 text-center font-bold text-[var(--muted-blue)]">Upload a valid question paper to preview the student exam.</p>}
@@ -948,6 +995,11 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
                     </div>
                   </div>
                   <p className="mt-5 text-sm leading-6 text-[var(--muted-blue)]">Publish sends this exam to students. Students see only the question paper during the exam; after submission they receive score, correct answers, explanations and improvement feedback.</p>
+                  {readiness.duplicateQuestions.length ? (
+                    <p className="mt-4 rounded-2xl border border-rose-200 bg-rose-50 p-3 text-sm font-black text-rose-800">
+                      Fix {readiness.duplicateQuestions.length} duplicate question(s) before publishing. Question {readiness.duplicateQuestions[0].index + 1} repeats Question {readiness.duplicateQuestions[0].firstIndex + 1}.
+                    </p>
+                  ) : null}
                 </div>
               ) : null}
 
