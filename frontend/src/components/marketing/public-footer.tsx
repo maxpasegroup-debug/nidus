@@ -47,7 +47,12 @@ export function PublicFooter() {
           <p className="mt-5 max-w-md text-sm leading-7 text-[#64748b]">
             A premium AI-powered defence career ecosystem for aspirants, parents, mentors, and academy leadership.
           </p>
-          <p className="mt-4 text-sm font-semibold text-[#071d36]">WhatsApp: +91 99695 94411</p>
+          <div className="mt-4 space-y-1 text-sm leading-6 text-[#64748b]">
+            <p className="font-semibold text-[#071d36]">Operated by Unique Solution</p>
+            <p>Ground Floor, Dalam Arcade, Kollam Kadavu Road, Chinnakada, Kollam - 691001, Kerala.</p>
+            <p>GSTIN: 32AAZFN9320K1ZP</p>
+            <p>Email: info@uniquesolutionkochi.com | Mob: 9020905655</p>
+          </div>
         </div>
         <div className="grid gap-6 sm:grid-cols-3">
           {columns.map((column) => (
@@ -65,7 +70,7 @@ export function PublicFooter() {
         </div>
       </div>
       <div className="mx-auto mt-10 flex max-w-7xl flex-col gap-3 border-t border-[#071d36]/10 pt-6 text-xs text-[#64748b] sm:flex-row sm:items-center sm:justify-between">
-        <p>Copyright {new Date().getFullYear()} NIDUS Academy.</p>
+        <p>Copyright {new Date().getFullYear()} NIDUS Academy by Unique Solution.</p>
         <p>Built for discipline, intelligence, and officer mindset.</p>
       </div>
     </footer>

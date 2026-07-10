@@ -36,6 +36,7 @@ export default function StartFreePage() {
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [accountExists, setAccountExists] = useState(false);
+  const [acceptedPolicies, setAcceptedPolicies] = useState(false);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -59,6 +60,10 @@ export default function StartFreePage() {
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (!acceptedPolicies) {
+      showToast("Please accept the Terms, Privacy Policy and Refund Policy to continue.", "error");
+      return;
+    }
     setIsSubmitting(true);
     setAccountExists(false);
     try {
@@ -176,7 +181,23 @@ export default function StartFreePage() {
               </label>
             </div>
 
-            <button type="submit" disabled={isSubmitting || submitted} className="mt-5 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded border border-[#b58b35]/45 bg-[linear-gradient(135deg,#fff3bf_0%,#e7c873_34%,#b9913f_72%,#8a6426_100%)] px-5 py-3 text-sm font-semibold text-[#071d36] transition hover:-translate-y-0.5 hover:brightness-105 disabled:opacity-70">
+            <label className="mt-5 flex items-start gap-3 rounded border border-[#071d36]/10 bg-[#fffdf8] p-3 text-xs leading-5 text-[#536072]">
+              <input
+                type="checkbox"
+                checked={acceptedPolicies}
+                onChange={(event) => setAcceptedPolicies(event.target.checked)}
+                className="mt-1 h-4 w-4 rounded border-[#071d36]/20 text-[#b9913f] focus:ring-[#b9913f]/30"
+                required
+              />
+              <span>
+                I agree to the{" "}
+                <Link href="/terms-and-conditions" className="font-semibold text-[#071d36] underline-offset-4 hover:underline">Terms & Conditions</Link>,{" "}
+                <Link href="/privacy-policy" className="font-semibold text-[#071d36] underline-offset-4 hover:underline">Privacy Policy</Link>, and{" "}
+                <Link href="/refund-policy" className="font-semibold text-[#071d36] underline-offset-4 hover:underline">Refund Policy</Link>.
+              </span>
+            </label>
+
+            <button type="submit" disabled={isSubmitting || submitted || !acceptedPolicies} className="mt-5 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded border border-[#b58b35]/45 bg-[linear-gradient(135deg,#fff3bf_0%,#e7c873_34%,#b9913f_72%,#8a6426_100%)] px-5 py-3 text-sm font-semibold text-[#071d36] transition hover:-translate-y-0.5 hover:brightness-105 disabled:opacity-70">
               {isSubmitting ? "Creating..." : "Start Free & Open My Journey"} <ArrowRight className="h-4 w-4" />
             </button>
 

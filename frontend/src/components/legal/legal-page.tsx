@@ -22,7 +22,7 @@ export function LegalPage({ title, intro, sections }: { title: string; intro: st
           ))}
         </div>
         <p className="mt-8 text-xs leading-6 text-[#536072]">
-          Last updated: May 25, 2026. For policy support, contact NIDUS Academy through the Contact page or official WhatsApp support.
+          Last updated: July 10, 2026. For policy support, contact info@uniquesolutionkochi.com or call 9020905655.
         </p>
       </section>
     </main>

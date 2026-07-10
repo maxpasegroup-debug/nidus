@@ -16,6 +16,7 @@ export default function RegisterPage() {
   const [mobile, setMobile] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [acceptedPolicies, setAcceptedPolicies] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
   const fieldClass = "!border-[#071d36]/14 !bg-white !text-[#071d36] placeholder:!text-[#64748b]/70 focus:!border-[#b9913f] focus:!bg-white focus:!ring-[#b9913f]/25";
@@ -24,6 +25,10 @@ export default function RegisterPage() {
     event.preventDefault();
     if (password !== confirmPassword) {
       setError("Passwords do not match.");
+      return;
+    }
+    if (!acceptedPolicies) {
+      setError("Please accept the Terms, Privacy Policy and Refund Policy to continue.");
       return;
     }
     setIsSubmitting(true);
@@ -62,7 +67,22 @@ export default function RegisterPage() {
           <Input label="Mobile Number" placeholder="WhatsApp mobile number" value={mobile} onChange={(event) => setMobile(event.target.value)} className={fieldClass} required />
           <PasswordInput label="Password" placeholder="Create password" value={password} onChange={(event) => setPassword(event.target.value)} className={fieldClass} minLength={8} required />
           <PasswordInput label="Confirm Password" placeholder="Confirm password" value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} className={fieldClass} minLength={8} required />
-          <Button type="submit" className="w-full" disabled={isSubmitting}>
+          <label className="flex items-start gap-3 rounded-xl border border-[#071d36]/10 bg-[#fffdf8] p-3 text-xs leading-5 text-[#536072]">
+            <input
+              type="checkbox"
+              checked={acceptedPolicies}
+              onChange={(event) => setAcceptedPolicies(event.target.checked)}
+              className="mt-1 h-4 w-4 rounded border-[#071d36]/20 text-[#b9913f] focus:ring-[#b9913f]/30"
+              required
+            />
+            <span>
+              I agree to the{" "}
+              <Link href="/terms-and-conditions" className="font-semibold text-[#071d36] underline-offset-4 hover:underline">Terms & Conditions</Link>,{" "}
+              <Link href="/privacy-policy" className="font-semibold text-[#071d36] underline-offset-4 hover:underline">Privacy Policy</Link>, and{" "}
+              <Link href="/refund-policy" className="font-semibold text-[#071d36] underline-offset-4 hover:underline">Refund Policy</Link>.
+            </span>
+          </label>
+          <Button type="submit" className="w-full" disabled={isSubmitting || !acceptedPolicies}>
             {isSubmitting ? "Creating..." : "Start free"} <ArrowRight className="h-4 w-4" />
           </Button>
         </form>
