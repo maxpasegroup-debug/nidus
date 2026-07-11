@@ -17,10 +17,10 @@ const studentMenu: DashboardNavItem[] = [
 ];
 
 const guestMenu: DashboardNavItem[] = [
-  { label: "Assessments", href: "/dashboard/guest#assessments" },
-  { label: "NIDUS Guru", href: "/dashboard/guest#guru" },
-  { label: "Academy Courses", href: "/dashboard/guest#academy" },
-  { label: "My Applications", href: "/dashboard/guest#applications" },
+  { label: "Assessments", href: "/dashboard/guest/assessments" },
+  { label: "NIDUS Guru", href: "/dashboard/guest/guru" },
+  { label: "Academy Courses", href: "/dashboard/guest/academy" },
+  { label: "My Applications", href: "/dashboard/guest/applications" },
 ];
 
 const parentMenu: DashboardNavItem[] = [

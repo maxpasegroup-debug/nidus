@@ -20,21 +20,50 @@ function academyApplyHref(programSlug?: string) {
   return programSlug ? `/programs/${programSlug}#apply` : "/programs";
 }
 
-export function GuestApplicantDashboard({ name }: { name?: string | null }) {
+export type GuestApplicantView = "applications" | "assessments" | "guru" | "academy";
+
+export function GuestApplicantDashboard({ name, view = "applications" }: { name?: string | null; view?: GuestApplicantView }) {
   const visibleAssessments = assessmentCatalog.slice(0, 15);
+  const showApplications = view === "applications";
+  const showAssessments = view === "assessments";
+  const showGuru = view === "guru";
+  const showAcademy = view === "academy";
+  const pageCopy: Record<GuestApplicantView, { eyebrow: string; title: string; description: string }> = {
+    applications: {
+      eyebrow: "Applicant Lobby",
+      title: `Welcome${name ? `, ${name}` : ""}. Track your admission path.`,
+      description: "See how your application moves from course selection to AO approval, fee confirmation, batch allocation and learner activation.",
+    },
+    assessments: {
+      eyebrow: "Assessments",
+      title: "Defence readiness assessments",
+      description: "Open any psychometric or readiness assessment as an applicant. Your full academic profile unlocks after admission activation.",
+    },
+    guru: {
+      eyebrow: "NIDUS Guru",
+      title: "Quests for personal transformation",
+      description: "Use guided quests to build discipline, focus, confidence and daily defence preparation habits before admission activation.",
+    },
+    academy: {
+      eyebrow: "Academy Courses",
+      title: "Apply for NIDUS Academy courses",
+      description: "Choose the defence program you want. Your application reaches the Administrative Officer for counselling, fee recording and batch allocation.",
+    },
+  };
+  const copy = pageCopy[view];
 
   return (
     <main className="min-h-screen bg-[var(--page-bg)] px-5 py-6 text-[var(--navy)] md:px-8">
       <section className="mx-auto max-w-7xl space-y-8">
         <section className="rounded-3xl border border-[var(--border)] bg-white/95 p-6 shadow-xl md:p-9">
-          <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Applicant Lobby</p>
+          <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">{copy.eyebrow}</p>
           <div className="mt-4 grid gap-6 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
             <div>
               <h1 className="max-w-4xl text-4xl font-black tracking-tight md:text-6xl">
-                Welcome{name ? `, ${name}` : ""}. Choose your NIDUS path.
+                {copy.title}
               </h1>
               <p className="mt-5 max-w-3xl text-base leading-8 text-[var(--muted-blue)]">
-                Explore assessments, NIDUS Guru quests and academy courses. Full learner tools unlock after the Administrative Officer approves admission, records fees and assigns your batch.
+                {copy.description}
               </p>
             </div>
             <div className="rounded-2xl border border-[var(--gold-border)] bg-[var(--gold-soft)] p-5">
@@ -45,7 +74,7 @@ export function GuestApplicantDashboard({ name }: { name?: string | null }) {
           </div>
         </section>
 
-        <section id="applications" className="rounded-3xl border border-[var(--border)] bg-white/95 p-5 shadow-sm md:p-7">
+        {showApplications ? <section className="rounded-3xl border border-[var(--border)] bg-white/95 p-5 shadow-sm md:p-7">
           <div className="grid gap-5 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
             <div>
               <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">My Applications</p>
@@ -69,9 +98,9 @@ export function GuestApplicantDashboard({ name }: { name?: string | null }) {
               ))}
             </div>
           </div>
-        </section>
+        </section> : null}
 
-        <section id="assessments" className="rounded-3xl border border-[var(--border)] bg-white/95 p-5 shadow-sm md:p-7">
+        {showAssessments ? <section className="rounded-3xl border border-[var(--border)] bg-white/95 p-5 shadow-sm md:p-7">
           <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
             <div>
               <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Assessments</p>
@@ -95,9 +124,9 @@ export function GuestApplicantDashboard({ name }: { name?: string | null }) {
               );
             })}
           </div>
-        </section>
+        </section> : null}
 
-        <section id="guru" className="rounded-3xl border border-[var(--border)] bg-white/95 p-5 shadow-sm md:p-7">
+        {showGuru ? <section className="rounded-3xl border border-[var(--border)] bg-white/95 p-5 shadow-sm md:p-7">
           <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">NIDUS Guru</p>
           <h2 className="mt-2 text-3xl font-black">Quests for personal transformation</h2>
           <div className="mt-7 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -112,9 +141,9 @@ export function GuestApplicantDashboard({ name }: { name?: string | null }) {
               );
             })}
           </div>
-        </section>
+        </section> : null}
 
-        <section id="academy" className="rounded-3xl border border-[var(--border)] bg-white/95 p-5 shadow-sm md:p-7">
+        {showAcademy ? <section className="rounded-3xl border border-[var(--border)] bg-white/95 p-5 shadow-sm md:p-7">
           <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
             <div>
               <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Academy</p>
@@ -142,7 +171,7 @@ export function GuestApplicantDashboard({ name }: { name?: string | null }) {
               </div>
             ))}
           </div>
-        </section>
+        </section> : null}
       </section>
     </main>
   );
