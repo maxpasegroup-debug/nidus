@@ -1,11 +1,13 @@
 "use client";
 
-import type { ReactNode } from "react";
+import type { Dispatch, ReactNode, SetStateAction } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { CalendarDays, CheckCircle2, ChevronLeft, ChevronRight, Clock, Plus, RotateCcw, Users } from "lucide-react";
 import {
   createAcademicCalendarItem,
+  type AcademyBatch,
+  type AcademyTeacher,
   getAcademyBatches,
   getAcademyTeachers,
   getAcademicCalendar,
@@ -66,6 +68,18 @@ function blankSlot(template = defaultSlots[0]): PlannerSlot {
   };
 }
 
+function normalizeSubject(subject: string) {
+  return subject.trim().toLowerCase().replace(/\s+/g, " ");
+}
+
+function splitSubjects(subject?: string | null) {
+  if (!subject) return [];
+  return subject
+    .split(/[,/&]+|\band\b/gi)
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
 function slotFromCalendar(item: AcademicCalendarItem): PlannerSlot {
   return {
     calendarId: item.id,
@@ -97,6 +111,7 @@ export function AcademicTimetablePlanner({ audience }: Props) {
   const [monthDate, setMonthDate] = useState(new Date(today.getFullYear(), today.getMonth(), 1));
   const [batchFilter, setBatchFilter] = useState("");
   const [slots, setSlots] = useState<PlannerSlot[]>(defaultSlots.map(blankSlot));
+  const [activeSlotIndex, setActiveSlotIndex] = useState(0);
   const [notice, setNotice] = useState("");
 
   const batchesQuery = useQuery({ queryKey: ["academy", "batches"], queryFn: () => getAcademyBatches() });
@@ -127,6 +142,37 @@ export function AcademicTimetablePlanner({ audience }: Props) {
     [calendarByDate, selectedDate],
   );
 
+  const fallbackSubjects = useMemo(
+    () => [
+      "Mathematics",
+      "English",
+      "Reasoning",
+      "Physics",
+      "Chemistry",
+      "Biology",
+      "History",
+      "Polity",
+      "Geography",
+      "Economics",
+      "Current Affairs",
+      "General Knowledge",
+      "General Science",
+      "Physical Training",
+    ],
+    [],
+  );
+
+  const allSubjects = useMemo(() => {
+    const subjects = new Set<string>();
+    batches.forEach((batch) => {
+      (batch.teachers ?? []).forEach((entry) => {
+        splitSubjects(entry.subject).forEach((subject) => subjects.add(subject));
+      });
+    });
+    fallbackSubjects.forEach((subject) => subjects.add(subject));
+    return [...subjects].sort((first, second) => first.localeCompare(second));
+  }, [batches, fallbackSubjects]);
+
   const summary = useMemo(() => {
     const monthKey = localDateKey(monthDate).slice(0, 7);
     const monthItems = calendar.filter((item) => itemDateKey(item).startsWith(monthKey));
@@ -141,9 +187,11 @@ export function AcademicTimetablePlanner({ audience }: Props) {
   useEffect(() => {
     if (selectedDayItems.length) {
       setSlots(selectedDayItems.map(slotFromCalendar));
+      setActiveSlotIndex(0);
       return;
     }
     setSlots(defaultSlots.map(blankSlot));
+    setActiveSlotIndex(0);
   }, [selectedDayItems]);
 
   const createMutation = useMutation({
@@ -168,6 +216,30 @@ export function AcademicTimetablePlanner({ audience }: Props) {
 
   const setSlot = (index: number, patch: Partial<PlannerSlot>) => {
     setSlots((current) => current.map((slot, slotIndex) => (slotIndex === index ? { ...slot, ...patch } : slot)));
+  };
+
+  const getSubjectsForBatch = (batchId: string) => {
+    const batch = batches.find((item) => item.id === batchId);
+    if (!batch?.teachers?.length) return allSubjects;
+    const subjects = new Set<string>();
+    batch.teachers.forEach((entry) => splitSubjects(entry.subject).forEach((subject) => subjects.add(subject)));
+    allSubjects.forEach((subject) => subjects.add(subject));
+    return [...subjects].sort((first, second) => first.localeCompare(second));
+  };
+
+  const getTeachersForSlot = (slot: PlannerSlot) => {
+    const batch = batches.find((item) => item.id === slot.batchId);
+    const batchTeachers = batch?.teachers ?? [];
+    if (!batchTeachers.length) return teachers;
+
+    const subject = normalizeSubject(slot.subject);
+    const matched = subject
+      ? batchTeachers.filter((entry) => splitSubjects(entry.subject).some((entrySubject) => normalizeSubject(entrySubject) === subject))
+      : batchTeachers;
+    const source = matched.length ? matched : batchTeachers;
+    const unique = new Map<string, AcademyTeacher>();
+    source.forEach((entry) => unique.set(entry.teacher.id, entry.teacher));
+    return [...unique.values()].sort((first, second) => first.name.localeCompare(second.name));
   };
 
   const saveSlot = (slot: PlannerSlot, index: number) => {
@@ -208,10 +280,17 @@ export function AcademicTimetablePlanner({ audience }: Props) {
 
   const addCustomSlot = () => {
     const last = slots[slots.length - 1];
-    setSlots((current) => [...current, blankSlot({ startTime: last?.endTime || "16:00", endTime: "17:00" })]);
+    setSlots((current) => {
+      const next = [...current, blankSlot({ startTime: last?.endTime || "16:00", endTime: "17:00" })];
+      setActiveSlotIndex(next.length - 1);
+      return next;
+    });
   };
 
-  const resetDefaultSlots = () => setSlots(defaultSlots.map(blankSlot));
+  const resetDefaultSlots = () => {
+    setSlots(defaultSlots.map(blankSlot));
+    setActiveSlotIndex(0);
+  };
 
   const changeMonth = (offset: number) => {
     setMonthDate((current) => new Date(current.getFullYear(), current.getMonth() + offset, 1));
@@ -303,83 +382,20 @@ export function AcademicTimetablePlanner({ audience }: Props) {
               </div>
             </div>
 
-            <div className="mt-5 space-y-4">
-              {slots.map((slot, index) => {
-                const currentBatch = batches.find((batch) => batch.id === slot.batchId);
-                const subjects = Array.from(new Set((currentBatch?.teachers ?? []).map((teacher) => teacher.subject).filter(Boolean)));
-                const teacherOptions = currentBatch?.teachers?.length ? currentBatch.teachers.map((entry) => entry.teacher) : teachers;
-                return (
-                  <article key={`${slot.calendarId ?? "new"}-${index}`} className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
-                    <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                      <div className="inline-flex items-center gap-2 text-sm font-black">
-                        <Clock className="h-4 w-4" />
-                        Session {index + 1}
-                        {slot.calendarId ? <span className="rounded-full bg-emerald-100 px-2 py-1 text-xs text-emerald-800">Saved</span> : <span className="rounded-full bg-amber-100 px-2 py-1 text-xs text-amber-800">New</span>}
-                      </div>
-                      <div className="grid grid-cols-2 gap-2 md:w-56">
-                        <input className="field" type="time" value={slot.startTime} onChange={(event) => setSlot(index, { startTime: event.target.value })} />
-                        <input className="field" type="time" value={slot.endTime} onChange={(event) => setSlot(index, { endTime: event.target.value })} />
-                      </div>
-                    </div>
-
-                    <div className="mt-4 grid gap-3 md:grid-cols-2">
-                      <Label title="Batch">
-                        <select className="field" value={slot.batchId} onChange={(event) => setSlot(index, { batchId: event.target.value, subject: "", teacherId: "" })}>
-                          <option value="">Select batch</option>
-                          {batches.map((batch) => <option key={batch.id} value={batch.id}>{batch.name}</option>)}
-                        </select>
-                      </Label>
-                      <Label title="Subject">
-                        <select className="field" value={slot.subject} onChange={(event) => setSlot(index, { subject: event.target.value })}>
-                          <option value="">Select subject</option>
-                          {subjects.length ? subjects.map((subject) => <option key={subject} value={subject}>{subject}</option>) : null}
-                          <option value="Mathematics">Mathematics</option>
-                          <option value="English">English</option>
-                          <option value="Physics">Physics</option>
-                          <option value="Chemistry">Chemistry</option>
-                          <option value="Biology">Biology</option>
-                          <option value="History">History</option>
-                          <option value="Polity">Polity</option>
-                          <option value="Geography">Geography</option>
-                          <option value="Economics">Economics</option>
-                          <option value="Current Affairs">Current Affairs</option>
-                          <option value="Reasoning">Reasoning</option>
-                        </select>
-                      </Label>
-                      <Label title="Teacher">
-                        <select className="field" value={slot.teacherId} onChange={(event) => setSlot(index, { teacherId: event.target.value })}>
-                          <option value="">Select teacher</option>
-                          {teacherOptions.map((teacher) => <option key={teacher.id} value={teacher.id}>{teacher.name}</option>)}
-                        </select>
-                      </Label>
-                      <Label title="Session type">
-                        <select className="field" value={slot.classType} onChange={(event) => setSlot(index, { classType: event.target.value })}>
-                          {classTypes.map((type) => <option key={type} value={type}>{type.replaceAll("_", " ")}</option>)}
-                        </select>
-                      </Label>
-                      <Label title="Topic / chapter">
-                        <input className="field" value={slot.topic} onChange={(event) => setSlot(index, { topic: event.target.value })} placeholder="Algebra - continued" />
-                      </Label>
-                      <Label title="Status">
-                        <select className="field" value={slot.status} onChange={(event) => setSlot(index, { status: event.target.value })}>
-                          <option value="SCHEDULED">Scheduled</option>
-                          <option value="PLANNED">Planned</option>
-                          <option value="RESCHEDULED">Rescheduled</option>
-                          <option value="CANCELLED">Cancelled</option>
-                        </select>
-                      </Label>
-                    </div>
-
-                    <div className="mt-4 flex flex-wrap justify-between gap-2">
-                      <button className="btn-light" type="button" onClick={() => setSlots((current) => current.filter((_, slotIndex) => slotIndex !== index))}>Remove</button>
-                      <button className="btn-primary" type="button" onClick={() => saveSlot(slot, index)} disabled={createMutation.isPending || updateMutation.isPending}>
-                        <CheckCircle2 className="h-4 w-4" /> Save session
-                      </button>
-                    </div>
-                  </article>
-                );
-              })}
-            </div>
+            <SessionEditor
+              activeSlotIndex={activeSlotIndex}
+              allSubjects={allSubjects}
+              batches={batches}
+              createPending={createMutation.isPending}
+              getSubjectsForBatch={getSubjectsForBatch}
+              getTeachersForSlot={getTeachersForSlot}
+              saveSlot={saveSlot}
+              setActiveSlotIndex={setActiveSlotIndex}
+              setSlot={setSlot}
+              setSlots={setSlots}
+              slots={slots}
+              updatePending={updateMutation.isPending}
+            />
           </section>
         </section>
 
@@ -392,7 +408,7 @@ export function AcademicTimetablePlanner({ audience }: Props) {
           </div>
         </section>
       </section>
-      <style jsx>{`
+      <style jsx global>{`
         .field {
           min-height: 44px;
           width: 100%;
@@ -451,6 +467,146 @@ function Label({ title, children }: { title: string; children: ReactNode }) {
       {title}
       {children}
     </label>
+  );
+}
+
+function SessionEditor({
+  activeSlotIndex,
+  allSubjects,
+  batches,
+  createPending,
+  getSubjectsForBatch,
+  getTeachersForSlot,
+  saveSlot,
+  setActiveSlotIndex,
+  setSlot,
+  setSlots,
+  slots,
+  updatePending,
+}: {
+  activeSlotIndex: number;
+  allSubjects: string[];
+  batches: AcademyBatch[];
+  createPending: boolean;
+  getSubjectsForBatch: (batchId: string) => string[];
+  getTeachersForSlot: (slot: PlannerSlot) => AcademyTeacher[];
+  saveSlot: (slot: PlannerSlot, index: number) => void;
+  setActiveSlotIndex: (index: number) => void;
+  setSlot: (index: number, patch: Partial<PlannerSlot>) => void;
+  setSlots: Dispatch<SetStateAction<PlannerSlot[]>>;
+  slots: PlannerSlot[];
+  updatePending: boolean;
+}) {
+  const activeSlot = slots[Math.min(activeSlotIndex, Math.max(slots.length - 1, 0))] ?? blankSlot();
+  const subjects = activeSlot.batchId ? getSubjectsForBatch(activeSlot.batchId) : allSubjects;
+  const teacherOptions = getTeachersForSlot(activeSlot);
+  const selectedBatch = batches.find((batch) => batch.id === activeSlot.batchId);
+  const selectedTeacher = teacherOptions.find((teacher) => teacher.id === activeSlot.teacherId);
+
+  const removeActiveSlot = () => {
+    setSlots((current) => {
+      if (current.length <= 1) return current;
+      const next = current.filter((_, slotIndex) => slotIndex !== activeSlotIndex);
+      setActiveSlotIndex(Math.max(0, activeSlotIndex - 1));
+      return next;
+    });
+  };
+
+  return (
+    <div className="mt-5 space-y-4">
+      <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+        {slots.map((slot, index) => {
+          const isActive = index === activeSlotIndex;
+          const batch = batches.find((item) => item.id === slot.batchId);
+          return (
+            <button
+              key={`${slot.calendarId ?? "new"}-${index}`}
+              type="button"
+              onClick={() => setActiveSlotIndex(index)}
+              className={`rounded-2xl border p-3 text-left transition hover:-translate-y-0.5 hover:shadow-sm ${
+                isActive ? "border-[var(--navy)] bg-[var(--navy)] text-white" : "border-[var(--border)] bg-white"
+              }`}
+            >
+              <span className="flex items-center justify-between gap-2 text-xs font-black uppercase tracking-[0.18em]">
+                Session {index + 1}
+                <span className={`rounded-full px-2 py-1 tracking-normal ${slot.calendarId ? "bg-emerald-100 text-emerald-800" : "bg-amber-100 text-amber-800"}`}>
+                  {slot.calendarId ? "Saved" : "New"}
+                </span>
+              </span>
+              <span className="mt-3 block text-sm font-black">{slot.startTime || "--:--"} - {slot.endTime || "--:--"}</span>
+              <span className={`mt-1 block truncate text-xs ${isActive ? "text-white/80" : "text-[var(--muted-blue)]"}`}>
+                {batch?.name ?? "Select batch"}
+              </span>
+              <span className={`mt-1 block truncate text-xs ${isActive ? "text-white/80" : "text-[var(--muted-blue)]"}`}>
+                {slot.subject || "Select subject"}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
+      <article className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div>
+            <p className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.25em] text-[var(--gold)]">
+              <Clock className="h-4 w-4" /> Session {activeSlotIndex + 1}
+            </p>
+            <h3 className="mt-1 text-xl font-black">{selectedBatch?.name ?? "Choose batch, subject and teacher"}</h3>
+            <p className="mt-1 text-sm text-[var(--muted-blue)]">
+              {activeSlot.subject || "No subject selected"} {selectedTeacher ? `with ${selectedTeacher.name}` : ""}
+            </p>
+          </div>
+          <div className="grid grid-cols-2 gap-2 md:w-64">
+            <input className="field" type="time" value={activeSlot.startTime} onChange={(event) => setSlot(activeSlotIndex, { startTime: event.target.value })} />
+            <input className="field" type="time" value={activeSlot.endTime} onChange={(event) => setSlot(activeSlotIndex, { endTime: event.target.value })} />
+          </div>
+        </div>
+
+        <div className="mt-4 grid gap-3 lg:grid-cols-3">
+          <Label title="Batch">
+            <select className="field" value={activeSlot.batchId} onChange={(event) => setSlot(activeSlotIndex, { batchId: event.target.value, subject: "", teacherId: "" })}>
+              <option value="">Select batch</option>
+              {batches.map((batch) => <option key={batch.id} value={batch.id}>{batch.name}</option>)}
+            </select>
+          </Label>
+          <Label title="Subject">
+            <select className="field" value={activeSlot.subject} onChange={(event) => setSlot(activeSlotIndex, { subject: event.target.value, teacherId: "" })}>
+              <option value="">Select subject</option>
+              {subjects.map((subject) => <option key={subject} value={subject}>{subject}</option>)}
+            </select>
+          </Label>
+          <Label title="Teacher">
+            <select className="field" value={activeSlot.teacherId} onChange={(event) => setSlot(activeSlotIndex, { teacherId: event.target.value })}>
+              <option value="">Select teacher</option>
+              {teacherOptions.map((teacher) => <option key={teacher.id} value={teacher.id}>{teacher.name}</option>)}
+            </select>
+          </Label>
+          <Label title="Topic / chapter">
+            <input className="field" value={activeSlot.topic} onChange={(event) => setSlot(activeSlotIndex, { topic: event.target.value })} placeholder="Algebra - continued" />
+          </Label>
+          <Label title="Session type">
+            <select className="field" value={activeSlot.classType} onChange={(event) => setSlot(activeSlotIndex, { classType: event.target.value })}>
+              {classTypes.map((type) => <option key={type} value={type}>{type.replaceAll("_", " ")}</option>)}
+            </select>
+          </Label>
+          <Label title="Status">
+            <select className="field" value={activeSlot.status} onChange={(event) => setSlot(activeSlotIndex, { status: event.target.value })}>
+              <option value="SCHEDULED">Scheduled</option>
+              <option value="PLANNED">Planned</option>
+              <option value="RESCHEDULED">Rescheduled</option>
+              <option value="CANCELLED">Cancelled</option>
+            </select>
+          </Label>
+        </div>
+
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
+          <button className="btn-light" type="button" onClick={removeActiveSlot} disabled={slots.length <= 1}>Remove session</button>
+          <button className="btn-primary" type="button" onClick={() => saveSlot(activeSlot, activeSlotIndex)} disabled={createPending || updatePending}>
+            <CheckCircle2 className="h-4 w-4" /> Save session
+          </button>
+        </div>
+      </article>
+    </div>
   );
 }
 
