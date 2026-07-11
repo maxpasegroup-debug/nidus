@@ -1156,7 +1156,7 @@ function TimePickerField({ label, value, onChange }: { label: string; value: str
     const max = kind === "hour" ? 12 : 59;
     const min = kind === "hour" ? 1 : 0;
     const bounded = Math.min(max, Math.max(min, Number(digits)));
-    update({ [kind]: String(bounded).padStart(2, "0") });
+    update({ [kind]: String(bounded) });
   }
 
   return (
