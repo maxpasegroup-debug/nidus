@@ -11,6 +11,7 @@ import { ReviewModal } from "@/components/tests/review-modal";
 import { TimerCard } from "@/components/tests/timer-card";
 import { useSubmitTest } from "@/hooks/use-tests";
 import { useToast } from "@/components/providers/toast-provider";
+import { getApiErrorMessage } from "@/services/api";
 import { autosaveAttempt, getReviewPlan, logIntegrityEvent, resumeAttempt } from "@/services/tests";
 import type { Question, TestAttempt } from "@/types/test";
 
@@ -102,10 +103,20 @@ export default function TestAttemptPage() {
         if (typeof window !== "undefined") localStorage.setItem("nidus_active_attempt", JSON.stringify(active));
       })
       .catch((error) => {
-        showToast(error instanceof Error ? error.message : "Attempt could not be loaded", "error");
+        const message = getApiErrorMessage(error);
+        if (message.toLowerCase().includes("attempt not found")) {
+          if (typeof window !== "undefined") {
+            localStorage.removeItem("nidus_active_attempt");
+            localStorage.removeItem(`nidus_attempt_${attemptId}`);
+          }
+          showToast("This exam attempt is no longer available. Open the exam again from your dashboard.", "error");
+          router.replace("/dashboard/student/exams");
+          return;
+        }
+        showToast(message || "Attempt could not be loaded", "error");
       })
       .finally(() => setLoading(false));
-  }, [attemptId, showToast]);
+  }, [attemptId, router, showToast]);
 
   useEffect(() => {
     if (!attemptId || !activeQuestion || !questions.length || submitMutation.isPending) return;

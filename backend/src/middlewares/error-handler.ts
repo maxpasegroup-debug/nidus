@@ -25,7 +25,9 @@ export const errorHandler: ErrorRequestHandler = (error, req, res, _next) => {
       error: error.message,
       stack: process.env.NODE_ENV === "production" ? undefined : error.stack
     });
-    captureException(error, { statusCode, method: req.method, path: req.path, requestId: req.requestId });
+    if (statusCode >= 500) {
+      captureException(error, { statusCode, method: req.method, path: req.path, requestId: req.requestId });
+    }
 
     res.status(statusCode).json({
       success: false,
