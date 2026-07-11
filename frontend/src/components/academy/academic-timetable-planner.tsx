@@ -523,17 +523,14 @@ function SessionEditor({
 
   return (
     <div className="mt-5 space-y-4">
-      <div className="overflow-x-auto rounded-2xl border border-[var(--border)] bg-white">
-        <div className="min-w-[1120px]">
-        <div className="grid grid-cols-[140px_1.4fr_1fr_1fr_1.1fr_0.85fr_0.85fr_118px] bg-[var(--navy)] text-xs font-black uppercase tracking-[0.16em] text-white">
+      <div className="rounded-2xl border border-[var(--border)] bg-white">
+        <div className="grid grid-cols-[118px_1fr_1fr_1fr_1fr_104px] rounded-t-2xl bg-[var(--navy)] text-[0.65rem] font-black uppercase tracking-[0.16em] text-white">
           <div className="px-3 py-3">Time</div>
           <div className="px-3 py-3">Batch</div>
           <div className="px-3 py-3">Subject</div>
           <div className="px-3 py-3">Teacher</div>
           <div className="px-3 py-3">Topic</div>
-          <div className="px-3 py-3">Type</div>
-          <div className="px-3 py-3">Status</div>
-          <div className="px-3 py-3 text-right">Action</div>
+          <div className="px-3 py-3 text-right">Save</div>
         </div>
         {slots.map((slot, index) => {
           const subjects = slot.batchId ? getSubjectsForBatch(slot.batchId) : allSubjects;
@@ -543,13 +540,13 @@ function SessionEditor({
           return (
             <div key={`${slot.calendarId ?? "new"}-${index}`}>
               <div
-                className={`grid grid-cols-[140px_1.4fr_1fr_1fr_1.1fr_0.85fr_0.85fr_118px] items-end gap-0 border-t border-[var(--border)] p-3 transition ${
+                className={`grid grid-cols-[118px_1fr_1fr_1fr_1fr_104px] items-start gap-2 border-t border-[var(--border)] p-3 transition ${
                   isActive ? "bg-[var(--page-bg)]" : "bg-white"
                 }`}
                 onFocus={() => setActiveSlotIndex(index)}
                 onMouseEnter={() => setActiveSlotIndex(index)}
               >
-                <div className="grid gap-2">
+                <div className="grid gap-1">
                   <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.12em] text-[var(--gold)]">
                     <Clock className="h-4 w-4" /> S{index + 1}
                   </div>
@@ -568,16 +565,20 @@ function SessionEditor({
                   <option value="">Select teacher</option>
                   {teacherOptions.map((teacher) => <option key={teacher.id} value={teacher.id}>{teacher.name}</option>)}
                 </select>
-                <input className="field compact-field" value={slot.topic} onChange={(event) => setSlot(index, { topic: event.target.value })} placeholder="Topic / chapter" />
-                <select className="field compact-field" value={slot.classType} onChange={(event) => setSlot(index, { classType: event.target.value })}>
-                  {classTypes.map((type) => <option key={type} value={type}>{type.replaceAll("_", " ")}</option>)}
-                </select>
-                <select className="field compact-field" value={slot.status} onChange={(event) => setSlot(index, { status: event.target.value })}>
-                  <option value="SCHEDULED">Scheduled</option>
-                  <option value="PLANNED">Planned</option>
-                  <option value="RESCHEDULED">Rescheduled</option>
-                  <option value="CANCELLED">Cancelled</option>
-                </select>
+                <div className="grid gap-1">
+                  <input className="field compact-field" value={slot.topic} onChange={(event) => setSlot(index, { topic: event.target.value })} placeholder="Topic / chapter" />
+                  <div className="grid grid-cols-2 gap-1">
+                    <select className="field compact-field timetable-mini-field" value={slot.classType} onChange={(event) => setSlot(index, { classType: event.target.value })}>
+                      {classTypes.map((type) => <option key={type} value={type}>{type.replaceAll("_", " ")}</option>)}
+                    </select>
+                    <select className="field compact-field timetable-mini-field" value={slot.status} onChange={(event) => setSlot(index, { status: event.target.value })}>
+                      <option value="SCHEDULED">Scheduled</option>
+                      <option value="PLANNED">Planned</option>
+                      <option value="RESCHEDULED">Rescheduled</option>
+                      <option value="CANCELLED">Cancelled</option>
+                    </select>
+                  </div>
+                </div>
                 <div className="flex flex-col gap-2">
                   <button className="btn-primary min-h-10 px-3 text-xs" type="button" onClick={() => saveSlot(slot, index)} disabled={createPending || updatePending}>
                     <CheckCircle2 className="h-4 w-4" /> Save
@@ -593,7 +594,6 @@ function SessionEditor({
             </div>
           );
         })}
-        </div>
       </div>
 
       <div className="grid gap-3 rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4 text-sm md:grid-cols-3">
