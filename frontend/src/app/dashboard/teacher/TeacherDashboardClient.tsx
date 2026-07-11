@@ -6962,10 +6962,20 @@ function toPickerTime(hour: string, minute: string, meridiem: "AM" | "PM") {
 
 function TimePickerInput({ label, value, onChange }: { label: string; value: string; onChange: (value: string) => void }) {
   const parsed = parsePickerTime(value);
+  const [draft, setDraft] = useState(parsed);
 
-  function update(next: Partial<typeof parsed>) {
-    const merged = { ...parsed, ...next };
-    onChange(toPickerTime(merged.hour, merged.minute, merged.meridiem));
+  useEffect(() => {
+    setDraft(parsePickerTime(value));
+  }, [value]);
+
+  function update(next: Partial<typeof draft>) {
+    const merged = { ...draft, ...next };
+    setDraft(merged);
+    if (merged.hour && merged.minute) {
+      onChange(toPickerTime(merged.hour, merged.minute, merged.meridiem));
+    } else if (!merged.hour && !merged.minute) {
+      onChange("");
+    }
   }
 
   function updateNumber(kind: "hour" | "minute", rawValue: string) {
@@ -6986,7 +6996,7 @@ function TimePickerInput({ label, value, onChange }: { label: string; value: str
       <div className="grid grid-cols-[1fr_auto_1fr_auto] items-center gap-2 rounded-2xl border border-[var(--border)] bg-white p-2">
         <input
           inputMode="numeric"
-          value={parsed.hour}
+          value={draft.hour}
           onChange={(event) => updateNumber("hour", event.target.value)}
           placeholder="HH"
           className="min-h-10 rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-3 text-center font-black outline-none focus:border-[var(--ink)]"
@@ -6994,7 +7004,7 @@ function TimePickerInput({ label, value, onChange }: { label: string; value: str
         <span className="font-black text-[var(--muted-blue)]">:</span>
         <input
           inputMode="numeric"
-          value={parsed.minute}
+          value={draft.minute}
           onChange={(event) => updateNumber("minute", event.target.value)}
           placeholder="MM"
           className="min-h-10 rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-3 text-center font-black outline-none focus:border-[var(--ink)]"
@@ -7005,14 +7015,14 @@ function TimePickerInput({ label, value, onChange }: { label: string; value: str
               key={meridiem}
               type="button"
               onClick={() => update({ meridiem })}
-              className={`rounded-lg px-3 py-2 text-xs font-black transition ${parsed.meridiem === meridiem ? "bg-[var(--ink)] text-white" : "text-[var(--ink)] hover:bg-white"}`}
+              className={`rounded-lg px-3 py-2 text-xs font-black transition ${draft.meridiem === meridiem ? "bg-[var(--ink)] text-white" : "text-[var(--ink)] hover:bg-white"}`}
             >
               {meridiem}
             </button>
           ))}
         </div>
       </div>
-      <span className="text-xs font-bold text-[var(--muted-blue)]">{parsed.hour && parsed.minute ? `${parsed.hour}:${parsed.minute} ${parsed.meridiem}` : "Select exam start time"}</span>
+      <span className="text-xs font-bold text-[var(--muted-blue)]">{draft.hour && draft.minute ? `${draft.hour}:${draft.minute} ${draft.meridiem}` : "Select exam start time"}</span>
     </label>
   );
 }
