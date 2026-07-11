@@ -6941,9 +6941,6 @@ function Input({ label, value, onChange, type = "text" }: { label: string; value
   );
 }
 
-const TIME_PICKER_HOURS = Array.from({ length: 12 }, (_, index) => String(index + 1).padStart(2, "0"));
-const TIME_PICKER_MINUTES = Array.from({ length: 12 }, (_, index) => String(index * 5).padStart(2, "0"));
-
 function parsePickerTime(value: string) {
   if (!/^\d{2}:\d{2}$/.test(value)) return { hour: "", minute: "", meridiem: "AM" as const };
   const [hourRaw, minuteRaw] = value.split(":");
@@ -6955,37 +6952,65 @@ function parsePickerTime(value: string) {
 
 function toPickerTime(hour: string, minute: string, meridiem: "AM" | "PM") {
   if (!hour || !minute) return "";
-  let hour24 = Number(hour);
+  const hourNumber = Math.min(12, Math.max(1, Number(hour) || 0));
+  const minuteNumber = Math.min(59, Math.max(0, Number(minute) || 0));
+  let hour24 = hourNumber;
   if (meridiem === "AM" && hour24 === 12) hour24 = 0;
   if (meridiem === "PM" && hour24 !== 12) hour24 += 12;
-  return `${String(hour24).padStart(2, "0")}:${minute}`;
+  return `${String(hour24).padStart(2, "0")}:${String(minuteNumber).padStart(2, "0")}`;
 }
 
 function TimePickerInput({ label, value, onChange }: { label: string; value: string; onChange: (value: string) => void }) {
   const parsed = parsePickerTime(value);
-  const minuteOptions = TIME_PICKER_MINUTES.includes(parsed.minute) || !parsed.minute ? TIME_PICKER_MINUTES : [parsed.minute, ...TIME_PICKER_MINUTES].sort();
 
   function update(next: Partial<typeof parsed>) {
     const merged = { ...parsed, ...next };
     onChange(toPickerTime(merged.hour, merged.minute, merged.meridiem));
   }
 
+  function updateNumber(kind: "hour" | "minute", rawValue: string) {
+    const digits = rawValue.replace(/\D/g, "").slice(0, 2);
+    if (!digits) {
+      update({ [kind]: "" });
+      return;
+    }
+    const max = kind === "hour" ? 12 : 59;
+    const min = kind === "hour" ? 1 : 0;
+    const bounded = Math.min(max, Math.max(min, Number(digits)));
+    update({ [kind]: String(bounded).padStart(2, "0") });
+  }
+
   return (
     <label className="grid gap-2 text-sm font-black">
       {label}
-      <div className="grid grid-cols-3 gap-2">
-        <select value={parsed.hour} onChange={(event) => update({ hour: event.target.value })} className="rounded-xl border border-[var(--border)] bg-white px-3 py-3 font-normal outline-none focus:border-[var(--ink)]">
-          <option value="">Hour</option>
-          {TIME_PICKER_HOURS.map((hour) => <option key={hour} value={hour}>{hour}</option>)}
-        </select>
-        <select value={parsed.minute} onChange={(event) => update({ minute: event.target.value })} className="rounded-xl border border-[var(--border)] bg-white px-3 py-3 font-normal outline-none focus:border-[var(--ink)]">
-          <option value="">Min</option>
-          {minuteOptions.map((minute) => <option key={minute} value={minute}>{minute}</option>)}
-        </select>
-        <select value={parsed.meridiem} onChange={(event) => update({ meridiem: event.target.value as "AM" | "PM" })} className="rounded-xl border border-[var(--border)] bg-white px-3 py-3 font-normal outline-none focus:border-[var(--ink)]">
-          <option value="AM">AM</option>
-          <option value="PM">PM</option>
-        </select>
+      <div className="grid grid-cols-[1fr_auto_1fr_auto] items-center gap-2 rounded-2xl border border-[var(--border)] bg-white p-2">
+        <input
+          inputMode="numeric"
+          value={parsed.hour}
+          onChange={(event) => updateNumber("hour", event.target.value)}
+          placeholder="HH"
+          className="min-h-10 rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-3 text-center font-black outline-none focus:border-[var(--ink)]"
+        />
+        <span className="font-black text-[var(--muted-blue)]">:</span>
+        <input
+          inputMode="numeric"
+          value={parsed.minute}
+          onChange={(event) => updateNumber("minute", event.target.value)}
+          placeholder="MM"
+          className="min-h-10 rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-3 text-center font-black outline-none focus:border-[var(--ink)]"
+        />
+        <div className="grid grid-cols-2 rounded-xl border border-[var(--border)] bg-[var(--page-bg)] p-1">
+          {(["AM", "PM"] as const).map((meridiem) => (
+            <button
+              key={meridiem}
+              type="button"
+              onClick={() => update({ meridiem })}
+              className={`rounded-lg px-3 py-2 text-xs font-black transition ${parsed.meridiem === meridiem ? "bg-[var(--ink)] text-white" : "text-[var(--ink)] hover:bg-white"}`}
+            >
+              {meridiem}
+            </button>
+          ))}
+        </div>
       </div>
       <span className="text-xs font-bold text-[var(--muted-blue)]">{parsed.hour && parsed.minute ? `${parsed.hour}:${parsed.minute} ${parsed.meridiem}` : "Select exam start time"}</span>
     </label>
