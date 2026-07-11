@@ -5201,7 +5201,7 @@ function ExamGuruModal({
               <Input label="Exam Name" value={examForm.title} onChange={(value) => setExamForm((form) => ({ ...form, title: value }))} />
               <div className="grid gap-3 md:grid-cols-2">
                 <Input label="Date" type="date" value={examForm.publishDate} onChange={(value) => setExamForm((form) => ({ ...form, publishDate: value }))} />
-                <Input label="Time" type="time" value={examForm.publishTime} onChange={(value) => setExamForm((form) => ({ ...form, publishTime: value }))} />
+                <TimePickerInput label="Time" value={examForm.publishTime} onChange={(value) => setExamForm((form) => ({ ...form, publishTime: value }))} />
                 <Input label="Duration in minutes" type="number" value={examForm.duration} onChange={(value) => setExamForm((form) => ({ ...form, duration: value }))} />
                 <Input label="Total Marks" type="number" value={examForm.totalMarks} onChange={(value) => setExamForm((form) => ({ ...form, totalMarks: value }))} />
                 <Select label="Exam Type" value={examForm.examType} onChange={(value) => setExamForm((form) => ({ ...form, examType: value }))}>
@@ -5601,8 +5601,15 @@ function AssignmentCreateModal({
   selectedStudentCount: number;
   assignmentSourceName: string;
 }) {
+  const [step, setStep] = useState<"EDIT" | "REVIEW">("EDIT");
   const assignedSubjects = subjectsForBatch(selectedClass);
   const selectedAssignmentBatchIds = assignmentForm.targetBatchIds.length ? assignmentForm.targetBatchIds : selectedClass?.id ? [selectedClass.id] : [];
+  const selectedAssignmentBatches = assignedBatches.filter((batch) => selectedAssignmentBatchIds.includes(batch.id));
+  const assignmentReadyForReview = Boolean(
+    assignmentForm.title.trim()
+    && assignmentForm.subject
+    && (assignmentForm.instructions.trim() || assignmentForm.pastedContent.trim() || assignmentSourceName || assignmentForm.link.trim())
+  );
   const toggleAssignmentBatch = (batchId: string) => {
     setAssignmentForm((form) => {
       const current = form.targetBatchIds.length ? form.targetBatchIds : selectedClass?.id ? [selectedClass.id] : [];
@@ -5630,72 +5637,126 @@ function AssignmentCreateModal({
         </div>
 
         <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5">
-          <div className="grid gap-4">
-            <label className="grid min-w-0 gap-2 rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4 text-sm font-black">
-              <span>Assignment Title</span>
-              <input value={assignmentForm.title} onChange={(event) => setAssignmentForm((form) => ({ ...form, title: event.target.value }))} placeholder="English Grammar Worksheet" className="min-h-12 w-full min-w-0 rounded-xl border border-[var(--border)] bg-white px-3 text-base font-bold outline-none focus:border-[var(--ink)]" />
-            </label>
-
-            <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
-              <p className="text-sm font-black">Publish To Batches</p>
-              <p className="mt-1 text-xs text-[var(--muted-blue)]">Select one or more assigned batches for common homework.</p>
-              <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                {assignedBatches.map((batch) => (
-                  <label key={batch.id} className={`flex cursor-pointer items-center gap-3 rounded-xl border px-3 py-3 text-sm font-black ${selectedAssignmentBatchIds.includes(batch.id) ? "border-emerald-300 bg-emerald-50 text-emerald-950" : "border-[var(--border)] bg-white text-[var(--ink)]"}`}>
-                    <input type="checkbox" checked={selectedAssignmentBatchIds.includes(batch.id)} onChange={() => toggleAssignmentBatch(batch.id)} />
-                    <span>{batch.name}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            <div className="grid min-w-0 gap-4 sm:grid-cols-2">
-              <label className="grid min-w-0 gap-2 text-sm font-black">
-                <span>Subject</span>
-                <select value={assignmentForm.subject} onChange={(event) => setAssignmentForm((form) => ({ ...form, subject: event.target.value }))} className="min-h-12 w-full min-w-0 rounded-xl border border-[var(--border)] bg-white px-4 py-3 font-normal outline-none focus:border-[var(--ink)]">
-                  <option value="">Select subject</option>
-                  {assignedSubjects.map((subject) => <option key={subject} value={subject}>{subject}</option>)}
-                </select>
+          {step === "EDIT" ? (
+            <div className="grid gap-4">
+              <label className="grid min-w-0 gap-2 rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4 text-sm font-black">
+                <span>Assignment Title</span>
+                <input value={assignmentForm.title} onChange={(event) => setAssignmentForm((form) => ({ ...form, title: event.target.value }))} placeholder="English Grammar Worksheet" className="min-h-12 w-full min-w-0 rounded-xl border border-[var(--border)] bg-white px-3 text-base font-bold outline-none focus:border-[var(--ink)]" />
               </label>
+
+              <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
+                <p className="text-sm font-black">Publish To Batches</p>
+                <p className="mt-1 text-xs text-[var(--muted-blue)]">Select one or more assigned batches for common homework.</p>
+                <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                  {assignedBatches.map((batch) => (
+                    <label key={batch.id} className={`flex cursor-pointer items-center gap-3 rounded-xl border px-3 py-3 text-sm font-black ${selectedAssignmentBatchIds.includes(batch.id) ? "border-emerald-300 bg-emerald-50 text-emerald-950" : "border-[var(--border)] bg-white text-[var(--ink)]"}`}>
+                      <input type="checkbox" checked={selectedAssignmentBatchIds.includes(batch.id)} onChange={() => toggleAssignmentBatch(batch.id)} />
+                      <span>{batch.name}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div className="grid min-w-0 gap-4 sm:grid-cols-2">
+                <label className="grid min-w-0 gap-2 text-sm font-black">
+                  <span>Subject</span>
+                  <select value={assignmentForm.subject} onChange={(event) => setAssignmentForm((form) => ({ ...form, subject: event.target.value }))} className="min-h-12 w-full min-w-0 rounded-xl border border-[var(--border)] bg-white px-4 py-3 font-normal outline-none focus:border-[var(--ink)]">
+                    <option value="">Select subject</option>
+                    {assignedSubjects.map((subject) => <option key={subject} value={subject}>{subject}</option>)}
+                  </select>
+                </label>
+                <label className="grid min-w-0 gap-2 text-sm font-black">
+                  <span>Due Date</span>
+                  <input type="date" value={assignmentForm.dueDate} onChange={(event) => setAssignmentForm((form) => ({ ...form, dueDate: event.target.value }))} className="min-h-12 w-full min-w-0 rounded-xl border border-[var(--border)] bg-white px-4 py-3 font-normal outline-none focus:border-[var(--ink)]" />
+                </label>
+              </div>
+
               <label className="grid min-w-0 gap-2 text-sm font-black">
-                <span>Due Date</span>
-                <input type="date" value={assignmentForm.dueDate} onChange={(event) => setAssignmentForm((form) => ({ ...form, dueDate: event.target.value }))} className="min-h-12 w-full min-w-0 rounded-xl border border-[var(--border)] bg-white px-4 py-3 font-normal outline-none focus:border-[var(--ink)]" />
+                <span>Instructions</span>
+                <textarea value={assignmentForm.instructions} onChange={(event) => setAssignmentForm((form) => ({ ...form, instructions: event.target.value }))} rows={4} placeholder="Write the homework instructions students should follow." className="w-full min-w-0 resize-y rounded-xl border border-[var(--border)] bg-white px-4 py-3 font-normal outline-none focus:border-[var(--ink)]" />
               </label>
-            </div>
 
-            <label className="grid min-w-0 gap-2 text-sm font-black">
-              <span>Instructions</span>
-              <textarea value={assignmentForm.instructions} onChange={(event) => setAssignmentForm((form) => ({ ...form, instructions: event.target.value }))} rows={4} placeholder="Write the homework instructions students should follow." className="w-full min-w-0 resize-y rounded-xl border border-[var(--border)] bg-white px-4 py-3 font-normal outline-none focus:border-[var(--ink)]" />
-            </label>
+              <label className="grid min-w-0 gap-2 text-sm font-black">
+                <span>Questions / Homework Text</span>
+                <textarea value={assignmentForm.pastedContent} onChange={(event) => setAssignmentForm((form) => ({ ...form, pastedContent: event.target.value }))} rows={5} placeholder="Paste questions or homework text here, if there is no file." className="w-full min-w-0 resize-y rounded-xl border border-[var(--border)] bg-white px-4 py-3 font-normal outline-none focus:border-[var(--ink)]" />
+              </label>
 
-            <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
-              <p className="text-sm font-black">Attachment</p>
-              <p className="mt-1 text-xs text-[var(--muted-blue)]">Upload a worksheet, notes file or image for students.</p>
-              <div className="mt-4">
-                <FileInput label="PDF / DOCX / Image" accept=".pdf,.doc,.docx,image/*" onChange={(value) => {
-                  setAssignmentForm((form) => ({ ...form, attachmentName: value }));
-                  appendAssignmentSource("Attachment")(value);
-                }} />
+              <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
+                <p className="text-sm font-black">Attachment</p>
+                <p className="mt-1 text-xs text-[var(--muted-blue)]">Upload a worksheet, notes file or image for students.</p>
+                <div className="mt-4">
+                  <FileInput label="PDF / DOCX / Image" accept=".pdf,.doc,.docx,image/*" onChange={(value) => {
+                    setAssignmentForm((form) => ({ ...form, attachmentName: value }));
+                    appendAssignmentSource("Attachment")(value);
+                  }} />
+                </div>
+                {assignmentSourceName ? <p className="mt-3 truncate rounded-xl bg-white px-3 py-2 text-xs font-black">Attached: {assignmentSourceName}</p> : null}
               </div>
-              {assignmentSourceName ? <p className="mt-3 truncate rounded-xl bg-white px-3 py-2 text-xs font-black">Attached: {assignmentSourceName}</p> : null}
-            </div>
 
-            <details className="rounded-2xl border border-[var(--border)] bg-white p-4">
-              <summary className="cursor-pointer text-sm font-black">Advanced Tools</summary>
-              <div className="mt-4 grid gap-2 sm:grid-cols-2">
-                {["Review Assignment", "Improve Questions", "Simplify Language", "Generate Rubric", "Convert To MCQ", "Convert To Descriptive", "Generate Model Answers"].map((action) => (
-                  <button key={action} type="button" onClick={() => setAssignmentForm((form) => ({ ...form, instructions: [form.instructions, `Advanced tool requested: ${action}`].filter(Boolean).join("\n") }))} className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-3 py-3 text-left text-xs font-black hover:bg-white">
-                    {action}
-                  </button>
-                ))}
+              <details className="rounded-2xl border border-[var(--border)] bg-white p-4">
+                <summary className="cursor-pointer text-sm font-black">Advanced Tools</summary>
+                <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                  {["Review Assignment", "Improve Questions", "Simplify Language", "Generate Rubric", "Convert To MCQ", "Convert To Descriptive", "Generate Model Answers"].map((action) => (
+                    <button key={action} type="button" onClick={() => setAssignmentForm((form) => ({ ...form, instructions: [form.instructions, `Advanced tool requested: ${action}`].filter(Boolean).join("\n") }))} className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-3 py-3 text-left text-xs font-black hover:bg-white">
+                      {action}
+                    </button>
+                  ))}
+                </div>
+              </details>
+            </div>
+          ) : (
+            <div className="grid gap-4">
+              <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
+                <p className="text-xs font-black uppercase tracking-[0.3em] text-emerald-700">Review</p>
+                <h3 className="mt-2 text-2xl font-black">Check assignment before publishing</h3>
+                <p className="mt-2 text-sm leading-6 text-emerald-900">Students will see exactly this title, subject, instructions and attachment after you publish.</p>
               </div>
-            </details>
-          </div>
+              <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-5">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <p className="text-xs font-black uppercase tracking-[0.3em] text-[var(--gold-dark)]">{assignmentForm.subject || "Subject pending"}</p>
+                    <h3 className="mt-2 text-3xl font-black">{assignmentForm.title || "Untitled assignment"}</h3>
+                    <p className="mt-2 text-sm text-[var(--muted-blue)]">Due {assignmentForm.dueDate ? new Date(assignmentForm.dueDate).toLocaleDateString() : "date not set"}</p>
+                  </div>
+                  <span className="rounded-full border border-[var(--border)] bg-white px-4 py-2 text-xs font-black">{selectedAssignmentBatches.length || 1} batch(es)</span>
+                </div>
+                <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                  {(selectedAssignmentBatches.length ? selectedAssignmentBatches : selectedClass ? [selectedClass] : []).map((batch) => (
+                    <div key={batch.id} className="rounded-xl border border-[var(--border)] bg-white p-3 text-sm font-black">{batch.name}</div>
+                  ))}
+                </div>
+                <div className="mt-5 rounded-2xl border border-[var(--border)] bg-white p-4">
+                  <p className="text-sm font-black">Instructions</p>
+                  <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-[var(--ink)]">{assignmentForm.instructions || "No separate instructions added."}</p>
+                </div>
+                {assignmentForm.pastedContent ? (
+                  <div className="mt-4 rounded-2xl border border-[var(--border)] bg-white p-4">
+                    <p className="text-sm font-black">Questions / Homework Text</p>
+                    <p className="mt-2 max-h-64 overflow-y-auto whitespace-pre-wrap text-sm leading-6 text-[var(--ink)]">{assignmentForm.pastedContent}</p>
+                  </div>
+                ) : null}
+                {assignmentSourceName || assignmentForm.attachmentName || assignmentForm.link ? (
+                  <div className="mt-4 rounded-2xl border border-[var(--border)] bg-white p-4">
+                    <p className="text-sm font-black">Attachment</p>
+                    <p className="mt-2 break-words text-sm text-[var(--muted-blue)]">{assignmentForm.attachmentName || assignmentSourceName || assignmentForm.link}</p>
+                  </div>
+                ) : null}
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="grid shrink-0 gap-3 border-t border-[var(--border)] bg-white p-5 sm:grid-cols-2">
-          <button type="button" onClick={onSaveDraft} className="min-h-12 w-full rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-5 py-3 text-sm font-black text-[var(--ink)]">Save Draft</button>
-          <button type="button" onClick={onPublish} className="min-h-12 w-full rounded-xl border border-emerald-700 bg-emerald-700 px-5 py-3 text-sm font-black text-white">Publish To Students</button>
+          {step === "REVIEW" ? (
+            <button type="button" onClick={() => setStep("EDIT")} className="min-h-12 w-full rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-5 py-3 text-sm font-black text-[var(--ink)]">Back To Edit</button>
+          ) : (
+            <button type="button" onClick={onSaveDraft} className="min-h-12 w-full rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-5 py-3 text-sm font-black text-[var(--ink)]">Save Draft</button>
+          )}
+          {step === "REVIEW" ? (
+            <button type="button" onClick={onPublish} className="min-h-12 w-full rounded-xl border border-emerald-700 bg-emerald-700 px-5 py-3 text-sm font-black text-white">Publish To Students</button>
+          ) : (
+            <button type="button" onClick={() => assignmentReadyForReview && setStep("REVIEW")} disabled={!assignmentReadyForReview} className="min-h-12 w-full rounded-xl border border-slate-950 bg-slate-950 px-5 py-3 text-sm font-black text-white disabled:cursor-not-allowed disabled:opacity-50">Review Assignment</button>
+          )}
         </div>
       </div>
     </div>
@@ -6876,6 +6937,57 @@ function Input({ label, value, onChange, type = "text" }: { label: string; value
     <label className="grid gap-2 text-sm font-black">
       {label}
       <input type={type} value={value} onChange={(event) => onChange(event.target.value)} className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 font-normal outline-none focus:border-[var(--ink)]" />
+    </label>
+  );
+}
+
+const TIME_PICKER_HOURS = Array.from({ length: 12 }, (_, index) => String(index + 1).padStart(2, "0"));
+const TIME_PICKER_MINUTES = Array.from({ length: 12 }, (_, index) => String(index * 5).padStart(2, "0"));
+
+function parsePickerTime(value: string) {
+  if (!/^\d{2}:\d{2}$/.test(value)) return { hour: "", minute: "", meridiem: "AM" as const };
+  const [hourRaw, minuteRaw] = value.split(":");
+  const hour24 = Number(hourRaw);
+  const meridiem = hour24 >= 12 ? "PM" : "AM";
+  const hour12 = hour24 % 12 || 12;
+  return { hour: String(hour12).padStart(2, "0"), minute: minuteRaw, meridiem: meridiem as "AM" | "PM" };
+}
+
+function toPickerTime(hour: string, minute: string, meridiem: "AM" | "PM") {
+  if (!hour || !minute) return "";
+  let hour24 = Number(hour);
+  if (meridiem === "AM" && hour24 === 12) hour24 = 0;
+  if (meridiem === "PM" && hour24 !== 12) hour24 += 12;
+  return `${String(hour24).padStart(2, "0")}:${minute}`;
+}
+
+function TimePickerInput({ label, value, onChange }: { label: string; value: string; onChange: (value: string) => void }) {
+  const parsed = parsePickerTime(value);
+  const minuteOptions = TIME_PICKER_MINUTES.includes(parsed.minute) || !parsed.minute ? TIME_PICKER_MINUTES : [parsed.minute, ...TIME_PICKER_MINUTES].sort();
+
+  function update(next: Partial<typeof parsed>) {
+    const merged = { ...parsed, ...next };
+    onChange(toPickerTime(merged.hour, merged.minute, merged.meridiem));
+  }
+
+  return (
+    <label className="grid gap-2 text-sm font-black">
+      {label}
+      <div className="grid grid-cols-3 gap-2">
+        <select value={parsed.hour} onChange={(event) => update({ hour: event.target.value })} className="rounded-xl border border-[var(--border)] bg-white px-3 py-3 font-normal outline-none focus:border-[var(--ink)]">
+          <option value="">Hour</option>
+          {TIME_PICKER_HOURS.map((hour) => <option key={hour} value={hour}>{hour}</option>)}
+        </select>
+        <select value={parsed.minute} onChange={(event) => update({ minute: event.target.value })} className="rounded-xl border border-[var(--border)] bg-white px-3 py-3 font-normal outline-none focus:border-[var(--ink)]">
+          <option value="">Min</option>
+          {minuteOptions.map((minute) => <option key={minute} value={minute}>{minute}</option>)}
+        </select>
+        <select value={parsed.meridiem} onChange={(event) => update({ meridiem: event.target.value as "AM" | "PM" })} className="rounded-xl border border-[var(--border)] bg-white px-3 py-3 font-normal outline-none focus:border-[var(--ink)]">
+          <option value="AM">AM</option>
+          <option value="PM">PM</option>
+        </select>
+      </div>
+      <span className="text-xs font-bold text-[var(--muted-blue)]">{parsed.hour && parsed.minute ? `${parsed.hour}:${parsed.minute} ${parsed.meridiem}` : "Select exam start time"}</span>
     </label>
   );
 }

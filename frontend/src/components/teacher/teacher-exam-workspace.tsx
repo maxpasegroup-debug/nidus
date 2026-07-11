@@ -912,7 +912,7 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
                   <Field label="Exam Name" value={form.title} onChange={(value) => setForm((current) => ({ ...current, title: value }))} />
                   <Field label="Topic" value={form.topic} onChange={(value) => setForm((current) => ({ ...current, topic: value }))} placeholder="Algebra, Constitution, Motion..." />
                   <Field label="Date" type="date" value={form.date} onChange={(value) => setForm((current) => ({ ...current, date: value }))} />
-                  <Field label="Time" type="time" value={form.time} onChange={(value) => setForm((current) => ({ ...current, time: value }))} />
+                  <TimePickerField label="Time" value={form.time} onChange={(value) => setForm((current) => ({ ...current, time: value }))} />
                   <Field label="Duration" type="number" value={form.duration} onChange={(value) => setForm((current) => ({ ...current, duration: value }))} />
                   <Field label="Marks" type="number" value={form.marks} onChange={(value) => setForm((current) => ({ ...current, marks: value }))} />
                 </div>
@@ -1100,6 +1100,63 @@ function Field({ label, value, onChange, type = "text", placeholder }: { label: 
     <label className="grid gap-2 text-sm font-black">
       {label}
       <input type={type} value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} className="min-h-12 rounded-xl border border-[var(--border)] bg-white px-4" />
+    </label>
+  );
+}
+
+const HOUR_OPTIONS = Array.from({ length: 12 }, (_, index) => String(index + 1).padStart(2, "0"));
+const DEFAULT_MINUTE_OPTIONS = Array.from({ length: 12 }, (_, index) => String(index * 5).padStart(2, "0"));
+
+function parseTimeValue(value: string) {
+  if (!/^\d{2}:\d{2}$/.test(value)) return { hour: "", minute: "", meridiem: "AM" as const };
+  const [hourRaw, minuteRaw] = value.split(":");
+  const hour24 = Number(hourRaw);
+  const meridiem = hour24 >= 12 ? "PM" : "AM";
+  const hour12 = hour24 % 12 || 12;
+  return { hour: String(hour12).padStart(2, "0"), minute: minuteRaw, meridiem: meridiem as "AM" | "PM" };
+}
+
+function buildTimeValue(hour: string, minute: string, meridiem: "AM" | "PM") {
+  if (!hour || !minute) return "";
+  let hour24 = Number(hour);
+  if (meridiem === "AM" && hour24 === 12) hour24 = 0;
+  if (meridiem === "PM" && hour24 !== 12) hour24 += 12;
+  return `${String(hour24).padStart(2, "0")}:${minute}`;
+}
+
+function displayTimeValue(value: string) {
+  const parsed = parseTimeValue(value);
+  if (!parsed.hour || !parsed.minute) return "Select exam start time";
+  return `${parsed.hour}:${parsed.minute} ${parsed.meridiem}`;
+}
+
+function TimePickerField({ label, value, onChange }: { label: string; value: string; onChange: (value: string) => void }) {
+  const parsed = parseTimeValue(value);
+  const minuteOptions = DEFAULT_MINUTE_OPTIONS.includes(parsed.minute) || !parsed.minute ? DEFAULT_MINUTE_OPTIONS : [parsed.minute, ...DEFAULT_MINUTE_OPTIONS].sort();
+
+  function update(next: Partial<typeof parsed>) {
+    const merged = { ...parsed, ...next };
+    onChange(buildTimeValue(merged.hour, merged.minute, merged.meridiem));
+  }
+
+  return (
+    <label className="grid gap-2 text-sm font-black">
+      {label}
+      <div className="grid grid-cols-[1fr_1fr_1fr] gap-2">
+        <select value={parsed.hour} onChange={(event) => update({ hour: event.target.value })} className="min-h-12 rounded-xl border border-[var(--border)] bg-white px-3 outline-none focus:border-[var(--ink)]">
+          <option value="">Hour</option>
+          {HOUR_OPTIONS.map((hour) => <option key={hour} value={hour}>{hour}</option>)}
+        </select>
+        <select value={parsed.minute} onChange={(event) => update({ minute: event.target.value })} className="min-h-12 rounded-xl border border-[var(--border)] bg-white px-3 outline-none focus:border-[var(--ink)]">
+          <option value="">Min</option>
+          {minuteOptions.map((minute) => <option key={minute} value={minute}>{minute}</option>)}
+        </select>
+        <select value={parsed.meridiem} onChange={(event) => update({ meridiem: event.target.value as "AM" | "PM" })} className="min-h-12 rounded-xl border border-[var(--border)] bg-white px-3 outline-none focus:border-[var(--ink)]">
+          <option value="AM">AM</option>
+          <option value="PM">PM</option>
+        </select>
+      </div>
+      <span className="text-xs font-bold text-[var(--muted-blue)]">{displayTimeValue(value)}</span>
     </label>
   );
 }

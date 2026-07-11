@@ -82,6 +82,11 @@ type ReminderItem = {
   title: string;
   detail: string;
   at: string;
+  startsAt?: string | null;
+  endsAt?: string | null;
+  durationMinutes?: number | null;
+  totalQuestions?: number | null;
+  totalMarks?: number | null;
   href: string;
   icon: LucideIcon;
   mode: "start" | "end";
@@ -134,10 +139,15 @@ type ExamSummary = {
 
 type AttemptHistory = {
   id: string;
+  testId?: string | null;
   status: string;
+  startedAt?: string | null;
   submittedAt?: string | null;
   score?: number | null;
-  test: { title: string; totalMarks: number; duration: number };
+  totalCorrect?: number | null;
+  timeTaken?: number | null;
+  resultsReleased?: boolean;
+  test: { id?: string | null; title: string; examType?: string | null; subject?: string | null; topic?: string | null; totalMarks: number; duration: number };
 };
 
 type AssignmentDraft = {
@@ -284,6 +294,128 @@ function Countdown({ value, mode = "start", activeLabel = "Now" }: { value?: str
   );
 }
 
+function clockParts(milliseconds: number) {
+  const totalSeconds = Math.max(0, Math.floor(milliseconds / 1000));
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  return {
+    hours: String(hours).padStart(2, "0"),
+    minutes: String(minutes).padStart(2, "0"),
+    seconds: String(seconds).padStart(2, "0"),
+  };
+}
+
+function examTimeLabel(startsAt?: string | null, endsAt?: string | null) {
+  const start = toTimestamp(startsAt);
+  const end = toTimestamp(endsAt);
+  if (!start) return "Time not scheduled";
+  const date = new Date(start).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" });
+  const startTime = new Date(start).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" });
+  const endTime = end ? new Date(end).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" }) : null;
+  return `${date} / ${startTime}${endTime ? ` - ${endTime}` : ""}`;
+}
+
+function ExamCountdownClock({ startsAt, endsAt, compact = false }: { startsAt?: string | null; endsAt?: string | null; compact?: boolean }) {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const timer = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  const start = toTimestamp(startsAt);
+  const end = toTimestamp(endsAt);
+  const upcoming = Boolean(start && start > now);
+  const live = Boolean(start && start <= now && (!end || end > now));
+  const closed = Boolean(end && end <= now);
+  const target = upcoming ? start : live && end ? end : null;
+  const remaining = target ? target - now : 0;
+  const parts = clockParts(remaining);
+  const urgent = remaining > 0 && remaining < 60 * 60 * 1000;
+  const soon = remaining >= 60 * 60 * 1000 && remaining < 24 * 60 * 60 * 1000;
+  const tone = closed
+    ? "border-slate-200 bg-slate-100 text-slate-500"
+    : live
+      ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+      : urgent
+        ? "border-rose-200 bg-rose-50 text-rose-700"
+        : soon
+          ? "border-amber-200 bg-amber-50 text-amber-800"
+          : "border-[var(--gold-border)] bg-[var(--gold-soft)] text-[var(--ink)]";
+  const label = closed ? "Exam closed" : live ? "Exam ends in" : upcoming ? "Exam starts in" : "Exam open";
+
+  if (!target && !closed) {
+    return (
+      <div className={`inline-flex items-center gap-2 rounded-2xl border px-3 py-2 text-xs font-black ${tone}`}>
+        <Timer className="h-4 w-4" />
+        {label}
+      </div>
+    );
+  }
+
+  return (
+    <div className={`rounded-2xl border p-3 shadow-sm ${tone}`}>
+      <div className="flex items-center justify-between gap-3">
+        <span className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.18em]">
+          <Timer className={`h-4 w-4 ${!closed && remaining < 24 * 60 * 60 * 1000 ? "animate-pulse" : ""}`} />
+          {label}
+        </span>
+        {!closed ? <span className="h-2 w-2 rounded-full bg-current shadow-[0_0_0_4px_rgba(255,255,255,0.7)]" /> : null}
+      </div>
+      {closed ? (
+        <p className="mt-2 text-lg font-black">00:00:00</p>
+      ) : (
+        <div className={`mt-3 grid ${compact ? "grid-cols-3 gap-1.5" : "grid-cols-3 gap-2"}`}>
+          {[
+            ["HH", parts.hours],
+            ["MM", parts.minutes],
+            ["SS", parts.seconds],
+          ].map(([labelText, value]) => (
+            <div key={labelText} className="rounded-xl border border-current/15 bg-white/80 px-2 py-2 text-center">
+              <p className={`${compact ? "text-lg" : "text-2xl"} font-black tabular-nums leading-none`}>{value}</p>
+              <p className="mt-1 text-[9px] font-black uppercase tracking-[0.18em] opacity-70">{labelText}</p>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ExamReminderCard({ item }: { item: ReminderItem }) {
+  const start = toTimestamp(item.startsAt);
+  const end = toTimestamp(item.endsAt);
+  const now = Date.now();
+  const upcoming = Boolean(start && start > now);
+  const open = Boolean(start && start <= now && (!end || end > now));
+  const closed = Boolean(end && end <= now);
+  return (
+    <Link href={item.href} className="group rounded-[26px] border border-[var(--gold-border)] bg-gradient-to-br from-[var(--gold-soft)] via-white to-white p-5 shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-lg">
+      <div className="flex items-start justify-between gap-4">
+        <span className="grid h-12 w-12 place-items-center rounded-2xl border border-[var(--gold-border)] bg-white shadow-sm">
+          <ClipboardCheck className="h-5 w-5 text-[var(--gold)]" />
+        </span>
+        <ExamCountdownClock startsAt={item.startsAt} endsAt={item.endsAt} compact />
+      </div>
+      <p className="mt-4 text-xs font-black uppercase tracking-[0.25em] text-[var(--gold)]">Exam</p>
+      <h2 className="mt-2 line-clamp-2 text-xl font-black">{item.title}</h2>
+      <p className="mt-2 text-sm font-bold text-[var(--muted-blue)]">{item.detail}</p>
+      <div className="mt-4 grid gap-2 rounded-2xl border border-[var(--gold-border)] bg-white/85 p-3 text-xs font-bold text-[var(--muted-blue)]">
+        <span>{examTimeLabel(item.startsAt, item.endsAt)}</span>
+        <span>
+          {item.totalQuestions ? `${item.totalQuestions} questions` : "Question paper ready"}
+          {item.totalMarks ? ` / ${item.totalMarks} marks` : ""}
+          {item.durationMinutes ? ` / ${item.durationMinutes} min` : ""}
+        </span>
+      </div>
+      <span className="mt-4 inline-flex items-center gap-2 text-sm font-black">
+        {closed ? "View exam" : open ? "Start exam" : upcoming ? "Get ready" : item.action}
+        <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
+      </span>
+    </Link>
+  );
+}
+
 function reminderUrgency(at?: string | null, mode: "start" | "end" = "start") {
   const timestamp = toTimestamp(at, mode);
   if (!timestamp) return 4;
@@ -412,12 +544,18 @@ export function StudentTodayPage() {
       const isUpcoming = Boolean(window.start && window.start > Date.now());
       const isOpen = Boolean(window.start && window.start <= Date.now() && (!window.end || window.end > Date.now()));
       const at = isUpcoming ? window.startsAt : isOpen && window.end ? new Date(window.end).toISOString() : window.startsAt || today;
+      const examId = item.testId || item.id;
       return {
-        id: `exam-${item.id || item.testId}`,
+        id: `exam-${examId}`,
         type: "Exam",
         title: item.examName ?? item.title ?? item.name ?? "Assigned exam",
         detail: `${item.subject ?? "Exam"}${item.batchName || item.batch?.name ? ` / ${item.batchName ?? item.batch?.name}` : ""}`,
         at,
+        startsAt: window.startsAt,
+        endsAt: window.end ? new Date(window.end).toISOString() : null,
+        durationMinutes: item.durationMinutes ?? item.duration ?? null,
+        totalQuestions: item.totalQuestions ?? null,
+        totalMarks: item.totalMarks ?? null,
         href: "/dashboard/student/exams",
         icon: ClipboardCheck,
         mode: (isUpcoming ? "start" : "end") as "start" | "end",
@@ -487,6 +625,7 @@ export function StudentTodayPage() {
     <Shell title="Today" subtitle="Your urgent exams, homework, live classes and academy sessions with live countdowns.">
       <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {reminders.map((item) => {
+          if (item.type === "Exam") return <ExamReminderCard key={item.id} item={item} />;
           const Icon = item.icon;
           const external = item.href.startsWith("http");
           const cardClassName = `group rounded-[22px] border p-5 shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-md ${reminderTone(item.type, item.at, item.mode)}`;
@@ -603,32 +742,74 @@ export function StudentAssignmentsPage() {
 
 export function StudentExamsPage() {
   useStudentPlan();
+  const [view, setView] = useState<"active" | "attended" | "missed">("active");
   const availableExams = useQuery({ queryKey: ["student", "available-exams"], queryFn: () => apiList<ExamSummary>("/api/tests/available", "tests") });
   const attemptHistory = useQuery({ queryKey: ["student", "exam-attempt-history"], queryFn: () => apiList<AttemptHistory>("/api/tests/attempts/history", "attempts") });
   const exams = availableExams.data ?? [];
   const results = attemptHistory.data ?? [];
+  const attemptedIds = new Set(results.map((attempt) => attempt.testId || attempt.test?.id).filter(Boolean));
+  const activeExams = exams.filter((exam) => {
+    const id = exam.testId || exam.id;
+    const window = examWindow(exam);
+    return exam.studentStatus !== "SUBMITTED" && !attemptedIds.has(id) && (!window.end || window.end > Date.now());
+  });
+  const missedExams = exams.filter((exam) => {
+    const id = exam.testId || exam.id;
+    const window = examWindow(exam);
+    return exam.studentStatus !== "SUBMITTED" && !attemptedIds.has(id) && Boolean(window.end && window.end <= Date.now());
+  });
+  const attendedExams = results.filter((attempt) => attempt.status === "SUBMITTED" || attempt.submittedAt);
+  const tabs = [
+    { id: "active" as const, label: "Upcoming / Live", count: activeExams.length },
+    { id: "attended" as const, label: "Attended History", count: attendedExams.length },
+    { id: "missed" as const, label: "Unattended / Practice", count: missedExams.length },
+  ];
 
   return (
-    <Shell title="Exams" subtitle="Published and scheduled exams are shown with countdown reminders.">
-      <section className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
-        <ModuleCard title={`Available Exams (${exams.length})`}>
-          <div className="grid gap-3">
-            {exams.map((exam) => <ExamCard key={exam.id || exam.testId || exam.title || "exam"} exam={exam} />)}
-            {!exams.length ? <Empty text="No published exam is available for your batch." /> : null}
-          </div>
-        </ModuleCard>
-        <ModuleCard title="Results">
-          <div className="grid gap-3">
-            {results.slice(0, 6).map((attempt) => (
-              <article key={attempt.id} className="rounded-2xl border border-[var(--border)] bg-white p-4">
-                <p className="text-xs font-black uppercase tracking-[0.22em] text-[var(--gold)]">{attempt.status}</p>
-                <h3 className="mt-2 text-lg font-black">{attempt.test.title}</h3>
-                <p className="mt-1 text-sm text-[var(--muted-blue)]">Score {attempt.score ?? 0}/{attempt.test.totalMarks}</p>
-              </article>
-            ))}
-            {!results.length ? <Empty text="Results will appear after you submit an exam." /> : null}
-          </div>
-        </ModuleCard>
+    <Shell title="Exam Arena" subtitle="Upcoming tests, attended results, missed exams and practice history in one calm place.">
+      <section className="grid gap-3 md:grid-cols-3">
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            type="button"
+            onClick={() => setView(tab.id)}
+            className={`rounded-[22px] border p-4 text-left transition hover:-translate-y-0.5 hover:shadow-md ${
+              view === tab.id ? "border-[var(--gold-border)] bg-[var(--gold-soft)] shadow-sm" : "border-[var(--border)] bg-white"
+            }`}
+          >
+            <p className="text-[10px] font-black uppercase tracking-[0.22em] text-[var(--gold)]">{tab.label}</p>
+            <p className="mt-2 text-3xl font-black">{tab.count}</p>
+          </button>
+        ))}
+      </section>
+
+      <section className="mt-4">
+        {view === "active" ? (
+          <ModuleCard title={`Upcoming and live exams (${activeExams.length})`}>
+            <div className="grid gap-3">
+              {activeExams.map((exam) => <ExamCard key={exam.id || exam.testId || exam.title || "exam"} exam={exam} />)}
+              {!activeExams.length ? <Empty text="No active exam is waiting now. Check history or practice missed papers." /> : null}
+            </div>
+          </ModuleCard>
+        ) : null}
+
+        {view === "attended" ? (
+          <ModuleCard title={`Attended exam history (${attendedExams.length})`}>
+            <div className="grid gap-3 md:grid-cols-2">
+              {attendedExams.map((attempt) => <AttemptHistoryCard key={attempt.id} attempt={attempt} />)}
+              {!attendedExams.length ? <Empty text="Submitted exams and released result papers will appear here." /> : null}
+            </div>
+          </ModuleCard>
+        ) : null}
+
+        {view === "missed" ? (
+          <ModuleCard title={`Unattended and practice papers (${missedExams.length})`}>
+            <div className="grid gap-3">
+              {missedExams.map((exam) => <MissedExamCard key={exam.id || exam.testId || exam.title || "exam"} exam={exam} />)}
+              {!missedExams.length ? <Empty text="No missed exam is available for practice right now." /> : null}
+            </div>
+          </ModuleCard>
+        ) : null}
       </section>
     </Shell>
   );
@@ -957,37 +1138,114 @@ function LiveCard({ item }: { item: LiveClass }) {
 }
 
 function ExamCard({ exam }: { exam: ExamSummary }) {
+  const router = useRouter();
+  const [starting, setStarting] = useState(false);
+  const [error, setError] = useState("");
   const examId = exam.testId || exam.id;
   const window = examWindow(exam);
   const locked = window.start ? window.start > Date.now() : false;
   const expired = window.end ? window.end <= Date.now() : false;
-  const countdownAt = locked ? window.startsAt : window.end ? new Date(window.end).toISOString() : window.startsAt;
+  const startsAt = window.startsAt;
+  const endsAt = window.end ? new Date(window.end).toISOString() : null;
+
+  async function startExam() {
+    if (!examId || starting) return;
+    setStarting(true);
+    setError("");
+    try {
+      const payload = await apiPost<{ attempt?: { id?: string }; id?: string }>("/api/tests/start", { testId: examId });
+      const attemptId = payload.attempt?.id || payload.id;
+      if (!attemptId) throw new Error("Exam attempt could not be opened.");
+      router.push(`/test-attempt/${attemptId}`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Exam could not be opened.");
+    } finally {
+      setStarting(false);
+    }
+  }
+
   return (
-    <article className={`rounded-[22px] border p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${locked ? "border-[var(--gold-border)] bg-[var(--gold-soft)]" : "border-[var(--border)] bg-white"}`}>
-      <div className="flex flex-wrap items-start justify-between gap-3">
+    <article className={`rounded-[26px] border p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${locked ? "border-[var(--gold-border)] bg-[var(--gold-soft)]" : "border-[var(--border)] bg-white"}`}>
+      <div className="grid gap-4 lg:grid-cols-[1fr_260px]">
         <div>
-          <p className="text-xs font-black uppercase tracking-[0.22em] text-[var(--gold)]">{exam.subject ?? "Exam"}</p>
-          <h3 className="mt-2 text-xl font-black">{exam.examName ?? exam.title ?? exam.name ?? "Assigned Exam"}</h3>
-          <p className="mt-1 text-sm text-[var(--muted-blue)]">{exam.batchName ?? exam.batch?.name ?? "Assigned batch"} / {exam.topic ?? "General"}</p>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-full border border-[var(--gold-border)] bg-white px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-[var(--gold)]">{exam.subject ?? "Exam"}</span>
+            <span className="rounded-full border border-[var(--border)] bg-white px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-[var(--muted-blue)]">{expired ? "Closed" : locked ? "Upcoming" : "Open"}</span>
+          </div>
+          <h3 className="mt-3 text-2xl font-black">{exam.examName ?? exam.title ?? exam.name ?? "Assigned Exam"}</h3>
+          <p className="mt-1 text-sm font-bold text-[var(--muted-blue)]">{exam.batchName ?? exam.batch?.name ?? "Assigned batch"} / {exam.topic ?? "General"}</p>
+          <div className="mt-4 flex flex-wrap gap-2 text-xs font-black text-[var(--muted-blue)]">
+            <span className="rounded-full border border-[var(--border)] bg-white px-3 py-1">{examTimeLabel(startsAt, endsAt)}</span>
+            <span className="rounded-full border border-[var(--border)] bg-white px-3 py-1">{exam.totalQuestions ? `${exam.totalQuestions} questions` : "Question paper ready"}</span>
+            <span className="rounded-full border border-[var(--border)] bg-white px-3 py-1">{exam.totalMarks ? `${exam.totalMarks} marks` : "Marks set"}</span>
+            <span className="rounded-full border border-[var(--border)] bg-white px-3 py-1">{exam.durationMinutes ?? exam.duration ?? "Timed"} min</span>
+          </div>
         </div>
-        <Countdown value={countdownAt} mode={locked ? "start" : "end"} activeLabel={expired ? "Closed" : "Open now"} />
+        <ExamCountdownClock startsAt={startsAt} endsAt={endsAt} />
       </div>
-      <p className="mt-3 text-sm text-[var(--muted-blue)]">
-        {exam.totalQuestions ? `${exam.totalQuestions} questions` : "Questions assigned"} / {exam.durationMinutes ?? exam.duration ?? "Timed"} min
-      </p>
       {locked ? (
-        <button type="button" disabled className="mt-4 rounded-xl border border-[var(--border)] bg-white px-4 py-2 text-sm font-black text-[var(--muted-blue)]">
-          Opens {countdownLabel(window.startsAt)}
+        <button type="button" disabled className="mt-4 rounded-xl border border-[var(--gold-border)] bg-white px-4 py-2 text-sm font-black text-[var(--gold-dark)]">
+          Opens when countdown reaches 00:00:00
         </button>
       ) : expired ? (
         <button type="button" disabled className="mt-4 rounded-xl border border-slate-200 bg-slate-100 px-4 py-2 text-sm font-black text-slate-500">
           Exam closed
         </button>
       ) : (
-        <Link href={`/test-attempt/${examId}`} className="mt-4 inline-flex rounded-xl bg-[var(--gold-gradient)] px-4 py-2 text-sm font-black">
-          Start Exam <ArrowRight className="ml-2 h-4 w-4" />
-        </Link>
+        <button type="button" onClick={startExam} disabled={starting} className="mt-4 inline-flex rounded-xl bg-[var(--gold-gradient)] px-4 py-2 text-sm font-black disabled:opacity-60">
+          {starting ? "Opening..." : "Start Exam"} <ArrowRight className="ml-2 h-4 w-4" />
+        </button>
       )}
+      {error ? <p className="mt-3 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm font-bold text-red-700">{error}</p> : null}
+    </article>
+  );
+}
+
+function AttemptHistoryCard({ attempt }: { attempt: AttemptHistory }) {
+  const submittedAt = attempt.submittedAt ? new Date(attempt.submittedAt).toLocaleString([], { dateStyle: "medium", timeStyle: "short" }) : "Submitted";
+  const score = `${attempt.score ?? 0}/${attempt.test.totalMarks}`;
+  const minutesTaken = attempt.timeTaken ? Math.max(1, Math.round(attempt.timeTaken / 60)) : null;
+  return (
+    <article className="rounded-[24px] border border-[var(--border)] bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-emerald-700">Attended</span>
+        <span className="rounded-full border border-[var(--border)] bg-white px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-[var(--muted-blue)]">{submittedAt}</span>
+      </div>
+      <h3 className="mt-3 text-xl font-black">{attempt.test.title}</h3>
+      <p className="mt-1 text-sm font-bold text-[var(--muted-blue)]">{attempt.test.subject ?? attempt.test.examType ?? "Exam"} / {attempt.test.topic ?? "General"}</p>
+      <div className="mt-4 grid grid-cols-3 gap-2 text-sm font-black">
+        <span className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-3">Score<br />{score}</span>
+        <span className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-3">Correct<br />{attempt.totalCorrect ?? "-"}</span>
+        <span className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-3">Time<br />{minutesTaken ? `${minutesTaken} min` : `${attempt.test.duration} min`}</span>
+      </div>
+      <div className="mt-4 flex flex-wrap gap-2">
+        <Link href={`/results/${attempt.id}`} className="rounded-xl bg-[var(--gold-gradient)] px-4 py-2 text-sm font-black">
+          View solved paper
+        </Link>
+        <button type="button" disabled className="rounded-xl border border-[var(--border)] bg-white px-4 py-2 text-sm font-black text-[var(--muted-blue)] opacity-70">
+          Timed retest coming next
+        </button>
+      </div>
+      {!attempt.resultsReleased ? <p className="mt-3 text-xs font-bold text-[var(--muted-blue)]">Official explanations appear after result release.</p> : null}
+    </article>
+  );
+}
+
+function MissedExamCard({ exam }: { exam: ExamSummary }) {
+  const window = examWindow(exam);
+  const endedAt = window.end ? new Date(window.end).toLocaleString([], { dateStyle: "medium", timeStyle: "short" }) : "Closed";
+  return (
+    <article className="rounded-[24px] border border-orange-200 bg-orange-50/60 p-5 shadow-sm">
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="rounded-full border border-orange-200 bg-white px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-orange-700">Unattended</span>
+        <span className="rounded-full border border-orange-200 bg-white px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-orange-700">Closed {endedAt}</span>
+      </div>
+      <h3 className="mt-3 text-xl font-black">{exam.examName ?? exam.title ?? exam.name ?? "Assigned Exam"}</h3>
+      <p className="mt-1 text-sm font-bold text-[var(--muted-blue)]">{exam.batchName ?? exam.batch?.name ?? "Assigned batch"} / {exam.subject ?? "Exam"} / {exam.topic ?? "General"}</p>
+      <p className="mt-4 text-sm text-[var(--muted-blue)]">This exam was not attempted in the official window. Keep it here for practice visibility and future timed retest mode.</p>
+      <button type="button" disabled className="mt-4 rounded-xl border border-orange-200 bg-white px-4 py-2 text-sm font-black text-orange-700 opacity-80">
+        Practice retest coming next
+      </button>
     </article>
   );
 }
