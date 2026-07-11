@@ -255,7 +255,7 @@ async function extractPdfText(file: File) {
 }
 
 function stripNumber(line: string) {
-  return line.replace(/^\s*(?:Q\s*)?\d+\s*[\).:-]\s*/i, "").trim();
+  return line.replace(/^\s*(?:Q\s*)?\d+\s*(?:[\).:-]|\u2013|\u2014)\s*/i, "").trim();
 }
 
 function stripQuestionNumber(line: string) {
@@ -292,24 +292,44 @@ function parseQuestionBlock(block: string, index: number) {
 }
 
 function parseAnswerGuide(text: string) {
+  return parseAnswerGuideV2(text);
+}
+
+function parseAnswerGuideV2(text: string) {
   const map = new Map<number, { answer?: string; explanation?: string }>();
   const normalized = normalizeExtractedText(text)
-    .replace(/(^|\s)(Q\s*\d+\s*[\).])/gi, "\n$2")
-    .replace(/\s+(?=\d+\s*[\).]\s+)/g, "\n")
+    .replace(/\s+(?=Q\s*\d{1,3}\s*(?:[\).:-]|\u2013|\u2014))/gi, "\n")
+    .replace(/\s+(?=\d{1,3}\s*(?:[\).:-]|\u2013|\u2014)\s*\(?[A-D]\)?\b)/gi, "\n")
+    .replace(
+      /\s+(?=\d{1,3}\s*(?:[\).:-]|\u2013|\u2014)\s*.{0,220}?\b(?:answer|ans|correct answer)\b\s*[:\-])/gi,
+      "\n"
+    )
     .trim();
+
   if (!normalized) return map;
-  const blocks = normalized.split(/\n(?=\s*(?:Q\s*)?\d+\s*[\).])/gi).map((block) => block.trim()).filter(Boolean);
-  blocks.forEach((block, index) => {
-    const number = Number(block.match(/^\s*(?:Q\s*)?(\d+)/i)?.[1] || index + 1);
-    const withoutNumber = stripNumber(block);
-    const answerMatch = withoutNumber.match(/(?:^|\s)(?:answer|ans|correct answer)\s*[:\-]?\s*\(?([A-D])\)?\b/i)
-      || withoutNumber.match(/^\s*\(?([A-D])\)?[\).:\-\s]/i);
-    const answer = answerMatch?.[1]?.toUpperCase();
-    const explanationMatch = withoutNumber.match(/explanation\s*[:\-]\s*([\s\S]*?)(?=\s*(?:topic\/reference|reference|topic)\s*[:\-]|$)/i);
-    const explanation = (explanationMatch?.[1] || "")
-      .trim();
-    if (answer || explanation) map.set(number, { answer, explanation });
-  });
+
+  normalized
+    .split(/\n(?=\s*(?:Q\s*)?\d{1,3}\s*(?:[\).:-]|\u2013|\u2014))/gi)
+    .map((block) => block.trim())
+    .filter((block) => /^(?:Q\s*)?\d{1,3}\s*(?:[\).:-]|\u2013|\u2014)/i.test(block))
+    .forEach((block, index) => {
+      const number = Number(block.match(/^\s*(?:Q\s*)?(\d+)/i)?.[1] || index + 1);
+      const withoutNumber = stripNumber(block);
+      const answerMatch = withoutNumber.match(/(?:^|\s)(?:answer|ans|correct answer)\s*[:\-]?\s*\(?([A-D])\)?\b/i)
+        || withoutNumber.match(/^\s*\(?([A-D])\)?[\).:\-\s]/i);
+      const answer = answerMatch?.[1]?.toUpperCase();
+      const afterAnswer = answerMatch
+        ? withoutNumber.slice((answerMatch.index || 0) + answerMatch[0].length)
+        : withoutNumber;
+      const explanationMatch = afterAnswer.match(/(?:explanation|reason)\s*[:\-]\s*([\s\S]*)/i);
+      const explanation = (explanationMatch?.[1] || afterAnswer)
+        .replace(/\s*(?:topic\/reference|reference|topic)\s*[:\-][\s\S]*$/i, "")
+        .replace(/^\s*(?:[-:]|\u2013|\u2014)\s*/, "")
+        .trim();
+
+      if (answer || explanation) map.set(number, { answer, explanation });
+    });
+
   return map;
 }
 
