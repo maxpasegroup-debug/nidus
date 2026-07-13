@@ -3,7 +3,7 @@
 import type { Dispatch, SetStateAction } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { CalendarDays, CheckCircle2, ChevronLeft, ChevronRight, Clock, Plus, RotateCcw, Users } from "lucide-react";
+import { CalendarDays, CheckCircle2, ChevronLeft, ChevronRight, Clock, Download, MessageCircle, Plus, RotateCcw, Users } from "lucide-react";
 import {
   createAcademicCalendarItem,
   type AcademyBatch,
@@ -14,6 +14,7 @@ import {
   updateAcademicCalendarSchedule,
   type AcademicCalendarItem,
 } from "@/services/academy";
+import { getApiErrorMessage } from "@/services/api";
 
 const classTypes = ["LECTURE", "PRACTICE", "REVISION", "TEST", "MOCK_TEST", "DISCUSSION", "LIVE_CLASS"];
 
@@ -29,6 +30,8 @@ const breakRows: Record<string, string> = {
   "11:45": "Break - 11:45 AM to 12:00 PM",
   "13:15": "Lunch - 01:15 PM to 02:00 PM",
 };
+
+type DownloadRange = "day" | "week" | "month";
 
 type Props = {
   audience: "director" | "academic-head";
@@ -120,6 +123,46 @@ function displayTime(time: string) {
   return `${String(displayHour).padStart(2, "0")}:${minute} ${suffix}`;
 }
 
+function dateRangeForDownload(selectedDate: string, range: DownloadRange) {
+  const base = new Date(`${selectedDate}T12:00:00`);
+  if (range === "day") return { from: selectedDate, to: selectedDate, label: base.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) };
+  if (range === "week") {
+    const start = new Date(base);
+    start.setDate(base.getDate() - ((base.getDay() + 6) % 7));
+    const end = new Date(start);
+    end.setDate(start.getDate() + 6);
+    return { from: localDateKey(start), to: localDateKey(end), label: `${start.toLocaleDateString("en-IN", { day: "numeric", month: "short" })} - ${end.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}` };
+  }
+  const start = new Date(base.getFullYear(), base.getMonth(), 1);
+  const end = new Date(base.getFullYear(), base.getMonth() + 1, 0);
+  return { from: localDateKey(start), to: localDateKey(end), label: base.toLocaleDateString("en-IN", { month: "long", year: "numeric" }) };
+}
+
+function filteredDownloadItems(items: AcademicCalendarItem[], selectedDate: string, range: DownloadRange, batchId: string) {
+  const { from, to } = dateRangeForDownload(selectedDate, range);
+  return items
+    .filter((item) => item.plannedDate.slice(0, 10) >= from && item.plannedDate.slice(0, 10) <= to)
+    .filter((item) => !batchId || item.batchId === batchId)
+    .sort((first, second) => `${first.plannedDate}${first.startTime ?? ""}`.localeCompare(`${second.plannedDate}${second.startTime ?? ""}`));
+}
+
+function escapeHtml(value: string) {
+  return value.replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" }[char] ?? char));
+}
+
+function timetableHtml(items: AcademicCalendarItem[], title: string) {
+  const rows = items.map((item) => `
+    <tr>
+      <td>${escapeHtml(new Date(`${item.plannedDate.slice(0, 10)}T12:00:00`).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" }))}</td>
+      <td>${escapeHtml(`${displayTime(item.startTime ?? "")} - ${displayTime(item.endTime ?? "")}`)}</td>
+      <td>${escapeHtml(item.batchName ?? "Batch")}</td>
+      <td>${escapeHtml(item.subject)}</td>
+      <td>${escapeHtml(item.teacherName ?? "Faculty")}</td>
+      <td>${escapeHtml(item.topic)}</td>
+    </tr>`).join("");
+  return `<!doctype html><html><head><meta charset="utf-8"><title>${escapeHtml(title)}</title><style>body{font-family:Arial,sans-serif;color:#071d36;padding:24px}h1{margin:0 0 6px;font-size:26px}p{margin:0 0 18px;color:#52647a}table{width:100%;border-collapse:collapse}th,td{border:1px solid #d8d4c8;padding:10px;text-align:left;font-size:13px}th{background:#071d36;color:#fff}tr:nth-child(even){background:#f7f3ea}</style></head><body><h1>${escapeHtml(title)}</h1><p>Generated from NIDUS Academic Timetable Planner</p><table><thead><tr><th>Date</th><th>Time</th><th>Batch</th><th>Subject</th><th>Teacher</th><th>Topic</th></tr></thead><tbody>${rows || `<tr><td colspan="6">No sessions found.</td></tr>`}</tbody></table></body></html>`;
+}
+
 export function AcademicTimetablePlanner({ audience }: Props) {
   const queryClient = useQueryClient();
   const today = useMemo(() => new Date(), []);
@@ -129,6 +172,7 @@ export function AcademicTimetablePlanner({ audience }: Props) {
   const [slots, setSlots] = useState<PlannerSlot[]>(defaultSlots.map(blankSlot));
   const [activeSlotIndex, setActiveSlotIndex] = useState(0);
   const [notice, setNotice] = useState("");
+  const [downloadRange, setDownloadRange] = useState<DownloadRange>("day");
 
   const batchesQuery = useQuery({ queryKey: ["academy", "batches"], queryFn: () => getAcademyBatches() });
   const teachersQuery = useQuery({ queryKey: ["academy", "teachers"], queryFn: () => getAcademyTeachers() });
@@ -217,7 +261,7 @@ export function AcademicTimetablePlanner({ audience }: Props) {
       void queryClient.invalidateQueries({ queryKey: ["academy", "academic-calendar"] });
       void queryClient.invalidateQueries({ queryKey: ["academy", "today"] });
     },
-    onError: (error) => setNotice(error instanceof Error ? error.message : "Could not save timetable session."),
+    onError: (error) => setNotice(getApiErrorMessage(error)),
   });
 
   const updateMutation = useMutation({
@@ -227,7 +271,7 @@ export function AcademicTimetablePlanner({ audience }: Props) {
       void queryClient.invalidateQueries({ queryKey: ["academy", "academic-calendar"] });
       void queryClient.invalidateQueries({ queryKey: ["academy", "today"] });
     },
-    onError: (error) => setNotice(error instanceof Error ? error.message : "Could not update timetable session."),
+    onError: (error) => setNotice(getApiErrorMessage(error)),
   });
 
   const setSlot = (index: number, patch: Partial<PlannerSlot>) => {
@@ -317,6 +361,27 @@ export function AcademicTimetablePlanner({ audience }: Props) {
     setMonthDate(new Date(date.getFullYear(), date.getMonth(), 1));
   };
 
+  const downloadItems = useMemo(() => filteredDownloadItems(calendar, selectedDate, downloadRange, batchFilter), [batchFilter, calendar, downloadRange, selectedDate]);
+  const downloadTitle = `NIDUS Timetable - ${dateRangeForDownload(selectedDate, downloadRange).label}`;
+
+  const downloadTimetable = () => {
+    const blob = new Blob([timetableHtml(downloadItems, downloadTitle)], { type: "text/html;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${downloadTitle.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "")}.html`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  };
+
+  const shareOnWhatsApp = () => {
+    const preview = downloadItems.slice(0, 8).map((item) => `${new Date(`${item.plannedDate.slice(0, 10)}T12:00:00`).toLocaleDateString("en-IN", { day: "numeric", month: "short" })} ${displayTime(item.startTime ?? "")}: ${item.batchName ?? "Batch"} - ${item.subject} (${item.teacherName ?? "Faculty"})`).join("\n");
+    const text = `${downloadTitle}\n${preview || "No sessions found."}${downloadItems.length > 8 ? `\n+${downloadItems.length - 8} more session(s)` : ""}`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank", "noopener,noreferrer");
+  };
+
   return (
     <main className="min-h-screen bg-[var(--page-bg)] px-0 py-3 text-[var(--navy)] md:py-5">
       <section className="mx-auto w-full max-w-[1680px] space-y-6">
@@ -394,6 +459,13 @@ export function AcademicTimetablePlanner({ audience }: Props) {
                 <p className="mt-1 text-sm text-[var(--muted-blue)]">Edit the day exactly like the academy timetable sheet.</p>
               </div>
               <div className="flex flex-wrap gap-2">
+                <select className="field min-h-11 min-w-32" style={{ width: "auto" }} value={downloadRange} onChange={(event) => setDownloadRange(event.target.value as DownloadRange)} aria-label="Download timetable range">
+                  <option value="day">Daily</option>
+                  <option value="week">Weekly</option>
+                  <option value="month">Monthly</option>
+                </select>
+                <button className="btn-light" type="button" onClick={downloadTimetable}><Download className="h-4 w-4" /> Download</button>
+                <button className="btn-light" type="button" onClick={shareOnWhatsApp}><MessageCircle className="h-4 w-4" /> WhatsApp</button>
                 <button className="btn-light" type="button" onClick={resetDefaultSlots}><RotateCcw className="h-4 w-4" /> Default day</button>
                 <button className="btn-primary" type="button" onClick={addCustomSlot}><Plus className="h-4 w-4" /> Add session</button>
               </div>

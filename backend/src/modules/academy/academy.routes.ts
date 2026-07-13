@@ -65,7 +65,7 @@ router.get("/attendance-summary", requireAcademyRoles(academicRoles), academyCon
 router.get("/leave-requests", requireAcademyRoles(studentAcademicRoles), academyController.leaveRequests);
 router.get("/assignments", requireAcademyRoles(academicRoles), academyController.assignments);
 router.get("/assignment-summary", requireAcademyRoles(academicRoles), academyController.assignmentSummary);
-router.get("/study-materials", requireAcademyRoles(academicRoles), academyController.studyMaterials);
+router.get("/study-materials", requireAcademyRoles(studentAcademicRoles), academyController.studyMaterials);
 router.get("/material-summary", requireAcademyRoles(academicRoles), academyController.materialSummary);
 router.get("/exams", requireAcademyRoles(academicRoles), academyController.exams);
 router.get("/exam-summary", requireAcademyRoles(academicRoles), academyController.examSummary);

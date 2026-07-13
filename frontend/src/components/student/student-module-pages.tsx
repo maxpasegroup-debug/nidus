@@ -605,7 +605,7 @@ export function StudentTodayPage() {
       id: `class-${item.id}`,
       type: "Class",
       title: `${item.subject}: ${item.topic}`,
-      detail: item.batchName ?? "Assigned class",
+      detail: `${item.batchName ?? "Assigned class"}${item.teacherName ? ` / ${item.teacherName}` : ""}`,
       at: calendarDate(item),
       href: "/dashboard/student/classes",
       icon: PlayCircle,

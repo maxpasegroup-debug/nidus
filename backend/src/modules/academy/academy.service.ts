@@ -3224,16 +3224,32 @@ export const academyService = {
   },
 
   async studyMaterials(user: Requester, query: Record<string, unknown>) {
-    requireAcademic(user);
+    if (user.role !== Role.STUDENT) {
+      requireAcademic(user);
+    }
     const batchId = typeof query.batchId === "string" ? query.batchId : undefined;
     const includeArchived = query.includeArchived === "true" || query.includeArchived === true;
     const search = typeof query.search === "string" ? query.search.trim() : "";
     const page = Math.max(1, Number(query.page ?? 1) || 1);
     const limit = Math.min(100, Math.max(1, Number(query.limit ?? 50) || 50));
     const skip = (page - 1) * limit;
-    if (batchId) await assertBatchAccess(user, batchId);
+    const studentBatchIds = user.role === Role.STUDENT
+      ? (await db.batchStudent.findMany({
+          where: { studentId: user.id, status: "ACTIVE" },
+          select: { batchId: true },
+        })).map((row: { batchId: string }) => row.batchId)
+      : [];
+    if (user.role === Role.STUDENT && !studentBatchIds.length) return { materials: [], pagination: { page, limit, total: 0, totalPages: 1 } };
+    if (batchId) {
+      if (user.role === Role.STUDENT) {
+        if (!studentBatchIds.includes(batchId)) throw Object.assign(new Error("This material is not assigned to this student"), { statusCode: 403 });
+      } else {
+        await assertBatchAccess(user, batchId);
+      }
+    }
     const where: Prisma.TeacherStudyMaterialRecordWhereInput = {};
     if (batchId) where.batchId = batchId;
+    else if (user.role === Role.STUDENT) where.batchId = { in: studentBatchIds };
     if (!batchId && user.role === Role.TEACHER && !isAcademicManager(user) && !isVideoEditor(user)) where.teacherId = user.id;
     if (batchId && user.role === Role.TEACHER && !isAcademicManager(user) && !isVideoEditor(user)) {
       const subjects = await assignedSubjectsForUserBatch(user.id, batchId);
@@ -3241,6 +3257,10 @@ export const academyService = {
       where.OR = subjects.map((subject) => ({ subject: { equals: subject, mode: "insensitive" as const } }));
     }
     if (!includeArchived) where.status = { not: "ARCHIVED" };
+    if (user.role === Role.STUDENT) {
+      where.status = "PUBLISHED";
+      where.reviewStatus = { not: "REJECTED" };
+    }
     if (search) {
       const searchOr: Prisma.TeacherStudyMaterialRecordWhereInput[] = [
         { title: { contains: search, mode: "insensitive" as const } },
