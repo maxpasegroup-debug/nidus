@@ -37,7 +37,8 @@ export function AppShell({ children }: { children: ReactNode }) {
   const dashboardTemplate = typeof user?.roleMetadata?.dashboardTemplate === "string" ? user.roleMetadata.dashboardTemplate : null;
   const isFocusedClassroom = Boolean(pathname?.match(/^\/dashboard\/(?:teacher|academic-head)\/my-classes(?:\/|$)/));
   const isFocusedAdmissionDesk = Boolean(pathname?.startsWith("/dashboard/admission-cell"));
-  const isFocusedWorkspace = isFocusedClassroom || isFocusedAdmissionDesk;
+  const isFocusedTimetable = Boolean(pathname?.match(/^\/dashboard\/(?:academic-head\/hod|director\/academic)\/timetable(?:\/|$)/));
+  const isFocusedWorkspace = isFocusedClassroom || isFocusedAdmissionDesk || isFocusedTimetable;
   const hasSidebar = !isFocusedWorkspace && !isLoading && !!user && getNavItems(user.role, dashboardTemplate).length > 0;
 
   if (isPublicRoute) {
@@ -60,7 +61,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           hasSidebar ? "lg:ml-[var(--sidebar-width)]" : ""
         }`}
       >
-        <div className="mx-auto w-full max-w-7xl">{children}</div>
+        <div className={`mx-auto w-full ${isFocusedWorkspace ? "max-w-none" : "max-w-7xl"}`}>{children}</div>
       </main>
       {!isFocusedWorkspace ? <BottomNav /> : null}
     </div>
