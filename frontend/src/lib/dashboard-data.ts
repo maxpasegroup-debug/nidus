@@ -3,7 +3,7 @@ import type { AuthUser } from "@/services/auth.v2";
 
 export const roleDashboardPath: Record<AuthRole, string> = {
   ADMIN: "/dashboard/director",
-  GUEST: "/dashboard/guest",
+  GUEST: "/dashboard/guest/assessments",
   STUDENT: "/dashboard/student",
   PARENT: "/dashboard/parent",
   TEACHER: "/dashboard/teacher",
@@ -68,14 +68,14 @@ export function canAccessDashboardPath(user: Pick<AuthUser, "role" | "roleMetada
   if (user.role === "TELECALLER") return path.startsWith("/dashboard/business-development");
   if (user.role === "STUDENT") {
     return path.startsWith("/dashboard/student") ||
-      path === "/dashboard/guest" ||
+      path.startsWith("/dashboard/guest") ||
       path.startsWith("/psychometric") ||
       path.startsWith("/programs") ||
       path === "/guru" ||
       path === "/start-free";
   }
   if (user.role === "PARENT") return path.startsWith("/dashboard/parent");
-  if (user.role === "GUEST") return path === "/dashboard/guest" || path.startsWith("/psychometric") || path.startsWith("/programs") || path === "/guru" || path === "/start-free";
+  if (user.role === "GUEST") return path.startsWith("/dashboard/guest") || path.startsWith("/psychometric") || path.startsWith("/programs") || path === "/guru" || path === "/start-free";
   return false;
 }
 

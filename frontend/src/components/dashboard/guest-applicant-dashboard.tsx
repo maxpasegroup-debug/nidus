@@ -31,8 +31,8 @@ export function GuestApplicantDashboard({ name, view = "applications" }: { name?
   const pageCopy: Record<GuestApplicantView, { eyebrow: string; title: string; description: string }> = {
     applications: {
       eyebrow: "Applicant Lobby",
-      title: `Welcome${name ? `, ${name}` : ""}. Track your admission path.`,
-      description: "See how your application moves from course selection to AO approval, fee confirmation, batch allocation and learner activation.",
+      title: `Welcome${name ? `, ${name}` : ""}. Your applications will appear here.`,
+      description: "Use this space to review submitted course applications and admission updates once an application is created.",
     },
     assessments: {
       eyebrow: "Assessments",
@@ -75,27 +75,28 @@ export function GuestApplicantDashboard({ name, view = "applications" }: { name?
         </section>
 
         {showApplications ? <section className="rounded-3xl border border-[var(--border)] bg-white/95 p-5 shadow-sm md:p-7">
-          <div className="grid gap-5 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
+          <div className="grid gap-5 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
             <div>
               <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">My Applications</p>
-              <h2 className="mt-2 text-3xl font-black">Admission unlocks your learner dashboard.</h2>
+              <h2 className="mt-2 text-3xl font-black">No course application is linked yet.</h2>
               <p className="mt-3 text-sm leading-7 text-[var(--muted-blue)]">
-                Apply for a course first. After the Administrative Officer verifies documents, records fee payment and assigns your batch, this lobby changes into the full academic dashboard.
+                Submitted applications, counselling notes and admission updates will be shown here after you apply for a NIDUS Academy course.
               </p>
+              <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+                <Link href="/dashboard/guest/academy" className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[var(--gold-gradient)] px-4 py-3 text-sm font-black text-[var(--navy)]">
+                  View Academy Courses <ArrowRight className="h-4 w-4" />
+                </Link>
+                <Link href="/dashboard/guest/assessments" className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-sm font-black text-[var(--navy)]">
+                  Start Assessments
+                </Link>
+              </div>
             </div>
-            <div className="grid gap-3 sm:grid-cols-2">
-              {[
-                ["1", "Apply", "Choose your course and submit details."],
-                ["2", "AO Review", "Documents, fee and batch are verified."],
-                ["3", "Activation", "Classes, exams, assignments and library unlock."],
-                ["4", "Start Learning", "Your academic dashboard becomes live."],
-              ].map(([step, title, text]) => (
-                <div key={step} className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
-                  <span className="grid h-9 w-9 place-items-center rounded-full border border-[var(--gold-border)] bg-[var(--gold-soft)] text-sm font-black">{step}</span>
-                  <h3 className="mt-4 text-lg font-black">{title}</h3>
-                  <p className="mt-2 text-sm leading-6 text-[var(--muted-blue)]">{text}</p>
-                </div>
-              ))}
+            <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-5">
+              <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold)]">Current Status</p>
+              <h3 className="mt-3 text-2xl font-black">Applicant access active</h3>
+              <p className="mt-3 text-sm leading-7 text-[var(--muted-blue)]">
+                Assessments, NIDUS Guru and academy course browsing are available from the mobile menu. Full learner tools unlock after admission activation.
+              </p>
             </div>
           </div>
         </section> : null}

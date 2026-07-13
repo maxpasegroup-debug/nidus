@@ -38,24 +38,27 @@ export function BottomNav() {
   const { user } = useAuth();
   const [moreOpen, setMoreOpen] = useState(false);
   const [studentActivated, setStudentActivated] = useState<boolean | null>(null);
+  const userId = user?.id;
+  const userRole = user?.role;
   const dashboardTemplate = typeof user?.roleMetadata?.dashboardTemplate === "string" ? user.roleMetadata.dashboardTemplate : null;
   const navItems =
-    user?.role === "STUDENT"
+    userRole === "STUDENT"
       ? studentActivated === false
         ? guestMenu
         : studentActivated === true
           ? studentMenu
           : []
-      : user?.role === "GUEST"
+      : userRole === "GUEST"
         ? guestMenu
-        : getNavItems(user?.role, dashboardTemplate);
+        : getNavItems(userRole, dashboardTemplate);
   const primaryItems = navItems.slice(0, 4);
   const remainingItems = navItems.slice(4);
+  const isActive = (href: string) => href.split("#")[0] === pathname;
 
   useEffect(() => {
     let cancelled = false;
     setStudentActivated(null);
-    if (!user || user.role !== "STUDENT") return;
+    if (!userId || userRole !== "STUDENT") return;
     probeStudentActivation()
       .then((isActivated) => {
         if (!cancelled) setStudentActivated(isActivated);
@@ -66,7 +69,7 @@ export function BottomNav() {
     return () => {
       cancelled = true;
     };
-  }, [user?.id, user?.role]);
+  }, [userId, userRole]);
 
   useEffect(() => setMoreOpen(false), [pathname]);
 
@@ -83,7 +86,7 @@ export function BottomNav() {
             </div>
             <div className="mt-4 grid grid-cols-2 gap-3">
               {remainingItems.map((item) => (
-                <Link key={`${item.label}-${item.href}`} href={item.href} className="flex min-h-20 items-center gap-3 rounded-xl border border-[var(--border)] bg-[var(--page-bg)] p-4 font-black text-[var(--ink)]">
+                <Link key={`${item.label}-${item.href}`} href={item.href} onClick={() => setMoreOpen(false)} className="flex min-h-20 items-center gap-3 rounded-xl border border-[var(--border)] bg-[var(--page-bg)] p-4 font-black text-[var(--ink)]">
                   <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-white"><NavIcon label={item.label} /></span>
                   {item.label}
                 </Link>
@@ -97,17 +100,18 @@ export function BottomNav() {
           <Link
             key={`${item.label}-${item.href}`}
             href={item.href}
+            onClick={() => setMoreOpen(false)}
             className={`flex min-h-16 flex-col items-center justify-center gap-1 px-1 py-2 text-center text-[0.62rem] font-black transition ${
-              pathname === item.href ? "bg-white text-[#071d36]" : "text-[#64748b] hover:bg-white/70 hover:text-[#071d36]"
+              isActive(item.href) ? "bg-white text-[#071d36]" : "text-[#64748b] hover:bg-white/70 hover:text-[#071d36]"
             }`}
-            aria-current={pathname === item.href ? "page" : undefined}
+            aria-current={isActive(item.href) ? "page" : undefined}
           >
             <NavIcon label={item.label} />
             <span className="line-clamp-1">{item.label}</span>
           </Link>
         ))}
         {remainingItems.length ? (
-          <button type="button" onClick={() => setMoreOpen(true)} className={`flex min-h-16 flex-col items-center justify-center gap-1 px-1 py-2 text-[0.62rem] font-black ${remainingItems.some((item) => pathname === item.href) ? "bg-white text-[#071d36]" : "text-[#64748b]"}`} aria-label="Open more dashboard modules">
+          <button type="button" onClick={() => setMoreOpen(true)} className={`flex min-h-16 flex-col items-center justify-center gap-1 px-1 py-2 text-[0.62rem] font-black ${remainingItems.some((item) => isActive(item.href)) ? "bg-white text-[#071d36]" : "text-[#64748b]"}`} aria-label="Open more dashboard modules">
             <Menu size={18} /><span>More</span>
           </button>
         ) : null}

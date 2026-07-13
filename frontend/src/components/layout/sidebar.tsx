@@ -27,6 +27,8 @@ export function Sidebar() {
   const [open, setOpen] = useState(false);
   const { user, isLoading } = useAuth();
   const [studentActivated, setStudentActivated] = useState<boolean | null>(null);
+  const userId = user?.id;
+  const userRole = user?.role;
 
   const userMetadata = user?.roleMetadata && typeof user.roleMetadata === "object" ? user.roleMetadata : {};
   const dashboardTemplate =
@@ -51,7 +53,7 @@ export function Sidebar() {
   useEffect(() => {
     let cancelled = false;
     setStudentActivated(null);
-    if (!user || user.role !== "STUDENT") return;
+    if (!userId || userRole !== "STUDENT") return;
     probeStudentActivation()
       .then((isActivated) => {
         if (!cancelled) setStudentActivated(isActivated);
@@ -62,17 +64,17 @@ export function Sidebar() {
     return () => {
       cancelled = true;
     };
-  }, [user?.id, user?.role]);
+  }, [userId, userRole]);
 
   const navItems = useMemo(() => {
-    if (user?.role === "GUEST") return guestMenu;
-    if (user?.role === "STUDENT") {
+    if (userRole === "GUEST") return guestMenu;
+    if (userRole === "STUDENT") {
       if (studentActivated === false) return guestMenu;
       if (studentActivated === true) return studentMenu;
       return [];
     }
-    return getNavItems(user?.role, dashboardTemplate);
-  }, [dashboardTemplate, studentActivated, user?.role]);
+    return getNavItems(userRole, dashboardTemplate);
+  }, [dashboardTemplate, studentActivated, userRole]);
 
   useEffect(() => {
     setOpen(false);
@@ -115,6 +117,7 @@ export function Sidebar() {
               <Link
                 key={item.href}
                 href={item.href}
+                onClick={() => setOpen(false)}
                 className={`group block rounded-2xl px-4 py-3 text-sm font-bold transition duration-200 ${
                   isActive
                     ? "border border-[var(--border-strong)] bg-white text-[var(--ink)] shadow-sm"
