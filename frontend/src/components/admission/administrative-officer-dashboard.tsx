@@ -1,6 +1,6 @@
 "use client";
 
-import type { FormEvent, ReactNode } from "react";
+import type { Dispatch, FormEvent, ReactNode, SetStateAction } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -9,16 +9,21 @@ import {
   CheckCircle2,
   FileArchive,
   FileText,
+  FileUp,
   GraduationCap,
+  Save,
   Search,
   ShieldCheck,
+  Trash2,
   Users,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { createDocument } from "@/services/media";
 
 type OfficerTab = "TODAY" | "APPLICATIONS" | "DOCUMENTS" | "FEES" | "BATCH" | "ACTIVATION" | "STUDENTS" | "REPORTS";
 type DocumentKey = "photo" | "aadhaar" | "marksheet" | "parentDetails" | "otherFiles";
 type DocumentStatus = "Pending" | "Verified" | "Rejected";
+type DocumentUploads = Record<DocumentKey, string>;
 
 type StudentAccount = { id: string; name: string; email: string; mobile: string; role: string };
 type BatchStudent = { id: string; status: string; student?: StudentAccount | null; user?: StudentAccount | null };
@@ -72,14 +77,24 @@ type ApprovalResponse = {
   admission?: { id?: string; status?: string; paymentStatus?: string; dueAmount?: number | null } | null;
 };
 
+type ApplicationDraft = {
+  fullName: string;
+  mobile: string;
+  email: string;
+  targetExam: string;
+  source: string;
+  status: LeadApplication["status"];
+  notes: string;
+};
+
 const tabs: Array<{ key: OfficerTab; label: string }> = [
   { key: "TODAY", label: "Today" },
   { key: "APPLICATIONS", label: "Applications" },
   { key: "DOCUMENTS", label: "Documents" },
-  { key: "FEES", label: "Fees & Receipts" },
-  { key: "BATCH", label: "Batch Allocation" },
-  { key: "ACTIVATION", label: "Activation" },
-  { key: "STUDENTS", label: "Students" },
+  { key: "FEES", label: "Payment" },
+  { key: "BATCH", label: "Batch" },
+  { key: "ACTIVATION", label: "Activate" },
+  { key: "STUDENTS", label: "Active Students" },
   { key: "REPORTS", label: "Reports" },
 ];
 
@@ -103,6 +118,7 @@ const documentLabels: Record<DocumentKey, string> = {
 };
 
 const blankDocuments = (): Record<DocumentKey, DocumentStatus> => ({ photo: "Pending", aadhaar: "Pending", marksheet: "Pending", parentDetails: "Pending", otherFiles: "Pending" });
+const blankDocumentUploads = (): DocumentUploads => ({ photo: "", aadhaar: "", marksheet: "", parentDetails: "", otherFiles: "" });
 const blankForm = (): ApprovalPayload => ({
   batchId: "", batchIds: [], email: "", name: "", phone: "", rollNumber: "", notes: "", totalFee: 0, amountPaid: 0,
   paymentStatus: "PENDING", paymentMethod: "OFFICE_COLLECTION", transactionRef: "", receiptUploadUrl: "",
@@ -159,6 +175,29 @@ function parseDocumentDetails(notes?: string | null) {
   }
 }
 
+function parseDocumentUploads(notes?: string | null) {
+  const line = notes?.split("\n").reverse().find((item) => item.startsWith("Document Uploads:"));
+  if (!line) return blankDocumentUploads();
+  try {
+    const parsed = JSON.parse(line.replace("Document Uploads:", "").trim()) as Partial<DocumentUploads>;
+    return { ...blankDocumentUploads(), ...parsed };
+  } catch {
+    return blankDocumentUploads();
+  }
+}
+
+function draftFromLead(lead: LeadApplication): ApplicationDraft {
+  return {
+    fullName: lead.fullName,
+    mobile: lead.mobile,
+    email: lead.email,
+    targetExam: lead.targetExam,
+    source: lead.source,
+    status: lead.status,
+    notes: lead.notes ?? "",
+  };
+}
+
 export function AdministrativeOfficerDashboard() {
   const queryClient = useQueryClient();
   const [tab, setTab] = useState<OfficerTab>("TODAY");
@@ -168,6 +207,9 @@ export function AdministrativeOfficerDashboard() {
   const [studentBatchId, setStudentBatchId] = useState("");
   const [admissionStatus, setAdmissionStatus] = useState("Received");
   const [documentStatuses, setDocumentStatuses] = useState<Record<DocumentKey, DocumentStatus>>(blankDocuments());
+  const [documentUploads, setDocumentUploads] = useState<DocumentUploads>(blankDocumentUploads());
+  const [applicationDraft, setApplicationDraft] = useState<ApplicationDraft | null>(null);
+  const [uploadingDocumentKey, setUploadingDocumentKey] = useState<DocumentKey | null>(null);
   const [note, setNote] = useState("");
   const [form, setForm] = useState<ApprovalPayload>(blankForm());
   const [message, setMessage] = useState("");
@@ -241,20 +283,102 @@ export function AdministrativeOfficerDashboard() {
     onError: (error) => setMessage(error instanceof Error ? error.message : "Could not activate student."),
   });
 
+  const updateApplicationMutation = useMutation({
+    mutationFn: ({ lead, draft, documents, uploads }: { lead: LeadApplication; draft: ApplicationDraft; documents: Record<DocumentKey, DocumentStatus>; uploads: DocumentUploads }) => {
+      const previousNotes = draft.notes.trim();
+      const officeEntry = [
+        `[${new Date().toISOString()}] AO application file updated`,
+        `APPLICATION_STATUS: ${draft.status === "NEW" ? "SUBMITTED" : draft.status}`,
+        `Document Details: ${JSON.stringify(documents)}`,
+        `Document Uploads: ${JSON.stringify(uploads)}`,
+        note ? `Office Note: ${note}` : "",
+      ].filter(Boolean).join("\n");
+      return apiJson(`/api/crm/leads/${lead.id}`, {
+        method: "PUT",
+        body: JSON.stringify({
+          fullName: draft.fullName,
+          mobile: draft.mobile,
+          email: draft.email.trim() || undefined,
+          targetExam: draft.targetExam,
+          source: draft.source,
+          status: draft.status,
+          notes: `${previousNotes ? `${previousNotes}\n\n` : ""}${officeEntry}`,
+        }),
+      });
+    },
+    onSuccess: () => {
+      setMessage("Application file saved.");
+      setNote("");
+      void queryClient.invalidateQueries({ queryKey: ["admission-cell", "applications"] });
+    },
+    onError: (error) => setMessage(error instanceof Error ? error.message : "Could not save application."),
+  });
+
+  const archiveApplicationMutation = useMutation({
+    mutationFn: (lead: LeadApplication) => apiJson(`/api/crm/leads/${lead.id}`, { method: "DELETE" }),
+    onSuccess: () => {
+      setMessage("Application archived.");
+      setSelectedLeadId("");
+      setApplicationDraft(null);
+      setDocumentStatuses(blankDocuments());
+      setDocumentUploads(blankDocumentUploads());
+      void queryClient.invalidateQueries({ queryKey: ["admission-cell", "applications"] });
+    },
+    onError: (error) => setMessage(error instanceof Error ? error.message : "Could not archive application."),
+  });
+
+  const uploadDocumentMutation = useMutation({
+    mutationFn: ({ lead, key, file }: { lead: LeadApplication; key: DocumentKey; file: File }) => {
+      setUploadingDocumentKey(key);
+      return createDocument({
+        title: `${lead.fullName} - ${documentLabels[key]}`,
+        category: "AO_APPLICATION_DOCUMENT",
+        description: `Application ID: ${lead.id}. Program: ${lead.targetExam}.`,
+        file,
+      });
+    },
+    onSuccess: (document, variables) => {
+      setDocumentUploads((current) => ({ ...current, [variables.key]: document.fileUrl }));
+      setMessage(`${documentLabels[variables.key]} uploaded and linked to application.`);
+      setUploadingDocumentKey(null);
+    },
+    onError: (error) => {
+      setMessage(error instanceof Error ? error.message : "Could not upload document.");
+      setUploadingDocumentKey(null);
+    },
+  });
+
   function openLead(lead: LeadApplication) {
     setSelectedLeadId(lead.id);
+    setApplicationDraft(draftFromLead(lead));
     setDocumentStatuses(parseDocumentDetails(lead.notes));
+    setDocumentUploads(parseDocumentUploads(lead.notes));
     setAdmissionStatus(noteHas(lead, "FEES: PAID") || noteHas(lead, "FEES: APPROVED") ? "Ready For Admission" : "Received");
     setForm({ ...blankForm(), leadId: lead.id, email: lead.email, name: lead.fullName, phone: lead.mobile, notes: [`Program: ${lead.targetExam}`, `Source: ${lead.source}`].join("\n"), paymentStatus: noteHas(lead, "FEES: PAID") ? "PAID" : noteHas(lead, "FEES: APPROVED") ? "APPROVED" : "PENDING" });
     setMessage("");
     setActivationResult(null);
-    openTab("DOCUMENTS");
+    openTab("APPLICATIONS");
+  }
+
+  function saveApplication() {
+    if (!selectedLead || !applicationDraft) return;
+    updateApplicationMutation.mutate({ lead: selectedLead, draft: applicationDraft, documents: documentStatuses, uploads: documentUploads });
+  }
+
+  function archiveApplication() {
+    if (!selectedLead) return;
+    archiveApplicationMutation.mutate(selectedLead);
+  }
+
+  function uploadApplicationDocument(key: DocumentKey, file: File) {
+    if (!selectedLead) return;
+    uploadDocumentMutation.mutate({ lead: selectedLead, key, file });
   }
 
   function saveDocuments() {
     if (!selectedLead) return;
     const verified = requiredDocumentsVerified && !rejectedDocuments.length;
-    saveLeadMutation.mutate({ lead: selectedLead, status: verified ? "COUNSELLING" : "CONTACTED", text: [`Documents: ${verified ? "VERIFIED" : rejectedDocuments.length ? "REJECTED" : "PENDING"}`, `Document Details: ${JSON.stringify(documentStatuses)}`, note || "Document verification updated."].join("\n") });
+    saveLeadMutation.mutate({ lead: selectedLead, status: verified ? "COUNSELLING" : "CONTACTED", text: [`Documents: ${verified ? "VERIFIED" : rejectedDocuments.length ? "REJECTED" : "PENDING"}`, `Document Details: ${JSON.stringify(documentStatuses)}`, `Document Uploads: ${JSON.stringify(documentUploads)}`, note || "Document verification updated."].join("\n") });
   }
 
   function saveFees() {
@@ -274,14 +398,14 @@ export function AdministrativeOfficerDashboard() {
         <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
           <div>
             <p className="text-xs font-black uppercase tracking-[0.3em] text-[var(--gold-dark)]">Administrative Officer</p>
-            <h1 className="mt-3 text-3xl font-black leading-tight sm:text-5xl">Admission and activation desk</h1>
+            <h1 className="mt-3 text-3xl font-black leading-tight sm:text-5xl">Application office desk</h1>
             <p className="mt-3 max-w-4xl text-sm font-medium leading-7 text-[var(--muted-blue)]">
-              Process applications, verify documents, confirm fees, allocate batches and activate learners from one clean workspace.
+              Open an application, check the details, attach documents, save office notes and move only payment-ready students to activation.
             </p>
           </div>
           <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] px-5 py-4">
             <p className="text-[0.68rem] font-black uppercase tracking-[0.22em] text-[var(--muted-blue)]">Next step</p>
-            <p className="mt-2 text-lg font-black text-[var(--ink)]">{selectedLead ? "Continue selected application from the workflow tabs." : "Open applications and choose a learner."}</p>
+            <p className="mt-2 text-lg font-black text-[var(--ink)]">{selectedLead ? "Application is open. Save details before payment or activation." : "Open Applications and choose one applicant."}</p>
           </div>
         </div>
       </header>
@@ -304,10 +428,27 @@ export function AdministrativeOfficerDashboard() {
       {tab === "TODAY" ? <TodayView applications={applications} documentPending={documentPending} feePending={feePending} batchPending={batchPending} aoReady={aoReady} onOpenApplications={() => openTab("APPLICATIONS")} /> : null}
 
       {tab === "APPLICATIONS" ? (
-        <Panel eyebrow="Applications" title="Applicants waiting for processing">
-          <SearchField value={search} onChange={setSearch} placeholder="Search name, phone, email or program" />
-          <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">{visibleApplications.map((lead) => <button key={lead.id} type="button" onClick={() => openLead(lead)} className={`rounded-xl border p-4 text-left transition hover:border-slate-950 ${noteHas(lead, "AO_QUEUE: YES") ? "border-emerald-200 bg-emerald-50/60" : "border-[var(--border)]"}`}><div className="flex items-start justify-between gap-3"><span className="min-w-0"><span className="block truncate text-lg font-black">{lead.fullName}</span><span className="mt-1 block text-sm text-[var(--muted-blue)]">{lead.targetExam} / {lead.mobile}</span></span><span className="rounded-full bg-white px-2 py-1 text-[10px] font-black">{leadStage(lead)}</span></div><p className="mt-3 text-xs text-[var(--muted-blue)]">From {lead.source} / {lead.assignee?.name || "Unassigned"}</p>{noteHas(lead, "AO_QUEUE: YES") ? <p className="mt-3 rounded-lg bg-white px-3 py-2 text-xs font-black text-emerald-800">Ready for AO processing</p> : null}</button>)}{!visibleApplications.length ? <Empty>No matching applications.</Empty> : null}</div>
-        </Panel>
+        <ApplicationWorkspace
+          applicationDraft={applicationDraft}
+          archiveApplication={archiveApplication}
+          archivePending={archiveApplicationMutation.isPending}
+          documentStatuses={documentStatuses}
+          documentUploads={documentUploads}
+          note={note}
+          onOpenLead={openLead}
+          saveApplication={saveApplication}
+          savePending={updateApplicationMutation.isPending}
+          search={search}
+          selectedLead={selectedLead}
+          setApplicationDraft={setApplicationDraft}
+          setDocumentStatuses={setDocumentStatuses}
+          setDocumentUploads={setDocumentUploads}
+          setNote={setNote}
+          setSearch={setSearch}
+          uploadApplicationDocument={uploadApplicationDocument}
+          uploadingDocumentKey={uploadingDocumentKey}
+          visibleApplications={visibleApplications}
+        />
       ) : null}
 
       {tab === "DOCUMENTS" ? (
@@ -359,6 +500,160 @@ export function AdministrativeOfficerDashboard() {
 
       {tab === "REPORTS" ? <ReportsView applications={applications} batches={batches} uniqueStudents={uniqueStudents} documentPending={documentPending} feePending={feePending} batchPending={batchPending} /> : null}
     </main>
+  );
+}
+
+function ApplicationWorkspace({
+  applicationDraft,
+  archiveApplication,
+  archivePending,
+  documentStatuses,
+  documentUploads,
+  note,
+  onOpenLead,
+  saveApplication,
+  savePending,
+  search,
+  selectedLead,
+  setApplicationDraft,
+  setDocumentStatuses,
+  setDocumentUploads,
+  setNote,
+  setSearch,
+  uploadApplicationDocument,
+  uploadingDocumentKey,
+  visibleApplications,
+}: {
+  applicationDraft: ApplicationDraft | null;
+  archiveApplication: () => void;
+  archivePending: boolean;
+  documentStatuses: Record<DocumentKey, DocumentStatus>;
+  documentUploads: DocumentUploads;
+  note: string;
+  onOpenLead: (lead: LeadApplication) => void;
+  saveApplication: () => void;
+  savePending: boolean;
+  search: string;
+  selectedLead: LeadApplication | null;
+  setApplicationDraft: Dispatch<SetStateAction<ApplicationDraft | null>>;
+  setDocumentStatuses: Dispatch<SetStateAction<Record<DocumentKey, DocumentStatus>>>;
+  setDocumentUploads: Dispatch<SetStateAction<DocumentUploads>>;
+  setNote: (value: string) => void;
+  setSearch: (value: string) => void;
+  uploadApplicationDocument: (key: DocumentKey, file: File) => void;
+  uploadingDocumentKey: DocumentKey | null;
+  visibleApplications: LeadApplication[];
+}) {
+  const paymentDone = Boolean(selectedLead && (noteHas(selectedLead, "FEES: PAID") || noteHas(selectedLead, "FEES: APPROVED")));
+  const canSave = Boolean(selectedLead && applicationDraft?.fullName.trim() && applicationDraft.mobile.trim() && applicationDraft.targetExam.trim());
+
+  return (
+    <section className="grid gap-5 xl:grid-cols-[420px_minmax(0,1fr)]">
+      <Panel eyebrow="Applications" title="Open one application">
+        <SearchField value={search} onChange={setSearch} placeholder="Search name, phone, email or program" />
+        <div className="mt-4 grid max-h-[68vh] gap-3 overflow-y-auto pr-1">
+          {visibleApplications.map((lead) => {
+            const selected = lead.id === selectedLead?.id;
+            return (
+              <button
+                key={lead.id}
+                type="button"
+                onClick={() => onOpenLead(lead)}
+                className={`rounded-xl border p-4 text-left transition hover:border-slate-950 ${
+                  selected ? "border-slate-950 bg-slate-950 text-white" : noteHas(lead, "AO_QUEUE: YES") ? "border-emerald-200 bg-emerald-50/60" : "border-[var(--border)] bg-white"
+                }`}
+              >
+                <span className="flex items-start justify-between gap-3">
+                  <span className="min-w-0">
+                    <span className="block truncate text-lg font-black">{lead.fullName}</span>
+                    <span className={`mt-1 block text-sm ${selected ? "text-white/75" : "text-[var(--muted-blue)]"}`}>{lead.targetExam} / {lead.mobile}</span>
+                  </span>
+                  <span className={`rounded-full px-2 py-1 text-[10px] font-black ${selected ? "bg-white/15" : "bg-white"}`}>{leadStage(lead)}</span>
+                </span>
+                <span className={`mt-3 block text-xs ${selected ? "text-white/70" : "text-[var(--muted-blue)]"}`}>From {lead.source} / {lead.assignee?.name || "Unassigned"}</span>
+              </button>
+            );
+          })}
+          {!visibleApplications.length ? <Empty>No matching applications.</Empty> : null}
+        </div>
+      </Panel>
+
+      <Panel eyebrow="Application File" title={selectedLead ? selectedLead.fullName : "Choose an applicant"}>
+        {selectedLead && applicationDraft ? (
+          <div className="grid gap-5">
+            <div className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
+              <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                <div>
+                  <p className="text-xs font-black uppercase tracking-[0.18em] text-[var(--gold-dark)]">One-click application file</p>
+                  <h3 className="mt-1 text-2xl font-black">{applicationDraft.fullName}</h3>
+                  <p className="mt-1 text-sm text-[var(--muted-blue)]">Default details are pre-filled. AO can add missing office data before payment and activation.</p>
+                </div>
+                <span className={`w-fit rounded-full px-3 py-2 text-xs font-black ${paymentDone ? "bg-amber-100 text-amber-900" : "bg-emerald-100 text-emerald-900"}`}>
+                  {paymentDone ? "Payment done: deletion locked" : "Editable application"}
+                </span>
+              </div>
+            </div>
+
+            <div className="grid gap-3 md:grid-cols-2">
+              <Field label="Applicant name" value={applicationDraft.fullName} onChange={(value) => setApplicationDraft((current) => current ? { ...current, fullName: value } : current)} />
+              <Field label="Mobile" value={applicationDraft.mobile} onChange={(value) => setApplicationDraft((current) => current ? { ...current, mobile: value } : current)} />
+              <Field label="Email" value={applicationDraft.email} onChange={(value) => setApplicationDraft((current) => current ? { ...current, email: value } : current)} />
+              <Field label="Course / exam" value={applicationDraft.targetExam} onChange={(value) => setApplicationDraft((current) => current ? { ...current, targetExam: value } : current)} />
+              <Field label="Source" value={applicationDraft.source} onChange={(value) => setApplicationDraft((current) => current ? { ...current, source: value } : current)} />
+              <SelectField label="Application status" value={applicationDraft.status} onChange={(value) => setApplicationDraft((current) => current ? { ...current, status: value as LeadApplication["status"] } : current)}>
+                <option value="NEW">New application</option>
+                <option value="CONTACTED">Contacted</option>
+                <option value="COUNSELLING">Under processing</option>
+                <option value="LOST">Archived</option>
+              </SelectField>
+            </div>
+
+            <div className="rounded-xl border border-[var(--border)] p-4">
+              <div className="flex items-center gap-2">
+                <FileUp size={18} className="text-[var(--gold-dark)]" />
+                <h3 className="font-black">Documents and uploads</h3>
+              </div>
+              <div className="mt-4 grid gap-3">
+                {Object.entries(documentLabels).map(([key, label]) => (
+                  <div key={key} className="grid gap-3 rounded-xl border border-[var(--border)] bg-white p-3 lg:grid-cols-[190px_160px_minmax(0,1fr)_220px] lg:items-center">
+                    <strong className="text-sm">{label}</strong>
+                    <select value={documentStatuses[key as DocumentKey]} onChange={(event) => setDocumentStatuses((current) => ({ ...current, [key]: event.target.value as DocumentStatus }))} className="min-h-11 rounded-xl border border-[var(--border)] bg-white px-3 text-sm font-bold">
+                      <option>Pending</option>
+                      <option>Verified</option>
+                      <option>Rejected</option>
+                    </select>
+                    <input value={documentUploads[key as DocumentKey]} onChange={(event) => setDocumentUploads((current) => ({ ...current, [key]: event.target.value }))} placeholder="Paste uploaded file link or document number" className="min-h-11 rounded-xl border border-[var(--border)] px-3 text-sm outline-none" />
+                    <label className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed border-[var(--border)] bg-[var(--page-bg)] px-3 text-sm font-black">
+                      <FileUp size={16} /> {uploadingDocumentKey === key ? "Uploading..." : "Choose file"}
+                      <input type="file" className="sr-only" onChange={(event) => {
+                        const file = event.target.files?.[0];
+                        if (!file) return;
+                        uploadApplicationDocument(key as DocumentKey, file);
+                      }} />
+                    </label>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <TextArea label="Application notes" value={applicationDraft.notes} onChange={(value) => setApplicationDraft((current) => current ? { ...current, notes: value } : current)} />
+            <TextArea label="New office note" value={note} onChange={setNote} />
+
+            <div className="flex flex-col gap-3 border-t border-[var(--border)] pt-4 sm:flex-row sm:justify-between">
+              <button type="button" onClick={archiveApplication} disabled={paymentDone || archivePending} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 px-5 text-sm font-black text-red-700 disabled:cursor-not-allowed disabled:opacity-50">
+                <Trash2 size={16} /> Archive application
+              </button>
+              <button type="button" onClick={saveApplication} disabled={!canSave || savePending} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-slate-950 px-5 text-sm font-black text-white disabled:opacity-50">
+                <Save size={16} /> Save application file
+              </button>
+            </div>
+            {paymentDone ? <p className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm font-bold text-amber-900">Payment is already recorded. This application cannot be deleted here; after activation, handle exit only as student discontinuation.</p> : null}
+          </div>
+        ) : (
+          <Empty>Select any application from the left. The full application file will open here with default details filled.</Empty>
+        )}
+      </Panel>
+    </section>
   );
 }
 

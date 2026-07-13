@@ -6,6 +6,7 @@ import { documentsController, mediaController } from "./media.controller.js";
 import { upload } from "./media.middleware.js";
 
 const mediaRoles = allowRoles(Role.ADMIN, Role.DIRECTOR, Role.ACADEMIC_HEAD, Role.TEACHER, Role.PHYSICAL_TRAINER, Role.MARKETING_COORDINATOR);
+const documentRoles = allowRoles(Role.ADMIN, Role.DIRECTOR, Role.ACADEMIC_HEAD, Role.TEACHER, Role.PHYSICAL_TRAINER, Role.MARKETING_COORDINATOR, Role.ADMINISTRATIVE_OFFICER);
 
 export const mediaRouter = Router();
 export const documentsRouter = Router();
@@ -26,7 +27,7 @@ mediaRouter.post("/upload", upload.single("file"), mediaController.uploadFile);
 mediaRouter.get("/files", mediaController.listFiles);
 mediaRouter.delete("/files/:id", mediaController.deleteFile);
 
-documentsRouter.use(protect, mediaRoles);
+documentsRouter.use(protect, documentRoles);
 documentsRouter.get("/", documentsController.list);
 documentsRouter.post(
   "/",
