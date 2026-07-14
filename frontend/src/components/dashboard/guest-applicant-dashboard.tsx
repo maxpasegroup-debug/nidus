@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, BookOpenCheck, Brain, Dumbbell, Flag, ShieldCheck, Sparkles, UserRound } from "lucide-react";
+import { ArrowRight, BookOpenCheck, Brain, CheckCircle2, Dumbbell, Flag, MessageCircle, Phone, ShieldCheck, Sparkles, UserRound } from "lucide-react";
 import { assessmentCatalog } from "@/components/assessments/assessment-catalog";
 import { academyProgramGroups } from "@/data/academy-programs";
 
@@ -28,11 +28,16 @@ export function GuestApplicantDashboard({ name, view = "applications" }: { name?
   const showAssessments = view === "assessments";
   const showGuru = view === "guru";
   const showAcademy = view === "academy";
+  const primaryActions = [
+    { title: "Apply for a course", text: "Choose NDA, CDS, AFCAT, Agniveer, Sainik School or another NIDUS program.", href: "/dashboard/guest/academy", icon: BookOpenCheck, primary: true },
+    { title: "Take free assessment", text: "Understand your defence readiness before admission.", href: "/dashboard/guest/assessments", icon: ShieldCheck },
+    { title: "Continue NIDUS Guru", text: "Build discipline, focus and confidence through guided quests.", href: "/dashboard/guest/guru", icon: Sparkles },
+  ];
   const pageCopy: Record<GuestApplicantView, { eyebrow: string; title: string; description: string }> = {
     applications: {
       eyebrow: "Applicant Lobby",
-      title: `Welcome${name ? `, ${name}` : ""}. Your applications will appear here.`,
-      description: "Use this space to review submitted course applications and admission updates once an application is created.",
+      title: `Welcome${name ? `, ${name}` : ""}. Start with one simple step.`,
+      description: "Apply for a course, take a readiness assessment or continue NIDUS Guru. Full student access opens after admission activation.",
     },
     assessments: {
       eyebrow: "Assessments",
@@ -53,50 +58,83 @@ export function GuestApplicantDashboard({ name, view = "applications" }: { name?
   const copy = pageCopy[view];
 
   return (
-    <main className="min-h-screen bg-[var(--page-bg)] px-5 py-6 text-[var(--navy)] md:px-8">
-      <section className="mx-auto max-w-7xl space-y-8">
-        <section className="rounded-3xl border border-[var(--border)] bg-white/95 p-6 shadow-xl md:p-9">
-          <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">{copy.eyebrow}</p>
-          <div className="mt-4 grid gap-6 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
+    <main className="min-h-screen bg-[var(--page-bg)] px-4 py-4 text-[var(--navy)] md:px-8">
+      <section className="mx-auto max-w-7xl space-y-5">
+        <section className="rounded-[26px] border border-[var(--border)] bg-white/96 p-5 shadow-sm md:p-7">
+          <div className="grid gap-5 lg:grid-cols-[1fr_360px] lg:items-stretch">
             <div>
-              <h1 className="max-w-4xl text-4xl font-black tracking-tight md:text-6xl">
-                {copy.title}
-              </h1>
-              <p className="mt-5 max-w-3xl text-base leading-8 text-[var(--muted-blue)]">
-                {copy.description}
-              </p>
+              <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold)]">{copy.eyebrow}</p>
+              <h1 className="mt-3 max-w-4xl text-3xl font-black tracking-tight md:text-5xl">{copy.title}</h1>
+              <p className="mt-3 max-w-3xl text-sm leading-7 text-[var(--muted-blue)] md:text-base">{copy.description}</p>
+              <div className="mt-5 grid gap-3 sm:grid-cols-3">
+                {primaryActions.map((action) => {
+                  const Icon = action.icon;
+                  return (
+                    <Link
+                      key={action.title}
+                      href={action.href}
+                      className={`group rounded-2xl border p-4 transition hover:-translate-y-0.5 hover:shadow-md ${
+                        action.primary ? "border-[var(--gold-border)] bg-[var(--gold-soft)]" : "border-[var(--border)] bg-white"
+                      }`}
+                    >
+                      <span className="grid h-11 w-11 place-items-center rounded-xl border border-[var(--border)] bg-white shadow-sm"><Icon className="h-5 w-5 text-[var(--gold)]" /></span>
+                      <h2 className="mt-4 text-lg font-black">{action.title}</h2>
+                      <p className="mt-2 text-xs leading-5 text-[var(--muted-blue)]">{action.text}</p>
+                      <span className="mt-4 inline-flex items-center gap-2 text-sm font-black">Open <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" /></span>
+                    </Link>
+                  );
+                })}
+              </div>
             </div>
-            <div className="rounded-2xl border border-[var(--gold-border)] bg-[var(--gold-soft)] p-5">
-              <p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold)]">Admission Status</p>
-              <h2 className="mt-2 text-2xl font-black">Not activated yet</h2>
-              <p className="mt-2 text-sm leading-6 text-[var(--muted-blue)]">Apply for a course. AO approval will unlock Classes, Assignments, Exams, Attendance, Library and NIDUS Digital Profile.</p>
-            </div>
+            <aside className="grid gap-3 rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
+              <div className="rounded-2xl border border-[var(--gold-border)] bg-white p-4">
+                <p className="text-xs font-black uppercase tracking-[0.22em] text-[var(--gold)]">Application Status</p>
+                <h2 className="mt-2 text-2xl font-black">Not submitted yet</h2>
+                <p className="mt-2 text-sm leading-6 text-[var(--muted-blue)]">Choose a course when you are ready. The academy office will guide the next step after submission.</p>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <a href="https://wa.me/" target="_blank" rel="noreferrer" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-3 text-sm font-black text-emerald-800">
+                  <MessageCircle className="h-4 w-4" /> WhatsApp
+                </a>
+                <Link href="/contact" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-[var(--border)] bg-white px-3 text-sm font-black">
+                  <Phone className="h-4 w-4" /> Help
+                </Link>
+              </div>
+            </aside>
           </div>
         </section>
 
         {showApplications ? <section className="rounded-3xl border border-[var(--border)] bg-white/95 p-5 shadow-sm md:p-7">
-          <div className="grid gap-5 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+          <div className="grid gap-5 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
             <div>
               <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">My Applications</p>
-              <h2 className="mt-2 text-3xl font-black">No course application is linked yet.</h2>
+              <h2 className="mt-2 text-3xl font-black">No application is linked yet.</h2>
               <p className="mt-3 text-sm leading-7 text-[var(--muted-blue)]">
-                Submitted applications, counselling notes and admission updates will be shown here after you apply for a NIDUS Academy course.
+                Once you apply, this page becomes your simple status tracker: submitted, office review, payment guidance and student activation.
               </p>
               <div className="mt-5 flex flex-col gap-3 sm:flex-row">
                 <Link href="/dashboard/guest/academy" className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[var(--gold-gradient)] px-4 py-3 text-sm font-black text-[var(--navy)]">
-                  View Academy Courses <ArrowRight className="h-4 w-4" />
+                  Apply for a Course <ArrowRight className="h-4 w-4" />
                 </Link>
                 <Link href="/dashboard/guest/assessments" className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-sm font-black text-[var(--navy)]">
                   Start Assessments
                 </Link>
               </div>
             </div>
-            <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-5">
-              <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold)]">Current Status</p>
-              <h3 className="mt-3 text-2xl font-black">Applicant access active</h3>
-              <p className="mt-3 text-sm leading-7 text-[var(--muted-blue)]">
-                Assessments, NIDUS Guru and academy course browsing are available from the mobile menu. Full learner tools unlock after admission activation.
-              </p>
+            <div className="grid gap-3">
+              {[
+                ["1", "Apply", "Choose a program and submit the form."],
+                ["2", "Academy office review", "Our team checks details and contacts you."],
+                ["3", "Student access", "Classes, lessons and timetable open after activation."],
+              ].map(([step, title, text]) => (
+                <div key={step} className="flex gap-3 rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
+                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white text-sm font-black">{step}</span>
+                  <div>
+                    <h3 className="font-black">{title}</h3>
+                    <p className="mt-1 text-sm text-[var(--muted-blue)]">{text}</p>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </section> : null}
@@ -173,6 +211,22 @@ export function GuestApplicantDashboard({ name, view = "applications" }: { name?
             ))}
           </div>
         </section> : null}
+
+        <section className="grid gap-3 rounded-[24px] border border-[var(--border)] bg-white/95 p-5 shadow-sm md:grid-cols-3">
+          {[
+            ["Simple start", "Apply, assess or continue Guru from one screen."],
+            ["Office guided", "The academy team will contact you after application."],
+            ["Student unlock", "Full timetable, classes, videos and exams open only after activation."],
+          ].map(([title, text]) => (
+            <div key={title} className="flex gap-3">
+              <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-700" />
+              <div>
+                <h3 className="font-black">{title}</h3>
+                <p className="mt-1 text-sm leading-6 text-[var(--muted-blue)]">{text}</p>
+              </div>
+            </div>
+          ))}
+        </section>
       </section>
     </main>
   );

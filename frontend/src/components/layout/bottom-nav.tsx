@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { BookOpenCheck, CalendarDays, ClipboardCheck, FileText, Library, Menu, Users, X } from "lucide-react";
+import { BookOpenCheck, CalendarDays, ClipboardCheck, FileText, Flag, Library, Menu, PenLine, Sparkles, Users, X } from "lucide-react";
 import { getNavItems, guestMenu, studentMenu } from "@/components/layout/nav-items";
 import { useAuth } from "@/components/providers/auth-provider-v2";
 
@@ -24,12 +24,15 @@ async function probeStudentActivation() {
 
 function NavIcon({ label }: { label: string }) {
   const value = label.toLowerCase();
+  if (value.includes("apply")) return <PenLine size={18} />;
+  if (value.includes("guru")) return <Sparkles size={18} />;
+  if (value.includes("progress")) return <Flag size={18} />;
   if (value.includes("student") || value.includes("team")) return <Users size={18} />;
-  if (value.includes("calendar") || value === "today") return <CalendarDays size={18} />;
+  if (value.includes("calendar") || value.includes("timetable") || value === "today") return <CalendarDays size={18} />;
   if (value.includes("attendance")) return <ClipboardCheck size={18} />;
-  if (value.includes("assignment")) return <FileText size={18} />;
+  if (value.includes("assignment") || value.includes("homework") || value.includes("application")) return <FileText size={18} />;
   if (value.includes("exam")) return <BookOpenCheck size={18} />;
-  if (value.includes("library")) return <Library size={18} />;
+  if (value.includes("library") || value.includes("lesson")) return <Library size={18} />;
   return <Menu size={18} />;
 }
 
@@ -51,8 +54,9 @@ export function BottomNav() {
       : userRole === "GUEST"
         ? guestMenu
         : getNavItems(userRole, dashboardTemplate);
-  const primaryItems = navItems.slice(0, 4);
-  const remainingItems = navItems.slice(4);
+  const primaryCount = userRole === "STUDENT" && studentActivated === true ? 3 : 4;
+  const primaryItems = navItems.slice(0, primaryCount);
+  const remainingItems = navItems.slice(primaryCount);
   const isActive = (href: string) => href.split("#")[0] === pathname;
 
   useEffect(() => {
@@ -95,7 +99,7 @@ export function BottomNav() {
           </section>
         </div>
       ) : null}
-      <nav className={`fixed bottom-0 left-0 right-0 z-40 grid border-t border-[#071d36]/10 bg-[#f7f3ea]/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl lg:hidden ${remainingItems.length ? "grid-cols-5" : "grid-cols-4"}`} aria-label="Mobile primary navigation">
+      <nav className={`fixed bottom-0 left-0 right-0 z-40 grid border-t border-[#071d36]/10 bg-[#f7f3ea]/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl lg:hidden ${remainingItems.length ? "grid-cols-4" : "grid-cols-4"}`} aria-label="Mobile primary navigation">
         {primaryItems.map((item) => (
           <Link
             key={`${item.label}-${item.href}`}

@@ -270,6 +270,15 @@ function liveClassWindow(item: LiveClass) {
   return { start, end };
 }
 
+function useCurrentTime(interval = 30_000) {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const timer = window.setInterval(() => setNow(Date.now()), interval);
+    return () => window.clearInterval(timer);
+  }, [interval]);
+  return now;
+}
+
 function Countdown({ value, mode = "start", activeLabel = "Now" }: { value?: string | null; mode?: "start" | "end"; activeLabel?: string }) {
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
@@ -385,7 +394,7 @@ function ExamCountdownClock({ startsAt, endsAt, compact = false }: { startsAt?: 
 function ExamReminderCard({ item }: { item: ReminderItem }) {
   const start = toTimestamp(item.startsAt);
   const end = toTimestamp(item.endsAt);
-  const now = Date.now();
+  const now = useCurrentTime(1000);
   const upcoming = Boolean(start && start > now);
   const open = Boolean(start && start <= now && (!end || end > now));
   const closed = Boolean(end && end <= now);
@@ -416,18 +425,18 @@ function ExamReminderCard({ item }: { item: ReminderItem }) {
   );
 }
 
-function reminderUrgency(at?: string | null, mode: "start" | "end" = "start") {
+function reminderUrgency(at: string | null | undefined, mode: "start" | "end", now: number) {
   const timestamp = toTimestamp(at, mode);
   if (!timestamp) return 4;
-  const diff = timestamp - Date.now();
+  const diff = timestamp - now;
   if (diff <= 0) return 0;
   if (diff <= 3_600_000) return 1;
   if (diff <= 86_400_000) return 2;
   return 3;
 }
 
-function reminderTone(type: string, at?: string | null, mode: "start" | "end" = "start") {
-  const urgency = reminderUrgency(at, mode);
+function reminderTone(type: string, at: string | null | undefined, mode: "start" | "end", now: number) {
+  const urgency = reminderUrgency(at, mode, now);
   if (type === "Exam") return urgency <= 2 ? "border-rose-200 bg-rose-50" : "border-[var(--border)] bg-white";
   if (type === "Assignment") return urgency <= 2 ? "border-amber-200 bg-amber-50" : "border-[var(--gold-border)] bg-[var(--gold-soft)]";
   if (type === "Live Class") return "border-emerald-200 bg-emerald-50";
@@ -460,9 +469,9 @@ function Shell({ title, subtitle, children }: { title: string; subtitle: string;
             </div>
             <div className="flex flex-wrap gap-2">
               <QuickPill href="/dashboard/student" label="Today" />
-              <QuickPill href="/dashboard/student/exams" label="Exams" />
-              <QuickPill href="/dashboard/student/assignments" label="Homework" />
-              <QuickPill href="/dashboard/student/progress" label="NDP" />
+              <QuickPill href="/dashboard/student/classes" label="Classes" />
+              <QuickPill href="/dashboard/student/learning" label="Lessons" />
+              <QuickPill href="/dashboard/student/calendar" label="Timetable" />
             </div>
           </div>
         </section>
@@ -487,11 +496,12 @@ function Empty({ text }: { text: string }) {
 
 export function StudentClassesPage() {
   const { plan, activeBatches } = useStudentPlan();
+  const now = useCurrentTime();
   const calendar = plan.data?.calendar ?? [];
   const materials = plan.data?.materials ?? [];
   const liveClasses = (plan.data?.liveClasses ?? []).filter((item) => {
     const window = liveClassWindow(item);
-    return Boolean(window.end && window.end > Date.now());
+    return Boolean(window.end && window.end > now);
   });
   const subjects = Array.from(new Set([...calendar.map((item) => item.subject), ...materials.map((item) => item.subject ?? "General")])).sort();
 
@@ -505,7 +515,7 @@ export function StudentClassesPage() {
       <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {subjects.map((subject) => {
           const sessions = calendar.filter((item) => item.subject === subject).sort((a, b) => calendarDate(a).localeCompare(calendarDate(b)));
-          const next = sessions.find((item) => new Date(calendarDate(item)).getTime() >= Date.now());
+          const next = sessions.find((item) => new Date(calendarDate(item)).getTime() >= now);
           const resourceCount = materials.filter((item) => (item.subject ?? "General") === subject).length;
           return (
             <article key={subject} className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-[var(--gold-border)]">
@@ -531,18 +541,24 @@ export function StudentClassesPage() {
 
 export function StudentTodayPage() {
   const { plan, activeBatches } = useStudentPlan();
+  const now = useCurrentTime();
   const availableExams = useQuery({ queryKey: ["student", "available-exams"], queryFn: () => apiList<ExamSummary>("/api/tests/available", "tests") });
   const today = todayKey();
   const calendar = plan.data?.calendar ?? [];
   const assignments = plan.data?.assignments ?? [];
+  const materials = plan.data?.materials ?? [];
   const liveClasses = plan.data?.liveClasses ?? [];
   const exams = availableExams.data ?? [];
   const pendingAssignments = assignments.filter((assignment) => assignment.submissionStatus !== "SUBMITTED");
+  const upcomingClasses = calendar.filter((item) => item.plannedDate.slice(0, 10) >= today).sort((left, right) => calendarDate(left).localeCompare(calendarDate(right)));
+  const nextClass = upcomingClasses[0];
+  const latestLesson = [...materials].sort((left, right) => String(right.createdAt ?? "").localeCompare(String(left.createdAt ?? "")))[0];
+  const attendance = plan.data?.attendance?.summary;
   const reminders: ReminderItem[] = [
     ...exams.map((item) => {
       const window = examWindow(item);
-      const isUpcoming = Boolean(window.start && window.start > Date.now());
-      const isOpen = Boolean(window.start && window.start <= Date.now() && (!window.end || window.end > Date.now()));
+      const isUpcoming = Boolean(window.start && window.start > now);
+      const isOpen = Boolean(window.start && window.start <= now && (!window.end || window.end > now));
       const at = isUpcoming ? window.startsAt : isOpen && window.end ? new Date(window.end).toISOString() : window.startsAt || today;
       const examId = item.testId || item.id;
       return {
@@ -575,9 +591,9 @@ export function StudentTodayPage() {
     })),
     ...liveClasses.flatMap((item) => {
       const window = liveClassWindow(item);
-      if (!window.end || window.end <= Date.now()) return [];
-      const upcoming = Boolean(window.start && window.start > Date.now());
-      const canJoin = Boolean(window.start && window.start <= Date.now() + 10 * 60_000);
+      if (!window.end || window.end <= now) return [];
+      const upcoming = Boolean(window.start && window.start > now);
+      const canJoin = Boolean(window.start && window.start <= now + 10 * 60_000);
       const startsAt = new Date(item.scheduledAt);
       const endsAt = new Date(window.end);
       const batch = activeBatches.find((entry) => entry.id === item.batchId)?.name ?? "Assigned batch";
@@ -614,21 +630,110 @@ export function StudentTodayPage() {
     })),
   ].sort((a, b) => {
     const priority = { Exam: 0, Assignment: 1, "Live Class": 2, Class: 3 } as Record<string, number>;
-    const urgency = reminderUrgency(a.at, a.mode) - reminderUrgency(b.at, b.mode);
+    const urgency = reminderUrgency(a.at, a.mode, now) - reminderUrgency(b.at, b.mode, now);
     if (urgency !== 0) return urgency;
     const typePriority = (priority[a.type] ?? 9) - (priority[b.type] ?? 9);
     if (typePriority !== 0) return typePriority;
     return (toTimestamp(a.at, a.mode) ?? Number.MAX_SAFE_INTEGER) - (toTimestamp(b.at, b.mode) ?? Number.MAX_SAFE_INTEGER);
   }).slice(0, 8);
+  const focusCards = [
+    {
+      label: "Next Class",
+      title: nextClass ? `${nextClass.subject}: ${nextClass.topic}` : "No class scheduled",
+      detail: nextClass ? `${nextClass.batchName ?? "Assigned batch"}${nextClass.teacherName ? ` / ${nextClass.teacherName}` : ""}` : "Your timetable will appear after the academy publishes it.",
+      meta: nextClass ? new Date(calendarDate(nextClass)).toLocaleString("en-IN", { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) : "Timetable pending",
+      href: "/dashboard/student/classes",
+      icon: PlayCircle,
+    },
+    {
+      label: "Homework",
+      title: pendingAssignments[0]?.title ?? "No homework pending",
+      detail: pendingAssignments[0] ? `${pendingAssignments[0].subject ?? "Homework"}${pendingAssignments[0].batchName ? ` / ${pendingAssignments[0].batchName}` : ""}` : "Submitted and future assignments will be tracked here.",
+      meta: pendingAssignments[0] ? dueCountdown(pendingAssignments[0].dueDate) : "All clear",
+      href: "/dashboard/student/assignments",
+      icon: FileText,
+    },
+    {
+      label: "Lessons & Videos",
+      title: latestLesson?.title ?? "No lesson uploaded yet",
+      detail: latestLesson ? `${latestLesson.subject ?? "Lesson"}${latestLesson.batchName ? ` / ${latestLesson.batchName}` : ""}` : "Batch videos and study materials will appear after upload.",
+      meta: latestLesson?.type ?? "Learning library",
+      href: "/dashboard/student/learning",
+      icon: Library,
+    },
+    {
+      label: "Progress",
+      title: attendance ? `${attendance.percentage}% attendance` : "Progress will build soon",
+      detail: activeBatches.map((batch) => batch.name).join(" / ") || "Active batch pending",
+      meta: attendance ? `${attendance.present} present / ${attendance.total} marked` : "No attendance yet",
+      href: "/dashboard/student/progress",
+      icon: ClipboardCheck,
+    },
+  ];
+  const firstReminder = reminders[0];
+  const firstReminderHref = firstReminder?.href ?? "/dashboard/student/calendar";
+  const firstReminderExternal = firstReminderHref.startsWith("http");
+  const firstReminderActionClass = "inline-flex min-h-11 items-center gap-2 rounded-xl bg-[var(--ink)] px-4 text-sm font-black text-white";
 
   return (
-    <Shell title="Today" subtitle="Your urgent exams, homework, live classes and academy sessions with live countdowns.">
+    <Shell title="Today" subtitle="Your next class, homework, lessons and exams in one simple view.">
+      <section className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
+        <article className="rounded-[26px] border border-[var(--gold-border)] bg-gradient-to-br from-[var(--gold-soft)] via-white to-white p-5 shadow-sm md:p-6">
+          <p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold)]">Start Here</p>
+          <h2 className="mt-3 text-3xl font-black md:text-4xl">{reminders[0]?.title ?? nextClass?.subject ?? "You are clear for now"}</h2>
+          <p className="mt-3 max-w-2xl text-sm leading-7 text-[var(--muted-blue)]">
+            {reminders[0]?.detail ?? "When the academy publishes classes, homework, exams or videos, your next action will appear here first."}
+          </p>
+          <div className="mt-5 flex flex-wrap items-center gap-3">
+            {firstReminder ? <Countdown value={firstReminder.at} mode={firstReminder.mode} /> : null}
+            {firstReminderExternal ? (
+              <a href={firstReminderHref} target="_blank" rel="noreferrer" className={firstReminderActionClass}>
+                {firstReminder?.action ?? "View Timetable"} <ArrowRight className="h-4 w-4" />
+              </a>
+            ) : (
+              <Link href={firstReminderHref} className={firstReminderActionClass}>
+                {firstReminder?.action ?? "View Timetable"} <ArrowRight className="h-4 w-4" />
+              </Link>
+            )}
+          </div>
+        </article>
+        <article className="rounded-[26px] border border-[var(--border)] bg-white p-5 shadow-sm md:p-6">
+          <p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold)]">Student Access</p>
+          <h2 className="mt-3 text-2xl font-black">{activeBatches.length ? "Active learner" : "Activation pending"}</h2>
+          <p className="mt-2 text-sm leading-7 text-[var(--muted-blue)]">
+            {activeBatches.length ? `You are active in ${activeBatches.map((batch) => batch.name).join(", ")}.` : "Full classes and videos open after office activation."}
+          </p>
+          <div className="mt-4 grid grid-cols-2 gap-2 text-sm">
+            <Link href="/dashboard/student/calendar" className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-3 py-3 font-black">My Timetable</Link>
+            <Link href="/dashboard/student/learning" className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-3 py-3 font-black">Lessons</Link>
+          </div>
+        </article>
+      </section>
+
+      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        {focusCards.map((card) => {
+          const Icon = card.icon;
+          return (
+            <Link key={card.label} href={card.href} className="group rounded-[22px] border border-[var(--border)] bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-[var(--gold-border)] hover:shadow-md">
+              <div className="flex items-start justify-between gap-3">
+                <span className="grid h-11 w-11 place-items-center rounded-xl bg-[var(--gold-soft)]"><Icon className="h-5 w-5 text-[var(--gold)]" /></span>
+                <span className="rounded-full bg-[var(--page-bg)] px-3 py-1 text-[0.68rem] font-black text-[var(--muted-blue)]">{card.meta}</span>
+              </div>
+              <p className="mt-4 text-xs font-black uppercase tracking-[0.22em] text-[var(--gold)]">{card.label}</p>
+              <h2 className="mt-2 line-clamp-2 text-lg font-black">{card.title}</h2>
+              <p className="mt-2 line-clamp-2 text-sm text-[var(--muted-blue)]">{card.detail}</p>
+              <span className="mt-4 inline-flex items-center gap-2 text-sm font-black">Open <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" /></span>
+            </Link>
+          );
+        })}
+      </section>
+
       <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {reminders.map((item) => {
           if (item.type === "Exam") return <ExamReminderCard key={item.id} item={item} />;
           const Icon = item.icon;
           const external = item.href.startsWith("http");
-          const cardClassName = `group rounded-[22px] border p-5 shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-md ${reminderTone(item.type, item.at, item.mode)}`;
+          const cardClassName = `group rounded-[22px] border p-5 shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-md ${reminderTone(item.type, item.at, item.mode, now)}`;
           const content = (
             <>
               <div className="flex items-start justify-between gap-3">
@@ -742,6 +847,7 @@ export function StudentAssignmentsPage() {
 
 export function StudentExamsPage() {
   useStudentPlan();
+  const now = useCurrentTime();
   const [view, setView] = useState<"active" | "attended" | "missed">("active");
   const availableExams = useQuery({ queryKey: ["student", "available-exams"], queryFn: () => apiList<ExamSummary>("/api/tests/available", "tests") });
   const attemptHistory = useQuery({ queryKey: ["student", "exam-attempt-history"], queryFn: () => apiList<AttemptHistory>("/api/tests/attempts/history", "attempts") });
@@ -751,12 +857,12 @@ export function StudentExamsPage() {
   const activeExams = exams.filter((exam) => {
     const id = exam.testId || exam.id;
     const window = examWindow(exam);
-    return exam.studentStatus !== "SUBMITTED" && !attemptedIds.has(id) && (!window.end || window.end > Date.now());
+    return exam.studentStatus !== "SUBMITTED" && !attemptedIds.has(id) && (!window.end || window.end > now);
   });
   const missedExams = exams.filter((exam) => {
     const id = exam.testId || exam.id;
     const window = examWindow(exam);
-    return exam.studentStatus !== "SUBMITTED" && !attemptedIds.has(id) && Boolean(window.end && window.end <= Date.now());
+    return exam.studentStatus !== "SUBMITTED" && !attemptedIds.has(id) && Boolean(window.end && window.end <= now);
   });
   const attendedExams = results.filter((attempt) => attempt.status === "SUBMITTED" || attempt.submittedAt);
   const tabs = [
@@ -817,6 +923,7 @@ export function StudentExamsPage() {
 
 export function StudentCalendarPage() {
   const { plan } = useStudentPlan();
+  const now = useCurrentTime();
   const availableExams = useQuery({ queryKey: ["student", "calendar-exams"], queryFn: () => apiList<ExamSummary>("/api/tests/available", "tests") });
   const [view, setView] = useState<"day" | "week" | "month">("day");
   const [selectedDate, setSelectedDate] = useState(todayKey());
@@ -869,7 +976,7 @@ export function StudentCalendarPage() {
       at: item.publishAt ?? `${todayKey()}T00:00:00`,
       date: (item.publishAt ?? todayKey()).slice(0, 10),
       time: item.publishAt ? new Date(item.publishAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "Open",
-      status: item.publishAt && new Date(item.publishAt).getTime() > Date.now() ? "Scheduled" : "Open",
+      status: item.publishAt && new Date(item.publishAt).getTime() > now ? "Scheduled" : "Open",
       href: "/dashboard/student/exams",
       tone: "red",
     })),
@@ -1120,8 +1227,9 @@ function ClassCard({ item }: { item: CalendarItem }) {
 }
 
 function LiveCard({ item }: { item: LiveClass }) {
+  const now = useCurrentTime();
   const window = liveClassWindow(item);
-  const upcoming = Boolean(window.start && window.start > Date.now());
+  const upcoming = Boolean(window.start && window.start > now);
   const countdownAt = upcoming ? item.scheduledAt : window.end ? new Date(window.end).toISOString() : item.scheduledAt;
   return (
     <article className="rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
@@ -1139,12 +1247,13 @@ function LiveCard({ item }: { item: LiveClass }) {
 
 function ExamCard({ exam }: { exam: ExamSummary }) {
   const router = useRouter();
+  const now = useCurrentTime(1000);
   const [starting, setStarting] = useState(false);
   const [error, setError] = useState("");
   const examId = exam.testId || exam.id;
   const window = examWindow(exam);
-  const locked = window.start ? window.start > Date.now() : false;
-  const expired = window.end ? window.end <= Date.now() : false;
+  const locked = window.start ? window.start > now : false;
+  const expired = window.end ? window.end <= now : false;
   const startsAt = window.startsAt;
   const endsAt = window.end ? new Date(window.end).toISOString() : null;
 

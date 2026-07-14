@@ -7,19 +7,20 @@ export type NavItem = DashboardNavItem;
 
 const studentMenu: DashboardNavItem[] = [
   { label: "Today", href: "/dashboard/student" },
-  { label: "My Classes", href: "/dashboard/student/classes" },
+  { label: "Classes", href: "/dashboard/student/classes" },
+  { label: "Lessons", href: "/dashboard/student/learning" },
+  { label: "Timetable", href: "/dashboard/student/calendar" },
+  { label: "Homework", href: "/dashboard/student/assignments" },
   { label: "Exams", href: "/dashboard/student/exams" },
-  { label: "Assignments", href: "/dashboard/student/assignments" },
-  { label: "Calendar", href: "/dashboard/student/calendar" },
-  { label: "Academic Library", href: "/dashboard/student/learning" },
+  { label: "Attendance", href: "/dashboard/student/attendance" },
+  { label: "Progress", href: "/dashboard/student/progress" },
   { label: "Assessments", href: "/dashboard/student/assessments" },
-  { label: "NDP", href: "/dashboard/student/progress" },
 ];
 
 const guestMenu: DashboardNavItem[] = [
+  { label: "Apply", href: "/dashboard/guest/academy" },
   { label: "Assessments", href: "/dashboard/guest/assessments" },
   { label: "NIDUS Guru", href: "/dashboard/guest/guru" },
-  { label: "Academy Courses", href: "/dashboard/guest/academy" },
   { label: "My Applications", href: "/dashboard/guest/applications" },
 ];
 
