@@ -269,8 +269,8 @@ type AcademicCalendarRow = {
   topic: string;
   classType?: string | null;
   plannedDate: Date;
-  startTime: string | null;
-  endTime: string | null;
+  startTime: string | Date | null;
+  endTime: string | Date | null;
   teacherId: string | null;
   teacherName: string | null;
   status: string;
@@ -941,9 +941,53 @@ function sanitizeCalendarRow(row: AcademicCalendarRow) {
     ...row,
     classType: row.classType || "Live Class",
     plannedDate: row.plannedDate.toISOString(),
+    startTime: calendarTimeLabel(row.startTime),
+    endTime: calendarTimeLabel(row.endTime),
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),
   };
+}
+
+function dateKeyFromCalendarValue(value: string | Date) {
+  if (value instanceof Date) return value.toISOString().slice(0, 10);
+  const dateKey = String(value || "").slice(0, 10);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(dateKey)) {
+    throw Object.assign(new Error("Planned date is invalid"), { statusCode: 400 });
+  }
+  return dateKey;
+}
+
+function calendarTimeLabel(value?: string | Date | null) {
+  if (!value) return null;
+  if (value instanceof Date) {
+    return new Intl.DateTimeFormat("en-GB", {
+      timeZone: "Asia/Kolkata",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    }).format(value);
+  }
+  const raw = String(value).trim();
+  const timeOnly = raw.match(/^(\d{1,2}):(\d{2})/);
+  if (timeOnly) return `${timeOnly[1].padStart(2, "0")}:${timeOnly[2]}`;
+  const parsed = new Date(raw);
+  if (!Number.isNaN(parsed.getTime())) return calendarTimeLabel(parsed);
+  return raw || null;
+}
+
+function calendarDateTime(plannedDate: string | Date, time?: string | Date | null) {
+  if (!time) return null;
+  if (time instanceof Date) return time;
+  const raw = String(time).trim();
+  if (!raw) return null;
+  if (/^\d{1,2}:\d{2}/.test(raw)) {
+    const normalized = calendarTimeLabel(raw);
+    const dateKey = dateKeyFromCalendarValue(plannedDate);
+    return new Date(`${dateKey}T${normalized}:00.000+05:30`);
+  }
+  const parsed = new Date(raw);
+  if (!Number.isNaN(parsed.getTime())) return parsed;
+  throw Object.assign(new Error(`Invalid timetable time: ${raw}`), { statusCode: 400 });
 }
 
 function isTemporaryActivationCalendarRow(row: AcademicCalendarRow) {
@@ -1033,8 +1077,8 @@ function calendarTodayTask(row: AcademicCalendarRow, source: "TODAY_CALENDAR" | 
     sourceId: row.id,
     type,
     date: calendarRowDateKey(row),
-    time: row.startTime,
-    endTime: row.endTime,
+    time: calendarTimeLabel(row.startTime),
+    endTime: calendarTimeLabel(row.endTime),
     title: `${row.batchName || "Batch"} / ${row.subject || "Subject"}`,
     detail: row.topic || "Topic pending",
     batchId: row.batchId,
@@ -2455,11 +2499,14 @@ export const academyService = {
 
     const id = randomUUID();
     const now = new Date();
+    const plannedDate = new Date(input.plannedDate);
+    const startTime = calendarDateTime(plannedDate, input.startTime);
+    const endTime = calendarDateTime(plannedDate, input.endTime);
     await prisma.$executeRaw`
       INSERT INTO "AcademicCalendarItem"
       ("id", "batchId", "batchName", "programSlug", "subject", "topic", "classType", "plannedDate", "startTime", "endTime", "teacherId", "teacherName", "status", "completionStatus", "teacherLog", "nextAction", "createdAt", "updatedAt")
       VALUES
-      (${id}, ${input.batchId || null}, ${input.batchName || null}, ${input.programSlug || null}, ${input.subject}, ${input.topic}, ${input.classType || "Live Class"}, ${new Date(input.plannedDate)}, ${input.startTime || null}, ${input.endTime || null}, ${input.teacherId || null}, ${input.teacherName || assignedTeacher?.name || assignedTeacher?.email || null}, ${input.status || "PLANNED"}, ${input.completionStatus || "PENDING"}, ${input.teacherLog || null}, ${input.nextAction || null}, ${now}, ${now})
+      (${id}, ${input.batchId || null}, ${input.batchName || null}, ${input.programSlug || null}, ${input.subject}, ${input.topic}, ${input.classType || "Live Class"}, ${plannedDate}, ${startTime}, ${endTime}, ${input.teacherId || null}, ${input.teacherName || assignedTeacher?.name || assignedTeacher?.email || null}, ${input.status || "PLANNED"}, ${input.completionStatus || "PENDING"}, ${input.teacherLog || null}, ${input.nextAction || null}, ${now}, ${now})
     `;
 
     const rows = await prisma.$queryRaw<AcademicCalendarRow[]>`
@@ -2533,11 +2580,13 @@ export const academyService = {
       }
 
       for (const plannedDate of datesForDayOfWeek(startDate, endDate, session.dayOfWeek)) {
+        const startTime = calendarDateTime(plannedDate, session.startTime);
+        const endTime = calendarDateTime(plannedDate, session.endTime);
         const existingRows = await prisma.$queryRaw<AcademicCalendarRow[]>`
           SELECT * FROM "AcademicCalendarItem"
           WHERE "batchId" = ${batch.id}
           AND "plannedDate" = ${plannedDate}
-          AND "startTime" = ${session.startTime}
+          AND "startTime" = ${startTime}
           AND LOWER("subject") = LOWER(${session.subject})
           LIMIT 1
         `;
@@ -2556,7 +2605,7 @@ export const academyService = {
             SELECT * FROM "AcademicCalendarItem"
             WHERE "teacherId" = ${session.teacherId}
             AND "plannedDate" = ${plannedDate}
-            AND "startTime" = ${session.startTime}
+            AND "startTime" = ${startTime}
             LIMIT 1
           `;
           if (teacherConflict[0]) {
@@ -2578,7 +2627,7 @@ export const academyService = {
           INSERT INTO "AcademicCalendarItem"
           ("id", "batchId", "batchName", "programSlug", "subject", "topic", "classType", "plannedDate", "startTime", "endTime", "teacherId", "teacherName", "status", "completionStatus", "teacherLog", "nextAction", "createdAt", "updatedAt")
           VALUES
-          (${id}, ${batch.id}, ${batch.name}, ${batch.programSlug || batch.course?.slug || null}, ${session.subject}, ${session.topic}, ${session.classType || "LECTURE"}, ${plannedDate}, ${session.startTime}, ${session.endTime || null}, ${session.teacherId || null}, ${teacher?.name || teacher?.email || null}, 'SCHEDULED', 'PENDING', null, null, ${now}, ${now})
+          (${id}, ${batch.id}, ${batch.name}, ${batch.programSlug || batch.course?.slug || null}, ${session.subject}, ${session.topic}, ${session.classType || "LECTURE"}, ${plannedDate}, ${startTime}, ${endTime}, ${session.teacherId || null}, ${teacher?.name || teacher?.email || null}, 'SCHEDULED', 'PENDING', null, null, ${now}, ${now})
         `;
         created.push({
           id,
@@ -2621,15 +2670,18 @@ export const academyService = {
       await assertBatchAccess(user, current.batchId);
     }
 
+    const plannedDate = input.plannedDate ? new Date(input.plannedDate) : current.plannedDate;
+    const startTime = input.startTime !== undefined ? calendarDateTime(plannedDate, input.startTime) : current.startTime;
+    const endTime = input.endTime !== undefined ? calendarDateTime(plannedDate, input.endTime) : current.endTime;
     await prisma.$executeRaw`
       UPDATE "AcademicCalendarItem"
       SET
         "subject" = ${input.subject ?? current.subject},
         "topic" = ${input.topic ?? current.topic},
         "classType" = ${input.classType ?? current.classType ?? "Live Class"},
-        "plannedDate" = ${input.plannedDate ? new Date(input.plannedDate) : current.plannedDate},
-        "startTime" = ${input.startTime ?? current.startTime},
-        "endTime" = ${input.endTime ?? current.endTime},
+        "plannedDate" = ${plannedDate},
+        "startTime" = ${startTime},
+        "endTime" = ${endTime},
         "teacherId" = ${input.teacherId ?? current.teacherId},
         "teacherName" = ${input.teacherName ?? current.teacherName},
         "status" = ${input.status ?? current.status},
