@@ -3,7 +3,7 @@
 import type { Dispatch, SetStateAction } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { CalendarDays, CheckCircle2, ChevronLeft, ChevronRight, Clock, Download, MessageCircle, Plus, RotateCcw, Users } from "lucide-react";
+import { AlertTriangle, CalendarDays, CheckCircle2, ChevronLeft, ChevronRight, Clock, Download, LayoutGrid, ListChecks, MessageCircle, Plus, RotateCcw, Users } from "lucide-react";
 import {
   createAcademicCalendarItem,
   type AcademyBatch,
@@ -32,6 +32,7 @@ const breakRows: Record<string, string> = {
 };
 
 type DownloadRange = "day" | "week" | "month";
+type PlannerView = "daily" | "weekly";
 
 type Props = {
   audience: "director" | "academic-head";
@@ -123,6 +124,57 @@ function displayTime(time: string) {
   return `${String(displayHour).padStart(2, "0")}:${minute} ${suffix}`;
 }
 
+function minutesFromTime(time?: string | null) {
+  const match = String(time || "").match(/^(\d{1,2}):(\d{2})/);
+  if (!match) return null;
+  return Number(match[1]) * 60 + Number(match[2]);
+}
+
+function timeRangesOverlap(leftStart?: string | null, leftEnd?: string | null, rightStart?: string | null, rightEnd?: string | null) {
+  const aStart = minutesFromTime(leftStart);
+  const aEnd = minutesFromTime(leftEnd);
+  const bStart = minutesFromTime(rightStart);
+  const bEnd = minutesFromTime(rightEnd);
+  if (aStart === null || aEnd === null || bStart === null || bEnd === null) return false;
+  return aStart < bEnd && bStart < aEnd;
+}
+
+function classTypeLabel(value?: string | null) {
+  return String(value || "LECTURE").replaceAll("_", " ");
+}
+
+function weekDaysForDate(selectedDate: string) {
+  const base = new Date(`${selectedDate}T12:00:00`);
+  const start = new Date(base);
+  start.setDate(base.getDate() - ((base.getDay() + 6) % 7));
+  return Array.from({ length: 7 }, (_, index) => {
+    const date = new Date(start);
+    date.setDate(start.getDate() + index);
+    return date;
+  });
+}
+
+function slotWarnings(slot: PlannerSlot, index: number, slots: PlannerSlot[]) {
+  const warnings: string[] = [];
+  slots.forEach((other, otherIndex) => {
+    if (otherIndex === index) return;
+    if (!timeRangesOverlap(slot.startTime, slot.endTime, other.startTime, other.endTime)) return;
+    if (slot.teacherId && other.teacherId && slot.teacherId === other.teacherId) warnings.push("Teacher has another session at this time.");
+    if (slot.batchId && other.batchId && slot.batchId === other.batchId) warnings.push("Batch has another session at this time.");
+  });
+  return [...new Set(warnings)];
+}
+
+function missingSlotFields(slot: PlannerSlot) {
+  return [
+    ["batch", slot.batchId],
+    ["subject", slot.subject],
+    ["teacher", slot.teacherId],
+    ["start time", slot.startTime],
+    ["end time", slot.endTime],
+  ].filter(([, value]) => !value).map(([label]) => label);
+}
+
 function dateRangeForDownload(selectedDate: string, range: DownloadRange) {
   const base = new Date(`${selectedDate}T12:00:00`);
   if (range === "day") return { from: selectedDate, to: selectedDate, label: base.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) };
@@ -173,6 +225,7 @@ export function AcademicTimetablePlanner({ audience }: Props) {
   const [activeSlotIndex, setActiveSlotIndex] = useState(0);
   const [notice, setNotice] = useState("");
   const [downloadRange, setDownloadRange] = useState<DownloadRange>("day");
+  const [plannerView, setPlannerView] = useState<PlannerView>("daily");
 
   const batchesQuery = useQuery({ queryKey: ["academy", "batches"], queryFn: () => getAcademyBatches() });
   const teachersQuery = useQuery({ queryKey: ["academy", "teachers"], queryFn: () => getAcademyTeachers() });
@@ -201,6 +254,20 @@ export function AcademicTimetablePlanner({ audience }: Props) {
     () => [...(calendarByDate.get(selectedDate) ?? [])].sort((first, second) => String(first.startTime ?? "").localeCompare(String(second.startTime ?? ""))),
     [calendarByDate, selectedDate],
   );
+  const weekDays = useMemo(() => weekDaysForDate(selectedDate), [selectedDate]);
+  const weekItems = useMemo(() => filteredDownloadItems(calendar, selectedDate, "week", batchFilter), [batchFilter, calendar, selectedDate]);
+  const weekSlotTimes = useMemo(() => {
+    const values = new Set(defaultSlots.map((slot) => `${slot.startTime}-${slot.endTime}`));
+    weekItems.forEach((item) => {
+      if (item.startTime && item.endTime) values.add(`${item.startTime}-${item.endTime}`);
+    });
+    return [...values]
+      .map((value) => {
+        const [startTime, endTime] = value.split("-");
+        return { startTime, endTime };
+      })
+      .sort((first, second) => String(first.startTime).localeCompare(String(second.startTime)));
+  }, [weekItems]);
 
   const fallbackSubjects = useMemo(
     () => [
@@ -328,7 +395,11 @@ export function AcademicTimetablePlanner({ audience }: Props) {
       nextAction: "Class scheduled from timetable planner",
     };
     if (slot.calendarId) {
-      updateMutation.mutate({ id: slot.calendarId, payload });
+      updateMutation.mutate({ id: slot.calendarId, payload }, {
+        onSuccess: (item) => {
+          setSlots((current) => current.map((currentSlot, slotIndex) => (slotIndex === index ? slotFromCalendar(item) : currentSlot)));
+        },
+      });
     } else {
       createMutation.mutate(payload, {
         onSuccess: (item) => {
@@ -356,9 +427,20 @@ export function AcademicTimetablePlanner({ audience }: Props) {
     setMonthDate((current) => new Date(current.getFullYear(), current.getMonth() + offset, 1));
   };
 
+  const changeWeek = (offset: number) => {
+    const date = new Date(`${selectedDate}T12:00:00`);
+    date.setDate(date.getDate() + offset * 7);
+    selectDate(date);
+  };
+
   const selectDate = (date: Date) => {
     setSelectedDate(localDateKey(date));
     setMonthDate(new Date(date.getFullYear(), date.getMonth(), 1));
+  };
+
+  const openDailyDate = (date: Date) => {
+    selectDate(date);
+    setPlannerView("daily");
   };
 
   const downloadItems = useMemo(() => filteredDownloadItems(calendar, selectedDate, downloadRange, batchFilter), [batchFilter, calendar, downloadRange, selectedDate]);
@@ -393,6 +475,14 @@ export function AcademicTimetablePlanner({ audience }: Props) {
               <p className="mt-3 max-w-3xl text-sm leading-6 text-[var(--muted-blue)]">
                 Open a date, edit the day&apos;s class slots, choose batch, subject and teacher, then save. Teachers and students receive the timetable automatically.
               </p>
+              <div className="mt-5 inline-grid rounded-xl border border-[var(--border)] bg-[var(--page-bg)] p-1 sm:grid-cols-2">
+                <button type="button" onClick={() => setPlannerView("daily")} className={`inline-flex min-h-10 items-center justify-center gap-2 rounded-lg px-4 text-sm font-black ${plannerView === "daily" ? "bg-white text-[var(--navy)] shadow-sm" : "text-[var(--muted-blue)]"}`}>
+                  <ListChecks className="h-4 w-4" /> Daily editor
+                </button>
+                <button type="button" onClick={() => setPlannerView("weekly")} className={`inline-flex min-h-10 items-center justify-center gap-2 rounded-lg px-4 text-sm font-black ${plannerView === "weekly" ? "bg-white text-[var(--navy)] shadow-sm" : "text-[var(--muted-blue)]"}`}>
+                  <LayoutGrid className="h-4 w-4" /> Weekly board
+                </button>
+              </div>
             </div>
             <div className="grid grid-cols-2 gap-3 text-sm md:grid-cols-4">
               <Metric label="Month classes" value={summary.month} />
@@ -405,6 +495,7 @@ export function AcademicTimetablePlanner({ audience }: Props) {
 
         {notice ? <div className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-sm font-bold text-[var(--navy)] shadow-sm">{notice}</div> : null}
 
+        {plannerView === "daily" ? (
         <section className="grid gap-6 xl:grid-cols-[440px_minmax(0,1fr)] 2xl:grid-cols-[480px_minmax(0,1fr)]">
           <section className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
             <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
@@ -487,6 +578,21 @@ export function AcademicTimetablePlanner({ audience }: Props) {
             />
           </section>
         </section>
+        ) : (
+          <WeeklyTimetableBoard
+            batchFilter={batchFilter}
+            batches={batches}
+            changeWeek={changeWeek}
+            openDailyDate={openDailyDate}
+            selectDate={selectDate}
+            selectedDate={selectedDate}
+            setBatchFilter={setBatchFilter}
+            today={today}
+            weekDays={weekDays}
+            weekItems={weekItems}
+            weekSlotTimes={weekSlotTimes}
+          />
+        )}
 
         <section className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
           <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">What Gets Updated</p>
@@ -557,6 +663,111 @@ export function AcademicTimetablePlanner({ audience }: Props) {
   );
 }
 
+function WeeklyTimetableBoard({
+  batchFilter,
+  batches,
+  changeWeek,
+  openDailyDate,
+  selectDate,
+  selectedDate,
+  setBatchFilter,
+  today,
+  weekDays,
+  weekItems,
+  weekSlotTimes,
+}: {
+  batchFilter: string;
+  batches: AcademyBatch[];
+  changeWeek: (offset: number) => void;
+  openDailyDate: (date: Date) => void;
+  selectDate: (date: Date) => void;
+  selectedDate: string;
+  setBatchFilter: (value: string) => void;
+  today: Date;
+  weekDays: Date[];
+  weekItems: AcademicCalendarItem[];
+  weekSlotTimes: Array<{ startTime: string; endTime: string }>;
+}) {
+  const selectedKey = selectedDate;
+  const weekLabel = `${weekDays[0]?.toLocaleDateString("en-IN", { day: "numeric", month: "short" })} - ${weekDays[6]?.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}`;
+  const itemsFor = (date: Date, startTime: string, endTime: string) => {
+    const key = localDateKey(date);
+    return weekItems.filter((item) => itemDateKey(item) === key && timeRangesOverlap(item.startTime, item.endTime, startTime, endTime));
+  };
+
+  return (
+    <section className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        <div>
+          <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Weekly Board</p>
+          <h2 className="mt-1 text-3xl font-black">{weekLabel}</h2>
+          <p className="mt-2 text-sm leading-6 text-[var(--muted-blue)]">Review the full week. Click any class or empty slot to edit that day in the daily editor.</p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <select className="field min-w-[240px]" value={batchFilter} onChange={(event) => setBatchFilter(event.target.value)}>
+            <option value="">All batches</option>
+            {batches.map((batch) => <option key={batch.id} value={batch.id}>{batch.name}</option>)}
+          </select>
+          <button type="button" className="icon-button" onClick={() => changeWeek(-1)} aria-label="Previous week"><ChevronLeft className="h-4 w-4" /></button>
+          <button type="button" className="btn-light" onClick={() => selectDate(today)}>Today</button>
+          <button type="button" className="icon-button" onClick={() => changeWeek(1)} aria-label="Next week"><ChevronRight className="h-4 w-4" /></button>
+        </div>
+      </div>
+
+      <div className="mt-5 overflow-x-auto">
+        <div className="min-w-[1120px] rounded-2xl border border-[var(--border)]">
+          <div className="grid grid-cols-[130px_repeat(7,minmax(130px,1fr))] border-b border-[var(--border)] bg-[var(--page-bg)]">
+            <div className="p-3 text-xs font-black uppercase tracking-[0.18em] text-[var(--muted-blue)]">Time</div>
+            {weekDays.map((date) => {
+              const key = localDateKey(date);
+              const isSelected = key === selectedKey;
+              return (
+                <button key={key} type="button" onClick={() => openDailyDate(date)} className={`border-l border-[var(--border)] p-3 text-left transition hover:bg-white ${isSelected ? "bg-white" : ""}`}>
+                  <span className="block text-xs font-black uppercase tracking-[0.18em] text-[var(--gold)]">{date.toLocaleDateString("en-IN", { weekday: "short" })}</span>
+                  <span className="mt-1 block text-xl font-black">{date.getDate()}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {weekSlotTimes.map((slot) => (
+            <div key={`${slot.startTime}-${slot.endTime}`} className="grid min-h-28 grid-cols-[130px_repeat(7,minmax(130px,1fr))] border-b border-[var(--border)] last:border-b-0">
+              <div className="border-r border-[var(--border)] bg-white p-3">
+                <p className="font-black">{displayTime(slot.startTime)}</p>
+                <p className="mt-1 text-xs font-bold text-[var(--muted-blue)]">to {displayTime(slot.endTime)}</p>
+              </div>
+              {weekDays.map((date) => {
+                const key = `${localDateKey(date)}-${slot.startTime}`;
+                const items = itemsFor(date, slot.startTime, slot.endTime);
+                return (
+                  <div key={key} className="border-r border-[var(--border)] p-2 last:border-r-0">
+                    {items.length ? (
+                      <div className="grid gap-2">
+                        {items.map((item) => (
+                          <button key={item.id} type="button" onClick={() => openDailyDate(date)} className="w-full rounded-xl border border-sky-200 bg-sky-50 p-3 text-left transition hover:-translate-y-0.5 hover:shadow-sm">
+                            <span className="block truncate text-xs font-black uppercase tracking-[0.16em] text-sky-700">{item.batchName ?? "Batch"}</span>
+                            <span className="mt-1 block truncate text-sm font-black text-sky-950">{item.subject}</span>
+                            <span className="mt-1 block truncate text-xs font-bold text-sky-800">{item.teacherName ?? "Faculty"}</span>
+                            <span className="mt-2 inline-flex rounded-full bg-white px-2 py-1 text-[0.65rem] font-black text-sky-900">{classTypeLabel(item.classType)}</span>
+                          </button>
+                        ))}
+                      </div>
+                    ) : (
+                      <button type="button" onClick={() => openDailyDate(date)} className="grid min-h-24 w-full place-items-center rounded-xl border border-dashed border-[var(--border)] bg-white text-xs font-black text-[var(--muted-blue)] transition hover:border-[var(--gold)] hover:bg-[var(--gold-soft)]">
+                        <span className="inline-flex items-center gap-1"><Plus className="h-3.5 w-3.5" /> Add</span>
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function SessionEditor({
   activeSlotIndex,
   allSubjects,
@@ -601,6 +812,9 @@ function SessionEditor({
           const teacherOptions = getTeachersForSlot(slot);
           const isActive = index === activeSlotIndex;
           const breakLabel = breakRows[slot.endTime];
+          const warnings = slotWarnings(slot, index, slots);
+          const missingFields = missingSlotFields(slot);
+          const saved = Boolean(slot.calendarId);
           return (
             <div key={`${slot.calendarId ?? "new"}-${index}`} className="space-y-3">
               <div
@@ -619,6 +833,12 @@ function SessionEditor({
                       <p className="text-xs font-black uppercase tracking-[0.22em] text-[var(--gold)]">Session {index + 1}</p>
                       <p className="text-sm font-semibold text-[var(--muted-blue)]">Choose batch, subject and teacher for this slot.</p>
                     </div>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className={`inline-flex min-h-9 items-center rounded-full px-3 text-xs font-black ${saved ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-800"}`}>
+                      {saved ? "Saved" : missingFields.length ? `${missingFields.length} field(s) pending` : "Ready to save"}
+                    </span>
+                    {warnings.length ? <span className="inline-flex min-h-9 items-center gap-1 rounded-full bg-rose-50 px-3 text-xs font-black text-rose-700"><AlertTriangle className="h-3.5 w-3.5" /> Check clash</span> : null}
                   </div>
                   <div className="grid gap-2 sm:grid-cols-[120px_120px]">
                     <label className="grid gap-1">
@@ -678,10 +898,16 @@ function SessionEditor({
                   </label>
                 </div>
 
+                {warnings.length ? (
+                  <div className="mt-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-bold text-rose-800">
+                    {warnings.join(" ")}
+                  </div>
+                ) : null}
+
                 <div className="mt-4 flex flex-col gap-2 border-t border-[var(--border)] pt-4 sm:flex-row sm:justify-end">
                   <button className="btn-light min-h-11 px-5" type="button" onClick={() => removeSlot(index)} disabled={slots.length <= 1}>Remove</button>
                   <button className="btn-primary min-h-11 px-5" type="button" onClick={() => saveSlot(slot, index)} disabled={createPending || updatePending}>
-                    <CheckCircle2 className="h-4 w-4" /> Save session
+                    <CheckCircle2 className="h-4 w-4" /> {saved ? "Update session" : "Save session"}
                   </button>
                 </div>
               </div>

@@ -484,8 +484,8 @@ export async function assignTeacherToBatch(batchId: string, payload: { teacherId
 }
 
 export async function getAcademicCalendar(filters: { batchId?: string; status?: string } = {}) {
-  const response = await apiClient.get<{ items: AcademicCalendarItem[] }>("/academy/academic-calendar", { params: filters });
-  return response.data.items;
+  const response = await apiClient.get<{ items: AcademicCalendarItem[] } | AcademicCalendarItem[]>("/academy/academic-calendar", { params: filters });
+  return Array.isArray(response.data) ? response.data : response.data.items;
 }
 
 export async function getAcademyToday(filters: { date?: string } = {}) {
