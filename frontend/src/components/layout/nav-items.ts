@@ -55,13 +55,12 @@ const physicalTrainerMenu: DashboardNavItem[] = [
 ];
 
 const directorMenu: DashboardNavItem[] = [
-  { label: "Command Center", href: "/dashboard/director" },
-  { label: "Admissions", href: "/dashboard/director/admissions" },
+  { label: "Control Panel", href: "/dashboard/director" },
   { label: "Academics", href: "/dashboard/director/academic" },
-  { label: "Students", href: "/dashboard/director/academic/student-progress" },
-  { label: "Team", href: "/dashboard/director/management" },
-  { label: "Finance", href: "/dashboard/director/accounts" },
-  { label: "Teaching Mode", href: "/dashboard/director/teaching" },
+  { label: "HRM", href: "/dashboard/director/management" },
+  { label: "Marketing & Sales", href: "/dashboard/business-development" },
+  { label: "Admin & Accounts", href: "/dashboard/director/accounts" },
+  { label: "Reports", href: "/dashboard/director/reports" },
 ];
 
 const academicHeadMenu: DashboardNavItem[] = [
