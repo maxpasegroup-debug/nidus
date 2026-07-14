@@ -50,9 +50,7 @@ const videoEditorMenu: DashboardNavItem[] = [
 const physicalTrainerMenu: DashboardNavItem[] = [
   { label: "Today", href: "/fitness" },
   { label: "My Batches", href: "/fitness/pt-schedule" },
-  { label: "Attendance", href: "/fitness/pt-schedule" },
-  { label: "Fitness Records", href: "/fitness/eligibility" },
-  { label: "Student Fitness", href: "/fitness/eligibility" },
+  { label: "Attendance", href: "/fitness/eligibility" },
   { label: "Reports", href: "/fitness/logs" },
 ];
 

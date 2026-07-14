@@ -1,23 +1,15 @@
 "use client";
 
-import { type FormEvent, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  Activity,
-  CalendarDays,
-  CheckCircle2,
-  ClipboardCheck,
-  Dumbbell,
-  Gauge,
-  HeartPulse,
-  UserRound,
-} from "lucide-react";
+import { CalendarDays, CheckCircle2, ClipboardCheck, Dumbbell, Users } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { apiClient } from "@/services/api";
-import type { DailyFitnessLog, FitnessProfile, PhysicalEligibility, PTAttendance, PTSchedule } from "@/types/fitness";
+import { apiClient, getApiErrorMessage } from "@/services/api";
+import type { PTAttendance, PTSchedule } from "@/types/fitness";
 import { useAuth } from "@/components/providers/auth-provider-v2";
 
 type FitnessView = "dashboard" | "pt" | "eligibility" | "logs";
+type SimpleView = "today" | "batches" | "attendance" | "reports";
 
 type AssignedStudent = {
   id?: string;
@@ -40,38 +32,33 @@ type AssignedBatch = {
   students?: AssignedStudent[];
 };
 
-type FitnessProfilePayload = {
-  userId?: string;
-  height: number;
-  weight: number;
-  runningTime: number;
-  pushups: number;
-  pullups: number;
-  situps: number;
-};
-
-type FitnessLogPayload = {
-  userId?: string;
-  runningDistance: number;
-  caloriesBurned: number;
-  waterIntake: number;
-  workoutDuration: number;
-  notes?: string;
-};
-
-const tabs: Array<{ key: FitnessView; label: string }> = [
-  { key: "dashboard", label: "Today" },
-  { key: "pt", label: "My Batches" },
-  { key: "eligibility", label: "Fitness Records" },
-  { key: "logs", label: "Reports" },
+const tabs: Array<{ key: SimpleView; label: string }> = [
+  { key: "today", label: "Today" },
+  { key: "batches", label: "My Batches" },
+  { key: "attendance", label: "Attendance" },
+  { key: "reports", label: "Reports" },
 ];
+
+const emptyBatches: AssignedBatch[] = [];
+const emptyStudents: AssignedStudent[] = [];
+
+function viewFromRoute(view: FitnessView): SimpleView {
+  if (view === "pt") return "batches";
+  if (view === "eligibility") return "attendance";
+  if (view === "logs") return "reports";
+  return "today";
+}
 
 function todayKey() {
   return new Date().toISOString().slice(0, 10);
 }
 
-function field(form: HTMLFormElement, name: string) {
-  return String(new FormData(form).get(name) ?? "");
+function studentId(entry: AssignedStudent, index: number) {
+  return entry.student?.id ?? entry.studentId ?? entry.id ?? String(index);
+}
+
+function studentName(entry: AssignedStudent, index: number) {
+  return entry.student?.name ?? `Student ${index + 1}`;
 }
 
 async function getAssignedBatches() {
@@ -96,55 +83,32 @@ async function getPTAttendance(studentId: string) {
   return (await apiClient.get<{ attendance: PTAttendance[] }>(`/fitness/attendance/${studentId}`)).data.attendance;
 }
 
-async function upsertFitnessProfile(payload: FitnessProfilePayload) {
-  return (await apiClient.post<{ profile: FitnessProfile; suggestions: string }>("/fitness/profile", payload)).data;
-}
-
-async function createFitnessLog(payload: FitnessLogPayload) {
-  return (await apiClient.post<{ log: DailyFitnessLog }>("/fitness/log", payload)).data.log;
-}
-
-async function getFitnessLogs() {
-  return (await apiClient.get<{ logs: DailyFitnessLog[] }>("/fitness/logs")).data.logs;
-}
-
-async function getEligibility() {
-  return (await apiClient.get<{ eligibility: PhysicalEligibility[] }>("/fitness/eligibility")).data.eligibility;
-}
-
-async function checkEligibility(payload: { userId?: string; examType: string }) {
-  return (await apiClient.post<{ eligibility: PhysicalEligibility }>("/fitness/eligibility/check", payload)).data.eligibility;
-}
-
 export function FitnessConsole({ view }: { view: FitnessView }) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const [activeView, setActiveView] = useState<FitnessView>(view);
+  const [activeView, setActiveView] = useState<SimpleView>(viewFromRoute(view));
   const [selectedBatchId, setSelectedBatchId] = useState("");
   const [selectedStudentId, setSelectedStudentId] = useState("");
-  const [attendanceRemarks, setAttendanceRemarks] = useState("");
+  const [remarks, setRemarks] = useState("");
   const [message, setMessage] = useState<string | null>(null);
 
   const batchesQuery = useQuery({ queryKey: ["pt", "assigned-batches"], queryFn: getAssignedBatches });
   const schedulesQuery = useQuery({ queryKey: ["pt", "schedules"], queryFn: getPTSchedules });
-  const logsQuery = useQuery({ queryKey: ["pt", "logs"], queryFn: getFitnessLogs });
-  const eligibilityQuery = useQuery({ queryKey: ["pt", "eligibility"], queryFn: getEligibility });
 
-  const batches = batchesQuery.data ?? [];
+  const batches = batchesQuery.data ?? emptyBatches;
   const schedules = schedulesQuery.data ?? [];
-  const logs = logsQuery.data ?? [];
-  const eligibility = eligibilityQuery.data ?? [];
+  const today = todayKey();
+  const todaySessions = schedules.filter((schedule) => schedule.scheduledDate.slice(0, 10) === today);
+  const activeSchedule = todaySessions[0] ?? schedules.find((schedule) => schedule.scheduledDate.slice(0, 10) >= today) ?? null;
   const selectedBatch = useMemo(() => batches.find((batch) => batch.id === selectedBatchId) ?? batches[0], [batches, selectedBatchId]);
-  const students = selectedBatch?.students ?? [];
+  const students = selectedBatch?.students ?? emptyStudents;
   const selectedStudent = useMemo(
     () => students.find((entry, index) => studentId(entry, index) === selectedStudentId) ?? students[0],
     [students, selectedStudentId],
   );
-  const activeStudentId = selectedStudent ? studentId(selectedStudent, 0) : "";
-  const activeStudentName = selectedStudent?.student?.name ?? "Select a student";
-  const today = todayKey();
-  const todaySessions = schedules.filter((schedule) => schedule.scheduledDate.slice(0, 10) === today);
-  const upcomingSessions = schedules.filter((schedule) => schedule.scheduledDate.slice(0, 10) >= today).slice(0, 5);
+  const selectedStudentIndex = selectedStudent ? students.indexOf(selectedStudent) : -1;
+  const activeStudentId = selectedStudent ? studentId(selectedStudent, Math.max(selectedStudentIndex, 0)) : "";
+  const totalStudents = batches.reduce((sum, batch) => sum + (batch.students?.length ?? 0), 0);
 
   const attendanceQuery = useQuery({
     queryKey: ["pt", "attendance", activeStudentId],
@@ -152,94 +116,104 @@ export function FitnessConsole({ view }: { view: FitnessView }) {
     enabled: Boolean(activeStudentId),
   });
   const attendance = attendanceQuery.data ?? [];
+  const selectedPresent = attendance.filter((item) => item.attendanceStatus === "PRESENT").length;
+  const selectedAttendancePercent = attendance.length ? Math.round((selectedPresent / attendance.length) * 100) : 0;
 
-  const createScheduleMutation = useMutation({
-    mutationFn: createPTSchedule,
+  const createTodaySession = useMutation({
+    mutationFn: () => createPTSchedule({
+      title: "PT Attendance",
+      description: "Daily PT attendance register",
+      scheduledDate: new Date().toISOString(),
+      trainerName: user?.name ?? "Physical Trainer",
+      activityType: "PT",
+      duration: 60,
+    }),
     onSuccess: async () => {
-      setMessage("PT session created.");
+      setMessage("Today PT register created.");
       await queryClient.invalidateQueries({ queryKey: ["pt", "schedules"] });
     },
-    onError: (error) => setMessage(error instanceof Error ? error.message : "Could not create PT session."),
+    onError: (error) => setMessage(getApiErrorMessage(error)),
   });
 
   const attendanceMutation = useMutation({
     mutationFn: markPTAttendance,
     onSuccess: async () => {
-      setMessage("PT attendance saved.");
-      await queryClient.invalidateQueries({ queryKey: ["pt", "attendance", activeStudentId] });
+      setMessage("Attendance saved.");
+      await queryClient.invalidateQueries({ queryKey: ["pt", "attendance"] });
     },
-    onError: (error) => setMessage(error instanceof Error ? error.message : "Could not save PT attendance."),
+    onError: (error) => setMessage(getApiErrorMessage(error)),
   });
 
-  const profileMutation = useMutation({
-    mutationFn: upsertFitnessProfile,
-    onSuccess: async () => {
-      setMessage("Fitness score saved.");
-      await queryClient.invalidateQueries({ queryKey: ["pt", "logs"] });
-    },
-    onError: (error) => setMessage(error instanceof Error ? error.message : "Could not save fitness score."),
-  });
+  const markStudent = (entry: AssignedStudent, index: number, attendanceStatus: string) => {
+    if (!activeSchedule) {
+      setMessage("Create today's PT register before marking attendance.");
+      return;
+    }
+    attendanceMutation.mutate({
+      studentId: studentId(entry, index),
+      ptScheduleId: activeSchedule.id,
+      attendanceStatus,
+      remarks,
+    });
+  };
 
-  const logMutation = useMutation({
-    mutationFn: createFitnessLog,
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["pt", "logs"] });
-    },
-  });
-
-  const eligibilityMutation = useMutation({
-    mutationFn: checkEligibility,
-    onSuccess: async () => {
-      setMessage("Eligibility checked.");
-      await queryClient.invalidateQueries({ queryKey: ["pt", "eligibility"] });
-    },
-    onError: (error) => setMessage(error instanceof Error ? error.message : "Could not check eligibility."),
-  });
-
-  const totalStudents = batches.reduce((sum, batch) => sum + (batch.students?.length ?? 0), 0);
-  const latestLog = logs[0];
-  const readyCount = eligibility.filter((item) => item.eligibilityStatus === "ELIGIBLE").length;
-  const attendancePresent = attendance.filter((item) => item.attendanceStatus === "PRESENT").length;
-  const attendancePercent = attendance.length ? Math.round((attendancePresent / attendance.length) * 100) : 0;
+  const markAllPresent = async () => {
+    if (!activeSchedule) {
+      setMessage("Create today's PT register before marking attendance.");
+      return;
+    }
+    if (!students.length) {
+      setMessage("No students found in this batch.");
+      return;
+    }
+    setMessage("Saving attendance...");
+    try {
+      await Promise.all(students.map((entry, index) => markPTAttendance({
+        studentId: studentId(entry, index),
+        ptScheduleId: activeSchedule.id,
+        attendanceStatus: "PRESENT",
+        remarks,
+      })));
+      setMessage("All students marked present.");
+      await queryClient.invalidateQueries({ queryKey: ["pt", "attendance"] });
+    } catch (error) {
+      setMessage(getApiErrorMessage(error));
+    }
+  };
 
   return (
     <main className="min-h-screen bg-[var(--page-bg)] px-4 py-5 text-[var(--navy)] md:px-6">
-      <section className="mx-auto max-w-7xl space-y-6">
-        <section className="rounded-3xl border border-[var(--border)] bg-white/95 p-5 shadow-sm md:p-8">
-          <div className="grid gap-5 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
+      <section className="mx-auto max-w-7xl space-y-5">
+        <section className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm md:p-7">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Physical Training</p>
-              <h1 className="mt-3 text-4xl font-black tracking-tight md:text-6xl">PT ground register</h1>
-              <p className="mt-4 max-w-3xl text-sm leading-7 text-[var(--muted-blue)]">
-                Open today&apos;s PT duty, mark attendance, enter running and fitness scores, and track students who need physical improvement.
-              </p>
+              <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold)]">Physical Training</p>
+              <h1 className="mt-2 text-3xl font-black md:text-5xl">PT attendance desk</h1>
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--muted-blue)]">Open your assigned batch, mark attendance, and save simple remarks.</p>
             </div>
-            <div className="rounded-2xl border border-[var(--gold-border)] bg-[var(--gold-soft)] p-5">
-              <p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold)]">Trainer</p>
-              <h2 className="mt-2 text-2xl font-black">{user?.name ?? "Physical Instructor"}</h2>
-              <p className="mt-2 text-sm text-[var(--muted-blue)]">Assigned batches and students only.</p>
+            <div className="rounded-2xl border border-[var(--gold-border)] bg-[var(--gold-soft)] p-4">
+              <p className="text-xs font-black uppercase tracking-[0.2em] text-[var(--gold)]">Trainer</p>
+              <h2 className="mt-1 text-xl font-black">{user?.name ?? "Physical Trainer"}</h2>
+              <p className="mt-1 text-sm text-[var(--muted-blue)]">Assigned batches only</p>
             </div>
           </div>
         </section>
 
-        <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
-          <Metric icon={CalendarDays} label="Today PT" value={todaySessions.length} note="sessions" />
+        <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <Metric icon={Dumbbell} label="Batches" value={batches.length} note="assigned" />
-          <Metric icon={UserRound} label="Students" value={totalStudents} note="active" />
-          <Metric icon={CheckCircle2} label="Ready" value={readyCount} note="eligible" />
-          <Metric icon={Gauge} label="Attendance" value={attendancePercent} note="selected %" />
+          <Metric icon={Users} label="Students" value={totalStudents} note="in assigned batches" />
+          <Metric icon={CalendarDays} label="Today PT" value={todaySessions.length} note="registers" />
+          <Metric icon={ClipboardCheck} label="Selected" value={selectedAttendancePercent} note="attendance %" />
         </section>
 
-        <section className="rounded-3xl border border-[var(--border)] bg-white/95 p-3 shadow-sm">
+        <section className="rounded-2xl border border-[var(--border)] bg-white p-3 shadow-sm">
           <div className="grid gap-2 sm:grid-cols-4">
             {tabs.map((tab) => (
               <button
                 key={tab.key}
                 type="button"
                 onClick={() => setActiveView(tab.key)}
-                className={`min-h-12 rounded-2xl border px-4 text-sm font-black ${
-                  activeView === tab.key ? "border-slate-950 bg-slate-950 text-white" : "border-[var(--border)] bg-white text-[var(--navy)]"
-                }`}
+                className={`min-h-12 rounded-xl border px-4 text-sm font-black ${activeView === tab.key ? "border-slate-950 bg-slate-950 text-white" : "border-[var(--border)] bg-white"}`}
               >
                 {tab.label}
               </button>
@@ -249,146 +223,92 @@ export function FitnessConsole({ view }: { view: FitnessView }) {
 
         {message ? <Message text={message} /> : null}
 
-        {activeView === "dashboard" ? (
-          <section className="grid gap-5 lg:grid-cols-[1.1fr_0.9fr]">
-            <Panel title="Today's PT Duty" eyebrow="Start here">
-              <div className="grid gap-3">
-                {todaySessions.map((session) => <SessionCard key={session.id} session={session} />)}
-                {!todaySessions.length ? <SoftNote text="No PT session is scheduled for today. Create one from My Batches or ask the Academic Head to schedule PT." /> : null}
-              </div>
-            </Panel>
-            <Panel title="Next PT Programs" eyebrow="Upcoming">
-              <div className="grid gap-3">
-                {upcomingSessions.map((session) => <SessionCard key={session.id} session={session} compact />)}
-                {!upcomingSessions.length ? <SoftNote text="Upcoming PT sessions will appear here." /> : null}
-              </div>
-            </Panel>
-          </section>
-        ) : null}
-
-        {activeView === "pt" ? (
-          <section className="space-y-6">
-            <Panel title="My Batches" eyebrow="Assigned groups">
-              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                {batches.map((batch) => (
-                  <button
-                    key={batch.id}
-                    type="button"
-                    onClick={() => {
-                      setSelectedBatchId(batch.id);
-                      setSelectedStudentId("");
-                    }}
-                    className={`min-h-36 rounded-2xl border p-5 text-left transition ${
-                      selectedBatch?.id === batch.id ? "border-slate-950 bg-slate-950 text-white" : "border-[var(--border)] bg-white hover:-translate-y-1"
-                    }`}
-                  >
-                    <p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold)]">{batch.batchType ?? "Batch"}</p>
-                    <h3 className="mt-3 text-xl font-black">{batch.name ?? batch.batchName}</h3>
-                    <p className={`mt-3 text-sm ${selectedBatch?.id === batch.id ? "text-white/70" : "text-[var(--muted-blue)]"}`}>
-                      {batch.students?.length ?? 0} students
-                    </p>
-                  </button>
-                ))}
-                {!batches.length ? <SoftNote text="No active batches are assigned to this physical instructor." /> : null}
-              </div>
-            </Panel>
-
-            <section className="grid gap-5 lg:grid-cols-[0.85fr_1.15fr]">
-              <Panel title="Student Fitness Register" eyebrow={selectedBatch?.name ?? selectedBatch?.batchName ?? "Batch"}>
+        {activeView === "today" ? (
+          <section className="grid gap-5 lg:grid-cols-[0.9fr_1.1fr]">
+            <Panel title="Today Register" eyebrow="Start here">
+              {activeSchedule ? <SessionCard session={activeSchedule} /> : (
                 <div className="grid gap-3">
-                  {students.map((entry, index) => {
-                    const id = studentId(entry, index);
-                    const name = entry.student?.name ?? `Student ${index + 1}`;
-                    return (
-                      <button
-                        key={id}
-                        type="button"
-                        onClick={() => setSelectedStudentId(id)}
-                        className={`rounded-2xl border px-4 py-3 text-left ${
-                          activeStudentId === id ? "border-emerald-600 bg-emerald-50" : "border-[var(--border)] bg-white"
-                        }`}
-                      >
-                        <p className="font-black">{name}</p>
-                        <p className="mt-1 text-xs text-[var(--muted-blue)]">{entry.student?.mobile ?? entry.student?.email ?? "Student profile"}</p>
-                      </button>
-                    );
-                  })}
-                  {!students.length ? <SoftNote text="No students are assigned in this batch." /> : null}
+                  <SoftNote text="No PT register is available for today." />
+                  <button type="button" onClick={() => createTodaySession.mutate()} disabled={createTodaySession.isPending} className="min-h-12 rounded-xl bg-slate-950 px-4 text-sm font-black text-white disabled:opacity-50">Create Today Register</button>
                 </div>
-              </Panel>
-
-              <Panel title={activeStudentName} eyebrow="Attendance and score">
-                <div className="grid gap-4">
-                  <div className="rounded-2xl border border-[var(--border)] bg-white p-4">
-                    <h3 className="text-xl font-black">Mark PT Attendance</h3>
-                    <p className="mt-2 text-sm text-[var(--muted-blue)]">Tap the correct status and save remarks.</p>
-                    <textarea value={attendanceRemarks} onChange={(event) => setAttendanceRemarks(event.target.value)} rows={2} placeholder="Remarks, injury note, late arrival..." className="mt-4 w-full rounded-xl border border-[var(--border)] px-3 py-3 text-sm" />
-                    <div className="mt-3 grid gap-2 sm:grid-cols-4">
-                      {["PRESENT", "ABSENT", "LEAVE", "HALF_DAY"].map((status) => (
-                        <button
-                          key={status}
-                          type="button"
-                          disabled={!activeStudentId || !upcomingSessions[0]}
-                          onClick={() => attendanceMutation.mutate({ studentId: activeStudentId, ptScheduleId: upcomingSessions[0].id, attendanceStatus: status, remarks: attendanceRemarks })}
-                          className="min-h-11 rounded-xl border border-[var(--border)] bg-white px-3 text-sm font-black disabled:opacity-40"
-                        >
-                          {status.replace("_", " ")}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <FitnessScoreForm
-                    disabled={!activeStudentId}
-                    onSubmit={(payload) => {
-                      profileMutation.mutate({ ...payload.profile, userId: activeStudentId });
-                      logMutation.mutate({ ...payload.log, userId: activeStudentId });
-                    }}
-                    onEligibility={() => activeStudentId && eligibilityMutation.mutate({ userId: activeStudentId, examType: "NDA" })}
-                  />
-                </div>
-              </Panel>
-            </section>
+              )}
+            </Panel>
+            <Panel title="Quick Attendance" eyebrow={selectedBatch?.name ?? "Assigned batch"}>
+              <AttendanceDesk
+                activeSchedule={activeSchedule}
+                attendancePending={attendanceMutation.isPending}
+                batches={batches}
+                markAllPresent={markAllPresent}
+                markStudent={markStudent}
+                remarks={remarks}
+                selectedBatch={selectedBatch}
+                selectedBatchId={selectedBatch?.id ?? ""}
+                setRemarks={setRemarks}
+                setSelectedBatchId={setSelectedBatchId}
+                setSelectedStudentId={setSelectedStudentId}
+                students={students}
+              />
+            </Panel>
           </section>
         ) : null}
 
-        {activeView === "eligibility" ? (
-          <section className="grid gap-5 lg:grid-cols-[0.95fr_1.05fr]">
-            <Panel title="Selected Student History" eyebrow={activeStudentName}>
+        {activeView === "batches" ? (
+          <Panel title="My Batches" eyebrow="Allocated by Academic Head">
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+              {batches.map((batch) => (
+                <button
+                  key={batch.id}
+                  type="button"
+                  onClick={() => {
+                    setSelectedBatchId(batch.id);
+                    setSelectedStudentId("");
+                    setActiveView("attendance");
+                  }}
+                  className={`min-h-32 rounded-2xl border p-5 text-left transition hover:-translate-y-0.5 ${selectedBatch?.id === batch.id ? "border-slate-950 bg-slate-950 text-white" : "border-[var(--border)] bg-white"}`}
+                >
+                  <p className="text-xs font-black uppercase tracking-[0.18em] text-[var(--gold)]">{batch.batchType ?? "PT Batch"}</p>
+                  <h3 className="mt-3 text-xl font-black">{batch.name ?? batch.batchName}</h3>
+                  <p className={`mt-2 text-sm ${selectedBatch?.id === batch.id ? "text-white/70" : "text-[var(--muted-blue)]"}`}>{batch.students?.length ?? 0} students</p>
+                </button>
+              ))}
+              {!batches.length ? <SoftNote text="No batch is allocated to this physical trainer." /> : null}
+            </div>
+          </Panel>
+        ) : null}
+
+        {activeView === "attendance" ? (
+          <Panel title="Take Attendance" eyebrow={selectedBatch?.name ?? "Select batch"}>
+            <AttendanceDesk
+              activeSchedule={activeSchedule}
+              attendancePending={attendanceMutation.isPending}
+              batches={batches}
+              markAllPresent={markAllPresent}
+              markStudent={markStudent}
+              remarks={remarks}
+              selectedBatch={selectedBatch}
+              selectedBatchId={selectedBatch?.id ?? ""}
+              setRemarks={setRemarks}
+              setSelectedBatchId={setSelectedBatchId}
+              setSelectedStudentId={setSelectedStudentId}
+              students={students}
+            />
+          </Panel>
+        ) : null}
+
+        {activeView === "reports" ? (
+          <section className="grid gap-5 lg:grid-cols-[0.8fr_1.2fr]">
+            <Panel title="Simple Report" eyebrow="Selected student">
+              <div className="grid gap-3 sm:grid-cols-2">
+                <ReportCard title="Attendance" value={`${selectedAttendancePercent}%`} note="Selected student" icon={CheckCircle2} />
+                <ReportCard title="Records" value={String(attendance.length)} note="PT attendance entries" icon={ClipboardCheck} />
+              </div>
+            </Panel>
+            <Panel title="Recent Attendance" eyebrow={selectedStudent ? selectedStudent.student?.name ?? "Student" : "Select student"}>
               <div className="grid gap-3">
-                {attendance.slice(0, 6).map((item) => (
+                {attendance.slice(0, 8).map((item) => (
                   <HistoryRow key={item.id} title={item.ptSchedule?.title ?? "PT Session"} note={new Date(item.markedAt).toLocaleString()} badge={item.attendanceStatus} />
                 ))}
-                {!attendance.length ? <SoftNote text="No PT attendance history for the selected student yet." /> : null}
-              </div>
-            </Panel>
-            <Panel title="Eligibility Records" eyebrow="Defence standards">
-              <div className="grid gap-3">
-                {eligibility.map((item) => (
-                  <HistoryRow key={item.id} title={`${item.examType} - ${item.eligibilityStatus}`} note={item.overallRemark} badge={item.eligibilityStatus} />
-                ))}
-                {!eligibility.length ? <SoftNote text="Eligibility checks will appear after fitness scores are entered." /> : null}
-              </div>
-            </Panel>
-          </section>
-        ) : null}
-
-        {activeView === "logs" ? (
-          <section className="grid gap-5 lg:grid-cols-[0.9fr_1.1fr]">
-            <Panel title="PT Reports" eyebrow="Quick signals">
-              <div className="grid gap-3 sm:grid-cols-2">
-                <ReportCard title="Students Under Watch" value={String(Math.max(totalStudents - readyCount, 0))} note="Need score or improvement" icon={HeartPulse} />
-                <ReportCard title="Fitness Logs" value={String(logs.length)} note="Records captured" icon={Activity} />
-                <ReportCard title="Latest Run" value={latestLog ? `${latestLog.runningDistance} km` : "--"} note={latestLog?.notes ?? "No latest log"} icon={Dumbbell} />
-                <ReportCard title="Eligibility Done" value={String(eligibility.length)} note="Checks completed" icon={ClipboardCheck} />
-              </div>
-            </Panel>
-            <Panel title="Recent Fitness Logs" eyebrow="Activity">
-              <div className="grid gap-3">
-                {logs.slice(0, 8).map((log) => (
-                  <HistoryRow key={log.id} title={`${log.runningDistance} km / ${log.workoutDuration} min`} note={log.notes ?? `Calories ${log.caloriesBurned}, Water ${log.waterIntake}L`} badge={new Date(log.createdAt).toLocaleDateString()} />
-                ))}
-                {!logs.length ? <SoftNote text="Fitness logs will appear after you save scores." /> : null}
+                {!attendance.length ? <SoftNote text="Select a student from Attendance to view recent PT records." /> : null}
               </div>
             </Panel>
           </section>
@@ -398,13 +318,100 @@ export function FitnessConsole({ view }: { view: FitnessView }) {
   );
 }
 
-function studentId(entry: AssignedStudent, index: number) {
-  return entry.student?.id ?? entry.studentId ?? entry.id ?? String(index);
+function AttendanceDesk({
+  activeSchedule,
+  attendancePending,
+  batches,
+  markAllPresent,
+  markStudent,
+  remarks,
+  selectedBatch,
+  selectedBatchId,
+  setRemarks,
+  setSelectedBatchId,
+  setSelectedStudentId,
+  students,
+}: {
+  activeSchedule: PTSchedule | null;
+  attendancePending: boolean;
+  batches: AssignedBatch[];
+  markAllPresent: () => void;
+  markStudent: (entry: AssignedStudent, index: number, attendanceStatus: string) => void;
+  remarks: string;
+  selectedBatch?: AssignedBatch;
+  selectedBatchId: string;
+  setRemarks: (value: string) => void;
+  setSelectedBatchId: (value: string) => void;
+  setSelectedStudentId: (value: string) => void;
+  students: AssignedStudent[];
+}) {
+  return (
+    <div className="grid gap-4">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div>
+          <h3 className="text-xl font-black">{selectedBatch?.name ?? selectedBatch?.batchName ?? "No batch selected"}</h3>
+          <p className="mt-1 text-sm text-[var(--muted-blue)]">{activeSchedule ? `Register: ${activeSchedule.title}` : "Create today's register before marking attendance."}</p>
+        </div>
+        <button type="button" onClick={markAllPresent} disabled={!activeSchedule || !students.length || attendancePending} className="min-h-11 rounded-xl bg-emerald-700 px-4 text-sm font-black text-white disabled:opacity-50">Mark All Present</button>
+      </div>
+
+      <label className="grid gap-2 text-sm font-black">
+        Batch
+        <select
+          value={selectedBatchId}
+          onChange={(event) => {
+            setSelectedBatchId(event.target.value);
+            setSelectedStudentId("");
+          }}
+          className="min-h-12 rounded-xl border border-[var(--border)] bg-white px-3 text-sm font-normal"
+        >
+          {batches.map((batch) => (
+            <option key={batch.id} value={batch.id}>{batch.name ?? batch.batchName ?? "PT Batch"}</option>
+          ))}
+        </select>
+      </label>
+
+      <label className="grid gap-2 text-sm font-black">
+        Common remarks
+        <input value={remarks} onChange={(event) => setRemarks(event.target.value)} className="min-h-12 rounded-xl border border-[var(--border)] px-3 text-sm font-normal" placeholder="Late, injury, ground drill, running practice..." />
+      </label>
+
+      <div className="overflow-hidden rounded-2xl border border-[var(--border)]">
+        <div className="hidden grid-cols-[1fr_120px_120px_120px] bg-[var(--page-bg)] px-4 py-3 text-xs font-black uppercase tracking-[0.16em] text-[var(--muted-blue)] md:grid">
+          <span>Student</span>
+          <span>Present</span>
+          <span>Absent</span>
+          <span>Leave</span>
+        </div>
+        {students.map((entry, index) => (
+          <div key={studentId(entry, index)} className="grid gap-3 border-t border-[var(--border)] p-4 first:border-t-0 md:grid-cols-[1fr_120px_120px_120px] md:items-center">
+            <button type="button" onClick={() => setSelectedStudentId(studentId(entry, index))} className="text-left">
+              <strong>{studentName(entry, index)}</strong>
+              <span className="mt-1 block text-xs text-[var(--muted-blue)]">{entry.student?.mobile ?? entry.student?.email ?? "Student"}</span>
+            </button>
+            <AttendanceButton label="Present" disabled={!activeSchedule || attendancePending} onClick={() => markStudent(entry, index, "PRESENT")} />
+            <AttendanceButton label="Absent" disabled={!activeSchedule || attendancePending} onClick={() => markStudent(entry, index, "ABSENT")} />
+            <AttendanceButton label="Leave" disabled={!activeSchedule || attendancePending} onClick={() => markStudent(entry, index, "LEAVE")} />
+          </div>
+        ))}
+        {!students.length ? <SoftNote text="No students are available in this batch." /> : null}
+      </div>
+
+    </div>
+  );
+}
+
+function AttendanceButton({ label, disabled, onClick }: { label: string; disabled: boolean; onClick: () => void }) {
+  return (
+    <button type="button" disabled={disabled} onClick={onClick} className="min-h-11 rounded-xl border border-[var(--border)] bg-white px-3 text-sm font-black disabled:opacity-40">
+      {label}
+    </button>
+  );
 }
 
 function Metric({ icon: Icon, label, value, note }: { icon: LucideIcon; label: string; value: number; note: string }) {
   return (
-    <div className="rounded-2xl border border-[var(--border)] bg-white/95 p-4 shadow-sm">
+    <div className="rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm">
       <Icon className="h-5 w-5 text-[var(--gold)]" />
       <p className="mt-4 text-3xl font-black">{value}</p>
       <p className="mt-1 text-sm font-black">{label}</p>
@@ -415,99 +422,22 @@ function Metric({ icon: Icon, label, value, note }: { icon: LucideIcon; label: s
 
 function Panel({ title, eyebrow, children }: { title: string; eyebrow: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-3xl border border-[var(--border)] bg-white/95 p-5 shadow-sm md:p-7">
-      <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">{eyebrow}</p>
-      <h2 className="mt-2 text-3xl font-black">{title}</h2>
+    <section className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm md:p-6">
+      <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold)]">{eyebrow}</p>
+      <h2 className="mt-2 text-2xl font-black">{title}</h2>
       <div className="mt-5">{children}</div>
     </section>
   );
 }
 
-function SessionCard({ session, compact = false }: { session: PTSchedule; compact?: boolean }) {
+function SessionCard({ session }: { session: PTSchedule }) {
   return (
     <article className="rounded-2xl border border-[var(--border)] bg-white p-4">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold)]">{new Date(session.scheduledDate).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</p>
-          <h3 className="mt-1 text-xl font-black">{session.title}</h3>
-          <p className="mt-1 text-sm text-[var(--muted-blue)]">{session.activityType} / {session.duration} min / {session.trainerName}</p>
-          {!compact ? <p className="mt-2 text-sm leading-6 text-[var(--muted-blue)]">{session.description}</p> : null}
-        </div>
-        <span className="rounded-full border border-[var(--border)] bg-[var(--page-bg)] px-3 py-1 text-xs font-black">PT</span>
-      </div>
+      <p className="text-xs font-black uppercase tracking-[0.2em] text-[var(--gold)]">{new Date(session.scheduledDate).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</p>
+      <h3 className="mt-2 text-xl font-black">{session.title}</h3>
+      <p className="mt-1 text-sm text-[var(--muted-blue)]">{session.activityType} / {session.duration} min / {session.trainerName}</p>
+      <p className="mt-2 text-sm leading-6 text-[var(--muted-blue)]">{session.description}</p>
     </article>
-  );
-}
-
-function FitnessScoreForm({
-  disabled,
-  onSubmit,
-  onEligibility,
-}: {
-  disabled: boolean;
-  onSubmit: (payload: { profile: FitnessProfilePayload; log: FitnessLogPayload }) => void;
-  onEligibility: () => void;
-}) {
-  return (
-    <form
-      onSubmit={(event: FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        const form = event.currentTarget;
-        onSubmit({
-          profile: {
-            height: Number(field(form, "height")),
-            weight: Number(field(form, "weight")),
-            runningTime: Number(field(form, "runningTime")),
-            pushups: Number(field(form, "pushups")),
-            pullups: Number(field(form, "pullups")),
-            situps: Number(field(form, "situps")),
-          },
-          log: {
-            runningDistance: Number(field(form, "runningDistance") || 1.6),
-            caloriesBurned: Number(field(form, "caloriesBurned") || 0),
-            waterIntake: Number(field(form, "waterIntake") || 0),
-            workoutDuration: Number(field(form, "workoutDuration") || 0),
-            notes: field(form, "remarks"),
-          },
-        });
-      }}
-      className="rounded-2xl border border-[var(--border)] bg-white p-4"
-    >
-      <h3 className="text-xl font-black">Enter Fitness Score</h3>
-      <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-        <Input name="height" label="Height CM" type="number" />
-        <Input name="weight" label="Weight KG" type="number" />
-        <Input name="runningTime" label="1.6 KM Time" type="number" step="0.1" />
-        <Input name="pushups" label="Pushups" type="number" />
-        <Input name="pullups" label="Pullups" type="number" />
-        <Input name="situps" label="Situps" type="number" />
-        <Input name="runningDistance" label="Run KM" type="number" step="0.1" defaultValue="1.6" />
-        <Input name="workoutDuration" label="Workout Min" type="number" />
-        <Input name="caloriesBurned" label="Calories" type="number" defaultValue="0" />
-        <Input name="waterIntake" label="Water L" type="number" step="0.1" defaultValue="0" />
-        <label className="grid gap-2 text-sm font-black sm:col-span-2">
-          Remarks
-          <input name="remarks" className="min-h-12 rounded-xl border border-[var(--border)] px-3 text-sm font-normal" placeholder="Improved, injury, weak stamina..." />
-        </label>
-      </div>
-      <div className="mt-4 flex flex-wrap gap-2">
-        <button disabled={disabled} className="min-h-11 rounded-xl bg-[var(--gold-gradient)] px-4 text-sm font-black disabled:opacity-40">
-          Save Score
-        </button>
-        <button type="button" disabled={disabled} onClick={onEligibility} className="min-h-11 rounded-xl border border-[var(--border)] bg-white px-4 text-sm font-black disabled:opacity-40">
-          Check NDA Eligibility
-        </button>
-      </div>
-    </form>
-  );
-}
-
-function Input({ label, ...props }: React.InputHTMLAttributes<HTMLInputElement> & { label: string }) {
-  return (
-    <label className="grid gap-2 text-sm font-black">
-      {label}
-      <input {...props} required className="min-h-12 rounded-xl border border-[var(--border)] px-3 text-sm font-normal" />
-    </label>
   );
 }
 

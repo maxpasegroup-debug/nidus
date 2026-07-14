@@ -2697,42 +2697,46 @@ export const academyService = {
     `;
     const saved = sanitizeCalendarRow(updated[0]);
 
-    await prisma.$executeRaw`
-      INSERT INTO "TeacherCalendarLogRecord"
-      ("id", "calendarId", "batchId", "batchName", "subject", "topic", "classType", "teacherId", "teacherName", "completionStatus", "teacherLog", "nextAction", "status", "createdAt", "updatedAt")
-      VALUES
-      (${randomUUID()}, ${id}, ${updated[0].batchId}, ${updated[0].batchName}, ${updated[0].subject}, ${updated[0].topic}, ${updated[0].classType || "Live Class"}, ${user.id}, ${user.name || user.email || null}, ${updated[0].completionStatus}, ${updated[0].teacherLog}, ${updated[0].nextAction}, ${updated[0].status}, ${new Date()}, ${new Date()})
-    `;
-    if (updated[0].batchId && updated[0].subject && updated[0].topic) {
-      const progressRows = await prisma.$queryRaw<any[]>`
-        SELECT "id" FROM "TeacherSyllabusProgressRecord"
-        WHERE "batchId" = ${updated[0].batchId}
-        AND "subject" = ${updated[0].subject}
-        AND "topic" = ${updated[0].topic}
-        AND (("teacherId" = ${user.id}) OR ("teacherId" IS NULL AND ${user.id} IS NULL))
-        LIMIT 1
-      `;
-      const progressId = progressRows[0]?.id || randomUUID();
-      if (progressRows[0]?.id) {
-        await prisma.$executeRaw`
-          UPDATE "TeacherSyllabusProgressRecord"
-          SET "batchName" = ${updated[0].batchName},
-              "teacherId" = ${user.id},
-              "teacherName" = ${user.name || user.email || null},
-              "completionStatus" = ${updated[0].completionStatus},
-              "progressColor" = ${progressColor(updated[0].completionStatus)},
-              "remarks" = ${updated[0].teacherLog},
-              "updatedAt" = ${new Date()}
-          WHERE "id" = ${progressId}
-        `;
-      } else {
+    try {
       await prisma.$executeRaw`
-        INSERT INTO "TeacherSyllabusProgressRecord"
-        ("id", "batchId", "batchName", "subject", "topic", "teacherId", "teacherName", "completionStatus", "progressColor", "remarks", "createdAt", "updatedAt")
+        INSERT INTO "TeacherCalendarLogRecord"
+        ("id", "calendarId", "batchId", "batchName", "subject", "topic", "classType", "teacherId", "teacherName", "completionStatus", "teacherLog", "nextAction", "status", "createdAt", "updatedAt")
         VALUES
-        (${progressId}, ${updated[0].batchId}, ${updated[0].batchName}, ${updated[0].subject}, ${updated[0].topic}, ${user.id}, ${user.name || user.email || null}, ${updated[0].completionStatus}, ${progressColor(updated[0].completionStatus)}, ${updated[0].teacherLog}, ${new Date()}, ${new Date()})
+        (${randomUUID()}, ${id}, ${updated[0].batchId}, ${updated[0].batchName}, ${updated[0].subject}, ${updated[0].topic}, ${updated[0].classType || "Live Class"}, ${user.id}, ${user.name || user.email || null}, ${updated[0].completionStatus}, ${updated[0].teacherLog}, ${updated[0].nextAction}, ${updated[0].status}, ${new Date()}, ${new Date()})
       `;
+      if (updated[0].batchId && updated[0].subject && updated[0].topic) {
+        const progressRows = await prisma.$queryRaw<any[]>`
+          SELECT "id" FROM "TeacherSyllabusProgressRecord"
+          WHERE "batchId" = ${updated[0].batchId}
+          AND "subject" = ${updated[0].subject}
+          AND "topic" = ${updated[0].topic}
+          AND "teacherId" = ${user.id}
+          LIMIT 1
+        `;
+        const progressId = progressRows[0]?.id || randomUUID();
+        if (progressRows[0]?.id) {
+          await prisma.$executeRaw`
+            UPDATE "TeacherSyllabusProgressRecord"
+            SET "batchName" = ${updated[0].batchName},
+                "teacherId" = ${user.id},
+                "teacherName" = ${user.name || user.email || null},
+                "completionStatus" = ${updated[0].completionStatus},
+                "progressColor" = ${progressColor(updated[0].completionStatus)},
+                "remarks" = ${updated[0].teacherLog},
+                "updatedAt" = ${new Date()}
+            WHERE "id" = ${progressId}
+          `;
+        } else {
+        await prisma.$executeRaw`
+          INSERT INTO "TeacherSyllabusProgressRecord"
+          ("id", "batchId", "batchName", "subject", "topic", "teacherId", "teacherName", "completionStatus", "progressColor", "remarks", "createdAt", "updatedAt")
+          VALUES
+          (${progressId}, ${updated[0].batchId}, ${updated[0].batchName}, ${updated[0].subject}, ${updated[0].topic}, ${user.id}, ${user.name || user.email || null}, ${updated[0].completionStatus}, ${progressColor(updated[0].completionStatus)}, ${updated[0].teacherLog}, ${new Date()}, ${new Date()})
+        `;
+        }
       }
+    } catch (error) {
+      console.warn("Calendar update saved, but progress log sync failed", error);
     }
     await auditAcademicAction(user, "CALENDAR_LOG_UPDATED", "AcademicCalendarItem", id, saved);
     return saved;
