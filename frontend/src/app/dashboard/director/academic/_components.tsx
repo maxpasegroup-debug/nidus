@@ -3,8 +3,8 @@ import { Plus, ShieldCheck } from "lucide-react";
 
 export function AcademicShell({ children }: { children: ReactNode }) {
   return (
-    <main className="min-h-screen bg-[var(--page-bg)] px-5 py-6 text-[var(--navy)] md:px-8">
-      <section className="mx-auto max-w-7xl space-y-6">{children}</section>
+    <main className="min-h-screen bg-[var(--page-bg)] px-4 py-4 text-[var(--navy)] md:px-6 lg:h-[calc(100vh-var(--nav-height)-2rem)] lg:min-h-0 lg:overflow-hidden">
+      <section className="mx-auto flex h-full max-w-[1500px] flex-col gap-4 overflow-y-auto pr-0 lg:pr-2">{children}</section>
     </main>
   );
 }
@@ -21,12 +21,12 @@ export function AcademicHero({
   action?: ReactNode;
 }) {
   return (
-    <section className="rounded-3xl border border-[var(--border)] bg-white/95 p-6 shadow-xl md:p-8">
+    <section className="shrink-0 rounded-2xl border border-[var(--border)] bg-white/95 p-4 shadow-sm md:p-5">
       <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
         <div>
-          <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">{eyebrow}</p>
-          <h1 className="mt-3 text-3xl font-black tracking-tight md:text-5xl">{title}</h1>
-          <p className="mt-4 max-w-3xl text-sm leading-7 text-[var(--muted-blue)] md:text-base">{description}</p>
+          <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold)]">{eyebrow}</p>
+          <h1 className="mt-2 text-2xl font-black tracking-tight md:text-3xl">{title}</h1>
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--muted-blue)]">{description}</p>
         </div>
         {action}
       </div>
@@ -36,19 +36,19 @@ export function AcademicHero({
 
 export function Panel({ id, title, eyebrow, children }: { id?: string; title: string; eyebrow: string; children: ReactNode }) {
   return (
-    <section id={id} className="rounded-3xl border border-[var(--border)] bg-white/95 p-5 shadow-sm">
-      <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">{eyebrow}</p>
-      <h2 className="mt-2 text-2xl font-black text-[var(--navy)]">{title}</h2>
-      <div className="mt-5">{children}</div>
+    <section id={id} className="min-h-0 rounded-2xl border border-[var(--border)] bg-white/95 p-4 shadow-sm">
+      <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[var(--gold)]">{eyebrow}</p>
+      <h2 className="mt-1 text-xl font-black text-[var(--navy)]">{title}</h2>
+      <div className="mt-4">{children}</div>
     </section>
   );
 }
 
 export function StatCard({ label, value }: { label: string; value: string | number }) {
   return (
-    <div className="rounded-2xl border border-[var(--border)] bg-white/90 p-5 shadow-sm">
-      <p className="text-sm text-[var(--muted-blue)]">{label}</p>
-      <p className="mt-2 text-3xl font-black text-[var(--gold)]">{value}</p>
+    <div className="rounded-2xl border border-[var(--border)] bg-white/90 px-4 py-3 shadow-sm">
+      <p className="text-xs font-black uppercase tracking-[0.16em] text-[var(--muted-blue)]">{label}</p>
+      <p className="mt-1 text-2xl font-black text-[var(--gold)]">{value}</p>
     </div>
   );
 }

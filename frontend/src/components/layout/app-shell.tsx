@@ -7,6 +7,7 @@ import { getNavItems } from "@/components/layout/nav-items";
 import { PublicFooter } from "@/components/marketing/public-footer";
 import { PublicNavbar } from "@/components/marketing/public-navbar";
 import { useAuth } from "@/components/providers/auth-provider-v2";
+import { QuickActionDock } from "@/components/dashboard/quick-action-dock";
 import { Sidebar } from "@/components/layout/sidebar";
 import { TopNavbar } from "@/components/layout/top-navbar";
 
@@ -38,7 +39,8 @@ export function AppShell({ children }: { children: ReactNode }) {
   const isFocusedClassroom = Boolean(pathname?.match(/^\/dashboard\/(?:teacher|academic-head)\/my-classes(?:\/|$)/));
   const isFocusedAdmissionDesk = Boolean(pathname?.startsWith("/dashboard/admission-cell"));
   const isFocusedTimetable = Boolean(pathname?.match(/^\/dashboard\/(?:academic-head\/hod|director\/academic)\/timetable(?:\/|$)/));
-  const isFocusedWorkspace = isFocusedClassroom || isFocusedAdmissionDesk || isFocusedTimetable;
+  const isFocusedDirectorWorkspace = Boolean(pathname?.startsWith("/dashboard/director"));
+  const isFocusedWorkspace = isFocusedClassroom || isFocusedAdmissionDesk || isFocusedTimetable || isFocusedDirectorWorkspace;
   const hasSidebar = !isFocusedWorkspace && !isLoading && !!user && getNavItems(user.role, dashboardTemplate).length > 0;
 
   if (isPublicRoute) {
@@ -63,6 +65,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       >
         <div className={`mx-auto w-full ${isFocusedWorkspace ? "max-w-none" : "max-w-7xl"}`}>{children}</div>
       </main>
+      {isFocusedDirectorWorkspace ? <QuickActionDock role="DIRECTOR" /> : null}
       {!isFocusedWorkspace ? <BottomNav /> : null}
     </div>
   );

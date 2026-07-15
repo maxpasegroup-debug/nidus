@@ -15,7 +15,7 @@ export default function DirectorStudentProgressPage() {
   return (
     <AcademicShell>
       <AcademicHero eyebrow="Student Progress" title="Batch health and student risk monitor." description="Batch cards use real attendance, assignment, exam and material records. Library usage is shown only when usage data exists." />
-      <section className="grid gap-4 md:grid-cols-4">
+      <section className="grid shrink-0 gap-3 md:grid-cols-4">
         <StatCard label="Batches" value={batches.length} />
         <StatCard label="Healthy" value={batches.filter((batch) => batch.overallStatus === "Healthy").length} />
         <StatCard label="Attention Needed" value={batches.filter((batch) => batch.overallStatus === "Attention Needed").length} />
@@ -23,9 +23,9 @@ export default function DirectorStudentProgressPage() {
       </section>
       <Panel title="Batch Health Cards" eyebrow="Real database calculations">
         {!batches.length ? <EmptyState text="No active batches are available yet. Student progress cards will appear after admissions and academic records exist." /> : null}
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid max-h-[58vh] gap-3 overflow-y-auto pr-1 md:grid-cols-2 xl:grid-cols-3">
           {batches.map((batch) => (
-            <article key={batch.batchId} className="rounded-2xl border border-[var(--border)] bg-white p-5">
+            <article key={batch.batchId} className="rounded-2xl border border-[var(--border)] bg-white p-4">
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold)]">{batch.programSlug ?? "Program"}</p>
@@ -34,7 +34,7 @@ export default function DirectorStudentProgressPage() {
                 </div>
                 <span className="rounded-full border border-[var(--border)] px-3 py-1 text-xs font-black">{batch.overallStatus}</span>
               </div>
-              <div className="mt-5 grid gap-2 text-sm">
+              <div className="mt-4 grid gap-2 text-sm">
                 <p><b>Batch Health Score:</b> {metric(batch.batchHealthScore)}</p>
                 <p><b>Attendance:</b> {metric(batch.attendancePercentage)}</p>
                 <p><b>Assignments:</b> {metric(batch.assignmentCompletionPercentage)}</p>

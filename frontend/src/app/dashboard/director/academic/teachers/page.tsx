@@ -11,6 +11,7 @@ const employmentTypes = ["FULL_TIME", "PART_TIME", "HOURLY", "CONTRACT"];
 export default function DirectorTeachersPage() {
   const queryClient = useQueryClient();
   const [notice, setNotice] = useState("");
+  const [mode, setMode] = useState<"list" | "create" | "allocate">("list");
   const [lastCredentials, setLastCredentials] = useState<{ email: string; temporaryPassword: string } | null>(null);
   const [teacherForm, setTeacherForm] = useState({
     name: "",
@@ -65,6 +66,7 @@ export default function DirectorTeachersPage() {
       setLastCredentials(data.credentials);
       refresh();
       setNotice("Teacher created and dashboard access allocated.");
+      setMode("list");
     },
     onError: (error) => setNotice(error instanceof Error ? error.message : "Could not create teacher."),
   });
@@ -80,6 +82,7 @@ export default function DirectorTeachersPage() {
       setAllocation({ programSlug: "", batchId: "", teacherId: "", subject: "", role: "Subject Teacher" });
       refresh();
       setNotice("Teacher allocated to selected subjects.");
+      setMode("list");
     },
     onError: (error) => setNotice(error instanceof Error ? error.message : "Could not allocate teacher."),
   });
@@ -96,15 +99,28 @@ export default function DirectorTeachersPage() {
 
   return (
     <AcademicShell>
-      <AcademicHero eyebrow="Teachers" title="Add teachers and allocate subjects." description="Create full-time, part-time, hourly or contract teachers, then assign subjects to selected program batches." />
+      <AcademicHero
+        eyebrow="Teachers"
+        title="Faculty Control"
+        description="Keep the teacher list visible. Add teachers or allocate subjects only when that action is needed."
+        action={
+          <div className="flex flex-wrap gap-2">
+            <button className={`rounded-xl px-4 py-3 text-sm font-black ${mode === "list" ? "bg-[var(--navy)] text-white" : "border border-[var(--border)] bg-white"}`} onClick={() => setMode("list")} type="button">Teacher List</button>
+            <button className={`rounded-xl px-4 py-3 text-sm font-black ${mode === "create" ? "bg-[var(--navy)] text-white" : "border border-[var(--border)] bg-white"}`} onClick={() => setMode("create")} type="button">Add Teacher</button>
+            <button className={`rounded-xl px-4 py-3 text-sm font-black ${mode === "allocate" ? "bg-[var(--navy)] text-white" : "border border-[var(--border)] bg-white"}`} onClick={() => setMode("allocate")} type="button">Allocate Subject</button>
+          </div>
+        }
+      />
       {notice ? <div className="rounded-2xl border border-[var(--gold-border)] bg-[var(--gold-soft)] p-4 text-sm font-bold">{notice}</div> : null}
       {lastCredentials ? <div className="rounded-2xl border border-[var(--border)] bg-white p-4 text-sm font-bold">Login created: {lastCredentials.email} / Password: {lastCredentials.temporaryPassword}</div> : null}
-      <section className="grid gap-4 md:grid-cols-3">
+      <section className="grid shrink-0 gap-3 md:grid-cols-3">
         <StatCard label="Teachers" value={teachers.length} />
         <StatCard label="Batches" value={batches.length} />
         <StatCard label="Default Password" value="123456789" />
       </section>
-      <section className="grid gap-6 xl:grid-cols-2">
+      {mode !== "list" ? (
+      <section className="grid gap-4 xl:grid-cols-2">
+        {mode === "create" ? (
         <Panel title="Create Teacher" eyebrow="Employee account">
           <form onSubmit={submitTeacher} className="grid gap-4 md:grid-cols-2">
             <Input label="Teacher name" value={teacherForm.name} onChange={(value) => setTeacherForm((state) => ({ ...state, name: value }))} required />
@@ -120,6 +136,8 @@ export default function DirectorTeachersPage() {
             <div className="md:col-span-2"><GoldButton disabled={createTeacher.isPending}>Create Teacher</GoldButton></div>
           </form>
         </Panel>
+        ) : null}
+        {mode === "allocate" ? (
         <Panel title="Allocate Teacher" eyebrow="Program batch subject">
           <form onSubmit={submitAllocation} className="grid gap-4">
             <Select label="Program" value={allocation.programSlug} onChange={(value) => setAllocation((state) => ({ ...state, programSlug: value, batchId: "" }))} required>
@@ -139,12 +157,14 @@ export default function DirectorTeachersPage() {
             <GoldButton disabled={assignTeacher.isPending}>Assign Teacher</GoldButton>
           </form>
         </Panel>
+        ) : null}
       </section>
+      ) : null}
       <Panel title="Teacher List" eyebrow="Employees">
         {!teachers.length ? <EmptyState text="No teachers available yet." /> : null}
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid max-h-[54vh] gap-3 overflow-y-auto pr-1 md:grid-cols-2 xl:grid-cols-3">
           {teachers.map((teacher) => (
-            <article key={teacher.id} className="rounded-2xl border border-[var(--border)] bg-white p-5">
+            <article key={teacher.id} className="rounded-2xl border border-[var(--border)] bg-white p-4">
               <h3 className="text-xl font-black">{teacher.name}</h3>
               <p className="mt-1 text-sm text-[var(--muted-blue)]">{teacher.email}</p>
               <p className="mt-3 text-sm font-bold">{String(teacher.roleMetadata?.designation ?? "Teacher")}</p>

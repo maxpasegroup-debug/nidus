@@ -465,17 +465,17 @@ export function AcademicTimetablePlanner({ audience }: Props) {
   };
 
   return (
-    <main className="min-h-screen bg-[var(--page-bg)] px-0 py-3 text-[var(--navy)] md:py-5">
-      <section className="mx-auto w-full max-w-[1680px] space-y-6">
-        <section className="rounded-2xl border border-[var(--border)] bg-white p-6 shadow-sm">
-          <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+    <main className="min-h-screen bg-[var(--page-bg)] px-0 py-3 text-[var(--navy)] lg:h-[calc(100vh-var(--nav-height)-2rem)] lg:min-h-0 lg:overflow-hidden">
+      <section className="mx-auto flex h-full w-full max-w-[1680px] flex-col gap-4">
+        <section className="shrink-0 rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">{audience === "director" ? "Director Planner" : "Academic Head Planner"}</p>
-              <h1 className="mt-2 text-3xl font-black md:text-5xl">Plan timetable by day.</h1>
-              <p className="mt-3 max-w-3xl text-sm leading-6 text-[var(--muted-blue)]">
+              <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold)]">{audience === "director" ? "Director Planner" : "Academic Head Planner"}</p>
+              <h1 className="mt-1 text-2xl font-black md:text-3xl">Timetable Planner</h1>
+              <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--muted-blue)]">
                 Open a date, edit the day&apos;s class slots, choose batch, subject and teacher, then save. Teachers and students receive the timetable automatically.
               </p>
-              <div className="mt-5 inline-grid rounded-xl border border-[var(--border)] bg-[var(--page-bg)] p-1 sm:grid-cols-2">
+              <div className="mt-3 inline-grid rounded-xl border border-[var(--border)] bg-[var(--page-bg)] p-1 sm:grid-cols-2">
                 <button type="button" onClick={() => setPlannerView("daily")} className={`inline-flex min-h-10 items-center justify-center gap-2 rounded-lg px-4 text-sm font-black ${plannerView === "daily" ? "bg-white text-[var(--navy)] shadow-sm" : "text-[var(--muted-blue)]"}`}>
                   <ListChecks className="h-4 w-4" /> Daily editor
                 </button>
@@ -484,7 +484,7 @@ export function AcademicTimetablePlanner({ audience }: Props) {
                 </button>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-3 text-sm md:grid-cols-4">
+            <div className="grid grid-cols-2 gap-2 text-sm md:grid-cols-4">
               <Metric label="Month classes" value={summary.month} />
               <Metric label="Selected day" value={summary.selected} />
               <Metric label="Teachers" value={summary.teachers} />
@@ -496,8 +496,8 @@ export function AcademicTimetablePlanner({ audience }: Props) {
         {notice ? <div className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-sm font-bold text-[var(--navy)] shadow-sm">{notice}</div> : null}
 
         {plannerView === "daily" ? (
-        <section className="grid gap-6 xl:grid-cols-[440px_minmax(0,1fr)] 2xl:grid-cols-[480px_minmax(0,1fr)]">
-          <section className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
+        <section className="grid min-h-0 flex-1 gap-4 xl:grid-cols-[400px_minmax(0,1fr)] 2xl:grid-cols-[440px_minmax(0,1fr)]">
+          <section className="min-h-0 overflow-y-auto rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm">
             <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
               <div>
                 <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Calendar</p>
@@ -514,12 +514,12 @@ export function AcademicTimetablePlanner({ audience }: Props) {
               </div>
             </div>
 
-            <div className="mt-5 grid grid-cols-7 gap-2 text-center text-xs font-black uppercase tracking-[0.18em] text-[var(--muted-blue)]">
+            <div className="mt-4 grid grid-cols-7 gap-2 text-center text-xs font-black uppercase tracking-[0.18em] text-[var(--muted-blue)]">
               {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => <div key={day}>{day}</div>)}
             </div>
-            <div className="mt-2 grid grid-cols-7 gap-2.5">
+            <div className="mt-2 grid grid-cols-7 gap-2">
               {monthCells.map((date, index) => {
-                if (!date) return <div key={`empty-${index}`} className="min-h-24 rounded-xl border border-transparent" />;
+                if (!date) return <div key={`empty-${index}`} className="min-h-16 rounded-xl border border-transparent" />;
                 const key = localDateKey(date);
                 const items = calendarByDate.get(key) ?? [];
                 const isSelected = key === selectedDate;
@@ -529,10 +529,10 @@ export function AcademicTimetablePlanner({ audience }: Props) {
                     key={key}
                     type="button"
                     onClick={() => selectDate(date)}
-                    className={`min-h-24 rounded-xl border p-3 text-left transition hover:-translate-y-0.5 hover:shadow-sm ${isSelected ? "border-[var(--navy)] bg-[var(--navy)] text-white" : "border-[var(--border)] bg-white"} ${isToday && !isSelected ? "ring-2 ring-[var(--gold)]" : ""}`}
+                    className={`min-h-16 rounded-xl border p-2 text-left transition hover:-translate-y-0.5 hover:shadow-sm ${isSelected ? "border-[var(--navy)] bg-[var(--navy)] text-white" : "border-[var(--border)] bg-white"} ${isToday && !isSelected ? "ring-2 ring-[var(--gold)]" : ""}`}
                   >
                     <span className="text-sm font-black">{date.getDate()}</span>
-                    <span className={`mt-4 block text-xs font-black ${isSelected ? "text-white" : "text-[var(--muted-blue)]"}`}>
+                    <span className={`mt-2 block text-[11px] font-black ${isSelected ? "text-white" : "text-[var(--muted-blue)]"}`}>
                       {items.length ? `${items.length} class${items.length === 1 ? "" : "es"}` : "Plan day"}
                     </span>
                     {items[0] ? <span className="mt-1 block truncate text-xs">{items[0].subject}</span> : null}
@@ -542,7 +542,7 @@ export function AcademicTimetablePlanner({ audience }: Props) {
             </div>
           </section>
 
-          <section className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
+          <section className="min-h-0 overflow-y-auto rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm">
             <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
               <div>
                 <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Daily Timetable</p>
@@ -594,7 +594,7 @@ export function AcademicTimetablePlanner({ audience }: Props) {
           />
         )}
 
-        <section className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
+        <section className="hidden shrink-0 rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm xl:block">
           <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">What Gets Updated</p>
           <div className="mt-4 grid gap-3 md:grid-cols-3">
             <Info title="Teacher timetable" body="Saved sessions appear in the assigned teacher's Today, My Classes and calendar views." />

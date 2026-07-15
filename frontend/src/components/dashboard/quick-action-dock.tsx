@@ -11,11 +11,11 @@ type QuickAction = {
 };
 
 const directorActions: QuickAction[] = [
-  { label: "Admissions", href: "/dashboard/director/admissions", icon: ClipboardCheck },
+  { label: "Admin", href: "/dashboard/director/admin-accounts", icon: ClipboardCheck },
   { label: "Notifications", href: "/dashboard/director/notifications", icon: Bell },
   { label: "Academics", href: "/dashboard/director/academic", icon: GraduationCap },
-  { label: "HRM", href: "/dashboard/director/management", icon: Users },
-  { label: "Accounts", href: "/dashboard/director/accounts", icon: WalletCards },
+  { label: "HRM", href: "/dashboard/director/hrm", icon: Users },
+  { label: "Accounts", href: "/dashboard/director/admin-accounts", icon: WalletCards },
 ];
 
 const academicHeadActions: QuickAction[] = [

@@ -11,7 +11,7 @@ export default function DirectorCalendarMonitorPage() {
   return (
     <AcademicShell>
       <AcademicHero eyebrow="Academic Calendar Monitor" title="Track class execution and syllabus completion." description="Director view of planned, completed, delayed and missed classes grouped by batch, teacher and subject." />
-      <section className="grid gap-4 md:grid-cols-4">
+      <section className="grid shrink-0 gap-3 md:grid-cols-4">
         <StatCard label="Tracked Lines" value={items.length} />
         <StatCard label="Completed Classes" value={items.reduce((sum, item) => sum + item.completedClasses, 0)} />
         <StatCard label="Delayed Classes" value={items.reduce((sum, item) => sum + item.delayedClasses, 0)} />
@@ -19,9 +19,9 @@ export default function DirectorCalendarMonitorPage() {
       </section>
       <Panel title="Calendar Execution" eyebrow="Real timetable records">
         {!items.length ? <EmptyState text="No timetable records are available yet. Calendar monitor will appear after class plans are created." /> : null}
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid max-h-[58vh] gap-3 overflow-y-auto pr-1 md:grid-cols-2 xl:grid-cols-3">
           {items.map((item) => (
-            <article key={`${item.batchId}-${item.teacherId}-${item.subject}`} className="rounded-2xl border border-[var(--border)] bg-white p-5">
+            <article key={`${item.batchId}-${item.teacherId}-${item.subject}`} className="rounded-2xl border border-[var(--border)] bg-white p-4">
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold)]">{item.subject}</p>

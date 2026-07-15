@@ -27,7 +27,7 @@ export default function DirectorSyllabusPage() {
   return (
     <AcademicShell>
       <AcademicHero eyebrow="Syllabus Tracker" title="Track academic progress." description="Dedicated green, orange and red syllabus view for batches, topics and teacher execution." />
-      <section className="grid gap-4 md:grid-cols-4">
+      <section className="grid shrink-0 gap-3 md:grid-cols-4">
         <StatCard label="Completion" value={`${summary?.completionPercentage ?? 0}%`} />
         <StatCard label="Green" value={summary?.green ?? 0} />
         <StatCard label="Orange" value={summary?.orange ?? 0} />
@@ -35,9 +35,9 @@ export default function DirectorSyllabusPage() {
       </section>
       <Panel title="Batch Health" eyebrow="Progress by batch">
         {!syllabusQuery.data?.batches.length ? <EmptyState text="No syllabus progress is available yet." /> : null}
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid max-h-52 gap-3 overflow-y-auto pr-1 md:grid-cols-2 xl:grid-cols-3">
           {(syllabusQuery.data?.batches ?? []).map((batch) => (
-            <article key={batch.batchId ?? batch.batchName ?? "batch"} className="rounded-2xl border border-[var(--border)] bg-white p-5">
+            <article key={batch.batchId ?? batch.batchName ?? "batch"} className="rounded-2xl border border-[var(--border)] bg-white p-4">
               <h3 className="text-xl font-black">{batch.batchName ?? "Batch"}</h3>
               <p className="mt-2 text-sm text-[var(--muted-blue)]">Green {batch.green} / Orange {batch.orange} / Red {batch.red}</p>
               <p className="mt-4 text-3xl font-black text-[var(--gold)]">{batch.completionPercentage}%</p>
@@ -47,11 +47,11 @@ export default function DirectorSyllabusPage() {
       </Panel>
       <Panel title="Topic Status" eyebrow="Calendar-linked tracker">
         {!calendar.length ? <EmptyState text="No academic calendar items yet. Plan classes from Timetable first." /> : null}
-        <div className="grid gap-4">
+        <div className="grid max-h-[46vh] gap-3 overflow-y-auto pr-1">
           {calendar.map((item) => {
             const active = completionOptions.find((option) => option.value === item.completionStatus) ?? completionOptions[1];
             return (
-              <article key={item.id} className="rounded-2xl border border-[var(--border)] bg-white p-5">
+              <article key={item.id} className="rounded-2xl border border-[var(--border)] bg-white p-4">
                 <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                   <div>
                     <p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold)]">{item.batchName} / {item.subject}</p>

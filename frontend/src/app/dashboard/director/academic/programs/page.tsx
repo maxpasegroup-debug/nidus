@@ -186,35 +186,35 @@ export default function DirectorProgramsPage() {
         }
       />
 
-      <section className="grid gap-4 md:grid-cols-2">
+      <section className="grid shrink-0 gap-3 md:grid-cols-2">
         <button
-          className={`rounded-3xl border p-6 text-left shadow-sm transition hover:-translate-y-1 hover:shadow-xl ${
-            selectedMode === "OFFLINE" ? "border-[var(--gold-border)] bg-white shadow-xl" : "border-[var(--border)] bg-white/85"
+          className={`rounded-2xl border p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${
+            selectedMode === "OFFLINE" ? "border-[var(--gold-border)] bg-white shadow-md" : "border-[var(--border)] bg-white/85"
           }`}
           onClick={() => setSelectedMode("OFFLINE")}
           type="button"
         >
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-[var(--gold-border)] bg-[var(--gold-soft)]">
-            <MapPin className="h-7 w-7" />
+          <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-[var(--gold-border)] bg-[var(--gold-soft)]">
+            <MapPin className="h-5 w-5" />
           </div>
-          <h2 className="mt-5 text-3xl font-black">Offline</h2>
-          <p className="mt-2 text-sm leading-7 text-[var(--muted-blue)]">Classroom, crash course, physical training and centre-based programs.</p>
-          <span className="mt-4 inline-flex rounded-full border border-[var(--border)] px-4 py-2 text-sm font-black">{offlineCount} program(s)</span>
+          <h2 className="mt-3 text-xl font-black">Offline</h2>
+          <p className="mt-1 text-sm leading-6 text-[var(--muted-blue)]">Classroom, crash course, physical training and centre-based programs.</p>
+          <span className="mt-3 inline-flex rounded-full border border-[var(--border)] px-3 py-1 text-xs font-black">{offlineCount} program(s)</span>
         </button>
 
         <button
-          className={`rounded-3xl border p-6 text-left shadow-sm transition hover:-translate-y-1 hover:shadow-xl ${
-            selectedMode === "ONLINE" ? "border-[var(--gold-border)] bg-white shadow-xl" : "border-[var(--border)] bg-white/85"
+          className={`rounded-2xl border p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${
+            selectedMode === "ONLINE" ? "border-[var(--gold-border)] bg-white shadow-md" : "border-[var(--border)] bg-white/85"
           }`}
           onClick={() => setSelectedMode("ONLINE")}
           type="button"
         >
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-[var(--gold-border)] bg-[var(--gold-soft)]">
-            <Laptop className="h-7 w-7" />
+          <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-[var(--gold-border)] bg-[var(--gold-soft)]">
+            <Laptop className="h-5 w-5" />
           </div>
-          <h2 className="mt-5 text-3xl font-black">Online</h2>
-          <p className="mt-2 text-sm leading-7 text-[var(--muted-blue)]">Live online, recorded support, exam coaching and digital learning programs.</p>
-          <span className="mt-4 inline-flex rounded-full border border-[var(--border)] px-4 py-2 text-sm font-black">{onlineCount} program(s)</span>
+          <h2 className="mt-3 text-xl font-black">Online</h2>
+          <p className="mt-1 text-sm leading-6 text-[var(--muted-blue)]">Live online, recorded support, exam coaching and digital learning programs.</p>
+          <span className="mt-3 inline-flex rounded-full border border-[var(--border)] px-3 py-1 text-xs font-black">{onlineCount} program(s)</span>
         </button>
       </section>
 
@@ -259,19 +259,19 @@ export default function DirectorProgramsPage() {
             }
           />
         ) : null}
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid max-h-[52vh] gap-3 overflow-y-auto pr-1 md:grid-cols-2 xl:grid-cols-3">
           {modeCourses.map((course) => {
             const meta = parseDescription(course);
             return (
-              <article key={course.id} className="overflow-hidden rounded-3xl border border-[var(--border)] bg-white shadow-sm">
-                <div className="flex aspect-[16/8] items-center justify-center bg-[var(--gold-soft)]">
-                  <BookOpen className="h-10 w-10 text-[var(--navy)]" />
+              <article key={course.id} className="overflow-hidden rounded-2xl border border-[var(--border)] bg-white shadow-sm">
+                <div className="flex h-20 items-center justify-center bg-[var(--gold-soft)]">
+                  <BookOpen className="h-7 w-7 text-[var(--navy)]" />
                 </div>
-                <div className="p-5">
-                  <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold)]">{course.category}</p>
-                  <h3 className="mt-3 text-2xl font-black text-[var(--navy)]">{course.title}</h3>
-                  <p className="mt-3 line-clamp-3 text-sm leading-7 text-[var(--muted-blue)]">{meta.summary}</p>
-                  <div className="mt-5 flex flex-wrap gap-2 text-xs font-black">
+                <div className="p-4">
+                  <p className="text-[11px] font-black uppercase tracking-[0.22em] text-[var(--gold)]">{course.category}</p>
+                  <h3 className="mt-2 text-lg font-black text-[var(--navy)]">{course.title}</h3>
+                  <p className="mt-2 line-clamp-2 text-sm leading-6 text-[var(--muted-blue)]">{meta.summary}</p>
+                  <div className="mt-4 flex flex-wrap gap-2 text-xs font-black">
                     <span className="rounded-full border border-[var(--border)] px-3 py-1">{course.examType}</span>
                     <span className="rounded-full border border-[var(--border)] px-3 py-1">{course.duration}</span>
                     <span className="rounded-full border border-[var(--border)] px-3 py-1">Rs {course.price}</span>

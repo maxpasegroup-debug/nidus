@@ -168,6 +168,7 @@ function courseForProgram(courses: Course[], programSlug: string, programType: s
 export default function DirectorBatchesPage() {
   const queryClient = useQueryClient();
   const [notice, setNotice] = useState("");
+  const [mode, setMode] = useState<"list" | "create">("list");
   const [form, setForm] = useState({
     name: "",
     programSlug: "nda-crash-course",
@@ -198,6 +199,7 @@ export default function DirectorBatchesPage() {
       setForm({ name: "", programSlug: "nda-crash-course", learningMode: "OFFLINE", programType: "Crash Course", startDate: "", endDate: "" });
       void refresh();
       setNotice("Batch created successfully.");
+      setMode("list");
     },
     onError: (error) => setNotice(error instanceof Error ? error.message : "Could not create batch."),
   });
@@ -229,40 +231,52 @@ export default function DirectorBatchesPage() {
 
   return (
     <AcademicShell>
-      <AcademicHero eyebrow="Batches" title="Create and manage batches." description="Program, learning mode and program type are now separated so Academic Head and Director see clean real academy batches." />
+      <AcademicHero
+        eyebrow="Batches"
+        title="Batch Control"
+        description="Create a batch only when needed. Daily work stays focused on the active batch list, status and academic head allocation."
+        action={
+          <div className="flex flex-wrap gap-2">
+            <button className={`rounded-xl px-4 py-3 text-sm font-black ${mode === "list" ? "bg-[var(--navy)] text-white" : "border border-[var(--border)] bg-white"}`} onClick={() => setMode("list")} type="button">View Batches</button>
+            <button className={`rounded-xl px-4 py-3 text-sm font-black ${mode === "create" ? "bg-[var(--navy)] text-white" : "border border-[var(--border)] bg-white"}`} onClick={() => setMode("create")} type="button">Create Batch</button>
+          </div>
+        }
+      />
       {notice ? <div className="rounded-2xl border border-[var(--gold-border)] bg-[var(--gold-soft)] p-4 text-sm font-bold">{notice}</div> : null}
       {batchLoadError ? (
         <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-bold text-red-900">
           Batch data could not be loaded from the academy database: {batchLoadError}
         </div>
       ) : null}
-      <section className="grid gap-4 md:grid-cols-3">
+      <section className="grid shrink-0 gap-3 md:grid-cols-3">
         <StatCard label="Total Batches" value={batchesQuery.isLoading ? "Loading" : batches.length} />
         <StatCard label="Active" value={batchesQuery.isLoading ? "Loading" : activeCount} />
         <StatCard label="Programs Available" value={courses.length} />
       </section>
-      <Panel title="Create Batch" eyebrow="Batch setup">
-        <form onSubmit={submit} className="grid gap-4 md:grid-cols-2">
-          <Select label="Program" value={form.programSlug} onChange={(value) => setForm((state) => ({ ...state, programSlug: value }))} required>
-            {programOptions.map((program) => <option key={program.slug} value={program.slug}>{program.label}</option>)}
-          </Select>
-          <Select label="Learning Mode" value={form.learningMode} onChange={(value) => setForm((state) => ({ ...state, learningMode: value }))}>
-            {learningModes.map((mode) => <option key={mode} value={mode}>{mode}</option>)}
-          </Select>
-          <Select label="Program Type" value={form.programType} onChange={(value) => setForm((state) => ({ ...state, programType: value }))}>
-            {programTypes.map((type) => <option key={type} value={type}>{type}</option>)}
-          </Select>
-          <Input label="Batch name" value={form.name} onChange={(value) => setForm((state) => ({ ...state, name: value }))} required placeholder="NDA Crash Course Online 2026" />
-          <Input label="Start date" type="date" value={form.startDate} onChange={(value) => setForm((state) => ({ ...state, startDate: value }))} />
-          <Input label="End date" type="date" value={form.endDate} onChange={(value) => setForm((state) => ({ ...state, endDate: value }))} />
-          <div className="md:col-span-2"><GoldButton disabled={createBatch.isPending}>Create Batch</GoldButton></div>
-        </form>
-      </Panel>
+      {mode === "create" ? (
+        <Panel title="Create Batch" eyebrow="Batch setup">
+          <form onSubmit={submit} className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            <Select label="Program" value={form.programSlug} onChange={(value) => setForm((state) => ({ ...state, programSlug: value }))} required>
+              {programOptions.map((program) => <option key={program.slug} value={program.slug}>{program.label}</option>)}
+            </Select>
+            <Select label="Learning Mode" value={form.learningMode} onChange={(value) => setForm((state) => ({ ...state, learningMode: value }))}>
+              {learningModes.map((learningMode) => <option key={learningMode} value={learningMode}>{learningMode}</option>)}
+            </Select>
+            <Select label="Program Type" value={form.programType} onChange={(value) => setForm((state) => ({ ...state, programType: value }))}>
+              {programTypes.map((type) => <option key={type} value={type}>{type}</option>)}
+            </Select>
+            <Input label="Batch name" value={form.name} onChange={(value) => setForm((state) => ({ ...state, name: value }))} required placeholder="NDA Crash Course Online 2026" />
+            <Input label="Start date" type="date" value={form.startDate} onChange={(value) => setForm((state) => ({ ...state, startDate: value }))} />
+            <Input label="End date" type="date" value={form.endDate} onChange={(value) => setForm((state) => ({ ...state, endDate: value }))} />
+            <div className="xl:col-span-3"><GoldButton disabled={createBatch.isPending}>Create Batch</GoldButton></div>
+          </form>
+        </Panel>
+      ) : null}
       <Panel title="Existing Batches" eyebrow="Batch grid">
         {batchesQuery.isLoading ? <EmptyState text="Loading real academy batches from the database." /> : null}
         {!batchesQuery.isLoading && batchLoadError ? <EmptyState text="Batch records are unavailable because the batch API request failed. Check the message above before creating new batches." /> : null}
         {!batchesQuery.isLoading && !batchLoadError && !batches.length ? <EmptyState text="No batches found for your academic scope. Assigned and active batches will appear here." /> : null}
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid max-h-[54vh] gap-3 overflow-y-auto pr-1 md:grid-cols-2 xl:grid-cols-3">
           {batches.map((batch) => {
             const program = inferProgram(batch);
             const mode = inferLearningMode(batch);
@@ -270,7 +284,7 @@ export default function DirectorBatchesPage() {
             const heads = academicHeadNames(batch);
 
             return (
-              <article key={batch.id} className="rounded-2xl border border-[var(--border)] bg-white p-5">
+              <article key={batch.id} className="rounded-2xl border border-[var(--border)] bg-white p-4">
                 <p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold)]">{mode}</p>
                 <h3 className="mt-2 text-xl font-black">{batch.name}</h3>
                 <p className="mt-1 text-sm text-[var(--muted-blue)]">{program} / {programType}</p>
@@ -292,7 +306,7 @@ export default function DirectorBatchesPage() {
                   <span className="rounded-full border border-[var(--border)] px-3 py-1">{batch.status}</span>
                   <span className="rounded-full border border-[var(--border)] px-3 py-1">{mode}</span>
                 </div>
-                <div className="mt-4 flex flex-wrap gap-2">
+                <div className="mt-4 grid grid-cols-2 gap-2">
                   {["ACTIVE", "PAUSED", "COMPLETED", "ARCHIVED"].map((status) => (
                     <button key={status} className="rounded-lg border border-[var(--border)] px-3 py-2 text-sm font-bold" onClick={() => updateStatus.mutate({ id: batch.id, status })} type="button">
                       {status}
