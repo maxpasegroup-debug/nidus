@@ -19,6 +19,8 @@ import type { LucideIcon } from "lucide-react";
 import { archiveDirectorExpense, createDirectorExpense, getDirectorExpenses } from "@/services/academy";
 import { createFeeInstallment, generateInvoice, getFees, getInvoices, getPaymentAnalytics, getSubscriptions } from "@/services/payments";
 
+type AccountMode = "overview" | "fees" | "invoices" | "expenses" | "subscriptions" | "reports" | "settings" | "audit";
+
 const accountSections = [
   { id: "fees", title: "Fee Management", text: "Course fees, student payments and pending dues.", icon: BadgeIndianRupee, status: "Manual Ready" },
   { id: "invoices", title: "Invoices & Receipts", text: "Generate and track payment receipts.", icon: ReceiptText, status: "Ready" },
@@ -32,6 +34,7 @@ const accountSections = [
 export default function DirectorAccountsPage() {
   const queryClient = useQueryClient();
   const [notice, setNotice] = useState("");
+  const [mode, setMode] = useState<AccountMode>("overview");
   const [feeForm, setFeeForm] = useState({
     studentId: "",
     title: "",
@@ -130,25 +133,27 @@ export default function DirectorAccountsPage() {
   const netPosition = monthlyRevenue - totalExpenses;
 
   return (
-    <main className="min-h-screen bg-[var(--page-bg)] px-5 py-6 text-[var(--navy)] md:px-8">
-      <section className="mx-auto max-w-7xl space-y-8">
-        <div className="rounded-3xl border border-[var(--border)] bg-white/90 p-6 shadow-xl md:p-8">
-          <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Director Finance</p>
-          <h1 className="mt-3 text-4xl font-black tracking-tight md:text-6xl">Money, fees and receipts in one room.</h1>
-          <p className="mt-4 max-w-3xl text-base leading-8 text-[var(--muted-blue)]">
+    <main className="min-h-screen bg-[var(--page-bg)] px-4 py-4 text-[var(--navy)] md:px-6 lg:h-[calc(100vh-var(--nav-height)-2rem)] lg:min-h-0 lg:overflow-hidden">
+      <section className="mx-auto flex h-full max-w-[1500px] flex-col gap-4 overflow-y-auto pr-0 lg:pr-2">
+        <div className="shrink-0 rounded-2xl border border-[var(--border)] bg-white/90 p-4 shadow-sm md:p-5">
+          <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold)]">Director Finance</p>
+          <h1 className="mt-2 text-2xl font-black tracking-tight md:text-3xl">Office & Finance Control</h1>
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--muted-blue)]">
             Track collected fees, pending dues, receipts, subscriptions and operating expenses from live finance records.
             Manual fee and expense entries stay available for launch operations.
           </p>
         </div>
 
-        <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <section className="grid shrink-0 gap-3 md:grid-cols-2 xl:grid-cols-4">
+          <ModeCard active={mode === "overview"} icon={WalletCards} status="Live" text="Director summary, attention items and money lanes." title="Overview" onClick={() => setMode("overview")} />
           {accountSections.map((section) => {
             const Icon = section.icon;
             return (
-              <a
+              <button
                 key={section.id}
-                className="rounded-2xl border border-[var(--border)] bg-white/90 p-5 shadow-sm transition hover:-translate-y-1 hover:border-[var(--gold-border)] hover:shadow-xl"
-                href={`#${section.id}`}
+                className={`rounded-2xl border p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-[var(--gold-border)] hover:shadow-md ${mode === section.id ? "border-[var(--gold-border)] bg-[var(--gold-soft)]" : "border-[var(--border)] bg-white/90"}`}
+                onClick={() => setMode(section.id as AccountMode)}
+                type="button"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-[var(--gold-border)] bg-[var(--gold-soft)]">
@@ -158,14 +163,14 @@ export default function DirectorAccountsPage() {
                     {section.status}
                   </span>
                 </div>
-                <h2 className="mt-5 text-xl font-black">{section.title}</h2>
+                <h2 className="mt-4 text-lg font-black">{section.title}</h2>
                 <p className="mt-2 text-sm leading-6 text-[var(--muted-blue)]">{section.text}</p>
-              </a>
+              </button>
             );
           })}
         </section>
 
-        <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <section className="grid shrink-0 gap-3 md:grid-cols-2 xl:grid-cols-4">
           <AccountMetric label="Monthly Revenue" value={`Rs ${monthlyRevenue.toLocaleString()}`} />
           <AccountMetric label="Pending Dues" value={`Rs ${pendingDues.toLocaleString()}`} />
           <AccountMetric label="Open Fees" value={pendingFees.length} />
@@ -178,7 +183,8 @@ export default function DirectorAccountsPage() {
           </div>
         )}
 
-        <section className="grid gap-6 lg:grid-cols-[1fr_0.9fr]">
+        {mode === "overview" ? (
+        <section className="grid min-h-0 flex-1 gap-4 lg:grid-cols-[1fr_0.9fr]">
           <Panel id="finance-attention" title="Finance attention" eyebrow="What to check first">
             <div className="grid gap-3">
               <DecisionRow title="Overdue fees" value={overdueFees.length} text="Collect or follow up through AO/accounts." tone={overdueFees.length ? "warn" : "ok"} />
@@ -196,8 +202,10 @@ export default function DirectorAccountsPage() {
             </div>
           </Panel>
         </section>
+        ) : null}
 
-        <section className="grid gap-6 lg:grid-cols-2">
+        {mode === "fees" ? (
+        <section className="grid min-h-0 flex-1 gap-4 lg:grid-cols-[0.95fr_1.05fr]">
           <Panel id="fees" title="Fee Management" eyebrow="Manual launch control">
             <form onSubmit={submitFee} className="grid gap-4">
               <div className="grid gap-4 md:grid-cols-2">
@@ -229,7 +237,19 @@ export default function DirectorAccountsPage() {
               {!pendingFees.length ? <Empty text="No pending fee installments recorded." icon={BadgeIndianRupee} /> : null}
             </div>
           </Panel>
+          <Panel id="fees-list" title="Pending installments" eyebrow="Collection list">
+            <div className="grid max-h-[56vh] gap-3 overflow-y-auto pr-1">
+              {pendingFees.map((fee) => (
+                <FinanceRow key={fee.id} title={fee.title} meta={`${fee.student?.name ?? fee.studentId} / due ${new Date(fee.dueDate).toLocaleDateString()}`} amount={fee.dueAmount ?? fee.amount} status={fee.paidStatus} />
+              ))}
+              {!pendingFees.length ? <Empty text="No pending fee installments recorded." icon={BadgeIndianRupee} /> : null}
+            </div>
+          </Panel>
+        </section>
+        ) : null}
 
+        {mode === "expenses" ? (
+        <section className="grid min-h-0 flex-1 gap-4 lg:grid-cols-[0.95fr_1.05fr]">
           <Panel id="expenses" title="Expenses" eyebrow="Manual launch control">
             <form onSubmit={submitExpense} className="grid gap-4">
               <div className="grid gap-4 md:grid-cols-2">
@@ -278,8 +298,10 @@ export default function DirectorAccountsPage() {
             </div>
           </Panel>
         </section>
+        ) : null}
 
-        <section className="grid gap-6 lg:grid-cols-2">
+        {mode === "invoices" ? (
+        <section className="grid min-h-0 flex-1 gap-4 lg:grid-cols-2">
           <Panel id="invoices" title="Invoices & Receipts" eyebrow="Receipt setup">
             <form onSubmit={submitInvoice} className="grid gap-4 md:grid-cols-[1fr_1fr_1fr_auto] md:items-end">
               <Field label="Student ID" value={invoiceForm.studentId} onChange={(value) => setInvoiceForm((item) => ({ ...item, studentId: value }))} required />
@@ -296,6 +318,11 @@ export default function DirectorAccountsPage() {
               {!invoices.length ? <Empty text="No invoices generated yet." icon={ReceiptText} /> : null}
             </div>
           </Panel>
+        </section>
+        ) : null}
+
+        {mode === "subscriptions" ? (
+        <section className="grid min-h-0 flex-1 gap-4 lg:grid-cols-2">
           <Panel id="subscriptions" title="Subscriptions" eyebrow="Razorpay and premium access">
             <div className="grid gap-3">
               {subscriptions.slice(0, 5).map((subscription) => (
@@ -307,20 +334,36 @@ export default function DirectorAccountsPage() {
               </Link>
             </div>
           </Panel>
+        </section>
+        ) : null}
+
+        {mode === "reports" ? (
+        <section className="grid min-h-0 flex-1 gap-4 lg:grid-cols-2">
           <Panel id="reports" title="Reports" eyebrow="Management review">
             <div className="grid gap-3 md:grid-cols-2">
               <AccountMetric label="Transactions" value={`${analytics?.successfulTransactions ?? 0}/${analytics?.totalTransactions ?? 0}`} />
               <AccountMetric label="Payment Methods" value={Object.keys(analytics?.paymentMethodAnalytics ?? {}).length} />
             </div>
           </Panel>
+          <Panel id="email-report" title="Email Report" eyebrow="Director export">
+            <Empty text="Date-filtered email report sender will live here. Use this panel for accounts handoff reports." icon={FileText} />
+          </Panel>
+        </section>
+        ) : null}
+
+        {mode === "settings" ? (
+        <section className="grid min-h-0 flex-1 gap-4 lg:grid-cols-2">
           <Panel id="settings" title="Settings" eyebrow="Company configuration">
             <Empty text="Company contact, branch, receipt format, payment settings and account permissions can be managed here." icon={Building2} />
           </Panel>
         </section>
+        ) : null}
 
+        {mode === "audit" ? (
         <Panel id="audit" title="Audit Logs" eyebrow="Action history">
           <Empty text="Audit log integration should record employee creation, password reset, admission approval, batch creation and finance actions." icon={ShieldCheck} />
         </Panel>
+        ) : null}
       </section>
     </main>
   );
@@ -328,20 +371,53 @@ export default function DirectorAccountsPage() {
 
 function Panel({ id, title, eyebrow, children }: { id: string; title: string; eyebrow: string; children: ReactNode }) {
   return (
-    <section id={id} className="rounded-3xl border border-[var(--border)] bg-white/90 p-5 shadow-sm">
-      <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">{eyebrow}</p>
-      <h2 className="mt-2 text-2xl font-black">{title}</h2>
-      <div className="mt-5">{children}</div>
+    <section id={id} className="min-h-0 rounded-2xl border border-[var(--border)] bg-white/90 p-4 shadow-sm">
+      <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[var(--gold)]">{eyebrow}</p>
+      <h2 className="mt-1 text-xl font-black">{title}</h2>
+      <div className="mt-4">{children}</div>
     </section>
   );
 }
 
 function AccountMetric({ label, value }: { label: string; value: string | number }) {
   return (
-    <div className="rounded-2xl border border-[var(--border)] bg-white/90 p-5 shadow-sm">
-      <p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold)]">{label}</p>
-      <p className="mt-3 text-2xl font-black text-[var(--navy)]">{value}</p>
+    <div className="rounded-2xl border border-[var(--border)] bg-white/90 px-4 py-3 shadow-sm">
+      <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[var(--gold)]">{label}</p>
+      <p className="mt-1 text-xl font-black text-[var(--navy)]">{value}</p>
     </div>
+  );
+}
+
+function ModeCard({
+  active,
+  icon: Icon,
+  onClick,
+  status,
+  text,
+  title,
+}: {
+  active: boolean;
+  icon: LucideIcon;
+  onClick: () => void;
+  status: string;
+  text: string;
+  title: string;
+}) {
+  return (
+    <button
+      className={`rounded-2xl border p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-[var(--gold-border)] hover:shadow-md ${active ? "border-[var(--gold-border)] bg-[var(--gold-soft)]" : "border-[var(--border)] bg-white/90"}`}
+      onClick={onClick}
+      type="button"
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-[var(--gold-border)] bg-[var(--gold-soft)]">
+          <Icon className="h-6 w-6 text-[var(--navy)]" />
+        </div>
+        <span className="rounded-full border border-[var(--gold-border)] bg-white px-3 py-1 text-[10px] font-black uppercase tracking-[0.15em]">{status}</span>
+      </div>
+      <h2 className="mt-4 text-lg font-black">{title}</h2>
+      <p className="mt-2 text-sm leading-6 text-[var(--muted-blue)]">{text}</p>
+    </button>
   );
 }
 
