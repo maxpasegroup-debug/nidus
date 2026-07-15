@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
 
 export default function SalesBoosterDashboardRedirectPage() {
-  redirect("/dashboard/director#sales-booster");
+  redirect("/dashboard/business-development?tab=REPORTS");
 }

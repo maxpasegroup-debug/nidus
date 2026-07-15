@@ -6,39 +6,45 @@ import { DirectorLauncher, type DirectorTile } from "@/components/dashboard/dire
 const tiles: DirectorTile[] = [
   {
     label: "Add Employee",
-    href: "/dashboard/director/management",
+    href: "/dashboard/director/management?mode=add",
     icon: UserPlus,
     note: "Create staff profiles for teachers, trainers and office roles.",
   },
   {
     label: "Manage Staff",
-    href: "/dashboard/director/management",
+    href: "/dashboard/director/management?mode=manage",
     icon: Users,
     note: "Review active employees, role assignment and staff details.",
   },
   {
     label: "Archive Staff",
-    href: "/dashboard/director/management",
+    href: "/dashboard/director/management?mode=archive",
     icon: Archive,
     note: "Move inactive staff out of daily operations.",
   },
   {
     label: "Lock Access",
-    href: "/admin-center/users",
+    href: "/dashboard/director/management?mode=access",
     icon: LockKeyhole,
     note: "Block account access for selected employees.",
   },
   {
     label: "Reset Password",
-    href: "/admin-center/users",
+    href: "/dashboard/director/management?mode=access",
     icon: KeyRound,
     note: "Help staff regain access without changing their role.",
   },
   {
     label: "Roles",
-    href: "/admin-center/roles",
+    href: "/dashboard/director/management?mode=roles",
     icon: ShieldCheck,
     note: "Control what each role can view and operate.",
+  },
+  {
+    label: "Permissions",
+    href: "/dashboard/director/management?mode=permissions",
+    icon: ShieldCheck,
+    note: "Review access rules before using advanced permissions.",
   },
 ];
 

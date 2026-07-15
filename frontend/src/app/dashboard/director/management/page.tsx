@@ -2,6 +2,7 @@
 
 import { FormEvent, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Archive,
@@ -54,6 +55,8 @@ type EmployeePayload = {
   dashboardTemplate?: string;
   password?: string;
 };
+
+type HrmMode = "overview" | "add" | "manage" | "archive" | "access" | "roles" | "permissions";
 
 async function apiJson<T>(path: string, init?: RequestInit): Promise<T> {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_API_BASE_URL || "";
@@ -133,7 +136,12 @@ const quickProfiles = [
 
 export default function DirectorManagementPage() {
   const queryClient = useQueryClient();
+  const searchParams = useSearchParams();
+  const requestedMode = searchParams?.get("mode") as HrmMode | null;
   const [notice, setNotice] = useState("");
+  const [mode, setMode] = useState<HrmMode>(
+    requestedMode && ["overview", "add", "manage", "archive", "access", "roles", "permissions"].includes(requestedMode) ? requestedMode : "overview",
+  );
   const [activeTab, setActiveTab] = useState<"ACTIVE" | "ARCHIVED">("ACTIVE");
   const [accountGroup, setAccountGroup] = useState<"TEAM" | "STUDENTS">("TEAM");
   const [lastCredentials, setLastCredentials] = useState<{ email: string; temporaryPassword: string } | null>(null);
@@ -253,28 +261,39 @@ export default function DirectorManagementPage() {
   };
 
   return (
-    <main className="min-h-screen bg-[var(--page-bg)] px-5 py-6 text-[var(--navy)] md:px-8">
-      <section className="mx-auto max-w-7xl space-y-8">
-        <div className="rounded-3xl border border-[var(--border)] bg-white/90 p-6 shadow-xl md:p-8">
-          <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Management Control</p>
-          <h1 className="mt-3 text-4xl font-black tracking-tight md:text-6xl">User and dashboard control</h1>
-          <p className="mt-4 max-w-3xl text-base leading-8 text-[var(--muted-blue)]">
+    <main className="min-h-screen bg-[var(--page-bg)] px-4 py-4 text-[var(--navy)] md:px-6 lg:h-[calc(100vh-var(--nav-height)-2rem)] lg:min-h-0 lg:overflow-hidden">
+      <section className="mx-auto flex h-full max-w-[1500px] flex-col gap-4 overflow-y-auto pr-0 lg:pr-2">
+        <div className="shrink-0 rounded-2xl border border-[var(--border)] bg-white/90 p-4 shadow-sm md:p-5">
+          <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold)]">People Control</p>
+          <h1 className="mt-2 text-2xl font-black tracking-tight md:text-3xl">HRM Staff And Access</h1>
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--muted-blue)]">
             Add employees, generate credentials, control student and staff access, reset passwords and archive old accounts safely
             into history.
           </p>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <div className="grid shrink-0 gap-3 md:grid-cols-2 xl:grid-cols-4">
           <Metric icon={Users} label="Team Accounts" value={activeTeam.length} />
           <Metric icon={GraduationCap} label="Students" value={activeStudents.length} />
           <Metric icon={Archive} label="Archived History" value={archivedAccounts.length} />
           <Metric icon={ShieldCheck} label="Locked Accounts" value={lockedAccounts.length} />
         </div>
 
+        <section className="grid shrink-0 gap-3 md:grid-cols-3 xl:grid-cols-7">
+          <ModeButton active={mode === "overview"} icon={Users} label="Overview" onClick={() => setMode("overview")} />
+          <ModeButton active={mode === "add"} icon={UserPlus} label="Add Employee" onClick={() => setMode("add")} />
+          <ModeButton active={mode === "manage"} icon={Users} label="Manage Staff" onClick={() => setMode("manage")} />
+          <ModeButton active={mode === "archive"} icon={Archive} label="Archive Staff" onClick={() => { setActiveTab("ARCHIVED"); setMode("archive"); }} />
+          <ModeButton active={mode === "access"} icon={KeyRound} label="Access" onClick={() => setMode("access")} />
+          <ModeButton active={mode === "roles"} icon={ShieldCheck} label="Roles" onClick={() => setMode("roles")} />
+          <ModeButton active={mode === "permissions"} icon={ShieldCheck} label="Permissions" onClick={() => setMode("permissions")} />
+        </section>
+
+        {mode === "overview" ? (
         <section className="rounded-3xl border border-[var(--border)] bg-white/90 p-5 shadow-sm">
           <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">People Structure</p>
           <h2 className="mt-2 text-2xl font-black">Team grouped by duty</h2>
-          <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+          <div className="mt-5 grid max-h-[58vh] gap-3 overflow-y-auto pr-1 md:grid-cols-2 xl:grid-cols-3">
             {activeTeamGroups.map((group) => (
               <div key={group.label} className="rounded-2xl border border-[var(--border)] bg-white p-4">
                 <p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold)]">{group.label}</p>
@@ -284,6 +303,7 @@ export default function DirectorManagementPage() {
             ))}
           </div>
         </section>
+        ) : null}
 
         {notice && <div className="rounded-2xl border border-[var(--gold-border)] bg-[var(--gold-soft)] p-4 text-sm font-bold">{notice}</div>}
 
@@ -307,6 +327,7 @@ export default function DirectorManagementPage() {
           </section>
         )}
 
+        {mode === "add" ? (
         <section className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
           <div className="rounded-3xl border border-[var(--border)] bg-white/90 p-5 shadow-sm">
             <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Add Employee</p>
@@ -397,7 +418,10 @@ export default function DirectorManagementPage() {
             </div>
           </div>
         </section>
+        ) : null}
 
+        {mode === "overview" ? (
+        <>
         <section id="attendance" className="rounded-3xl border border-[var(--border)] bg-white/90 p-5 shadow-sm">
           <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Attendance & Leave</p>
           <h2 className="mt-2 text-2xl font-black">Launch setup state</h2>
@@ -413,7 +437,10 @@ export default function DirectorManagementPage() {
             Performance combines class completion, academic calendar logs, student progress and management reviews as those records are created.
           </div>
         </section>
+        </>
+        ) : null}
 
+        {mode === "access" ? (
         <section className="rounded-3xl border border-[var(--border)] bg-white/90 p-5 shadow-sm">
           <div className="rounded-2xl border border-[var(--border)] bg-white p-4">
             <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Credential Readiness</p>
@@ -422,8 +449,66 @@ export default function DirectorManagementPage() {
               Director can reset any launch user to the default temporary password and clear lockout counters from this screen.
             </p>
           </div>
+          <div className="mt-5 grid max-h-[58vh] gap-3 overflow-y-auto pr-1">
+            {(lockedAccounts.length ? lockedAccounts : activeTeam).map((employee) => (
+              <EmployeeRow
+                key={employee.id}
+                employee={employee}
+                groupLabel={teamGroupLabel(employee)}
+                onArchive={() => {
+                  if (window.confirm(`Archive ${employee.name}? This will move the account into history.`)) {
+                    archiveMutation.mutate(employee.id);
+                  }
+                }}
+                onReset={() => {
+                  if (window.confirm(`Reset password and unlock ${employee.name}?`)) {
+                    resetMutation.mutate(employee.id);
+                  }
+                }}
+                onUnlock={() => unlockMutation.mutate(employee.id)}
+              />
+            ))}
+            {!activeTeam.length && <Empty text="No team accounts found." />}
+          </div>
         </section>
+        ) : null}
 
+        {mode === "roles" ? (
+        <section className="rounded-3xl border border-[var(--border)] bg-white/90 p-5 shadow-sm">
+          <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Roles</p>
+          <h2 className="mt-2 text-2xl font-black">Role control</h2>
+          <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            {roleOptions.map((role) => (
+              <div key={`${role.value}-${role.dashboardTemplate ?? role.label}`} className="rounded-2xl border border-[var(--border)] bg-white p-4">
+                <p className="font-black">{role.label}</p>
+                <p className="mt-2 text-sm text-[var(--muted-blue)]">System role: {role.value}</p>
+                <p className="mt-1 text-sm text-[var(--muted-blue)]">Dashboard: {role.dashboardTemplate || "Default"}</p>
+              </div>
+            ))}
+          </div>
+          <Link href="/admin-center/roles" className="mt-5 inline-flex rounded-xl bg-[var(--gold-gradient)] px-5 py-3 font-black text-[var(--navy)] shadow-lg">
+            Open Advanced Roles
+          </Link>
+        </section>
+        ) : null}
+
+        {mode === "permissions" ? (
+        <section className="rounded-3xl border border-[var(--border)] bg-white/90 p-5 shadow-sm">
+          <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Permissions</p>
+          <h2 className="mt-2 text-2xl font-black">Access rules</h2>
+          <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            <Info icon={ShieldCheck} text="Director keeps full access to all department control panels." />
+            <Info icon={GraduationCap} text="Academic Head controls timetable, teachers, batches and academic reports." />
+            <Info icon={BadgeIndianRupee} text="Administrative Officer handles applications, documents, fees and activation." />
+            <Info icon={Users} text="Teachers and trainers see only their assigned classes, batches and attendance." />
+          </div>
+          <Link href="/admin-center/permissions" className="mt-5 inline-flex rounded-xl bg-[var(--gold-gradient)] px-5 py-3 font-black text-[var(--navy)] shadow-lg">
+            Open Advanced Permissions
+          </Link>
+        </section>
+        ) : null}
+
+        {(mode === "manage" || mode === "archive") ? (
         <section className="rounded-3xl border border-[var(--border)] bg-white/90 p-5 shadow-sm">
           <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Credential Directory</p>
           <div className="mt-2 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
@@ -470,7 +555,7 @@ export default function DirectorManagementPage() {
               </div>
             </div>
           </div>
-          <div className="mt-5 grid gap-3">
+          <div className="mt-5 grid max-h-[58vh] gap-3 overflow-y-auto pr-1">
             {accountGroup === "TEAM" ? (
               <>
                 {visibleTeamGroups.map((group) => (
@@ -547,6 +632,7 @@ export default function DirectorManagementPage() {
             )}
           </div>
         </section>
+        ) : null}
       </section>
     </main>
   );
@@ -559,6 +645,19 @@ function Metric({ icon: Icon, label, value }: { icon: LucideIcon; label: string;
       <p className="mt-4 text-3xl font-black">{value}</p>
       <p className="mt-1 text-sm text-[var(--muted-blue)]">{label}</p>
     </div>
+  );
+}
+
+function ModeButton({ active, icon: Icon, label, onClick }: { active: boolean; icon: LucideIcon; label: string; onClick: () => void }) {
+  return (
+    <button
+      className={`flex min-h-24 flex-col items-center justify-center gap-2 rounded-2xl border p-3 text-center text-sm font-black shadow-sm transition hover:-translate-y-0.5 hover:border-[var(--gold-border)] hover:shadow-md ${active ? "border-[var(--gold-border)] bg-[var(--gold-soft)]" : "border-[var(--border)] bg-white/90"}`}
+      onClick={onClick}
+      type="button"
+    >
+      <Icon className="h-5 w-5" />
+      <span>{label}</span>
+    </button>
   );
 }
 

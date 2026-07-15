@@ -1,6 +1,7 @@
 "use client";
 
 import { type FormEvent, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { Archive, CalendarClock, CheckCircle2, Phone, PhoneCall, Plus, RefreshCw, Send, UserPlus } from "lucide-react";
 import { RoleDashboardGuard } from "@/components/dashboard";
 import { useAuth } from "@/components/providers/auth-provider-v2";
@@ -120,7 +121,11 @@ function Metric({ label, value }: { label: string; value: number }) {
 
 export default function BusinessDevelopmentDashboardPage() {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState<BdeTab>("TODAY");
+  const searchParams = useSearchParams();
+  const requestedTab = searchParams?.get("tab") as BdeTab | null;
+  const [activeTab, setActiveTab] = useState<BdeTab>(
+    requestedTab && ["TODAY", "LEADS", "FOLLOWUPS", "READY", "REPORTS"].includes(requestedTab) ? requestedTab : "TODAY",
+  );
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<LeadStatus | undefined>();
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
@@ -221,13 +226,13 @@ export default function BusinessDevelopmentDashboardPage() {
   }
 
   return (
-    <RoleDashboardGuard role={["BUSINESS_DEVELOPMENT_EXECUTIVE", "TELECALLER", "MARKETING_COORDINATOR"]}>
-      <main className="mx-auto grid max-w-7xl gap-5">
+    <RoleDashboardGuard role={["DIRECTOR", "BUSINESS_DEVELOPMENT_EXECUTIVE", "TELECALLER", "MARKETING_COORDINATOR"]}>
+      <main className="mx-auto grid max-w-[1500px] gap-4 lg:h-[calc(100vh-var(--nav-height)-2rem)] lg:overflow-hidden">
         <section className="rounded-2xl border border-[#071d36]/15 bg-white p-5 shadow-[0_18px_60px_rgba(7,29,54,0.08)]">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
               <p className="text-xs font-black uppercase tracking-[0.28em] text-[#3f4a32]">BDE calling desk</p>
-              <h1 className="mt-2 text-4xl font-black text-[#071d36]">Call. Update. Send to AO.</h1>
+              <h1 className="mt-2 text-3xl font-black text-[#071d36]">Revenue Pipeline Desk</h1>
               <p className="mt-2 max-w-2xl text-sm leading-6 text-[#52627a]">A simple telecalling workflow for enquiries, follow-ups, counselling interest and admission handover.</p>
             </div>
             <Button type="button" onClick={() => leads.refetch()} disabled={leads.isFetching} variant="secondary">
@@ -252,8 +257,8 @@ export default function BusinessDevelopmentDashboardPage() {
           ))}
         </nav>
 
-        <section className="grid gap-5 xl:grid-cols-[0.8fr_1.4fr]">
-          <aside className="rounded-2xl border border-[#071d36]/15 bg-white p-5">
+        <section className="grid min-h-0 gap-4 xl:grid-cols-[0.78fr_1.42fr]">
+          <aside className="min-h-0 overflow-y-auto rounded-2xl border border-[#071d36]/15 bg-white p-5">
             <div className="flex items-center gap-3">
               <UserPlus className="h-5 w-5 text-[#b9913f]" />
               <h2 className="text-2xl font-black text-[#071d36]">New enquiry</h2>
@@ -280,7 +285,7 @@ export default function BusinessDevelopmentDashboardPage() {
             </form>
           </aside>
 
-          <section className="rounded-2xl border border-[#071d36]/15 bg-white p-5">
+          <section className="min-h-0 overflow-y-auto rounded-2xl border border-[#071d36]/15 bg-white p-5">
             <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
               <div>
                 <p className="text-xs font-black uppercase tracking-[0.22em] text-[#3f4a32]">{tabs.find((tab) => tab.key === activeTab)?.label}</p>
@@ -309,7 +314,7 @@ export default function BusinessDevelopmentDashboardPage() {
                 <Metric label="Today's Work" value={reports.callsToday + reports.overdue} />
               </div>
             ) : (
-              <div className="mt-5 grid gap-3 md:grid-cols-2">
+              <div className="mt-5 grid max-h-[52vh] gap-3 overflow-y-auto pr-1 md:grid-cols-2">
                 {visibleLeads.map((lead) => <LeadCard key={lead.id} lead={lead} nextFollowUp={latestFollowupByLead.get(lead.id)} onOpen={setSelectedLead} />)}
                 {!visibleLeads.length ? <EmptyState text="No leads in this lane. Nice and quiet." /> : null}
               </div>

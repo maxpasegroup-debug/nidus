@@ -6,13 +6,13 @@ import { DirectorLauncher, type DirectorTile } from "@/components/dashboard/dire
 const tiles: DirectorTile[] = [
   {
     label: "Telecallers",
-    href: "/dashboard/business-development",
+    href: "/dashboard/business-development?tab=TODAY",
     icon: PhoneCall,
     note: "Open calling work, follow-ups and lead handoff.",
   },
   {
     label: "BDE Team",
-    href: "/dashboard/business-development",
+    href: "/dashboard/business-development?tab=REPORTS",
     icon: Users,
     note: "Review business development work and team pipeline.",
   },
@@ -24,25 +24,25 @@ const tiles: DirectorTile[] = [
   },
   {
     label: "Leads",
-    href: "/crm/leads",
+    href: "/dashboard/business-development?tab=LEADS",
     icon: ClipboardCheck,
     note: "View and manage active lead records.",
   },
   {
     label: "Follow-ups",
-    href: "/crm/followups",
+    href: "/dashboard/business-development?tab=FOLLOWUPS",
     icon: PhoneCall,
     note: "Check pending calls and next actions.",
   },
   {
     label: "Counselling",
-    href: "/crm/counselling",
+    href: "/dashboard/business-development?tab=READY",
     icon: Users,
     note: "Open counselling pipeline and conversion notes.",
   },
   {
     label: "Campaign Reports",
-    href: "/dashboard/director/reports",
+    href: "/dashboard/business-development?tab=REPORTS",
     icon: BarChart3,
     note: "Review marketing and sales performance signals.",
   },
