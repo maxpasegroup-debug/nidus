@@ -3,7 +3,7 @@ import type { Role } from "../../generated/prisma/client.js";
 import { fitnessAIService } from "./fitness-ai.service.js";
 
 const userSelect = { id: true, name: true, email: true, role: true } as const;
-type FitnessRequester = { id: string; role: Role };
+type FitnessRequester = { id: string; name?: string | null; email?: string | null; role: Role };
 
 function isFitnessManager(requester: FitnessRequester) {
   return requester.role === "ADMIN" || requester.role === "DIRECTOR" || requester.role === "ACADEMIC_HEAD";
@@ -21,6 +21,28 @@ async function canAccessStudent(requester: FitnessRequester, studentId: string) 
   const enrollment = await prisma.batchStudent.findFirst({
     where: {
       studentId,
+      status: "ACTIVE",
+      batch: {
+        teachers: {
+          some: {
+            teacherId: requester.id,
+            status: "ACTIVE"
+          }
+        }
+      }
+    },
+    select: { id: true }
+  });
+  return Boolean(enrollment);
+}
+
+async function canAccessStudentInBatch(requester: FitnessRequester, studentId: string, batchId?: string | null) {
+  if (!batchId) return canAccessStudent(requester, studentId);
+  if (isFitnessManager(requester)) return true;
+  const enrollment = await prisma.batchStudent.findFirst({
+    where: {
+      studentId,
+      batchId,
       status: "ACTIVE",
       batch: {
         teachers: {
@@ -77,15 +99,54 @@ export const fitnessService = {
       include: { user: { select: userSelect } }
     });
   },
-  ptSchedules() {
-    return prisma.pTSchedule.findMany({ orderBy: { scheduledDate: "asc" }, include: { attendances: true } });
+  ptSchedules(requester: FitnessRequester) {
+    const where = isFitnessManager(requester)
+      ? {}
+      : {
+          OR: [
+            { trainerId: requester.id },
+            { trainerId: null, trainerName: requester.name || requester.email || requester.id }
+          ]
+        };
+    return prisma.pTSchedule.findMany({ where, orderBy: { scheduledDate: "asc" }, include: { attendances: true } });
   },
-  createPTSchedule(requester: FitnessRequester, input: { title: string; description: string; scheduledDate: string; trainerName: string; activityType: string; duration: number }) {
-    return prisma.pTSchedule.create({ data: { ...input, trainerName: input.trainerName || requester.id, scheduledDate: new Date(input.scheduledDate) } });
+  async createPTSchedule(requester: FitnessRequester, input: { title: string; description: string; scheduledDate: string; trainerName: string; activityType: string; duration: number; batchId?: string }) {
+    if (input.batchId && !isFitnessManager(requester)) {
+      const assignment = await prisma.teacherBatchAssignment.findFirst({
+        where: { batchId: input.batchId, teacherId: requester.id, status: "ACTIVE" },
+        select: { id: true }
+      });
+      if (!assignment) throw Object.assign(new Error("This PT batch is not assigned to this trainer"), { statusCode: 403 });
+    }
+    return prisma.pTSchedule.create({
+      data: {
+        ...input,
+        trainerId: requester.id,
+        trainerName: input.trainerName || requester.name || requester.email || requester.id,
+        scheduledDate: new Date(input.scheduledDate)
+      }
+    });
   },
   async markAttendance(requester: FitnessRequester, input: { studentId: string; ptScheduleId: string; attendanceStatus: string; remarks?: string }) {
-    if (!(await canAccessStudent(requester, input.studentId))) {
+    const schedule = await prisma.pTSchedule.findUnique({ where: { id: input.ptScheduleId } });
+    if (!schedule) throw Object.assign(new Error("PT register not found"), { statusCode: 404 });
+    if (schedule.trainerId && !isFitnessManager(requester) && schedule.trainerId !== requester.id) {
+      throw Object.assign(new Error("This PT register is not assigned to this trainer"), { statusCode: 403 });
+    }
+    if (!(await canAccessStudentInBatch(requester, input.studentId, schedule.batchId))) {
       throw Object.assign(new Error("Student is not assigned to this trainer"), { statusCode: 403 });
+    }
+    const existing = await prisma.pTAttendance.findFirst({
+      where: { studentId: input.studentId, ptScheduleId: input.ptScheduleId },
+      orderBy: { markedAt: "desc" },
+      select: { id: true }
+    });
+    if (existing) {
+      return prisma.pTAttendance.update({
+        where: { id: existing.id },
+        data: { attendanceStatus: input.attendanceStatus, remarks: input.remarks, markedAt: new Date() },
+        include: { student: { select: userSelect }, ptSchedule: true }
+      });
     }
     return prisma.pTAttendance.create({ data: input, include: { student: { select: userSelect }, ptSchedule: true } });
   },
@@ -94,7 +155,12 @@ export const fitnessService = {
     if (!(await canAccessStudent(requester, scoped))) {
       throw Object.assign(new Error("Student attendance is not assigned to this user"), { statusCode: 403 });
     }
-    return prisma.pTAttendance.findMany({ where: { studentId: scoped }, orderBy: { markedAt: "desc" }, include: { ptSchedule: true, student: { select: userSelect } } });
+    const rows = await prisma.pTAttendance.findMany({ where: { studentId: scoped }, orderBy: { markedAt: "desc" }, include: { ptSchedule: true, student: { select: userSelect } } });
+    const latestBySchedule = new Map<string, (typeof rows)[number]>();
+    for (const row of rows) {
+      if (!latestBySchedule.has(row.ptScheduleId)) latestBySchedule.set(row.ptScheduleId, row);
+    }
+    return Array.from(latestBySchedule.values());
   },
   eligibility(requester: FitnessRequester) {
     return prisma.physicalEligibility.findMany({ where: { userId: requester.id }, orderBy: { updatedAt: "desc" } });

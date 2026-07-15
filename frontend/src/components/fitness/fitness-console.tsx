@@ -98,9 +98,9 @@ export function FitnessConsole({ view }: { view: FitnessView }) {
   const batches = batchesQuery.data ?? emptyBatches;
   const schedules = schedulesQuery.data ?? [];
   const today = todayKey();
-  const todaySessions = schedules.filter((schedule) => schedule.scheduledDate.slice(0, 10) === today);
-  const activeSchedule = todaySessions[0] ?? schedules.find((schedule) => schedule.scheduledDate.slice(0, 10) >= today) ?? null;
   const selectedBatch = useMemo(() => batches.find((batch) => batch.id === selectedBatchId) ?? batches[0], [batches, selectedBatchId]);
+  const todaySessions = schedules.filter((schedule) => schedule.scheduledDate.slice(0, 10) === today && (!selectedBatch?.id || !schedule.batchId || schedule.batchId === selectedBatch.id));
+  const activeSchedule = todaySessions[0] ?? schedules.find((schedule) => schedule.scheduledDate.slice(0, 10) >= today && (!selectedBatch?.id || !schedule.batchId || schedule.batchId === selectedBatch.id)) ?? null;
   const students = selectedBatch?.students ?? emptyStudents;
   const selectedStudent = useMemo(
     () => students.find((entry, index) => studentId(entry, index) === selectedStudentId) ?? students[0],
@@ -122,8 +122,9 @@ export function FitnessConsole({ view }: { view: FitnessView }) {
   const createTodaySession = useMutation({
     mutationFn: () => createPTSchedule({
       title: "PT Attendance",
-      description: "Daily PT attendance register",
+      description: selectedBatch ? `Daily PT attendance register for ${selectedBatch.name ?? selectedBatch.batchName ?? "selected batch"}` : "Daily PT attendance register",
       scheduledDate: new Date().toISOString(),
+      batchId: selectedBatch?.id,
       trainerName: user?.name ?? "Physical Trainer",
       activityType: "PT",
       duration: 60,
@@ -229,7 +230,7 @@ export function FitnessConsole({ view }: { view: FitnessView }) {
               {activeSchedule ? <SessionCard session={activeSchedule} /> : (
                 <div className="grid gap-3">
                   <SoftNote text="No PT register is available for today." />
-                  <button type="button" onClick={() => createTodaySession.mutate()} disabled={createTodaySession.isPending} className="min-h-12 rounded-xl bg-slate-950 px-4 text-sm font-black text-white disabled:opacity-50">Create Today Register</button>
+                  <button type="button" onClick={() => createTodaySession.mutate()} disabled={createTodaySession.isPending || !selectedBatch} className="min-h-12 rounded-xl bg-slate-950 px-4 text-sm font-black text-white disabled:opacity-50">Create Today Register</button>
                 </div>
               )}
             </Panel>

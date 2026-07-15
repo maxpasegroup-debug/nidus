@@ -18,6 +18,8 @@ export type PTSchedule = {
   title: string;
   description: string;
   scheduledDate: string;
+  trainerId?: string | null;
+  batchId?: string | null;
   trainerName: string;
   activityType: string;
   duration: number;

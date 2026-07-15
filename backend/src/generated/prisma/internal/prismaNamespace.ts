@@ -16787,6 +16787,8 @@ export const PTScheduleScalarFieldEnum = {
   title: 'title',
   description: 'description',
   scheduledDate: 'scheduledDate',
+  trainerId: 'trainerId',
+  batchId: 'batchId',
   trainerName: 'trainerName',
   activityType: 'activityType',
   duration: 'duration',

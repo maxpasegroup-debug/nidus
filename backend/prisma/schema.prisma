@@ -2532,14 +2532,18 @@ model PTSchedule {
   title         String
   description   String
   scheduledDate DateTime
+  trainerId     String?
+  batchId       String?
   trainerName   String
   activityType  String
   duration      Int
   createdAt     DateTime @default(now())
   attendances   PTAttendance[]
-
+  
   @@index([scheduledDate])
   @@index([activityType])
+  @@index([trainerId])
+  @@index([batchId])
 }
 
 model PTAttendance {
@@ -2554,6 +2558,7 @@ model PTAttendance {
 
   @@index([studentId])
   @@index([ptScheduleId])
+  @@index([studentId, ptScheduleId])
 }
 
 model PhysicalEligibility {

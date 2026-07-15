@@ -26,8 +26,8 @@ export const fitnessController = {
   async upsertProfile(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try { assertValid(req); const profile = await fitnessService.upsertProfile(requester(req), req.body); res.status(201).json({ profile, suggestions: fitnessService.suggestionsForProfile(profile) }); } catch (error) { next(error); }
   },
-  async ptSchedules(_req: Request, res: Response, next: NextFunction) {
-    try { res.json({ schedules: await fitnessService.ptSchedules() }); } catch (error) { next(error); }
+  async ptSchedules(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try { res.json({ schedules: await fitnessService.ptSchedules(requester(req)) }); } catch (error) { next(error); }
   },
   async createPTSchedule(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try { assertValid(req); res.status(201).json({ schedule: await fitnessService.createPTSchedule(requester(req), req.body) }); } catch (error) { next(error); }

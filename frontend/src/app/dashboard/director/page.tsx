@@ -10,6 +10,7 @@ import {
   Building2,
   CalendarDays,
   Camera,
+  Bell,
   ClipboardCheck,
   FileText,
   GraduationCap,
@@ -29,6 +30,7 @@ import {
   WalletCards,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { QuickActionDock } from "@/components/dashboard/quick-action-dock";
 import { getDirectorDashboard } from "@/services/dashboard";
 
 type ControlAction = {
@@ -94,6 +96,7 @@ export default function DirectorDashboardPage() {
         { label: "BDE Team", href: "/dashboard/business-development", icon: Users },
         { label: "Sales Booster", href: "/dashboard/sales-booster", icon: Megaphone },
         { label: "Leads", href: "/crm/leads", icon: ClipboardCheck },
+        { label: "Notifications", href: "/dashboard/director/notifications", icon: Bell },
         { label: "Instagram", icon: Camera, muted: true },
         { label: "Facebook", icon: Globe2, muted: true },
         { label: "WhatsApp", icon: MessageCircle, muted: true },
@@ -146,6 +149,7 @@ export default function DirectorDashboardPage() {
           ))}
         </section>
       </section>
+      <QuickActionDock role="DIRECTOR" />
     </main>
   );
 }

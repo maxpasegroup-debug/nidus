@@ -36,11 +36,13 @@ const parentMenu: DashboardNavItem[] = [
 ];
 
 const teacherMenu: DashboardNavItem[] = [
-  { label: "Today", href: "/dashboard/teacher/classes" },
-  { label: "My Classes", href: "/dashboard/teacher/my-classes" },
-  { label: "My Workspace", href: "/dashboard/teacher/workspace" },
-  { label: "Messages & Notifications", href: "/dashboard/teacher/communications" },
-  { label: "My Profile", href: "/dashboard/teacher/profile" },
+  { label: "Today", href: "/dashboard/teacher" },
+  { label: "Classes", href: "/dashboard/teacher/classes" },
+  { label: "Attendance", href: "/dashboard/teacher/attendance" },
+  { label: "Homework", href: "/dashboard/teacher/assignments" },
+  { label: "Materials", href: "/dashboard/teacher/library" },
+  { label: "Students", href: "/dashboard/teacher/students" },
+  { label: "More", href: "/dashboard/teacher/workspace" },
 ];
 
 const videoEditorMenu: DashboardNavItem[] = [
@@ -60,6 +62,7 @@ const directorMenu: DashboardNavItem[] = [
   { label: "HRM", href: "/dashboard/director/management" },
   { label: "Marketing & Sales", href: "/dashboard/business-development" },
   { label: "Admin & Accounts", href: "/dashboard/director/accounts" },
+  { label: "Notifications", href: "/dashboard/director/notifications" },
   { label: "Reports", href: "/dashboard/director/reports" },
 ];
 
@@ -68,6 +71,7 @@ const academicHeadMenu: DashboardNavItem[] = [
   { label: "My Classes", href: "/dashboard/academic-head/my-classes" },
   { label: "My Workspace", href: "/dashboard/academic-head/workspace" },
   { label: "Messages & Notifications", href: "/dashboard/academic-head/communications" },
+  { label: "Quick Announcement", href: "/dashboard/academic-head/notifications" },
   { label: "My Profile", href: "/dashboard/academic-head/profile" },
   { label: "HOD Control", href: "/dashboard/academic-head/hod/control" },
 ];

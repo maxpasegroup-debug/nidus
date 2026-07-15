@@ -39,6 +39,8 @@ export type PTScheduleMinAggregateOutputType = {
   title: string | null
   description: string | null
   scheduledDate: Date | null
+  trainerId: string | null
+  batchId: string | null
   trainerName: string | null
   activityType: string | null
   duration: number | null
@@ -50,6 +52,8 @@ export type PTScheduleMaxAggregateOutputType = {
   title: string | null
   description: string | null
   scheduledDate: Date | null
+  trainerId: string | null
+  batchId: string | null
   trainerName: string | null
   activityType: string | null
   duration: number | null
@@ -61,6 +65,8 @@ export type PTScheduleCountAggregateOutputType = {
   title: number
   description: number
   scheduledDate: number
+  trainerId: number
+  batchId: number
   trainerName: number
   activityType: number
   duration: number
@@ -82,6 +88,8 @@ export type PTScheduleMinAggregateInputType = {
   title?: true
   description?: true
   scheduledDate?: true
+  trainerId?: true
+  batchId?: true
   trainerName?: true
   activityType?: true
   duration?: true
@@ -93,6 +101,8 @@ export type PTScheduleMaxAggregateInputType = {
   title?: true
   description?: true
   scheduledDate?: true
+  trainerId?: true
+  batchId?: true
   trainerName?: true
   activityType?: true
   duration?: true
@@ -104,6 +114,8 @@ export type PTScheduleCountAggregateInputType = {
   title?: true
   description?: true
   scheduledDate?: true
+  trainerId?: true
+  batchId?: true
   trainerName?: true
   activityType?: true
   duration?: true
@@ -202,6 +214,8 @@ export type PTScheduleGroupByOutputType = {
   title: string
   description: string
   scheduledDate: Date
+  trainerId: string | null
+  batchId: string | null
   trainerName: string
   activityType: string
   duration: number
@@ -236,6 +250,8 @@ export type PTScheduleWhereInput = {
   title?: Prisma.StringFilter<"PTSchedule"> | string
   description?: Prisma.StringFilter<"PTSchedule"> | string
   scheduledDate?: Prisma.DateTimeFilter<"PTSchedule"> | Date | string
+  trainerId?: Prisma.StringNullableFilter<"PTSchedule"> | string | null
+  batchId?: Prisma.StringNullableFilter<"PTSchedule"> | string | null
   trainerName?: Prisma.StringFilter<"PTSchedule"> | string
   activityType?: Prisma.StringFilter<"PTSchedule"> | string
   duration?: Prisma.IntFilter<"PTSchedule"> | number
@@ -248,6 +264,8 @@ export type PTScheduleOrderByWithRelationInput = {
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
   scheduledDate?: Prisma.SortOrder
+  trainerId?: Prisma.SortOrderInput | Prisma.SortOrder
+  batchId?: Prisma.SortOrderInput | Prisma.SortOrder
   trainerName?: Prisma.SortOrder
   activityType?: Prisma.SortOrder
   duration?: Prisma.SortOrder
@@ -263,6 +281,8 @@ export type PTScheduleWhereUniqueInput = Prisma.AtLeast<{
   title?: Prisma.StringFilter<"PTSchedule"> | string
   description?: Prisma.StringFilter<"PTSchedule"> | string
   scheduledDate?: Prisma.DateTimeFilter<"PTSchedule"> | Date | string
+  trainerId?: Prisma.StringNullableFilter<"PTSchedule"> | string | null
+  batchId?: Prisma.StringNullableFilter<"PTSchedule"> | string | null
   trainerName?: Prisma.StringFilter<"PTSchedule"> | string
   activityType?: Prisma.StringFilter<"PTSchedule"> | string
   duration?: Prisma.IntFilter<"PTSchedule"> | number
@@ -275,6 +295,8 @@ export type PTScheduleOrderByWithAggregationInput = {
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
   scheduledDate?: Prisma.SortOrder
+  trainerId?: Prisma.SortOrderInput | Prisma.SortOrder
+  batchId?: Prisma.SortOrderInput | Prisma.SortOrder
   trainerName?: Prisma.SortOrder
   activityType?: Prisma.SortOrder
   duration?: Prisma.SortOrder
@@ -294,6 +316,8 @@ export type PTScheduleScalarWhereWithAggregatesInput = {
   title?: Prisma.StringWithAggregatesFilter<"PTSchedule"> | string
   description?: Prisma.StringWithAggregatesFilter<"PTSchedule"> | string
   scheduledDate?: Prisma.DateTimeWithAggregatesFilter<"PTSchedule"> | Date | string
+  trainerId?: Prisma.StringNullableWithAggregatesFilter<"PTSchedule"> | string | null
+  batchId?: Prisma.StringNullableWithAggregatesFilter<"PTSchedule"> | string | null
   trainerName?: Prisma.StringWithAggregatesFilter<"PTSchedule"> | string
   activityType?: Prisma.StringWithAggregatesFilter<"PTSchedule"> | string
   duration?: Prisma.IntWithAggregatesFilter<"PTSchedule"> | number
@@ -305,6 +329,8 @@ export type PTScheduleCreateInput = {
   title: string
   description: string
   scheduledDate: Date | string
+  trainerId?: string | null
+  batchId?: string | null
   trainerName: string
   activityType: string
   duration: number
@@ -317,6 +343,8 @@ export type PTScheduleUncheckedCreateInput = {
   title: string
   description: string
   scheduledDate: Date | string
+  trainerId?: string | null
+  batchId?: string | null
   trainerName: string
   activityType: string
   duration: number
@@ -329,6 +357,8 @@ export type PTScheduleUpdateInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   scheduledDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  trainerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  batchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   trainerName?: Prisma.StringFieldUpdateOperationsInput | string
   activityType?: Prisma.StringFieldUpdateOperationsInput | string
   duration?: Prisma.IntFieldUpdateOperationsInput | number
@@ -341,6 +371,8 @@ export type PTScheduleUncheckedUpdateInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   scheduledDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  trainerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  batchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   trainerName?: Prisma.StringFieldUpdateOperationsInput | string
   activityType?: Prisma.StringFieldUpdateOperationsInput | string
   duration?: Prisma.IntFieldUpdateOperationsInput | number
@@ -353,6 +385,8 @@ export type PTScheduleCreateManyInput = {
   title: string
   description: string
   scheduledDate: Date | string
+  trainerId?: string | null
+  batchId?: string | null
   trainerName: string
   activityType: string
   duration: number
@@ -364,6 +398,8 @@ export type PTScheduleUpdateManyMutationInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   scheduledDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  trainerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  batchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   trainerName?: Prisma.StringFieldUpdateOperationsInput | string
   activityType?: Prisma.StringFieldUpdateOperationsInput | string
   duration?: Prisma.IntFieldUpdateOperationsInput | number
@@ -375,6 +411,8 @@ export type PTScheduleUncheckedUpdateManyInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   scheduledDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  trainerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  batchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   trainerName?: Prisma.StringFieldUpdateOperationsInput | string
   activityType?: Prisma.StringFieldUpdateOperationsInput | string
   duration?: Prisma.IntFieldUpdateOperationsInput | number
@@ -386,6 +424,8 @@ export type PTScheduleCountOrderByAggregateInput = {
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
   scheduledDate?: Prisma.SortOrder
+  trainerId?: Prisma.SortOrder
+  batchId?: Prisma.SortOrder
   trainerName?: Prisma.SortOrder
   activityType?: Prisma.SortOrder
   duration?: Prisma.SortOrder
@@ -401,6 +441,8 @@ export type PTScheduleMaxOrderByAggregateInput = {
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
   scheduledDate?: Prisma.SortOrder
+  trainerId?: Prisma.SortOrder
+  batchId?: Prisma.SortOrder
   trainerName?: Prisma.SortOrder
   activityType?: Prisma.SortOrder
   duration?: Prisma.SortOrder
@@ -412,6 +454,8 @@ export type PTScheduleMinOrderByAggregateInput = {
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
   scheduledDate?: Prisma.SortOrder
+  trainerId?: Prisma.SortOrder
+  batchId?: Prisma.SortOrder
   trainerName?: Prisma.SortOrder
   activityType?: Prisma.SortOrder
   duration?: Prisma.SortOrder
@@ -446,6 +490,8 @@ export type PTScheduleCreateWithoutAttendancesInput = {
   title: string
   description: string
   scheduledDate: Date | string
+  trainerId?: string | null
+  batchId?: string | null
   trainerName: string
   activityType: string
   duration: number
@@ -457,6 +503,8 @@ export type PTScheduleUncheckedCreateWithoutAttendancesInput = {
   title: string
   description: string
   scheduledDate: Date | string
+  trainerId?: string | null
+  batchId?: string | null
   trainerName: string
   activityType: string
   duration: number
@@ -484,6 +532,8 @@ export type PTScheduleUpdateWithoutAttendancesInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   scheduledDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  trainerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  batchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   trainerName?: Prisma.StringFieldUpdateOperationsInput | string
   activityType?: Prisma.StringFieldUpdateOperationsInput | string
   duration?: Prisma.IntFieldUpdateOperationsInput | number
@@ -495,6 +545,8 @@ export type PTScheduleUncheckedUpdateWithoutAttendancesInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   scheduledDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  trainerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  batchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   trainerName?: Prisma.StringFieldUpdateOperationsInput | string
   activityType?: Prisma.StringFieldUpdateOperationsInput | string
   duration?: Prisma.IntFieldUpdateOperationsInput | number
@@ -537,6 +589,8 @@ export type PTScheduleSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   title?: boolean
   description?: boolean
   scheduledDate?: boolean
+  trainerId?: boolean
+  batchId?: boolean
   trainerName?: boolean
   activityType?: boolean
   duration?: boolean
@@ -550,6 +604,8 @@ export type PTScheduleSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   title?: boolean
   description?: boolean
   scheduledDate?: boolean
+  trainerId?: boolean
+  batchId?: boolean
   trainerName?: boolean
   activityType?: boolean
   duration?: boolean
@@ -561,6 +617,8 @@ export type PTScheduleSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
   title?: boolean
   description?: boolean
   scheduledDate?: boolean
+  trainerId?: boolean
+  batchId?: boolean
   trainerName?: boolean
   activityType?: boolean
   duration?: boolean
@@ -572,13 +630,15 @@ export type PTScheduleSelectScalar = {
   title?: boolean
   description?: boolean
   scheduledDate?: boolean
+  trainerId?: boolean
+  batchId?: boolean
   trainerName?: boolean
   activityType?: boolean
   duration?: boolean
   createdAt?: boolean
 }
 
-export type PTScheduleOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "description" | "scheduledDate" | "trainerName" | "activityType" | "duration" | "createdAt", ExtArgs["result"]["pTSchedule"]>
+export type PTScheduleOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "description" | "scheduledDate" | "trainerId" | "batchId" | "trainerName" | "activityType" | "duration" | "createdAt", ExtArgs["result"]["pTSchedule"]>
 export type PTScheduleInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   attendances?: boolean | Prisma.PTSchedule$attendancesArgs<ExtArgs>
   _count?: boolean | Prisma.PTScheduleCountOutputTypeDefaultArgs<ExtArgs>
@@ -596,6 +656,8 @@ export type $PTSchedulePayload<ExtArgs extends runtime.Types.Extensions.Internal
     title: string
     description: string
     scheduledDate: Date
+    trainerId: string | null
+    batchId: string | null
     trainerName: string
     activityType: string
     duration: number
@@ -1028,6 +1090,8 @@ export interface PTScheduleFieldRefs {
   readonly title: Prisma.FieldRef<"PTSchedule", 'String'>
   readonly description: Prisma.FieldRef<"PTSchedule", 'String'>
   readonly scheduledDate: Prisma.FieldRef<"PTSchedule", 'DateTime'>
+  readonly trainerId: Prisma.FieldRef<"PTSchedule", 'String'>
+  readonly batchId: Prisma.FieldRef<"PTSchedule", 'String'>
   readonly trainerName: Prisma.FieldRef<"PTSchedule", 'String'>
   readonly activityType: Prisma.FieldRef<"PTSchedule", 'String'>
   readonly duration: Prisma.FieldRef<"PTSchedule", 'Int'>

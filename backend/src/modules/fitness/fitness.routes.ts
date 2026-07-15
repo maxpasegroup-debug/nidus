@@ -16,7 +16,7 @@ fitnessRouter.post("/profile", ...fitnessRoles, profileValidators, fitnessContro
 fitnessRouter.put("/profile", ...fitnessRoles, profileValidators, fitnessController.upsertProfile);
 
 fitnessRouter.get("/pt-schedules", ...fitnessRoles, fitnessController.ptSchedules);
-fitnessRouter.post("/pt-schedules", ...trainerRoles, [body("title").trim().notEmpty(), body("description").trim().notEmpty(), body("scheduledDate").isISO8601(), body("trainerName").trim().notEmpty(), body("activityType").trim().notEmpty(), body("duration").isInt({ min: 1 })], fitnessController.createPTSchedule);
+fitnessRouter.post("/pt-schedules", ...trainerRoles, [body("title").trim().notEmpty(), body("description").trim().notEmpty(), body("scheduledDate").isISO8601(), body("trainerName").trim().notEmpty(), body("activityType").trim().notEmpty(), body("duration").isInt({ min: 1 }), body("batchId").optional().trim()], fitnessController.createPTSchedule);
 
 fitnessRouter.post("/attendance", ...trainerRoles, [body("studentId").notEmpty(), body("ptScheduleId").notEmpty(), body("attendanceStatus").trim().notEmpty(), body("remarks").optional().trim()], fitnessController.markAttendance);
 fitnessRouter.get("/attendance/:studentId", ...fitnessRoles, fitnessController.attendance);

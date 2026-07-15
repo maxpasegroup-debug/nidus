@@ -34,6 +34,7 @@ import {
   runAcademyTodayAction,
 } from "@/services/academy";
 import type { AcademyTodayTask } from "@/services/academy";
+import { QuickActionDock } from "@/components/dashboard/quick-action-dock";
 
 type HodTab = "TODAY" | "BATCHES" | "TIMETABLE" | "ALLOCATION" | "APPROVALS" | "MONITORING" | "REPORTS";
 type HodTodayTask = {
@@ -268,7 +269,7 @@ export function HodControlCenter({ initialTab = "TODAY" }: { initialTab?: HodTab
   if (tab === "TODAY") {
     const remaining = todayTasks.filter((item) => !item.done).length;
     return (
-      <main className="mx-auto grid w-full max-w-4xl gap-4">
+      <main className="mx-auto grid w-full max-w-4xl gap-4 pb-20">
         <header className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm sm:p-6">
           <p className="text-xs font-black uppercase tracking-[0.3em] text-[var(--gold-dark)]">Today</p>
           <div className="mt-2 flex flex-wrap items-end justify-between gap-3">
@@ -331,12 +332,13 @@ export function HodControlCenter({ initialTab = "TODAY" }: { initialTab?: HodTab
           {!todayTasks.length && !loading && !todayQuery.isLoading ? <Empty>{todayEmptyReason === "NO_CALENDAR_IN_RANGE" ? "No timetable is generated for the next two weeks." : "Nothing is assigned for today."}</Empty> : null}
           {loading || todayQuery.isLoading ? <Empty>Loading today&apos;s academic work.</Empty> : null}
         </section>
+        <QuickActionDock role="ACADEMIC_HEAD" />
       </main>
     );
   }
 
   return (
-    <main className="grid gap-5">
+    <main className="grid gap-5 pb-20">
       <header className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm sm:p-6">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div>
@@ -412,6 +414,7 @@ export function HodControlCenter({ initialTab = "TODAY" }: { initialTab?: HodTab
         { href: "/dashboard/academic-head/hod/calendar-monitor", icon: CalendarClock, title: "Class Execution Report", note: `${classIssues} delayed or missed class records.` },
         { href: "/dashboard/academic-head/hod/student-monitoring", icon: GraduationCap, title: "Batch & Student Report", note: `${attentionBatches.length} batches need academic attention.` },
       ]} /> : null}
+      <QuickActionDock role="ACADEMIC_HEAD" />
     </main>
   );
 }
