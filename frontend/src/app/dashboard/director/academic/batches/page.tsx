@@ -7,8 +7,7 @@ import { createAcademyBatch, getAcademyBatches, updateAcademyBatch } from "@/ser
 import { getApiErrorMessage } from "@/services/api";
 import { allAcademyPrograms } from "@/data/academy-programs";
 import { useCourses } from "@/hooks/use-courses";
-import { AcademicActionButton, AcademicCard, AcademicHero, AcademicPill, AcademicShell, EmptyState, GoldButton, Input, Panel, Select, StatCard } from "../_components";
-import { Users } from "lucide-react";
+import { AcademicActionButton, AcademicHero, AcademicShell, EmptyState, GoldButton, Input, Panel, Select, StatCard } from "../_components";
 import type { Course } from "@/types/course";
 import type { AcademyBatch } from "@/services/academy";
 
@@ -234,8 +233,8 @@ export default function DirectorBatchesPage() {
     <AcademicShell>
       <AcademicHero
         eyebrow="Batches"
-        title="Batch Control"
-        description="Create a batch only when needed. Daily work stays focused on the active batch list, status and academic head allocation."
+        title="Batches"
+        description="Create and manage active batches in a simple table. Student and staff profile editing stays outside this page."
         action={
           <div className="flex flex-wrap gap-2">
             <AcademicActionButton active={mode === "list"} onClick={() => setMode("list")}>View Batches</AcademicActionButton>
@@ -273,50 +272,45 @@ export default function DirectorBatchesPage() {
           </form>
         </Panel>
       ) : null}
-      <Panel title="Existing Batches" eyebrow="Batch grid">
+      <Panel title="Existing Batches" eyebrow="Batch table">
         {batchesQuery.isLoading ? <EmptyState text="Loading real academy batches from the database." /> : null}
         {!batchesQuery.isLoading && batchLoadError ? <EmptyState text="Batch records are unavailable because the batch API request failed. Check the message above before creating new batches." /> : null}
         {!batchesQuery.isLoading && !batchLoadError && !batches.length ? <EmptyState text="No batches found for your academic scope. Assigned and active batches will appear here." /> : null}
-        <div className="grid max-h-[54vh] gap-3 overflow-y-auto pr-1 md:grid-cols-2 xl:grid-cols-3">
-          {batches.map((batch) => {
-            const program = inferProgram(batch);
-            const mode = inferLearningMode(batch);
-            const programType = inferProgramType(batch);
-            const heads = academicHeadNames(batch);
-
-            return (
-              <AcademicCard
-                key={batch.id}
-                icon={Users}
-                eyebrow={mode}
-                title={batch.name}
-                status={<AcademicPill>{batch.status}</AcademicPill>}
-                description={`${program} / ${programType}`}
-              >
-                <div className="grid grid-cols-2 gap-2 text-sm">
-                  <div className="rounded-xl border border-[var(--border)] px-3 py-2">
-                    <span className="block text-[11px] font-black uppercase tracking-[0.16em] text-[var(--muted-blue)]">Students</span>
-                    <span className="mt-0.5 block font-black">{batch._count?.students ?? 0}</span>
-                  </div>
-                  <div className="rounded-xl border border-[var(--border)] px-3 py-2">
-                    <span className="block text-[11px] font-black uppercase tracking-[0.16em] text-[var(--muted-blue)]">Teachers</span>
-                    <span className="mt-0.5 block font-black">{batch._count?.teachers ?? 0}</span>
-                  </div>
-                </div>
-                <div className="mt-2 rounded-xl border border-[var(--border)] px-3 py-2">
-                  <span className="block text-[10px] font-black uppercase tracking-[0.18em] text-[var(--gold)]">Academic Head</span>
-                  <span className="mt-1 block text-sm font-bold">{heads}</span>
-                </div>
-                <div className="mt-3 grid grid-cols-2 gap-2">
-                  {["ACTIVE", "PAUSED", "COMPLETED", "ARCHIVED"].map((status) => (
-                    <button key={status} className="rounded-lg border border-[var(--border)] px-2.5 py-2 text-xs font-black" onClick={() => updateStatus.mutate({ id: batch.id, status })} type="button">
-                      {status}
-                    </button>
-                  ))}
-                </div>
-              </AcademicCard>
-            );
-          })}
+        <div className="max-h-[54vh] overflow-auto rounded-2xl border border-[var(--border)]">
+          <table className="w-full min-w-[980px] border-collapse text-sm">
+            <thead className="sticky top-0 bg-[var(--page-bg)] text-left">
+              <tr className="border-b border-[var(--border)]">
+                <th className="px-3 py-2 text-[11px] font-black uppercase tracking-[0.16em] text-[var(--muted-blue)]">Batch</th>
+                <th className="px-3 py-2 text-[11px] font-black uppercase tracking-[0.16em] text-[var(--muted-blue)]">Program</th>
+                <th className="px-3 py-2 text-[11px] font-black uppercase tracking-[0.16em] text-[var(--muted-blue)]">Mode</th>
+                <th className="px-3 py-2 text-[11px] font-black uppercase tracking-[0.16em] text-[var(--muted-blue)]">Students</th>
+                <th className="px-3 py-2 text-[11px] font-black uppercase tracking-[0.16em] text-[var(--muted-blue)]">Teachers</th>
+                <th className="px-3 py-2 text-[11px] font-black uppercase tracking-[0.16em] text-[var(--muted-blue)]">Academic Head</th>
+                <th className="px-3 py-2 text-[11px] font-black uppercase tracking-[0.16em] text-[var(--muted-blue)]">Status</th>
+                <th className="px-3 py-2 text-[11px] font-black uppercase tracking-[0.16em] text-[var(--muted-blue)]">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {batches.map((batch) => (
+                <tr key={batch.id} className="border-b border-[var(--border)] last:border-b-0">
+                  <td className="px-3 py-2 font-black">{batch.name}</td>
+                  <td className="px-3 py-2">{inferProgram(batch)} / {inferProgramType(batch)}</td>
+                  <td className="px-3 py-2">{inferLearningMode(batch)}</td>
+                  <td className="px-3 py-2 font-black">{batch._count?.students ?? 0}</td>
+                  <td className="px-3 py-2 font-black">{batch._count?.teachers ?? 0}</td>
+                  <td className="px-3 py-2">{academicHeadNames(batch)}</td>
+                  <td className="px-3 py-2">
+                    <span className="rounded-full border border-[var(--border)] px-2.5 py-1 text-[11px] font-black">{batch.status}</span>
+                  </td>
+                  <td className="px-3 py-2">
+                    <select className="rounded-lg border border-[var(--border)] bg-white px-2 py-1.5 text-xs font-black" value={batch.status} onChange={(event) => updateStatus.mutate({ id: batch.id, status: event.target.value })}>
+                      {["ACTIVE", "PAUSED", "COMPLETED", "ARCHIVED"].map((status) => <option key={status} value={status}>{status}</option>)}
+                    </select>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </Panel>
     </AcademicShell>

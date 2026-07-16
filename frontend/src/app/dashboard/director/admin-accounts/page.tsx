@@ -1,62 +1,38 @@
 "use client";
 
-import { BadgeIndianRupee, Building2, ClipboardCheck, FileText, Mail, PlusCircle, UserPlus, WalletCards } from "lucide-react";
+import { BadgeIndianRupee, ClipboardCheck, UserPlus, Users, WalletCards } from "lucide-react";
 import { DirectorLauncher, type DirectorTile } from "@/components/dashboard/director-launcher";
 
 const tiles: DirectorTile[] = [
   {
-    label: "Admissions",
-    href: "/dashboard/director/admissions",
-    icon: UserPlus,
-    note: "Open applications, payments, approvals and admission status.",
-  },
-  {
     label: "Applications",
     href: "/dashboard/admission-cell#applications",
     icon: ClipboardCheck,
-    note: "Open the admission cell application queue.",
+    note: "Open and verify new applications.",
   },
   {
-    label: "Approvals",
-    href: "/crm/admissions",
-    icon: ClipboardCheck,
-    note: "Review admission approvals and handoff records.",
+    label: "Admissions / Activation",
+    href: "/dashboard/director/admissions",
+    icon: UserPlus,
+    note: "Approve paid learners and activate them into batches.",
   },
   {
-    label: "Add Student",
-    href: "/dashboard/admission-cell#activation",
-    icon: PlusCircle,
-    note: "Activate admitted learners after payment and verification.",
-  },
-  {
-    label: "Admission Cell",
-    href: "/dashboard/admission-cell",
-    icon: Building2,
-    note: "Open the office desk for applications, documents and batches.",
-  },
-  {
-    label: "Finance",
-    href: "/dashboard/director/accounts?mode=overview",
-    icon: BadgeIndianRupee,
-    note: "Track collections, pending dues and account signals.",
-  },
-  {
-    label: "Email Report",
-    href: "/dashboard/director/accounts?mode=reports",
-    icon: Mail,
-    note: "Prepare date-filtered accounts reports for email sharing.",
-  },
-  {
-    label: "Custom Report",
-    href: "/dashboard/director/reports?mode=custom",
-    icon: FileText,
-    note: "Download filtered institution reports.",
-  },
-  {
-    label: "Accounts",
+    label: "Payments & Receipts",
     href: "/dashboard/director/accounts?mode=invoices",
     icon: WalletCards,
-    note: "Open the complete accounts dashboard.",
+    note: "Record payments, verify dues and download receipts.",
+  },
+  {
+    label: "Student Records",
+    href: "/dashboard/admission-cell#students",
+    icon: Users,
+    note: "View admitted students, batch status and profile records.",
+  },
+  {
+    label: "Finance Reports",
+    href: "/dashboard/director/accounts?mode=reports",
+    icon: BadgeIndianRupee,
+    note: "Download date-filtered collection and fee reports.",
   },
 ];
 
@@ -65,7 +41,7 @@ export default function DirectorAdminAccountsPage() {
     <DirectorLauncher
       eyebrow="Admin And Accounts"
       title="Admissions, Finance And Reports"
-      description="Office operations are grouped into one-touch actions without crowding the Director home page."
+      description="Simple office flow: applications, admission activation, payments, student records and finance reports."
       tiles={tiles}
       backHref="/dashboard/director"
     />

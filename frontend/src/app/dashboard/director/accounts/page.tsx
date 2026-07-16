@@ -23,13 +23,8 @@ import { createFeeInstallment, generateInvoice, getFees, getInvoices, getPayment
 type AccountMode = "overview" | "fees" | "invoices" | "expenses" | "subscriptions" | "reports" | "settings" | "audit";
 
 const accountSections = [
-  { id: "fees", title: "Fee Management", text: "Course fees, student payments and pending dues.", icon: BadgeIndianRupee, status: "Manual Ready" },
-  { id: "invoices", title: "Invoices & Receipts", text: "Generate and track payment receipts.", icon: ReceiptText, status: "Ready" },
-  { id: "expenses", title: "Expenses", text: "Office, salary, rent, marketing and operational expenses.", icon: CreditCard, status: "Manual Ready" },
-  { id: "subscriptions", title: "Subscriptions", text: "Assessments and premium module subscriptions.", icon: WalletCards, status: "Ready" },
-  { id: "reports", title: "Reports", text: "Academic, admissions, marketing, finance and staff reports.", icon: BarChart3, status: "Monitor" },
-  { id: "settings", title: "Settings", text: "Company details, contact number, branch and system controls.", icon: Settings, status: "Ready" },
-  { id: "audit", title: "Audit Logs", text: "Track important actions by staff and management.", icon: FileText, status: "Monitor" },
+  { id: "invoices", title: "Payments & Receipts", text: "Generate receipts and review payment records.", icon: ReceiptText, status: "Ready" },
+  { id: "reports", title: "Finance Reports", text: "Download collection, due and finance summaries.", icon: BarChart3, status: "Ready" },
 ];
 
 export default function DirectorAccountsPage() {
@@ -38,7 +33,7 @@ export default function DirectorAccountsPage() {
   const requestedMode = searchParams?.get("mode") as AccountMode | null;
   const [notice, setNotice] = useState("");
   const [mode, setMode] = useState<AccountMode>(
-    requestedMode && ["overview", "fees", "invoices", "expenses", "subscriptions", "reports", "settings", "audit"].includes(requestedMode) ? requestedMode : "overview",
+    requestedMode && ["invoices", "reports"].includes(requestedMode) ? requestedMode : "invoices",
   );
   const [feeForm, setFeeForm] = useState({
     studentId: "",
@@ -141,16 +136,14 @@ export default function DirectorAccountsPage() {
     <main className="min-h-screen bg-[var(--page-bg)] px-4 py-4 text-[var(--navy)] md:px-6 lg:h-[calc(100vh-var(--nav-height)-2rem)] lg:min-h-0 lg:overflow-hidden">
       <section className="mx-auto flex h-full max-w-[1500px] flex-col gap-4 overflow-y-auto pr-0 lg:pr-2">
         <div className="shrink-0 rounded-2xl border border-[var(--border)] bg-white/90 p-4 shadow-sm md:p-5">
-          <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold)]">Director Finance</p>
-          <h1 className="mt-2 text-2xl font-black tracking-tight md:text-3xl">Office & Finance Control</h1>
+          <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold)]">Admin & Accounts</p>
+          <h1 className="mt-2 text-2xl font-black tracking-tight md:text-3xl">Payments & Finance Reports</h1>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--muted-blue)]">
-            Track collected fees, pending dues, receipts, subscriptions and operating expenses from live finance records.
-            Manual fee and expense entries stay available for launch operations.
+            Keep accounts simple: record receipts, check pending dues and prepare finance reports.
           </p>
         </div>
 
-        <section className="grid shrink-0 gap-3 md:grid-cols-2 xl:grid-cols-4">
-          <ModeCard active={mode === "overview"} icon={WalletCards} status="Live" text="Director summary, attention items and money lanes." title="Overview" onClick={() => setMode("overview")} />
+        <section className="grid shrink-0 gap-3 md:grid-cols-2">
           {accountSections.map((section) => {
             const Icon = section.icon;
             return (

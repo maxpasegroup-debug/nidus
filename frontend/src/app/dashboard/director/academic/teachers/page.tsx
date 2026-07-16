@@ -3,30 +3,13 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { assignTeacherToBatch, createAcademyTeacher, getAcademyBatches, getAcademyTeachers, updateAcademyUser } from "@/services/academy";
-import { AcademicActionButton, AcademicCard, AcademicHero, AcademicPill, AcademicShell, EmptyState, GoldButton, Input, Panel, Select, StatCard } from "../_components";
-import { UserCheck } from "lucide-react";
-
-const employmentTypes = ["FULL_TIME", "PART_TIME", "HOURLY", "CONTRACT"];
+import { assignTeacherToBatch, getAcademyBatches, getAcademyTeachers } from "@/services/academy";
+import { AcademicActionButton, AcademicHero, AcademicShell, EmptyState, GoldButton, Input, Panel, Select, StatCard } from "../_components";
 
 export default function DirectorTeachersPage() {
   const queryClient = useQueryClient();
   const [notice, setNotice] = useState("");
-  const [mode, setMode] = useState<"list" | "create" | "allocate">("list");
-  const [editingTeacherId, setEditingTeacherId] = useState<string | null>(null);
-  const [lastCredentials, setLastCredentials] = useState<{ email: string; temporaryPassword: string } | null>(null);
-  const [editTeacherForm, setEditTeacherForm] = useState({ name: "", email: "", phone: "", role: "TEACHER", designation: "", department: "", employmentType: "FULL_TIME", dashboardTemplate: "", password: "" });
-  const [teacherForm, setTeacherForm] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    designation: "Teacher",
-    department: "Academics",
-    employmentType: "FULL_TIME",
-    hourlyRate: "",
-    subjects: "",
-    password: "123456789",
-  });
+  const [mode, setMode] = useState<"list" | "allocate">("list");
   const [allocation, setAllocation] = useState({ programSlug: "", batchId: "", teacherId: "", subject: "", role: "Subject Teacher" });
   const teachersQuery = useQuery({ queryKey: ["academy", "teachers"], queryFn: () => getAcademyTeachers() });
   const batchesQuery = useQuery({ queryKey: ["academy", "batches"], queryFn: () => getAcademyBatches() });
@@ -49,31 +32,6 @@ export default function DirectorTeachersPage() {
     void queryClient.invalidateQueries({ queryKey: ["academy", "batches"] });
   };
 
-  const createTeacher = useMutation({
-    mutationFn: () =>
-      createAcademyTeacher({
-        name: teacherForm.name,
-        email: teacherForm.email,
-        phone: teacherForm.phone || undefined,
-        role: "TEACHER",
-        designation: teacherForm.designation,
-        department: teacherForm.department,
-        employmentType: teacherForm.employmentType as "FULL_TIME" | "PART_TIME" | "HOURLY" | "CONTRACT",
-        hourlyRate: teacherForm.hourlyRate ? Number(teacherForm.hourlyRate) : undefined,
-        subjects: teacherForm.subjects.split(",").map((subject) => subject.trim()).filter(Boolean),
-        dashboardTemplate: "",
-        password: teacherForm.password || "123456789",
-      }),
-    onSuccess: (data) => {
-      setTeacherForm({ name: "", email: "", phone: "", designation: "Teacher", department: "Academics", employmentType: "FULL_TIME", hourlyRate: "", subjects: "", password: "123456789" });
-      setLastCredentials(data.credentials);
-      refresh();
-      setNotice("Teacher created and dashboard access allocated.");
-      setMode("list");
-    },
-    onError: (error) => setNotice(error instanceof Error ? error.message : "Could not create teacher."),
-  });
-
   const assignTeacher = useMutation({
     mutationFn: () =>
       assignTeacherToBatch(allocation.batchId, {
@@ -84,102 +42,39 @@ export default function DirectorTeachersPage() {
     onSuccess: () => {
       setAllocation({ programSlug: "", batchId: "", teacherId: "", subject: "", role: "Subject Teacher" });
       refresh();
-      setNotice("Teacher allocated to selected subjects.");
+      setNotice("Teacher allocated to the selected batch and subject.");
       setMode("list");
     },
     onError: (error) => setNotice(error instanceof Error ? error.message : "Could not allocate teacher."),
   });
-
-  const updateTeacher = useMutation({
-    mutationFn: ({ id, form }: { id: string; form: typeof editTeacherForm }) =>
-      updateAcademyUser(id, {
-        name: form.name,
-        email: form.email,
-        phone: form.phone,
-        role: form.role,
-        designation: form.designation,
-        department: form.department,
-        employmentType: form.employmentType as "FULL_TIME" | "PART_TIME" | "HOURLY" | "CONTRACT",
-        dashboardTemplate: form.dashboardTemplate,
-        ...(form.password.trim() ? { password: form.password.trim() } : {}),
-      }),
-    onSuccess: (teacher) => {
-      setNotice(`${teacher.name} updated. Login details are now active.`);
-      setEditingTeacherId(null);
-      setEditTeacherForm({ name: "", email: "", phone: "", role: "TEACHER", designation: "", department: "", employmentType: "FULL_TIME", dashboardTemplate: "", password: "" });
-      refresh();
-    },
-    onError: (error) => setNotice(error instanceof Error ? error.message : "Could not update teacher."),
-  });
-
-  const submitTeacher = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    createTeacher.mutate();
-  };
 
   const submitAllocation = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     assignTeacher.mutate();
   };
 
-  const startEditTeacher = (teacher: (typeof teachers)[number]) => {
-    setEditingTeacherId(teacher.id);
-    setEditTeacherForm({
-      name: teacher.name ?? "",
-      email: teacher.email ?? "",
-      phone: teacher.mobile ?? "",
-      role: teacher.role ?? "TEACHER",
-      designation: String(teacher.roleMetadata?.designation ?? "Teacher"),
-      department: String(teacher.roleMetadata?.department ?? "Academics"),
-      employmentType: String(teacher.roleMetadata?.employmentType ?? "FULL_TIME"),
-      dashboardTemplate: String(teacher.roleMetadata?.dashboardTemplate ?? ""),
-      password: "",
-    });
-  };
-
   return (
     <AcademicShell>
       <AcademicHero
-        eyebrow="Teachers"
-        title="Faculty Control"
-        description="Keep the teacher list visible. Add teachers or allocate subjects only when that action is needed."
+        eyebrow="Teacher Allocation"
+        title="Teacher Allocation"
+        description="Assign existing staff to batches and subjects. Add or edit staff profiles from HRM."
         action={
           <div className="flex flex-wrap gap-2">
-            <AcademicActionButton active={mode === "list"} onClick={() => setMode("list")}>Teacher List</AcademicActionButton>
-            <AcademicActionButton active={mode === "create"} onClick={() => setMode("create")}>Add Teacher</AcademicActionButton>
-            <AcademicActionButton active={mode === "allocate"} onClick={() => setMode("allocate")}>Allocate Subject</AcademicActionButton>
+            <AcademicActionButton active={mode === "list"} onClick={() => setMode("list")}>Allocation List</AcademicActionButton>
+            <AcademicActionButton active={mode === "allocate"} onClick={() => setMode("allocate")}>Allocate Teacher</AcademicActionButton>
           </div>
         }
       />
-      {notice ? <div className="rounded-2xl border border-[var(--gold-border)] bg-[var(--gold-soft)] p-4 text-sm font-bold">{notice}</div> : null}
-      {lastCredentials ? <div className="rounded-2xl border border-[var(--border)] bg-white px-3 py-2 text-sm font-bold">Login created: {lastCredentials.email} / Password: {lastCredentials.temporaryPassword}</div> : null}
+      {notice ? <div className="rounded-2xl border border-[var(--gold-border)] bg-[var(--gold-soft)] px-3 py-2 text-sm font-bold">{notice}</div> : null}
       <section className="grid shrink-0 gap-3 md:grid-cols-3">
         <StatCard label="Teachers" value={teachers.length} />
         <StatCard label="Batches" value={batches.length} />
-        <StatCard label="Default Password" value="123456789" />
+        <StatCard label="Programs" value={programs.length} />
       </section>
-      {mode !== "list" ? (
-      <section className="grid gap-4 xl:grid-cols-2">
-        {mode === "create" ? (
-        <Panel title="Create Teacher" eyebrow="Employee account">
-          <form onSubmit={submitTeacher} className="grid gap-4 md:grid-cols-2">
-            <Input label="Teacher name" value={teacherForm.name} onChange={(value) => setTeacherForm((state) => ({ ...state, name: value }))} required />
-            <Input label="Email" type="email" value={teacherForm.email} onChange={(value) => setTeacherForm((state) => ({ ...state, email: value }))} required />
-            <Input label="Phone" value={teacherForm.phone} onChange={(value) => setTeacherForm((state) => ({ ...state, phone: value }))} />
-            <Input label="Designation" value={teacherForm.designation} onChange={(value) => setTeacherForm((state) => ({ ...state, designation: value }))} />
-            <Select label="Employment" value={teacherForm.employmentType} onChange={(value) => setTeacherForm((state) => ({ ...state, employmentType: value }))}>
-              {employmentTypes.map((type) => <option key={type} value={type}>{type}</option>)}
-            </Select>
-            <Input label="Hourly rate" type="number" value={teacherForm.hourlyRate} onChange={(value) => setTeacherForm((state) => ({ ...state, hourlyRate: value }))} />
-            <Input label="Subjects comma separated" value={teacherForm.subjects} onChange={(value) => setTeacherForm((state) => ({ ...state, subjects: value }))} />
-            <Input label="Temporary password" value={teacherForm.password} onChange={(value) => setTeacherForm((state) => ({ ...state, password: value }))} />
-            <div className="md:col-span-2"><GoldButton disabled={createTeacher.isPending}>Create Teacher</GoldButton></div>
-          </form>
-        </Panel>
-        ) : null}
-        {mode === "allocate" ? (
+      {mode === "allocate" ? (
         <Panel title="Allocate Teacher" eyebrow="Program batch subject">
-          <form onSubmit={submitAllocation} className="grid gap-4">
+          <form onSubmit={submitAllocation} className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
             <Select label="Program" value={allocation.programSlug} onChange={(value) => setAllocation((state) => ({ ...state, programSlug: value, batchId: "" }))} required>
               <option value="">Select program</option>
               {programs.map(([slug, title]) => <option key={slug} value={slug}>{title}</option>)}
@@ -194,54 +89,40 @@ export default function DirectorTeachersPage() {
             </Select>
             <Input label="Subject" value={allocation.subject} onChange={(value) => setAllocation((state) => ({ ...state, subject: value }))} placeholder="Mathematics" required />
             <Input label="Role" value={allocation.role} onChange={(value) => setAllocation((state) => ({ ...state, role: value }))} />
-            <GoldButton disabled={assignTeacher.isPending}>Assign Teacher</GoldButton>
+            <div className="flex items-end">
+              <GoldButton disabled={assignTeacher.isPending}>Assign Teacher</GoldButton>
+            </div>
           </form>
         </Panel>
-        ) : null}
-      </section>
       ) : null}
-      <Panel title="Teacher List" eyebrow="Employees">
-        {!teachers.length ? <EmptyState text="No teachers available yet." /> : null}
-        <div className="grid max-h-[54vh] gap-3 overflow-y-auto pr-1 md:grid-cols-2 xl:grid-cols-3">
-          {teachers.map((teacher) => (
-            <div key={teacher.id} className={editingTeacherId === teacher.id ? "rounded-2xl border border-[var(--gold-border)] bg-[var(--gold-soft)] p-3" : ""}>
-              {editingTeacherId === teacher.id ? (
-                <div className="grid gap-3">
-                  <Input label="Name" value={editTeacherForm.name} onChange={(value) => setEditTeacherForm((state) => ({ ...state, name: value }))} />
-                  <Input label="Email / Login" type="email" value={editTeacherForm.email} onChange={(value) => setEditTeacherForm((state) => ({ ...state, email: value }))} />
-                  <Input label="Contact" value={editTeacherForm.phone} onChange={(value) => setEditTeacherForm((state) => ({ ...state, phone: value }))} />
-                  <Input label="Designation" value={editTeacherForm.designation} onChange={(value) => setEditTeacherForm((state) => ({ ...state, designation: value }))} />
-                  <Select label="Role" value={editTeacherForm.role} onChange={(value) => setEditTeacherForm((state) => ({ ...state, role: value }))}>
-                    <option value="TEACHER">Teacher / Trainer</option>
-                    <option value="ACADEMIC_HEAD">Academic Head</option>
-                    <option value="PHYSICAL_TRAINER">Physical Trainer</option>
-                  </Select>
-                  <Select label="Employment" value={editTeacherForm.employmentType} onChange={(value) => setEditTeacherForm((state) => ({ ...state, employmentType: value }))}>
-                    {employmentTypes.map((type) => <option key={type} value={type}>{type}</option>)}
-                  </Select>
-                  <Select label="Dashboard" value={editTeacherForm.dashboardTemplate} onChange={(value) => setEditTeacherForm((state) => ({ ...state, dashboardTemplate: value }))}>
-                    <option value="">Default teacher</option>
-                    <option value="ACADEMIC_HEAD">Academic Head</option>
-                    <option value="PHYSICAL_TRAINER">Physical Trainer</option>
-                  </Select>
-                  <Input label="New password" value={editTeacherForm.password} onChange={(value) => setEditTeacherForm((state) => ({ ...state, password: value }))} placeholder="Leave blank to keep same" />
-                  <div className="flex gap-2">
-                    <button type="button" onClick={() => setEditingTeacherId(null)} className="rounded-xl border border-[var(--border)] px-3 py-2 text-xs font-black">Cancel</button>
-                    <button type="button" onClick={() => updateTeacher.mutate({ id: teacher.id, form: editTeacherForm })} disabled={updateTeacher.isPending} className="rounded-xl bg-[var(--navy)] px-3 py-2 text-xs font-black text-white disabled:opacity-60">Save</button>
-                  </div>
-                </div>
-              ) : (
-                <AcademicCard
-                  icon={UserCheck}
-                  eyebrow={String(teacher.roleMetadata?.designation ?? "Teacher")}
-                  title={teacher.name}
-                  status={<AcademicPill>{String(teacher.roleMetadata?.employmentType ?? "FULL_TIME")}</AcademicPill>}
-                  description={`${teacher.email} / ${teacher.mobile || "No phone"}`}
-                  action={<button type="button" onClick={() => startEditTeacher(teacher)} className="rounded-xl border border-[var(--border)] px-3 py-2 text-xs font-black">Edit profile</button>}
-                />
-              )}
-            </div>
-          ))}
+      <Panel title="Teacher Allocation List" eyebrow="Existing staff">
+        {teachersQuery.isLoading ? <EmptyState text="Loading teachers..." /> : null}
+        {!teachersQuery.isLoading && !teachers.length ? <EmptyState text="No teachers available yet. Add staff from HRM first." /> : null}
+        <div className="max-h-[54vh] overflow-auto rounded-2xl border border-[var(--border)]">
+          <table className="w-full min-w-[860px] border-collapse text-sm">
+            <thead className="sticky top-0 bg-[var(--page-bg)] text-left">
+              <tr className="border-b border-[var(--border)]">
+                <th className="px-3 py-2 text-[11px] font-black uppercase tracking-[0.16em] text-[var(--muted-blue)]">Teacher</th>
+                <th className="px-3 py-2 text-[11px] font-black uppercase tracking-[0.16em] text-[var(--muted-blue)]">Contact</th>
+                <th className="px-3 py-2 text-[11px] font-black uppercase tracking-[0.16em] text-[var(--muted-blue)]">Designation</th>
+                <th className="px-3 py-2 text-[11px] font-black uppercase tracking-[0.16em] text-[var(--muted-blue)]">Employment</th>
+                <th className="px-3 py-2 text-[11px] font-black uppercase tracking-[0.16em] text-[var(--muted-blue)]">Dashboard</th>
+              </tr>
+            </thead>
+            <tbody>
+              {teachers.map((teacher) => (
+                <tr key={teacher.id} className="border-b border-[var(--border)] last:border-b-0">
+                  <td className="px-3 py-2 font-black">{teacher.name}</td>
+                  <td className="px-3 py-2">{teacher.email} / {teacher.mobile || "No phone"}</td>
+                  <td className="px-3 py-2">{String(teacher.roleMetadata?.designation ?? "Teacher")}</td>
+                  <td className="px-3 py-2">
+                    <span className="rounded-full border border-[var(--border)] px-2.5 py-1 text-[11px] font-black">{String(teacher.roleMetadata?.employmentType ?? "FULL_TIME")}</span>
+                  </td>
+                  <td className="px-3 py-2">{String(teacher.roleMetadata?.dashboardTemplate ?? "Default teacher") || "Default teacher"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </Panel>
     </AcademicShell>

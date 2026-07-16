@@ -2,9 +2,9 @@
 
 import { useMemo, useState } from "react";
 import type { FormEvent } from "react";
-import { BookOpen, Laptop, MapPin, Plus } from "lucide-react";
+import { Laptop, MapPin, Plus } from "lucide-react";
 
-import { AcademicActionButton, AcademicCard, AcademicHero, AcademicPill, AcademicShell, EmptyState, GoldButton, Input, Panel, Select, TextArea } from "../_components";
+import { AcademicActionButton, AcademicHero, AcademicShell, EmptyState, GoldButton, Input, Panel, Select, StatCard, TextArea } from "../_components";
 import { allAcademyPrograms } from "@/data/academy-programs";
 import { useCreateCourse, useCourses } from "@/hooks/use-courses";
 import type { Course } from "@/types/course";
@@ -172,8 +172,8 @@ export default function DirectorProgramsPage() {
     <AcademicShell>
       <AcademicHero
         eyebrow="Programs & Courses"
-        title="Offline and online academy programs."
-        description="This page only shows existing programs and courses. Choose Offline or Online, view the program grid, or create a new course for the selected category."
+        title="Programs"
+        description="Simple program list for office use. Add a course only when a new academy offering is approved."
         action={
           <AcademicActionButton onClick={() => setShowCreate((value) => !value)}>
             <Plus className="h-4 w-4" />
@@ -182,25 +182,17 @@ export default function DirectorProgramsPage() {
         }
       />
 
-      <section className="grid shrink-0 gap-3 md:grid-cols-2">
-        <button className="text-left" onClick={() => setSelectedMode("OFFLINE")} type="button">
-          <AcademicCard
-            icon={MapPin}
-            title="Offline"
-            selected={selectedMode === "OFFLINE"}
-            description="Classroom, crash course, physical training and centre-based programs."
-            action={<AcademicPill>{offlineCount} program(s)</AcademicPill>}
-          />
+      <section className="grid shrink-0 gap-3 md:grid-cols-[1fr_1fr_1fr]">
+        <StatCard label="Total Programs" value={courses.length} />
+        <button className={`rounded-2xl border px-3 py-2 text-left shadow-sm ${selectedMode === "OFFLINE" ? "border-[var(--gold-border)] bg-[var(--gold-soft)]" : "border-[var(--border)] bg-white"}`} onClick={() => setSelectedMode("OFFLINE")} type="button">
+          <MapPin className="h-4 w-4 text-[var(--gold)]" />
+          <p className="mt-1 text-sm font-black">Offline</p>
+          <p className="text-xl font-black">{offlineCount}</p>
         </button>
-
-        <button className="text-left" onClick={() => setSelectedMode("ONLINE")} type="button">
-          <AcademicCard
-            icon={Laptop}
-            title="Online"
-            selected={selectedMode === "ONLINE"}
-            description="Live online, recorded support, exam coaching and digital learning programs."
-            action={<AcademicPill>{onlineCount} program(s)</AcademicPill>}
-          />
+        <button className={`rounded-2xl border px-3 py-2 text-left shadow-sm ${selectedMode === "ONLINE" ? "border-[var(--gold-border)] bg-[var(--gold-soft)]" : "border-[var(--border)] bg-white"}`} onClick={() => setSelectedMode("ONLINE")} type="button">
+          <Laptop className="h-4 w-4 text-[var(--gold)]" />
+          <p className="mt-1 text-sm font-black">Online</p>
+          <p className="text-xl font-black">{onlineCount}</p>
         </button>
       </section>
 
@@ -241,25 +233,37 @@ export default function DirectorProgramsPage() {
             }
           />
         ) : null}
-        <div className="grid max-h-[52vh] gap-3 overflow-y-auto pr-1 md:grid-cols-2 xl:grid-cols-3">
-          {modeCourses.map((course) => {
-            const meta = parseDescription(course);
-            return (
-              <AcademicCard
-                key={course.id}
-                icon={BookOpen}
-                eyebrow={course.category}
-                title={course.title}
-                description={<p className="line-clamp-2">{meta.summary}</p>}
-              >
-                <div className="flex flex-wrap gap-2">
-                  <AcademicPill>{course.examType}</AcademicPill>
-                  <AcademicPill>{course.duration}</AcademicPill>
-                  <AcademicPill>Rs {course.price}</AcademicPill>
-                </div>
-              </AcademicCard>
-            );
-          })}
+        <div className="max-h-[52vh] overflow-auto rounded-2xl border border-[var(--border)]">
+          <table className="w-full min-w-[860px] border-collapse text-sm">
+            <thead className="sticky top-0 bg-[var(--page-bg)] text-left">
+              <tr className="border-b border-[var(--border)]">
+                <th className="px-3 py-2 text-[11px] font-black uppercase tracking-[0.16em] text-[var(--muted-blue)]">Program</th>
+                <th className="px-3 py-2 text-[11px] font-black uppercase tracking-[0.16em] text-[var(--muted-blue)]">Category</th>
+                <th className="px-3 py-2 text-[11px] font-black uppercase tracking-[0.16em] text-[var(--muted-blue)]">Target</th>
+                <th className="px-3 py-2 text-[11px] font-black uppercase tracking-[0.16em] text-[var(--muted-blue)]">Fee</th>
+                <th className="px-3 py-2 text-[11px] font-black uppercase tracking-[0.16em] text-[var(--muted-blue)]">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {modeCourses.map((course) => {
+                const meta = parseDescription(course);
+                return (
+                  <tr key={course.id} className="border-b border-[var(--border)] last:border-b-0">
+                    <td className="px-3 py-2">
+                      <p className="font-black">{course.title}</p>
+                      <p className="line-clamp-1 text-xs text-[var(--muted-blue)]">{meta.summary}</p>
+                    </td>
+                    <td className="px-3 py-2">{course.category}</td>
+                    <td className="px-3 py-2">{course.duration}</td>
+                    <td className="px-3 py-2 font-black">Rs {course.price}</td>
+                    <td className="px-3 py-2">
+                      <span className="rounded-full border border-[var(--border)] px-2.5 py-1 text-[11px] font-black">{course.isPremium ? "Premium" : "Active"}</span>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
       </Panel>
     </AcademicShell>

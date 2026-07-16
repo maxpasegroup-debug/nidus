@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowRight, BadgeIndianRupee, CheckCircle2, ClipboardCheck, FileCheck2, FilePlus2, PenLine, PhoneCall, UserCheck } from "lucide-react";
+import { ArrowRight, BadgeIndianRupee, CheckCircle2, ClipboardCheck, UserCheck } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { getAdmissions, getApprovals, getFollowups, getLeads } from "@/services/crm";
 import type { Lead } from "@/types/crm";
@@ -32,7 +32,6 @@ export default function DirectorAdmissionsPage() {
   const approvals = approvalsQuery.data ?? [];
   const activeLeads = leads.filter((lead) => lead.status !== "ENROLLED" && lead.status !== "LOST");
   const applications = activeLeads.filter((lead) => hasNote(lead, "application") || hasNote(lead, "Ready For Admission") || lead.status === "COUNSELLING");
-  const documentsPending = activeLeads.filter((lead) => hasNote(lead, "Documents: PENDING") || !hasNote(lead, "Documents: VERIFIED"));
   const feesPending = activeLeads.filter((lead) => hasNote(lead, "Fees: PENDING") || (!hasNote(lead, "Fees: PAID") && !hasNote(lead, "Fees: APPROVED")));
   const pendingApprovals = approvals.filter((approval) => approval.status === "PENDING");
   const today = new Date().toISOString().slice(0, 10);
@@ -40,14 +39,10 @@ export default function DirectorAdmissionsPage() {
   const loading = leadsQuery.isLoading || admissionsQuery.isLoading || followupsQuery.isLoading || approvalsQuery.isLoading;
 
   const actions: ActionCard[] = [
-    { title: "Leads", note: "New enquiries and follow-ups", href: "/crm/leads", icon: PhoneCall, value: leads.length },
     { title: "Applications", note: "Open applicant files", href: "/dashboard/admission-cell#applications", icon: ClipboardCheck, value: applications.length },
-    { title: "Admissions", note: "Admitted students", href: "/crm/admissions", icon: UserCheck, value: admissions.length },
-    { title: "Add Application", note: "Create AO intake", href: "/dashboard/admission-cell#applications", icon: FilePlus2 },
-    { title: "Documents", note: "Verify uploads", href: "/dashboard/admission-cell#documents", icon: FileCheck2, value: documentsPending.length },
-    { title: "Payment", note: "Record receipt", href: "/dashboard/admission-cell#fees", icon: BadgeIndianRupee, value: feesPending.length },
-    { title: "Approve & Sign", note: "Final approval", href: "/crm/admissions", icon: PenLine, value: pendingApprovals.length },
-    { title: "Activate", note: "Batch and dashboard", href: "/dashboard/admission-cell#activation", icon: CheckCircle2 },
+    { title: "Admissions / Activation", note: "Approve paid learners and activate", href: "/dashboard/admission-cell#activation", icon: CheckCircle2, value: pendingApprovals.length },
+    { title: "Payments", note: "Record receipt and fee readiness", href: "/dashboard/admission-cell#fees", icon: BadgeIndianRupee, value: feesPending.length },
+    { title: "Student Records", note: "Open admitted learner list", href: "/dashboard/admission-cell#students", icon: UserCheck, value: admissions.length },
   ];
 
   const visibleApplications = useMemo(() => (applications.length ? applications : activeLeads).slice(0, 8), [activeLeads, applications]);
@@ -59,7 +54,7 @@ export default function DirectorAdmissionsPage() {
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div>
               <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold)]">Admissions</p>
-              <h1 className="mt-1 text-3xl font-black leading-tight">Simple admission desk</h1>
+              <h1 className="mt-1 text-2xl font-black leading-tight">Admissions / Activation</h1>
             </div>
             <div className="grid gap-2 sm:grid-cols-3 lg:w-[520px]">
               <Metric label="Applications" value={loading ? "..." : applications.length} />
@@ -77,7 +72,7 @@ export default function DirectorAdmissionsPage() {
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <p className="text-xs font-black uppercase tracking-[0.24em] text-[var(--gold)]">Applications</p>
-              <h2 className="mt-1 text-2xl font-black">Open applicant and take action</h2>
+              <h2 className="mt-1 text-xl font-black">Open applicant and take action</h2>
             </div>
             <Link href="/dashboard/admission-cell#applications" className="rounded-xl bg-slate-950 px-4 py-3 text-sm font-black text-white">Open AO Desk</Link>
           </div>
@@ -93,9 +88,8 @@ export default function DirectorAdmissionsPage() {
                 </div>
                 <div className="mt-4 grid gap-2">
                   <Link href="/dashboard/admission-cell#applications" className="rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-center text-xs font-black">Open Application</Link>
-                  <Link href="/dashboard/admission-cell#documents" className="rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-center text-xs font-black">Verify Documents</Link>
                   <Link href="/dashboard/admission-cell#fees" className="rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-center text-xs font-black">Record Payment</Link>
-                  <Link href="/crm/admissions" className="rounded-xl bg-slate-950 px-3 py-2 text-center text-xs font-black text-white">Approve / Sign</Link>
+                  <Link href="/dashboard/admission-cell#activation" className="rounded-xl bg-slate-950 px-3 py-2 text-center text-xs font-black text-white">Activate</Link>
                 </div>
               </article>
             ))}

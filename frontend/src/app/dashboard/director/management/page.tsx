@@ -1,22 +1,9 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  Archive,
-  BadgeIndianRupee,
-  CheckCircle2,
-  GraduationCap,
-  KeyRound,
-  Pencil,
-  Save,
-  ShieldCheck,
-  UserPlus,
-  Users,
-  X,
-} from "lucide-react";
+import { Archive, KeyRound, Pencil, Save, ShieldCheck, UserPlus, Users, X } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 type Employee = {
@@ -71,7 +58,7 @@ type EditableAccountPayload = {
   password: string;
 };
 
-type HrmMode = "overview" | "add" | "manage" | "archive" | "access" | "roles" | "permissions";
+type HrmMode = "add" | "manage" | "archive" | "access";
 
 async function apiJson<T>(path: string, init?: RequestInit): Promise<T> {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_API_BASE_URL || "";
@@ -155,10 +142,9 @@ export default function DirectorManagementPage() {
   const requestedMode = searchParams?.get("mode") as HrmMode | null;
   const [notice, setNotice] = useState("");
   const [mode, setMode] = useState<HrmMode>(
-    requestedMode && ["overview", "add", "manage", "archive", "access", "roles", "permissions"].includes(requestedMode) ? requestedMode : "overview",
+    requestedMode && ["add", "manage", "archive", "access"].includes(requestedMode) ? requestedMode : "manage",
   );
   const [activeTab, setActiveTab] = useState<"ACTIVE" | "ARCHIVED">("ACTIVE");
-  const [accountGroup, setAccountGroup] = useState<"TEAM" | "STUDENTS">("TEAM");
   const [lastCredentials, setLastCredentials] = useState<{ email: string; temporaryPassword: string } | null>(null);
   const [editingAccountId, setEditingAccountId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<EditableAccountPayload | null>(null);
@@ -283,12 +269,8 @@ export default function DirectorManagementPage() {
   const archivedAccounts = (employeesQuery.data ?? []).filter((employee) => employee.roleMetadata?.status === "ARCHIVED");
   const lockedAccounts = activeAccounts.filter((employee) => isAccountLocked(employee));
   const activeTeam = activeAccounts.filter(isTeamAccount);
-  const activeStudents = activeAccounts.filter(isStudentAccount);
   const visibleAccounts = activeTab === "ACTIVE" ? activeAccounts : archivedAccounts;
   const visibleTeam = visibleAccounts.filter(isTeamAccount);
-  const visibleStudents = visibleAccounts.filter(isStudentAccount);
-  const studentGroups = groupStudentsByBatch(visibleStudents);
-  const activeTeamGroups = groupTeamAccounts(activeTeam);
   const visibleTeamGroups = groupTeamAccounts(visibleTeam);
 
   const applyQuickProfile = (profile: (typeof quickProfiles)[number]) => {
@@ -335,43 +317,23 @@ export default function DirectorManagementPage() {
           <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold)]">People Control</p>
           <h1 className="mt-1 text-2xl font-black tracking-tight">HRM Staff And Access</h1>
           <p className="mt-1 max-w-3xl text-sm leading-6 text-[var(--muted-blue)]">
-            Add employees, generate credentials, control student and staff access, reset passwords and archive old accounts safely
-            into history.
+            Add staff, edit staff details, reset access and archive inactive employees.
           </p>
         </div>
 
         <div className="grid shrink-0 gap-3 md:grid-cols-2 xl:grid-cols-4">
           <Metric icon={Users} label="Team Accounts" value={activeTeam.length} />
-          <Metric icon={GraduationCap} label="Students" value={activeStudents.length} />
+          <Metric icon={UserPlus} label="Active Staff" value={activeTeam.length} />
           <Metric icon={Archive} label="Archived History" value={archivedAccounts.length} />
           <Metric icon={ShieldCheck} label="Locked Accounts" value={lockedAccounts.length} />
         </div>
 
-        <section className="grid shrink-0 gap-2 md:grid-cols-4 xl:grid-cols-7">
-          <ModeButton active={mode === "overview"} icon={Users} label="Overview" onClick={() => setMode("overview")} />
-          <ModeButton active={mode === "add"} icon={UserPlus} label="Add Employee" onClick={() => setMode("add")} />
+        <section className="grid shrink-0 gap-2 md:grid-cols-4">
+          <ModeButton active={mode === "add"} icon={UserPlus} label="Add Staff" onClick={() => setMode("add")} />
           <ModeButton active={mode === "manage"} icon={Users} label="Manage Staff" onClick={() => setMode("manage")} />
+          <ModeButton active={mode === "access"} icon={KeyRound} label="Access & Password" onClick={() => setMode("access")} />
           <ModeButton active={mode === "archive"} icon={Archive} label="Archive Staff" onClick={() => { setActiveTab("ARCHIVED"); setMode("archive"); }} />
-          <ModeButton active={mode === "access"} icon={KeyRound} label="Access" onClick={() => setMode("access")} />
-          <ModeButton active={mode === "roles"} icon={ShieldCheck} label="Roles" onClick={() => setMode("roles")} />
-          <ModeButton active={mode === "permissions"} icon={ShieldCheck} label="Permissions" onClick={() => setMode("permissions")} />
         </section>
-
-        {mode === "overview" ? (
-        <section className="rounded-2xl border border-[var(--border)] bg-white/90 p-3 shadow-sm md:p-4">
-          <p className="text-[11px] font-black uppercase tracking-[0.28em] text-[var(--gold)]">People Structure</p>
-          <h2 className="mt-1 text-xl font-black">Team grouped by duty</h2>
-          <div className="mt-3 grid max-h-[52vh] gap-3 overflow-y-auto pr-1 md:grid-cols-2 xl:grid-cols-3">
-            {activeTeamGroups.map((group) => (
-              <div key={group.label} className="rounded-2xl border border-[var(--border)] bg-white p-3">
-                <p className="text-[11px] font-black uppercase tracking-[0.22em] text-[var(--gold)]">{group.label}</p>
-                <p className="mt-2 text-2xl font-black">{group.accounts.length}</p>
-                <p className="mt-1 text-sm text-[var(--muted-blue)]">{group.description}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-        ) : null}
 
         {notice && <div className="rounded-2xl border border-[var(--gold-border)] bg-[var(--gold-soft)] px-3 py-2 text-sm font-bold">{notice}</div>}
 
@@ -396,7 +358,7 @@ export default function DirectorManagementPage() {
         )}
 
         {mode === "add" ? (
-        <section className="grid gap-3 lg:grid-cols-[0.9fr_1.1fr]">
+        <section className="grid gap-3">
           <div className="rounded-2xl border border-[var(--border)] bg-white/90 p-3 shadow-sm md:p-4">
             <p className="text-[11px] font-black uppercase tracking-[0.28em] text-[var(--gold)]">Add Employee</p>
             <h2 className="mt-1 text-xl font-black">Create credentials</h2>
@@ -468,44 +430,7 @@ export default function DirectorManagementPage() {
             </form>
           </div>
 
-          <div className="rounded-2xl border border-[var(--border)] bg-white/90 p-3 shadow-sm md:p-4">
-            <p className="text-[11px] font-black uppercase tracking-[0.28em] text-[var(--gold)]">Director Teaching Mode</p>
-            <h2 className="mt-1 text-xl font-black">Director can teach when required</h2>
-            <div className="mt-3 grid gap-3">
-              <Info icon={CheckCircle2} text="Director can open Academic Department and assign himself/herself as teacher to any batch." />
-              <Info icon={GraduationCap} text="Once assigned, the same class calendar, batch and syllabus tracker can be managed by the Director." />
-              <Info icon={BadgeIndianRupee} text="Academic Head and teachers remain operational users; Director keeps planning and override control." />
-            </div>
-            <div className="mt-3 flex flex-wrap gap-2">
-              <Link className="rounded-xl bg-[var(--gold-gradient)] px-4 py-2 text-sm font-black text-[var(--navy)] shadow-lg" href="/dashboard/director/academic">
-                Assign Teaching Role
-              </Link>
-              <Link className="rounded-xl border border-[var(--border)] bg-white px-4 py-2 text-sm font-black" href="/dashboard/director/teaching">
-                Open Teaching View
-              </Link>
-            </div>
-          </div>
         </section>
-        ) : null}
-
-        {mode === "overview" ? (
-        <>
-        <section id="attendance" className="rounded-2xl border border-[var(--border)] bg-white/90 p-3 shadow-sm md:p-4">
-          <p className="text-[11px] font-black uppercase tracking-[0.28em] text-[var(--gold)]">Attendance & Leave</p>
-          <h2 className="mt-1 text-xl font-black">Launch setup state</h2>
-          <div className="mt-3 rounded-2xl border border-dashed border-[var(--border)] bg-white/70 p-3 text-sm leading-6 text-[var(--muted-blue)]">
-            Staff attendance and leave approval can be connected here. Employee account creation and access control are already active.
-          </div>
-        </section>
-
-        <section id="performance" className="rounded-2xl border border-[var(--border)] bg-white/90 p-3 shadow-sm md:p-4">
-          <p className="text-[11px] font-black uppercase tracking-[0.28em] text-[var(--gold)]">Performance Review</p>
-          <h2 className="mt-1 text-xl font-black">Teacher and staff output</h2>
-          <div className="mt-3 rounded-2xl border border-dashed border-[var(--border)] bg-white/70 p-3 text-sm leading-6 text-[var(--muted-blue)]">
-            Performance combines class completion, academic calendar logs, student progress and management reviews as those records are created.
-          </div>
-        </section>
-        </>
         ) : null}
 
         {mode === "access" ? (
@@ -548,70 +473,17 @@ export default function DirectorManagementPage() {
         </section>
         ) : null}
 
-        {mode === "roles" ? (
-        <section className="rounded-2xl border border-[var(--border)] bg-white/90 p-3 shadow-sm md:p-4">
-          <p className="text-[11px] font-black uppercase tracking-[0.28em] text-[var(--gold)]">Roles</p>
-          <h2 className="mt-1 text-xl font-black">Role control</h2>
-          <div className="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-            {roleOptions.map((role) => (
-              <div key={`${role.value}-${role.dashboardTemplate ?? role.label}`} className="rounded-2xl border border-[var(--border)] bg-white p-3">
-                <p className="font-black">{role.label}</p>
-                <p className="mt-2 text-sm text-[var(--muted-blue)]">System role: {role.value}</p>
-                <p className="mt-1 text-sm text-[var(--muted-blue)]">Dashboard: {role.dashboardTemplate || "Default"}</p>
-              </div>
-            ))}
-          </div>
-          <Link href="/admin-center/roles" className="mt-3 inline-flex rounded-xl bg-[var(--gold-gradient)] px-4 py-2 text-sm font-black text-[var(--navy)] shadow-lg">
-            Open Advanced Roles
-          </Link>
-        </section>
-        ) : null}
-
-        {mode === "permissions" ? (
-        <section className="rounded-2xl border border-[var(--border)] bg-white/90 p-3 shadow-sm md:p-4">
-          <p className="text-[11px] font-black uppercase tracking-[0.28em] text-[var(--gold)]">Permissions</p>
-          <h2 className="mt-1 text-xl font-black">Access rules</h2>
-          <div className="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-            <Info icon={ShieldCheck} text="Director keeps full access to all department control panels." />
-            <Info icon={GraduationCap} text="Academic Head controls timetable, teachers, batches and academic reports." />
-            <Info icon={BadgeIndianRupee} text="Administrative Officer handles applications, documents, fees and activation." />
-            <Info icon={Users} text="Teachers and trainers see only their assigned classes, batches and attendance." />
-          </div>
-          <Link href="/admin-center/permissions" className="mt-3 inline-flex rounded-xl bg-[var(--gold-gradient)] px-4 py-2 text-sm font-black text-[var(--navy)] shadow-lg">
-            Open Advanced Permissions
-          </Link>
-        </section>
-        ) : null}
-
         {(mode === "manage" || mode === "archive") ? (
         <section className="rounded-2xl border border-[var(--border)] bg-white/90 p-3 shadow-sm md:p-4">
           <p className="text-[11px] font-black uppercase tracking-[0.28em] text-[var(--gold)]">Credential Directory</p>
           <div className="mt-1 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div>
-              <h2 className="text-xl font-black">{accountGroup === "TEAM" ? "Team accounts" : "Students by batch"}</h2>
+              <h2 className="text-xl font-black">Staff accounts</h2>
               <p className="mt-1 text-sm text-[var(--muted-blue)]">
-                {accountGroup === "TEAM"
-                  ? "Teachers, trainers, academic heads, directors and operations staff."
-                  : "Student accounts grouped by their active batch allocation."}
+                Teachers, trainers, academic heads, directors and operations staff.
               </p>
             </div>
             <div className="flex flex-col gap-2 md:items-end">
-              <div className="flex rounded-xl border border-[var(--border)] bg-white p-1">
-                <button
-                  className={`rounded-lg px-3 py-1.5 text-sm font-black ${accountGroup === "TEAM" ? "bg-[var(--gold-gradient)] text-[var(--navy)]" : "text-[var(--muted-blue)]"}`}
-                  onClick={() => setAccountGroup("TEAM")}
-                  type="button"
-                >
-                  Team
-                </button>
-                <button
-                  className={`rounded-lg px-3 py-1.5 text-sm font-black ${accountGroup === "STUDENTS" ? "bg-[var(--gold-gradient)] text-[var(--navy)]" : "text-[var(--muted-blue)]"}`}
-                  onClick={() => setAccountGroup("STUDENTS")}
-                  type="button"
-                >
-                  Students
-                </button>
-              </div>
               <div className="flex rounded-xl border border-[var(--border)] bg-white p-1">
                 <button
                   className={`rounded-lg px-3 py-1.5 text-sm font-black ${activeTab === "ACTIVE" ? "bg-[var(--navy)] text-white" : "text-[var(--muted-blue)]"}`}
@@ -631,94 +503,47 @@ export default function DirectorManagementPage() {
             </div>
           </div>
           <div className="mt-3 grid max-h-[52vh] gap-3 overflow-y-auto pr-1">
-            {accountGroup === "TEAM" ? (
-              <>
-                {visibleTeamGroups.map((group) => (
-                  <div key={group.label} className="rounded-2xl border border-[var(--border)] bg-white/80 p-3">
-                    <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
-                      <div>
-                        <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[var(--gold)]">{group.label}</p>
-                        <h3 className="mt-1 text-lg font-black">{group.title}</h3>
-                        <p className="mt-1 text-sm text-[var(--muted-blue)]">{group.description}</p>
-                      </div>
-                      <span className="rounded-full border border-[var(--border)] bg-white px-3 py-1.5 text-xs font-black">{group.accounts.length} account(s)</span>
-                    </div>
-                    <div className="mt-3 grid gap-3">
-                      {group.accounts.map((employee) => (
-                        <EmployeeRow
-                          key={employee.id}
-                          employee={employee}
-                          archived={activeTab === "ARCHIVED"}
-                          groupLabel={group.label}
-                          onArchive={() => {
-                            if (window.confirm(`Archive ${employee.name}? This will move the account into history.`)) {
-                              archiveMutation.mutate(employee.id);
-                            }
-                          }}
-                          onReset={() => {
-                            if (window.confirm(`Reset password and unlock ${employee.name}?`)) {
-                              resetMutation.mutate(employee.id);
-                            }
-                          }}
-                          onUnlock={() => unlockMutation.mutate(employee.id)}
-                          editing={editingAccountId === employee.id}
-                          editForm={editingAccountId === employee.id ? editForm : null}
-                          onEdit={() => startEditAccount(employee)}
-                          onCancelEdit={cancelEditAccount}
-                          onEditChange={(field, value) => setEditForm((current) => current ? { ...current, [field]: value } : current)}
-                          onSaveEdit={() => submitEditAccount(employee.id)}
-                          saving={updateMutation.isPending && editingAccountId === employee.id}
-                        />
-                      ))}
-                    </div>
+            {visibleTeamGroups.map((group) => (
+              <div key={group.label} className="rounded-2xl border border-[var(--border)] bg-white/80 p-3">
+                <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+                  <div>
+                    <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[var(--gold)]">{group.label}</p>
+                    <h3 className="mt-1 text-lg font-black">{group.title}</h3>
+                    <p className="mt-1 text-sm text-[var(--muted-blue)]">{group.description}</p>
                   </div>
-                ))}
-                {!visibleTeam.length && <Empty text={activeTab === "ACTIVE" ? "No active team accounts found." : "No archived team accounts yet."} />}
-              </>
-            ) : (
-              <>
-                {studentGroups.map((group) => (
-                  <div key={group.batchId} className="rounded-2xl border border-[var(--border)] bg-white/80 p-3">
-                    <div className="flex flex-col gap-1 md:flex-row md:items-end md:justify-between">
-                      <div>
-                        <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[var(--gold)]">Batch</p>
-                        <h3 className="mt-1 text-lg font-black">{group.batchName}</h3>
-                      </div>
-                      <span className="rounded-full border border-[var(--border)] bg-white px-3 py-1.5 text-xs font-black">{group.students.length} student(s)</span>
-                    </div>
-                    <div className="mt-3 grid gap-3">
-                      {group.students.map((student) => (
-                        <EmployeeRow
-                          key={student.id}
-                          employee={student}
-                          archived={activeTab === "ARCHIVED"}
-                          groupLabel="Student"
-                          onArchive={() => {
-                            if (window.confirm(`Archive ${student.name}? This will move the account into history.`)) {
-                              archiveMutation.mutate(student.id);
-                            }
-                          }}
-                          onReset={() => {
-                            if (window.confirm(`Reset password and unlock ${student.name}?`)) {
-                              resetMutation.mutate(student.id);
-                            }
-                          }}
-                          onUnlock={() => unlockMutation.mutate(student.id)}
-                          editing={editingAccountId === student.id}
-                          editForm={editingAccountId === student.id ? editForm : null}
-                          onEdit={() => startEditAccount(student)}
-                          onCancelEdit={cancelEditAccount}
-                          onEditChange={(field, value) => setEditForm((current) => current ? { ...current, [field]: value } : current)}
-                          onSaveEdit={() => submitEditAccount(student.id)}
-                          saving={updateMutation.isPending && editingAccountId === student.id}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                ))}
-                {!studentGroups.length && <Empty text={activeTab === "ACTIVE" ? "No active student accounts found." : "No archived student accounts yet."} />}
-              </>
-            )}
+                  <span className="rounded-full border border-[var(--border)] bg-white px-3 py-1.5 text-xs font-black">{group.accounts.length} account(s)</span>
+                </div>
+                <div className="mt-3 grid gap-3">
+                  {group.accounts.map((employee) => (
+                    <EmployeeRow
+                      key={employee.id}
+                      employee={employee}
+                      archived={activeTab === "ARCHIVED"}
+                      groupLabel={group.label}
+                      onArchive={() => {
+                        if (window.confirm(`Archive ${employee.name}? This will move the account into history.`)) {
+                          archiveMutation.mutate(employee.id);
+                        }
+                      }}
+                      onReset={() => {
+                        if (window.confirm(`Reset password and unlock ${employee.name}?`)) {
+                          resetMutation.mutate(employee.id);
+                        }
+                      }}
+                      onUnlock={() => unlockMutation.mutate(employee.id)}
+                      editing={editingAccountId === employee.id}
+                      editForm={editingAccountId === employee.id ? editForm : null}
+                      onEdit={() => startEditAccount(employee)}
+                      onCancelEdit={cancelEditAccount}
+                      onEditChange={(field, value) => setEditForm((current) => current ? { ...current, [field]: value } : current)}
+                      onSaveEdit={() => submitEditAccount(employee.id)}
+                      saving={updateMutation.isPending && editingAccountId === employee.id}
+                    />
+                  ))}
+                </div>
+              </div>
+            ))}
+            {!visibleTeam.length && <Empty text={activeTab === "ACTIVE" ? "No active staff accounts found." : "No archived staff accounts yet."} />}
           </div>
         </section>
         ) : null}
@@ -774,19 +599,6 @@ function Input({ label, value, onChange, required, type = "text" }: { label: str
   );
 }
 
-function Info({ icon: Icon, text }: { icon: LucideIcon; text: string }) {
-  return (
-    <div className="flex gap-3 rounded-2xl border border-[var(--border)] bg-white p-3">
-      <Icon className="mt-0.5 h-4 w-4 shrink-0 text-[var(--gold)]" />
-      <p className="text-sm leading-6 text-[var(--muted-blue)]">{text}</p>
-    </div>
-  );
-}
-
-function isStudentAccount(account: Employee) {
-  return account.role === "STUDENT";
-}
-
 function isTeamAccount(account: Employee) {
   return account.role !== "STUDENT" && account.role !== "PARENT";
 }
@@ -806,25 +618,6 @@ function teamGroupLabel(account: Employee) {
   if (account.role === "BUSINESS_DEVELOPMENT_EXECUTIVE") return "BDE";
   if (template === "ADMISSION_CELL" || designation.toLowerCase().includes("administrative")) return "Administrative Officer";
   return "Team";
-}
-
-function groupStudentsByBatch(students: Employee[]) {
-  const groups = new Map<string, { batchId: string; batchName: string; students: Employee[] }>();
-  for (const student of students) {
-    const enrollments = student.batchEnrollments?.length ? student.batchEnrollments : [{ id: "unassigned", status: "ACTIVE", batch: { id: "unassigned", name: "Unassigned Students" } }];
-    for (const enrollment of enrollments) {
-      const batchId = enrollment.batch.id;
-      const batchName = enrollment.batch.name;
-      const existing = groups.get(batchId) ?? { batchId, batchName, students: [] };
-      existing.students.push(student);
-      groups.set(batchId, existing);
-    }
-  }
-  return Array.from(groups.values()).sort((first, second) => {
-    if (first.batchId === "unassigned") return 1;
-    if (second.batchId === "unassigned") return -1;
-    return first.batchName.localeCompare(second.batchName);
-  });
 }
 
 function groupTeamAccounts(accounts: Employee[]) {
