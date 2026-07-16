@@ -28,6 +28,16 @@ type BatchInput = {
   startDate?: string;
   endDate?: string;
   status?: string;
+  setupType?: string;
+  durationDays?: string | number;
+  completedDays?: string | number;
+  subjects?: string[] | string;
+  completedTopics?: string[] | string;
+  examsPerDay?: string | number;
+  examsPerWeek?: string | number;
+  examsPerMonth?: string | number;
+  assignmentsPerWeek?: string | number;
+  plannerNotes?: string;
 };
 
 type StudentInput = {
@@ -471,6 +481,16 @@ function academyBatchSchedule(input: BatchInput) {
   if (input.programName) schedule.programName = input.programName;
   if (input.programType) schedule.programType = input.programType;
   if (input.learningMode || input.batchType) schedule.learningMode = input.learningMode || input.batchType;
+  if (input.setupType) schedule.setupType = input.setupType;
+  if (input.durationDays !== undefined && input.durationDays !== "") schedule.durationDays = Number(input.durationDays);
+  if (input.completedDays !== undefined && input.completedDays !== "") schedule.completedDays = Number(input.completedDays);
+  if (input.subjects) schedule.subjects = Array.isArray(input.subjects) ? input.subjects : String(input.subjects).split(",").map((item) => item.trim()).filter(Boolean);
+  if (input.completedTopics) schedule.completedTopics = Array.isArray(input.completedTopics) ? input.completedTopics : String(input.completedTopics).split(",").map((item) => item.trim()).filter(Boolean);
+  if (input.examsPerDay !== undefined && input.examsPerDay !== "") schedule.examsPerDay = Number(input.examsPerDay);
+  if (input.examsPerWeek !== undefined && input.examsPerWeek !== "") schedule.examsPerWeek = Number(input.examsPerWeek);
+  if (input.examsPerMonth !== undefined && input.examsPerMonth !== "") schedule.examsPerMonth = Number(input.examsPerMonth);
+  if (input.assignmentsPerWeek !== undefined && input.assignmentsPerWeek !== "") schedule.assignmentsPerWeek = Number(input.assignmentsPerWeek);
+  if (input.plannerNotes) schedule.plannerNotes = input.plannerNotes;
   return Object.keys(schedule).length ? toJsonObject(schedule) : undefined;
 }
 

@@ -466,6 +466,16 @@ export async function createAcademyBatch(payload: {
   courseId?: string;
   startDate?: string;
   endDate?: string;
+  setupType?: string;
+  durationDays?: string | number;
+  completedDays?: string | number;
+  subjects?: string[] | string;
+  completedTopics?: string[] | string;
+  examsPerDay?: string | number;
+  examsPerWeek?: string | number;
+  examsPerMonth?: string | number;
+  assignmentsPerWeek?: string | number;
+  plannerNotes?: string;
 }) {
   const response = await apiClient.post<{ batch: AcademyBatch } | AcademyBatch>("/academy/batches", payload);
   return "batch" in response.data ? response.data.batch : response.data;
@@ -482,6 +492,16 @@ export async function updateAcademyBatch(batchId: string, payload: Partial<{
   startDate?: string;
   endDate?: string;
   status: string;
+  setupType: string;
+  durationDays: string | number;
+  completedDays: string | number;
+  subjects: string[] | string;
+  completedTopics: string[] | string;
+  examsPerDay: string | number;
+  examsPerWeek: string | number;
+  examsPerMonth: string | number;
+  assignmentsPerWeek: string | number;
+  plannerNotes: string;
 }>) {
   const response = await apiClient.patch<{ batch: AcademyBatch } | AcademyBatch>(`/academy/batches/${batchId}`, payload);
   return "batch" in response.data ? response.data.batch : response.data;

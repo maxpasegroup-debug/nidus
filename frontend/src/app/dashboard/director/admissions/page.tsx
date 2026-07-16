@@ -44,8 +44,8 @@ export default function DirectorAdmissionsPage() {
   const visibleApplications = useMemo(() => (applications.length ? applications : activeLeads).slice(0, 8), [activeLeads, applications]);
 
   return (
-    <main className="flex min-h-[calc(100vh-var(--nav-height)-2rem)] flex-col overflow-hidden bg-[var(--page-bg)] px-4 py-4 text-[var(--navy)] md:px-6">
-      <section className="mx-auto flex min-h-0 w-full max-w-7xl flex-1 flex-col gap-3">
+    <main className="flex min-h-[calc(100vh-var(--nav-height)-2rem)] flex-col overflow-y-auto bg-[var(--page-bg)] px-4 py-4 text-[var(--navy)] md:px-6 lg:overflow-hidden">
+      <section className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-3 lg:min-h-0">
         <header className="shrink-0 rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm">
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div>

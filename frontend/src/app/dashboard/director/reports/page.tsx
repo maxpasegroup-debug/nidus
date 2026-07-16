@@ -124,7 +124,7 @@ export default function DirectorReportsPage() {
       key: "finance",
       title: "Finance",
       icon: WalletCards,
-      href: "/dashboard/director/accounts?mode=overview",
+      href: "/dashboard/director/accounts?mode=reports",
       metrics: [
         { label: "Collected", value: `Rs ${(finance?.monthlyRevenue ?? 0).toLocaleString()}` },
         { label: "Pending", value: `Rs ${(finance?.pendingDues ?? 0).toLocaleString()}` },
@@ -371,7 +371,7 @@ export default function DirectorReportsPage() {
               <button className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-sm font-black" type="button" onClick={() => downloadReport("json")}>Download JSON</button>
               <a className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-center text-sm font-black" href={`mailto:?subject=${encodeURIComponent(reportTitle)}&body=${emailBody}`}>Email Report</a>
               <a className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-center text-sm font-black" href={`https://wa.me/?text=${shareText}`} target="_blank" rel="noreferrer">WhatsApp Share</a>
-              <Link className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-center text-sm font-black" href={mode === "finance" ? "/dashboard/director/accounts?mode=overview" : mode === "admissions" ? "/dashboard/director/admissions" : mode === "staff" ? "/dashboard/director/management?mode=manage" : mode === "marketing" ? "/dashboard/business-development?tab=REPORTS" : "/dashboard/director/academic"}>
+              <Link className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-center text-sm font-black" href={mode === "finance" ? "/dashboard/director/accounts?mode=reports" : mode === "admissions" ? "/dashboard/director/admissions" : mode === "staff" ? "/dashboard/director/management?mode=manage" : mode === "marketing" ? "/dashboard/business-development?tab=REPORTS" : "/dashboard/director/academic"}>
                 Open Source Page
               </Link>
             </div>

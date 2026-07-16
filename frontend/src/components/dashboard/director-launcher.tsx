@@ -29,8 +29,8 @@ export function DirectorLauncher({
   backHref?: string;
 }) {
   return (
-    <main className="relative flex min-h-[calc(100vh-var(--nav-height)-2rem)] flex-col bg-[var(--page-bg)] px-3 py-3 text-[var(--navy)] lg:h-[calc(100vh-var(--nav-height)-2rem)] lg:overflow-hidden">
-      <section className="mx-auto flex w-full max-w-[1500px] flex-1 flex-col gap-3 overflow-hidden">
+    <main className="relative flex min-h-[calc(100vh-var(--nav-height)-2rem)] flex-col overflow-y-auto bg-[var(--page-bg)] px-3 py-3 text-[var(--navy)] lg:h-[calc(100vh-var(--nav-height)-2rem)] lg:overflow-hidden">
+      <section className="mx-auto flex w-full max-w-[1500px] flex-1 flex-col gap-3 lg:min-h-0 lg:overflow-hidden">
         <header className="shrink-0 rounded-2xl border border-[var(--border)] bg-white p-3 shadow-sm lg:p-4">
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div className="min-w-0">
@@ -88,7 +88,6 @@ function DirectorActionTile({ tile }: { tile: DirectorTile }) {
             {tile.note}
           </p>
         ) : null}
-        {tile.muted ? <p className="mt-2 text-[10px] font-black uppercase tracking-[0.18em]">Future API</p> : null}
         {!tile.muted ? (
           <span className="mt-3 inline-flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.16em] text-[var(--gold)]">
             Open

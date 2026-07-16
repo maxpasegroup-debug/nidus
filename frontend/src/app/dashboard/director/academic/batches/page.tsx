@@ -3,18 +3,19 @@
 import { useMemo, useState } from "react";
 import type { FormEvent } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { BarChart3, CalendarDays, GraduationCap, UserCheck, Users } from "lucide-react";
+import { BarChart3, CalendarDays, ClipboardList, GraduationCap, ShieldCheck, Trash2, UserCheck, Users } from "lucide-react";
 import { createAcademyBatch, getAcademyBatches, updateAcademyBatch } from "@/services/academy";
 import { getApiErrorMessage } from "@/services/api";
 import { allAcademyPrograms } from "@/data/academy-programs";
 import { useCourses } from "@/hooks/use-courses";
-import { AcademicActionButton, AcademicHero, AcademicShell, EmptyState, GoldButton, Input, Panel, Select, StatCard } from "../_components";
+import { AcademicActionButton, AcademicHero, AcademicShell, EmptyState, GoldButton, Input, Panel, Select, StatCard, TextArea } from "../_components";
 import type { Course } from "@/types/course";
 import type { AcademyBatch } from "@/services/academy";
 
 const learningModes = ["ONLINE", "OFFLINE", "HYBRID"];
 const programTypes = ["Foundation", "Crash Course", "Regular", "Weekend", "Interview", "Physical Training"];
 type BatchView = "overview" | "students" | "teachers" | "progress";
+type PageMode = "list" | "create" | "running";
 const programOptions = [
   { label: "NDA", slug: "nda-crash-course" },
   { label: "CDS", slug: "cdse-afcat-crash-course" },
@@ -103,6 +104,16 @@ function scheduleText(batch: AcademyBatch, key: string) {
   return typeof value === "string" && value.trim() ? value.trim() : "";
 }
 
+function scheduleNumber(batch: AcademyBatch, key: string) {
+  const value = batch.schedule?.[key];
+  return typeof value === "number" && Number.isFinite(value) ? value : 0;
+}
+
+function scheduleList(batch: AcademyBatch, key: string) {
+  const value = batch.schedule?.[key];
+  return Array.isArray(value) ? value.map(String).filter(Boolean) : [];
+}
+
 function inferProgram(batch: AcademyBatch) {
   const saved = scheduleText(batch, "programName");
   if (saved) return saved;
@@ -174,7 +185,7 @@ function formatDate(value?: string | null) {
 export default function DirectorBatchesPage() {
   const queryClient = useQueryClient();
   const [notice, setNotice] = useState("");
-  const [mode, setMode] = useState<"list" | "create">("list");
+  const [mode, setMode] = useState<PageMode>("list");
   const [selectedBatchId, setSelectedBatchId] = useState("");
   const [selectedView, setSelectedView] = useState<BatchView>("overview");
   const [form, setForm] = useState({
@@ -184,6 +195,15 @@ export default function DirectorBatchesPage() {
     programType: "Crash Course",
     startDate: "",
     endDate: "",
+    durationDays: "60",
+    completedDays: "0",
+    subjects: "Maths, English, GK",
+    completedTopics: "",
+    examsPerDay: "0",
+    examsPerWeek: "2",
+    examsPerMonth: "1",
+    assignmentsPerWeek: "3",
+    plannerNotes: "",
   });
   const batchesQuery = useQuery({ queryKey: ["academy", "batches"], queryFn: () => getAcademyBatches() });
   const coursesQuery = useCourses();
@@ -210,7 +230,23 @@ export default function DirectorBatchesPage() {
   const createBatch = useMutation({
     mutationFn: createAcademyBatch,
     onSuccess: () => {
-      setForm({ name: "", programSlug: "nda-crash-course", learningMode: "OFFLINE", programType: "Crash Course", startDate: "", endDate: "" });
+      setForm({
+        name: "",
+        programSlug: "nda-crash-course",
+        learningMode: "OFFLINE",
+        programType: "Crash Course",
+        startDate: "",
+        endDate: "",
+        durationDays: "60",
+        completedDays: "0",
+        subjects: "Maths, English, GK",
+        completedTopics: "",
+        examsPerDay: "0",
+        examsPerWeek: "2",
+        examsPerMonth: "1",
+        assignmentsPerWeek: "3",
+        plannerNotes: "",
+      });
       void refresh();
       setNotice("Batch created successfully.");
       setMode("list");
@@ -223,6 +259,14 @@ export default function DirectorBatchesPage() {
       void refresh();
       setNotice("Batch status updated.");
     },
+  });
+  const safeArchive = useMutation({
+    mutationFn: ({ id }: { id: string }) => updateAcademyBatch(id, { status: "ARCHIVED" }),
+    onSuccess: () => {
+      void refresh();
+      setNotice("Batch archived safely. Students, courses, admissions and payments are preserved.");
+    },
+    onError: (error) => setNotice(error instanceof Error ? error.message : "Could not archive batch safely."),
   });
 
   const submit = (event: FormEvent<HTMLFormElement>) => {
@@ -240,6 +284,16 @@ export default function DirectorBatchesPage() {
       batchType: form.learningMode,
       startDate: form.startDate || undefined,
       endDate: form.endDate || undefined,
+      setupType: mode === "running" ? "RUNNING_BATCH_REMAINING_PLAN" : "NEW_BATCH_FULL_PLAN",
+      durationDays: form.durationDays,
+      completedDays: mode === "running" ? form.completedDays : "0",
+      subjects: form.subjects,
+      completedTopics: mode === "running" ? form.completedTopics : "",
+      examsPerDay: form.examsPerDay,
+      examsPerWeek: form.examsPerWeek,
+      examsPerMonth: form.examsPerMonth,
+      assignmentsPerWeek: form.assignmentsPerWeek,
+      plannerNotes: form.plannerNotes,
     });
   };
 
@@ -252,7 +306,8 @@ export default function DirectorBatchesPage() {
         action={
           <div className="flex flex-wrap gap-2">
             <AcademicActionButton active={mode === "list"} onClick={() => setMode("list")}>View Batches</AcademicActionButton>
-            <AcademicActionButton active={mode === "create"} onClick={() => setMode("create")}>Create Batch</AcademicActionButton>
+            <AcademicActionButton active={mode === "create"} onClick={() => setMode("create")}>New Batch</AcademicActionButton>
+            <AcademicActionButton active={mode === "running"} onClick={() => setMode("running")}>Running Batch</AcademicActionButton>
           </div>
         }
       />
@@ -271,8 +326,13 @@ export default function DirectorBatchesPage() {
       <section className="grid shrink-0 gap-3 md:grid-cols-2">
         <StatCard label="Programs Available" value={courses.length} />
       </section>
-      {mode === "create" ? (
-        <Panel title="Create Batch" eyebrow="Batch setup">
+      {mode === "create" || mode === "running" ? (
+        <Panel title={mode === "running" ? "Create Running Batch" : "Create New Batch"} eyebrow={mode === "running" ? "Remaining planner setup" : "Fresh planner setup"}>
+          <div className="mb-4 grid gap-3 md:grid-cols-3">
+            <SetupCard icon={ShieldCheck} title="Safe data rule" text="Courses and students stay untouched. This creates only a new active batch plan." />
+            <SetupCard icon={ClipboardList} title={mode === "running" ? "Remaining plan" : "Full plan"} text={mode === "running" ? "Enter what is already completed. The planner starts from the pending portion." : "Set duration, subjects, exams and assignments from day one."} />
+            <SetupCard icon={UserCheck} title="Editable later" text="Teachers, students, status and timetable can be adjusted after launch." />
+          </div>
           <form onSubmit={submit} className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             <Select label="Program" value={form.programSlug} onChange={(value) => setForm((state) => ({ ...state, programSlug: value }))} required>
               {programOptions.map((program) => <option key={program.slug} value={program.slug}>{program.label}</option>)}
@@ -286,7 +346,18 @@ export default function DirectorBatchesPage() {
             <Input label="Batch name" value={form.name} onChange={(value) => setForm((state) => ({ ...state, name: value }))} required placeholder="NDA Crash Course Online 2026" />
             <Input label="Start date" type="date" value={form.startDate} onChange={(value) => setForm((state) => ({ ...state, startDate: value }))} />
             <Input label="End date" type="date" value={form.endDate} onChange={(value) => setForm((state) => ({ ...state, endDate: value }))} />
-            <div className="xl:col-span-3"><GoldButton disabled={createBatch.isPending}>Create Batch</GoldButton></div>
+            <Input label="Total course days" type="number" value={form.durationDays} onChange={(value) => setForm((state) => ({ ...state, durationDays: value }))} />
+            {mode === "running" ? <Input label="Already completed days" type="number" value={form.completedDays} onChange={(value) => setForm((state) => ({ ...state, completedDays: value }))} /> : null}
+            <Input label="Subjects" value={form.subjects} onChange={(value) => setForm((state) => ({ ...state, subjects: value }))} placeholder="Maths, English, GK" />
+            {mode === "running" ? <Input label="Completed topics" value={form.completedTopics} onChange={(value) => setForm((state) => ({ ...state, completedTopics: value }))} placeholder="Algebra, Grammar basics, Static GK" /> : null}
+            <Input label="Exams per day" type="number" value={form.examsPerDay} onChange={(value) => setForm((state) => ({ ...state, examsPerDay: value }))} />
+            <Input label="Exams per week" type="number" value={form.examsPerWeek} onChange={(value) => setForm((state) => ({ ...state, examsPerWeek: value }))} />
+            <Input label="Exams per month" type="number" value={form.examsPerMonth} onChange={(value) => setForm((state) => ({ ...state, examsPerMonth: value }))} />
+            <Input label="Assignments per week" type="number" value={form.assignmentsPerWeek} onChange={(value) => setForm((state) => ({ ...state, assignmentsPerWeek: value }))} />
+            <div className="md:col-span-2 xl:col-span-3">
+              <TextArea label="Planner notes" value={form.plannerNotes} onChange={(value) => setForm((state) => ({ ...state, plannerNotes: value }))} placeholder="Example: evening batch, extra maths practice, Sunday mock test." />
+            </div>
+            <div className="xl:col-span-3"><GoldButton disabled={createBatch.isPending}>{mode === "running" ? "Create Running Batch" : "Create Batch"}</GoldButton></div>
           </form>
         </Panel>
       ) : null}
@@ -361,12 +432,28 @@ export default function DirectorBatchesPage() {
                     <DetailRow label="Start Date" value={formatDate(selectedBatch.startDate)} />
                     <DetailRow label="End Date" value={formatDate(selectedBatch.endDate)} />
                     <DetailRow label="Academic Head" value={academicHeadNames(selectedBatch)} />
+                    <DetailRow label="Planner Type" value={scheduleText(selectedBatch, "setupType") || "Basic batch"} />
+                    <DetailRow label="Course Days" value={`${scheduleNumber(selectedBatch, "completedDays")} completed / ${scheduleNumber(selectedBatch, "durationDays") || "Not set"} total`} />
+                    <DetailRow label="Subjects" value={scheduleList(selectedBatch, "subjects").join(", ") || "Not planned"} />
                     <label className="grid gap-1 rounded-xl border border-[var(--border)] bg-[var(--page-bg)] p-3 text-xs font-black uppercase tracking-[0.14em] text-[var(--muted-blue)]">
                       Status
                       <select className="rounded-lg border border-[var(--border)] bg-white px-2 py-2 text-sm font-black normal-case tracking-normal text-[var(--navy)]" value={selectedBatch.status} onChange={(event) => updateStatus.mutate({ id: selectedBatch.id, status: event.target.value })}>
                         {["ACTIVE", "PAUSED", "COMPLETED", "ARCHIVED"].map((status) => <option key={status} value={status}>{status}</option>)}
                       </select>
                     </label>
+                    <button
+                      type="button"
+                      disabled={safeArchive.isPending || selectedBatch.status === "ARCHIVED"}
+                      onClick={() => {
+                        if (window.confirm("Archive this batch safely? Students, courses, admissions and payments will remain available.")) {
+                          safeArchive.mutate({ id: selectedBatch.id });
+                        }
+                      }}
+                      className="inline-flex items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm font-black text-red-700 disabled:opacity-50"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      Safe Archive Batch
+                    </button>
                   </div>
                 ) : null}
 
@@ -394,6 +481,9 @@ export default function DirectorBatchesPage() {
                     <ProgressTile label="Teachers" value={selectedBatch._count?.teachers ?? selectedBatch.teachers?.length ?? 0} text="Faculty and trainer assignments." />
                     <ProgressTile label="Tests" value={selectedBatch._count?.tests ?? 0} text="Exams or tests linked to this batch." />
                     <ProgressTile label="Status" value={selectedBatch.status} text="Operational state of this batch." />
+                    <ProgressTile label="Remaining Days" value={Math.max((scheduleNumber(selectedBatch, "durationDays") || 0) - scheduleNumber(selectedBatch, "completedDays"), 0) || "Not set"} text="For running batches, this is the remaining planner window." />
+                    <ProgressTile label="Exam Plan" value={`${scheduleNumber(selectedBatch, "examsPerWeek")} / week`} text={`${scheduleNumber(selectedBatch, "examsPerDay")} per day, ${scheduleNumber(selectedBatch, "examsPerMonth")} per month.`} />
+                    <ProgressTile label="Assignments" value={`${scheduleNumber(selectedBatch, "assignmentsPerWeek")} / week`} text="Default assignment target saved with the batch planner." />
                   </div>
                 ) : null}
               </div>
@@ -402,6 +492,16 @@ export default function DirectorBatchesPage() {
         </div>
       </Panel>
     </AcademicShell>
+  );
+}
+
+function SetupCard({ icon: Icon, title, text }: { icon: typeof Users; title: string; text: string }) {
+  return (
+    <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-3">
+      <Icon className="h-5 w-5 text-[var(--gold)]" />
+      <p className="mt-2 text-sm font-black">{title}</p>
+      <p className="mt-1 text-xs leading-5 text-[var(--muted-blue)]">{text}</p>
+    </div>
   );
 }
 

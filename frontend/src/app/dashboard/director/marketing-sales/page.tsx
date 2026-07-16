@@ -48,21 +48,21 @@ const tiles: DirectorTile[] = [
   },
   {
     label: "Instagram",
+    href: "/dashboard/business-development?tab=REPORTS",
     icon: Camera,
-    muted: true,
-    note: "Reserved for future API connection.",
+    note: "Review Instagram campaign leads and reporting handoff.",
   },
   {
     label: "Facebook",
+    href: "/dashboard/business-development?tab=REPORTS",
     icon: Globe2,
-    muted: true,
-    note: "Reserved for future API connection.",
+    note: "Review Facebook campaign leads and reporting handoff.",
   },
   {
     label: "WhatsApp",
+    href: "/dashboard/director/notifications",
     icon: MessageCircle,
-    muted: true,
-    note: "Reserved for future API connection.",
+    note: "Open announcement and batch message tools.",
   },
 ];
 

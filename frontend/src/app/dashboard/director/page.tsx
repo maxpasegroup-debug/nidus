@@ -209,7 +209,6 @@ function ModuleButton({ module }: { module: SubModule }) {
       {module.badge ? <span className="absolute right-2 top-2 rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-black text-red-700">{module.badge}</span> : null}
       <Icon className={`h-5 w-5 ${module.muted ? "text-[var(--muted-blue)]" : "text-[var(--navy)]"}`} />
       <span className="mt-2 text-center text-xs font-black leading-tight">{module.label}</span>
-      {module.muted ? <span className="mt-1 text-[9px] font-black uppercase tracking-[0.18em] text-[var(--muted-blue)]">Future API</span> : null}
     </>
   );
   const className = `relative flex min-h-0 flex-col items-center justify-center rounded-xl border p-2 text-center transition ${

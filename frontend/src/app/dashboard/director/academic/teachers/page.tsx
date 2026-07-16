@@ -98,33 +98,36 @@ export default function DirectorTeachersPage() {
       <Panel title="Teacher Allocation List" eyebrow="Existing staff">
         {teachersQuery.isLoading ? <EmptyState text="Loading teachers..." /> : null}
         {!teachersQuery.isLoading && !teachers.length ? <EmptyState text="No teachers available yet. Add staff from HRM first." /> : null}
-        <div className="max-h-[54vh] overflow-auto rounded-2xl border border-[var(--border)]">
-          <table className="w-full min-w-[860px] border-collapse text-sm">
-            <thead className="sticky top-0 bg-[var(--page-bg)] text-left">
-              <tr className="border-b border-[var(--border)]">
-                <th className="px-3 py-2 text-[11px] font-black uppercase tracking-[0.16em] text-[var(--muted-blue)]">Teacher</th>
-                <th className="px-3 py-2 text-[11px] font-black uppercase tracking-[0.16em] text-[var(--muted-blue)]">Contact</th>
-                <th className="px-3 py-2 text-[11px] font-black uppercase tracking-[0.16em] text-[var(--muted-blue)]">Designation</th>
-                <th className="px-3 py-2 text-[11px] font-black uppercase tracking-[0.16em] text-[var(--muted-blue)]">Employment</th>
-                <th className="px-3 py-2 text-[11px] font-black uppercase tracking-[0.16em] text-[var(--muted-blue)]">Dashboard</th>
-              </tr>
-            </thead>
-            <tbody>
-              {teachers.map((teacher) => (
-                <tr key={teacher.id} className="border-b border-[var(--border)] last:border-b-0">
-                  <td className="px-3 py-2 font-black">{teacher.name}</td>
-                  <td className="px-3 py-2">{teacher.email} / {teacher.mobile || "No phone"}</td>
-                  <td className="px-3 py-2">{String(teacher.roleMetadata?.designation ?? "Teacher")}</td>
-                  <td className="px-3 py-2">
-                    <span className="rounded-full border border-[var(--border)] px-2.5 py-1 text-[11px] font-black">{String(teacher.roleMetadata?.employmentType ?? "FULL_TIME")}</span>
-                  </td>
-                  <td className="px-3 py-2">{String(teacher.roleMetadata?.dashboardTemplate ?? "Default teacher") || "Default teacher"}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="grid max-h-[54vh] gap-2 overflow-auto pr-1 sm:grid-cols-2 xl:grid-cols-3">
+          {teachers.map((teacher) => (
+            <article key={teacher.id} className="rounded-2xl border border-[var(--border)] bg-white p-3 shadow-sm">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <h3 className="truncate text-base font-black">{teacher.name}</h3>
+                  <p className="mt-1 truncate text-xs text-[var(--muted-blue)]">{teacher.email}</p>
+                  <p className="mt-1 text-xs text-[var(--muted-blue)]">{teacher.mobile || "No phone"}</p>
+                </div>
+                <span className="rounded-full border border-[var(--border)] bg-[var(--page-bg)] px-2.5 py-1 text-[10px] font-black">
+                  {String(teacher.roleMetadata?.employmentType ?? "FULL_TIME")}
+                </span>
+              </div>
+              <div className="mt-3 grid gap-2">
+                <InfoPill label="Designation" value={String(teacher.roleMetadata?.designation ?? "Teacher")} />
+                <InfoPill label="Dashboard" value={String(teacher.roleMetadata?.dashboardTemplate ?? "Default teacher") || "Default teacher"} />
+              </div>
+            </article>
+          ))}
         </div>
       </Panel>
     </AcademicShell>
+  );
+}
+
+function InfoPill({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-3 py-2">
+      <p className="text-[10px] font-black uppercase tracking-[0.14em] text-[var(--muted-blue)]">{label}</p>
+      <p className="mt-1 truncate text-sm font-black">{value}</p>
+    </div>
   );
 }

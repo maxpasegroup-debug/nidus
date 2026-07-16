@@ -51,7 +51,7 @@ const quickLinks = [
   { title: "Academics", href: "/dashboard/director/academic", icon: GraduationCap },
   { title: "Administrative Officer", href: "/dashboard/admission-cell", icon: ClipboardCheck },
   { title: "Team And Credentials", href: "/dashboard/director/management?mode=manage", icon: Users },
-  { title: "Finance", href: "/dashboard/director/accounts?mode=overview", icon: ShieldCheck },
+  { title: "Finance", href: "/dashboard/director/accounts?mode=reports", icon: ShieldCheck },
   { title: "Reports", href: "/dashboard/director/reports?mode=overview", icon: BarChart3 },
   { title: "Teaching Mode", href: "/dashboard/director/teaching", icon: BookOpen },
 ];
@@ -165,7 +165,7 @@ function buildChecks(data?: DirectorDashboardData): LaunchCheck[] {
       detail: "At least one recorded payment proves AO to finance handoff works.",
       value: `Rs ${feeCollected.toLocaleString()}`,
       status: feeCollected > 0 ? "PASS" : "PARTIAL",
-      href: "/dashboard/director/accounts?mode=overview",
+      href: "/dashboard/director/accounts?mode=reports",
       icon: ShieldCheck,
     },
     {
@@ -233,7 +233,7 @@ function buildRoleLanes(data: DirectorDashboardData | undefined, checks: LaunchC
     lane("Physical Trainers", trainers > 0 ? 90 : 0, `${trainers} trainer(s) available for defence fitness operations.`, "/dashboard/director/management?mode=manage"),
     lane("Students", activeStudents > 0 && (assignments > 0 || exams > 0 || lessons > 0) ? 90 : activeStudents > 0 ? 65 : 0, `${activeStudents} learner(s), ${assignments} assignment(s), ${exams} exam(s).`, "/dashboard/director/academic/student-progress"),
     lane("Parent Handoff", activeStudents > 0 ? 75 : 0, "Parent visibility depends on linked learner invitations and active students.", "/dashboard/parent"),
-    lane("Finance", feeCollected > 0 ? 90 : 60, `Rs ${feeCollected.toLocaleString()} collected in live finance signals.`, "/dashboard/director/accounts?mode=overview"),
+    lane("Finance", feeCollected > 0 ? 90 : 60, `Rs ${feeCollected.toLocaleString()} collected in live finance signals.`, "/dashboard/director/accounts?mode=reports"),
     lane("BDE / CRM", bde > 0 ? 90 : 0, `${bde} BDE account(s) for lead follow-up and handoff.`, "/dashboard/business-development?tab=PIPELINE"),
   ];
 }
