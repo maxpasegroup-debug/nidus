@@ -23,6 +23,7 @@ import {
   WalletCards,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { BrandGlassMark } from "@/components/brand/brand-glass-mark";
 import { getDirectorDashboard } from "@/services/dashboard";
 
 type SubModule = {
@@ -139,7 +140,8 @@ export default function DirectorDashboardPage() {
     <main className="flex min-h-[calc(100vh-var(--nav-height)-2rem)] flex-col overflow-hidden bg-[var(--page-bg)] px-4 py-3 text-[var(--navy)] md:px-6">
       <section className="mx-auto flex min-h-0 w-full max-w-[1500px] flex-1 flex-col gap-3">
         <header className="shrink-0 rounded-2xl border border-[var(--border)] bg-white p-3 shadow-sm">
-          <div className="grid gap-4 lg:grid-cols-[1fr_560px] lg:items-center">
+          <div className="grid gap-4 xl:grid-cols-[280px_1fr_560px] xl:items-center">
+            <BrandGlassMark compact />
             <div>
               <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold)]">Director</p>
               <h1 className="mt-1 text-2xl font-black leading-tight md:text-3xl">NIDUS Control Panel</h1>

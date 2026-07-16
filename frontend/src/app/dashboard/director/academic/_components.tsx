@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
 import { Plus, ShieldCheck } from "lucide-react";
+import { BrandGlassMark } from "@/components/brand/brand-glass-mark";
 
 export function AcademicShell({ children }: { children: ReactNode }) {
   return (
@@ -23,13 +24,16 @@ export function AcademicHero({
 }) {
   return (
     <section className="shrink-0 rounded-2xl border border-[var(--border)] bg-white/95 p-4 shadow-sm md:p-5">
-      <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
-        <div>
-          <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold)]">{eyebrow}</p>
-          <h1 className="mt-2 text-2xl font-black tracking-tight md:text-3xl">{title}</h1>
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--muted-blue)]">{description}</p>
+      <div className="grid gap-5 lg:grid-cols-[260px_1fr] lg:items-center">
+        <BrandGlassMark compact />
+        <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold)]">{eyebrow}</p>
+            <h1 className="mt-2 text-2xl font-black tracking-tight md:text-3xl">{title}</h1>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--muted-blue)]">{description}</p>
+          </div>
+          {action}
         </div>
-        {action}
       </div>
     </section>
   );
