@@ -5,7 +5,7 @@ import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, BadgeIndianRupee, CheckCircle2, ClipboardCheck, UserCheck } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { getAdmissions, getApprovals, getFollowups, getLeads } from "@/services/crm";
+import { getAdmissions, getApprovals, getLeads } from "@/services/crm";
 import type { Lead } from "@/types/crm";
 
 type ActionCard = {
@@ -23,20 +23,16 @@ function hasNote(lead: Lead, text: string) {
 export default function DirectorAdmissionsPage() {
   const leadsQuery = useQuery({ queryKey: ["director", "simple-admissions", "leads"], queryFn: () => getLeads() });
   const admissionsQuery = useQuery({ queryKey: ["director", "simple-admissions", "admissions"], queryFn: getAdmissions });
-  const followupsQuery = useQuery({ queryKey: ["director", "simple-admissions", "followups"], queryFn: getFollowups });
   const approvalsQuery = useQuery({ queryKey: ["director", "simple-admissions", "approvals"], queryFn: getApprovals });
 
   const leads = leadsQuery.data ?? [];
   const admissions = admissionsQuery.data ?? [];
-  const followups = followupsQuery.data ?? [];
   const approvals = approvalsQuery.data ?? [];
   const activeLeads = leads.filter((lead) => lead.status !== "ENROLLED" && lead.status !== "LOST");
   const applications = activeLeads.filter((lead) => hasNote(lead, "application") || hasNote(lead, "Ready For Admission") || lead.status === "COUNSELLING");
   const feesPending = activeLeads.filter((lead) => hasNote(lead, "Fees: PENDING") || (!hasNote(lead, "Fees: PAID") && !hasNote(lead, "Fees: APPROVED")));
   const pendingApprovals = approvals.filter((approval) => approval.status === "PENDING");
-  const today = new Date().toISOString().slice(0, 10);
-  const todayFollowups = followups.filter((followup) => followup.followUpDate?.slice(0, 10) === today);
-  const loading = leadsQuery.isLoading || admissionsQuery.isLoading || followupsQuery.isLoading || approvalsQuery.isLoading;
+  const loading = leadsQuery.isLoading || admissionsQuery.isLoading || approvalsQuery.isLoading;
 
   const actions: ActionCard[] = [
     { title: "Applications", note: "Open applicant files", href: "/dashboard/admission-cell#applications", icon: ClipboardCheck, value: applications.length },
@@ -58,8 +54,8 @@ export default function DirectorAdmissionsPage() {
             </div>
             <div className="grid gap-2 sm:grid-cols-3 lg:w-[520px]">
               <Metric label="Applications" value={loading ? "..." : applications.length} />
-              <Metric label="Follow-ups Today" value={loading ? "..." : todayFollowups.length} />
-              <Metric label="Approvals" value={loading ? "..." : pendingApprovals.length} />
+              <Metric label="Payments Pending" value={loading ? "..." : feesPending.length} />
+              <Metric label="Admissions" value={loading ? "..." : admissions.length} />
             </div>
           </div>
         </header>

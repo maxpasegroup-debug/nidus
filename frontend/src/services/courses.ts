@@ -43,6 +43,16 @@ export async function createCourse(payload: CoursePayload) {
   return response.data.course;
 }
 
+export async function updateCourse(id: string, payload: Partial<CoursePayload>) {
+  const response = await apiClient.put<{ course: Course }>(`/courses/${id}`, payload);
+  return response.data.course;
+}
+
+export async function deleteCourse(id: string) {
+  const response = await apiClient.delete<{ message: string }>(`/courses/${id}`);
+  return response.data;
+}
+
 export async function getMyCourses() {
   const response = await apiClient.get<{ enrollments: Enrollment[] }>("/my-courses");
   return response.data.enrollments;

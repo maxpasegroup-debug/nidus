@@ -13,7 +13,7 @@ function courseValidators(optional = false) {
     maybeOptional(body("title")).trim().isLength({ min: 3 }).withMessage("Title must be at least 3 characters"),
     maybeOptional(body("slug")).trim().isLength({ min: 3 }).withMessage("Slug must be at least 3 characters"),
     maybeOptional(body("description")).trim().isLength({ min: 10 }).withMessage("Description must be at least 10 characters"),
-    maybeOptional(body("thumbnail")).trim().isURL().withMessage("Valid thumbnail URL is required"),
+    maybeOptional(body("thumbnail")).trim().notEmpty().withMessage("Thumbnail path is required"),
     maybeOptional(body("category")).trim().notEmpty().withMessage("Category is required"),
     maybeOptional(body("examType")).trim().notEmpty().withMessage("Exam type is required"),
     maybeOptional(body("duration")).trim().notEmpty().withMessage("Duration is required"),
@@ -25,9 +25,9 @@ function courseValidators(optional = false) {
 coursesRouter.get("/", coursesController.list);
 coursesRouter.get("/:slug", coursesController.details);
 
-coursesRouter.post("/", protect, allowRoles(Role.ADMIN), courseValidators(), coursesController.create);
-coursesRouter.put("/:id", protect, allowRoles(Role.ADMIN), courseValidators(true), coursesController.update);
-coursesRouter.delete("/:id", protect, allowRoles(Role.ADMIN), coursesController.remove);
+coursesRouter.post("/", protect, allowRoles(Role.ADMIN, Role.DIRECTOR), courseValidators(), coursesController.create);
+coursesRouter.put("/:id", protect, allowRoles(Role.ADMIN, Role.DIRECTOR), courseValidators(true), coursesController.update);
+coursesRouter.delete("/:id", protect, allowRoles(Role.ADMIN, Role.DIRECTOR), coursesController.remove);
 
 coursesRouter.post(
   "/enroll",

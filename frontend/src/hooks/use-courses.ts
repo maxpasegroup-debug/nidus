@@ -4,10 +4,12 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getApiErrorMessage } from "@/services/api";
 import {
   createCourse,
+  deleteCourse,
   enrollCourse,
   getCourseDetails,
   getCourses,
   getMyCourses,
+  updateCourse,
   type CoursePayload,
   type CourseFilters
 } from "@/services/courses";
@@ -53,6 +55,38 @@ export function useCreateCourse() {
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["courses"] });
       showToast("Course created successfully", "success");
+    },
+    onError: (error) => {
+      showToast(getApiErrorMessage(error), "error");
+    }
+  });
+}
+
+export function useUpdateCourse() {
+  const queryClient = useQueryClient();
+  const { showToast } = useToast();
+
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: Partial<CoursePayload> }) => updateCourse(id, payload),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["courses"] });
+      showToast("Course updated successfully", "success");
+    },
+    onError: (error) => {
+      showToast(getApiErrorMessage(error), "error");
+    }
+  });
+}
+
+export function useDeleteCourse() {
+  const queryClient = useQueryClient();
+  const { showToast } = useToast();
+
+  return useMutation({
+    mutationFn: deleteCourse,
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["courses"] });
+      showToast("Course deleted successfully", "success");
     },
     onError: (error) => {
       showToast(getApiErrorMessage(error), "error");
