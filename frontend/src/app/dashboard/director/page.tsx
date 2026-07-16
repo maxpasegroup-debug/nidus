@@ -11,14 +11,10 @@ import {
   Building2,
   CalendarDays,
   ClipboardCheck,
-  FileArchive,
-  FileText,
   GraduationCap,
   KeyRound,
   LockKeyhole,
-  Mail,
   Megaphone,
-  MessageCircle,
   PhoneCall,
   PlusCircle,
   ShieldCheck,
@@ -71,10 +67,7 @@ export default function DirectorDashboardPage() {
         { label: "Timetable", href: "/dashboard/director/academic/timetable", icon: CalendarDays },
         { label: "Batches", href: "/dashboard/director/academic/batches", icon: Users },
         { label: "Teachers", href: "/dashboard/director/academic/teachers", icon: UserCheck },
-        { label: "Students", href: "/dashboard/director/academic/student-progress", icon: BookOpen },
         { label: "Reports", href: "/dashboard/director/academic/reports", icon: BarChart3 },
-        { label: "Materials", href: "/dashboard/director/materials", icon: FileArchive },
-        { label: "Exams", href: "/dashboard/director/exams", icon: ClipboardCheck },
       ],
     },
     {
@@ -88,7 +81,6 @@ export default function DirectorDashboardPage() {
         { label: "Archive Staff", href: "/dashboard/director/management?mode=archive", icon: Archive },
         { label: "Lock Access", href: "/dashboard/director/management?mode=access", icon: LockKeyhole },
         { label: "Reset Password", href: "/dashboard/director/management?mode=access", icon: KeyRound },
-        { label: "Roles", href: "/dashboard/director/management?mode=roles", icon: ShieldCheck },
       ],
     },
     {
@@ -101,9 +93,7 @@ export default function DirectorDashboardPage() {
         { label: "BDE Team", href: "/dashboard/business-development?tab=TEAM", icon: Users },
         { label: "Sales Booster", href: "/dashboard/sales-booster", icon: Megaphone },
         { label: "Leads", href: "/dashboard/business-development?tab=LEADS", icon: ClipboardCheck },
-        { label: "Follow-ups", href: "/dashboard/business-development?tab=FOLLOWUPS", icon: PhoneCall },
         { label: "Reports", href: "/dashboard/business-development?tab=REPORTS", icon: BarChart3 },
-        { label: "WhatsApp", icon: MessageCircle, muted: true },
       ],
     },
     {
@@ -114,11 +104,8 @@ export default function DirectorDashboardPage() {
       modules: [
         { label: "Admissions", href: "/dashboard/director/admissions", icon: UserPlus, badge: pendingAdmissions || undefined },
         { label: "Applications", href: "/dashboard/admission-cell#applications", icon: ClipboardCheck },
-        { label: "Approvals", href: "/crm/admissions", icon: ClipboardCheck },
         { label: "Add Student", href: "/dashboard/admission-cell#activation", icon: PlusCircle },
         { label: "Finance", href: "/dashboard/director/accounts?mode=overview", icon: BadgeIndianRupee, badge: pendingFees || undefined },
-        { label: "Email Report", href: "/dashboard/director/accounts?mode=reports", icon: Mail },
-        { label: "Custom Report", href: "/dashboard/director/reports?mode=custom", icon: FileText },
         { label: "Accounts", href: "/dashboard/director/accounts?mode=invoices", icon: WalletCards },
       ],
     },
@@ -133,7 +120,6 @@ export default function DirectorDashboardPage() {
         { label: "Teachers", href: "/dashboard/director/notifications", icon: UserCheck },
         { label: "Batch Message", href: "/dashboard/director/notifications", icon: ClipboardCheck },
         { label: "Reports", href: "/dashboard/director/reports", icon: BarChart3 },
-        { label: "Custom Report", href: "/dashboard/director/reports?mode=custom", icon: FileText },
       ],
     },
     {
@@ -152,14 +138,14 @@ export default function DirectorDashboardPage() {
   ];
 
   return (
-    <main className="flex min-h-[calc(100vh-var(--nav-height)-2rem)] flex-col overflow-hidden bg-[var(--page-bg)] px-4 py-4 text-[var(--navy)] md:px-6">
-      <section className="mx-auto flex min-h-0 w-full max-w-[1500px] flex-1 flex-col gap-4">
-        <header className="shrink-0 rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm">
+    <main className="flex min-h-[calc(100vh-var(--nav-height)-2rem)] flex-col overflow-hidden bg-[var(--page-bg)] px-4 py-3 text-[var(--navy)] md:px-6">
+      <section className="mx-auto flex min-h-0 w-full max-w-[1500px] flex-1 flex-col gap-3">
+        <header className="shrink-0 rounded-2xl border border-[var(--border)] bg-white p-3 shadow-sm">
           <div className="grid gap-4 lg:grid-cols-[1fr_560px] lg:items-center">
             <div>
               <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold)]">Director</p>
-              <h1 className="mt-1 text-3xl font-black leading-tight md:text-4xl">NIDUS Control Panel</h1>
-              <p className="mt-2 text-sm leading-6 text-[var(--muted-blue)]">
+              <h1 className="mt-1 text-2xl font-black leading-tight md:text-3xl">NIDUS Control Panel</h1>
+              <p className="mt-1 text-sm leading-6 text-[var(--muted-blue)]">
                 Main departments with direct submodule access. Open the exact control you need in one click.
               </p>
             </div>
@@ -171,7 +157,7 @@ export default function DirectorDashboardPage() {
           </div>
         </header>
 
-        <section className="grid min-h-0 flex-1 gap-4 overflow-y-auto pr-1 lg:grid-cols-2">
+        <section className="grid min-h-0 flex-1 grid-rows-6 gap-3 overflow-hidden sm:grid-cols-2 sm:grid-rows-3 xl:grid-cols-3 xl:grid-rows-2">
           {departments.map((department) => (
             <DepartmentPanel key={department.title} department={department} />
           ))}
@@ -194,19 +180,19 @@ function DepartmentPanel({ department }: { department: Department }) {
   const Icon = department.icon;
 
   return (
-    <section className="rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm">
+    <section className="flex min-h-0 flex-col rounded-2xl border border-[var(--border)] bg-white p-3 shadow-sm">
       <div className="flex items-center justify-between gap-3">
         <Link href={department.href} className="flex min-w-0 items-center gap-3">
           <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[var(--border)] ${department.tone}`}>
             <Icon className="h-5 w-5" />
           </span>
-          <h2 className="truncate text-2xl font-black">{department.title}</h2>
+          <h2 className="truncate text-xl font-black">{department.title}</h2>
         </Link>
         <Link href={department.href} className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-3 py-2 text-xs font-black uppercase tracking-[0.14em]">
           Open All
         </Link>
       </div>
-      <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="mt-3 grid min-h-0 flex-1 grid-cols-2 gap-2 xl:grid-cols-3">
         {department.modules.map((module) => (
           <ModuleButton key={module.label} module={module} />
         ))}
@@ -220,12 +206,12 @@ function ModuleButton({ module }: { module: SubModule }) {
   const content = (
     <>
       {module.badge ? <span className="absolute right-2 top-2 rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-black text-red-700">{module.badge}</span> : null}
-      <Icon className={`h-6 w-6 ${module.muted ? "text-[var(--muted-blue)]" : "text-[var(--navy)]"}`} />
-      <span className="mt-3 text-center text-sm font-black leading-tight">{module.label}</span>
+      <Icon className={`h-5 w-5 ${module.muted ? "text-[var(--muted-blue)]" : "text-[var(--navy)]"}`} />
+      <span className="mt-2 text-center text-xs font-black leading-tight">{module.label}</span>
       {module.muted ? <span className="mt-1 text-[9px] font-black uppercase tracking-[0.18em] text-[var(--muted-blue)]">Future API</span> : null}
     </>
   );
-  const className = `relative flex min-h-24 flex-col items-center justify-center rounded-xl border p-3 text-center transition ${
+  const className = `relative flex min-h-0 flex-col items-center justify-center rounded-xl border p-2 text-center transition ${
     module.muted
       ? "cursor-not-allowed border-dashed border-[var(--border)] bg-[var(--page-bg)] text-[var(--muted-blue)]"
       : "border-[var(--border)] bg-white hover:-translate-y-0.5 hover:border-[var(--gold-border)] hover:bg-[var(--gold-soft)] hover:shadow-sm"
