@@ -78,24 +78,15 @@ function ExamStream() {
 function PublicHeroLogo() {
   return (
     <div className="pointer-events-none relative mx-auto flex min-h-64 w-full max-w-sm items-center justify-center lg:mx-0 lg:min-h-[30rem]">
-      <div className="absolute h-72 w-72 rounded-full bg-[#e7c873]/30 blur-[70px] lg:h-96 lg:w-96" />
-      <div className="absolute h-64 w-64 translate-x-10 translate-y-8 rounded-full bg-[#071d36]/10 blur-[80px] lg:h-80 lg:w-80" />
-      <div className="absolute inset-y-8 left-1/2 w-px -translate-x-1/2 bg-gradient-to-b from-transparent via-[#b9913f]/25 to-transparent" />
-      <div className="relative grid justify-items-center">
+      <div className="absolute h-72 w-72 rounded-full bg-[#e7c873]/26 blur-[82px] lg:h-96 lg:w-96" />
+      <div className="absolute h-64 w-64 translate-x-10 translate-y-8 rounded-full bg-[#071d36]/10 blur-[96px] lg:h-80 lg:w-80" />
+      <div className="relative flex justify-center">
         <Image
           src="/brand/nidus-logo.png"
           alt="NIDUS Academy logo"
           width={430}
           height={430}
-          className="h-48 w-48 object-contain opacity-95 drop-shadow-[0_30px_65px_rgba(7,29,54,0.22)] sm:h-60 sm:w-60 lg:h-80 lg:w-80"
-          priority
-        />
-        <Image
-          src="/brand/nidus-logo-horizontal.png"
-          alt="NIDUS Academy"
-          width={380}
-          height={100}
-          className="-mt-6 h-auto max-h-16 w-auto object-contain opacity-90 drop-shadow-[0_18px_40px_rgba(7,29,54,0.18)] lg:-mt-8 lg:max-h-20"
+          className="h-52 w-52 object-contain opacity-[0.82] mix-blend-multiply saturate-[0.9] drop-shadow-[0_30px_68px_rgba(7,29,54,0.16)] sm:h-64 sm:w-64 lg:h-80 lg:w-80"
           priority
         />
       </div>
