@@ -77,20 +77,27 @@ function ExamStream() {
 
 function PublicHeroLogo() {
   return (
-    <div className="relative mx-auto w-full max-w-sm rounded-[1.75rem] border border-white/70 bg-white/42 p-5 text-left shadow-[0_28px_90px_rgba(7,29,54,0.18)] backdrop-blur-2xl lg:mx-0">
-      <div className="absolute -left-10 -top-10 h-32 w-32 rounded-full bg-[#e7c873]/35 blur-3xl" />
-      <div className="absolute -bottom-12 -right-10 h-36 w-36 rounded-full bg-[#071d36]/12 blur-3xl" />
-      <div className="relative grid gap-5">
-        <div className="flex h-28 w-28 items-center justify-center rounded-3xl border border-[#b9913f]/30 bg-white/92 p-3 shadow-[0_0_45px_rgba(185,145,63,0.32)]">
-          <Image src="/brand/nidus-logo.png" alt="NIDUS Academy logo" width={104} height={104} className="h-full w-full object-contain" priority />
-        </div>
-        <div>
-          <Image src="/brand/nidus-logo-horizontal.png" alt="NIDUS Academy" width={270} height={74} className="h-auto max-h-16 w-auto object-contain" priority />
-          <p className="mt-3 text-xs font-black uppercase tracking-[0.26em] text-[#3f4a32]">Defence Training Platform</p>
-          <p className="mt-3 max-w-xs text-sm font-semibold leading-6 text-[#40516a]">
-            Coaching, fitness, mentoring and academy operations under one NIDUS system.
-          </p>
-        </div>
+    <div className="pointer-events-none relative mx-auto flex min-h-64 w-full max-w-sm items-center justify-center lg:mx-0 lg:min-h-[30rem]">
+      <div className="absolute h-72 w-72 rounded-full bg-[#e7c873]/30 blur-[70px] lg:h-96 lg:w-96" />
+      <div className="absolute h-64 w-64 translate-x-10 translate-y-8 rounded-full bg-[#071d36]/10 blur-[80px] lg:h-80 lg:w-80" />
+      <div className="absolute inset-y-8 left-1/2 w-px -translate-x-1/2 bg-gradient-to-b from-transparent via-[#b9913f]/25 to-transparent" />
+      <div className="relative grid justify-items-center">
+        <Image
+          src="/brand/nidus-logo.png"
+          alt="NIDUS Academy logo"
+          width={430}
+          height={430}
+          className="h-48 w-48 object-contain opacity-95 drop-shadow-[0_30px_65px_rgba(7,29,54,0.22)] sm:h-60 sm:w-60 lg:h-80 lg:w-80"
+          priority
+        />
+        <Image
+          src="/brand/nidus-logo-horizontal.png"
+          alt="NIDUS Academy"
+          width={380}
+          height={100}
+          className="-mt-6 h-auto max-h-16 w-auto object-contain opacity-90 drop-shadow-[0_18px_40px_rgba(7,29,54,0.18)] lg:-mt-8 lg:max-h-20"
+          priority
+        />
       </div>
     </div>
   );
@@ -108,7 +115,7 @@ export function MarketingHome() {
 
       <section className="relative overflow-hidden bg-[radial-gradient(circle_at_18%_10%,rgba(185,145,63,0.22),transparent_28rem),radial-gradient(circle_at_86%_14%,rgba(110,143,175,0.22),transparent_30rem),linear-gradient(135deg,#fbf8f1_0%,#f7f3ea_58%,#dce9f3_100%)] px-4 pb-24 pt-32 text-center text-[#101827] sm:px-6 lg:px-8">
         <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#f7f3ea] to-transparent" />
-        <div className="relative mx-auto grid max-w-7xl gap-10 lg:grid-cols-[360px_1fr] lg:items-center lg:text-left">
+        <div className="relative mx-auto grid max-w-7xl gap-8 lg:grid-cols-[420px_1fr] lg:items-center lg:text-left">
           <PublicHeroLogo />
           <div>
             <p className="mx-auto inline-flex rounded-full border border-[#b9913f]/24 bg-white/62 px-5 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#3f4a32] backdrop-blur-xl lg:mx-0">
