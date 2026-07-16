@@ -329,12 +329,12 @@ export default function DirectorManagementPage() {
   };
 
   return (
-    <main className="min-h-screen bg-[var(--page-bg)] px-4 py-4 text-[var(--navy)] md:px-6 lg:h-[calc(100vh-var(--nav-height)-2rem)] lg:min-h-0 lg:overflow-hidden">
-      <section className="mx-auto flex h-full max-w-[1500px] flex-col gap-4 overflow-y-auto pr-0 lg:pr-2">
-        <div className="shrink-0 rounded-2xl border border-[var(--border)] bg-white/90 p-4 shadow-sm md:p-5">
+    <main className="min-h-screen bg-[var(--page-bg)] px-3 py-3 text-[var(--navy)] lg:h-[calc(100vh-var(--nav-height)-2rem)] lg:min-h-0 lg:overflow-hidden">
+      <section className="mx-auto flex h-full max-w-[1500px] flex-col gap-3 overflow-y-auto pr-0 lg:pr-2">
+        <div className="shrink-0 rounded-2xl border border-[var(--border)] bg-white/90 p-3 shadow-sm md:p-4">
           <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold)]">People Control</p>
-          <h1 className="mt-2 text-2xl font-black tracking-tight md:text-3xl">HRM Staff And Access</h1>
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--muted-blue)]">
+          <h1 className="mt-1 text-2xl font-black tracking-tight">HRM Staff And Access</h1>
+          <p className="mt-1 max-w-3xl text-sm leading-6 text-[var(--muted-blue)]">
             Add employees, generate credentials, control student and staff access, reset passwords and archive old accounts safely
             into history.
           </p>
@@ -347,7 +347,7 @@ export default function DirectorManagementPage() {
           <Metric icon={ShieldCheck} label="Locked Accounts" value={lockedAccounts.length} />
         </div>
 
-        <section className="grid shrink-0 gap-3 md:grid-cols-3 xl:grid-cols-7">
+        <section className="grid shrink-0 gap-2 md:grid-cols-4 xl:grid-cols-7">
           <ModeButton active={mode === "overview"} icon={Users} label="Overview" onClick={() => setMode("overview")} />
           <ModeButton active={mode === "add"} icon={UserPlus} label="Add Employee" onClick={() => setMode("add")} />
           <ModeButton active={mode === "manage"} icon={Users} label="Manage Staff" onClick={() => setMode("manage")} />
@@ -358,14 +358,14 @@ export default function DirectorManagementPage() {
         </section>
 
         {mode === "overview" ? (
-        <section className="rounded-3xl border border-[var(--border)] bg-white/90 p-5 shadow-sm">
-          <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">People Structure</p>
-          <h2 className="mt-2 text-2xl font-black">Team grouped by duty</h2>
-          <div className="mt-5 grid max-h-[58vh] gap-3 overflow-y-auto pr-1 md:grid-cols-2 xl:grid-cols-3">
+        <section className="rounded-2xl border border-[var(--border)] bg-white/90 p-3 shadow-sm md:p-4">
+          <p className="text-[11px] font-black uppercase tracking-[0.28em] text-[var(--gold)]">People Structure</p>
+          <h2 className="mt-1 text-xl font-black">Team grouped by duty</h2>
+          <div className="mt-3 grid max-h-[52vh] gap-3 overflow-y-auto pr-1 md:grid-cols-2 xl:grid-cols-3">
             {activeTeamGroups.map((group) => (
-              <div key={group.label} className="rounded-2xl border border-[var(--border)] bg-white p-4">
-                <p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold)]">{group.label}</p>
-                <p className="mt-3 text-3xl font-black">{group.accounts.length}</p>
+              <div key={group.label} className="rounded-2xl border border-[var(--border)] bg-white p-3">
+                <p className="text-[11px] font-black uppercase tracking-[0.22em] text-[var(--gold)]">{group.label}</p>
+                <p className="mt-2 text-2xl font-black">{group.accounts.length}</p>
                 <p className="mt-1 text-sm text-[var(--muted-blue)]">{group.description}</p>
               </div>
             ))}
@@ -373,16 +373,16 @@ export default function DirectorManagementPage() {
         </section>
         ) : null}
 
-        {notice && <div className="rounded-2xl border border-[var(--gold-border)] bg-[var(--gold-soft)] p-4 text-sm font-bold">{notice}</div>}
+        {notice && <div className="rounded-2xl border border-[var(--gold-border)] bg-[var(--gold-soft)] px-3 py-2 text-sm font-bold">{notice}</div>}
 
         {lastCredentials && (
-          <section className="rounded-3xl border border-[var(--gold-border)] bg-[var(--gold-soft)] p-5 shadow-sm">
-            <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Generated Credentials</p>
-            <div className="mt-4 grid gap-3 md:grid-cols-[1fr_1fr_auto] md:items-end">
+          <section className="rounded-2xl border border-[var(--gold-border)] bg-[var(--gold-soft)] p-3 shadow-sm md:p-4">
+            <p className="text-[11px] font-black uppercase tracking-[0.28em] text-[var(--gold)]">Generated Credentials</p>
+            <div className="mt-3 grid gap-3 md:grid-cols-[1fr_1fr_auto] md:items-end">
               <CredentialBox label="Login email" value={lastCredentials.email} />
               <CredentialBox label="Temporary password" value={lastCredentials.temporaryPassword} />
               <button
-                className="rounded-xl border border-[var(--border)] bg-white px-5 py-3 font-black"
+                className="rounded-xl border border-[var(--border)] bg-white px-4 py-2 text-sm font-black"
                 onClick={() => {
                   void navigator.clipboard?.writeText(`${lastCredentials.email}\n${lastCredentials.temporaryPassword}`);
                   setNotice("Credentials copied.");
@@ -396,11 +396,11 @@ export default function DirectorManagementPage() {
         )}
 
         {mode === "add" ? (
-        <section className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
-          <div className="rounded-3xl border border-[var(--border)] bg-white/90 p-5 shadow-sm">
-            <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Add Employee</p>
-            <h2 className="mt-2 text-2xl font-black">Create credentials</h2>
-            <div className="mt-5 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+        <section className="grid gap-3 lg:grid-cols-[0.9fr_1.1fr]">
+          <div className="rounded-2xl border border-[var(--border)] bg-white/90 p-3 shadow-sm md:p-4">
+            <p className="text-[11px] font-black uppercase tracking-[0.28em] text-[var(--gold)]">Add Employee</p>
+            <h2 className="mt-1 text-xl font-black">Create credentials</h2>
+            <div className="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
               {quickProfiles.map((profile) => (
                 <button
                   key={profile.label}
@@ -412,14 +412,14 @@ export default function DirectorManagementPage() {
                 </button>
               ))}
             </div>
-            <form onSubmit={submit} className="mt-5 grid gap-3">
+            <form onSubmit={submit} className="mt-3 grid gap-3">
               <Input label="Name" value={form.name} onChange={(value) => setForm((item) => ({ ...item, name: value }))} required />
               <Input label="Email" value={form.email} onChange={(value) => setForm((item) => ({ ...item, email: value }))} required />
               <Input label="Phone" value={form.phone ?? ""} onChange={(value) => setForm((item) => ({ ...item, phone: value }))} />
               <label className="grid gap-2 text-sm font-bold">
                 Employee type
                 <select
-                  className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-[var(--navy)] outline-none focus:border-[var(--gold)]"
+                  className="rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-[var(--navy)] outline-none focus:border-[var(--gold)]"
                   value={`${form.role}:${form.dashboardTemplate ?? ""}`}
                   onChange={(event) => {
                     const selected = roleOptions.find((option) => `${option.value}:${option.dashboardTemplate ?? ""}` === event.target.value);
@@ -443,7 +443,7 @@ export default function DirectorManagementPage() {
                 <label className="grid gap-2 text-sm font-bold">
                   Employment
                   <select
-                    className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-[var(--navy)] outline-none focus:border-[var(--gold)]"
+                    className="rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-[var(--navy)] outline-none focus:border-[var(--gold)]"
                     value={form.employmentType}
                     onChange={(event) => setForm((item) => ({ ...item, employmentType: event.target.value }))}
                   >
@@ -461,26 +461,26 @@ export default function DirectorManagementPage() {
                 <Input label="Temporary password" value={form.password ?? ""} onChange={(value) => setForm((item) => ({ ...item, password: value }))} />
               </div>
               <Input label="Subjects / skills comma separated" value={subjectText} onChange={setSubjectText} />
-              <button className="inline-flex items-center justify-center gap-2 rounded-xl bg-[var(--gold-gradient)] px-5 py-3 font-black text-[var(--navy)] shadow-lg">
+              <button className="inline-flex items-center justify-center gap-2 rounded-xl bg-[var(--gold-gradient)] px-4 py-2 text-sm font-black text-[var(--navy)] shadow-lg">
                 <UserPlus className="h-4 w-4" />
                 Create Employee
               </button>
             </form>
           </div>
 
-          <div className="rounded-3xl border border-[var(--border)] bg-white/90 p-5 shadow-sm">
-            <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Director Teaching Mode</p>
-            <h2 className="mt-2 text-2xl font-black">Director can teach when required</h2>
-            <div className="mt-5 grid gap-3">
+          <div className="rounded-2xl border border-[var(--border)] bg-white/90 p-3 shadow-sm md:p-4">
+            <p className="text-[11px] font-black uppercase tracking-[0.28em] text-[var(--gold)]">Director Teaching Mode</p>
+            <h2 className="mt-1 text-xl font-black">Director can teach when required</h2>
+            <div className="mt-3 grid gap-3">
               <Info icon={CheckCircle2} text="Director can open Academic Department and assign himself/herself as teacher to any batch." />
               <Info icon={GraduationCap} text="Once assigned, the same class calendar, batch and syllabus tracker can be managed by the Director." />
               <Info icon={BadgeIndianRupee} text="Academic Head and teachers remain operational users; Director keeps planning and override control." />
             </div>
-            <div className="mt-5 flex flex-wrap gap-3">
-              <Link className="rounded-xl bg-[var(--gold-gradient)] px-5 py-3 font-black text-[var(--navy)] shadow-lg" href="/dashboard/director/academic">
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Link className="rounded-xl bg-[var(--gold-gradient)] px-4 py-2 text-sm font-black text-[var(--navy)] shadow-lg" href="/dashboard/director/academic">
                 Assign Teaching Role
               </Link>
-              <Link className="rounded-xl border border-[var(--border)] bg-white px-5 py-3 font-black" href="/dashboard/director/teaching">
+              <Link className="rounded-xl border border-[var(--border)] bg-white px-4 py-2 text-sm font-black" href="/dashboard/director/teaching">
                 Open Teaching View
               </Link>
             </div>
@@ -490,18 +490,18 @@ export default function DirectorManagementPage() {
 
         {mode === "overview" ? (
         <>
-        <section id="attendance" className="rounded-3xl border border-[var(--border)] bg-white/90 p-5 shadow-sm">
-          <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Attendance & Leave</p>
-          <h2 className="mt-2 text-2xl font-black">Launch setup state</h2>
-          <div className="mt-5 rounded-2xl border border-dashed border-[var(--border)] bg-white/70 p-5 text-sm leading-7 text-[var(--muted-blue)]">
+        <section id="attendance" className="rounded-2xl border border-[var(--border)] bg-white/90 p-3 shadow-sm md:p-4">
+          <p className="text-[11px] font-black uppercase tracking-[0.28em] text-[var(--gold)]">Attendance & Leave</p>
+          <h2 className="mt-1 text-xl font-black">Launch setup state</h2>
+          <div className="mt-3 rounded-2xl border border-dashed border-[var(--border)] bg-white/70 p-3 text-sm leading-6 text-[var(--muted-blue)]">
             Staff attendance and leave approval can be connected here. Employee account creation and access control are already active.
           </div>
         </section>
 
-        <section id="performance" className="rounded-3xl border border-[var(--border)] bg-white/90 p-5 shadow-sm">
-          <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Performance Review</p>
-          <h2 className="mt-2 text-2xl font-black">Teacher and staff output</h2>
-          <div className="mt-5 rounded-2xl border border-dashed border-[var(--border)] bg-white/70 p-5 text-sm leading-7 text-[var(--muted-blue)]">
+        <section id="performance" className="rounded-2xl border border-[var(--border)] bg-white/90 p-3 shadow-sm md:p-4">
+          <p className="text-[11px] font-black uppercase tracking-[0.28em] text-[var(--gold)]">Performance Review</p>
+          <h2 className="mt-1 text-xl font-black">Teacher and staff output</h2>
+          <div className="mt-3 rounded-2xl border border-dashed border-[var(--border)] bg-white/70 p-3 text-sm leading-6 text-[var(--muted-blue)]">
             Performance combines class completion, academic calendar logs, student progress and management reviews as those records are created.
           </div>
         </section>
@@ -509,15 +509,15 @@ export default function DirectorManagementPage() {
         ) : null}
 
         {mode === "access" ? (
-        <section className="rounded-3xl border border-[var(--border)] bg-white/90 p-5 shadow-sm">
-          <div className="rounded-2xl border border-[var(--border)] bg-white p-4">
-            <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Credential Readiness</p>
-            <h2 className="mt-2 text-2xl font-black">Account unlock and password reset</h2>
-            <p className="mt-2 text-sm leading-7 text-[var(--muted-blue)]">
+        <section className="rounded-2xl border border-[var(--border)] bg-white/90 p-3 shadow-sm md:p-4">
+          <div className="rounded-2xl border border-[var(--border)] bg-white p-3">
+            <p className="text-[11px] font-black uppercase tracking-[0.28em] text-[var(--gold)]">Credential Readiness</p>
+            <h2 className="mt-1 text-xl font-black">Account unlock and password reset</h2>
+            <p className="mt-1 text-sm leading-6 text-[var(--muted-blue)]">
               Director can reset any launch user to the default temporary password and clear lockout counters from this screen.
             </p>
           </div>
-          <div className="mt-5 grid max-h-[58vh] gap-3 overflow-y-auto pr-1">
+          <div className="mt-3 grid max-h-[52vh] gap-3 overflow-y-auto pr-1">
             {(lockedAccounts.length ? lockedAccounts : activeTeam).map((employee) => (
               <EmployeeRow
                 key={employee.id}
@@ -549,46 +549,46 @@ export default function DirectorManagementPage() {
         ) : null}
 
         {mode === "roles" ? (
-        <section className="rounded-3xl border border-[var(--border)] bg-white/90 p-5 shadow-sm">
-          <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Roles</p>
-          <h2 className="mt-2 text-2xl font-black">Role control</h2>
-          <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+        <section className="rounded-2xl border border-[var(--border)] bg-white/90 p-3 shadow-sm md:p-4">
+          <p className="text-[11px] font-black uppercase tracking-[0.28em] text-[var(--gold)]">Roles</p>
+          <h2 className="mt-1 text-xl font-black">Role control</h2>
+          <div className="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
             {roleOptions.map((role) => (
-              <div key={`${role.value}-${role.dashboardTemplate ?? role.label}`} className="rounded-2xl border border-[var(--border)] bg-white p-4">
+              <div key={`${role.value}-${role.dashboardTemplate ?? role.label}`} className="rounded-2xl border border-[var(--border)] bg-white p-3">
                 <p className="font-black">{role.label}</p>
                 <p className="mt-2 text-sm text-[var(--muted-blue)]">System role: {role.value}</p>
                 <p className="mt-1 text-sm text-[var(--muted-blue)]">Dashboard: {role.dashboardTemplate || "Default"}</p>
               </div>
             ))}
           </div>
-          <Link href="/admin-center/roles" className="mt-5 inline-flex rounded-xl bg-[var(--gold-gradient)] px-5 py-3 font-black text-[var(--navy)] shadow-lg">
+          <Link href="/admin-center/roles" className="mt-3 inline-flex rounded-xl bg-[var(--gold-gradient)] px-4 py-2 text-sm font-black text-[var(--navy)] shadow-lg">
             Open Advanced Roles
           </Link>
         </section>
         ) : null}
 
         {mode === "permissions" ? (
-        <section className="rounded-3xl border border-[var(--border)] bg-white/90 p-5 shadow-sm">
-          <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Permissions</p>
-          <h2 className="mt-2 text-2xl font-black">Access rules</h2>
-          <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+        <section className="rounded-2xl border border-[var(--border)] bg-white/90 p-3 shadow-sm md:p-4">
+          <p className="text-[11px] font-black uppercase tracking-[0.28em] text-[var(--gold)]">Permissions</p>
+          <h2 className="mt-1 text-xl font-black">Access rules</h2>
+          <div className="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
             <Info icon={ShieldCheck} text="Director keeps full access to all department control panels." />
             <Info icon={GraduationCap} text="Academic Head controls timetable, teachers, batches and academic reports." />
             <Info icon={BadgeIndianRupee} text="Administrative Officer handles applications, documents, fees and activation." />
             <Info icon={Users} text="Teachers and trainers see only their assigned classes, batches and attendance." />
           </div>
-          <Link href="/admin-center/permissions" className="mt-5 inline-flex rounded-xl bg-[var(--gold-gradient)] px-5 py-3 font-black text-[var(--navy)] shadow-lg">
+          <Link href="/admin-center/permissions" className="mt-3 inline-flex rounded-xl bg-[var(--gold-gradient)] px-4 py-2 text-sm font-black text-[var(--navy)] shadow-lg">
             Open Advanced Permissions
           </Link>
         </section>
         ) : null}
 
         {(mode === "manage" || mode === "archive") ? (
-        <section className="rounded-3xl border border-[var(--border)] bg-white/90 p-5 shadow-sm">
-          <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Credential Directory</p>
-          <div className="mt-2 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <section className="rounded-2xl border border-[var(--border)] bg-white/90 p-3 shadow-sm md:p-4">
+          <p className="text-[11px] font-black uppercase tracking-[0.28em] text-[var(--gold)]">Credential Directory</p>
+          <div className="mt-1 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div>
-              <h2 className="text-2xl font-black">{accountGroup === "TEAM" ? "Team accounts" : "Students by batch"}</h2>
+              <h2 className="text-xl font-black">{accountGroup === "TEAM" ? "Team accounts" : "Students by batch"}</h2>
               <p className="mt-1 text-sm text-[var(--muted-blue)]">
                 {accountGroup === "TEAM"
                   ? "Teachers, trainers, academic heads, directors and operations staff."
@@ -598,14 +598,14 @@ export default function DirectorManagementPage() {
             <div className="flex flex-col gap-2 md:items-end">
               <div className="flex rounded-xl border border-[var(--border)] bg-white p-1">
                 <button
-                  className={`rounded-lg px-4 py-2 text-sm font-black ${accountGroup === "TEAM" ? "bg-[var(--gold-gradient)] text-[var(--navy)]" : "text-[var(--muted-blue)]"}`}
+                  className={`rounded-lg px-3 py-1.5 text-sm font-black ${accountGroup === "TEAM" ? "bg-[var(--gold-gradient)] text-[var(--navy)]" : "text-[var(--muted-blue)]"}`}
                   onClick={() => setAccountGroup("TEAM")}
                   type="button"
                 >
                   Team
                 </button>
                 <button
-                  className={`rounded-lg px-4 py-2 text-sm font-black ${accountGroup === "STUDENTS" ? "bg-[var(--gold-gradient)] text-[var(--navy)]" : "text-[var(--muted-blue)]"}`}
+                  className={`rounded-lg px-3 py-1.5 text-sm font-black ${accountGroup === "STUDENTS" ? "bg-[var(--gold-gradient)] text-[var(--navy)]" : "text-[var(--muted-blue)]"}`}
                   onClick={() => setAccountGroup("STUDENTS")}
                   type="button"
                 >
@@ -614,14 +614,14 @@ export default function DirectorManagementPage() {
               </div>
               <div className="flex rounded-xl border border-[var(--border)] bg-white p-1">
                 <button
-                  className={`rounded-lg px-4 py-2 text-sm font-black ${activeTab === "ACTIVE" ? "bg-[var(--navy)] text-white" : "text-[var(--muted-blue)]"}`}
+                  className={`rounded-lg px-3 py-1.5 text-sm font-black ${activeTab === "ACTIVE" ? "bg-[var(--navy)] text-white" : "text-[var(--muted-blue)]"}`}
                   onClick={() => setActiveTab("ACTIVE")}
                   type="button"
                 >
                   Active
                 </button>
                 <button
-                  className={`rounded-lg px-4 py-2 text-sm font-black ${activeTab === "ARCHIVED" ? "bg-[var(--navy)] text-white" : "text-[var(--muted-blue)]"}`}
+                  className={`rounded-lg px-3 py-1.5 text-sm font-black ${activeTab === "ARCHIVED" ? "bg-[var(--navy)] text-white" : "text-[var(--muted-blue)]"}`}
                   onClick={() => setActiveTab("ARCHIVED")}
                   type="button"
                 >
@@ -630,20 +630,20 @@ export default function DirectorManagementPage() {
               </div>
             </div>
           </div>
-          <div className="mt-5 grid max-h-[58vh] gap-3 overflow-y-auto pr-1">
+          <div className="mt-3 grid max-h-[52vh] gap-3 overflow-y-auto pr-1">
             {accountGroup === "TEAM" ? (
               <>
                 {visibleTeamGroups.map((group) => (
-                  <div key={group.label} className="rounded-2xl border border-[var(--border)] bg-white/80 p-4">
+                  <div key={group.label} className="rounded-2xl border border-[var(--border)] bg-white/80 p-3">
                     <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
                       <div>
-                        <p className="text-xs font-black uppercase tracking-[0.3em] text-[var(--gold)]">{group.label}</p>
-                        <h3 className="mt-1 text-xl font-black">{group.title}</h3>
+                        <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[var(--gold)]">{group.label}</p>
+                        <h3 className="mt-1 text-lg font-black">{group.title}</h3>
                         <p className="mt-1 text-sm text-[var(--muted-blue)]">{group.description}</p>
                       </div>
-                      <span className="rounded-full border border-[var(--border)] bg-white px-4 py-2 text-sm font-black">{group.accounts.length} account(s)</span>
+                      <span className="rounded-full border border-[var(--border)] bg-white px-3 py-1.5 text-xs font-black">{group.accounts.length} account(s)</span>
                     </div>
-                    <div className="mt-4 grid gap-3">
+                    <div className="mt-3 grid gap-3">
                       {group.accounts.map((employee) => (
                         <EmployeeRow
                           key={employee.id}
@@ -678,15 +678,15 @@ export default function DirectorManagementPage() {
             ) : (
               <>
                 {studentGroups.map((group) => (
-                  <div key={group.batchId} className="rounded-2xl border border-[var(--border)] bg-white/80 p-4">
+                  <div key={group.batchId} className="rounded-2xl border border-[var(--border)] bg-white/80 p-3">
                     <div className="flex flex-col gap-1 md:flex-row md:items-end md:justify-between">
                       <div>
-                        <p className="text-xs font-black uppercase tracking-[0.3em] text-[var(--gold)]">Batch</p>
-                        <h3 className="mt-1 text-xl font-black">{group.batchName}</h3>
+                        <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[var(--gold)]">Batch</p>
+                        <h3 className="mt-1 text-lg font-black">{group.batchName}</h3>
                       </div>
-                      <span className="rounded-full border border-[var(--border)] bg-white px-4 py-2 text-sm font-black">{group.students.length} student(s)</span>
+                      <span className="rounded-full border border-[var(--border)] bg-white px-3 py-1.5 text-xs font-black">{group.students.length} student(s)</span>
                     </div>
-                    <div className="mt-4 grid gap-3">
+                    <div className="mt-3 grid gap-3">
                       {group.students.map((student) => (
                         <EmployeeRow
                           key={student.id}
@@ -729,10 +729,10 @@ export default function DirectorManagementPage() {
 
 function Metric({ icon: Icon, label, value }: { icon: LucideIcon; label: string; value: number }) {
   return (
-    <div className="rounded-2xl border border-[var(--border)] bg-white/85 p-4 shadow-sm">
+    <div className="rounded-2xl border border-[var(--border)] bg-white/85 p-3 shadow-sm">
       <Icon className="h-4 w-4 text-[var(--gold)]" />
-      <p className="mt-3 text-2xl font-black">{value}</p>
-      <p className="mt-1 text-sm text-[var(--muted-blue)]">{label}</p>
+      <p className="mt-2 text-xl font-black">{value}</p>
+      <p className="mt-0.5 text-sm text-[var(--muted-blue)]">{label}</p>
     </div>
   );
 }
@@ -740,7 +740,7 @@ function Metric({ icon: Icon, label, value }: { icon: LucideIcon; label: string;
 function ModeButton({ active, icon: Icon, label, onClick }: { active: boolean; icon: LucideIcon; label: string; onClick: () => void }) {
   return (
     <button
-      className={`flex min-h-16 flex-col items-center justify-center gap-1.5 rounded-2xl border p-2.5 text-center text-sm font-black shadow-sm transition hover:-translate-y-0.5 hover:border-[var(--gold-border)] hover:shadow-md ${active ? "border-[var(--gold-border)] bg-[var(--gold-soft)]" : "border-[var(--border)] bg-white/90"}`}
+      className={`flex min-h-12 flex-col items-center justify-center gap-1 rounded-xl border p-2 text-center text-xs font-black shadow-sm transition hover:-translate-y-0.5 hover:border-[var(--gold-border)] hover:shadow-md ${active ? "border-[var(--gold-border)] bg-[var(--gold-soft)]" : "border-[var(--border)] bg-white/90"}`}
       onClick={onClick}
       type="button"
     >
@@ -752,9 +752,9 @@ function ModeButton({ active, icon: Icon, label, onClick }: { active: boolean; i
 
 function CredentialBox({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-[var(--border)] bg-white p-4">
-      <p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold)]">{label}</p>
-      <p className="mt-2 break-all font-black text-[var(--navy)]">{value}</p>
+    <div className="rounded-2xl border border-[var(--border)] bg-white p-3">
+      <p className="text-[11px] font-black uppercase tracking-[0.22em] text-[var(--gold)]">{label}</p>
+      <p className="mt-1 break-all text-sm font-black text-[var(--navy)]">{value}</p>
     </div>
   );
 }
@@ -776,9 +776,9 @@ function Input({ label, value, onChange, required, type = "text" }: { label: str
 
 function Info({ icon: Icon, text }: { icon: LucideIcon; text: string }) {
   return (
-    <div className="flex gap-3 rounded-2xl border border-[var(--border)] bg-white p-4">
-      <Icon className="mt-0.5 h-5 w-5 shrink-0 text-[var(--gold)]" />
-      <p className="text-sm leading-7 text-[var(--muted-blue)]">{text}</p>
+    <div className="flex gap-3 rounded-2xl border border-[var(--border)] bg-white p-3">
+      <Icon className="mt-0.5 h-4 w-4 shrink-0 text-[var(--gold)]" />
+      <p className="text-sm leading-6 text-[var(--muted-blue)]">{text}</p>
     </div>
   );
 }
@@ -882,7 +882,7 @@ function EmployeeRow({
   if (editing && editForm) {
     return (
       <article className="rounded-2xl border border-[var(--gold-border)] bg-[var(--gold-soft)] p-3">
-        <div className="grid gap-3 md:grid-cols-3">
+        <div className="grid gap-2 md:grid-cols-3">
           <EditField label="Name" value={editForm.name} onChange={(value) => onEditChange?.("name", value)} />
           <EditField label="Email / Login" type="email" value={editForm.email} onChange={(value) => onEditChange?.("email", value)} />
           <EditField label="Contact" value={editForm.phone} onChange={(value) => onEditChange?.("phone", value)} />
@@ -890,13 +890,13 @@ function EmployeeRow({
           <EditField label="Department" value={editForm.department} onChange={(value) => onEditChange?.("department", value)} />
           <label className="grid gap-1.5 text-xs font-black">
             Employment
-            <select className="rounded-lg border border-[var(--border)] bg-white px-3 py-2 text-sm" value={editForm.employmentType} onChange={(event) => onEditChange?.("employmentType", event.target.value)}>
+            <select className="rounded-lg border border-[var(--border)] bg-white px-3 py-1.5 text-sm" value={editForm.employmentType} onChange={(event) => onEditChange?.("employmentType", event.target.value)}>
               {employmentTypes.map((type) => <option key={type} value={type}>{type}</option>)}
             </select>
           </label>
           <label className="grid gap-1.5 text-xs font-black">
             Role
-            <select className="rounded-lg border border-[var(--border)] bg-white px-3 py-2 text-sm" value={editForm.role} onChange={(event) => onEditChange?.("role", event.target.value)}>
+            <select className="rounded-lg border border-[var(--border)] bg-white px-3 py-1.5 text-sm" value={editForm.role} onChange={(event) => onEditChange?.("role", event.target.value)}>
               <option value="STUDENT">Student</option>
               <option value="TEACHER">Teacher / Trainer</option>
               <option value="ACADEMIC_HEAD">Academic Head</option>
@@ -907,7 +907,7 @@ function EmployeeRow({
           </label>
           <label className="grid gap-1.5 text-xs font-black">
             Dashboard
-            <select className="rounded-lg border border-[var(--border)] bg-white px-3 py-2 text-sm" value={editForm.dashboardTemplate} onChange={(event) => onEditChange?.("dashboardTemplate", event.target.value)}>
+            <select className="rounded-lg border border-[var(--border)] bg-white px-3 py-1.5 text-sm" value={editForm.dashboardTemplate} onChange={(event) => onEditChange?.("dashboardTemplate", event.target.value)}>
               <option value="">Default</option>
               <option value="ACADEMIC_HEAD">Academic Head</option>
               <option value="PHYSICAL_TRAINER">Physical Trainer</option>
@@ -931,11 +931,11 @@ function EmployeeRow({
   }
 
   return (
-    <article className="rounded-2xl border border-[var(--border)] bg-white p-3">
+    <article className="rounded-2xl border border-[var(--border)] bg-white p-3 shadow-sm">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div>
           <h3 className="text-base font-black">{employee.name}</h3>
-          <p className="mt-1 text-sm text-[var(--muted-blue)]">{employee.email} / {employee.phone || employee.mobile || "No phone"}</p>
+          <p className="mt-0.5 text-sm text-[var(--muted-blue)]">{employee.email} / {employee.phone || employee.mobile || "No phone"}</p>
           <p className="mt-1.5 text-[11px] font-black uppercase tracking-[0.2em] text-[var(--gold)]">
             {groupLabel ? `${groupLabel} / ` : ""}{String(metadata.designation ?? employee.role)} / {String(metadata.employmentType ?? "FULL_TIME")} / {String(metadata.department ?? "Academy")}
           </p>
@@ -983,7 +983,7 @@ function EditField({ label, value, onChange, type = "text", placeholder }: { lab
     <label className="grid gap-1.5 text-xs font-black">
       {label}
       <input
-        className="rounded-lg border border-[var(--border)] bg-white px-3 py-2 text-sm"
+        className="rounded-lg border border-[var(--border)] bg-white px-3 py-1.5 text-sm"
         type={type}
         value={value}
         placeholder={placeholder}
@@ -994,5 +994,5 @@ function EditField({ label, value, onChange, type = "text", placeholder }: { lab
 }
 
 function Empty({ text }: { text: string }) {
-  return <div className="rounded-2xl border border-dashed border-[var(--border)] bg-white/70 p-5 text-sm text-[var(--muted-blue)]">{text}</div>;
+  return <div className="rounded-2xl border border-dashed border-[var(--border)] bg-white/70 p-3 text-sm text-[var(--muted-blue)]">{text}</div>;
 }
