@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { BookOpen, Link as LinkIcon, Upload } from "lucide-react";
 import {
@@ -37,6 +37,12 @@ export default function DirectorMaterialsPage() {
   const queryClient = useQueryClient();
   const [notice, setNotice] = useState("");
   const [mode, setMode] = useState<"library" | "publish" | "batches">("library");
+  const [filters, setFilters] = useState({
+    search: "",
+    batchId: "ALL",
+    type: "ALL",
+    reviewStatus: "ALL",
+  });
   const [form, setForm] = useState({
     batchId: "",
     folderName: "",
@@ -111,13 +117,34 @@ export default function DirectorMaterialsPage() {
   const materialData = materialsQuery.data;
   const materials = materialData?.materials ?? [];
   const summary = materialData?.summary;
+  const materialTypes = useMemo(() => Array.from(new Set(materials.map((material) => material.type).filter(Boolean))).sort(), [materials]);
+  const reviewStatuses = useMemo(() => Array.from(new Set(materials.map((material) => material.reviewStatus || "PENDING_REVIEW"))).sort(), [materials]);
+  const filteredMaterials = useMemo(() => {
+    const search = filters.search.trim().toLowerCase();
+    return materials.filter((material) => {
+      const matchesBatch = filters.batchId === "ALL" || material.batchId === filters.batchId;
+      const matchesType = filters.type === "ALL" || material.type === filters.type;
+      const matchesReview = filters.reviewStatus === "ALL" || (material.reviewStatus || "PENDING_REVIEW") === filters.reviewStatus;
+      const haystack = [
+        material.title,
+        material.batchName,
+        material.folder,
+        material.subject,
+        material.topic,
+        material.type,
+        material.fileName,
+      ].join(" ").toLowerCase();
+
+      return matchesBatch && matchesType && matchesReview && (!search || haystack.includes(search));
+    });
+  }, [filters, materials]);
 
   return (
     <AcademicShell>
         <AcademicHero
           eyebrow="Study Materials"
           title="Batch Library Control"
-          description="Organize recorded classes, notes, PDFs, links and topic resources by batch. Students see only materials assigned to their approved batch."
+          description="Publish and review study materials by batch. Students see only the content assigned to their approved batch."
           action={
             <div className="flex flex-wrap gap-2">
               <button className={`rounded-xl px-4 py-3 text-sm font-black ${mode === "library" ? "bg-[var(--navy)] text-white" : "border border-[var(--border)] bg-white"}`} onClick={() => setMode("library")} type="button">Library</button>
@@ -130,8 +157,8 @@ export default function DirectorMaterialsPage() {
         <section className="grid shrink-0 gap-3 md:grid-cols-4">
           <StatCard label="Total" value={summary?.total ?? 0} />
           <StatCard label="Review" value={summary?.pendingReview ?? 0} />
-          <StatCard label="Links" value={summary?.links ?? 0} />
-          <StatCard label="Files" value={summary?.files ?? 0} />
+          <StatCard label="Approved" value={summary?.approved ?? 0} />
+          <StatCard label="Visible Now" value={filteredMaterials.length} />
         </section>
 
         {notice && (
@@ -142,7 +169,7 @@ export default function DirectorMaterialsPage() {
 
         {mode === "publish" ? (
           <Panel title="Prepare material for batch" eyebrow="Material Draft">
-            <form onSubmit={submit} className="mt-5 grid gap-4">
+            <form onSubmit={submit} className="mt-5 grid max-h-[58vh] gap-4 overflow-y-auto pr-1">
               <label className="grid gap-2 text-sm font-bold">
                 Select batch
                 <select
@@ -183,6 +210,9 @@ export default function DirectorMaterialsPage() {
               <Field label="Material title" value={form.materialTitle} onChange={(value) => setForm((item) => ({ ...item, materialTitle: value }))} required />
               <Field label="Video/file/link URL" value={form.materialUrl} onChange={(value) => setForm((item) => ({ ...item, materialUrl: value }))} />
               <Field label="File name" value={form.fileName} onChange={(value) => setForm((item) => ({ ...item, fileName: value }))} />
+              <div className="rounded-2xl border border-[var(--gold-border)] bg-[var(--gold-soft)] p-4 text-sm font-bold leading-6 text-[var(--navy)]">
+                Batch visibility rule: this material is visible only to students in the selected batch after publishing.
+              </div>
               <button
                 disabled={publishMutation.isPending}
                 className="inline-flex items-center justify-center gap-2 rounded-xl bg-[var(--gold-gradient)] px-5 py-3 font-black text-[var(--navy)] shadow-lg disabled:opacity-60"
@@ -221,7 +251,7 @@ export default function DirectorMaterialsPage() {
         <Panel title="Published materials" eyebrow="Live Library">
           <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div>
-              <p className="text-sm text-[var(--muted-blue)]">Approve, reject, archive or open published learning items.</p>
+              <p className="text-sm text-[var(--muted-blue)]">Filter by batch, type or review status before approving or archiving material.</p>
             </div>
             <div className="grid grid-cols-4 gap-2 text-center text-xs font-black">
               <span className="rounded-xl bg-[var(--page-bg)] px-3 py-2">{summary?.total ?? 0} total</span>
@@ -231,8 +261,47 @@ export default function DirectorMaterialsPage() {
             </div>
           </div>
 
-          <div className="mt-5 grid max-h-[52vh] gap-3 overflow-y-auto pr-1">
-            {materials.map((material) => (
+          <div className="mt-4 grid gap-3 rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-3 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
+            <input
+              className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-sm font-bold outline-none focus:border-[var(--gold)]"
+              placeholder="Search title, subject, topic or file"
+              value={filters.search}
+              onChange={(event) => setFilters((item) => ({ ...item, search: event.target.value }))}
+            />
+            <select
+              className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-sm font-bold outline-none focus:border-[var(--gold)]"
+              value={filters.batchId}
+              onChange={(event) => setFilters((item) => ({ ...item, batchId: event.target.value }))}
+            >
+              <option value="ALL">All batches</option>
+              {batches.map((batch) => (
+                <option key={batch.id} value={batch.id}>{batch.name}</option>
+              ))}
+            </select>
+            <select
+              className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-sm font-bold outline-none focus:border-[var(--gold)]"
+              value={filters.type}
+              onChange={(event) => setFilters((item) => ({ ...item, type: event.target.value }))}
+            >
+              <option value="ALL">All types</option>
+              {materialTypes.map((type) => (
+                <option key={type} value={type}>{type}</option>
+              ))}
+            </select>
+            <select
+              className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-sm font-bold outline-none focus:border-[var(--gold)]"
+              value={filters.reviewStatus}
+              onChange={(event) => setFilters((item) => ({ ...item, reviewStatus: event.target.value }))}
+            >
+              <option value="ALL">All review</option>
+              {reviewStatuses.map((status) => (
+                <option key={status} value={status}>{status}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="mt-4 grid max-h-[44vh] gap-3 overflow-y-auto pr-1">
+            {filteredMaterials.map((material) => (
               <article key={material.id} className="rounded-2xl border border-[var(--border)] bg-white p-4">
                 <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                   <div>
@@ -267,7 +336,7 @@ export default function DirectorMaterialsPage() {
                 </div>
               </article>
             ))}
-            {!materials.length && <Empty text="No materials have been published yet." />}
+            {!filteredMaterials.length && <Empty text={materials.length ? "No materials match the selected filters." : "No materials have been published yet."} />}
           </div>
         </Panel>
         ) : null}

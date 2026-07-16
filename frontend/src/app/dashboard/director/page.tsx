@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { BadgeIndianRupee, BarChart3, Bell, GraduationCap, Megaphone, ShieldCheck, UserCog } from "lucide-react";
+import { BadgeIndianRupee, BarChart3, Bell, BookOpen, GraduationCap, Megaphone, ShieldCheck, UserCog } from "lucide-react";
 import { DirectorLauncher, type DirectorTile } from "@/components/dashboard/director-launcher";
 import { getDirectorDashboard } from "@/services/dashboard";
 
@@ -49,6 +49,12 @@ export default function DirectorDashboardPage() {
       href: "/dashboard/director/reports",
       icon: BarChart3,
       note: "Institute health, academics, finance, staff and custom exports.",
+    },
+    {
+      label: "Teaching Mode",
+      href: "/dashboard/director/teaching",
+      icon: BookOpen,
+      note: "Classes, attendance, assignments, library, exams and students.",
     },
     {
       label: "Launch QA",
