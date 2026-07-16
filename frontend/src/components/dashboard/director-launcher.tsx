@@ -57,7 +57,7 @@ export function DirectorLauncher({
           </div>
         </header>
 
-        <section className="grid flex-1 auto-rows-fr gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <section className="grid min-h-0 gap-3 overflow-y-auto pr-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {tiles.map((tile) => (
             <DirectorActionTile key={tile.label} tile={tile} />
           ))}
@@ -69,7 +69,7 @@ export function DirectorLauncher({
 
 function DirectorActionTile({ tile }: { tile: DirectorTile }) {
   const Icon = tile.icon;
-  const className = `group relative flex min-h-32 flex-col justify-between rounded-2xl border p-4 text-left shadow-sm transition lg:min-h-0 ${
+  const className = `group relative overflow-hidden rounded-2xl border text-left shadow-sm transition ${
     tile.muted
       ? "border-dashed border-[var(--border)] bg-white/60 text-[var(--muted-blue)]"
       : "border-[var(--border)] bg-white hover:-translate-y-0.5 hover:border-[var(--gold-border)] hover:bg-[var(--gold-soft)] hover:shadow-md"
@@ -77,13 +77,11 @@ function DirectorActionTile({ tile }: { tile: DirectorTile }) {
 
   const content = (
     <>
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--page-bg)]">
-          <Icon className="h-5 w-5" />
-        </div>
-        {tile.badge ? <span className="rounded-full bg-red-100 px-2.5 py-1 text-xs font-black text-red-700">{tile.badge}</span> : null}
+      <div className="relative flex h-16 items-center justify-center bg-[var(--gold-soft)]">
+        <Icon className="h-6 w-6 text-[var(--navy)]" />
+        {tile.badge ? <span className="absolute right-3 top-3 rounded-full bg-red-100 px-2.5 py-1 text-xs font-black text-red-700">{tile.badge}</span> : null}
       </div>
-      <div className="mt-4 min-w-0">
+      <div className="p-4">
         <h2 className="text-lg font-black leading-tight">{tile.label}</h2>
         {tile.note ? (
           <p className="mt-2 overflow-hidden text-sm leading-6 text-[var(--muted-blue)]" style={{ display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>
@@ -91,13 +89,13 @@ function DirectorActionTile({ tile }: { tile: DirectorTile }) {
           </p>
         ) : null}
         {tile.muted ? <p className="mt-3 text-[10px] font-black uppercase tracking-[0.18em]">Future API</p> : null}
+        {!tile.muted ? (
+          <span className="mt-4 inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.16em] text-[var(--gold)]">
+            Open
+            <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
+          </span>
+        ) : null}
       </div>
-      {!tile.muted ? (
-        <span className="mt-4 inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.16em] text-[var(--gold)]">
-          Open
-          <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
-        </span>
-      ) : null}
     </>
   );
 
