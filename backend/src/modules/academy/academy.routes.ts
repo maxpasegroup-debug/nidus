@@ -51,7 +51,7 @@ const academicManagementRoles = [Role.ADMIN, Role.DIRECTOR, Role.ACADEMIC_HEAD];
 router.use(protect);
 
 router.get("/batches", requireAcademyRoles(academicRoles), academyController.batches);
-router.get("/employees", requireAcademyRoles(managementRoles), academyController.employees);
+router.get("/employees", requireAcademyRoles(academicManagementRoles), academyController.employees);
 router.get("/teachers", requireAcademyRoles(academicRoles), academyController.teachers);
 router.get("/teacher-assignments", requireAcademyRoles(academicRoles), academyController.teacherAssignments);
 router.get("/my-teaching-plan", requireAcademyRoles(academicRoles), academyController.teacherTeachingPlan);
@@ -114,10 +114,10 @@ router.post("/director-expenses/:id/archive", requireAcademyRoles(managementRole
 router.post("/expense-claims", requireAcademyRoles([...academicRoles, ...managementRoles]), academyController.createExpenseClaim);
 router.post("/employees", requireAcademyRoles(academicManagementRoles), academyController.createEmployee);
 router.patch("/batches/:id", requireAcademyRoles(academicManagementRoles), academyController.updateBatch);
-router.patch("/employees/:id", requireAcademyRoles(managementRoles), academyController.updateEmployee);
-router.post("/employees/:id/archive", requireAcademyRoles(managementRoles), academyController.archiveEmployee);
-router.post("/employees/:id/reset-password", requireAcademyRoles(managementRoles), academyController.resetEmployeePassword);
-router.post("/employees/:id/unlock", requireAcademyRoles(managementRoles), academyController.unlockEmployeeAccount);
+router.patch("/employees/:id", requireAcademyRoles(academicManagementRoles), academyController.updateEmployee);
+router.post("/employees/:id/archive", requireAcademyRoles(academicManagementRoles), academyController.archiveEmployee);
+router.post("/employees/:id/reset-password", requireAcademyRoles(academicManagementRoles), academyController.resetEmployeePassword);
+router.post("/employees/:id/unlock", requireAcademyRoles(academicManagementRoles), academyController.unlockEmployeeAccount);
 router.post("/batches/:id/students", requireAcademyRoles(academicManagementRoles), academyController.addStudent);
 router.post("/batches/:id/teachers", requireAcademyRoles(academicManagementRoles), academyController.assignTeacher);
 router.post("/admissions/approve", requireAcademyRoles(managementRoles), academyController.approveAdmissionToBatch);

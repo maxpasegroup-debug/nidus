@@ -90,6 +90,10 @@ export type AcademyTeacherPayload = {
   password?: string;
 };
 
+export type AcademyUserUpdatePayload = Omit<Partial<AcademyTeacherPayload>, "role"> & {
+  role?: string;
+};
+
 export type AcademicCalendarItem = {
   id: string;
   batchId?: string | null;
@@ -444,6 +448,11 @@ export async function getAcademyTeachers() {
 
 export async function createAcademyTeacher(payload: AcademyTeacherPayload) {
   const response = await apiClient.post<{ employee: AcademyTeacher; credentials: { email: string; temporaryPassword: string } }>("/academy/employees", payload);
+  return response.data;
+}
+
+export async function updateAcademyUser(id: string, payload: AcademyUserUpdatePayload) {
+  const response = await apiClient.patch<AcademyTeacher>(`/academy/employees/${id}`, payload);
   return response.data;
 }
 

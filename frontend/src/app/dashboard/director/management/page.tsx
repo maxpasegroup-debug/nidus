@@ -10,9 +10,12 @@ import {
   CheckCircle2,
   GraduationCap,
   KeyRound,
+  Pencil,
+  Save,
   ShieldCheck,
   UserPlus,
   Users,
+  X,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -54,6 +57,18 @@ type EmployeePayload = {
   subjects?: string[];
   dashboardTemplate?: string;
   password?: string;
+};
+
+type EditableAccountPayload = {
+  name: string;
+  email: string;
+  phone: string;
+  role: string;
+  designation: string;
+  department: string;
+  employmentType: string;
+  dashboardTemplate: string;
+  password: string;
 };
 
 type HrmMode = "overview" | "add" | "manage" | "archive" | "access" | "roles" | "permissions";
@@ -145,6 +160,8 @@ export default function DirectorManagementPage() {
   const [activeTab, setActiveTab] = useState<"ACTIVE" | "ARCHIVED">("ACTIVE");
   const [accountGroup, setAccountGroup] = useState<"TEAM" | "STUDENTS">("TEAM");
   const [lastCredentials, setLastCredentials] = useState<{ email: string; temporaryPassword: string } | null>(null);
+  const [editingAccountId, setEditingAccountId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState<EditableAccountPayload | null>(null);
   const [form, setForm] = useState<EmployeePayload>({
     name: "",
     email: "",
@@ -226,6 +243,31 @@ export default function DirectorManagementPage() {
     onError: (error) => setNotice(error instanceof Error ? error.message : "Could not unlock account."),
   });
 
+  const updateMutation = useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: EditableAccountPayload }) =>
+      apiJson<Employee>(`/api/academy/employees/${id}`, {
+        method: "PATCH",
+        body: JSON.stringify({
+          name: payload.name,
+          email: payload.email,
+          phone: payload.phone,
+          role: payload.role,
+          designation: payload.designation,
+          department: payload.department,
+          employmentType: payload.employmentType,
+          dashboardTemplate: payload.dashboardTemplate,
+          ...(payload.password.trim() ? { password: payload.password.trim() } : {}),
+        }),
+      }),
+    onSuccess: (employee) => {
+      setNotice(`${employee.name} updated. Login details are now active across dashboards.`);
+      setEditingAccountId(null);
+      setEditForm(null);
+      void queryClient.invalidateQueries({ queryKey: ["director", "employees"] });
+    },
+    onError: (error) => setNotice(error instanceof Error ? error.message : "Could not update account."),
+  });
+
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     createMutation.mutate({
@@ -258,6 +300,32 @@ export default function DirectorManagementPage() {
       dashboardTemplate: profile.dashboardTemplate,
     }));
     setNotice(`${profile.label} profile selected. Fill name, email and phone to generate credentials.`);
+  };
+
+  const startEditAccount = (employee: Employee) => {
+    const metadata = employee.roleMetadata ?? {};
+    setEditingAccountId(employee.id);
+    setEditForm({
+      name: employee.name ?? "",
+      email: employee.email ?? "",
+      phone: employee.phone || employee.mobile || "",
+      role: employee.role,
+      designation: String(metadata.designation ?? employee.role),
+      department: String(metadata.department ?? "Academy"),
+      employmentType: String(metadata.employmentType ?? "FULL_TIME"),
+      dashboardTemplate: String(metadata.dashboardTemplate ?? ""),
+      password: "",
+    });
+  };
+
+  const cancelEditAccount = () => {
+    setEditingAccountId(null);
+    setEditForm(null);
+  };
+
+  const submitEditAccount = (id: string) => {
+    if (!editForm) return;
+    updateMutation.mutate({ id, payload: editForm });
   };
 
   return (
@@ -466,6 +534,13 @@ export default function DirectorManagementPage() {
                   }
                 }}
                 onUnlock={() => unlockMutation.mutate(employee.id)}
+                editing={editingAccountId === employee.id}
+                editForm={editingAccountId === employee.id ? editForm : null}
+                onEdit={() => startEditAccount(employee)}
+                onCancelEdit={cancelEditAccount}
+                onEditChange={(field, value) => setEditForm((current) => current ? { ...current, [field]: value } : current)}
+                onSaveEdit={() => submitEditAccount(employee.id)}
+                saving={updateMutation.isPending && editingAccountId === employee.id}
               />
             ))}
             {!activeTeam.length && <Empty text="No team accounts found." />}
@@ -586,6 +661,13 @@ export default function DirectorManagementPage() {
                             }
                           }}
                           onUnlock={() => unlockMutation.mutate(employee.id)}
+                          editing={editingAccountId === employee.id}
+                          editForm={editingAccountId === employee.id ? editForm : null}
+                          onEdit={() => startEditAccount(employee)}
+                          onCancelEdit={cancelEditAccount}
+                          onEditChange={(field, value) => setEditForm((current) => current ? { ...current, [field]: value } : current)}
+                          onSaveEdit={() => submitEditAccount(employee.id)}
+                          saving={updateMutation.isPending && editingAccountId === employee.id}
                         />
                       ))}
                     </div>
@@ -622,6 +704,13 @@ export default function DirectorManagementPage() {
                             }
                           }}
                           onUnlock={() => unlockMutation.mutate(student.id)}
+                          editing={editingAccountId === student.id}
+                          editForm={editingAccountId === student.id ? editForm : null}
+                          onEdit={() => startEditAccount(student)}
+                          onCancelEdit={cancelEditAccount}
+                          onEditChange={(field, value) => setEditForm((current) => current ? { ...current, [field]: value } : current)}
+                          onSaveEdit={() => submitEditAccount(student.id)}
+                          saving={updateMutation.isPending && editingAccountId === student.id}
                         />
                       ))}
                     </div>
@@ -640,9 +729,9 @@ export default function DirectorManagementPage() {
 
 function Metric({ icon: Icon, label, value }: { icon: LucideIcon; label: string; value: number }) {
   return (
-    <div className="rounded-2xl border border-[var(--border)] bg-white/85 p-5 shadow-sm">
-      <Icon className="h-5 w-5 text-[var(--gold)]" />
-      <p className="mt-4 text-3xl font-black">{value}</p>
+    <div className="rounded-2xl border border-[var(--border)] bg-white/85 p-4 shadow-sm">
+      <Icon className="h-4 w-4 text-[var(--gold)]" />
+      <p className="mt-3 text-2xl font-black">{value}</p>
       <p className="mt-1 text-sm text-[var(--muted-blue)]">{label}</p>
     </div>
   );
@@ -651,11 +740,11 @@ function Metric({ icon: Icon, label, value }: { icon: LucideIcon; label: string;
 function ModeButton({ active, icon: Icon, label, onClick }: { active: boolean; icon: LucideIcon; label: string; onClick: () => void }) {
   return (
     <button
-      className={`flex min-h-24 flex-col items-center justify-center gap-2 rounded-2xl border p-3 text-center text-sm font-black shadow-sm transition hover:-translate-y-0.5 hover:border-[var(--gold-border)] hover:shadow-md ${active ? "border-[var(--gold-border)] bg-[var(--gold-soft)]" : "border-[var(--border)] bg-white/90"}`}
+      className={`flex min-h-16 flex-col items-center justify-center gap-1.5 rounded-2xl border p-2.5 text-center text-sm font-black shadow-sm transition hover:-translate-y-0.5 hover:border-[var(--gold-border)] hover:shadow-md ${active ? "border-[var(--gold-border)] bg-[var(--gold-soft)]" : "border-[var(--border)] bg-white/90"}`}
       onClick={onClick}
       type="button"
     >
-      <Icon className="h-5 w-5" />
+      <Icon className="h-4 w-4" />
       <span>{label}</span>
     </button>
   );
@@ -675,7 +764,7 @@ function Input({ label, value, onChange, required, type = "text" }: { label: str
     <label className="grid gap-2 text-sm font-bold">
       {label}
       <input
-        className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-[var(--navy)] outline-none focus:border-[var(--gold)]"
+        className="rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-[var(--navy)] outline-none focus:border-[var(--gold)]"
         type={type}
         value={value}
         onChange={(event) => onChange(event.target.value)}
@@ -764,6 +853,13 @@ function EmployeeRow({
   onArchive,
   onReset,
   onUnlock,
+  editing,
+  editForm,
+  onEdit,
+  onCancelEdit,
+  onEditChange,
+  onSaveEdit,
+  saving,
 }: {
   employee: Employee;
   archived?: boolean;
@@ -771,51 +867,129 @@ function EmployeeRow({
   onArchive?: () => void;
   onReset?: () => void;
   onUnlock?: () => void;
+  editing?: boolean;
+  editForm?: EditableAccountPayload | null;
+  onEdit?: () => void;
+  onCancelEdit?: () => void;
+  onEditChange?: (field: keyof EditableAccountPayload, value: string) => void;
+  onSaveEdit?: () => void;
+  saving?: boolean;
 }) {
   const metadata = employee.roleMetadata ?? {};
   const lockedUntil = employee.lockedUntil ? new Date(employee.lockedUntil) : null;
   const isLocked = Boolean(employee.isDisabled || (lockedUntil && lockedUntil > new Date()));
+
+  if (editing && editForm) {
+    return (
+      <article className="rounded-2xl border border-[var(--gold-border)] bg-[var(--gold-soft)] p-3">
+        <div className="grid gap-3 md:grid-cols-3">
+          <EditField label="Name" value={editForm.name} onChange={(value) => onEditChange?.("name", value)} />
+          <EditField label="Email / Login" type="email" value={editForm.email} onChange={(value) => onEditChange?.("email", value)} />
+          <EditField label="Contact" value={editForm.phone} onChange={(value) => onEditChange?.("phone", value)} />
+          <EditField label="Designation" value={editForm.designation} onChange={(value) => onEditChange?.("designation", value)} />
+          <EditField label="Department" value={editForm.department} onChange={(value) => onEditChange?.("department", value)} />
+          <label className="grid gap-1.5 text-xs font-black">
+            Employment
+            <select className="rounded-lg border border-[var(--border)] bg-white px-3 py-2 text-sm" value={editForm.employmentType} onChange={(event) => onEditChange?.("employmentType", event.target.value)}>
+              {employmentTypes.map((type) => <option key={type} value={type}>{type}</option>)}
+            </select>
+          </label>
+          <label className="grid gap-1.5 text-xs font-black">
+            Role
+            <select className="rounded-lg border border-[var(--border)] bg-white px-3 py-2 text-sm" value={editForm.role} onChange={(event) => onEditChange?.("role", event.target.value)}>
+              <option value="STUDENT">Student</option>
+              <option value="TEACHER">Teacher / Trainer</option>
+              <option value="ACADEMIC_HEAD">Academic Head</option>
+              <option value="ADMIN">Admin</option>
+              <option value="DIRECTOR">Director</option>
+              <option value="BUSINESS_DEVELOPMENT_EXECUTIVE">BDE</option>
+            </select>
+          </label>
+          <label className="grid gap-1.5 text-xs font-black">
+            Dashboard
+            <select className="rounded-lg border border-[var(--border)] bg-white px-3 py-2 text-sm" value={editForm.dashboardTemplate} onChange={(event) => onEditChange?.("dashboardTemplate", event.target.value)}>
+              <option value="">Default</option>
+              <option value="ACADEMIC_HEAD">Academic Head</option>
+              <option value="PHYSICAL_TRAINER">Physical Trainer</option>
+              <option value="ADMISSION_CELL">Admission Cell</option>
+              <option value="LEAD_SUPPORT">Lead Support</option>
+              <option value="ADMINISTRATION">Administration</option>
+            </select>
+          </label>
+          <EditField label="New password" value={editForm.password} onChange={(value) => onEditChange?.("password", value)} placeholder="Leave blank to keep same" />
+        </div>
+        <div className="mt-3 flex flex-wrap justify-end gap-2">
+          <button type="button" onClick={onCancelEdit} className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border)] bg-white px-3 py-2 text-xs font-black">
+            <X className="h-3.5 w-3.5" /> Cancel
+          </button>
+          <button type="button" onClick={onSaveEdit} disabled={saving} className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--navy)] px-3 py-2 text-xs font-black text-white disabled:opacity-60">
+            <Save className="h-3.5 w-3.5" /> {saving ? "Saving..." : "Save changes"}
+          </button>
+        </div>
+      </article>
+    );
+  }
+
   return (
-    <article className="rounded-2xl border border-[var(--border)] bg-white p-4">
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+    <article className="rounded-2xl border border-[var(--border)] bg-white p-3">
+      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div>
-          <h3 className="text-lg font-black">{employee.name}</h3>
+          <h3 className="text-base font-black">{employee.name}</h3>
           <p className="mt-1 text-sm text-[var(--muted-blue)]">{employee.email} / {employee.phone || employee.mobile || "No phone"}</p>
-          <p className="mt-2 text-xs font-black uppercase tracking-[0.25em] text-[var(--gold)]">
+          <p className="mt-1.5 text-[11px] font-black uppercase tracking-[0.2em] text-[var(--gold)]">
             {groupLabel ? `${groupLabel} / ` : ""}{String(metadata.designation ?? employee.role)} / {String(metadata.employmentType ?? "FULL_TIME")} / {String(metadata.department ?? "Academy")}
           </p>
-          <div className="mt-3 flex flex-wrap gap-2 text-xs font-black">
-            <span className={`rounded-full px-3 py-1 ${isLocked ? "bg-rose-100 text-rose-800" : "bg-emerald-100 text-emerald-800"}`}>
+          <div className="mt-2 flex flex-wrap gap-1.5 text-[11px] font-black">
+            <span className={`rounded-full px-2.5 py-1 ${isLocked ? "bg-rose-100 text-rose-800" : "bg-emerald-100 text-emerald-800"}`}>
               {isLocked ? "LOCKED" : "ACTIVE"}
             </span>
-            {employee.roleOnboardingStatus && <span className="rounded-full bg-slate-100 px-3 py-1 text-slate-700">{employee.roleOnboardingStatus}</span>}
+            {employee.roleOnboardingStatus && <span className="rounded-full bg-slate-100 px-2.5 py-1 text-slate-700">{employee.roleOnboardingStatus}</span>}
             {typeof employee.loginFailureCount === "number" && employee.loginFailureCount > 0 && (
-              <span className="rounded-full bg-amber-100 px-3 py-1 text-amber-800">{employee.loginFailureCount} failed login(s)</span>
+              <span className="rounded-full bg-amber-100 px-2.5 py-1 text-amber-800">{employee.loginFailureCount} failed login(s)</span>
             )}
-            {lockedUntil && <span className="rounded-full bg-rose-100 px-3 py-1 text-rose-800">Locked until {lockedUntil.toLocaleString()}</span>}
-            {employee.lastLoginAt && <span className="rounded-full bg-slate-100 px-3 py-1 text-slate-700">Last login {new Date(employee.lastLoginAt).toLocaleString()}</span>}
+            {lockedUntil && <span className="rounded-full bg-rose-100 px-2.5 py-1 text-rose-800">Locked until {lockedUntil.toLocaleString()}</span>}
+            {employee.lastLoginAt && <span className="rounded-full bg-slate-100 px-2.5 py-1 text-slate-700">Last login {new Date(employee.lastLoginAt).toLocaleString()}</span>}
           </div>
         </div>
         {!archived && (
           <div className="flex flex-wrap gap-2">
+            <button onClick={onEdit} className="rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-xs font-black">
+              <Pencil className="mr-1 inline h-3.5 w-3.5" />
+              Edit
+            </button>
             {isLocked && (
-              <button onClick={onUnlock} className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-black text-emerald-800">
-                <ShieldCheck className="mr-1 inline h-4 w-4" />
+              <button onClick={onUnlock} className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-black text-emerald-800">
+                <ShieldCheck className="mr-1 inline h-3.5 w-3.5" />
                 Unlock
               </button>
             )}
-            <button onClick={onReset} className="rounded-xl border border-[var(--border)] bg-white px-4 py-2 text-sm font-black">
-              <KeyRound className="mr-1 inline h-4 w-4" />
+            <button onClick={onReset} className="rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-xs font-black">
+              <KeyRound className="mr-1 inline h-3.5 w-3.5" />
               Reset + Unlock
             </button>
-            <button onClick={onArchive} className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-black text-rose-800">
-              <Archive className="mr-1 inline h-4 w-4" />
+            <button onClick={onArchive} className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-black text-rose-800">
+              <Archive className="mr-1 inline h-3.5 w-3.5" />
               Archive
             </button>
           </div>
         )}
       </div>
     </article>
+  );
+}
+
+function EditField({ label, value, onChange, type = "text", placeholder }: { label: string; value: string; onChange: (value: string) => void; type?: string; placeholder?: string }) {
+  return (
+    <label className="grid gap-1.5 text-xs font-black">
+      {label}
+      <input
+        className="rounded-lg border border-[var(--border)] bg-white px-3 py-2 text-sm"
+        type={type}
+        value={value}
+        placeholder={placeholder}
+        onChange={(event) => onChange(event.target.value)}
+      />
+    </label>
   );
 }
 

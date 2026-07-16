@@ -3,7 +3,7 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { assignTeacherToBatch, createAcademyTeacher, getAcademyBatches, getAcademyTeachers } from "@/services/academy";
+import { assignTeacherToBatch, createAcademyTeacher, getAcademyBatches, getAcademyTeachers, updateAcademyUser } from "@/services/academy";
 import { AcademicHero, AcademicShell, EmptyState, GoldButton, Input, Panel, Select, StatCard } from "../_components";
 
 const employmentTypes = ["FULL_TIME", "PART_TIME", "HOURLY", "CONTRACT"];
@@ -12,7 +12,9 @@ export default function DirectorTeachersPage() {
   const queryClient = useQueryClient();
   const [notice, setNotice] = useState("");
   const [mode, setMode] = useState<"list" | "create" | "allocate">("list");
+  const [editingTeacherId, setEditingTeacherId] = useState<string | null>(null);
   const [lastCredentials, setLastCredentials] = useState<{ email: string; temporaryPassword: string } | null>(null);
+  const [editTeacherForm, setEditTeacherForm] = useState({ name: "", email: "", phone: "", role: "TEACHER", designation: "", department: "", employmentType: "FULL_TIME", dashboardTemplate: "", password: "" });
   const [teacherForm, setTeacherForm] = useState({
     name: "",
     email: "",
@@ -87,6 +89,28 @@ export default function DirectorTeachersPage() {
     onError: (error) => setNotice(error instanceof Error ? error.message : "Could not allocate teacher."),
   });
 
+  const updateTeacher = useMutation({
+    mutationFn: ({ id, form }: { id: string; form: typeof editTeacherForm }) =>
+      updateAcademyUser(id, {
+        name: form.name,
+        email: form.email,
+        phone: form.phone,
+        role: form.role,
+        designation: form.designation,
+        department: form.department,
+        employmentType: form.employmentType as "FULL_TIME" | "PART_TIME" | "HOURLY" | "CONTRACT",
+        dashboardTemplate: form.dashboardTemplate,
+        ...(form.password.trim() ? { password: form.password.trim() } : {}),
+      }),
+    onSuccess: (teacher) => {
+      setNotice(`${teacher.name} updated. Login details are now active.`);
+      setEditingTeacherId(null);
+      setEditTeacherForm({ name: "", email: "", phone: "", role: "TEACHER", designation: "", department: "", employmentType: "FULL_TIME", dashboardTemplate: "", password: "" });
+      refresh();
+    },
+    onError: (error) => setNotice(error instanceof Error ? error.message : "Could not update teacher."),
+  });
+
   const submitTeacher = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     createTeacher.mutate();
@@ -97,6 +121,21 @@ export default function DirectorTeachersPage() {
     assignTeacher.mutate();
   };
 
+  const startEditTeacher = (teacher: (typeof teachers)[number]) => {
+    setEditingTeacherId(teacher.id);
+    setEditTeacherForm({
+      name: teacher.name ?? "",
+      email: teacher.email ?? "",
+      phone: teacher.mobile ?? "",
+      role: teacher.role ?? "TEACHER",
+      designation: String(teacher.roleMetadata?.designation ?? "Teacher"),
+      department: String(teacher.roleMetadata?.department ?? "Academics"),
+      employmentType: String(teacher.roleMetadata?.employmentType ?? "FULL_TIME"),
+      dashboardTemplate: String(teacher.roleMetadata?.dashboardTemplate ?? ""),
+      password: "",
+    });
+  };
+
   return (
     <AcademicShell>
       <AcademicHero
@@ -105,9 +144,9 @@ export default function DirectorTeachersPage() {
         description="Keep the teacher list visible. Add teachers or allocate subjects only when that action is needed."
         action={
           <div className="flex flex-wrap gap-2">
-            <button className={`rounded-xl px-4 py-3 text-sm font-black ${mode === "list" ? "bg-[var(--navy)] text-white" : "border border-[var(--border)] bg-white"}`} onClick={() => setMode("list")} type="button">Teacher List</button>
-            <button className={`rounded-xl px-4 py-3 text-sm font-black ${mode === "create" ? "bg-[var(--navy)] text-white" : "border border-[var(--border)] bg-white"}`} onClick={() => setMode("create")} type="button">Add Teacher</button>
-            <button className={`rounded-xl px-4 py-3 text-sm font-black ${mode === "allocate" ? "bg-[var(--navy)] text-white" : "border border-[var(--border)] bg-white"}`} onClick={() => setMode("allocate")} type="button">Allocate Subject</button>
+            <button className={`rounded-xl px-3 py-2 text-sm font-black ${mode === "list" ? "bg-[var(--navy)] text-white" : "border border-[var(--border)] bg-white"}`} onClick={() => setMode("list")} type="button">Teacher List</button>
+            <button className={`rounded-xl px-3 py-2 text-sm font-black ${mode === "create" ? "bg-[var(--navy)] text-white" : "border border-[var(--border)] bg-white"}`} onClick={() => setMode("create")} type="button">Add Teacher</button>
+            <button className={`rounded-xl px-3 py-2 text-sm font-black ${mode === "allocate" ? "bg-[var(--navy)] text-white" : "border border-[var(--border)] bg-white"}`} onClick={() => setMode("allocate")} type="button">Allocate Subject</button>
           </div>
         }
       />
@@ -165,10 +204,40 @@ export default function DirectorTeachersPage() {
         <div className="grid max-h-[54vh] gap-3 overflow-y-auto pr-1 md:grid-cols-2 xl:grid-cols-3">
           {teachers.map((teacher) => (
             <article key={teacher.id} className="rounded-2xl border border-[var(--border)] bg-white p-4">
-              <h3 className="text-xl font-black">{teacher.name}</h3>
-              <p className="mt-1 text-sm text-[var(--muted-blue)]">{teacher.email}</p>
-              <p className="mt-3 text-sm font-bold">{String(teacher.roleMetadata?.designation ?? "Teacher")}</p>
-              <p className="mt-1 text-xs text-[var(--muted-blue)]">{String(teacher.roleMetadata?.employmentType ?? "FULL_TIME")}</p>
+              {editingTeacherId === teacher.id ? (
+                <div className="grid gap-3">
+                  <Input label="Name" value={editTeacherForm.name} onChange={(value) => setEditTeacherForm((state) => ({ ...state, name: value }))} />
+                  <Input label="Email / Login" type="email" value={editTeacherForm.email} onChange={(value) => setEditTeacherForm((state) => ({ ...state, email: value }))} />
+                  <Input label="Contact" value={editTeacherForm.phone} onChange={(value) => setEditTeacherForm((state) => ({ ...state, phone: value }))} />
+                  <Input label="Designation" value={editTeacherForm.designation} onChange={(value) => setEditTeacherForm((state) => ({ ...state, designation: value }))} />
+                  <Select label="Role" value={editTeacherForm.role} onChange={(value) => setEditTeacherForm((state) => ({ ...state, role: value }))}>
+                    <option value="TEACHER">Teacher / Trainer</option>
+                    <option value="ACADEMIC_HEAD">Academic Head</option>
+                    <option value="PHYSICAL_TRAINER">Physical Trainer</option>
+                  </Select>
+                  <Select label="Employment" value={editTeacherForm.employmentType} onChange={(value) => setEditTeacherForm((state) => ({ ...state, employmentType: value }))}>
+                    {employmentTypes.map((type) => <option key={type} value={type}>{type}</option>)}
+                  </Select>
+                  <Select label="Dashboard" value={editTeacherForm.dashboardTemplate} onChange={(value) => setEditTeacherForm((state) => ({ ...state, dashboardTemplate: value }))}>
+                    <option value="">Default teacher</option>
+                    <option value="ACADEMIC_HEAD">Academic Head</option>
+                    <option value="PHYSICAL_TRAINER">Physical Trainer</option>
+                  </Select>
+                  <Input label="New password" value={editTeacherForm.password} onChange={(value) => setEditTeacherForm((state) => ({ ...state, password: value }))} placeholder="Leave blank to keep same" />
+                  <div className="flex gap-2">
+                    <button type="button" onClick={() => setEditingTeacherId(null)} className="rounded-xl border border-[var(--border)] px-3 py-2 text-xs font-black">Cancel</button>
+                    <button type="button" onClick={() => updateTeacher.mutate({ id: teacher.id, form: editTeacherForm })} disabled={updateTeacher.isPending} className="rounded-xl bg-[var(--navy)] px-3 py-2 text-xs font-black text-white disabled:opacity-60">Save</button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <h3 className="text-lg font-black">{teacher.name}</h3>
+                  <p className="mt-1 text-sm text-[var(--muted-blue)]">{teacher.email} / {teacher.mobile || "No phone"}</p>
+                  <p className="mt-2 text-sm font-bold">{String(teacher.roleMetadata?.designation ?? "Teacher")}</p>
+                  <p className="mt-1 text-xs text-[var(--muted-blue)]">{String(teacher.roleMetadata?.employmentType ?? "FULL_TIME")}</p>
+                  <button type="button" onClick={() => startEditTeacher(teacher)} className="mt-3 rounded-xl border border-[var(--border)] px-3 py-2 text-xs font-black">Edit profile</button>
+                </>
+              )}
             </article>
           ))}
         </div>

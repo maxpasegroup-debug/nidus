@@ -391,6 +391,23 @@ function requireEmployeeCreationAccess(user: Requester, input: EmployeeInput) {
   }
 }
 
+function requireEmployeeUpdateAccess(user: Requester, employee: { role: Role; roleMetadata?: Prisma.JsonValue | null }, input: EmployeeUpdateInput = {}) {
+  if (isManagement(user)) return;
+  if (!isAcademicManager(user)) {
+    throw Object.assign(new Error("Management access required"), { statusCode: 403 });
+  }
+
+  const academicRoles: Role[] = [Role.TEACHER, Role.ACADEMIC_HEAD, Role.PHYSICAL_TRAINER, Role.STUDENT];
+  if (!academicRoles.includes(employee.role) || (input.role && !academicRoles.includes(input.role))) {
+    throw Object.assign(new Error("Academic Head can update teacher, trainer and student accounts only"), { statusCode: 403 });
+  }
+
+  const template = typeof input.dashboardTemplate === "string" ? input.dashboardTemplate.toUpperCase() : "";
+  if (template && !["", "ACADEMIC_HEAD", "PHYSICAL_TRAINER"].includes(template)) {
+    throw Object.assign(new Error("Academic Head can update academic dashboard profiles only"), { statusCode: 403 });
+  }
+}
+
 function usesTeacherWorkspace(user: Requester) {
   return user.role === Role.TEACHER || user.role === Role.PHYSICAL_TRAINER || isAcademicHeadWorkspace(user);
 }
@@ -2223,7 +2240,9 @@ export const academyService = {
   },
 
   async employees(user: Requester, includeArchived = false) {
-    requireManagement(user);
+    if (!isManagement(user) && !isAcademicManager(user)) {
+      throw Object.assign(new Error("Management access required"), { statusCode: 403 });
+    }
     const users = await prisma.user.findMany({
       select: {
         id: true,
@@ -2259,7 +2278,11 @@ export const academyService = {
       orderBy: { createdAt: "desc" },
     });
 
-    return users.filter((employee) => {
+    const visibleUsers = isManagement(user)
+      ? users
+      : users.filter((employee) => ([Role.TEACHER, Role.ACADEMIC_HEAD, Role.PHYSICAL_TRAINER, Role.STUDENT] as Role[]).includes(employee.role));
+
+    return visibleUsers.filter((employee) => {
       const metadata = (employee.roleMetadata ?? {}) as Record<string, unknown>;
       return !isDemoAcademyUser(employee) && (includeArchived || metadata.status !== "ARCHIVED");
     });
@@ -2320,11 +2343,11 @@ export const academyService = {
   },
 
   async updateEmployee(user: Requester, employeeId: string, input: EmployeeUpdateInput) {
-    requireManagement(user);
     const employee = await prisma.user.findUnique({ where: { id: employeeId } });
     if (!employee) {
       throw Object.assign(new Error("Employee not found"), { statusCode: 404 });
     }
+    requireEmployeeUpdateAccess(user, employee, input);
 
     const existingMetadata = (employee.roleMetadata ?? {}) as Record<string, unknown>;
     const roleMetadata = toJsonObject({
@@ -2339,39 +2362,63 @@ export const academyService = {
       updatedBy: user.id,
       updatedAt: new Date().toISOString(),
     });
+    const updateData: Prisma.UserUpdateInput = {
+      name: input.name,
+      email: input.email?.toLowerCase(),
+      mobile: input.phone,
+      role: input.role,
+      roleMetadata,
+    };
+
+    if (input.password?.trim()) {
+      updateData.password = await bcrypt.hash(input.password.trim(), 10);
+      updateData.isDisabled = false;
+      updateData.disabledAt = null;
+      updateData.loginFailureCount = 0;
+      updateData.lockedUntil = null;
+      updateData.roleMetadata = toJsonObject({
+        ...roleMetadata,
+        defaultPassword: true,
+        passwordUpdatedBy: user.id,
+        passwordUpdatedAt: new Date().toISOString(),
+      });
+    }
 
     return prisma.user.update({
       where: { id: employeeId },
-      data: {
-        name: input.name,
-        email: input.email?.toLowerCase(),
-        mobile: input.phone,
-        role: input.role,
-        roleMetadata,
-      },
+      data: updateData,
       select: {
         id: true,
         name: true,
         email: true,
         mobile: true,
         role: true,
+        isDisabled: true,
+        loginFailureCount: true,
+        lockedUntil: true,
+        lastLoginAt: true,
+        roleOnboardingStatus: true,
         roleMetadata: true,
       },
     });
   },
 
   async archiveEmployee(user: Requester, employeeId: string) {
-    requireManagement(user);
+    const employee = await prisma.user.findUnique({ where: { id: employeeId } });
+    if (!employee) {
+      throw Object.assign(new Error("Employee not found"), { statusCode: 404 });
+    }
+    requireEmployeeUpdateAccess(user, employee, { status: "ARCHIVED" });
     return this.updateEmployee(user, employeeId, { status: "ARCHIVED" });
   },
 
   async resetEmployeePassword(user: Requester, employeeId: string, passwordValue = "123456789") {
-    requireManagement(user);
     const password = await bcrypt.hash(passwordValue, 10);
     const employee = await prisma.user.findUnique({ where: { id: employeeId } });
     if (!employee) {
       throw Object.assign(new Error("Employee not found"), { statusCode: 404 });
     }
+    requireEmployeeUpdateAccess(user, employee);
     const existingMetadata = (employee.roleMetadata ?? {}) as Record<string, unknown>;
     const updated = await prisma.user.update({
       where: { id: employeeId },
@@ -2414,11 +2461,11 @@ export const academyService = {
   },
 
   async unlockEmployeeAccount(user: Requester, employeeId: string) {
-    requireManagement(user);
     const employee = await prisma.user.findUnique({ where: { id: employeeId } });
     if (!employee) {
       throw Object.assign(new Error("Employee not found"), { statusCode: 404 });
     }
+    requireEmployeeUpdateAccess(user, employee);
     const existingMetadata = (employee.roleMetadata ?? {}) as Record<string, unknown>;
     return prisma.user.update({
       where: { id: employeeId },

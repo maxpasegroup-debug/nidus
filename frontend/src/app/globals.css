@@ -97,7 +97,7 @@ button,
 input,
 select,
 textarea {
-  min-height: 2.75rem;
+  min-height: 2.5rem;
 }
 
 button,
@@ -117,6 +117,18 @@ input,
 select,
 textarea {
   border-color: var(--border);
+}
+
+.min-h-12 {
+  min-height: 2.5rem;
+}
+
+.min-h-11 {
+  min-height: 2.25rem;
+}
+
+.min-h-10 {
+  min-height: 2.125rem;
 }
 
 img,
