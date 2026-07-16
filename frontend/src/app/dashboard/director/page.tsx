@@ -145,7 +145,7 @@ export default function DirectorDashboardPage() {
         { label: "Teaching Mode", href: "/dashboard/director/teaching", icon: BookOpen },
         { label: "Classes", href: "/dashboard/director/teaching/classes", icon: GraduationCap },
         { label: "Attendance", href: "/dashboard/director/teaching/attendance", icon: ClipboardCheck },
-        { label: "Launch QA", href: "/dashboard/director/launch-qa", icon: ShieldCheck },
+        { label: "Readiness Check", href: "/dashboard/director/launch-qa", icon: ShieldCheck },
         { label: "Full Reports", href: "/dashboard/director/reports", icon: BarChart3 },
       ],
     },
