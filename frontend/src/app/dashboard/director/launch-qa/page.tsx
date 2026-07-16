@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import {
   AlertTriangle,
   BadgeCheck,
@@ -244,6 +245,7 @@ function statusTone(status: LaunchCheck["status"]) {
 }
 
 export default function DirectorLaunchQaPage() {
+  const [view, setView] = useState<"command" | "evidence">("command");
   const { data, isLoading, isError, refetch, isFetching } = useDirectorDashboard();
   const opsQuery = useQuery({ queryKey: ["dashboard", "director", "ops-readiness"], queryFn: getDirectorOpsReadiness });
   const securityQuery = useQuery({ queryKey: ["dashboard", "director", "security-readiness"], queryFn: getDirectorSecurityReadiness });
@@ -278,19 +280,33 @@ export default function DirectorLaunchQaPage() {
   };
 
   return (
-    <main className="min-h-screen bg-[var(--page-bg)] px-5 py-6 text-[var(--navy)] md:px-8">
-      <section className="mx-auto max-w-7xl space-y-6">
-        <section className="rounded-3xl border border-[var(--border)] bg-white/95 p-6 shadow-sm md:p-8">
-          <div className="grid gap-6 lg:grid-cols-[1fr_320px] lg:items-center">
+    <main className="min-h-screen bg-[var(--page-bg)] px-4 py-4 text-[var(--navy)] md:px-6">
+      <section className="mx-auto max-w-[1500px] space-y-4">
+        <section className="rounded-2xl border border-[var(--border)] bg-white/95 p-5 shadow-sm">
+          <div className="grid gap-5 lg:grid-cols-[1fr_300px] lg:items-center">
             <div>
               <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Live Launch QA</p>
-              <h1 className="mt-3 text-4xl font-black tracking-tight md:text-6xl">Production readiness board</h1>
-              <p className="mt-4 max-w-3xl text-base leading-8 text-[var(--muted-blue)]">
-                This board reads the live Director dashboard contract and turns CRM, LMS, staff and finance signals into a launch score.
+              <h1 className="mt-2 text-3xl font-black tracking-tight md:text-4xl">Production readiness board</h1>
+              <p className="mt-3 max-w-3xl text-sm leading-7 text-[var(--muted-blue)]">
+                A simple Director command board for launch score, blockers, certificate and final evidence.
               </p>
-              <div className="mt-5 flex flex-wrap gap-3">
+              <div className="mt-4 flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => setView("command")}
+                  className={`rounded-xl px-4 py-3 text-sm font-black ${view === "command" ? "bg-[var(--navy)] text-white" : "border border-[var(--border)] bg-white"}`}
+                >
+                  Command Board
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setView("evidence")}
+                  className={`rounded-xl px-4 py-3 text-sm font-black ${view === "evidence" ? "bg-[var(--navy)] text-white" : "border border-[var(--border)] bg-white"}`}
+                >
+                  Full Evidence
+                </button>
                 <button type="button" onClick={() => window.print()} className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-sm font-black">
-                  Print launch report
+                  Print
                 </button>
                 <button
                   type="button"
@@ -302,14 +318,14 @@ export default function DirectorLaunchQaPage() {
                   }}
                   className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-sm font-black"
                 >
-                  Refresh all checks
+                  Refresh
                 </button>
                 <span className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-4 py-3 text-sm font-black">
                   Last checked: {lastUpdatedAt}
                 </span>
               </div>
             </div>
-            <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-5">
+            <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
               <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold)]">Certification Score</p>
               <p className="mt-3 text-5xl font-black">{isLoading || certificationQuery.isLoading ? "..." : `${certifiedScore}%`}</p>
               <p className="mt-2 text-sm font-black">{isLoading ? "Checking live data" : readinessLabel(certifiedScore)}</p>
@@ -322,13 +338,6 @@ export default function DirectorLaunchQaPage() {
               <p className={`mt-4 rounded-xl border px-3 py-2 text-xs font-black ${finalFailed ? statusTone("FAIL") : statusTone(certifiedScore >= 75 ? "PASS" : "PARTIAL")}`}>
                 {isLoading ? "VERDICT PENDING" : finalVerdict}
               </p>
-              <button
-                type="button"
-                onClick={() => refetch()}
-                className="mt-5 w-full rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-sm font-black"
-              >
-                {isFetching ? "Refreshing..." : "Refresh live check"}
-              </button>
             </div>
           </div>
         </section>
@@ -394,7 +403,7 @@ export default function DirectorLaunchQaPage() {
           ) : null}
         </section>
 
-        {certification?.handoff ? (
+        {view === "evidence" && certification?.handoff ? (
           <section className="rounded-3xl border border-[var(--border)] bg-white/95 p-5 shadow-sm md:p-6">
             <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
               <div>
@@ -460,6 +469,7 @@ export default function DirectorLaunchQaPage() {
           </section>
         ) : null}
 
+        {view === "evidence" ? (
         <section className="rounded-3xl border border-[var(--border)] bg-white/95 p-5 shadow-sm md:p-6">
           <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
             <div>
@@ -488,7 +498,9 @@ export default function DirectorLaunchQaPage() {
             </div>
           )}
         </section>
+        ) : null}
 
+        {view === "evidence" ? (
         <section className="rounded-3xl border border-[var(--border)] bg-white/95 p-5 shadow-sm md:p-6">
           <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
             <div>
@@ -517,7 +529,9 @@ export default function DirectorLaunchQaPage() {
             </div>
           )}
         </section>
+        ) : null}
 
+        {view === "evidence" ? (
         <section className="rounded-3xl border border-[var(--border)] bg-white/95 p-5 shadow-sm md:p-6">
           <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
             <div>
@@ -534,6 +548,7 @@ export default function DirectorLaunchQaPage() {
             ))}
           </div>
         </section>
+        ) : null}
 
         <section className="grid gap-5 lg:grid-cols-[1fr_0.8fr]">
           <div className="rounded-3xl border border-[var(--border)] bg-white/95 p-5 shadow-sm md:p-6">
@@ -592,11 +607,13 @@ export default function DirectorLaunchQaPage() {
           ))}
         </section>
 
+        {view === "evidence" ? (
         <section className="grid gap-4 lg:grid-cols-2">
           {checks.map((check) => (
             <CheckCard key={check.title} check={check} loading={isLoading} />
           ))}
         </section>
+        ) : null}
 
         <section className="rounded-3xl border border-[var(--gold-border)] bg-[var(--gold-soft)] p-5 shadow-sm">
           <div className="flex items-start gap-4">
