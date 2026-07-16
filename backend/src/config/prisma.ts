@@ -4,13 +4,14 @@ import { env } from "./env.js";
 import { logger } from "../utils/logger.js";
 
 const adapter = new PrismaPg(env.DATABASE_URL);
+const DATABASE_HEALTH_TIMEOUT_MS = Number(process.env.DATABASE_HEALTH_TIMEOUT_MS ?? 15000);
 
 export const prisma = new PrismaClient({
   adapter,
   log: env.NODE_ENV === "production" ? ["error", "warn"] : ["error", "warn"]
 });
 
-async function withTimeout<T>(operation: Promise<T>, timeoutMs = 3000): Promise<T> {
+async function withTimeout<T>(operation: Promise<T>, timeoutMs = DATABASE_HEALTH_TIMEOUT_MS): Promise<T> {
   let timeout: NodeJS.Timeout | undefined;
   try {
     return await Promise.race([
