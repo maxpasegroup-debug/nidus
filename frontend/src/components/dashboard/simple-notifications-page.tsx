@@ -9,7 +9,18 @@ import { getAcademyBatches, getAcademyTeachers } from "@/services/academy";
 import { getApiErrorMessage } from "@/services/api";
 
 type AudienceMode = "ALL" | "TEACHERS" | "STUDENTS" | "PARENTS" | "BATCH" | "EMERGENCY";
-type PanelMode = "compose" | "templates" | "history";
+type PanelMode = "all" | "students" | "teachers" | "batch" | "parents" | "emergency" | "templates" | "history";
+
+const panelModes: Array<{ key: PanelMode; label: string; icon: LucideIcon; audience?: AudienceMode }> = [
+  { key: "all", label: "Everyone", icon: Megaphone, audience: "ALL" },
+  { key: "students", label: "Students", icon: Smartphone, audience: "STUDENTS" },
+  { key: "teachers", label: "Teachers", icon: Users, audience: "TEACHERS" },
+  { key: "batch", label: "Batch-wise", icon: Users, audience: "BATCH" },
+  { key: "parents", label: "Parents", icon: MessageCircle, audience: "PARENTS" },
+  { key: "emergency", label: "Emergency", icon: AlertTriangle, audience: "EMERGENCY" },
+  { key: "templates", label: "Templates", icon: Megaphone },
+  { key: "history", label: "Sent History", icon: History },
+];
 
 const templates = [
   { title: "Class Reminder", body: "Please check today's timetable and attend on time." },
@@ -22,7 +33,7 @@ const templates = [
 
 export function SimpleNotificationsPage({ owner }: { owner: "Director" | "Academic Head" }) {
   const queryClient = useQueryClient();
-  const [panelMode, setPanelMode] = useState<PanelMode>("compose");
+  const [panelMode, setPanelMode] = useState<PanelMode>("all");
   const [audienceMode, setAudienceMode] = useState<AudienceMode>("ALL");
   const [batchId, setBatchId] = useState("");
   const [title, setTitle] = useState("");
@@ -38,6 +49,7 @@ export function SimpleNotificationsPage({ owner }: { owner: "Director" | "Academ
   const activeBatches = batches.filter((batch) => batch.status === "ACTIVE");
   const totalStudents = activeBatches.reduce((total, batch) => total + (batch._count?.students ?? batch.students?.length ?? 0), 0);
   const selectedBatch = activeBatches.find((batch) => batch.id === batchId);
+  const isComposerMode = panelMode !== "templates" && panelMode !== "history";
 
   const audience = useMemo(() => {
     if (audienceMode === "EMERGENCY") return "ALL";
@@ -70,6 +82,12 @@ export function SimpleNotificationsPage({ owner }: { owner: "Director" | "Academ
     publishMutation.mutate();
   }
 
+  function choosePanel(mode: PanelMode) {
+    setPanelMode(mode);
+    const nextAudience = panelModes.find((item) => item.key === mode)?.audience;
+    if (nextAudience) setAudienceMode(nextAudience);
+  }
+
   return (
     <main className="min-h-screen bg-[var(--page-bg)] px-4 py-4 text-[var(--navy)] md:px-6 lg:h-[calc(100vh-var(--nav-height)-2rem)] lg:min-h-0 lg:overflow-hidden">
       <section className="mx-auto flex h-full max-w-[1500px] flex-col gap-4 overflow-y-auto pr-0 lg:pr-2">
@@ -88,14 +106,14 @@ export function SimpleNotificationsPage({ owner }: { owner: "Director" | "Academ
           </div>
         </header>
 
-        <nav className="grid shrink-0 gap-3 md:grid-cols-3">
-          <ModeButton active={panelMode === "compose"} icon={Send} label="Compose" onClick={() => setPanelMode("compose")} />
-          <ModeButton active={panelMode === "templates"} icon={Megaphone} label="Templates" onClick={() => setPanelMode("templates")} />
-          <ModeButton active={panelMode === "history"} icon={History} label="Sent History" onClick={() => setPanelMode("history")} />
+        <nav className="grid shrink-0 gap-3 sm:grid-cols-2 md:grid-cols-4 xl:grid-cols-8">
+          {panelModes.map((item) => (
+            <ModeButton key={item.key} active={panelMode === item.key} icon={item.icon} label={item.label} onClick={() => choosePanel(item.key)} />
+          ))}
         </nav>
 
         <section className="grid min-h-0 flex-1 gap-4 lg:grid-cols-[0.95fr_1.05fr]">
-          {panelMode === "compose" ? (
+          {isComposerMode ? (
           <form onSubmit={submit} className="min-h-0 rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
             <p className="text-xs font-black uppercase tracking-[0.24em] text-[var(--gold)]">Send To</p>
             <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3">
@@ -159,7 +177,7 @@ export function SimpleNotificationsPage({ owner }: { owner: "Director" | "Academ
               <p className="text-xs font-black uppercase tracking-[0.24em] text-[var(--gold)]">Templates</p>
               <div className="mt-4 grid max-h-[56vh] gap-3 overflow-y-auto pr-1 sm:grid-cols-2">
                 {templates.map((template) => (
-                  <button key={template.title} type="button" onClick={() => { setTitle(template.title); setBody(template.body); setPanelMode("compose"); }} className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] p-4 text-left hover:border-[var(--gold-border)]">
+                  <button key={template.title} type="button" onClick={() => { setTitle(template.title); setBody(template.body); choosePanel("all"); }} className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] p-4 text-left hover:border-[var(--gold-border)]">
                     <Megaphone className="h-5 w-5 text-[var(--gold)]" />
                     <h3 className="mt-3 font-black">{template.title}</h3>
                     <p className="mt-1 text-sm text-[var(--muted-blue)]">{template.body}</p>

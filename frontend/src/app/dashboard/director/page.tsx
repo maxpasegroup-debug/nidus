@@ -17,44 +17,44 @@ export default function DirectorDashboardPage() {
       label: "Academics",
       href: "/dashboard/director/academic",
       icon: GraduationCap,
-      note: "Courses, timetable, batches, teachers, student progress and academic reports.",
+      note: "Timetable, batches, teachers, students and academic reports.",
     },
     {
       label: "HRM",
       href: "/dashboard/director/hrm",
       icon: UserCog,
-      note: "Add staff, manage access, archive employees, reset passwords and roles.",
+      note: "Add staff, manage access, reset passwords and roles.",
     },
     {
       label: "Marketing & Sales",
       href: "/dashboard/director/marketing-sales",
       icon: Megaphone,
-      note: "Telecallers, BDE team, leads, campaigns, follow-ups and future social channels.",
+      note: "Telecallers, leads, follow-ups, campaigns and sales team.",
     },
     {
       label: "Admin & Accounts",
       href: "/dashboard/director/admin-accounts",
       icon: BadgeIndianRupee,
       badge: pendingAdmissions || pendingFees || undefined,
-      note: "Admissions, approvals, student activation, finance, accounts and custom reports.",
+      note: "Admissions, approvals, student activation, finance and reports.",
     },
     {
       label: "Notifications",
       href: "/dashboard/director/notifications",
       icon: Bell,
-      note: "One-click announcements for teachers, students and selected batches.",
+      note: "Announcements for teachers, students, parents and batches.",
     },
     {
       label: "Reports",
       href: "/dashboard/director/reports",
       icon: BarChart3,
-      note: "Institute health, academic delivery, finance pressure and launch readiness.",
+      note: "Institute health, academics, finance, staff and custom exports.",
     },
     {
       label: "Launch QA",
       href: "/dashboard/director/launch-qa",
       icon: ShieldCheck,
-      note: "Final public-launch checklist across users, classes, finance and content.",
+      note: "Final readiness checks before public handover.",
     },
   ];
 
@@ -62,7 +62,7 @@ export default function DirectorDashboardPage() {
     <DirectorLauncher
       eyebrow="Director"
       title="NIDUS Control Panel"
-      description="Choose one department. Each tile opens a separate workspace so the Director screen stays simple, readable and fast."
+      description="Choose one department. Each tile opens a focused workspace with no mixed controls."
       tiles={tiles}
       stats={[
         { label: "Admissions", value: directorQuery.isLoading ? "..." : pendingAdmissions },

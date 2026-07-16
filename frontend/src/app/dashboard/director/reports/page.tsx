@@ -3,6 +3,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import {
   AlertTriangle,
@@ -14,6 +15,7 @@ import {
   FileText,
   GraduationCap,
   Mail,
+  MessageCircle,
   ShieldCheck,
   Users,
   WalletCards,
@@ -32,10 +34,14 @@ import { getAdmissions, getApprovals, getLeads } from "@/services/crm";
 import { getDirectorDashboard } from "@/services/dashboard";
 import { getFees, getPaymentAnalytics } from "@/services/payments";
 
-type ReportMode = "overview" | "academic" | "admissions" | "finance" | "staff" | "students" | "launch" | "custom";
+type ReportMode = "overview" | "academic" | "admissions" | "finance" | "staff" | "students" | "marketing" | "launch" | "custom";
 
 export default function DirectorReportsPage() {
-  const [mode, setMode] = useState<ReportMode>("overview");
+  const searchParams = useSearchParams();
+  const requestedMode = searchParams?.get("mode") as ReportMode | null;
+  const [mode, setMode] = useState<ReportMode>(
+    requestedMode && ["overview", "academic", "admissions", "finance", "staff", "students", "marketing", "launch", "custom"].includes(requestedMode) ? requestedMode : "overview",
+  );
   const [fromDate, setFromDate] = useState(() => {
     const date = new Date();
     date.setDate(date.getDate() - 30);
@@ -107,7 +113,7 @@ export default function DirectorReportsPage() {
       key: "staff",
       title: "Team",
       icon: ShieldCheck,
-      href: "/dashboard/director/management",
+      href: "/dashboard/director/management?mode=manage",
       metrics: [
         { label: "Teachers", value: activeTeachers },
         { label: "Academic Heads", value: command?.staff.academicHeads.active ?? 0 },
@@ -118,11 +124,22 @@ export default function DirectorReportsPage() {
       key: "finance",
       title: "Finance",
       icon: WalletCards,
-      href: "/dashboard/director/accounts",
+      href: "/dashboard/director/accounts?mode=overview",
       metrics: [
         { label: "Collected", value: `Rs ${(finance?.monthlyRevenue ?? 0).toLocaleString()}` },
         { label: "Pending", value: `Rs ${(finance?.pendingDues ?? 0).toLocaleString()}` },
         { label: "Open Fees", value: pendingFees.length },
+      ],
+    },
+    {
+      key: "marketing",
+      title: "Marketing",
+      icon: BarChart3,
+      href: "/dashboard/business-development?tab=REPORTS",
+      metrics: [
+        { label: "Leads", value: leadsQuery.data?.length ?? 0 },
+        { label: "Counselling", value: leadsQuery.data?.filter((lead) => lead.status === "COUNSELLING").length ?? 0 },
+        { label: "Converted", value: leadsQuery.data?.filter((lead) => lead.status === "ENROLLED").length ?? 0 },
       ],
     },
     {
@@ -182,6 +199,10 @@ export default function DirectorReportsPage() {
       ["Finance", "Monthly Revenue", String(finance?.monthlyRevenue ?? 0)],
       ["Finance", "Pending Dues", String(finance?.pendingDues ?? 0)],
       ["Finance", "Open Fees", String(pendingFees.length)],
+      ["Marketing", "Total Leads", String(leadsQuery.data?.length ?? 0)],
+      ["Marketing", "Counselling Leads", String(leadsQuery.data?.filter((lead) => lead.status === "COUNSELLING").length ?? 0)],
+      ["Marketing", "Converted Leads", String(leadsQuery.data?.filter((lead) => lead.status === "ENROLLED").length ?? 0)],
+      ["Marketing", "Lost Leads", String(leadsQuery.data?.filter((lead) => lead.status === "LOST").length ?? 0)],
       ["Learning", "Assignments", String(assignments?.assignments ?? 0)],
       ["Learning", "Exams", String(exams?.exams ?? 0)],
       ["Learning", "Library", String(materials?.total ?? 0)],
@@ -203,6 +224,7 @@ export default function DirectorReportsPage() {
     finance?.monthlyRevenue,
     finance?.pendingDues,
     leadsQuery.data?.length,
+    leadsQuery.data,
     materials?.total,
     mode,
     pendingFees.length,
@@ -234,6 +256,7 @@ export default function DirectorReportsPage() {
   };
 
   const emailBody = encodeURIComponent(reportRows.slice(1).map(([category, metric, value]) => `${category} - ${metric}: ${value}`).join("\n"));
+  const shareText = encodeURIComponent(`${reportTitle}\n${reportRows.slice(1).map(([category, metric, value]) => `${category} - ${metric}: ${value}`).join("\n")}`);
 
   return (
     <main className="min-h-screen bg-[var(--page-bg)] px-4 py-4 text-[var(--navy)] md:px-6 lg:h-[calc(100vh-var(--nav-height)-2rem)] lg:min-h-0 lg:overflow-hidden">
@@ -261,6 +284,7 @@ export default function DirectorReportsPage() {
           <ModeButton active={mode === "finance"} icon={WalletCards} label="Finance" onClick={() => setMode("finance")} />
           <ModeButton active={mode === "staff"} icon={ShieldCheck} label="Staff" onClick={() => setMode("staff")} />
           <ModeButton active={mode === "students"} icon={Users} label="Students" onClick={() => setMode("students")} />
+          <ModeButton active={mode === "marketing"} icon={BarChart3} label="Marketing" onClick={() => setMode("marketing")} />
           <ModeButton active={mode === "launch"} icon={CheckCircle2} label="Launch QA" onClick={() => setMode("launch")} />
           <ModeButton active={mode === "custom"} icon={FileText} label="Custom" onClick={() => setMode("custom")} />
         </section>
@@ -282,6 +306,9 @@ export default function DirectorReportsPage() {
           </button>
           <a className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[var(--border)] bg-white px-4 text-sm font-black" href={`mailto:?subject=${encodeURIComponent(reportTitle)}&body=${emailBody}`}>
             <Mail className="h-4 w-4" /> Email
+          </a>
+          <a className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[var(--border)] bg-white px-4 text-sm font-black" href={`https://wa.me/?text=${shareText}`} target="_blank" rel="noreferrer">
+            <MessageCircle className="h-4 w-4" /> WhatsApp
           </a>
         </section>
 
@@ -306,7 +333,7 @@ export default function DirectorReportsPage() {
           <Panel title="Director action list" eyebrow="Today">
             <div className="grid gap-3">
               <ActionLink title="Clear admission queue" text="Review leads, approvals, documents and fees." href="/dashboard/director/admissions" value={command?.operationalAlerts.pendingAdmissions ?? 0} />
-              <ActionLink title="Review fee pressure" text="Open pending dues and overdue fees." href="/dashboard/director/accounts" value={pendingFees.length} />
+              <ActionLink title="Review fee pressure" text="Open pending dues and overdue fees." href="/dashboard/director/accounts?mode=fees" value={pendingFees.length} />
               <ActionLink title="Check teacher delivery" text="Open faculty performance and class logs." href="/dashboard/director/academic/teacher-performance" value={teachersQuery.data?.teachers.length ?? 0} />
               <ActionLink title="Run launch QA" text="Open the final module checklist before public launch." href="/dashboard/director/launch-qa" value="QA" />
             </div>
@@ -343,7 +370,8 @@ export default function DirectorReportsPage() {
               <button className="rounded-xl bg-slate-950 px-4 py-3 text-sm font-black text-white" type="button" onClick={() => downloadReport("csv")}>Download CSV</button>
               <button className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-sm font-black" type="button" onClick={() => downloadReport("json")}>Download JSON</button>
               <a className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-center text-sm font-black" href={`mailto:?subject=${encodeURIComponent(reportTitle)}&body=${emailBody}`}>Email Report</a>
-              <Link className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-center text-sm font-black" href={mode === "finance" ? "/dashboard/director/accounts" : mode === "admissions" ? "/dashboard/director/admissions" : mode === "staff" ? "/dashboard/director/management" : "/dashboard/director/academic"}>
+              <a className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-center text-sm font-black" href={`https://wa.me/?text=${shareText}`} target="_blank" rel="noreferrer">WhatsApp Share</a>
+              <Link className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-center text-sm font-black" href={mode === "finance" ? "/dashboard/director/accounts?mode=overview" : mode === "admissions" ? "/dashboard/director/admissions" : mode === "staff" ? "/dashboard/director/management?mode=manage" : mode === "marketing" ? "/dashboard/business-development?tab=REPORTS" : "/dashboard/director/academic"}>
                 Open Source Page
               </Link>
             </div>

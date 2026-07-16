@@ -49,9 +49,9 @@ const quickLinks = [
   { title: "Admissions", href: "/dashboard/director/admissions", icon: UserPlus },
   { title: "Academics", href: "/dashboard/director/academic", icon: GraduationCap },
   { title: "Administrative Officer", href: "/dashboard/admission-cell", icon: ClipboardCheck },
-  { title: "Team And Credentials", href: "/dashboard/director/management", icon: Users },
-  { title: "Finance", href: "/dashboard/director/accounts", icon: ShieldCheck },
-  { title: "Reports", href: "/dashboard/director/reports", icon: BarChart3 },
+  { title: "Team And Credentials", href: "/dashboard/director/management?mode=manage", icon: Users },
+  { title: "Finance", href: "/dashboard/director/accounts?mode=overview", icon: ShieldCheck },
+  { title: "Reports", href: "/dashboard/director/reports?mode=overview", icon: BarChart3 },
   { title: "Teaching Mode", href: "/dashboard/director/teaching", icon: BookOpen },
 ];
 
@@ -100,7 +100,7 @@ function buildChecks(data?: DirectorDashboardData): LaunchCheck[] {
       detail: "Academic faculty must exist for live classes, attendance, exams and library.",
       value: teachers,
       status: statusFromCount(teachers),
-      href: "/dashboard/director/management",
+      href: "/dashboard/director/management?mode=manage",
       icon: BadgeCheck,
     },
     {
@@ -116,7 +116,7 @@ function buildChecks(data?: DirectorDashboardData): LaunchCheck[] {
       detail: "Physical trainers must be visible for defence academy operations.",
       value: trainers,
       status: statusFromCount(trainers),
-      href: "/dashboard/director/management",
+      href: "/dashboard/director/management?mode=manage",
       icon: Users,
     },
     {
@@ -132,7 +132,7 @@ function buildChecks(data?: DirectorDashboardData): LaunchCheck[] {
       detail: "BDE team must be available for lead follow-up and admission handoff.",
       value: bde,
       status: statusFromCount(bde),
-      href: "/dashboard/director/admissions",
+      href: "/dashboard/business-development?tab=PIPELINE",
       icon: UserPlus,
     },
     {
@@ -164,7 +164,7 @@ function buildChecks(data?: DirectorDashboardData): LaunchCheck[] {
       detail: "At least one recorded payment proves AO to finance handoff works.",
       value: `Rs ${feeCollected.toLocaleString()}`,
       status: feeCollected > 0 ? "PASS" : "PARTIAL",
-      href: "/dashboard/director/accounts",
+      href: "/dashboard/director/accounts?mode=overview",
       icon: ShieldCheck,
     },
     {
@@ -229,11 +229,11 @@ function buildRoleLanes(data: DirectorDashboardData | undefined, checks: LaunchC
     lane("Administrative Officer", ao > 0 && activeStudents > 0 ? 95 : ao > 0 ? 70 : 0, `${ao} AO account(s), ${activeStudents} active learner(s).`, "/dashboard/admission-cell"),
     lane("Academic Head", academicHeads > 0 && activeBatches > 0 ? 95 : academicHeads > 0 ? 70 : 0, `${academicHeads} academic head(s), ${activeBatches} active batch(es).`, "/dashboard/director/academic"),
     lane("Teachers", teachers > 0 && lessons > 0 ? 90 : teachers > 0 ? 70 : 0, `${teachers} teacher(s), ${lessons} published library item(s).`, "/dashboard/director/teaching"),
-    lane("Physical Trainers", trainers > 0 ? 90 : 0, `${trainers} trainer(s) available for defence fitness operations.`, "/dashboard/director/management"),
+    lane("Physical Trainers", trainers > 0 ? 90 : 0, `${trainers} trainer(s) available for defence fitness operations.`, "/dashboard/director/management?mode=manage"),
     lane("Students", activeStudents > 0 && (assignments > 0 || exams > 0 || lessons > 0) ? 90 : activeStudents > 0 ? 65 : 0, `${activeStudents} learner(s), ${assignments} assignment(s), ${exams} exam(s).`, "/dashboard/director/academic/student-progress"),
     lane("Parent Handoff", activeStudents > 0 ? 75 : 0, "Parent visibility depends on linked learner invitations and active students.", "/dashboard/parent"),
-    lane("Finance", feeCollected > 0 ? 90 : 60, `Rs ${feeCollected.toLocaleString()} collected in live finance signals.`, "/dashboard/director/accounts"),
-    lane("BDE / CRM", bde > 0 ? 90 : 0, `${bde} BDE account(s) for lead follow-up and handoff.`, "/dashboard/director/admissions"),
+    lane("Finance", feeCollected > 0 ? 90 : 60, `Rs ${feeCollected.toLocaleString()} collected in live finance signals.`, "/dashboard/director/accounts?mode=overview"),
+    lane("BDE / CRM", bde > 0 ? 90 : 0, `${bde} BDE account(s) for lead follow-up and handoff.`, "/dashboard/business-development?tab=PIPELINE"),
   ];
 }
 

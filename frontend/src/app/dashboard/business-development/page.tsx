@@ -2,7 +2,7 @@
 
 import { type FormEvent, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { Archive, CalendarClock, CheckCircle2, Phone, PhoneCall, Plus, RefreshCw, Send, UserPlus } from "lucide-react";
+import { Archive, BarChart3, CalendarClock, Camera, CheckCircle2, Globe2, MessageCircle, Phone, PhoneCall, Plus, RefreshCw, Send, UserPlus, Users } from "lucide-react";
 import { RoleDashboardGuard } from "@/components/dashboard";
 import { useAuth } from "@/components/providers/auth-provider-v2";
 import { Button } from "@/components/ui/button";
@@ -10,14 +10,17 @@ import { Input } from "@/components/ui/input";
 import { useFollowups, useLeads } from "@/hooks/use-crm";
 import type { GuestApplicantResult, Lead, LeadStatus } from "@/types/crm";
 
-type BdeTab = "TODAY" | "LEADS" | "FOLLOWUPS" | "READY" | "REPORTS";
+type BdeTab = "PIPELINE" | "CALLING" | "LEADS" | "FOLLOWUPS" | "COUNSELLING" | "TEAM" | "REPORTS" | "SOCIAL";
 
 const tabs: Array<{ key: BdeTab; label: string }> = [
-  { key: "TODAY", label: "Today" },
-  { key: "LEADS", label: "My Leads" },
+  { key: "PIPELINE", label: "Pipeline" },
+  { key: "CALLING", label: "Calling Desk" },
+  { key: "LEADS", label: "Leads" },
   { key: "FOLLOWUPS", label: "Follow-ups" },
-  { key: "READY", label: "Ready for AO" },
+  { key: "COUNSELLING", label: "Counselling" },
+  { key: "TEAM", label: "Team" },
   { key: "REPORTS", label: "Reports" },
+  { key: "SOCIAL", label: "Social" },
 ];
 
 const leadStatuses: Array<{ label: string; value: LeadStatus | "" }> = [
@@ -30,6 +33,10 @@ const leadStatuses: Array<{ label: string; value: LeadStatus | "" }> = [
 ];
 
 const callStatuses = ["Not reachable", "Connected", "Interested", "Call later", "Counselling needed", "Ready for admission", "Not interested"];
+const tabAliases: Record<string, BdeTab> = {
+  TODAY: "CALLING",
+  READY: "COUNSELLING",
+};
 
 function value(form: HTMLFormElement, name: string) {
   return String(new FormData(form).get(name) ?? "").trim();
@@ -119,12 +126,113 @@ function Metric({ label, value }: { label: string; value: number }) {
   );
 }
 
+function PipelineBoard({
+  contacted,
+  converted,
+  counselling,
+  lost,
+  newLeads,
+  readyForAo,
+}: {
+  contacted: number;
+  converted: number;
+  counselling: number;
+  lost: number;
+  newLeads: number;
+  readyForAo: number;
+}) {
+  const stages = [
+    { label: "New", value: newLeads, text: "Fresh enquiries waiting for first contact." },
+    { label: "Contacted", value: contacted, text: "Spoken to or attempted, needs next action." },
+    { label: "Counselling", value: counselling, text: "Interested leads, course guidance and parent discussion." },
+    { label: "AO Ready", value: readyForAo, text: "Ready for application/admission office action." },
+    { label: "Converted", value: converted, text: "Admission or enrollment completed." },
+    { label: "Lost", value: lost, text: "Not interested or dropped from the active pipeline." },
+  ];
+
+  return (
+    <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+      {stages.map((stage, index) => (
+        <div key={stage.label} className="rounded-2xl border border-[#071d36]/15 bg-white p-4 shadow-[0_10px_24px_rgba(7,29,54,0.04)]">
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#fff8df] text-sm font-black text-[#071d36]">{index + 1}</div>
+            <span className="rounded-full border border-[#071d36]/15 px-3 py-1 text-xs font-black">{stage.value}</span>
+          </div>
+          <h3 className="mt-4 text-xl font-black text-[#071d36]">{stage.label}</h3>
+          <p className="mt-2 text-sm leading-6 text-[#52627a]">{stage.text}</p>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function TeamBoard({ leads }: { leads: Lead[] }) {
+  const byAssignee = new Map<string, { name: string; leads: Lead[] }>();
+  leads.forEach((lead) => {
+    const key = lead.assignee?.id ?? "unassigned";
+    const name = lead.assignee?.name ?? "Unassigned";
+    const bucket = byAssignee.get(key) ?? { name, leads: [] };
+    bucket.leads.push(lead);
+    byAssignee.set(key, bucket);
+  });
+  const groups = Array.from(byAssignee.values()).sort((first, second) => second.leads.length - first.leads.length);
+
+  return (
+    <div className="mt-5 grid max-h-[52vh] gap-3 overflow-y-auto pr-1 md:grid-cols-2">
+      {groups.map((group) => (
+        <div key={group.name} className="rounded-2xl border border-[#071d36]/15 bg-white p-4">
+          <div className="flex items-start gap-3">
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#fff8df]">
+              <Users className="h-5 w-5 text-[#071d36]" />
+            </div>
+            <div>
+              <h3 className="text-xl font-black text-[#071d36]">{group.name}</h3>
+              <p className="mt-1 text-sm text-[#52627a]">{group.leads.length} lead(s) assigned</p>
+            </div>
+          </div>
+          <div className="mt-4 grid grid-cols-3 gap-2 text-center text-xs font-black">
+            <span className="rounded-xl bg-[#f7f9fc] px-2 py-2">{group.leads.filter((lead) => lead.status === "NEW").length} new</span>
+            <span className="rounded-xl bg-[#f7f9fc] px-2 py-2">{group.leads.filter((lead) => lead.status === "COUNSELLING").length} warm</span>
+            <span className="rounded-xl bg-[#f7f9fc] px-2 py-2">{group.leads.filter(isReadyForAdmission).length} AO</span>
+          </div>
+        </div>
+      ))}
+      {!groups.length ? <EmptyState text="No team pipeline data yet." /> : null}
+    </div>
+  );
+}
+
+function SocialBoard() {
+  const channels = [
+    { label: "Instagram", icon: Camera, text: "Future API card for campaign DMs, leads and source tracking." },
+    { label: "Facebook", icon: Globe2, text: "Future API card for Meta lead forms and campaign audiences." },
+    { label: "WhatsApp", icon: MessageCircle, text: "Future API card for broadcasts, click-to-chat and admission follow-up." },
+    { label: "Campaign Reports", icon: BarChart3, text: "Use reports mode until social API integrations are connected." },
+  ];
+  return (
+    <div className="mt-5 grid gap-3 md:grid-cols-2">
+      {channels.map((channel) => {
+        const Icon = channel.icon;
+        return (
+          <div key={channel.label} className="rounded-2xl border border-dashed border-[#071d36]/20 bg-[#fffdf8] p-4 text-[#52627a]">
+            <Icon className="h-6 w-6 text-[#071d36]" />
+            <h3 className="mt-4 text-xl font-black text-[#071d36]">{channel.label}</h3>
+            <p className="mt-2 text-sm leading-6">{channel.text}</p>
+            <p className="mt-4 text-[10px] font-black uppercase tracking-[0.18em]">Future API</p>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 export default function BusinessDevelopmentDashboardPage() {
   const { user } = useAuth();
   const searchParams = useSearchParams();
-  const requestedTab = searchParams?.get("tab") as BdeTab | null;
+  const rawRequestedTab = searchParams?.get("tab")?.toUpperCase() ?? "";
+  const requestedTab = (tabAliases[rawRequestedTab] ?? rawRequestedTab) as BdeTab | "";
   const [activeTab, setActiveTab] = useState<BdeTab>(
-    requestedTab && ["TODAY", "LEADS", "FOLLOWUPS", "READY", "REPORTS"].includes(requestedTab) ? requestedTab : "TODAY",
+    requestedTab && ["PIPELINE", "CALLING", "LEADS", "FOLLOWUPS", "COUNSELLING", "TEAM", "REPORTS", "SOCIAL"].includes(requestedTab) ? requestedTab : "PIPELINE",
   );
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<LeadStatus | undefined>();
@@ -160,11 +268,14 @@ export default function BusinessDevelopmentDashboardPage() {
     newLeads: newLeads.length,
     readyForAo: readyLeads.length,
     converted: leadData.filter((lead) => lead.status === "ENROLLED").length,
+    contacted: leadData.filter((lead) => lead.status === "CONTACTED").length,
+    counselling: leadData.filter((lead) => lead.status === "COUNSELLING").length,
+    lost: leadData.filter((lead) => lead.status === "LOST").length,
   };
 
-  const visibleLeads = activeTab === "TODAY"
+  const visibleLeads = activeTab === "CALLING"
     ? todayQueue
-    : activeTab === "READY"
+    : activeTab === "COUNSELLING"
       ? readyLeads
       : activeTab === "FOLLOWUPS"
         ? leadData.filter((lead) => latestFollowupByLead.has(lead.id) && !isReadyForAdmission(lead))
@@ -231,9 +342,9 @@ export default function BusinessDevelopmentDashboardPage() {
         <section className="rounded-2xl border border-[#071d36]/15 bg-white p-5 shadow-[0_18px_60px_rgba(7,29,54,0.08)]">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <p className="text-xs font-black uppercase tracking-[0.28em] text-[#3f4a32]">BDE calling desk</p>
-              <h1 className="mt-2 text-3xl font-black text-[#071d36]">Revenue Pipeline Desk</h1>
-              <p className="mt-2 max-w-2xl text-sm leading-6 text-[#52627a]">A simple telecalling workflow for enquiries, follow-ups, counselling interest and admission handover.</p>
+              <p className="text-xs font-black uppercase tracking-[0.28em] text-[#3f4a32]">Marketing And Sales</p>
+              <h1 className="mt-2 text-3xl font-black text-[#071d36]">Revenue Pipeline Control</h1>
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-[#52627a]">A simple command panel for enquiries, calling, follow-ups, counselling interest and AO admission handover.</p>
             </div>
             <Button type="button" onClick={() => leads.refetch()} disabled={leads.isFetching} variant="secondary">
               <RefreshCw className="mr-2 h-4 w-4" /> {leads.isFetching ? "Refreshing..." : "Refresh"}
@@ -241,10 +352,11 @@ export default function BusinessDevelopmentDashboardPage() {
           </div>
         </section>
 
-        <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+        <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-6">
           <Metric label="Calls Today" value={reports.callsToday} />
           <Metric label="Overdue" value={reports.overdue} />
           <Metric label="New Leads" value={reports.newLeads} />
+          <Metric label="Counselling" value={reports.counselling} />
           <Metric label="Ready For AO" value={reports.readyForAo} />
           <Metric label="Converted" value={reports.converted} />
         </section>
@@ -290,7 +402,7 @@ export default function BusinessDevelopmentDashboardPage() {
               <div>
                 <p className="text-xs font-black uppercase tracking-[0.22em] text-[#3f4a32]">{tabs.find((tab) => tab.key === activeTab)?.label}</p>
                 <h2 className="mt-1 text-3xl font-black text-[#071d36]">
-                  {activeTab === "TODAY" ? "Who should I call now?" : activeTab === "READY" ? "Send these to AO" : activeTab === "FOLLOWUPS" ? "Follow-up tracker" : activeTab === "REPORTS" ? "Simple performance" : "My leads"}
+                  {activeTab === "PIPELINE" ? "Where are leads stuck?" : activeTab === "CALLING" ? "Who should I call now?" : activeTab === "COUNSELLING" ? "Send these to AO" : activeTab === "FOLLOWUPS" ? "Follow-up tracker" : activeTab === "TEAM" ? "Team pipeline view" : activeTab === "REPORTS" ? "Simple performance" : activeTab === "SOCIAL" ? "Future social channels" : "Lead records"}
                 </h2>
               </div>
               <div className="grid gap-2 sm:grid-cols-[1fr_160px]">
@@ -304,12 +416,25 @@ export default function BusinessDevelopmentDashboardPage() {
               </div>
             </div>
 
-            {activeTab === "REPORTS" ? (
+            {activeTab === "PIPELINE" ? (
+              <PipelineBoard
+                converted={reports.converted}
+                counselling={reports.counselling}
+                contacted={reports.contacted}
+                lost={reports.lost}
+                newLeads={reports.newLeads}
+                readyForAo={reports.readyForAo}
+              />
+            ) : activeTab === "TEAM" ? (
+              <TeamBoard leads={leadData} />
+            ) : activeTab === "SOCIAL" ? (
+              <SocialBoard />
+            ) : activeTab === "REPORTS" ? (
               <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
                 <Metric label="Total Leads" value={leadData.length} />
                 <Metric label="Active Follow-ups" value={followupData.filter((item) => item.status !== "COMPLETED").length} />
                 <Metric label="AO Handovers" value={readyLeads.length} />
-                <Metric label="Lost" value={leadData.filter((lead) => lead.status === "LOST").length} />
+                <Metric label="Lost" value={reports.lost} />
                 <Metric label="Converted" value={reports.converted} />
                 <Metric label="Today's Work" value={reports.callsToday + reports.overdue} />
               </div>

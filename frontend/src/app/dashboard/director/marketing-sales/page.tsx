@@ -6,13 +6,13 @@ import { DirectorLauncher, type DirectorTile } from "@/components/dashboard/dire
 const tiles: DirectorTile[] = [
   {
     label: "Telecallers",
-    href: "/dashboard/business-development?tab=TODAY",
+    href: "/dashboard/business-development?tab=CALLING",
     icon: PhoneCall,
     note: "Open calling work, follow-ups and lead handoff.",
   },
   {
     label: "BDE Team",
-    href: "/dashboard/business-development?tab=REPORTS",
+    href: "/dashboard/business-development?tab=TEAM",
     icon: Users,
     note: "Review business development work and team pipeline.",
   },
@@ -36,7 +36,7 @@ const tiles: DirectorTile[] = [
   },
   {
     label: "Counselling",
-    href: "/dashboard/business-development?tab=READY",
+    href: "/dashboard/business-development?tab=COUNSELLING",
     icon: Users,
     note: "Open counselling pipeline and conversion notes.",
   },

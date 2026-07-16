@@ -3,6 +3,7 @@
 import { FormEvent, useState } from "react";
 import type { ReactNode } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   BadgeIndianRupee,
@@ -33,8 +34,12 @@ const accountSections = [
 
 export default function DirectorAccountsPage() {
   const queryClient = useQueryClient();
+  const searchParams = useSearchParams();
+  const requestedMode = searchParams?.get("mode") as AccountMode | null;
   const [notice, setNotice] = useState("");
-  const [mode, setMode] = useState<AccountMode>("overview");
+  const [mode, setMode] = useState<AccountMode>(
+    requestedMode && ["overview", "fees", "invoices", "expenses", "subscriptions", "reports", "settings", "audit"].includes(requestedMode) ? requestedMode : "overview",
+  );
   const [feeForm, setFeeForm] = useState({
     studentId: "",
     title: "",
