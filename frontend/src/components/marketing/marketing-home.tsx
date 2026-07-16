@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight, ClipboardCheck, GraduationCap, ShieldCheck, Sparkles, Target } from "lucide-react";
 
 const exams = ["NDA", "CDS", "AFCAT", "SSB", "AISSEE", "RIMC", "Agniveer", "INET", "Physical Training", "Interview Guidance"];
@@ -74,6 +75,27 @@ function ExamStream() {
   );
 }
 
+function PublicHeroLogo() {
+  return (
+    <div className="relative mx-auto w-full max-w-sm rounded-[1.75rem] border border-white/70 bg-white/42 p-5 text-left shadow-[0_28px_90px_rgba(7,29,54,0.18)] backdrop-blur-2xl lg:mx-0">
+      <div className="absolute -left-10 -top-10 h-32 w-32 rounded-full bg-[#e7c873]/35 blur-3xl" />
+      <div className="absolute -bottom-12 -right-10 h-36 w-36 rounded-full bg-[#071d36]/12 blur-3xl" />
+      <div className="relative grid gap-5">
+        <div className="flex h-28 w-28 items-center justify-center rounded-3xl border border-[#b9913f]/30 bg-white/92 p-3 shadow-[0_0_45px_rgba(185,145,63,0.32)]">
+          <Image src="/brand/nidus-logo.png" alt="NIDUS Academy logo" width={104} height={104} className="h-full w-full object-contain" priority />
+        </div>
+        <div>
+          <Image src="/brand/nidus-logo-horizontal.png" alt="NIDUS Academy" width={270} height={74} className="h-auto max-h-16 w-auto object-contain" priority />
+          <p className="mt-3 text-xs font-black uppercase tracking-[0.26em] text-[#3f4a32]">Defence Training Platform</p>
+          <p className="mt-3 max-w-xs text-sm font-semibold leading-6 text-[#40516a]">
+            Coaching, fitness, mentoring and academy operations under one NIDUS system.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function MarketingHome() {
   return (
     <main className="bg-[#f7f3ea] text-[#101827]">
@@ -86,21 +108,24 @@ export function MarketingHome() {
 
       <section className="relative overflow-hidden bg-[radial-gradient(circle_at_18%_10%,rgba(185,145,63,0.22),transparent_28rem),radial-gradient(circle_at_86%_14%,rgba(110,143,175,0.22),transparent_30rem),linear-gradient(135deg,#fbf8f1_0%,#f7f3ea_58%,#dce9f3_100%)] px-4 pb-24 pt-32 text-center text-[#101827] sm:px-6 lg:px-8">
         <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#f7f3ea] to-transparent" />
-        <div className="relative mx-auto max-w-5xl">
-          <p className="mx-auto inline-flex rounded-full border border-[#b9913f]/24 bg-white/62 px-5 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#3f4a32] backdrop-blur-xl">
-            Kerala&apos;s Integrated Defence Career Campus
-          </p>
-          <h1 className="mx-auto mt-10 max-w-5xl text-5xl font-semibold leading-[1.02] tracking-normal text-[#071d36] sm:text-7xl lg:text-8xl">
-            From Aspirant to Officer.
-          </h1>
-          <p className="mx-auto mt-7 max-w-3xl text-base font-semibold leading-8 text-[#40516a] sm:text-2xl">
-            Coaching, physical training, exam practice and personal guidance for NDA, CDS, AFCAT, SSB, AISSEE and Agniveer aspirants.
-          </p>
-          <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <PillButton href="/start-free?intent=general">
-              Start Free <ArrowRight className="h-4 w-4" />
-            </PillButton>
-            <PillButton href="/programs" variant="ghost">Explore Academy</PillButton>
+        <div className="relative mx-auto grid max-w-7xl gap-10 lg:grid-cols-[360px_1fr] lg:items-center lg:text-left">
+          <PublicHeroLogo />
+          <div>
+            <p className="mx-auto inline-flex rounded-full border border-[#b9913f]/24 bg-white/62 px-5 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#3f4a32] backdrop-blur-xl lg:mx-0">
+              Kerala&apos;s Integrated Defence Career Campus
+            </p>
+            <h1 className="mx-auto mt-10 max-w-5xl text-5xl font-semibold leading-[1.02] tracking-normal text-[#071d36] sm:text-7xl lg:mx-0 lg:text-8xl">
+              From Aspirant to Officer.
+            </h1>
+            <p className="mx-auto mt-7 max-w-3xl text-base font-semibold leading-8 text-[#40516a] sm:text-2xl lg:mx-0">
+              Coaching, physical training, exam practice and personal guidance for NDA, CDS, AFCAT, SSB, AISSEE and Agniveer aspirants.
+            </p>
+            <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row lg:justify-start">
+              <PillButton href="/start-free?intent=general">
+                Start Free <ArrowRight className="h-4 w-4" />
+              </PillButton>
+              <PillButton href="/programs" variant="ghost">Explore Academy</PillButton>
+            </div>
           </div>
         </div>
       </section>
