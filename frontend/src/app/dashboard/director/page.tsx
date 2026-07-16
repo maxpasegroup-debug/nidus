@@ -137,8 +137,8 @@ export default function DirectorDashboardPage() {
   ];
 
   return (
-    <main className="flex min-h-[calc(100vh-var(--nav-height)-2rem)] flex-col overflow-hidden bg-[var(--page-bg)] px-4 py-3 text-[var(--navy)] md:px-6">
-      <section className="mx-auto flex min-h-0 w-full max-w-[1500px] flex-1 flex-col gap-3">
+    <main className="flex min-h-[calc(100vh-var(--nav-height)-2rem)] flex-col overflow-y-auto bg-[var(--page-bg)] px-4 py-3 text-[var(--navy)] md:px-6 xl:overflow-hidden">
+      <section className="mx-auto flex w-full max-w-[1500px] flex-1 flex-col gap-3 xl:min-h-0">
         <header className="shrink-0 rounded-2xl border border-[var(--border)] bg-white p-3 shadow-sm">
           <div className="grid gap-4 xl:grid-cols-[280px_1fr_560px] xl:items-center">
             <BrandGlassMark compact />
@@ -158,7 +158,7 @@ export default function DirectorDashboardPage() {
           </div>
         </header>
 
-        <section className="grid min-h-0 flex-1 grid-rows-6 gap-3 overflow-hidden sm:grid-cols-2 sm:grid-rows-3 xl:grid-cols-3 xl:grid-rows-2">
+        <section className="grid flex-1 gap-3 sm:grid-cols-2 xl:min-h-0 xl:grid-cols-3 xl:grid-rows-2 xl:overflow-hidden">
           {departments.map((department) => (
             <DepartmentPanel key={department.title} department={department} />
           ))}
