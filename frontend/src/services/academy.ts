@@ -512,6 +512,11 @@ export async function assignTeacherToBatch(batchId: string, payload: { teacherId
   return response.data;
 }
 
+export async function addStudentToBatch(batchId: string, payload: { userId?: string; email?: string; phone?: string; name?: string; rollNumber?: string; notes?: string }) {
+  const response = await apiClient.post(`/academy/batches/${batchId}/students`, payload);
+  return response.data;
+}
+
 export async function getAcademicCalendar(filters: { batchId?: string; status?: string } = {}) {
   const response = await apiClient.get<{ items: AcademicCalendarItem[] } | AcademicCalendarItem[]>("/academy/academic-calendar", { params: filters });
   return Array.isArray(response.data) ? response.data : response.data.items;
