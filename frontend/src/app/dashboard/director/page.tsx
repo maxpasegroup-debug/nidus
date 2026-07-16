@@ -146,8 +146,9 @@ export default function DirectorDashboardPage() {
               <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold)]">Director</p>
               <h1 className="mt-1 text-2xl font-black leading-tight md:text-3xl">NIDUS Control Panel</h1>
               <p className="mt-1 text-sm leading-6 text-[var(--muted-blue)]">
-                Main departments with direct submodule access. Open the exact control you need in one click.
+                Six department panels with direct submodule access.
               </p>
+              <p className="mt-1 text-[10px] font-black uppercase tracking-[0.18em] text-[var(--gold)]">Director layout v2</p>
             </div>
             <div className="grid gap-2 sm:grid-cols-3">
               <Metric label="Admissions" value={directorQuery.isLoading ? "..." : pendingAdmissions} />
