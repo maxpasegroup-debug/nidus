@@ -9,7 +9,7 @@ import {
   publishStudyMaterial,
   reviewStudyMaterial,
 } from "@/services/academy";
-import { AcademicHero, AcademicShell, Panel, StatCard } from "../academic/_components";
+import { AcademicActionButton, AcademicCard, AcademicHero, AcademicPill, AcademicShell, Panel, StatCard } from "../academic/_components";
 
 type BatchOption = {
   id: string;
@@ -147,9 +147,9 @@ export default function DirectorMaterialsPage() {
           description="Publish and review study materials by batch. Students see only the content assigned to their approved batch."
           action={
             <div className="flex flex-wrap gap-2">
-              <button className={`rounded-xl px-4 py-3 text-sm font-black ${mode === "library" ? "bg-[var(--navy)] text-white" : "border border-[var(--border)] bg-white"}`} onClick={() => setMode("library")} type="button">Library</button>
-              <button className={`rounded-xl px-4 py-3 text-sm font-black ${mode === "publish" ? "bg-[var(--navy)] text-white" : "border border-[var(--border)] bg-white"}`} onClick={() => setMode("publish")} type="button">Publish</button>
-              <button className={`rounded-xl px-4 py-3 text-sm font-black ${mode === "batches" ? "bg-[var(--navy)] text-white" : "border border-[var(--border)] bg-white"}`} onClick={() => setMode("batches")} type="button">Batch Folders</button>
+              <AcademicActionButton active={mode === "library"} onClick={() => setMode("library")}>Library</AcademicActionButton>
+              <AcademicActionButton active={mode === "publish"} onClick={() => setMode("publish")}>Publish</AcademicActionButton>
+              <AcademicActionButton active={mode === "batches"} onClick={() => setMode("batches")}>Batch Folders</AcademicActionButton>
             </div>
           }
         />
@@ -173,7 +173,7 @@ export default function DirectorMaterialsPage() {
               <label className="grid gap-2 text-sm font-bold">
                 Select batch
                 <select
-                  className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-[var(--navy)] outline-none focus:border-[var(--gold)]"
+                  className="rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-[var(--navy)] outline-none focus:border-[var(--gold)]"
                   required
                   value={form.batchId}
                   onChange={(event) => setForm((item) => ({ ...item, batchId: event.target.value }))}
@@ -193,7 +193,7 @@ export default function DirectorMaterialsPage() {
                 <label className="grid gap-2 text-sm font-bold">
                   Material type
                   <select
-                    className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-[var(--navy)] outline-none focus:border-[var(--gold)]"
+                    className="rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-[var(--navy)] outline-none focus:border-[var(--gold)]"
                     value={form.materialType}
                     onChange={(event) => setForm((item) => ({ ...item, materialType: event.target.value }))}
                   >
@@ -215,7 +215,7 @@ export default function DirectorMaterialsPage() {
               </div>
               <button
                 disabled={publishMutation.isPending}
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-[var(--gold-gradient)] px-5 py-3 font-black text-[var(--navy)] shadow-lg disabled:opacity-60"
+                className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-[var(--gold-gradient)] px-4 py-2 text-sm font-black text-[var(--navy)] shadow-lg disabled:opacity-60"
               >
                 <Upload className="h-5 w-5" />
                 Publish Material
@@ -228,19 +228,14 @@ export default function DirectorMaterialsPage() {
           <Panel title="Available batches" eyebrow="Batch Folders">
             <div className="grid max-h-[58vh] gap-3 overflow-y-auto pr-1 md:grid-cols-2 xl:grid-cols-3">
               {batches.map((batch) => (
-                <article key={batch.id} className="rounded-2xl border border-[var(--border)] bg-white p-4">
-                  <div className="flex items-start gap-3">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-[var(--gold-border)] bg-[var(--gold-soft)]">
-                      <BookOpen className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <h3 className="font-black">{batch.name}</h3>
-                      <p className="mt-1 text-sm text-[var(--muted-blue)]">
-                        {batch.batchType ?? "Batch"} / {batch.status ?? "ACTIVE"} / {batch.programSlug ?? "Academy"}
-                      </p>
-                    </div>
-                  </div>
-                </article>
+                <AcademicCard
+                  key={batch.id}
+                  icon={BookOpen}
+                  eyebrow={batch.batchType ?? "Batch"}
+                  title={batch.name}
+                  status={<AcademicPill>{batch.status ?? "ACTIVE"}</AcademicPill>}
+                  description={batch.programSlug ?? "Academy"}
+                />
               ))}
               {!batches.length && <Empty text="No batches available. Create a batch in Academic Department before publishing materials." />}
             </div>
@@ -263,13 +258,13 @@ export default function DirectorMaterialsPage() {
 
           <div className="mt-4 grid gap-3 rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-3 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
             <input
-              className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-sm font-bold outline-none focus:border-[var(--gold)]"
+              className="rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-sm font-bold outline-none focus:border-[var(--gold)]"
               placeholder="Search title, subject, topic or file"
               value={filters.search}
               onChange={(event) => setFilters((item) => ({ ...item, search: event.target.value }))}
             />
             <select
-              className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-sm font-bold outline-none focus:border-[var(--gold)]"
+              className="rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-sm font-bold outline-none focus:border-[var(--gold)]"
               value={filters.batchId}
               onChange={(event) => setFilters((item) => ({ ...item, batchId: event.target.value }))}
             >
@@ -279,7 +274,7 @@ export default function DirectorMaterialsPage() {
               ))}
             </select>
             <select
-              className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-sm font-bold outline-none focus:border-[var(--gold)]"
+              className="rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-sm font-bold outline-none focus:border-[var(--gold)]"
               value={filters.type}
               onChange={(event) => setFilters((item) => ({ ...item, type: event.target.value }))}
             >
@@ -289,7 +284,7 @@ export default function DirectorMaterialsPage() {
               ))}
             </select>
             <select
-              className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-sm font-bold outline-none focus:border-[var(--gold)]"
+              className="rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-sm font-bold outline-none focus:border-[var(--gold)]"
               value={filters.reviewStatus}
               onChange={(event) => setFilters((item) => ({ ...item, reviewStatus: event.target.value }))}
             >
@@ -302,39 +297,32 @@ export default function DirectorMaterialsPage() {
 
           <div className="mt-4 grid max-h-[44vh] gap-3 overflow-y-auto pr-1">
             {filteredMaterials.map((material) => (
-              <article key={material.id} className="rounded-2xl border border-[var(--border)] bg-white p-4">
-                <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-                  <div>
-                    <p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold)]">
-                      {material.batchName ?? "Batch"} / {material.subject ?? "Subject"}
-                    </p>
-                    <h3 className="mt-2 text-xl font-black">{material.title}</h3>
-                    <p className="mt-1 text-sm text-[var(--muted-blue)]">
-                      {material.folder ?? "Folder"} / {material.topic ?? "Topic"} / {material.type}
-                    </p>
-                  </div>
-                  <span className="rounded-full border border-[var(--gold-border)] bg-[var(--gold-soft)] px-3 py-1 text-xs font-black">
-                    {material.reviewStatus ?? "PENDING_REVIEW"}
-                  </span>
-                </div>
-                <div className="mt-4 flex flex-wrap gap-2">
+              <AcademicCard
+                key={material.id}
+                icon={BookOpen}
+                eyebrow={`${material.batchName ?? "Batch"} / ${material.subject ?? "Subject"}`}
+                title={material.title}
+                status={<AcademicPill>{material.reviewStatus ?? "PENDING_REVIEW"}</AcademicPill>}
+                description={`${material.folder ?? "Folder"} / ${material.topic ?? "Topic"} / ${material.type}`}
+              >
+                <div className="flex flex-wrap gap-2">
                   {material.url ? (
-                    <a href={material.url} target="_blank" rel="noreferrer" className="rounded-lg border border-[var(--border)] px-3 py-2 text-sm font-bold">
+                    <a href={material.url} target="_blank" rel="noreferrer" className="rounded-lg border border-[var(--border)] px-3 py-2 text-xs font-black">
                       <LinkIcon className="mr-1 inline h-4 w-4" />
                       Open
                     </a>
                   ) : null}
-                  <button className="rounded-lg border border-emerald-200 px-3 py-2 text-sm font-bold text-emerald-800" onClick={() => reviewMutation.mutate({ id: material.id, reviewStatus: "APPROVED" })}>
+                  <button className="rounded-lg border border-emerald-200 px-3 py-2 text-xs font-black text-emerald-800" onClick={() => reviewMutation.mutate({ id: material.id, reviewStatus: "APPROVED" })}>
                     Approve
                   </button>
-                  <button className="rounded-lg border border-rose-200 px-3 py-2 text-sm font-bold text-rose-800" onClick={() => reviewMutation.mutate({ id: material.id, reviewStatus: "REJECTED" })}>
+                  <button className="rounded-lg border border-rose-200 px-3 py-2 text-xs font-black text-rose-800" onClick={() => reviewMutation.mutate({ id: material.id, reviewStatus: "REJECTED" })}>
                     Reject
                   </button>
-                  <button className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-bold text-slate-800" onClick={() => archiveMutation.mutate(material.id)}>
+                  <button className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-black text-slate-800" onClick={() => archiveMutation.mutate(material.id)}>
                     Archive
                   </button>
                 </div>
-              </article>
+              </AcademicCard>
             ))}
             {!filteredMaterials.length && <Empty text={materials.length ? "No materials match the selected filters." : "No materials have been published yet."} />}
           </div>
@@ -349,7 +337,7 @@ function Field({ label, value, onChange, required }: { label: string; value: str
     <label className="grid gap-2 text-sm font-bold">
       {label}
       <input
-        className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-[var(--navy)] outline-none focus:border-[var(--gold)]"
+        className="rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-[var(--navy)] outline-none focus:border-[var(--gold)]"
         value={value}
         onChange={(event) => onChange(event.target.value)}
         required={required}

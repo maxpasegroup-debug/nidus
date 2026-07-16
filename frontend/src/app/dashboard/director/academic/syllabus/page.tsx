@@ -2,7 +2,8 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getAcademicCalendar, getSyllabusSummary, updateAcademicCalendarItem } from "@/services/academy";
-import { AcademicHero, AcademicShell, EmptyState, Panel, StatCard } from "../_components";
+import { AcademicCard, AcademicHero, AcademicPill, AcademicShell, EmptyState, Panel, StatCard } from "../_components";
+import { BarChart3, CalendarCheck } from "lucide-react";
 
 const completionOptions = [
   { label: "Green", value: "GREEN", className: "border-emerald-200 bg-emerald-50 text-emerald-800" },
@@ -37,11 +38,14 @@ export default function DirectorSyllabusPage() {
         {!syllabusQuery.data?.batches.length ? <EmptyState text="No syllabus progress is available yet." /> : null}
         <div className="grid max-h-52 gap-3 overflow-y-auto pr-1 md:grid-cols-2 xl:grid-cols-3">
           {(syllabusQuery.data?.batches ?? []).map((batch) => (
-            <article key={batch.batchId ?? batch.batchName ?? "batch"} className="rounded-2xl border border-[var(--border)] bg-white p-4">
-              <h3 className="text-xl font-black">{batch.batchName ?? "Batch"}</h3>
-              <p className="mt-2 text-sm text-[var(--muted-blue)]">Green {batch.green} / Orange {batch.orange} / Red {batch.red}</p>
-              <p className="mt-4 text-3xl font-black text-[var(--gold)]">{batch.completionPercentage}%</p>
-            </article>
+            <AcademicCard
+              key={batch.batchId ?? batch.batchName ?? "batch"}
+              icon={BarChart3}
+              eyebrow="Batch"
+              title={batch.batchName ?? "Batch"}
+              status={<AcademicPill>{batch.completionPercentage}%</AcademicPill>}
+              description={`Green ${batch.green} / Orange ${batch.orange} / Red ${batch.red}`}
+            />
           ))}
         </div>
       </Panel>
@@ -51,23 +55,22 @@ export default function DirectorSyllabusPage() {
           {calendar.map((item) => {
             const active = completionOptions.find((option) => option.value === item.completionStatus) ?? completionOptions[1];
             return (
-              <article key={item.id} className="rounded-2xl border border-[var(--border)] bg-white p-4">
-                <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-                  <div>
-                    <p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold)]">{item.batchName} / {item.subject}</p>
-                    <h3 className="mt-2 text-xl font-black">{item.topic}</h3>
-                    <p className="mt-1 text-sm text-[var(--muted-blue)]">{item.teacherName ?? "Teacher pending"} / {new Date(item.plannedDate).toLocaleDateString()}</p>
-                  </div>
-                  <span className={`rounded-full border px-3 py-1 text-xs font-black ${active.className}`}>{active.label}</span>
-                </div>
-                <div className="mt-4 flex flex-wrap gap-2">
+              <AcademicCard
+                key={item.id}
+                icon={CalendarCheck}
+                eyebrow={`${item.batchName} / ${item.subject}`}
+                title={item.topic}
+                status={<span className={`rounded-full border px-2.5 py-1 text-[11px] font-black ${active.className}`}>{active.label}</span>}
+                description={`${item.teacherName ?? "Teacher pending"} / ${new Date(item.plannedDate).toLocaleDateString()}`}
+              >
+                <div className="flex flex-wrap gap-2">
                   {completionOptions.map((option) => (
-                    <button key={option.value} className={`rounded-xl border px-3 py-2 text-sm font-bold ${option.className}`} onClick={() => updateStatus.mutate({ id: item.id, completionStatus: option.value })} type="button">
+                    <button key={option.value} className={`rounded-xl border px-3 py-2 text-xs font-black ${option.className}`} onClick={() => updateStatus.mutate({ id: item.id, completionStatus: option.value })} type="button">
                       {option.label}
                     </button>
                   ))}
                 </div>
-              </article>
+              </AcademicCard>
             );
           })}
         </div>

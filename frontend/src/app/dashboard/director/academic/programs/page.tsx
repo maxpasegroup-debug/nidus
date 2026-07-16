@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import type { FormEvent } from "react";
 import { BookOpen, Laptop, MapPin, Plus } from "lucide-react";
 
-import { AcademicHero, AcademicShell, EmptyState, GoldButton, Input, Panel, Select, TextArea } from "../_components";
+import { AcademicActionButton, AcademicCard, AcademicHero, AcademicPill, AcademicShell, EmptyState, GoldButton, Input, Panel, Select, TextArea } from "../_components";
 import { allAcademyPrograms } from "@/data/academy-programs";
 import { useCreateCourse, useCourses } from "@/hooks/use-courses";
 import type { Course } from "@/types/course";
@@ -175,46 +175,32 @@ export default function DirectorProgramsPage() {
         title="Offline and online academy programs."
         description="This page only shows existing programs and courses. Choose Offline or Online, view the program grid, or create a new course for the selected category."
         action={
-          <button
-            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[var(--gold-gradient)] px-5 py-3 font-black text-[var(--navy)] shadow-lg"
-            onClick={() => setShowCreate((value) => !value)}
-            type="button"
-          >
+          <AcademicActionButton onClick={() => setShowCreate((value) => !value)}>
             <Plus className="h-4 w-4" />
             Create Course
-          </button>
+          </AcademicActionButton>
         }
       />
 
       <section className="grid shrink-0 gap-3 md:grid-cols-2">
-        <button
-          className={`rounded-2xl border p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${
-            selectedMode === "OFFLINE" ? "border-[var(--gold-border)] bg-white shadow-md" : "border-[var(--border)] bg-white/85"
-          }`}
-          onClick={() => setSelectedMode("OFFLINE")}
-          type="button"
-        >
-          <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-[var(--gold-border)] bg-[var(--gold-soft)]">
-            <MapPin className="h-5 w-5" />
-          </div>
-          <h2 className="mt-3 text-xl font-black">Offline</h2>
-          <p className="mt-1 text-sm leading-6 text-[var(--muted-blue)]">Classroom, crash course, physical training and centre-based programs.</p>
-          <span className="mt-3 inline-flex rounded-full border border-[var(--border)] px-3 py-1 text-xs font-black">{offlineCount} program(s)</span>
+        <button className="text-left" onClick={() => setSelectedMode("OFFLINE")} type="button">
+          <AcademicCard
+            icon={MapPin}
+            title="Offline"
+            selected={selectedMode === "OFFLINE"}
+            description="Classroom, crash course, physical training and centre-based programs."
+            action={<AcademicPill>{offlineCount} program(s)</AcademicPill>}
+          />
         </button>
 
-        <button
-          className={`rounded-2xl border p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${
-            selectedMode === "ONLINE" ? "border-[var(--gold-border)] bg-white shadow-md" : "border-[var(--border)] bg-white/85"
-          }`}
-          onClick={() => setSelectedMode("ONLINE")}
-          type="button"
-        >
-          <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-[var(--gold-border)] bg-[var(--gold-soft)]">
-            <Laptop className="h-5 w-5" />
-          </div>
-          <h2 className="mt-3 text-xl font-black">Online</h2>
-          <p className="mt-1 text-sm leading-6 text-[var(--muted-blue)]">Live online, recorded support, exam coaching and digital learning programs.</p>
-          <span className="mt-3 inline-flex rounded-full border border-[var(--border)] px-3 py-1 text-xs font-black">{onlineCount} program(s)</span>
+        <button className="text-left" onClick={() => setSelectedMode("ONLINE")} type="button">
+          <AcademicCard
+            icon={Laptop}
+            title="Online"
+            selected={selectedMode === "ONLINE"}
+            description="Live online, recorded support, exam coaching and digital learning programs."
+            action={<AcademicPill>{onlineCount} program(s)</AcademicPill>}
+          />
         </button>
       </section>
 
@@ -248,14 +234,10 @@ export default function DirectorProgramsPage() {
           <EmptyState
             text={`No ${selectedMode.toLowerCase()} programs are available yet.`}
             action={
-              <button
-                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[var(--gold-gradient)] px-5 py-3 font-black text-[var(--navy)] shadow-lg"
-                onClick={() => setShowCreate(true)}
-                type="button"
-              >
+              <AcademicActionButton onClick={() => setShowCreate(true)}>
                 <Plus className="h-4 w-4" />
                 Create Course
-              </button>
+              </AcademicActionButton>
             }
           />
         ) : null}
@@ -263,21 +245,19 @@ export default function DirectorProgramsPage() {
           {modeCourses.map((course) => {
             const meta = parseDescription(course);
             return (
-              <article key={course.id} className="overflow-hidden rounded-2xl border border-[var(--border)] bg-white shadow-sm">
-                <div className="flex h-20 items-center justify-center bg-[var(--gold-soft)]">
-                  <BookOpen className="h-7 w-7 text-[var(--navy)]" />
+              <AcademicCard
+                key={course.id}
+                icon={BookOpen}
+                eyebrow={course.category}
+                title={course.title}
+                description={<p className="line-clamp-2">{meta.summary}</p>}
+              >
+                <div className="flex flex-wrap gap-2">
+                  <AcademicPill>{course.examType}</AcademicPill>
+                  <AcademicPill>{course.duration}</AcademicPill>
+                  <AcademicPill>Rs {course.price}</AcademicPill>
                 </div>
-                <div className="p-4">
-                  <p className="text-[11px] font-black uppercase tracking-[0.22em] text-[var(--gold)]">{course.category}</p>
-                  <h3 className="mt-2 text-lg font-black text-[var(--navy)]">{course.title}</h3>
-                  <p className="mt-2 line-clamp-2 text-sm leading-6 text-[var(--muted-blue)]">{meta.summary}</p>
-                  <div className="mt-4 flex flex-wrap gap-2 text-xs font-black">
-                    <span className="rounded-full border border-[var(--border)] px-3 py-1">{course.examType}</span>
-                    <span className="rounded-full border border-[var(--border)] px-3 py-1">{course.duration}</span>
-                    <span className="rounded-full border border-[var(--border)] px-3 py-1">Rs {course.price}</span>
-                  </div>
-                </div>
-              </article>
+              </AcademicCard>
             );
           })}
         </div>

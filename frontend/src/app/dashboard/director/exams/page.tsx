@@ -12,7 +12,7 @@ import {
   Trophy,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { AcademicHero, AcademicShell, Panel } from "../academic/_components";
+import { AcademicCard, AcademicHero, AcademicPill, AcademicShell, Panel } from "../academic/_components";
 
 const examControls = [
   {
@@ -77,12 +77,8 @@ export default function DirectorExamControlPage() {
         description="Create question banks, publish exams to batches, allow students to attempt tests and review results from one clean Director control room."
         action={
           <div className="flex flex-wrap gap-2">
-            <Link className="rounded-xl bg-[var(--gold-gradient)] px-4 py-3 text-sm font-black text-[var(--navy)] shadow-lg" href="/examination-center">
-              Exam Center
-            </Link>
-            <Link className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-sm font-black" href="/examination-center/question-bank">
-              Question Bank
-            </Link>
+            <Link className="inline-flex min-h-10 items-center justify-center rounded-xl bg-[var(--navy)] px-3 py-2 text-sm font-black text-white" href="/examination-center">Exam Center</Link>
+            <Link className="inline-flex min-h-10 items-center justify-center rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-sm font-black" href="/examination-center/question-bank">Question Bank</Link>
           </div>
         }
       />
@@ -96,11 +92,11 @@ export default function DirectorExamControlPage() {
         <Panel title="How exams should run" eyebrow="Launch Flow">
           <div className="grid max-h-[32vh] gap-3 overflow-y-auto pr-1">
             {launchFlow.map((step, index) => (
-              <div key={step} className="flex items-center gap-3 rounded-2xl border border-[var(--border)] bg-white p-4">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--gold-gradient)] text-sm font-black text-[var(--navy)]">
+              <div key={step} className="flex items-center gap-3 rounded-2xl border border-[var(--border)] bg-white p-3">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--gold-gradient)] text-xs font-black text-[var(--navy)]">
                   {index + 1}
                 </div>
-                <p className="font-bold">{step}</p>
+                <p className="text-sm font-bold">{step}</p>
               </div>
             ))}
           </div>
@@ -129,21 +125,14 @@ function ExamCard({ control }: { control: { title: string; text: string; href: s
       : "border-sky-200 bg-sky-50 text-sky-800";
 
   return (
-    <Link
-      className="group rounded-2xl border border-[var(--border)] bg-white/90 p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-[var(--gold-border)] hover:shadow-md"
-      href={control.href}
-    >
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-[var(--gold-border)] bg-[var(--gold-soft)]">
-          <Icon className="h-6 w-6 text-[var(--navy)]" />
-        </div>
-        <span className={`rounded-full border px-3 py-1 text-[10px] font-black uppercase tracking-[0.15em] ${statusClass}`}>
-          {control.status}
-        </span>
-      </div>
-      <h2 className="mt-4 text-xl font-black">{control.title}</h2>
-      <p className="mt-2 text-sm leading-6 text-[var(--muted-blue)]">{control.text}</p>
-      <span className="mt-4 inline-flex font-black text-[var(--navy)]">Open +</span>
+    <Link href={control.href}>
+      <AcademicCard
+        icon={Icon}
+        title={control.title}
+        status={<span className={`rounded-full border px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.15em] ${statusClass}`}>{control.status}</span>}
+        description={control.text}
+        action={<AcademicPill>Open</AcademicPill>}
+      />
     </Link>
   );
 }

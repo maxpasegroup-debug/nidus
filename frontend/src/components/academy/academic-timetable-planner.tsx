@@ -465,17 +465,17 @@ export function AcademicTimetablePlanner({ audience }: Props) {
   };
 
   return (
-    <main className="min-h-screen bg-[var(--page-bg)] px-0 py-3 text-[var(--navy)] lg:h-[calc(100vh-var(--nav-height)-2rem)] lg:min-h-0 lg:overflow-hidden">
-      <section className="mx-auto flex h-full w-full max-w-[1680px] flex-col gap-4">
-        <section className="shrink-0 rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+    <main className="min-h-screen bg-[var(--page-bg)] px-3 py-3 text-[var(--navy)] lg:h-[calc(100vh-var(--nav-height)-2rem)] lg:min-h-0 lg:overflow-hidden">
+      <section className="mx-auto flex h-full w-full max-w-[1500px] flex-col gap-3">
+        <section className="shrink-0 rounded-2xl border border-[var(--border)] bg-white p-3 shadow-sm sm:p-4">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
             <div>
               <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold)]">{audience === "director" ? "Director Planner" : "Academic Head Planner"}</p>
-              <h1 className="mt-1 text-2xl font-black md:text-3xl">Timetable Planner</h1>
-              <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--muted-blue)]">
+              <h1 className="mt-1 text-2xl font-black">Timetable Planner</h1>
+              <p className="mt-1 max-w-3xl text-sm leading-6 text-[var(--muted-blue)]">
                 Open a date, edit the day&apos;s class slots, choose batch, subject and teacher, then save. Teachers and students receive the timetable automatically.
               </p>
-              <div className="mt-3 inline-grid rounded-xl border border-[var(--border)] bg-[var(--page-bg)] p-1 sm:grid-cols-2">
+              <div className="mt-2 inline-grid rounded-xl border border-[var(--border)] bg-[var(--page-bg)] p-1 sm:grid-cols-2">
                 <button type="button" onClick={() => setPlannerView("daily")} className={`inline-flex min-h-10 items-center justify-center gap-2 rounded-lg px-4 text-sm font-black ${plannerView === "daily" ? "bg-white text-[var(--navy)] shadow-sm" : "text-[var(--muted-blue)]"}`}>
                   <ListChecks className="h-4 w-4" /> Daily editor
                 </button>
@@ -496,12 +496,12 @@ export function AcademicTimetablePlanner({ audience }: Props) {
         {notice ? <div className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-sm font-bold text-[var(--navy)] shadow-sm">{notice}</div> : null}
 
         {plannerView === "daily" ? (
-        <section className="grid min-h-0 flex-1 gap-4 xl:grid-cols-[400px_minmax(0,1fr)] 2xl:grid-cols-[440px_minmax(0,1fr)]">
-          <section className="min-h-0 overflow-y-auto rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm">
+        <section className="grid min-h-0 flex-1 gap-3 xl:grid-cols-[360px_minmax(0,1fr)]">
+          <section className="min-h-0 overflow-y-auto rounded-2xl border border-[var(--border)] bg-white p-3 shadow-sm">
             <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
               <div>
-                <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Calendar</p>
-                <h2 className="text-2xl font-black">{monthLabel(monthDate)}</h2>
+                <p className="text-[11px] font-black uppercase tracking-[0.28em] text-[var(--gold)]">Calendar</p>
+                <h2 className="text-xl font-black">{monthLabel(monthDate)}</h2>
               </div>
               <div className="flex flex-wrap gap-2">
                 <select className="field min-w-[220px]" value={batchFilter} onChange={(event) => setBatchFilter(event.target.value)}>
@@ -514,12 +514,12 @@ export function AcademicTimetablePlanner({ audience }: Props) {
               </div>
             </div>
 
-            <div className="mt-4 grid grid-cols-7 gap-2 text-center text-xs font-black uppercase tracking-[0.18em] text-[var(--muted-blue)]">
+            <div className="mt-3 grid grid-cols-7 gap-1.5 text-center text-[11px] font-black uppercase tracking-[0.16em] text-[var(--muted-blue)]">
               {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => <div key={day}>{day}</div>)}
             </div>
-            <div className="mt-2 grid grid-cols-7 gap-2">
+            <div className="mt-2 grid grid-cols-7 gap-1.5">
               {monthCells.map((date, index) => {
-                if (!date) return <div key={`empty-${index}`} className="min-h-16 rounded-xl border border-transparent" />;
+                if (!date) return <div key={`empty-${index}`} className="min-h-14 rounded-xl border border-transparent" />;
                 const key = localDateKey(date);
                 const items = calendarByDate.get(key) ?? [];
                 const isSelected = key === selectedDate;
@@ -529,24 +529,24 @@ export function AcademicTimetablePlanner({ audience }: Props) {
                     key={key}
                     type="button"
                     onClick={() => selectDate(date)}
-                    className={`min-h-16 rounded-xl border p-2 text-left transition hover:-translate-y-0.5 hover:shadow-sm ${isSelected ? "border-[var(--navy)] bg-[var(--navy)] text-white" : "border-[var(--border)] bg-white"} ${isToday && !isSelected ? "ring-2 ring-[var(--gold)]" : ""}`}
+                    className={`min-h-14 rounded-xl border p-2 text-left transition hover:-translate-y-0.5 hover:shadow-sm ${isSelected ? "border-[var(--navy)] bg-[var(--navy)] text-white" : "border-[var(--border)] bg-white"} ${isToday && !isSelected ? "ring-2 ring-[var(--gold)]" : ""}`}
                   >
                     <span className="text-sm font-black">{date.getDate()}</span>
-                    <span className={`mt-2 block text-[11px] font-black ${isSelected ? "text-white" : "text-[var(--muted-blue)]"}`}>
+                    <span className={`mt-1 block text-[10px] font-black ${isSelected ? "text-white" : "text-[var(--muted-blue)]"}`}>
                       {items.length ? `${items.length} class${items.length === 1 ? "" : "es"}` : "Plan day"}
                     </span>
-                    {items[0] ? <span className="mt-1 block truncate text-xs">{items[0].subject}</span> : null}
+                    {items[0] ? <span className="mt-0.5 block truncate text-[11px]">{items[0].subject}</span> : null}
                   </button>
                 );
               })}
             </div>
           </section>
 
-          <section className="min-h-0 overflow-y-auto rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm">
+          <section className="min-h-0 overflow-y-auto rounded-2xl border border-[var(--border)] bg-white p-3 shadow-sm">
             <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
               <div>
-                <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Daily Timetable</p>
-                <h2 className="text-2xl font-black">{new Date(`${selectedDate}T12:00:00`).toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" })}</h2>
+                <p className="text-[11px] font-black uppercase tracking-[0.28em] text-[var(--gold)]">Daily Timetable</p>
+                <h2 className="text-xl font-black">{new Date(`${selectedDate}T12:00:00`).toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" })}</h2>
                 <p className="mt-1 text-sm text-[var(--muted-blue)]">Edit the day exactly like the academy timetable sheet.</p>
               </div>
               <div className="flex flex-wrap gap-2">
@@ -557,8 +557,8 @@ export function AcademicTimetablePlanner({ audience }: Props) {
                 </select>
                 <button className="btn-light" type="button" onClick={downloadTimetable}><Download className="h-4 w-4" /> Download</button>
                 <button className="btn-light" type="button" onClick={shareOnWhatsApp}><MessageCircle className="h-4 w-4" /> WhatsApp</button>
-                <button className="btn-light" type="button" onClick={resetDefaultSlots}><RotateCcw className="h-4 w-4" /> Default day</button>
-                <button className="btn-primary" type="button" onClick={addCustomSlot}><Plus className="h-4 w-4" /> Add session</button>
+                <button className="btn-light" type="button" onClick={resetDefaultSlots}><RotateCcw className="h-4 w-4" /> Default</button>
+                <button className="btn-primary" type="button" onClick={addCustomSlot}><Plus className="h-4 w-4" /> Add</button>
               </div>
             </div>
 
@@ -594,23 +594,22 @@ export function AcademicTimetablePlanner({ audience }: Props) {
           />
         )}
 
-        <section className="hidden shrink-0 rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm xl:block">
-          <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">What Gets Updated</p>
-          <div className="mt-4 grid gap-3 md:grid-cols-3">
-            <Info title="Teacher timetable" body="Saved sessions appear in the assigned teacher's Today, My Classes and calendar views." />
-            <Info title="Student schedule" body="Students in the selected batch receive the class in their calendar and upcoming work." />
-            <Info title="Editable day plan" body="Any day can be opened again to change times, teacher, subject, topic or status." />
+        <section className="hidden shrink-0 rounded-2xl border border-[var(--border)] bg-white px-3 py-2 shadow-sm xl:block">
+          <div className="flex flex-wrap gap-2 text-xs font-black">
+            <span className="rounded-full border border-[var(--border)] bg-[var(--page-bg)] px-3 py-1.5">Teacher timetable updates</span>
+            <span className="rounded-full border border-[var(--border)] bg-[var(--page-bg)] px-3 py-1.5">Student schedule updates</span>
+            <span className="rounded-full border border-[var(--border)] bg-[var(--page-bg)] px-3 py-1.5">Daily, weekly, monthly download</span>
           </div>
         </section>
       </section>
       <style jsx global>{`
         .field {
-          min-height: 44px;
+          min-height: 40px;
           width: 100%;
           border-radius: 12px;
           border: 1px solid var(--border);
           background: white;
-          padding: 0.65rem 0.85rem;
+          padding: 0.5rem 0.75rem;
           color: var(--navy);
           outline: none;
         }
@@ -629,12 +628,13 @@ export function AcademicTimetablePlanner({ audience }: Props) {
         .btn-light,
         .icon-button {
           display: inline-flex;
-          min-height: 44px;
+          min-height: 40px;
           align-items: center;
           justify-content: center;
           gap: 0.5rem;
           border-radius: 12px;
-          padding: 0.65rem 1rem;
+          padding: 0.5rem 0.85rem;
+          font-size: 0.875rem;
           font-weight: 900;
           transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease;
         }
@@ -655,7 +655,7 @@ export function AcademicTimetablePlanner({ audience }: Props) {
           box-shadow: 0 10px 20px rgba(15, 23, 42, 0.08);
         }
         .icon-button {
-          width: 44px;
+          width: 40px;
           padding: 0;
         }
       `}</style>
@@ -696,15 +696,15 @@ function WeeklyTimetableBoard({
   };
 
   return (
-    <section className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+    <section className="min-h-0 overflow-hidden rounded-2xl border border-[var(--border)] bg-white p-3 shadow-sm sm:p-4">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">Weekly Board</p>
-          <h2 className="mt-1 text-3xl font-black">{weekLabel}</h2>
-          <p className="mt-2 text-sm leading-6 text-[var(--muted-blue)]">Review the full week. Click any class or empty slot to edit that day in the daily editor.</p>
+          <p className="text-[11px] font-black uppercase tracking-[0.28em] text-[var(--gold)]">Weekly Board</p>
+          <h2 className="mt-1 text-2xl font-black">{weekLabel}</h2>
+          <p className="mt-1 text-sm leading-6 text-[var(--muted-blue)]">Review the full week. Click any class or empty slot to edit that day.</p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <select className="field min-w-[240px]" value={batchFilter} onChange={(event) => setBatchFilter(event.target.value)}>
+          <select className="field min-w-[220px]" value={batchFilter} onChange={(event) => setBatchFilter(event.target.value)}>
             <option value="">All batches</option>
             {batches.map((batch) => <option key={batch.id} value={batch.id}>{batch.name}</option>)}
           </select>
@@ -714,26 +714,26 @@ function WeeklyTimetableBoard({
         </div>
       </div>
 
-      <div className="mt-5 overflow-x-auto">
-        <div className="min-w-[1120px] rounded-2xl border border-[var(--border)]">
-          <div className="grid grid-cols-[130px_repeat(7,minmax(130px,1fr))] border-b border-[var(--border)] bg-[var(--page-bg)]">
-            <div className="p-3 text-xs font-black uppercase tracking-[0.18em] text-[var(--muted-blue)]">Time</div>
+      <div className="mt-3 max-h-[calc(100vh-var(--nav-height)-15rem)] overflow-auto">
+        <div className="min-w-[1040px] rounded-2xl border border-[var(--border)]">
+          <div className="grid grid-cols-[110px_repeat(7,minmax(125px,1fr))] border-b border-[var(--border)] bg-[var(--page-bg)]">
+            <div className="p-2.5 text-[11px] font-black uppercase tracking-[0.16em] text-[var(--muted-blue)]">Time</div>
             {weekDays.map((date) => {
               const key = localDateKey(date);
               const isSelected = key === selectedKey;
               return (
-                <button key={key} type="button" onClick={() => openDailyDate(date)} className={`border-l border-[var(--border)] p-3 text-left transition hover:bg-white ${isSelected ? "bg-white" : ""}`}>
-                  <span className="block text-xs font-black uppercase tracking-[0.18em] text-[var(--gold)]">{date.toLocaleDateString("en-IN", { weekday: "short" })}</span>
-                  <span className="mt-1 block text-xl font-black">{date.getDate()}</span>
+                <button key={key} type="button" onClick={() => openDailyDate(date)} className={`border-l border-[var(--border)] p-2.5 text-left transition hover:bg-white ${isSelected ? "bg-white" : ""}`}>
+                  <span className="block text-[11px] font-black uppercase tracking-[0.16em] text-[var(--gold)]">{date.toLocaleDateString("en-IN", { weekday: "short" })}</span>
+                  <span className="mt-1 block text-lg font-black">{date.getDate()}</span>
                 </button>
               );
             })}
           </div>
 
           {weekSlotTimes.map((slot) => (
-            <div key={`${slot.startTime}-${slot.endTime}`} className="grid min-h-28 grid-cols-[130px_repeat(7,minmax(130px,1fr))] border-b border-[var(--border)] last:border-b-0">
-              <div className="border-r border-[var(--border)] bg-white p-3">
-                <p className="font-black">{displayTime(slot.startTime)}</p>
+            <div key={`${slot.startTime}-${slot.endTime}`} className="grid min-h-24 grid-cols-[110px_repeat(7,minmax(125px,1fr))] border-b border-[var(--border)] last:border-b-0">
+              <div className="border-r border-[var(--border)] bg-white p-2.5">
+                <p className="text-sm font-black">{displayTime(slot.startTime)}</p>
                 <p className="mt-1 text-xs font-bold text-[var(--muted-blue)]">to {displayTime(slot.endTime)}</p>
               </div>
               {weekDays.map((date) => {
@@ -744,16 +744,16 @@ function WeeklyTimetableBoard({
                     {items.length ? (
                       <div className="grid gap-2">
                         {items.map((item) => (
-                          <button key={item.id} type="button" onClick={() => openDailyDate(date)} className="w-full rounded-xl border border-sky-200 bg-sky-50 p-3 text-left transition hover:-translate-y-0.5 hover:shadow-sm">
-                            <span className="block truncate text-xs font-black uppercase tracking-[0.16em] text-sky-700">{item.batchName ?? "Batch"}</span>
+                          <button key={item.id} type="button" onClick={() => openDailyDate(date)} className="w-full rounded-xl border border-sky-200 bg-sky-50 p-2.5 text-left transition hover:-translate-y-0.5 hover:shadow-sm">
+                            <span className="block truncate text-[11px] font-black uppercase tracking-[0.14em] text-sky-700">{item.batchName ?? "Batch"}</span>
                             <span className="mt-1 block truncate text-sm font-black text-sky-950">{item.subject}</span>
                             <span className="mt-1 block truncate text-xs font-bold text-sky-800">{item.teacherName ?? "Faculty"}</span>
-                            <span className="mt-2 inline-flex rounded-full bg-white px-2 py-1 text-[0.65rem] font-black text-sky-900">{classTypeLabel(item.classType)}</span>
+                            <span className="mt-1.5 inline-flex rounded-full bg-white px-2 py-1 text-[0.65rem] font-black text-sky-900">{classTypeLabel(item.classType)}</span>
                           </button>
                         ))}
                       </div>
                     ) : (
-                      <button type="button" onClick={() => openDailyDate(date)} className="grid min-h-24 w-full place-items-center rounded-xl border border-dashed border-[var(--border)] bg-white text-xs font-black text-[var(--muted-blue)] transition hover:border-[var(--gold)] hover:bg-[var(--gold-soft)]">
+                      <button type="button" onClick={() => openDailyDate(date)} className="grid min-h-20 w-full place-items-center rounded-xl border border-dashed border-[var(--border)] bg-white text-xs font-black text-[var(--muted-blue)] transition hover:border-[var(--gold)] hover:bg-[var(--gold-soft)]">
                         <span className="inline-flex items-center gap-1"><Plus className="h-3.5 w-3.5" /> Add</span>
                       </button>
                     )}
@@ -805,8 +805,8 @@ function SessionEditor({
   };
 
   return (
-    <div className="mt-6 space-y-4">
-      <div className="space-y-4">
+    <div className="mt-4 space-y-3">
+      <div className="space-y-3">
         {slots.map((slot, index) => {
           const subjects = slot.batchId ? getSubjectsForBatch(slot.batchId) : allSubjects;
           const teacherOptions = getTeachersForSlot(slot);
@@ -815,30 +815,46 @@ function SessionEditor({
           const warnings = slotWarnings(slot, index, slots);
           const missingFields = missingSlotFields(slot);
           const saved = Boolean(slot.calendarId);
+          const selectedBatch = batches.find((batch) => batch.id === slot.batchId);
+          const selectedTeacher = teacherOptions.find((teacher) => teacher.id === slot.teacherId);
           return (
             <div key={`${slot.calendarId ?? "new"}-${index}`} className="space-y-3">
-              <div
-                className={`rounded-2xl border p-4 transition ${
-                  isActive ? "border-[var(--gold)] bg-[var(--page-bg)] shadow-sm" : "border-[var(--border)] bg-white"
+              <button
+                type="button"
+                className={`w-full overflow-hidden rounded-2xl border bg-white text-left shadow-sm transition hover:-translate-y-0.5 hover:border-[var(--gold-border)] hover:shadow-md ${
+                  isActive ? "border-[var(--gold)] ring-2 ring-[var(--gold-soft)]" : "border-[var(--border)]"
                 }`}
+                onClick={() => setActiveSlotIndex(index)}
                 onFocus={() => setActiveSlotIndex(index)}
                 onMouseEnter={() => setActiveSlotIndex(index)}
               >
-                <div className="flex flex-col gap-3 border-b border-[var(--border)] pb-4 lg:flex-row lg:items-center lg:justify-between">
-                  <div className="flex items-center gap-3">
-                    <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-white text-[var(--gold)] shadow-sm">
-                      <Clock className="h-4 w-4" />
-                    </span>
-                    <div>
-                      <p className="text-xs font-black uppercase tracking-[0.22em] text-[var(--gold)]">Session {index + 1}</p>
-                      <p className="text-sm font-semibold text-[var(--muted-blue)]">Choose batch, subject and teacher for this slot.</p>
-                    </div>
+                <div className="relative flex h-12 items-center justify-center bg-[var(--gold-soft)]">
+                  <Clock className="h-5 w-5 text-[var(--navy)]" />
+                  <span className={`absolute right-3 top-2 rounded-full px-2.5 py-1 text-[10px] font-black ${saved ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-800"}`}>
+                    {saved ? "Saved" : missingFields.length ? `${missingFields.length} pending` : "Ready"}
+                  </span>
+                </div>
+                <div className="grid gap-3 p-3 md:grid-cols-[1fr_auto] md:items-center">
+                  <div>
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--gold)]">Session {index + 1} / {displayTime(slot.startTime)} - {displayTime(slot.endTime)}</p>
+                    <h3 className="mt-1 text-base font-black">{slot.subject || "Subject pending"}</h3>
+                    <p className="mt-1 text-sm text-[var(--muted-blue)]">{selectedBatch?.name || "Batch pending"} / {selectedTeacher?.name || "Teacher pending"}</p>
+                    {slot.topic ? <p className="mt-1 line-clamp-1 text-xs font-bold text-[var(--muted-blue)]">{slot.topic}</p> : null}
                   </div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className={`inline-flex min-h-9 items-center rounded-full px-3 text-xs font-black ${saved ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-800"}`}>
-                      {saved ? "Saved" : missingFields.length ? `${missingFields.length} field(s) pending` : "Ready to save"}
-                    </span>
-                    {warnings.length ? <span className="inline-flex min-h-9 items-center gap-1 rounded-full bg-rose-50 px-3 text-xs font-black text-rose-700"><AlertTriangle className="h-3.5 w-3.5" /> Check clash</span> : null}
+                  <div className="flex flex-wrap gap-1.5 text-[11px] font-black">
+                    <span className="rounded-full border border-[var(--border)] px-2.5 py-1">{classTypeLabel(slot.classType)}</span>
+                    <span className="rounded-full border border-[var(--border)] px-2.5 py-1">{slot.status}</span>
+                    {warnings.length ? <span className="inline-flex items-center gap-1 rounded-full bg-rose-50 px-2.5 py-1 text-rose-700"><AlertTriangle className="h-3.5 w-3.5" /> Clash</span> : null}
+                  </div>
+                </div>
+              </button>
+
+              {isActive ? (
+              <div className="rounded-2xl border border-[var(--gold-border)] bg-[var(--page-bg)] p-3 shadow-sm">
+                <div className="grid gap-3 border-b border-[var(--border)] pb-3 lg:grid-cols-[1fr_auto] lg:items-end">
+                  <div>
+                    <p className="text-xs font-black uppercase tracking-[0.22em] text-[var(--gold)]">Edit Session {index + 1}</p>
+                    <p className="mt-1 text-sm font-semibold text-[var(--muted-blue)]">Choose batch, subject and teacher for this slot.</p>
                   </div>
                   <div className="grid gap-2 sm:grid-cols-[120px_120px]">
                     <label className="grid gap-1">
@@ -852,7 +868,7 @@ function SessionEditor({
                   </div>
                 </div>
 
-                <div className="mt-4 grid gap-4 xl:grid-cols-3">
+                <div className="mt-3 grid gap-3 xl:grid-cols-3">
                   <label className="grid gap-2">
                     <span className="text-xs font-black uppercase tracking-[0.16em] text-[var(--muted-blue)]">Batch</span>
                     <select className="field" value={slot.batchId} onChange={(event) => setSlot(index, { batchId: event.target.value, subject: "", teacherId: "" })}>
@@ -876,7 +892,7 @@ function SessionEditor({
                   </label>
                 </div>
 
-                <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,1.4fr)_180px_180px]">
+                <div className="mt-3 grid gap-3 xl:grid-cols-[minmax(0,1.4fr)_180px_180px]">
                   <label className="grid gap-2">
                     <span className="text-xs font-black uppercase tracking-[0.16em] text-[var(--muted-blue)]">Topic / chapter</span>
                     <input className="field" value={slot.topic} onChange={(event) => setSlot(index, { topic: event.target.value })} placeholder="Topic / chapter" />
@@ -899,20 +915,22 @@ function SessionEditor({
                 </div>
 
                 {warnings.length ? (
-                  <div className="mt-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-bold text-rose-800">
+                  <div className="mt-3 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-bold text-rose-800">
                     {warnings.join(" ")}
                   </div>
                 ) : null}
 
-                <div className="mt-4 flex flex-col gap-2 border-t border-[var(--border)] pt-4 sm:flex-row sm:justify-end">
-                  <button className="btn-light min-h-11 px-5" type="button" onClick={() => removeSlot(index)} disabled={slots.length <= 1}>Remove</button>
-                  <button className="btn-primary min-h-11 px-5" type="button" onClick={() => saveSlot(slot, index)} disabled={createPending || updatePending}>
+                <div className="mt-3 flex flex-col gap-2 border-t border-[var(--border)] pt-3 sm:flex-row sm:justify-end">
+                  <button className="btn-light px-4" type="button" onClick={() => removeSlot(index)} disabled={slots.length <= 1}>Remove</button>
+                  <button className="btn-primary px-4" type="button" onClick={() => saveSlot(slot, index)} disabled={createPending || updatePending}>
                     <CheckCircle2 className="h-4 w-4" /> {saved ? "Update session" : "Save session"}
                   </button>
                 </div>
               </div>
+              ) : null}
+
               {breakLabel ? (
-                <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-center text-xs font-black uppercase tracking-[0.18em] text-amber-800">
+                <div className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-center text-[11px] font-black uppercase tracking-[0.16em] text-amber-800">
                   {breakLabel}
                 </div>
               ) : null}
@@ -921,10 +939,10 @@ function SessionEditor({
         })}
       </div>
 
-      <div className="grid gap-3 rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4 text-sm md:grid-cols-3">
-        <Info title="Sheet-style editing" body="Each row is one academy period. Edit batch, subject, teacher and topic without opening a separate card." />
-        <Info title="Breaks stay visible" body="Short breaks and lunch are shown between class periods so daily planning matches the printed timetable." />
-        <Info title="One row, one save" body="Save only the changed session. The same record updates teacher and student timetables." />
+      <div className="flex flex-wrap gap-2 rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-3 text-xs font-black">
+        <span className="rounded-full border border-[var(--border)] bg-white px-3 py-1.5">Click a session to edit</span>
+        <span className="rounded-full border border-[var(--border)] bg-white px-3 py-1.5">Breaks stay visible</span>
+        <span className="rounded-full border border-[var(--border)] bg-white px-3 py-1.5">One session, one save</span>
       </div>
     </div>
   );
@@ -932,18 +950,9 @@ function SessionEditor({
 
 function Metric({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-4 py-3">
-      <p className="text-xs font-black uppercase tracking-[0.2em] text-[var(--muted-blue)]">{label}</p>
-      <p className="mt-1 text-2xl font-black">{value}</p>
-    </div>
-  );
-}
-
-function Info({ title, body }: { title: string; body: string }) {
-  return (
-    <div className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
-      <h3 className="font-black">{title}</h3>
-      <p className="mt-2 text-sm leading-6 text-[var(--muted-blue)]">{body}</p>
+    <div className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-3 py-2">
+      <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[var(--muted-blue)]">{label}</p>
+      <p className="mt-0.5 text-xl font-black">{value}</p>
     </div>
   );
 }

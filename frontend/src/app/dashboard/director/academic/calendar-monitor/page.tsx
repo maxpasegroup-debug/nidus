@@ -2,7 +2,8 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { getAcademicCalendarMonitor } from "@/services/academy";
-import { AcademicHero, AcademicShell, EmptyState, Panel, StatCard } from "../_components";
+import { AcademicCard, AcademicHero, AcademicPill, AcademicShell, EmptyState, Panel, StatCard } from "../_components";
+import { CalendarCheck } from "lucide-react";
 
 export default function DirectorCalendarMonitorPage() {
   const monitorQuery = useQuery({ queryKey: ["academy", "academic-calendar-monitor"], queryFn: getAcademicCalendarMonitor });
@@ -21,26 +22,34 @@ export default function DirectorCalendarMonitorPage() {
         {!items.length ? <EmptyState text="No timetable records are available yet. Calendar monitor will appear after class plans are created." /> : null}
         <div className="grid max-h-[58vh] gap-3 overflow-y-auto pr-1 md:grid-cols-2 xl:grid-cols-3">
           {items.map((item) => (
-            <article key={`${item.batchId}-${item.teacherId}-${item.subject}`} className="rounded-2xl border border-[var(--border)] bg-white p-4">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold)]">{item.subject}</p>
-                  <h3 className="mt-2 text-xl font-black">{item.batchName ?? "Batch"}</h3>
-                  <p className="mt-1 text-sm text-[var(--muted-blue)]">{item.teacherName ?? "Teacher pending"}</p>
-                </div>
-                <span className="rounded-full border border-[var(--border)] px-3 py-1 text-xs font-black">{item.status}</span>
+            <AcademicCard
+              key={`${item.batchId}-${item.teacherId}-${item.subject}`}
+              icon={CalendarCheck}
+              eyebrow={item.subject}
+              title={item.batchName ?? "Batch"}
+              status={<AcademicPill>{item.status}</AcademicPill>}
+              description={item.teacherName ?? "Teacher pending"}
+            >
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <CalendarMetric label="Planned" value={item.plannedClasses} />
+                <CalendarMetric label="Completed" value={item.completedClasses} />
+                <CalendarMetric label="Delayed" value={item.delayedClasses} />
+                <CalendarMetric label="Missed" value={item.missedClasses} />
+                <CalendarMetric label="Completion" value={`${item.completionPercentage}%`} />
               </div>
-              <div className="mt-5 grid gap-2 text-sm">
-                <p><b>Planned:</b> {item.plannedClasses}</p>
-                <p><b>Completed:</b> {item.completedClasses}</p>
-                <p><b>Delayed:</b> {item.delayedClasses}</p>
-                <p><b>Missed:</b> {item.missedClasses}</p>
-                <p><b>Completion:</b> {item.completionPercentage}%</p>
-              </div>
-            </article>
+            </AcademicCard>
           ))}
         </div>
       </Panel>
     </AcademicShell>
+  );
+}
+
+function CalendarMetric({ label, value }: { label: string; value: string | number }) {
+  return (
+    <div className="rounded-xl border border-[var(--border)] px-3 py-2">
+      <span className="block text-[10px] font-black uppercase tracking-[0.16em] text-[var(--muted-blue)]">{label}</span>
+      <span className="mt-0.5 block text-sm font-black">{value}</span>
+    </div>
   );
 }

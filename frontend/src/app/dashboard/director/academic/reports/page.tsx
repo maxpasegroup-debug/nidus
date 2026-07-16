@@ -2,7 +2,8 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { getAssignmentSummary, getAttendanceSummary, getExamSummary, getMaterialSummary, getSyllabusSummary } from "@/services/academy";
-import { AcademicHero, AcademicShell, EmptyState, Panel, StatCard } from "../_components";
+import { AcademicCard, AcademicHero, AcademicPill, AcademicShell, EmptyState, Panel, StatCard } from "../_components";
+import { ClipboardCheck, FileText } from "lucide-react";
 
 export default function DirectorAcademicReportsPage() {
   const attendanceQuery = useQuery({ queryKey: ["academy", "attendance-summary"], queryFn: () => getAttendanceSummary() });
@@ -31,13 +32,14 @@ export default function DirectorAcademicReportsPage() {
           {!attendance?.batches.length ? <EmptyState text="No attendance sessions have been marked yet." /> : null}
           <div className="grid max-h-[58vh] gap-3 overflow-y-auto pr-1">
             {(attendance?.batches ?? []).slice(0, 8).map((batch) => (
-              <div key={batch.batchId} className="rounded-2xl border border-[var(--border)] bg-white p-4">
-                <div className="flex items-center justify-between gap-3">
-                  <p className="font-black">{batch.batchName ?? "Batch"}</p>
-                  <span className="rounded-full border border-[var(--gold-border)] bg-[var(--gold-soft)] px-3 py-1 text-xs font-black">{batch.percentage}%</span>
-                </div>
-                <p className="mt-1 text-sm text-[var(--muted-blue)]">{batch.sessions} sessions / Present {batch.present}/{batch.total}</p>
-              </div>
+              <AcademicCard
+                key={batch.batchId}
+                icon={ClipboardCheck}
+                eyebrow="Attendance"
+                title={batch.batchName ?? "Batch"}
+                status={<AcademicPill>{batch.percentage}%</AcademicPill>}
+                description={`${batch.sessions} sessions / Present ${batch.present}/${batch.total}`}
+              />
             ))}
           </div>
         </Panel>
@@ -45,10 +47,14 @@ export default function DirectorAcademicReportsPage() {
           {!examQuery.data?.exams.length ? <EmptyState text="No teacher-created exams are available yet." /> : null}
           <div className="grid max-h-[58vh] gap-3 overflow-y-auto pr-1">
             {(examQuery.data?.exams ?? []).slice(0, 8).map((exam) => (
-              <div key={exam.id} className="rounded-2xl border border-[var(--border)] bg-white p-4">
-                <p className="font-black">{exam.title}</p>
-                <p className="mt-1 text-sm text-[var(--muted-blue)]">{exam.batchName ?? "Batch"} / {exam.subject ?? "Subject"} / {exam.status}</p>
-              </div>
+              <AcademicCard
+                key={exam.id}
+                icon={FileText}
+                eyebrow={exam.subject ?? "Subject"}
+                title={exam.title}
+                status={<AcademicPill>{exam.status}</AcademicPill>}
+                description={exam.batchName ?? "Batch"}
+              />
             ))}
           </div>
         </Panel>

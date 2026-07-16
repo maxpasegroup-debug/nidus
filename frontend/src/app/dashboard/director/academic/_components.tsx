@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import type { LucideIcon } from "lucide-react";
 import { Plus, ShieldCheck } from "lucide-react";
 
 export function AcademicShell({ children }: { children: ReactNode }) {
@@ -36,20 +37,82 @@ export function AcademicHero({
 
 export function Panel({ id, title, eyebrow, children }: { id?: string; title: string; eyebrow: string; children: ReactNode }) {
   return (
-    <section id={id} className="min-h-0 rounded-2xl border border-[var(--border)] bg-white/95 p-4 shadow-sm">
+    <section id={id} className="min-h-0 rounded-2xl border border-[var(--border)] bg-white/95 p-3 shadow-sm sm:p-4">
       <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[var(--gold)]">{eyebrow}</p>
       <h2 className="mt-1 text-xl font-black text-[var(--navy)]">{title}</h2>
-      <div className="mt-4">{children}</div>
+      <div className="mt-3">{children}</div>
     </section>
   );
 }
 
 export function StatCard({ label, value }: { label: string; value: string | number }) {
   return (
-    <div className="rounded-2xl border border-[var(--border)] bg-white/90 px-4 py-3 shadow-sm">
-      <p className="text-xs font-black uppercase tracking-[0.16em] text-[var(--muted-blue)]">{label}</p>
-      <p className="mt-1 text-2xl font-black text-[var(--gold)]">{value}</p>
+    <div className="rounded-2xl border border-[var(--border)] bg-white/90 px-3 py-2.5 shadow-sm">
+      <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[var(--muted-blue)]">{label}</p>
+      <p className="mt-0.5 text-xl font-black text-[var(--gold)]">{value}</p>
     </div>
+  );
+}
+
+export function AcademicCard({
+  title,
+  eyebrow,
+  description,
+  icon: Icon,
+  status,
+  children,
+  action,
+  selected,
+}: {
+  title: string;
+  eyebrow?: string;
+  description?: ReactNode;
+  icon: LucideIcon;
+  status?: ReactNode;
+  children?: ReactNode;
+  action?: ReactNode;
+  selected?: boolean;
+}) {
+  return (
+    <article className={`overflow-hidden rounded-2xl border bg-white shadow-sm transition hover:-translate-y-0.5 hover:border-[var(--gold-border)] hover:shadow-md ${selected ? "border-[var(--gold-border)] bg-[var(--gold-soft)]" : "border-[var(--border)]"}`}>
+      <div className="relative flex h-14 items-center justify-center bg-[var(--gold-soft)]">
+        <Icon className="h-5 w-5 text-[var(--navy)]" />
+        {status ? <div className="absolute right-3 top-3">{status}</div> : null}
+      </div>
+      <div className="p-3.5">
+        {eyebrow ? <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--gold)]">{eyebrow}</p> : null}
+        <h3 className="mt-1 text-lg font-black leading-tight text-[var(--navy)]">{title}</h3>
+        {description ? <div className="mt-2 text-sm leading-6 text-[var(--muted-blue)]">{description}</div> : null}
+        {children ? <div className="mt-3">{children}</div> : null}
+        {action ? <div className="mt-3">{action}</div> : null}
+      </div>
+    </article>
+  );
+}
+
+export function AcademicPill({ children }: { children: ReactNode }) {
+  return <span className="inline-flex items-center rounded-full border border-[var(--border)] px-2.5 py-1 text-[11px] font-black">{children}</span>;
+}
+
+export function AcademicActionButton({
+  children,
+  active,
+  onClick,
+  type = "button",
+}: {
+  children: ReactNode;
+  active?: boolean;
+  onClick?: () => void;
+  type?: "button" | "submit";
+}) {
+  return (
+    <button
+      className={`inline-flex min-h-10 items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-black ${active ? "bg-[var(--navy)] text-white" : "border border-[var(--border)] bg-white text-[var(--navy)]"}`}
+      onClick={onClick}
+      type={type}
+    >
+      {children}
+    </button>
   );
 }
 
@@ -72,7 +135,7 @@ export function Input({
     <label className="grid gap-2 text-sm font-bold text-[var(--navy)]">
       {label}
       <input
-        className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-[var(--navy)] outline-none focus:border-[var(--gold)]"
+        className="rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-[var(--navy)] outline-none focus:border-[var(--gold)]"
         type={type}
         value={value}
         onChange={(event) => onChange(event.target.value)}
@@ -100,7 +163,7 @@ export function TextArea({
     <label className="grid gap-2 text-sm font-bold text-[var(--navy)]">
       {label}
       <textarea
-        className="min-h-28 rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-[var(--navy)] outline-none focus:border-[var(--gold)]"
+        className="min-h-24 rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-[var(--navy)] outline-none focus:border-[var(--gold)]"
         value={value}
         onChange={(event) => onChange(event.target.value)}
         required={required}
@@ -129,7 +192,7 @@ export function Select({
     <label className="grid gap-2 text-sm font-bold text-[var(--navy)]">
       {label}
       <select
-        className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-[var(--navy)] outline-none focus:border-[var(--gold)]"
+        className="rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-[var(--navy)] outline-none focus:border-[var(--gold)]"
         value={value}
         onChange={(event) => onChange(event.target.value)}
         required={required}
@@ -144,7 +207,7 @@ export function Select({
 export function GoldButton({ children, disabled, type = "submit" }: { children: ReactNode; disabled?: boolean; type?: "button" | "submit" }) {
   return (
     <button
-      className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[var(--gold-gradient)] px-5 py-3 font-black text-[var(--navy)] shadow-lg disabled:cursor-not-allowed disabled:opacity-60"
+      className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-[var(--gold-gradient)] px-4 py-2 text-sm font-black text-[var(--navy)] shadow-lg disabled:cursor-not-allowed disabled:opacity-60"
       disabled={disabled}
       type={type}
     >
@@ -156,7 +219,7 @@ export function GoldButton({ children, disabled, type = "submit" }: { children: 
 
 export function EmptyState({ text, action }: { text: string; action?: ReactNode }) {
   return (
-    <div className="rounded-2xl border border-dashed border-[var(--border)] bg-white/75 p-6 text-sm text-[var(--muted-blue)]">
+    <div className="rounded-2xl border border-dashed border-[var(--border)] bg-white/75 p-4 text-sm text-[var(--muted-blue)]">
       <ShieldCheck className="mb-3 h-5 w-5 text-[var(--gold)]" />
       <p>{text}</p>
       {action ? <div className="mt-4">{action}</div> : null}

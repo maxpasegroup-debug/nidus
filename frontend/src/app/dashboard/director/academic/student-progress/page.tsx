@@ -2,7 +2,8 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { getStudentProgressSummary } from "@/services/academy";
-import { AcademicHero, AcademicShell, EmptyState, Panel, StatCard } from "../_components";
+import { AcademicCard, AcademicHero, AcademicPill, AcademicShell, EmptyState, Panel, StatCard } from "../_components";
+import { PieChart } from "lucide-react";
 
 function metric(value: number | null, suffix = "%") {
   return typeof value === "number" ? `${value}${suffix}` : "No data";
@@ -25,28 +26,35 @@ export default function DirectorStudentProgressPage() {
         {!batches.length ? <EmptyState text="No active batches are available yet. Student progress cards will appear after admissions and academic records exist." /> : null}
         <div className="grid max-h-[58vh] gap-3 overflow-y-auto pr-1 md:grid-cols-2 xl:grid-cols-3">
           {batches.map((batch) => (
-            <article key={batch.batchId} className="rounded-2xl border border-[var(--border)] bg-white p-4">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold)]">{batch.programSlug ?? "Program"}</p>
-                  <h3 className="mt-2 text-xl font-black">{batch.batchName}</h3>
-                  <p className="mt-1 text-sm text-[var(--muted-blue)]">{batch.studentCount} students</p>
-                </div>
-                <span className="rounded-full border border-[var(--border)] px-3 py-1 text-xs font-black">{batch.overallStatus}</span>
+            <AcademicCard
+              key={batch.batchId}
+              icon={PieChart}
+              eyebrow={batch.programSlug ?? "Program"}
+              title={batch.batchName}
+              status={<AcademicPill>{batch.overallStatus}</AcademicPill>}
+              description={`${batch.studentCount} students`}
+            >
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <ProgressMetric label="Health" value={metric(batch.batchHealthScore)} />
+                <ProgressMetric label="Attendance" value={metric(batch.attendancePercentage)} />
+                <ProgressMetric label="Assignments" value={metric(batch.assignmentCompletionPercentage)} />
+                <ProgressMetric label="Exam Avg" value={metric(batch.examAveragePercentage)} />
+                <ProgressMetric label="Materials" value={batch.materialCount} />
+                <ProgressMetric label="Risk" value={batch.riskStudentCount} />
               </div>
-              <div className="mt-4 grid gap-2 text-sm">
-                <p><b>Batch Health Score:</b> {metric(batch.batchHealthScore)}</p>
-                <p><b>Attendance:</b> {metric(batch.attendancePercentage)}</p>
-                <p><b>Assignments:</b> {metric(batch.assignmentCompletionPercentage)}</p>
-                <p><b>Exam Avg:</b> {metric(batch.examAveragePercentage)}</p>
-                <p><b>Library Usage:</b> {metric(batch.libraryUsagePercentage)}</p>
-                <p><b>Materials Uploaded:</b> {batch.materialCount}</p>
-                <p><b>Risk Students:</b> {batch.riskStudentCount}</p>
-              </div>
-            </article>
+            </AcademicCard>
           ))}
         </div>
       </Panel>
     </AcademicShell>
+  );
+}
+
+function ProgressMetric({ label, value }: { label: string; value: string | number }) {
+  return (
+    <div className="rounded-xl border border-[var(--border)] px-3 py-2">
+      <span className="block text-[10px] font-black uppercase tracking-[0.16em] text-[var(--muted-blue)]">{label}</span>
+      <span className="mt-0.5 block text-sm font-black">{value}</span>
+    </div>
   );
 }

@@ -2,7 +2,8 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { getTeacherPerformanceSummary } from "@/services/academy";
-import { AcademicHero, AcademicShell, EmptyState, Panel, StatCard } from "../_components";
+import { AcademicCard, AcademicHero, AcademicPill, AcademicShell, EmptyState, Panel, StatCard } from "../_components";
+import { UserCheck } from "lucide-react";
 
 function displayPercent(value: number | null) {
   return typeof value === "number" ? `${value}%` : "No data";
@@ -24,28 +25,35 @@ export default function DirectorTeacherPerformancePage() {
         {!teachers.length ? <EmptyState text="No teacher allocations are available yet. Performance cards will appear after teachers are assigned to batches and subjects." /> : null}
         <div className="grid max-h-[58vh] gap-3 overflow-y-auto pr-1 md:grid-cols-2 xl:grid-cols-3">
           {teachers.map((teacher) => (
-            <article key={teacher.teacherId} className="rounded-2xl border border-[var(--border)] bg-white p-4">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold)]">Teacher</p>
-                  <h3 className="mt-2 text-xl font-black">{teacher.teacherName}</h3>
-                </div>
-                <span className="rounded-full border border-[var(--border)] px-3 py-1 text-xs font-black">{teacher.status}</span>
+            <AcademicCard
+              key={teacher.teacherId}
+              icon={UserCheck}
+              eyebrow="Teacher"
+              title={teacher.teacherName}
+              status={<AcademicPill>{teacher.status}</AcademicPill>}
+              description={teacher.assignedSubjects.length ? teacher.assignedSubjects.join(", ") : "No subjects"}
+            >
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <PerformanceMetric label="Batches" value={teacher.assignedBatches} />
+                <PerformanceMetric label="Classes" value={teacher.classesConducted} />
+                <PerformanceMetric label="Syllabus" value={displayPercent(teacher.syllabusCompletionPercentage)} />
+                <PerformanceMetric label="Attendance" value={displayPercent(teacher.attendanceMarkingPercentage)} />
+                <PerformanceMetric label="Assignments" value={teacher.assignmentsPublished} />
+                <PerformanceMetric label="Exams" value={teacher.examsPublished} />
               </div>
-              <div className="mt-4 grid gap-2 text-sm">
-                <p><b>Assigned Batches:</b> {teacher.assignedBatches}</p>
-                <p><b>Assigned Subjects:</b> {teacher.assignedSubjects.length ? teacher.assignedSubjects.join(", ") : "No subjects"}</p>
-                <p><b>Classes Conducted:</b> {teacher.classesConducted}</p>
-                <p><b>Syllabus Completion:</b> {displayPercent(teacher.syllabusCompletionPercentage)}</p>
-                <p><b>Attendance Marking:</b> {displayPercent(teacher.attendanceMarkingPercentage)}</p>
-                <p><b>Assignments Published:</b> {teacher.assignmentsPublished}</p>
-                <p><b>Exams Published:</b> {teacher.examsPublished}</p>
-                <p><b>Library Materials Uploaded:</b> {teacher.libraryMaterialsUploaded}</p>
-              </div>
-            </article>
+            </AcademicCard>
           ))}
         </div>
       </Panel>
     </AcademicShell>
+  );
+}
+
+function PerformanceMetric({ label, value }: { label: string; value: string | number }) {
+  return (
+    <div className="rounded-xl border border-[var(--border)] px-3 py-2">
+      <span className="block text-[10px] font-black uppercase tracking-[0.16em] text-[var(--muted-blue)]">{label}</span>
+      <span className="mt-0.5 block text-sm font-black">{value}</span>
+    </div>
   );
 }

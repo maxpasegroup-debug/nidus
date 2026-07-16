@@ -4,7 +4,8 @@ import { useState } from "react";
 import type { FormEvent } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { assignTeacherToBatch, createAcademyTeacher, getAcademyBatches, getAcademyTeachers, updateAcademyUser } from "@/services/academy";
-import { AcademicHero, AcademicShell, EmptyState, GoldButton, Input, Panel, Select, StatCard } from "../_components";
+import { AcademicActionButton, AcademicCard, AcademicHero, AcademicPill, AcademicShell, EmptyState, GoldButton, Input, Panel, Select, StatCard } from "../_components";
+import { UserCheck } from "lucide-react";
 
 const employmentTypes = ["FULL_TIME", "PART_TIME", "HOURLY", "CONTRACT"];
 
@@ -144,14 +145,14 @@ export default function DirectorTeachersPage() {
         description="Keep the teacher list visible. Add teachers or allocate subjects only when that action is needed."
         action={
           <div className="flex flex-wrap gap-2">
-            <button className={`rounded-xl px-3 py-2 text-sm font-black ${mode === "list" ? "bg-[var(--navy)] text-white" : "border border-[var(--border)] bg-white"}`} onClick={() => setMode("list")} type="button">Teacher List</button>
-            <button className={`rounded-xl px-3 py-2 text-sm font-black ${mode === "create" ? "bg-[var(--navy)] text-white" : "border border-[var(--border)] bg-white"}`} onClick={() => setMode("create")} type="button">Add Teacher</button>
-            <button className={`rounded-xl px-3 py-2 text-sm font-black ${mode === "allocate" ? "bg-[var(--navy)] text-white" : "border border-[var(--border)] bg-white"}`} onClick={() => setMode("allocate")} type="button">Allocate Subject</button>
+            <AcademicActionButton active={mode === "list"} onClick={() => setMode("list")}>Teacher List</AcademicActionButton>
+            <AcademicActionButton active={mode === "create"} onClick={() => setMode("create")}>Add Teacher</AcademicActionButton>
+            <AcademicActionButton active={mode === "allocate"} onClick={() => setMode("allocate")}>Allocate Subject</AcademicActionButton>
           </div>
         }
       />
       {notice ? <div className="rounded-2xl border border-[var(--gold-border)] bg-[var(--gold-soft)] p-4 text-sm font-bold">{notice}</div> : null}
-      {lastCredentials ? <div className="rounded-2xl border border-[var(--border)] bg-white p-4 text-sm font-bold">Login created: {lastCredentials.email} / Password: {lastCredentials.temporaryPassword}</div> : null}
+      {lastCredentials ? <div className="rounded-2xl border border-[var(--border)] bg-white px-3 py-2 text-sm font-bold">Login created: {lastCredentials.email} / Password: {lastCredentials.temporaryPassword}</div> : null}
       <section className="grid shrink-0 gap-3 md:grid-cols-3">
         <StatCard label="Teachers" value={teachers.length} />
         <StatCard label="Batches" value={batches.length} />
@@ -203,7 +204,7 @@ export default function DirectorTeachersPage() {
         {!teachers.length ? <EmptyState text="No teachers available yet." /> : null}
         <div className="grid max-h-[54vh] gap-3 overflow-y-auto pr-1 md:grid-cols-2 xl:grid-cols-3">
           {teachers.map((teacher) => (
-            <article key={teacher.id} className="rounded-2xl border border-[var(--border)] bg-white p-4">
+            <div key={teacher.id} className={editingTeacherId === teacher.id ? "rounded-2xl border border-[var(--gold-border)] bg-[var(--gold-soft)] p-3" : ""}>
               {editingTeacherId === teacher.id ? (
                 <div className="grid gap-3">
                   <Input label="Name" value={editTeacherForm.name} onChange={(value) => setEditTeacherForm((state) => ({ ...state, name: value }))} />
@@ -230,15 +231,16 @@ export default function DirectorTeachersPage() {
                   </div>
                 </div>
               ) : (
-                <>
-                  <h3 className="text-lg font-black">{teacher.name}</h3>
-                  <p className="mt-1 text-sm text-[var(--muted-blue)]">{teacher.email} / {teacher.mobile || "No phone"}</p>
-                  <p className="mt-2 text-sm font-bold">{String(teacher.roleMetadata?.designation ?? "Teacher")}</p>
-                  <p className="mt-1 text-xs text-[var(--muted-blue)]">{String(teacher.roleMetadata?.employmentType ?? "FULL_TIME")}</p>
-                  <button type="button" onClick={() => startEditTeacher(teacher)} className="mt-3 rounded-xl border border-[var(--border)] px-3 py-2 text-xs font-black">Edit profile</button>
-                </>
+                <AcademicCard
+                  icon={UserCheck}
+                  eyebrow={String(teacher.roleMetadata?.designation ?? "Teacher")}
+                  title={teacher.name}
+                  status={<AcademicPill>{String(teacher.roleMetadata?.employmentType ?? "FULL_TIME")}</AcademicPill>}
+                  description={`${teacher.email} / ${teacher.mobile || "No phone"}`}
+                  action={<button type="button" onClick={() => startEditTeacher(teacher)} className="rounded-xl border border-[var(--border)] px-3 py-2 text-xs font-black">Edit profile</button>}
+                />
               )}
-            </article>
+            </div>
           ))}
         </div>
       </Panel>

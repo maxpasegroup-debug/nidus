@@ -7,7 +7,8 @@ import { createAcademyBatch, getAcademyBatches, updateAcademyBatch } from "@/ser
 import { getApiErrorMessage } from "@/services/api";
 import { allAcademyPrograms } from "@/data/academy-programs";
 import { useCourses } from "@/hooks/use-courses";
-import { AcademicHero, AcademicShell, EmptyState, GoldButton, Input, Panel, Select, StatCard } from "../_components";
+import { AcademicActionButton, AcademicCard, AcademicHero, AcademicPill, AcademicShell, EmptyState, GoldButton, Input, Panel, Select, StatCard } from "../_components";
+import { Users } from "lucide-react";
 import type { Course } from "@/types/course";
 import type { AcademyBatch } from "@/services/academy";
 
@@ -237,8 +238,8 @@ export default function DirectorBatchesPage() {
         description="Create a batch only when needed. Daily work stays focused on the active batch list, status and academic head allocation."
         action={
           <div className="flex flex-wrap gap-2">
-            <button className={`rounded-xl px-4 py-3 text-sm font-black ${mode === "list" ? "bg-[var(--navy)] text-white" : "border border-[var(--border)] bg-white"}`} onClick={() => setMode("list")} type="button">View Batches</button>
-            <button className={`rounded-xl px-4 py-3 text-sm font-black ${mode === "create" ? "bg-[var(--navy)] text-white" : "border border-[var(--border)] bg-white"}`} onClick={() => setMode("create")} type="button">Create Batch</button>
+            <AcademicActionButton active={mode === "list"} onClick={() => setMode("list")}>View Batches</AcademicActionButton>
+            <AcademicActionButton active={mode === "create"} onClick={() => setMode("create")}>Create Batch</AcademicActionButton>
           </div>
         }
       />
@@ -284,36 +285,36 @@ export default function DirectorBatchesPage() {
             const heads = academicHeadNames(batch);
 
             return (
-              <article key={batch.id} className="rounded-2xl border border-[var(--border)] bg-white p-4">
-                <p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold)]">{mode}</p>
-                <h3 className="mt-2 text-xl font-black">{batch.name}</h3>
-                <p className="mt-1 text-sm text-[var(--muted-blue)]">{program} / {programType}</p>
-                <div className="mt-4 grid gap-2 text-sm">
-                  <div className="flex items-center justify-between gap-3 rounded-xl border border-[var(--border)] px-3 py-2">
-                    <span className="font-bold text-[var(--muted-blue)]">Students</span>
-                    <span className="font-black">{batch._count?.students ?? 0}</span>
-                  </div>
-                  <div className="flex items-center justify-between gap-3 rounded-xl border border-[var(--border)] px-3 py-2">
-                    <span className="font-bold text-[var(--muted-blue)]">Teachers</span>
-                    <span className="font-black">{batch._count?.teachers ?? 0}</span>
+              <AcademicCard
+                key={batch.id}
+                icon={Users}
+                eyebrow={mode}
+                title={batch.name}
+                status={<AcademicPill>{batch.status}</AcademicPill>}
+                description={`${program} / ${programType}`}
+              >
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  <div className="rounded-xl border border-[var(--border)] px-3 py-2">
+                    <span className="block text-[11px] font-black uppercase tracking-[0.16em] text-[var(--muted-blue)]">Students</span>
+                    <span className="mt-0.5 block font-black">{batch._count?.students ?? 0}</span>
                   </div>
                   <div className="rounded-xl border border-[var(--border)] px-3 py-2">
-                    <span className="block text-xs font-black uppercase tracking-[0.2em] text-[var(--gold)]">Academic Head</span>
-                    <span className="mt-1 block text-sm font-bold">{heads}</span>
+                    <span className="block text-[11px] font-black uppercase tracking-[0.16em] text-[var(--muted-blue)]">Teachers</span>
+                    <span className="mt-0.5 block font-black">{batch._count?.teachers ?? 0}</span>
                   </div>
                 </div>
-                <div className="mt-4 flex flex-wrap gap-2 text-xs font-black">
-                  <span className="rounded-full border border-[var(--border)] px-3 py-1">{batch.status}</span>
-                  <span className="rounded-full border border-[var(--border)] px-3 py-1">{mode}</span>
+                <div className="mt-2 rounded-xl border border-[var(--border)] px-3 py-2">
+                  <span className="block text-[10px] font-black uppercase tracking-[0.18em] text-[var(--gold)]">Academic Head</span>
+                  <span className="mt-1 block text-sm font-bold">{heads}</span>
                 </div>
-                <div className="mt-4 grid grid-cols-2 gap-2">
+                <div className="mt-3 grid grid-cols-2 gap-2">
                   {["ACTIVE", "PAUSED", "COMPLETED", "ARCHIVED"].map((status) => (
-                    <button key={status} className="rounded-lg border border-[var(--border)] px-3 py-2 text-sm font-bold" onClick={() => updateStatus.mutate({ id: batch.id, status })} type="button">
+                    <button key={status} className="rounded-lg border border-[var(--border)] px-2.5 py-2 text-xs font-black" onClick={() => updateStatus.mutate({ id: batch.id, status })} type="button">
                       {status}
                     </button>
                   ))}
                 </div>
-              </article>
+              </AcademicCard>
             );
           })}
         </div>
