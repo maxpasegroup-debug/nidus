@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import type { FormEvent } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { BarChart3, CalendarDays, GraduationCap, UserCheck, Users } from "lucide-react";
 import { createAcademyBatch, getAcademyBatches, updateAcademyBatch } from "@/services/academy";
 import { getApiErrorMessage } from "@/services/api";
 import { allAcademyPrograms } from "@/data/academy-programs";
@@ -13,6 +14,7 @@ import type { AcademyBatch } from "@/services/academy";
 
 const learningModes = ["ONLINE", "OFFLINE", "HYBRID"];
 const programTypes = ["Foundation", "Crash Course", "Regular", "Weekend", "Interview", "Physical Training"];
+type BatchView = "overview" | "students" | "teachers" | "progress";
 const programOptions = [
   { label: "NDA", slug: "nda-crash-course" },
   { label: "CDS", slug: "cdse-afcat-crash-course" },
@@ -165,10 +167,16 @@ function courseForProgram(courses: Course[], programSlug: string, programType: s
   return courses.find((course) => course.slug === programSpecificSlug) ?? courses.find((course) => course.slug === programSlug);
 }
 
+function formatDate(value?: string | null) {
+  return value ? new Date(value).toLocaleDateString() : "Not set";
+}
+
 export default function DirectorBatchesPage() {
   const queryClient = useQueryClient();
   const [notice, setNotice] = useState("");
   const [mode, setMode] = useState<"list" | "create">("list");
+  const [selectedBatchId, setSelectedBatchId] = useState("");
+  const [selectedView, setSelectedView] = useState<BatchView>("overview");
   const [form, setForm] = useState({
     name: "",
     programSlug: "nda-crash-course",
@@ -191,6 +199,12 @@ export default function DirectorBatchesPage() {
     return orderedCourses([...databaseCourses, ...missingFinalPrograms]);
   }, [coursesQuery.data]);
   const activeCount = useMemo(() => batches.filter((batch) => batch.status === "ACTIVE").length, [batches]);
+  const totalStudents = useMemo(() => batches.reduce((count, batch) => count + (batch._count?.students ?? batch.students?.length ?? 0), 0), [batches]);
+  const totalTeachers = useMemo(() => batches.reduce((count, batch) => count + (batch._count?.teachers ?? batch.teachers?.length ?? 0), 0), [batches]);
+  const selectedBatch = useMemo(
+    () => batches.find((batch) => batch.id === selectedBatchId) ?? batches[0] ?? null,
+    [batches, selectedBatchId],
+  );
 
   const refresh = () => queryClient.invalidateQueries({ queryKey: ["academy", "batches"] });
   const createBatch = useMutation({
@@ -234,7 +248,7 @@ export default function DirectorBatchesPage() {
       <AcademicHero
         eyebrow="Batches"
         title="Batches"
-        description="Create and manage active batches in a simple table. Student and staff profile editing stays outside this page."
+        description="Click a batch to view its students, teachers, progress and status in one simple control panel."
         action={
           <div className="flex flex-wrap gap-2">
             <AcademicActionButton active={mode === "list"} onClick={() => setMode("list")}>View Batches</AcademicActionButton>
@@ -248,9 +262,13 @@ export default function DirectorBatchesPage() {
           Batch data could not be loaded from the academy database: {batchLoadError}
         </div>
       ) : null}
-      <section className="grid shrink-0 gap-3 md:grid-cols-3">
+      <section className="grid shrink-0 gap-3 md:grid-cols-4">
         <StatCard label="Total Batches" value={batchesQuery.isLoading ? "Loading" : batches.length} />
         <StatCard label="Active" value={batchesQuery.isLoading ? "Loading" : activeCount} />
+        <StatCard label="Students" value={batchesQuery.isLoading ? "Loading" : totalStudents} />
+        <StatCard label="Teachers" value={batchesQuery.isLoading ? "Loading" : totalTeachers} />
+      </section>
+      <section className="grid shrink-0 gap-3 md:grid-cols-2">
         <StatCard label="Programs Available" value={courses.length} />
       </section>
       {mode === "create" ? (
@@ -272,47 +290,172 @@ export default function DirectorBatchesPage() {
           </form>
         </Panel>
       ) : null}
-      <Panel title="Existing Batches" eyebrow="Batch table">
+      <Panel title="Batch Control Grid" eyebrow="Click and view">
         {batchesQuery.isLoading ? <EmptyState text="Loading real academy batches from the database." /> : null}
         {!batchesQuery.isLoading && batchLoadError ? <EmptyState text="Batch records are unavailable because the batch API request failed. Check the message above before creating new batches." /> : null}
         {!batchesQuery.isLoading && !batchLoadError && !batches.length ? <EmptyState text="No batches found for your academic scope. Assigned and active batches will appear here." /> : null}
-        <div className="max-h-[54vh] overflow-auto rounded-2xl border border-[var(--border)]">
-          <table className="w-full min-w-[980px] border-collapse text-sm">
-            <thead className="sticky top-0 bg-[var(--page-bg)] text-left">
-              <tr className="border-b border-[var(--border)]">
-                <th className="px-3 py-2 text-[11px] font-black uppercase tracking-[0.16em] text-[var(--muted-blue)]">Batch</th>
-                <th className="px-3 py-2 text-[11px] font-black uppercase tracking-[0.16em] text-[var(--muted-blue)]">Program</th>
-                <th className="px-3 py-2 text-[11px] font-black uppercase tracking-[0.16em] text-[var(--muted-blue)]">Mode</th>
-                <th className="px-3 py-2 text-[11px] font-black uppercase tracking-[0.16em] text-[var(--muted-blue)]">Students</th>
-                <th className="px-3 py-2 text-[11px] font-black uppercase tracking-[0.16em] text-[var(--muted-blue)]">Teachers</th>
-                <th className="px-3 py-2 text-[11px] font-black uppercase tracking-[0.16em] text-[var(--muted-blue)]">Academic Head</th>
-                <th className="px-3 py-2 text-[11px] font-black uppercase tracking-[0.16em] text-[var(--muted-blue)]">Status</th>
-                <th className="px-3 py-2 text-[11px] font-black uppercase tracking-[0.16em] text-[var(--muted-blue)]">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {batches.map((batch) => (
-                <tr key={batch.id} className="border-b border-[var(--border)] last:border-b-0">
-                  <td className="px-3 py-2 font-black">{batch.name}</td>
-                  <td className="px-3 py-2">{inferProgram(batch)} / {inferProgramType(batch)}</td>
-                  <td className="px-3 py-2">{inferLearningMode(batch)}</td>
-                  <td className="px-3 py-2 font-black">{batch._count?.students ?? 0}</td>
-                  <td className="px-3 py-2 font-black">{batch._count?.teachers ?? 0}</td>
-                  <td className="px-3 py-2">{academicHeadNames(batch)}</td>
-                  <td className="px-3 py-2">
-                    <span className="rounded-full border border-[var(--border)] px-2.5 py-1 text-[11px] font-black">{batch.status}</span>
-                  </td>
-                  <td className="px-3 py-2">
-                    <select className="rounded-lg border border-[var(--border)] bg-white px-2 py-1.5 text-xs font-black" value={batch.status} onChange={(event) => updateStatus.mutate({ id: batch.id, status: event.target.value })}>
-                      {["ACTIVE", "PAUSED", "COMPLETED", "ARCHIVED"].map((status) => <option key={status} value={status}>{status}</option>)}
-                    </select>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="grid max-h-[58vh] min-h-0 gap-3 overflow-auto pr-1 xl:grid-cols-[1fr_420px]">
+          <div className="grid content-start gap-2 sm:grid-cols-2 2xl:grid-cols-3">
+            {batches.map((batch) => {
+              const selected = selectedBatch?.id === batch.id;
+              return (
+                <button
+                  key={batch.id}
+                  type="button"
+                  onClick={() => {
+                    setSelectedBatchId(batch.id);
+                    setSelectedView("overview");
+                  }}
+                  className={`rounded-2xl border p-3 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-[var(--gold-border)] hover:shadow-md ${
+                    selected ? "border-[var(--gold-border)] bg-[var(--gold-soft)]" : "border-[var(--border)] bg-white"
+                  }`}
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex min-w-0 items-start gap-2">
+                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white">
+                        <GraduationCap className="h-5 w-5 text-[var(--navy)]" />
+                      </span>
+                      <div className="min-w-0">
+                        <h3 className="line-clamp-2 text-sm font-black leading-5">{batch.name}</h3>
+                        <p className="mt-1 text-xs text-[var(--muted-blue)]">{inferProgram(batch)} / {inferProgramType(batch)}</p>
+                      </div>
+                    </div>
+                    <span className="shrink-0 rounded-full border border-[var(--border)] bg-white px-2 py-0.5 text-[10px] font-black">{batch.status}</span>
+                  </div>
+                  <div className="mt-3 grid grid-cols-3 gap-2">
+                    <MiniStat icon={Users} label="Students" value={batch._count?.students ?? batch.students?.length ?? 0} />
+                    <MiniStat icon={UserCheck} label="Teachers" value={batch._count?.teachers ?? batch.teachers?.length ?? 0} />
+                    <MiniStat icon={CalendarDays} label="Mode" value={inferLearningMode(batch)} />
+                  </div>
+                  <div className="mt-3 rounded-xl border border-[var(--border)] bg-white/70 px-3 py-2 text-xs font-bold text-[var(--muted-blue)]">
+                    Head: {academicHeadNames(batch)}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+
+          {selectedBatch ? (
+            <section className="min-h-0 rounded-2xl border border-[var(--border)] bg-white p-3 shadow-sm">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-[var(--gold)]">Selected Batch</p>
+                  <h3 className="mt-1 text-lg font-black">{selectedBatch.name}</h3>
+                  <p className="mt-1 text-xs text-[var(--muted-blue)]">{inferProgram(selectedBatch)} / {inferProgramType(selectedBatch)} / {inferLearningMode(selectedBatch)}</p>
+                </div>
+                <span className="rounded-full border border-[var(--border)] px-2.5 py-1 text-[11px] font-black">{selectedBatch.status}</span>
+              </div>
+
+              <div className="mt-3 grid grid-cols-2 gap-2">
+                <ViewButton active={selectedView === "overview"} icon={GraduationCap} label="Overview" onClick={() => setSelectedView("overview")} />
+                <ViewButton active={selectedView === "students"} icon={Users} label="Students" onClick={() => setSelectedView("students")} />
+                <ViewButton active={selectedView === "teachers"} icon={UserCheck} label="Teachers" onClick={() => setSelectedView("teachers")} />
+                <ViewButton active={selectedView === "progress"} icon={BarChart3} label="Progress" onClick={() => setSelectedView("progress")} />
+              </div>
+
+              <div className="mt-3 max-h-[37vh] overflow-auto pr-1">
+                {selectedView === "overview" ? (
+                  <div className="grid gap-2">
+                    <DetailRow label="Program" value={`${inferProgram(selectedBatch)} / ${inferProgramType(selectedBatch)}`} />
+                    <DetailRow label="Learning Mode" value={inferLearningMode(selectedBatch)} />
+                    <DetailRow label="Start Date" value={formatDate(selectedBatch.startDate)} />
+                    <DetailRow label="End Date" value={formatDate(selectedBatch.endDate)} />
+                    <DetailRow label="Academic Head" value={academicHeadNames(selectedBatch)} />
+                    <label className="grid gap-1 rounded-xl border border-[var(--border)] bg-[var(--page-bg)] p-3 text-xs font-black uppercase tracking-[0.14em] text-[var(--muted-blue)]">
+                      Status
+                      <select className="rounded-lg border border-[var(--border)] bg-white px-2 py-2 text-sm font-black normal-case tracking-normal text-[var(--navy)]" value={selectedBatch.status} onChange={(event) => updateStatus.mutate({ id: selectedBatch.id, status: event.target.value })}>
+                        {["ACTIVE", "PAUSED", "COMPLETED", "ARCHIVED"].map((status) => <option key={status} value={status}>{status}</option>)}
+                      </select>
+                    </label>
+                  </div>
+                ) : null}
+
+                {selectedView === "students" ? (
+                  <div className="grid gap-2">
+                    {(selectedBatch.students ?? []).map((entry) => (
+                      <PersonRow key={entry.id} name={entry.student.name} meta={`${entry.student.mobile || "No phone"} / ${entry.status}`} />
+                    ))}
+                    {!(selectedBatch.students ?? []).length ? <EmptyState text="No students are assigned to this batch yet." /> : null}
+                  </div>
+                ) : null}
+
+                {selectedView === "teachers" ? (
+                  <div className="grid gap-2">
+                    {(selectedBatch.teachers ?? []).map((entry) => (
+                      <PersonRow key={entry.id} name={entry.teacher.name || entry.teacher.email} meta={`${entry.subject || "Subject pending"} / ${entry.role}`} />
+                    ))}
+                    {!(selectedBatch.teachers ?? []).length ? <EmptyState text="No teachers are assigned to this batch yet." /> : null}
+                  </div>
+                ) : null}
+
+                {selectedView === "progress" ? (
+                  <div className="grid gap-2">
+                    <ProgressTile label="Students" value={selectedBatch._count?.students ?? selectedBatch.students?.length ?? 0} text="Learners currently connected to this batch." />
+                    <ProgressTile label="Teachers" value={selectedBatch._count?.teachers ?? selectedBatch.teachers?.length ?? 0} text="Faculty and trainer assignments." />
+                    <ProgressTile label="Tests" value={selectedBatch._count?.tests ?? 0} text="Exams or tests linked to this batch." />
+                    <ProgressTile label="Status" value={selectedBatch.status} text="Operational state of this batch." />
+                  </div>
+                ) : null}
+              </div>
+            </section>
+          ) : null}
         </div>
       </Panel>
     </AcademicShell>
+  );
+}
+
+function MiniStat({ icon: Icon, label, value }: { icon: typeof Users; label: string; value: string | number }) {
+  return (
+    <div className="rounded-xl border border-[var(--border)] bg-white px-2 py-2">
+      <Icon className="h-3.5 w-3.5 text-[var(--gold)]" />
+      <p className="mt-1 truncate text-[10px] font-black uppercase tracking-[0.12em] text-[var(--muted-blue)]">{label}</p>
+      <p className="truncate text-sm font-black">{value}</p>
+    </div>
+  );
+}
+
+function ViewButton({ active, icon: Icon, label, onClick }: { active: boolean; icon: typeof Users; label: string; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`inline-flex items-center justify-center gap-2 rounded-xl border px-3 py-2 text-xs font-black ${
+        active ? "border-[var(--navy)] bg-[var(--navy)] text-white" : "border-[var(--border)] bg-white text-[var(--navy)]"
+      }`}
+    >
+      <Icon className="h-4 w-4" />
+      {label}
+    </button>
+  );
+}
+
+function DetailRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] p-3">
+      <p className="text-[10px] font-black uppercase tracking-[0.14em] text-[var(--muted-blue)]">{label}</p>
+      <p className="mt-1 text-sm font-black">{value}</p>
+    </div>
+  );
+}
+
+function PersonRow({ name, meta }: { name: string; meta: string }) {
+  return (
+    <div className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] p-3">
+      <p className="text-sm font-black">{name}</p>
+      <p className="mt-1 text-xs text-[var(--muted-blue)]">{meta}</p>
+    </div>
+  );
+}
+
+function ProgressTile({ label, value, text }: { label: string; value: string | number; text: string }) {
+  return (
+    <div className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] p-3">
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-sm font-black">{label}</p>
+        <span className="rounded-full bg-white px-3 py-1 text-xs font-black">{value}</span>
+      </div>
+      <p className="mt-2 text-xs leading-5 text-[var(--muted-blue)]">{text}</p>
+    </div>
   );
 }
