@@ -15,6 +15,7 @@ import {
   Target,
   Trash2,
   Users,
+  X,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -228,6 +229,15 @@ export default function DirectorProgramsPage() {
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState(defaultCourseForm);
   const [editingCourse, setEditingCourse] = useState<Course | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Course | null>(null);
+  const [hiddenTemplateSlugs, setHiddenTemplateSlugs] = useState<string[]>(() => {
+    if (typeof window === "undefined") return [];
+    try {
+      return JSON.parse(window.localStorage.getItem("directorHiddenProgramTemplates") || "[]") as string[];
+    } catch {
+      return [];
+    }
+  });
 
   const coursesQuery = useCourses();
   const createCourse = useCreateCourse();
@@ -238,11 +248,11 @@ export default function DirectorProgramsPage() {
     const databaseCourses = (coursesQuery.data ?? []).filter(isFinalOrCustomCourse);
     const existingSlugs = new Set(databaseCourses.map((course) => course.slug));
     const missingFinalPrograms = allAcademyPrograms
-      .filter((program) => finalProgramSlugs.includes(program.slug) && !existingSlugs.has(program.slug))
+      .filter((program) => finalProgramSlugs.includes(program.slug) && !existingSlugs.has(program.slug) && !hiddenTemplateSlugs.includes(program.slug))
       .map(programTemplateToCourse);
 
     return orderedCourses([...databaseCourses, ...missingFinalPrograms]);
-  }, [coursesQuery.data]);
+  }, [coursesQuery.data, hiddenTemplateSlugs]);
 
   const selectedCategory = programCategories.find((category) => category.key === selectedCategoryKey) ?? null;
   const categoryCourses = selectedCategory ? courses.filter((course) => categoryForCourse(course).key === selectedCategory.key) : [];
@@ -314,6 +324,25 @@ export default function DirectorProgramsPage() {
       description: meta.summary,
       isPremium: String(course.isPremium),
     });
+  };
+
+  const requestDelete = (course: Course) => {
+    setDeleteTarget(course);
+  };
+
+  const confirmDelete = () => {
+    if (!deleteTarget) return;
+    if (deleteTarget.id.startsWith("template-")) {
+      setHiddenTemplateSlugs((current) => {
+        const next = [...new Set([...current, deleteTarget.slug])];
+        window.localStorage.setItem("directorHiddenProgramTemplates", JSON.stringify(next));
+        return next;
+      });
+      setDeleteTarget(null);
+      return;
+    }
+
+    deleteCourse.mutate(deleteTarget.id, { onSuccess: () => setDeleteTarget(null) });
   };
 
   const submitCourse = (event: FormEvent<HTMLFormElement>) => {
@@ -492,12 +521,10 @@ export default function DirectorProgramsPage() {
                       </button>
                       <button
                         type="button"
-                        disabled={isTemplate || deleteCourse.isPending}
-                        onClick={() => {
-                          if (window.confirm(`Delete ${course.title}? This cannot be undone.`)) deleteCourse.mutate(course.id);
-                        }}
+                        disabled={deleteCourse.isPending}
+                        onClick={() => requestDelete(course)}
                         className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-rose-200 bg-rose-50 px-2 py-2 text-xs font-black text-rose-700 transition hover:bg-rose-100 disabled:cursor-not-allowed disabled:border-[var(--border)] disabled:bg-[var(--page-bg)] disabled:text-[var(--muted-blue)]"
-                        title={isTemplate ? "This is a template. Modify it first to save it as a real program." : "Delete program"}
+                        title={isTemplate ? "Remove this template from the Director program list." : "Delete program"}
                       >
                         <Trash2 className="h-3.5 w-3.5" />
                         Delete
@@ -510,35 +537,81 @@ export default function DirectorProgramsPage() {
           </Panel>
 
           {showForm ? (
-            <Panel title={editingCourse ? `Modify ${editingCourse.title}` : `Add ${selectedCategory.shortTitle} ${modeLabel(selectedMode)} Program`} eyebrow={editingCourse ? "Edit Program" : "New Program"}>
-              <form onSubmit={submitCourse} className="grid gap-4 md:grid-cols-2">
-                <Input label="Program name" value={form.title} onChange={(value) => setForm((state) => ({ ...state, title: value }))} required />
-                <Input label="Category" value={form.category} onChange={(value) => setForm((state) => ({ ...state, category: value }))} required />
-                <Input label="Exam / program type" value={form.examType} onChange={(value) => setForm((state) => ({ ...state, examType: value }))} required />
-                <Input label="Duration" value={form.duration} onChange={(value) => setForm((state) => ({ ...state, duration: value }))} required placeholder="Example: 6 months" />
-                <Input label="Price" type="number" value={form.price} onChange={(value) => setForm((state) => ({ ...state, price: value }))} />
-                <Input label="Thumbnail URL" value={form.thumbnail} onChange={(value) => setForm((state) => ({ ...state, thumbnail: value }))} placeholder="/images/academy/course.jpg" />
-                <Select label="Premium program" value={form.isPremium} onChange={(value) => setForm((state) => ({ ...state, isPremium: value }))}>
-                  <option value="false">No</option>
-                  <option value="true">Yes</option>
-                </Select>
-                <Select label="Delivery" value={selectedMode} onChange={(value) => setSelectedMode(value as DeliveryMode)} disabled={Boolean(editingCourse)}>
-                  <option value="OFFLINE">Offline</option>
-                  <option value="ONLINE">Online</option>
-                </Select>
-                <div className="md:col-span-2">
-                  <TextArea label="Program description" value={form.description} onChange={(value) => setForm((state) => ({ ...state, description: value }))} required />
+            <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/45 px-4 py-6 backdrop-blur-sm">
+              <section className="max-h-[calc(100vh-3rem)] w-full max-w-4xl overflow-auto rounded-2xl border border-[var(--border)] bg-white p-4 shadow-2xl md:p-5">
+                <div className="mb-4 flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[var(--gold)]">{editingCourse ? "Edit Program" : "New Program"}</p>
+                    <h2 className="mt-1 text-xl font-black text-[var(--navy)]">{editingCourse ? `Modify ${editingCourse.title}` : `Add ${selectedCategory.shortTitle} ${modeLabel(selectedMode)} Program`}</h2>
+                  </div>
+                  <button type="button" onClick={resetForm} className="icon-button h-10 w-10 rounded-xl border border-[var(--border)] bg-white" aria-label="Close program editor">
+                    <X className="h-4 w-4" />
+                  </button>
                 </div>
-                <div className="md:col-span-2">
-                  <div className="flex flex-wrap gap-2">
-                    <GoldButton disabled={createCourse.isPending || updateCourse.isPending}>{editingCourse ? "Save Changes" : "Add Program"}</GoldButton>
-                    <button type="button" onClick={resetForm} className="rounded-xl border border-[var(--border)] bg-white px-4 py-2 text-sm font-black">
-                      Cancel
-                    </button>
+                <form onSubmit={submitCourse} className="grid gap-4 md:grid-cols-2">
+                  <Input label="Program name" value={form.title} onChange={(value) => setForm((state) => ({ ...state, title: value }))} required />
+                  <Input label="Category" value={form.category} onChange={(value) => setForm((state) => ({ ...state, category: value }))} required />
+                  <Input label="Exam / program type" value={form.examType} onChange={(value) => setForm((state) => ({ ...state, examType: value }))} required />
+                  <Input label="Duration" value={form.duration} onChange={(value) => setForm((state) => ({ ...state, duration: value }))} required placeholder="Example: 6 months" />
+                  <Input label="Price" type="number" value={form.price} onChange={(value) => setForm((state) => ({ ...state, price: value }))} />
+                  <Input label="Thumbnail URL" value={form.thumbnail} onChange={(value) => setForm((state) => ({ ...state, thumbnail: value }))} placeholder="/images/academy/course.jpg" />
+                  <Select label="Premium program" value={form.isPremium} onChange={(value) => setForm((state) => ({ ...state, isPremium: value }))}>
+                    <option value="false">No</option>
+                    <option value="true">Yes</option>
+                  </Select>
+                  <Select label="Delivery" value={selectedMode} onChange={(value) => setSelectedMode(value as DeliveryMode)} disabled={Boolean(editingCourse)}>
+                    <option value="OFFLINE">Offline</option>
+                    <option value="ONLINE">Online</option>
+                  </Select>
+                  <div className="md:col-span-2">
+                    <TextArea label="Program description" value={form.description} onChange={(value) => setForm((state) => ({ ...state, description: value }))} required />
+                  </div>
+                  <div className="md:col-span-2">
+                    <div className="flex flex-wrap justify-end gap-2 border-t border-[var(--border)] pt-4">
+                      <button type="button" onClick={resetForm} className="rounded-xl border border-[var(--border)] bg-white px-4 py-2 text-sm font-black">
+                        Cancel
+                      </button>
+                      <GoldButton disabled={createCourse.isPending || updateCourse.isPending}>{editingCourse ? "Save Changes" : "Add Program"}</GoldButton>
+                    </div>
+                  </div>
+                </form>
+              </section>
+            </div>
+          ) : null}
+
+          {deleteTarget ? (
+            <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/45 px-4 py-6 backdrop-blur-sm">
+              <section className="w-full max-w-md rounded-2xl border border-[var(--border)] bg-white p-5 shadow-2xl">
+                <div className="flex items-start gap-3">
+                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-rose-50 text-rose-700">
+                    <Trash2 className="h-5 w-5" />
+                  </span>
+                  <div>
+                    <p className="text-[11px] font-black uppercase tracking-[0.24em] text-rose-700">Delete Program</p>
+                    <h2 className="mt-1 text-xl font-black text-[var(--navy)]">{deleteTarget.title}</h2>
+                    <p className="mt-2 text-sm leading-6 text-[var(--muted-blue)]">
+                      {deleteTarget.id.startsWith("template-")
+                        ? "This is a default template. It will be removed from this Director program list."
+                        : "This saved program will be deleted from the system."}
+                    </p>
                   </div>
                 </div>
-              </form>
-            </Panel>
+                <div className="mt-5 flex justify-end gap-2">
+                  <button type="button" onClick={() => setDeleteTarget(null)} className="rounded-xl border border-[var(--border)] bg-white px-4 py-2 text-sm font-black">
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={confirmDelete}
+                    disabled={deleteCourse.isPending}
+                    className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-rose-600 px-4 py-2 text-sm font-black text-white disabled:opacity-60"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    Delete
+                  </button>
+                </div>
+              </section>
+            </div>
           ) : null}
         </>
       ) : null}
