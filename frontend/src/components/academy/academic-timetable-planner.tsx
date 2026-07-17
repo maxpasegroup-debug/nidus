@@ -819,35 +819,35 @@ function SessionEditor({
           const selectedTeacher = teacherOptions.find((teacher) => teacher.id === slot.teacherId);
           return (
             <div key={`${slot.calendarId ?? "new"}-${index}`} className="space-y-3">
-              <button
-                type="button"
-                className={`w-full overflow-hidden rounded-2xl border bg-white text-left shadow-sm transition hover:-translate-y-0.5 hover:border-[var(--gold-border)] hover:shadow-md ${
-                  isActive ? "border-[var(--gold)] ring-2 ring-[var(--gold-soft)]" : "border-[var(--border)]"
-                }`}
-                onClick={() => setActiveSlotIndex(index)}
-                onFocus={() => setActiveSlotIndex(index)}
-                onMouseEnter={() => setActiveSlotIndex(index)}
-              >
-                <div className="relative flex h-12 items-center justify-center bg-[var(--gold-soft)]">
-                  <Clock className="h-5 w-5 text-[var(--navy)]" />
-                  <span className={`absolute right-3 top-2 rounded-full px-2.5 py-1 text-[10px] font-black ${saved ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-800"}`}>
-                    {saved ? "Saved" : missingFields.length ? `${missingFields.length} pending` : "Ready"}
-                  </span>
-                </div>
-                <div className="grid gap-3 p-3 md:grid-cols-[1fr_auto] md:items-center">
-                  <div>
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--gold)]">Session {index + 1} / {displayTime(slot.startTime)} - {displayTime(slot.endTime)}</p>
-                    <h3 className="mt-1 text-base font-black">{slot.subject || "Subject pending"}</h3>
-                    <p className="mt-1 text-sm text-[var(--muted-blue)]">{selectedBatch?.name || "Batch pending"} / {selectedTeacher?.name || "Teacher pending"}</p>
-                    {slot.topic ? <p className="mt-1 line-clamp-1 text-xs font-bold text-[var(--muted-blue)]">{slot.topic}</p> : null}
+              {!isActive ? (
+                <button
+                  type="button"
+                  className="w-full overflow-hidden rounded-2xl border border-[var(--border)] bg-white text-left shadow-sm transition hover:-translate-y-0.5 hover:border-[var(--gold-border)] hover:shadow-md"
+                  onClick={() => setActiveSlotIndex(index)}
+                  onFocus={() => setActiveSlotIndex(index)}
+                  onMouseEnter={() => setActiveSlotIndex(index)}
+                >
+                  <div className="relative flex h-12 items-center justify-center bg-[var(--gold-soft)]">
+                    <Clock className="h-5 w-5 text-[var(--navy)]" />
+                    <span className={`absolute right-3 top-2 rounded-full px-2.5 py-1 text-[10px] font-black ${saved ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-800"}`}>
+                      {saved ? "Saved" : missingFields.length ? `${missingFields.length} pending` : "Ready"}
+                    </span>
                   </div>
-                  <div className="flex flex-wrap gap-1.5 text-[11px] font-black">
-                    <span className="rounded-full border border-[var(--border)] px-2.5 py-1">{classTypeLabel(slot.classType)}</span>
-                    <span className="rounded-full border border-[var(--border)] px-2.5 py-1">{slot.status}</span>
-                    {warnings.length ? <span className="inline-flex items-center gap-1 rounded-full bg-rose-50 px-2.5 py-1 text-rose-700"><AlertTriangle className="h-3.5 w-3.5" /> Clash</span> : null}
+                  <div className="grid gap-3 p-3 md:grid-cols-[1fr_auto] md:items-center">
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--gold)]">Session {index + 1} / {displayTime(slot.startTime)} - {displayTime(slot.endTime)}</p>
+                      <h3 className="mt-1 text-base font-black">{slot.subject || "Subject pending"}</h3>
+                      <p className="mt-1 text-sm text-[var(--muted-blue)]">{selectedBatch?.name || "Batch pending"} / {selectedTeacher?.name || "Teacher pending"}</p>
+                      {slot.topic ? <p className="mt-1 line-clamp-1 text-xs font-bold text-[var(--muted-blue)]">{slot.topic}</p> : null}
+                    </div>
+                    <div className="flex flex-wrap gap-1.5 text-[11px] font-black">
+                      <span className="rounded-full border border-[var(--border)] px-2.5 py-1">{classTypeLabel(slot.classType)}</span>
+                      <span className="rounded-full border border-[var(--border)] px-2.5 py-1">{slot.status}</span>
+                      {warnings.length ? <span className="inline-flex items-center gap-1 rounded-full bg-rose-50 px-2.5 py-1 text-rose-700"><AlertTriangle className="h-3.5 w-3.5" /> Clash</span> : null}
+                    </div>
                   </div>
-                </div>
-              </button>
+                </button>
+              ) : null}
 
               {isActive ? (
               <div className="rounded-2xl border border-[var(--gold-border)] bg-[var(--page-bg)] p-3 shadow-sm">
