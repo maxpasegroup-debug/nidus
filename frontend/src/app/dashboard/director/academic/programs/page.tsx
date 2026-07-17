@@ -2,7 +2,20 @@
 
 import { useMemo, useState } from "react";
 import type { FormEvent } from "react";
-import { BookOpen, Dumbbell, Laptop, MapPin, Medal, Pencil, Plus, ShieldCheck, Target, Trash2, Users } from "lucide-react";
+import {
+  ArrowLeft,
+  BookOpen,
+  Dumbbell,
+  Laptop,
+  MapPin,
+  Medal,
+  Pencil,
+  Plus,
+  ShieldCheck,
+  Target,
+  Trash2,
+  Users,
+} from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 import { AcademicActionButton, AcademicHero, AcademicShell, EmptyState, GoldButton, Input, Panel, Select, StatCard, TextArea } from "../_components";
@@ -11,7 +24,17 @@ import { useCreateCourse, useCourses, useDeleteCourse, useUpdateCourse } from "@
 import type { Course } from "@/types/course";
 
 type DeliveryMode = "OFFLINE" | "ONLINE";
-type ProgramGroup = { title: string; description: string; icon: LucideIcon; courses: Course[] };
+type ProgramCategoryKey = "aissee-rimc" | "nda" | "cds-afcat" | "agniveer" | "ssb" | "medical" | "technical" | "other";
+type ViewStep = "categories" | "modes" | "programs";
+
+type ProgramCategory = {
+  key: ProgramCategoryKey;
+  title: string;
+  shortTitle: string;
+  description: string;
+  icon: LucideIcon;
+  match: (text: string) => boolean;
+};
 
 const finalProgramSlugs = [
   "aissee-class-6",
@@ -50,6 +73,73 @@ const legacySeededSlugs = new Set([
   "territorial-army-coast-guard-ac",
 ]);
 
+const programCategories: ProgramCategory[] = [
+  {
+    key: "nda",
+    title: "NDA",
+    shortTitle: "NDA",
+    description: "Foundation, F1, F2 and crash course programs.",
+    icon: ShieldCheck,
+    match: (text) => text.includes("nda") || text.includes("foundation"),
+  },
+  {
+    key: "aissee-rimc",
+    title: "AISSEE & RIMC",
+    shortTitle: "AISSEE",
+    description: "Class 6, Class 9 and RIMC school entry programs.",
+    icon: BookOpen,
+    match: (text) => text.includes("aissee") || text.includes("rimc") || text.includes("sainik"),
+  },
+  {
+    key: "cds-afcat",
+    title: "CDS & AFCAT",
+    shortTitle: "CDS",
+    description: "Graduate officer entry and crash preparation.",
+    icon: Target,
+    match: (text) => text.includes("cds") || text.includes("cdse") || text.includes("afcat"),
+  },
+  {
+    key: "agniveer",
+    title: "Agniveer",
+    shortTitle: "Agniveer",
+    description: "Army, Navy and Air Force entry programs.",
+    icon: Dumbbell,
+    match: (text) => text.includes("agniveer") || text.includes("army") || text.includes("navy") || text.includes("air force"),
+  },
+  {
+    key: "ssb",
+    title: "SSB & Interview",
+    shortTitle: "SSB",
+    description: "Interview guidance and officer personality programs.",
+    icon: Users,
+    match: (text) => text.includes("ssb") || text.includes("interview"),
+  },
+  {
+    key: "medical",
+    title: "Medical Entry",
+    shortTitle: "Medical",
+    description: "AFMC and MNS preparation programs.",
+    icon: Medal,
+    match: (text) => text.includes("afmc") || text.includes("mns") || text.includes("medical"),
+  },
+  {
+    key: "technical",
+    title: "Technical Entry",
+    shortTitle: "Technical",
+    description: "TES, TGC, SSC Technical, Coast Guard and related entries.",
+    icon: Laptop,
+    match: (text) => text.includes("tes") || text.includes("tgc") || text.includes("technical") || text.includes("territorial") || text.includes("coast"),
+  },
+  {
+    key: "other",
+    title: "Other Programs",
+    shortTitle: "Other",
+    description: "Custom academy programs created by the Director.",
+    icon: BookOpen,
+    match: () => true,
+  },
+];
+
 const defaultCourseForm = {
   title: "",
   category: "NIDUS Academy",
@@ -71,9 +161,9 @@ function slugify(value: string) {
 
 function parseDescription(course: Course) {
   try {
-    const parsed = JSON.parse(course.description) as { summary?: string; deliveryMode?: string; format?: string };
+    const parsed = JSON.parse(course.description) as { summary?: string; deliveryMode?: string; source?: string };
     return {
-      summary: parsed.summary || parsed.format || course.description,
+      summary: parsed.summary || course.description,
       deliveryMode: parsed.deliveryMode,
     };
   } catch {
@@ -102,42 +192,9 @@ function orderedCourses(courses: Course[]) {
   });
 }
 
-function programGroupFor(course: Course) {
-  const text = `${course.slug} ${course.title} ${course.category}`.toLowerCase();
-  if (text.includes("aissee") || text.includes("rimc") || text.includes("sainik")) return "AISSEE & RIMC";
-  if (text.includes("agniveer") || text.includes("army") || text.includes("navy") || text.includes("air force")) return "Agniveer";
-  if (text.includes("nda") || text.includes("foundation")) return "NDA";
-  if (text.includes("cds") || text.includes("cdse") || text.includes("afcat")) return "CDS & AFCAT";
-  if (text.includes("ssb") || text.includes("interview")) return "SSB";
-  if (text.includes("afmc") || text.includes("mns")) return "Medical";
-  if (text.includes("tes") || text.includes("tgc") || text.includes("territorial") || text.includes("coast")) return "Technical";
-  return "Other Programs";
-}
-
-const groupMeta: Record<string, { description: string; icon: LucideIcon }> = {
-  "AISSEE & RIMC": { description: "Class 6, Class 9 and RIMC preparation", icon: BookOpen },
-  "Agniveer": { description: "Army, Navy and Air Force entry programs", icon: Dumbbell },
-  NDA: { description: "Foundation, F1, F2 and crash batches", icon: ShieldCheck },
-  "CDS & AFCAT": { description: "Graduate officer entry and crash programs", icon: Target },
-  SSB: { description: "Interview guidance and officer personality", icon: Users },
-  Medical: { description: "AFMC and MNS preparation", icon: Medal },
-  Technical: { description: "TES, TGC, SSC Technical and Coast Guard", icon: Laptop },
-  "Other Programs": { description: "Custom academy programs", icon: BookOpen },
-};
-
-function groupedCourses(courses: Course[]): ProgramGroup[] {
-  const map = new Map<string, Course[]>();
-  courses.forEach((course) => {
-    const key = programGroupFor(course);
-    map.set(key, [...(map.get(key) ?? []), course]);
-  });
-
-  return ["AISSEE & RIMC", "NDA", "CDS & AFCAT", "Agniveer", "SSB", "Medical", "Technical", "Other Programs"]
-    .map((title) => {
-      const meta = groupMeta[title];
-      return { title, description: meta.description, icon: meta.icon, courses: map.get(title) ?? [] };
-    })
-    .filter((group) => group.courses.length);
+function categoryForCourse(course: Course) {
+  const text = `${course.slug} ${course.title} ${course.category} ${course.examType}`.toLowerCase();
+  return programCategories.find((category) => category.match(text)) ?? programCategories[programCategories.length - 1];
 }
 
 function programTemplateToCourse(program: (typeof allAcademyPrograms)[number]): Course {
@@ -160,15 +217,23 @@ function programTemplateToCourse(program: (typeof allAcademyPrograms)[number]): 
   };
 }
 
+function modeLabel(mode: DeliveryMode) {
+  return mode === "OFFLINE" ? "Offline" : "Online";
+}
+
 export default function DirectorProgramsPage() {
-  const [selectedMode, setSelectedMode] = useState<DeliveryMode>("OFFLINE");
-  const [showCreate, setShowCreate] = useState(false);
+  const [step, setStep] = useState<ViewStep>("categories");
+  const [selectedCategoryKey, setSelectedCategoryKey] = useState<ProgramCategoryKey | null>(null);
+  const [selectedMode, setSelectedMode] = useState<DeliveryMode | null>(null);
+  const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState(defaultCourseForm);
   const [editingCourse, setEditingCourse] = useState<Course | null>(null);
+
   const coursesQuery = useCourses();
   const createCourse = useCreateCourse();
   const updateCourse = useUpdateCourse();
   const deleteCourse = useDeleteCourse();
+
   const courses = useMemo(() => {
     const databaseCourses = (coursesQuery.data ?? []).filter(isFinalOrCustomCourse);
     const existingSlugs = new Set(databaseCourses.map((course) => course.slug));
@@ -179,29 +244,66 @@ export default function DirectorProgramsPage() {
     return orderedCourses([...databaseCourses, ...missingFinalPrograms]);
   }, [coursesQuery.data]);
 
-  const modeCourses = useMemo(() => courses.filter((course) => visibleForMode(course, selectedMode)), [courses, selectedMode]);
-  const modeGroups = useMemo(() => groupedCourses(modeCourses), [modeCourses]);
+  const selectedCategory = programCategories.find((category) => category.key === selectedCategoryKey) ?? null;
+  const categoryCourses = selectedCategory ? courses.filter((course) => categoryForCourse(course).key === selectedCategory.key) : [];
+  const visibleCategories = programCategories
+    .map((category) => {
+      const items = courses.filter((course) => categoryForCourse(course).key === category.key);
+      return { ...category, courses: items };
+    })
+    .filter((category) => category.courses.length || category.key !== "other");
+  const selectedPrograms = selectedMode ? categoryCourses.filter((course) => visibleForMode(course, selectedMode)) : [];
+  const totalPrograms = courses.length;
   const offlineCount = courses.filter((course) => visibleForMode(course, "OFFLINE")).length;
   const onlineCount = courses.filter((course) => visibleForMode(course, "ONLINE")).length;
-  const formMode = editingCourse ? parseDescription(editingCourse).deliveryMode as DeliveryMode | undefined : selectedMode;
-  const formDeliveryMode = formMode === "ONLINE" || formMode === "OFFLINE" ? formMode : selectedMode;
 
   const resetForm = () => {
     setForm(defaultCourseForm);
     setEditingCourse(null);
-    setShowCreate(false);
+    setShowForm(false);
+  };
+
+  const openCategory = (categoryKey: ProgramCategoryKey) => {
+    setSelectedCategoryKey(categoryKey);
+    setSelectedMode(null);
+    resetForm();
+    setStep("modes");
+  };
+
+  const openMode = (mode: DeliveryMode) => {
+    setSelectedMode(mode);
+    resetForm();
+    setStep("programs");
+  };
+
+  const backToCategories = () => {
+    setSelectedCategoryKey(null);
+    setSelectedMode(null);
+    resetForm();
+    setStep("categories");
+  };
+
+  const backToModes = () => {
+    setSelectedMode(null);
+    resetForm();
+    setStep("modes");
   };
 
   const startCreate = () => {
-    setForm(defaultCourseForm);
+    const categoryTitle = selectedCategory?.title ?? "NIDUS Academy";
     setEditingCourse(null);
-    setShowCreate((value) => !value);
+    setForm({
+      ...defaultCourseForm,
+      category: categoryTitle,
+      examType: selectedCategory?.shortTitle ?? "Academy Program",
+    });
+    setShowForm(true);
   };
 
   const startModify = (course: Course) => {
     const meta = parseDescription(course);
     setEditingCourse(course);
-    setShowCreate(true);
+    setShowForm(true);
     setForm({
       title: course.title,
       category: course.category,
@@ -216,9 +318,10 @@ export default function DirectorProgramsPage() {
 
   const submitCourse = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    const deliveryMode = selectedMode ?? "OFFLINE";
     const description = JSON.stringify({
       summary: form.description,
-      deliveryMode: formDeliveryMode,
+      deliveryMode,
       source: "Director Programs & Courses",
     });
     const payload = {
@@ -234,10 +337,7 @@ export default function DirectorProgramsPage() {
     };
 
     if (editingCourse && !editingCourse.id.startsWith("template-")) {
-      updateCourse.mutate(
-        { id: editingCourse.id, payload },
-        { onSuccess: resetForm },
-      );
+      updateCourse.mutate({ id: editingCourse.id, payload }, { onSuccess: resetForm });
       return;
     }
 
@@ -249,145 +349,199 @@ export default function DirectorProgramsPage() {
       <AcademicHero
         eyebrow="Programs & Courses"
         title="Programs"
-        description="Simple program list for office use. Add a course only when a new academy offering is approved."
+        description="Choose a major program category first. Then open Online or Offline programs and manage only that small list."
         action={
-          <AcademicActionButton onClick={startCreate}>
-            <Plus className="h-4 w-4" />
-            Create Course
-          </AcademicActionButton>
+          step === "programs" ? (
+            <AcademicActionButton onClick={startCreate}>
+              <Plus className="h-4 w-4" />
+              Add Program
+            </AcademicActionButton>
+          ) : null
         }
       />
 
-      <section className="grid shrink-0 gap-3 md:grid-cols-[1fr_1fr_1fr]">
-        <StatCard label="Total Programs" value={courses.length} />
-        <button className={`rounded-2xl border px-3 py-2 text-left shadow-sm ${selectedMode === "OFFLINE" ? "border-[var(--gold-border)] bg-[var(--gold-soft)]" : "border-[var(--border)] bg-white"}`} onClick={() => setSelectedMode("OFFLINE")} type="button">
-          <MapPin className="h-4 w-4 text-[var(--gold)]" />
-          <p className="mt-1 text-sm font-black">Offline</p>
-          <p className="text-xl font-black">{offlineCount}</p>
-        </button>
-        <button className={`rounded-2xl border px-3 py-2 text-left shadow-sm ${selectedMode === "ONLINE" ? "border-[var(--gold-border)] bg-[var(--gold-soft)]" : "border-[var(--border)] bg-white"}`} onClick={() => setSelectedMode("ONLINE")} type="button">
-          <Laptop className="h-4 w-4 text-[var(--gold)]" />
-          <p className="mt-1 text-sm font-black">Online</p>
-          <p className="text-xl font-black">{onlineCount}</p>
-        </button>
+      <section className="grid shrink-0 gap-3 md:grid-cols-3">
+        <StatCard label="Total Programs" value={totalPrograms} />
+        <StatCard label="Offline" value={offlineCount} />
+        <StatCard label="Online" value={onlineCount} />
       </section>
 
-      {showCreate ? (
-        <Panel title={editingCourse ? `Modify ${editingCourse.title}` : `Create ${selectedMode.toLowerCase()} course`} eyebrow={editingCourse ? "Program details" : "New program"}>
-          <form onSubmit={submitCourse} className="grid gap-4 md:grid-cols-2">
-            <Input label="Course name" value={form.title} onChange={(value) => setForm((state) => ({ ...state, title: value }))} required />
-            <Input label="Category" value={form.category} onChange={(value) => setForm((state) => ({ ...state, category: value }))} required />
-            <Input label="Exam / program type" value={form.examType} onChange={(value) => setForm((state) => ({ ...state, examType: value }))} required />
-            <Input label="Duration" value={form.duration} onChange={(value) => setForm((state) => ({ ...state, duration: value }))} required placeholder="Example: 6 months" />
-            <Input label="Price" type="number" value={form.price} onChange={(value) => setForm((state) => ({ ...state, price: value }))} />
-            <Input label="Thumbnail URL" value={form.thumbnail} onChange={(value) => setForm((state) => ({ ...state, thumbnail: value }))} placeholder="/images/academy/course.jpg" />
-            <Select label="Premium course" value={form.isPremium} onChange={(value) => setForm((state) => ({ ...state, isPremium: value }))}>
-              <option value="false">No</option>
-              <option value="true">Yes</option>
-            </Select>
-            <div />
-            <div className="md:col-span-2">
-              <TextArea label="Course description" value={form.description} onChange={(value) => setForm((state) => ({ ...state, description: value }))} required />
-            </div>
-            <div className="md:col-span-2">
-              <div className="flex flex-wrap gap-2">
-                <GoldButton disabled={createCourse.isPending || updateCourse.isPending}>{editingCourse ? "Save Changes" : "Add Course"}</GoldButton>
-                <button type="button" onClick={resetForm} className="rounded-xl border border-[var(--border)] bg-white px-4 py-2 text-sm font-black">
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </form>
-        </Panel>
-      ) : null}
-
-      <Panel title={`${selectedMode === "OFFLINE" ? "Offline" : "Online"} programs`} eyebrow="Existing courses">
-        {coursesQuery.isLoading ? <EmptyState text="Loading programs and courses..." /> : null}
-        {!coursesQuery.isLoading && !modeCourses.length ? (
-          <EmptyState
-            text={`No ${selectedMode.toLowerCase()} programs are available yet.`}
-            action={
-              <AcademicActionButton onClick={() => setShowCreate(true)}>
-                <Plus className="h-4 w-4" />
-                Create Course
-              </AcademicActionButton>
-            }
-          />
-        ) : null}
-        <div className="max-h-[52vh] overflow-auto pr-1">
-          <div className="grid gap-3">
-            {modeGroups.map((group) => {
-              const GroupIcon = group.icon;
+      {step === "categories" ? (
+        <Panel title="Program Categories" eyebrow="Step 1">
+          {coursesQuery.isLoading ? <EmptyState text="Loading program categories..." /> : null}
+          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            {visibleCategories.map((category) => {
+              const Icon = category.icon;
+              const offline = category.courses.filter((course) => visibleForMode(course, "OFFLINE")).length;
+              const online = category.courses.filter((course) => visibleForMode(course, "ONLINE")).length;
               return (
-                <section key={group.title} className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-3">
-                  <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-                    <div className="flex min-w-0 items-center gap-2">
-                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[var(--gold-border)] bg-[var(--gold-soft)]">
-                        <GroupIcon className="h-4 w-4 text-[var(--navy)]" />
-                      </span>
-                      <div className="min-w-0">
-                        <h3 className="text-base font-black leading-tight">{group.title} - {selectedMode === "OFFLINE" ? "Offline" : "Online"}</h3>
-                        <p className="text-xs leading-5 text-[var(--muted-blue)]">{group.description}</p>
-                      </div>
-                    </div>
-                    <span className="rounded-full border border-[var(--border)] bg-white px-3 py-1 text-xs font-black">{group.courses.length} program(s)</span>
+                <button
+                  key={category.key}
+                  type="button"
+                  onClick={() => openCategory(category.key)}
+                  className="group min-h-44 rounded-2xl border border-[var(--border)] bg-white p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-[var(--gold-border)] hover:bg-[var(--gold-soft)] hover:shadow-md"
+                >
+                  <span className="flex h-12 w-12 items-center justify-center rounded-xl border border-[var(--gold-border)] bg-[var(--gold-soft)]">
+                    <Icon className="h-5 w-5 text-[var(--navy)]" />
+                  </span>
+                  <h3 className="mt-7 text-xl font-black leading-tight">{category.title}</h3>
+                  <p className="mt-2 min-h-10 text-sm leading-5 text-[var(--muted-blue)]">{category.description}</p>
+                  <div className="mt-4 flex flex-wrap gap-2 text-[11px] font-black">
+                    <span className="rounded-full border border-[var(--border)] bg-white px-2.5 py-1">{category.courses.length} total</span>
+                    <span className="rounded-full border border-[var(--border)] bg-white px-2.5 py-1">{offline} offline</span>
+                    <span className="rounded-full border border-[var(--border)] bg-white px-2.5 py-1">{online} online</span>
                   </div>
-                  <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
-                    {group.courses.map((course) => {
-                      const meta = parseDescription(course);
-                      const isTemplate = course.id.startsWith("template-");
-                      return (
-                        <article key={course.id} className="group rounded-xl border border-[var(--border)] bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:border-[var(--gold-border)] hover:shadow-md">
-                          <div className="flex items-start gap-2">
-                            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--gold-soft)]">
-                              <BookOpen className="h-5 w-5 text-[var(--navy)]" />
-                            </span>
-                            <div className="min-w-0 flex-1">
-                              <div className="flex items-start justify-between gap-2">
-                                <h4 className="line-clamp-2 text-sm font-black leading-5">{course.title}</h4>
-                                <span className="shrink-0 rounded-full border border-[var(--border)] px-2 py-0.5 text-[9px] font-black">
-                                  {course.isPremium ? "Premium" : isTemplate ? "Template" : "Active"}
-                                </span>
-                              </div>
-                              <p className="mt-1 line-clamp-1 text-xs text-[var(--muted-blue)]">{meta.summary}</p>
-                            </div>
-                          </div>
-                          <div className="mt-3 flex flex-wrap gap-1.5">
-                            <span className="rounded-full border border-[var(--border)] bg-white px-2 py-0.5 text-[10px] font-black">{course.duration}</span>
-                            <span className="rounded-full border border-[var(--border)] bg-white px-2 py-0.5 text-[10px] font-black">Rs {course.price}</span>
-                          </div>
-                          <div className="mt-3 grid grid-cols-2 gap-2">
-                            <button
-                              type="button"
-                              onClick={() => startModify(course)}
-                              className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-[var(--border)] bg-white px-2 py-1.5 text-[11px] font-black transition hover:border-[var(--gold-border)] hover:bg-[var(--gold-soft)]"
-                            >
-                              <Pencil className="h-3.5 w-3.5" />
-                              Modify
-                            </button>
-                            <button
-                              type="button"
-                              disabled={isTemplate || deleteCourse.isPending}
-                              onClick={() => {
-                                if (window.confirm(`Delete ${course.title}? This cannot be undone.`)) deleteCourse.mutate(course.id);
-                              }}
-                              className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-rose-200 bg-rose-50 px-2 py-1.5 text-[11px] font-black text-rose-700 transition hover:bg-rose-100 disabled:cursor-not-allowed disabled:border-[var(--border)] disabled:bg-[var(--page-bg)] disabled:text-[var(--muted-blue)]"
-                              title={isTemplate ? "Modify and save this template before deleting it." : "Delete program"}
-                            >
-                              <Trash2 className="h-3.5 w-3.5" />
-                              Delete
-                            </button>
-                          </div>
-                        </article>
-                      );
-                    })}
-                  </div>
-                </section>
+                </button>
               );
             })}
           </div>
-        </div>
-      </Panel>
+        </Panel>
+      ) : null}
+
+      {step === "modes" && selectedCategory ? (
+        <Panel title={selectedCategory.title} eyebrow="Step 2">
+          <div className="mb-3">
+            <button type="button" onClick={backToCategories} className="inline-flex items-center gap-2 text-sm font-black text-[var(--navy)]">
+              <ArrowLeft className="h-4 w-4" />
+              Program Categories
+            </button>
+          </div>
+          <div className="grid gap-3 md:grid-cols-2">
+            {(["OFFLINE", "ONLINE"] as DeliveryMode[]).map((mode) => {
+              const Icon = mode === "OFFLINE" ? MapPin : Laptop;
+              const count = categoryCourses.filter((course) => visibleForMode(course, mode)).length;
+              return (
+                <button
+                  key={mode}
+                  type="button"
+                  onClick={() => openMode(mode)}
+                  className="group min-h-48 rounded-2xl border border-[var(--border)] bg-white p-5 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-[var(--gold-border)] hover:bg-[var(--gold-soft)] hover:shadow-md"
+                >
+                  <span className="flex h-12 w-12 items-center justify-center rounded-xl border border-[var(--gold-border)] bg-[var(--gold-soft)]">
+                    <Icon className="h-5 w-5 text-[var(--navy)]" />
+                  </span>
+                  <h3 className="mt-8 text-2xl font-black">{selectedCategory.shortTitle} {modeLabel(mode)}</h3>
+                  <p className="mt-2 text-sm leading-6 text-[var(--muted-blue)]">Open, add, modify or remove {modeLabel(mode).toLowerCase()} programs in this category.</p>
+                  <span className="mt-5 inline-flex rounded-full border border-[var(--border)] bg-white px-3 py-1 text-xs font-black">{count} program(s)</span>
+                </button>
+              );
+            })}
+          </div>
+        </Panel>
+      ) : null}
+
+      {step === "programs" && selectedCategory && selectedMode ? (
+        <>
+          <Panel title={`${selectedCategory.shortTitle} ${modeLabel(selectedMode)} Programs`} eyebrow="Step 3">
+            <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+              <button type="button" onClick={backToModes} className="inline-flex items-center gap-2 text-sm font-black text-[var(--navy)]">
+                <ArrowLeft className="h-4 w-4" />
+                {selectedCategory.title}
+              </button>
+              <AcademicActionButton onClick={startCreate}>
+                <Plus className="h-4 w-4" />
+                Add Program
+              </AcademicActionButton>
+            </div>
+
+            {!selectedPrograms.length ? (
+              <EmptyState
+                text={`No ${modeLabel(selectedMode).toLowerCase()} programs are available in ${selectedCategory.title} yet.`}
+                action={
+                  <AcademicActionButton onClick={startCreate}>
+                    <Plus className="h-4 w-4" />
+                    Add Program
+                  </AcademicActionButton>
+                }
+              />
+            ) : null}
+
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+              {selectedPrograms.map((course) => {
+                const meta = parseDescription(course);
+                const isTemplate = course.id.startsWith("template-");
+                return (
+                  <article key={course.id} className="rounded-2xl border border-[var(--border)] bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:border-[var(--gold-border)] hover:shadow-md">
+                    <div className="flex items-start gap-3">
+                      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[var(--gold-soft)]">
+                        <BookOpen className="h-5 w-5 text-[var(--navy)]" />
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-start justify-between gap-2">
+                          <h3 className="line-clamp-2 text-base font-black leading-5">{course.title}</h3>
+                          <span className="shrink-0 rounded-full border border-[var(--border)] px-2 py-0.5 text-[9px] font-black">
+                            {isTemplate ? "Template" : "Active"}
+                          </span>
+                        </div>
+                        <p className="mt-1 line-clamp-2 text-xs leading-5 text-[var(--muted-blue)]">{meta.summary}</p>
+                      </div>
+                    </div>
+                    <div className="mt-3 flex flex-wrap gap-1.5">
+                      <span className="rounded-full border border-[var(--border)] bg-white px-2 py-0.5 text-[10px] font-black">{course.duration}</span>
+                      <span className="rounded-full border border-[var(--border)] bg-white px-2 py-0.5 text-[10px] font-black">Rs {course.price}</span>
+                      <span className="rounded-full border border-[var(--border)] bg-white px-2 py-0.5 text-[10px] font-black">{course.examType}</span>
+                    </div>
+                    <div className="mt-3 grid grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => startModify(course)}
+                        className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-[var(--border)] bg-white px-2 py-2 text-xs font-black transition hover:border-[var(--gold-border)] hover:bg-[var(--gold-soft)]"
+                      >
+                        <Pencil className="h-3.5 w-3.5" />
+                        Modify
+                      </button>
+                      <button
+                        type="button"
+                        disabled={isTemplate || deleteCourse.isPending}
+                        onClick={() => {
+                          if (window.confirm(`Delete ${course.title}? This cannot be undone.`)) deleteCourse.mutate(course.id);
+                        }}
+                        className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-rose-200 bg-rose-50 px-2 py-2 text-xs font-black text-rose-700 transition hover:bg-rose-100 disabled:cursor-not-allowed disabled:border-[var(--border)] disabled:bg-[var(--page-bg)] disabled:text-[var(--muted-blue)]"
+                        title={isTemplate ? "This is a template. Modify it first to save it as a real program." : "Delete program"}
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                        Delete
+                      </button>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          </Panel>
+
+          {showForm ? (
+            <Panel title={editingCourse ? `Modify ${editingCourse.title}` : `Add ${selectedCategory.shortTitle} ${modeLabel(selectedMode)} Program`} eyebrow={editingCourse ? "Edit Program" : "New Program"}>
+              <form onSubmit={submitCourse} className="grid gap-4 md:grid-cols-2">
+                <Input label="Program name" value={form.title} onChange={(value) => setForm((state) => ({ ...state, title: value }))} required />
+                <Input label="Category" value={form.category} onChange={(value) => setForm((state) => ({ ...state, category: value }))} required />
+                <Input label="Exam / program type" value={form.examType} onChange={(value) => setForm((state) => ({ ...state, examType: value }))} required />
+                <Input label="Duration" value={form.duration} onChange={(value) => setForm((state) => ({ ...state, duration: value }))} required placeholder="Example: 6 months" />
+                <Input label="Price" type="number" value={form.price} onChange={(value) => setForm((state) => ({ ...state, price: value }))} />
+                <Input label="Thumbnail URL" value={form.thumbnail} onChange={(value) => setForm((state) => ({ ...state, thumbnail: value }))} placeholder="/images/academy/course.jpg" />
+                <Select label="Premium program" value={form.isPremium} onChange={(value) => setForm((state) => ({ ...state, isPremium: value }))}>
+                  <option value="false">No</option>
+                  <option value="true">Yes</option>
+                </Select>
+                <Select label="Delivery" value={selectedMode} onChange={(value) => setSelectedMode(value as DeliveryMode)} disabled={Boolean(editingCourse)}>
+                  <option value="OFFLINE">Offline</option>
+                  <option value="ONLINE">Online</option>
+                </Select>
+                <div className="md:col-span-2">
+                  <TextArea label="Program description" value={form.description} onChange={(value) => setForm((state) => ({ ...state, description: value }))} required />
+                </div>
+                <div className="md:col-span-2">
+                  <div className="flex flex-wrap gap-2">
+                    <GoldButton disabled={createCourse.isPending || updateCourse.isPending}>{editingCourse ? "Save Changes" : "Add Program"}</GoldButton>
+                    <button type="button" onClick={resetForm} className="rounded-xl border border-[var(--border)] bg-white px-4 py-2 text-sm font-black">
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </Panel>
+          ) : null}
+        </>
+      ) : null}
     </AcademicShell>
   );
 }
