@@ -476,6 +476,7 @@ export async function createAcademyBatch(payload: {
   examsPerMonth?: string | number;
   assignmentsPerWeek?: string | number;
   plannerNotes?: string;
+  academicPlanner?: Record<string, unknown>;
   archivedAt?: string;
   archiveAutoDeleteAt?: string;
 }) {
@@ -504,6 +505,7 @@ export async function updateAcademyBatch(batchId: string, payload: Partial<{
   examsPerMonth: string | number;
   assignmentsPerWeek: string | number;
   plannerNotes: string;
+  academicPlanner: Record<string, unknown>;
   archivedAt: string;
   archiveAutoDeleteAt: string;
 }>) {

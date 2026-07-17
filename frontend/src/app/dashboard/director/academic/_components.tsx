@@ -208,11 +208,22 @@ export function Select({
   );
 }
 
-export function GoldButton({ children, disabled, type = "submit" }: { children: ReactNode; disabled?: boolean; type?: "button" | "submit" }) {
+export function GoldButton({
+  children,
+  disabled,
+  onClick,
+  type = "submit",
+}: {
+  children: ReactNode;
+  disabled?: boolean;
+  onClick?: () => void;
+  type?: "button" | "submit";
+}) {
   return (
     <button
       className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-[var(--gold-gradient)] px-4 py-2 text-sm font-black text-[var(--navy)] shadow-lg disabled:cursor-not-allowed disabled:opacity-60"
       disabled={disabled}
+      onClick={onClick}
       type={type}
     >
       <Plus className="h-4 w-4" />

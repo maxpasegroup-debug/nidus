@@ -5,6 +5,9 @@ import type { FormEvent } from "react";
 import {
   ArrowLeft,
   BookOpen,
+  CalendarDays,
+  ChevronDown,
+  ChevronUp,
   Dumbbell,
   Laptop,
   MapPin,
@@ -23,6 +26,16 @@ import { AcademicActionButton, AcademicHero, AcademicShell, EmptyState, GoldButt
 import { allAcademyPrograms } from "@/data/academy-programs";
 import { useCreateCourse, useCourses, useDeleteCourse, useUpdateCourse } from "@/hooks/use-courses";
 import type { Course } from "@/types/course";
+import {
+  courseDescriptionWithPlanner,
+  defaultPlannerTemplate,
+  parseCourseDescription,
+  plannerId,
+  plannerTotals,
+  topicTypes,
+  type AcademicPlannerModule,
+  type AcademicPlannerTemplate,
+} from "../academic-planner-utils";
 
 type DeliveryMode = "OFFLINE" | "ONLINE";
 type ProgramCategoryKey = "aissee-rimc" | "nda" | "cds-afcat" | "agniveer" | "ssb" | "medical" | "technical" | "other";
@@ -160,20 +173,8 @@ function slugify(value: string) {
     .replace(/(^-|-$)/g, "");
 }
 
-function parseDescription(course: Course) {
-  try {
-    const parsed = JSON.parse(course.description) as { summary?: string; deliveryMode?: string; source?: string };
-    return {
-      summary: parsed.summary || course.description,
-      deliveryMode: parsed.deliveryMode,
-    };
-  } catch {
-    return { summary: course.description, deliveryMode: undefined };
-  }
-}
-
 function visibleForMode(course: Course, mode: DeliveryMode) {
-  const meta = parseDescription(course);
+  const meta = parseCourseDescription(course);
   if (!meta.deliveryMode) return true;
   return meta.deliveryMode === mode || meta.deliveryMode === "BOTH";
 }
@@ -229,6 +230,8 @@ export default function DirectorProgramsPage() {
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState(defaultCourseForm);
   const [editingCourse, setEditingCourse] = useState<Course | null>(null);
+  const [plannerCourse, setPlannerCourse] = useState<Course | null>(null);
+  const [plannerDraft, setPlannerDraft] = useState<AcademicPlannerTemplate | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Course | null>(null);
   const [hiddenTemplateSlugs, setHiddenTemplateSlugs] = useState<string[]>(() => {
     if (typeof window === "undefined") return [];
@@ -266,6 +269,7 @@ export default function DirectorProgramsPage() {
   const totalPrograms = courses.length;
   const offlineCount = courses.filter((course) => visibleForMode(course, "OFFLINE")).length;
   const onlineCount = courses.filter((course) => visibleForMode(course, "ONLINE")).length;
+  const plannerCount = courses.filter((course) => parseCourseDescription(course).academicPlanner?.modules.length).length;
 
   const resetForm = () => {
     setForm(defaultCourseForm);
@@ -311,7 +315,7 @@ export default function DirectorProgramsPage() {
   };
 
   const startModify = (course: Course) => {
-    const meta = parseDescription(course);
+    const meta = parseCourseDescription(course);
     setEditingCourse(course);
     setShowForm(true);
     setForm({
@@ -324,6 +328,39 @@ export default function DirectorProgramsPage() {
       description: meta.summary,
       isPremium: String(course.isPremium),
     });
+  };
+
+  const openPlanner = (course: Course) => {
+    setPlannerCourse(course);
+    setPlannerDraft(defaultPlannerTemplate(course));
+  };
+
+  const closePlanner = () => {
+    setPlannerCourse(null);
+    setPlannerDraft(null);
+  };
+
+  const savePlanner = (status: AcademicPlannerTemplate["status"]) => {
+    if (!plannerCourse || !plannerDraft) return;
+    const description = courseDescriptionWithPlanner(plannerCourse, plannerDraft, status);
+    const payload = {
+      title: plannerCourse.title,
+      slug: plannerCourse.slug,
+      description,
+      thumbnail: plannerCourse.thumbnail,
+      category: plannerCourse.category,
+      examType: plannerCourse.examType,
+      duration: plannerCourse.duration,
+      price: plannerCourse.price,
+      isPremium: plannerCourse.isPremium,
+    };
+
+    if (plannerCourse.id.startsWith("template-")) {
+      createCourse.mutate(payload, { onSuccess: closePlanner });
+      return;
+    }
+
+    updateCourse.mutate({ id: plannerCourse.id, payload }, { onSuccess: closePlanner });
   };
 
   const requestDelete = (course: Course) => {
@@ -352,6 +389,7 @@ export default function DirectorProgramsPage() {
       summary: form.description,
       deliveryMode,
       source: "Director Programs & Courses",
+      academicPlanner: editingCourse ? parseCourseDescription(editingCourse).academicPlanner : undefined,
     });
     const payload = {
       title: form.title,
@@ -389,10 +427,11 @@ export default function DirectorProgramsPage() {
         }
       />
 
-      <section className="grid shrink-0 gap-3 md:grid-cols-3">
+      <section className="grid shrink-0 gap-3 md:grid-cols-4">
         <StatCard label="Total Programs" value={totalPrograms} />
         <StatCard label="Offline" value={offlineCount} />
         <StatCard label="Online" value={onlineCount} />
+        <StatCard label="Planners" value={plannerCount} />
       </section>
 
       {step === "categories" ? (
@@ -487,8 +526,9 @@ export default function DirectorProgramsPage() {
 
             <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
               {selectedPrograms.map((course) => {
-                const meta = parseDescription(course);
+                const meta = parseCourseDescription(course);
                 const isTemplate = course.id.startsWith("template-");
+                const totals = plannerTotals(meta.academicPlanner);
                 return (
                   <article key={course.id} className="rounded-2xl border border-[var(--border)] bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:border-[var(--gold-border)] hover:shadow-md">
                     <div className="flex items-start gap-3">
@@ -509,8 +549,19 @@ export default function DirectorProgramsPage() {
                       <span className="rounded-full border border-[var(--border)] bg-white px-2 py-0.5 text-[10px] font-black">{course.duration}</span>
                       <span className="rounded-full border border-[var(--border)] bg-white px-2 py-0.5 text-[10px] font-black">Rs {course.price}</span>
                       <span className="rounded-full border border-[var(--border)] bg-white px-2 py-0.5 text-[10px] font-black">{course.examType}</span>
+                      <span className="rounded-full border border-[var(--border)] bg-white px-2 py-0.5 text-[10px] font-black">
+                        {meta.academicPlanner ? `${totals.sessions} sessions` : "Planner pending"}
+                      </span>
                     </div>
-                    <div className="mt-3 grid grid-cols-2 gap-2">
+                    <div className="mt-3 grid grid-cols-3 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => openPlanner(course)}
+                        className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-[var(--navy)] px-2 py-2 text-xs font-black text-white"
+                      >
+                        <CalendarDays className="h-3.5 w-3.5" />
+                        Planner
+                      </button>
                       <button
                         type="button"
                         onClick={() => startModify(course)}
@@ -579,6 +630,18 @@ export default function DirectorProgramsPage() {
             </div>
           ) : null}
 
+          {plannerCourse && plannerDraft ? (
+            <PlannerEditor
+              course={plannerCourse}
+              draft={plannerDraft}
+              onChange={setPlannerDraft}
+              onClose={closePlanner}
+              onSaveDraft={() => savePlanner("DRAFT")}
+              onPublish={() => savePlanner("PUBLISHED")}
+              saving={createCourse.isPending || updateCourse.isPending}
+            />
+          ) : null}
+
           {deleteTarget ? (
             <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/45 px-4 py-6 backdrop-blur-sm">
               <section className="w-full max-w-md rounded-2xl border border-[var(--border)] bg-white p-5 shadow-2xl">
@@ -616,5 +679,210 @@ export default function DirectorProgramsPage() {
         </>
       ) : null}
     </AcademicShell>
+  );
+}
+
+function PlannerEditor({
+  course,
+  draft,
+  onChange,
+  onClose,
+  onSaveDraft,
+  onPublish,
+  saving,
+}: {
+  course: Course;
+  draft: AcademicPlannerTemplate;
+  onChange: (planner: AcademicPlannerTemplate) => void;
+  onClose: () => void;
+  onSaveDraft: () => void;
+  onPublish: () => void;
+  saving: boolean;
+}) {
+  const totals = plannerTotals(draft);
+
+  const updateModule = (moduleId: string, patch: Partial<AcademicPlannerModule>) => {
+    onChange({
+      ...draft,
+      modules: draft.modules.map((module) => (module.id === moduleId ? { ...module, ...patch } : module)),
+    });
+  };
+
+  const addModule = () => {
+    onChange({
+      ...draft,
+      modules: [
+        ...draft.modules,
+        {
+          id: plannerId("module"),
+          title: "New Module",
+          subject: course.examType || "General",
+          milestone: "",
+          topics: [],
+        },
+      ],
+    });
+  };
+
+  const deleteModule = (moduleId: string) => {
+    onChange({ ...draft, modules: draft.modules.filter((module) => module.id !== moduleId) });
+  };
+
+  const moveModule = (moduleId: string, direction: -1 | 1) => {
+    const index = draft.modules.findIndex((module) => module.id === moduleId);
+    const nextIndex = index + direction;
+    if (index < 0 || nextIndex < 0 || nextIndex >= draft.modules.length) return;
+    const modules = [...draft.modules];
+    const [item] = modules.splice(index, 1);
+    modules.splice(nextIndex, 0, item);
+    onChange({ ...draft, modules });
+  };
+
+  const addTopic = (moduleId: string) => {
+    onChange({
+      ...draft,
+      modules: draft.modules.map((module) => module.id === moduleId
+        ? {
+            ...module,
+            topics: [
+              ...module.topics,
+              {
+                id: plannerId("topic"),
+                title: "New topic",
+                type: "CLASS",
+                sessions: 1,
+                hours: 1,
+                facultyRole: "Subject Faculty",
+              },
+            ],
+          }
+        : module),
+    });
+  };
+
+  const updateTopic = (moduleId: string, topicId: string, patch: Partial<AcademicPlannerModule["topics"][number]>) => {
+    onChange({
+      ...draft,
+      modules: draft.modules.map((module) => module.id === moduleId
+        ? { ...module, topics: module.topics.map((topic) => (topic.id === topicId ? { ...topic, ...patch } : topic)) }
+        : module),
+    });
+  };
+
+  const deleteTopic = (moduleId: string, topicId: string) => {
+    onChange({
+      ...draft,
+      modules: draft.modules.map((module) => module.id === moduleId ? { ...module, topics: module.topics.filter((topic) => topic.id !== topicId) } : module),
+    });
+  };
+
+  const moveTopic = (moduleId: string, topicId: string, direction: -1 | 1) => {
+    const module = draft.modules.find((item) => item.id === moduleId);
+    if (!module) return;
+    const index = module.topics.findIndex((topic) => topic.id === topicId);
+    const nextIndex = index + direction;
+    if (index < 0 || nextIndex < 0 || nextIndex >= module.topics.length) return;
+    const topics = [...module.topics];
+    const [item] = topics.splice(index, 1);
+    topics.splice(nextIndex, 0, item);
+    updateModule(moduleId, { topics });
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/45 px-3 py-4 backdrop-blur-sm">
+      <section className="flex max-h-[calc(100vh-2rem)] w-full max-w-6xl flex-col overflow-hidden rounded-2xl border border-[var(--border)] bg-white shadow-2xl">
+        <div className="flex flex-wrap items-start justify-between gap-3 border-b border-[var(--border)] p-4">
+          <div>
+            <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[var(--gold)]">Academic Planner</p>
+            <h2 className="mt-1 text-xl font-black text-[var(--navy)]">{course.title}</h2>
+            <div className="mt-2 flex flex-wrap gap-2 text-[11px] font-black">
+              <span className="rounded-full border border-[var(--border)] px-2.5 py-1">{draft.status}</span>
+              <span className="rounded-full border border-[var(--border)] px-2.5 py-1">{totals.modules} modules</span>
+              <span className="rounded-full border border-[var(--border)] px-2.5 py-1">{totals.sessions} sessions</span>
+              <span className="rounded-full border border-[var(--border)] px-2.5 py-1">{totals.assessments} assessments</span>
+            </div>
+          </div>
+          <button type="button" onClick={onClose} className="icon-button h-10 w-10 rounded-xl border border-[var(--border)] bg-white" aria-label="Close planner editor">
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        <div className="min-h-0 flex-1 overflow-auto p-4">
+          <div className="mb-4 flex flex-wrap justify-between gap-2">
+            <AcademicActionButton onClick={addModule}>
+              <Plus className="h-4 w-4" />
+              Add Module
+            </AcademicActionButton>
+            <p className="max-w-2xl text-sm font-bold leading-6 text-[var(--muted-blue)]">
+              Build the master syllabus sequence here. Batch schedules will be generated from these modules and topics.
+            </p>
+          </div>
+
+          <div className="grid gap-3">
+            {draft.modules.map((module, moduleIndex) => (
+              <article key={module.id} className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-3">
+                <div className="grid gap-3 lg:grid-cols-[1.2fr_0.8fr_0.8fr_auto] lg:items-end">
+                  <Input label="Module" value={module.title} onChange={(value) => updateModule(module.id, { title: value })} />
+                  <Input label="Subject" value={module.subject} onChange={(value) => updateModule(module.id, { subject: value })} />
+                  <Input label="Milestone" value={module.milestone} onChange={(value) => updateModule(module.id, { milestone: value })} placeholder="Example: 25% completion" />
+                  <div className="flex gap-2">
+                    <button type="button" onClick={() => moveModule(module.id, -1)} disabled={moduleIndex === 0} className="icon-button h-10 w-10 rounded-xl border border-[var(--border)] bg-white disabled:opacity-40" aria-label="Move module up">
+                      <ChevronUp className="h-4 w-4" />
+                    </button>
+                    <button type="button" onClick={() => moveModule(module.id, 1)} disabled={moduleIndex === draft.modules.length - 1} className="icon-button h-10 w-10 rounded-xl border border-[var(--border)] bg-white disabled:opacity-40" aria-label="Move module down">
+                      <ChevronDown className="h-4 w-4" />
+                    </button>
+                    <button type="button" onClick={() => deleteModule(module.id)} className="icon-button h-10 w-10 rounded-xl border border-rose-200 bg-rose-50 text-rose-700" aria-label="Delete module">
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+
+                <div className="mt-3 grid gap-2">
+                  {module.topics.map((topic, topicIndex) => (
+                    <div key={topic.id} className="grid gap-2 rounded-xl border border-[var(--border)] bg-white p-2 md:grid-cols-[1.4fr_0.8fr_0.45fr_0.45fr_0.8fr_auto] md:items-end">
+                      <Input label="Topic / exam / activity" value={topic.title} onChange={(value) => updateTopic(module.id, topic.id, { title: value })} />
+                      <Select label="Type" value={topic.type} onChange={(value) => updateTopic(module.id, topic.id, { type: value as typeof topic.type })}>
+                        {topicTypes.map((type) => <option key={type} value={type}>{type}</option>)}
+                      </Select>
+                      <Input label="Sessions" type="number" value={String(topic.sessions)} onChange={(value) => updateTopic(module.id, topic.id, { sessions: Number(value || 0) })} />
+                      <Input label="Hours" type="number" value={String(topic.hours)} onChange={(value) => updateTopic(module.id, topic.id, { hours: Number(value || 0) })} />
+                      <Input label="Faculty role" value={topic.facultyRole} onChange={(value) => updateTopic(module.id, topic.id, { facultyRole: value })} />
+                      <div className="flex gap-1">
+                        <button type="button" onClick={() => moveTopic(module.id, topic.id, -1)} disabled={topicIndex === 0} className="icon-button h-10 w-10 rounded-xl border border-[var(--border)] bg-white disabled:opacity-40" aria-label="Move topic up">
+                          <ChevronUp className="h-4 w-4" />
+                        </button>
+                        <button type="button" onClick={() => moveTopic(module.id, topic.id, 1)} disabled={topicIndex === module.topics.length - 1} className="icon-button h-10 w-10 rounded-xl border border-[var(--border)] bg-white disabled:opacity-40" aria-label="Move topic down">
+                          <ChevronDown className="h-4 w-4" />
+                        </button>
+                        <button type="button" onClick={() => deleteTopic(module.id, topic.id)} className="icon-button h-10 w-10 rounded-xl border border-rose-200 bg-rose-50 text-rose-700" aria-label="Delete topic">
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                  <button type="button" onClick={() => addTopic(module.id)} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-dashed border-[var(--border)] bg-white px-3 py-2 text-sm font-black">
+                    <Plus className="h-4 w-4" />
+                    Add Topic / Assessment
+                  </button>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex flex-wrap justify-end gap-2 border-t border-[var(--border)] p-4">
+          <button type="button" onClick={onClose} className="rounded-xl border border-[var(--border)] bg-white px-4 py-2 text-sm font-black">
+            Cancel
+          </button>
+          <button type="button" onClick={onSaveDraft} disabled={saving} className="rounded-xl border border-[var(--border)] bg-white px-4 py-2 text-sm font-black disabled:opacity-60">
+            Save Draft
+          </button>
+          <GoldButton type="button" disabled={saving} onClick={onPublish}>
+            Publish Planner
+          </GoldButton>
+        </div>
+      </section>
+    </div>
   );
 }

@@ -38,6 +38,7 @@ type BatchInput = {
   examsPerMonth?: string | number;
   assignmentsPerWeek?: string | number;
   plannerNotes?: string;
+  academicPlanner?: unknown;
   archivedAt?: string;
   archiveAutoDeleteAt?: string;
 };
@@ -493,6 +494,7 @@ function academyBatchSchedule(input: BatchInput) {
   if (input.examsPerMonth !== undefined && input.examsPerMonth !== "") schedule.examsPerMonth = Number(input.examsPerMonth);
   if (input.assignmentsPerWeek !== undefined && input.assignmentsPerWeek !== "") schedule.assignmentsPerWeek = Number(input.assignmentsPerWeek);
   if (input.plannerNotes) schedule.plannerNotes = input.plannerNotes;
+  if (input.academicPlanner && typeof input.academicPlanner === "object") schedule.academicPlanner = input.academicPlanner;
   if (input.archivedAt) schedule.archivedAt = input.archivedAt;
   if (input.archiveAutoDeleteAt) schedule.archiveAutoDeleteAt = input.archiveAutoDeleteAt;
   return Object.keys(schedule).length ? toJsonObject(schedule) : undefined;

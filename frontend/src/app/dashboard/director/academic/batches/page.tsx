@@ -4,210 +4,45 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import type { FormEvent } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowRight, BarChart3, CalendarDays, ClipboardList, GraduationCap, ShieldCheck, Trash2, UserCheck, Users } from "lucide-react";
-import { addStudentToBatch, assignTeacherToBatch, createAcademyBatch, generateAcademicCalendarPlan, getAcademyBatches, getAcademyTeachers, getStudentProgressSummary, updateAcademyBatch } from "@/services/academy";
+import { Archive, CalendarDays, GraduationCap, Pencil, UserCheck, Users } from "lucide-react";
+import { createAcademyBatch, getAcademyBatches, getStudentProgressSummary, updateAcademyBatch } from "@/services/academy";
 import { getApiErrorMessage } from "@/services/api";
 import { allAcademyPrograms } from "@/data/academy-programs";
 import { useCourses } from "@/hooks/use-courses";
 import { AcademicActionButton, AcademicHero, AcademicShell, EmptyState, GoldButton, Input, Panel, Select, StatCard, TextArea } from "../_components";
-import type { Course } from "@/types/course";
-import type { AcademyBatch, StudentProgressBatchCard } from "@/services/academy";
+import { generateBatchPlannerFromTemplate, parseCourseDescription, plannerTotals } from "../academic-planner-utils";
+import {
+  academicHeadNames,
+  batchReadiness,
+  courseForProgram,
+  finalProgramSlugs,
+  formatDate,
+  inferLearningMode,
+  inferProgram,
+  inferProgramType,
+  learningModes,
+  orderedCourses,
+  programOptions,
+  programTemplateToCourse,
+  programTypes,
+} from "./batch-utils";
 
-const learningModes = ["ONLINE", "OFFLINE", "HYBRID"];
-const programTypes = ["Foundation", "Crash Course", "Regular", "Weekend", "Interview", "Physical Training"];
-type BatchView = "overview" | "students" | "teachers" | "progress";
 type PageMode = "list" | "create" | "running";
-const programOptions = [
-  { label: "NDA", slug: "nda-crash-course" },
-  { label: "CDS", slug: "cdse-afcat-crash-course" },
-  { label: "AFCAT", slug: "afcat" },
-  { label: "Agniveer Army", slug: "agniveer-army" },
-  { label: "Agniveer Navy", slug: "agniveer-navy" },
-  { label: "Agniveer Air Force", slug: "agniveer-air-force" },
-  { label: "SSR", slug: "ssr" },
-  { label: "MR", slug: "mr" },
-  { label: "Navik", slug: "navik" },
-  { label: "TES", slug: "tes-guidance" },
-  { label: "TGC / SSC Technical", slug: "tgc-ssc-technical" },
-  { label: "SSB", slug: "ssb-interview-guidance" },
-  { label: "MNS", slug: "mns" },
-  { label: "AFMC", slug: "afmc" },
-  { label: "RIMC", slug: "rimc-preparation" },
-  { label: "AISSEE Class 6", slug: "aissee-class-6" },
-  { label: "AISSEE Class 9", slug: "aissee-class-9" },
-  { label: "Territorial Army & Coast Guard", slug: "territorial-army-coast-guard" },
-  { label: "Foundation NDA & Civil Services", slug: "foundation-nda-civil-services" },
+
+const classDayOptions = [
+  { label: "Mon", value: 1 },
+  { label: "Tue", value: 2 },
+  { label: "Wed", value: 3 },
+  { label: "Thu", value: 4 },
+  { label: "Fri", value: 5 },
+  { label: "Sat", value: 6 },
+  { label: "Sun", value: 0 },
 ];
-const finalProgramSlugs = [
-  "aissee-class-6",
-  "aissee-class-9",
-  "rimc-preparation",
-  "foundation-nda-civil-services",
-  "nda-f1",
-  "nda-f2",
-  "nda-crash-course",
-  "cds-f1",
-  "cds-f2",
-  "cds-f3",
-  "afcat",
-  "cdse-afcat-crash-course",
-  "tes-guidance",
-  "tgc-ssc-technical",
-  "territorial-army-coast-guard",
-  "afmc",
-  "mns",
-  "agniveer-army",
-  "agniveer-navy",
-  "agniveer-air-force",
-  "ssb-interview-guidance",
-  "ssr",
-  "mr",
-  "navik",
-];
-
-function programTemplateToCourse(program: (typeof allAcademyPrograms)[number]): Course {
-  return {
-    id: `template-${program.slug}`,
-    title: program.title,
-    slug: program.slug,
-    description: JSON.stringify({
-      summary: program.outcome,
-      deliveryMode: "BOTH",
-      source: "NIDUS Academy Master Course Architecture",
-    }),
-    thumbnail: `/images/academy/${program.slug}.jpg`,
-    category: program.groupTitle,
-    examType: "Academy Program",
-    duration: program.audience,
-    price: 0,
-    isPremium: false,
-    createdAt: "",
-  };
-}
-
-function orderedCourses(courses: Course[]) {
-  return [...courses].sort((left, right) => {
-    const leftIndex = finalProgramSlugs.indexOf(left.slug);
-    const rightIndex = finalProgramSlugs.indexOf(right.slug);
-    if (leftIndex >= 0 && rightIndex >= 0) return leftIndex - rightIndex;
-    if (leftIndex >= 0) return -1;
-    if (rightIndex >= 0) return 1;
-    return left.title.localeCompare(right.title);
-  });
-}
-
-function textIncludes(value: string, pattern: string) {
-  return value.toLowerCase().includes(pattern.toLowerCase());
-}
-
-function scheduleText(batch: AcademyBatch, key: string) {
-  const value = batch.schedule?.[key];
-  return typeof value === "string" && value.trim() ? value.trim() : "";
-}
-
-function scheduleNumber(batch: AcademyBatch, key: string) {
-  const value = batch.schedule?.[key];
-  return typeof value === "number" && Number.isFinite(value) ? value : 0;
-}
-
-function scheduleList(batch: AcademyBatch, key: string) {
-  const value = batch.schedule?.[key];
-  return Array.isArray(value) ? value.map(String).filter(Boolean) : [];
-}
-
-function inferProgram(batch: AcademyBatch) {
-  const saved = scheduleText(batch, "programName");
-  if (saved) return saved;
-  const text = `${batch.name} ${batch.programSlug} ${batch.course?.title ?? ""}`.toLowerCase();
-  if (text.includes("agniveer army")) return "Agniveer Army";
-  if (text.includes("agniveer navy")) return "Agniveer Navy";
-  if (text.includes("agniveer air")) return "Agniveer Air Force";
-  if (text.includes("cdse") || text.includes("cds")) return "CDS";
-  if (text.includes("afcat")) return "AFCAT";
-  if (text.includes("nda")) return "NDA";
-  if (text.includes("ssb")) return "SSB";
-  if (text.includes("ssr")) return "SSR";
-  if (text.includes("navik")) return "Navik";
-  if (text.includes("mr")) return "MR";
-  if (text.includes("tes")) return "TES";
-  if (text.includes("tgc") || text.includes("ssc technical")) return "TGC / SSC Technical";
-  if (text.includes("mns")) return "MNS";
-  if (text.includes("afmc")) return "AFMC";
-  if (text.includes("rimc")) return "RIMC";
-  if (text.includes("aissee class 9")) return "AISSEE Class 9";
-  if (text.includes("aissee")) return "AISSEE Class 6";
-  if (text.includes("territorial") || text.includes("coast guard")) return "Territorial Army & Coast Guard";
-  return batch.course?.title ?? batch.programSlug ?? "Academy Program";
-}
-
-function inferLearningMode(batch: AcademyBatch) {
-  const saved = scheduleText(batch, "learningMode");
-  if (saved) return saved.toUpperCase();
-  const type = (batch.batchType || "").toUpperCase();
-  if (learningModes.includes(type)) return type;
-  if (textIncludes(batch.name, "online")) return "ONLINE";
-  if (textIncludes(batch.name, "offline")) return "OFFLINE";
-  if (textIncludes(batch.name, "hybrid")) return "HYBRID";
-  return "Mode pending";
-}
-
-function inferProgramType(batch: AcademyBatch) {
-  const saved = scheduleText(batch, "programType");
-  if (saved) return saved;
-  const text = `${batch.name} ${batch.batchType} ${batch.programSlug} ${batch.course?.title ?? ""}`.toLowerCase();
-  if (text.includes("crash")) return "Crash Course";
-  if (text.includes("foundation") || text.includes("f1") || text.includes("f2") || text.includes("f3")) return "Foundation";
-  if (text.includes("weekend")) return "Weekend";
-  if (text.includes("interview") || text.includes("ssb")) return "Interview";
-  if (text.includes("physical")) return "Physical Training";
-  return "Regular";
-}
-
-function academicHeadNames(batch: AcademyBatch) {
-  const names = (batch.teachers ?? [])
-    .filter((assignment) => assignment.role === "ACADEMIC_HEAD" || assignment.subject === "Academic Coordination")
-    .map((assignment) => assignment.teacher?.name || assignment.teacher?.email)
-    .filter(Boolean) as string[];
-  return Array.from(new Set(names)).join(", ") || "Not assigned";
-}
-
-function courseForProgram(courses: Course[], programSlug: string, programType: string) {
-  const programSpecificSlug =
-    programSlug === "nda-crash-course" && programType === "Foundation" ? "nda-f1"
-    : programSlug === "cdse-afcat-crash-course" && programType === "Foundation" ? "cds-f1"
-    : programSlug;
-  return courses.find((course) => course.slug === programSpecificSlug) ?? courses.find((course) => course.slug === programSlug);
-}
-
-function formatDate(value?: string | null) {
-  return value ? new Date(value).toLocaleDateString() : "Not set";
-}
-
-function formatMetric(value?: number | null) {
-  return typeof value === "number" && Number.isFinite(value) ? `${value}%` : "No data";
-}
-
-function batchReadiness(batch: AcademyBatch, progress?: StudentProgressBatchCard) {
-  const studentCount = batch._count?.students ?? batch.students?.length ?? 0;
-  const teacherCount = batch._count?.teachers ?? batch.teachers?.length ?? 0;
-  const subjects = scheduleList(batch, "subjects").length;
-  const hasDates = Boolean(batch.startDate && batch.endDate);
-  const hasPlan = Boolean(scheduleNumber(batch, "durationDays") && subjects);
-  const hasLiveSignals = Boolean(progress?.batchHealthScore !== null && progress?.batchHealthScore !== undefined);
-  const score = [studentCount > 0, teacherCount > 0, subjects > 0, hasDates, hasPlan, hasLiveSignals].filter(Boolean).length;
-  const percent = Math.round((score / 6) * 100);
-  const label = percent >= 84 ? "Ready" : percent >= 50 ? "Needs setup" : "Not ready";
-  return { score: percent, label };
-}
 
 export default function DirectorBatchesPage() {
   const queryClient = useQueryClient();
   const [notice, setNotice] = useState("");
   const [mode, setMode] = useState<PageMode>("list");
-  const [selectedBatchId, setSelectedBatchId] = useState("");
-  const [selectedView, setSelectedView] = useState<BatchView>("overview");
-  const [studentForm, setStudentForm] = useState({ email: "", phone: "", name: "", notes: "" });
-  const [teacherForm, setTeacherForm] = useState({ teacherId: "", subject: "", role: "Subject Teacher" });
   const [form, setForm] = useState({
     name: "",
     programSlug: "nda-crash-course",
@@ -224,13 +59,17 @@ export default function DirectorBatchesPage() {
     examsPerMonth: "1",
     assignmentsPerWeek: "3",
     plannerNotes: "",
+    generatePlanner: "true",
+    classDays: "1,2,3,4,5,6",
+    classStartTime: "09:00",
+    sessionMinutes: "60",
+    holidays: "",
   });
+
   const batchesQuery = useQuery({ queryKey: ["academy", "batches"], queryFn: () => getAcademyBatches() });
-  const teachersQuery = useQuery({ queryKey: ["academy", "teachers"], queryFn: getAcademyTeachers });
   const progressQuery = useQuery({ queryKey: ["academy", "student-progress-summary"], queryFn: getStudentProgressSummary });
   const coursesQuery = useCourses();
   const batches = batchesQuery.data ?? [];
-  const teachers = teachersQuery.data ?? [];
   const progressCards = progressQuery.data?.batches ?? [];
   const batchLoadError = batchesQuery.isError ? getApiErrorMessage(batchesQuery.error) : "";
   const courses = useMemo(() => {
@@ -242,18 +81,14 @@ export default function DirectorBatchesPage() {
 
     return orderedCourses([...databaseCourses, ...missingFinalPrograms]);
   }, [coursesQuery.data]);
-  const activeCount = useMemo(() => batches.filter((batch) => batch.status === "ACTIVE").length, [batches]);
-  const totalStudents = useMemo(() => batches.reduce((count, batch) => count + (batch._count?.students ?? batch.students?.length ?? 0), 0), [batches]);
-  const totalTeachers = useMemo(() => batches.reduce((count, batch) => count + (batch._count?.teachers ?? batch.teachers?.length ?? 0), 0), [batches]);
-  const selectedBatch = useMemo(
-    () => batches.find((batch) => batch.id === selectedBatchId) ?? batches[0] ?? null,
-    [batches, selectedBatchId],
-  );
-  const selectedSubjects = useMemo(() => (selectedBatch ? scheduleList(selectedBatch, "subjects") : []), [selectedBatch]);
-  const selectedProgress = useMemo(
-    () => selectedBatch ? progressCards.find((item) => item.batchId === selectedBatch.id) : undefined,
-    [progressCards, selectedBatch],
-  );
+
+  const activeBatches = batches.filter((batch) => batch.status !== "ARCHIVED");
+  const archivedBatches = batches.filter((batch) => batch.status === "ARCHIVED");
+  const totalStudents = batches.reduce((count, batch) => count + (batch._count?.students ?? batch.students?.length ?? 0), 0);
+  const totalTeachers = batches.reduce((count, batch) => count + (batch._count?.teachers ?? batch.teachers?.length ?? 0), 0);
+  const selectedCourse = courseForProgram(courses, form.programSlug, form.programType);
+  const selectedPlanner = selectedCourse ? parseCourseDescription(selectedCourse).academicPlanner : undefined;
+  const selectedPlannerTotals = plannerTotals(selectedPlanner);
 
   const refresh = () => queryClient.invalidateQueries({ queryKey: ["academy", "batches"] });
   const createBatch = useMutation({
@@ -275,6 +110,11 @@ export default function DirectorBatchesPage() {
         examsPerMonth: "1",
         assignmentsPerWeek: "3",
         plannerNotes: "",
+        generatePlanner: "true",
+        classDays: "1,2,3,4,5,6",
+        classStartTime: "09:00",
+        sessionMinutes: "60",
+        holidays: "",
       });
       void refresh();
       setNotice("Batch created successfully.");
@@ -282,67 +122,13 @@ export default function DirectorBatchesPage() {
     },
     onError: (error) => setNotice(error instanceof Error ? error.message : "Could not create batch."),
   });
-  const updateStatus = useMutation({
-    mutationFn: ({ id, status }: { id: string; status: string }) => updateAcademyBatch(id, { status }),
+  const archiveBatch = useMutation({
+    mutationFn: (batchId: string) => updateAcademyBatch(batchId, { status: "ARCHIVED" }),
     onSuccess: () => {
       void refresh();
-      setNotice("Batch status updated.");
+      setNotice("Batch archived. It will auto-delete after 30 days. Students, courses, admissions and payments remain safe.");
     },
-  });
-  const safeArchive = useMutation({
-    mutationFn: ({ id }: { id: string }) => updateAcademyBatch(id, { status: "ARCHIVED" }),
-    onSuccess: () => {
-      void refresh();
-      setNotice("Batch archived safely. Students, courses, admissions and payments are preserved.");
-    },
-    onError: (error) => setNotice(error instanceof Error ? error.message : "Could not archive batch safely."),
-  });
-  const addStudent = useMutation({
-    mutationFn: ({ batchId, payload }: { batchId: string; payload: typeof studentForm }) => addStudentToBatch(batchId, payload),
-    onSuccess: () => {
-      setStudentForm({ email: "", phone: "", name: "", notes: "" });
-      void refresh();
-      setNotice("Student synced to batch. Their student dashboard will now receive this batch context.");
-    },
-    onError: (error) => setNotice(error instanceof Error ? error.message : "Could not add student to batch."),
-  });
-  const assignTeacher = useMutation({
-    mutationFn: ({ batchId, payload }: { batchId: string; payload: typeof teacherForm }) => assignTeacherToBatch(batchId, payload),
-    onSuccess: () => {
-      setTeacherForm({ teacherId: "", subject: "", role: "Subject Teacher" });
-      void refresh();
-      setNotice("Teacher allocated. The teacher dashboard will show this batch and subject.");
-    },
-    onError: (error) => setNotice(error instanceof Error ? error.message : "Could not allocate teacher."),
-  });
-  const generatePlanner = useMutation({
-    mutationFn: (batch: AcademyBatch) => {
-      const subjects = scheduleList(batch, "subjects");
-      const startDate = batch.startDate?.slice(0, 10) || new Date().toISOString().slice(0, 10);
-      const endDate = batch.endDate?.slice(0, 10) || startDate;
-      const teacherBySubject = new Map((batch.teachers ?? []).map((assignment) => [assignment.subject, assignment.teacher.id]));
-      const sessions = (subjects.length ? subjects : ["General"]).slice(0, 6).map((subject, index) => ({
-        dayOfWeek: (index % 6) + 1,
-        subject,
-        topic: "Planned class",
-        classType: "LECTURE",
-        startTime: index % 2 === 0 ? "09:00" : "10:30",
-        endTime: index % 2 === 0 ? "10:15" : "11:45",
-        teacherId: teacherBySubject.get(subject),
-      }));
-      return generateAcademicCalendarPlan({
-        batchId: batch.id,
-        startDate,
-        endDate,
-        academicYear: new Date(startDate).getFullYear().toString(),
-        sessions,
-      });
-    },
-    onSuccess: (result) => {
-      void refresh();
-      setNotice(`Academic planner generated: ${result.createdCount} slot(s), ${result.conflictCount} conflict(s), ${result.skippedCount} skipped.`);
-    },
-    onError: (error) => setNotice(error instanceof Error ? error.message : "Could not generate academic planner."),
+    onError: (error) => setNotice(error instanceof Error ? error.message : "Could not archive batch."),
   });
 
   const submit = (event: FormEvent<HTMLFormElement>) => {
@@ -350,6 +136,18 @@ export default function DirectorBatchesPage() {
     const program = programOptions.find((item) => item.slug === form.programSlug);
     const course = courseForProgram(courses, form.programSlug, form.programType);
     const isTemplateCourse = course?.id.startsWith("template-");
+    const planner = course ? parseCourseDescription(course).academicPlanner : undefined;
+    const classDays = form.classDays.split(",").map((item) => Number(item)).filter((item) => Number.isInteger(item));
+    const generatedSessions = form.generatePlanner === "true"
+      ? generateBatchPlannerFromTemplate({
+          planner,
+          startDate: form.startDate,
+          classDays: classDays.length ? classDays : [1, 2, 3, 4, 5, 6],
+          startTime: form.classStartTime || "09:00",
+          sessionMinutes: Number(form.sessionMinutes || 60),
+          holidays: form.holidays.split(",").map((item) => item.trim()).filter(Boolean),
+        })
+      : [];
     createBatch.mutate({
       name: form.name,
       courseId: isTemplateCourse ? undefined : course?.id,
@@ -370,6 +168,20 @@ export default function DirectorBatchesPage() {
       examsPerMonth: form.examsPerMonth,
       assignmentsPerWeek: form.assignmentsPerWeek,
       plannerNotes: form.plannerNotes,
+      academicPlanner: generatedSessions.length
+        ? {
+            source: "PROGRAM_TEMPLATE",
+            templateVersion: planner?.version ?? 0,
+            templateStatus: planner?.status ?? "DRAFT",
+            generatedAt: new Date().toISOString(),
+            classDays,
+            classStartTime: form.classStartTime,
+            sessionMinutes: Number(form.sessionMinutes || 60),
+            holidays: form.holidays.split(",").map((item) => item.trim()).filter(Boolean),
+            totals: selectedPlannerTotals,
+            sessions: generatedSessions,
+          }
+        : undefined,
     });
   };
 
@@ -378,7 +190,7 @@ export default function DirectorBatchesPage() {
       <AcademicHero
         eyebrow="Batches"
         title="Batches"
-        description="Click a batch to view its students, teachers, progress and status in one simple control panel."
+        description="Clean batch thumbnails only. Open a batch for students, teachers, syllabus progress and academic planner."
         action={
           <div className="flex flex-wrap gap-2">
             <AcademicActionButton active={mode === "list"} onClick={() => setMode("list")}>View Batches</AcademicActionButton>
@@ -388,27 +200,18 @@ export default function DirectorBatchesPage() {
         }
       />
       {notice ? <div className="rounded-2xl border border-[var(--gold-border)] bg-[var(--gold-soft)] p-4 text-sm font-bold">{notice}</div> : null}
-      {batchLoadError ? (
-        <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-bold text-red-900">
-          Batch data could not be loaded from the academy database: {batchLoadError}
-        </div>
-      ) : null}
-      <section className="grid shrink-0 gap-3 md:grid-cols-4">
-        <StatCard label="Total Batches" value={batchesQuery.isLoading ? "Loading" : batches.length} />
-        <StatCard label="Active" value={batchesQuery.isLoading ? "Loading" : activeCount} />
-        <StatCard label="Students" value={batchesQuery.isLoading ? "Loading" : totalStudents} />
-        <StatCard label="Teachers" value={batchesQuery.isLoading ? "Loading" : totalTeachers} />
+      {batchLoadError ? <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-bold text-red-900">{batchLoadError}</div> : null}
+
+      <section className="grid gap-3 md:grid-cols-5">
+        <StatCard label="Active Batches" value={batchesQuery.isLoading ? "Loading" : activeBatches.length} />
+        <StatCard label="Archived" value={archivedBatches.length} />
+        <StatCard label="Students" value={totalStudents} />
+        <StatCard label="Teachers" value={totalTeachers} />
+        <StatCard label="Programs" value={courses.length} />
       </section>
-      <section className="grid shrink-0 gap-3 md:grid-cols-2">
-        <StatCard label="Programs Available" value={courses.length} />
-      </section>
-      {mode === "create" || mode === "running" ? (
+
+      {mode !== "list" ? (
         <Panel title={mode === "running" ? "Create Running Batch" : "Create New Batch"} eyebrow={mode === "running" ? "Remaining planner setup" : "Fresh planner setup"}>
-          <div className="mb-4 grid gap-3 md:grid-cols-3">
-            <SetupCard icon={ShieldCheck} title="Safe data rule" text="Courses and students stay untouched. This creates only a new active batch plan." />
-            <SetupCard icon={ClipboardList} title={mode === "running" ? "Remaining plan" : "Full plan"} text={mode === "running" ? "Enter what is already completed. The planner starts from the pending portion." : "Set duration, subjects, exams and assignments from day one."} />
-            <SetupCard icon={UserCheck} title="Editable later" text="Teachers, students, status and timetable can be adjusted after launch." />
-          </div>
           <form onSubmit={submit} className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             <Select label="Program" value={form.programSlug} onChange={(value) => setForm((state) => ({ ...state, programSlug: value }))} required>
               {programOptions.map((program) => <option key={program.slug} value={program.slug}>{program.label}</option>)}
@@ -425,274 +228,137 @@ export default function DirectorBatchesPage() {
             <Input label="Total course days" type="number" value={form.durationDays} onChange={(value) => setForm((state) => ({ ...state, durationDays: value }))} />
             {mode === "running" ? <Input label="Already completed days" type="number" value={form.completedDays} onChange={(value) => setForm((state) => ({ ...state, completedDays: value }))} /> : null}
             <Input label="Subjects" value={form.subjects} onChange={(value) => setForm((state) => ({ ...state, subjects: value }))} placeholder="Maths, English, GK" />
-            {mode === "running" ? <Input label="Completed topics" value={form.completedTopics} onChange={(value) => setForm((state) => ({ ...state, completedTopics: value }))} placeholder="Algebra, Grammar basics, Static GK" /> : null}
-            <Input label="Exams per day" type="number" value={form.examsPerDay} onChange={(value) => setForm((state) => ({ ...state, examsPerDay: value }))} />
+            {mode === "running" ? <Input label="Completed topics" value={form.completedTopics} onChange={(value) => setForm((state) => ({ ...state, completedTopics: value }))} placeholder="Algebra, Grammar basics" /> : null}
             <Input label="Exams per week" type="number" value={form.examsPerWeek} onChange={(value) => setForm((state) => ({ ...state, examsPerWeek: value }))} />
-            <Input label="Exams per month" type="number" value={form.examsPerMonth} onChange={(value) => setForm((state) => ({ ...state, examsPerMonth: value }))} />
             <Input label="Assignments per week" type="number" value={form.assignmentsPerWeek} onChange={(value) => setForm((state) => ({ ...state, assignmentsPerWeek: value }))} />
             <div className="md:col-span-2 xl:col-span-3">
               <TextArea label="Planner notes" value={form.plannerNotes} onChange={(value) => setForm((state) => ({ ...state, plannerNotes: value }))} placeholder="Example: evening batch, extra maths practice, Sunday mock test." />
+            </div>
+            <div className="md:col-span-2 xl:col-span-3">
+              <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-3">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <p className="text-[11px] font-black uppercase tracking-[0.2em] text-[var(--gold)]">Program Planner Generation</p>
+                    <h3 className="mt-1 text-base font-black">Create batch academic planner from program template</h3>
+                    <p className="mt-1 text-xs font-bold text-[var(--muted-blue)]">
+                      {selectedPlanner
+                        ? `${selectedPlannerTotals.modules} modules, ${selectedPlannerTotals.topics} topics, ${selectedPlannerTotals.sessions} planned sessions available.`
+                        : "No academic planner is published or drafted for this program yet."}
+                    </p>
+                  </div>
+                  <Select label="Generate planner" value={form.generatePlanner} onChange={(value) => setForm((state) => ({ ...state, generatePlanner: value }))}>
+                    <option value="true">Yes</option>
+                    <option value="false">No</option>
+                  </Select>
+                </div>
+                {form.generatePlanner === "true" ? (
+                  <div className="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+                    <div className="grid gap-2 text-sm font-bold text-[var(--navy)] md:col-span-2">
+                      Class days
+                      <div className="flex flex-wrap gap-2">
+                        {classDayOptions.map((day) => {
+                          const selected = form.classDays.split(",").includes(String(day.value));
+                          return (
+                            <button
+                              key={day.value}
+                              type="button"
+                              onClick={() => {
+                                const current = new Set(form.classDays.split(",").filter(Boolean));
+                                if (selected) current.delete(String(day.value));
+                                else current.add(String(day.value));
+                                setForm((state) => ({ ...state, classDays: Array.from(current).join(",") }));
+                              }}
+                              className={`rounded-xl px-3 py-2 text-xs font-black ${selected ? "bg-[var(--navy)] text-white" : "border border-[var(--border)] bg-white"}`}
+                            >
+                              {day.label}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                    <Input label="Class start time" type="time" value={form.classStartTime} onChange={(value) => setForm((state) => ({ ...state, classStartTime: value }))} />
+                    <Input label="Session minutes" type="number" value={form.sessionMinutes} onChange={(value) => setForm((state) => ({ ...state, sessionMinutes: value }))} />
+                    <div className="md:col-span-2">
+                      <Input label="Holiday dates" value={form.holidays} onChange={(value) => setForm((state) => ({ ...state, holidays: value }))} placeholder="2026-08-15, 2026-09-05" />
+                    </div>
+                  </div>
+                ) : null}
+              </div>
             </div>
             <div className="xl:col-span-3"><GoldButton disabled={createBatch.isPending}>{mode === "running" ? "Create Running Batch" : "Create Batch"}</GoldButton></div>
           </form>
         </Panel>
       ) : null}
-      <Panel title="Batch Control Grid" eyebrow="Click and view">
-        {batchesQuery.isLoading ? <EmptyState text="Loading real academy batches from the database." /> : null}
-        {!batchesQuery.isLoading && batchLoadError ? <EmptyState text="Batch records are unavailable because the batch API request failed. Check the message above before creating new batches." /> : null}
-        {!batchesQuery.isLoading && !batchLoadError && !batches.length ? <EmptyState text="No batches found for your academic scope. Assigned and active batches will appear here." /> : null}
-        <div className="grid max-h-[58vh] min-h-0 gap-3 overflow-auto pr-1 xl:grid-cols-[1fr_420px]">
-          <div className="grid content-start gap-2 sm:grid-cols-2 2xl:grid-cols-3">
-            {batches.map((batch) => {
-              const selected = selectedBatch?.id === batch.id;
-              const batchProgress = progressCards.find((item) => item.batchId === batch.id);
-              const readiness = batchReadiness(batch, batchProgress);
-              return (
-                <button
-                  key={batch.id}
-                  type="button"
-                  onClick={() => {
-                    setSelectedBatchId(batch.id);
-                    setSelectedView("overview");
-                  }}
-                  className={`rounded-2xl border p-3 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-[var(--gold-border)] hover:shadow-md ${
-                    selected ? "border-[var(--gold-border)] bg-[var(--gold-soft)]" : "border-[var(--border)] bg-white"
-                  }`}
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex min-w-0 items-start gap-2">
-                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white">
-                        <GraduationCap className="h-5 w-5 text-[var(--navy)]" />
-                      </span>
-                      <div className="min-w-0">
-                        <h3 className="line-clamp-2 text-sm font-black leading-5">{batch.name}</h3>
-                        <p className="mt-1 text-xs text-[var(--muted-blue)]">{inferProgram(batch)} / {inferProgramType(batch)}</p>
-                      </div>
-                    </div>
-                    <span className="shrink-0 rounded-full border border-[var(--border)] bg-white px-2 py-0.5 text-[10px] font-black">{batch.status}</span>
+
+      <Panel title="Batch Thumbnails" eyebrow="Open separate page">
+        {batchesQuery.isLoading ? <EmptyState text="Loading academy batches." /> : null}
+        {!batchesQuery.isLoading && !activeBatches.length ? <EmptyState text="No active batches found. Create a new batch or running batch." /> : null}
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          {activeBatches.map((batch) => {
+            const progress = progressCards.find((item) => item.batchId === batch.id);
+            const readiness = batchReadiness(batch, progress);
+            const generatedPlanner = typeof batch.schedule?.academicPlanner === "object" && batch.schedule.academicPlanner
+              ? batch.schedule.academicPlanner as { sessions?: unknown[]; templateStatus?: string }
+              : null;
+            return (
+              <article key={batch.id} className="rounded-2xl border border-[var(--border)] bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:border-[var(--gold-border)] hover:shadow-md">
+                <Link href={`/dashboard/director/academic/batches/${batch.id}`} className="block">
+                  <div className="flex items-start justify-between gap-3">
+                    <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--gold-soft)]">
+                      <GraduationCap className="h-5 w-5" />
+                    </span>
+                    <span className="rounded-full border border-[var(--border)] px-2.5 py-1 text-[10px] font-black">{batch.status}</span>
                   </div>
+                  <h3 className="mt-3 text-base font-black leading-tight">{batch.name}</h3>
+                  <p className="mt-1 text-xs text-[var(--muted-blue)]">{inferProgram(batch)} / {inferProgramType(batch)} / {inferLearningMode(batch)}</p>
+                  <p className="mt-2 inline-flex rounded-full border border-[var(--border)] bg-white px-2.5 py-1 text-[10px] font-black">
+                    {generatedPlanner?.sessions?.length ? `${generatedPlanner.sessions.length} planner sessions generated` : "Planner not generated"}
+                  </p>
                   <div className="mt-3 grid grid-cols-3 gap-2">
                     <MiniStat icon={Users} label="Students" value={batch._count?.students ?? batch.students?.length ?? 0} />
                     <MiniStat icon={UserCheck} label="Teachers" value={batch._count?.teachers ?? batch.teachers?.length ?? 0} />
-                    <MiniStat icon={CalendarDays} label="Mode" value={inferLearningMode(batch)} />
+                    <MiniStat icon={CalendarDays} label="Start" value={formatDate(batch.startDate)} />
                   </div>
-                  <div className="mt-3">
-                    <ReadinessBar score={readiness.score} label={readiness.label} />
+                  <ReadinessBar score={readiness.score} label={readiness.label} />
+                  <p className="mt-3 rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-3 py-2 text-xs font-bold text-[var(--muted-blue)]">Head: {academicHeadNames(batch)}</p>
+                </Link>
+                <div className="mt-3 grid gap-2">
+                  <Link href={`/dashboard/director/academic/batches/${batch.id}/planner`} className="inline-flex items-center justify-center gap-2 rounded-xl bg-[var(--navy)] px-3 py-2 text-xs font-black text-white">
+                    <CalendarDays className="h-4 w-4" />
+                    Academic Planner
+                  </Link>
+                  <div className="grid grid-cols-2 gap-2">
+                  <Link href={`/dashboard/director/academic/batches/${batch.id}`} className="inline-flex items-center justify-center gap-2 rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-xs font-black">
+                    <Pencil className="h-4 w-4" />
+                    Modify
+                  </Link>
+                  <button
+                    type="button"
+                    disabled={archiveBatch.isPending}
+                    onClick={() => {
+                      if (window.confirm("Archive this batch? It will auto-delete after 30 days. Students and courses remain safe.")) {
+                        archiveBatch.mutate(batch.id);
+                      }
+                    }}
+                    className="inline-flex items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs font-black text-red-700 disabled:opacity-60"
+                  >
+                    <Archive className="h-4 w-4" />
+                    Archive
+                  </button>
                   </div>
-                  <div className="mt-3 rounded-xl border border-[var(--border)] bg-white/70 px-3 py-2 text-xs font-bold text-[var(--muted-blue)]">
-                    Head: {academicHeadNames(batch)}
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-
-          {selectedBatch ? (
-            <section className="min-h-0 rounded-2xl border border-[var(--border)] bg-white p-3 shadow-sm">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-[var(--gold)]">Selected Batch</p>
-                  <h3 className="mt-1 text-lg font-black">{selectedBatch.name}</h3>
-                  <p className="mt-1 text-xs text-[var(--muted-blue)]">{inferProgram(selectedBatch)} / {inferProgramType(selectedBatch)} / {inferLearningMode(selectedBatch)}</p>
                 </div>
-                <span className="rounded-full border border-[var(--border)] px-2.5 py-1 text-[11px] font-black">{selectedBatch.status}</span>
-              </div>
-
-              <div className="mt-3 grid grid-cols-2 gap-2">
-                <ViewButton active={selectedView === "overview"} icon={GraduationCap} label="Overview" onClick={() => setSelectedView("overview")} />
-                <ViewButton active={selectedView === "students"} icon={Users} label="Students" onClick={() => setSelectedView("students")} />
-                <ViewButton active={selectedView === "teachers"} icon={UserCheck} label="Teachers" onClick={() => setSelectedView("teachers")} />
-                <ViewButton active={selectedView === "progress"} icon={BarChart3} label="Progress" onClick={() => setSelectedView("progress")} />
-              </div>
-
-              <div className="mt-3 max-h-[37vh] overflow-auto pr-1">
-                {selectedView === "overview" ? (
-                  <div className="grid gap-2">
-                    <DetailRow label="Program" value={`${inferProgram(selectedBatch)} / ${inferProgramType(selectedBatch)}`} />
-                    <DetailRow label="Learning Mode" value={inferLearningMode(selectedBatch)} />
-                    <DetailRow label="Start Date" value={formatDate(selectedBatch.startDate)} />
-                    <DetailRow label="End Date" value={formatDate(selectedBatch.endDate)} />
-                    <DetailRow label="Academic Head" value={academicHeadNames(selectedBatch)} />
-                    <DetailRow label="Planner Type" value={scheduleText(selectedBatch, "setupType") || "Basic batch"} />
-                    <DetailRow label="Course Days" value={`${scheduleNumber(selectedBatch, "completedDays")} completed / ${scheduleNumber(selectedBatch, "durationDays") || "Not set"} total`} />
-                    <DetailRow label="Subjects" value={scheduleList(selectedBatch, "subjects").join(", ") || "Not planned"} />
-                    <label className="grid gap-1 rounded-xl border border-[var(--border)] bg-[var(--page-bg)] p-3 text-xs font-black uppercase tracking-[0.14em] text-[var(--muted-blue)]">
-                      Status
-                      <select className="rounded-lg border border-[var(--border)] bg-white px-2 py-2 text-sm font-black normal-case tracking-normal text-[var(--navy)]" value={selectedBatch.status} onChange={(event) => updateStatus.mutate({ id: selectedBatch.id, status: event.target.value })}>
-                        {["ACTIVE", "PAUSED", "COMPLETED", "ARCHIVED"].map((status) => <option key={status} value={status}>{status}</option>)}
-                      </select>
-                    </label>
-                    <button
-                      type="button"
-                      disabled={safeArchive.isPending || selectedBatch.status === "ARCHIVED"}
-                      onClick={() => {
-                        if (window.confirm("Archive this batch safely? Students, courses, admissions and payments will remain available.")) {
-                          safeArchive.mutate({ id: selectedBatch.id });
-                        }
-                      }}
-                      className="inline-flex items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm font-black text-red-700 disabled:opacity-50"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                      Safe Archive Batch
-                    </button>
-                  </div>
-                ) : null}
-
-                {selectedView === "students" ? (
-                  <div className="grid gap-2">
-                    <form
-                      className="grid gap-2 rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-3"
-                      onSubmit={(event) => {
-                        event.preventDefault();
-                        if (!selectedBatch) return;
-                        addStudent.mutate({ batchId: selectedBatch.id, payload: studentForm });
-                      }}
-                    >
-                      <p className="text-sm font-black">Add student to batch</p>
-                      <input className="rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-sm" value={studentForm.email} onChange={(event) => setStudentForm((state) => ({ ...state, email: event.target.value }))} placeholder="Student email" />
-                      <input className="rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-sm" value={studentForm.phone} onChange={(event) => setStudentForm((state) => ({ ...state, phone: event.target.value }))} placeholder="Phone if email is not known" />
-                      <input className="rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-sm" value={studentForm.name} onChange={(event) => setStudentForm((state) => ({ ...state, name: event.target.value }))} placeholder="Name for new student record" />
-                      <input className="rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-sm" value={studentForm.notes} onChange={(event) => setStudentForm((state) => ({ ...state, notes: event.target.value }))} placeholder="Notes / roll number" />
-                      <button className="rounded-xl bg-[var(--navy)] px-3 py-2 text-sm font-black text-white disabled:opacity-60" disabled={addStudent.isPending} type="submit">Add Student</button>
-                    </form>
-                    {(selectedBatch.students ?? []).map((entry) => (
-                      <PersonRow key={entry.id} name={entry.student.name} meta={`${entry.student.mobile || "No phone"} / ${entry.status}`} />
-                    ))}
-                    {!(selectedBatch.students ?? []).length ? <EmptyState text="No students are assigned to this batch yet." /> : null}
-                  </div>
-                ) : null}
-
-                {selectedView === "teachers" ? (
-                  <div className="grid gap-2">
-                    <form
-                      className="grid gap-2 rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-3"
-                      onSubmit={(event) => {
-                        event.preventDefault();
-                        if (!selectedBatch || !teacherForm.teacherId) return;
-                        assignTeacher.mutate({ batchId: selectedBatch.id, payload: teacherForm });
-                      }}
-                    >
-                      <p className="text-sm font-black">Allocate teacher</p>
-                      <select className="rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-sm" value={teacherForm.teacherId} onChange={(event) => setTeacherForm((state) => ({ ...state, teacherId: event.target.value }))} required>
-                        <option value="">Select teacher</option>
-                        {teachers.map((teacher) => <option key={teacher.id} value={teacher.id}>{teacher.name || teacher.email}</option>)}
-                      </select>
-                      <select className="rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-sm" value={teacherForm.subject} onChange={(event) => setTeacherForm((state) => ({ ...state, subject: event.target.value }))} required>
-                        <option value="">Select subject</option>
-                        {(selectedSubjects.length ? selectedSubjects : ["General"]).map((subject) => <option key={subject} value={subject}>{subject}</option>)}
-                      </select>
-                      <select className="rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-sm" value={teacherForm.role} onChange={(event) => setTeacherForm((state) => ({ ...state, role: event.target.value }))}>
-                        <option value="Subject Teacher">Subject Teacher</option>
-                        <option value="Physical Trainer">Physical Trainer</option>
-                        <option value="ACADEMIC_HEAD">Academic Head</option>
-                      </select>
-                      <button className="rounded-xl bg-[var(--navy)] px-3 py-2 text-sm font-black text-white disabled:opacity-60" disabled={assignTeacher.isPending || teachersQuery.isLoading} type="submit">Allocate Teacher</button>
-                    </form>
-                    {(selectedBatch.teachers ?? []).map((entry) => (
-                      <PersonRow key={entry.id} name={entry.teacher.name || entry.teacher.email} meta={`${entry.subject || "Subject pending"} / ${entry.role}`} />
-                    ))}
-                    {!(selectedBatch.teachers ?? []).length ? <EmptyState text="No teachers are assigned to this batch yet." /> : null}
-                  </div>
-                ) : null}
-
-                {selectedView === "progress" ? (
-                  <div className="grid gap-2">
-                    <div className="grid gap-2 rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-3">
-                      <p className="text-sm font-black">Launch academic flow</p>
-                      <LaunchChecklist batch={selectedBatch} progress={selectedProgress} />
-                      <button
-                        type="button"
-                        disabled={generatePlanner.isPending}
-                        onClick={() => selectedBatch ? generatePlanner.mutate(selectedBatch) : undefined}
-                        className="inline-flex items-center justify-center gap-2 rounded-xl bg-[var(--navy)] px-3 py-2 text-sm font-black text-white disabled:opacity-60"
-                      >
-                        Generate Class Planner
-                      </button>
-                      <div className="grid gap-2 sm:grid-cols-3">
-                        <FlowLink href="/dashboard/director/academic/timetable" label="Timetable" />
-                        <FlowLink href="/dashboard/director/teaching/exams" label="Exams" />
-                        <FlowLink href="/dashboard/director/teaching/assignments" label="Assignments" />
-                      </div>
-                    </div>
-                    <ProgressTile label="Batch Health" value={formatMetric(selectedProgress?.batchHealthScore)} text={selectedProgress?.overallStatus ?? "No live health data yet. Generate timetable, mark attendance and publish work to activate full tracking."} />
-                    <ProgressTile label="Attendance" value={formatMetric(selectedProgress?.attendancePercentage)} text="Updates from class attendance records." />
-                    <ProgressTile label="Assignment Completion" value={formatMetric(selectedProgress?.assignmentCompletionPercentage)} text="Updates from assignment submissions." />
-                    <ProgressTile label="Exam Average" value={formatMetric(selectedProgress?.examAveragePercentage)} text="Updates from exam attempts and published tests." />
-                    <ProgressTile label="Risk Students" value={selectedProgress?.riskStudentCount ?? 0} text="Students needing attention based on academic signals." />
-                    <ProgressTile label="Students" value={selectedBatch._count?.students ?? selectedBatch.students?.length ?? 0} text="Learners currently connected to this batch." />
-                    <ProgressTile label="Teachers" value={selectedBatch._count?.teachers ?? selectedBatch.teachers?.length ?? 0} text="Faculty and trainer assignments." />
-                    <ProgressTile label="Tests" value={selectedBatch._count?.tests ?? 0} text="Exams or tests linked to this batch." />
-                    <ProgressTile label="Status" value={selectedBatch.status} text="Operational state of this batch." />
-                    <ProgressTile label="Remaining Days" value={Math.max((scheduleNumber(selectedBatch, "durationDays") || 0) - scheduleNumber(selectedBatch, "completedDays"), 0) || "Not set"} text="For running batches, this is the remaining planner window." />
-                    <ProgressTile label="Exam Plan" value={`${scheduleNumber(selectedBatch, "examsPerWeek")} / week`} text={`${scheduleNumber(selectedBatch, "examsPerDay")} per day, ${scheduleNumber(selectedBatch, "examsPerMonth")} per month.`} />
-                    <ProgressTile label="Assignments" value={`${scheduleNumber(selectedBatch, "assignmentsPerWeek")} / week`} text="Default assignment target saved with the batch planner." />
-                  </div>
-                ) : null}
-              </div>
-            </section>
-          ) : null}
+              </article>
+            );
+          })}
         </div>
       </Panel>
     </AcademicShell>
   );
 }
 
-function SetupCard({ icon: Icon, title, text }: { icon: typeof Users; title: string; text: string }) {
-  return (
-    <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-3">
-      <Icon className="h-5 w-5 text-[var(--gold)]" />
-      <p className="mt-2 text-sm font-black">{title}</p>
-      <p className="mt-1 text-xs leading-5 text-[var(--muted-blue)]">{text}</p>
-    </div>
-  );
-}
-
-function FlowLink({ href, label }: { href: string; label: string }) {
-  return (
-    <Link href={href} className="inline-flex items-center justify-center gap-2 rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-xs font-black">
-      {label}
-      <ArrowRight className="h-3.5 w-3.5" />
-    </Link>
-  );
-}
-
-function ReadinessBar({ score, label }: { score: number; label: string }) {
-  return (
-    <div className="rounded-xl border border-[var(--border)] bg-white px-3 py-2">
-      <div className="flex items-center justify-between gap-2 text-[10px] font-black uppercase tracking-[0.12em] text-[var(--muted-blue)]">
-        <span>{label}</span>
-        <span>{score}%</span>
-      </div>
-      <div className="mt-2 h-2 overflow-hidden rounded-full bg-[var(--page-bg)]">
-        <div className="h-full rounded-full bg-[var(--gold)]" style={{ width: `${score}%` }} />
-      </div>
-    </div>
-  );
-}
-
-function LaunchChecklist({ batch, progress }: { batch: AcademyBatch; progress?: StudentProgressBatchCard }) {
-  const checks = [
-    { label: "Students added", done: (batch._count?.students ?? batch.students?.length ?? 0) > 0 },
-    { label: "Teachers allocated", done: (batch._count?.teachers ?? batch.teachers?.length ?? 0) > 0 },
-    { label: "Subjects planned", done: scheduleList(batch, "subjects").length > 0 },
-    { label: "Dates set", done: Boolean(batch.startDate && batch.endDate) },
-    { label: "Live tracking active", done: progress?.batchHealthScore !== null && progress?.batchHealthScore !== undefined },
-  ];
-  return (
-    <div className="grid gap-1">
-      {checks.map((check) => (
-        <div key={check.label} className="flex items-center justify-between rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-xs font-black">
-          <span>{check.label}</span>
-          <span className={check.done ? "text-emerald-700" : "text-amber-700"}>{check.done ? "Ready" : "Pending"}</span>
-        </div>
-      ))}
-    </div>
-  );
-}
-
 function MiniStat({ icon: Icon, label, value }: { icon: typeof Users; label: string; value: string | number }) {
   return (
-    <div className="rounded-xl border border-[var(--border)] bg-white px-2 py-2">
+    <div className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-2 py-2">
       <Icon className="h-3.5 w-3.5 text-[var(--gold)]" />
       <p className="mt-1 truncate text-[10px] font-black uppercase tracking-[0.12em] text-[var(--muted-blue)]">{label}</p>
       <p className="truncate text-sm font-black">{value}</p>
@@ -700,47 +366,16 @@ function MiniStat({ icon: Icon, label, value }: { icon: typeof Users; label: str
   );
 }
 
-function ViewButton({ active, icon: Icon, label, onClick }: { active: boolean; icon: typeof Users; label: string; onClick: () => void }) {
+function ReadinessBar({ score, label }: { score: number; label: string }) {
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`inline-flex items-center justify-center gap-2 rounded-xl border px-3 py-2 text-xs font-black ${
-        active ? "border-[var(--navy)] bg-[var(--navy)] text-white" : "border-[var(--border)] bg-white text-[var(--navy)]"
-      }`}
-    >
-      <Icon className="h-4 w-4" />
-      {label}
-    </button>
-  );
-}
-
-function DetailRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] p-3">
-      <p className="text-[10px] font-black uppercase tracking-[0.14em] text-[var(--muted-blue)]">{label}</p>
-      <p className="mt-1 text-sm font-black">{value}</p>
-    </div>
-  );
-}
-
-function PersonRow({ name, meta }: { name: string; meta: string }) {
-  return (
-    <div className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] p-3">
-      <p className="text-sm font-black">{name}</p>
-      <p className="mt-1 text-xs text-[var(--muted-blue)]">{meta}</p>
-    </div>
-  );
-}
-
-function ProgressTile({ label, value, text }: { label: string; value: string | number; text: string }) {
-  return (
-    <div className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] p-3">
-      <div className="flex items-center justify-between gap-3">
-        <p className="text-sm font-black">{label}</p>
-        <span className="rounded-full bg-white px-3 py-1 text-xs font-black">{value}</span>
+    <div className="mt-3 rounded-xl border border-[var(--border)] bg-white px-3 py-2">
+      <div className="flex items-center justify-between gap-2 text-[10px] font-black uppercase tracking-[0.12em] text-[var(--muted-blue)]">
+        <span>{label}</span>
+        <span>{score}%</span>
       </div>
-      <p className="mt-2 text-xs leading-5 text-[var(--muted-blue)]">{text}</p>
+      <div className="mt-2 h-2 overflow-hidden rounded-full bg-[var(--page-bg)]">
+        <div className="h-full rounded-full bg-[var(--gold)]" style={{ width: `${score}%` }} />
+      </div>
     </div>
   );
 }
