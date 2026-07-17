@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import { BookOpen, CheckCircle2, ChevronLeft, ChevronRight, Clock3, Eye, FileText, Pencil, Plus, Send, Trash2, Trophy, X } from "lucide-react";
+import { ExamReportingPanel, ExaminationEngineBanner, ExaminationRoleActions, ExamTypePanel, QuestionBankHierarchyPanel, type ExaminationEngineRole } from "@/components/examination/examination-engine-workspace";
 
 export type TeacherExamBatch = {
   id: string;
@@ -69,6 +70,7 @@ type Props = {
   selectedBatchId?: string | null;
   selectedSubject?: string | null;
   exams: TeacherExamRecord[];
+  role?: Extract<ExaminationEngineRole, "ACADEMIC_HEAD" | "TEACHER">;
   loading?: boolean;
   autoOpenCreatorKey?: string | null;
   onSelectBatch: (id: string) => void;
@@ -415,7 +417,7 @@ function inferExamTopic(source: string, fallback: string) {
   return topic || fallback || "General";
 }
 
-export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject, exams, loading, autoOpenCreatorKey, onSelectBatch, onRefresh }: Props) {
+export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject, exams, role = "TEACHER", loading, autoOpenCreatorKey, onSelectBatch, onRefresh }: Props) {
   const [activeBatchId, setActiveBatchId] = useState(selectedBatchId || batches[0]?.id || "");
   const activeBatch = useMemo(() => batches.find((batch) => batch.id === activeBatchId) || batches[0] || null, [activeBatchId, batches]);
   const [targetBatchIds, setTargetBatchIds] = useState<string[]>(activeBatch?.id ? [activeBatch.id] : []);
@@ -461,6 +463,8 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
   }, [activeBatch, exams]);
   const liveExamCount = batchExams.filter((exam) => !["ARCHIVED", "CANCELLED"].includes(String(exam.status || "").toUpperCase())).length;
   const submittedCount = batchExams.reduce((total, exam) => total + Number(exam.attemptStats?.submitted ?? 0), 0);
+  const averageScoreSource = batchExams.filter((exam) => typeof exam.attemptStats?.averageScore === "number");
+  const averageScore = averageScoreSource.length ? averageScoreSource.reduce((total, exam) => total + Number(exam.attemptStats?.averageScore ?? 0), 0) / averageScoreSource.length : 0;
 
   const questions = useMemo(() => buildQuestions(questionSource, answerGuide, form.topic, Number(form.marks)), [answerGuide, form.marks, form.topic, questionSource]);
   const readiness = useMemo(() => paperReadiness(questions), [questions]);
@@ -769,6 +773,26 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
 
   return (
     <section className="grid gap-5">
+      <ExaminationEngineBanner
+        role={role}
+        title={role === "ACADEMIC_HEAD" ? "Academic Head Examination Engine" : "Teacher Examination Engine"}
+        description="Create tests, reuse question sets, publish quizzes, review CBT results and identify weak students from the existing exam workspace."
+        metrics={[
+          { label: "Question Bank", value: batchExams.length, tone: "success" },
+          { label: "Published Tests", value: liveExamCount, tone: liveExamCount ? "info" : "default" },
+          { label: "Submitted Attempts", value: submittedCount, tone: submittedCount ? "success" : "default" },
+          { label: "Average Score", value: `${Math.round(averageScore)}%`, tone: averageScore ? "info" : "default" },
+        ]}
+      />
+      <section className="grid gap-4 xl:grid-cols-[1fr_0.75fr]">
+        <ExaminationRoleActions role={role} />
+        <ExamReportingPanel attempts={submittedCount} averageScore={averageScore} reports={submittedCount} />
+      </section>
+      <section className="grid gap-4 xl:grid-cols-[1fr_0.75fr]">
+        <QuestionBankHierarchyPanel questionCount={batchExams.reduce((total, exam) => total + Number(exam.questionCount ?? exam.draft?.questions?.length ?? 0), 0)} />
+        <ExamTypePanel />
+      </section>
+
       <div className="rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm sm:p-5">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="flex items-start gap-4">

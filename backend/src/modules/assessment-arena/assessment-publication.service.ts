@@ -1,15 +1,7 @@
 import { prisma } from "../../config/prisma.js";
 import { AssessmentStatus } from "../../generated/prisma/client.js";
+import { optionalText } from "./assessment-input.js";
 import { assessmentQuestionManagementService } from "./assessment-question.service.js";
-
-function text(value: unknown) {
-  return typeof value === "string" ? value.trim() : "";
-}
-
-function optionalText(value: unknown) {
-  const valueText = text(value);
-  return valueText || undefined;
-}
 
 export const assessmentPublicationService = {
   async submitForReview(id: string, input: Record<string, unknown> = {}) {

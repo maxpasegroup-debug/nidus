@@ -3,8 +3,11 @@
 import { type FormEvent, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Archive, BarChart3, CalendarClock, Camera, CheckCircle2, Globe2, MessageCircle, Phone, PhoneCall, Plus, RefreshCw, Send, UserPlus, Users } from "lucide-react";
+import { AiOperatingLayer } from "@/components/ai/ai-operating-layer";
 import { RoleDashboardGuard } from "@/components/dashboard";
+import { WorkspaceDashboard } from "@/components/dashboard/workspace-dashboard";
 import { useAuth } from "@/components/providers/auth-provider-v2";
+import { ExecutiveIntelligenceSystem } from "@/components/reporting/executive-intelligence-system";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useFollowups, useLeads } from "@/hooks/use-crm";
@@ -338,28 +341,75 @@ export default function BusinessDevelopmentDashboardPage() {
 
   return (
     <RoleDashboardGuard role={["DIRECTOR", "BUSINESS_DEVELOPMENT_EXECUTIVE", "TELECALLER", "MARKETING_COORDINATOR"]}>
-      <main className="mx-auto grid max-w-[1500px] gap-4 lg:h-[calc(100vh-var(--nav-height)-2rem)] lg:overflow-hidden">
-        <section className="rounded-2xl border border-[#071d36]/15 bg-white p-5 shadow-[0_18px_60px_rgba(7,29,54,0.08)]">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-            <div>
-              <p className="text-xs font-black uppercase tracking-[0.28em] text-[#3f4a32]">Marketing And Sales</p>
-              <h1 className="mt-2 text-3xl font-black text-[#071d36]">Revenue Pipeline Control</h1>
-              <p className="mt-2 max-w-2xl text-sm leading-6 text-[#52627a]">A simple command panel for enquiries, calling, follow-ups, counselling interest and AO admission handover.</p>
-            </div>
-            <Button type="button" onClick={() => leads.refetch()} disabled={leads.isFetching} variant="secondary">
-              <RefreshCw className="mr-2 h-4 w-4" /> {leads.isFetching ? "Refreshing..." : "Refresh"}
-            </Button>
-          </div>
-        </section>
+      <WorkspaceDashboard
+        roleTitle="Business Development Workspace"
+        greeting="Today's Leads"
+        subtitle="Campaign performance, follow-ups and admission handovers in one focused revenue workspace."
+        focus={[
+          { label: "Today's Leads", title: reports.callsToday, detail: "Calls and follow-ups that need action today.", href: "/dashboard/business-development?tab=CALLING", icon: PhoneCall, tone: reports.callsToday ? "warning" : "success" },
+          { label: "Campaign Performance", title: `${reports.newLeads} new`, detail: `${reports.counselling} counselling and ${reports.readyForAo} ready for AO.`, href: "/dashboard/business-development?tab=PIPELINE", icon: BarChart3, tone: "info" },
+          { label: "Targets", title: `${reports.converted} converted`, detail: `${reports.overdue} overdue follow-up(s) need recovery.`, href: "/dashboard/business-development?tab=REPORTS", icon: CheckCircle2, tone: reports.overdue ? "warning" : "success" },
+        ]}
+        actions={[
+          { label: "Leads", href: "/dashboard/business-development?tab=LEADS", icon: Users },
+          { label: "Campaigns", href: "/dashboard/sales-booster", icon: Globe2 },
+          { label: "Follow-ups", href: "/dashboard/business-development?tab=FOLLOWUPS", icon: CalendarClock },
+          { label: "Counselling", href: "/dashboard/business-development?tab=COUNSELLING", icon: MessageCircle },
+          { label: "Reports", href: "/dashboard/business-development?tab=REPORTS", icon: BarChart3 },
+        ]}
+        metrics={[
+          { label: "Calls Today", value: reports.callsToday },
+          { label: "Overdue", value: reports.overdue, tone: reports.overdue ? "warning" : "success" },
+          { label: "New Leads", value: reports.newLeads },
+          { label: "Ready For AO", value: reports.readyForAo },
+        ]}
+        activity={todayQueue.slice(0, 5).map((lead) => ({ title: lead.fullName, detail: `${lead.mobile} / ${lead.targetExam}`, href: "/dashboard/business-development?tab=CALLING", meta: latestFollowupByLead.get(lead.id) ? nextFollowupLabel(latestFollowupByLead.get(lead.id)) : lead.status }))}
+        upcoming={readyLeads.slice(0, 5).map((lead) => ({ title: lead.fullName, detail: `${lead.targetExam} is ready for AO handover.`, href: "/dashboard/business-development?tab=COUNSELLING", meta: "AO" }))}
+      >
 
-        <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-6">
-          <Metric label="Calls Today" value={reports.callsToday} />
-          <Metric label="Overdue" value={reports.overdue} />
-          <Metric label="New Leads" value={reports.newLeads} />
-          <Metric label="Counselling" value={reports.counselling} />
-          <Metric label="Ready For AO" value={reports.readyForAo} />
-          <Metric label="Converted" value={reports.converted} />
-        </section>
+        <AiOperatingLayer
+          role="BUSINESS_DEVELOPMENT"
+          items={[
+            {
+              title: reports.overdue ? `${reports.overdue} overdue follow-up(s)` : "No overdue follow-ups",
+              detail: "Lead priority is calculated from the existing follow-up queue.",
+              href: "/dashboard/business-development?tab=CALLING",
+              icon: CalendarClock,
+              tone: reports.overdue ? "warning" : "success",
+            },
+            {
+              title: `${reports.readyForAo} AO-ready lead(s)`,
+              detail: "These leads have admission handover signals and should not stay in sales.",
+              href: "/dashboard/business-development?tab=COUNSELLING",
+              icon: Send,
+              tone: reports.readyForAo ? "info" : "default",
+            },
+            {
+              title: `${reports.converted} converted`,
+              detail: "Conversion insight remains inside the growth workspace, not a separate AI dashboard.",
+              href: "/dashboard/business-development?tab=REPORTS",
+              icon: BarChart3,
+              tone: "success",
+            },
+          ]}
+        />
+
+        <ExecutiveIntelligenceSystem
+          role="BUSINESS_DEVELOPMENT"
+          title="Growth Intelligence"
+          description="Lead funnel, conversions, pending admissions, counselling outcomes, campaign performance and follow-up recovery are connected to the existing CRM workspace."
+          metrics={[
+            { label: "Lead Funnel", value: leadData.length, note: `${reports.newLeads} new lead(s)`, tone: "info" },
+            { label: "Conversions", value: reports.converted, note: `${reports.counselling} counselling`, tone: reports.converted ? "success" : "info" },
+            { label: "Follow-ups", value: reports.callsToday, note: `${reports.overdue} overdue`, tone: reports.overdue ? "warning" : "success" },
+            { label: "AO Ready", value: reports.readyForAo, note: "Ready for admission handover", tone: reports.readyForAo ? "warning" : "success" },
+          ]}
+          insights={[
+            { title: "What happened?", detail: `${leadData.length} lead(s), ${followupData.length} follow-up(s) and ${reports.readyForAo} AO-ready handover(s) are visible.`, tone: "info" },
+            { title: "What needs attention?", detail: reports.overdue ? `${reports.overdue} overdue follow-up(s) need recovery today.` : "No overdue recovery queue is visible.", href: "/dashboard/business-development?tab=CALLING", tone: reports.overdue ? "warning" : "success" },
+            { title: "What should I do next?", detail: "Work through calling, counselling and reports from the existing CRM tabs below.", href: "/dashboard/business-development?tab=REPORTS", tone: "info" },
+          ]}
+        />
 
         <nav className="flex gap-2 overflow-x-auto rounded-2xl border border-[#071d36]/15 bg-white p-2">
           {tabs.map((tab) => (
@@ -492,7 +542,7 @@ export default function BusinessDevelopmentDashboardPage() {
             </div>
           </div>
         ) : null}
-      </main>
+      </WorkspaceDashboard>
     </RoleDashboardGuard>
   );
 }

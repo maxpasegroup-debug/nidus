@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ArrowLeft, BookOpenCheck, FileQuestion, RefreshCw, Search } from "lucide-react";
+import { ExaminationEngineBanner, ExaminationRoleActions, QuestionBankHierarchyPanel } from "@/components/examination/examination-engine-workspace";
 import { apiGet, getApiErrorMessage } from "@/services/api";
 
 type QuestionBankRole = "TEACHER" | "ACADEMIC_HEAD";
@@ -142,6 +143,22 @@ export function TeacherQuestionBankPage({ role, backHref }: { role: QuestionBank
       </header>
 
       {error ? <p className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-bold text-rose-800">{error}</p> : null}
+
+      <ExaminationEngineBanner
+        role={role}
+        title={role === "ACADEMIC_HEAD" ? "Academic Head Question Bank" : "Teacher Question Bank"}
+        description="Reusable question sets stay connected to the same exam builder, CBT publishing flow, evaluation and analytics."
+        metrics={[
+          { label: "Question Bank", value: visibleExams.length, tone: "success" },
+          { label: "Faculty Review", value: exams.filter((exam) => ["REVIEW", "PENDING_REVIEW", "DRAFT"].includes(String(exam.reviewStatus || exam.status || "").toUpperCase())).length, tone: "warning" },
+          { label: "Published Tests", value: exams.filter((exam) => ["PUBLISHED", "LIVE", "APPROVED"].includes(String(exam.status || "").toUpperCase())).length, tone: "info" },
+          { label: "Student Performance", value: "Reports", tone: "info" },
+        ]}
+      />
+      <section className="grid gap-4 xl:grid-cols-[1fr_0.75fr]">
+        <ExaminationRoleActions role={role} />
+        <QuestionBankHierarchyPanel questionCount={exams.reduce((total, exam) => total + questionCount(exam), 0)} />
+      </section>
 
       <section className="rounded-3xl border border-[var(--border)] bg-white p-5 shadow-sm">
         <div className="grid gap-3 md:grid-cols-[1fr_220px_220px]">

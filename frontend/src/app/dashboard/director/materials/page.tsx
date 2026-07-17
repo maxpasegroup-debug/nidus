@@ -9,6 +9,7 @@ import {
   publishStudyMaterial,
   reviewStudyMaterial,
 } from "@/services/academy";
+import { LearningContentGroups, LearningEngineBanner, LearningProgressPanel, LearningRoleActions } from "@/components/learning/learning-engine-workspace";
 import { AcademicActionButton, AcademicCard, AcademicHero, AcademicPill, AcademicShell, Panel, StatCard } from "../academic/_components";
 
 type BatchOption = {
@@ -115,7 +116,7 @@ export default function DirectorMaterialsPage() {
 
   const batches = batchesQuery.data ?? [];
   const materialData = materialsQuery.data;
-  const materials = materialData?.materials ?? [];
+  const materials = useMemo(() => materialData?.materials ?? [], [materialData?.materials]);
   const summary = materialData?.summary;
   const materialTypes = useMemo(() => Array.from(new Set(materials.map((material) => material.type).filter(Boolean))).sort(), [materials]);
   const reviewStatuses = useMemo(() => Array.from(new Set(materials.map((material) => material.reviewStatus || "PENDING_REVIEW"))).sort(), [materials]);
@@ -159,6 +160,23 @@ export default function DirectorMaterialsPage() {
           <StatCard label="Review" value={summary?.pendingReview ?? 0} />
           <StatCard label="Approved" value={summary?.approved ?? 0} />
           <StatCard label="Visible Now" value={filteredMaterials.length} />
+        </section>
+
+        <LearningEngineBanner
+          role="DIRECTOR"
+          title="Director Learning Overview"
+          description="Courses, lesson resources, faculty coverage and student progress stay connected to the Academic Engine without creating another LMS."
+          metrics={[
+            { label: "Course Completion", value: summary?.total ?? 0, tone: "info" },
+            { label: "Faculty Coverage", value: summary?.approved ?? 0, tone: "success" },
+            { label: "Weak Subjects", value: summary?.pendingReview ?? 0, tone: (summary?.pendingReview ?? 0) ? "warning" : "success" },
+            { label: "Content Status", value: filteredMaterials.length, tone: "info" },
+          ]}
+        />
+        <LearningRoleActions role="DIRECTOR" />
+        <section className="grid gap-5 xl:grid-cols-[1fr_0.9fr]">
+          <LearningContentGroups />
+          <LearningProgressPanel lessonCount={materials.length} materialCount={summary?.total ?? 0} />
         </section>
 
         {notice && (

@@ -8,31 +8,7 @@ import {
   reviewRepository,
   traitRepository
 } from "./assessment-arena.repository.js";
-
-const emptyRelevance = {};
-
-function text(value: unknown) {
-  return typeof value === "string" ? value.trim() : "";
-}
-
-function optionalText(value: unknown) {
-  const trimmed = text(value);
-  return trimmed || undefined;
-}
-
-function numberValue(value: unknown, fallback = 0) {
-  const parsed = Number(value);
-  return Number.isFinite(parsed) ? parsed : fallback;
-}
-
-function booleanValue(value: unknown, fallback = false) {
-  return typeof value === "boolean" ? value : fallback;
-}
-
-function jsonValue(value: unknown): Prisma.InputJsonValue {
-  if (value && typeof value === "object") return value as Prisma.InputJsonValue;
-  return emptyRelevance;
-}
+import { booleanValue, jsonObject, numberValue, optionalText, text } from "./assessment-input.js";
 
 export const assessmentArenaService = {
   assessments: {
@@ -157,8 +133,8 @@ export const assessmentArenaService = {
         instructionText: optionalText(input.instructionText),
         questionType: questionType as Prisma.AssessmentQuestionUncheckedCreateInput["questionType"],
         difficultyLevel: numberValue(input.difficultyLevel, 1),
-        programRelevance: jsonValue(input.programRelevance),
-        serviceRelevance: jsonValue(input.serviceRelevance),
+        programRelevance: jsonObject(input.programRelevance),
+        serviceRelevance: jsonObject(input.serviceRelevance),
         version: numberValue(input.version, 1),
         status: input.status as Prisma.AssessmentQuestionUncheckedCreateInput["status"],
         authorId: optionalText(input.authorId),
@@ -171,8 +147,8 @@ export const assessmentArenaService = {
         instructionText: optionalText(input.instructionText),
         questionType: input.questionType as Prisma.AssessmentQuestionUpdateInput["questionType"],
         difficultyLevel: input.difficultyLevel === undefined ? undefined : numberValue(input.difficultyLevel, 1),
-        programRelevance: input.programRelevance === undefined ? undefined : jsonValue(input.programRelevance),
-        serviceRelevance: input.serviceRelevance === undefined ? undefined : jsonValue(input.serviceRelevance),
+        programRelevance: input.programRelevance === undefined ? undefined : jsonObject(input.programRelevance),
+        serviceRelevance: input.serviceRelevance === undefined ? undefined : jsonObject(input.serviceRelevance),
         status: input.status as Prisma.AssessmentQuestionUpdateInput["status"],
         reviewerId: optionalText(input.reviewerId),
         seniorReviewerId: optionalText(input.seniorReviewerId),
@@ -195,7 +171,7 @@ export const assessmentArenaService = {
         readinessWeight: numberValue(input.readinessWeight, 1),
         dimensionWeight: numberValue(input.dimensionWeight, 1),
         traitWeight: numberValue(input.traitWeight, 1),
-        flags: input.flags === undefined ? undefined : jsonValue(input.flags),
+        flags: input.flags === undefined ? undefined : jsonObject(input.flags),
         interpretationHint: optionalText(input.interpretationHint)
       });
     },
@@ -207,8 +183,8 @@ export const assessmentArenaService = {
         questionId,
         version: numberValue(input.version, 1),
         questionText,
-        optionsSnapshot: input.optionsSnapshot === undefined ? undefined : jsonValue(input.optionsSnapshot),
-        metadataSnapshot: jsonValue(input.metadataSnapshot),
+        optionsSnapshot: input.optionsSnapshot === undefined ? undefined : jsonObject(input.optionsSnapshot),
+        metadataSnapshot: jsonObject(input.metadataSnapshot),
         changedBy: optionalText(input.changedBy),
         changeReason: optionalText(input.changeReason)
       });
@@ -250,7 +226,7 @@ export const assessmentArenaService = {
         assessmentId: optionalText(input.assessmentId),
         name,
         boardType,
-        responsibilities: input.responsibilities === undefined ? undefined : jsonValue(input.responsibilities),
+        responsibilities: input.responsibilities === undefined ? undefined : jsonObject(input.responsibilities),
         status: optionalText(input.status) ?? "ACTIVE"
       });
     }
@@ -267,14 +243,14 @@ export const assessmentArenaService = {
         name,
         status: optionalText(input.status) ?? "PLANNED",
         sampleSize: numberValue(input.sampleSize),
-        validationMetrics: input.validationMetrics === undefined ? undefined : jsonValue(input.validationMetrics),
+        validationMetrics: input.validationMetrics === undefined ? undefined : jsonObject(input.validationMetrics),
         acceptanceNotes: optionalText(input.acceptanceNotes)
       });
     },
     update: (id: string, input: Record<string, unknown>) => pilotRepository.update(id, {
       status: optionalText(input.status),
       sampleSize: input.sampleSize === undefined ? undefined : numberValue(input.sampleSize),
-      validationMetrics: input.validationMetrics === undefined ? undefined : jsonValue(input.validationMetrics),
+      validationMetrics: input.validationMetrics === undefined ? undefined : jsonObject(input.validationMetrics),
       acceptanceNotes: optionalText(input.acceptanceNotes)
     }),
     createResponse(input: Record<string, unknown>) {
@@ -284,8 +260,8 @@ export const assessmentArenaService = {
         pilotRunId,
         questionId: optionalText(input.questionId),
         participantId: optionalText(input.participantId),
-        response: jsonValue(input.response),
-        metrics: input.metrics === undefined ? undefined : jsonValue(input.metrics)
+        response: jsonObject(input.response),
+        metrics: input.metrics === undefined ? undefined : jsonObject(input.metrics)
       });
     }
   },

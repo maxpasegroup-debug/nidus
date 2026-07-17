@@ -3,7 +3,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { CheckCircle2, FileText, Film, Link2, Loader2, Play, Upload } from "lucide-react";
 
+import { AiOperatingLayer } from "@/components/ai/ai-operating-layer";
 import { RoleDashboardGuard } from "@/components/dashboard/role-dashboard-guard";
+import { WorkspaceDashboard } from "@/components/dashboard/workspace-dashboard";
 import { getAcademyBatches, getMaterialSummary, publishStudyMaterial, type AcademyBatch, type StudyMaterialRecord } from "@/services/academy";
 import { deleteMediaFile, uploadMediaFile } from "@/services/media";
 
@@ -46,6 +48,8 @@ export default function VideoEditorDashboard() {
   const video = resources.find((resource) => resource.kind === "VIDEO");
   const youtubeVideoId = youtubeId(youtube);
   const ready = Boolean(batch && subject && teacherId && chapter.trim() && topic.trim() && title.trim() && (resources.length || youtubeVideoId));
+  const rejectedMaterials = materials.filter((item) => String(item.reviewStatus || item.status || "").toUpperCase() === "REJECTED");
+  const publishedMaterials = materials.filter((item) => String(item.status || "").toUpperCase() === "PUBLISHED");
 
   useEffect(() => {
     Promise.all([getAcademyBatches({ status: "ACTIVE" }), getMaterialSummary()])
@@ -168,7 +172,30 @@ export default function VideoEditorDashboard() {
 
   return (
     <RoleDashboardGuard role="TEACHER">
-      <div className="space-y-4 pb-6">
+      <WorkspaceDashboard
+        roleTitle="Video Editor Workspace"
+        greeting="Pending Videos"
+        subtitle="Prepare, upload and publish class resources for enrolled students."
+        focus={[
+          { label: "Pending Videos", title: resources.length, detail: "Selected local resources waiting to be published.", icon: Film, tone: resources.length ? "warning" : "success" },
+          { label: "Today's Uploads", title: ready ? "Ready to publish" : "Location pending", detail: ready ? "All required lesson details are selected." : "Choose course, batch, subject, faculty, chapter, topic and a resource.", icon: Upload, tone: ready ? "success" : "warning" },
+          { label: "Rejected", title: rejectedMaterials.length, detail: "Rejected resources from the current library summary.", icon: FileText, tone: rejectedMaterials.length ? "danger" : "success" },
+        ]}
+        actions={[
+          { label: "Uploads", href: "/dashboard/video-editor#uploads", icon: Upload },
+          { label: "Pending Videos", href: "/dashboard/video-editor#pending", icon: Film },
+          { label: "Published Videos", href: "/dashboard/video-editor#published", icon: CheckCircle2 },
+        ]}
+        metrics={[
+          { label: "Published", value: loading ? "..." : publishedMaterials.length },
+          { label: "Library Items", value: loading ? "..." : materials.length },
+          { label: "Selected Files", value: resources.length },
+          { label: "Rejected", value: rejectedMaterials.length, tone: rejectedMaterials.length ? "danger" : "success" },
+        ]}
+        activity={materials.slice(0, 5).map((item) => ({ title: item.title, detail: `${item.batchName} / ${item.subject}`, meta: item.status || item.reviewStatus || "Library" }))}
+        upcoming={resources.slice(0, 5).map((item) => ({ title: item.file.name, detail: item.kind === "VIDEO" ? "Recorded video selected" : "Supporting file selected", meta: item.kind }))}
+      >
+      <div id="uploads" className="space-y-4 pb-6">
         <header className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white px-5 py-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-[10px] font-black uppercase tracking-[0.28em] text-amber-700">Academic Media Desk</p>
@@ -180,6 +207,15 @@ export default function VideoEditorDashboard() {
 
         {error ? <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold text-red-700">{error}</div> : null}
         {message ? <div className="flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-800"><CheckCircle2 size={18} />{message}</div> : null}
+        <AiOperatingLayer
+          role="VIDEO_EDITOR"
+          compact
+          items={[
+            { title: title.trim() ? `Title ready: ${title.trim()}` : "Title suggestion pending", detail: "Use the class topic and chapter to keep the recording title searchable.", icon: Film, tone: title.trim() ? "success" : "warning" },
+            { title: topic.trim() ? "Chapter signal ready" : "Add topic for chaptering", detail: topic.trim() ? `${chapter || "Chapter"} / ${topic} can guide descriptions and chapters.` : "Topic is needed before chapter suggestions make sense.", icon: FileText, tone: topic.trim() ? "info" : "warning" },
+            { title: resources.length || youtubeVideoId ? "Recording selected" : "No recording selected", detail: "Recording summaries and descriptions stay inside the existing publish workflow.", icon: Upload, tone: resources.length || youtubeVideoId ? "success" : "default" },
+          ]}
+        />
 
         <main className="grid gap-4 xl:grid-cols-[0.85fr_1.4fr]">
           <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -218,6 +254,7 @@ export default function VideoEditorDashboard() {
           <div className="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">{materials.slice(0, 4).map((item) => <div key={item.id} className="rounded-xl border border-slate-200 p-3"><p className="truncate text-sm font-black">{item.title}</p><p className="mt-1 truncate text-xs text-slate-500">{item.batchName} · {item.subject}</p><p className="mt-2 text-[10px] font-black uppercase tracking-wider text-emerald-700">Published for {item.teacherName || "faculty"}</p></div>)}{!materials.length && !loading ? <p className="text-sm text-slate-500">No lessons published yet.</p> : null}</div>
         </section>
       </div>
+      </WorkspaceDashboard>
     </RoleDashboardGuard>
   );
 }

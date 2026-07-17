@@ -22,6 +22,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { ExecutiveIntelligenceSystem, ReportQuestionCards } from "@/components/reporting/executive-intelligence-system";
 
 type StudentPlan = {
   batches?: Array<{ id: string; name?: string | null; status?: string | null; course?: { title?: string | null } | null }>;
@@ -177,6 +178,25 @@ export default function StudentProgressPage() {
             </div>
           </div>
         </section>
+
+        <ExecutiveIntelligenceSystem
+          role="STUDENT"
+          title="Student Progress Intelligence"
+          description="Learning progress, attendance, assignments, quiz history, exam performance, strengths, improvement areas and achievements in one report foundation."
+          metrics={[
+            { label: "Learning Progress", value: `${learningCoverage}%`, note: `${materials.length} material(s), ${liveClassCount} live class(es)`, tone: learningCoverage >= 70 ? "success" : "info" },
+            { label: "Attendance", value: `${attendancePercentage}%`, note: `${plan?.attendance?.summary?.present ?? 0}/${plan?.attendance?.summary?.total ?? 0} sessions`, tone: attendancePercentage >= 75 ? "success" : "warning" },
+            { label: "Assignments", value: `${assignmentCompletion}%`, note: `${pendingAssignments} pending`, tone: pendingAssignments ? "warning" : "success" },
+            { label: "Exam Performance", value: `${examAverage}%`, note: `Best ${bestExam}%`, tone: examAverage >= 70 ? "success" : "info" },
+          ]}
+          insights={[
+            { title: "Strength", detail: readinessStatus.description, tone: readinessScore >= 75 ? "success" : "info" },
+            { title: "Improvement area", detail: pendingAssignments ? "Assignment completion needs attention first." : attendancePercentage < 75 ? "Attendance should be brought above 75%." : "Keep revision and mock practice consistent.", tone: pendingAssignments || attendancePercentage < 75 ? "warning" : "success" },
+            { title: "Next action", detail: "Open learning, assignments or exams from the connected report links before revising.", href: "/dashboard/student/learning", tone: "info" },
+          ]}
+        >
+          <ReportQuestionCards />
+        </ExecutiveIntelligenceSystem>
 
         <section className="grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
           <section className="rounded-[28px] border border-[var(--border)] bg-[var(--ink)] p-6 text-white shadow-sm">

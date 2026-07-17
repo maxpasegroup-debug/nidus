@@ -34,7 +34,12 @@ import {
   runAcademyTodayAction,
 } from "@/services/academy";
 import type { AcademyTodayTask } from "@/services/academy";
+import { AcademicEngineRoleActions } from "@/components/academy/academic-engine-workspace";
+import { AiOperatingLayer } from "@/components/ai/ai-operating-layer";
 import { QuickActionDock } from "@/components/dashboard/quick-action-dock";
+import { WorkspaceDashboard } from "@/components/dashboard/workspace-dashboard";
+import { ExecutiveIntelligenceSystem } from "@/components/reporting/executive-intelligence-system";
+import { WorkflowOsWorkspace, workflowIcons } from "@/components/workflow/workflow-os-workspace";
 
 type HodTab = "TODAY" | "BATCHES" | "TIMETABLE" | "ALLOCATION" | "APPROVALS" | "MONITORING" | "REPORTS";
 type HodTodayTask = {
@@ -269,71 +274,114 @@ export function HodControlCenter({ initialTab = "TODAY" }: { initialTab?: HodTab
   if (tab === "TODAY") {
     const remaining = todayTasks.filter((item) => !item.done).length;
     return (
-      <main className="mx-auto grid w-full max-w-4xl gap-4 pb-20">
-        <header className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm sm:p-6">
-          <p className="text-xs font-black uppercase tracking-[0.3em] text-[var(--gold-dark)]">Today</p>
-          <div className="mt-2 flex flex-wrap items-end justify-between gap-3">
-            <div>
-              <h1 className="text-3xl font-black">Academic to-do list</h1>
-              <p className="mt-2 text-sm text-[var(--muted-blue)]">Only the academic work that needs attention today.</p>
-            </div>
-            <span className="rounded-full border border-[var(--border)] px-3 py-1 text-xs font-black">{remaining} remaining</span>
-          </div>
-        </header>
-
-        {nextUpcomingTask ? (
-          <section className="rounded-2xl border border-slate-950 bg-slate-950 p-5 text-white shadow-sm">
-            <p className="text-xs font-black uppercase tracking-[0.3em] text-[var(--gold)]">Next academic action</p>
-            <div className="mt-3 grid gap-4 sm:grid-cols-[110px_1fr_auto] sm:items-center">
-              <div>
-                <p className="text-2xl font-black">{nextUpcomingTask.time}</p>
-                {nextUpcomingTask.endTime ? <p className="text-xs text-white/70">to {displayTaskTime(nextUpcomingTask.endTime)}</p> : null}
-              </div>
-              <div className="min-w-0">
-                <p className="text-xs font-black uppercase tracking-[0.16em] text-[var(--gold)]">{nextUpcomingTask.type}</p>
-                <h2 className="mt-1 text-xl font-black">{nextUpcomingTask.title}</h2>
-                <p className="mt-1 text-sm text-white/75">{nextUpcomingTask.detail}</p>
-              </div>
-              <Link href={nextUpcomingTask.href} className="inline-flex min-h-11 items-center justify-center rounded-xl bg-white px-4 text-sm font-black text-slate-950">Open</Link>
-            </div>
-          </section>
-        ) : null}
-
-        <section className="grid gap-3">
-          {todayTasks.map((item) => (
-            <article key={item.id} className={`grid gap-3 rounded-2xl border p-4 transition sm:grid-cols-[96px_1fr_auto] sm:items-center ${item.done ? "border-emerald-200 bg-emerald-50/60" : "border-[var(--border)] bg-white"}`}>
-              <div>
-                <strong className="text-sm">{item.time}</strong>
-                {item.endTime ? <p className="mt-1 text-xs text-[var(--muted-blue)]">to {displayTaskTime(item.endTime)}</p> : null}
-              </div>
-              <div className="min-w-0">
-                <p className="text-xs font-black uppercase tracking-[0.16em] text-[var(--gold-dark)]">{item.type}</p>
-                <Link href={item.href} className="mt-1 block font-black hover:underline">{item.title}</Link>
-                <p className="mt-1 text-sm text-[var(--muted-blue)]">{item.detail}</p>
-                {item.actions?.length ? (
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {item.actions.map((action) => ["COMPLETE", "ATTENDANCE", "LIVE_CLASS", "RECORDING_UPLOADED"].includes(action.key) ? (
-                      <button key={`${item.id}-${action.key}`} type="button" onClick={() => runHodTodayAction(item, action)} className="rounded-lg border border-[var(--border)] px-3 py-2 text-xs font-black hover:border-slate-950">
-                        {action.label}
-                      </button>
-                    ) : (
-                      <Link key={`${item.id}-${action.key}`} href={action.href} className="rounded-lg border border-[var(--border)] px-3 py-2 text-xs font-black hover:border-slate-950">
-                        {action.label}
-                      </Link>
-                    ))}
-                  </div>
-                ) : null}
-              </div>
-              <span className={`inline-flex w-fit items-center gap-2 rounded-full border px-3 py-1 text-xs font-black ${item.done ? "border-emerald-200 bg-white text-emerald-800" : "border-slate-200 bg-slate-50 text-slate-700"}`}>
-                <CheckCircle2 size={14} /> {item.done ? "Done" : "To do"}
-              </span>
-            </article>
-          ))}
-          {!todayTasks.length && !loading && !todayQuery.isLoading ? <Empty>{todayEmptyReason === "NO_CALENDAR_IN_RANGE" ? "No timetable is generated for the next two weeks." : "Nothing is assigned for today."}</Empty> : null}
-          {loading || todayQuery.isLoading ? <Empty>Loading today&apos;s academic work.</Empty> : null}
+      <WorkspaceDashboard
+        roleTitle="Academic Head Workspace"
+        greeting="Today's academic focus"
+        subtitle="Classes, planner movement, faculty status and pending reviews without the module noise."
+        focus={[
+          {
+            label: "Today's Classes",
+            title: todayQuery.isLoading ? "Loading classes" : `${todayClasses.length} classes`,
+            detail: nextUpcomingTask ? `${nextUpcomingTask.time} / ${nextUpcomingTask.title} / ${nextUpcomingTask.detail}` : todayEmptyReason === "NO_CALENDAR_IN_RANGE" ? "No timetable is generated for the next two weeks." : "Nothing is assigned for today.",
+            href: nextUpcomingTask?.href ?? "/dashboard/academic-head/hod/timetable",
+            icon: CalendarDays,
+            tone: todayClasses.length ? "info" : "default",
+          },
+          {
+            label: "Planner Progress",
+            title: `${completedToday}/${todayClasses.length} complete`,
+            detail: "Track class completion and timetable execution for today.",
+            href: "/dashboard/academic-head/hod/timetable",
+            icon: ClipboardCheck,
+            tone: completedToday === todayClasses.length && todayClasses.length ? "success" : "warning",
+          },
+          {
+            label: "Pending Reviews",
+            title: `${pendingAssignments.length + pendingExams.length} reviews`,
+            detail: "Assignment and exam approvals that need academic head review.",
+            href: "/dashboard/academic-head/hod/approvals",
+            icon: FileText,
+            tone: pendingAssignments.length + pendingExams.length ? "warning" : "success",
+          },
+        ]}
+        actions={[
+          { label: "My Classes", href: "/dashboard/academic-head/my-classes", icon: BookOpenCheck },
+          { label: "Planner", href: "/dashboard/academic-head/hod/timetable", icon: CalendarDays },
+          { label: "Faculty", href: "/dashboard/academic-head/hod/teacher-allocation", icon: Users },
+          { label: "Students", href: "/dashboard/academic-head/students", icon: GraduationCap },
+          { label: "Reports", href: "/dashboard/academic-head/hod/reports", icon: BarChart3 },
+          { label: "Approvals", href: "/dashboard/academic-head/hod/approvals", icon: CheckCircle2 },
+        ]}
+        metrics={[
+          { label: "Active Batches", value: loading ? "..." : activeBatches.length, delta: `${totalStudents} students` },
+          { label: "Classes Today", value: calendarQuery.isLoading ? "..." : todayClasses.length, delta: `${completedToday} completed` },
+          { label: "Faculty Alerts", value: teachersPerformanceQuery.isLoading ? "..." : attentionTeachers.length, tone: attentionTeachers.length ? "warning" : "success" },
+          { label: "Pending Reviews", value: assignmentsQuery.isLoading || examsQuery.isLoading ? "..." : pendingAssignments.length + pendingExams.length },
+        ]}
+        activity={todayTasks.slice(0, 5).map((item) => ({
+          title: item.title,
+          detail: item.detail,
+          href: item.href,
+          meta: item.done ? "Done" : item.time,
+        }))}
+        upcoming={[
+          { title: "Faculty status", detail: `${attentionTeachers.length} teacher(s) need attention.`, href: "/dashboard/academic-head/hod/teacher-monitoring", meta: "Faculty" },
+          { title: "Batch progress", detail: `${attentionBatches.length} batch(es) need attention.`, href: "/dashboard/academic-head/hod/student-monitoring", meta: "Students" },
+          { title: "Calendar issues", detail: `${classIssues} delayed or missed class issue(s).`, href: "/dashboard/academic-head/hod/calendar-monitor", meta: "Planner" },
+        ]}
+      >
+        <AiOperatingLayer
+          role="ACADEMIC_HEAD"
+          items={[
+            { title: `${attentionBatches.length} weak batch signal(s)`, detail: "Weak batch insight uses existing student progress summary.", href: "/dashboard/academic-head/hod/student-monitoring", icon: AlertTriangle, tone: attentionBatches.length ? "warning" : "success" },
+            { title: `${attentionTeachers.length} faculty support signal(s)`, detail: "Faculty workload and support signals remain inside monitoring.", href: "/dashboard/academic-head/hod/teacher-monitoring", icon: Users, tone: attentionTeachers.length ? "warning" : "success" },
+            { title: `${pendingAssignments.length + pendingExams.length} pending review(s)`, detail: "Lesson and assessment review risk is visible before it becomes a delay.", href: "/dashboard/academic-head/hod/approvals", icon: ClipboardCheck, tone: pendingAssignments.length + pendingExams.length ? "warning" : "success" },
+          ]}
+        />
+        <ExecutiveIntelligenceSystem
+          role="ACADEMIC_HEAD"
+          title="Academic Intelligence"
+          description="Planner completion, faculty productivity, subject completion, weak batches, exam performance, attendance, lesson completion and pending reviews in one academic report layer."
+          metrics={[
+            { label: "Planner Completion", value: `${completedToday}/${todayClasses.length}`, note: "Today's completed classes", tone: completedToday === todayClasses.length && todayClasses.length ? "success" : "warning" },
+            { label: "Faculty Productivity", value: attentionTeachers.length, note: "Faculty support signal(s)", tone: attentionTeachers.length ? "warning" : "success" },
+            { label: "Weak Batches", value: attentionBatches.length, note: `${batchProgress.length} batch report(s)`, tone: attentionBatches.length ? "warning" : "success" },
+            { label: "Pending Reviews", value: pendingAssignments.length + pendingExams.length, note: "Assignment and exam review queue", tone: pendingAssignments.length + pendingExams.length ? "warning" : "success" },
+          ]}
+          insights={[
+            { title: "What happened?", detail: `${todayClasses.length} class(es), ${assignments.length} assignment(s), ${exams.length} exam(s) and ${calendar.length} calendar item(s) are available.`, tone: "info" },
+            { title: "What needs attention?", detail: `${attentionBatches.length} weak batch signal(s), ${attentionTeachers.length} faculty signal(s) and ${classIssues} calendar issue(s) need review.`, href: "/dashboard/academic-head/hod/reports", tone: attentionBatches.length || attentionTeachers.length || classIssues ? "warning" : "success" },
+            { title: "What should I do next?", detail: "Open reports, approvals or monitoring from the connected report links before changing the timetable.", href: "/dashboard/academic-head/hod/reports", tone: "info" },
+          ]}
+        />
+        <WorkflowOsWorkspace
+          title="Academic Workflow"
+          description="Pending lesson reviews, planner notifications, faculty reminders and exam approval queue are organized from the existing HOD academic workflow."
+          metrics={[
+            { label: "Pending Lesson Reviews", value: pendingAssignments.length, note: "Assignment review queue", tone: pendingAssignments.length ? "warning" : "success" },
+            { label: "Planner Notifications", value: classIssues, note: "Delayed or missed calendar issue(s)", tone: classIssues ? "warning" : "success" },
+            { label: "Faculty Reminders", value: attentionTeachers.length, note: "Faculty support signal(s)", tone: attentionTeachers.length ? "warning" : "success" },
+            { label: "Exam Approval Queue", value: pendingExams.length, note: "Exam review and approval queue", tone: pendingExams.length ? "warning" : "success" },
+          ]}
+          approvals={[
+            { title: "Lesson review queue", detail: `${pendingAssignments.length} assignment review item(s) need action.`, href: "/dashboard/academic-head/hod/approvals", icon: workflowIcons.assignment, tone: pendingAssignments.length ? "warning" : "success" },
+            { title: "Exam approval queue", detail: `${pendingExams.length} exam item(s) are waiting in the academic review flow.`, href: "/dashboard/academic-head/hod/approvals", icon: workflowIcons.exam, tone: pendingExams.length ? "warning" : "success" },
+            { title: "Faculty reminders", detail: `${attentionTeachers.length} faculty support signal(s) are visible from teacher monitoring.`, href: "/dashboard/academic-head/hod/teacher-monitoring", icon: workflowIcons.reminder, tone: attentionTeachers.length ? "warning" : "success" },
+          ]}
+          recent={todayTasks.slice(0, 3).map((task) => ({
+            title: task.title,
+            detail: task.detail,
+            href: task.href,
+            icon: task.done ? workflowIcons.approval : workflowIcons.task,
+            tone: task.done ? "success" : "warning",
+          }))}
+        />
+        <section>
+          <p className="ds-text-label mb-3 text-[var(--ds-color-primary)]">Academic Engine</p>
+          <AcademicEngineRoleActions role="ACADEMIC_HEAD" />
         </section>
         <QuickActionDock role="ACADEMIC_HEAD" />
-      </main>
+      </WorkspaceDashboard>
     );
   }
 

@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, CalendarDays, FileText, Library, PlayCircle } from "lucide-react";
+import { AiOperatingLayer, aiRoleActions } from "@/components/ai/ai-operating-layer";
+import { LearningContentGroups, LearningEngineBanner, LearningProgressPanel, LearningRoleActions } from "@/components/learning/learning-engine-workspace";
 
 type Material = {
   id: string;
@@ -60,7 +62,7 @@ export default function StudentLearningPage() {
   const planQuery = useQuery({ queryKey: ["student", "my-learning"], queryFn: () => apiJson<StudentPlan>("/api/academy/my-plan") });
   const activeBatches = (planQuery.data?.batches ?? []).filter((batch) => batch.status === "ACTIVE");
   const shouldOpenApplicantLobby = !planQuery.isLoading && !activeBatches.length;
-  const materials = planQuery.data?.materials ?? [];
+  const materials = useMemo(() => planQuery.data?.materials ?? [], [planQuery.data?.materials]);
   const liveClasses = planQuery.data?.liveClasses ?? [];
   const upcomingLiveClasses = liveClasses.filter((item) => new Date(item.scheduledAt) >= new Date()).slice(0, 4);
   const recentLessons = [...materials].sort((left, right) => String(right.createdAt ?? "").localeCompare(String(left.createdAt ?? ""))).slice(0, 4);
@@ -89,6 +91,31 @@ export default function StudentLearningPage() {
           <Metric icon={FileText} label="Lessons Remaining" value={lessonCount} />
           <Metric icon={CalendarDays} label="Upcoming Live Classes" value={upcomingLiveClasses.length} />
         </section>
+
+        <LearningEngineBanner
+          role="STUDENT"
+          title="My Learning Engine"
+          description="Your programme, lessons, recordings, materials, assignments, quizzes, tests, progress and revision are arranged as one learning path."
+          metrics={[
+            { label: "Continue Learning", value: recentLessons.length, tone: recentLessons.length ? "info" : "default" },
+            { label: "Downloads", value: materials.length, tone: materials.length ? "success" : "default" },
+            { label: "Practice", value: "Open", tone: "info" },
+            { label: "Revision", value: upcomingLiveClasses.length, tone: upcomingLiveClasses.length ? "warning" : "success" },
+          ]}
+        />
+        <LearningRoleActions role="STUDENT" />
+        <section className="grid gap-5 xl:grid-cols-[1fr_0.9fr]">
+          <LearningContentGroups />
+          <LearningProgressPanel lessonCount={lessonCount} materialCount={materials.length} />
+        </section>
+        <AiOperatingLayer
+          role="STUDENT"
+          compact
+          items={[
+            ...aiRoleActions("STUDENT").slice(0, 2),
+            { title: recentLessons[0]?.title ?? "Start revision support", detail: recentLessons[0] ? `${recentLessons[0].subject ?? "Lesson"} can be revised with doubt solving and practice.` : "AI study help appears inside learning when lessons are assigned.", href: "/ai-doubt-solver", icon: PlayCircle, tone: recentLessons.length ? "info" : "default" },
+          ]}
+        />
 
         <section className="grid gap-5 lg:grid-cols-[1.1fr_0.9fr]">
           <Panel title="Recently Viewed / Added Lessons">

@@ -7,6 +7,7 @@ import type { LucideIcon } from "lucide-react";
 import { createAnnouncement, getAnnouncements, sendPush } from "@/services/communication";
 import { getAcademyBatches, getAcademyTeachers } from "@/services/academy";
 import { getApiErrorMessage } from "@/services/api";
+import { WorkflowOsWorkspace, workflowIcons } from "@/components/workflow/workflow-os-workspace";
 
 type AudienceMode = "ALL" | "TEACHERS" | "STUDENTS" | "PARENTS" | "BATCH" | "EMERGENCY";
 type PanelMode = "all" | "students" | "teachers" | "batch" | "parents" | "emergency" | "templates" | "history";
@@ -105,6 +106,29 @@ export function SimpleNotificationsPage({ owner }: { owner: "Director" | "Academ
             </div>
           </div>
         </header>
+
+        <WorkflowOsWorkspace
+          title={`${owner} Notification Workflow`}
+          description="Announcements, reminders, push notifications, templates and sent history remain in the existing notification system while appearing as one proactive workflow."
+          metrics={[
+            { label: "Notification Statistics", value: announcementsQuery.isLoading ? "..." : announcementsQuery.data?.length ?? 0, note: "Announcement history records", tone: "info" },
+            { label: "Faculty Reminders", value: teachersQuery.isLoading ? "..." : teachers.length, note: "Teacher audience available", tone: "info" },
+            { label: "Planner Notifications", value: batchesQuery.isLoading ? "..." : activeBatches.length, note: "Active batches for batch-wise notices", tone: "success" },
+            { label: "Automation Status", value: publishMutation.isPending ? "Sending" : "Ready", note: "Create announcement and queue push notification", tone: publishMutation.isPending ? "warning" : "success" },
+          ]}
+          approvals={[
+            { title: "Emergency notification", detail: "Emergency messages are sent to everyone through the existing announcement and push flow.", href: "#", icon: workflowIcons.notification, tone: audienceMode === "EMERGENCY" ? "warning" : "info" },
+            { title: "Batch reminder", detail: selectedBatch ? `Selected batch: ${selectedBatch.name}` : "Select a batch before sending batch-wise workflow reminders.", href: "#", icon: workflowIcons.reminder, tone: audienceMode === "BATCH" && !batchId ? "warning" : "success" },
+            { title: "Sent history", detail: "Use the existing announcement history as the notification timeline.", href: "#", icon: workflowIcons.task, tone: "info" },
+          ]}
+          recent={(announcementsQuery.data ?? []).slice(0, 3).map((item) => ({
+            title: item.title,
+            detail: `${item.audience ?? item.targetAudience ?? "ALL"} / ${new Date(item.createdAt).toLocaleString()}`,
+            href: "#",
+            icon: workflowIcons.notification,
+            tone: "success",
+          }))}
+        />
 
         <nav className="grid shrink-0 gap-3 sm:grid-cols-2 md:grid-cols-4 xl:grid-cols-8">
           {panelModes.map((item) => (

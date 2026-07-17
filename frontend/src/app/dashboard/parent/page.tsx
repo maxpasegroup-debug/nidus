@@ -14,11 +14,14 @@ import {
   ShieldCheck
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { AiOperatingLayer } from "@/components/ai/ai-operating-layer";
 import {
   DashboardError,
   DashboardSkeleton,
   RoleDashboardGuard
 } from "@/components/dashboard";
+import { ExecutiveIntelligenceSystem } from "@/components/reporting/executive-intelligence-system";
+import { WorkflowOsWorkspace, workflowIcons } from "@/components/workflow/workflow-os-workspace";
 import { useParentDashboard } from "@/hooks/use-dashboard";
 import type { ParentDashboardData } from "@/services/dashboard";
 
@@ -200,6 +203,43 @@ export default function ParentDashboardPage() {
           <MetricCard label="Fees" value={feeDue > 0 ? `Rs ${feeDue}` : "Clear"} note={data.feeStatus.nextDueDate ?? data.feeStatus.status} tone={feeDue > 0 ? "warn" : "good"} />
         </section>
 
+        <ExecutiveIntelligenceSystem
+          role="PARENT"
+          title="Parent Intelligence"
+          description="Child progress, attendance, academic trends, homework completion, exam results and teacher feedback stay visible from one parent report layer."
+          metrics={[
+            { label: "Child Progress", value: `${data.studentPerformance.averageScore ?? examAverage}%`, note: linkedStudent?.name ?? "Linked student", tone: examAverage >= 70 ? "success" : "info" },
+            { label: "Attendance", value: `${data.attendance.percentage}%`, note: `${data.attendance.present}/${data.attendance.total} sessions`, tone: data.attendance.percentage >= 75 ? "success" : "warning" },
+            { label: "Homework", value: `${submittedAssignments}/${assignmentTotal}`, note: `${pendingAssignments} pending`, tone: pendingAssignments ? "warning" : "success" },
+            { label: "Fees", value: feeDue > 0 ? `Rs ${feeDue}` : "Clear", note: `Paid Rs ${totalPaid}`, tone: feeDue > 0 ? "warning" : "success" },
+          ]}
+          insights={[
+            { title: "What happened?", detail: `${data.exams?.submitted ?? 0} exam(s), ${assignmentTotal} assignment(s) and ${data.attendance.total} attendance session(s) are available.`, tone: "info" },
+            { title: "What needs attention?", detail: pendingAssignments ? `${pendingAssignments} homework item(s) need parent follow-up.` : feeDue > 0 ? "Fee payment needs follow-up." : "No urgent parent action is visible now.", href: pendingAssignments ? "#assignments" : "#fees", tone: pendingAssignments || feeDue > 0 ? "warning" : "success" },
+            { title: "What should I do next?", detail: "Review attendance, homework, exam results and messages below before contacting the academy.", href: "#notifications", tone: "info" },
+          ]}
+        />
+
+        <WorkflowOsWorkspace
+          title="Parent Alert Workflow"
+          description="Attendance alerts, homework alerts, exam alerts, fee alerts and progress summary are organized from the existing parent dashboard and notification surfaces."
+          metrics={[
+            { label: "Attendance Alerts", value: data.attendance.percentage < 75 ? 1 : 0, note: `${data.attendance.percentage}% attendance`, tone: data.attendance.percentage < 75 ? "warning" : "success" },
+            { label: "Homework Alerts", value: pendingAssignments, note: `${submittedAssignments}/${assignmentTotal} submitted`, tone: pendingAssignments ? "warning" : "success" },
+            { label: "Exam Alerts", value: data.exams?.published ?? 0, note: `${examAverage}% average score`, tone: examAverage >= 70 ? "success" : "info" },
+            { label: "Fee Alerts", value: feeDue > 0 ? 1 : 0, note: feeDue > 0 ? `Rs ${feeDue} due` : "Fees clear", tone: feeDue > 0 ? "warning" : "success" },
+          ]}
+          approvals={[
+            { title: "Attendance alert", detail: `${data.attendance.present}/${data.attendance.total} sessions marked for the linked student.`, href: "#attendance", icon: workflowIcons.reminder, tone: data.attendance.percentage < 75 ? "warning" : "success" },
+            { title: "Homework alert", detail: pendingAssignments ? `${pendingAssignments} assignment(s) need follow-up.` : "Homework is clear now.", href: "#assignments", icon: workflowIcons.assignment, tone: pendingAssignments ? "warning" : "success" },
+            { title: "Fee alert", detail: feeDue > 0 ? `Fee follow-up needed. Latest receipt: ${latestReceipt}.` : `Fee workflow is clear. Latest receipt: ${latestReceipt}.`, href: "#fees", icon: workflowIcons.fee, tone: feeDue > 0 ? "warning" : "success" },
+          ]}
+          recent={[
+            { title: "Progress summary", detail: `${linkedStudent?.name ?? "Student"} has ${examAverage}% exam average and ${data.attendance.percentage}% attendance.`, href: "#exams", icon: workflowIcons.task, tone: "info" },
+            { title: "Parent notification path", detail: "Parent summaries continue through the current parent dashboard and notification center.", href: "/notifications", icon: workflowIcons.notification, tone: "info" },
+          ]}
+        />
+
         <Section id="notifications" eyebrow="Today" title="What needs parent attention">
           <div className="grid gap-3 md:grid-cols-2">
             {todayActions.map((item) => (
@@ -207,6 +247,16 @@ export default function ParentDashboardPage() {
             ))}
           </div>
         </Section>
+
+        <AiOperatingLayer
+          role="PARENT"
+          compact
+          items={[
+            { title: data.attendance.percentage < 75 ? "Attendance concern" : "Attendance watch", detail: `${data.attendance.present}/${data.attendance.total} classes marked. Keep attendance above 75%.`, href: "#attendance", icon: CalendarDays, tone: data.attendance.percentage < 75 ? "warning" : "success" },
+            { title: pendingAssignments ? `${pendingAssignments} homework pending` : "Homework clear", detail: "Parent follow-up suggestions stay inside assignment tracking.", href: "#assignments", icon: ClipboardList, tone: pendingAssignments ? "warning" : "success" },
+            { title: `${examAverage}% exam average`, detail: "Performance suggestions are based on the existing exam summary.", href: "#exams", icon: GraduationCap, tone: examAverage >= 70 ? "success" : "info" },
+          ]}
+        />
 
         <section className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
           <Section id="attendance" eyebrow="Attendance" title="Attendance and leave visibility">

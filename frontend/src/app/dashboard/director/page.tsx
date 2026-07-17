@@ -1,46 +1,11 @@
 "use client";
 
-import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import {
-  Archive,
-  BadgeIndianRupee,
-  BarChart3,
-  Bell,
-  BookOpen,
-  Building2,
-  CalendarDays,
-  ClipboardCheck,
-  GraduationCap,
-  KeyRound,
-  Megaphone,
-  PhoneCall,
-  ShieldCheck,
-  UserCheck,
-  UserCog,
-  UserPlus,
-  Users,
-  WalletCards,
-} from "lucide-react";
-import type { LucideIcon } from "lucide-react";
-import { BrandGlassMark } from "@/components/brand/brand-glass-mark";
+import { AlertTriangle, BadgeIndianRupee, BarChart3, CalendarDays, GraduationCap, ShieldCheck, UserCheck, UserPlus, Users } from "lucide-react";
+import { AiOperatingLayer } from "@/components/ai/ai-operating-layer";
+import { WorkspaceDashboard } from "@/components/dashboard/workspace-dashboard";
+import { WorkflowOsWorkspace, workflowIcons } from "@/components/workflow/workflow-os-workspace";
 import { getDirectorDashboard } from "@/services/dashboard";
-
-type SubModule = {
-  label: string;
-  href?: string;
-  icon: LucideIcon;
-  badge?: string | number;
-  muted?: boolean;
-};
-
-type Department = {
-  title: string;
-  icon: LucideIcon;
-  href: string;
-  tone: string;
-  modules: SubModule[];
-};
 
 export default function DirectorDashboardPage() {
   const directorQuery = useQuery({ queryKey: ["dashboard", "director", "control-panel"], queryFn: getDirectorDashboard });
@@ -48,186 +13,117 @@ export default function DirectorDashboardPage() {
   const pendingAdmissions = commandCenter?.operationalAlerts.pendingAdmissions ?? 0;
   const pendingFees = commandCenter?.operationalAlerts.pendingFees ?? 0;
   const activeStudents = commandCenter?.students.active ?? directorQuery.data?.instituteAnalytics.students ?? 0;
-  const staffCount =
+  const facultyCount =
     (commandCenter?.staff?.academicHeads.active ?? 0) +
     (commandCenter?.staff?.teachers.active ?? 0) +
-    (commandCenter?.staff?.physicalTrainers.active ?? 0) +
+    (commandCenter?.staff?.physicalTrainers.active ?? 0);
+  const staffCount =
+    facultyCount +
     (commandCenter?.staff?.administrativeOfficers.active ?? 0) +
     (commandCenter?.staff?.businessDevelopmentExecutives.active ?? 0);
 
-  const departments: Department[] = [
-    {
-      title: "Academics",
-      icon: GraduationCap,
-      href: "/dashboard/director/academic",
-      tone: "bg-amber-50 text-amber-700",
-      modules: [
-        { label: "Programs", href: "/dashboard/director/academic/programs", icon: Building2 },
-        { label: "Timetable", href: "/dashboard/director/academic/timetable", icon: CalendarDays },
-        { label: "Batches", href: "/dashboard/director/academic/batches", icon: Users },
-        { label: "Teacher Allocation", href: "/dashboard/director/academic/teachers", icon: UserCheck },
-        { label: "Syllabus & Progress", href: "/dashboard/director/academic/syllabus", icon: ClipboardCheck },
-        { label: "Academic Reports", href: "/dashboard/director/academic/reports", icon: BarChart3 },
-      ],
-    },
-    {
-      title: "HRM",
-      icon: UserCog,
-      href: "/dashboard/director/hrm",
-      tone: "bg-sky-50 text-sky-700",
-      modules: [
-        { label: "Add Staff", href: "/dashboard/director/management?mode=add", icon: UserPlus },
-        { label: "Manage Staff", href: "/dashboard/director/management?mode=manage", icon: Users, badge: staffCount || undefined },
-        { label: "Access & Password", href: "/dashboard/director/management?mode=access", icon: KeyRound },
-        { label: "Archive Staff", href: "/dashboard/director/management?mode=archive", icon: Archive },
-      ],
-    },
-    {
-      title: "Marketing & Sales",
-      icon: Megaphone,
-      href: "/dashboard/director/marketing-sales",
-      tone: "bg-emerald-50 text-emerald-700",
-      modules: [
-        { label: "Telecallers", href: "/dashboard/business-development?tab=CALLING", icon: PhoneCall },
-        { label: "BDE Team", href: "/dashboard/business-development?tab=TEAM", icon: Users },
-        { label: "Sales Booster", href: "/dashboard/sales-booster", icon: Megaphone },
-        { label: "Leads", href: "/dashboard/business-development?tab=LEADS", icon: ClipboardCheck },
-        { label: "Reports", href: "/dashboard/business-development?tab=REPORTS", icon: BarChart3 },
-      ],
-    },
-    {
-      title: "Admin & Accounts",
-      icon: BadgeIndianRupee,
-      href: "/dashboard/director/admin-accounts",
-      tone: "bg-violet-50 text-violet-700",
-      modules: [
-        { label: "Applications", href: "/dashboard/admission-cell#applications", icon: ClipboardCheck },
-        { label: "Admissions / Activation", href: "/dashboard/director/admissions", icon: UserPlus, badge: pendingAdmissions || undefined },
-        { label: "Payments & Receipts", href: "/dashboard/director/accounts?mode=invoices", icon: WalletCards },
-        { label: "Student Records", href: "/dashboard/admission-cell#students", icon: Users },
-        { label: "Finance Reports", href: "/dashboard/director/accounts?mode=reports", icon: BadgeIndianRupee, badge: pendingFees || undefined },
-      ],
-    },
-    {
-      title: "Communication & Reports",
-      icon: Bell,
-      href: "/dashboard/director/notifications",
-      tone: "bg-rose-50 text-rose-700",
-      modules: [
-        { label: "Notifications", href: "/dashboard/director/notifications", icon: Bell },
-        { label: "Students", href: "/dashboard/director/notifications", icon: Users },
-        { label: "Teachers", href: "/dashboard/director/notifications", icon: UserCheck },
-        { label: "Batch Message", href: "/dashboard/director/notifications", icon: ClipboardCheck },
+  return (
+    <WorkspaceDashboard
+      roleTitle="Director Workspace"
+      greeting="Today's Academy"
+      subtitle="Admissions, revenue, faculty status, planner progress and alerts in one calm command view."
+      focus={[
+        {
+          label: "Admissions",
+          title: pendingAdmissions ? `${pendingAdmissions} pending` : "Admissions clear",
+          detail: "Review admission activations and handovers from the admission cell.",
+          href: "/dashboard/director/admissions",
+          icon: UserPlus,
+          tone: pendingAdmissions ? "warning" : "success",
+        },
+        {
+          label: "Revenue",
+          title: pendingFees ? `${pendingFees} dues` : "No fee alerts",
+          detail: "Open receipts, pending fees and finance reports.",
+          href: "/dashboard/director/accounts",
+          icon: BadgeIndianRupee,
+          tone: pendingFees ? "warning" : "success",
+        },
+        {
+          label: "Planner",
+          title: "Academic progress",
+          detail: "Check programs, timetable, batches, syllabus and teacher allocation.",
+          href: "/dashboard/director/academic",
+          icon: GraduationCap,
+          tone: "info",
+        },
+      ]}
+      actions={[
+        { label: "Open Academics", href: "/dashboard/director/academic", icon: GraduationCap },
+        { label: "Admissions", href: "/dashboard/director/admissions", icon: UserPlus },
+        { label: "Admin & HR", href: "/dashboard/director/management", icon: Users },
+        { label: "Accounts", href: "/dashboard/director/accounts", icon: BadgeIndianRupee },
         { label: "Reports", href: "/dashboard/director/reports", icon: BarChart3 },
-      ],
-    },
-    {
-      title: "Operations",
-      icon: ShieldCheck,
-      href: "/dashboard/director/launch-qa",
-      tone: "bg-slate-100 text-slate-800",
-      modules: [
-        { label: "Teaching Mode", href: "/dashboard/director/teaching", icon: BookOpen },
-        { label: "Classes", href: "/dashboard/director/teaching/classes", icon: GraduationCap },
-        { label: "Attendance", href: "/dashboard/director/teaching/attendance", icon: ClipboardCheck },
-        { label: "Readiness Check", href: "/dashboard/director/launch-qa", icon: ShieldCheck },
-        { label: "Full Reports", href: "/dashboard/director/reports", icon: BarChart3 },
-      ],
-    },
-  ];
-
-  return (
-    <main className="flex min-h-[calc(100vh-var(--nav-height)-2rem)] flex-col overflow-y-auto bg-[var(--page-bg)] px-4 py-3 text-[var(--navy)] md:px-6 xl:overflow-hidden">
-      <section className="mx-auto flex w-full max-w-[1500px] flex-1 flex-col gap-3 xl:min-h-0">
-        <header className="shrink-0 rounded-2xl border border-[var(--border)] bg-white p-3 shadow-sm">
-          <div className="grid gap-4 xl:grid-cols-[280px_1fr_560px] xl:items-center">
-            <BrandGlassMark compact />
-            <div>
-              <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold)]">Director</p>
-              <h1 className="mt-1 text-2xl font-black leading-tight md:text-3xl">NIDUS Control Panel</h1>
-              <p className="mt-1 text-sm leading-6 text-[var(--muted-blue)]">
-                Six department panels with direct submodule access.
-              </p>
-              <p className="mt-1 text-[10px] font-black uppercase tracking-[0.18em] text-[var(--gold)]">Director layout v2</p>
-            </div>
-            <div className="grid gap-2 sm:grid-cols-3">
-              <Metric label="Admissions" value={directorQuery.isLoading ? "..." : pendingAdmissions} />
-              <Metric label="Students" value={directorQuery.isLoading ? "..." : activeStudents} />
-              <Metric label="Fees Due" value={directorQuery.isLoading ? "..." : pendingFees} />
-            </div>
-          </div>
-        </header>
-
-        <section className="grid flex-1 gap-3 sm:grid-cols-2 xl:min-h-0 xl:grid-cols-3 xl:grid-rows-2 xl:overflow-hidden">
-          {departments.map((department) => (
-            <DepartmentPanel key={department.title} department={department} />
-          ))}
-        </section>
-      </section>
-    </main>
-  );
-}
-
-function Metric({ label, value }: { label: string; value: string | number }) {
-  return (
-    <div className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-4 py-3">
-      <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[var(--muted-blue)]">{label}</p>
-      <p className="text-xl font-black">{value}</p>
-    </div>
-  );
-}
-
-function DepartmentPanel({ department }: { department: Department }) {
-  const Icon = department.icon;
-
-  return (
-    <section className="flex min-h-0 flex-col rounded-2xl border border-[var(--border)] bg-white p-3 shadow-sm">
-      <div className="flex items-center justify-between gap-3">
-        <Link href={department.href} className="flex min-w-0 items-center gap-3">
-          <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[var(--border)] ${department.tone}`}>
-            <Icon className="h-5 w-5" />
-          </span>
-          <h2 className="truncate text-xl font-black">{department.title}</h2>
-        </Link>
-        <Link href={department.href} className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-3 py-2 text-xs font-black uppercase tracking-[0.14em]">
-          Open All
-        </Link>
-      </div>
-      <div className="mt-3 grid min-h-0 flex-1 grid-cols-2 gap-2 xl:grid-cols-3">
-        {department.modules.map((module) => (
-          <ModuleButton key={module.label} module={module} />
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function ModuleButton({ module }: { module: SubModule }) {
-  const Icon = module.icon;
-  const content = (
-    <>
-      {module.badge ? <span className="absolute right-2 top-2 rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-black text-red-700">{module.badge}</span> : null}
-      <Icon className={`h-5 w-5 ${module.muted ? "text-[var(--muted-blue)]" : "text-[var(--navy)]"}`} />
-      <span className="mt-2 text-center text-xs font-black leading-tight">{module.label}</span>
-    </>
-  );
-  const className = `relative flex min-h-0 flex-col items-center justify-center rounded-xl border p-2 text-center transition ${
-    module.muted
-      ? "cursor-not-allowed border-dashed border-[var(--border)] bg-[var(--page-bg)] text-[var(--muted-blue)]"
-      : "border-[var(--border)] bg-white hover:-translate-y-0.5 hover:border-[var(--gold-border)] hover:bg-[var(--gold-soft)] hover:shadow-sm"
-  }`;
-
-  if (!module.href || module.muted) {
-    return (
-      <button type="button" disabled className={className}>
-        {content}
-      </button>
-    );
-  }
-
-  return (
-    <Link href={module.href} className={className}>
-      {content}
-    </Link>
+        { label: "Settings", href: "/dashboard/settings", icon: ShieldCheck },
+      ]}
+      metrics={[
+        { label: "Active Students", value: directorQuery.isLoading ? "..." : activeStudents },
+        { label: "Faculty", value: directorQuery.isLoading ? "..." : facultyCount },
+        { label: "Staff", value: directorQuery.isLoading ? "..." : staffCount },
+        { label: "Fee Alerts", value: directorQuery.isLoading ? "..." : pendingFees, tone: pendingFees ? "warning" : "success" },
+      ]}
+      activity={[
+        { title: "Academics workspace", detail: "Programs, batches, timetable and planner controls.", href: "/dashboard/director/academic", meta: "Today" },
+        { title: "Admissions workspace", detail: `${pendingAdmissions} admission item(s) need review.`, href: "/dashboard/director/admissions", meta: "Admissions" },
+        { title: "Finance workspace", detail: `${pendingFees} fee item(s) are open.`, href: "/dashboard/director/accounts", meta: "Accounts" },
+      ]}
+      upcoming={[
+        { title: "Academic reports", detail: "Review student progress, teacher performance and syllabus movement.", href: "/dashboard/director/reports", meta: "Reports" },
+        { title: "Faculty status", detail: "Check academic heads, teachers and resource allocation.", href: "/dashboard/director/management", meta: "HR" },
+        { title: "Alerts", detail: "Open notifications and academy messages.", href: "/dashboard/director/notifications", meta: "Alerts" },
+      ]}
+    >
+      <AiOperatingLayer
+        role="DIRECTOR"
+        items={[
+          {
+            title: pendingAdmissions ? `${pendingAdmissions} admissions need attention` : "Admissions are calm",
+            detail: "AI attention signal from the existing Director command-center admission queue.",
+            href: "/dashboard/director/admissions",
+            icon: UserPlus,
+            tone: pendingAdmissions ? "warning" : "success",
+          },
+          {
+            title: pendingFees ? `${pendingFees} fee risk item(s)` : "Revenue risk is low",
+            detail: "Revenue forecast and fee alerts stay inside the Director workspace.",
+            href: "/dashboard/director/accounts",
+            icon: BadgeIndianRupee,
+            tone: pendingFees ? "warning" : "success",
+          },
+          {
+            title: "Faculty support watch",
+            detail: `${facultyCount} faculty member(s) are part of the current academic operating signal.`,
+            href: "/dashboard/director/academic/teacher-performance",
+            icon: Users,
+            tone: "info",
+          },
+        ]}
+      />
+      <WorkflowOsWorkspace
+        title="Director Workflow Health"
+        description="Approvals, automations, failed jobs, notifications, activity and operational queues are surfaced from existing workflows so the academy feels proactive."
+        metrics={[
+          { label: "Pending Approvals", value: pendingAdmissions, note: "Admission and activation items", tone: pendingAdmissions ? "warning" : "success" },
+          { label: "Automation Status", value: "Active", note: "Existing admission, academic, payment and notification flows", tone: "success" },
+          { label: "Notification Statistics", value: "Connected", note: "Dashboard, push, email and CRM reminder channels", tone: "info" },
+          { label: "Operational Risks", value: pendingFees, note: "Fee and finance workflow alerts", tone: pendingFees ? "warning" : "success" },
+        ]}
+        approvals={[
+          { title: "Admission approval queue", detail: `${pendingAdmissions} admission item(s) may need review or activation.`, href: "/dashboard/director/admissions", icon: workflowIcons.approval, tone: pendingAdmissions ? "warning" : "success" },
+          { title: "Fee received workflow", detail: `${pendingFees} pending fee item(s) need collection or receipt follow-up.`, href: "/dashboard/director/accounts", icon: workflowIcons.fee, tone: pendingFees ? "warning" : "success" },
+          { title: "System activity", detail: "Open admin operations to review queue health, failed jobs and audit history.", href: "/admin-center/operations", icon: workflowIcons.automation, tone: "info" },
+        ]}
+        recent={[
+          { title: "Admission to student activation", detail: "Approval, batch assignment, profile creation and welcome notification remain in the current admission flow.", href: "/dashboard/admission-cell#activation", icon: workflowIcons.task, tone: "success" },
+          { title: "Academic workflow", detail: "Lesson, attendance, homework, quiz and progress updates remain inside the academic engine.", href: "/dashboard/director/academic", icon: workflowIcons.assignment, tone: "info" },
+          { title: "Notification center", detail: "Announcements and push notifications remain in the existing notification pages.", href: "/dashboard/director/notifications", icon: workflowIcons.notification, tone: "info" },
+        ]}
+      />
+    </WorkspaceDashboard>
   );
 }

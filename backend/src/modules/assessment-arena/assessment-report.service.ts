@@ -1,13 +1,9 @@
 import { prisma } from "../../config/prisma.js";
-import type { Prisma } from "../../generated/prisma/client.js";
+import { jsonValue } from "./assessment-input.js";
 import { assessmentReadinessService } from "./assessment-readiness.service.js";
 import { assessmentReportVersionService } from "./assessment-report-version.service.js";
 
 type ReportAudience = "STUDENT" | "PARENT" | "TEACHER" | "ACADEMIC_HEAD" | "DIRECTOR";
-
-function json(value: unknown): Prisma.InputJsonValue {
-  return value as Prisma.InputJsonValue;
-}
 
 function clamp(score: number) {
   return Math.max(0, Math.min(100, Math.round(score)));
@@ -215,14 +211,14 @@ export const assessmentReportService = {
         attemptId: attempt.id,
         userId: attempt.userId,
         audience: reportAudience,
-        report: json(report),
-        scoring: json(scoring),
-        recommendations: json(recommendations)
+        report: jsonValue(report),
+        scoring: jsonValue(scoring),
+        recommendations: jsonValue(recommendations)
       },
       update: {
-        report: json(report),
-        scoring: json(scoring),
-        recommendations: json(recommendations)
+        report: jsonValue(report),
+        scoring: jsonValue(scoring),
+        recommendations: jsonValue(recommendations)
       }
     });
   },

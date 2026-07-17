@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Archive, KeyRound, Pencil, Save, ShieldCheck, UserPlus, Users, X } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { OperationsOsWorkspace } from "@/components/operations/operations-os-workspace";
 
 type Employee = {
   id: string;
@@ -327,6 +328,22 @@ export default function DirectorManagementPage() {
           <Metric icon={Archive} label="Archived History" value={archivedAccounts.length} />
           <Metric icon={ShieldCheck} label="Locked Accounts" value={lockedAccounts.length} />
         </div>
+
+        <OperationsOsWorkspace
+          title="HR Operations"
+          description="Employee directory, attendance, leave, payroll, recruitment, performance reviews, training, documents and exit management are organized around the existing staff and access workflows."
+          metrics={[
+            { label: "Employee Directory", value: activeTeam.length, note: `${activeAccounts.length} active account(s)`, tone: "info" },
+            { label: "Recruitment", value: mode === "add" ? "Open" : "Ready", note: "Create staff from existing employee API", tone: "success" },
+            { label: "Access Risk", value: lockedAccounts.length, note: "Locked or restricted account(s)", tone: lockedAccounts.length ? "warning" : "success" },
+            { label: "Exit History", value: archivedAccounts.length, note: "Archived employee record(s)", tone: archivedAccounts.length ? "info" : "default" },
+          ]}
+          alerts={[
+            { title: "Pending approvals", detail: "Leave, expenses and payroll approvals remain in existing operations queues.", href: "/admin-center/operations#leave", tone: "info" },
+            { title: "Access review", detail: `${lockedAccounts.length} account(s) may need password reset or unlock.`, href: "/dashboard/director/management?mode=access", tone: lockedAccounts.length ? "warning" : "success" },
+            { title: "Staff strength", detail: `${activeTeam.length} team account(s) are active across academy operations.`, href: "/dashboard/director/management?mode=manage", tone: "success" },
+          ]}
+        />
 
         <section className="grid shrink-0 gap-2 md:grid-cols-4">
           <ModeButton active={mode === "add"} icon={UserPlus} label="Add Staff" onClick={() => setMode("add")} />

@@ -1,6 +1,8 @@
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, ClipboardCheck, GraduationCap, ShieldCheck, Sparkles, Target } from "lucide-react";
+import { ArrowRight, CalendarDays, ClipboardCheck, GraduationCap, MapPin, Medal, Phone, ShieldCheck, Sparkles, Target, Users } from "lucide-react";
+import { academyProgramGroups } from "@/data/academy-programs";
+import { publicImages } from "@/components/marketing/public-modules";
 
 const exams = ["NDA", "CDS", "AFCAT", "SSB", "AISSEE", "RIMC", "Agniveer", "INET", "Physical Training", "Interview Guidance"];
 
@@ -75,6 +77,18 @@ function ExamStream() {
   );
 }
 
+const strengths = [
+  ["Written exam coaching", "NDA, CDS, AFCAT, AISSEE, RIMC and Agniveer preparation with clear practice rhythm.", GraduationCap],
+  ["Physical discipline", "Fitness guidance and routine-building for defence aspirants.", Medal],
+  ["Parent confidence", "Simple counselling, admission steps and progress visibility.", Users],
+] as const;
+
+const testimonials = [
+  ["Parent of NDA aspirant", "NIDUS gave us clarity about eligibility, batch choice and preparation path."],
+  ["Foundation student", "The routine helped me focus on study, practice and discipline together."],
+  ["Agniveer aspirant", "Written practice and physical guidance made the preparation feel structured."],
+] as const;
+
 function PublicHeroLogo() {
   return (
     <div className="pointer-events-none relative mx-auto flex min-h-64 w-full max-w-sm items-center justify-center lg:mx-0 lg:min-h-[30rem]">
@@ -95,8 +109,23 @@ function PublicHeroLogo() {
 }
 
 export function MarketingHome() {
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "EducationalOrganization",
+    name: "NIDUS Academy",
+    description: "Premium defence academy for NDA, CDS, AFCAT, SSB, AISSEE, RIMC and Agniveer preparation.",
+    url: "https://nidusacademy.in",
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: "Kollam",
+      addressRegion: "Kerala",
+      addressCountry: "IN",
+    },
+  };
+
   return (
     <main className="bg-[#f7f3ea] text-[#101827]">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
       <style>{`
         @keyframes nidus-marquee {
           0% { transform: translateX(0); }
@@ -120,9 +149,9 @@ export function MarketingHome() {
             </p>
             <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row lg:justify-start">
               <PillButton href="/start-free?intent=general">
-                Start Free <ArrowRight className="h-4 w-4" />
+                Book Free Counselling <ArrowRight className="h-4 w-4" />
               </PillButton>
-              <PillButton href="/programs" variant="ghost">Explore Academy</PillButton>
+              <PillButton href="/programs" variant="ghost">Explore Courses</PillButton>
             </div>
           </div>
         </div>
@@ -130,9 +159,96 @@ export function MarketingHome() {
 
       <ExamStream />
 
+      <section className="bg-white px-4 py-20 sm:px-6 lg:px-8">
+        <div className="mx-auto grid max-w-7xl gap-4 md:grid-cols-3">
+          {strengths.map(([title, text, Icon]) => (
+            <article key={title} className="rounded-[24px] border border-[#071d36]/10 bg-[#f7f3ea] p-6">
+              <Icon className="h-6 w-6 text-[#8a6426]" />
+              <h2 className="mt-5 text-xl font-black text-[#071d36]">{title}</h2>
+              <p className="mt-3 text-sm leading-7 text-[#40516a]">{text}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="bg-[#f7f3ea] px-4 py-20 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl">
+          <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.28em] text-[#8a6426]">Course Categories</p>
+              <h2 className="mt-3 max-w-3xl text-4xl font-black text-[#071d36] md:text-6xl">Find the right defence pathway.</h2>
+            </div>
+            <PillButton href="/programs">View All Courses <ArrowRight className="h-4 w-4" /></PillButton>
+          </div>
+          <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {academyProgramGroups.map((group) => (
+              <Link key={group.title} href="/programs" className="rounded-[24px] border border-[#071d36]/10 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
+                <h3 className="text-xl font-black text-[#071d36]">{group.title}</h3>
+                <p className="mt-3 text-sm leading-7 text-[#40516a]">{group.subtitle}</p>
+                <p className="mt-5 text-sm font-black text-[#8a6426]">{group.programs.length} programs</p>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-white px-4 py-20 sm:px-6 lg:px-8">
+        <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
+          <div className="relative min-h-96 overflow-hidden rounded-[30px] border border-[#071d36]/10">
+            <Image src={publicImages.cadets} alt="NIDUS academy student discipline and defence inspiration" fill sizes="(min-width: 1024px) 45vw, 100vw" className="object-cover" />
+          </div>
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.28em] text-[#8a6426]">Admissions</p>
+            <h2 className="mt-4 text-4xl font-black leading-tight text-[#071d36] md:text-6xl">Inquiry to welcome, without confusion.</h2>
+            <div className="mt-7 grid gap-3">
+              {["Inquiry", "Counselling", "Application", "Verification", "Admission", "Welcome"].map((step, index) => (
+                <div key={step} className="flex items-center gap-4 rounded-2xl border border-[#071d36]/10 bg-[#f7f3ea] p-4">
+                  <span className="grid h-10 w-10 place-items-center rounded-full bg-[#071d36] text-sm font-black text-white">{index + 1}</span>
+                  <span className="font-black text-[#071d36]">{step}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
       {modules.map((module) => (
         <ModuleBand key={module.label} module={module} />
       ))}
+
+      <section className="bg-[#f7f3ea] px-4 py-20 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl">
+          <p className="text-xs font-black uppercase tracking-[0.28em] text-[#8a6426]">Student & Parent Voices</p>
+          <h2 className="mt-3 text-4xl font-black text-[#071d36] md:text-6xl">Trust is built through clarity.</h2>
+          <div className="mt-8 grid gap-4 md:grid-cols-3">
+            {testimonials.map(([name, quote]) => (
+              <article key={name} className="rounded-[24px] border border-[#071d36]/10 bg-white p-6 shadow-sm">
+                <p className="text-base leading-8 text-[#40516a]">&quot;{quote}&quot;</p>
+                <p className="mt-5 font-black text-[#071d36]">{name}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-white px-4 py-20 sm:px-6 lg:px-8">
+        <div className="mx-auto grid max-w-7xl gap-4 md:grid-cols-3">
+          {[
+            ["Campus Highlights", "Focused classrooms, counselling support and training culture.", MapPin],
+            ["Latest Announcements", "Admission counselling, mock tests and upcoming batches.", CalendarDays],
+            ["Talk to NIDUS", "Speak with the admission team before choosing a course.", Phone],
+          ].map(([title, text, Icon]) => {
+            const CardIcon = Icon as typeof MapPin;
+            return (
+              <article key={String(title)} className="rounded-[24px] border border-[#071d36]/10 bg-[#f7f3ea] p-6">
+                <CardIcon className="h-6 w-6 text-[#8a6426]" />
+                <h2 className="mt-5 text-xl font-black text-[#071d36]">{String(title)}</h2>
+                <p className="mt-3 text-sm leading-7 text-[#40516a]">{String(text)}</p>
+              </article>
+            );
+          })}
+        </div>
+      </section>
 
       <section className="bg-[#f7f3ea] px-4 py-24 text-center sm:px-6 lg:px-8">
         <div className="mx-auto max-w-3xl">

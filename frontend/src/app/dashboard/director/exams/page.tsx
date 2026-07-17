@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useQuery } from "@tanstack/react-query";
 import {
   BarChart3,
   ClipboardCheck,
@@ -12,6 +13,8 @@ import {
   Trophy,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { ExamReportingPanel, ExaminationEngineBanner, ExaminationRoleActions, ExamTypePanel, QuestionBankHierarchyPanel } from "@/components/examination/examination-engine-workspace";
+import { getExaminationAnalytics } from "@/services/examination";
 import { AcademicCard, AcademicHero, AcademicPill, AcademicShell, Panel } from "../academic/_components";
 
 const examControls = [
@@ -69,6 +72,10 @@ const launchFlow = [
 ];
 
 export default function DirectorExamControlPage() {
+  const analyticsQuery = useQuery({ queryKey: ["director", "examination-engine", "analytics"], queryFn: getExaminationAnalytics });
+  const totals = analyticsQuery.data?.totals;
+  const upcomingExams = analyticsQuery.data?.examBreakdown.filter((exam) => ["PUBLISHED", "SCHEDULED", "LIVE"].includes(String(exam.status || "").toUpperCase())).length ?? 0;
+
   return (
     <AcademicShell>
       <AcademicHero
@@ -82,6 +89,24 @@ export default function DirectorExamControlPage() {
           </div>
         }
       />
+
+        <ExaminationEngineBanner
+          role="DIRECTOR"
+          title="Director Examination Engine"
+          description="Question bank, test publishing, CBT attempts, evaluation, analytics and student reports stay visible from one control room."
+          metrics={[
+            { label: "Exam Overview", value: analyticsQuery.isLoading ? "..." : totals?.exams ?? 0, tone: "info" },
+            { label: "Question Bank Health", value: analyticsQuery.isLoading ? "..." : totals?.questionBank ?? totals?.questions ?? 0, tone: "success" },
+            { label: "Test Completion", value: analyticsQuery.isLoading ? "..." : totals?.attempts ?? 0, tone: "info" },
+            { label: "Upcoming Exams", value: analyticsQuery.isLoading ? "..." : upcomingExams, tone: upcomingExams ? "warning" : "success" },
+          ]}
+        />
+        <ExaminationRoleActions role="DIRECTOR" />
+        <section className="grid gap-5 xl:grid-cols-[1fr_0.75fr]">
+          <QuestionBankHierarchyPanel questionCount={totals?.questionBank ?? totals?.questions ?? 0} />
+          <ExamReportingPanel attempts={totals?.attempts ?? 0} averageScore={totals?.averageScore ?? 0} reports={totals?.attempts ?? 0} />
+        </section>
+        <ExamTypePanel />
 
         <section className="grid min-h-0 flex-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
           {examControls.map((control) => (

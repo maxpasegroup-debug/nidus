@@ -3193,6 +3193,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
           selectedBatchId={scopedExamBatchId || selectedClass?.id || null}
           selectedSubject={scopedExamSubject}
           exams={classWorkspace.exams}
+          role={isAcademicHead ? "ACADEMIC_HEAD" : "TEACHER"}
           loading={workspaceLoading}
           autoOpenCreatorKey={workspaceAction === "create-exam" ? `${workspaceAction}:${selectedClass?.id ?? scopedExamBatchId ?? "batch"}` : null}
           onSelectBatch={chooseBatch}

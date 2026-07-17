@@ -18,6 +18,9 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useAuth } from "@/components/providers/auth-provider-v2";
+import { WorkspaceDashboard } from "@/components/dashboard/workspace-dashboard";
+import { ExamReportingPanel, ExaminationEngineBanner, ExaminationRoleActions, ExamTypePanel, QuestionBankHierarchyPanel } from "@/components/examination/examination-engine-workspace";
+import { WorkflowOsWorkspace, workflowIcons } from "@/components/workflow/workflow-os-workspace";
 
 type StudentBatch = {
   id: string;
@@ -262,6 +265,17 @@ function examWindow(exam: ExamSummary) {
   const duration = Number(exam.durationMinutes ?? exam.duration ?? 0);
   const end = start && duration > 0 ? start + duration * 60_000 : null;
   return { startsAt, start, end };
+}
+
+function studentAverageScore(attempts: AttemptHistory[]) {
+  const percentages = attempts
+    .map((attempt) => {
+      const total = Number(attempt.test?.totalMarks ?? 0);
+      const score = Number(attempt.score ?? attempt.totalCorrect ?? 0);
+      return total > 0 ? Math.round((score / total) * 100) : 0;
+    })
+    .filter((value) => value > 0);
+  return percentages.length ? percentages.reduce((total, value) => total + value, 0) / percentages.length : 0;
 }
 
 function liveClassWindow(item: LiveClass) {
@@ -671,106 +685,88 @@ export function StudentTodayPage() {
     },
   ];
   const firstReminder = reminders[0];
-  const firstReminderHref = firstReminder?.href ?? "/dashboard/student/calendar";
-  const firstReminderExternal = firstReminderHref.startsWith("http");
-  const firstReminderActionClass = "inline-flex min-h-11 items-center gap-2 rounded-xl bg-[var(--ink)] px-4 text-sm font-black text-white";
 
   return (
-    <Shell title="Today" subtitle="Your next class, homework, lessons and exams in one simple view.">
-      <section className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
-        <article className="rounded-[26px] border border-[var(--gold-border)] bg-gradient-to-br from-[var(--gold-soft)] via-white to-white p-5 shadow-sm md:p-6">
-          <p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold)]">Start Here</p>
-          <h2 className="mt-3 text-3xl font-black md:text-4xl">{reminders[0]?.title ?? nextClass?.subject ?? "You are clear for now"}</h2>
-          <p className="mt-3 max-w-2xl text-sm leading-7 text-[var(--muted-blue)]">
-            {reminders[0]?.detail ?? "When the academy publishes classes, homework, exams or videos, your next action will appear here first."}
-          </p>
-          <div className="mt-5 flex flex-wrap items-center gap-3">
-            {firstReminder ? <Countdown value={firstReminder.at} mode={firstReminder.mode} /> : null}
-            {firstReminderExternal ? (
-              <a href={firstReminderHref} target="_blank" rel="noreferrer" className={firstReminderActionClass}>
-                {firstReminder?.action ?? "View Timetable"} <ArrowRight className="h-4 w-4" />
-              </a>
-            ) : (
-              <Link href={firstReminderHref} className={firstReminderActionClass}>
-                {firstReminder?.action ?? "View Timetable"} <ArrowRight className="h-4 w-4" />
-              </Link>
-            )}
-          </div>
-        </article>
-        <article className="rounded-[26px] border border-[var(--border)] bg-white p-5 shadow-sm md:p-6">
-          <p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold)]">Student Access</p>
-          <h2 className="mt-3 text-2xl font-black">{activeBatches.length ? "Active learner" : "Activation pending"}</h2>
-          <p className="mt-2 text-sm leading-7 text-[var(--muted-blue)]">
-            {activeBatches.length ? `You are active in ${activeBatches.map((batch) => batch.name).join(", ")}.` : "Full classes and videos open after office activation."}
-          </p>
-          <div className="mt-4 grid grid-cols-2 gap-2 text-sm">
-            <Link href="/dashboard/student/calendar" className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-3 py-3 font-black">My Timetable</Link>
-            <Link href="/dashboard/student/learning" className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-3 py-3 font-black">Lessons</Link>
-          </div>
-        </article>
-      </section>
-
-      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        {focusCards.map((card) => {
-          const Icon = card.icon;
-          return (
-            <Link key={card.label} href={card.href} className="group rounded-[22px] border border-[var(--border)] bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-[var(--gold-border)] hover:shadow-md">
-              <div className="flex items-start justify-between gap-3">
-                <span className="grid h-11 w-11 place-items-center rounded-xl bg-[var(--gold-soft)]"><Icon className="h-5 w-5 text-[var(--gold)]" /></span>
-                <span className="rounded-full bg-[var(--page-bg)] px-3 py-1 text-[0.68rem] font-black text-[var(--muted-blue)]">{card.meta}</span>
-              </div>
-              <p className="mt-4 text-xs font-black uppercase tracking-[0.22em] text-[var(--gold)]">{card.label}</p>
-              <h2 className="mt-2 line-clamp-2 text-lg font-black">{card.title}</h2>
-              <p className="mt-2 line-clamp-2 text-sm text-[var(--muted-blue)]">{card.detail}</p>
-              <span className="mt-4 inline-flex items-center gap-2 text-sm font-black">Open <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" /></span>
-            </Link>
-          );
-        })}
-      </section>
-
-      <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {reminders.map((item) => {
-          if (item.type === "Exam") return <ExamReminderCard key={item.id} item={item} />;
-          const Icon = item.icon;
-          const external = item.href.startsWith("http");
-          const cardClassName = `group rounded-[22px] border p-5 shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-md ${reminderTone(item.type, item.at, item.mode, now)}`;
-          const content = (
-            <>
-              <div className="flex items-start justify-between gap-3">
-                <span className="grid h-11 w-11 place-items-center rounded-xl border border-current/10 bg-white/85 shadow-sm">
-                  <Icon className="h-5 w-5 text-[var(--gold)]" />
-                </span>
-                <Countdown value={item.at} mode={item.mode} />
-              </div>
-              <p className="mt-4 text-xs font-black uppercase tracking-[0.22em] text-[var(--gold)]">{item.type}</p>
-              <h2 className="mt-2 line-clamp-2 text-lg font-black">{item.title}</h2>
-              <p className="mt-2 line-clamp-2 text-sm text-[var(--muted-blue)]">{item.detail}</p>
-              {item.schedule ? (
-                <div className="mt-4 grid gap-2 rounded-2xl border border-emerald-200/80 bg-white/75 p-3 text-xs">
-                  <div className="flex items-center justify-between gap-3">
-                    <span className="inline-flex items-center gap-2 font-black"><CalendarDays className="h-4 w-4 text-emerald-700" />{item.schedule.date}</span>
-                    <span className={`rounded-full px-2.5 py-1 font-black ${item.schedule.status === "Live now" ? "bg-emerald-600 text-white" : "bg-emerald-100 text-emerald-800"}`}>{item.schedule.status}</span>
-                  </div>
-                  <p className="font-black text-[var(--ink)]">{item.schedule.time} / {item.schedule.duration}</p>
-                  <p className="truncate font-bold text-[var(--muted-blue)]">{item.schedule.batch}</p>
-                  <p className="inline-flex items-center gap-2 font-bold text-[var(--muted-blue)]"><UserRound className="h-4 w-4" />{item.schedule.teacher}</p>
-                </div>
-              ) : null}
-              <span className="mt-4 inline-flex items-center gap-2 text-sm font-black">
-                {item.action} <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
-              </span>
-            </>
-          );
-          if (external) {
-            return <a key={item.id} href={item.href} target="_blank" rel="noreferrer" className={cardClassName}>{content}</a>;
-          }
-          return (
-            <Link key={item.id} href={item.href} className={cardClassName}>{content}</Link>
-          );
-        })}
-        {!reminders.length ? <Empty text="Nothing is due now. Your next academy activity will appear here." /> : null}
-      </section>
-    </Shell>
+    <WorkspaceDashboard
+      roleTitle="Student Workspace"
+      greeting="Today's Learning"
+      subtitle={activeBatches.length ? `Active in ${activeBatches.map((batch) => batch.name).join(", ")}.` : "Full classes and videos open after office activation."}
+      focus={[
+        {
+          label: "Today",
+          title: firstReminder?.title ?? nextClass?.subject ?? "You are clear for now",
+          detail: firstReminder?.detail ?? "When the academy publishes classes, homework, exams or videos, your next action will appear here first.",
+          href: firstReminder?.href ?? "/dashboard/student/calendar",
+          icon: firstReminder?.icon ?? PlayCircle,
+          tone: firstReminder ? "warning" : "success",
+        },
+        {
+          label: "Continue Learning",
+          title: latestLesson?.title ?? "No lesson uploaded yet",
+          detail: latestLesson ? `${latestLesson.subject ?? "Lesson"}${latestLesson.batchName ? ` / ${latestLesson.batchName}` : ""}` : "Batch videos and study materials will appear after upload.",
+          href: "/dashboard/student/learning",
+          icon: Library,
+          tone: "info",
+        },
+        {
+          label: "Upcoming Exam",
+          title: exams[0]?.examName ?? exams[0]?.title ?? exams[0]?.name ?? "No exam due now",
+          detail: exams[0] ? `${exams[0].subject ?? "Exam"} / ${countdownLabel(examDateTime(exams[0]))}` : "Published exams appear here first.",
+          href: "/dashboard/student/exams",
+          icon: ClipboardCheck,
+          tone: exams.length ? "warning" : "success",
+        },
+      ]}
+      actions={[
+        { label: "Learning", href: "/dashboard/student/learning", icon: Library },
+        { label: "Practice", href: "/tests", icon: Sparkles },
+        { label: "Exams", href: "/dashboard/student/exams", icon: ClipboardCheck },
+        { label: "Homework", href: "/dashboard/student/assignments", icon: FileText },
+        { label: "Classes", href: "/dashboard/student/classes", icon: PlayCircle },
+        { label: "Progress", href: "/dashboard/student/progress", icon: CalendarDays },
+      ]}
+      metrics={[
+        { label: "Active Batches", value: activeBatches.length },
+        { label: "Pending Homework", value: pendingAssignments.length, tone: pendingAssignments.length ? "warning" : "success" },
+        { label: "Lessons", value: materials.length },
+        { label: "Attendance", value: attendance ? `${attendance.percentage}%` : "Pending" },
+      ]}
+      activity={focusCards.slice(0, 4).map((card) => ({
+        title: card.title,
+        detail: card.detail,
+        href: card.href,
+        meta: card.meta,
+      }))}
+      upcoming={reminders.slice(0, 5).map((item) => ({
+        title: item.title,
+        detail: item.detail,
+        href: item.href,
+        meta: item.type,
+      }))}
+    >
+      <WorkflowOsWorkspace
+        title="Student Workflow"
+        description="Today's learning, upcoming classes, assignment reminders, exam reminders and achievement notifications are organized from your existing student plan."
+        metrics={[
+          { label: "Today's Learning", value: firstReminder ? "Action" : "Clear", note: firstReminder?.title ?? "No urgent workflow item", tone: firstReminder ? "warning" : "success" },
+          { label: "Upcoming Classes", value: upcomingClasses.length, note: nextClass ? `${nextClass.subject} / ${nextClass.topic}` : "No class due", tone: upcomingClasses.length ? "info" : "success" },
+          { label: "Assignments", value: pendingAssignments.length, note: "Pending homework reminders", tone: pendingAssignments.length ? "warning" : "success" },
+          { label: "Exam Reminder", value: exams.length, note: "Available exam workflow items", tone: exams.length ? "warning" : "success" },
+        ]}
+        approvals={[
+          { title: "Assignment reminder", detail: pendingAssignments[0] ? `${pendingAssignments[0].title} is pending.` : "No assignment reminder is pending.", href: "/dashboard/student/assignments", icon: workflowIcons.assignment, tone: pendingAssignments.length ? "warning" : "success" },
+          { title: "Exam reminder", detail: exams[0] ? `${exams[0].examName ?? exams[0].title ?? exams[0].name ?? "Exam"} is available.` : "No exam reminder is pending.", href: "/dashboard/student/exams", icon: workflowIcons.exam, tone: exams.length ? "warning" : "success" },
+          { title: "Class reminder", detail: nextClass ? `${nextClass.subject}: ${nextClass.topic}` : "No upcoming class reminder is visible.", href: "/dashboard/student/classes", icon: workflowIcons.reminder, tone: nextClass ? "info" : "success" },
+        ]}
+        recent={reminders.slice(0, 3).map((item) => ({
+          title: item.title,
+          detail: item.detail,
+          href: item.href,
+          icon: item.type === "Exam" ? workflowIcons.exam : item.type === "Assignment" ? workflowIcons.assignment : workflowIcons.task,
+          tone: item.type === "Assignment" || item.type === "Exam" ? "warning" : "info",
+        }))}
+      />
+    </WorkspaceDashboard>
   );
 }
 
@@ -873,6 +869,24 @@ export function StudentExamsPage() {
 
   return (
     <Shell title="Exam Arena" subtitle="Upcoming tests, attended results, missed exams and practice history in one calm place.">
+      <ExaminationEngineBanner
+        role="STUDENT"
+        title="My Examination Engine"
+        description="Today's quiz, upcoming exams, mock tests, practice papers, CBT attempts, history, performance and leaderboard are connected here."
+        metrics={[
+          { label: "Today's Quiz", value: activeExams.length, tone: activeExams.length ? "warning" : "success" },
+          { label: "Upcoming Exam", value: activeExams.length, tone: activeExams.length ? "info" : "default" },
+          { label: "Exam History", value: attendedExams.length, tone: attendedExams.length ? "success" : "default" },
+          { label: "Practice Tests", value: missedExams.length, tone: missedExams.length ? "warning" : "default" },
+        ]}
+      />
+      <ExaminationRoleActions role="STUDENT" />
+      <section className="grid gap-4 xl:grid-cols-[1fr_0.75fr]">
+        <ExamReportingPanel attempts={attendedExams.length} averageScore={studentAverageScore(attendedExams)} reports={attendedExams.length} />
+        <ExamTypePanel />
+      </section>
+      <QuestionBankHierarchyPanel questionCount={exams.reduce((total, exam) => total + Number(exam.totalQuestions ?? 0), 0)} />
+
       <section className="grid gap-3 md:grid-cols-3">
         {tabs.map((tab) => (
           <button

@@ -14,6 +14,7 @@ import { PageHero } from "@/components/layout/page-hero";
 import { useAuth } from "@/components/providers/auth-provider-v2";
 import { Button } from "@/components/ui/button";
 import { useParentDashboard, useStudentDashboard } from "@/hooks/use-dashboard";
+import { averageFinite, clampScore } from "@/lib/score-utils";
 import type { AssessmentProfileData, ParentDashboardData, StudentDashboardData } from "@/services/dashboard";
 
 const assessmentSignals = [
@@ -50,15 +51,6 @@ const fallbackTrend = [
   { label: "Report", score: 0, attendance: 0 }
 ];
 
-function clampScore(value: number) {
-  return Math.max(0, Math.min(100, Math.round(value)));
-}
-
-function average(values: number[]) {
-  const usefulValues = values.filter((value) => Number.isFinite(value));
-  return usefulValues.length ? usefulValues.reduce((sum, value) => sum + value, 0) / usefulValues.length : 0;
-}
-
 function getProfileCompletion(data?: StudentDashboardData) {
   if (!data) return 0;
   const checks = [
@@ -77,11 +69,11 @@ function getProfileCompletion(data?: StudentDashboardData) {
 
 function getDefencePotentialScore(data?: StudentDashboardData) {
   if (!data) return 0;
-  const learningScore = data.enrolledCourses.length ? average(data.enrolledCourses.map((course) => course.progress)) : 0;
+  const learningScore = data.enrolledCourses.length ? averageFinite(data.enrolledCourses.map((course) => course.progress)) : 0;
   const assessmentSignal = data.assessmentProfile?.averageScore ?? (data.upcomingTests.length ? 54 : 30);
   const engagementSignal = Math.min(100, data.recentActivities.length * 16);
 
-  return clampScore(average([learningScore, data.attendance.percentage, data.fitnessProgress.score, assessmentSignal, engagementSignal]));
+  return clampScore(averageFinite([learningScore, data.attendance.percentage, data.fitnessProgress.score, assessmentSignal, engagementSignal]));
 }
 
 function getArchetype(score: number) {
@@ -101,7 +93,7 @@ function getBand(score: number) {
 
 function getParentDefenceScore(data?: ParentDashboardData) {
   if (!data) return 0;
-  return clampScore(average([
+  return clampScore(averageFinite([
     data.studentPerformance.averageScore,
     data.attendance.percentage,
     data.disciplineScore.score,

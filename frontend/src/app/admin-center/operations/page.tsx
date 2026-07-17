@@ -2,6 +2,8 @@
 
 import { Activity, AlertTriangle, BarChart3, Server, Timer } from "lucide-react";
 import { SystemHealthCard } from "@/components/admin-center/SystemHealthCard";
+import { OperationsOsWorkspace } from "@/components/operations/operations-os-workspace";
+import { WorkflowOsWorkspace, workflowIcons } from "@/components/workflow/workflow-os-workspace";
 import { useAdminOperations } from "@/hooks/use-admin-center";
 
 const labels: Record<string, string> = {
@@ -32,6 +34,49 @@ export default function OperationsPage() {
             <p className="mt-2 text-sm text-muted">Live deployment health, queues, infrastructure, payments, AI, CBT and platform usage.</p>
           </div>
           {data && <span className="rounded bg-white/10 px-3 py-2 text-xs text-muted">Updated every 30s</span>}
+        </div>
+
+        <div className="mt-6">
+          <OperationsOsWorkspace
+            title="Administration Operations"
+            description="Assets, inventory, maintenance, branches, academic resources and compliance are organized around the existing admin operations center."
+            metrics={[
+              { label: "Assets", value: data ? data.analytics.activeUsers : "...", note: "Active platform users as operational load", tone: "info" },
+              { label: "Maintenance", value: data ? data.analytics.failedQueueLogs24h : "...", note: "Failed queue logs in 24h", tone: data?.analytics.failedQueueLogs24h ? "warning" : "success" },
+              { label: "Compliance", value: data ? data.analytics.auditEvents24h : "...", note: "Audit events in 24h", tone: "info" },
+              { label: "Branch Resources", value: data ? String(data.infrastructure.database) : "...", note: "Database and branch resource posture", tone: data?.infrastructure.database ? "success" : "warning" },
+            ]}
+            alerts={[
+              { title: "Operational risks", detail: data ? `${data.analytics.paymentFailures24h} payment failure(s), ${data.analytics.failedAi24h} AI failure(s), ${data.analytics.failedQueueLogs24h} failed job(s).` : "Operations data is loading.", href: "/admin-center/operations", tone: data && (data.analytics.paymentFailures24h || data.analytics.failedAi24h || data.analytics.failedQueueLogs24h) ? "warning" : "success" },
+              { title: "Audit history", detail: data ? `${data.analytics.auditEvents24h} audit event(s) recorded in the last 24h.` : "Audit data is loading.", href: "/admin-center/audit-logs", tone: "info" },
+              { title: "Branch controls", detail: "Branch resources remain managed through the existing admin center branch tools.", href: "/admin-center/branches", tone: "info" },
+            ]}
+          />
+        </div>
+
+        <div className="mt-6">
+          <WorkflowOsWorkspace
+            title="Automation And Queue Workflow"
+            description="Queue workers, Redis, retry posture, failed jobs, audit logs and notification queues stay in the existing infrastructure while being visible as one workflow health layer."
+            metrics={[
+              { label: "Workflow Health", value: data ? data.runtime.phase : "...", note: data?.runtime.ready ? "Runtime ready" : "Runtime loading or degraded", tone: data?.runtime.ready ? "success" : "warning" },
+              { label: "Failed Jobs", value: data ? data.analytics.failedQueueLogs24h : "...", note: "Queue job failures in 24h", tone: data?.analytics.failedQueueLogs24h ? "warning" : "success" },
+              { label: "Automation Status", value: data ? String(data.environment.queueWorkersEnabled) : "...", note: "Existing queue worker flag", tone: data?.environment.queueWorkersEnabled ? "success" : "warning" },
+              { label: "System Activity", value: data ? data.analytics.auditEvents24h : "...", note: "Audit events in 24h", tone: "info" },
+            ]}
+            approvals={(data?.queueHealth ?? []).slice(0, 4).map((queue) => ({
+              title: queue.queueName,
+              detail: `${queue.waiting} waiting, ${queue.active} active, ${queue.failed} failed, ${queue.delayed} delayed.`,
+              href: "/admin-center/operations",
+              icon: queue.failed ? workflowIcons.reminder : workflowIcons.automation,
+              tone: queue.failed ? "warning" : "success",
+            }))}
+            recent={[
+              { title: "Audit history", detail: data ? `${data.analytics.auditEvents24h} audit event(s) in the last 24h.` : "Audit data loading.", href: "/admin-center/audit-logs", icon: workflowIcons.task, tone: "info" },
+              { title: "Redis and workers", detail: data ? `Redis ${String(data.infrastructure.redis)} / workers ${String(data.environment.queueWorkersEnabled)}.` : "Infrastructure data loading.", href: "/admin-center/operations", icon: workflowIcons.automation, tone: data?.infrastructure.redis ? "success" : "warning" },
+              { title: "Notification queues", detail: "Email, push and notification jobs remain in the existing backend queue system.", href: "/dashboard/director/notifications", icon: workflowIcons.notification, tone: "info" },
+            ]}
+          />
         </div>
 
         {operations.isLoading && <div className="mt-6 grid gap-4 md:grid-cols-4">{Array.from({ length: 4 }).map((_, index) => <div key={index} className="h-36 animate-pulse rounded-lg bg-white/10" />)}</div>}

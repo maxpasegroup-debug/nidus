@@ -397,8 +397,8 @@ export function AcademicTimetablePlanner({ audience }: Props) {
   });
 
   return (
-    <main className="min-h-screen bg-[var(--page-bg)] px-3 py-3 text-[var(--navy)] lg:h-[calc(100vh-var(--nav-height)-2rem)] lg:min-h-0 lg:overflow-hidden">
-      <section className="mx-auto flex h-full w-full max-w-[1500px] flex-col gap-3 lg:min-h-0">
+    <main className="min-h-screen bg-[var(--page-bg)] px-3 py-3 text-[var(--navy)]">
+      <section className="mx-auto flex w-full max-w-[1500px] flex-col gap-3">
         <header className="shrink-0 rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm">
           <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
             <div>
@@ -529,7 +529,7 @@ function CalendarPage({
   selectDate: (date: Date) => void;
 }) {
   return (
-    <section className="min-h-0 flex-1 overflow-hidden rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm">
+    <section className="rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="text-[11px] font-black uppercase tracking-[0.28em] text-[var(--gold)]">Full Calendar</p>
@@ -545,7 +545,7 @@ function CalendarPage({
       <div className="mt-4 grid grid-cols-7 rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] text-center text-[11px] font-black uppercase tracking-[0.18em] text-[var(--muted-blue)]">
         {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => <div key={day} className="border-r border-[var(--border)] p-2 last:border-r-0">{day}</div>)}
       </div>
-      <div className="grid max-h-[calc(100vh-var(--nav-height)-17rem)] grid-cols-7 overflow-auto rounded-b-2xl border-x border-b border-[var(--border)]">
+      <div className="grid grid-cols-7 rounded-b-2xl border-x border-b border-[var(--border)]">
         {monthCells.map((date, index) => {
           if (!date) return <div key={`empty-${index}`} className="min-h-32 border-r border-t border-[var(--border)] bg-[var(--page-bg)]/50 last:border-r-0" />;
           const key = localDateKey(date);
@@ -624,7 +624,7 @@ function DayEditorPage({
   const sortedSlots = [...visibleSlots].sort((left, right) => left.startTime.localeCompare(right.startTime));
 
   return (
-    <section className="min-h-0 flex-1 overflow-hidden rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm">
+    <section className="rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm">
       <div className="flex flex-col gap-3 xl:flex-row xl:items-end xl:justify-between">
         <div>
           <button type="button" onClick={onBack} className="mb-3 inline-flex items-center gap-2 text-sm font-black text-[var(--muted-blue)]">
@@ -642,7 +642,7 @@ function DayEditorPage({
         </div>
       </div>
 
-      <div className="mt-4 grid max-h-[calc(100vh-var(--nav-height)-17rem)] gap-3 overflow-auto pr-1">
+      <div className="mt-4 grid gap-3">
         {sortedSlots.map((slot, displayIndex) => {
           const index = slots.indexOf(slot);
           return (
@@ -706,17 +706,17 @@ function SlotEditor({
   const teacherOptions = getTeachersForSlot(slot);
 
   return (
-    <article className={`rounded-2xl border p-3 shadow-sm ${breakSlot ? "border-amber-200 bg-amber-50" : "border-[var(--border)] bg-[var(--page-bg)]"}`}>
-      <div className="grid gap-3 xl:grid-cols-[150px_150px_180px_1fr] xl:items-end">
-        <label className="grid gap-2 text-sm font-black">
+    <article className={`rounded-2xl border p-4 shadow-sm ${breakSlot ? "border-amber-200 bg-amber-50" : "border-[var(--border)] bg-[var(--page-bg)]"}`}>
+      <div className="flex flex-wrap items-end gap-3">
+        <label className="grid w-[145px] gap-2 text-sm font-black">
           Start
           <input className="field" type="time" value={slot.startTime} onChange={(event) => setSlot(index, { startTime: event.target.value })} />
         </label>
-        <label className="grid gap-2 text-sm font-black">
+        <label className="grid w-[145px] gap-2 text-sm font-black">
           End
           <input className="field" type="time" value={slot.endTime} onChange={(event) => setSlot(index, { endTime: event.target.value })} />
         </label>
-        <label className="grid gap-2 text-sm font-black">
+        <label className="grid w-[180px] gap-2 text-sm font-black">
           Type
           <select
             className="field"
@@ -732,14 +732,14 @@ function SlotEditor({
             {classTypes.map((type) => <option key={type} value={type}>{classTypeLabel(type)}</option>)}
           </select>
         </label>
-        <div className="rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-sm font-black">
+        <div className="min-h-10 rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-sm font-black">
           {displayTime(slot.startTime)} - {displayTime(slot.endTime)}
         </div>
       </div>
 
       {!breakSlot ? (
         <>
-          <div className="mt-3 grid gap-3 xl:grid-cols-3">
+          <div className="mt-3 grid gap-3 lg:grid-cols-3">
             <label className="grid gap-2 text-sm font-black">
               Batch
               <select className="field" value={slot.batchId} onChange={(event) => setSlot(index, { batchId: event.target.value, subject: "", teacherId: "" })}>

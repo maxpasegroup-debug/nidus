@@ -1,19 +1,6 @@
 import { prisma } from "../../config/prisma.js";
 import { AssessmentReviewStatus, AssessmentStatus, type Prisma } from "../../generated/prisma/client.js";
-
-function text(value: unknown) {
-  return typeof value === "string" ? value.trim() : "";
-}
-
-function optionalText(value: unknown) {
-  const valueText = text(value);
-  return valueText || undefined;
-}
-
-function numberValue(value: unknown) {
-  const parsed = Number(value);
-  return Number.isFinite(parsed) ? parsed : undefined;
-}
+import { optionalNumberValue, optionalText, text } from "./assessment-input.js";
 
 function reviewStatus(value: unknown) {
   const normalized = text(value).toUpperCase();
@@ -37,7 +24,7 @@ export const assessmentReviewWorkflowService = {
         boardType: optionalText(input.boardType),
         status: reviewStatus(input.status),
         comments: optionalText(input.comments) ?? optionalText(input.reviewNotes),
-        score: numberValue(input.score)
+        score: optionalNumberValue(input.score)
       },
       include: { question: true }
     });

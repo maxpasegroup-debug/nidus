@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { Bar, BarChart, CartesianGrid, Cell, Funnel, FunnelChart, Line, LineChart, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { CalendarDays, Handshake, LayoutDashboard, ListChecks, Users } from "lucide-react";
 import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { AdmissionJourneyBanner, AdmissionRoleActions } from "@/components/admission/admission-journey-workspace";
 import { AdmissionCard, CounsellingCard, CRMEmptyState, CRMStatCard, FollowupTimeline, LeadCard, ReferralCard, StatusPill } from "@/components/crm/crm-components";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -120,6 +121,18 @@ export function CRMConsole({ view }: { view: CRMView }) {
 
       {view === "counselling" ? (
         <section className="space-y-4">
+          <AdmissionJourneyBanner
+            role="COUNSELLOR"
+            title="Counsellor Admission Journey"
+            description="Calls, meetings, notes, follow-ups and admission status stay connected to the same CRM lead."
+            metrics={[
+              { label: "Today's Calls", value: leadData.filter((lead) => lead.status === "CONTACTED" || lead.status === "NEW").length },
+              { label: "Today's Meetings", value: counsellingData.filter((item) => new Date(item.bookingDate).toDateString() === new Date().toDateString()).length },
+              { label: "Next Follow-ups", value: followupData.filter((item) => item.status !== "COMPLETED").length },
+              { label: "Admission Status", value: admissionData.length },
+            ]}
+          />
+          <AdmissionRoleActions role="COUNSELLOR" />
           <Card className="p-5"><h2 className="mb-4 text-xl font-bold text-white">Counsellor Schedule</h2><form onSubmit={(event: FormEvent<HTMLFormElement>) => { event.preventDefault(); const form = event.currentTarget; counselling.create.mutate({ leadId: value(form, "leadId"), counsellorName: value(form, "counsellorName"), bookingDate: value(form, "bookingDate"), mode: value(form, "mode") as "ONLINE" | "OFFLINE", status: value(form, "status") }); }}><FormGrid><Input name="leadId" label="Lead ID" required /><Input name="counsellorName" label="Counsellor Name" required /><Input name="bookingDate" label="Booking Date" type="datetime-local" required /><Input name="mode" label="Mode" defaultValue="ONLINE" required /><Input name="status" label="Status" defaultValue="SCHEDULED" required /></FormGrid><div className="mt-4"><Button size="sm">Book Session</Button></div></form></Card>
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">{counsellingData.map((item) => <CounsellingCard key={item.id} booking={item} />)}</div>
         </section>

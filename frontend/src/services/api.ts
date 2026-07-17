@@ -11,6 +11,7 @@ export const API_URL = resolveApiUrl();
 
 export const apiClient: AxiosInstance = axios.create({
   baseURL: API_URL ? (API_URL.endsWith("/api") ? API_URL : `${API_URL.replace(/\/+$/, "")}/api`) : "/api",
+  timeout: 30000,
   withCredentials: true,
   headers: {
     Accept: "application/json, text/plain",
@@ -33,6 +34,7 @@ export function getApiErrorMessage(error: unknown) {
     const data = error.response?.data;
     const message = data && typeof data === "object" && "message" in data ? data.message : undefined;
     if (typeof message === "string") return message;
+    if (error.code === "ECONNABORTED") return "Request timed out. Please check your connection and try again.";
     if (error.code === "ERR_NETWORK" || !error.response) return "Backend is unavailable. Please try again after the API is online.";
     return error.message;
   }

@@ -1,21 +1,22 @@
 import Link from "next/link";
 import { ShieldCheck } from "lucide-react";
+import { publicSiteLinks } from "@/components/marketing/public-pages";
 
 const columns = [
   {
-    title: "Academy",
-    links: [
-      ["Programs", "/programs"],
-      ["Join NIDUS", "/start-free?intent=academy"],
-      ["Contact", "/contact"]
-    ]
+    title: "NIDUS Academy",
+    links: publicSiteLinks.slice(1, 6)
   },
   {
-    title: "NIDUS Guru",
+    title: "Explore",
     links: [
+      ["Facilities", "/facilities"],
+      ["Gallery", "/gallery"],
+      ["Events", "/events"],
+      ["Blog / News", "/blog"],
+      ["FAQ", "/faq"],
       ["Guru Ecosystem", "/guru"],
-      ["Assessments", "/psychometric"],
-      ["Login / Signup", "/login"]
+      ["Assessments", "/psychometric"]
     ]
   },
   {

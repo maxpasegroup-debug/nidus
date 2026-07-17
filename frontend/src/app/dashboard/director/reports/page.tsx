@@ -11,11 +11,8 @@ import {
   BookOpen,
   CheckCircle2,
   ClipboardCheck,
-  Download,
   FileText,
   GraduationCap,
-  Mail,
-  MessageCircle,
   ShieldCheck,
   Users,
   WalletCards,
@@ -33,6 +30,7 @@ import {
 import { getAdmissions, getApprovals, getLeads } from "@/services/crm";
 import { getDirectorDashboard } from "@/services/dashboard";
 import { getFees, getPaymentAnalytics } from "@/services/payments";
+import { ExecutiveIntelligenceSystem, ReportCommandBar, ReportQuestionCards, type ReportCommandState } from "@/components/reporting/executive-intelligence-system";
 
 type ReportMode = "overview" | "academic" | "admissions" | "finance" | "staff" | "students" | "marketing" | "launch" | "custom";
 
@@ -48,6 +46,7 @@ export default function DirectorReportsPage() {
     return date.toISOString().slice(0, 10);
   });
   const [toDate, setToDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [reportScope, setReportScope] = useState({ branch: "", programme: "", batch: "", search: "" });
   const directorQuery = useQuery({ queryKey: ["director", "reports", "command"], queryFn: getDirectorDashboard });
   const leadsQuery = useQuery({ queryKey: ["director", "reports", "leads"], queryFn: () => getLeads() });
   const admissionsQuery = useQuery({ queryKey: ["director", "reports", "admissions"], queryFn: getAdmissions });
@@ -255,8 +254,13 @@ export default function DirectorReportsPage() {
     URL.revokeObjectURL(url);
   };
 
-  const emailBody = encodeURIComponent(reportRows.slice(1).map(([category, metric, value]) => `${category} - ${metric}: ${value}`).join("\n"));
   const shareText = encodeURIComponent(`${reportTitle}\n${reportRows.slice(1).map(([category, metric, value]) => `${category} - ${metric}: ${value}`).join("\n")}`);
+
+  function updateReportCommand(next: ReportCommandState) {
+    setFromDate(next.from);
+    setToDate(next.to);
+    setReportScope({ branch: next.branch ?? "", programme: next.programme ?? "", batch: next.batch ?? "", search: next.search ?? "" });
+  }
 
   return (
     <main className="min-h-screen bg-[var(--page-bg)] px-4 py-4 text-[var(--navy)] md:px-6 lg:h-[calc(100vh-var(--nav-height)-2rem)] lg:min-h-0 lg:overflow-hidden">
@@ -277,6 +281,26 @@ export default function DirectorReportsPage() {
           </div>
         </section>
 
+        <ExecutiveIntelligenceSystem
+          role="DIRECTOR"
+          title="Executive Intelligence System"
+          description="A single reporting foundation for platform health, admissions, academics, faculty, students, attendance, revenue, exam analytics, growth metrics and risk alerts."
+          metrics={[
+            { label: "Platform Health", value: directorQuery.isLoading ? "..." : `${attendance?.percentage ?? 0}%`, note: "Attendance health signal", tone: (attendance?.percentage ?? 0) >= 75 ? "success" : "warning" },
+            { label: "Admissions", value: leadsQuery.isLoading ? "..." : leadsQuery.data?.length ?? 0, note: `${admissionsQuery.data?.length ?? 0} admissions`, tone: "info" },
+            { label: "Revenue", value: financeQuery.isLoading ? "..." : `Rs ${(finance?.monthlyRevenue ?? 0).toLocaleString()}`, note: `Rs ${(finance?.pendingDues ?? 0).toLocaleString()} pending`, tone: (finance?.pendingDues ?? 0) ? "warning" : "success" },
+            { label: "Risk Alerts", value: command?.operationalAlerts.lowAttendanceAlerts ?? 0, note: "Low attendance alerts", tone: (command?.operationalAlerts.lowAttendanceAlerts ?? 0) ? "warning" : "success" },
+          ]}
+          insights={[
+            { title: "What happened?", detail: `${reportRows.length - 1} report metric(s) are currently available for the selected mode.`, tone: "info" },
+            { title: "Why did it happen?", detail: "Source reports are still pulled from admissions, academy, finance, staff and learning services.", tone: "success" },
+            { title: "What needs attention?", detail: `${pendingFees.length} open fee record(s), ${approvalsQuery.data?.length ?? 0} approval(s), ${command?.operationalAlerts.lowAttendanceAlerts ?? 0} attendance alert(s).`, href: "/dashboard/director/reports?mode=overview", tone: pendingFees.length || approvalsQuery.data?.length ? "warning" : "success" },
+            { title: "What should I do next?", detail: "Open the source workflow from the connected reports section before taking action.", tone: "info" },
+          ]}
+        >
+          <ReportQuestionCards />
+        </ExecutiveIntelligenceSystem>
+
         <section className="grid shrink-0 gap-3 md:grid-cols-4 xl:grid-cols-8">
           <ModeButton active={mode === "overview"} icon={BarChart3} label="Overview" onClick={() => setMode("overview")} />
           <ModeButton active={mode === "academic"} icon={GraduationCap} label="Academic" onClick={() => setMode("academic")} />
@@ -289,28 +313,15 @@ export default function DirectorReportsPage() {
           <ModeButton active={mode === "custom"} icon={FileText} label="Custom" onClick={() => setMode("custom")} />
         </section>
 
-        <section className="grid shrink-0 gap-3 rounded-2xl border border-[var(--border)] bg-white/90 p-4 shadow-sm lg:grid-cols-[1fr_1fr_auto_auto_auto] lg:items-end">
-          <label className="grid gap-2 text-sm font-black">
-            From
-            <input className="min-h-11 rounded-xl border border-[var(--border)] bg-white px-3 text-sm font-normal" type="date" value={fromDate} onChange={(event) => setFromDate(event.target.value)} />
-          </label>
-          <label className="grid gap-2 text-sm font-black">
-            To
-            <input className="min-h-11 rounded-xl border border-[var(--border)] bg-white px-3 text-sm font-normal" type="date" value={toDate} onChange={(event) => setToDate(event.target.value)} />
-          </label>
-          <button className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 text-sm font-black text-white" type="button" onClick={() => downloadReport("csv")}>
-            <Download className="h-4 w-4" /> CSV
-          </button>
-          <button className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[var(--border)] bg-white px-4 text-sm font-black" type="button" onClick={() => downloadReport("json")}>
-            <Download className="h-4 w-4" /> JSON
-          </button>
-          <a className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[var(--border)] bg-white px-4 text-sm font-black" href={`mailto:?subject=${encodeURIComponent(reportTitle)}&body=${emailBody}`}>
-            <Mail className="h-4 w-4" /> Email
-          </a>
-          <a className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[var(--border)] bg-white px-4 text-sm font-black" href={`https://wa.me/?text=${shareText}`} target="_blank" rel="noreferrer">
-            <MessageCircle className="h-4 w-4" /> WhatsApp
-          </a>
-        </section>
+        <ReportCommandBar
+          id={`director-${mode}`}
+          state={{ from: fromDate, to: toDate, ...reportScope }}
+          onStateChange={updateReportCommand}
+          onExportCsv={() => downloadReport("csv")}
+          onExportJson={() => downloadReport("json")}
+          onPrint={() => window.print()}
+          shareHref={`https://wa.me/?text=${shareText}`}
+        />
 
         {mode === "overview" ? (
         <section className="grid min-h-0 gap-3 md:grid-cols-2 xl:grid-cols-3">
@@ -342,7 +353,7 @@ export default function DirectorReportsPage() {
         ) : null}
 
         {mode !== "overview" && mode !== "launch" ? (
-        <section className="grid min-h-0 flex-1 gap-4 lg:grid-cols-[1fr_0.75fr]">
+        <section className="grid min-h-0 flex-1 gap-4">
           <Panel title={reportTitle} eyebrow="Preview">
             <div className="max-h-[58vh] overflow-y-auto pr-1">
               <table className="w-full border-collapse text-left text-sm">
@@ -363,17 +374,6 @@ export default function DirectorReportsPage() {
                   ))}
                 </tbody>
               </table>
-            </div>
-          </Panel>
-          <Panel title="Report Actions" eyebrow="Download and share">
-            <div className="grid gap-3">
-              <button className="rounded-xl bg-slate-950 px-4 py-3 text-sm font-black text-white" type="button" onClick={() => downloadReport("csv")}>Download CSV</button>
-              <button className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-sm font-black" type="button" onClick={() => downloadReport("json")}>Download JSON</button>
-              <a className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-center text-sm font-black" href={`mailto:?subject=${encodeURIComponent(reportTitle)}&body=${emailBody}`}>Email Report</a>
-              <a className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-center text-sm font-black" href={`https://wa.me/?text=${shareText}`} target="_blank" rel="noreferrer">WhatsApp Share</a>
-              <Link className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-center text-sm font-black" href={mode === "finance" ? "/dashboard/director/accounts?mode=reports" : mode === "admissions" ? "/dashboard/director/admissions" : mode === "staff" ? "/dashboard/director/management?mode=manage" : mode === "marketing" ? "/dashboard/business-development?tab=REPORTS" : "/dashboard/director/academic"}>
-                Open Source Page
-              </Link>
             </div>
           </Panel>
         </section>

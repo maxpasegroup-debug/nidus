@@ -20,6 +20,7 @@ import { buildAssessmentProgress } from "@/components/assessments/assessment-cat
 import { AnnouncementCard, ProgressCard, SectionHeader, StatCard } from "@/components/dashboard";
 import { PageHero } from "@/components/layout/page-hero";
 import { NidusAiCommandPanel } from "@/components/nidus-ai/nidus-ai-command-panel";
+import { averageFinite, clampScore } from "@/lib/score-utils";
 import type { StudentDashboardData } from "@/services/dashboard";
 import type { AuthUser } from "@/services/auth.v2";
 
@@ -31,15 +32,6 @@ type ProfileArea = {
   href: string;
   tag: string;
 };
-
-function clampScore(value: number) {
-  return Math.max(0, Math.min(100, Math.round(value)));
-}
-
-function average(values: number[]) {
-  const usefulValues = values.filter((value) => Number.isFinite(value));
-  return usefulValues.length ? usefulValues.reduce((sum, value) => sum + value, 0) / usefulValues.length : 0;
-}
 
 function getProfileCompletion(data: StudentDashboardData) {
   const assessmentProfile = data.assessmentProfile;
@@ -58,11 +50,11 @@ function getProfileCompletion(data: StudentDashboardData) {
 }
 
 function getDefencePotentialScore(data: StudentDashboardData) {
-  const learningScore = data.enrolledCourses.length ? average(data.enrolledCourses.map((course) => course.progress)) : 0;
+  const learningScore = data.enrolledCourses.length ? averageFinite(data.enrolledCourses.map((course) => course.progress)) : 0;
   const assessmentSignal = data.assessmentProfile?.averageScore ?? (data.upcomingTests.length ? 54 : 30);
   const engagementSignal = Math.min(100, data.recentActivities.length * 16);
 
-  return clampScore(average([learningScore, data.attendance.percentage, data.fitnessProgress.score, assessmentSignal, engagementSignal]));
+  return clampScore(averageFinite([learningScore, data.attendance.percentage, data.fitnessProgress.score, assessmentSignal, engagementSignal]));
 }
 
 function getReadinessBand(score: number) {

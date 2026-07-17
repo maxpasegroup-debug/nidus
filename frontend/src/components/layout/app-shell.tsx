@@ -13,6 +13,16 @@ import { TopNavbar } from "@/components/layout/top-navbar";
 
 const publicRoutes = new Set([
   "/",
+  "/about-nidus",
+  "/admissions",
+  "/why-choose-nidus",
+  "/faculty",
+  "/success-stories",
+  "/facilities",
+  "/gallery",
+  "/events",
+  "/blog",
+  "/faq",
   "/login",
   "/register",
   "/contact",

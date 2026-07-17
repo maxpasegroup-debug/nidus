@@ -1,5 +1,6 @@
 import { prisma } from "../../config/prisma.js";
 import { AssessmentStatus, type Prisma } from "../../generated/prisma/client.js";
+import { jsonObject, numberValue, optionalText, text } from "./assessment-input.js";
 
 const workflowAliases: Record<string, AssessmentStatus> = {
   DRAFT: AssessmentStatus.DRAFT,
@@ -12,25 +13,6 @@ const workflowAliases: Record<string, AssessmentStatus> = {
   DEPRECATED: AssessmentStatus.DEPRECATED,
   RETIRED: AssessmentStatus.RETIRED
 };
-
-function text(value: unknown) {
-  return typeof value === "string" ? value.trim() : "";
-}
-
-function optionalText(value: unknown) {
-  const valueText = text(value);
-  return valueText || undefined;
-}
-
-function numberValue(value: unknown, fallback = 0) {
-  const parsed = Number(value);
-  return Number.isFinite(parsed) ? parsed : fallback;
-}
-
-function json(value: unknown): Prisma.InputJsonValue {
-  if (value && typeof value === "object") return value as Prisma.InputJsonValue;
-  return {};
-}
 
 function status(value: unknown, fallback: AssessmentStatus = AssessmentStatus.DRAFT) {
   const key = text(value).toUpperCase();
@@ -48,8 +30,8 @@ async function createVersion(questionId: string, changedBy?: string, changeReaso
       questionId: question.id,
       version: question.version,
       questionText: question.questionText,
-      optionsSnapshot: json(question.options),
-      metadataSnapshot: json({
+      optionsSnapshot: jsonObject(question.options),
+      metadataSnapshot: jsonObject({
         assessmentId: question.assessmentId,
         traitId: question.traitId,
         dimensionId: question.dimensionId,
@@ -127,8 +109,8 @@ export const assessmentQuestionManagementService = {
         instructionText: optionalText(input.instructionText),
         questionType: questionType as Prisma.AssessmentQuestionUncheckedCreateInput["questionType"],
         difficultyLevel: numberValue(input.difficultyLevel, 1),
-        programRelevance: json(input.programRelevance),
-        serviceRelevance: json(input.serviceRelevance),
+        programRelevance: jsonObject(input.programRelevance),
+        serviceRelevance: jsonObject(input.serviceRelevance),
         authorId: optionalText(input.authorId),
         authorRole: optionalText(input.authorRole),
         status: status(input.status)
@@ -153,7 +135,7 @@ export const assessmentQuestionManagementService = {
           readinessWeight: numberValue(optionRecord.readinessWeight, 1),
           dimensionWeight: numberValue(optionRecord.dimensionWeight, 1),
           traitWeight: numberValue(optionRecord.traitWeight, 1),
-          flags: optionRecord.flags === undefined ? undefined : json(optionRecord.flags),
+          flags: optionRecord.flags === undefined ? undefined : jsonObject(optionRecord.flags),
           interpretationHint: optionalText(optionRecord.interpretationHint)
         }
       });
@@ -176,8 +158,8 @@ export const assessmentQuestionManagementService = {
         instructionText: optionalText(input.instructionText),
         questionType: input.questionType as Prisma.AssessmentQuestionUpdateInput["questionType"],
         difficultyLevel: input.difficultyLevel === undefined ? undefined : numberValue(input.difficultyLevel, current.difficultyLevel),
-        programRelevance: input.programRelevance === undefined ? undefined : json(input.programRelevance),
-        serviceRelevance: input.serviceRelevance === undefined ? undefined : json(input.serviceRelevance),
+        programRelevance: input.programRelevance === undefined ? undefined : jsonObject(input.programRelevance),
+        serviceRelevance: input.serviceRelevance === undefined ? undefined : jsonObject(input.serviceRelevance),
         authorId: optionalText(input.authorId),
         authorRole: optionalText(input.authorRole),
         status: input.status === undefined ? undefined : status(input.status, current.status),
@@ -199,8 +181,8 @@ export const assessmentQuestionManagementService = {
         instructionText: source.instructionText,
         questionType: source.questionType,
         difficultyLevel: source.difficultyLevel,
-        programRelevance: json(source.programRelevance),
-        serviceRelevance: json(source.serviceRelevance),
+        programRelevance: jsonObject(source.programRelevance),
+        serviceRelevance: jsonObject(source.serviceRelevance),
         authorId: optionalText(input.authorId) ?? source.authorId,
         authorRole: optionalText(input.authorRole) ?? source.authorRole,
         status: AssessmentStatus.DRAFT

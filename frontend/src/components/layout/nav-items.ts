@@ -6,101 +6,102 @@ export type DashboardNavItem = {
 export type NavItem = DashboardNavItem;
 
 const studentMenu: DashboardNavItem[] = [
-  { label: "Today", href: "/dashboard/student" },
-  { label: "Classes", href: "/dashboard/student/classes" },
-  { label: "Lessons", href: "/dashboard/student/learning" },
-  { label: "Timetable", href: "/dashboard/student/calendar" },
-  { label: "Homework", href: "/dashboard/student/assignments" },
+  { label: "Home", href: "/dashboard/student" },
+  { label: "Learning", href: "/dashboard/student/learning" },
+  { label: "Practice", href: "/tests" },
   { label: "Exams", href: "/dashboard/student/exams" },
-  { label: "Attendance", href: "/dashboard/student/attendance" },
   { label: "Progress", href: "/dashboard/student/progress" },
-  { label: "Assessments", href: "/dashboard/student/assessments" },
+  { label: "Profile", href: "/digital-profile" },
 ];
 
 const guestMenu: DashboardNavItem[] = [
+  { label: "Home", href: "/dashboard/guest" },
   { label: "Apply", href: "/dashboard/guest/academy" },
   { label: "Assessments", href: "/dashboard/guest/assessments" },
-  { label: "NIDUS Guru", href: "/dashboard/guest/guru" },
-  { label: "My Applications", href: "/dashboard/guest/applications" },
+  { label: "Applications", href: "/dashboard/guest/applications" },
 ];
 
 const parentMenu: DashboardNavItem[] = [
-  { label: "Today", href: "/dashboard/parent#today" },
+  { label: "Home", href: "/dashboard/parent#today" },
+  { label: "Child Progress", href: "/dashboard/parent#progress" },
   { label: "Attendance", href: "/dashboard/parent#attendance" },
-  { label: "Assignments", href: "/dashboard/parent#assignments" },
-  { label: "Exams", href: "/dashboard/parent#exams" },
-  { label: "Progress", href: "/dashboard/parent#progress" },
   { label: "Fees", href: "/dashboard/parent#fees" },
-  { label: "Reports", href: "/dashboard/parent#reports" },
-  { label: "Notifications", href: "/dashboard/parent#notifications-list" },
+  { label: "Messages", href: "/messages" },
 ];
 
 const teacherMenu: DashboardNavItem[] = [
   { label: "Today", href: "/dashboard/teacher" },
   { label: "Classes", href: "/dashboard/teacher/classes" },
   { label: "Attendance", href: "/dashboard/teacher/attendance" },
-  { label: "Homework", href: "/dashboard/teacher/assignments" },
-  { label: "Materials", href: "/dashboard/teacher/library" },
+  { label: "Assignments", href: "/dashboard/teacher/assignments" },
+  { label: "Exams", href: "/dashboard/teacher/exams" },
   { label: "Students", href: "/dashboard/teacher/students" },
-  { label: "More", href: "/dashboard/teacher/workspace" },
+  { label: "Resources", href: "/dashboard/teacher/library" },
 ];
 
 const videoEditorMenu: DashboardNavItem[] = [
-  { label: "Upload Lessons", href: "/dashboard/video-editor" },
+  { label: "Dashboard", href: "/dashboard/video-editor" },
+  { label: "Uploads", href: "/dashboard/video-editor#uploads" },
+  { label: "Pending Videos", href: "/dashboard/video-editor#pending" },
+  { label: "Published Videos", href: "/dashboard/video-editor#published" },
 ];
 
 const physicalTrainerMenu: DashboardNavItem[] = [
-  { label: "Today", href: "/fitness" },
-  { label: "My Batches", href: "/fitness/pt-schedule" },
+  { label: "Dashboard", href: "/fitness" },
+  { label: "PT Schedule", href: "/fitness/pt-schedule" },
   { label: "Attendance", href: "/fitness/eligibility" },
   { label: "Reports", href: "/fitness/logs" },
 ];
 
 const directorMenu: DashboardNavItem[] = [
-  { label: "Control Panel", href: "/dashboard/director" },
+  { label: "Dashboard", href: "/dashboard/director" },
   { label: "Academics", href: "/dashboard/director/academic" },
-  { label: "HRM", href: "/dashboard/director/management" },
-  { label: "Marketing & Sales", href: "/dashboard/business-development" },
-  { label: "Admin & Accounts", href: "/dashboard/director/accounts" },
-  { label: "Notifications", href: "/dashboard/director/notifications" },
+  { label: "Admissions", href: "/dashboard/director/admissions" },
+  { label: "Admin & HR", href: "/dashboard/director/management" },
+  { label: "Accounts", href: "/dashboard/director/accounts" },
   { label: "Reports", href: "/dashboard/director/reports" },
+  { label: "Settings", href: "/dashboard/settings" },
 ];
 
 const academicHeadMenu: DashboardNavItem[] = [
-  { label: "Today", href: "/dashboard/academic-head/hod" },
+  { label: "Dashboard", href: "/dashboard/academic-head/hod" },
   { label: "My Classes", href: "/dashboard/academic-head/my-classes" },
-  { label: "My Workspace", href: "/dashboard/academic-head/workspace" },
-  { label: "Messages & Notifications", href: "/dashboard/academic-head/communications" },
-  { label: "Quick Announcement", href: "/dashboard/academic-head/notifications" },
-  { label: "My Profile", href: "/dashboard/academic-head/profile" },
-  { label: "HOD Control", href: "/dashboard/academic-head/hod/control" },
+  { label: "Planner", href: "/dashboard/academic-head/hod/timetable" },
+  { label: "Faculty", href: "/dashboard/academic-head/hod/teacher-allocation" },
+  { label: "Students", href: "/dashboard/academic-head/students" },
+  { label: "Reports", href: "/dashboard/academic-head/hod/reports" },
 ];
 
 const administrativeOfficerMenu: DashboardNavItem[] = [
-  { label: "Today", href: "/dashboard/admission-cell#today" },
+  { label: "Dashboard", href: "/dashboard/admission-cell#today" },
+  { label: "Leads", href: "/crm/leads" },
   { label: "Applications", href: "/dashboard/admission-cell#applications" },
-  { label: "Documents", href: "/dashboard/admission-cell#documents" },
-  { label: "Fees & Receipts", href: "/dashboard/admission-cell#fees" },
-  { label: "Batch Allocation", href: "/dashboard/admission-cell#batch" },
-  { label: "Student Activation", href: "/dashboard/admission-cell#activation" },
-  { label: "Students", href: "/dashboard/admission-cell#students" },
-  { label: "Reports", href: "/dashboard/admission-cell#reports" },
+  { label: "Counselling", href: "/crm/counselling" },
+  { label: "Admissions", href: "/crm/admissions" },
 ];
 
 const businessDevelopmentMenu: DashboardNavItem[] = [
-  { label: "Today", href: "/dashboard/business-development" },
+  { label: "Dashboard", href: "/dashboard/business-development" },
   { label: "Leads", href: "/dashboard/business-development#leads" },
+  { label: "Campaigns", href: "/dashboard/sales-booster" },
   { label: "Follow-ups", href: "/dashboard/business-development#followups" },
-  { label: "Counselling", href: "/dashboard/business-development#followups" },
   { label: "Reports", href: "/dashboard/business-development#reports" },
 ];
 
 const adminMenu: DashboardNavItem[] = [
-  { label: "Dashboard", href: "/dashboard/admin" },
-  { label: "Users", href: "/admin-center/users" },
-  { label: "Roles", href: "/admin-center/roles" },
-  { label: "Permissions", href: "/admin-center/permissions" },
-  { label: "Settings", href: "/admin-center/settings" },
+  { label: "Dashboard", href: "/admin-center/operations" },
+  { label: "Employees", href: "/admin-center/users" },
+  { label: "Leave", href: "/admin-center/operations#leave" },
+  { label: "Payroll", href: "/staff-hr" },
+  { label: "Documents", href: "/documents" },
+];
+
+const accountsMenu: DashboardNavItem[] = [
+  { label: "Dashboard", href: "/dashboard/director/accounts" },
+  { label: "Fees", href: "/dashboard/director/accounts#pending-fees" },
+  { label: "Invoices", href: "/dashboard/director/accounts?mode=invoices#receipts" },
+  { label: "Expenses", href: "/dashboard/director/accounts#finance-reports" },
+  { label: "Reports", href: "/dashboard/director/accounts?mode=reports#finance-reports" },
 ];
 
 export function getNavItems(role?: string | null, dashboardTemplate?: string | null): DashboardNavItem[] {
@@ -115,6 +116,10 @@ export function getNavItems(role?: string | null, dashboardTemplate?: string | n
     return videoEditorMenu;
   }
 
+  if (normalizedTemplate === "ACCOUNTS" || normalizedTemplate === "ACCOUNTANT" || normalizedTemplate === "FINANCE") {
+    return accountsMenu;
+  }
+
   if (normalizedRole === "ACADEMIC_HEAD" || normalizedTemplate === "ACADEMIC_HEAD") {
     return academicHeadMenu;
   }
@@ -127,7 +132,7 @@ export function getNavItems(role?: string | null, dashboardTemplate?: string | n
     return teacherMenu;
   }
 
-  if (normalizedRole === "ADMINISTRATIVE_OFFICER" || normalizedRole === "ADMIN" || normalizedRole === "ADMISSION_CELL") {
+  if (normalizedRole === "ADMINISTRATIVE_OFFICER" || normalizedRole === "ADMISSION_CELL") {
     return administrativeOfficerMenu;
   }
 
@@ -147,11 +152,11 @@ export function getNavItems(role?: string | null, dashboardTemplate?: string | n
     return guestMenu;
   }
 
-  if (normalizedRole === "SUPER_ADMIN" || normalizedRole === "MANAGEMENT") {
+  if (normalizedRole === "ADMIN" || normalizedRole === "SUPER_ADMIN" || normalizedRole === "MANAGEMENT") {
     return adminMenu;
   }
 
   return studentMenu;
 }
 
-export { directorMenu, guestMenu, parentMenu, studentMenu };
+export { accountsMenu, directorMenu, guestMenu, parentMenu, studentMenu };

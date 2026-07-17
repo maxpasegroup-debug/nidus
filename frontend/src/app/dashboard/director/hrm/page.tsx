@@ -2,6 +2,7 @@
 
 import { Archive, KeyRound, UserPlus, Users } from "lucide-react";
 import { DirectorLauncher, type DirectorTile } from "@/components/dashboard/director-launcher";
+import { OperationsOsWorkspace } from "@/components/operations/operations-os-workspace";
 
 const tiles: DirectorTile[] = [
   {
@@ -32,12 +33,33 @@ const tiles: DirectorTile[] = [
 
 export default function DirectorHrmPage() {
   return (
-    <DirectorLauncher
-      eyebrow="HRM"
-      title="Staff And Access"
-      description="Simple staff management: add staff, manage details, reset access and archive inactive staff."
-      tiles={tiles}
-      backHref="/dashboard/director"
-    />
+    <>
+      <section className="bg-[var(--page-bg)] px-4 pt-6">
+        <div className="mx-auto max-w-[1500px]">
+        <OperationsOsWorkspace
+          title="HR Operating System"
+          description="Recruitment, employee profile, documents, attendance, leave, payroll, performance, training and exit are organized here without replacing the existing staff management tools."
+          metrics={[
+            { label: "Employee Directory", value: "Staff", note: "Open Manage Staff for live directory", tone: "info" },
+            { label: "Recruitment", value: "Add", note: "Create employee profile and access", tone: "success" },
+            { label: "Payroll", value: "Linked", note: "Payroll calculations stay in existing payroll workflow", tone: "info" },
+            { label: "Exit", value: "Archive", note: "Move inactive staff out of daily operations", tone: "default" },
+          ]}
+          alerts={[
+            { title: "HR health", detail: "Use Manage Staff for staff strength, access risk and archived history.", href: "/dashboard/director/management?mode=manage", tone: "info" },
+            { title: "Payroll summary", detail: "Payroll remains connected to the existing Staff HR module.", href: "/staff-hr", tone: "info" },
+            { title: "Leave and approvals", detail: "Leave and approval queues remain in the existing operations center.", href: "/admin-center/operations#leave", tone: "info" },
+          ]}
+        />
+        </div>
+      </section>
+        <DirectorLauncher
+          eyebrow="HRM"
+          title="Staff And Access"
+          description="Simple staff management: add staff, manage details, reset access and archive inactive staff."
+          tiles={tiles}
+          backHref="/dashboard/director"
+        />
+    </>
   );
 }

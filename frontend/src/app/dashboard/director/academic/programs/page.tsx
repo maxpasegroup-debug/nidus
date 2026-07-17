@@ -23,6 +23,7 @@ import {
 import type { LucideIcon } from "lucide-react";
 
 import { AcademicActionButton, AcademicHero, AcademicShell, EmptyState, GoldButton, Input, Panel, Select, StatCard, TextArea } from "../_components";
+import { AcademicEngineBanner } from "@/components/academy/academic-engine-workspace";
 import { allAcademyPrograms } from "@/data/academy-programs";
 import { useCreateCourse, useCourses, useDeleteCourse, useUpdateCourse } from "@/hooks/use-courses";
 import type { Course } from "@/types/course";
@@ -437,6 +438,18 @@ export default function DirectorProgramsPage() {
         <StatCard label="Planners" value={plannerCount} />
       </section>
 
+      <AcademicEngineBanner
+        role="DIRECTOR"
+        title="Program Planner is the master syllabus"
+        description="Paste, review and publish the complete program plan here. New batches generate timetable sessions from this master planner, and running batches can sync updates manually from their batch planner."
+        metrics={[
+          { label: "Programs", value: totalPrograms },
+          { label: "Published Planners", value: plannerCount, tone: plannerCount ? "success" : "warning" },
+          { label: "Offline", value: offlineCount },
+          { label: "Online", value: onlineCount },
+        ]}
+      />
+
       {step === "categories" ? (
         <Panel title="Program Categories" eyebrow="Step 1">
           {coursesQuery.isLoading ? <EmptyState text="Loading program categories..." /> : null}
@@ -780,12 +793,12 @@ function PlannerEditor({
   };
 
   const moveTopic = (moduleId: string, topicId: string, direction: -1 | 1) => {
-    const module = draft.modules.find((item) => item.id === moduleId);
-    if (!module) return;
-    const index = module.topics.findIndex((topic) => topic.id === topicId);
+    const plannerModule = draft.modules.find((item) => item.id === moduleId);
+    if (!plannerModule) return;
+    const index = plannerModule.topics.findIndex((topic) => topic.id === topicId);
     const nextIndex = index + direction;
-    if (index < 0 || nextIndex < 0 || nextIndex >= module.topics.length) return;
-    const topics = [...module.topics];
+    if (index < 0 || nextIndex < 0 || nextIndex >= plannerModule.topics.length) return;
+    const topics = [...plannerModule.topics];
     const [item] = topics.splice(index, 1);
     topics.splice(nextIndex, 0, item);
     updateModule(moduleId, { topics });

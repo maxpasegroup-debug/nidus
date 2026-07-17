@@ -1,62 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   ArrowLeft,
-  ArrowRight,
-  BarChart3,
-  BookOpen,
-  CalendarDays,
-  GraduationCap,
-  UserCheck,
-  Users,
 } from "lucide-react";
 
 import { getAcademicCalendarMonitor, getAcademyBatches, getStudentProgressSummary } from "@/services/academy";
 import { useCourses } from "@/hooks/use-courses";
+import { AcademicEngineBanner, AcademicEngineRoleActions } from "@/components/academy/academic-engine-workspace";
 import { AcademicHero, AcademicShell, EmptyState, Panel, StatCard } from "./_components";
 import { livePlannerMetrics, parseBatchAcademicPlanner, parseCourseDescription } from "./academic-planner-utils";
-
-const tiles = [
-  {
-    label: "Programs",
-    href: "/dashboard/director/academic/programs",
-    icon: GraduationCap,
-    note: "Add, edit and publish program academic planner templates.",
-  },
-  {
-    label: "Batches",
-    href: "/dashboard/director/academic/batches",
-    icon: Users,
-    note: "Create batches and generate planner schedules from programs.",
-  },
-  {
-    label: "Teacher Allocation",
-    href: "/dashboard/director/academic/teachers",
-    icon: UserCheck,
-    note: "Assign teachers to batches and subjects.",
-  },
-  {
-    label: "Timetable",
-    href: "/dashboard/director/academic/timetable",
-    icon: CalendarDays,
-    note: "Plan class delivery and teacher schedule execution.",
-  },
-  {
-    label: "Syllabus & Progress",
-    href: "/dashboard/director/academic/syllabus",
-    icon: BarChart3,
-    note: "Track topic completion and academic progress signals.",
-  },
-  {
-    label: "Academic Reports",
-    href: "/dashboard/director/academic/reports",
-    icon: BookOpen,
-    note: "Review attendance, exams, assignments and materials.",
-  },
-];
 
 export default function DirectorAcademicDepartmentPage() {
   const coursesQuery = useCourses();
@@ -85,10 +39,10 @@ export default function DirectorAcademicDepartmentPage() {
   const delayedBatches = plannerCards.filter((item) => item.delayed > 0);
   const generatedSessionCount = plannerCards.reduce((total, item) => total + item.metrics.total, 0);
   const completedSessionCount = plannerCards.reduce((total, item) => total + item.metrics.completed, 0);
-  const averagePlannerCompletion = useMemo(() => {
-    const tracked = plannerCards.filter((item) => item.metrics.total > 0);
-    return tracked.length ? Math.round(tracked.reduce((sum, item) => sum + item.metrics.completionPercentage, 0) / tracked.length) : 0;
-  }, [plannerCards]);
+  const trackedPlannerCards = plannerCards.filter((item) => item.metrics.total > 0);
+  const averagePlannerCompletion = trackedPlannerCards.length
+    ? Math.round(trackedPlannerCards.reduce((sum, item) => sum + item.metrics.completionPercentage, 0) / trackedPlannerCards.length)
+    : 0;
   const calendarItems = monitorQuery.data?.items ?? [];
 
   return (
@@ -114,30 +68,21 @@ export default function DirectorAcademicDepartmentPage() {
         <StatCard label="Avg Completion" value={`${averagePlannerCompletion}%`} />
       </section>
 
+      <AcademicEngineBanner
+        role="DIRECTOR"
+        title="Planner-first Academic Engine"
+        description="Program planner is the master source. Batch planner, timetable, class completion, attendance, materials, homework, tests and performance reports should follow this same flow."
+        metrics={[
+          { label: "Planner Progress", value: `${averagePlannerCompletion}%`, tone: averagePlannerCompletion >= 75 ? "success" : "warning" },
+          { label: "Batch Progress", value: `${completedSessionCount}/${generatedSessionCount || 0}` },
+          { label: "Faculty Progress", value: `${calendarItems.reduce((sum, item) => sum + item.completedClasses, 0)} completed`, tone: "info" },
+          { label: "Alerts", value: delayedBatches.length + batchesWithoutPlanner.length, tone: delayedBatches.length + batchesWithoutPlanner.length ? "warning" : "success" },
+        ]}
+      />
+
       <section className="grid gap-3 lg:grid-cols-[1fr_1.4fr]">
-        <Panel title="Academic Menus" eyebrow="Open module">
-          <div className="grid gap-3 sm:grid-cols-2">
-            {tiles.map((tile) => {
-              const Icon = tile.icon;
-              return (
-                <Link key={tile.href} href={tile.href} className="group rounded-2xl border border-[var(--border)] bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:border-[var(--gold-border)] hover:bg-[var(--gold-soft)]">
-                  <div className="flex items-start gap-3">
-                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--gold-soft)]">
-                      <Icon className="h-5 w-5" />
-                    </span>
-                    <div>
-                      <h2 className="text-sm font-black">{tile.label}</h2>
-                      <p className="mt-1 text-xs leading-5 text-[var(--muted-blue)]">{tile.note}</p>
-                    </div>
-                  </div>
-                  <span className="mt-3 inline-flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.16em] text-[var(--gold)]">
-                    Open
-                    <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
-                  </span>
-                </Link>
-              );
-            })}
-          </div>
+        <Panel title="Academic Engine Entry Points" eyebrow="Planner to performance">
+          <AcademicEngineRoleActions role="DIRECTOR" />
         </Panel>
 
         <Panel title="Batch Planner Execution" eyebrow="Director tracking">

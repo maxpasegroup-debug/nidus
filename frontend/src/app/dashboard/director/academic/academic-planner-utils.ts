@@ -206,16 +206,16 @@ export function parsePastedAcademicPlan(text: string, fallbackSubject = "General
       currentModule = existing;
       return existing;
     }
-    const module: AcademicPlannerModule = {
+    const plannerModule: AcademicPlannerModule = {
       id: plannerId("module"),
       title: normalizedTitle,
       subject: subject || fallbackSubject,
       milestone,
       topics: [],
     };
-    modules.push(module);
-    currentModule = module;
-    return module;
+    modules.push(plannerModule);
+    currentModule = plannerModule;
+    return plannerModule;
   };
 
   for (const rawLine of lines) {
@@ -264,10 +264,10 @@ export function parsePastedAcademicPlan(text: string, fallbackSubject = "General
 
     const type = inferTopicType(line, section);
     const subject = section === "EXAMS" ? "Exams" : section === "REVISION" ? "Revision" : currentSubject;
-    const module = currentModule ?? ensureModule(subject, subject);
+    const plannerModule = currentModule ?? ensureModule(subject, subject);
     const sessions = inferSessions(line, type);
     const hours = inferHours(line, sessions, subjectHours.get(subject));
-    module.topics.push({
+    plannerModule.topics.push({
       id: plannerId("topic"),
       title: cleanTitle(removeCounts(line)) || line,
       type,
@@ -339,8 +339,8 @@ export function generateBatchPlannerFromTemplate(input: {
   const sessions: GeneratedPlannerSession[] = [];
   const sessionMinutes = Number.isFinite(input.sessionMinutes) && input.sessionMinutes > 0 ? input.sessionMinutes : 60;
 
-  for (const module of input.planner.modules) {
-    for (const topic of module.topics) {
+  for (const plannerModule of input.planner.modules) {
+    for (const topic of plannerModule.topics) {
       const count = Math.max(1, Number(topic.sessions || 1));
       for (let index = 0; index < count; index += 1) {
         while (!allowedDays.has(cursor.getDay()) || holidays.has(dateKey(cursor))) {
@@ -352,8 +352,8 @@ export function generateBatchPlannerFromTemplate(input: {
           day: dayNames[cursor.getDay()],
           startTime: input.startTime,
           endTime: addMinutes(input.startTime, sessionMinutes),
-          subject: module.subject,
-          moduleTitle: module.title,
+          subject: plannerModule.subject,
+          moduleTitle: plannerModule.title,
           topic: count > 1 ? `${topic.title} (${index + 1}/${count})` : topic.title,
           type: topic.type,
           status: "PLANNED",

@@ -1,5 +1,6 @@
 import { prisma } from "../../config/prisma.js";
-import type { Prisma, Role } from "../../generated/prisma/client.js";
+import type { Role } from "../../generated/prisma/client.js";
+import { jsonValue } from "./assessment-input.js";
 import { assessmentExposureService } from "./assessment-exposure.service.js";
 import { assessmentRandomizationService } from "./assessment-randomization.service.js";
 import { assessmentSnapshotService } from "./assessment-snapshot.service.js";
@@ -16,10 +17,6 @@ type SubmitAnswerInput = {
   answerText?: string;
   rawScore?: number;
 };
-
-function json(value: unknown): Prisma.InputJsonValue {
-  return value as Prisma.InputJsonValue;
-}
 
 function repeatWindowDays(value: unknown) {
   const parsed = Number(value);
@@ -72,7 +69,7 @@ export const assessmentAttemptService = {
           assessmentId: input.assessmentId,
           userId,
           status: "IN_PROGRESS",
-          metadata: json({
+          metadata: jsonValue({
             poolSize: randomized.poolSize,
             recentAvoided: randomized.recentAvoided,
             coverage: randomized.coverage,
@@ -140,13 +137,13 @@ export const assessmentAttemptService = {
             optionId: answer.optionId,
             answerText: answer.answerText,
             rawScore,
-            scoredMetadata: json({ submittedBy: input.actor.id })
+            scoredMetadata: jsonValue({ submittedBy: input.actor.id })
           },
           update: {
             optionId: answer.optionId,
             answerText: answer.answerText,
             rawScore,
-            scoredMetadata: json({ submittedBy: input.actor.id, updatedAt: new Date().toISOString() })
+            scoredMetadata: jsonValue({ submittedBy: input.actor.id, updatedAt: new Date().toISOString() })
           }
         });
 

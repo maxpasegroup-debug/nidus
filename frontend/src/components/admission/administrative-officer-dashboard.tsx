@@ -18,6 +18,10 @@ import {
   Users,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { AdmissionAutomationPanel, AdmissionDocumentsPanel, AdmissionJourneyBanner, AdmissionRoleActions } from "@/components/admission/admission-journey-workspace";
+import { AiOperatingLayer } from "@/components/ai/ai-operating-layer";
+import { WorkspaceDashboard } from "@/components/dashboard/workspace-dashboard";
+import { ExecutiveIntelligenceSystem } from "@/components/reporting/executive-intelligence-system";
 import { createDocument } from "@/services/media";
 
 type OfficerTab = "TODAY" | "APPLICATIONS" | "DOCUMENTS" | "FEES" | "BATCH" | "ACTIVATION" | "STUDENTS" | "REPORTS";
@@ -393,33 +397,79 @@ export function AdministrativeOfficerDashboard() {
   }
 
   return (
-    <main className="grid gap-5">
-      <header className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm sm:p-7">
-        <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
-          <div>
-            <p className="text-xs font-black uppercase tracking-[0.3em] text-[var(--gold-dark)]">Administrative Officer</p>
-            <h1 className="mt-3 text-3xl font-black leading-tight sm:text-5xl">Application office desk</h1>
-            <p className="mt-3 max-w-4xl text-sm font-medium leading-7 text-[var(--muted-blue)]">
-              Open an application, check the details, attach documents, save office notes and move only payment-ready students to activation.
-            </p>
-          </div>
-          <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] px-5 py-4">
-            <p className="text-[0.68rem] font-black uppercase tracking-[0.22em] text-[var(--muted-blue)]">Next step</p>
-            <p className="mt-2 text-lg font-black text-[var(--ink)]">{selectedLead ? "Application is open. Save details before payment or activation." : "Open Applications and choose one applicant."}</p>
-          </div>
-        </div>
-      </header>
-
-      <section className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-6">
-        <Metric label="Applications" value={applications.length} icon={FileText} />
-        <Metric label="Documents Pending" value={documentPending} icon={FileArchive} />
-        <Metric label="Fees Pending" value={feePending} icon={BadgeIndianRupee} />
-        <Metric label="AO Ready" value={aoReady} icon={GraduationCap} />
-        <Metric label="Active Students" value={uniqueStudents} icon={Users} />
-        <Metric label="Active Batches" value={batches.filter((item) => item.status === "ACTIVE").length} icon={ShieldCheck} />
-      </section>
+    <WorkspaceDashboard
+      roleTitle="Admission Cell Workspace"
+      greeting="Today's Leads"
+      subtitle="Applications, follow-ups, documents and admissions activation in one clean office desk."
+      focus={[
+        { label: "Today's Leads", title: applications.length, detail: selectedLead ? "Application is open. Save details before payment or activation." : "Open Applications and choose one applicant.", href: "/dashboard/admission-cell#applications", icon: FileText, tone: applications.length ? "warning" : "success" },
+        { label: "Follow Ups", title: documentPending, detail: "Application documents pending verification.", href: "/dashboard/admission-cell#documents", icon: FileArchive, tone: documentPending ? "warning" : "success" },
+        { label: "Admissions", title: aoReady, detail: "Applicants ready for activation handover.", href: "/dashboard/admission-cell#activation", icon: GraduationCap, tone: aoReady ? "info" : "default" },
+      ]}
+      actions={[
+        { label: "Leads", href: "/crm/leads", icon: Users },
+        { label: "Applications", href: "/dashboard/admission-cell#applications", icon: FileText },
+        { label: "Counselling", href: "/crm/counselling", icon: Search },
+        { label: "Documents", href: "/dashboard/admission-cell#documents", icon: FileArchive },
+        { label: "Fees", href: "/dashboard/admission-cell#fees", icon: BadgeIndianRupee },
+        { label: "Admissions", href: "/crm/admissions", icon: GraduationCap },
+      ]}
+      metrics={[
+        { label: "Applications", value: applications.length },
+        { label: "Pending Documents", value: documentPending, tone: documentPending ? "warning" : "success" },
+        { label: "Fees Pending", value: feePending, tone: feePending ? "warning" : "success" },
+        { label: "Active Students", value: uniqueStudents },
+      ]}
+      activity={visibleApplications.slice(0, 5).map((lead) => ({ title: lead.fullName, detail: `${lead.mobile} / ${lead.targetExam}`, href: "/dashboard/admission-cell#applications", meta: leadStage(lead) }))}
+      upcoming={[
+        { title: "Pending documents", detail: `${documentPending} applicant file(s) need document verification.`, href: "/dashboard/admission-cell#documents", meta: "Docs" },
+        { title: "Pending fee confirmation", detail: `${feePending} applicant file(s) need payment update.`, href: "/dashboard/admission-cell#fees", meta: "Fees" },
+        { title: "Ready for activation", detail: `${aoReady} applicant file(s) can move to admission activation.`, href: "/dashboard/admission-cell#activation", meta: "Admission" },
+      ]}
+    >
 
       {message ? <p className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-sm font-bold">{message}</p> : null}
+
+      <AdmissionJourneyBanner
+        role="ADMISSION_CELL"
+        metrics={[
+          { label: "Today's Leads", value: applications.length },
+          { label: "Pending Documents", value: documentPending, tone: documentPending ? "warning" : "success" },
+          { label: "Pending Approvals", value: aoReady, tone: aoReady ? "info" : "default" },
+          { label: "Completed Admissions", value: uniqueStudents },
+        ]}
+      />
+      <AdmissionRoleActions role="ADMISSION_CELL" />
+      <section className="grid gap-5 xl:grid-cols-2">
+        <AdmissionDocumentsPanel />
+        <AdmissionAutomationPanel />
+      </section>
+      <AiOperatingLayer
+        role="ADMISSION_CELL"
+        compact
+        items={[
+          { title: documentPending ? `${documentPending} document file(s) pending` : "Documents are clear", detail: "Lead summary stays inside existing verification workflow.", href: "/dashboard/admission-cell#documents", icon: FileArchive, tone: documentPending ? "warning" : "success" },
+          { title: feePending ? `${feePending} fee follow-up(s)` : "Fee follow-ups are calm", detail: "Suggested follow-up uses the same fee status shown here.", href: "/dashboard/admission-cell#fees", icon: BadgeIndianRupee, tone: feePending ? "warning" : "success" },
+          { title: `${aoReady} activation candidate(s)`, detail: "Admission probability is surfaced through AO-ready handover signals.", href: "/dashboard/admission-cell#activation", icon: GraduationCap, tone: aoReady ? "info" : "default" },
+        ]}
+      />
+
+      <ExecutiveIntelligenceSystem
+        role="ADMISSION_CELL"
+        title="Admission Intelligence"
+        description="Lead funnel, conversions, pending admissions, counselling outcomes and revenue forecast are connected to the existing admission journey."
+        metrics={[
+          { label: "Lead Funnel", value: applications.length, note: "Open admission applications", tone: "info" },
+          { label: "Pending Documents", value: documentPending, note: "Files waiting for verification", tone: documentPending ? "warning" : "success" },
+          { label: "Pending Admissions", value: aoReady, note: "AO-ready handovers", tone: aoReady ? "warning" : "success" },
+          { label: "Batch Allocation", value: batchPending, note: "Ready for batch assignment", tone: batchPending ? "warning" : "success" },
+        ]}
+        insights={[
+          { title: "What happened?", detail: `${applications.length} application(s) are currently moving through documents, fees, batch and activation.`, tone: "info" },
+          { title: "What needs attention?", detail: `${documentPending} document, ${feePending} payment and ${batchPending} batch allocation item(s) need follow-up.`, href: "/dashboard/admission-cell#reports", tone: documentPending || feePending || batchPending ? "warning" : "success" },
+          { title: "What should I do next?", detail: "Continue from the existing application, document, payment, batch and activation tabs below.", href: "/dashboard/admission-cell#applications", tone: "info" },
+        ]}
+      />
 
       <nav className="flex gap-2 overflow-x-auto rounded-2xl border border-[var(--border)] bg-white p-2 shadow-sm" aria-label="Admission workflow">
         {tabs.map((item) => <button key={item.key} type="button" onClick={() => openTab(item.key)} className={`min-h-11 shrink-0 rounded-xl px-4 text-sm font-black ${tab === item.key ? "bg-slate-950 text-white" : "hover:bg-[var(--page-bg)]"}`}>{item.label}</button>)}
@@ -499,7 +549,7 @@ export function AdministrativeOfficerDashboard() {
       ) : null}
 
       {tab === "REPORTS" ? <ReportsView applications={applications} batches={batches} uniqueStudents={uniqueStudents} documentPending={documentPending} feePending={feePending} batchPending={batchPending} /> : null}
-    </main>
+    </WorkspaceDashboard>
   );
 }
 

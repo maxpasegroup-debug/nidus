@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ArrowLeft, CalendarDays, CheckCircle2, Clock, Lightbulb, Plus, RefreshCw } from "lucide-react";
+import { AiOperatingLayer, aiRoleActions } from "@/components/ai/ai-operating-layer";
+import { LearningEngineBanner, LearningProgressPanel, LearningRoleActions } from "@/components/learning/learning-engine-workspace";
 import { apiClient, apiGet, getApiErrorMessage } from "@/services/api";
 
 type PlannerBatch = {
@@ -180,7 +182,7 @@ export function LessonPlannerPage({ role, backHref }: { role: "TEACHER" | "ACADE
         <div className="mt-4 flex flex-wrap items-end justify-between gap-4">
           <div>
             <p className="text-[10px] font-black uppercase tracking-[0.28em] text-[var(--gold-dark)]">{role === "ACADEMIC_HEAD" ? "Teacher + HOD" : "Teacher"} Lesson Planner</p>
-            <h1 className="mt-2 text-3xl font-black md:text-5xl">Plan tomorrow's class in minutes.</h1>
+            <h1 className="mt-2 text-3xl font-black md:text-5xl">Plan tomorrow&apos;s class in minutes.</h1>
             <p className="mt-3 max-w-3xl text-sm text-[var(--muted-blue)]">Create a clean teaching plan, save it to the academic calendar, and use it later for attendance, library upload, exam or assignment follow-up.</p>
           </div>
           <button type="button" onClick={() => void loadPlanner()} disabled={loading} className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-[var(--border)] bg-white px-4 text-sm font-black disabled:opacity-50">
@@ -191,6 +193,31 @@ export function LessonPlannerPage({ role, backHref }: { role: "TEACHER" | "ACADE
 
       {error ? <p className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-bold text-rose-800">{error}</p> : null}
       {message ? <p className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-800">{message}</p> : null}
+
+      <LearningEngineBanner
+        role={role}
+        title={role === "ACADEMIC_HEAD" ? "Academic Head Learning Engine" : "Teacher Learning Engine"}
+        description="Lesson planning stays connected to batches, subjects, calendar slots, materials, assignments, quizzes and completion logs."
+        metrics={[
+          { label: "Course Coverage", value: data.batches.length, tone: "info" },
+          { label: "Lesson Completion", value: upcomingPlans.length, tone: upcomingPlans.length ? "warning" : "success" },
+          { label: "Pending Lessons", value: upcomingPlans.length, tone: upcomingPlans.length ? "warning" : "success" },
+          { label: "Content Review", value: role === "ACADEMIC_HEAD" ? "Open" : "Upload", tone: "info" },
+        ]}
+      />
+      <section className="grid gap-4 xl:grid-cols-[1fr_0.75fr]">
+        <LearningRoleActions role={role} />
+        <LearningProgressPanel lessonCount={upcomingPlans.length} />
+      </section>
+      <AiOperatingLayer
+        role={role === "ACADEMIC_HEAD" ? "ACADEMIC_HEAD" : "TEACHER"}
+        compact
+        items={role === "ACADEMIC_HEAD" ? [
+          { title: `${upcomingPlans.length} pending lesson(s)`, detail: "Academic risk alerts stay inside planner review.", href: "/dashboard/academic-head/hod/approvals", icon: CheckCircle2, tone: upcomingPlans.length ? "warning" : "success" },
+          { title: `${data.batches.length} assigned batch(es)`, detail: "Faculty workload signal uses existing teaching-plan data.", href: "/dashboard/academic-head/hod/teacher-monitoring", icon: CalendarDays, tone: "info" },
+          { title: "Planner completion insight", detail: "Review weak batches and pending lessons without a separate AI page.", href: "/dashboard/academic-head/hod/syllabus", icon: Lightbulb, tone: "success" },
+        ] : aiRoleActions("TEACHER")}
+      />
 
       <section className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_420px]">
         <form className="rounded-3xl border border-[var(--border)] bg-white p-5 shadow-sm" onSubmit={(event) => { event.preventDefault(); void savePlan(); }}>

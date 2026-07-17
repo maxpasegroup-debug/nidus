@@ -3,6 +3,15 @@ import { getRedis, isRedisReady } from "../config/redis.js";
 import { logger } from "../utils/logger.js";
 
 const localRateLimit = new Map<string, { count: number; expiresAt: number }>();
+let lastLocalRateLimitPrune = 0;
+
+function pruneLocalRateLimit(now: number) {
+  if (now - lastLocalRateLimitPrune < 60_000) return;
+  lastLocalRateLimitPrune = now;
+  for (const [key, record] of localRateLimit.entries()) {
+    if (record.expiresAt < now) localRateLimit.delete(key);
+  }
+}
 
 async function withTimeout<T>(operation: Promise<T>, timeoutMs = 1000): Promise<T> {
   let timeout: NodeJS.Timeout | undefined;
@@ -44,6 +53,7 @@ function redisBackedRateLimiter(name: string, windowMs: number, limit: number, m
     }
 
     const now = Date.now();
+    pruneLocalRateLimit(now);
     const current = localRateLimit.get(key);
     const nextRecord = !current || current.expiresAt < now ? { count: 1, expiresAt: now + windowMs } : { count: current.count + 1, expiresAt: current.expiresAt };
     localRateLimit.set(key, nextRecord);

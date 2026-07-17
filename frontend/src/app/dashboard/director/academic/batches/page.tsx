@@ -10,6 +10,7 @@ import { getApiErrorMessage } from "@/services/api";
 import { allAcademyPrograms } from "@/data/academy-programs";
 import { useCourses } from "@/hooks/use-courses";
 import { AcademicActionButton, AcademicHero, AcademicShell, EmptyState, GoldButton, Input, Panel, Select, StatCard, TextArea } from "../_components";
+import { AcademicEngineBanner } from "@/components/academy/academic-engine-workspace";
 import { generateBatchPlannerFromTemplate, parseCourseDescription, plannerTotals } from "../academic-planner-utils";
 import {
   academicHeadNames,
@@ -209,6 +210,18 @@ export default function DirectorBatchesPage() {
         <StatCard label="Teachers" value={totalTeachers} />
         <StatCard label="Programs" value={courses.length} />
       </section>
+
+      <AcademicEngineBanner
+        role="DIRECTOR"
+        title="Batch Planner is generated from Program Planner"
+        description="Create or sync batches from the published program planner. Batch schedules then drive timetable, class completion, attendance, material, assignment, tests and performance reports."
+        metrics={[
+          { label: "Active Batches", value: activeBatches.length },
+          { label: "Students", value: totalStudents },
+          { label: "Teachers", value: totalTeachers },
+          { label: "Program Templates", value: courses.length },
+        ]}
+      />
 
       {mode !== "list" ? (
         <Panel title={mode === "running" ? "Create Running Batch" : "Create New Batch"} eyebrow={mode === "running" ? "Remaining planner setup" : "Fresh planner setup"}>

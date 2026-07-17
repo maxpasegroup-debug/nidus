@@ -7,8 +7,36 @@ import { MaintenanceBanner } from "@/components/maintenance-banner";
 import { NetworkStatus } from "@/components/network-status";
 
 export const metadata: Metadata = {
-  title: "NIDUS Defence Training Platform",
-  description: "Defence training, course readiness, and personnel development platform.",
+  metadataBase: new URL("https://nidusacademy.in"),
+  title: {
+    default: "NIDUS Academy | Defence Coaching for NDA, CDS, AFCAT, SSB, AISSEE & Agniveer",
+    template: "%s | NIDUS Academy"
+  },
+  description: "NIDUS Academy is a premium defence training academy for NDA, CDS, AFCAT, SSB, AISSEE, RIMC, Agniveer and officer interview preparation in Kerala.",
+  keywords: [
+    "NIDUS Academy",
+    "defence academy Kerala",
+    "NDA coaching",
+    "CDS coaching",
+    "AFCAT coaching",
+    "SSB interview training",
+    "AISSEE coaching",
+    "RIMC coaching",
+    "Agniveer coaching"
+  ],
+  openGraph: {
+    title: "NIDUS Academy | Defence Coaching for Indian Defence Aspirants",
+    description: "Premium coaching, physical training, counselling and exam practice for NDA, CDS, AFCAT, SSB, AISSEE, RIMC and Agniveer aspirants.",
+    url: "https://nidusacademy.in",
+    siteName: "NIDUS Academy",
+    type: "website",
+    locale: "en_IN"
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "NIDUS Academy | Defence Coaching for Indian Defence Aspirants",
+    description: "Structured defence preparation for NDA, CDS, AFCAT, SSB, AISSEE, RIMC and Agniveer aspirants."
+  },
   manifest: "/manifest.webmanifest",
   icons: {
     icon: "/icons/icon-192.svg",
