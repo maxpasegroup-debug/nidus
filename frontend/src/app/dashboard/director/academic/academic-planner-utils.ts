@@ -24,6 +24,7 @@ export type AcademicPlannerTemplate = {
   version: number;
   updatedAt: string;
   modules: AcademicPlannerModule[];
+  pasteSource?: string;
 };
 
 export type CourseDescriptionMeta = {
@@ -151,6 +152,177 @@ export function plannerTotals(planner?: AcademicPlannerTemplate) {
   };
 }
 
+export function samplePlannerText(programTitle: string) {
+  return `Program: ${programTitle}
+Duration: 180 days
+Total Hours: 360
+
+Subjects:
+Maths - 120 hours
+English - 60 hours
+GK - 90 hours
+Current Affairs - 30 hours
+
+Maths:
+- Number System - 10 classes - 20 hours
+- Algebra - 15 classes - 30 hours
+- Geometry - 20 classes - 40 hours
+
+English:
+- Grammar Basics - 12 classes - 18 hours
+- Vocabulary - 10 classes - 12 hours
+- Comprehension - 8 classes - 12 hours
+
+GK:
+- Indian History - 18 classes - 27 hours
+- Geography - 16 classes - 24 hours
+- Polity and Economy - 16 classes - 24 hours
+
+Exams:
+- Weekly Test - 24 tests
+- Monthly Mock - 6 tests
+- Full Length Mock - 10 tests
+- Final Assessment - 1 test
+
+Revision:
+- Final Revision - 20 classes - 40 hours`;
+}
+
+export function parsePastedAcademicPlan(text: string, fallbackSubject = "General"): AcademicPlannerTemplate {
+  const lines = text
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+  const modules: AcademicPlannerModule[] = [];
+  const subjectHours = new Map<string, number>();
+  let currentSubject = fallbackSubject;
+  let currentModule: AcademicPlannerModule | null = null;
+  let section: "SUBJECTS" | "MODULES" | "EXAMS" | "REVISION" | "NOTES" = "MODULES";
+
+  const ensureModule = (title: string, subject = currentSubject, milestone = "") => {
+    const normalizedTitle = cleanTitle(title) || subject || fallbackSubject;
+    const existing = modules.find((module) => module.title.toLowerCase() === normalizedTitle.toLowerCase() && module.subject.toLowerCase() === subject.toLowerCase());
+    if (existing) {
+      currentModule = existing;
+      return existing;
+    }
+    const module: AcademicPlannerModule = {
+      id: plannerId("module"),
+      title: normalizedTitle,
+      subject: subject || fallbackSubject,
+      milestone,
+      topics: [],
+    };
+    modules.push(module);
+    currentModule = module;
+    return module;
+  };
+
+  for (const rawLine of lines) {
+    const line = rawLine.replace(/^[*-]\s*/, "").trim();
+    const lower = line.toLowerCase();
+    if (/^(program|duration|total\s*hours?|total\s*classes?|notes?)\s*:/i.test(line)) continue;
+    if (/^subjects?\s*:?$/i.test(line)) {
+      section = "SUBJECTS";
+      currentModule = null;
+      continue;
+    }
+    if (/^(modules?|syllabus|curriculum)\s*:?$/i.test(line)) {
+      section = "MODULES";
+      currentModule = null;
+      continue;
+    }
+    if (/^(exams?|tests?|assessments?)\s*:?$/i.test(line)) {
+      section = "EXAMS";
+      currentSubject = "Exams";
+      currentModule = ensureModule("Exams", "Exams", "Assessment plan");
+      continue;
+    }
+    if (/^revision\s*:?$/i.test(line)) {
+      section = "REVISION";
+      currentSubject = "Revision";
+      currentModule = ensureModule("Revision", "Revision", "Final preparation");
+      continue;
+    }
+    if (/^[A-Za-z][\w\s/&+-]{1,60}:$/.test(line)) {
+      const heading = line.replace(/:$/, "").trim();
+      section = lower.includes("exam") || lower.includes("test") ? "EXAMS" : lower.includes("revision") ? "REVISION" : "MODULES";
+      currentSubject = heading;
+      currentModule = ensureModule(heading, heading);
+      continue;
+    }
+
+    if (section === "SUBJECTS") {
+      const subjectName = cleanTitle(line.split(/\s+-\s+|:/)[0] || line);
+      const hours = numberNear(line, /(hours?|hrs?)/i);
+      if (subjectName) {
+        currentSubject = subjectName;
+        if (hours > 0) subjectHours.set(subjectName, hours);
+      }
+      continue;
+    }
+
+    const type = inferTopicType(line, section);
+    const subject = section === "EXAMS" ? "Exams" : section === "REVISION" ? "Revision" : currentSubject;
+    const module = currentModule ?? ensureModule(subject, subject);
+    const sessions = inferSessions(line, type);
+    const hours = inferHours(line, sessions, subjectHours.get(subject));
+    module.topics.push({
+      id: plannerId("topic"),
+      title: cleanTitle(removeCounts(line)) || line,
+      type,
+      sessions,
+      hours,
+      facultyRole: type === "ASSESSMENT" ? "Academic Head" : "Subject Faculty",
+    });
+  }
+
+  for (const [subject, hours] of subjectHours.entries()) {
+    const hasSubjectTopics = modules.some((module) => module.subject.toLowerCase() === subject.toLowerCase() && module.topics.length);
+    if (!hasSubjectTopics) {
+      ensureModule(`${subject} Plan`, subject).topics.push({
+        id: plannerId("topic"),
+        title: `${subject} syllabus coverage`,
+        type: "CLASS",
+        sessions: Math.max(1, Math.round(hours)),
+        hours,
+        facultyRole: "Subject Faculty",
+      });
+    }
+  }
+
+  return {
+    status: "DRAFT",
+    version: 0,
+    updatedAt: new Date().toISOString(),
+    pasteSource: text,
+    modules: modules.length ? modules : [{
+      id: plannerId("module"),
+      title: "Pasted Academic Plan",
+      subject: fallbackSubject,
+      milestone: "",
+      topics: [{
+        id: plannerId("topic"),
+        title: "Review pasted planner text",
+        type: "CLASS",
+        sessions: 1,
+        hours: 1,
+        facultyRole: "Academic Head",
+      }],
+    }],
+  };
+}
+
+export function appendPlannerUpdates(current: AcademicPlannerTemplate, updates: AcademicPlannerTemplate) {
+  return {
+    ...current,
+    status: "DRAFT" as const,
+    updatedAt: new Date().toISOString(),
+    pasteSource: updates.pasteSource || current.pasteSource,
+    modules: [...current.modules, ...updates.modules],
+  };
+}
+
 export function generateBatchPlannerFromTemplate(input: {
   planner?: AcademicPlannerTemplate;
   startDate?: string;
@@ -263,4 +435,50 @@ function addMinutes(time: string, minutes: number) {
   const date = new Date(2000, 0, 1, Number(hourRaw || 0), Number(minuteRaw || 0));
   date.setMinutes(date.getMinutes() + minutes);
   return `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
+}
+
+function cleanTitle(value: string) {
+  return value
+    .replace(/^\d+[.)]\s*/, "")
+    .replace(/\s+/g, " ")
+    .replace(/\s+-\s*$/g, "")
+    .trim();
+}
+
+function removeCounts(value: string) {
+  return value
+    .replace(/\s+-\s*\d+\s*(classes|class|sessions|session|tests|test|exams|exam|hours|hour|hrs|hr|days|day)\b/gi, "")
+    .replace(/\b\d+\s*(classes|class|sessions|session|tests|test|exams|exam|hours|hour|hrs|hr|days|day)\b/gi, "")
+    .replace(/\s+-\s*(every|weekly|monthly|daily)\b.*$/gi, "")
+    .trim();
+}
+
+function inferTopicType(line: string, section: "SUBJECTS" | "MODULES" | "EXAMS" | "REVISION" | "NOTES"): PlannerTopicType {
+  const lower = line.toLowerCase();
+  if (section === "EXAMS" || /\b(test|exam|mock|assessment|quiz)\b/.test(lower)) return "ASSESSMENT";
+  if (section === "REVISION" || /\b(revision|revise|recap)\b/.test(lower)) return "REVISION";
+  if (/\b(project|portfolio)\b/.test(lower)) return "PROJECT";
+  if (/\b(practical|lab|workshop)\b/.test(lower)) return "PRACTICAL";
+  return "CLASS";
+}
+
+function inferSessions(line: string, type: PlannerTopicType) {
+  const specific = numberNear(line, /(classes|class|sessions|session|tests|test|exams|exam|mocks|mock|days|day)/i);
+  if (specific > 0) return specific;
+  const anyNumber = Number(line.match(/\b(\d+)\b/)?.[1] ?? 0);
+  if (anyNumber > 0 && type === "ASSESSMENT") return anyNumber;
+  return 1;
+}
+
+function inferHours(line: string, sessions: number, subjectHours?: number) {
+  const explicit = numberNear(line, /(hours|hour|hrs|hr)/i);
+  if (explicit > 0) return explicit;
+  if (subjectHours && sessions <= 1) return subjectHours;
+  return sessions;
+}
+
+function numberNear(line: string, unit: RegExp) {
+  const matches = Array.from(line.matchAll(/(\d+(?:\.\d+)?)\s*([A-Za-z]+)/g));
+  const found = matches.find((match) => unit.test(match[2]));
+  return found ? Number(found[1]) : 0;
 }

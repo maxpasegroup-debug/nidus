@@ -29,9 +29,12 @@ import type { Course } from "@/types/course";
 import {
   courseDescriptionWithPlanner,
   defaultPlannerTemplate,
+  appendPlannerUpdates,
   parseCourseDescription,
+  parsePastedAcademicPlan,
   plannerId,
   plannerTotals,
+  samplePlannerText,
   topicTypes,
   type AcademicPlannerModule,
   type AcademicPlannerTemplate,
@@ -631,7 +634,7 @@ export default function DirectorProgramsPage() {
           ) : null}
 
           {plannerCourse && plannerDraft ? (
-            <PlannerEditor
+            <SimplePlannerEditor
               course={plannerCourse}
               draft={plannerDraft}
               onChange={setPlannerDraft}
@@ -885,4 +888,207 @@ function PlannerEditor({
       </section>
     </div>
   );
+}
+
+function SimplePlannerEditor({
+  course,
+  draft,
+  onChange,
+  onClose,
+  onSaveDraft,
+  onPublish,
+  saving,
+}: {
+  course: Course;
+  draft: AcademicPlannerTemplate;
+  onChange: (planner: AcademicPlannerTemplate) => void;
+  onClose: () => void;
+  onSaveDraft: () => void;
+  onPublish: () => void;
+  saving: boolean;
+}) {
+  const [step, setStep] = useState<"paste" | "review">("paste");
+  const [pasteMode, setPasteMode] = useState<"REPLACE" | "APPEND">("REPLACE");
+  const [pasteText, setPasteText] = useState(draft.pasteSource || "");
+  const [message, setMessage] = useState("");
+  const totals = plannerTotals(draft);
+  const allTopics = draft.modules.flatMap((module) => module.topics.map((topic) => ({ module, topic })));
+
+  const reviewPaste = () => {
+    if (!pasteText.trim()) {
+      setMessage("Paste the planner first, then click Review Plan.");
+      return;
+    }
+    const parsed = parsePastedAcademicPlan(pasteText, course.examType || course.category || "General");
+    const nextPlanner = pasteMode === "APPEND" ? appendPlannerUpdates(draft, parsed) : parsed;
+    onChange(nextPlanner);
+    setMessage(pasteMode === "APPEND" ? "Updates added for review. Nothing is published yet." : "Planner converted for review. Nothing is published yet.");
+    setStep("review");
+  };
+
+  const loadSample = () => {
+    setPasteText(samplePlannerText(course.title));
+    setMessage("Sample format added. Replace it with your real academic plan.");
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/45 px-3 py-4 backdrop-blur-sm">
+      <section className="flex max-h-[calc(100vh-2rem)] w-full max-w-6xl flex-col overflow-hidden rounded-2xl border border-[var(--border)] bg-white shadow-2xl">
+        <div className="flex flex-wrap items-start justify-between gap-3 border-b border-[var(--border)] p-4">
+          <div>
+            <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[var(--gold)]">Academic Planner</p>
+            <h2 className="mt-1 text-xl font-black text-[var(--navy)]">{course.title}</h2>
+            <p className="mt-2 max-w-3xl text-sm font-bold leading-6 text-[var(--muted-blue)]">
+              Paste the full academic plan or only the latest updates. Review what the system understood, then save or publish.
+            </p>
+          </div>
+          <button type="button" onClick={onClose} className="icon-button h-10 w-10 rounded-xl border border-[var(--border)] bg-white" aria-label="Close planner editor">
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        <div className="grid border-b border-[var(--border)] bg-[var(--page-bg)] px-4 py-3 md:grid-cols-5">
+          <PlannerStep active={step === "paste"} label="1. Paste Plan" />
+          <PlannerStep active={step === "review"} label="2. Review" />
+          <PlannerMetric label="Subjects" value={new Set(draft.modules.map((module) => module.subject)).size} />
+          <PlannerMetric label="Classes" value={totals.sessions} />
+          <PlannerMetric label="Exams" value={totals.assessments} />
+        </div>
+
+        {message ? <div className="border-b border-[var(--border)] bg-[var(--gold-soft)] px-4 py-2 text-sm font-black">{message}</div> : null}
+
+        <div className="min-h-0 flex-1 overflow-auto p-4">
+          {step === "paste" ? (
+            <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
+              <div className="grid gap-3">
+                <label className="grid gap-2 text-sm font-black text-[var(--navy)]">
+                  Paste academic plan here
+                  <textarea
+                    className="min-h-[420px] rounded-2xl border border-[var(--border)] bg-white px-4 py-3 font-mono text-sm leading-6 text-[var(--navy)] outline-none focus:border-[var(--gold)]"
+                    value={pasteText}
+                    onChange={(event) => setPasteText(event.target.value)}
+                    placeholder="Paste subjects, modules, syllabus, classes, hours, exams, revision and notes here."
+                  />
+                </label>
+              </div>
+
+              <aside className="grid content-start gap-3">
+                <div className="rounded-2xl border border-[var(--border)] bg-white p-3">
+                  <p className="text-sm font-black">What can I paste?</p>
+                  <div className="mt-3 grid gap-2 text-sm font-bold leading-6 text-[var(--muted-blue)]">
+                    <p>Total subjects</p>
+                    <p>Modules and syllabus</p>
+                    <p>Total classes or hours</p>
+                    <p>Weekly tests, mock tests, final exams</p>
+                    <p>Revision and practical sessions</p>
+                  </div>
+                </div>
+
+                <Select label="What are you pasting?" value={pasteMode} onChange={(value) => setPasteMode(value as typeof pasteMode)}>
+                  <option value="REPLACE">Full planner</option>
+                  <option value="APPEND">Updates only</option>
+                </Select>
+
+                <button type="button" onClick={loadSample} className="rounded-xl border border-[var(--border)] bg-white px-4 py-2 text-sm font-black">
+                  Use Sample Format
+                </button>
+                <button type="button" onClick={reviewPaste} className="rounded-xl bg-[var(--navy)] px-4 py-2 text-sm font-black text-white">
+                  Review Plan
+                </button>
+              </aside>
+            </div>
+          ) : (
+            <div className="grid gap-4">
+              <section className="grid gap-3 md:grid-cols-5">
+                <StatCard label="Subjects" value={new Set(draft.modules.map((module) => module.subject)).size} />
+                <StatCard label="Syllabus Parts" value={totals.modules} />
+                <StatCard label="Topics" value={totals.topics} />
+                <StatCard label="Classes" value={totals.sessions} />
+                <StatCard label="Hours" value={totals.hours} />
+              </section>
+
+              <div className="rounded-2xl border border-[var(--border)] bg-white p-3">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <h3 className="text-base font-black">Review Detected Planner</h3>
+                    <p className="mt-1 text-sm font-bold text-[var(--muted-blue)]">Check this table. If something is wrong, go back, edit the pasted text, and review again.</p>
+                  </div>
+                  <button type="button" onClick={() => setStep("paste")} className="rounded-xl border border-[var(--border)] bg-white px-4 py-2 text-sm font-black">
+                    Edit Pasted Text
+                  </button>
+                </div>
+              </div>
+
+              <div className="max-h-[48vh] overflow-auto rounded-2xl border border-[var(--border)]">
+                <table className="w-full min-w-[920px] border-collapse text-sm">
+                  <thead className="sticky top-0 bg-[var(--page-bg)] text-left">
+                    <tr className="border-b border-[var(--border)]">
+                      {["Subject", "Syllabus Part", "What will be taught / conducted", "Type", "Classes", "Hours", "Handled by"].map((heading) => (
+                        <th key={heading} className="px-3 py-2 text-[11px] font-black uppercase tracking-[0.14em] text-[var(--muted-blue)]">{heading}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {allTopics.map(({ module, topic }) => (
+                      <tr key={`${module.id}-${topic.id}`} className="border-b border-[var(--border)] last:border-b-0">
+                        <td className="px-3 py-2 font-black">{module.subject}</td>
+                        <td className="px-3 py-2">{module.title}</td>
+                        <td className="px-3 py-2 font-black">{topic.title}</td>
+                        <td className="px-3 py-2">{simpleTopicType(topic.type)}</td>
+                        <td className="px-3 py-2">{topic.sessions}</td>
+                        <td className="px-3 py-2">{topic.hours}</td>
+                        <td className="px-3 py-2">{topic.facultyRole}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="flex flex-wrap justify-between gap-2 border-t border-[var(--border)] p-4">
+          <p className="max-w-2xl text-xs font-bold leading-5 text-[var(--muted-blue)]">
+            Publishing updates this program master planner for future batches. Running batches change only when you manually sync them from the batch planner.
+          </p>
+          <div className="flex flex-wrap justify-end gap-2">
+            <button type="button" onClick={onClose} className="rounded-xl border border-[var(--border)] bg-white px-4 py-2 text-sm font-black">
+              Cancel
+            </button>
+            <button type="button" onClick={onSaveDraft} disabled={saving} className="rounded-xl border border-[var(--border)] bg-white px-4 py-2 text-sm font-black disabled:opacity-60">
+              Save Draft
+            </button>
+            <GoldButton type="button" disabled={saving || !totals.topics} onClick={onPublish}>
+              Approve & Publish
+            </GoldButton>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function PlannerStep({ active, label }: { active: boolean; label: string }) {
+  return (
+    <div className={`rounded-xl px-3 py-2 text-sm font-black ${active ? "bg-[var(--navy)] text-white" : "text-[var(--muted-blue)]"}`}>
+      {label}
+    </div>
+  );
+}
+
+function PlannerMetric({ label, value }: { label: string; value: string | number }) {
+  return (
+    <div className="rounded-xl border border-[var(--border)] bg-white px-3 py-2">
+      <p className="text-[10px] font-black uppercase tracking-[0.14em] text-[var(--muted-blue)]">{label}</p>
+      <p className="text-sm font-black">{value}</p>
+    </div>
+  );
+}
+
+function simpleTopicType(type: string) {
+  if (type === "ASSESSMENT") return "Exam / Test";
+  if (type === "REVISION") return "Revision";
+  if (type === "PRACTICAL") return "Practical";
+  if (type === "PROJECT") return "Project";
+  return "Class";
 }
