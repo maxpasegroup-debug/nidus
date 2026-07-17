@@ -38,6 +38,8 @@ type BatchInput = {
   examsPerMonth?: string | number;
   assignmentsPerWeek?: string | number;
   plannerNotes?: string;
+  archivedAt?: string;
+  archiveAutoDeleteAt?: string;
 };
 
 type StudentInput = {
@@ -491,7 +493,27 @@ function academyBatchSchedule(input: BatchInput) {
   if (input.examsPerMonth !== undefined && input.examsPerMonth !== "") schedule.examsPerMonth = Number(input.examsPerMonth);
   if (input.assignmentsPerWeek !== undefined && input.assignmentsPerWeek !== "") schedule.assignmentsPerWeek = Number(input.assignmentsPerWeek);
   if (input.plannerNotes) schedule.plannerNotes = input.plannerNotes;
+  if (input.archivedAt) schedule.archivedAt = input.archivedAt;
+  if (input.archiveAutoDeleteAt) schedule.archiveAutoDeleteAt = input.archiveAutoDeleteAt;
   return Object.keys(schedule).length ? toJsonObject(schedule) : undefined;
+}
+
+async function purgeExpiredArchivedBatches() {
+  const archived = await db.batch.findMany({
+    where: { status: "ARCHIVED" },
+    select: { id: true, schedule: true },
+  });
+  const now = Date.now();
+  const expiredIds = archived
+    .filter((batch: { schedule?: unknown }) => {
+      const schedule = typeof batch.schedule === "object" && batch.schedule ? batch.schedule as Record<string, unknown> : {};
+      const deleteAt = typeof schedule.archiveAutoDeleteAt === "string" ? Date.parse(schedule.archiveAutoDeleteAt) : NaN;
+      return Number.isFinite(deleteAt) && deleteAt <= now;
+    })
+    .map((batch: { id: string }) => batch.id);
+  if (expiredIds.length) {
+    await db.batch.deleteMany({ where: { id: { in: expiredIds }, status: "ARCHIVED" } });
+  }
 }
 
 function normalizeRows<T extends Record<string, any>>(rows: T[]) {
@@ -1400,6 +1422,9 @@ export const academyService = {
     if (!isAdmissionCell(user)) {
       requireAcademic(user);
     }
+    if (isManagement(user) || isAcademicManager(user) || isAdmissionCell(user)) {
+      await purgeExpiredArchivedBatches();
+    }
 
     let where = batchWhereFromQuery(query);
     if (!isManagement(user) && !isAdmissionCell(user) && !isVideoEditor(user)) {
@@ -1435,6 +1460,17 @@ export const academyService = {
 
   async updateBatch(user: Requester, batchId: string, input: BatchInput) {
     requireAcademicManagement(user);
+    const existing = await db.batch.findUnique({ where: { id: batchId }, select: { schedule: true } });
+    const existingSchedule = typeof existing?.schedule === "object" && existing.schedule ? existing.schedule as Record<string, unknown> : {};
+    const nextInput = { ...input };
+    if (input.status === "ARCHIVED" && !existingSchedule.archiveAutoDeleteAt) {
+      const archivedAt = new Date();
+      const archiveAutoDeleteAt = new Date(archivedAt);
+      archiveAutoDeleteAt.setDate(archiveAutoDeleteAt.getDate() + 30);
+      nextInput.archivedAt = archivedAt.toISOString();
+      nextInput.archiveAutoDeleteAt = archiveAutoDeleteAt.toISOString();
+    }
+    const schedulePatch = academyBatchSchedule(nextInput);
     await db.batch.update({
       where: { id: batchId },
       data: {
@@ -1444,7 +1480,7 @@ export const academyService = {
         batchType: input.learningMode || input.batchType,
         startDate: toDate(input.startDate),
         endDate: toDate(input.endDate),
-        schedule: academyBatchSchedule(input),
+        schedule: schedulePatch ? toJsonObject({ ...existingSchedule, ...schedulePatch }) : undefined,
         status: input.status,
       },
     });
@@ -2740,10 +2776,21 @@ export const academyService = {
     const plannedDate = input.plannedDate ? new Date(input.plannedDate) : current.plannedDate;
     const startTime = input.startTime !== undefined ? calendarDateTime(plannedDate, input.startTime) : current.startTime;
     const endTime = input.endTime !== undefined ? calendarDateTime(plannedDate, input.endTime) : current.endTime;
+    const nextBatchId = input.batchId !== undefined ? input.batchId || null : current.batchId;
+    const nextBatchName = input.batchName !== undefined ? input.batchName || null : current.batchName;
+    const nextProgramSlug = input.programSlug !== undefined ? input.programSlug || null : current.programSlug;
+    const nextSubject = input.subject !== undefined ? String(input.subject || "").trim() : current.subject;
+    if (nextBatchId) {
+      await assertBatchAccess(user, nextBatchId);
+      if (nextSubject) await assertBatchSubjectAccess(user, nextBatchId, nextSubject);
+    }
     await prisma.$executeRaw`
       UPDATE "AcademicCalendarItem"
       SET
-        "subject" = ${input.subject ?? current.subject},
+        "batchId" = ${nextBatchId},
+        "batchName" = ${nextBatchName},
+        "programSlug" = ${nextProgramSlug},
+        "subject" = ${nextSubject},
         "topic" = ${input.topic ?? current.topic},
         "classType" = ${input.classType ?? current.classType ?? "Live Class"},
         "plannedDate" = ${plannedDate},

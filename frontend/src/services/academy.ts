@@ -476,6 +476,8 @@ export async function createAcademyBatch(payload: {
   examsPerMonth?: string | number;
   assignmentsPerWeek?: string | number;
   plannerNotes?: string;
+  archivedAt?: string;
+  archiveAutoDeleteAt?: string;
 }) {
   const response = await apiClient.post<{ batch: AcademyBatch } | AcademyBatch>("/academy/batches", payload);
   return "batch" in response.data ? response.data.batch : response.data;
@@ -502,6 +504,8 @@ export async function updateAcademyBatch(batchId: string, payload: Partial<{
   examsPerMonth: string | number;
   assignmentsPerWeek: string | number;
   plannerNotes: string;
+  archivedAt: string;
+  archiveAutoDeleteAt: string;
 }>) {
   const response = await apiClient.patch<{ batch: AcademyBatch } | AcademyBatch>(`/academy/batches/${batchId}`, payload);
   return "batch" in response.data ? response.data.batch : response.data;
@@ -662,7 +666,7 @@ export async function updateAcademicCalendarItem(id: string, payload: Partial<Pi
   return "item" in response.data ? response.data.item : response.data;
 }
 
-export async function updateAcademicCalendarSchedule(id: string, payload: Partial<Pick<AcademicCalendarItem, "subject" | "topic" | "classType" | "plannedDate" | "startTime" | "endTime" | "teacherId" | "teacherName" | "status" | "completionStatus" | "teacherLog" | "nextAction">>) {
+export async function updateAcademicCalendarSchedule(id: string, payload: Partial<Pick<AcademicCalendarItem, "batchId" | "batchName" | "programSlug" | "subject" | "topic" | "classType" | "plannedDate" | "startTime" | "endTime" | "teacherId" | "teacherName" | "status" | "completionStatus" | "teacherLog" | "nextAction">>) {
   const response = await apiClient.patch<{ item: AcademicCalendarItem } | AcademicCalendarItem>(`/academy/academic-calendar/${id}`, payload);
   return "item" in response.data ? response.data.item : response.data;
 }
