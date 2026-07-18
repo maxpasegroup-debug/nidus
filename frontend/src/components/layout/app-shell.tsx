@@ -13,6 +13,7 @@ import { TopNavbar } from "@/components/layout/top-navbar";
 
 const publicRoutes = new Set([
   "/",
+  "/legacy-home",
   "/about-nidus",
   "/admissions",
   "/why-choose-nidus",
@@ -52,6 +53,10 @@ export function AppShell({ children }: { children: ReactNode }) {
   const isFocusedDirectorWorkspace = Boolean(pathname?.startsWith("/dashboard/director"));
   const isFocusedWorkspace = isFocusedClassroom || isFocusedAdmissionDesk || isFocusedTimetable || isFocusedDirectorWorkspace;
   const hasSidebar = !isFocusedWorkspace && !isLoading && !!user && getNavItems(user.role, dashboardTemplate).length > 0;
+
+  if (pathname === "/") {
+    return <>{children}</>;
+  }
 
   if (isPublicRoute) {
     return (
