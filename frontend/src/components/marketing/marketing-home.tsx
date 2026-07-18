@@ -1,7 +1,15 @@
+import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, ClipboardCheck, GraduationCap, ShieldCheck, Sparkles, Target } from "lucide-react";
+import { ArrowRight, ClipboardCheck, GraduationCap, LogIn, ShieldCheck, Sparkles, Target } from "lucide-react";
 
 const exams = ["NDA", "CDS", "AFCAT", "SSB", "AISSEE", "RIMC", "Agniveer", "INET", "Physical Training", "Interview Guidance"];
+
+const headerLinks = [
+  ["Assessments", "/psychometric"],
+  ["Courses", "/programs"],
+  ["Nidus Gurus", "/faculty"],
+  ["Gallery / Stories", "/gallery"]
+] as const;
 
 const modules = [
   {
@@ -74,9 +82,50 @@ function ExamStream() {
   );
 }
 
+function GlossyHeader() {
+  return (
+    <header className="fixed left-0 right-0 top-0 z-50 px-3 pt-3 sm:px-5 lg:px-8">
+      <div className="mx-auto flex min-h-[74px] max-w-7xl items-center justify-between gap-4 rounded-[1.5rem] border border-[#071d36]/10 bg-white/68 px-4 py-3 text-[#071d36] shadow-[0_24px_80px_rgba(7,29,54,0.12),inset_0_1px_0_rgba(255,255,255,0.74)] backdrop-blur-2xl sm:px-5 lg:px-7">
+        <Link href="/" className="flex min-w-0 items-center gap-3" aria-label="NIDUS Academy home">
+          <span className="grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-full border border-[#b9913f]/24 bg-white shadow-[0_14px_30px_rgba(185,145,63,0.16)]">
+            <Image src="/brand/nidus-logo.png" alt="" width={44} height={44} className="h-10 w-10 object-contain" priority sizes="44px" />
+          </span>
+          <span className="min-w-0">
+            <span className="block truncate text-xl font-black uppercase leading-none tracking-[0.14em] text-[#071d36] sm:text-2xl">NIDUS</span>
+            <span className="mt-1 block truncate text-[10px] font-black uppercase tracking-[0.22em] text-[#b9913f] sm:text-xs">Academy</span>
+          </span>
+        </Link>
+
+        <nav className="hidden items-center gap-1 lg:flex" aria-label="Landing navigation">
+          {headerLinks.map(([label, href]) => (
+            <Link key={label} href={href} className="rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.12em] text-[#071d36]/78 transition hover:bg-[#071d36]/7 hover:text-[#b9913f]">
+              {label}
+            </Link>
+          ))}
+        </nav>
+
+        <Link href="/login" className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-full border border-[#b9913f]/34 bg-[linear-gradient(135deg,#fff7d7_0%,#e7c873_45%,#b9913f_100%)] px-4 text-xs font-black uppercase tracking-[0.12em] text-[#071d36] shadow-[0_14px_34px_rgba(185,145,63,0.18)] transition hover:brightness-105 sm:px-5">
+          <LogIn className="h-4 w-4" aria-hidden="true" />
+          <span className="hidden sm:inline">Signup / Login</span>
+          <span className="sm:hidden">Login</span>
+        </Link>
+      </div>
+
+      <nav className="mx-auto mt-2 flex max-w-7xl gap-2 overflow-x-auto rounded-full border border-[#071d36]/8 bg-white/66 px-3 py-2 text-[#071d36] shadow-sm backdrop-blur-xl lg:hidden" aria-label="Mobile landing navigation">
+        {headerLinks.map(([label, href]) => (
+          <Link key={label} href={href} className="shrink-0 rounded-full px-3 py-2 text-[11px] font-black uppercase tracking-[0.1em] text-[#071d36]/76">
+            {label}
+          </Link>
+        ))}
+      </nav>
+    </header>
+  );
+}
+
 export function MarketingHome() {
   return (
     <main className="bg-[#f7f3ea] text-[#101827]">
+      <GlossyHeader />
       <style>{`
         @keyframes nidus-marquee {
           0% { transform: translateX(0); }
@@ -84,7 +133,7 @@ export function MarketingHome() {
         }
       `}</style>
 
-      <section className="relative overflow-hidden bg-[radial-gradient(circle_at_18%_10%,rgba(185,145,63,0.22),transparent_28rem),radial-gradient(circle_at_86%_14%,rgba(110,143,175,0.22),transparent_30rem),linear-gradient(135deg,#fbf8f1_0%,#f7f3ea_58%,#dce9f3_100%)] px-4 pb-24 pt-32 text-center text-[#101827] sm:px-6 lg:px-8">
+      <section className="relative overflow-hidden bg-[radial-gradient(circle_at_18%_10%,rgba(185,145,63,0.22),transparent_28rem),radial-gradient(circle_at_86%_14%,rgba(110,143,175,0.22),transparent_30rem),linear-gradient(135deg,#fbf8f1_0%,#f7f3ea_58%,#dce9f3_100%)] px-4 pb-24 pt-44 text-center text-[#101827] sm:px-6 lg:px-8">
         <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#f7f3ea] to-transparent" />
         <div className="relative mx-auto max-w-5xl">
           <p className="mx-auto inline-flex rounded-full border border-[#b9913f]/24 bg-white/62 px-5 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#3f4a32] backdrop-blur-xl">
