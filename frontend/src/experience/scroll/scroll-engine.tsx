@@ -5,6 +5,7 @@
  * It supports normal, pinned, layered, parallax, and immersive scene orchestration.
  */
 import { createContext, useCallback, useContext, useMemo, useRef, useState, type ReactNode } from "react";
+import { logExperienceWarning } from "../runtime";
 import type { ExperienceSceneLength, ExperienceSceneMode, SceneProgressSnapshot, SceneRegistration } from "../types";
 
 type SceneRegistryContextValue = {
@@ -15,6 +16,13 @@ type SceneRegistryContextValue = {
 };
 
 const SceneRegistryContext = createContext<SceneRegistryContextValue | null>(null);
+
+const fallbackSceneRegistry: SceneRegistryContextValue = {
+  scenes: [],
+  registerScene: () => () => undefined,
+  updateSceneProgress: () => undefined,
+  progress: {}
+};
 
 /**
  * Provides a central registry for cinematic scene elements and progress snapshots.
@@ -31,6 +39,8 @@ export function ExperienceScrollProvider({ children }: { children: ReactNode }) 
         const nextScene = { ...scene, element };
         const existing = current.findIndex((item) => item.id === scene.id);
         if (existing >= 0) {
+          const previous = current[existing];
+          if (previous.element === element && previous.mode === scene.mode && previous.length === scene.length) return current;
           const next = [...current];
           next[existing] = nextScene;
           return next;
@@ -41,7 +51,18 @@ export function ExperienceScrollProvider({ children }: { children: ReactNode }) 
   }, []);
 
   const updateSceneProgress = useCallback((snapshot: SceneProgressSnapshot) => {
-    setProgress((current) => ({ ...current, [snapshot.id]: snapshot }));
+    setProgress((current) => {
+      const previous = current[snapshot.id];
+      if (
+        previous &&
+        Math.abs(previous.progress - snapshot.progress) < 0.001 &&
+        previous.isActive === snapshot.isActive &&
+        previous.bounds === snapshot.bounds
+      ) {
+        return current;
+      }
+      return { ...current, [snapshot.id]: snapshot };
+    });
   }, []);
 
   const value = useMemo(() => ({ scenes, registerScene, updateSceneProgress, progress }), [progress, registerScene, scenes, updateSceneProgress]);
@@ -54,7 +75,10 @@ export function ExperienceScrollProvider({ children }: { children: ReactNode }) 
  */
 export function useExperienceScrollRegistry() {
   const context = useContext(SceneRegistryContext);
-  if (!context) throw new Error("useExperienceScrollRegistry must be used inside ExperienceScrollProvider.");
+  if (!context) {
+    logExperienceWarning("missing-scroll-provider", "Scroll provider missing; scene registration disabled.");
+    return fallbackSceneRegistry;
+  }
   return context;
 }
 

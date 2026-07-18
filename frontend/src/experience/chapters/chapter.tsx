@@ -5,6 +5,7 @@
  * It registers chapter metadata for future navigation and analytics while preserving scene behavior.
  */
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { logExperienceWarning } from "../runtime";
 import type { ExperienceChapterMetadata } from "../types";
 
 type ExperienceChapterContextValue = {
@@ -13,6 +14,11 @@ type ExperienceChapterContextValue = {
 };
 
 const ExperienceChapterContext = createContext<ExperienceChapterContextValue | null>(null);
+
+const fallbackChapterContext: ExperienceChapterContextValue = {
+  chapters: [],
+  registerChapter: () => undefined
+};
 
 /**
  * Provides chapter registration for future lazy loading, analytics, and chapter navigation.
@@ -42,7 +48,10 @@ export function ExperienceChapterProvider({ children }: { children: ReactNode })
  */
 export function useExperienceChapters() {
   const context = useContext(ExperienceChapterContext);
-  if (!context) throw new Error("useExperienceChapters must be used inside ExperienceChapterProvider.");
+  if (!context) {
+    logExperienceWarning("missing-chapter-provider", "Chapter provider missing; chapter registration disabled.");
+    return fallbackChapterContext;
+  }
   return context;
 }
 
@@ -59,11 +68,15 @@ export function Chapter({ metadata, children, className }: ChapterProps) {
   const context = useContext(ExperienceChapterContext);
 
   useEffect(() => {
+    if (!metadata?.id) {
+      logExperienceWarning("invalid-chapter-metadata", "Chapter metadata missing; chapter registration skipped.");
+      return;
+    }
     context?.registerChapter(metadata);
   }, [context, metadata]);
 
   return (
-    <section className={className} data-chapter-id={metadata.id} data-chapter-order={metadata.order} aria-label={metadata.title}>
+    <section id={metadata.id} className={className} data-chapter-id={metadata.id} data-chapter-order={metadata.order} aria-label={metadata.title}>
       {children}
     </section>
   );

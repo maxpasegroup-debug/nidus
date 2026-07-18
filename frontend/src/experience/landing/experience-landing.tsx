@@ -6,6 +6,7 @@
  */
 import { ExperienceComposer } from "../composer";
 import { experienceManifest } from "../manifest";
+import { ExperienceErrorBoundary } from "../runtime";
 import { ExperienceShell } from "../shell";
 
 const shellChapters = experienceManifest.chapters
@@ -38,14 +39,16 @@ const navigationItems = experienceManifest.chapters
  */
 export function ExperienceLanding() {
   return (
-    <ExperienceShell
-      background={{ mode: "atmospheric", tone: "navy" }}
-      chapters={shellChapters}
-      navigationItems={navigationItems}
-      overlays={["noise", "paperGrain"]}
-      scenes={shellScenes}
-    >
-      <ExperienceComposer manifest={experienceManifest} />
-    </ExperienceShell>
+    <ExperienceErrorBoundary boundaryId="experience-landing">
+      <ExperienceShell
+        background={{ mode: "atmospheric", tone: "navy" }}
+        chapters={shellChapters}
+        navigationItems={navigationItems}
+        overlays={["noise", "paperGrain"]}
+        scenes={shellScenes}
+      >
+        <ExperienceComposer manifest={experienceManifest} />
+      </ExperienceShell>
+    </ExperienceErrorBoundary>
   );
 }

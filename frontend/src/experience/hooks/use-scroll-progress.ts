@@ -6,6 +6,7 @@
  */
 import { useEffect, useRef, useState } from "react";
 import { clampProgress } from "../motion";
+import { logExperienceWarning } from "../runtime";
 
 /**
  * Tracks an element's scroll progress from first contact to complete exit.
@@ -18,21 +19,30 @@ export function useScrollProgress<TElement extends HTMLElement>() {
     let frame = 0;
 
     const update = () => {
-      const node = ref.current;
-      if (!node) return;
-      const rect = node.getBoundingClientRect();
-      const viewportHeight = window.innerHeight || 1;
-      const total = rect.height + viewportHeight;
-      const current = viewportHeight - rect.top;
-      setProgress(clampProgress(current / total));
+      try {
+        const node = ref.current;
+        if (!node || typeof window === "undefined") return;
+        const rect = node.getBoundingClientRect();
+        const viewportHeight = window.innerHeight || 1;
+        const total = rect.height + viewportHeight;
+        const current = viewportHeight - rect.top;
+        setProgress(clampProgress(current / total));
+      } catch (error) {
+        logExperienceWarning("scroll-progress-failed", "Scene scroll progress update failed.", error);
+      }
     };
 
     const requestUpdate = () => {
+      if (typeof requestAnimationFrame === "undefined") {
+        update();
+        return;
+      }
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(update);
     };
 
     update();
+    if (typeof window === "undefined") return;
     window.addEventListener("scroll", requestUpdate, { passive: true });
     window.addEventListener("resize", requestUpdate);
 

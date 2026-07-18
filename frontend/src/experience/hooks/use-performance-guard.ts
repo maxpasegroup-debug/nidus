@@ -15,6 +15,7 @@ export function usePerformanceGuard() {
   const [isLowPowerViewport, setIsLowPowerViewport] = useState(false);
 
   useEffect(() => {
+    if (typeof window === "undefined") return;
     const update = () => setIsLowPowerViewport(window.innerWidth < 768);
     update();
     window.addEventListener("resize", update);

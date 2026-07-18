@@ -7,8 +7,9 @@
 import { Fragment, useMemo } from "react";
 import { Chapter } from "../chapters";
 import { experienceManifest } from "../manifest";
+import { ExperienceErrorBoundary, logExperienceWarning, validateExperienceManifest } from "../runtime";
 import type { ExperienceManifest } from "../types";
-import { getExperienceSceneComponent } from "./scene-registry";
+import { experienceSceneRegistry, getExperienceSceneComponent } from "./scene-registry";
 
 type ExperienceComposerProps = {
   manifest?: ExperienceManifest;
@@ -18,8 +19,13 @@ type ExperienceComposerProps = {
  * Renders the complete cinematic journey from declarative manifest metadata.
  */
 export function ExperienceComposer({ manifest = experienceManifest }: ExperienceComposerProps) {
-  const orderedChapters = useMemo(() => [...manifest.chapters].sort((a, b) => a.order - b.order), [manifest.chapters]);
-  const sceneById = useMemo(() => new Map(manifest.scenes.map((scene) => [scene.id, scene])), [manifest.scenes]);
+  const validation = useMemo(() => validateExperienceManifest(manifest, experienceSceneRegistry), [manifest]);
+  const orderedChapters = useMemo(() => [...(manifest?.chapters ?? [])].sort((a, b) => a.order - b.order), [manifest]);
+  const sceneById = useMemo(() => new Map((manifest?.scenes ?? []).map((scene) => [scene.id, scene])), [manifest]);
+
+  if (!validation.isValid) {
+    logExperienceWarning("manifest-validation", "Experience manifest has recoverable validation issues.", validation.issues);
+  }
 
   return (
     <>
@@ -30,16 +36,24 @@ export function ExperienceComposer({ manifest = experienceManifest }: Experience
           .sort((a, b) => a.order - b.order);
 
         return (
-          <Chapter key={chapter.id} metadata={chapter}>
-            {chapterScenes.map((scene) => {
-              const SceneComponent = getExperienceSceneComponent(scene.id);
-              return SceneComponent ? (
-                <Fragment key={scene.id}>
-                  <SceneComponent />
-                </Fragment>
-              ) : null;
-            })}
-          </Chapter>
+          <ExperienceErrorBoundary key={chapter.id} boundaryId={`chapter:${chapter.id}`}>
+            <Chapter metadata={chapter}>
+              {chapterScenes.map((scene) => {
+                const SceneComponent = getExperienceSceneComponent(scene.id);
+                if (!SceneComponent) {
+                  logExperienceWarning(`missing-scene:${scene.id}`, `Scene ${scene.id} is missing from registry and was skipped.`);
+                  return null;
+                }
+                return (
+                  <Fragment key={scene.id}>
+                    <ExperienceErrorBoundary boundaryId={`scene:${scene.id}`}>
+                      <SceneComponent />
+                    </ExperienceErrorBoundary>
+                  </Fragment>
+                );
+              })}
+            </Chapter>
+          </ExperienceErrorBoundary>
         );
       })}
     </>

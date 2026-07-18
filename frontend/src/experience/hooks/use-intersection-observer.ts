@@ -15,7 +15,7 @@ export function useIntersectionObserver<TElement extends Element>(options?: Inte
 
   useEffect(() => {
     const node = ref.current;
-    if (!node || typeof IntersectionObserver === "undefined") return;
+    if (!node || typeof window === "undefined" || typeof IntersectionObserver === "undefined") return;
 
     const observer = new IntersectionObserver(([nextEntry]) => setEntry(nextEntry ?? null), options);
     observer.observe(node);
