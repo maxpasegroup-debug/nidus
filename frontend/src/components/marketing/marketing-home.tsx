@@ -1,176 +1,106 @@
+import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, ClipboardCheck, GraduationCap, ShieldCheck, Sparkles, Target } from "lucide-react";
+import { ArrowRight, LogIn } from "lucide-react";
 
-const exams = ["NDA", "CDS", "AFCAT", "SSB", "AISSEE", "RIMC", "Agniveer", "INET", "Physical Training", "Interview Guidance"];
+const headerLinks = [
+  ["Assessments", "/psychometric"],
+  ["Courses", "/programs"],
+  ["Nidus Gurus", "/faculty"],
+  ["Gallery / Stories", "/gallery"],
+  ["Login / Signup", "/login"]
+] as const;
 
-const modules = [
+const landingSections = [
   {
-    label: "Academy",
-    title: "Defence Training Academy",
-    text: "Clear coaching, discipline, physical training and mentor support for students who dream of a career in uniform.",
-    href: "/programs",
-    cta: "Explore Academy",
-    icon: GraduationCap,
-    className: "bg-[#f7f3ea] text-[#101827]"
+    id: "dream",
+    title: "Every officer was once a student.",
+    image: "/landing-replica/hero.png",
+    cropTop: "top-0 lg:-top-[118px]",
+    imageHeight: "h-full lg:h-[calc(100%+118px)]",
+    priority: true
   },
   {
-    label: "NIDUS Guru",
-    title: "Focus and Discipline Quests",
-    text: "Simple transformation quests that help students reduce distractions, build confidence and stay consistent.",
-    href: "/guru",
-    cta: "Explore Quests",
-    icon: Sparkles,
-    className: "bg-white text-[#101827]"
+    id: "journey",
+    title: "From dream to duty.",
+    image: "/landing-replica/journey.png",
+    cropTop: "top-0",
+    imageHeight: "h-full",
+    priority: false
+  },
+  {
+    id: "decision",
+    title: "Take the first step today.",
+    image: "/landing-replica/decision.png",
+    cropTop: "top-0 lg:-top-[94px]",
+    imageHeight: "h-full lg:h-[calc(100%+94px)]",
+    priority: false
   }
 ] as const;
 
-function PillButton({ href, children, variant = "solid" }: { href: string; children: React.ReactNode; variant?: "solid" | "ghost" }) {
+function GlossHeader() {
   return (
-    <Link
-      href={href}
-      className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold transition hover:-translate-y-0.5 ${
-        variant === "solid" ? "border border-[#b58b35]/45 bg-[linear-gradient(135deg,#fff3bf_0%,#e7c873_34%,#b9913f_72%,#8a6426_100%)] text-[#071d36] shadow-[0_18px_46px_rgba(185,145,63,0.24)] hover:brightness-105" : "border border-[#071d36]/14 bg-white/76 text-[#071d36] shadow-sm hover:bg-white"
-      }`}
-    >
-      {children}
-    </Link>
-  );
-}
+    <header className="fixed left-0 right-0 top-0 z-50 px-3 pt-3 sm:px-5 lg:px-8">
+      <div className="mx-auto flex min-h-[76px] max-w-[96rem] items-center justify-between gap-4 rounded-[1.6rem] border border-white/12 bg-[#03111f]/58 px-4 py-3 text-white shadow-[0_26px_90px_rgba(0,0,0,0.34),inset_0_1px_0_rgba(255,255,255,0.14)] backdrop-blur-2xl sm:px-5 lg:px-7">
+        <Link href="/" className="flex min-w-0 items-center gap-3" aria-label="NIDUS Academy home">
+          <span className="relative grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-full border border-[#e7b64d]/28 bg-[#071d36]/70 shadow-[0_0_34px_rgba(231,182,77,0.2)]">
+            <Image src="/brand/nidus-logo.png" alt="" width={52} height={52} className="h-11 w-11 object-contain" priority />
+          </span>
+          <span className="min-w-0">
+            <span className="block truncate font-serif text-xl font-black uppercase leading-none tracking-[0.16em] text-white sm:text-2xl">NIDUS</span>
+            <span className="mt-1 block truncate text-[10px] font-black uppercase tracking-[0.2em] text-[#e7b64d] sm:text-xs">Academy</span>
+          </span>
+        </Link>
 
-function ModuleBand({ module }: { module: (typeof modules)[number] }) {
-  const Icon = module.icon;
-  return (
-    <section className={`${module.className} border-t border-[#071d36]/8 px-4 py-24 text-center sm:px-6 lg:px-8`}>
-      <div className="mx-auto max-w-4xl">
-        <span className="inline-flex items-center gap-2 rounded-full border border-[#b9913f]/24 bg-white/70 px-5 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#3f4a32] shadow-sm">
-          <Icon className="h-4 w-4" />
-          {module.label}
-        </span>
-        <h2 className="mt-8 text-5xl font-semibold leading-[1.02] tracking-normal text-[#071d36] sm:text-7xl">{module.title}</h2>
-        <p className="mx-auto mt-6 max-w-2xl text-base leading-8 text-[#64748b] sm:text-xl">{module.text}</p>
-        <div className="mt-8">
-          <PillButton href={module.href}>
-            {module.cta} <ArrowRight className="h-4 w-4" />
-          </PillButton>
+        <nav className="hidden items-center gap-1 xl:flex" aria-label="Landing navigation">
+          {headerLinks.map(([label, href]) => (
+            <Link key={label} href={href} className="rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.12em] text-white/82 transition hover:bg-white/10 hover:text-[#f2bd4a]">
+              {label}
+            </Link>
+          ))}
+        </nav>
+
+        <div className="flex shrink-0 items-center gap-2">
+          <Link href="/login" className="hidden min-h-11 items-center justify-center gap-2 rounded-xl border border-[#e7b64d]/42 bg-white/6 px-4 text-xs font-black uppercase tracking-[0.12em] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.12)] transition hover:bg-white/12 md:inline-flex">
+            <LogIn className="h-4 w-4" aria-hidden="true" />
+            Login
+          </Link>
+          <Link href="/start-free?intent=academy" className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[linear-gradient(135deg,#ffe08a_0%,#e7b64d_45%,#b57b24_100%)] px-4 text-xs font-black uppercase tracking-[0.12em] text-[#06111f] shadow-[0_16px_42px_rgba(231,182,77,0.24)] transition hover:brightness-110 sm:px-5">
+            Apply Now
+            <ArrowRight className="h-4 w-4" aria-hidden="true" />
+          </Link>
         </div>
       </div>
-    </section>
+
+      <nav className="mx-auto mt-2 flex max-w-[96rem] gap-2 overflow-x-auto rounded-full border border-white/10 bg-[#03111f]/52 px-3 py-2 text-white backdrop-blur-xl xl:hidden" aria-label="Mobile landing navigation">
+        {headerLinks.map(([label, href]) => (
+          <Link key={label} href={href} className="shrink-0 rounded-full px-3 py-2 text-[11px] font-black uppercase tracking-[0.1em] text-white/82">
+            {label}
+          </Link>
+        ))}
+      </nav>
+    </header>
   );
 }
 
-function ExamStream() {
-  const stream = [...exams, ...exams, ...exams];
-
+function ReplicaSection({ section }: { section: (typeof landingSections)[number] }) {
   return (
-    <section className="overflow-hidden bg-[#071d36] py-8 text-white">
-      <div className="flex w-max animate-[nidus-marquee_34s_linear_infinite] items-center gap-14 whitespace-nowrap">
-        {stream.map((exam, index) => (
-          <span key={`${exam}-${index}`} className="text-3xl font-black uppercase tracking-normal text-[#F8F4EA] sm:text-5xl">
-            {exam}
-          </span>
-        ))}
+    <section id={section.id} aria-label={section.title} className="relative min-h-screen overflow-hidden bg-[#03111f]">
+      <h2 className="sr-only">{section.title}</h2>
+      <div className={`absolute inset-x-0 ${section.cropTop} ${section.imageHeight}`}>
+        <Image src={section.image} alt={section.title} fill priority={section.priority} sizes="100vw" className="object-contain md:object-cover" />
       </div>
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-36 bg-gradient-to-b from-[#03111f]/78 via-[#03111f]/18 to-transparent" />
     </section>
   );
 }
 
 export function MarketingHome() {
   return (
-    <main className="bg-[#f7f3ea] text-[#101827]">
-      <style>{`
-        @keyframes nidus-marquee {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-33.333%); }
-        }
-      `}</style>
-
-      <section className="relative overflow-hidden bg-[radial-gradient(circle_at_18%_10%,rgba(185,145,63,0.22),transparent_28rem),radial-gradient(circle_at_86%_14%,rgba(110,143,175,0.22),transparent_30rem),linear-gradient(135deg,#fbf8f1_0%,#f7f3ea_58%,#dce9f3_100%)] px-4 pb-24 pt-32 text-center text-[#101827] sm:px-6 lg:px-8">
-        <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#f7f3ea] to-transparent" />
-        <div className="relative mx-auto max-w-5xl">
-          <p className="mx-auto inline-flex rounded-full border border-[#b9913f]/24 bg-white/62 px-5 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#3f4a32] backdrop-blur-xl">
-            Kerala&apos;s Integrated Defence Career Campus
-          </p>
-          <h1 className="mx-auto mt-10 max-w-5xl text-5xl font-semibold leading-[1.02] tracking-normal text-[#071d36] sm:text-7xl lg:text-8xl">
-            From Aspirant to Officer.
-          </h1>
-          <p className="mx-auto mt-7 max-w-3xl text-base font-semibold leading-8 text-[#40516a] sm:text-2xl">
-            Coaching, physical training, exam practice and personal guidance for NDA, CDS, AFCAT, SSB, AISSEE and Agniveer aspirants.
-          </p>
-          <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <PillButton href="/start-free?intent=general">
-              Start Free <ArrowRight className="h-4 w-4" />
-            </PillButton>
-            <PillButton href="/programs" variant="ghost">Explore Academy</PillButton>
-          </div>
-        </div>
-      </section>
-
-      <ExamStream />
-
-      {modules.map((module) => (
-        <ModuleBand key={module.label} module={module} />
+    <main id="main-content" className="bg-[#03111f] text-white">
+      <GlossHeader />
+      {landingSections.map((section) => (
+        <ReplicaSection key={section.id} section={section} />
       ))}
-
-      <section className="bg-[#f7f3ea] px-4 py-24 text-center sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-3xl">
-          <span className="inline-flex items-center gap-2 rounded-full border border-[#D6A842]/30 bg-white/70 px-5 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#123C8C]">
-            <ClipboardCheck className="h-4 w-4" />
-            Free Assessment
-          </span>
-          <h2 className="mt-8 text-4xl font-semibold leading-tight text-[#061B34] sm:text-6xl">Know your strengths before you begin.</h2>
-          <p className="mx-auto mt-5 max-w-xl text-base leading-8 text-[#40516a]">
-            Start with a simple free profile. Understand your confidence, discipline and best defence career direction.
-          </p>
-          <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-            <Link href="/start-free?intent=assessment" className="inline-flex min-h-11 items-center justify-center gap-2 rounded border border-[#b58b35]/45 bg-[linear-gradient(135deg,#fff3bf_0%,#e7c873_34%,#b9913f_72%,#8a6426_100%)] px-5 py-3 text-sm font-semibold text-[#071d36] shadow-[0_18px_42px_rgba(185,145,63,0.24)] transition hover:-translate-y-0.5 hover:brightness-105">
-              Get Started <ArrowRight className="h-4 w-4" />
-            </Link>
-            <Link href="/start-free?intent=counselling" className="inline-flex min-h-11 items-center justify-center gap-2 rounded px-5 py-3 text-sm font-semibold text-[#061B34] transition hover:-translate-y-0.5">
-              Talk to Mentor <ArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      <section className="bg-[#071d36] px-4 py-20 text-white sm:px-6 lg:px-8">
-        <div className="mx-auto grid max-w-6xl gap-10 md:grid-cols-[1fr_1.4fr]">
-          <div>
-            <div className="grid h-10 w-10 place-items-center rounded-full bg-[linear-gradient(135deg,#fff3bf,#b9913f_70%,#8a6426)] text-[#071d36]">
-              <ShieldCheck className="h-5 w-5" />
-            </div>
-            <p className="mt-6 max-w-sm text-sm leading-7 text-white/68">NIDUS Academy is built for parents and students who want a clear defence training path.</p>
-          </div>
-          <div className="grid gap-8 sm:grid-cols-3">
-            <div>
-              <h3 className="text-sm font-semibold">Academy</h3>
-              <div className="mt-5 grid gap-3 text-sm text-white/66">
-                <Link href="/programs">Programs</Link>
-                <Link href="/start-free?intent=academy">Join NIDUS</Link>
-              </div>
-            </div>
-            <div>
-              <h3 className="text-sm font-semibold">Student</h3>
-              <div className="mt-5 grid gap-3 text-sm text-white/66">
-                <Link href="/start-free?intent=general">Start Free</Link>
-                <Link href="/psychometric">Assessments</Link>
-                <Link href="/guru">NIDUS Guru</Link>
-              </div>
-            </div>
-            <div>
-              <h3 className="text-sm font-semibold">Support</h3>
-              <div className="mt-5 grid gap-3 text-sm text-white/66">
-                <Link href="/contact">Contact</Link>
-                <Link href="/privacy-policy">Privacy</Link>
-                <Link href="/terms-and-conditions">Terms</Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="sr-only">
-        <Target />
-      </section>
     </main>
   );
 }
