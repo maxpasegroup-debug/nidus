@@ -4,10 +4,8 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { ArrowRight, ChevronDown, Menu, X } from "lucide-react";
 import { academyMenuItems } from "@/components/marketing/public-modules";
-import { publicSiteLinks } from "@/components/marketing/public-pages";
 
 const academyLinks = [["All Programs", "/programs"], ...academyMenuItems] as const;
-const topLinks = publicSiteLinks.filter(([label]) => ["About NIDUS", "Courses", "Admissions", "Why NIDUS", "Success Stories", "Contact"].includes(label));
 
 function AcademyDropdown({ open, setOpen }: { open: boolean; setOpen: (value: boolean) => void }) {
   const menuRef = useRef<HTMLDivElement>(null);
@@ -61,17 +59,13 @@ export function PublicNavbar() {
         </Link>
 
         <nav className="hidden items-center gap-4 lg:flex">
-          {topLinks.slice(0, 3).map(([label, href]) => (
-            <Link key={href} href={href} className="rounded-full px-3 py-2 text-sm font-semibold text-[#071D36] transition hover:bg-[#071D36]/6 hover:text-[#B9913F]">
-              {label}
-            </Link>
-          ))}
+          <Link href="/psychometric" className="rounded-full px-3 py-2 text-sm font-semibold text-[#071D36] transition hover:bg-[#071D36]/6 hover:text-[#B9913F]">
+            Assessments
+          </Link>
           <AcademyDropdown open={academyOpen} setOpen={setAcademyOpen} />
-          {topLinks.slice(3).map(([label, href]) => (
-            <Link key={href} href={href} className="rounded-full px-3 py-2 text-sm font-semibold text-[#071D36] transition hover:bg-[#071D36]/6 hover:text-[#B9913F]">
-              {label}
-            </Link>
-          ))}
+          <Link href="/guru" className="rounded-full px-3 py-2 text-sm font-semibold text-[#071D36] transition hover:bg-[#071D36]/6 hover:text-[#B9913F]">
+            Nidus Guru
+          </Link>
         </nav>
 
         <div className="hidden items-center gap-2 lg:flex">
@@ -101,11 +95,6 @@ export function PublicNavbar() {
               <Link href="/login" onClick={() => setOpen(false)} className="rounded-full border border-[#b58b35]/45 bg-[linear-gradient(135deg,#fff3bf_0%,#e7c873_34%,#b9913f_72%,#8a6426_100%)] px-4 py-3 text-center text-sm font-semibold text-[#071D36]">Sign in</Link>
             </div>
             <Link href="/psychometric" onClick={() => setOpen(false)} className="rounded px-3 py-3 text-sm font-semibold text-[#071D36] hover:bg-white">Assessments</Link>
-            {publicSiteLinks.map(([label, href]) => (
-              <Link key={href} href={href} onClick={() => setOpen(false)} className="rounded px-3 py-3 text-sm font-semibold text-[#071D36] hover:bg-white">
-                {label}
-              </Link>
-            ))}
             <p className="px-3 pt-2 text-xs font-bold uppercase tracking-[0.18em] text-[#B9913F]">Academy</p>
             {academyLinks.map(([item, href]) => (
               <Link key={item} href={href} onClick={() => setOpen(false)} className="rounded px-3 py-2 text-sm font-semibold text-[#64748b] hover:bg-white hover:text-[#071D36]">
