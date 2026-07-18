@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { ExperienceLanding } from "@/experience/landing";
+import { CinematicJourney } from "@/experience/cinematic";
 
 const title = "NIDUS Defence Academy | Begin Your Officer Journey";
 const description = "A cinematic introduction to NIDUS Defence Academy, built for NDA, CDS, AFCAT, SSB, AISSEE, RIMC, Agniveer and defence aspirants who want disciplined preparation.";
@@ -42,7 +42,7 @@ export default function HomePage() {
   return (
     <>
       <script type="application/ld+json" suppressHydrationWarning dangerouslySetInnerHTML={{ __html: JSON.stringify(academyStructuredData) }} />
-      <ExperienceLanding />
+      <CinematicJourney />
     </>
   );
 }

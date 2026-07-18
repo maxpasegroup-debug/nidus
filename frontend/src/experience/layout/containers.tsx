@@ -41,12 +41,13 @@ type SceneContainerProps = HTMLAttributes<HTMLElement> & {
  * Frames a complete cinematic scene with approved length and behavior metadata.
  */
 export const SceneContainer = forwardRef<HTMLElement, SceneContainerProps>(function SceneContainer({ as: Component = "section", className, length = "medium", mode = "normal", style, ...props }, ref) {
+  const SceneElement = Component as "section";
   const sceneStyle = {
     "--experience-scene-spacing": experienceTokens.sceneSpacing[length],
     ...style
   } as CSSProperties;
 
-  return <Component {...props} ref={ref} data-experience-scene-mode={mode} style={sceneStyle} className={cn("px-4 py-24 text-[#071d36] sm:px-6 lg:px-8", sceneLengthMinHeights[length], sceneModeClasses[mode], className)} />;
+  return <SceneElement {...props} ref={ref} data-experience-scene-mode={mode} style={sceneStyle} className={cn("px-4 py-24 text-[#071d36] sm:px-6 lg:px-8", sceneLengthMinHeights[length], sceneModeClasses[mode], className)} />;
 });
 
 type ContainerProps = WithChildren & HTMLAttributes<HTMLDivElement> & {

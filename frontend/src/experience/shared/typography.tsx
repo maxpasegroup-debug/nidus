@@ -40,7 +40,8 @@ const toneClasses = {
  * Renders semantic text with approved NIDUS Experience typography roles.
  */
 export function ExperienceText({ as: Component = "p", className, tone = "primary", variant = "body", ...props }: TypographyProps) {
-  return <Component {...props} className={cn(textClasses[variant], toneClasses[tone], className)} />;
+  const TextElement = Component as "p";
+  return <TextElement {...props} className={cn(textClasses[variant], toneClasses[tone], className)} />;
 }
 
 /**
