@@ -64,7 +64,7 @@ const directorMenu: DashboardNavItem[] = [
 ];
 
 const academicHeadMenu: DashboardNavItem[] = [
-  { label: "Dashboard", href: "/dashboard/academic-head/hod" },
+  { label: "Dashboard", href: "/dashboard/academic-head" },
   { label: "My Classes", href: "/dashboard/academic-head/my-classes" },
   { label: "Planner", href: "/dashboard/academic-head/hod/timetable" },
   { label: "Faculty", href: "/dashboard/academic-head/hod/teacher-allocation" },
