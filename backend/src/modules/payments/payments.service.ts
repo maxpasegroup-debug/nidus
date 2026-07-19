@@ -2,6 +2,7 @@ import { prisma } from "../../config/prisma.js";
 import { Role, type Payment } from "../../generated/prisma/client.js";
 import { enqueueNotification } from "../../queues/notification.queue.js";
 import { enqueuePDF } from "../../queues/pdf.queue.js";
+import { emitDomainEvent } from "../event-engine/event-engine.service.js";
 import { razorpayService } from "./razorpay.service.js";
 
 const userSelect = { id: true, name: true, email: true, mobile: true, role: true, instituteId: true, branchId: true } as const;
@@ -33,6 +34,21 @@ async function logPayment(paymentId: string, event: string, actorId?: string, st
   await prisma.paymentTransactionLog.create({
     data: { paymentId, event, actorId, statusFrom: statusFrom ?? undefined, statusTo: statusTo ?? undefined, metadata: metadata as object | undefined }
   }).catch(() => undefined);
+
+  const failed = event.includes("FAILED") || statusTo === "FAILED";
+  const received = event.includes("VERIFIED") || event.includes("MANUAL_PAYMENT") || statusTo === "SUCCESS";
+  emitDomainEvent({
+    category: "FEE",
+    eventName: failed ? "PAYMENT_FAILED" : received ? "PAYMENT_RECEIVED" : event === "ORDER_CREATED" ? "PAYMENT_ORDER_CREATED" : event,
+    title: failed ? "Payment failed" : received ? "Payment received" : "Payment activity",
+    description: `${event}${statusFrom || statusTo ? `: ${statusFrom ?? "NEW"} -> ${statusTo ?? "UNCHANGED"}` : ""}`,
+    actor: { id: actorId },
+    entityType: "Payment",
+    entityId: paymentId,
+    severity: failed ? "WARNING" : "INFO",
+    source: actorId ? "WEB" : "API",
+    metadata: { event, statusFrom, statusTo, metadata }
+  });
 }
 
 async function queueFinanceDocument(input: { ownerId: string; documentType: string; targetType: string; targetId: string; title: string; lines: string[]; documentNumber?: string }) {

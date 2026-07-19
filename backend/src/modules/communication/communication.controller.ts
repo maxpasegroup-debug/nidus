@@ -2,6 +2,8 @@ import type { NextFunction, Request, Response } from "express";
 import { validationResult } from "express-validator";
 import type { AuthenticatedRequest } from "../../middlewares/session.middleware.js";
 import { communicationService } from "./communication.service.js";
+import { whatsappService } from "./whatsapp.service.js";
+import { enqueueWhatsApp } from "../../queues/whatsapp.queue.js";
 
 function assertValid(req: Request) {
   const errors = validationResult(req);
@@ -52,5 +54,27 @@ export const communicationController = {
   },
   async sendPush(req: Request, res: Response, next: NextFunction) {
     try { assertValid(req); res.status(201).json({ push: await communicationService.sendPush(req.body) }); } catch (error) { next(error); }
+  },
+  async whatsappHealth(_req: Request, res: Response, next: NextFunction) {
+    try { res.json({ whatsapp: await whatsappService.health() }); } catch (error) { next(error); }
+  },
+  async verifyWhatsApp(req: Request, res: Response, next: NextFunction) {
+    try {
+      const challenge = whatsappService.verifyWebhook({
+        mode: typeof req.query["hub.mode"] === "string" ? req.query["hub.mode"] : undefined,
+        token: typeof req.query["hub.verify_token"] === "string" ? req.query["hub.verify_token"] : undefined,
+        challenge: typeof req.query["hub.challenge"] === "string" ? req.query["hub.challenge"] : undefined
+      });
+      res.status(200).send(challenge);
+    } catch (error) { next(error); }
+  },
+  async inboundWhatsApp(req: Request, res: Response, next: NextFunction) {
+    try { res.json(await whatsappService.handleInbound(req.body)); } catch (error) { next(error); }
+  },
+  async sendWhatsApp(req: Request, res: Response, next: NextFunction) {
+    try { assertValid(req); res.status(202).json({ job: await enqueueWhatsApp({ type: "SEND_TEXT", to: req.body.to, body: req.body.body, context: req.body.context }) }); } catch (error) { next(error); }
+  },
+  async directorDailyWhatsApp(_req: Request, res: Response, next: NextFunction) {
+    try { res.status(202).json({ job: await enqueueWhatsApp({ type: "DIRECTOR_DAILY_REPORT" }) }); } catch (error) { next(error); }
   }
 };

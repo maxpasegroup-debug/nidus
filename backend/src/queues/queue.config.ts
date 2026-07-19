@@ -9,6 +9,7 @@ export const queueNames = {
   ai: "nidus.ai",
   pdf: "nidus.pdf",
   notifications: "nidus.notifications",
+  whatsapp: "nidus.whatsapp",
   scheduled: "nidus.scheduled",
   analytics: "nidus.analytics",
   dailyIntelligence: "nidus.daily-intelligence"

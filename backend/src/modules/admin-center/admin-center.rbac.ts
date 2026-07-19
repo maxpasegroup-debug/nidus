@@ -2,6 +2,7 @@ import type { NextFunction, Response } from "express";
 import { prisma } from "../../config/prisma.js";
 import { Role } from "../../generated/prisma/client.js";
 import type { AuthenticatedRequest } from "../../middlewares/session.middleware.js";
+import { emitDomainEvent } from "../event-engine/event-engine.service.js";
 
 export const defaultPermissions = [
   { module: "admin", action: "read", name: "View admin center" },
@@ -83,6 +84,19 @@ export function auditAction(module: string, action: string, description: string)
           ipAddress: req.ip
         }
       }).catch(() => undefined);
+
+      emitDomainEvent({
+        category: "ADMIN",
+        eventName: "ADMIN_ACTION",
+        title: description,
+        description,
+        actor: req.user,
+        entityType: module,
+        severity: "INFO",
+        source: "WEB",
+        ipAddress: req.ip,
+        metadata: { action, path: req.originalUrl, method: req.method }
+      });
     });
 
     next();

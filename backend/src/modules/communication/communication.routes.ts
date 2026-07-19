@@ -9,6 +9,7 @@ export const messagesRouter = Router();
 export const communicationAnnouncementsRouter = Router();
 export const emailsRouter = Router();
 export const pushRouter = Router();
+export const whatsappRouter = Router();
 
 const authenticated = [protect];
 const publishers = [protect, allowRoles(Role.ADMIN, Role.DIRECTOR, Role.TEACHER, Role.TELECALLER, Role.MARKETING_COORDINATOR)];
@@ -28,3 +29,9 @@ emailsRouter.get("/logs", ...publishers, communicationController.emailLogs);
 emailsRouter.post("/send", ...publishers, [body("recipient").isEmail(), body("subject").trim().notEmpty(), body("body").trim().notEmpty(), body("actionLabel").optional().trim(), body("actionUrl").optional().isURL()], communicationController.sendEmail);
 
 pushRouter.post("/send", ...publishers, [body("title").trim().notEmpty(), body("body").trim().notEmpty(), body("targetAudience").trim().notEmpty()], communicationController.sendPush);
+
+whatsappRouter.get("/webhook", communicationController.verifyWhatsApp);
+whatsappRouter.post("/webhook", communicationController.inboundWhatsApp);
+whatsappRouter.get("/health", protect, allowRoles(Role.ADMIN, Role.DIRECTOR), communicationController.whatsappHealth);
+whatsappRouter.post("/send", protect, allowRoles(Role.ADMIN, Role.DIRECTOR, Role.ADMINISTRATIVE_OFFICER), [body("to").trim().notEmpty(), body("body").trim().notEmpty(), body("context").optional().isObject()], communicationController.sendWhatsApp);
+whatsappRouter.post("/director/daily-report", protect, allowRoles(Role.ADMIN, Role.DIRECTOR), communicationController.directorDailyWhatsApp);

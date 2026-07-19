@@ -3,6 +3,7 @@ import { Role, type CounsellingMode, type LeadStatus } from "../../generated/pri
 import bcrypt from "bcryptjs";
 import { DEFAULT_ACCOUNT_PASSWORD } from "../auth/auth.v2.service.js";
 import { crmNotificationService } from "./crm-notification.service.js";
+import { emitDomainEvent } from "../event-engine/event-engine.service.js";
 
 const userSelect = { id: true, name: true, email: true, mobile: true, role: true } as const;
 const leadInclude = { assignee: { select: userSelect }, followUps: { orderBy: { followUpDate: "asc" as const }, take: 3 } } as const;
@@ -106,8 +107,8 @@ export const crmService = {
       include: leadInclude
     });
   },
-  createLead(requester: Requester, input: { fullName: string; mobile: string; email?: string; targetExam: string; source: string; status?: LeadStatus; assignedTo?: string; notes?: string }) {
-    return prisma.lead.create({
+  async createLead(requester: Requester, input: { fullName: string; mobile: string; email?: string; targetExam: string; source: string; status?: LeadStatus; assignedTo?: string; notes?: string }) {
+    const lead = await prisma.lead.create({
       data: {
         ...input,
         email: normalizeLeadEmail(input),
@@ -116,6 +117,19 @@ export const crmService = {
       },
       include: leadInclude
     });
+    emitDomainEvent({
+      category: "ADMISSION",
+      eventName: "LEAD_CREATED",
+      title: "Lead created",
+      description: `${lead.fullName} enquiry created for ${lead.targetExam}.`,
+      actor: requester,
+      entityType: "Lead",
+      entityId: lead.id,
+      severity: "INFO",
+      source: "WEB",
+      metadata: { status: lead.status, assignedTo: lead.assignedTo, source: lead.source }
+    });
+    return lead;
   },
   async createBulkLeads(requester: Requester, input: { leads: BulkLeadInput[]; source?: string; notes?: string; allocationMode?: "ROUND_ROBIN" | "UNASSIGNED" }) {
     if (requester.role !== Role.ADMIN && requester.role !== Role.DIRECTOR) {
@@ -176,6 +190,18 @@ export const crmService = {
       });
       createdIndex += 1;
       results.push({ mobile: lead.mobile, email, status: "CREATED", lead: created, assignedTo });
+      emitDomainEvent({
+        category: "ADMISSION",
+        eventName: "LEAD_CREATED",
+        title: "Bulk lead created",
+        description: `${created.fullName} imported for ${created.targetExam}.`,
+        actor: requester,
+        entityType: "Lead",
+        entityId: created.id,
+        severity: "INFO",
+        source: "WEB",
+        metadata: { bulk: true, assignedTo, source: created.source }
+      });
     }
 
     return {
@@ -289,6 +315,19 @@ export const crmService = {
           include: leadInclude,
         });
 
+    emitDomainEvent({
+      category: "ADMISSION",
+      eventName: "LEAD_CREATED",
+      title: existingLead ? "Guest applicant lead updated" : "Guest applicant lead created",
+      description: `${lead.fullName} guest applicant is ready for admission follow-up.`,
+      actor: requester,
+      entityType: "Lead",
+      entityId: lead.id,
+      severity: "INFO",
+      source: "WEB",
+      metadata: { userId: user.id, reusedExistingUser: Boolean(existingUser), leadStatus: lead.status }
+    });
+
     return {
       user,
       lead,
@@ -315,7 +354,7 @@ export const crmService = {
 
     if (existing) {
       const previousNotes = existing.notes ? `${existing.notes}\n\n` : "";
-      return prisma.lead.update({
+      const lead = await prisma.lead.update({
         where: { id: existing.id },
         data: {
           fullName: input.fullName,
@@ -328,9 +367,21 @@ export const crmService = {
         },
         include: leadInclude
       });
+      emitDomainEvent({
+        category: "ADMISSION",
+        eventName: "LEAD_UPDATED",
+        title: "Public lead updated",
+        description: `${lead.fullName} submitted a public enquiry again.`,
+        entityType: "Lead",
+        entityId: lead.id,
+        severity: "INFO",
+        source: "WEB",
+        metadata: { source: lead.source, targetExam: lead.targetExam }
+      });
+      return lead;
     }
 
-    return prisma.lead.create({
+    const lead = await prisma.lead.create({
       data: {
         fullName: input.fullName,
         mobile,
@@ -342,11 +393,36 @@ export const crmService = {
       },
       include: leadInclude
     });
+    emitDomainEvent({
+      category: "ADMISSION",
+      eventName: "LEAD_CREATED",
+      title: "Public lead created",
+      description: `${lead.fullName} submitted a public enquiry for ${lead.targetExam}.`,
+      entityType: "Lead",
+      entityId: lead.id,
+      severity: "INFO",
+      source: "WEB",
+      metadata: { source: lead.source, targetExam: lead.targetExam }
+    });
+    return lead;
   },
   async updateLead(requester: Requester, id: string, input: Partial<{ fullName: string; mobile: string; email: string; targetExam: string; source: string; status: LeadStatus; assignedTo: string | null; notes: string }>) {
     await assertLeadAccess(requester, id);
     if (isLeadOwnerScoped(requester)) delete input.assignedTo;
-    return prisma.lead.update({ where: { id }, data: input, include: leadInclude });
+    const lead = await prisma.lead.update({ where: { id }, data: input, include: leadInclude });
+    emitDomainEvent({
+      category: "ADMISSION",
+      eventName: "LEAD_UPDATED",
+      title: "Lead updated",
+      description: `${lead.fullName} lead updated.`,
+      actor: requester,
+      entityType: "Lead",
+      entityId: lead.id,
+      severity: lead.status === "LOST" ? "WARNING" : "INFO",
+      source: "WEB",
+      metadata: { status: lead.status, assignedTo: lead.assignedTo }
+    });
+    return lead;
   },
   async deleteLead(requester: Requester, id: string) {
     await assertLeadAccess(requester, id);
@@ -358,6 +434,18 @@ export const crmService = {
         status: "LOST",
         notes: `${previousNotes}[${new Date().toISOString()}] Archived by ${requester.role}.`
       }
+    });
+    emitDomainEvent({
+      category: "ADMISSION",
+      eventName: "LEAD_UPDATED",
+      title: "Lead archived",
+      description: "Lead archived by admission team.",
+      actor: requester,
+      entityType: "Lead",
+      entityId: id,
+      severity: "WARNING",
+      source: "WEB",
+      metadata: { status: "LOST" }
     });
     return { message: "Lead archived successfully" };
   },
@@ -371,6 +459,18 @@ export const crmService = {
       recipient: followUp.lead.mobile,
       message: `Follow-up scheduled for ${followUp.lead.fullName}`,
       context: { followUpId: followUp.id, leadId: followUp.leadId }
+    });
+    emitDomainEvent({
+      category: "ADMISSION",
+      eventName: "FOLLOW_UP_CREATED",
+      title: "Follow-up created",
+      description: `Follow-up scheduled for ${followUp.lead.fullName}.`,
+      actor: requester,
+      entityType: "FollowUp",
+      entityId: followUp.id,
+      severity: "INFO",
+      source: "WEB",
+      metadata: { leadId: followUp.leadId, followUpDate: followUp.followUpDate, status: followUp.status }
     });
     return followUp;
   },
@@ -421,6 +521,18 @@ export const crmService = {
         metadata: { admissionMode: admission.admissionMode, batch: admission.batch }
       }
     });
+    emitDomainEvent({
+      category: "ADMISSION",
+      eventName: "ADMISSION_CREATED",
+      title: "Admission created",
+      description: `Admission created for ${admission.student.name}.`,
+      actor: requester,
+      entityType: "Admission",
+      entityId: admission.id,
+      severity: "INFO",
+      source: "WEB",
+      metadata: { courseId: admission.courseId, batch: admission.batch, totalFee }
+    });
     return admission;
   },
   async approveAdmission(requester: Requester, id: string, input: { approved: boolean; remarks?: string; batch?: string; instituteId?: string; branchId?: string }) {
@@ -435,7 +547,7 @@ export const crmService = {
       where: { admissionId: id, type: "ADMISSION_APPROVAL", status: "PENDING" },
       data: { status, reviewerId: requester.id, reviewedAt: new Date(), remarks: input.remarks }
     });
-    return prisma.admission.update({
+    const reviewed = await prisma.admission.update({
       where: { id },
       data: {
         status: input.approved ? "ENROLLED" : "REJECTED",
@@ -450,6 +562,19 @@ export const crmService = {
       },
       include: { student: { select: userSelect }, course: true, approvals: true }
     });
+    emitDomainEvent({
+      category: "ADMISSION",
+      eventName: "ADMISSION_REVIEWED",
+      title: input.approved ? "Admission approved" : "Admission rejected",
+      description: `${reviewed.student.name} admission ${input.approved ? "approved" : "rejected"}.`,
+      actor: requester,
+      entityType: "Admission",
+      entityId: reviewed.id,
+      severity: input.approved ? "SUCCESS" : "WARNING",
+      source: "WEB",
+      metadata: { status: reviewed.status, approvalStatus: reviewed.approvalStatus, batch: reviewed.batch }
+    });
+    return reviewed;
   },
   approvals(requester: Requester) {
     return prisma.approvalRequest.findMany({
@@ -506,6 +631,18 @@ export const crmService = {
       recipient: booking.lead.mobile,
       message: `Counselling booked with ${booking.counsellorName}`,
       context: { bookingId: booking.id, mode: booking.mode }
+    });
+    emitDomainEvent({
+      category: "ADMISSION",
+      eventName: "COUNSELLING_BOOKED",
+      title: "Counselling booked",
+      description: `Counselling booked for ${booking.lead.fullName}.`,
+      actor: requester,
+      entityType: "CounsellingBooking",
+      entityId: booking.id,
+      severity: "INFO",
+      source: "WEB",
+      metadata: { leadId: booking.leadId, bookingDate: booking.bookingDate, mode: booking.mode }
     });
     return booking;
   },

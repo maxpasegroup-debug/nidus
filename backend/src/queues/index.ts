@@ -5,6 +5,7 @@ import { startEmailWorker } from "./email.queue.js";
 import { startNotificationWorker } from "./notification.queue.js";
 import { startPDFWorker } from "./pdf.queue.js";
 import { scheduleRecurringJobs, startDailyIntelligenceWorker, startScheduledWorker } from "./scheduler.queue.js";
+import { startWhatsAppWorker } from "./whatsapp.queue.js";
 import { closeQueues, isQueueAvailable } from "./queue.config.js";
 
 const workers: Array<{ worker: { close: () => Promise<void> }; events?: { close: () => Promise<void> } } | null> = [];
@@ -20,7 +21,7 @@ export async function startInfrastructureWorkers() {
     return;
   }
 
-  workers.push(startEmailWorker(), startAIWorker(), startPDFWorker(), startNotificationWorker(), startScheduledWorker(), startDailyIntelligenceWorker());
+  workers.push(startEmailWorker(), startAIWorker(), startPDFWorker(), startNotificationWorker(), startWhatsAppWorker(), startScheduledWorker(), startDailyIntelligenceWorker());
   await scheduleRecurringJobs();
   logger.info("Infrastructure workers started", { count: workers.filter(Boolean).length });
 }

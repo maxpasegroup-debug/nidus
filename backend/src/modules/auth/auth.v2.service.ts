@@ -5,6 +5,7 @@ import { env } from "../../config/env.js";
 import { Role, type User } from "../../generated/prisma/client.js";
 import { emailService } from "../../services/email.service.js";
 import { authEmailService } from "./auth-email.service.js";
+import { emitDomainEvent } from "../event-engine/event-engine.service.js";
 
 export const SUPER_ADMIN_EMAIL = "nidusacademycalicut@gmail.com";
 export const DEFAULT_ACCOUNT_PASSWORD = "123456789";
@@ -75,6 +76,19 @@ async function audit(input: { userId?: string; action: string; description: stri
       }
     })
     .catch(() => undefined);
+
+  emitDomainEvent({
+    category: "AUTH",
+    eventName: input.action,
+    title: input.description,
+    description: input.description,
+    actor: { id: input.userId },
+    entityType: "User",
+    entityId: input.userId,
+    severity: input.action.includes("FAILED") || input.action.includes("LOCKED") ? "WARNING" : "INFO",
+    source: "WEB",
+    ipAddress: input.ip
+  });
 }
 
 async function createEmailVerification(user: Pick<User, "id" | "email">) {
