@@ -5,9 +5,9 @@ test("login flow reaches dashboard with mocked backend auth", async ({ page }) =
   await mockPublicApi(page);
   await page.goto("/login");
   await waitForNidusHydration(page);
-  await page.getByLabel("Email or mobile").fill("beta@student.test");
-  await page.getByLabel("Password").fill("StrongPass123");
-  await page.getByRole("button", { name: /sign in/i }).click();
+  await page.getByLabel("Mobile Number").fill("9999999999");
+  await page.getByLabel("4 Digit PIN").fill("1234");
+  await page.getByRole("button", { name: /^login$/i }).click();
   await expect(page).toHaveURL(/\/dashboard/);
 });
 
@@ -18,21 +18,23 @@ test("registration creates public guest accounts without role selection", async 
   await expect(page.locator("#access-profile")).toHaveCount(0);
   await page.getByLabel("Full name").fill("Beta Guest");
   await page.getByLabel("Email").fill("guest@student.test");
-  await page.getByLabel("Mobile").fill("9999999998");
-  await page.getByLabel("Password").fill("StrongPass123");
+  await page.getByLabel("Mobile Number").fill("9999999998");
+  await page.getByLabel("Create 4 Digit PIN").fill("1234");
+  await page.getByLabel("Confirm PIN").fill("1234");
+  await page.getByLabel(/i agree to the/i).check();
   const signupResponse = page.waitForResponse((response) => response.url().includes("/auth/signup"));
   await page.getByRole("button", { name: /start free/i }).click();
   expect((await signupResponse).status()).toBe(201);
   await expect(page).toHaveURL(/\/dashboard\/guest/, { timeout: 10000 });
 });
 
-test("forgot password has recoverable request UX", async ({ page }) => {
+test("forgot PIN has recoverable request UX", async ({ page }) => {
   await mockPublicApi(page);
   await page.goto("/forgot-password");
   await waitForNidusHydration(page);
-  await page.getByLabel(/email or mobile/i).fill("beta@student.test");
+  await page.getByLabel("Mobile Number").fill("9999999999");
   await page.getByRole("button", { name: /send/i }).click();
-  await expect(page.locator("main").getByText("Reset link sent to email")).toBeVisible();
+  await expect(page.locator("main").getByText("PIN reset link sent to the registered email")).toBeVisible();
 });
 
 test("authenticated navigation and CBT listing work on mobile", async ({ page }) => {

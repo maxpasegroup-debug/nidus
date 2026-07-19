@@ -11,7 +11,7 @@ const studentMenu: DashboardNavItem[] = [
   { label: "Practice", href: "/tests" },
   { label: "Exams", href: "/dashboard/student/exams" },
   { label: "Progress", href: "/dashboard/student/progress" },
-  { label: "Profile", href: "/digital-profile" },
+  { label: "Profile", href: "/dashboard/settings" },
 ];
 
 const guestMenu: DashboardNavItem[] = [
@@ -19,6 +19,7 @@ const guestMenu: DashboardNavItem[] = [
   { label: "Apply", href: "/dashboard/guest/academy" },
   { label: "Assessments", href: "/dashboard/guest/assessments" },
   { label: "Applications", href: "/dashboard/guest/applications" },
+  { label: "Profile", href: "/dashboard/settings" },
 ];
 
 const parentMenu: DashboardNavItem[] = [
@@ -27,6 +28,7 @@ const parentMenu: DashboardNavItem[] = [
   { label: "Attendance", href: "/dashboard/parent#attendance" },
   { label: "Fees", href: "/dashboard/parent#fees" },
   { label: "Messages", href: "/messages" },
+  { label: "Profile", href: "/dashboard/settings" },
 ];
 
 const teacherMenu: DashboardNavItem[] = [
@@ -37,6 +39,7 @@ const teacherMenu: DashboardNavItem[] = [
   { label: "Exams", href: "/dashboard/teacher/exams" },
   { label: "Students", href: "/dashboard/teacher/students" },
   { label: "Resources", href: "/dashboard/teacher/library" },
+  { label: "Profile", href: "/dashboard/settings" },
 ];
 
 const videoEditorMenu: DashboardNavItem[] = [
@@ -44,6 +47,7 @@ const videoEditorMenu: DashboardNavItem[] = [
   { label: "Uploads", href: "/dashboard/video-editor#uploads" },
   { label: "Pending Videos", href: "/dashboard/video-editor#pending" },
   { label: "Published Videos", href: "/dashboard/video-editor#published" },
+  { label: "Profile", href: "/dashboard/settings" },
 ];
 
 const physicalTrainerMenu: DashboardNavItem[] = [
@@ -51,6 +55,7 @@ const physicalTrainerMenu: DashboardNavItem[] = [
   { label: "PT Schedule", href: "/fitness/pt-schedule" },
   { label: "Attendance", href: "/fitness/eligibility" },
   { label: "Reports", href: "/fitness/logs" },
+  { label: "Profile", href: "/dashboard/settings" },
 ];
 
 const directorMenu: DashboardNavItem[] = [
@@ -70,6 +75,7 @@ const academicHeadMenu: DashboardNavItem[] = [
   { label: "Faculty", href: "/dashboard/academic-head/hod/teacher-allocation" },
   { label: "Students", href: "/dashboard/academic-head/students" },
   { label: "Reports", href: "/dashboard/academic-head/hod/reports" },
+  { label: "Profile", href: "/dashboard/settings" },
 ];
 
 const administrativeOfficerMenu: DashboardNavItem[] = [
@@ -78,6 +84,7 @@ const administrativeOfficerMenu: DashboardNavItem[] = [
   { label: "Applications", href: "/dashboard/admission-cell#applications" },
   { label: "Counselling", href: "/crm/counselling" },
   { label: "Admissions", href: "/crm/admissions" },
+  { label: "Profile", href: "/dashboard/settings" },
 ];
 
 const businessDevelopmentMenu: DashboardNavItem[] = [
@@ -86,6 +93,7 @@ const businessDevelopmentMenu: DashboardNavItem[] = [
   { label: "Campaigns", href: "/dashboard/sales-booster" },
   { label: "Follow-ups", href: "/dashboard/business-development#followups" },
   { label: "Reports", href: "/dashboard/business-development#reports" },
+  { label: "Profile", href: "/dashboard/settings" },
 ];
 
 const adminMenu: DashboardNavItem[] = [
@@ -94,6 +102,7 @@ const adminMenu: DashboardNavItem[] = [
   { label: "Leave", href: "/admin-center/operations#leave" },
   { label: "Payroll", href: "/staff-hr" },
   { label: "Documents", href: "/documents" },
+  { label: "Profile", href: "/dashboard/settings" },
 ];
 
 const accountsMenu: DashboardNavItem[] = [
@@ -102,6 +111,7 @@ const accountsMenu: DashboardNavItem[] = [
   { label: "Invoices", href: "/dashboard/director/accounts?mode=invoices#receipts" },
   { label: "Expenses", href: "/dashboard/director/accounts#finance-reports" },
   { label: "Reports", href: "/dashboard/director/accounts?mode=reports#finance-reports" },
+  { label: "Profile", href: "/dashboard/settings" },
 ];
 
 export function getNavItems(role?: string | null, dashboardTemplate?: string | null): DashboardNavItem[] {

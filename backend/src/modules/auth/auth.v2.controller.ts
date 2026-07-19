@@ -20,9 +20,10 @@ function clearSessionCookie(res: Response) {
 export const authControllerV2 = {
   async signup(req: Request, res: Response) {
     try {
-      const { name, email, mobile, password } = req.body as { name?: string; email?: string; mobile?: string; password?: string };
-      if (!name || !email || !mobile || !password || password.length < 8) {
-        res.status(400).json({ success: false, message: "Name, email, mobile, and 8 character password are required" });
+      const { name, email, mobile, password, pin } = req.body as { name?: string; email?: string; mobile?: string; password?: string; pin?: string };
+      const accountPin = pin || password;
+      if (!name || !email || !mobile || !accountPin || !/^\d{4}$/.test(accountPin)) {
+        res.status(400).json({ success: false, message: "Name, email, mobile, and 4 digit PIN are required" });
         return;
       }
       const normalizedEmail = email.trim().toLowerCase();
@@ -56,7 +57,7 @@ export const authControllerV2 = {
           name: name.trim(),
           email: normalizedEmail,
           mobile: normalizedMobile,
-          password: await bcrypt.hash(password, 12),
+          password: await bcrypt.hash(accountPin, 12),
           role: Role.STUDENT,
           emailVerified: true,
           mobileVerified: false,
@@ -66,7 +67,7 @@ export const authControllerV2 = {
         }
       });
 
-      const result = await AuthServiceV2.login(normalizedEmail, password, req.ip || "", req.get("user-agent") || "");
+      const result = await AuthServiceV2.login(normalizedMobile, accountPin, req.ip || "", req.get("user-agent") || "");
       res.cookie("session", result.sessionId, cookieOptions);
       res.status(201).json({ success: true, message: "Account created", user: result.user });
     } catch (error) {
@@ -76,13 +77,15 @@ export const authControllerV2 = {
 
   async login(req: Request, res: Response) {
     try {
-      const { identifier, password } = req.body as { identifier?: string; password?: string };
-      if (!identifier || !password) {
-        res.status(400).json({ success: false, message: "Email/mobile and password are required" });
+      const { identifier, mobile, password, pin } = req.body as { identifier?: string; mobile?: string; password?: string; pin?: string };
+      const loginMobile = mobile || identifier;
+      const loginPin = pin || password;
+      if (!loginMobile || !loginPin) {
+        res.status(400).json({ success: false, message: "Mobile number and 4 digit PIN are required" });
         return;
       }
 
-      const result = await AuthServiceV2.login(identifier, password, req.ip || "", req.get("user-agent") || "");
+      const result = await AuthServiceV2.login(loginMobile, loginPin, req.ip || "", req.get("user-agent") || "");
       res.cookie("session", result.sessionId, cookieOptions);
       res.json({ success: true, message: "Login successful", user: result.user });
     } catch (error) {
@@ -142,16 +145,18 @@ export const authControllerV2 = {
 
   async changePassword(req: AuthenticatedRequest, res: Response) {
     try {
-      const { currentPassword, newPassword } = req.body as { currentPassword?: string; newPassword?: string };
-      if (!req.user || !currentPassword || !newPassword || newPassword.length < 8) {
-        res.status(400).json({ success: false, message: "Current password and 8 character new password are required" });
+      const { currentPassword, newPassword, currentPin, newPin } = req.body as { currentPassword?: string; newPassword?: string; currentPin?: string; newPin?: string };
+      const oldPin = currentPin || currentPassword;
+      const nextPin = newPin || newPassword;
+      if (!req.user || !oldPin || !nextPin || !/^\d{4}$/.test(oldPin) || !/^\d{4}$/.test(nextPin)) {
+        res.status(400).json({ success: false, message: "Current PIN and new 4 digit PIN are required" });
         return;
       }
-      const result = await AuthServiceV2.changePassword(req.user.id, currentPassword, newPassword);
+      const result = await AuthServiceV2.changePassword(req.user.id, oldPin, nextPin);
       clearSessionCookie(res);
       res.json({ success: true, ...result });
     } catch (error) {
-      res.status(400).json({ success: false, message: error instanceof Error ? error.message : "Password change failed" });
+      res.status(400).json({ success: false, message: error instanceof Error ? error.message : "PIN change failed" });
     }
   },
 
@@ -160,25 +165,26 @@ export const authControllerV2 = {
       const { email, identifier } = req.body as { email?: string; identifier?: string };
       const identity = identifier || email;
       if (!identity) {
-        res.status(400).json({ success: false, message: "Email or mobile number is required" });
+        res.status(400).json({ success: false, message: "Registered mobile number is required" });
         return;
       }
       res.json({ success: true, ...(await AuthServiceV2.forgotPassword(identity)) });
     } catch (error) {
-      res.status(400).json({ success: false, message: error instanceof Error ? error.message : "Password reset request failed" });
+      res.status(400).json({ success: false, message: error instanceof Error ? error.message : "PIN reset request failed" });
     }
   },
 
   async resetPassword(req: Request, res: Response) {
     try {
-      const { token, password } = req.body as { token?: string; password?: string };
-      if (!token || !password || password.length < 8) {
-        res.status(400).json({ success: false, message: "Reset token and 8 character password are required" });
+      const { token, password, pin } = req.body as { token?: string; password?: string; pin?: string };
+      const accountPin = pin || password;
+      if (!token || !accountPin || !/^\d{4}$/.test(accountPin)) {
+        res.status(400).json({ success: false, message: "Reset token and 4 digit PIN are required" });
         return;
       }
-      res.json({ success: true, ...(await AuthServiceV2.resetPassword(token, password)) });
+      res.json({ success: true, ...(await AuthServiceV2.resetPassword(token, accountPin)) });
     } catch (error) {
-      res.status(400).json({ success: false, message: error instanceof Error ? error.message : "Password reset failed" });
+      res.status(400).json({ success: false, message: error instanceof Error ? error.message : "PIN reset failed" });
     }
   },
 
@@ -205,6 +211,22 @@ export const authControllerV2 = {
       res.json({ success: true, ...(await AuthServiceV2.acceptParentLink(req.user.id, token)) });
     } catch (error) {
       res.status(400).json({ success: false, message: error instanceof Error ? error.message : "Parent link failed" });
+    }
+  },
+
+  async updateProfilePhoto(req: AuthenticatedRequest, res: Response) {
+    try {
+      if (!req.user) {
+        res.status(401).json({ success: false, message: "Not authenticated" });
+        return;
+      }
+      if (!req.file) {
+        res.status(400).json({ success: false, message: "Profile photo is required" });
+        return;
+      }
+      res.json({ success: true, ...(await AuthServiceV2.updateProfilePhoto(req.user.id, req.file)) });
+    } catch (error) {
+      res.status(400).json({ success: false, message: error instanceof Error ? error.message : "Profile photo update failed" });
     }
   }
 };

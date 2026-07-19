@@ -23,6 +23,8 @@
     "seed:pilot-exam": "tsx src/scripts/pilot-exam-seed.ts",
     "seed:nidus-team": "tsx src/scripts/nidus-team.ts",
     "seed:video-editor": "tsx src/scripts/seed-video-editor.ts",
+    "auth:rollout": "tsx src/scripts/mobile-pin-auth-rollout.ts",
+    "auth:rollout:apply": "tsx src/scripts/mobile-pin-auth-rollout.ts --apply",
     "cleanup:demo-data": "tsx src/scripts/cleanup-demo-data.ts",
     "db:readiness": "tsx src/scripts/database-readiness.ts",
     "queue:readiness": "tsx src/scripts/queue-readiness.ts",

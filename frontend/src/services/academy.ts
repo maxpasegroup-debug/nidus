@@ -447,7 +447,7 @@ export async function getAcademyTeachers() {
 }
 
 export async function createAcademyTeacher(payload: AcademyTeacherPayload) {
-  const response = await apiClient.post<{ employee: AcademyTeacher; credentials: { email: string; temporaryPassword: string } }>("/academy/employees", payload);
+  const response = await apiClient.post<{ employee: AcademyTeacher; credentials: { email: string; mobile?: string; temporaryPassword: string; temporaryPin?: string } }>("/academy/employees", payload);
   return response.data;
 }
 

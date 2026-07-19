@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { authControllerV2 } from "./auth.v2.controller.js";
 import { sessionAuth } from "../../middlewares/session.middleware.js";
+import { upload } from "../media/media.middleware.js";
 
 export const authRouter = Router();
 
@@ -16,7 +17,7 @@ export const authRouter = Router();
  *         application/json:
  *           schema:
  *             type: object
- *             required: [name, email, mobile, password]
+ *             required: [name, email, mobile, pin]
  *             properties:
  *               name:
  *                 type: string
@@ -25,9 +26,10 @@ export const authRouter = Router();
  *                 format: email
  *               mobile:
  *                 type: string
- *               password:
+ *               pin:
  *                 type: string
- *                 minLength: 8
+ *                 minLength: 4
+ *                 maxLength: 4
  *     responses:
  *       201:
  *         description: Account created and session cookie set
@@ -48,13 +50,14 @@ authRouter.post("/register", authControllerV2.signup);
  *         application/json:
  *           schema:
  *             type: object
- *             required: [identifier, password]
+ *             required: [mobile, pin]
  *             properties:
- *               identifier:
+ *               mobile:
  *                 type: string
- *                 description: Email address or mobile number
- *               password:
+ *                 description: Registered mobile number
+ *               pin:
  *                 type: string
+ *                 description: 4 digit PIN
  *     responses:
  *       200:
  *         description: Login successful and session cookie set
@@ -66,7 +69,7 @@ authRouter.post("/login", authControllerV2.login);
  * @swagger
  * /auth/forgot-password:
  *   post:
- *     summary: Request a password reset using email or mobile
+ *     summary: Request a PIN reset using mobile
  *     tags: [Auth]
  *     requestBody:
  *       required: true
@@ -78,7 +81,7 @@ authRouter.post("/login", authControllerV2.login);
  *             properties:
  *               identifier:
  *                 type: string
- *                 description: Email address or mobile number
+ *                 description: Registered mobile number
  *     responses:
  *       200:
  *         description: Reset instructions sent if the account exists
@@ -89,7 +92,7 @@ authRouter.post("/forgot-password/send-otp", authControllerV2.forgotPassword);
  * @swagger
  * /auth/reset-password:
  *   post:
- *     summary: Reset password with a reset token
+ *     summary: Reset PIN with a reset token
  *     tags: [Auth]
  *     requestBody:
  *       required: true
@@ -97,16 +100,17 @@ authRouter.post("/forgot-password/send-otp", authControllerV2.forgotPassword);
  *         application/json:
  *           schema:
  *             type: object
- *             required: [token, password]
+ *             required: [token, pin]
  *             properties:
  *               token:
  *                 type: string
- *               password:
+ *               pin:
  *                 type: string
- *                 minLength: 8
+ *                 minLength: 4
+ *                 maxLength: 4
  *     responses:
  *       200:
- *         description: Password reset successful
+ *         description: PIN reset successful
  *       400:
  *         description: Invalid or expired reset token
  */
@@ -144,5 +148,6 @@ authRouter.post("/logout-all", sessionAuth, authControllerV2.logoutAll);
 authRouter.get("/sessions", sessionAuth, authControllerV2.sessions);
 authRouter.delete("/sessions/:id", sessionAuth, authControllerV2.revokeSession);
 authRouter.post("/change-password", sessionAuth, authControllerV2.changePassword);
+authRouter.post("/profile-photo", sessionAuth, upload.single("file"), authControllerV2.updateProfilePhoto);
 authRouter.post("/parent-link/invite", sessionAuth, authControllerV2.inviteParentLink);
 authRouter.post("/parent-link/accept", sessionAuth, authControllerV2.acceptParentLink);

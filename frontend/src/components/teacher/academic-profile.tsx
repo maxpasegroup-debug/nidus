@@ -16,7 +16,9 @@ export function AcademicProfile() {
       </header>
       <section className="grid gap-5 rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm sm:grid-cols-[180px_1fr] sm:p-6">
         <div className="grid content-center justify-items-center rounded-2xl bg-slate-950 p-6 text-center text-white">
-          <span className="grid h-20 w-20 place-items-center rounded-full bg-white text-3xl font-black text-slate-950">{(user?.name || "?").slice(0, 1).toUpperCase()}</span>
+          <span className="grid h-20 w-20 overflow-hidden rounded-full bg-white text-3xl font-black text-slate-950">
+            {user?.imageUrl ? <span className="h-full w-full bg-cover bg-center" style={{ backgroundImage: `url(${user.imageUrl})` }} /> : <span className="m-auto">{(user?.name || "?").slice(0, 1).toUpperCase()}</span>}
+          </span>
           <p className="mt-4 text-xs font-black uppercase tracking-[0.16em] text-[#e7c873]">{role}</p>
         </div>
         <div className="grid content-start gap-3">
@@ -27,7 +29,7 @@ export function AcademicProfile() {
             <ProfileField icon={UserRound} label="Role" value={role} />
             <ProfileField icon={ShieldCheck} label="Account" value={user?.emailVerified ? "Verified" : "Active"} />
           </div>
-          <Link href="/dashboard/settings" className="mt-3 inline-flex min-h-12 w-fit items-center gap-2 rounded-xl bg-slate-950 px-5 text-sm font-black text-white"><KeyRound size={17} /> Change Password</Link>
+          <Link href="/dashboard/settings" className="mt-3 inline-flex min-h-12 w-fit items-center gap-2 rounded-xl bg-slate-950 px-5 text-sm font-black text-white"><KeyRound size={17} /> Change PIN</Link>
         </div>
       </section>
     </main>

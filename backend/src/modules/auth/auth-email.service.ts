@@ -20,11 +20,11 @@ export const authEmailService = {
 
   async sendPasswordResetEmail(input: { recipient: string; name: string; token: string }) {
     const url = appUrl(`/reset-password?token=${encodeURIComponent(input.token)}`);
-    const body = `Hello ${input.name}, use this secure link to reset your NIDUS password. It expires in ${env.AUTH_RESET_TOKEN_MINUTES} minutes.`;
+    const body = `Hello ${input.name}, use this secure link to reset your NIDUS PIN. It expires in ${env.AUTH_RESET_TOKEN_MINUTES} minutes.`;
     return resendService.sendEmail({
       recipient: input.recipient,
-      subject: "Reset your NIDUS password",
-      htmlContent: renderEmailTemplate({ title: "Reset your password", body, actionLabel: "Reset password", actionUrl: url }),
+      subject: "Reset your NIDUS PIN",
+      htmlContent: renderEmailTemplate({ title: "Reset your PIN", body, actionLabel: "Reset PIN", actionUrl: url }),
       textContent: `${body}\n${url}`
     });
   },

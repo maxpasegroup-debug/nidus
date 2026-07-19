@@ -430,7 +430,7 @@ export default function BusinessDevelopmentDashboardPage() {
               <div className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900">
                 <p className="font-black">{guestResult.reusedExistingUser ? "Existing account reused" : "Guest account ready"}</p>
                 <p className="mt-1">Login: <strong>{guestResult.loginIdentity}</strong></p>
-                {guestResult.mustChangePassword ? <p>Password: <strong>123456789</strong></p> : <p>Use existing password. Do not share default password.</p>}
+                {guestResult.mustChangePassword ? <p>PIN: <strong>1234</strong></p> : <p>Use existing PIN. Do not share default PIN.</p>}
               </div>
             ) : null}
             <form onSubmit={createLead} className="mt-5 grid gap-3">

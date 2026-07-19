@@ -52,9 +52,9 @@ export async function mockPublicApi(page: Page, authenticated = false) {
     currentUser = { ...betaUser, role: "GUEST" };
     return json(route, { ...authResponse, user: { ...currentUser, emailVerified: true } }, 201);
   });
-  await page.route("**/api/auth/forgot-password", (route) => json(route, { success: true, message: "Reset link sent to email" }));
-  await page.route("**/api/auth/forgot-password/send-otp", (route) => json(route, { success: true, message: "Reset link sent to email" }));
-  await page.route("**/api/auth/reset-password", (route) => json(route, { success: true, message: "Password reset successful. Please login." }));
+  await page.route("**/api/auth/forgot-password", (route) => json(route, { success: true, message: "PIN reset link sent to the registered email" }));
+  await page.route("**/api/auth/forgot-password/send-otp", (route) => json(route, { success: true, message: "PIN reset link sent to the registered email" }));
+  await page.route("**/api/auth/reset-password", (route) => json(route, { success: true, message: "PIN reset successful. Please login." }));
   await page.route("**/api/auth/logout", (route) => {
     isAuthenticated = false;
     return json(route, { message: "Logged out" });

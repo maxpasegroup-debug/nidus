@@ -30,7 +30,7 @@ try {
   const unsafeContentType = await fetch(`${baseUrl}/api/auth/login`, {
     method: "POST",
     headers: { "content-type": "text/plain" },
-    body: JSON.stringify({ identifier: "x@example.com", password: "password123" })
+    body: JSON.stringify({ mobile: "9999999999", pin: "0000" })
   });
   assert.equal(unsafeContentType.status, 415, "mutating API routes must reject unsupported content types");
 
@@ -40,7 +40,7 @@ try {
   assert.equal(disallowedCors.headers.get("access-control-allow-origin"), null, "disallowed origins must not receive CORS allow headers");
 
   const email = `security-reset-${Date.now()}@nidus.local`;
-  const password = "InitialPassword123";
+  const password = "1234";
   const user = await prisma.user.create({
     data: {
       name: "Security Reset Probe",
@@ -64,14 +64,14 @@ try {
     }
   });
 
-  await AuthServiceV2.resetPassword(token, "UpdatedPassword123");
+  await AuthServiceV2.resetPassword(token, "5678");
   let secondUseRejected = false;
   try {
-    await AuthServiceV2.resetPassword(token, "AnotherPassword123");
+    await AuthServiceV2.resetPassword(token, "9012");
   } catch {
     secondUseRejected = true;
   }
-  assert.equal(secondUseRejected, true, "password reset tokens must be single-use");
+  assert.equal(secondUseRejected, true, "PIN reset tokens must be single-use");
 
   await prisma.user.delete({ where: { id: user.id } }).catch(() => undefined);
 
@@ -80,7 +80,7 @@ try {
     adminAuthorization: "ok",
     corsRejection: "ok",
     contentTypeGuard: "ok",
-    passwordResetSingleUse: "ok"
+    pinResetSingleUse: "ok"
   }));
 } finally {
   await new Promise<void>((resolve) => server.close(() => resolve()));

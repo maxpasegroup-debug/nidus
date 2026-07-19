@@ -6,6 +6,7 @@ import { prisma } from "../../config/prisma.js";
 import { deleteCloudinaryAsset, signedMediaUrl } from "../../config/cloudinary.js";
 import { enqueuePDF } from "../../queues/pdf.queue.js";
 import { testsService, validatePublishedQuestions, type TestPayload } from "../tests/tests.service.js";
+import { DEFAULT_ACCOUNT_PIN } from "../auth/auth.v2.service.js";
 
 const db = prisma as any;
 
@@ -477,6 +478,38 @@ function toDate(value?: string) {
 
 function toJsonObject(value: Record<string, unknown>) {
   return value as Prisma.InputJsonObject;
+}
+
+function normalizeMobile(value?: string | null) {
+  return value?.trim().replace(/[\s()-]/g, "") ?? "";
+}
+
+function mobileCandidates(value: string) {
+  const normalized = normalizeMobile(value);
+  const digitsOnly = normalized.replace(/^\+/, "");
+  const candidates = new Set([normalized]);
+  if (/^\d{10}$/.test(digitsOnly)) {
+    candidates.add(digitsOnly);
+    candidates.add(`+91${digitsOnly}`);
+  }
+  return Array.from(candidates).filter(Boolean);
+}
+
+async function assertMobileAvailable(mobile: string, exceptUserId?: string, required = false) {
+  const normalized = normalizeMobile(mobile);
+  if (!normalized) {
+    if (required) {
+      throw Object.assign(new Error("Mobile number is required for login"), { statusCode: 400 });
+    }
+    return;
+  }
+  if (!/^\+?\d{7,15}$/.test(normalized)) {
+    throw Object.assign(new Error("Valid mobile number is required"), { statusCode: 400 });
+  }
+  const existing = await prisma.user.findFirst({ where: { mobile: { in: mobileCandidates(normalized) } }, select: { id: true } });
+  if (existing && existing.id !== exceptUserId) {
+    throw Object.assign(new Error("Mobile number is already used for another login"), { statusCode: 409 });
+  }
 }
 
 function academyBatchSchedule(input: BatchInput) {
@@ -1374,9 +1407,15 @@ async function batchWithCounts(options?: BatchWithCountsOptions) {
 
 async function findStudentUserForAdmission(input: StudentInput) {
   if (input.userId) {
+    const mobile = normalizeMobile(input.phone);
+    if (input.phone !== undefined) {
+      await assertMobileAvailable(input.phone, input.userId, true);
+    }
     return prisma.user.update({
       where: { id: input.userId },
       data: {
+        name: input.name,
+        mobile: mobile || undefined,
         role: Role.STUDENT,
         roleOnboardingStatus: "ACTIVE",
         roleActivatedAt: new Date(),
@@ -1388,15 +1427,15 @@ async function findStudentUserForAdmission(input: StudentInput) {
   }
 
   const email = input.email?.trim().toLowerCase();
-  const mobile = input.phone?.trim();
+  const mobile = normalizeMobile(input.phone);
   if (!email && !mobile) {
-    throw Object.assign(new Error("Student email, mobile or user id is required"), { statusCode: 400 });
+    throw Object.assign(new Error("Student mobile, email or user id is required"), { statusCode: 400 });
   }
 
-  const existing = email
-    ? await prisma.user.findUnique({ where: { email } })
-    : mobile
-      ? await prisma.user.findUnique({ where: { mobile } })
+  const existing = mobile
+    ? await prisma.user.findFirst({ where: { mobile: { in: mobileCandidates(mobile) } } })
+    : email
+      ? await prisma.user.findUnique({ where: { email } })
       : null;
   if (!existing) {
     throw Object.assign(new Error("Student account not found. Ask the applicant to sign up first, or create a guest account from BDE."), {
@@ -1404,11 +1443,15 @@ async function findStudentUserForAdmission(input: StudentInput) {
     });
   }
 
+  if (mobile) {
+    await assertMobileAvailable(mobile, existing.id, true);
+  }
+
   return prisma.user.update({
     where: { id: existing.id },
     data: {
       name: input.name || existing.name,
-      mobile: input.phone || existing.mobile,
+      mobile: mobile || existing.mobile,
       role: Role.STUDENT,
       roleOnboardingStatus: "ACTIVE",
       roleActivatedAt: new Date(),
@@ -2348,15 +2391,19 @@ export const academyService = {
 
   async createEmployee(user: Requester, input: EmployeeInput) {
     requireEmployeeCreationAccess(user, input);
-    if (!input.name || !input.email || !input.role) {
-      throw Object.assign(new Error("Name, email and role are required"), { statusCode: 400 });
+    if (!input.name || !input.email || !input.phone || !input.role) {
+      throw Object.assign(new Error("Name, email, mobile and role are required"), { statusCode: 400 });
     }
 
     if (![Role.ADMIN, Role.DIRECTOR, Role.TEACHER, Role.TELECALLER, Role.BUSINESS_DEVELOPMENT_EXECUTIVE, Role.MARKETING_COORDINATOR].includes(input.role as any)) {
       throw Object.assign(new Error("Only employee roles can be created here"), { statusCode: 400 });
     }
 
-    const temporaryPassword = input.password || "123456789";
+    const temporaryPassword = input.password || DEFAULT_ACCOUNT_PIN;
+    if (!/^\d{4}$/.test(temporaryPassword)) {
+      throw Object.assign(new Error("Temporary PIN must be exactly 4 digits"), { statusCode: 400 });
+    }
+    await assertMobileAvailable(input.phone, undefined, true);
     const password = await bcrypt.hash(temporaryPassword, 10);
     const roleMetadata = toJsonObject({
       designation: input.designation || "Employee",
@@ -2367,6 +2414,7 @@ export const academyService = {
       dashboardTemplate: input.dashboardTemplate || (input.designation?.toLowerCase().includes("academic head") ? "ACADEMIC_HEAD" : null),
       status: "ACTIVE",
       defaultPassword: true,
+      defaultPin: true,
       createdBy: user.id,
       credentialGeneratedAt: new Date().toISOString(),
     });
@@ -2375,7 +2423,7 @@ export const academyService = {
       data: {
         name: input.name,
         email: input.email.toLowerCase(),
-        mobile: input.phone || "",
+        mobile: normalizeMobile(input.phone),
         role: input.role,
         password,
         roleMetadata,
@@ -2394,7 +2442,9 @@ export const academyService = {
       employee: created,
       credentials: {
         email: created.email,
+        mobile: created.mobile,
         temporaryPassword,
+        temporaryPin: temporaryPassword,
         mustChangePassword: true,
       },
     };
@@ -2408,6 +2458,9 @@ export const academyService = {
     requireEmployeeUpdateAccess(user, employee, input);
 
     const existingMetadata = (employee.roleMetadata ?? {}) as Record<string, unknown>;
+    if (input.phone !== undefined) {
+      await assertMobileAvailable(input.phone, employeeId, true);
+    }
     const roleMetadata = toJsonObject({
       ...existingMetadata,
       designation: input.designation ?? existingMetadata.designation ?? null,
@@ -2423,12 +2476,15 @@ export const academyService = {
     const updateData: Prisma.UserUpdateInput = {
       name: input.name,
       email: input.email?.toLowerCase(),
-      mobile: input.phone,
+      mobile: input.phone === undefined ? undefined : normalizeMobile(input.phone),
       role: input.role,
       roleMetadata,
     };
 
     if (input.password?.trim()) {
+      if (!/^\d{4}$/.test(input.password.trim())) {
+        throw Object.assign(new Error("New PIN must be exactly 4 digits"), { statusCode: 400 });
+      }
       updateData.password = await bcrypt.hash(input.password.trim(), 10);
       updateData.isDisabled = false;
       updateData.disabledAt = null;
@@ -2437,6 +2493,9 @@ export const academyService = {
       updateData.roleMetadata = toJsonObject({
         ...roleMetadata,
         defaultPassword: true,
+        defaultPin: true,
+        pinUpdatedBy: user.id,
+        pinUpdatedAt: new Date().toISOString(),
         passwordUpdatedBy: user.id,
         passwordUpdatedAt: new Date().toISOString(),
       });
@@ -2470,7 +2529,10 @@ export const academyService = {
     return this.updateEmployee(user, employeeId, { status: "ARCHIVED" });
   },
 
-  async resetEmployeePassword(user: Requester, employeeId: string, passwordValue = "123456789") {
+  async resetEmployeePassword(user: Requester, employeeId: string, passwordValue = DEFAULT_ACCOUNT_PIN) {
+    if (!/^\d{4}$/.test(passwordValue)) {
+      throw Object.assign(new Error("PIN must be exactly 4 digits"), { statusCode: 400 });
+    }
     const password = await bcrypt.hash(passwordValue, 10);
     const employee = await prisma.user.findUnique({ where: { id: employeeId } });
     if (!employee) {
@@ -2489,6 +2551,9 @@ export const academyService = {
         roleMetadata: toJsonObject({
           ...existingMetadata,
           defaultPassword: true,
+          defaultPin: true,
+          pinResetBy: user.id,
+          pinResetAt: new Date().toISOString(),
           passwordResetBy: user.id,
           passwordResetAt: new Date().toISOString(),
         }),
@@ -2512,7 +2577,9 @@ export const academyService = {
       employee: updated,
       credentials: {
         email: updated.email,
+        mobile: updated.mobile,
         temporaryPassword: passwordValue,
+        temporaryPin: passwordValue,
         mustChangePassword: true,
       },
     };

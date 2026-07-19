@@ -25,7 +25,7 @@ const initialForm = {
   email: "",
   className: "",
   goal: "NDA",
-  password: "",
+  pin: "",
   message: ""
 };
 
@@ -48,7 +48,7 @@ export default function StartFreePage() {
 
   const selectedIntent = intentLabels[intent] ?? intentLabels.general;
   const mentorMessage = useMemo(() => {
-    if (accountExists) return "Your details are saved. This email or mobile already has an account, so please login to continue your journey.";
+    if (accountExists) return "Your details are saved. Use your registered mobile number and PIN to continue your journey.";
     if (submitted) return "Your free NIDUS account is ready. I am opening your My Journey dashboard now.";
     if (form.fullName && form.whatsapp && form.goal) return `Good. I will save your ${selectedIntent.toLowerCase()} interest and open your guest dashboard.`;
     return "Hi, I am NIDUS AI. Create a free account and I will guide your first step.";
@@ -88,7 +88,7 @@ export default function StartFreePage() {
         name: form.fullName,
         email: form.email,
         mobile: form.whatsapp,
-        password: form.password
+        pin: form.pin
       });
 
       if (result.success) {
@@ -156,7 +156,7 @@ export default function StartFreePage() {
 
             {accountExists ? (
               <div className="mt-5 rounded border border-[#b9913f]/25 bg-[#fff8df] p-4 text-sm leading-6 text-[#071d36]">
-                Your lead is updated. This email or mobile already has an account. Login to continue.
+                Your lead is updated. Use your registered mobile number and PIN to continue.
                 <Link href="/login" className="mt-3 inline-flex min-h-10 items-center gap-2 rounded border border-[#b58b35]/45 bg-[linear-gradient(135deg,#fff3bf_0%,#e7c873_34%,#b9913f_72%,#8a6426_100%)] px-4 py-2 font-semibold text-[#071d36]">
                   Login <ArrowRight className="h-4 w-4" />
                 </Link>
@@ -174,7 +174,7 @@ export default function StartFreePage() {
                   {goals.map((goal) => <option key={goal}>{goal}</option>)}
                 </select>
               </label>
-              <Field label="Create password" value={form.password} onChange={(value) => update("password", value)} required type="password" minLength={8} />
+              <Field label="Create 4 Digit PIN" value={form.pin} onChange={(value) => update("pin", value.replace(/\D/g, "").slice(0, 4))} required type="password" minLength={4} maxLength={4} inputMode="numeric" />
               <label className="grid gap-2 text-sm font-semibold text-[#071d36] sm:col-span-2">
                 Message
                 <textarea value={form.message} onChange={(event) => update("message", event.target.value)} className="min-h-24 rounded border border-[#071d36]/14 bg-white px-3 py-3 text-sm font-medium text-[#101827] outline-none focus:border-[#3f4a32]" placeholder="Tell NIDUS AI what you want help with." />
@@ -216,11 +216,11 @@ export default function StartFreePage() {
   );
 }
 
-function Field({ label, value, onChange, required, type = "text", inputMode, minLength }: { label: string; value: string; onChange: (value: string) => void; required?: boolean; type?: string; inputMode?: "tel" | "text"; minLength?: number }) {
+function Field({ label, value, onChange, required, type = "text", inputMode, minLength, maxLength }: { label: string; value: string; onChange: (value: string) => void; required?: boolean; type?: string; inputMode?: "tel" | "text" | "numeric"; minLength?: number; maxLength?: number }) {
   return (
     <label className="grid gap-2 text-sm font-semibold text-[#071d36]">
       {label}
-      <input type={type} required={required} value={value} onChange={(event) => onChange(event.target.value)} inputMode={inputMode} minLength={minLength} className="h-12 rounded border border-[#071d36]/14 bg-white px-3 text-sm font-medium text-[#101827] outline-none focus:border-[#3f4a32]" />
+      <input type={type} required={required} value={value} onChange={(event) => onChange(event.target.value)} inputMode={inputMode} minLength={minLength} maxLength={maxLength} className="h-12 rounded border border-[#071d36]/14 bg-white px-3 text-sm font-medium text-[#101827] outline-none focus:border-[#3f4a32]" />
     </label>
   );
 }

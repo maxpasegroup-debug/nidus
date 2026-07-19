@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
 import { prisma } from "../../dist/config/prisma.js";
 
-const DEFAULT_PASSWORD = "123456789";
+const DEFAULT_PASSWORD = "1234";
 
 const facultyAccounts = [
   {
@@ -25,26 +25,38 @@ async function ensureTeacher(account, passwordHash) {
   });
 
   if (existing) {
+    const metadata = typeof existing.roleMetadata === "object" && existing.roleMetadata !== null ? existing.roleMetadata : {};
     if (existing.role !== "TEACHER") {
-      const metadata = typeof existing.roleMetadata === "object" && existing.roleMetadata !== null ? existing.roleMetadata : {};
       const updated = await prisma.user.update({
         where: { id: existing.id },
         data: {
+          email: existing.email || account.email,
+          mobile: existing.mobile || account.mobile,
           role: "TEACHER",
           roleOnboardingStatus: "ACTIVE",
           roleActivatedAt: new Date(),
           lastRoleActivityAt: new Date(),
           emailVerified: true,
           mobileVerified: true,
-          roleMetadata: { ...metadata, ...account.roleMetadata, convertedToFacultyAt: new Date().toISOString() },
+          roleMetadata: { ...metadata, ...account.roleMetadata, defaultPin: metadata.defaultPin ?? true, convertedToFacultyAt: new Date().toISOString() },
         },
         select: { id: true, name: true, email: true, mobile: true, role: true },
       });
       report.facultyConverted.push({ id: updated.id, name: updated.name, from: existing.role, to: updated.role });
       return updated;
     }
-    report.facultyReused.push({ id: existing.id, name: existing.name, role: existing.role });
-    return existing;
+    const updated = await prisma.user.update({
+      where: { id: existing.id },
+      data: {
+        email: existing.email || account.email,
+        mobile: existing.mobile || account.mobile,
+        mobileVerified: Boolean(existing.mobile || account.mobile),
+        roleMetadata: { ...metadata, ...account.roleMetadata, defaultPin: metadata.defaultPin ?? true },
+      },
+      select: { id: true, name: true, email: true, mobile: true, role: true },
+    });
+    report.facultyReused.push({ id: updated.id, name: updated.name, role: updated.role });
+    return updated;
   }
 
   const created = await prisma.user.create({
@@ -62,7 +74,8 @@ async function ensureTeacher(account, passwordHash) {
       roleMetadata: {
         ...account.roleMetadata,
         defaultPassword: true,
-        passwordPolicy: "default-hash-no-plaintext-metadata",
+        defaultPin: true,
+        passwordPolicy: "default-pin-hash-no-plaintext-metadata",
       },
     },
     select: { id: true, name: true, email: true, mobile: true, role: true },

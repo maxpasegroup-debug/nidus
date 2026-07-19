@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
 import { fileURLToPath } from "node:url";
 import { prisma } from "../config/prisma.js";
-import { DEFAULT_ACCOUNT_PASSWORD } from "../modules/auth/auth.v2.service.js";
+import { DEFAULT_ACCOUNT_PIN } from "../modules/auth/auth.v2.service.js";
 import { Prisma, Role } from "../generated/prisma/client.js";
 
 type TeamMemberSeed = {
@@ -35,7 +35,7 @@ export const nidusTeamMembers: TeamMemberSeed[] = [
   {
     name: "Aswanth",
     email: "ltcdraswanth@gmail.com",
-    mobile: "+919000001002",
+    mobile: "+918848139053",
     role: Role.DIRECTOR,
     designation: "Director",
     department: "Leadership",
@@ -223,12 +223,15 @@ function roleMetadata(member: TeamMemberSeed, includeDefaultPassword: boolean) {
     seededBy: "nidus-team"
   };
 
-  if (includeDefaultPassword) metadata.defaultPassword = true;
+  if (includeDefaultPassword) {
+    metadata.defaultPassword = true;
+    metadata.defaultPin = true;
+  }
   return metadata as Prisma.InputJsonObject;
 }
 
 export async function ensureNidusTeam() {
-  const password = await bcrypt.hash(DEFAULT_ACCOUNT_PASSWORD, 12);
+  const password = await bcrypt.hash(DEFAULT_ACCOUNT_PIN, 12);
   const now = new Date();
   const results = [];
 

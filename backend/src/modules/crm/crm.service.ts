@@ -1,7 +1,7 @@
 import { prisma } from "../../config/prisma.js";
 import { Role, type CounsellingMode, type LeadStatus } from "../../generated/prisma/client.js";
 import bcrypt from "bcryptjs";
-import { DEFAULT_ACCOUNT_PASSWORD } from "../auth/auth.v2.service.js";
+import { DEFAULT_ACCOUNT_PIN } from "../auth/auth.v2.service.js";
 import { crmNotificationService } from "./crm-notification.service.js";
 import { emitDomainEvent } from "../event-engine/event-engine.service.js";
 
@@ -221,14 +221,14 @@ export const crmService = {
     const shouldUseDefaultPassword = !existingUser || existingUser.role === Role.GUEST;
     const baseMetadata = {
       ...(!existingUser || existingUser.role === Role.GUEST ? { dashboardTemplate: "GUEST_APPLICANT" } : {}),
-      ...(shouldUseDefaultPassword ? { defaultPassword: true } : {}),
+      ...(shouldUseDefaultPassword ? { defaultPassword: true, defaultPin: true } : {}),
       admissionStage: "ENQUIRY_CREATED",
       createdFrom: "BDE_QUICK_GUEST",
       interestedProgram: input.targetExam,
       parentName: input.parentName || undefined,
       createdByBdeId: requester.id,
     };
-    const defaultPasswordHash = shouldUseDefaultPassword ? await bcrypt.hash(DEFAULT_ACCOUNT_PASSWORD, 12) : null;
+    const defaultPasswordHash = shouldUseDefaultPassword ? await bcrypt.hash(DEFAULT_ACCOUNT_PIN, 12) : null;
 
     const user = existingUser
       ? await prisma.user.update({
@@ -252,7 +252,7 @@ export const crmService = {
             name: input.fullName,
             email,
             mobile,
-            password: defaultPasswordHash ?? await bcrypt.hash(DEFAULT_ACCOUNT_PASSWORD, 12),
+            password: defaultPasswordHash ?? await bcrypt.hash(DEFAULT_ACCOUNT_PIN, 12),
             role: Role.GUEST,
             emailVerified: Boolean(input.email),
             mobileVerified: false,
@@ -279,7 +279,7 @@ export const crmService = {
       `Login Identity: ${user.mobile || user.email}`,
       input.parentName ? `Parent: ${input.parentName}` : "",
       input.notes ? `Notes: ${input.notes}` : "",
-      "Temporary password issued through launch policy. Plaintext is not stored in metadata.",
+      "Temporary PIN issued through launch policy. Plaintext is not stored in metadata.",
     ]);
     const existingLead = await prisma.lead.findFirst({
       where: { OR: [{ email: user.email }, { mobile: user.mobile ?? mobile }] },

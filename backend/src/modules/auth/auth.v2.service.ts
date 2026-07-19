@@ -6,11 +6,13 @@ import { Role, type User } from "../../generated/prisma/client.js";
 import { emailService } from "../../services/email.service.js";
 import { authEmailService } from "./auth-email.service.js";
 import { emitDomainEvent } from "../event-engine/event-engine.service.js";
+import { mediaService } from "../media/media.service.js";
 
 export const SUPER_ADMIN_EMAIL = "nidusacademycalicut@gmail.com";
-export const DEFAULT_ACCOUNT_PASSWORD = "123456789";
+export const DEFAULT_ACCOUNT_PIN = "1234";
+export const DEFAULT_ACCOUNT_PASSWORD = DEFAULT_ACCOUNT_PIN;
 export const TEST_ACCOUNT_EMAIL = "test@nidusacademy.in";
-export const TEST_ACCOUNT_PASSWORD = "123456789";
+export const TEST_ACCOUNT_PASSWORD = DEFAULT_ACCOUNT_PIN;
 const TEST_ACCOUNT_MOBILE = "+910000000045";
 const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 
@@ -43,24 +45,41 @@ function isValidMobile(value: string) {
   return /^\+?\d{7,15}$/.test(normalizeMobile(value));
 }
 
+function isValidPin(value: string) {
+  return /^\d{4}$/.test(value);
+}
+
 function metadataObject(value: unknown) {
   return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
 }
 
+function isDefaultPinAccount(metadata: Record<string, unknown>) {
+  return metadata.defaultPassword === true || metadata.defaultPin === true;
+}
+
+function clearDefaultPinFlags(metadata: Record<string, unknown>) {
+  const next = { ...metadata };
+  delete next.defaultPassword;
+  delete next.defaultPin;
+  return next;
+}
+
 function safeUser(user: SafeUser) {
   const metadata = metadataObject(user.roleMetadata);
+  const profilePhotoUrl = typeof metadata.profilePhotoUrl === "string" ? metadata.profilePhotoUrl : null;
   return {
     id: user.id,
     name: user.name,
     email: user.email,
     mobile: user.mobile,
+    imageUrl: profilePhotoUrl,
     role: user.role,
     emailVerified: user.emailVerified,
     mobileVerified: user.mobileVerified,
     instituteId: user.instituteId,
     branchId: user.branchId,
     roleMetadata: metadata,
-    mustChangePassword: metadata.defaultPassword === true
+    mustChangePassword: isDefaultPinAccount(metadata)
   };
 }
 
@@ -121,8 +140,16 @@ export const AuthServiceV2 = {
     return this.findByMobile(value);
   },
 
+  normalizeMobile,
+
+  mobileCandidates,
+
+  isValidMobile,
+
+  isValidPin,
+
   async ensureSuperAdmin() {
-    const password = await bcrypt.hash(DEFAULT_ACCOUNT_PASSWORD, 12);
+    const password = await bcrypt.hash(DEFAULT_ACCOUNT_PIN, 12);
     const existing = await prisma.user.findUnique({ where: { email: SUPER_ADMIN_EMAIL } });
 
     if (!existing) {
@@ -139,7 +166,7 @@ export const AuthServiceV2 = {
           roleOnboardingStatus: "ACTIVE",
           roleActivatedAt: new Date(),
           lastRoleActivityAt: new Date(),
-          roleMetadata: { superAdmin: true, defaultPassword: true }
+          roleMetadata: { superAdmin: true, defaultPassword: true, defaultPin: true }
         }
       });
       await audit({ userId: user.id, action: "SUPER_ADMIN_BOOTSTRAP", description: "Bootstrapped permanent super admin" });
@@ -233,10 +260,15 @@ export const AuthServiceV2 = {
 
   async login(identifier: string, password: string, ip: string, userAgent = "") {
     const identity = identifier.trim();
-    const userRecord = await this.findByIdentity(identity) ??
-      (identity.toLowerCase() === "admissioncell@nidusacademy.in"
-        ? await this.findByIdentity("admisioncell@nidusacademy.in")
-        : null);
+    if (!isValidMobile(identity)) {
+      await audit({ action: "LOGIN_FAILED", description: "Failed login: mobile number is required", ip });
+      throw new Error("Enter your registered mobile number");
+    }
+    if (!isValidPin(password)) {
+      await audit({ action: "LOGIN_FAILED", description: `Failed login: invalid PIN format (${identity})`, ip });
+      throw new Error("Enter your 4 digit PIN");
+    }
+    const userRecord = await this.findByMobile(identity);
     const user = userRecord
       ? await prisma.user.findUnique({
           where: { id: userRecord.id },
@@ -271,7 +303,7 @@ export const AuthServiceV2 = {
 
     if (user.lockedUntil && user.lockedUntil > new Date()) {
       await audit({ userId: user.id, action: "LOGIN_LOCKED", description: `Login blocked until ${user.lockedUntil.toISOString()}`, ip });
-      throw new Error("Account temporarily locked. Try again later or reset the password.");
+      throw new Error("Account temporarily locked. Try again later or reset the PIN.");
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
@@ -286,7 +318,7 @@ export const AuthServiceV2 = {
           lockedUntil
         }
       });
-      await audit({ userId: user.id, action: "LOGIN_FAILED", description: "Invalid password", ip });
+      await audit({ userId: user.id, action: "LOGIN_FAILED", description: "Invalid PIN", ip });
       if (shouldLock) {
         await audit({ userId: user.id, action: "ACCOUNT_LOCKED", description: `Account locked after ${nextFailureCount} failed attempts`, ip });
       }
@@ -329,7 +361,7 @@ export const AuthServiceV2 = {
             isDisabled: true,
             instituteId: true,
             branchId: true,
-            roleMetadata: true
+            roleMetadata: true,
           }
         }
       }
@@ -381,30 +413,36 @@ export const AuthServiceV2 = {
   },
 
   async changePassword(userId: string, currentPassword: string, newPassword: string) {
+    if (!isValidPin(currentPassword) || !isValidPin(newPassword)) {
+      throw new Error("Current PIN and new PIN must be exactly 4 digits");
+    }
     const user = await prisma.user.findUnique({ where: { id: userId }, select: { password: true, isDisabled: true, roleMetadata: true } });
     if (!user || user.isDisabled) throw new Error("User not found");
 
     const isValid = await bcrypt.compare(currentPassword, user.password);
-    if (!isValid) throw new Error("Current password is incorrect");
+    if (!isValid) throw new Error("Current PIN is incorrect");
 
-    const metadata = metadataObject(user.roleMetadata);
-    delete metadata.defaultPassword;
+    const metadata = clearDefaultPinFlags(metadataObject(user.roleMetadata));
     await prisma.user.update({
       where: { id: userId },
       data: {
         password: await bcrypt.hash(newPassword, 12),
-        roleMetadata: { ...metadata, passwordChangedAt: new Date().toISOString() },
+        roleMetadata: { ...metadata, pinChangedAt: new Date().toISOString(), passwordChangedAt: new Date().toISOString() },
         loginFailureCount: 0,
         lockedUntil: null
       }
     });
     await this.logoutAll(userId);
-    await audit({ userId, action: "PASSWORD_CHANGED", description: "Password changed" });
-    return { message: "Password changed. Please login again." };
+    await audit({ userId, action: "PASSWORD_CHANGED", description: "PIN changed" });
+    return { message: "PIN changed. Please login again." };
   },
 
   async forgotPassword(identity: string) {
-    const matchedUser = await this.findByIdentity(identity);
+    if (!isValidMobile(identity)) {
+      await audit({ action: "PASSWORD_RESET_REQUESTED", description: "PIN reset requested with non-mobile identifier" });
+      return { message: "If the account exists, reset instructions will be sent" };
+    }
+    const matchedUser = await this.findByMobile(identity);
     const user = matchedUser
       ? await prisma.user.findUnique({
       where: { id: matchedUser.id },
@@ -422,11 +460,14 @@ export const AuthServiceV2 = {
 
     const resetLink = `${env.FRONTEND_APP_URL}/reset-password?token=${token}`;
     await emailService.sendPasswordResetEmail(user.email, user.name, resetLink);
-    await audit({ userId: user.id, action: "PASSWORD_RESET_REQUESTED", description: "Password reset requested" });
-    return { message: "Reset link sent to the registered email" };
+    await audit({ userId: user.id, action: "PASSWORD_RESET_REQUESTED", description: "PIN reset requested" });
+    return { message: "PIN reset link sent to the registered email" };
   },
 
   async resetPassword(token: string, newPassword: string) {
+    if (!isValidPin(newPassword)) {
+      throw new Error("New PIN must be exactly 4 digits");
+    }
     const reset = await prisma.passwordReset.findUnique({
       where: { token },
       include: { user: { select: { id: true, email: true, roleMetadata: true } } }
@@ -438,21 +479,48 @@ export const AuthServiceV2 = {
       throw new Error("Reset link expired");
     }
 
-    const metadata = metadataObject(reset.user.roleMetadata);
-    delete metadata.defaultPassword;
+    const metadata = clearDefaultPinFlags(metadataObject(reset.user.roleMetadata));
     await prisma.user.update({
       where: { id: reset.user.id },
       data: {
         password: await bcrypt.hash(newPassword, 12),
-        roleMetadata: { ...metadata, passwordChangedAt: new Date().toISOString() },
+        roleMetadata: { ...metadata, pinChangedAt: new Date().toISOString(), passwordChangedAt: new Date().toISOString() },
         loginFailureCount: 0,
         lockedUntil: null
       }
     });
     await prisma.passwordReset.delete({ where: { id: reset.id } });
     await this.logoutAll(reset.user.id);
-    await audit({ userId: reset.user.id, action: "PASSWORD_RESET", description: "Password reset successful" });
-    return { message: "Password reset successful. Please login." };
+    await audit({ userId: reset.user.id, action: "PASSWORD_RESET", description: "PIN reset successful" });
+    return { message: "PIN reset successful. Please login." };
+  },
+
+  async updateProfilePhoto(userId: string, file: Express.Multer.File) {
+    if (!file.mimetype.startsWith("image/")) {
+      throw Object.assign(new Error("Upload an image file"), { statusCode: 400 });
+    }
+    const uploaded = await mediaService.uploadFile(file, undefined, userId, "profile-photos");
+    const existing = await prisma.user.findUnique({ where: { id: userId }, select: { roleMetadata: true } });
+    if (!existing) throw new Error("User not found");
+    const imageUrl = uploaded.signedUrl || uploaded.cloudinaryUrl;
+    const user = await prisma.user.update({
+      where: { id: userId },
+      data: { roleMetadata: { ...metadataObject(existing.roleMetadata), profilePhotoUrl: imageUrl } },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        mobile: true,
+        role: true,
+        emailVerified: true,
+        mobileVerified: true,
+        instituteId: true,
+        branchId: true,
+        roleMetadata: true
+      }
+    });
+    await audit({ userId, action: "PROFILE_PHOTO_UPDATED", description: "Profile photo updated" });
+    return { message: "Profile photo updated", user: safeUser(user), imageUrl };
   },
 
   async inviteParentLink(studentId: string, parentIdentity: string) {

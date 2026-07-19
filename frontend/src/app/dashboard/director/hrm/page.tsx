@@ -24,10 +24,10 @@ const tiles: DirectorTile[] = [
     note: "Move inactive staff out of daily operations.",
   },
   {
-    label: "Access & Password",
+    label: "Access & PIN",
     href: "/dashboard/director/management?mode=access",
     icon: KeyRound,
-    note: "Reset password, unlock accounts and handle login access.",
+    note: "Reset PIN, unlock accounts and handle login access.",
   },
 ];
 

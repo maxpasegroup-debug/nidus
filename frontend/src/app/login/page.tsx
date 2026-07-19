@@ -12,18 +12,18 @@ import { effectiveDashboardPath } from "@/lib/dashboard-data";
 
 export default function LoginPage() {
   const [identifier, setIdentifier] = useState("");
-  const [password, setPassword] = useState("");
+  const [pin, setPin] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
   const fieldClass = "!border-[#071d36]/14 !bg-white !text-[#071d36] placeholder:!text-[#64748b]/70 focus:!border-[#b9913f] focus:!bg-white focus:!ring-[#b9913f]/25";
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!identifier.trim() || password.length < 8) return;
+    if (!identifier.trim() || !/^\d{4}$/.test(pin)) return;
     setIsSubmitting(true);
     setError("");
     try {
-      const result = await login({ identifier, password });
+      const result = await login({ mobile: identifier, pin });
       if (result.success && result.user) {
         window.location.assign(result.user.mustChangePassword ? "/dashboard/settings?mustChangePassword=1" : effectiveDashboardPath(result.user));
       } else {
@@ -46,13 +46,13 @@ export default function LoginPage() {
         <div className="mt-5 text-center">
           <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#3f4a32]">NIDUS Academy</p>
           <h1 className="mt-3 text-3xl font-semibold text-[#071d36]">Sign in</h1>
-          <p className="mt-2 text-sm leading-6 text-[#64748b]">Enter your email or mobile number to open your dashboard.</p>
+          <p className="mt-2 text-sm leading-6 text-[#64748b]">Enter your registered mobile number and 4 digit PIN to open your dashboard.</p>
         </div>
 
         <form className="mt-7 space-y-4" onSubmit={handleSubmit}>
           {error ? <div className="rounded border border-red-400/40 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div> : null}
-          <Input label="Email or Mobile Number" type="text" placeholder="Email or mobile number" value={identifier} onChange={(event) => setIdentifier(event.target.value)} className={fieldClass} required />
-          <PasswordInput label="Password" placeholder="Password" value={password} onChange={(event) => setPassword(event.target.value)} className={fieldClass} minLength={8} required />
+          <Input label="Mobile Number" type="tel" inputMode="tel" placeholder="Registered mobile number" value={identifier} onChange={(event) => setIdentifier(event.target.value)} className={fieldClass} required />
+          <PasswordInput label="4 Digit PIN" placeholder="1234" value={pin} onChange={(event) => setPin(event.target.value.replace(/\D/g, "").slice(0, 4))} className={fieldClass} minLength={4} maxLength={4} inputMode="numeric" required />
           <Button type="submit" className="w-full" disabled={isSubmitting}>
             {isSubmitting ? "Logging in..." : "Login"} <ArrowRight className="h-4 w-4" />
           </Button>
@@ -62,7 +62,7 @@ export default function LoginPage() {
         </form>
 
         <div className="mt-5 flex items-center justify-between gap-3 text-sm">
-          <Link href="/forgot-password" className="font-semibold text-[#3f4a32]">Forgot Password</Link>
+          <Link href="/forgot-password" className="font-semibold text-[#3f4a32]">Forgot PIN</Link>
           <Link href="/register" className="font-semibold text-[#071d36]">Create account</Link>
         </div>
       </section>

@@ -19,6 +19,10 @@ function roleLabel(role: string) {
   return roles.find((item) => item.value === role)?.label ?? role;
 }
 
+function hasDefaultPin(metadata?: Record<string, unknown> | null) {
+  return metadata?.defaultPin === true || metadata?.defaultPassword === true;
+}
+
 export default function UsersPage() {
   const users = useUsers();
   const [open, setOpen] = useState(false);
@@ -60,7 +64,7 @@ export default function UsersPage() {
             <p className="text-xs uppercase tracking-[0.28em] text-gold-soft">People & HR</p>
             <h1 className="mt-3 text-3xl font-semibold text-ink">Employees, students, and parents</h1>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-muted">
-              Add staff and learners from one place. Employees get the correct dashboard, and every new account can sign in immediately with default password: 123456789.
+              Add staff and learners from one place. Employees get the correct dashboard, and every new account can sign in immediately with default PIN: 1234.
             </p>
           </div>
           <div className="flex flex-col gap-3 sm:flex-row">
@@ -86,7 +90,7 @@ export default function UsersPage() {
           </div>
           <div className="rounded-lg border border-gold/20 bg-gold/10 p-4">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gold-soft">Login Ready</p>
-            <p className="mt-3 text-xl font-semibold text-ink">Default password: 123456789</p>
+            <p className="mt-3 text-xl font-semibold text-ink">Default PIN: 1234</p>
             <p className="mt-1 text-sm text-muted">Reset anytime using the key button beside a person</p>
           </div>
         </section>
@@ -96,7 +100,7 @@ export default function UsersPage() {
         <div className="mt-6 overflow-x-auto rounded-lg border border-white/10">
           <div className="grid min-w-[760px] grid-cols-[1.4fr_1.6fr_1.15fr_1fr_0.8fr] bg-white/8 px-4 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-muted">
             <span>Name</span>
-            <span>Email</span>
+            <span>Login mobile</span>
             <span>Role</span>
             <span>Status</span>
             <span>Reset</span>
@@ -104,10 +108,10 @@ export default function UsersPage() {
           {allUsers.map((user) => (
             <div key={user.id} className="grid min-w-[760px] grid-cols-[1.4fr_1.6fr_1.15fr_1fr_0.8fr] items-center border-t border-white/10 px-4 py-4 text-sm">
               <span className="font-semibold text-ink">{user.name}</span>
-              <span className="text-muted">{user.email}</span>
+              <span className="text-muted">{user.mobile || user.email}</span>
               <span className="text-gold-soft">{roleLabel(user.role)}</span>
-              <span className="text-muted">{user.roleMetadata?.defaultPassword ? "Default password" : user.roleOnboardingStatus ?? "ACTIVE"}</span>
-              <button type="button" onClick={() => users.resetPassword.mutate(user.id)} disabled={users.resetPassword.isPending} className="inline-flex h-9 w-9 items-center justify-center rounded border border-white/15 text-gold-soft transition hover:border-gold/50 disabled:opacity-50" aria-label={`Reset password for ${user.name}`}>
+              <span className="text-muted">{hasDefaultPin(user.roleMetadata) ? "Default PIN" : user.roleOnboardingStatus ?? "ACTIVE"}</span>
+              <button type="button" onClick={() => users.resetPassword.mutate(user.id)} disabled={users.resetPassword.isPending} className="inline-flex h-9 w-9 items-center justify-center rounded border border-white/15 text-gold-soft transition hover:border-gold/50 disabled:opacity-50" aria-label={`Reset PIN for ${user.name}`}>
                 <KeyRound className="h-4 w-4" />
               </button>
             </div>
@@ -135,9 +139,9 @@ export default function UsersPage() {
                 {roles.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}
               </select>
               <div className="rounded border border-white/10 bg-white/5 px-3 py-2 text-sm leading-6 text-muted sm:col-span-2">
-                Employee roles: Director, Teacher, and Business Development Executive. Administrative Officer is created from Director Management with the correct dashboard template. Learner roles: Learner and Parent.
+                Employee roles: Director, Teacher, and Business Development Executive. Mobile number is the login number. Administrative Officer is created from Director Management with the correct dashboard template. Learner roles: Learner and Parent.
               </div>
-              <div className="rounded border border-gold/20 bg-gold/10 px-3 py-2 text-sm text-gold-soft sm:col-span-2">Default password: 123456789</div>
+              <div className="rounded border border-gold/20 bg-gold/10 px-3 py-2 text-sm text-gold-soft sm:col-span-2">Default PIN: 1234</div>
             </div>
             <div className="mt-5 flex justify-end gap-3">
               <button type="button" onClick={() => setOpen(false)} className="rounded border border-white/15 px-5 py-3 text-sm font-semibold text-muted">Cancel</button>

@@ -61,7 +61,7 @@ export function useBranches() {
 export function useUsers() {
   return {
     ...useQuery({ queryKey: ["admin-center", "users"], queryFn: getUsers }),
-    create: useToastMutation(createUser, [["admin-center", "users"], ["admin-center", "dashboard"], ["admin-center", "audit-logs"]], "User created with default password"),
-    resetPassword: useToastMutation(resetUserPassword, [["admin-center", "users"], ["admin-center", "audit-logs"]], "Password reset to default")
+    create: useToastMutation(createUser, [["admin-center", "users"], ["admin-center", "dashboard"], ["admin-center", "audit-logs"]], "User created with default PIN"),
+    resetPassword: useToastMutation(resetUserPassword, [["admin-center", "users"], ["admin-center", "audit-logs"]], "PIN reset to default")
   };
 }

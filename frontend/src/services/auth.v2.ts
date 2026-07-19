@@ -15,15 +15,15 @@ export type AuthRole =
   | "MARKETING_COORDINATOR";
 
 export type LoginPayload = {
-  identifier: string;
-  password: string;
+  mobile: string;
+  pin: string;
 };
 
 export type SignupPayload = {
   name: string;
   email: string;
   mobile: string;
-  password: string;
+  pin: string;
 };
 
 export type RegisterPayload = SignupPayload;
@@ -38,6 +38,7 @@ export type AuthUser = {
   branchId?: string | null;
   mobile?: string;
   mobileVerified?: boolean;
+  imageUrl?: string | null;
   roleMetadata?: Record<string, unknown> | null;
   roleOnboardingStatus?: string;
   mustChangePassword?: boolean;
@@ -88,6 +89,20 @@ export async function changePassword(payloadOrCurrentPassword: { currentPassword
   return response.data;
 }
 
+export async function changePin(payload: { currentPin: string; newPin: string }): Promise<AuthResponse> {
+  const response = await apiClient.post<AuthResponse>("/auth/change-password", payload);
+  return response.data;
+}
+
+export async function updateProfilePhoto(file: File): Promise<AuthResponse & { imageUrl?: string }> {
+  const formData = new FormData();
+  formData.append("file", file);
+  const response = await apiClient.post<AuthResponse & { imageUrl?: string }>("/auth/profile-photo", formData, {
+    headers: { "Content-Type": "multipart/form-data" }
+  });
+  return response.data;
+}
+
 export async function getMe(): Promise<AuthUser> {
   const response = await apiClient.get<{ success: boolean; user: AuthUser }>("/auth/me");
   return response.data.user;
@@ -100,8 +115,8 @@ export async function forgotPassword(identifier: string): Promise<AuthResponse> 
   return response.data;
 }
 
-export async function resetPassword(token: string, password: string): Promise<AuthResponse> {
-  const response = await apiClient.post<AuthResponse>("/auth/reset-password", { token, password });
+export async function resetPassword(token: string, pin: string): Promise<AuthResponse> {
+  const response = await apiClient.post<AuthResponse>("/auth/reset-password", { token, pin });
   return response.data;
 }
 
@@ -118,11 +133,11 @@ export async function resendVerification(_identifier: string) {
 }
 
 export async function sendOtp(_mobile: string) {
-  return { message: "OTP login is not enabled. Use email and password." };
+  return { message: "OTP login is not enabled. Use mobile number and PIN." };
 }
 
 export async function verifyOtp(_mobile: string, _otp: string): Promise<AuthResponse> {
-  throw new Error("OTP login is not enabled. Use email and password.");
+  throw new Error("OTP login is not enabled. Use mobile number and PIN.");
 }
 
 export async function verifyForgotPassword(_identifier: string, _otp: string) {

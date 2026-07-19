@@ -8,6 +8,9 @@ export type AuthenticatedRequest = Request & {
     id: string;
     name: string;
     email: string;
+    mobile?: string;
+    mobileVerified?: boolean;
+    imageUrl?: string | null;
     role: Role;
     emailVerified: boolean;
     instituteId: string | null;

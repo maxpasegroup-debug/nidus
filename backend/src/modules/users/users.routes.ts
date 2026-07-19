@@ -4,7 +4,7 @@ import { z } from "zod";
 import { prisma } from "../../config/prisma.js";
 import { Role } from "../../generated/prisma/client.js";
 import { allowRoles, protect } from "../../middlewares/session.middleware.js";
-import { DEFAULT_ACCOUNT_PASSWORD } from "../auth/auth.v2.service.js";
+import { DEFAULT_ACCOUNT_PIN } from "../auth/auth.v2.service.js";
 
 const createUserSchema = z.object({
   name: z.string().min(2),
@@ -59,7 +59,7 @@ usersRouter.post("/", async (req, res, next) => {
       return;
     }
 
-    const hashedPassword = await bcrypt.hash(DEFAULT_ACCOUNT_PASSWORD, 12);
+    const hashedPassword = await bcrypt.hash(DEFAULT_ACCOUNT_PIN, 12);
     const user = await prisma.user.create({
       data: {
         ...payload,
@@ -71,7 +71,7 @@ usersRouter.post("/", async (req, res, next) => {
         roleOnboardingStatus: "ACTIVE",
         roleActivatedAt: new Date(),
         lastRoleActivityAt: new Date(),
-        roleMetadata: { defaultPassword: true, createdByAdmin: true }
+        roleMetadata: { defaultPassword: true, defaultPin: true, createdByAdmin: true }
       },
       select: {
         id: true,
@@ -108,12 +108,12 @@ usersRouter.post("/:id/reset-password", async (req, res, next) => {
     await prisma.user.update({
       where: { id: user.id },
       data: {
-        password: await bcrypt.hash(DEFAULT_ACCOUNT_PASSWORD, 12),
-        roleMetadata: { ...metadataObject(user.roleMetadata), defaultPassword: true, passwordResetByAdminAt: new Date().toISOString() }
+        password: await bcrypt.hash(DEFAULT_ACCOUNT_PIN, 12),
+        roleMetadata: { ...metadataObject(user.roleMetadata), defaultPassword: true, defaultPin: true, pinResetByAdminAt: new Date().toISOString(), passwordResetByAdminAt: new Date().toISOString() }
       }
     });
     await prisma.roleActivity.create({ data: { userId: user.id, role: user.role, activity: "ADMIN_RESET_PASSWORD" } }).catch(() => undefined);
-    res.json({ message: "Password reset to default password" });
+    res.json({ message: "PIN reset to default PIN" });
   } catch (error) {
     next(error);
   }

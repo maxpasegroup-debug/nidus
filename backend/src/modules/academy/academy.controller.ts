@@ -491,7 +491,7 @@ export const academyController = {
   },
   resetEmployeePassword: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     try {
-      res.json(await academyService.resetEmployeePassword(requester(req), param(req, "id"), req.body?.password));
+      res.json(await academyService.resetEmployeePassword(requester(req), param(req, "id"), req.body?.pin || req.body?.password));
     } catch (error) {
       next(error);
     }

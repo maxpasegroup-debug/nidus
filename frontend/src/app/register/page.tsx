@@ -14,8 +14,8 @@ export default function RegisterPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [mobile, setMobile] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [pin, setPin] = useState("");
+  const [confirmPin, setConfirmPin] = useState("");
   const [acceptedPolicies, setAcceptedPolicies] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -23,8 +23,12 @@ export default function RegisterPage() {
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (password !== confirmPassword) {
-      setError("Passwords do not match.");
+    if (pin !== confirmPin) {
+      setError("PINs do not match.");
+      return;
+    }
+    if (!/^\d{4}$/.test(pin)) {
+      setError("PIN must be exactly 4 digits.");
       return;
     }
     if (!acceptedPolicies) {
@@ -34,7 +38,7 @@ export default function RegisterPage() {
     setIsSubmitting(true);
     setError("");
     try {
-      const result = await signup({ name, email, mobile, password });
+      const result = await signup({ name, email, mobile, pin });
       if (result.success && result.user) {
         window.location.assign(effectiveDashboardPath(result.user));
       } else {
@@ -65,8 +69,8 @@ export default function RegisterPage() {
           <Input label="Full name" placeholder="Student name" value={name} onChange={(event) => setName(event.target.value)} className={fieldClass} required />
           <Input label="Email" type="email" placeholder="Email address" value={email} onChange={(event) => setEmail(event.target.value)} className={fieldClass} required />
           <Input label="Mobile Number" placeholder="WhatsApp mobile number" value={mobile} onChange={(event) => setMobile(event.target.value)} className={fieldClass} required />
-          <PasswordInput label="Password" placeholder="Create password" value={password} onChange={(event) => setPassword(event.target.value)} className={fieldClass} minLength={8} required />
-          <PasswordInput label="Confirm Password" placeholder="Confirm password" value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} className={fieldClass} minLength={8} required />
+          <PasswordInput label="Create 4 Digit PIN" placeholder="1234" value={pin} onChange={(event) => setPin(event.target.value.replace(/\D/g, "").slice(0, 4))} className={fieldClass} minLength={4} maxLength={4} inputMode="numeric" required />
+          <PasswordInput label="Confirm PIN" placeholder="Confirm PIN" value={confirmPin} onChange={(event) => setConfirmPin(event.target.value.replace(/\D/g, "").slice(0, 4))} className={fieldClass} minLength={4} maxLength={4} inputMode="numeric" required />
           <label className="flex items-start gap-3 rounded-xl border border-[#071d36]/10 bg-[#fffdf8] p-3 text-xs leading-5 text-[#536072]">
             <input
               type="checkbox"

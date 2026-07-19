@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState, type FormEvent } from "react";
-import { MailCheck } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { resendVerification, verifyEmail } from "@/services/auth.v2";
@@ -21,7 +21,7 @@ function VerifyEmailContent() {
     if (!token) return;
     verifyEmail(token)
       .then(() => {
-        showToast("Email verified successfully", "success");
+        showToast("Account verified successfully", "success");
         window.location.assign("/dashboard");
       })
       .catch((error) => showToast(getApiErrorMessage(error), "error"));
@@ -43,12 +43,12 @@ function VerifyEmailContent() {
   return (
     <main className="relative min-h-screen px-4 pb-16 pt-28 sm:px-6 lg:px-8">
       <section className="mx-auto max-w-md rounded-lg border border-gold/25 bg-white/[0.075] p-8 backdrop-blur-2xl">
-        <MailCheck className="h-8 w-8 text-gold-soft" />
-        <h1 className="mt-4 text-3xl font-semibold text-ink">Verify Email</h1>
-        <p className="mt-2 text-sm text-muted">Use the link sent to your email. You can request a fresh link below.</p>
+        <ShieldCheck className="h-8 w-8 text-gold-soft" />
+        <h1 className="mt-4 text-3xl font-semibold text-ink">Account Access</h1>
+        <p className="mt-2 text-sm text-muted">NIDUS login uses your registered mobile number and 4 digit PIN. Email verification is not required for academy access.</p>
         <form className="mt-6 space-y-4" onSubmit={submit}>
-          <Input label="Email or mobile" value={identifier} onChange={(event) => setIdentifier(event.target.value)} required />
-          <Button type="submit" className="w-full" disabled={isSubmitting}>{isSubmitting ? "Sending..." : "Resend Verification"}</Button>
+          <Input label="Registered mobile number" value={identifier} onChange={(event) => setIdentifier(event.target.value.replace(/\D/g, "").slice(0, 15))} inputMode="tel" required />
+          <Button type="submit" className="w-full" disabled={isSubmitting}>{isSubmitting ? "Checking..." : "Check Account"}</Button>
         </form>
         <p className="mt-6 text-center text-sm text-muted"><Link href="/login" className="font-semibold text-gold-soft">Back to login</Link></p>
       </section>

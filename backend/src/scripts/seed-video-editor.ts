@@ -3,7 +3,7 @@ import { fileURLToPath } from "node:url";
 
 import { prisma } from "../config/prisma.js";
 import { Prisma, Role } from "../generated/prisma/client.js";
-import { DEFAULT_ACCOUNT_PASSWORD } from "../modules/auth/auth.v2.service.js";
+import { DEFAULT_ACCOUNT_PIN } from "../modules/auth/auth.v2.service.js";
 
 export async function ensureVideoEditor() {
   const email = "ilabdtlp@gmail.com";
@@ -22,9 +22,10 @@ export async function ensureVideoEditor() {
     status: "ACTIVE",
     seededBy: "video-editor-seed",
     defaultPassword: existing ? existingMetadata.defaultPassword ?? false : true,
+    defaultPin: existing ? existingMetadata.defaultPin ?? false : true,
   } as Prisma.InputJsonObject;
   const now = new Date();
-  const password = existing?.password ?? await bcrypt.hash(DEFAULT_ACCOUNT_PASSWORD, 12);
+  const password = existing?.password ?? await bcrypt.hash(DEFAULT_ACCOUNT_PIN, 12);
 
   const user = await prisma.user.upsert({
     where: { email },

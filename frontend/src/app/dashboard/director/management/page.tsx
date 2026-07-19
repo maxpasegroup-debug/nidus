@@ -146,7 +146,7 @@ export default function DirectorManagementPage() {
     requestedMode && ["add", "manage", "archive", "access"].includes(requestedMode) ? requestedMode : "manage",
   );
   const [activeTab, setActiveTab] = useState<"ACTIVE" | "ARCHIVED">("ACTIVE");
-  const [lastCredentials, setLastCredentials] = useState<{ email: string; temporaryPassword: string } | null>(null);
+  const [lastCredentials, setLastCredentials] = useState<{ email: string; mobile?: string; temporaryPassword: string; temporaryPin?: string } | null>(null);
   const [editingAccountId, setEditingAccountId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<EditableAccountPayload | null>(null);
   const [form, setForm] = useState<EmployeePayload>({
@@ -160,7 +160,7 @@ export default function DirectorManagementPage() {
     hourlyRate: undefined,
     subjects: [],
     dashboardTemplate: "",
-    password: "123456789",
+    password: "1234",
   });
   const [subjectText, setSubjectText] = useState("");
 
@@ -171,12 +171,12 @@ export default function DirectorManagementPage() {
 
   const createMutation = useMutation({
     mutationFn: (payload: EmployeePayload) =>
-      apiJson<{ employee: Employee; credentials: { email: string; temporaryPassword: string } }>("/api/academy/employees", {
+      apiJson<{ employee: Employee; credentials: { email: string; mobile?: string; temporaryPassword: string; temporaryPin?: string } }>("/api/academy/employees", {
         method: "POST",
         body: JSON.stringify(payload),
       }),
     onSuccess: (data) => {
-      setNotice(`Employee created. Login: ${data.credentials.email} / Password: ${data.credentials.temporaryPassword}`);
+      setNotice(`Employee created. Login mobile: ${data.credentials.mobile || data.employee.mobile || "mobile pending"} / PIN: ${data.credentials.temporaryPin || data.credentials.temporaryPassword}`);
       setLastCredentials(data.credentials);
       setForm({
         name: "",
@@ -189,7 +189,7 @@ export default function DirectorManagementPage() {
         hourlyRate: undefined,
         subjects: [],
         dashboardTemplate: "",
-        password: "123456789",
+        password: "1234",
       });
       setSubjectText("");
       void queryClient.invalidateQueries({ queryKey: ["director", "employees"] });
@@ -209,16 +209,16 @@ export default function DirectorManagementPage() {
 
   const resetMutation = useMutation({
     mutationFn: (id: string) =>
-      apiJson<{ credentials: { email: string; temporaryPassword: string } }>(`/api/academy/employees/${id}/reset-password`, {
+      apiJson<{ credentials: { email: string; mobile?: string; temporaryPassword: string; temporaryPin?: string } }>(`/api/academy/employees/${id}/reset-password`, {
         method: "POST",
-        body: JSON.stringify({ password: "123456789" }),
+        body: JSON.stringify({ pin: "1234" }),
       }),
     onSuccess: (data) => {
-      setNotice(`Password reset and account unlocked. Login: ${data.credentials.email} / Password: ${data.credentials.temporaryPassword}`);
+      setNotice(`PIN reset and account unlocked. Login mobile: ${data.credentials.mobile || "mobile pending"} / PIN: ${data.credentials.temporaryPin || data.credentials.temporaryPassword}`);
       setLastCredentials(data.credentials);
       void queryClient.invalidateQueries({ queryKey: ["director", "employees"] });
     },
-    onError: (error) => setNotice(error instanceof Error ? error.message : "Could not reset password."),
+    onError: (error) => setNotice(error instanceof Error ? error.message : "Could not reset PIN."),
   });
 
   const unlockMutation = useMutation({
@@ -282,7 +282,7 @@ export default function DirectorManagementPage() {
       department: profile.department,
       dashboardTemplate: profile.dashboardTemplate,
     }));
-    setNotice(`${profile.label} profile selected. Fill name, email and phone to generate credentials.`);
+      setNotice(`${profile.label} profile selected. Fill name, mobile and email to generate credentials.`);
   };
 
   const startEditAccount = (employee: Employee) => {
@@ -340,7 +340,7 @@ export default function DirectorManagementPage() {
           ]}
           alerts={[
             { title: "Pending approvals", detail: "Leave, expenses and payroll approvals remain in existing operations queues.", href: "/admin-center/operations#leave", tone: "info" },
-            { title: "Access review", detail: `${lockedAccounts.length} account(s) may need password reset or unlock.`, href: "/dashboard/director/management?mode=access", tone: lockedAccounts.length ? "warning" : "success" },
+            { title: "Access review", detail: `${lockedAccounts.length} account(s) may need PIN reset or unlock.`, href: "/dashboard/director/management?mode=access", tone: lockedAccounts.length ? "warning" : "success" },
             { title: "Staff strength", detail: `${activeTeam.length} team account(s) are active across academy operations.`, href: "/dashboard/director/management?mode=manage", tone: "success" },
           ]}
         />
@@ -348,7 +348,7 @@ export default function DirectorManagementPage() {
         <section className="grid shrink-0 gap-2 md:grid-cols-4">
           <ModeButton active={mode === "add"} icon={UserPlus} label="Add Staff" onClick={() => setMode("add")} />
           <ModeButton active={mode === "manage"} icon={Users} label="Manage Staff" onClick={() => setMode("manage")} />
-          <ModeButton active={mode === "access"} icon={KeyRound} label="Access & Password" onClick={() => setMode("access")} />
+          <ModeButton active={mode === "access"} icon={KeyRound} label="Access & PIN" onClick={() => setMode("access")} />
           <ModeButton active={mode === "archive"} icon={Archive} label="Archive Staff" onClick={() => { setActiveTab("ARCHIVED"); setMode("archive"); }} />
         </section>
 
@@ -358,12 +358,12 @@ export default function DirectorManagementPage() {
           <section className="rounded-2xl border border-[var(--gold-border)] bg-[var(--gold-soft)] p-3 shadow-sm md:p-4">
             <p className="text-[11px] font-black uppercase tracking-[0.28em] text-[var(--gold)]">Generated Credentials</p>
             <div className="mt-3 grid gap-3 md:grid-cols-[1fr_1fr_auto] md:items-end">
-              <CredentialBox label="Login email" value={lastCredentials.email} />
-              <CredentialBox label="Temporary password" value={lastCredentials.temporaryPassword} />
+              <CredentialBox label="Login mobile" value={lastCredentials.mobile || "Mobile pending"} />
+              <CredentialBox label="Temporary PIN" value={lastCredentials.temporaryPin || lastCredentials.temporaryPassword} />
               <button
                 className="rounded-xl border border-[var(--border)] bg-white px-4 py-2 text-sm font-black"
                 onClick={() => {
-                  void navigator.clipboard?.writeText(`${lastCredentials.email}\n${lastCredentials.temporaryPassword}`);
+                  void navigator.clipboard?.writeText(`${lastCredentials.mobile || ""}\n${lastCredentials.temporaryPin || lastCredentials.temporaryPassword}`);
                   setNotice("Credentials copied.");
                 }}
                 type="button"
@@ -378,7 +378,7 @@ export default function DirectorManagementPage() {
         <section className="grid gap-3">
           <div className="rounded-2xl border border-[var(--border)] bg-white/90 p-3 shadow-sm md:p-4">
             <p className="text-[11px] font-black uppercase tracking-[0.28em] text-[var(--gold)]">Add Employee</p>
-            <h2 className="mt-1 text-xl font-black">Create credentials</h2>
+            <h2 className="mt-1 text-xl font-black">Create mobile PIN credentials</h2>
             <div className="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
               {quickProfiles.map((profile) => (
                 <button
@@ -394,7 +394,7 @@ export default function DirectorManagementPage() {
             <form onSubmit={submit} className="mt-3 grid gap-3">
               <Input label="Name" value={form.name} onChange={(value) => setForm((item) => ({ ...item, name: value }))} required />
               <Input label="Email" value={form.email} onChange={(value) => setForm((item) => ({ ...item, email: value }))} required />
-              <Input label="Phone" value={form.phone ?? ""} onChange={(value) => setForm((item) => ({ ...item, phone: value }))} />
+              <Input label="Mobile Login Number" value={form.phone ?? ""} onChange={(value) => setForm((item) => ({ ...item, phone: value }))} required />
               <label className="grid gap-2 text-sm font-bold">
                 Employee type
                 <select
@@ -437,7 +437,7 @@ export default function DirectorManagementPage() {
                   value={form.hourlyRate ? String(form.hourlyRate) : ""}
                   onChange={(value) => setForm((item) => ({ ...item, hourlyRate: value ? Number(value) : undefined }))}
                 />
-                <Input label="Temporary password" value={form.password ?? ""} onChange={(value) => setForm((item) => ({ ...item, password: value }))} />
+                <Input label="Temporary 4 Digit PIN" value={form.password ?? ""} onChange={(value) => setForm((item) => ({ ...item, password: value.replace(/\D/g, "").slice(0, 4) }))} />
               </div>
               <Input label="Subjects / skills comma separated" value={subjectText} onChange={setSubjectText} />
               <button className="inline-flex items-center justify-center gap-2 rounded-xl bg-[var(--gold-gradient)] px-4 py-2 text-sm font-black text-[var(--navy)] shadow-lg">
@@ -454,9 +454,9 @@ export default function DirectorManagementPage() {
         <section className="rounded-2xl border border-[var(--border)] bg-white/90 p-3 shadow-sm md:p-4">
           <div className="rounded-2xl border border-[var(--border)] bg-white p-3">
             <p className="text-[11px] font-black uppercase tracking-[0.28em] text-[var(--gold)]">Credential Readiness</p>
-            <h2 className="mt-1 text-xl font-black">Account unlock and password reset</h2>
+            <h2 className="mt-1 text-xl font-black">Account unlock and PIN reset</h2>
             <p className="mt-1 text-sm leading-6 text-[var(--muted-blue)]">
-              Director can reset any launch user to the default temporary password and clear lockout counters from this screen.
+              Director can reset any launch user to the default temporary PIN and clear lockout counters from this screen.
             </p>
           </div>
           <div className="mt-3 grid max-h-[52vh] gap-3 overflow-y-auto pr-1">
@@ -471,7 +471,7 @@ export default function DirectorManagementPage() {
                   }
                 }}
                 onReset={() => {
-                  if (window.confirm(`Reset password and unlock ${employee.name}?`)) {
+                  if (window.confirm(`Reset PIN and unlock ${employee.name}?`)) {
                     resetMutation.mutate(employee.id);
                   }
                 }}
@@ -543,7 +543,7 @@ export default function DirectorManagementPage() {
                         }
                       }}
                       onReset={() => {
-                        if (window.confirm(`Reset password and unlock ${employee.name}?`)) {
+                        if (window.confirm(`Reset PIN and unlock ${employee.name}?`)) {
                           resetMutation.mutate(employee.id);
                         }
                       }}
@@ -694,8 +694,8 @@ function EmployeeRow({
       <article className="rounded-2xl border border-[var(--gold-border)] bg-[var(--gold-soft)] p-3">
         <div className="grid gap-2 md:grid-cols-3">
           <EditField label="Name" value={editForm.name} onChange={(value) => onEditChange?.("name", value)} />
-          <EditField label="Email / Login" type="email" value={editForm.email} onChange={(value) => onEditChange?.("email", value)} />
-          <EditField label="Contact" value={editForm.phone} onChange={(value) => onEditChange?.("phone", value)} />
+          <EditField label="Email" type="email" value={editForm.email} onChange={(value) => onEditChange?.("email", value)} />
+          <EditField label="Mobile Login Number" value={editForm.phone} onChange={(value) => onEditChange?.("phone", value)} />
           <EditField label="Designation" value={editForm.designation} onChange={(value) => onEditChange?.("designation", value)} />
           <EditField label="Department" value={editForm.department} onChange={(value) => onEditChange?.("department", value)} />
           <label className="grid gap-1.5 text-xs font-black">
@@ -726,7 +726,7 @@ function EmployeeRow({
               <option value="ADMINISTRATION">Administration</option>
             </select>
           </label>
-          <EditField label="New password" value={editForm.password} onChange={(value) => onEditChange?.("password", value)} placeholder="Leave blank to keep same" />
+          <EditField label="New 4 Digit PIN" value={editForm.password} onChange={(value) => onEditChange?.("password", value.replace(/\D/g, "").slice(0, 4))} placeholder="Leave blank to keep same" />
         </div>
         <div className="mt-3 flex flex-wrap justify-end gap-2">
           <button type="button" onClick={onCancelEdit} className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border)] bg-white px-3 py-2 text-xs font-black">
@@ -775,7 +775,7 @@ function EmployeeRow({
             )}
             <button onClick={onReset} className="rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-xs font-black">
               <KeyRound className="mr-1 inline h-3.5 w-3.5" />
-              Reset + Unlock
+              Reset PIN
             </button>
             <button onClick={onArchive} className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-black text-rose-800">
               <Archive className="mr-1 inline h-3.5 w-3.5" />

@@ -2,7 +2,7 @@ import bcrypt from "bcryptjs";
 import { randomUUID } from "node:crypto";
 import { prisma } from "../../dist/config/prisma.js";
 
-const DEFAULT_PASSWORD = "123456789";
+const DEFAULT_PASSWORD = "1234";
 
 const batchesInput = [
   {
@@ -175,7 +175,7 @@ async function ensureStudent(name, phone, passwordHash) {
           ...metadata,
           seededBy: "lms-activation-sprint",
           reusedExistingAccount: true,
-          passwordPolicy: "default-hash-no-plaintext-metadata",
+          passwordPolicy: "default-pin-hash-no-plaintext-metadata",
         },
       },
       select: { id: true, name: true, email: true, mobile: true, role: true },
@@ -201,7 +201,7 @@ async function ensureStudent(name, phone, passwordHash) {
       roleMetadata: {
         defaultPassword: true,
         seededBy: "lms-activation-sprint",
-        passwordPolicy: "default-hash-no-plaintext-metadata",
+        passwordPolicy: "default-pin-hash-no-plaintext-metadata",
       },
     },
     select: { id: true, name: true, email: true, mobile: true, role: true },

@@ -23,7 +23,7 @@ assert.match(schema, /roleMetadata/, "role metadata must exist");
 assert.match(schema, /monitoringPermissions/, "parent monitoring permissions must exist");
 
 assert.match(authService, /SUPER_ADMIN_EMAIL = "nidusacademycalicut@gmail.com"/, "bootstrap admin email must be locked");
-assert.match(authService, /DEFAULT_ACCOUNT_PASSWORD = "123456789"/, "bootstrap admin password must be locked");
+assert.match(authService, /DEFAULT_ACCOUNT_PIN = "1234"/, "bootstrap admin PIN must be locked");
 assert.match(authService, /role: Role\.ADMIN/, "bootstrap admin must force ADMIN role");
 assert.match(authService, /emailVerified: true/, "bootstrap admin must bypass verification");
 assert.match(authMiddleware, /requireInstituteScope/, "institute access middleware must exist");

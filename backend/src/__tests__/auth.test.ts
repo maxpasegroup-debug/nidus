@@ -31,10 +31,20 @@ describe("Phase 2 auth hardening", () => {
     expect(frontendAuth).not.toMatch(/localStorage|Bearer|accessToken|refreshToken/);
   });
 
-  it("keeps the permanent super admin bootstrap locked", () => {
+  it("keeps the permanent super admin bootstrap locked to mobile PIN login", () => {
     expect(authService).toContain('SUPER_ADMIN_EMAIL = "nidusacademycalicut@gmail.com"');
-    expect(authService).toContain('DEFAULT_ACCOUNT_PASSWORD = "123456789"');
+    expect(authService).toContain('DEFAULT_ACCOUNT_PIN = "1234"');
+    expect(authService).toContain("defaultPin: true");
     expect(authService).toContain("role: Role.ADMIN");
+  });
+
+  it("treats default PIN accounts as must-change accounts until the PIN is changed", () => {
+    expect(authService).toContain("function isDefaultPinAccount");
+    expect(authService).toContain("metadata.defaultPassword === true || metadata.defaultPin === true");
+    expect(authService).toContain("mustChangePassword: isDefaultPinAccount(metadata)");
+    expect(authService).toContain("function clearDefaultPinFlags");
+    expect(authService).toContain("delete next.defaultPassword");
+    expect(authService).toContain("delete next.defaultPin");
   });
 
   it("supports reset token lifecycle", () => {

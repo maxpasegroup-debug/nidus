@@ -20,9 +20,9 @@ export const emailService = {
   async sendPasswordResetEmail(email: string, name: string, resetLink: string): Promise<EmailResult> {
     if (!env.RESEND_API_KEY) {
       if (env.NODE_ENV === "production") {
-        throw new Error("RESEND_API_KEY is required to send password reset emails in production");
+        throw new Error("RESEND_API_KEY is required to send PIN reset emails in production");
       }
-      logger.warn("RESEND_API_KEY not configured. Password reset email logged only.", { email, resetLink });
+      logger.warn("RESEND_API_KEY not configured. PIN reset email logged only.", { email, resetLink });
       return { success: true, messageId: "logged-only" };
     }
 
@@ -33,17 +33,17 @@ export const emailService = {
       const result = await client.emails.send({
         from: env.RESEND_FROM_EMAIL,
         to: email,
-        subject: "Reset Your NIDUS Academy Password",
+        subject: "Reset Your NIDUS Academy PIN",
         html: `
           <html>
             <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #243142;">
               <div style="max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #ded6c6; border-radius: 8px;">
-                <h2 style="color: #0b1f3a;">Password Reset Request</h2>
+                <h2 style="color: #0b1f3a;">PIN Reset Request</h2>
                 <p>Hi ${name},</p>
-                <p>We received a request to reset your NIDUS Academy password.</p>
+                <p>We received a request to reset your NIDUS Academy PIN.</p>
                 <p>
                   <a href="${resetLink}" style="background-color: #c9a646; color: #0b1f3a; padding: 12px 20px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: 700;">
-                    Reset Password
+                    Reset PIN
                   </a>
                 </p>
                 <p><strong>This link expires in 1 hour.</strong></p>
@@ -59,7 +59,7 @@ export const emailService = {
       if (result.error) return { success: false, error: result.error.message };
       return { success: true, messageId: result.data?.id };
     } catch (error) {
-      logger.error("Password reset email failed", { email, error: error instanceof Error ? error.message : String(error) });
+      logger.error("PIN reset email failed", { email, error: error instanceof Error ? error.message : String(error) });
       return { success: false, error: error instanceof Error ? error.message : "Email send failed" };
     }
   },

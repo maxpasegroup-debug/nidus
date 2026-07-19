@@ -7,9 +7,9 @@ test.describe("Authentication flow", () => {
     await page.goto("/login");
     await waitForNidusHydration(page);
 
-    await page.getByLabel("Email or mobile").fill("nidusacademycalicut@gmail.com");
-    await page.getByLabel("Password").fill("123456789");
-    await page.getByRole("button", { name: /sign in/i }).click();
+    await page.getByLabel("Mobile Number").fill("8848139053");
+    await page.getByLabel("4 Digit PIN").fill("1234");
+    await page.getByRole("button", { name: /^login$/i }).click();
 
     await expect(page).toHaveURL(/\/dashboard/);
   });
@@ -26,9 +26,9 @@ test.describe("Authentication flow", () => {
 
     await page.goto("/login");
     await waitForNidusHydration(page);
-    await page.getByLabel("Email or mobile").fill("wrong@example.com");
-    await page.getByLabel("Password").fill("wrongpassword");
-    await page.getByRole("button", { name: /sign in/i }).click();
+    await page.getByLabel("Mobile Number").fill("9999999999");
+    await page.getByLabel("4 Digit PIN").fill("0000");
+    await page.getByRole("button", { name: /^login$/i }).click();
 
     await expect(page.getByText("Invalid credentials")).toBeVisible();
   });
@@ -44,26 +44,26 @@ test.describe("Authentication flow", () => {
     await expect(page).toHaveURL(/\/dashboard/);
   });
 
-  test("requests a password reset email", async ({ page }) => {
+  test("requests a PIN reset email", async ({ page }) => {
     await mockPublicApi(page);
     await page.goto("/forgot-password");
     await waitForNidusHydration(page);
 
-    await page.getByLabel(/email or mobile/i).fill("nidusacademycalicut@gmail.com");
-    await page.getByRole("button", { name: /send reset link/i }).click();
+    await page.getByLabel("Mobile Number").fill("8848139053");
+    await page.getByRole("button", { name: /send pin reset link/i }).click();
 
-    await expect(page.locator("main").getByText("Reset link sent to email")).toBeVisible();
+    await expect(page.locator("main").getByText("PIN reset link sent to the registered email")).toBeVisible();
   });
 
-  test("resets password from token link", async ({ page }) => {
+  test("resets PIN from token link", async ({ page }) => {
     await mockPublicApi(page);
     await page.goto("/reset-password?token=test-reset-token");
     await waitForNidusHydration(page);
 
-    await page.getByLabel("New password").fill("NewPassword123");
-    await page.getByLabel("Confirm password").fill("NewPassword123");
-    await page.getByRole("button", { name: /update password/i }).click();
+    await page.getByLabel("New 4 Digit PIN").fill("5678");
+    await page.getByLabel("Confirm PIN").fill("5678");
+    await page.getByRole("button", { name: /update pin/i }).click();
 
-    await expect(page.locator("main").getByText("Password reset successful")).toBeVisible();
+    await expect(page.locator("main").getByText("PIN reset successful")).toBeVisible();
   });
 });
