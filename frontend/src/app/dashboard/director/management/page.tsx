@@ -82,9 +82,9 @@ async function apiJson<T>(path: string, init?: RequestInit): Promise<T> {
 
 const roleOptions = [
   { label: "Teacher", value: "TEACHER" },
-  { label: "Academic Head", value: "TEACHER", dashboardTemplate: "ACADEMIC_HEAD" },
-  { label: "Physical Trainer", value: "TEACHER", dashboardTemplate: "PHYSICAL_TRAINER" },
-  { label: "Administrative Officer", value: "ADMIN", dashboardTemplate: "ADMISSION_CELL" },
+  { label: "Academic Head", value: "ACADEMIC_HEAD", dashboardTemplate: "ACADEMIC_HEAD" },
+  { label: "Physical Trainer", value: "PHYSICAL_TRAINER", dashboardTemplate: "PHYSICAL_TRAINER" },
+  { label: "Administrative Officer", value: "ADMINISTRATIVE_OFFICER", dashboardTemplate: "ADMISSION_CELL" },
   { label: "Business Development Executive", value: "BUSINESS_DEVELOPMENT_EXECUTIVE", dashboardTemplate: "LEAD_SUPPORT" },
   { label: "Management", value: "DIRECTOR" },
   { label: "Administration", value: "ADMIN" },
@@ -102,21 +102,21 @@ const quickProfiles = [
   },
   {
     label: "Academic Head",
-    role: "TEACHER",
+    role: "ACADEMIC_HEAD",
     designation: "Academic Head",
     department: "Academics",
     dashboardTemplate: "ACADEMIC_HEAD",
   },
   {
     label: "Physical Trainer",
-    role: "TEACHER",
+    role: "PHYSICAL_TRAINER",
     designation: "Physical Trainer",
     department: "Physical Training",
     dashboardTemplate: "PHYSICAL_TRAINER",
   },
   {
     label: "Admission Staff",
-    role: "ADMIN",
+    role: "ADMINISTRATIVE_OFFICER",
     designation: "Administrative Officer",
     department: "Administration",
     dashboardTemplate: "ADMISSION_CELL",

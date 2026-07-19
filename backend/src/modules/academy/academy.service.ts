@@ -268,6 +268,7 @@ type EmployeeInput = {
   subjects?: string[];
   dashboardTemplate?: string;
   password?: string;
+  pin?: string;
 };
 
 type EmployeeUpdateInput = Partial<EmployeeInput> & {
@@ -403,6 +404,19 @@ function requireEmployeeCreationAccess(user: Requester, input: EmployeeInput) {
   if (input.role !== Role.TEACHER || input.dashboardTemplate === "ACADEMIC_HEAD") {
     throw Object.assign(new Error("Academic Head can create teacher accounts only"), { statusCode: 403 });
   }
+}
+
+function normalizedEmployeeRole(input: Pick<EmployeeInput, "role" | "dashboardTemplate" | "designation">) {
+  const template = input.dashboardTemplate?.toUpperCase();
+  const designation = input.designation?.toLowerCase() ?? "";
+  if (template === "ACADEMIC_HEAD" || designation.includes("academic head")) return Role.ACADEMIC_HEAD;
+  if (template === "PHYSICAL_TRAINER" || template === "PHYSICAL_INSTRUCTOR" || designation.includes("physical trainer")) return Role.PHYSICAL_TRAINER;
+  if (template === "ADMISSION_CELL" || designation.includes("administrative officer")) return Role.ADMINISTRATIVE_OFFICER;
+  return input.role;
+}
+
+function employeePin(input: Pick<EmployeeInput, "password" | "pin">) {
+  return input.pin?.trim() || input.password?.trim() || "";
 }
 
 function requireEmployeeUpdateAccess(user: Requester, employee: { role: Role; roleMetadata?: Prisma.JsonValue | null }, input: EmployeeUpdateInput = {}) {
@@ -2395,11 +2409,13 @@ export const academyService = {
       throw Object.assign(new Error("Name, email, mobile and role are required"), { statusCode: 400 });
     }
 
-    if (![Role.ADMIN, Role.DIRECTOR, Role.TEACHER, Role.TELECALLER, Role.BUSINESS_DEVELOPMENT_EXECUTIVE, Role.MARKETING_COORDINATOR].includes(input.role as any)) {
+    const role = normalizedEmployeeRole(input);
+    const employeeRoles: Role[] = [Role.ADMIN, Role.DIRECTOR, Role.TEACHER, Role.ACADEMIC_HEAD, Role.PHYSICAL_TRAINER, Role.ADMINISTRATIVE_OFFICER, Role.TELECALLER, Role.BUSINESS_DEVELOPMENT_EXECUTIVE, Role.MARKETING_COORDINATOR];
+    if (!employeeRoles.includes(role)) {
       throw Object.assign(new Error("Only employee roles can be created here"), { statusCode: 400 });
     }
 
-    const temporaryPassword = input.password || DEFAULT_ACCOUNT_PIN;
+    const temporaryPassword = employeePin(input) || DEFAULT_ACCOUNT_PIN;
     if (!/^\d{4}$/.test(temporaryPassword)) {
       throw Object.assign(new Error("Temporary PIN must be exactly 4 digits"), { statusCode: 400 });
     }
@@ -2424,7 +2440,7 @@ export const academyService = {
         name: input.name,
         email: input.email.toLowerCase(),
         mobile: normalizeMobile(input.phone),
-        role: input.role,
+        role,
         password,
         roleMetadata,
       },
@@ -2461,6 +2477,11 @@ export const academyService = {
     if (input.phone !== undefined) {
       await assertMobileAvailable(input.phone, employeeId, true);
     }
+    const role = normalizedEmployeeRole({
+      role: input.role ?? employee.role,
+      dashboardTemplate: input.dashboardTemplate,
+      designation: input.designation,
+    });
     const roleMetadata = toJsonObject({
       ...existingMetadata,
       designation: input.designation ?? existingMetadata.designation ?? null,
@@ -2477,15 +2498,16 @@ export const academyService = {
       name: input.name,
       email: input.email?.toLowerCase(),
       mobile: input.phone === undefined ? undefined : normalizeMobile(input.phone),
-      role: input.role,
+      role,
       roleMetadata,
     };
 
-    if (input.password?.trim()) {
-      if (!/^\d{4}$/.test(input.password.trim())) {
+    const nextPin = employeePin(input);
+    if (nextPin) {
+      if (!/^\d{4}$/.test(nextPin)) {
         throw Object.assign(new Error("New PIN must be exactly 4 digits"), { statusCode: 400 });
       }
-      updateData.password = await bcrypt.hash(input.password.trim(), 10);
+      updateData.password = await bcrypt.hash(nextPin, 12);
       updateData.isDisabled = false;
       updateData.disabledAt = null;
       updateData.loginFailureCount = 0;
