@@ -3,14 +3,23 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Eye, EyeOff } from "lucide-react";
 import { assignTeacherToBatch, getAcademyBatches, getAcademyTeachers } from "@/services/academy";
 import { AcademicActionButton, AcademicHero, AcademicShell, EmptyState, GoldButton, Input, Panel, Select, StatCard } from "../_components";
+
+function accessPinLabel(metadata?: Record<string, unknown> | null) {
+  const pin = typeof metadata?.accessPin === "string" ? metadata.accessPin : "";
+  if (/^\d{4}$/.test(pin)) return pin;
+  if (metadata?.defaultPin === true || metadata?.defaultPassword === true) return "1234";
+  return "Reset from HRM";
+}
 
 export default function DirectorTeachersPage() {
   const queryClient = useQueryClient();
   const [notice, setNotice] = useState("");
   const [mode, setMode] = useState<"list" | "allocate">("list");
   const [allocation, setAllocation] = useState({ programSlug: "", batchId: "", teacherId: "", subject: "", role: "Subject Teacher" });
+  const [visiblePins, setVisiblePins] = useState<Record<string, boolean>>({});
   const teachersQuery = useQuery({ queryKey: ["academy", "teachers"], queryFn: () => getAcademyTeachers() });
   const batchesQuery = useQuery({ queryKey: ["academy", "batches"], queryFn: () => getAcademyBatches() });
   const teachers = teachersQuery.data ?? [];
@@ -99,24 +108,40 @@ export default function DirectorTeachersPage() {
         {teachersQuery.isLoading ? <EmptyState text="Loading teachers..." /> : null}
         {!teachersQuery.isLoading && !teachers.length ? <EmptyState text="No teachers available yet. Add staff from HRM first." /> : null}
         <div className="grid max-h-[54vh] gap-2 overflow-auto pr-1 sm:grid-cols-2 xl:grid-cols-3">
-          {teachers.map((teacher) => (
-            <article key={teacher.id} className="rounded-2xl border border-[var(--border)] bg-white p-3 shadow-sm">
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <h3 className="truncate text-base font-black">{teacher.name}</h3>
-                  <p className="mt-1 truncate text-xs text-[var(--muted-blue)]">{teacher.email}</p>
-                  <p className="mt-1 text-xs text-[var(--muted-blue)]">{teacher.mobile || "No phone"}</p>
+          {teachers.map((teacher) => {
+            const pinLabel = accessPinLabel(teacher.roleMetadata);
+            const canRevealPin = /^\d{4}$/.test(pinLabel);
+            const pinVisible = visiblePins[teacher.id] === true;
+            return (
+              <article key={teacher.id} className="rounded-2xl border border-[var(--border)] bg-white p-3 shadow-sm">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <h3 className="truncate text-base font-black">{teacher.name}</h3>
+                    <p className="mt-1 truncate text-xs text-[var(--muted-blue)]">{teacher.email}</p>
+                    <p className="mt-1 text-xs text-[var(--muted-blue)]">{teacher.mobile || "No phone"}</p>
+                  </div>
+                  <span className="rounded-full border border-[var(--border)] bg-[var(--page-bg)] px-2.5 py-1 text-[10px] font-black">
+                    {String(teacher.roleMetadata?.employmentType ?? "FULL_TIME")}
+                  </span>
                 </div>
-                <span className="rounded-full border border-[var(--border)] bg-[var(--page-bg)] px-2.5 py-1 text-[10px] font-black">
-                  {String(teacher.roleMetadata?.employmentType ?? "FULL_TIME")}
-                </span>
-              </div>
-              <div className="mt-3 grid gap-2">
-                <InfoPill label="Designation" value={String(teacher.roleMetadata?.designation ?? "Teacher")} />
-                <InfoPill label="Dashboard" value={String(teacher.roleMetadata?.dashboardTemplate ?? "Default teacher") || "Default teacher"} />
-              </div>
-            </article>
-          ))}
+                <div className="mt-3 grid gap-2">
+                  <InfoPill label="Designation" value={String(teacher.roleMetadata?.designation ?? "Teacher")} />
+                  <InfoPill label="Dashboard" value={String(teacher.roleMetadata?.dashboardTemplate ?? "Default teacher") || "Default teacher"} />
+                  <div className="flex items-center justify-between gap-2 rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-3 py-2">
+                    <div className="min-w-0">
+                      <p className="text-[10px] font-black uppercase tracking-[0.14em] text-[var(--muted-blue)]">PIN</p>
+                      <p className="mt-1 truncate text-sm font-black">{pinVisible || !canRevealPin ? pinLabel : "****"}</p>
+                    </div>
+                    {canRevealPin ? (
+                      <button type="button" onClick={() => setVisiblePins((items) => ({ ...items, [teacher.id]: !items[teacher.id] }))} className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[var(--border)] bg-white" aria-label={`${pinVisible ? "Hide" : "Show"} PIN for ${teacher.name}`}>
+                        {pinVisible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    ) : null}
+                  </div>
+                </div>
+              </article>
+            );
+          })}
         </div>
       </Panel>
     </AcademicShell>

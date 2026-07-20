@@ -3,7 +3,7 @@
 import { FormEvent, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Archive, KeyRound, Pencil, Save, ShieldCheck, UserPlus, Users, X } from "lucide-react";
+import { Archive, Eye, EyeOff, KeyRound, Pencil, Save, ShieldCheck, UserPlus, Users, X } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { OperationsOsWorkspace } from "@/components/operations/operations-os-workspace";
 
@@ -149,6 +149,7 @@ export default function DirectorManagementPage() {
   const [lastCredentials, setLastCredentials] = useState<{ email: string; mobile?: string; temporaryPassword: string; temporaryPin?: string } | null>(null);
   const [editingAccountId, setEditingAccountId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<EditableAccountPayload | null>(null);
+  const [visiblePins, setVisiblePins] = useState<Record<string, boolean>>({});
   const [form, setForm] = useState<EmployeePayload>({
     name: "",
     email: "",
@@ -478,6 +479,8 @@ export default function DirectorManagementPage() {
                 onUnlock={() => unlockMutation.mutate(employee.id)}
                 editing={editingAccountId === employee.id}
                 editForm={editingAccountId === employee.id ? editForm : null}
+                pinVisible={visiblePins[employee.id] === true}
+                onTogglePin={() => setVisiblePins((items) => ({ ...items, [employee.id]: !items[employee.id] }))}
                 onEdit={() => startEditAccount(employee)}
                 onCancelEdit={cancelEditAccount}
                 onEditChange={(field, value) => setEditForm((current) => current ? { ...current, [field]: value } : current)}
@@ -550,6 +553,8 @@ export default function DirectorManagementPage() {
                       onUnlock={() => unlockMutation.mutate(employee.id)}
                       editing={editingAccountId === employee.id}
                       editForm={editingAccountId === employee.id ? editForm : null}
+                      pinVisible={visiblePins[employee.id] === true}
+                      onTogglePin={() => setVisiblePins((items) => ({ ...items, [employee.id]: !items[employee.id] }))}
                       onEdit={() => startEditAccount(employee)}
                       onCancelEdit={cancelEditAccount}
                       onEditChange={(field, value) => setEditForm((current) => current ? { ...current, [field]: value } : current)}
@@ -624,6 +629,14 @@ function isAccountLocked(account: Employee) {
   return Boolean(account.isDisabled || (account.lockedUntil && new Date(account.lockedUntil) > new Date()));
 }
 
+function accessPinLabel(account: Employee) {
+  const metadata = account.roleMetadata ?? {};
+  const pin = typeof metadata.accessPin === "string" ? metadata.accessPin : "";
+  if (/^\d{4}$/.test(pin)) return pin;
+  if (metadata.defaultPin === true || metadata.defaultPassword === true) return "1234";
+  return "Reset to view";
+}
+
 function teamGroupLabel(account: Employee) {
   const metadata = account.roleMetadata ?? {};
   const template = String(metadata.dashboardTemplate ?? "");
@@ -670,6 +683,8 @@ function EmployeeRow({
   onEditChange,
   onSaveEdit,
   saving,
+  pinVisible,
+  onTogglePin,
 }: {
   employee: Employee;
   archived?: boolean;
@@ -684,10 +699,14 @@ function EmployeeRow({
   onEditChange?: (field: keyof EditableAccountPayload, value: string) => void;
   onSaveEdit?: () => void;
   saving?: boolean;
+  pinVisible?: boolean;
+  onTogglePin?: () => void;
 }) {
   const metadata = employee.roleMetadata ?? {};
   const lockedUntil = employee.lockedUntil ? new Date(employee.lockedUntil) : null;
   const isLocked = Boolean(employee.isDisabled || (lockedUntil && lockedUntil > new Date()));
+  const pinLabel = accessPinLabel(employee);
+  const canRevealPin = /^\d{4}$/.test(pinLabel);
 
   if (editing && editForm) {
     return (
@@ -746,6 +765,15 @@ function EmployeeRow({
         <div>
           <h3 className="text-base font-black">{employee.name}</h3>
           <p className="mt-0.5 text-sm text-[var(--muted-blue)]">{employee.email} / {employee.phone || employee.mobile || "No phone"}</p>
+          <div className="mt-2 inline-flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--page-bg)] px-2.5 py-1.5 text-xs font-black">
+            <span className="text-[var(--muted-blue)]">PIN</span>
+            <span className="min-w-16 text-[var(--navy)]">{pinVisible || !canRevealPin ? pinLabel : "****"}</span>
+            {canRevealPin ? (
+              <button type="button" onClick={onTogglePin} className="inline-flex h-6 w-6 items-center justify-center rounded-md border border-[var(--border)] bg-white" aria-label={`${pinVisible ? "Hide" : "Show"} PIN for ${employee.name}`}>
+                {pinVisible ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+              </button>
+            ) : null}
+          </div>
           <p className="mt-1.5 text-[11px] font-black uppercase tracking-[0.2em] text-[var(--gold)]">
             {groupLabel ? `${groupLabel} / ` : ""}{String(metadata.designation ?? employee.role)} / {String(metadata.employmentType ?? "FULL_TIME")} / {String(metadata.department ?? "Academy")}
           </p>

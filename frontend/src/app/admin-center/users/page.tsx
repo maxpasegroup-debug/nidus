@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { KeyRound, Plus, UserRound } from "lucide-react";
+import { Eye, EyeOff, KeyRound, Plus, UserRound } from "lucide-react";
 import { useUsers } from "@/hooks/use-admin-center";
 import type { AuthRole } from "@/services/auth.v2";
 
@@ -23,9 +23,17 @@ function hasDefaultPin(metadata?: Record<string, unknown> | null) {
   return metadata?.defaultPin === true || metadata?.defaultPassword === true;
 }
 
+function accessPinLabel(metadata?: Record<string, unknown> | null) {
+  const pin = typeof metadata?.accessPin === "string" ? metadata.accessPin : "";
+  if (/^\d{4}$/.test(pin)) return pin;
+  if (hasDefaultPin(metadata)) return "1234";
+  return "Reset to view";
+}
+
 export default function UsersPage() {
   const users = useUsers();
   const [open, setOpen] = useState(false);
+  const [visiblePins, setVisiblePins] = useState<Record<string, boolean>>({});
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [mobile, setMobile] = useState("");
@@ -98,24 +106,38 @@ export default function UsersPage() {
         {users.isLoading && <div className="mt-6 grid gap-4">{Array.from({ length: 6 }).map((_, index) => <div key={index} className="h-20 animate-pulse rounded-lg bg-white/10" />)}</div>}
 
         <div className="mt-6 overflow-x-auto rounded-lg border border-white/10">
-          <div className="grid min-w-[760px] grid-cols-[1.4fr_1.6fr_1.15fr_1fr_0.8fr] bg-white/8 px-4 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-muted">
+          <div className="grid min-w-[860px] grid-cols-[1.3fr_1.5fr_1fr_1fr_1fr_0.7fr] bg-white/8 px-4 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-muted">
             <span>Name</span>
             <span>Login mobile</span>
             <span>Role</span>
+            <span>PIN</span>
             <span>Status</span>
             <span>Reset</span>
           </div>
-          {allUsers.map((user) => (
-            <div key={user.id} className="grid min-w-[760px] grid-cols-[1.4fr_1.6fr_1.15fr_1fr_0.8fr] items-center border-t border-white/10 px-4 py-4 text-sm">
-              <span className="font-semibold text-ink">{user.name}</span>
-              <span className="text-muted">{user.mobile || user.email}</span>
-              <span className="text-gold-soft">{roleLabel(user.role)}</span>
-              <span className="text-muted">{hasDefaultPin(user.roleMetadata) ? "Default PIN" : user.roleOnboardingStatus ?? "ACTIVE"}</span>
-              <button type="button" onClick={() => users.resetPassword.mutate(user.id)} disabled={users.resetPassword.isPending} className="inline-flex h-9 w-9 items-center justify-center rounded border border-white/15 text-gold-soft transition hover:border-gold/50 disabled:opacity-50" aria-label={`Reset PIN for ${user.name}`}>
-                <KeyRound className="h-4 w-4" />
-              </button>
-            </div>
-          ))}
+          {allUsers.map((user) => {
+            const pinLabel = accessPinLabel(user.roleMetadata);
+            const canRevealPin = /^\d{4}$/.test(pinLabel);
+            const pinVisible = visiblePins[user.id] === true;
+            return (
+              <div key={user.id} className="grid min-w-[860px] grid-cols-[1.3fr_1.5fr_1fr_1fr_1fr_0.7fr] items-center border-t border-white/10 px-4 py-4 text-sm">
+                <span className="font-semibold text-ink">{user.name}</span>
+                <span className="text-muted">{user.mobile || user.email}</span>
+                <span className="text-gold-soft">{roleLabel(user.role)}</span>
+                <span className="inline-flex max-w-max items-center gap-2 rounded border border-white/10 px-2 py-1 text-muted">
+                  {pinVisible || !canRevealPin ? pinLabel : "****"}
+                  {canRevealPin ? (
+                    <button type="button" onClick={() => setVisiblePins((items) => ({ ...items, [user.id]: !items[user.id] }))} className="inline-flex h-6 w-6 items-center justify-center rounded border border-white/15 text-gold-soft" aria-label={`${pinVisible ? "Hide" : "Show"} PIN for ${user.name}`}>
+                      {pinVisible ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                    </button>
+                  ) : null}
+                </span>
+                <span className="text-muted">{hasDefaultPin(user.roleMetadata) ? "Default PIN" : user.roleOnboardingStatus ?? "ACTIVE"}</span>
+                <button type="button" onClick={() => users.resetPassword.mutate(user.id)} disabled={users.resetPassword.isPending} className="inline-flex h-9 w-9 items-center justify-center rounded border border-white/15 text-gold-soft transition hover:border-gold/50 disabled:opacity-50" aria-label={`Reset PIN for ${user.name}`}>
+                  <KeyRound className="h-4 w-4" />
+                </button>
+              </div>
+            );
+          })}
         </div>
       </section>
 

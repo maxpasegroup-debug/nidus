@@ -2459,6 +2459,7 @@ export const academyService = {
       status: "ACTIVE",
       defaultPassword: true,
       defaultPin: true,
+      accessPin: temporaryPassword,
       createdBy: user.id,
       credentialGeneratedAt: new Date().toISOString(),
     });
@@ -2540,8 +2541,8 @@ export const academyService = {
       }
       const isDefaultPin = nextPin === DEFAULT_ACCOUNT_PIN;
       const pinMetadata = isDefaultPin
-        ? { ...roleMetadata, defaultPassword: true, defaultPin: true }
-        : clearDefaultPinFlags(roleMetadata);
+        ? { ...roleMetadata, defaultPassword: true, defaultPin: true, accessPin: nextPin }
+        : { ...clearDefaultPinFlags(roleMetadata), accessPin: nextPin };
       updateData.password = await bcrypt.hash(nextPin, 12);
       updateData.isDisabled = false;
       updateData.disabledAt = null;
@@ -2613,8 +2614,8 @@ export const academyService = {
     const existingMetadata = (employee.roleMetadata ?? {}) as Record<string, unknown>;
     const isDefaultPin = passwordValue === DEFAULT_ACCOUNT_PIN;
     const pinMetadata = isDefaultPin
-      ? { ...existingMetadata, defaultPassword: true, defaultPin: true }
-      : clearDefaultPinFlags(existingMetadata);
+      ? { ...existingMetadata, defaultPassword: true, defaultPin: true, accessPin: passwordValue }
+      : { ...clearDefaultPinFlags(existingMetadata), accessPin: passwordValue };
     const updated = await prisma.user.update({
       where: { id: employeeId },
       data: {

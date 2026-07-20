@@ -86,7 +86,7 @@ usersRouter.post("/", async (req, res, next) => {
         roleOnboardingStatus: "ACTIVE",
         roleActivatedAt: new Date(),
         lastRoleActivityAt: new Date(),
-        roleMetadata: { defaultPassword: true, defaultPin: true, createdByAdmin: true }
+        roleMetadata: { defaultPassword: true, defaultPin: true, accessPin: DEFAULT_ACCOUNT_PIN, createdByAdmin: true }
       },
       select: {
         id: true,
@@ -128,7 +128,7 @@ usersRouter.post("/:id/reset-password", async (req, res, next) => {
         disabledAt: null,
         loginFailureCount: 0,
         lockedUntil: null,
-        roleMetadata: { ...metadataObject(user.roleMetadata), defaultPassword: true, defaultPin: true, pinResetByAdminAt: new Date().toISOString(), passwordResetByAdminAt: new Date().toISOString() }
+        roleMetadata: { ...metadataObject(user.roleMetadata), defaultPassword: true, defaultPin: true, accessPin: DEFAULT_ACCOUNT_PIN, pinResetByAdminAt: new Date().toISOString(), passwordResetByAdminAt: new Date().toISOString() }
       }
     });
     await prisma.sessionToken.deleteMany({ where: { userId: user.id } });
