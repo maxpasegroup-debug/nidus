@@ -498,6 +498,10 @@ function normalizeMobile(value?: string | null) {
   return value?.trim().replace(/[\s()-]/g, "") ?? "";
 }
 
+function normalizeEmail(value?: string | null) {
+  return value?.trim().toLowerCase() ?? "";
+}
+
 function mobileCandidates(value: string) {
   const normalized = normalizeMobile(value);
   const digitsOnly = normalized.replace(/^\+/, "");
@@ -524,6 +528,22 @@ async function assertMobileAvailable(mobile: string, exceptUserId?: string, requ
   if (existing && existing.id !== exceptUserId) {
     throw Object.assign(new Error("Mobile number is already used for another login"), { statusCode: 409 });
   }
+}
+
+async function assertEmailAvailable(email: string, exceptUserId?: string) {
+  const normalized = normalizeEmail(email);
+  if (!normalized) return;
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalized)) {
+    throw Object.assign(new Error("Valid email is required"), { statusCode: 400 });
+  }
+  const existing = await prisma.user.findUnique({ where: { email: normalized }, select: { id: true } });
+  if (existing && existing.id !== exceptUserId) {
+    throw Object.assign(new Error("Email is already used for another login"), { statusCode: 409 });
+  }
+}
+
+async function revokeUserSessions(userId: string) {
+  await prisma.sessionToken.deleteMany({ where: { userId } });
 }
 
 function academyBatchSchedule(input: BatchInput) {
@@ -2420,6 +2440,7 @@ export const academyService = {
       throw Object.assign(new Error("Temporary PIN must be exactly 4 digits"), { statusCode: 400 });
     }
     await assertMobileAvailable(input.phone, undefined, true);
+    await assertEmailAvailable(input.email);
     const password = await bcrypt.hash(temporaryPassword, 10);
     const roleMetadata = toJsonObject({
       designation: input.designation || "Employee",
@@ -2438,7 +2459,7 @@ export const academyService = {
     const created = await prisma.user.create({
       data: {
         name: input.name,
-        email: input.email.toLowerCase(),
+        email: normalizeEmail(input.email),
         mobile: normalizeMobile(input.phone),
         role,
         password,
@@ -2474,9 +2495,10 @@ export const academyService = {
     requireEmployeeUpdateAccess(user, employee, input);
 
     const existingMetadata = (employee.roleMetadata ?? {}) as Record<string, unknown>;
-    if (input.phone !== undefined) {
-      await assertMobileAvailable(input.phone, employeeId, true);
-    }
+    const normalizedNextMobile = input.phone === undefined ? employee.mobile : normalizeMobile(input.phone);
+    const normalizedNextEmail = input.email === undefined ? employee.email : normalizeEmail(input.email);
+    if (input.phone !== undefined) await assertMobileAvailable(input.phone, employeeId, true);
+    if (input.email !== undefined) await assertEmailAvailable(input.email, employeeId);
     const role = normalizedEmployeeRole({
       role: input.role ?? employee.role,
       dashboardTemplate: input.dashboardTemplate,
@@ -2496,13 +2518,15 @@ export const academyService = {
     });
     const updateData: Prisma.UserUpdateInput = {
       name: input.name,
-      email: input.email?.toLowerCase(),
-      mobile: input.phone === undefined ? undefined : normalizeMobile(input.phone),
+      email: input.email === undefined ? undefined : normalizedNextEmail,
+      mobile: input.phone === undefined ? undefined : normalizedNextMobile,
       role,
       roleMetadata,
     };
 
     const nextPin = employeePin(input);
+    const mobileChanged = input.phone !== undefined && normalizedNextMobile !== employee.mobile;
+    const emailChanged = input.email !== undefined && normalizedNextEmail !== employee.email;
     if (nextPin) {
       if (!/^\d{4}$/.test(nextPin)) {
         throw Object.assign(new Error("New PIN must be exactly 4 digits"), { statusCode: 400 });
@@ -2522,8 +2546,20 @@ export const academyService = {
         passwordUpdatedAt: new Date().toISOString(),
       });
     }
+    if (mobileChanged || emailChanged) {
+      updateData.isDisabled = false;
+      updateData.disabledAt = null;
+      updateData.loginFailureCount = 0;
+      updateData.lockedUntil = null;
+      updateData.roleMetadata = toJsonObject({
+        ...(updateData.roleMetadata as Record<string, unknown>),
+        authSyncedAt: new Date().toISOString(),
+        authSyncedBy: user.id,
+        loginMobile: normalizedNextMobile,
+      });
+    }
 
-    return prisma.user.update({
+    const updated = await prisma.user.update({
       where: { id: employeeId },
       data: updateData,
       select: {
@@ -2540,6 +2576,10 @@ export const academyService = {
         roleMetadata: true,
       },
     });
+    if (mobileChanged || emailChanged || nextPin) {
+      await revokeUserSessions(employeeId);
+    }
+    return updated;
   },
 
   async archiveEmployee(user: Requester, employeeId: string) {
@@ -2594,6 +2634,7 @@ export const academyService = {
         roleMetadata: true,
       },
     });
+    await revokeUserSessions(employeeId);
 
     return {
       employee: updated,

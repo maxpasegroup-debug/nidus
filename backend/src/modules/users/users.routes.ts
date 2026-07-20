@@ -17,6 +17,21 @@ function metadataObject(value: unknown) {
   return value && typeof value === "object" && !Array.isArray(value) ? value : {};
 }
 
+function normalizeMobile(value: string) {
+  return value.trim().replace(/[\s()-]/g, "");
+}
+
+function mobileCandidates(value: string) {
+  const normalized = normalizeMobile(value);
+  const digitsOnly = normalized.replace(/^\+/, "");
+  const candidates = new Set([normalized]);
+  if (/^\d{10}$/.test(digitsOnly)) {
+    candidates.add(digitsOnly);
+    candidates.add(`+91${digitsOnly}`);
+  }
+  return Array.from(candidates).filter(Boolean);
+}
+
 export const usersRouter = Router();
 
 usersRouter.use(protect, allowRoles(Role.ADMIN, Role.DIRECTOR));
@@ -52,8 +67,8 @@ usersRouter.post("/", async (req, res, next) => {
   try {
     const payload = createUserSchema.parse(req.body);
     const email = payload.email.trim().toLowerCase();
-    const mobile = payload.mobile.trim();
-    const existingUser = await prisma.user.findFirst({ where: { OR: [{ email }, { mobile }] } });
+    const mobile = normalizeMobile(payload.mobile);
+    const existingUser = await prisma.user.findFirst({ where: { OR: [{ email }, { mobile: { in: mobileCandidates(mobile) } }] } });
     if (existingUser) {
       res.status(409).json({ message: "Email or mobile already registered" });
       return;
@@ -109,9 +124,14 @@ usersRouter.post("/:id/reset-password", async (req, res, next) => {
       where: { id: user.id },
       data: {
         password: await bcrypt.hash(DEFAULT_ACCOUNT_PIN, 12),
+        isDisabled: false,
+        disabledAt: null,
+        loginFailureCount: 0,
+        lockedUntil: null,
         roleMetadata: { ...metadataObject(user.roleMetadata), defaultPassword: true, defaultPin: true, pinResetByAdminAt: new Date().toISOString(), passwordResetByAdminAt: new Date().toISOString() }
       }
     });
+    await prisma.sessionToken.deleteMany({ where: { userId: user.id } });
     await prisma.roleActivity.create({ data: { userId: user.id, role: user.role, activity: "ADMIN_RESET_PASSWORD" } }).catch(() => undefined);
     res.json({ message: "PIN reset to default PIN" });
   } catch (error) {
