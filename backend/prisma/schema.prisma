@@ -1186,6 +1186,85 @@ model AssessmentReportSnapshot {
   @@index([audience])
 }
 
+enum TopRankRole {
+  TOPRANK_STUDENT
+  TOPRANK_MENTOR
+  TOPRANK_ADMIN
+  TOPRANK_SUPER_ADMIN
+}
+
+model TopRankUser {
+  id            String         @id @default(cuid())
+  name          String
+  email         String         @unique
+  phone         String         @unique
+  passwordHash  String
+  role          TopRankRole    @default(TOPRANK_STUDENT)
+  status        String         @default("ACTIVE")
+  metadata      Json?
+  batches       TopRankBatch[] @relation("TopRankBatchStudents")
+  mentorBatches TopRankBatch[] @relation("TopRankBatchMentor")
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  @@index([role])
+  @@index([status])
+  @@index([phone])
+}
+
+model TopRankGateway {
+  id          String           @id @default(cuid())
+  slug        String           @unique
+  name        String
+  status      String           @default("COMING_SOON")
+  description String?
+  metadata    Json?
+  programs    TopRankProgram[]
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@index([status])
+}
+
+model TopRankProgram {
+  id        String         @id @default(cuid())
+  gatewayId String
+  slug      String         @unique
+  title     String
+  duration  String?
+  feeLabel  String?
+  status    String         @default("DRAFT")
+  metadata  Json?
+  gateway   TopRankGateway @relation(fields: [gatewayId], references: [id], onDelete: Cascade)
+  batches   TopRankBatch[]
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+
+  @@index([gatewayId])
+  @@index([status])
+}
+
+model TopRankBatch {
+  id        String         @id @default(cuid())
+  programId String
+  name      String
+  startDate DateTime?
+  endDate   DateTime?
+  status    String         @default("PLANNED")
+  metadata  Json?
+  program   TopRankProgram @relation(fields: [programId], references: [id], onDelete: Cascade)
+  mentorId  String?
+  mentor    TopRankUser?   @relation("TopRankBatchMentor", fields: [mentorId], references: [id], onDelete: SetNull)
+  students  TopRankUser[]  @relation("TopRankBatchStudents")
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+
+  @@index([programId])
+  @@index([mentorId])
+  @@index([status])
+  @@index([startDate])
+}
+
 model TopRankSignalSnapshot {
   id                  String   @id @default(cuid())
   userId              String

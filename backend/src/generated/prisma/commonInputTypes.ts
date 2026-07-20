@@ -443,6 +443,23 @@ export type EnumAssessmentReviewStatusWithAggregatesFilter<$PrismaModel = never>
   _max?: Prisma.NestedEnumAssessmentReviewStatusFilter<$PrismaModel>
 }
 
+export type EnumTopRankRoleFilter<$PrismaModel = never> = {
+  equals?: $Enums.TopRankRole | Prisma.EnumTopRankRoleFieldRefInput<$PrismaModel>
+  in?: $Enums.TopRankRole[] | Prisma.ListEnumTopRankRoleFieldRefInput<$PrismaModel>
+  notIn?: $Enums.TopRankRole[] | Prisma.ListEnumTopRankRoleFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumTopRankRoleFilter<$PrismaModel> | $Enums.TopRankRole
+}
+
+export type EnumTopRankRoleWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.TopRankRole | Prisma.EnumTopRankRoleFieldRefInput<$PrismaModel>
+  in?: $Enums.TopRankRole[] | Prisma.ListEnumTopRankRoleFieldRefInput<$PrismaModel>
+  notIn?: $Enums.TopRankRole[] | Prisma.ListEnumTopRankRoleFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumTopRankRoleWithAggregatesFilter<$PrismaModel> | $Enums.TopRankRole
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumTopRankRoleFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumTopRankRoleFilter<$PrismaModel>
+}
+
 export type EnumHostelTypeFilter<$PrismaModel = never> = {
   equals?: $Enums.HostelType | Prisma.EnumHostelTypeFieldRefInput<$PrismaModel>
   in?: $Enums.HostelType[] | Prisma.ListEnumHostelTypeFieldRefInput<$PrismaModel>
@@ -875,6 +892,23 @@ export type NestedEnumAssessmentReviewStatusWithAggregatesFilter<$PrismaModel = 
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumAssessmentReviewStatusFilter<$PrismaModel>
   _max?: Prisma.NestedEnumAssessmentReviewStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumTopRankRoleFilter<$PrismaModel = never> = {
+  equals?: $Enums.TopRankRole | Prisma.EnumTopRankRoleFieldRefInput<$PrismaModel>
+  in?: $Enums.TopRankRole[] | Prisma.ListEnumTopRankRoleFieldRefInput<$PrismaModel>
+  notIn?: $Enums.TopRankRole[] | Prisma.ListEnumTopRankRoleFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumTopRankRoleFilter<$PrismaModel> | $Enums.TopRankRole
+}
+
+export type NestedEnumTopRankRoleWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.TopRankRole | Prisma.EnumTopRankRoleFieldRefInput<$PrismaModel>
+  in?: $Enums.TopRankRole[] | Prisma.ListEnumTopRankRoleFieldRefInput<$PrismaModel>
+  notIn?: $Enums.TopRankRole[] | Prisma.ListEnumTopRankRoleFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumTopRankRoleWithAggregatesFilter<$PrismaModel> | $Enums.TopRankRole
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumTopRankRoleFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumTopRankRoleFilter<$PrismaModel>
 }
 
 export type NestedEnumHostelTypeFilter<$PrismaModel = never> = {

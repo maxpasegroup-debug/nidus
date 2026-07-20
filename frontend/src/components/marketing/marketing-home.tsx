@@ -5,10 +5,11 @@ import { ArrowRight, ClipboardCheck, GraduationCap, LogIn, ShieldCheck, Sparkles
 const exams = ["NDA", "CDS", "AFCAT", "SSB", "AISSEE", "RIMC", "Agniveer", "INET", "Physical Training", "Interview Guidance"];
 
 const headerLinks = [
-  ["Assessments", "/psychometric"],
-  ["Courses", "/programs"],
-  ["Nidus Gurus", "/faculty"],
-  ["Gallery / Stories", "/gallery"]
+  { label: "Assessments", href: "/psychometric", highlight: false },
+  { label: "Courses", href: "/programs", highlight: false },
+  { label: "Nidus Gurus", href: "/faculty", highlight: false },
+  { label: "Gallery / Stories", href: "/gallery", highlight: false },
+  { label: "TopRank", href: "/toprank", highlight: true }
 ] as const;
 
 const modules = [
@@ -97,9 +98,9 @@ function GlossyHeader() {
         </Link>
 
         <nav className="hidden items-center gap-1 lg:flex" aria-label="Landing navigation">
-          {headerLinks.map(([label, href]) => (
-            <Link key={label} href={href} className="rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.12em] text-[#071d36]/78 transition hover:bg-[#071d36]/7 hover:text-[#b9913f]">
-              {label}
+          {headerLinks.map((link) => (
+            <Link key={link.label} href={link.href} className={`rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.12em] transition ${link.highlight ? "border border-[#b9913f]/45 bg-[#071d36] text-[#f8f4ea] shadow-[0_14px_34px_rgba(7,29,54,0.18)] hover:bg-[#0b294b] hover:text-[#f4c463]" : "text-[#071d36]/78 hover:bg-[#071d36]/7 hover:text-[#b9913f]"}`}>
+              {link.highlight ? `${"\u2B50"} TopRank` : link.label}
             </Link>
           ))}
         </nav>
@@ -112,9 +113,9 @@ function GlossyHeader() {
       </div>
 
       <nav className="mx-auto mt-2 flex max-w-7xl gap-2 overflow-x-auto rounded-full border border-[#071d36]/8 bg-white/66 px-3 py-2 text-[#071d36] shadow-sm backdrop-blur-xl lg:hidden" aria-label="Mobile landing navigation">
-        {headerLinks.map(([label, href]) => (
-          <Link key={label} href={href} className="shrink-0 rounded-full px-3 py-2 text-[11px] font-black uppercase tracking-[0.1em] text-[#071d36]/76">
-            {label}
+        {headerLinks.map((link) => (
+          <Link key={link.label} href={link.href} className={`shrink-0 rounded-full px-3 py-2 text-[11px] font-black uppercase tracking-[0.1em] ${link.highlight ? "bg-[#071d36] text-[#f8f4ea]" : "text-[#071d36]/76"}`}>
+            {link.highlight ? `${"\u2B50"} TopRank` : link.label}
           </Link>
         ))}
       </nav>

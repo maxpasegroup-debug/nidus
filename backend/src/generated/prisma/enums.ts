@@ -109,3 +109,13 @@ export const AssessmentReviewStatus = {
 } as const
 
 export type AssessmentReviewStatus = (typeof AssessmentReviewStatus)[keyof typeof AssessmentReviewStatus]
+
+
+export const TopRankRole = {
+  TOPRANK_STUDENT: 'TOPRANK_STUDENT',
+  TOPRANK_MENTOR: 'TOPRANK_MENTOR',
+  TOPRANK_ADMIN: 'TOPRANK_ADMIN',
+  TOPRANK_SUPER_ADMIN: 'TOPRANK_SUPER_ADMIN'
+} as const
+
+export type TopRankRole = (typeof TopRankRole)[keyof typeof TopRankRole]

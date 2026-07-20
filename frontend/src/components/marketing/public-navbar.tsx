@@ -66,6 +66,9 @@ export function PublicNavbar() {
           <Link href="/guru" className="rounded-full px-3 py-2 text-sm font-semibold text-[#071D36] transition hover:bg-[#071D36]/6 hover:text-[#B9913F]">
             Nidus Guru
           </Link>
+          <Link href="/toprank" className="rounded-full border border-[#B9913F]/45 bg-[#071D36] px-4 py-2 text-sm font-black text-[#F8F4EA] shadow-[0_14px_34px_rgba(7,29,54,0.14)] transition hover:bg-[#0b294b] hover:text-[#F4C463]">
+            {"\u2B50"} TopRank
+          </Link>
         </nav>
 
         <div className="hidden items-center gap-2 lg:flex">
@@ -102,6 +105,9 @@ export function PublicNavbar() {
               </Link>
             ))}
             <Link href="/guru" onClick={() => setOpen(false)} className="rounded px-3 py-3 text-sm font-semibold text-[#071D36] hover:bg-white">Nidus Guru</Link>
+            <Link href="/toprank" onClick={() => setOpen(false)} className="rounded-full border border-[#B9913F]/45 bg-[#071D36] px-4 py-3 text-center text-sm font-black text-[#F8F4EA]">
+              {"\u2B50"} TopRank
+            </Link>
           </nav>
         </div>
       ) : null}

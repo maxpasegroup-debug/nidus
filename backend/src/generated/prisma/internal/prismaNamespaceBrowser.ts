@@ -102,6 +102,10 @@ export const ModelName = {
   AssessmentGrowthSnapshot: 'AssessmentGrowthSnapshot',
   AssessmentRankPrediction: 'AssessmentRankPrediction',
   AssessmentReportSnapshot: 'AssessmentReportSnapshot',
+  TopRankUser: 'TopRankUser',
+  TopRankGateway: 'TopRankGateway',
+  TopRankProgram: 'TopRankProgram',
+  TopRankBatch: 'TopRankBatch',
   TopRankSignalSnapshot: 'TopRankSignalSnapshot',
   TopRankReadinessScore: 'TopRankReadinessScore',
   TopRankPerformanceTrend: 'TopRankPerformanceTrend',
@@ -1088,6 +1092,68 @@ export const AssessmentReportSnapshotScalarFieldEnum = {
 } as const
 
 export type AssessmentReportSnapshotScalarFieldEnum = (typeof AssessmentReportSnapshotScalarFieldEnum)[keyof typeof AssessmentReportSnapshotScalarFieldEnum]
+
+
+export const TopRankUserScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  email: 'email',
+  phone: 'phone',
+  passwordHash: 'passwordHash',
+  role: 'role',
+  status: 'status',
+  metadata: 'metadata',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type TopRankUserScalarFieldEnum = (typeof TopRankUserScalarFieldEnum)[keyof typeof TopRankUserScalarFieldEnum]
+
+
+export const TopRankGatewayScalarFieldEnum = {
+  id: 'id',
+  slug: 'slug',
+  name: 'name',
+  status: 'status',
+  description: 'description',
+  metadata: 'metadata',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type TopRankGatewayScalarFieldEnum = (typeof TopRankGatewayScalarFieldEnum)[keyof typeof TopRankGatewayScalarFieldEnum]
+
+
+export const TopRankProgramScalarFieldEnum = {
+  id: 'id',
+  gatewayId: 'gatewayId',
+  slug: 'slug',
+  title: 'title',
+  duration: 'duration',
+  feeLabel: 'feeLabel',
+  status: 'status',
+  metadata: 'metadata',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type TopRankProgramScalarFieldEnum = (typeof TopRankProgramScalarFieldEnum)[keyof typeof TopRankProgramScalarFieldEnum]
+
+
+export const TopRankBatchScalarFieldEnum = {
+  id: 'id',
+  programId: 'programId',
+  name: 'name',
+  startDate: 'startDate',
+  endDate: 'endDate',
+  status: 'status',
+  metadata: 'metadata',
+  mentorId: 'mentorId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type TopRankBatchScalarFieldEnum = (typeof TopRankBatchScalarFieldEnum)[keyof typeof TopRankBatchScalarFieldEnum]
 
 
 export const TopRankSignalSnapshotScalarFieldEnum = {

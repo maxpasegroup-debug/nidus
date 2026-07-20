@@ -297,6 +297,26 @@ export type AssessmentRankPrediction = Prisma.AssessmentRankPredictionModel
  */
 export type AssessmentReportSnapshot = Prisma.AssessmentReportSnapshotModel
 /**
+ * Model TopRankUser
+ * 
+ */
+export type TopRankUser = Prisma.TopRankUserModel
+/**
+ * Model TopRankGateway
+ * 
+ */
+export type TopRankGateway = Prisma.TopRankGatewayModel
+/**
+ * Model TopRankProgram
+ * 
+ */
+export type TopRankProgram = Prisma.TopRankProgramModel
+/**
+ * Model TopRankBatch
+ * 
+ */
+export type TopRankBatch = Prisma.TopRankBatchModel
+/**
  * Model TopRankSignalSnapshot
  * 
  */
