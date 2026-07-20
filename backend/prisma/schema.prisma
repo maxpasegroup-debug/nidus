@@ -1202,6 +1202,14 @@ model TopRankUser {
   role          TopRankRole    @default(TOPRANK_STUDENT)
   status        String         @default("ACTIVE")
   metadata      Json?
+  sessions      TopRankSession[]
+  studentProfile TopRankStudentProfile?
+  enrollments   TopRankEnrollment[]
+  batchAssignments TopRankBatchAssignment[]
+  agreements    TopRankProgramAgreement[]
+  orientationProgress TopRankOrientationProgress[]
+  assessments    TopRankAssessment[]
+  aprs           TopRankAPR[]
   batches       TopRankBatch[] @relation("TopRankBatchStudents")
   mentorBatches TopRankBatch[] @relation("TopRankBatchMentor")
   createdAt     DateTime       @default(now())
@@ -1237,6 +1245,9 @@ model TopRankProgram {
   metadata  Json?
   gateway   TopRankGateway @relation(fields: [gatewayId], references: [id], onDelete: Cascade)
   batches   TopRankBatch[]
+  enrollments TopRankEnrollment[]
+  agreements TopRankProgramAgreement[]
+  orientationProgress TopRankOrientationProgress[]
   createdAt DateTime       @default(now())
   updatedAt DateTime       @updatedAt
 
@@ -1256,6 +1267,8 @@ model TopRankBatch {
   mentorId  String?
   mentor    TopRankUser?   @relation("TopRankBatchMentor", fields: [mentorId], references: [id], onDelete: SetNull)
   students  TopRankUser[]  @relation("TopRankBatchStudents")
+  enrollments TopRankEnrollment[]
+  assignments TopRankBatchAssignment[]
   createdAt DateTime       @default(now())
   updatedAt DateTime       @updatedAt
 
@@ -1263,6 +1276,194 @@ model TopRankBatch {
   @@index([mentorId])
   @@index([status])
   @@index([startDate])
+}
+
+model TopRankSession {
+  id        String      @id @default(cuid())
+  userId    String
+  tokenHash String      @unique
+  rememberMe Boolean    @default(false)
+  ipAddress String?
+  userAgent String?
+  expiresAt DateTime
+  user      TopRankUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model TopRankStudentProfile {
+  id                       String      @id @default(cuid())
+  userId                   String      @unique
+  age                      Int?
+  gender                   String?
+  heightCm                 Float?
+  weightKg                 Float?
+  education                String?
+  currentOccupation        String?
+  preferredLanguage        String?
+  previousAgniveerAttempts Int?
+  runningExperience        String?
+  pushUpExperience         String?
+  sitUpExperience          String?
+  currentPreparationLevel  String?
+  dailyStudyHours          Float?
+  internetAvailability     String?
+  deviceType               String?
+  learningPreference       String?
+  careerGoal               String?
+  completionPercentage     Int         @default(0)
+  user                     TopRankUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt                DateTime    @default(now())
+  updatedAt                DateTime    @updatedAt
+}
+
+model TopRankEnrollment {
+  id               String          @id @default(cuid())
+  userId           String
+  programId        String
+  batchId          String?
+  status           String          @default("ONBOARDING")
+  currentStep      String          @default("WELCOME")
+  enrollmentDate   DateTime        @default(now())
+  completedAt      DateTime?
+  metadata         Json?
+  user             TopRankUser     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  program          TopRankProgram  @relation(fields: [programId], references: [id], onDelete: Cascade)
+  batch            TopRankBatch?   @relation(fields: [batchId], references: [id], onDelete: SetNull)
+  assignments      TopRankBatchAssignment[]
+  agreements       TopRankProgramAgreement[]
+
+  @@index([userId])
+  @@index([programId])
+  @@index([batchId])
+  @@index([status])
+}
+
+model TopRankBatchAssignment {
+  id           String             @id @default(cuid())
+  userId       String
+  batchId      String
+  enrollmentId String?
+  status       String             @default("ASSIGNED")
+  assignedAt   DateTime           @default(now())
+  user         TopRankUser        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  batch        TopRankBatch       @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  enrollment   TopRankEnrollment? @relation(fields: [enrollmentId], references: [id], onDelete: SetNull)
+
+  @@unique([userId, batchId])
+  @@index([batchId])
+  @@index([enrollmentId])
+  @@index([status])
+}
+
+model TopRankProgramAgreement {
+  id            String             @id @default(cuid())
+  userId        String
+  programId     String
+  enrollmentId  String?
+  version       String             @default("RC3-AGNIVEER-FOUNDATION")
+  accepted      Boolean            @default(false)
+  acceptedAt    DateTime?
+  ipAddress     String?
+  userAgent     String?
+  user          TopRankUser        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  program       TopRankProgram     @relation(fields: [programId], references: [id], onDelete: Cascade)
+  enrollment    TopRankEnrollment? @relation(fields: [enrollmentId], references: [id], onDelete: SetNull)
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+
+  @@index([userId])
+  @@index([programId])
+  @@index([enrollmentId])
+  @@index([accepted])
+}
+
+model TopRankOrientationProgress {
+  id          String         @id @default(cuid())
+  userId      String
+  programId   String
+  videoKey    String
+  status      String         @default("PENDING")
+  percentage  Int            @default(0)
+  completedAt DateTime?
+  user        TopRankUser    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  program     TopRankProgram @relation(fields: [programId], references: [id], onDelete: Cascade)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  @@unique([userId, programId, videoKey])
+  @@index([programId])
+  @@index([status])
+}
+
+model TopRankAssessment {
+  id              String                    @id @default(cuid())
+  userId          String
+  status          String                    @default("COMPLETED")
+  assessmentType  String                    @default("AGNIVEER_DIAGNOSTIC")
+  academicScore   Float                     @default(0)
+  physicalScore   Float                     @default(0)
+  learningScore   Float                     @default(0)
+  disciplineScore Float                     @default(0)
+  careerScore     Float                     @default(0)
+  overallScore    Float                     @default(0)
+  summary         Json
+  completedAt     DateTime                  @default(now())
+  createdAt       DateTime                  @default(now())
+  updatedAt       DateTime                  @updatedAt
+  user            TopRankUser               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  answers         TopRankAssessmentAnswer[]
+  apr             TopRankAPR?
+
+  @@index([userId])
+  @@index([status])
+  @@index([completedAt])
+}
+
+model TopRankAssessmentAnswer {
+  id           String            @id @default(cuid())
+  assessmentId String
+  userId       String
+  section      String
+  questionKey  String
+  value        Json
+  score        Float             @default(0)
+  assessment   TopRankAssessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  createdAt    DateTime          @default(now())
+
+  @@index([assessmentId])
+  @@index([userId])
+  @@index([section])
+  @@index([questionKey])
+}
+
+model TopRankAPR {
+  id              String            @id @default(cuid())
+  userId          String
+  assessmentId    String            @unique
+  academicScore   Float             @default(0)
+  physicalScore   Float             @default(0)
+  learningScore   Float             @default(0)
+  disciplineScore Float             @default(0)
+  careerScore     Float             @default(0)
+  overallScore    Float             @default(0)
+  status          String
+  strengths       Json
+  weaknesses      Json
+  improvementAreas Json
+  summary         Json
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  user            TopRankUser       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  assessment      TopRankAssessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([overallScore])
+  @@index([status])
+  @@index([createdAt])
 }
 
 model TopRankSignalSnapshot {

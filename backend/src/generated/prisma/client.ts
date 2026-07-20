@@ -317,6 +317,51 @@ export type TopRankProgram = Prisma.TopRankProgramModel
  */
 export type TopRankBatch = Prisma.TopRankBatchModel
 /**
+ * Model TopRankSession
+ * 
+ */
+export type TopRankSession = Prisma.TopRankSessionModel
+/**
+ * Model TopRankStudentProfile
+ * 
+ */
+export type TopRankStudentProfile = Prisma.TopRankStudentProfileModel
+/**
+ * Model TopRankEnrollment
+ * 
+ */
+export type TopRankEnrollment = Prisma.TopRankEnrollmentModel
+/**
+ * Model TopRankBatchAssignment
+ * 
+ */
+export type TopRankBatchAssignment = Prisma.TopRankBatchAssignmentModel
+/**
+ * Model TopRankProgramAgreement
+ * 
+ */
+export type TopRankProgramAgreement = Prisma.TopRankProgramAgreementModel
+/**
+ * Model TopRankOrientationProgress
+ * 
+ */
+export type TopRankOrientationProgress = Prisma.TopRankOrientationProgressModel
+/**
+ * Model TopRankAssessment
+ * 
+ */
+export type TopRankAssessment = Prisma.TopRankAssessmentModel
+/**
+ * Model TopRankAssessmentAnswer
+ * 
+ */
+export type TopRankAssessmentAnswer = Prisma.TopRankAssessmentAnswerModel
+/**
+ * Model TopRankAPR
+ * 
+ */
+export type TopRankAPR = Prisma.TopRankAPRModel
+/**
  * Model TopRankSignalSnapshot
  * 
  */

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { ArrowRight, CheckCircle2, Clock, LockKeyhole, PlayCircle, ShieldCheck } from "lucide-react";
-import type { TopRankDashboardCard, TopRankGateway } from "@/types/toprank";
+import type { TopRankBatch, TopRankDashboardCard, TopRankGateway, TopRankStudentProfile } from "@/types/toprank";
 
 export function TopRankHero({ eyebrow, title, subtitle, primaryHref, primaryLabel, secondaryHref, secondaryLabel }: { eyebrow?: string; title: ReactNode; subtitle: string; primaryHref?: string; primaryLabel?: string; secondaryHref?: string; secondaryLabel?: string }) {
   return (
@@ -232,5 +232,233 @@ export function FAQAccordion({ items }: { items: Array<{ question: string; answe
         </details>
       ))}
     </div>
+  );
+}
+
+export function Stepper({ steps, currentStep }: { steps: string[]; currentStep: number }) {
+  return (
+    <ol className="grid gap-3 md:grid-cols-6" aria-label="TopRank onboarding steps">
+      {steps.map((step, index) => {
+        const active = index === currentStep;
+        const complete = index < currentStep;
+        return (
+          <li key={step} className={`rounded-2xl border p-3 text-xs font-black uppercase tracking-[0.12em] ${active ? "border-[#d6a447] bg-[#d6a447]/14 text-[#f6d17a]" : complete ? "border-emerald-400/30 bg-emerald-400/10 text-emerald-200" : "border-white/10 bg-white/[0.04] text-[#95a08f]"}`}>
+            {index + 1}. {step}
+          </li>
+        );
+      })}
+    </ol>
+  );
+}
+
+export function EnrollmentCard({ title, description, children }: { title: string; description: string; children: ReactNode }) {
+  return (
+    <section className="rounded-[1.75rem] border border-white/10 bg-white/[0.055] p-5 shadow-[0_30px_90px_rgba(0,0,0,0.22)] sm:p-8">
+      <h2 className="text-2xl font-black text-white">{title}</h2>
+      <p className="mt-2 text-sm leading-6 text-[#b9c2b4]">{description}</p>
+      <div className="mt-6">{children}</div>
+    </section>
+  );
+}
+
+export function BatchCard({ batch, selected, onSelect }: { batch: TopRankBatch; selected?: boolean; onSelect?: (batchId: string) => void }) {
+  const metadata = batch.metadata ?? {};
+  const seats = typeof metadata.seats === "number" ? metadata.seats : 60;
+  const seatsRemaining = typeof metadata.seatsRemaining === "number" ? metadata.seatsRemaining : seats;
+  return (
+    <button type="button" onClick={() => onSelect?.(batch.id)} className={`h-full rounded-[1.25rem] border p-5 text-left transition ${selected ? "border-[#d6a447] bg-[#d6a447]/14" : "border-white/10 bg-white/[0.045] hover:border-[#d6a447]/40"}`}>
+      <p className="text-xs font-black uppercase tracking-[0.18em] text-[#f6d17a]">{batch.status}</p>
+      <h3 className="mt-3 text-xl font-black text-white">{batch.name}</h3>
+      <p className="mt-3 text-sm text-[#c9d0c2]">Start date: {batch.startDate ? new Date(batch.startDate).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : "Announcing soon"}</p>
+      <p className="mt-2 text-sm text-[#c9d0c2]">Seats: {seatsRemaining} of {seats}</p>
+    </button>
+  );
+}
+
+export function ProfileForm({ profile, onChange }: { profile: TopRankStudentProfile; onChange: (profile: TopRankStudentProfile) => void }) {
+  const update = (key: keyof TopRankStudentProfile, value: string) => {
+    const numericKeys: Array<keyof TopRankStudentProfile> = ["age", "heightCm", "weightKg", "previousAgniveerAttempts", "dailyStudyHours"];
+    onChange({ ...profile, [key]: numericKeys.includes(key) ? Number(value || 0) : value });
+  };
+  const fields: Array<{ key: keyof TopRankStudentProfile; label: string; type?: string }> = [
+    { key: "age", label: "Age", type: "number" },
+    { key: "gender", label: "Gender" },
+    { key: "heightCm", label: "Height in cm", type: "number" },
+    { key: "weightKg", label: "Weight in kg", type: "number" },
+    { key: "education", label: "Education" },
+    { key: "currentOccupation", label: "Current occupation" },
+    { key: "preferredLanguage", label: "Preferred language" },
+    { key: "previousAgniveerAttempts", label: "Previous Agniveer attempts", type: "number" },
+    { key: "runningExperience", label: "Running experience" },
+    { key: "pushUpExperience", label: "Push-up experience" },
+    { key: "sitUpExperience", label: "Sit-up experience" },
+    { key: "currentPreparationLevel", label: "Current preparation level" },
+    { key: "dailyStudyHours", label: "Daily study hours", type: "number" },
+    { key: "internetAvailability", label: "Internet availability" },
+    { key: "deviceType", label: "Device type" },
+    { key: "learningPreference", label: "Learning preference" },
+    { key: "careerGoal", label: "Career goal" }
+  ];
+  return (
+    <div className="grid gap-4 md:grid-cols-2">
+      {fields.map((field) => (
+        <label key={field.key} className="grid gap-2 text-sm font-bold text-[#d9dccf]">
+          {field.label}
+          <input type={field.type ?? "text"} value={String(profile[field.key] ?? "")} onChange={(event) => update(field.key, event.target.value)} className="min-h-12 rounded-xl border border-white/12 bg-[#06120e] px-4 text-white outline-none focus:border-[#d6a447]" />
+        </label>
+      ))}
+    </div>
+  );
+}
+
+export function AgreementCard({ checked, onCheckedChange }: { checked: boolean; onCheckedChange: (checked: boolean) => void }) {
+  const points = ["Follow program rules and training discipline.", "Maintain attendance expectations and batch timing.", "Respect mentors, peers and the TopRank code of conduct.", "Understand the refund policy placeholder before final enrollment."];
+  return (
+    <article className="rounded-[1.25rem] border border-white/10 bg-white/[0.045] p-5">
+      <div className="grid gap-3">
+        {points.map((point) => <p key={point} className="text-sm leading-6 text-[#c9d0c2]">{point}</p>)}
+      </div>
+      <label className="mt-6 flex items-start gap-3 text-sm font-bold text-white">
+        <input type="checkbox" checked={checked} onChange={(event) => onCheckedChange(event.target.checked)} className="mt-1" />
+        I digitally accept the TopRank Agniveer program agreement.
+      </label>
+    </article>
+  );
+}
+
+export function WelcomeBanner({ name, batchName }: { name: string; batchName?: string | null }) {
+  return (
+    <section className="rounded-[2rem] border border-[#d6a447]/25 bg-[radial-gradient(circle_at_85%_12%,rgba(214,164,71,0.18),transparent_22rem),linear-gradient(135deg,#0b1c15,#06120e)] p-6 sm:p-10">
+      <p className="text-xs font-black uppercase tracking-[0.24em] text-[#f6d17a]">Welcome to TopRank Command Center</p>
+      <h1 className="mt-4 text-4xl font-black text-white sm:text-6xl">{name}</h1>
+      <p className="mt-4 max-w-2xl text-base leading-7 text-[#dbe4d7]">Enrollment is active{batchName ? ` for ${batchName}` : ""}. Your training workspace is ready for orientation, profile completion and batch preparation.</p>
+    </section>
+  );
+}
+
+export function CommandCenterCard({ title, value, note }: { title: string; value: string; note: string }) {
+  return (
+    <article className="rounded-[1.25rem] border border-white/10 bg-white/[0.055] p-5">
+      <p className="text-xs font-black uppercase tracking-[0.18em] text-[#f6d17a]">{title}</p>
+      <p className="mt-3 text-2xl font-black text-white">{value}</p>
+      <p className="mt-2 text-sm leading-6 text-[#b9c2b4]">{note}</p>
+    </article>
+  );
+}
+
+export function ProgressRing({ value, label }: { value: number; label: string }) {
+  return (
+    <div className="grid place-items-center rounded-[1.25rem] border border-white/10 bg-white/[0.045] p-5 text-center">
+      <div className="grid h-28 w-28 place-items-center rounded-full border-8 border-[#d6a447]/80 text-2xl font-black text-white">{value}%</div>
+      <p className="mt-4 text-sm font-black uppercase tracking-[0.16em] text-[#f6d17a]">{label}</p>
+    </div>
+  );
+}
+
+export function EmptyState({ title, description }: { title: string; description: string }) {
+  return (
+    <div className="rounded-[1.25rem] border border-dashed border-white/16 bg-white/[0.035] p-6 text-center">
+      <p className="text-lg font-black text-white">{title}</p>
+      <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-[#b9c2b4]">{description}</p>
+    </div>
+  );
+}
+
+export function ProfileSummary({ user, profile }: { user: { name: string; email: string; phone: string } | null; profile: TopRankStudentProfile }) {
+  return (
+    <section className="grid gap-4 rounded-[1.75rem] border border-white/10 bg-white/[0.055] p-6 md:grid-cols-3">
+      <div>
+        <p className="text-xs font-black uppercase tracking-[0.18em] text-[#f6d17a]">Student</p>
+        <p className="mt-2 text-2xl font-black text-white">{user?.name ?? "TopRank Student"}</p>
+        <p className="mt-1 text-sm text-[#b9c2b4]">{user?.email ?? "Email loading"}</p>
+      </div>
+      <div>
+        <p className="text-xs font-black uppercase tracking-[0.18em] text-[#f6d17a]">Mobile</p>
+        <p className="mt-2 text-2xl font-black text-white">{user?.phone ?? "Loading"}</p>
+        <p className="mt-1 text-sm text-[#b9c2b4]">Authentication contact</p>
+      </div>
+      <div>
+        <p className="text-xs font-black uppercase tracking-[0.18em] text-[#f6d17a]">Profile</p>
+        <p className="mt-2 text-2xl font-black text-white">{profile.completionPercentage ?? 0}%</p>
+        <p className="mt-1 text-sm text-[#b9c2b4]">Digital profile completion</p>
+      </div>
+    </section>
+  );
+}
+
+export function AssessmentStepper({ steps, currentStep }: { steps: string[]; currentStep: number }) {
+  return <Stepper steps={steps} currentStep={currentStep} />;
+}
+
+export function ProgressHeader({ current, total, title }: { current: number; total: number; title: string }) {
+  const percent = Math.round(((current + 1) / total) * 100);
+  return (
+    <header className="rounded-[1.5rem] border border-white/10 bg-white/[0.055] p-5">
+      <div className="flex items-center justify-between gap-4">
+        <p className="text-xs font-black uppercase tracking-[0.2em] text-[#f6d17a]">{title}</p>
+        <p className="text-sm font-black text-white">{percent}%</p>
+      </div>
+      <div className="mt-4 h-2 rounded-full bg-white/10">
+        <div className="h-2 rounded-full bg-[#d6a447]" style={{ width: `${percent}%` }} />
+      </div>
+    </header>
+  );
+}
+
+export function QuestionCard({ title, description, children }: { title: string; description?: string; children: ReactNode }) {
+  return (
+    <article className="rounded-[1.5rem] border border-white/10 bg-white/[0.05] p-5">
+      <h3 className="text-lg font-black text-white">{title}</h3>
+      {description ? <p className="mt-2 text-sm leading-6 text-[#b9c2b4]">{description}</p> : null}
+      <div className="mt-4">{children}</div>
+    </article>
+  );
+}
+
+export function ScoreBadge({ score }: { score: number }) {
+  const label = score >= 85 ? "Excellent" : score >= 70 ? "Strong" : score >= 50 ? "Average" : "Weak";
+  return <span className="rounded-full border border-[#d6a447]/25 px-3 py-1 text-xs font-black uppercase tracking-[0.14em] text-[#f6d17a]">{label}</span>;
+}
+
+export function ReadinessGauge({ score }: { score: number }) {
+  return (
+    <div className="grid place-items-center rounded-[2rem] border border-[#d6a447]/25 bg-[#d6a447]/10 p-8 text-center">
+      <div className="grid h-40 w-40 place-items-center rounded-full border-[12px] border-[#d6a447] text-5xl font-black text-white">{Math.round(score)}%</div>
+      <p className="mt-5 text-xs font-black uppercase tracking-[0.2em] text-[#f6d17a]">Overall Readiness</p>
+    </div>
+  );
+}
+
+export function APRCard({ title, score, note }: { title: string; score: number; note: string }) {
+  return (
+    <article className="rounded-[1.25rem] border border-white/10 bg-white/[0.055] p-5">
+      <div className="flex items-start justify-between gap-4">
+        <p className="text-xs font-black uppercase tracking-[0.18em] text-[#f6d17a]">{title}</p>
+        <ScoreBadge score={score} />
+      </div>
+      <p className="mt-4 text-3xl font-black text-white">{Math.round(score)}%</p>
+      <p className="mt-2 text-sm leading-6 text-[#b9c2b4]">{note}</p>
+    </article>
+  );
+}
+
+export function CategoryScoreCard({ title, score }: { title: string; score: number }) {
+  return <APRCard title={title} score={score} note={`${title} baseline from diagnostic assessment.`} />;
+}
+
+export function StrengthCard({ title }: { title: string }) {
+  return <article className="rounded-2xl border border-emerald-400/25 bg-emerald-400/10 p-4 text-sm font-black text-emerald-100">{title}</article>;
+}
+
+export function WeaknessCard({ title }: { title: string }) {
+  return <article className="rounded-2xl border border-amber-400/25 bg-amber-400/10 p-4 text-sm font-black text-amber-100">{title}</article>;
+}
+
+export function AssessmentSummary({ completedAt }: { completedAt?: string }) {
+  return (
+    <article className="rounded-[1.25rem] border border-white/10 bg-white/[0.045] p-5">
+      <p className="text-xs font-black uppercase tracking-[0.18em] text-[#f6d17a]">Assessment Completed</p>
+      <p className="mt-3 text-xl font-black text-white">{completedAt ? new Date(completedAt).toLocaleString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : "Pending"}</p>
+    </article>
   );
 }

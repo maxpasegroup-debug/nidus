@@ -106,6 +106,15 @@ export const ModelName = {
   TopRankGateway: 'TopRankGateway',
   TopRankProgram: 'TopRankProgram',
   TopRankBatch: 'TopRankBatch',
+  TopRankSession: 'TopRankSession',
+  TopRankStudentProfile: 'TopRankStudentProfile',
+  TopRankEnrollment: 'TopRankEnrollment',
+  TopRankBatchAssignment: 'TopRankBatchAssignment',
+  TopRankProgramAgreement: 'TopRankProgramAgreement',
+  TopRankOrientationProgress: 'TopRankOrientationProgress',
+  TopRankAssessment: 'TopRankAssessment',
+  TopRankAssessmentAnswer: 'TopRankAssessmentAnswer',
+  TopRankAPR: 'TopRankAPR',
   TopRankSignalSnapshot: 'TopRankSignalSnapshot',
   TopRankReadinessScore: 'TopRankReadinessScore',
   TopRankPerformanceTrend: 'TopRankPerformanceTrend',
@@ -1154,6 +1163,164 @@ export const TopRankBatchScalarFieldEnum = {
 } as const
 
 export type TopRankBatchScalarFieldEnum = (typeof TopRankBatchScalarFieldEnum)[keyof typeof TopRankBatchScalarFieldEnum]
+
+
+export const TopRankSessionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  tokenHash: 'tokenHash',
+  rememberMe: 'rememberMe',
+  ipAddress: 'ipAddress',
+  userAgent: 'userAgent',
+  expiresAt: 'expiresAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type TopRankSessionScalarFieldEnum = (typeof TopRankSessionScalarFieldEnum)[keyof typeof TopRankSessionScalarFieldEnum]
+
+
+export const TopRankStudentProfileScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  age: 'age',
+  gender: 'gender',
+  heightCm: 'heightCm',
+  weightKg: 'weightKg',
+  education: 'education',
+  currentOccupation: 'currentOccupation',
+  preferredLanguage: 'preferredLanguage',
+  previousAgniveerAttempts: 'previousAgniveerAttempts',
+  runningExperience: 'runningExperience',
+  pushUpExperience: 'pushUpExperience',
+  sitUpExperience: 'sitUpExperience',
+  currentPreparationLevel: 'currentPreparationLevel',
+  dailyStudyHours: 'dailyStudyHours',
+  internetAvailability: 'internetAvailability',
+  deviceType: 'deviceType',
+  learningPreference: 'learningPreference',
+  careerGoal: 'careerGoal',
+  completionPercentage: 'completionPercentage',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type TopRankStudentProfileScalarFieldEnum = (typeof TopRankStudentProfileScalarFieldEnum)[keyof typeof TopRankStudentProfileScalarFieldEnum]
+
+
+export const TopRankEnrollmentScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  programId: 'programId',
+  batchId: 'batchId',
+  status: 'status',
+  currentStep: 'currentStep',
+  enrollmentDate: 'enrollmentDate',
+  completedAt: 'completedAt',
+  metadata: 'metadata'
+} as const
+
+export type TopRankEnrollmentScalarFieldEnum = (typeof TopRankEnrollmentScalarFieldEnum)[keyof typeof TopRankEnrollmentScalarFieldEnum]
+
+
+export const TopRankBatchAssignmentScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  batchId: 'batchId',
+  enrollmentId: 'enrollmentId',
+  status: 'status',
+  assignedAt: 'assignedAt'
+} as const
+
+export type TopRankBatchAssignmentScalarFieldEnum = (typeof TopRankBatchAssignmentScalarFieldEnum)[keyof typeof TopRankBatchAssignmentScalarFieldEnum]
+
+
+export const TopRankProgramAgreementScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  programId: 'programId',
+  enrollmentId: 'enrollmentId',
+  version: 'version',
+  accepted: 'accepted',
+  acceptedAt: 'acceptedAt',
+  ipAddress: 'ipAddress',
+  userAgent: 'userAgent',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type TopRankProgramAgreementScalarFieldEnum = (typeof TopRankProgramAgreementScalarFieldEnum)[keyof typeof TopRankProgramAgreementScalarFieldEnum]
+
+
+export const TopRankOrientationProgressScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  programId: 'programId',
+  videoKey: 'videoKey',
+  status: 'status',
+  percentage: 'percentage',
+  completedAt: 'completedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type TopRankOrientationProgressScalarFieldEnum = (typeof TopRankOrientationProgressScalarFieldEnum)[keyof typeof TopRankOrientationProgressScalarFieldEnum]
+
+
+export const TopRankAssessmentScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  status: 'status',
+  assessmentType: 'assessmentType',
+  academicScore: 'academicScore',
+  physicalScore: 'physicalScore',
+  learningScore: 'learningScore',
+  disciplineScore: 'disciplineScore',
+  careerScore: 'careerScore',
+  overallScore: 'overallScore',
+  summary: 'summary',
+  completedAt: 'completedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type TopRankAssessmentScalarFieldEnum = (typeof TopRankAssessmentScalarFieldEnum)[keyof typeof TopRankAssessmentScalarFieldEnum]
+
+
+export const TopRankAssessmentAnswerScalarFieldEnum = {
+  id: 'id',
+  assessmentId: 'assessmentId',
+  userId: 'userId',
+  section: 'section',
+  questionKey: 'questionKey',
+  value: 'value',
+  score: 'score',
+  createdAt: 'createdAt'
+} as const
+
+export type TopRankAssessmentAnswerScalarFieldEnum = (typeof TopRankAssessmentAnswerScalarFieldEnum)[keyof typeof TopRankAssessmentAnswerScalarFieldEnum]
+
+
+export const TopRankAPRScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  assessmentId: 'assessmentId',
+  academicScore: 'academicScore',
+  physicalScore: 'physicalScore',
+  learningScore: 'learningScore',
+  disciplineScore: 'disciplineScore',
+  careerScore: 'careerScore',
+  overallScore: 'overallScore',
+  status: 'status',
+  strengths: 'strengths',
+  weaknesses: 'weaknesses',
+  improvementAreas: 'improvementAreas',
+  summary: 'summary',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type TopRankAPRScalarFieldEnum = (typeof TopRankAPRScalarFieldEnum)[keyof typeof TopRankAPRScalarFieldEnum]
 
 
 export const TopRankSignalSnapshotScalarFieldEnum = {

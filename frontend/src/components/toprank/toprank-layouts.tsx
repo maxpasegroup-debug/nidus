@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { ArrowRight, Shield } from "lucide-react";
+import { TopRankAuthGate, TopRankLogoutButton } from "./toprank-auth-gate";
 
 const publicLinks = [
   { label: "Gateways", href: "/toprank/gateway" },
@@ -14,8 +15,9 @@ const publicLinks = [
 const roleLinks = {
   student: [
     { label: "Dashboard", href: "/toprank/student" },
+    { label: "Profile", href: "/toprank/student/profile" },
+    { label: "APR", href: "/toprank/student/apr" },
     { label: "Missions", href: "/toprank/student" },
-    { label: "APR", href: "/toprank/student" },
   ],
   mentor: [
     { label: "Dashboard", href: "/toprank/mentor" },
@@ -106,12 +108,12 @@ export function TopRankRoleLayout({ role, title, children }: { role: keyof typeo
               <TopRankBrand compact />
             </div>
             <p className="hidden text-sm font-bold uppercase tracking-[0.2em] text-[#f6d17a] lg:block">{title}</p>
-            <Link href="/toprank/login" className="rounded-full border border-[#c99b3f]/35 px-4 py-2 text-sm font-bold text-[#f6d17a]">
-              Login
-            </Link>
+            <TopRankLogoutButton />
           </div>
         </header>
-        <main className="px-4 py-8 sm:px-6 lg:px-8">{children}</main>
+        <main className="px-4 py-8 sm:px-6 lg:px-8">
+          <TopRankAuthGate role={role}>{children}</TopRankAuthGate>
+        </main>
       </div>
     </div>
   );

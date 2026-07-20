@@ -221,6 +221,8 @@ export type TopRankBatchWhereInput = {
   program?: Prisma.XOR<Prisma.TopRankProgramScalarRelationFilter, Prisma.TopRankProgramWhereInput>
   mentor?: Prisma.XOR<Prisma.TopRankUserNullableScalarRelationFilter, Prisma.TopRankUserWhereInput> | null
   students?: Prisma.TopRankUserListRelationFilter
+  enrollments?: Prisma.TopRankEnrollmentListRelationFilter
+  assignments?: Prisma.TopRankBatchAssignmentListRelationFilter
 }
 
 export type TopRankBatchOrderByWithRelationInput = {
@@ -237,6 +239,8 @@ export type TopRankBatchOrderByWithRelationInput = {
   program?: Prisma.TopRankProgramOrderByWithRelationInput
   mentor?: Prisma.TopRankUserOrderByWithRelationInput
   students?: Prisma.TopRankUserOrderByRelationAggregateInput
+  enrollments?: Prisma.TopRankEnrollmentOrderByRelationAggregateInput
+  assignments?: Prisma.TopRankBatchAssignmentOrderByRelationAggregateInput
 }
 
 export type TopRankBatchWhereUniqueInput = Prisma.AtLeast<{
@@ -256,6 +260,8 @@ export type TopRankBatchWhereUniqueInput = Prisma.AtLeast<{
   program?: Prisma.XOR<Prisma.TopRankProgramScalarRelationFilter, Prisma.TopRankProgramWhereInput>
   mentor?: Prisma.XOR<Prisma.TopRankUserNullableScalarRelationFilter, Prisma.TopRankUserWhereInput> | null
   students?: Prisma.TopRankUserListRelationFilter
+  enrollments?: Prisma.TopRankEnrollmentListRelationFilter
+  assignments?: Prisma.TopRankBatchAssignmentListRelationFilter
 }, "id">
 
 export type TopRankBatchOrderByWithAggregationInput = {
@@ -302,6 +308,8 @@ export type TopRankBatchCreateInput = {
   program: Prisma.TopRankProgramCreateNestedOneWithoutBatchesInput
   mentor?: Prisma.TopRankUserCreateNestedOneWithoutMentorBatchesInput
   students?: Prisma.TopRankUserCreateNestedManyWithoutBatchesInput
+  enrollments?: Prisma.TopRankEnrollmentCreateNestedManyWithoutBatchInput
+  assignments?: Prisma.TopRankBatchAssignmentCreateNestedManyWithoutBatchInput
 }
 
 export type TopRankBatchUncheckedCreateInput = {
@@ -316,6 +324,8 @@ export type TopRankBatchUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   students?: Prisma.TopRankUserUncheckedCreateNestedManyWithoutBatchesInput
+  enrollments?: Prisma.TopRankEnrollmentUncheckedCreateNestedManyWithoutBatchInput
+  assignments?: Prisma.TopRankBatchAssignmentUncheckedCreateNestedManyWithoutBatchInput
 }
 
 export type TopRankBatchUpdateInput = {
@@ -330,6 +340,8 @@ export type TopRankBatchUpdateInput = {
   program?: Prisma.TopRankProgramUpdateOneRequiredWithoutBatchesNestedInput
   mentor?: Prisma.TopRankUserUpdateOneWithoutMentorBatchesNestedInput
   students?: Prisma.TopRankUserUpdateManyWithoutBatchesNestedInput
+  enrollments?: Prisma.TopRankEnrollmentUpdateManyWithoutBatchNestedInput
+  assignments?: Prisma.TopRankBatchAssignmentUpdateManyWithoutBatchNestedInput
 }
 
 export type TopRankBatchUncheckedUpdateInput = {
@@ -344,6 +356,8 @@ export type TopRankBatchUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   students?: Prisma.TopRankUserUncheckedUpdateManyWithoutBatchesNestedInput
+  enrollments?: Prisma.TopRankEnrollmentUncheckedUpdateManyWithoutBatchNestedInput
+  assignments?: Prisma.TopRankBatchAssignmentUncheckedUpdateManyWithoutBatchNestedInput
 }
 
 export type TopRankBatchCreateManyInput = {
@@ -428,6 +442,16 @@ export type TopRankBatchMinOrderByAggregateInput = {
   mentorId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type TopRankBatchNullableScalarRelationFilter = {
+  is?: Prisma.TopRankBatchWhereInput | null
+  isNot?: Prisma.TopRankBatchWhereInput | null
+}
+
+export type TopRankBatchScalarRelationFilter = {
+  is?: Prisma.TopRankBatchWhereInput
+  isNot?: Prisma.TopRankBatchWhereInput
 }
 
 export type TopRankBatchCreateNestedManyWithoutStudentsInput = {
@@ -552,6 +576,36 @@ export type TopRankBatchUncheckedUpdateManyWithoutProgramNestedInput = {
   deleteMany?: Prisma.TopRankBatchScalarWhereInput | Prisma.TopRankBatchScalarWhereInput[]
 }
 
+export type TopRankBatchCreateNestedOneWithoutEnrollmentsInput = {
+  create?: Prisma.XOR<Prisma.TopRankBatchCreateWithoutEnrollmentsInput, Prisma.TopRankBatchUncheckedCreateWithoutEnrollmentsInput>
+  connectOrCreate?: Prisma.TopRankBatchCreateOrConnectWithoutEnrollmentsInput
+  connect?: Prisma.TopRankBatchWhereUniqueInput
+}
+
+export type TopRankBatchUpdateOneWithoutEnrollmentsNestedInput = {
+  create?: Prisma.XOR<Prisma.TopRankBatchCreateWithoutEnrollmentsInput, Prisma.TopRankBatchUncheckedCreateWithoutEnrollmentsInput>
+  connectOrCreate?: Prisma.TopRankBatchCreateOrConnectWithoutEnrollmentsInput
+  upsert?: Prisma.TopRankBatchUpsertWithoutEnrollmentsInput
+  disconnect?: Prisma.TopRankBatchWhereInput | boolean
+  delete?: Prisma.TopRankBatchWhereInput | boolean
+  connect?: Prisma.TopRankBatchWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TopRankBatchUpdateToOneWithWhereWithoutEnrollmentsInput, Prisma.TopRankBatchUpdateWithoutEnrollmentsInput>, Prisma.TopRankBatchUncheckedUpdateWithoutEnrollmentsInput>
+}
+
+export type TopRankBatchCreateNestedOneWithoutAssignmentsInput = {
+  create?: Prisma.XOR<Prisma.TopRankBatchCreateWithoutAssignmentsInput, Prisma.TopRankBatchUncheckedCreateWithoutAssignmentsInput>
+  connectOrCreate?: Prisma.TopRankBatchCreateOrConnectWithoutAssignmentsInput
+  connect?: Prisma.TopRankBatchWhereUniqueInput
+}
+
+export type TopRankBatchUpdateOneRequiredWithoutAssignmentsNestedInput = {
+  create?: Prisma.XOR<Prisma.TopRankBatchCreateWithoutAssignmentsInput, Prisma.TopRankBatchUncheckedCreateWithoutAssignmentsInput>
+  connectOrCreate?: Prisma.TopRankBatchCreateOrConnectWithoutAssignmentsInput
+  upsert?: Prisma.TopRankBatchUpsertWithoutAssignmentsInput
+  connect?: Prisma.TopRankBatchWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TopRankBatchUpdateToOneWithWhereWithoutAssignmentsInput, Prisma.TopRankBatchUpdateWithoutAssignmentsInput>, Prisma.TopRankBatchUncheckedUpdateWithoutAssignmentsInput>
+}
+
 export type TopRankBatchCreateWithoutStudentsInput = {
   id?: string
   name: string
@@ -563,6 +617,8 @@ export type TopRankBatchCreateWithoutStudentsInput = {
   updatedAt?: Date | string
   program: Prisma.TopRankProgramCreateNestedOneWithoutBatchesInput
   mentor?: Prisma.TopRankUserCreateNestedOneWithoutMentorBatchesInput
+  enrollments?: Prisma.TopRankEnrollmentCreateNestedManyWithoutBatchInput
+  assignments?: Prisma.TopRankBatchAssignmentCreateNestedManyWithoutBatchInput
 }
 
 export type TopRankBatchUncheckedCreateWithoutStudentsInput = {
@@ -576,6 +632,8 @@ export type TopRankBatchUncheckedCreateWithoutStudentsInput = {
   mentorId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  enrollments?: Prisma.TopRankEnrollmentUncheckedCreateNestedManyWithoutBatchInput
+  assignments?: Prisma.TopRankBatchAssignmentUncheckedCreateNestedManyWithoutBatchInput
 }
 
 export type TopRankBatchCreateOrConnectWithoutStudentsInput = {
@@ -594,6 +652,8 @@ export type TopRankBatchCreateWithoutMentorInput = {
   updatedAt?: Date | string
   program: Prisma.TopRankProgramCreateNestedOneWithoutBatchesInput
   students?: Prisma.TopRankUserCreateNestedManyWithoutBatchesInput
+  enrollments?: Prisma.TopRankEnrollmentCreateNestedManyWithoutBatchInput
+  assignments?: Prisma.TopRankBatchAssignmentCreateNestedManyWithoutBatchInput
 }
 
 export type TopRankBatchUncheckedCreateWithoutMentorInput = {
@@ -607,6 +667,8 @@ export type TopRankBatchUncheckedCreateWithoutMentorInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   students?: Prisma.TopRankUserUncheckedCreateNestedManyWithoutBatchesInput
+  enrollments?: Prisma.TopRankEnrollmentUncheckedCreateNestedManyWithoutBatchInput
+  assignments?: Prisma.TopRankBatchAssignmentUncheckedCreateNestedManyWithoutBatchInput
 }
 
 export type TopRankBatchCreateOrConnectWithoutMentorInput = {
@@ -678,6 +740,8 @@ export type TopRankBatchCreateWithoutProgramInput = {
   updatedAt?: Date | string
   mentor?: Prisma.TopRankUserCreateNestedOneWithoutMentorBatchesInput
   students?: Prisma.TopRankUserCreateNestedManyWithoutBatchesInput
+  enrollments?: Prisma.TopRankEnrollmentCreateNestedManyWithoutBatchInput
+  assignments?: Prisma.TopRankBatchAssignmentCreateNestedManyWithoutBatchInput
 }
 
 export type TopRankBatchUncheckedCreateWithoutProgramInput = {
@@ -691,6 +755,8 @@ export type TopRankBatchUncheckedCreateWithoutProgramInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   students?: Prisma.TopRankUserUncheckedCreateNestedManyWithoutBatchesInput
+  enrollments?: Prisma.TopRankEnrollmentUncheckedCreateNestedManyWithoutBatchInput
+  assignments?: Prisma.TopRankBatchAssignmentUncheckedCreateNestedManyWithoutBatchInput
 }
 
 export type TopRankBatchCreateOrConnectWithoutProgramInput = {
@@ -719,6 +785,158 @@ export type TopRankBatchUpdateManyWithWhereWithoutProgramInput = {
   data: Prisma.XOR<Prisma.TopRankBatchUpdateManyMutationInput, Prisma.TopRankBatchUncheckedUpdateManyWithoutProgramInput>
 }
 
+export type TopRankBatchCreateWithoutEnrollmentsInput = {
+  id?: string
+  name: string
+  startDate?: Date | string | null
+  endDate?: Date | string | null
+  status?: string
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  program: Prisma.TopRankProgramCreateNestedOneWithoutBatchesInput
+  mentor?: Prisma.TopRankUserCreateNestedOneWithoutMentorBatchesInput
+  students?: Prisma.TopRankUserCreateNestedManyWithoutBatchesInput
+  assignments?: Prisma.TopRankBatchAssignmentCreateNestedManyWithoutBatchInput
+}
+
+export type TopRankBatchUncheckedCreateWithoutEnrollmentsInput = {
+  id?: string
+  programId: string
+  name: string
+  startDate?: Date | string | null
+  endDate?: Date | string | null
+  status?: string
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  mentorId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  students?: Prisma.TopRankUserUncheckedCreateNestedManyWithoutBatchesInput
+  assignments?: Prisma.TopRankBatchAssignmentUncheckedCreateNestedManyWithoutBatchInput
+}
+
+export type TopRankBatchCreateOrConnectWithoutEnrollmentsInput = {
+  where: Prisma.TopRankBatchWhereUniqueInput
+  create: Prisma.XOR<Prisma.TopRankBatchCreateWithoutEnrollmentsInput, Prisma.TopRankBatchUncheckedCreateWithoutEnrollmentsInput>
+}
+
+export type TopRankBatchUpsertWithoutEnrollmentsInput = {
+  update: Prisma.XOR<Prisma.TopRankBatchUpdateWithoutEnrollmentsInput, Prisma.TopRankBatchUncheckedUpdateWithoutEnrollmentsInput>
+  create: Prisma.XOR<Prisma.TopRankBatchCreateWithoutEnrollmentsInput, Prisma.TopRankBatchUncheckedCreateWithoutEnrollmentsInput>
+  where?: Prisma.TopRankBatchWhereInput
+}
+
+export type TopRankBatchUpdateToOneWithWhereWithoutEnrollmentsInput = {
+  where?: Prisma.TopRankBatchWhereInput
+  data: Prisma.XOR<Prisma.TopRankBatchUpdateWithoutEnrollmentsInput, Prisma.TopRankBatchUncheckedUpdateWithoutEnrollmentsInput>
+}
+
+export type TopRankBatchUpdateWithoutEnrollmentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  program?: Prisma.TopRankProgramUpdateOneRequiredWithoutBatchesNestedInput
+  mentor?: Prisma.TopRankUserUpdateOneWithoutMentorBatchesNestedInput
+  students?: Prisma.TopRankUserUpdateManyWithoutBatchesNestedInput
+  assignments?: Prisma.TopRankBatchAssignmentUpdateManyWithoutBatchNestedInput
+}
+
+export type TopRankBatchUncheckedUpdateWithoutEnrollmentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  programId?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  mentorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  students?: Prisma.TopRankUserUncheckedUpdateManyWithoutBatchesNestedInput
+  assignments?: Prisma.TopRankBatchAssignmentUncheckedUpdateManyWithoutBatchNestedInput
+}
+
+export type TopRankBatchCreateWithoutAssignmentsInput = {
+  id?: string
+  name: string
+  startDate?: Date | string | null
+  endDate?: Date | string | null
+  status?: string
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  program: Prisma.TopRankProgramCreateNestedOneWithoutBatchesInput
+  mentor?: Prisma.TopRankUserCreateNestedOneWithoutMentorBatchesInput
+  students?: Prisma.TopRankUserCreateNestedManyWithoutBatchesInput
+  enrollments?: Prisma.TopRankEnrollmentCreateNestedManyWithoutBatchInput
+}
+
+export type TopRankBatchUncheckedCreateWithoutAssignmentsInput = {
+  id?: string
+  programId: string
+  name: string
+  startDate?: Date | string | null
+  endDate?: Date | string | null
+  status?: string
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  mentorId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  students?: Prisma.TopRankUserUncheckedCreateNestedManyWithoutBatchesInput
+  enrollments?: Prisma.TopRankEnrollmentUncheckedCreateNestedManyWithoutBatchInput
+}
+
+export type TopRankBatchCreateOrConnectWithoutAssignmentsInput = {
+  where: Prisma.TopRankBatchWhereUniqueInput
+  create: Prisma.XOR<Prisma.TopRankBatchCreateWithoutAssignmentsInput, Prisma.TopRankBatchUncheckedCreateWithoutAssignmentsInput>
+}
+
+export type TopRankBatchUpsertWithoutAssignmentsInput = {
+  update: Prisma.XOR<Prisma.TopRankBatchUpdateWithoutAssignmentsInput, Prisma.TopRankBatchUncheckedUpdateWithoutAssignmentsInput>
+  create: Prisma.XOR<Prisma.TopRankBatchCreateWithoutAssignmentsInput, Prisma.TopRankBatchUncheckedCreateWithoutAssignmentsInput>
+  where?: Prisma.TopRankBatchWhereInput
+}
+
+export type TopRankBatchUpdateToOneWithWhereWithoutAssignmentsInput = {
+  where?: Prisma.TopRankBatchWhereInput
+  data: Prisma.XOR<Prisma.TopRankBatchUpdateWithoutAssignmentsInput, Prisma.TopRankBatchUncheckedUpdateWithoutAssignmentsInput>
+}
+
+export type TopRankBatchUpdateWithoutAssignmentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  program?: Prisma.TopRankProgramUpdateOneRequiredWithoutBatchesNestedInput
+  mentor?: Prisma.TopRankUserUpdateOneWithoutMentorBatchesNestedInput
+  students?: Prisma.TopRankUserUpdateManyWithoutBatchesNestedInput
+  enrollments?: Prisma.TopRankEnrollmentUpdateManyWithoutBatchNestedInput
+}
+
+export type TopRankBatchUncheckedUpdateWithoutAssignmentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  programId?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  mentorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  students?: Prisma.TopRankUserUncheckedUpdateManyWithoutBatchesNestedInput
+  enrollments?: Prisma.TopRankEnrollmentUncheckedUpdateManyWithoutBatchNestedInput
+}
+
 export type TopRankBatchCreateManyMentorInput = {
   id?: string
   programId: string
@@ -742,6 +960,8 @@ export type TopRankBatchUpdateWithoutStudentsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   program?: Prisma.TopRankProgramUpdateOneRequiredWithoutBatchesNestedInput
   mentor?: Prisma.TopRankUserUpdateOneWithoutMentorBatchesNestedInput
+  enrollments?: Prisma.TopRankEnrollmentUpdateManyWithoutBatchNestedInput
+  assignments?: Prisma.TopRankBatchAssignmentUpdateManyWithoutBatchNestedInput
 }
 
 export type TopRankBatchUncheckedUpdateWithoutStudentsInput = {
@@ -755,6 +975,8 @@ export type TopRankBatchUncheckedUpdateWithoutStudentsInput = {
   mentorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  enrollments?: Prisma.TopRankEnrollmentUncheckedUpdateManyWithoutBatchNestedInput
+  assignments?: Prisma.TopRankBatchAssignmentUncheckedUpdateManyWithoutBatchNestedInput
 }
 
 export type TopRankBatchUncheckedUpdateManyWithoutStudentsInput = {
@@ -781,6 +1003,8 @@ export type TopRankBatchUpdateWithoutMentorInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   program?: Prisma.TopRankProgramUpdateOneRequiredWithoutBatchesNestedInput
   students?: Prisma.TopRankUserUpdateManyWithoutBatchesNestedInput
+  enrollments?: Prisma.TopRankEnrollmentUpdateManyWithoutBatchNestedInput
+  assignments?: Prisma.TopRankBatchAssignmentUpdateManyWithoutBatchNestedInput
 }
 
 export type TopRankBatchUncheckedUpdateWithoutMentorInput = {
@@ -794,6 +1018,8 @@ export type TopRankBatchUncheckedUpdateWithoutMentorInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   students?: Prisma.TopRankUserUncheckedUpdateManyWithoutBatchesNestedInput
+  enrollments?: Prisma.TopRankEnrollmentUncheckedUpdateManyWithoutBatchNestedInput
+  assignments?: Prisma.TopRankBatchAssignmentUncheckedUpdateManyWithoutBatchNestedInput
 }
 
 export type TopRankBatchUncheckedUpdateManyWithoutMentorInput = {
@@ -831,6 +1057,8 @@ export type TopRankBatchUpdateWithoutProgramInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   mentor?: Prisma.TopRankUserUpdateOneWithoutMentorBatchesNestedInput
   students?: Prisma.TopRankUserUpdateManyWithoutBatchesNestedInput
+  enrollments?: Prisma.TopRankEnrollmentUpdateManyWithoutBatchNestedInput
+  assignments?: Prisma.TopRankBatchAssignmentUpdateManyWithoutBatchNestedInput
 }
 
 export type TopRankBatchUncheckedUpdateWithoutProgramInput = {
@@ -844,6 +1072,8 @@ export type TopRankBatchUncheckedUpdateWithoutProgramInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   students?: Prisma.TopRankUserUncheckedUpdateManyWithoutBatchesNestedInput
+  enrollments?: Prisma.TopRankEnrollmentUncheckedUpdateManyWithoutBatchNestedInput
+  assignments?: Prisma.TopRankBatchAssignmentUncheckedUpdateManyWithoutBatchNestedInput
 }
 
 export type TopRankBatchUncheckedUpdateManyWithoutProgramInput = {
@@ -865,10 +1095,14 @@ export type TopRankBatchUncheckedUpdateManyWithoutProgramInput = {
 
 export type TopRankBatchCountOutputType = {
   students: number
+  enrollments: number
+  assignments: number
 }
 
 export type TopRankBatchCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   students?: boolean | TopRankBatchCountOutputTypeCountStudentsArgs
+  enrollments?: boolean | TopRankBatchCountOutputTypeCountEnrollmentsArgs
+  assignments?: boolean | TopRankBatchCountOutputTypeCountAssignmentsArgs
 }
 
 /**
@@ -888,6 +1122,20 @@ export type TopRankBatchCountOutputTypeCountStudentsArgs<ExtArgs extends runtime
   where?: Prisma.TopRankUserWhereInput
 }
 
+/**
+ * TopRankBatchCountOutputType without action
+ */
+export type TopRankBatchCountOutputTypeCountEnrollmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.TopRankEnrollmentWhereInput
+}
+
+/**
+ * TopRankBatchCountOutputType without action
+ */
+export type TopRankBatchCountOutputTypeCountAssignmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.TopRankBatchAssignmentWhereInput
+}
+
 
 export type TopRankBatchSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -903,6 +1151,8 @@ export type TopRankBatchSelect<ExtArgs extends runtime.Types.Extensions.Internal
   program?: boolean | Prisma.TopRankProgramDefaultArgs<ExtArgs>
   mentor?: boolean | Prisma.TopRankBatch$mentorArgs<ExtArgs>
   students?: boolean | Prisma.TopRankBatch$studentsArgs<ExtArgs>
+  enrollments?: boolean | Prisma.TopRankBatch$enrollmentsArgs<ExtArgs>
+  assignments?: boolean | Prisma.TopRankBatch$assignmentsArgs<ExtArgs>
   _count?: boolean | Prisma.TopRankBatchCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["topRankBatch"]>
 
@@ -954,6 +1204,8 @@ export type TopRankBatchInclude<ExtArgs extends runtime.Types.Extensions.Interna
   program?: boolean | Prisma.TopRankProgramDefaultArgs<ExtArgs>
   mentor?: boolean | Prisma.TopRankBatch$mentorArgs<ExtArgs>
   students?: boolean | Prisma.TopRankBatch$studentsArgs<ExtArgs>
+  enrollments?: boolean | Prisma.TopRankBatch$enrollmentsArgs<ExtArgs>
+  assignments?: boolean | Prisma.TopRankBatch$assignmentsArgs<ExtArgs>
   _count?: boolean | Prisma.TopRankBatchCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type TopRankBatchIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -971,6 +1223,8 @@ export type $TopRankBatchPayload<ExtArgs extends runtime.Types.Extensions.Intern
     program: Prisma.$TopRankProgramPayload<ExtArgs>
     mentor: Prisma.$TopRankUserPayload<ExtArgs> | null
     students: Prisma.$TopRankUserPayload<ExtArgs>[]
+    enrollments: Prisma.$TopRankEnrollmentPayload<ExtArgs>[]
+    assignments: Prisma.$TopRankBatchAssignmentPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1380,6 +1634,8 @@ export interface Prisma__TopRankBatchClient<T, Null = never, ExtArgs extends run
   program<T extends Prisma.TopRankProgramDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TopRankProgramDefaultArgs<ExtArgs>>): Prisma.Prisma__TopRankProgramClient<runtime.Types.Result.GetResult<Prisma.$TopRankProgramPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   mentor<T extends Prisma.TopRankBatch$mentorArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TopRankBatch$mentorArgs<ExtArgs>>): Prisma.Prisma__TopRankUserClient<runtime.Types.Result.GetResult<Prisma.$TopRankUserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   students<T extends Prisma.TopRankBatch$studentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TopRankBatch$studentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TopRankUserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  enrollments<T extends Prisma.TopRankBatch$enrollmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TopRankBatch$enrollmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TopRankEnrollmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  assignments<T extends Prisma.TopRankBatch$assignmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TopRankBatch$assignmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TopRankBatchAssignmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1860,6 +2116,54 @@ export type TopRankBatch$studentsArgs<ExtArgs extends runtime.Types.Extensions.I
   take?: number
   skip?: number
   distinct?: Prisma.TopRankUserScalarFieldEnum | Prisma.TopRankUserScalarFieldEnum[]
+}
+
+/**
+ * TopRankBatch.enrollments
+ */
+export type TopRankBatch$enrollmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the TopRankEnrollment
+   */
+  select?: Prisma.TopRankEnrollmentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the TopRankEnrollment
+   */
+  omit?: Prisma.TopRankEnrollmentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TopRankEnrollmentInclude<ExtArgs> | null
+  where?: Prisma.TopRankEnrollmentWhereInput
+  orderBy?: Prisma.TopRankEnrollmentOrderByWithRelationInput | Prisma.TopRankEnrollmentOrderByWithRelationInput[]
+  cursor?: Prisma.TopRankEnrollmentWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.TopRankEnrollmentScalarFieldEnum | Prisma.TopRankEnrollmentScalarFieldEnum[]
+}
+
+/**
+ * TopRankBatch.assignments
+ */
+export type TopRankBatch$assignmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the TopRankBatchAssignment
+   */
+  select?: Prisma.TopRankBatchAssignmentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the TopRankBatchAssignment
+   */
+  omit?: Prisma.TopRankBatchAssignmentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TopRankBatchAssignmentInclude<ExtArgs> | null
+  where?: Prisma.TopRankBatchAssignmentWhereInput
+  orderBy?: Prisma.TopRankBatchAssignmentOrderByWithRelationInput | Prisma.TopRankBatchAssignmentOrderByWithRelationInput[]
+  cursor?: Prisma.TopRankBatchAssignmentWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.TopRankBatchAssignmentScalarFieldEnum | Prisma.TopRankBatchAssignmentScalarFieldEnum[]
 }
 
 /**

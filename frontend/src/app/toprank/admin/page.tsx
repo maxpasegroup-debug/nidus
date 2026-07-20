@@ -1,4 +1,4 @@
-import { DashboardCard, TopRankEmptyPanel } from "@/components/toprank";
+import { DashboardCard, EmptyState, SectionHeading } from "@/components/toprank";
 import { getTopRankAdminDashboardCards } from "@/services/toprank-admin-service";
 
 export default function TopRankAdminDashboardPage() {
@@ -12,7 +12,13 @@ export default function TopRankAdminDashboardPage() {
         ))}
       </div>
       <div className="mt-8">
-        <TopRankEmptyPanel title="Admin foundation placeholder" description="RC1 establishes independent TopRank administration without touching NIDUS Academy dashboards, APIs or authentication." />
+        <SectionHeading eyebrow="Student management" title="Enrollment Control" description="Search, profile review, enrollment approval placeholders and batch assignment are prepared for RC3 administration." />
+        <div className="mt-8 grid gap-4 md:grid-cols-3">
+          {["View Students", "Search and Filter", "Approve Enrollment", "Batch Assignment", "View Profiles", "Gateway Students"].map((item) => (
+            <DashboardCard key={item} card={{ title: item, description: `${item} surface prepared for TopRank administration.`, status: "RC3" }} />
+          ))}
+        </div>
+        <div className="mt-8"><EmptyState title="Analytics not enabled" description="Reports, APR, leaderboards and learning analytics are intentionally reserved for later TopRank release candidates." /></div>
       </div>
     </div>
   );

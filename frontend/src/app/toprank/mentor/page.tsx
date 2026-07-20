@@ -1,4 +1,4 @@
-import { DashboardCard, TopRankEmptyPanel } from "@/components/toprank";
+import { DashboardCard, EmptyState, SectionHeading } from "@/components/toprank";
 import { getTopRankMentorDashboardCards } from "@/services/toprank-mentor-service";
 
 export default function TopRankMentorDashboardPage() {
@@ -12,7 +12,13 @@ export default function TopRankMentorDashboardPage() {
         ))}
       </div>
       <div className="mt-8">
-        <TopRankEmptyPanel title="Mentor engine placeholder" description="RC1 keeps mentor functions static while preserving a separate TopRank architecture for later content, reviews and performance workflows." />
+        <SectionHeading eyebrow="Assigned students" title="Mentor View Prepared" description="Assigned students, batch lists and student profiles are prepared as RC3 mentor management surfaces." />
+        <div className="mt-8 grid gap-4 md:grid-cols-3">
+          {["Assigned Students", "Student Profiles", "Batch List"].map((item) => (
+            <DashboardCard key={item} card={{ title: item, description: `${item} placeholder connected to the TopRank mentor architecture.`, status: "RC3" }} />
+          ))}
+        </div>
+        <div className="mt-8"><EmptyState title="Learning tools not enabled" description="Live classes, reviews and learning engines are intentionally reserved for later TopRank release candidates." /></div>
       </div>
     </div>
   );

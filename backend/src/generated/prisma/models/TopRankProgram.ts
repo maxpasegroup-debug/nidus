@@ -220,6 +220,9 @@ export type TopRankProgramWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"TopRankProgram"> | Date | string
   gateway?: Prisma.XOR<Prisma.TopRankGatewayScalarRelationFilter, Prisma.TopRankGatewayWhereInput>
   batches?: Prisma.TopRankBatchListRelationFilter
+  enrollments?: Prisma.TopRankEnrollmentListRelationFilter
+  agreements?: Prisma.TopRankProgramAgreementListRelationFilter
+  orientationProgress?: Prisma.TopRankOrientationProgressListRelationFilter
 }
 
 export type TopRankProgramOrderByWithRelationInput = {
@@ -235,6 +238,9 @@ export type TopRankProgramOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   gateway?: Prisma.TopRankGatewayOrderByWithRelationInput
   batches?: Prisma.TopRankBatchOrderByRelationAggregateInput
+  enrollments?: Prisma.TopRankEnrollmentOrderByRelationAggregateInput
+  agreements?: Prisma.TopRankProgramAgreementOrderByRelationAggregateInput
+  orientationProgress?: Prisma.TopRankOrientationProgressOrderByRelationAggregateInput
 }
 
 export type TopRankProgramWhereUniqueInput = Prisma.AtLeast<{
@@ -253,6 +259,9 @@ export type TopRankProgramWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"TopRankProgram"> | Date | string
   gateway?: Prisma.XOR<Prisma.TopRankGatewayScalarRelationFilter, Prisma.TopRankGatewayWhereInput>
   batches?: Prisma.TopRankBatchListRelationFilter
+  enrollments?: Prisma.TopRankEnrollmentListRelationFilter
+  agreements?: Prisma.TopRankProgramAgreementListRelationFilter
+  orientationProgress?: Prisma.TopRankOrientationProgressListRelationFilter
 }, "id" | "slug">
 
 export type TopRankProgramOrderByWithAggregationInput = {
@@ -299,6 +308,9 @@ export type TopRankProgramCreateInput = {
   updatedAt?: Date | string
   gateway: Prisma.TopRankGatewayCreateNestedOneWithoutProgramsInput
   batches?: Prisma.TopRankBatchCreateNestedManyWithoutProgramInput
+  enrollments?: Prisma.TopRankEnrollmentCreateNestedManyWithoutProgramInput
+  agreements?: Prisma.TopRankProgramAgreementCreateNestedManyWithoutProgramInput
+  orientationProgress?: Prisma.TopRankOrientationProgressCreateNestedManyWithoutProgramInput
 }
 
 export type TopRankProgramUncheckedCreateInput = {
@@ -313,6 +325,9 @@ export type TopRankProgramUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   batches?: Prisma.TopRankBatchUncheckedCreateNestedManyWithoutProgramInput
+  enrollments?: Prisma.TopRankEnrollmentUncheckedCreateNestedManyWithoutProgramInput
+  agreements?: Prisma.TopRankProgramAgreementUncheckedCreateNestedManyWithoutProgramInput
+  orientationProgress?: Prisma.TopRankOrientationProgressUncheckedCreateNestedManyWithoutProgramInput
 }
 
 export type TopRankProgramUpdateInput = {
@@ -327,6 +342,9 @@ export type TopRankProgramUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   gateway?: Prisma.TopRankGatewayUpdateOneRequiredWithoutProgramsNestedInput
   batches?: Prisma.TopRankBatchUpdateManyWithoutProgramNestedInput
+  enrollments?: Prisma.TopRankEnrollmentUpdateManyWithoutProgramNestedInput
+  agreements?: Prisma.TopRankProgramAgreementUpdateManyWithoutProgramNestedInput
+  orientationProgress?: Prisma.TopRankOrientationProgressUpdateManyWithoutProgramNestedInput
 }
 
 export type TopRankProgramUncheckedUpdateInput = {
@@ -341,6 +359,9 @@ export type TopRankProgramUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   batches?: Prisma.TopRankBatchUncheckedUpdateManyWithoutProgramNestedInput
+  enrollments?: Prisma.TopRankEnrollmentUncheckedUpdateManyWithoutProgramNestedInput
+  agreements?: Prisma.TopRankProgramAgreementUncheckedUpdateManyWithoutProgramNestedInput
+  orientationProgress?: Prisma.TopRankOrientationProgressUncheckedUpdateManyWithoutProgramNestedInput
 }
 
 export type TopRankProgramCreateManyInput = {
@@ -489,6 +510,48 @@ export type TopRankProgramUpdateOneRequiredWithoutBatchesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.TopRankProgramUpdateToOneWithWhereWithoutBatchesInput, Prisma.TopRankProgramUpdateWithoutBatchesInput>, Prisma.TopRankProgramUncheckedUpdateWithoutBatchesInput>
 }
 
+export type TopRankProgramCreateNestedOneWithoutEnrollmentsInput = {
+  create?: Prisma.XOR<Prisma.TopRankProgramCreateWithoutEnrollmentsInput, Prisma.TopRankProgramUncheckedCreateWithoutEnrollmentsInput>
+  connectOrCreate?: Prisma.TopRankProgramCreateOrConnectWithoutEnrollmentsInput
+  connect?: Prisma.TopRankProgramWhereUniqueInput
+}
+
+export type TopRankProgramUpdateOneRequiredWithoutEnrollmentsNestedInput = {
+  create?: Prisma.XOR<Prisma.TopRankProgramCreateWithoutEnrollmentsInput, Prisma.TopRankProgramUncheckedCreateWithoutEnrollmentsInput>
+  connectOrCreate?: Prisma.TopRankProgramCreateOrConnectWithoutEnrollmentsInput
+  upsert?: Prisma.TopRankProgramUpsertWithoutEnrollmentsInput
+  connect?: Prisma.TopRankProgramWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TopRankProgramUpdateToOneWithWhereWithoutEnrollmentsInput, Prisma.TopRankProgramUpdateWithoutEnrollmentsInput>, Prisma.TopRankProgramUncheckedUpdateWithoutEnrollmentsInput>
+}
+
+export type TopRankProgramCreateNestedOneWithoutAgreementsInput = {
+  create?: Prisma.XOR<Prisma.TopRankProgramCreateWithoutAgreementsInput, Prisma.TopRankProgramUncheckedCreateWithoutAgreementsInput>
+  connectOrCreate?: Prisma.TopRankProgramCreateOrConnectWithoutAgreementsInput
+  connect?: Prisma.TopRankProgramWhereUniqueInput
+}
+
+export type TopRankProgramUpdateOneRequiredWithoutAgreementsNestedInput = {
+  create?: Prisma.XOR<Prisma.TopRankProgramCreateWithoutAgreementsInput, Prisma.TopRankProgramUncheckedCreateWithoutAgreementsInput>
+  connectOrCreate?: Prisma.TopRankProgramCreateOrConnectWithoutAgreementsInput
+  upsert?: Prisma.TopRankProgramUpsertWithoutAgreementsInput
+  connect?: Prisma.TopRankProgramWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TopRankProgramUpdateToOneWithWhereWithoutAgreementsInput, Prisma.TopRankProgramUpdateWithoutAgreementsInput>, Prisma.TopRankProgramUncheckedUpdateWithoutAgreementsInput>
+}
+
+export type TopRankProgramCreateNestedOneWithoutOrientationProgressInput = {
+  create?: Prisma.XOR<Prisma.TopRankProgramCreateWithoutOrientationProgressInput, Prisma.TopRankProgramUncheckedCreateWithoutOrientationProgressInput>
+  connectOrCreate?: Prisma.TopRankProgramCreateOrConnectWithoutOrientationProgressInput
+  connect?: Prisma.TopRankProgramWhereUniqueInput
+}
+
+export type TopRankProgramUpdateOneRequiredWithoutOrientationProgressNestedInput = {
+  create?: Prisma.XOR<Prisma.TopRankProgramCreateWithoutOrientationProgressInput, Prisma.TopRankProgramUncheckedCreateWithoutOrientationProgressInput>
+  connectOrCreate?: Prisma.TopRankProgramCreateOrConnectWithoutOrientationProgressInput
+  upsert?: Prisma.TopRankProgramUpsertWithoutOrientationProgressInput
+  connect?: Prisma.TopRankProgramWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TopRankProgramUpdateToOneWithWhereWithoutOrientationProgressInput, Prisma.TopRankProgramUpdateWithoutOrientationProgressInput>, Prisma.TopRankProgramUncheckedUpdateWithoutOrientationProgressInput>
+}
+
 export type TopRankProgramCreateWithoutGatewayInput = {
   id?: string
   slug: string
@@ -500,6 +563,9 @@ export type TopRankProgramCreateWithoutGatewayInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   batches?: Prisma.TopRankBatchCreateNestedManyWithoutProgramInput
+  enrollments?: Prisma.TopRankEnrollmentCreateNestedManyWithoutProgramInput
+  agreements?: Prisma.TopRankProgramAgreementCreateNestedManyWithoutProgramInput
+  orientationProgress?: Prisma.TopRankOrientationProgressCreateNestedManyWithoutProgramInput
 }
 
 export type TopRankProgramUncheckedCreateWithoutGatewayInput = {
@@ -513,6 +579,9 @@ export type TopRankProgramUncheckedCreateWithoutGatewayInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   batches?: Prisma.TopRankBatchUncheckedCreateNestedManyWithoutProgramInput
+  enrollments?: Prisma.TopRankEnrollmentUncheckedCreateNestedManyWithoutProgramInput
+  agreements?: Prisma.TopRankProgramAgreementUncheckedCreateNestedManyWithoutProgramInput
+  orientationProgress?: Prisma.TopRankOrientationProgressUncheckedCreateNestedManyWithoutProgramInput
 }
 
 export type TopRankProgramCreateOrConnectWithoutGatewayInput = {
@@ -568,6 +637,9 @@ export type TopRankProgramCreateWithoutBatchesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   gateway: Prisma.TopRankGatewayCreateNestedOneWithoutProgramsInput
+  enrollments?: Prisma.TopRankEnrollmentCreateNestedManyWithoutProgramInput
+  agreements?: Prisma.TopRankProgramAgreementCreateNestedManyWithoutProgramInput
+  orientationProgress?: Prisma.TopRankOrientationProgressCreateNestedManyWithoutProgramInput
 }
 
 export type TopRankProgramUncheckedCreateWithoutBatchesInput = {
@@ -581,6 +653,9 @@ export type TopRankProgramUncheckedCreateWithoutBatchesInput = {
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
+  enrollments?: Prisma.TopRankEnrollmentUncheckedCreateNestedManyWithoutProgramInput
+  agreements?: Prisma.TopRankProgramAgreementUncheckedCreateNestedManyWithoutProgramInput
+  orientationProgress?: Prisma.TopRankOrientationProgressUncheckedCreateNestedManyWithoutProgramInput
 }
 
 export type TopRankProgramCreateOrConnectWithoutBatchesInput = {
@@ -610,6 +685,9 @@ export type TopRankProgramUpdateWithoutBatchesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   gateway?: Prisma.TopRankGatewayUpdateOneRequiredWithoutProgramsNestedInput
+  enrollments?: Prisma.TopRankEnrollmentUpdateManyWithoutProgramNestedInput
+  agreements?: Prisma.TopRankProgramAgreementUpdateManyWithoutProgramNestedInput
+  orientationProgress?: Prisma.TopRankOrientationProgressUpdateManyWithoutProgramNestedInput
 }
 
 export type TopRankProgramUncheckedUpdateWithoutBatchesInput = {
@@ -623,6 +701,249 @@ export type TopRankProgramUncheckedUpdateWithoutBatchesInput = {
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  enrollments?: Prisma.TopRankEnrollmentUncheckedUpdateManyWithoutProgramNestedInput
+  agreements?: Prisma.TopRankProgramAgreementUncheckedUpdateManyWithoutProgramNestedInput
+  orientationProgress?: Prisma.TopRankOrientationProgressUncheckedUpdateManyWithoutProgramNestedInput
+}
+
+export type TopRankProgramCreateWithoutEnrollmentsInput = {
+  id?: string
+  slug: string
+  title: string
+  duration?: string | null
+  feeLabel?: string | null
+  status?: string
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  gateway: Prisma.TopRankGatewayCreateNestedOneWithoutProgramsInput
+  batches?: Prisma.TopRankBatchCreateNestedManyWithoutProgramInput
+  agreements?: Prisma.TopRankProgramAgreementCreateNestedManyWithoutProgramInput
+  orientationProgress?: Prisma.TopRankOrientationProgressCreateNestedManyWithoutProgramInput
+}
+
+export type TopRankProgramUncheckedCreateWithoutEnrollmentsInput = {
+  id?: string
+  gatewayId: string
+  slug: string
+  title: string
+  duration?: string | null
+  feeLabel?: string | null
+  status?: string
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  batches?: Prisma.TopRankBatchUncheckedCreateNestedManyWithoutProgramInput
+  agreements?: Prisma.TopRankProgramAgreementUncheckedCreateNestedManyWithoutProgramInput
+  orientationProgress?: Prisma.TopRankOrientationProgressUncheckedCreateNestedManyWithoutProgramInput
+}
+
+export type TopRankProgramCreateOrConnectWithoutEnrollmentsInput = {
+  where: Prisma.TopRankProgramWhereUniqueInput
+  create: Prisma.XOR<Prisma.TopRankProgramCreateWithoutEnrollmentsInput, Prisma.TopRankProgramUncheckedCreateWithoutEnrollmentsInput>
+}
+
+export type TopRankProgramUpsertWithoutEnrollmentsInput = {
+  update: Prisma.XOR<Prisma.TopRankProgramUpdateWithoutEnrollmentsInput, Prisma.TopRankProgramUncheckedUpdateWithoutEnrollmentsInput>
+  create: Prisma.XOR<Prisma.TopRankProgramCreateWithoutEnrollmentsInput, Prisma.TopRankProgramUncheckedCreateWithoutEnrollmentsInput>
+  where?: Prisma.TopRankProgramWhereInput
+}
+
+export type TopRankProgramUpdateToOneWithWhereWithoutEnrollmentsInput = {
+  where?: Prisma.TopRankProgramWhereInput
+  data: Prisma.XOR<Prisma.TopRankProgramUpdateWithoutEnrollmentsInput, Prisma.TopRankProgramUncheckedUpdateWithoutEnrollmentsInput>
+}
+
+export type TopRankProgramUpdateWithoutEnrollmentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  duration?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feeLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  gateway?: Prisma.TopRankGatewayUpdateOneRequiredWithoutProgramsNestedInput
+  batches?: Prisma.TopRankBatchUpdateManyWithoutProgramNestedInput
+  agreements?: Prisma.TopRankProgramAgreementUpdateManyWithoutProgramNestedInput
+  orientationProgress?: Prisma.TopRankOrientationProgressUpdateManyWithoutProgramNestedInput
+}
+
+export type TopRankProgramUncheckedUpdateWithoutEnrollmentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  gatewayId?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  duration?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feeLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  batches?: Prisma.TopRankBatchUncheckedUpdateManyWithoutProgramNestedInput
+  agreements?: Prisma.TopRankProgramAgreementUncheckedUpdateManyWithoutProgramNestedInput
+  orientationProgress?: Prisma.TopRankOrientationProgressUncheckedUpdateManyWithoutProgramNestedInput
+}
+
+export type TopRankProgramCreateWithoutAgreementsInput = {
+  id?: string
+  slug: string
+  title: string
+  duration?: string | null
+  feeLabel?: string | null
+  status?: string
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  gateway: Prisma.TopRankGatewayCreateNestedOneWithoutProgramsInput
+  batches?: Prisma.TopRankBatchCreateNestedManyWithoutProgramInput
+  enrollments?: Prisma.TopRankEnrollmentCreateNestedManyWithoutProgramInput
+  orientationProgress?: Prisma.TopRankOrientationProgressCreateNestedManyWithoutProgramInput
+}
+
+export type TopRankProgramUncheckedCreateWithoutAgreementsInput = {
+  id?: string
+  gatewayId: string
+  slug: string
+  title: string
+  duration?: string | null
+  feeLabel?: string | null
+  status?: string
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  batches?: Prisma.TopRankBatchUncheckedCreateNestedManyWithoutProgramInput
+  enrollments?: Prisma.TopRankEnrollmentUncheckedCreateNestedManyWithoutProgramInput
+  orientationProgress?: Prisma.TopRankOrientationProgressUncheckedCreateNestedManyWithoutProgramInput
+}
+
+export type TopRankProgramCreateOrConnectWithoutAgreementsInput = {
+  where: Prisma.TopRankProgramWhereUniqueInput
+  create: Prisma.XOR<Prisma.TopRankProgramCreateWithoutAgreementsInput, Prisma.TopRankProgramUncheckedCreateWithoutAgreementsInput>
+}
+
+export type TopRankProgramUpsertWithoutAgreementsInput = {
+  update: Prisma.XOR<Prisma.TopRankProgramUpdateWithoutAgreementsInput, Prisma.TopRankProgramUncheckedUpdateWithoutAgreementsInput>
+  create: Prisma.XOR<Prisma.TopRankProgramCreateWithoutAgreementsInput, Prisma.TopRankProgramUncheckedCreateWithoutAgreementsInput>
+  where?: Prisma.TopRankProgramWhereInput
+}
+
+export type TopRankProgramUpdateToOneWithWhereWithoutAgreementsInput = {
+  where?: Prisma.TopRankProgramWhereInput
+  data: Prisma.XOR<Prisma.TopRankProgramUpdateWithoutAgreementsInput, Prisma.TopRankProgramUncheckedUpdateWithoutAgreementsInput>
+}
+
+export type TopRankProgramUpdateWithoutAgreementsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  duration?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feeLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  gateway?: Prisma.TopRankGatewayUpdateOneRequiredWithoutProgramsNestedInput
+  batches?: Prisma.TopRankBatchUpdateManyWithoutProgramNestedInput
+  enrollments?: Prisma.TopRankEnrollmentUpdateManyWithoutProgramNestedInput
+  orientationProgress?: Prisma.TopRankOrientationProgressUpdateManyWithoutProgramNestedInput
+}
+
+export type TopRankProgramUncheckedUpdateWithoutAgreementsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  gatewayId?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  duration?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feeLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  batches?: Prisma.TopRankBatchUncheckedUpdateManyWithoutProgramNestedInput
+  enrollments?: Prisma.TopRankEnrollmentUncheckedUpdateManyWithoutProgramNestedInput
+  orientationProgress?: Prisma.TopRankOrientationProgressUncheckedUpdateManyWithoutProgramNestedInput
+}
+
+export type TopRankProgramCreateWithoutOrientationProgressInput = {
+  id?: string
+  slug: string
+  title: string
+  duration?: string | null
+  feeLabel?: string | null
+  status?: string
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  gateway: Prisma.TopRankGatewayCreateNestedOneWithoutProgramsInput
+  batches?: Prisma.TopRankBatchCreateNestedManyWithoutProgramInput
+  enrollments?: Prisma.TopRankEnrollmentCreateNestedManyWithoutProgramInput
+  agreements?: Prisma.TopRankProgramAgreementCreateNestedManyWithoutProgramInput
+}
+
+export type TopRankProgramUncheckedCreateWithoutOrientationProgressInput = {
+  id?: string
+  gatewayId: string
+  slug: string
+  title: string
+  duration?: string | null
+  feeLabel?: string | null
+  status?: string
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  batches?: Prisma.TopRankBatchUncheckedCreateNestedManyWithoutProgramInput
+  enrollments?: Prisma.TopRankEnrollmentUncheckedCreateNestedManyWithoutProgramInput
+  agreements?: Prisma.TopRankProgramAgreementUncheckedCreateNestedManyWithoutProgramInput
+}
+
+export type TopRankProgramCreateOrConnectWithoutOrientationProgressInput = {
+  where: Prisma.TopRankProgramWhereUniqueInput
+  create: Prisma.XOR<Prisma.TopRankProgramCreateWithoutOrientationProgressInput, Prisma.TopRankProgramUncheckedCreateWithoutOrientationProgressInput>
+}
+
+export type TopRankProgramUpsertWithoutOrientationProgressInput = {
+  update: Prisma.XOR<Prisma.TopRankProgramUpdateWithoutOrientationProgressInput, Prisma.TopRankProgramUncheckedUpdateWithoutOrientationProgressInput>
+  create: Prisma.XOR<Prisma.TopRankProgramCreateWithoutOrientationProgressInput, Prisma.TopRankProgramUncheckedCreateWithoutOrientationProgressInput>
+  where?: Prisma.TopRankProgramWhereInput
+}
+
+export type TopRankProgramUpdateToOneWithWhereWithoutOrientationProgressInput = {
+  where?: Prisma.TopRankProgramWhereInput
+  data: Prisma.XOR<Prisma.TopRankProgramUpdateWithoutOrientationProgressInput, Prisma.TopRankProgramUncheckedUpdateWithoutOrientationProgressInput>
+}
+
+export type TopRankProgramUpdateWithoutOrientationProgressInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  duration?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feeLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  gateway?: Prisma.TopRankGatewayUpdateOneRequiredWithoutProgramsNestedInput
+  batches?: Prisma.TopRankBatchUpdateManyWithoutProgramNestedInput
+  enrollments?: Prisma.TopRankEnrollmentUpdateManyWithoutProgramNestedInput
+  agreements?: Prisma.TopRankProgramAgreementUpdateManyWithoutProgramNestedInput
+}
+
+export type TopRankProgramUncheckedUpdateWithoutOrientationProgressInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  gatewayId?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  duration?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feeLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  batches?: Prisma.TopRankBatchUncheckedUpdateManyWithoutProgramNestedInput
+  enrollments?: Prisma.TopRankEnrollmentUncheckedUpdateManyWithoutProgramNestedInput
+  agreements?: Prisma.TopRankProgramAgreementUncheckedUpdateManyWithoutProgramNestedInput
 }
 
 export type TopRankProgramCreateManyGatewayInput = {
@@ -648,6 +969,9 @@ export type TopRankProgramUpdateWithoutGatewayInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   batches?: Prisma.TopRankBatchUpdateManyWithoutProgramNestedInput
+  enrollments?: Prisma.TopRankEnrollmentUpdateManyWithoutProgramNestedInput
+  agreements?: Prisma.TopRankProgramAgreementUpdateManyWithoutProgramNestedInput
+  orientationProgress?: Prisma.TopRankOrientationProgressUpdateManyWithoutProgramNestedInput
 }
 
 export type TopRankProgramUncheckedUpdateWithoutGatewayInput = {
@@ -661,6 +985,9 @@ export type TopRankProgramUncheckedUpdateWithoutGatewayInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   batches?: Prisma.TopRankBatchUncheckedUpdateManyWithoutProgramNestedInput
+  enrollments?: Prisma.TopRankEnrollmentUncheckedUpdateManyWithoutProgramNestedInput
+  agreements?: Prisma.TopRankProgramAgreementUncheckedUpdateManyWithoutProgramNestedInput
+  orientationProgress?: Prisma.TopRankOrientationProgressUncheckedUpdateManyWithoutProgramNestedInput
 }
 
 export type TopRankProgramUncheckedUpdateManyWithoutGatewayInput = {
@@ -682,10 +1009,16 @@ export type TopRankProgramUncheckedUpdateManyWithoutGatewayInput = {
 
 export type TopRankProgramCountOutputType = {
   batches: number
+  enrollments: number
+  agreements: number
+  orientationProgress: number
 }
 
 export type TopRankProgramCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   batches?: boolean | TopRankProgramCountOutputTypeCountBatchesArgs
+  enrollments?: boolean | TopRankProgramCountOutputTypeCountEnrollmentsArgs
+  agreements?: boolean | TopRankProgramCountOutputTypeCountAgreementsArgs
+  orientationProgress?: boolean | TopRankProgramCountOutputTypeCountOrientationProgressArgs
 }
 
 /**
@@ -705,6 +1038,27 @@ export type TopRankProgramCountOutputTypeCountBatchesArgs<ExtArgs extends runtim
   where?: Prisma.TopRankBatchWhereInput
 }
 
+/**
+ * TopRankProgramCountOutputType without action
+ */
+export type TopRankProgramCountOutputTypeCountEnrollmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.TopRankEnrollmentWhereInput
+}
+
+/**
+ * TopRankProgramCountOutputType without action
+ */
+export type TopRankProgramCountOutputTypeCountAgreementsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.TopRankProgramAgreementWhereInput
+}
+
+/**
+ * TopRankProgramCountOutputType without action
+ */
+export type TopRankProgramCountOutputTypeCountOrientationProgressArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.TopRankOrientationProgressWhereInput
+}
+
 
 export type TopRankProgramSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -719,6 +1073,9 @@ export type TopRankProgramSelect<ExtArgs extends runtime.Types.Extensions.Intern
   updatedAt?: boolean
   gateway?: boolean | Prisma.TopRankGatewayDefaultArgs<ExtArgs>
   batches?: boolean | Prisma.TopRankProgram$batchesArgs<ExtArgs>
+  enrollments?: boolean | Prisma.TopRankProgram$enrollmentsArgs<ExtArgs>
+  agreements?: boolean | Prisma.TopRankProgram$agreementsArgs<ExtArgs>
+  orientationProgress?: boolean | Prisma.TopRankProgram$orientationProgressArgs<ExtArgs>
   _count?: boolean | Prisma.TopRankProgramCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["topRankProgram"]>
 
@@ -767,6 +1124,9 @@ export type TopRankProgramOmit<ExtArgs extends runtime.Types.Extensions.Internal
 export type TopRankProgramInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   gateway?: boolean | Prisma.TopRankGatewayDefaultArgs<ExtArgs>
   batches?: boolean | Prisma.TopRankProgram$batchesArgs<ExtArgs>
+  enrollments?: boolean | Prisma.TopRankProgram$enrollmentsArgs<ExtArgs>
+  agreements?: boolean | Prisma.TopRankProgram$agreementsArgs<ExtArgs>
+  orientationProgress?: boolean | Prisma.TopRankProgram$orientationProgressArgs<ExtArgs>
   _count?: boolean | Prisma.TopRankProgramCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type TopRankProgramIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -781,6 +1141,9 @@ export type $TopRankProgramPayload<ExtArgs extends runtime.Types.Extensions.Inte
   objects: {
     gateway: Prisma.$TopRankGatewayPayload<ExtArgs>
     batches: Prisma.$TopRankBatchPayload<ExtArgs>[]
+    enrollments: Prisma.$TopRankEnrollmentPayload<ExtArgs>[]
+    agreements: Prisma.$TopRankProgramAgreementPayload<ExtArgs>[]
+    orientationProgress: Prisma.$TopRankOrientationProgressPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1189,6 +1552,9 @@ export interface Prisma__TopRankProgramClient<T, Null = never, ExtArgs extends r
   readonly [Symbol.toStringTag]: "PrismaPromise"
   gateway<T extends Prisma.TopRankGatewayDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TopRankGatewayDefaultArgs<ExtArgs>>): Prisma.Prisma__TopRankGatewayClient<runtime.Types.Result.GetResult<Prisma.$TopRankGatewayPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   batches<T extends Prisma.TopRankProgram$batchesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TopRankProgram$batchesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TopRankBatchPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  enrollments<T extends Prisma.TopRankProgram$enrollmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TopRankProgram$enrollmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TopRankEnrollmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  agreements<T extends Prisma.TopRankProgram$agreementsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TopRankProgram$agreementsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TopRankProgramAgreementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  orientationProgress<T extends Prisma.TopRankProgram$orientationProgressArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TopRankProgram$orientationProgressArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TopRankOrientationProgressPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1650,6 +2016,78 @@ export type TopRankProgram$batchesArgs<ExtArgs extends runtime.Types.Extensions.
   take?: number
   skip?: number
   distinct?: Prisma.TopRankBatchScalarFieldEnum | Prisma.TopRankBatchScalarFieldEnum[]
+}
+
+/**
+ * TopRankProgram.enrollments
+ */
+export type TopRankProgram$enrollmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the TopRankEnrollment
+   */
+  select?: Prisma.TopRankEnrollmentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the TopRankEnrollment
+   */
+  omit?: Prisma.TopRankEnrollmentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TopRankEnrollmentInclude<ExtArgs> | null
+  where?: Prisma.TopRankEnrollmentWhereInput
+  orderBy?: Prisma.TopRankEnrollmentOrderByWithRelationInput | Prisma.TopRankEnrollmentOrderByWithRelationInput[]
+  cursor?: Prisma.TopRankEnrollmentWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.TopRankEnrollmentScalarFieldEnum | Prisma.TopRankEnrollmentScalarFieldEnum[]
+}
+
+/**
+ * TopRankProgram.agreements
+ */
+export type TopRankProgram$agreementsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the TopRankProgramAgreement
+   */
+  select?: Prisma.TopRankProgramAgreementSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the TopRankProgramAgreement
+   */
+  omit?: Prisma.TopRankProgramAgreementOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TopRankProgramAgreementInclude<ExtArgs> | null
+  where?: Prisma.TopRankProgramAgreementWhereInput
+  orderBy?: Prisma.TopRankProgramAgreementOrderByWithRelationInput | Prisma.TopRankProgramAgreementOrderByWithRelationInput[]
+  cursor?: Prisma.TopRankProgramAgreementWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.TopRankProgramAgreementScalarFieldEnum | Prisma.TopRankProgramAgreementScalarFieldEnum[]
+}
+
+/**
+ * TopRankProgram.orientationProgress
+ */
+export type TopRankProgram$orientationProgressArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the TopRankOrientationProgress
+   */
+  select?: Prisma.TopRankOrientationProgressSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the TopRankOrientationProgress
+   */
+  omit?: Prisma.TopRankOrientationProgressOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TopRankOrientationProgressInclude<ExtArgs> | null
+  where?: Prisma.TopRankOrientationProgressWhereInput
+  orderBy?: Prisma.TopRankOrientationProgressOrderByWithRelationInput | Prisma.TopRankOrientationProgressOrderByWithRelationInput[]
+  cursor?: Prisma.TopRankOrientationProgressWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.TopRankOrientationProgressScalarFieldEnum | Prisma.TopRankOrientationProgressScalarFieldEnum[]
 }
 
 /**
