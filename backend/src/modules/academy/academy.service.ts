@@ -419,6 +419,13 @@ function employeePin(input: Pick<EmployeeInput, "password" | "pin">) {
   return input.pin?.trim() || input.password?.trim() || "";
 }
 
+function clearDefaultPinFlags(metadata: Record<string, unknown>) {
+  const next = { ...metadata };
+  delete next.defaultPassword;
+  delete next.defaultPin;
+  return next;
+}
+
 function requireEmployeeUpdateAccess(user: Requester, employee: { role: Role; roleMetadata?: Prisma.JsonValue | null }, input: EmployeeUpdateInput = {}) {
   if (isManagement(user)) return;
   if (!isAcademicManager(user)) {
@@ -2531,15 +2538,17 @@ export const academyService = {
       if (!/^\d{4}$/.test(nextPin)) {
         throw Object.assign(new Error("New PIN must be exactly 4 digits"), { statusCode: 400 });
       }
+      const isDefaultPin = nextPin === DEFAULT_ACCOUNT_PIN;
+      const pinMetadata = isDefaultPin
+        ? { ...roleMetadata, defaultPassword: true, defaultPin: true }
+        : clearDefaultPinFlags(roleMetadata);
       updateData.password = await bcrypt.hash(nextPin, 12);
       updateData.isDisabled = false;
       updateData.disabledAt = null;
       updateData.loginFailureCount = 0;
       updateData.lockedUntil = null;
       updateData.roleMetadata = toJsonObject({
-        ...roleMetadata,
-        defaultPassword: true,
-        defaultPin: true,
+        ...pinMetadata,
         pinUpdatedBy: user.id,
         pinUpdatedAt: new Date().toISOString(),
         passwordUpdatedBy: user.id,
@@ -2602,6 +2611,10 @@ export const academyService = {
     }
     requireEmployeeUpdateAccess(user, employee);
     const existingMetadata = (employee.roleMetadata ?? {}) as Record<string, unknown>;
+    const isDefaultPin = passwordValue === DEFAULT_ACCOUNT_PIN;
+    const pinMetadata = isDefaultPin
+      ? { ...existingMetadata, defaultPassword: true, defaultPin: true }
+      : clearDefaultPinFlags(existingMetadata);
     const updated = await prisma.user.update({
       where: { id: employeeId },
       data: {
@@ -2611,9 +2624,7 @@ export const academyService = {
         loginFailureCount: 0,
         lockedUntil: null,
         roleMetadata: toJsonObject({
-          ...existingMetadata,
-          defaultPassword: true,
-          defaultPin: true,
+          ...pinMetadata,
           pinResetBy: user.id,
           pinResetAt: new Date().toISOString(),
           passwordResetBy: user.id,
@@ -2643,7 +2654,7 @@ export const academyService = {
         mobile: updated.mobile,
         temporaryPassword: passwordValue,
         temporaryPin: passwordValue,
-        mustChangePassword: true,
+        mustChangePassword: isDefaultPin,
       },
     };
   },

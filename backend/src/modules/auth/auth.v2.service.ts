@@ -2,7 +2,7 @@ import crypto from "node:crypto";
 import bcrypt from "bcryptjs";
 import { prisma } from "../../config/prisma.js";
 import { env } from "../../config/env.js";
-import { Role, type User } from "../../generated/prisma/client.js";
+import { Prisma, Role, type User } from "../../generated/prisma/client.js";
 import { emailService } from "../../services/email.service.js";
 import { authEmailService } from "./auth-email.service.js";
 import { emitDomainEvent } from "../event-engine/event-engine.service.js";
@@ -325,6 +325,11 @@ export const AuthServiceV2 = {
       throw new Error("Invalid credentials");
     }
 
+    const metadata = metadataObject(user.roleMetadata);
+    const shouldClearDefaultPin = isDefaultPinAccount(metadata) && password !== DEFAULT_ACCOUNT_PIN;
+    const loginRoleMetadata = shouldClearDefaultPin
+      ? { ...clearDefaultPinFlags(metadata), pinDefaultClearedAt: new Date().toISOString() }
+      : metadata;
     const sessionId = crypto.randomBytes(32).toString("hex");
     await prisma.sessionToken.create({
       data: {
@@ -338,11 +343,17 @@ export const AuthServiceV2 = {
 
     await prisma.user.update({
       where: { id: user.id },
-      data: { lastLoginAt: new Date(), lastRoleActivityAt: new Date(), loginFailureCount: 0, lockedUntil: null }
+      data: {
+        lastLoginAt: new Date(),
+        lastRoleActivityAt: new Date(),
+        loginFailureCount: 0,
+        lockedUntil: null,
+        ...(shouldClearDefaultPin ? { roleMetadata: loginRoleMetadata as Prisma.InputJsonObject } : {})
+      }
     });
     await audit({ userId: user.id, action: "LOGIN_SUCCESS", description: "Successful login", ip });
 
-    return { sessionId, user: safeUser(user) };
+    return { sessionId, user: safeUser({ ...user, roleMetadata: loginRoleMetadata as Prisma.JsonObject }) };
   },
 
   async verify(sessionId: string) {
