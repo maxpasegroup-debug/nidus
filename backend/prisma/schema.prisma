@@ -1210,6 +1210,9 @@ model TopRankUser {
   orientationProgress TopRankOrientationProgress[]
   assessments    TopRankAssessment[]
   aprs           TopRankAPR[]
+  missions       TopRankMission[]
+  missionCompletions TopRankMissionCompletion[]
+  missionCalendars TopRankMissionCalendar[]
   batches       TopRankBatch[] @relation("TopRankBatchStudents")
   mentorBatches TopRankBatch[] @relation("TopRankBatchMentor")
   createdAt     DateTime       @default(now())
@@ -1464,6 +1467,95 @@ model TopRankAPR {
   @@index([overallScore])
   @@index([status])
   @@index([createdAt])
+}
+
+model TopRankMission {
+  id            String                     @id @default(cuid())
+  userId        String
+  title         String
+  description   String
+  missionType   String
+  difficulty    String
+  priority      Int                        @default(3)
+  estimatedMinutes Int                     @default(45)
+  dueDate       DateTime
+  dayNumber     Int
+  weekNumber    Int
+  status        String                     @default("PENDING")
+  objectives    Json
+  resources     Json?
+  metadata      Json?
+  user          TopRankUser                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tasks         TopRankMissionTask[]
+  completions   TopRankMissionCompletion[]
+  calendars     TopRankMissionCalendar[]
+  createdAt     DateTime                   @default(now())
+  updatedAt     DateTime                   @updatedAt
+
+  @@index([userId])
+  @@index([missionType])
+  @@index([status])
+  @@index([dueDate])
+  @@index([weekNumber])
+  @@index([dayNumber])
+}
+
+model TopRankMissionTask {
+  id        String         @id @default(cuid())
+  missionId String
+  title     String
+  taskType  String
+  durationMinutes Int     @default(15)
+  sequence  Int           @default(1)
+  completed Boolean       @default(false)
+  metadata  Json?
+  mission   TopRankMission @relation(fields: [missionId], references: [id], onDelete: Cascade)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@index([missionId])
+  @@index([taskType])
+  @@index([completed])
+}
+
+model TopRankMissionCompletion {
+  id          String         @id @default(cuid())
+  userId      String
+  missionId   String
+  status      String         @default("COMPLETED")
+  completedAt DateTime       @default(now())
+  notes       String?
+  checklist   Json?
+  user        TopRankUser    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mission     TopRankMission @relation(fields: [missionId], references: [id], onDelete: Cascade)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  @@unique([userId, missionId])
+  @@index([missionId])
+  @@index([status])
+  @@index([completedAt])
+}
+
+model TopRankMissionCalendar {
+  id          String         @id @default(cuid())
+  userId      String
+  missionId   String
+  calendarDate DateTime
+  weekNumber  Int
+  dayNumber   Int
+  status      String         @default("SCHEDULED")
+  schedule    Json?
+  user        TopRankUser    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mission     TopRankMission @relation(fields: [missionId], references: [id], onDelete: Cascade)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  @@unique([userId, missionId])
+  @@index([userId])
+  @@index([calendarDate])
+  @@index([weekNumber])
+  @@index([status])
 }
 
 model TopRankSignalSnapshot {
@@ -3709,6 +3801,67 @@ model TeacherSyllabusProgressRecord {
   @@index([batchId])
   @@index([teacherId])
   @@index([progressColor])
+}
+
+model NdpReview {
+  id             String   @id @default(cuid())
+  studentId      String
+  studentName    String?
+  batchId        String
+  batchName      String?
+  reviewPeriod   String
+  reviewType     String   @default("MONTHLY")
+  academicYear   String?
+  status         String   @default("DRAFT")
+  teacherId      String?
+  teacherName    String?
+  submittedAt    DateTime?
+  reviewedById   String?
+  reviewedByName String?
+  reviewedAt     DateTime?
+  publishedAt    DateTime?
+  scores         Json?
+  sections       Json?
+  finalReview    Json?
+  entries        NdpManualEntry[]
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([studentId, batchId, reviewPeriod])
+  @@index([studentId])
+  @@index([batchId])
+  @@index([teacherId])
+  @@index([status])
+  @@index([reviewPeriod])
+}
+
+model NdpManualEntry {
+  id        String   @id @default(cuid())
+  reviewId  String
+  studentId String
+  batchId   String
+  teacherId String?
+  category  String
+  item      String
+  subject   String   @default("")
+  term1     String?
+  term2     String?
+  term3     String?
+  rating    String?
+  score     Int?
+  remarks   String?
+  status    String   @default("DRAFT")
+  review    NdpReview @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([reviewId, category, item, subject])
+  @@index([reviewId])
+  @@index([studentId])
+  @@index([batchId])
+  @@index([teacherId])
+  @@index([category])
+  @@index([status])
 }
 
 model AcademicActivityAuditRecord {

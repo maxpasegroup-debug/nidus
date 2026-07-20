@@ -448,6 +448,10 @@ export const ModelName = {
   TopRankAssessment: 'TopRankAssessment',
   TopRankAssessmentAnswer: 'TopRankAssessmentAnswer',
   TopRankAPR: 'TopRankAPR',
+  TopRankMission: 'TopRankMission',
+  TopRankMissionTask: 'TopRankMissionTask',
+  TopRankMissionCompletion: 'TopRankMissionCompletion',
+  TopRankMissionCalendar: 'TopRankMissionCalendar',
   TopRankSignalSnapshot: 'TopRankSignalSnapshot',
   TopRankReadinessScore: 'TopRankReadinessScore',
   TopRankPerformanceTrend: 'TopRankPerformanceTrend',
@@ -603,7 +607,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "sessionToken" | "passwordReset" | "parentStudentInvitation" | "parentStudentLink" | "otp" | "course" | "module" | "lesson" | "enrollment" | "batch" | "batchStudent" | "teacherBatchAssignment" | "test" | "question" | "questionBankItem" | "testAttempt" | "cBTAnswerState" | "cBTIntegrityEvent" | "answer" | "psychometricTest" | "psychometricQuestion" | "psychometricAttempt" | "psychometricReport" | "psychometricAnswer" | "assessmentArenaAssessment" | "assessmentTraitMapping" | "assessmentDimensionMapping" | "assessmentQuestionBlueprint" | "assessmentTraitBlueprint" | "assessmentDimensionBlueprint" | "assessmentTrait" | "assessmentDimension" | "assessmentQuestion" | "assessmentQuestionOption" | "assessmentQuestionVersion" | "assessmentQuestionReview" | "assessmentReviewBoard" | "assessmentPilotRun" | "assessmentPilotResponse" | "assessmentQuestionExposure" | "assessmentAttempt" | "assessmentAttemptQuestion" | "assessmentAnswer" | "assessmentTraitScore" | "assessmentDimensionScore" | "assessmentIntegritySignal" | "assessmentRiskSignal" | "assessmentGrowthSnapshot" | "assessmentRankPrediction" | "assessmentReportSnapshot" | "topRankUser" | "topRankGateway" | "topRankProgram" | "topRankBatch" | "topRankSession" | "topRankStudentProfile" | "topRankEnrollment" | "topRankBatchAssignment" | "topRankProgramAgreement" | "topRankOrientationProgress" | "topRankAssessment" | "topRankAssessmentAnswer" | "topRankAPR" | "topRankSignalSnapshot" | "topRankReadinessScore" | "topRankPerformanceTrend" | "topRankGrowthTrend" | "topRankRiskTrend" | "topRankMentorFeedback" | "topRankSignalWeightConfig" | "assessmentTraitLibraryItem" | "assessmentDimensionLibraryItem" | "assessmentTraitBandInterpretation" | "assessmentRiskInterpretation" | "assessmentReadinessInterpretation" | "assessmentSsbOlq" | "assessmentSsbOlqMapping" | "assessmentSsbOlqInterpretation" | "oLQScore" | "studyPlan" | "performanceAnalytics" | "revisionSchedule" | "liveClass" | "recordedLecture" | "lectureProgress" | "lecturePlaybackEvent" | "attendance" | "timetable" | "faculty" | "classroom" | "payroll" | "announcement" | "hostel" | "room" | "hostelAllocation" | "inOutEntry" | "hostelLeave" | "messMenu" | "disciplineRecord" | "paradePerformance" | "lead" | "followUp" | "admission" | "counsellingBooking" | "referral" | "payment" | "subscription" | "feeInstallment" | "invoice" | "feePlan" | "paymentTransactionLog" | "approvalRequest" | "scholarshipDiscount" | "financeDocument" | "notification" | "messageThread" | "message" | "emailLog" | "pushNotification" | "aIInterviewSession" | "aIInterviewQuestion" | "doubtQuery" | "aIRecommendation" | "aITutorSession" | "aITutorMessage" | "aITutorFeedback" | "aIResponseCache" | "learningTopicInsight" | "revisionQueueItem" | "cBTIntelligenceReport" | "contentIngestionJob" | "generatedContentAsset" | "offlineSyncEvent" | "learningAnalyticsSnapshot" | "dailyIntelligenceIssue" | "contentModerationItem" | "officerPotential" | "fitnessProfile" | "pTSchedule" | "pTAttendance" | "physicalEligibility" | "dailyFitnessLog" | "pYQCategory" | "pYQQuestion" | "currentAffair" | "currentAffairQuiz" | "quizBattle" | "quizBattleParticipant" | "leaderboard" | "mediaFolder" | "mediaFile" | "document" | "adminRole" | "permission" | "rolePermission" | "userRole" | "roleActivity" | "systemSetting" | "auditLog" | "queueJobLog" | "aIRequestLog" | "salesBoosterCampaign" | "salesBoosterMetricSnapshot" | "salesBoosterAudienceContact" | "guruQuest" | "guruLesson" | "guruLessonCompletion" | "guruReflectionQuestion" | "guruReflectionAnswer" | "guruChallenge" | "guruChallengeCompletion" | "guruProgress" | "guruAchievement" | "guruUserAchievement" | "guruCertificate" | "guruUserCertificate" | "guruDailyMission" | "guruDailyMissionCompletion" | "guruMentorNote" | "guruReflectionInsight" | "guruXpLedger" | "branch" | "institute" | "teacherAttendanceRecord" | "teacherAssignmentRecord" | "assignmentSubmissionRecord" | "teacherStudyMaterialRecord" | "teacherExamRecord" | "teacherCalendarLogRecord" | "teacherSyllabusProgressRecord" | "academicActivityAuditRecord" | "directorExpenseRecord" | "aiWorkflowRequest" | "aiWorkflowContext" | "aiWorkflowContextSource" | "aiWorkflowDraft" | "aiWorkflowDraftVersion" | "aiWorkflowReview" | "aiWorkflowApproval" | "aiWorkflowFeedback" | "aiWorkflowPublication" | "aiWorkflowAuditEvent" | "academicLeaveRequest"
+    modelProps: "user" | "sessionToken" | "passwordReset" | "parentStudentInvitation" | "parentStudentLink" | "otp" | "course" | "module" | "lesson" | "enrollment" | "batch" | "batchStudent" | "teacherBatchAssignment" | "test" | "question" | "questionBankItem" | "testAttempt" | "cBTAnswerState" | "cBTIntegrityEvent" | "answer" | "psychometricTest" | "psychometricQuestion" | "psychometricAttempt" | "psychometricReport" | "psychometricAnswer" | "assessmentArenaAssessment" | "assessmentTraitMapping" | "assessmentDimensionMapping" | "assessmentQuestionBlueprint" | "assessmentTraitBlueprint" | "assessmentDimensionBlueprint" | "assessmentTrait" | "assessmentDimension" | "assessmentQuestion" | "assessmentQuestionOption" | "assessmentQuestionVersion" | "assessmentQuestionReview" | "assessmentReviewBoard" | "assessmentPilotRun" | "assessmentPilotResponse" | "assessmentQuestionExposure" | "assessmentAttempt" | "assessmentAttemptQuestion" | "assessmentAnswer" | "assessmentTraitScore" | "assessmentDimensionScore" | "assessmentIntegritySignal" | "assessmentRiskSignal" | "assessmentGrowthSnapshot" | "assessmentRankPrediction" | "assessmentReportSnapshot" | "topRankUser" | "topRankGateway" | "topRankProgram" | "topRankBatch" | "topRankSession" | "topRankStudentProfile" | "topRankEnrollment" | "topRankBatchAssignment" | "topRankProgramAgreement" | "topRankOrientationProgress" | "topRankAssessment" | "topRankAssessmentAnswer" | "topRankAPR" | "topRankMission" | "topRankMissionTask" | "topRankMissionCompletion" | "topRankMissionCalendar" | "topRankSignalSnapshot" | "topRankReadinessScore" | "topRankPerformanceTrend" | "topRankGrowthTrend" | "topRankRiskTrend" | "topRankMentorFeedback" | "topRankSignalWeightConfig" | "assessmentTraitLibraryItem" | "assessmentDimensionLibraryItem" | "assessmentTraitBandInterpretation" | "assessmentRiskInterpretation" | "assessmentReadinessInterpretation" | "assessmentSsbOlq" | "assessmentSsbOlqMapping" | "assessmentSsbOlqInterpretation" | "oLQScore" | "studyPlan" | "performanceAnalytics" | "revisionSchedule" | "liveClass" | "recordedLecture" | "lectureProgress" | "lecturePlaybackEvent" | "attendance" | "timetable" | "faculty" | "classroom" | "payroll" | "announcement" | "hostel" | "room" | "hostelAllocation" | "inOutEntry" | "hostelLeave" | "messMenu" | "disciplineRecord" | "paradePerformance" | "lead" | "followUp" | "admission" | "counsellingBooking" | "referral" | "payment" | "subscription" | "feeInstallment" | "invoice" | "feePlan" | "paymentTransactionLog" | "approvalRequest" | "scholarshipDiscount" | "financeDocument" | "notification" | "messageThread" | "message" | "emailLog" | "pushNotification" | "aIInterviewSession" | "aIInterviewQuestion" | "doubtQuery" | "aIRecommendation" | "aITutorSession" | "aITutorMessage" | "aITutorFeedback" | "aIResponseCache" | "learningTopicInsight" | "revisionQueueItem" | "cBTIntelligenceReport" | "contentIngestionJob" | "generatedContentAsset" | "offlineSyncEvent" | "learningAnalyticsSnapshot" | "dailyIntelligenceIssue" | "contentModerationItem" | "officerPotential" | "fitnessProfile" | "pTSchedule" | "pTAttendance" | "physicalEligibility" | "dailyFitnessLog" | "pYQCategory" | "pYQQuestion" | "currentAffair" | "currentAffairQuiz" | "quizBattle" | "quizBattleParticipant" | "leaderboard" | "mediaFolder" | "mediaFile" | "document" | "adminRole" | "permission" | "rolePermission" | "userRole" | "roleActivity" | "systemSetting" | "auditLog" | "queueJobLog" | "aIRequestLog" | "salesBoosterCampaign" | "salesBoosterMetricSnapshot" | "salesBoosterAudienceContact" | "guruQuest" | "guruLesson" | "guruLessonCompletion" | "guruReflectionQuestion" | "guruReflectionAnswer" | "guruChallenge" | "guruChallengeCompletion" | "guruProgress" | "guruAchievement" | "guruUserAchievement" | "guruCertificate" | "guruUserCertificate" | "guruDailyMission" | "guruDailyMissionCompletion" | "guruMentorNote" | "guruReflectionInsight" | "guruXpLedger" | "branch" | "institute" | "teacherAttendanceRecord" | "teacherAssignmentRecord" | "assignmentSubmissionRecord" | "teacherStudyMaterialRecord" | "teacherExamRecord" | "teacherCalendarLogRecord" | "teacherSyllabusProgressRecord" | "academicActivityAuditRecord" | "directorExpenseRecord" | "aiWorkflowRequest" | "aiWorkflowContext" | "aiWorkflowContextSource" | "aiWorkflowDraft" | "aiWorkflowDraftVersion" | "aiWorkflowReview" | "aiWorkflowApproval" | "aiWorkflowFeedback" | "aiWorkflowPublication" | "aiWorkflowAuditEvent" | "academicLeaveRequest"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -5340,6 +5344,302 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.TopRankAPRCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.TopRankAPRCountAggregateOutputType> | number
+        }
+      }
+    }
+    TopRankMission: {
+      payload: Prisma.$TopRankMissionPayload<ExtArgs>
+      fields: Prisma.TopRankMissionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.TopRankMissionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TopRankMissionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.TopRankMissionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TopRankMissionPayload>
+        }
+        findFirst: {
+          args: Prisma.TopRankMissionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TopRankMissionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.TopRankMissionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TopRankMissionPayload>
+        }
+        findMany: {
+          args: Prisma.TopRankMissionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TopRankMissionPayload>[]
+        }
+        create: {
+          args: Prisma.TopRankMissionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TopRankMissionPayload>
+        }
+        createMany: {
+          args: Prisma.TopRankMissionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.TopRankMissionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TopRankMissionPayload>[]
+        }
+        delete: {
+          args: Prisma.TopRankMissionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TopRankMissionPayload>
+        }
+        update: {
+          args: Prisma.TopRankMissionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TopRankMissionPayload>
+        }
+        deleteMany: {
+          args: Prisma.TopRankMissionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.TopRankMissionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.TopRankMissionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TopRankMissionPayload>[]
+        }
+        upsert: {
+          args: Prisma.TopRankMissionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TopRankMissionPayload>
+        }
+        aggregate: {
+          args: Prisma.TopRankMissionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateTopRankMission>
+        }
+        groupBy: {
+          args: Prisma.TopRankMissionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TopRankMissionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.TopRankMissionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TopRankMissionCountAggregateOutputType> | number
+        }
+      }
+    }
+    TopRankMissionTask: {
+      payload: Prisma.$TopRankMissionTaskPayload<ExtArgs>
+      fields: Prisma.TopRankMissionTaskFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.TopRankMissionTaskFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TopRankMissionTaskPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.TopRankMissionTaskFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TopRankMissionTaskPayload>
+        }
+        findFirst: {
+          args: Prisma.TopRankMissionTaskFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TopRankMissionTaskPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.TopRankMissionTaskFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TopRankMissionTaskPayload>
+        }
+        findMany: {
+          args: Prisma.TopRankMissionTaskFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TopRankMissionTaskPayload>[]
+        }
+        create: {
+          args: Prisma.TopRankMissionTaskCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TopRankMissionTaskPayload>
+        }
+        createMany: {
+          args: Prisma.TopRankMissionTaskCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.TopRankMissionTaskCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TopRankMissionTaskPayload>[]
+        }
+        delete: {
+          args: Prisma.TopRankMissionTaskDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TopRankMissionTaskPayload>
+        }
+        update: {
+          args: Prisma.TopRankMissionTaskUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TopRankMissionTaskPayload>
+        }
+        deleteMany: {
+          args: Prisma.TopRankMissionTaskDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.TopRankMissionTaskUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.TopRankMissionTaskUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TopRankMissionTaskPayload>[]
+        }
+        upsert: {
+          args: Prisma.TopRankMissionTaskUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TopRankMissionTaskPayload>
+        }
+        aggregate: {
+          args: Prisma.TopRankMissionTaskAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateTopRankMissionTask>
+        }
+        groupBy: {
+          args: Prisma.TopRankMissionTaskGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TopRankMissionTaskGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.TopRankMissionTaskCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TopRankMissionTaskCountAggregateOutputType> | number
+        }
+      }
+    }
+    TopRankMissionCompletion: {
+      payload: Prisma.$TopRankMissionCompletionPayload<ExtArgs>
+      fields: Prisma.TopRankMissionCompletionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.TopRankMissionCompletionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TopRankMissionCompletionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.TopRankMissionCompletionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TopRankMissionCompletionPayload>
+        }
+        findFirst: {
+          args: Prisma.TopRankMissionCompletionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TopRankMissionCompletionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.TopRankMissionCompletionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TopRankMissionCompletionPayload>
+        }
+        findMany: {
+          args: Prisma.TopRankMissionCompletionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TopRankMissionCompletionPayload>[]
+        }
+        create: {
+          args: Prisma.TopRankMissionCompletionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TopRankMissionCompletionPayload>
+        }
+        createMany: {
+          args: Prisma.TopRankMissionCompletionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.TopRankMissionCompletionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TopRankMissionCompletionPayload>[]
+        }
+        delete: {
+          args: Prisma.TopRankMissionCompletionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TopRankMissionCompletionPayload>
+        }
+        update: {
+          args: Prisma.TopRankMissionCompletionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TopRankMissionCompletionPayload>
+        }
+        deleteMany: {
+          args: Prisma.TopRankMissionCompletionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.TopRankMissionCompletionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.TopRankMissionCompletionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TopRankMissionCompletionPayload>[]
+        }
+        upsert: {
+          args: Prisma.TopRankMissionCompletionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TopRankMissionCompletionPayload>
+        }
+        aggregate: {
+          args: Prisma.TopRankMissionCompletionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateTopRankMissionCompletion>
+        }
+        groupBy: {
+          args: Prisma.TopRankMissionCompletionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TopRankMissionCompletionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.TopRankMissionCompletionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TopRankMissionCompletionCountAggregateOutputType> | number
+        }
+      }
+    }
+    TopRankMissionCalendar: {
+      payload: Prisma.$TopRankMissionCalendarPayload<ExtArgs>
+      fields: Prisma.TopRankMissionCalendarFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.TopRankMissionCalendarFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TopRankMissionCalendarPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.TopRankMissionCalendarFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TopRankMissionCalendarPayload>
+        }
+        findFirst: {
+          args: Prisma.TopRankMissionCalendarFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TopRankMissionCalendarPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.TopRankMissionCalendarFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TopRankMissionCalendarPayload>
+        }
+        findMany: {
+          args: Prisma.TopRankMissionCalendarFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TopRankMissionCalendarPayload>[]
+        }
+        create: {
+          args: Prisma.TopRankMissionCalendarCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TopRankMissionCalendarPayload>
+        }
+        createMany: {
+          args: Prisma.TopRankMissionCalendarCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.TopRankMissionCalendarCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TopRankMissionCalendarPayload>[]
+        }
+        delete: {
+          args: Prisma.TopRankMissionCalendarDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TopRankMissionCalendarPayload>
+        }
+        update: {
+          args: Prisma.TopRankMissionCalendarUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TopRankMissionCalendarPayload>
+        }
+        deleteMany: {
+          args: Prisma.TopRankMissionCalendarDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.TopRankMissionCalendarUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.TopRankMissionCalendarUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TopRankMissionCalendarPayload>[]
+        }
+        upsert: {
+          args: Prisma.TopRankMissionCalendarUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TopRankMissionCalendarPayload>
+        }
+        aggregate: {
+          args: Prisma.TopRankMissionCalendarAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateTopRankMissionCalendar>
+        }
+        groupBy: {
+          args: Prisma.TopRankMissionCalendarGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TopRankMissionCalendarGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.TopRankMissionCalendarCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TopRankMissionCalendarCountAggregateOutputType> | number
         }
       }
     }
@@ -16792,6 +17092,76 @@ export const TopRankAPRScalarFieldEnum = {
 export type TopRankAPRScalarFieldEnum = (typeof TopRankAPRScalarFieldEnum)[keyof typeof TopRankAPRScalarFieldEnum]
 
 
+export const TopRankMissionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  title: 'title',
+  description: 'description',
+  missionType: 'missionType',
+  difficulty: 'difficulty',
+  priority: 'priority',
+  estimatedMinutes: 'estimatedMinutes',
+  dueDate: 'dueDate',
+  dayNumber: 'dayNumber',
+  weekNumber: 'weekNumber',
+  status: 'status',
+  objectives: 'objectives',
+  resources: 'resources',
+  metadata: 'metadata',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type TopRankMissionScalarFieldEnum = (typeof TopRankMissionScalarFieldEnum)[keyof typeof TopRankMissionScalarFieldEnum]
+
+
+export const TopRankMissionTaskScalarFieldEnum = {
+  id: 'id',
+  missionId: 'missionId',
+  title: 'title',
+  taskType: 'taskType',
+  durationMinutes: 'durationMinutes',
+  sequence: 'sequence',
+  completed: 'completed',
+  metadata: 'metadata',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type TopRankMissionTaskScalarFieldEnum = (typeof TopRankMissionTaskScalarFieldEnum)[keyof typeof TopRankMissionTaskScalarFieldEnum]
+
+
+export const TopRankMissionCompletionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  missionId: 'missionId',
+  status: 'status',
+  completedAt: 'completedAt',
+  notes: 'notes',
+  checklist: 'checklist',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type TopRankMissionCompletionScalarFieldEnum = (typeof TopRankMissionCompletionScalarFieldEnum)[keyof typeof TopRankMissionCompletionScalarFieldEnum]
+
+
+export const TopRankMissionCalendarScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  missionId: 'missionId',
+  calendarDate: 'calendarDate',
+  weekNumber: 'weekNumber',
+  dayNumber: 'dayNumber',
+  status: 'status',
+  schedule: 'schedule',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type TopRankMissionCalendarScalarFieldEnum = (typeof TopRankMissionCalendarScalarFieldEnum)[keyof typeof TopRankMissionCalendarScalarFieldEnum]
+
+
 export const TopRankSignalSnapshotScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
@@ -19493,6 +19863,10 @@ export type GlobalOmitConfig = {
   topRankAssessment?: Prisma.TopRankAssessmentOmit
   topRankAssessmentAnswer?: Prisma.TopRankAssessmentAnswerOmit
   topRankAPR?: Prisma.TopRankAPROmit
+  topRankMission?: Prisma.TopRankMissionOmit
+  topRankMissionTask?: Prisma.TopRankMissionTaskOmit
+  topRankMissionCompletion?: Prisma.TopRankMissionCompletionOmit
+  topRankMissionCalendar?: Prisma.TopRankMissionCalendarOmit
   topRankSignalSnapshot?: Prisma.TopRankSignalSnapshotOmit
   topRankReadinessScore?: Prisma.TopRankReadinessScoreOmit
   topRankPerformanceTrend?: Prisma.TopRankPerformanceTrendOmit

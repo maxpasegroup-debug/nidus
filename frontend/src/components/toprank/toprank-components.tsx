@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { ArrowRight, CheckCircle2, Clock, LockKeyhole, PlayCircle, ShieldCheck } from "lucide-react";
-import type { TopRankBatch, TopRankDashboardCard, TopRankGateway, TopRankStudentProfile } from "@/types/toprank";
+import type { TopRankBatch, TopRankDashboardCard, TopRankGateway, TopRankMission, TopRankMissionTask, TopRankStudentProfile } from "@/types/toprank";
 
 export function TopRankHero({ eyebrow, title, subtitle, primaryHref, primaryLabel, secondaryHref, secondaryLabel }: { eyebrow?: string; title: ReactNode; subtitle: string; primaryHref?: string; primaryLabel?: string; secondaryHref?: string; secondaryLabel?: string }) {
   return (
@@ -460,5 +460,104 @@ export function AssessmentSummary({ completedAt }: { completedAt?: string }) {
       <p className="text-xs font-black uppercase tracking-[0.18em] text-[#f6d17a]">Assessment Completed</p>
       <p className="mt-3 text-xl font-black text-white">{completedAt ? new Date(completedAt).toLocaleString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : "Pending"}</p>
     </article>
+  );
+}
+
+export function MissionBadge({ status, type }: { status?: string; type?: string }) {
+  return <span className="rounded-full border border-[#d6a447]/25 px-3 py-1 text-[10px] font-black uppercase tracking-[0.14em] text-[#f6d17a]">{status ?? type ?? "Mission"}</span>;
+}
+
+export function MissionCard({ mission }: { mission: TopRankMission }) {
+  return (
+    <Link href={`/toprank/student/missions/${mission.id}`} className="block rounded-[1.5rem] border border-white/10 bg-white/[0.055] p-5 transition hover:border-[#d6a447]/45">
+      <div className="flex items-start justify-between gap-4">
+        <MissionBadge status={mission.status} type={mission.missionType} />
+        <span className="text-xs font-black text-[#b9c2b4]">{mission.estimatedMinutes} min</span>
+      </div>
+      <h3 className="mt-4 text-xl font-black text-white">{mission.title}</h3>
+      <p className="mt-2 text-sm leading-6 text-[#b9c2b4]">{mission.description}</p>
+      <p className="mt-4 text-xs font-bold uppercase tracking-[0.16em] text-[#f6d17a]">Day {mission.dayNumber} / Week {mission.weekNumber}</p>
+    </Link>
+  );
+}
+
+export function DailyMissionWidget({ mission }: { mission: TopRankMission | null }) {
+  if (!mission) return <EmptyState title="No mission for today" description="Generate your 180-day plan to receive today's mission." />;
+  return (
+    <section className="rounded-[2rem] border border-[#d6a447]/25 bg-[radial-gradient(circle_at_88%_10%,rgba(214,164,71,0.18),transparent_20rem),linear-gradient(135deg,#0b1c15,#06120e)] p-6">
+      <MissionBadge type={mission.missionType} status={mission.status} />
+      <h2 className="mt-4 text-3xl font-black text-white">Today&apos;s Mission</h2>
+      <h3 className="mt-3 text-xl font-black text-[#f6d17a]">{mission.title}</h3>
+      <p className="mt-3 max-w-2xl text-sm leading-7 text-[#dbe4d7]">{mission.description}</p>
+      <Link href={`/toprank/student/missions/${mission.id}`} className="mt-6 inline-flex rounded-full bg-[#d6a447] px-5 py-3 text-sm font-black text-[#06120e]">Continue Mission</Link>
+    </section>
+  );
+}
+
+export function MissionProgress({ value }: { value: number }) {
+  return <ProgressRing value={value} label="Mission Progress" />;
+}
+
+export function MissionStats({ stats }: { stats: { total: number; completed: number; pending: number; missed: number; completion: number } }) {
+  return (
+    <div className="grid gap-4 md:grid-cols-4">
+      <CommandCenterCard title="Completion" value={`${stats.completion}%`} note="Overall mission completion." />
+      <CommandCenterCard title="Completed" value={String(stats.completed)} note="Missions completed." />
+      <CommandCenterCard title="Pending" value={String(stats.pending)} note="Missions waiting." />
+      <CommandCenterCard title="Missed" value={String(stats.missed)} note="Needs attention." />
+    </div>
+  );
+}
+
+export function MissionChecklist({ tasks }: { tasks: TopRankMissionTask[] }) {
+  return (
+    <div className="grid gap-3">
+      {tasks.map((task) => (
+        <label key={task.id} className="flex items-start gap-3 rounded-2xl border border-white/10 bg-white/[0.045] p-4 text-sm font-bold text-[#dbe4d7]">
+          <input type="checkbox" defaultChecked={task.completed} className="mt-1" />
+          <span>{task.sequence}. {task.title} <span className="text-[#95a08f]">({task.durationMinutes} min)</span></span>
+        </label>
+      ))}
+    </div>
+  );
+}
+
+export function MissionHeader({ mission }: { mission: TopRankMission }) {
+  return (
+    <section className="rounded-[2rem] border border-white/10 bg-white/[0.055] p-6">
+      <MissionBadge status={mission.status} type={mission.missionType} />
+      <h1 className="mt-4 text-4xl font-black text-white sm:text-6xl">{mission.title}</h1>
+      <p className="mt-4 max-w-3xl text-sm leading-7 text-[#b9c2b4]">{mission.description}</p>
+    </section>
+  );
+}
+
+export function MissionTimeline({ missions }: { missions: TopRankMission[] }) {
+  return (
+    <div className="grid gap-3">
+      {missions.map((mission) => <MissionCard key={mission.id} mission={mission} />)}
+    </div>
+  );
+}
+
+export function MissionCalendar({ entries }: { entries: Array<{ calendarDate: string; status: string; mission: TopRankMission }> }) {
+  return (
+    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-7">
+      {entries.slice(0, 35).map((entry) => (
+        <Link key={`${entry.mission.id}-${entry.calendarDate}`} href={`/toprank/student/missions/${entry.mission.id}`} className="min-h-28 rounded-2xl border border-white/10 bg-white/[0.045] p-3">
+          <p className="text-xs font-black text-[#f6d17a]">{new Date(entry.calendarDate).getDate()}</p>
+          <p className="mt-2 text-xs font-bold leading-5 text-white">{entry.mission.title}</p>
+          <p className="mt-2 text-[10px] font-black uppercase tracking-[0.12em] text-[#95a08f]">{entry.status}</p>
+        </Link>
+      ))}
+    </div>
+  );
+}
+
+export function WeeklySummary({ weekly }: { weekly: Array<{ weekNumber: number; status: string; _count: { id: number } }> }) {
+  return (
+    <div className="grid gap-3 md:grid-cols-4">
+      {weekly.slice(0, 8).map((row) => <CommandCenterCard key={`${row.weekNumber}-${row.status}`} title={`Week ${row.weekNumber}`} value={String(row._count.id)} note={row.status} />)}
+    </div>
   );
 }

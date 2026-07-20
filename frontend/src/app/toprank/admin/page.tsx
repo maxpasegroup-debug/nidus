@@ -19,6 +19,11 @@ export default function TopRankAdminDashboardPage() {
           ))}
         </div>
         <div className="mt-8"><EmptyState title="Analytics not enabled" description="Reports, APR, leaderboards and learning analytics are intentionally reserved for later TopRank release candidates." /></div>
+        <div className="mt-8 grid gap-4 md:grid-cols-4">
+          {["View Missions", "Generate Missions", "Regenerate Plan", "View Completion"].map((item) => (
+            <DashboardCard key={item} card={{ title: item, description: `${item} prepared for RC5 mission management.`, status: "Mission" }} />
+          ))}
+        </div>
       </div>
     </div>
   );

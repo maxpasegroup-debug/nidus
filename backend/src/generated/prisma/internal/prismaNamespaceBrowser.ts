@@ -115,6 +115,10 @@ export const ModelName = {
   TopRankAssessment: 'TopRankAssessment',
   TopRankAssessmentAnswer: 'TopRankAssessmentAnswer',
   TopRankAPR: 'TopRankAPR',
+  TopRankMission: 'TopRankMission',
+  TopRankMissionTask: 'TopRankMissionTask',
+  TopRankMissionCompletion: 'TopRankMissionCompletion',
+  TopRankMissionCalendar: 'TopRankMissionCalendar',
   TopRankSignalSnapshot: 'TopRankSignalSnapshot',
   TopRankReadinessScore: 'TopRankReadinessScore',
   TopRankPerformanceTrend: 'TopRankPerformanceTrend',
@@ -1321,6 +1325,76 @@ export const TopRankAPRScalarFieldEnum = {
 } as const
 
 export type TopRankAPRScalarFieldEnum = (typeof TopRankAPRScalarFieldEnum)[keyof typeof TopRankAPRScalarFieldEnum]
+
+
+export const TopRankMissionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  title: 'title',
+  description: 'description',
+  missionType: 'missionType',
+  difficulty: 'difficulty',
+  priority: 'priority',
+  estimatedMinutes: 'estimatedMinutes',
+  dueDate: 'dueDate',
+  dayNumber: 'dayNumber',
+  weekNumber: 'weekNumber',
+  status: 'status',
+  objectives: 'objectives',
+  resources: 'resources',
+  metadata: 'metadata',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type TopRankMissionScalarFieldEnum = (typeof TopRankMissionScalarFieldEnum)[keyof typeof TopRankMissionScalarFieldEnum]
+
+
+export const TopRankMissionTaskScalarFieldEnum = {
+  id: 'id',
+  missionId: 'missionId',
+  title: 'title',
+  taskType: 'taskType',
+  durationMinutes: 'durationMinutes',
+  sequence: 'sequence',
+  completed: 'completed',
+  metadata: 'metadata',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type TopRankMissionTaskScalarFieldEnum = (typeof TopRankMissionTaskScalarFieldEnum)[keyof typeof TopRankMissionTaskScalarFieldEnum]
+
+
+export const TopRankMissionCompletionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  missionId: 'missionId',
+  status: 'status',
+  completedAt: 'completedAt',
+  notes: 'notes',
+  checklist: 'checklist',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type TopRankMissionCompletionScalarFieldEnum = (typeof TopRankMissionCompletionScalarFieldEnum)[keyof typeof TopRankMissionCompletionScalarFieldEnum]
+
+
+export const TopRankMissionCalendarScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  missionId: 'missionId',
+  calendarDate: 'calendarDate',
+  weekNumber: 'weekNumber',
+  dayNumber: 'dayNumber',
+  status: 'status',
+  schedule: 'schedule',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type TopRankMissionCalendarScalarFieldEnum = (typeof TopRankMissionCalendarScalarFieldEnum)[keyof typeof TopRankMissionCalendarScalarFieldEnum]
 
 
 export const TopRankSignalSnapshotScalarFieldEnum = {

@@ -19,6 +19,11 @@ export default function TopRankMentorDashboardPage() {
           ))}
         </div>
         <div className="mt-8"><EmptyState title="Learning tools not enabled" description="Live classes, reviews and learning engines are intentionally reserved for later TopRank release candidates." /></div>
+        <div className="mt-8 grid gap-4 md:grid-cols-4">
+          {["Student Missions", "Completion View", "Weak Focus Areas", "Mentor Review"].map((item) => (
+            <DashboardCard key={item} card={{ title: item, description: `${item} view prepared for RC5 mentor mission oversight.`, status: "Mission" }} />
+          ))}
+        </div>
       </div>
     </div>
   );

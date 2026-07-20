@@ -362,6 +362,26 @@ export type TopRankAssessmentAnswer = Prisma.TopRankAssessmentAnswerModel
  */
 export type TopRankAPR = Prisma.TopRankAPRModel
 /**
+ * Model TopRankMission
+ * 
+ */
+export type TopRankMission = Prisma.TopRankMissionModel
+/**
+ * Model TopRankMissionTask
+ * 
+ */
+export type TopRankMissionTask = Prisma.TopRankMissionTaskModel
+/**
+ * Model TopRankMissionCompletion
+ * 
+ */
+export type TopRankMissionCompletion = Prisma.TopRankMissionCompletionModel
+/**
+ * Model TopRankMissionCalendar
+ * 
+ */
+export type TopRankMissionCalendar = Prisma.TopRankMissionCalendarModel
+/**
  * Model TopRankSignalSnapshot
  * 
  */

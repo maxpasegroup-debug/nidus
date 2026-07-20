@@ -226,6 +226,9 @@ export type TopRankUserWhereInput = {
   orientationProgress?: Prisma.TopRankOrientationProgressListRelationFilter
   assessments?: Prisma.TopRankAssessmentListRelationFilter
   aprs?: Prisma.TopRankAPRListRelationFilter
+  missions?: Prisma.TopRankMissionListRelationFilter
+  missionCompletions?: Prisma.TopRankMissionCompletionListRelationFilter
+  missionCalendars?: Prisma.TopRankMissionCalendarListRelationFilter
   batches?: Prisma.TopRankBatchListRelationFilter
   mentorBatches?: Prisma.TopRankBatchListRelationFilter
 }
@@ -249,6 +252,9 @@ export type TopRankUserOrderByWithRelationInput = {
   orientationProgress?: Prisma.TopRankOrientationProgressOrderByRelationAggregateInput
   assessments?: Prisma.TopRankAssessmentOrderByRelationAggregateInput
   aprs?: Prisma.TopRankAPROrderByRelationAggregateInput
+  missions?: Prisma.TopRankMissionOrderByRelationAggregateInput
+  missionCompletions?: Prisma.TopRankMissionCompletionOrderByRelationAggregateInput
+  missionCalendars?: Prisma.TopRankMissionCalendarOrderByRelationAggregateInput
   batches?: Prisma.TopRankBatchOrderByRelationAggregateInput
   mentorBatches?: Prisma.TopRankBatchOrderByRelationAggregateInput
 }
@@ -275,6 +281,9 @@ export type TopRankUserWhereUniqueInput = Prisma.AtLeast<{
   orientationProgress?: Prisma.TopRankOrientationProgressListRelationFilter
   assessments?: Prisma.TopRankAssessmentListRelationFilter
   aprs?: Prisma.TopRankAPRListRelationFilter
+  missions?: Prisma.TopRankMissionListRelationFilter
+  missionCompletions?: Prisma.TopRankMissionCompletionListRelationFilter
+  missionCalendars?: Prisma.TopRankMissionCalendarListRelationFilter
   batches?: Prisma.TopRankBatchListRelationFilter
   mentorBatches?: Prisma.TopRankBatchListRelationFilter
 }, "id" | "email" | "phone">
@@ -330,6 +339,9 @@ export type TopRankUserCreateInput = {
   orientationProgress?: Prisma.TopRankOrientationProgressCreateNestedManyWithoutUserInput
   assessments?: Prisma.TopRankAssessmentCreateNestedManyWithoutUserInput
   aprs?: Prisma.TopRankAPRCreateNestedManyWithoutUserInput
+  missions?: Prisma.TopRankMissionCreateNestedManyWithoutUserInput
+  missionCompletions?: Prisma.TopRankMissionCompletionCreateNestedManyWithoutUserInput
+  missionCalendars?: Prisma.TopRankMissionCalendarCreateNestedManyWithoutUserInput
   batches?: Prisma.TopRankBatchCreateNestedManyWithoutStudentsInput
   mentorBatches?: Prisma.TopRankBatchCreateNestedManyWithoutMentorInput
 }
@@ -353,6 +365,9 @@ export type TopRankUserUncheckedCreateInput = {
   orientationProgress?: Prisma.TopRankOrientationProgressUncheckedCreateNestedManyWithoutUserInput
   assessments?: Prisma.TopRankAssessmentUncheckedCreateNestedManyWithoutUserInput
   aprs?: Prisma.TopRankAPRUncheckedCreateNestedManyWithoutUserInput
+  missions?: Prisma.TopRankMissionUncheckedCreateNestedManyWithoutUserInput
+  missionCompletions?: Prisma.TopRankMissionCompletionUncheckedCreateNestedManyWithoutUserInput
+  missionCalendars?: Prisma.TopRankMissionCalendarUncheckedCreateNestedManyWithoutUserInput
   batches?: Prisma.TopRankBatchUncheckedCreateNestedManyWithoutStudentsInput
   mentorBatches?: Prisma.TopRankBatchUncheckedCreateNestedManyWithoutMentorInput
 }
@@ -376,6 +391,9 @@ export type TopRankUserUpdateInput = {
   orientationProgress?: Prisma.TopRankOrientationProgressUpdateManyWithoutUserNestedInput
   assessments?: Prisma.TopRankAssessmentUpdateManyWithoutUserNestedInput
   aprs?: Prisma.TopRankAPRUpdateManyWithoutUserNestedInput
+  missions?: Prisma.TopRankMissionUpdateManyWithoutUserNestedInput
+  missionCompletions?: Prisma.TopRankMissionCompletionUpdateManyWithoutUserNestedInput
+  missionCalendars?: Prisma.TopRankMissionCalendarUpdateManyWithoutUserNestedInput
   batches?: Prisma.TopRankBatchUpdateManyWithoutStudentsNestedInput
   mentorBatches?: Prisma.TopRankBatchUpdateManyWithoutMentorNestedInput
 }
@@ -399,6 +417,9 @@ export type TopRankUserUncheckedUpdateInput = {
   orientationProgress?: Prisma.TopRankOrientationProgressUncheckedUpdateManyWithoutUserNestedInput
   assessments?: Prisma.TopRankAssessmentUncheckedUpdateManyWithoutUserNestedInput
   aprs?: Prisma.TopRankAPRUncheckedUpdateManyWithoutUserNestedInput
+  missions?: Prisma.TopRankMissionUncheckedUpdateManyWithoutUserNestedInput
+  missionCompletions?: Prisma.TopRankMissionCompletionUncheckedUpdateManyWithoutUserNestedInput
+  missionCalendars?: Prisma.TopRankMissionCalendarUncheckedUpdateManyWithoutUserNestedInput
   batches?: Prisma.TopRankBatchUncheckedUpdateManyWithoutStudentsNestedInput
   mentorBatches?: Prisma.TopRankBatchUncheckedUpdateManyWithoutMentorNestedInput
 }
@@ -669,6 +690,48 @@ export type TopRankUserUpdateOneRequiredWithoutAprsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.TopRankUserUpdateToOneWithWhereWithoutAprsInput, Prisma.TopRankUserUpdateWithoutAprsInput>, Prisma.TopRankUserUncheckedUpdateWithoutAprsInput>
 }
 
+export type TopRankUserCreateNestedOneWithoutMissionsInput = {
+  create?: Prisma.XOR<Prisma.TopRankUserCreateWithoutMissionsInput, Prisma.TopRankUserUncheckedCreateWithoutMissionsInput>
+  connectOrCreate?: Prisma.TopRankUserCreateOrConnectWithoutMissionsInput
+  connect?: Prisma.TopRankUserWhereUniqueInput
+}
+
+export type TopRankUserUpdateOneRequiredWithoutMissionsNestedInput = {
+  create?: Prisma.XOR<Prisma.TopRankUserCreateWithoutMissionsInput, Prisma.TopRankUserUncheckedCreateWithoutMissionsInput>
+  connectOrCreate?: Prisma.TopRankUserCreateOrConnectWithoutMissionsInput
+  upsert?: Prisma.TopRankUserUpsertWithoutMissionsInput
+  connect?: Prisma.TopRankUserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TopRankUserUpdateToOneWithWhereWithoutMissionsInput, Prisma.TopRankUserUpdateWithoutMissionsInput>, Prisma.TopRankUserUncheckedUpdateWithoutMissionsInput>
+}
+
+export type TopRankUserCreateNestedOneWithoutMissionCompletionsInput = {
+  create?: Prisma.XOR<Prisma.TopRankUserCreateWithoutMissionCompletionsInput, Prisma.TopRankUserUncheckedCreateWithoutMissionCompletionsInput>
+  connectOrCreate?: Prisma.TopRankUserCreateOrConnectWithoutMissionCompletionsInput
+  connect?: Prisma.TopRankUserWhereUniqueInput
+}
+
+export type TopRankUserUpdateOneRequiredWithoutMissionCompletionsNestedInput = {
+  create?: Prisma.XOR<Prisma.TopRankUserCreateWithoutMissionCompletionsInput, Prisma.TopRankUserUncheckedCreateWithoutMissionCompletionsInput>
+  connectOrCreate?: Prisma.TopRankUserCreateOrConnectWithoutMissionCompletionsInput
+  upsert?: Prisma.TopRankUserUpsertWithoutMissionCompletionsInput
+  connect?: Prisma.TopRankUserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TopRankUserUpdateToOneWithWhereWithoutMissionCompletionsInput, Prisma.TopRankUserUpdateWithoutMissionCompletionsInput>, Prisma.TopRankUserUncheckedUpdateWithoutMissionCompletionsInput>
+}
+
+export type TopRankUserCreateNestedOneWithoutMissionCalendarsInput = {
+  create?: Prisma.XOR<Prisma.TopRankUserCreateWithoutMissionCalendarsInput, Prisma.TopRankUserUncheckedCreateWithoutMissionCalendarsInput>
+  connectOrCreate?: Prisma.TopRankUserCreateOrConnectWithoutMissionCalendarsInput
+  connect?: Prisma.TopRankUserWhereUniqueInput
+}
+
+export type TopRankUserUpdateOneRequiredWithoutMissionCalendarsNestedInput = {
+  create?: Prisma.XOR<Prisma.TopRankUserCreateWithoutMissionCalendarsInput, Prisma.TopRankUserUncheckedCreateWithoutMissionCalendarsInput>
+  connectOrCreate?: Prisma.TopRankUserCreateOrConnectWithoutMissionCalendarsInput
+  upsert?: Prisma.TopRankUserUpsertWithoutMissionCalendarsInput
+  connect?: Prisma.TopRankUserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TopRankUserUpdateToOneWithWhereWithoutMissionCalendarsInput, Prisma.TopRankUserUpdateWithoutMissionCalendarsInput>, Prisma.TopRankUserUncheckedUpdateWithoutMissionCalendarsInput>
+}
+
 export type TopRankUserCreateWithoutMentorBatchesInput = {
   id?: string
   name: string
@@ -688,6 +751,9 @@ export type TopRankUserCreateWithoutMentorBatchesInput = {
   orientationProgress?: Prisma.TopRankOrientationProgressCreateNestedManyWithoutUserInput
   assessments?: Prisma.TopRankAssessmentCreateNestedManyWithoutUserInput
   aprs?: Prisma.TopRankAPRCreateNestedManyWithoutUserInput
+  missions?: Prisma.TopRankMissionCreateNestedManyWithoutUserInput
+  missionCompletions?: Prisma.TopRankMissionCompletionCreateNestedManyWithoutUserInput
+  missionCalendars?: Prisma.TopRankMissionCalendarCreateNestedManyWithoutUserInput
   batches?: Prisma.TopRankBatchCreateNestedManyWithoutStudentsInput
 }
 
@@ -710,6 +776,9 @@ export type TopRankUserUncheckedCreateWithoutMentorBatchesInput = {
   orientationProgress?: Prisma.TopRankOrientationProgressUncheckedCreateNestedManyWithoutUserInput
   assessments?: Prisma.TopRankAssessmentUncheckedCreateNestedManyWithoutUserInput
   aprs?: Prisma.TopRankAPRUncheckedCreateNestedManyWithoutUserInput
+  missions?: Prisma.TopRankMissionUncheckedCreateNestedManyWithoutUserInput
+  missionCompletions?: Prisma.TopRankMissionCompletionUncheckedCreateNestedManyWithoutUserInput
+  missionCalendars?: Prisma.TopRankMissionCalendarUncheckedCreateNestedManyWithoutUserInput
   batches?: Prisma.TopRankBatchUncheckedCreateNestedManyWithoutStudentsInput
 }
 
@@ -737,6 +806,9 @@ export type TopRankUserCreateWithoutBatchesInput = {
   orientationProgress?: Prisma.TopRankOrientationProgressCreateNestedManyWithoutUserInput
   assessments?: Prisma.TopRankAssessmentCreateNestedManyWithoutUserInput
   aprs?: Prisma.TopRankAPRCreateNestedManyWithoutUserInput
+  missions?: Prisma.TopRankMissionCreateNestedManyWithoutUserInput
+  missionCompletions?: Prisma.TopRankMissionCompletionCreateNestedManyWithoutUserInput
+  missionCalendars?: Prisma.TopRankMissionCalendarCreateNestedManyWithoutUserInput
   mentorBatches?: Prisma.TopRankBatchCreateNestedManyWithoutMentorInput
 }
 
@@ -759,6 +831,9 @@ export type TopRankUserUncheckedCreateWithoutBatchesInput = {
   orientationProgress?: Prisma.TopRankOrientationProgressUncheckedCreateNestedManyWithoutUserInput
   assessments?: Prisma.TopRankAssessmentUncheckedCreateNestedManyWithoutUserInput
   aprs?: Prisma.TopRankAPRUncheckedCreateNestedManyWithoutUserInput
+  missions?: Prisma.TopRankMissionUncheckedCreateNestedManyWithoutUserInput
+  missionCompletions?: Prisma.TopRankMissionCompletionUncheckedCreateNestedManyWithoutUserInput
+  missionCalendars?: Prisma.TopRankMissionCalendarUncheckedCreateNestedManyWithoutUserInput
   mentorBatches?: Prisma.TopRankBatchUncheckedCreateNestedManyWithoutMentorInput
 }
 
@@ -797,6 +872,9 @@ export type TopRankUserUpdateWithoutMentorBatchesInput = {
   orientationProgress?: Prisma.TopRankOrientationProgressUpdateManyWithoutUserNestedInput
   assessments?: Prisma.TopRankAssessmentUpdateManyWithoutUserNestedInput
   aprs?: Prisma.TopRankAPRUpdateManyWithoutUserNestedInput
+  missions?: Prisma.TopRankMissionUpdateManyWithoutUserNestedInput
+  missionCompletions?: Prisma.TopRankMissionCompletionUpdateManyWithoutUserNestedInput
+  missionCalendars?: Prisma.TopRankMissionCalendarUpdateManyWithoutUserNestedInput
   batches?: Prisma.TopRankBatchUpdateManyWithoutStudentsNestedInput
 }
 
@@ -819,6 +897,9 @@ export type TopRankUserUncheckedUpdateWithoutMentorBatchesInput = {
   orientationProgress?: Prisma.TopRankOrientationProgressUncheckedUpdateManyWithoutUserNestedInput
   assessments?: Prisma.TopRankAssessmentUncheckedUpdateManyWithoutUserNestedInput
   aprs?: Prisma.TopRankAPRUncheckedUpdateManyWithoutUserNestedInput
+  missions?: Prisma.TopRankMissionUncheckedUpdateManyWithoutUserNestedInput
+  missionCompletions?: Prisma.TopRankMissionCompletionUncheckedUpdateManyWithoutUserNestedInput
+  missionCalendars?: Prisma.TopRankMissionCalendarUncheckedUpdateManyWithoutUserNestedInput
   batches?: Prisma.TopRankBatchUncheckedUpdateManyWithoutStudentsNestedInput
 }
 
@@ -872,6 +953,9 @@ export type TopRankUserCreateWithoutSessionsInput = {
   orientationProgress?: Prisma.TopRankOrientationProgressCreateNestedManyWithoutUserInput
   assessments?: Prisma.TopRankAssessmentCreateNestedManyWithoutUserInput
   aprs?: Prisma.TopRankAPRCreateNestedManyWithoutUserInput
+  missions?: Prisma.TopRankMissionCreateNestedManyWithoutUserInput
+  missionCompletions?: Prisma.TopRankMissionCompletionCreateNestedManyWithoutUserInput
+  missionCalendars?: Prisma.TopRankMissionCalendarCreateNestedManyWithoutUserInput
   batches?: Prisma.TopRankBatchCreateNestedManyWithoutStudentsInput
   mentorBatches?: Prisma.TopRankBatchCreateNestedManyWithoutMentorInput
 }
@@ -894,6 +978,9 @@ export type TopRankUserUncheckedCreateWithoutSessionsInput = {
   orientationProgress?: Prisma.TopRankOrientationProgressUncheckedCreateNestedManyWithoutUserInput
   assessments?: Prisma.TopRankAssessmentUncheckedCreateNestedManyWithoutUserInput
   aprs?: Prisma.TopRankAPRUncheckedCreateNestedManyWithoutUserInput
+  missions?: Prisma.TopRankMissionUncheckedCreateNestedManyWithoutUserInput
+  missionCompletions?: Prisma.TopRankMissionCompletionUncheckedCreateNestedManyWithoutUserInput
+  missionCalendars?: Prisma.TopRankMissionCalendarUncheckedCreateNestedManyWithoutUserInput
   batches?: Prisma.TopRankBatchUncheckedCreateNestedManyWithoutStudentsInput
   mentorBatches?: Prisma.TopRankBatchUncheckedCreateNestedManyWithoutMentorInput
 }
@@ -932,6 +1019,9 @@ export type TopRankUserUpdateWithoutSessionsInput = {
   orientationProgress?: Prisma.TopRankOrientationProgressUpdateManyWithoutUserNestedInput
   assessments?: Prisma.TopRankAssessmentUpdateManyWithoutUserNestedInput
   aprs?: Prisma.TopRankAPRUpdateManyWithoutUserNestedInput
+  missions?: Prisma.TopRankMissionUpdateManyWithoutUserNestedInput
+  missionCompletions?: Prisma.TopRankMissionCompletionUpdateManyWithoutUserNestedInput
+  missionCalendars?: Prisma.TopRankMissionCalendarUpdateManyWithoutUserNestedInput
   batches?: Prisma.TopRankBatchUpdateManyWithoutStudentsNestedInput
   mentorBatches?: Prisma.TopRankBatchUpdateManyWithoutMentorNestedInput
 }
@@ -954,6 +1044,9 @@ export type TopRankUserUncheckedUpdateWithoutSessionsInput = {
   orientationProgress?: Prisma.TopRankOrientationProgressUncheckedUpdateManyWithoutUserNestedInput
   assessments?: Prisma.TopRankAssessmentUncheckedUpdateManyWithoutUserNestedInput
   aprs?: Prisma.TopRankAPRUncheckedUpdateManyWithoutUserNestedInput
+  missions?: Prisma.TopRankMissionUncheckedUpdateManyWithoutUserNestedInput
+  missionCompletions?: Prisma.TopRankMissionCompletionUncheckedUpdateManyWithoutUserNestedInput
+  missionCalendars?: Prisma.TopRankMissionCalendarUncheckedUpdateManyWithoutUserNestedInput
   batches?: Prisma.TopRankBatchUncheckedUpdateManyWithoutStudentsNestedInput
   mentorBatches?: Prisma.TopRankBatchUncheckedUpdateManyWithoutMentorNestedInput
 }
@@ -976,6 +1069,9 @@ export type TopRankUserCreateWithoutStudentProfileInput = {
   orientationProgress?: Prisma.TopRankOrientationProgressCreateNestedManyWithoutUserInput
   assessments?: Prisma.TopRankAssessmentCreateNestedManyWithoutUserInput
   aprs?: Prisma.TopRankAPRCreateNestedManyWithoutUserInput
+  missions?: Prisma.TopRankMissionCreateNestedManyWithoutUserInput
+  missionCompletions?: Prisma.TopRankMissionCompletionCreateNestedManyWithoutUserInput
+  missionCalendars?: Prisma.TopRankMissionCalendarCreateNestedManyWithoutUserInput
   batches?: Prisma.TopRankBatchCreateNestedManyWithoutStudentsInput
   mentorBatches?: Prisma.TopRankBatchCreateNestedManyWithoutMentorInput
 }
@@ -998,6 +1094,9 @@ export type TopRankUserUncheckedCreateWithoutStudentProfileInput = {
   orientationProgress?: Prisma.TopRankOrientationProgressUncheckedCreateNestedManyWithoutUserInput
   assessments?: Prisma.TopRankAssessmentUncheckedCreateNestedManyWithoutUserInput
   aprs?: Prisma.TopRankAPRUncheckedCreateNestedManyWithoutUserInput
+  missions?: Prisma.TopRankMissionUncheckedCreateNestedManyWithoutUserInput
+  missionCompletions?: Prisma.TopRankMissionCompletionUncheckedCreateNestedManyWithoutUserInput
+  missionCalendars?: Prisma.TopRankMissionCalendarUncheckedCreateNestedManyWithoutUserInput
   batches?: Prisma.TopRankBatchUncheckedCreateNestedManyWithoutStudentsInput
   mentorBatches?: Prisma.TopRankBatchUncheckedCreateNestedManyWithoutMentorInput
 }
@@ -1036,6 +1135,9 @@ export type TopRankUserUpdateWithoutStudentProfileInput = {
   orientationProgress?: Prisma.TopRankOrientationProgressUpdateManyWithoutUserNestedInput
   assessments?: Prisma.TopRankAssessmentUpdateManyWithoutUserNestedInput
   aprs?: Prisma.TopRankAPRUpdateManyWithoutUserNestedInput
+  missions?: Prisma.TopRankMissionUpdateManyWithoutUserNestedInput
+  missionCompletions?: Prisma.TopRankMissionCompletionUpdateManyWithoutUserNestedInput
+  missionCalendars?: Prisma.TopRankMissionCalendarUpdateManyWithoutUserNestedInput
   batches?: Prisma.TopRankBatchUpdateManyWithoutStudentsNestedInput
   mentorBatches?: Prisma.TopRankBatchUpdateManyWithoutMentorNestedInput
 }
@@ -1058,6 +1160,9 @@ export type TopRankUserUncheckedUpdateWithoutStudentProfileInput = {
   orientationProgress?: Prisma.TopRankOrientationProgressUncheckedUpdateManyWithoutUserNestedInput
   assessments?: Prisma.TopRankAssessmentUncheckedUpdateManyWithoutUserNestedInput
   aprs?: Prisma.TopRankAPRUncheckedUpdateManyWithoutUserNestedInput
+  missions?: Prisma.TopRankMissionUncheckedUpdateManyWithoutUserNestedInput
+  missionCompletions?: Prisma.TopRankMissionCompletionUncheckedUpdateManyWithoutUserNestedInput
+  missionCalendars?: Prisma.TopRankMissionCalendarUncheckedUpdateManyWithoutUserNestedInput
   batches?: Prisma.TopRankBatchUncheckedUpdateManyWithoutStudentsNestedInput
   mentorBatches?: Prisma.TopRankBatchUncheckedUpdateManyWithoutMentorNestedInput
 }
@@ -1080,6 +1185,9 @@ export type TopRankUserCreateWithoutEnrollmentsInput = {
   orientationProgress?: Prisma.TopRankOrientationProgressCreateNestedManyWithoutUserInput
   assessments?: Prisma.TopRankAssessmentCreateNestedManyWithoutUserInput
   aprs?: Prisma.TopRankAPRCreateNestedManyWithoutUserInput
+  missions?: Prisma.TopRankMissionCreateNestedManyWithoutUserInput
+  missionCompletions?: Prisma.TopRankMissionCompletionCreateNestedManyWithoutUserInput
+  missionCalendars?: Prisma.TopRankMissionCalendarCreateNestedManyWithoutUserInput
   batches?: Prisma.TopRankBatchCreateNestedManyWithoutStudentsInput
   mentorBatches?: Prisma.TopRankBatchCreateNestedManyWithoutMentorInput
 }
@@ -1102,6 +1210,9 @@ export type TopRankUserUncheckedCreateWithoutEnrollmentsInput = {
   orientationProgress?: Prisma.TopRankOrientationProgressUncheckedCreateNestedManyWithoutUserInput
   assessments?: Prisma.TopRankAssessmentUncheckedCreateNestedManyWithoutUserInput
   aprs?: Prisma.TopRankAPRUncheckedCreateNestedManyWithoutUserInput
+  missions?: Prisma.TopRankMissionUncheckedCreateNestedManyWithoutUserInput
+  missionCompletions?: Prisma.TopRankMissionCompletionUncheckedCreateNestedManyWithoutUserInput
+  missionCalendars?: Prisma.TopRankMissionCalendarUncheckedCreateNestedManyWithoutUserInput
   batches?: Prisma.TopRankBatchUncheckedCreateNestedManyWithoutStudentsInput
   mentorBatches?: Prisma.TopRankBatchUncheckedCreateNestedManyWithoutMentorInput
 }
@@ -1140,6 +1251,9 @@ export type TopRankUserUpdateWithoutEnrollmentsInput = {
   orientationProgress?: Prisma.TopRankOrientationProgressUpdateManyWithoutUserNestedInput
   assessments?: Prisma.TopRankAssessmentUpdateManyWithoutUserNestedInput
   aprs?: Prisma.TopRankAPRUpdateManyWithoutUserNestedInput
+  missions?: Prisma.TopRankMissionUpdateManyWithoutUserNestedInput
+  missionCompletions?: Prisma.TopRankMissionCompletionUpdateManyWithoutUserNestedInput
+  missionCalendars?: Prisma.TopRankMissionCalendarUpdateManyWithoutUserNestedInput
   batches?: Prisma.TopRankBatchUpdateManyWithoutStudentsNestedInput
   mentorBatches?: Prisma.TopRankBatchUpdateManyWithoutMentorNestedInput
 }
@@ -1162,6 +1276,9 @@ export type TopRankUserUncheckedUpdateWithoutEnrollmentsInput = {
   orientationProgress?: Prisma.TopRankOrientationProgressUncheckedUpdateManyWithoutUserNestedInput
   assessments?: Prisma.TopRankAssessmentUncheckedUpdateManyWithoutUserNestedInput
   aprs?: Prisma.TopRankAPRUncheckedUpdateManyWithoutUserNestedInput
+  missions?: Prisma.TopRankMissionUncheckedUpdateManyWithoutUserNestedInput
+  missionCompletions?: Prisma.TopRankMissionCompletionUncheckedUpdateManyWithoutUserNestedInput
+  missionCalendars?: Prisma.TopRankMissionCalendarUncheckedUpdateManyWithoutUserNestedInput
   batches?: Prisma.TopRankBatchUncheckedUpdateManyWithoutStudentsNestedInput
   mentorBatches?: Prisma.TopRankBatchUncheckedUpdateManyWithoutMentorNestedInput
 }
@@ -1184,6 +1301,9 @@ export type TopRankUserCreateWithoutBatchAssignmentsInput = {
   orientationProgress?: Prisma.TopRankOrientationProgressCreateNestedManyWithoutUserInput
   assessments?: Prisma.TopRankAssessmentCreateNestedManyWithoutUserInput
   aprs?: Prisma.TopRankAPRCreateNestedManyWithoutUserInput
+  missions?: Prisma.TopRankMissionCreateNestedManyWithoutUserInput
+  missionCompletions?: Prisma.TopRankMissionCompletionCreateNestedManyWithoutUserInput
+  missionCalendars?: Prisma.TopRankMissionCalendarCreateNestedManyWithoutUserInput
   batches?: Prisma.TopRankBatchCreateNestedManyWithoutStudentsInput
   mentorBatches?: Prisma.TopRankBatchCreateNestedManyWithoutMentorInput
 }
@@ -1206,6 +1326,9 @@ export type TopRankUserUncheckedCreateWithoutBatchAssignmentsInput = {
   orientationProgress?: Prisma.TopRankOrientationProgressUncheckedCreateNestedManyWithoutUserInput
   assessments?: Prisma.TopRankAssessmentUncheckedCreateNestedManyWithoutUserInput
   aprs?: Prisma.TopRankAPRUncheckedCreateNestedManyWithoutUserInput
+  missions?: Prisma.TopRankMissionUncheckedCreateNestedManyWithoutUserInput
+  missionCompletions?: Prisma.TopRankMissionCompletionUncheckedCreateNestedManyWithoutUserInput
+  missionCalendars?: Prisma.TopRankMissionCalendarUncheckedCreateNestedManyWithoutUserInput
   batches?: Prisma.TopRankBatchUncheckedCreateNestedManyWithoutStudentsInput
   mentorBatches?: Prisma.TopRankBatchUncheckedCreateNestedManyWithoutMentorInput
 }
@@ -1244,6 +1367,9 @@ export type TopRankUserUpdateWithoutBatchAssignmentsInput = {
   orientationProgress?: Prisma.TopRankOrientationProgressUpdateManyWithoutUserNestedInput
   assessments?: Prisma.TopRankAssessmentUpdateManyWithoutUserNestedInput
   aprs?: Prisma.TopRankAPRUpdateManyWithoutUserNestedInput
+  missions?: Prisma.TopRankMissionUpdateManyWithoutUserNestedInput
+  missionCompletions?: Prisma.TopRankMissionCompletionUpdateManyWithoutUserNestedInput
+  missionCalendars?: Prisma.TopRankMissionCalendarUpdateManyWithoutUserNestedInput
   batches?: Prisma.TopRankBatchUpdateManyWithoutStudentsNestedInput
   mentorBatches?: Prisma.TopRankBatchUpdateManyWithoutMentorNestedInput
 }
@@ -1266,6 +1392,9 @@ export type TopRankUserUncheckedUpdateWithoutBatchAssignmentsInput = {
   orientationProgress?: Prisma.TopRankOrientationProgressUncheckedUpdateManyWithoutUserNestedInput
   assessments?: Prisma.TopRankAssessmentUncheckedUpdateManyWithoutUserNestedInput
   aprs?: Prisma.TopRankAPRUncheckedUpdateManyWithoutUserNestedInput
+  missions?: Prisma.TopRankMissionUncheckedUpdateManyWithoutUserNestedInput
+  missionCompletions?: Prisma.TopRankMissionCompletionUncheckedUpdateManyWithoutUserNestedInput
+  missionCalendars?: Prisma.TopRankMissionCalendarUncheckedUpdateManyWithoutUserNestedInput
   batches?: Prisma.TopRankBatchUncheckedUpdateManyWithoutStudentsNestedInput
   mentorBatches?: Prisma.TopRankBatchUncheckedUpdateManyWithoutMentorNestedInput
 }
@@ -1288,6 +1417,9 @@ export type TopRankUserCreateWithoutAgreementsInput = {
   orientationProgress?: Prisma.TopRankOrientationProgressCreateNestedManyWithoutUserInput
   assessments?: Prisma.TopRankAssessmentCreateNestedManyWithoutUserInput
   aprs?: Prisma.TopRankAPRCreateNestedManyWithoutUserInput
+  missions?: Prisma.TopRankMissionCreateNestedManyWithoutUserInput
+  missionCompletions?: Prisma.TopRankMissionCompletionCreateNestedManyWithoutUserInput
+  missionCalendars?: Prisma.TopRankMissionCalendarCreateNestedManyWithoutUserInput
   batches?: Prisma.TopRankBatchCreateNestedManyWithoutStudentsInput
   mentorBatches?: Prisma.TopRankBatchCreateNestedManyWithoutMentorInput
 }
@@ -1310,6 +1442,9 @@ export type TopRankUserUncheckedCreateWithoutAgreementsInput = {
   orientationProgress?: Prisma.TopRankOrientationProgressUncheckedCreateNestedManyWithoutUserInput
   assessments?: Prisma.TopRankAssessmentUncheckedCreateNestedManyWithoutUserInput
   aprs?: Prisma.TopRankAPRUncheckedCreateNestedManyWithoutUserInput
+  missions?: Prisma.TopRankMissionUncheckedCreateNestedManyWithoutUserInput
+  missionCompletions?: Prisma.TopRankMissionCompletionUncheckedCreateNestedManyWithoutUserInput
+  missionCalendars?: Prisma.TopRankMissionCalendarUncheckedCreateNestedManyWithoutUserInput
   batches?: Prisma.TopRankBatchUncheckedCreateNestedManyWithoutStudentsInput
   mentorBatches?: Prisma.TopRankBatchUncheckedCreateNestedManyWithoutMentorInput
 }
@@ -1348,6 +1483,9 @@ export type TopRankUserUpdateWithoutAgreementsInput = {
   orientationProgress?: Prisma.TopRankOrientationProgressUpdateManyWithoutUserNestedInput
   assessments?: Prisma.TopRankAssessmentUpdateManyWithoutUserNestedInput
   aprs?: Prisma.TopRankAPRUpdateManyWithoutUserNestedInput
+  missions?: Prisma.TopRankMissionUpdateManyWithoutUserNestedInput
+  missionCompletions?: Prisma.TopRankMissionCompletionUpdateManyWithoutUserNestedInput
+  missionCalendars?: Prisma.TopRankMissionCalendarUpdateManyWithoutUserNestedInput
   batches?: Prisma.TopRankBatchUpdateManyWithoutStudentsNestedInput
   mentorBatches?: Prisma.TopRankBatchUpdateManyWithoutMentorNestedInput
 }
@@ -1370,6 +1508,9 @@ export type TopRankUserUncheckedUpdateWithoutAgreementsInput = {
   orientationProgress?: Prisma.TopRankOrientationProgressUncheckedUpdateManyWithoutUserNestedInput
   assessments?: Prisma.TopRankAssessmentUncheckedUpdateManyWithoutUserNestedInput
   aprs?: Prisma.TopRankAPRUncheckedUpdateManyWithoutUserNestedInput
+  missions?: Prisma.TopRankMissionUncheckedUpdateManyWithoutUserNestedInput
+  missionCompletions?: Prisma.TopRankMissionCompletionUncheckedUpdateManyWithoutUserNestedInput
+  missionCalendars?: Prisma.TopRankMissionCalendarUncheckedUpdateManyWithoutUserNestedInput
   batches?: Prisma.TopRankBatchUncheckedUpdateManyWithoutStudentsNestedInput
   mentorBatches?: Prisma.TopRankBatchUncheckedUpdateManyWithoutMentorNestedInput
 }
@@ -1392,6 +1533,9 @@ export type TopRankUserCreateWithoutOrientationProgressInput = {
   agreements?: Prisma.TopRankProgramAgreementCreateNestedManyWithoutUserInput
   assessments?: Prisma.TopRankAssessmentCreateNestedManyWithoutUserInput
   aprs?: Prisma.TopRankAPRCreateNestedManyWithoutUserInput
+  missions?: Prisma.TopRankMissionCreateNestedManyWithoutUserInput
+  missionCompletions?: Prisma.TopRankMissionCompletionCreateNestedManyWithoutUserInput
+  missionCalendars?: Prisma.TopRankMissionCalendarCreateNestedManyWithoutUserInput
   batches?: Prisma.TopRankBatchCreateNestedManyWithoutStudentsInput
   mentorBatches?: Prisma.TopRankBatchCreateNestedManyWithoutMentorInput
 }
@@ -1414,6 +1558,9 @@ export type TopRankUserUncheckedCreateWithoutOrientationProgressInput = {
   agreements?: Prisma.TopRankProgramAgreementUncheckedCreateNestedManyWithoutUserInput
   assessments?: Prisma.TopRankAssessmentUncheckedCreateNestedManyWithoutUserInput
   aprs?: Prisma.TopRankAPRUncheckedCreateNestedManyWithoutUserInput
+  missions?: Prisma.TopRankMissionUncheckedCreateNestedManyWithoutUserInput
+  missionCompletions?: Prisma.TopRankMissionCompletionUncheckedCreateNestedManyWithoutUserInput
+  missionCalendars?: Prisma.TopRankMissionCalendarUncheckedCreateNestedManyWithoutUserInput
   batches?: Prisma.TopRankBatchUncheckedCreateNestedManyWithoutStudentsInput
   mentorBatches?: Prisma.TopRankBatchUncheckedCreateNestedManyWithoutMentorInput
 }
@@ -1452,6 +1599,9 @@ export type TopRankUserUpdateWithoutOrientationProgressInput = {
   agreements?: Prisma.TopRankProgramAgreementUpdateManyWithoutUserNestedInput
   assessments?: Prisma.TopRankAssessmentUpdateManyWithoutUserNestedInput
   aprs?: Prisma.TopRankAPRUpdateManyWithoutUserNestedInput
+  missions?: Prisma.TopRankMissionUpdateManyWithoutUserNestedInput
+  missionCompletions?: Prisma.TopRankMissionCompletionUpdateManyWithoutUserNestedInput
+  missionCalendars?: Prisma.TopRankMissionCalendarUpdateManyWithoutUserNestedInput
   batches?: Prisma.TopRankBatchUpdateManyWithoutStudentsNestedInput
   mentorBatches?: Prisma.TopRankBatchUpdateManyWithoutMentorNestedInput
 }
@@ -1474,6 +1624,9 @@ export type TopRankUserUncheckedUpdateWithoutOrientationProgressInput = {
   agreements?: Prisma.TopRankProgramAgreementUncheckedUpdateManyWithoutUserNestedInput
   assessments?: Prisma.TopRankAssessmentUncheckedUpdateManyWithoutUserNestedInput
   aprs?: Prisma.TopRankAPRUncheckedUpdateManyWithoutUserNestedInput
+  missions?: Prisma.TopRankMissionUncheckedUpdateManyWithoutUserNestedInput
+  missionCompletions?: Prisma.TopRankMissionCompletionUncheckedUpdateManyWithoutUserNestedInput
+  missionCalendars?: Prisma.TopRankMissionCalendarUncheckedUpdateManyWithoutUserNestedInput
   batches?: Prisma.TopRankBatchUncheckedUpdateManyWithoutStudentsNestedInput
   mentorBatches?: Prisma.TopRankBatchUncheckedUpdateManyWithoutMentorNestedInput
 }
@@ -1496,6 +1649,9 @@ export type TopRankUserCreateWithoutAssessmentsInput = {
   agreements?: Prisma.TopRankProgramAgreementCreateNestedManyWithoutUserInput
   orientationProgress?: Prisma.TopRankOrientationProgressCreateNestedManyWithoutUserInput
   aprs?: Prisma.TopRankAPRCreateNestedManyWithoutUserInput
+  missions?: Prisma.TopRankMissionCreateNestedManyWithoutUserInput
+  missionCompletions?: Prisma.TopRankMissionCompletionCreateNestedManyWithoutUserInput
+  missionCalendars?: Prisma.TopRankMissionCalendarCreateNestedManyWithoutUserInput
   batches?: Prisma.TopRankBatchCreateNestedManyWithoutStudentsInput
   mentorBatches?: Prisma.TopRankBatchCreateNestedManyWithoutMentorInput
 }
@@ -1518,6 +1674,9 @@ export type TopRankUserUncheckedCreateWithoutAssessmentsInput = {
   agreements?: Prisma.TopRankProgramAgreementUncheckedCreateNestedManyWithoutUserInput
   orientationProgress?: Prisma.TopRankOrientationProgressUncheckedCreateNestedManyWithoutUserInput
   aprs?: Prisma.TopRankAPRUncheckedCreateNestedManyWithoutUserInput
+  missions?: Prisma.TopRankMissionUncheckedCreateNestedManyWithoutUserInput
+  missionCompletions?: Prisma.TopRankMissionCompletionUncheckedCreateNestedManyWithoutUserInput
+  missionCalendars?: Prisma.TopRankMissionCalendarUncheckedCreateNestedManyWithoutUserInput
   batches?: Prisma.TopRankBatchUncheckedCreateNestedManyWithoutStudentsInput
   mentorBatches?: Prisma.TopRankBatchUncheckedCreateNestedManyWithoutMentorInput
 }
@@ -1556,6 +1715,9 @@ export type TopRankUserUpdateWithoutAssessmentsInput = {
   agreements?: Prisma.TopRankProgramAgreementUpdateManyWithoutUserNestedInput
   orientationProgress?: Prisma.TopRankOrientationProgressUpdateManyWithoutUserNestedInput
   aprs?: Prisma.TopRankAPRUpdateManyWithoutUserNestedInput
+  missions?: Prisma.TopRankMissionUpdateManyWithoutUserNestedInput
+  missionCompletions?: Prisma.TopRankMissionCompletionUpdateManyWithoutUserNestedInput
+  missionCalendars?: Prisma.TopRankMissionCalendarUpdateManyWithoutUserNestedInput
   batches?: Prisma.TopRankBatchUpdateManyWithoutStudentsNestedInput
   mentorBatches?: Prisma.TopRankBatchUpdateManyWithoutMentorNestedInput
 }
@@ -1578,6 +1740,9 @@ export type TopRankUserUncheckedUpdateWithoutAssessmentsInput = {
   agreements?: Prisma.TopRankProgramAgreementUncheckedUpdateManyWithoutUserNestedInput
   orientationProgress?: Prisma.TopRankOrientationProgressUncheckedUpdateManyWithoutUserNestedInput
   aprs?: Prisma.TopRankAPRUncheckedUpdateManyWithoutUserNestedInput
+  missions?: Prisma.TopRankMissionUncheckedUpdateManyWithoutUserNestedInput
+  missionCompletions?: Prisma.TopRankMissionCompletionUncheckedUpdateManyWithoutUserNestedInput
+  missionCalendars?: Prisma.TopRankMissionCalendarUncheckedUpdateManyWithoutUserNestedInput
   batches?: Prisma.TopRankBatchUncheckedUpdateManyWithoutStudentsNestedInput
   mentorBatches?: Prisma.TopRankBatchUncheckedUpdateManyWithoutMentorNestedInput
 }
@@ -1600,6 +1765,9 @@ export type TopRankUserCreateWithoutAprsInput = {
   agreements?: Prisma.TopRankProgramAgreementCreateNestedManyWithoutUserInput
   orientationProgress?: Prisma.TopRankOrientationProgressCreateNestedManyWithoutUserInput
   assessments?: Prisma.TopRankAssessmentCreateNestedManyWithoutUserInput
+  missions?: Prisma.TopRankMissionCreateNestedManyWithoutUserInput
+  missionCompletions?: Prisma.TopRankMissionCompletionCreateNestedManyWithoutUserInput
+  missionCalendars?: Prisma.TopRankMissionCalendarCreateNestedManyWithoutUserInput
   batches?: Prisma.TopRankBatchCreateNestedManyWithoutStudentsInput
   mentorBatches?: Prisma.TopRankBatchCreateNestedManyWithoutMentorInput
 }
@@ -1622,6 +1790,9 @@ export type TopRankUserUncheckedCreateWithoutAprsInput = {
   agreements?: Prisma.TopRankProgramAgreementUncheckedCreateNestedManyWithoutUserInput
   orientationProgress?: Prisma.TopRankOrientationProgressUncheckedCreateNestedManyWithoutUserInput
   assessments?: Prisma.TopRankAssessmentUncheckedCreateNestedManyWithoutUserInput
+  missions?: Prisma.TopRankMissionUncheckedCreateNestedManyWithoutUserInput
+  missionCompletions?: Prisma.TopRankMissionCompletionUncheckedCreateNestedManyWithoutUserInput
+  missionCalendars?: Prisma.TopRankMissionCalendarUncheckedCreateNestedManyWithoutUserInput
   batches?: Prisma.TopRankBatchUncheckedCreateNestedManyWithoutStudentsInput
   mentorBatches?: Prisma.TopRankBatchUncheckedCreateNestedManyWithoutMentorInput
 }
@@ -1660,6 +1831,9 @@ export type TopRankUserUpdateWithoutAprsInput = {
   agreements?: Prisma.TopRankProgramAgreementUpdateManyWithoutUserNestedInput
   orientationProgress?: Prisma.TopRankOrientationProgressUpdateManyWithoutUserNestedInput
   assessments?: Prisma.TopRankAssessmentUpdateManyWithoutUserNestedInput
+  missions?: Prisma.TopRankMissionUpdateManyWithoutUserNestedInput
+  missionCompletions?: Prisma.TopRankMissionCompletionUpdateManyWithoutUserNestedInput
+  missionCalendars?: Prisma.TopRankMissionCalendarUpdateManyWithoutUserNestedInput
   batches?: Prisma.TopRankBatchUpdateManyWithoutStudentsNestedInput
   mentorBatches?: Prisma.TopRankBatchUpdateManyWithoutMentorNestedInput
 }
@@ -1682,6 +1856,357 @@ export type TopRankUserUncheckedUpdateWithoutAprsInput = {
   agreements?: Prisma.TopRankProgramAgreementUncheckedUpdateManyWithoutUserNestedInput
   orientationProgress?: Prisma.TopRankOrientationProgressUncheckedUpdateManyWithoutUserNestedInput
   assessments?: Prisma.TopRankAssessmentUncheckedUpdateManyWithoutUserNestedInput
+  missions?: Prisma.TopRankMissionUncheckedUpdateManyWithoutUserNestedInput
+  missionCompletions?: Prisma.TopRankMissionCompletionUncheckedUpdateManyWithoutUserNestedInput
+  missionCalendars?: Prisma.TopRankMissionCalendarUncheckedUpdateManyWithoutUserNestedInput
+  batches?: Prisma.TopRankBatchUncheckedUpdateManyWithoutStudentsNestedInput
+  mentorBatches?: Prisma.TopRankBatchUncheckedUpdateManyWithoutMentorNestedInput
+}
+
+export type TopRankUserCreateWithoutMissionsInput = {
+  id?: string
+  name: string
+  email: string
+  phone: string
+  passwordHash: string
+  role?: $Enums.TopRankRole
+  status?: string
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sessions?: Prisma.TopRankSessionCreateNestedManyWithoutUserInput
+  studentProfile?: Prisma.TopRankStudentProfileCreateNestedOneWithoutUserInput
+  enrollments?: Prisma.TopRankEnrollmentCreateNestedManyWithoutUserInput
+  batchAssignments?: Prisma.TopRankBatchAssignmentCreateNestedManyWithoutUserInput
+  agreements?: Prisma.TopRankProgramAgreementCreateNestedManyWithoutUserInput
+  orientationProgress?: Prisma.TopRankOrientationProgressCreateNestedManyWithoutUserInput
+  assessments?: Prisma.TopRankAssessmentCreateNestedManyWithoutUserInput
+  aprs?: Prisma.TopRankAPRCreateNestedManyWithoutUserInput
+  missionCompletions?: Prisma.TopRankMissionCompletionCreateNestedManyWithoutUserInput
+  missionCalendars?: Prisma.TopRankMissionCalendarCreateNestedManyWithoutUserInput
+  batches?: Prisma.TopRankBatchCreateNestedManyWithoutStudentsInput
+  mentorBatches?: Prisma.TopRankBatchCreateNestedManyWithoutMentorInput
+}
+
+export type TopRankUserUncheckedCreateWithoutMissionsInput = {
+  id?: string
+  name: string
+  email: string
+  phone: string
+  passwordHash: string
+  role?: $Enums.TopRankRole
+  status?: string
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sessions?: Prisma.TopRankSessionUncheckedCreateNestedManyWithoutUserInput
+  studentProfile?: Prisma.TopRankStudentProfileUncheckedCreateNestedOneWithoutUserInput
+  enrollments?: Prisma.TopRankEnrollmentUncheckedCreateNestedManyWithoutUserInput
+  batchAssignments?: Prisma.TopRankBatchAssignmentUncheckedCreateNestedManyWithoutUserInput
+  agreements?: Prisma.TopRankProgramAgreementUncheckedCreateNestedManyWithoutUserInput
+  orientationProgress?: Prisma.TopRankOrientationProgressUncheckedCreateNestedManyWithoutUserInput
+  assessments?: Prisma.TopRankAssessmentUncheckedCreateNestedManyWithoutUserInput
+  aprs?: Prisma.TopRankAPRUncheckedCreateNestedManyWithoutUserInput
+  missionCompletions?: Prisma.TopRankMissionCompletionUncheckedCreateNestedManyWithoutUserInput
+  missionCalendars?: Prisma.TopRankMissionCalendarUncheckedCreateNestedManyWithoutUserInput
+  batches?: Prisma.TopRankBatchUncheckedCreateNestedManyWithoutStudentsInput
+  mentorBatches?: Prisma.TopRankBatchUncheckedCreateNestedManyWithoutMentorInput
+}
+
+export type TopRankUserCreateOrConnectWithoutMissionsInput = {
+  where: Prisma.TopRankUserWhereUniqueInput
+  create: Prisma.XOR<Prisma.TopRankUserCreateWithoutMissionsInput, Prisma.TopRankUserUncheckedCreateWithoutMissionsInput>
+}
+
+export type TopRankUserUpsertWithoutMissionsInput = {
+  update: Prisma.XOR<Prisma.TopRankUserUpdateWithoutMissionsInput, Prisma.TopRankUserUncheckedUpdateWithoutMissionsInput>
+  create: Prisma.XOR<Prisma.TopRankUserCreateWithoutMissionsInput, Prisma.TopRankUserUncheckedCreateWithoutMissionsInput>
+  where?: Prisma.TopRankUserWhereInput
+}
+
+export type TopRankUserUpdateToOneWithWhereWithoutMissionsInput = {
+  where?: Prisma.TopRankUserWhereInput
+  data: Prisma.XOR<Prisma.TopRankUserUpdateWithoutMissionsInput, Prisma.TopRankUserUncheckedUpdateWithoutMissionsInput>
+}
+
+export type TopRankUserUpdateWithoutMissionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumTopRankRoleFieldUpdateOperationsInput | $Enums.TopRankRole
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessions?: Prisma.TopRankSessionUpdateManyWithoutUserNestedInput
+  studentProfile?: Prisma.TopRankStudentProfileUpdateOneWithoutUserNestedInput
+  enrollments?: Prisma.TopRankEnrollmentUpdateManyWithoutUserNestedInput
+  batchAssignments?: Prisma.TopRankBatchAssignmentUpdateManyWithoutUserNestedInput
+  agreements?: Prisma.TopRankProgramAgreementUpdateManyWithoutUserNestedInput
+  orientationProgress?: Prisma.TopRankOrientationProgressUpdateManyWithoutUserNestedInput
+  assessments?: Prisma.TopRankAssessmentUpdateManyWithoutUserNestedInput
+  aprs?: Prisma.TopRankAPRUpdateManyWithoutUserNestedInput
+  missionCompletions?: Prisma.TopRankMissionCompletionUpdateManyWithoutUserNestedInput
+  missionCalendars?: Prisma.TopRankMissionCalendarUpdateManyWithoutUserNestedInput
+  batches?: Prisma.TopRankBatchUpdateManyWithoutStudentsNestedInput
+  mentorBatches?: Prisma.TopRankBatchUpdateManyWithoutMentorNestedInput
+}
+
+export type TopRankUserUncheckedUpdateWithoutMissionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumTopRankRoleFieldUpdateOperationsInput | $Enums.TopRankRole
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessions?: Prisma.TopRankSessionUncheckedUpdateManyWithoutUserNestedInput
+  studentProfile?: Prisma.TopRankStudentProfileUncheckedUpdateOneWithoutUserNestedInput
+  enrollments?: Prisma.TopRankEnrollmentUncheckedUpdateManyWithoutUserNestedInput
+  batchAssignments?: Prisma.TopRankBatchAssignmentUncheckedUpdateManyWithoutUserNestedInput
+  agreements?: Prisma.TopRankProgramAgreementUncheckedUpdateManyWithoutUserNestedInput
+  orientationProgress?: Prisma.TopRankOrientationProgressUncheckedUpdateManyWithoutUserNestedInput
+  assessments?: Prisma.TopRankAssessmentUncheckedUpdateManyWithoutUserNestedInput
+  aprs?: Prisma.TopRankAPRUncheckedUpdateManyWithoutUserNestedInput
+  missionCompletions?: Prisma.TopRankMissionCompletionUncheckedUpdateManyWithoutUserNestedInput
+  missionCalendars?: Prisma.TopRankMissionCalendarUncheckedUpdateManyWithoutUserNestedInput
+  batches?: Prisma.TopRankBatchUncheckedUpdateManyWithoutStudentsNestedInput
+  mentorBatches?: Prisma.TopRankBatchUncheckedUpdateManyWithoutMentorNestedInput
+}
+
+export type TopRankUserCreateWithoutMissionCompletionsInput = {
+  id?: string
+  name: string
+  email: string
+  phone: string
+  passwordHash: string
+  role?: $Enums.TopRankRole
+  status?: string
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sessions?: Prisma.TopRankSessionCreateNestedManyWithoutUserInput
+  studentProfile?: Prisma.TopRankStudentProfileCreateNestedOneWithoutUserInput
+  enrollments?: Prisma.TopRankEnrollmentCreateNestedManyWithoutUserInput
+  batchAssignments?: Prisma.TopRankBatchAssignmentCreateNestedManyWithoutUserInput
+  agreements?: Prisma.TopRankProgramAgreementCreateNestedManyWithoutUserInput
+  orientationProgress?: Prisma.TopRankOrientationProgressCreateNestedManyWithoutUserInput
+  assessments?: Prisma.TopRankAssessmentCreateNestedManyWithoutUserInput
+  aprs?: Prisma.TopRankAPRCreateNestedManyWithoutUserInput
+  missions?: Prisma.TopRankMissionCreateNestedManyWithoutUserInput
+  missionCalendars?: Prisma.TopRankMissionCalendarCreateNestedManyWithoutUserInput
+  batches?: Prisma.TopRankBatchCreateNestedManyWithoutStudentsInput
+  mentorBatches?: Prisma.TopRankBatchCreateNestedManyWithoutMentorInput
+}
+
+export type TopRankUserUncheckedCreateWithoutMissionCompletionsInput = {
+  id?: string
+  name: string
+  email: string
+  phone: string
+  passwordHash: string
+  role?: $Enums.TopRankRole
+  status?: string
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sessions?: Prisma.TopRankSessionUncheckedCreateNestedManyWithoutUserInput
+  studentProfile?: Prisma.TopRankStudentProfileUncheckedCreateNestedOneWithoutUserInput
+  enrollments?: Prisma.TopRankEnrollmentUncheckedCreateNestedManyWithoutUserInput
+  batchAssignments?: Prisma.TopRankBatchAssignmentUncheckedCreateNestedManyWithoutUserInput
+  agreements?: Prisma.TopRankProgramAgreementUncheckedCreateNestedManyWithoutUserInput
+  orientationProgress?: Prisma.TopRankOrientationProgressUncheckedCreateNestedManyWithoutUserInput
+  assessments?: Prisma.TopRankAssessmentUncheckedCreateNestedManyWithoutUserInput
+  aprs?: Prisma.TopRankAPRUncheckedCreateNestedManyWithoutUserInput
+  missions?: Prisma.TopRankMissionUncheckedCreateNestedManyWithoutUserInput
+  missionCalendars?: Prisma.TopRankMissionCalendarUncheckedCreateNestedManyWithoutUserInput
+  batches?: Prisma.TopRankBatchUncheckedCreateNestedManyWithoutStudentsInput
+  mentorBatches?: Prisma.TopRankBatchUncheckedCreateNestedManyWithoutMentorInput
+}
+
+export type TopRankUserCreateOrConnectWithoutMissionCompletionsInput = {
+  where: Prisma.TopRankUserWhereUniqueInput
+  create: Prisma.XOR<Prisma.TopRankUserCreateWithoutMissionCompletionsInput, Prisma.TopRankUserUncheckedCreateWithoutMissionCompletionsInput>
+}
+
+export type TopRankUserUpsertWithoutMissionCompletionsInput = {
+  update: Prisma.XOR<Prisma.TopRankUserUpdateWithoutMissionCompletionsInput, Prisma.TopRankUserUncheckedUpdateWithoutMissionCompletionsInput>
+  create: Prisma.XOR<Prisma.TopRankUserCreateWithoutMissionCompletionsInput, Prisma.TopRankUserUncheckedCreateWithoutMissionCompletionsInput>
+  where?: Prisma.TopRankUserWhereInput
+}
+
+export type TopRankUserUpdateToOneWithWhereWithoutMissionCompletionsInput = {
+  where?: Prisma.TopRankUserWhereInput
+  data: Prisma.XOR<Prisma.TopRankUserUpdateWithoutMissionCompletionsInput, Prisma.TopRankUserUncheckedUpdateWithoutMissionCompletionsInput>
+}
+
+export type TopRankUserUpdateWithoutMissionCompletionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumTopRankRoleFieldUpdateOperationsInput | $Enums.TopRankRole
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessions?: Prisma.TopRankSessionUpdateManyWithoutUserNestedInput
+  studentProfile?: Prisma.TopRankStudentProfileUpdateOneWithoutUserNestedInput
+  enrollments?: Prisma.TopRankEnrollmentUpdateManyWithoutUserNestedInput
+  batchAssignments?: Prisma.TopRankBatchAssignmentUpdateManyWithoutUserNestedInput
+  agreements?: Prisma.TopRankProgramAgreementUpdateManyWithoutUserNestedInput
+  orientationProgress?: Prisma.TopRankOrientationProgressUpdateManyWithoutUserNestedInput
+  assessments?: Prisma.TopRankAssessmentUpdateManyWithoutUserNestedInput
+  aprs?: Prisma.TopRankAPRUpdateManyWithoutUserNestedInput
+  missions?: Prisma.TopRankMissionUpdateManyWithoutUserNestedInput
+  missionCalendars?: Prisma.TopRankMissionCalendarUpdateManyWithoutUserNestedInput
+  batches?: Prisma.TopRankBatchUpdateManyWithoutStudentsNestedInput
+  mentorBatches?: Prisma.TopRankBatchUpdateManyWithoutMentorNestedInput
+}
+
+export type TopRankUserUncheckedUpdateWithoutMissionCompletionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumTopRankRoleFieldUpdateOperationsInput | $Enums.TopRankRole
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessions?: Prisma.TopRankSessionUncheckedUpdateManyWithoutUserNestedInput
+  studentProfile?: Prisma.TopRankStudentProfileUncheckedUpdateOneWithoutUserNestedInput
+  enrollments?: Prisma.TopRankEnrollmentUncheckedUpdateManyWithoutUserNestedInput
+  batchAssignments?: Prisma.TopRankBatchAssignmentUncheckedUpdateManyWithoutUserNestedInput
+  agreements?: Prisma.TopRankProgramAgreementUncheckedUpdateManyWithoutUserNestedInput
+  orientationProgress?: Prisma.TopRankOrientationProgressUncheckedUpdateManyWithoutUserNestedInput
+  assessments?: Prisma.TopRankAssessmentUncheckedUpdateManyWithoutUserNestedInput
+  aprs?: Prisma.TopRankAPRUncheckedUpdateManyWithoutUserNestedInput
+  missions?: Prisma.TopRankMissionUncheckedUpdateManyWithoutUserNestedInput
+  missionCalendars?: Prisma.TopRankMissionCalendarUncheckedUpdateManyWithoutUserNestedInput
+  batches?: Prisma.TopRankBatchUncheckedUpdateManyWithoutStudentsNestedInput
+  mentorBatches?: Prisma.TopRankBatchUncheckedUpdateManyWithoutMentorNestedInput
+}
+
+export type TopRankUserCreateWithoutMissionCalendarsInput = {
+  id?: string
+  name: string
+  email: string
+  phone: string
+  passwordHash: string
+  role?: $Enums.TopRankRole
+  status?: string
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sessions?: Prisma.TopRankSessionCreateNestedManyWithoutUserInput
+  studentProfile?: Prisma.TopRankStudentProfileCreateNestedOneWithoutUserInput
+  enrollments?: Prisma.TopRankEnrollmentCreateNestedManyWithoutUserInput
+  batchAssignments?: Prisma.TopRankBatchAssignmentCreateNestedManyWithoutUserInput
+  agreements?: Prisma.TopRankProgramAgreementCreateNestedManyWithoutUserInput
+  orientationProgress?: Prisma.TopRankOrientationProgressCreateNestedManyWithoutUserInput
+  assessments?: Prisma.TopRankAssessmentCreateNestedManyWithoutUserInput
+  aprs?: Prisma.TopRankAPRCreateNestedManyWithoutUserInput
+  missions?: Prisma.TopRankMissionCreateNestedManyWithoutUserInput
+  missionCompletions?: Prisma.TopRankMissionCompletionCreateNestedManyWithoutUserInput
+  batches?: Prisma.TopRankBatchCreateNestedManyWithoutStudentsInput
+  mentorBatches?: Prisma.TopRankBatchCreateNestedManyWithoutMentorInput
+}
+
+export type TopRankUserUncheckedCreateWithoutMissionCalendarsInput = {
+  id?: string
+  name: string
+  email: string
+  phone: string
+  passwordHash: string
+  role?: $Enums.TopRankRole
+  status?: string
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sessions?: Prisma.TopRankSessionUncheckedCreateNestedManyWithoutUserInput
+  studentProfile?: Prisma.TopRankStudentProfileUncheckedCreateNestedOneWithoutUserInput
+  enrollments?: Prisma.TopRankEnrollmentUncheckedCreateNestedManyWithoutUserInput
+  batchAssignments?: Prisma.TopRankBatchAssignmentUncheckedCreateNestedManyWithoutUserInput
+  agreements?: Prisma.TopRankProgramAgreementUncheckedCreateNestedManyWithoutUserInput
+  orientationProgress?: Prisma.TopRankOrientationProgressUncheckedCreateNestedManyWithoutUserInput
+  assessments?: Prisma.TopRankAssessmentUncheckedCreateNestedManyWithoutUserInput
+  aprs?: Prisma.TopRankAPRUncheckedCreateNestedManyWithoutUserInput
+  missions?: Prisma.TopRankMissionUncheckedCreateNestedManyWithoutUserInput
+  missionCompletions?: Prisma.TopRankMissionCompletionUncheckedCreateNestedManyWithoutUserInput
+  batches?: Prisma.TopRankBatchUncheckedCreateNestedManyWithoutStudentsInput
+  mentorBatches?: Prisma.TopRankBatchUncheckedCreateNestedManyWithoutMentorInput
+}
+
+export type TopRankUserCreateOrConnectWithoutMissionCalendarsInput = {
+  where: Prisma.TopRankUserWhereUniqueInput
+  create: Prisma.XOR<Prisma.TopRankUserCreateWithoutMissionCalendarsInput, Prisma.TopRankUserUncheckedCreateWithoutMissionCalendarsInput>
+}
+
+export type TopRankUserUpsertWithoutMissionCalendarsInput = {
+  update: Prisma.XOR<Prisma.TopRankUserUpdateWithoutMissionCalendarsInput, Prisma.TopRankUserUncheckedUpdateWithoutMissionCalendarsInput>
+  create: Prisma.XOR<Prisma.TopRankUserCreateWithoutMissionCalendarsInput, Prisma.TopRankUserUncheckedCreateWithoutMissionCalendarsInput>
+  where?: Prisma.TopRankUserWhereInput
+}
+
+export type TopRankUserUpdateToOneWithWhereWithoutMissionCalendarsInput = {
+  where?: Prisma.TopRankUserWhereInput
+  data: Prisma.XOR<Prisma.TopRankUserUpdateWithoutMissionCalendarsInput, Prisma.TopRankUserUncheckedUpdateWithoutMissionCalendarsInput>
+}
+
+export type TopRankUserUpdateWithoutMissionCalendarsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumTopRankRoleFieldUpdateOperationsInput | $Enums.TopRankRole
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessions?: Prisma.TopRankSessionUpdateManyWithoutUserNestedInput
+  studentProfile?: Prisma.TopRankStudentProfileUpdateOneWithoutUserNestedInput
+  enrollments?: Prisma.TopRankEnrollmentUpdateManyWithoutUserNestedInput
+  batchAssignments?: Prisma.TopRankBatchAssignmentUpdateManyWithoutUserNestedInput
+  agreements?: Prisma.TopRankProgramAgreementUpdateManyWithoutUserNestedInput
+  orientationProgress?: Prisma.TopRankOrientationProgressUpdateManyWithoutUserNestedInput
+  assessments?: Prisma.TopRankAssessmentUpdateManyWithoutUserNestedInput
+  aprs?: Prisma.TopRankAPRUpdateManyWithoutUserNestedInput
+  missions?: Prisma.TopRankMissionUpdateManyWithoutUserNestedInput
+  missionCompletions?: Prisma.TopRankMissionCompletionUpdateManyWithoutUserNestedInput
+  batches?: Prisma.TopRankBatchUpdateManyWithoutStudentsNestedInput
+  mentorBatches?: Prisma.TopRankBatchUpdateManyWithoutMentorNestedInput
+}
+
+export type TopRankUserUncheckedUpdateWithoutMissionCalendarsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumTopRankRoleFieldUpdateOperationsInput | $Enums.TopRankRole
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessions?: Prisma.TopRankSessionUncheckedUpdateManyWithoutUserNestedInput
+  studentProfile?: Prisma.TopRankStudentProfileUncheckedUpdateOneWithoutUserNestedInput
+  enrollments?: Prisma.TopRankEnrollmentUncheckedUpdateManyWithoutUserNestedInput
+  batchAssignments?: Prisma.TopRankBatchAssignmentUncheckedUpdateManyWithoutUserNestedInput
+  agreements?: Prisma.TopRankProgramAgreementUncheckedUpdateManyWithoutUserNestedInput
+  orientationProgress?: Prisma.TopRankOrientationProgressUncheckedUpdateManyWithoutUserNestedInput
+  assessments?: Prisma.TopRankAssessmentUncheckedUpdateManyWithoutUserNestedInput
+  aprs?: Prisma.TopRankAPRUncheckedUpdateManyWithoutUserNestedInput
+  missions?: Prisma.TopRankMissionUncheckedUpdateManyWithoutUserNestedInput
+  missionCompletions?: Prisma.TopRankMissionCompletionUncheckedUpdateManyWithoutUserNestedInput
   batches?: Prisma.TopRankBatchUncheckedUpdateManyWithoutStudentsNestedInput
   mentorBatches?: Prisma.TopRankBatchUncheckedUpdateManyWithoutMentorNestedInput
 }
@@ -1705,6 +2230,9 @@ export type TopRankUserUpdateWithoutBatchesInput = {
   orientationProgress?: Prisma.TopRankOrientationProgressUpdateManyWithoutUserNestedInput
   assessments?: Prisma.TopRankAssessmentUpdateManyWithoutUserNestedInput
   aprs?: Prisma.TopRankAPRUpdateManyWithoutUserNestedInput
+  missions?: Prisma.TopRankMissionUpdateManyWithoutUserNestedInput
+  missionCompletions?: Prisma.TopRankMissionCompletionUpdateManyWithoutUserNestedInput
+  missionCalendars?: Prisma.TopRankMissionCalendarUpdateManyWithoutUserNestedInput
   mentorBatches?: Prisma.TopRankBatchUpdateManyWithoutMentorNestedInput
 }
 
@@ -1727,6 +2255,9 @@ export type TopRankUserUncheckedUpdateWithoutBatchesInput = {
   orientationProgress?: Prisma.TopRankOrientationProgressUncheckedUpdateManyWithoutUserNestedInput
   assessments?: Prisma.TopRankAssessmentUncheckedUpdateManyWithoutUserNestedInput
   aprs?: Prisma.TopRankAPRUncheckedUpdateManyWithoutUserNestedInput
+  missions?: Prisma.TopRankMissionUncheckedUpdateManyWithoutUserNestedInput
+  missionCompletions?: Prisma.TopRankMissionCompletionUncheckedUpdateManyWithoutUserNestedInput
+  missionCalendars?: Prisma.TopRankMissionCalendarUncheckedUpdateManyWithoutUserNestedInput
   mentorBatches?: Prisma.TopRankBatchUncheckedUpdateManyWithoutMentorNestedInput
 }
 
@@ -1756,6 +2287,9 @@ export type TopRankUserCountOutputType = {
   orientationProgress: number
   assessments: number
   aprs: number
+  missions: number
+  missionCompletions: number
+  missionCalendars: number
   batches: number
   mentorBatches: number
 }
@@ -1768,6 +2302,9 @@ export type TopRankUserCountOutputTypeSelect<ExtArgs extends runtime.Types.Exten
   orientationProgress?: boolean | TopRankUserCountOutputTypeCountOrientationProgressArgs
   assessments?: boolean | TopRankUserCountOutputTypeCountAssessmentsArgs
   aprs?: boolean | TopRankUserCountOutputTypeCountAprsArgs
+  missions?: boolean | TopRankUserCountOutputTypeCountMissionsArgs
+  missionCompletions?: boolean | TopRankUserCountOutputTypeCountMissionCompletionsArgs
+  missionCalendars?: boolean | TopRankUserCountOutputTypeCountMissionCalendarsArgs
   batches?: boolean | TopRankUserCountOutputTypeCountBatchesArgs
   mentorBatches?: boolean | TopRankUserCountOutputTypeCountMentorBatchesArgs
 }
@@ -1834,6 +2371,27 @@ export type TopRankUserCountOutputTypeCountAprsArgs<ExtArgs extends runtime.Type
 /**
  * TopRankUserCountOutputType without action
  */
+export type TopRankUserCountOutputTypeCountMissionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.TopRankMissionWhereInput
+}
+
+/**
+ * TopRankUserCountOutputType without action
+ */
+export type TopRankUserCountOutputTypeCountMissionCompletionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.TopRankMissionCompletionWhereInput
+}
+
+/**
+ * TopRankUserCountOutputType without action
+ */
+export type TopRankUserCountOutputTypeCountMissionCalendarsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.TopRankMissionCalendarWhereInput
+}
+
+/**
+ * TopRankUserCountOutputType without action
+ */
 export type TopRankUserCountOutputTypeCountBatchesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.TopRankBatchWhereInput
 }
@@ -1865,6 +2423,9 @@ export type TopRankUserSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   orientationProgress?: boolean | Prisma.TopRankUser$orientationProgressArgs<ExtArgs>
   assessments?: boolean | Prisma.TopRankUser$assessmentsArgs<ExtArgs>
   aprs?: boolean | Prisma.TopRankUser$aprsArgs<ExtArgs>
+  missions?: boolean | Prisma.TopRankUser$missionsArgs<ExtArgs>
+  missionCompletions?: boolean | Prisma.TopRankUser$missionCompletionsArgs<ExtArgs>
+  missionCalendars?: boolean | Prisma.TopRankUser$missionCalendarsArgs<ExtArgs>
   batches?: boolean | Prisma.TopRankUser$batchesArgs<ExtArgs>
   mentorBatches?: boolean | Prisma.TopRankUser$mentorBatchesArgs<ExtArgs>
   _count?: boolean | Prisma.TopRankUserCountOutputTypeDefaultArgs<ExtArgs>
@@ -1919,6 +2480,9 @@ export type TopRankUserInclude<ExtArgs extends runtime.Types.Extensions.Internal
   orientationProgress?: boolean | Prisma.TopRankUser$orientationProgressArgs<ExtArgs>
   assessments?: boolean | Prisma.TopRankUser$assessmentsArgs<ExtArgs>
   aprs?: boolean | Prisma.TopRankUser$aprsArgs<ExtArgs>
+  missions?: boolean | Prisma.TopRankUser$missionsArgs<ExtArgs>
+  missionCompletions?: boolean | Prisma.TopRankUser$missionCompletionsArgs<ExtArgs>
+  missionCalendars?: boolean | Prisma.TopRankUser$missionCalendarsArgs<ExtArgs>
   batches?: boolean | Prisma.TopRankUser$batchesArgs<ExtArgs>
   mentorBatches?: boolean | Prisma.TopRankUser$mentorBatchesArgs<ExtArgs>
   _count?: boolean | Prisma.TopRankUserCountOutputTypeDefaultArgs<ExtArgs>
@@ -1937,6 +2501,9 @@ export type $TopRankUserPayload<ExtArgs extends runtime.Types.Extensions.Interna
     orientationProgress: Prisma.$TopRankOrientationProgressPayload<ExtArgs>[]
     assessments: Prisma.$TopRankAssessmentPayload<ExtArgs>[]
     aprs: Prisma.$TopRankAPRPayload<ExtArgs>[]
+    missions: Prisma.$TopRankMissionPayload<ExtArgs>[]
+    missionCompletions: Prisma.$TopRankMissionCompletionPayload<ExtArgs>[]
+    missionCalendars: Prisma.$TopRankMissionCalendarPayload<ExtArgs>[]
     batches: Prisma.$TopRankBatchPayload<ExtArgs>[]
     mentorBatches: Prisma.$TopRankBatchPayload<ExtArgs>[]
   }
@@ -2353,6 +2920,9 @@ export interface Prisma__TopRankUserClient<T, Null = never, ExtArgs extends runt
   orientationProgress<T extends Prisma.TopRankUser$orientationProgressArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TopRankUser$orientationProgressArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TopRankOrientationProgressPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   assessments<T extends Prisma.TopRankUser$assessmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TopRankUser$assessmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TopRankAssessmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   aprs<T extends Prisma.TopRankUser$aprsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TopRankUser$aprsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TopRankAPRPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  missions<T extends Prisma.TopRankUser$missionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TopRankUser$missionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TopRankMissionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  missionCompletions<T extends Prisma.TopRankUser$missionCompletionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TopRankUser$missionCompletionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TopRankMissionCompletionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  missionCalendars<T extends Prisma.TopRankUser$missionCalendarsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TopRankUser$missionCalendarsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TopRankMissionCalendarPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   batches<T extends Prisma.TopRankUser$batchesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TopRankUser$batchesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TopRankBatchPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   mentorBatches<T extends Prisma.TopRankUser$mentorBatchesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TopRankUser$mentorBatchesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TopRankBatchPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
@@ -2971,6 +3541,78 @@ export type TopRankUser$aprsArgs<ExtArgs extends runtime.Types.Extensions.Intern
   take?: number
   skip?: number
   distinct?: Prisma.TopRankAPRScalarFieldEnum | Prisma.TopRankAPRScalarFieldEnum[]
+}
+
+/**
+ * TopRankUser.missions
+ */
+export type TopRankUser$missionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the TopRankMission
+   */
+  select?: Prisma.TopRankMissionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the TopRankMission
+   */
+  omit?: Prisma.TopRankMissionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TopRankMissionInclude<ExtArgs> | null
+  where?: Prisma.TopRankMissionWhereInput
+  orderBy?: Prisma.TopRankMissionOrderByWithRelationInput | Prisma.TopRankMissionOrderByWithRelationInput[]
+  cursor?: Prisma.TopRankMissionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.TopRankMissionScalarFieldEnum | Prisma.TopRankMissionScalarFieldEnum[]
+}
+
+/**
+ * TopRankUser.missionCompletions
+ */
+export type TopRankUser$missionCompletionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the TopRankMissionCompletion
+   */
+  select?: Prisma.TopRankMissionCompletionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the TopRankMissionCompletion
+   */
+  omit?: Prisma.TopRankMissionCompletionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TopRankMissionCompletionInclude<ExtArgs> | null
+  where?: Prisma.TopRankMissionCompletionWhereInput
+  orderBy?: Prisma.TopRankMissionCompletionOrderByWithRelationInput | Prisma.TopRankMissionCompletionOrderByWithRelationInput[]
+  cursor?: Prisma.TopRankMissionCompletionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.TopRankMissionCompletionScalarFieldEnum | Prisma.TopRankMissionCompletionScalarFieldEnum[]
+}
+
+/**
+ * TopRankUser.missionCalendars
+ */
+export type TopRankUser$missionCalendarsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the TopRankMissionCalendar
+   */
+  select?: Prisma.TopRankMissionCalendarSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the TopRankMissionCalendar
+   */
+  omit?: Prisma.TopRankMissionCalendarOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TopRankMissionCalendarInclude<ExtArgs> | null
+  where?: Prisma.TopRankMissionCalendarWhereInput
+  orderBy?: Prisma.TopRankMissionCalendarOrderByWithRelationInput | Prisma.TopRankMissionCalendarOrderByWithRelationInput[]
+  cursor?: Prisma.TopRankMissionCalendarWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.TopRankMissionCalendarScalarFieldEnum | Prisma.TopRankMissionCalendarScalarFieldEnum[]
 }
 
 /**

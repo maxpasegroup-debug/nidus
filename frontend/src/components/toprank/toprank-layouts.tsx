@@ -15,17 +15,20 @@ const publicLinks = [
 const roleLinks = {
   student: [
     { label: "Dashboard", href: "/toprank/student" },
+    { label: "Missions", href: "/toprank/student/missions" },
+    { label: "Calendar", href: "/toprank/student/calendar" },
     { label: "Profile", href: "/toprank/student/profile" },
     { label: "APR", href: "/toprank/student/apr" },
-    { label: "Missions", href: "/toprank/student" },
   ],
   mentor: [
     { label: "Dashboard", href: "/toprank/mentor" },
+    { label: "Missions", href: "/toprank/mentor" },
     { label: "Classes", href: "/toprank/mentor" },
     { label: "Reviews", href: "/toprank/mentor" },
   ],
   admin: [
     { label: "Dashboard", href: "/toprank/admin" },
+    { label: "Missions", href: "/toprank/admin" },
     { label: "Gateways", href: "/toprank/admin" },
     { label: "Reports", href: "/toprank/admin" },
   ],

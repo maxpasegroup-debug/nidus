@@ -138,3 +138,48 @@ export type TopRankAssessmentStatus = {
   assessment: { id: string; completedAt: string; overallScore: number } | null;
   apr: TopRankAPR | null;
 };
+
+export type TopRankMissionTask = {
+  id: string;
+  missionId: string;
+  title: string;
+  taskType: string;
+  durationMinutes: number;
+  sequence: number;
+  completed: boolean;
+};
+
+export type TopRankMission = {
+  id: string;
+  userId: string;
+  title: string;
+  description: string;
+  missionType: string;
+  difficulty: string;
+  priority: number;
+  estimatedMinutes: number;
+  dueDate: string;
+  dayNumber: number;
+  weekNumber: number;
+  status: "PENDING" | "IN_PROGRESS" | "COMPLETED" | "MISSED" | "RESCHEDULED";
+  objectives: string[];
+  resources?: unknown;
+  metadata?: Record<string, unknown> | null;
+  tasks?: TopRankMissionTask[];
+};
+
+export type TopRankMissionDashboard = {
+  todayMissions: TopRankMission[];
+  upcomingMission: TopRankMission | null;
+  progress: { total: number; completed: number; pending: number; missed: number; completion: number };
+  weekly: Array<{ weekNumber: number; status: string; _count: { id: number } }>;
+};
+
+export type TopRankMissionCalendarEntry = {
+  id: string;
+  calendarDate: string;
+  weekNumber: number;
+  dayNumber: number;
+  status: string;
+  mission: TopRankMission;
+};

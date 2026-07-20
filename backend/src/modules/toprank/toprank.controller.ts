@@ -4,6 +4,7 @@ import { topRankAuthService } from "./toprank-auth.service.js";
 import { topRankAssessmentService } from "./toprank-assessment.service.js";
 import { topRankBatchService } from "./toprank-batch.service.js";
 import { topRankEnrollmentService } from "./toprank-enrollment.service.js";
+import { topRankMissionService } from "./toprank-mission.service.js";
 import { topRankProfileService } from "./toprank-profile.service.js";
 import { TOPRANK_SESSION_COOKIE, topRankSessionFromRequest } from "./toprank.middleware.js";
 import type { TopRankAuthenticatedRequest } from "./toprank.types.js";
@@ -120,5 +121,35 @@ export const topRankController = {
   submitAssessment: asyncHandler(async (req, res) => {
     if (!req.topRankUser) throw new Error("TopRank login required");
     res.status(201).json({ success: true, ...(await topRankAssessmentService.submit(req.topRankUser.id, req.body)) });
+  }),
+
+  missionDashboard: asyncHandler(async (req, res) => {
+    if (!req.topRankUser) throw new Error("TopRank login required");
+    res.json({ success: true, ...(await topRankMissionService.generatePlan(req.topRankUser.id)) });
+  }),
+
+  generateMissions: asyncHandler(async (req, res) => {
+    if (!req.topRankUser) throw new Error("TopRank login required");
+    const { force } = req.body as { force?: boolean };
+    res.status(201).json({ success: true, ...(await topRankMissionService.generatePlan(req.topRankUser.id, Boolean(force))) });
+  }),
+
+  missionCalendar: asyncHandler(async (req, res) => {
+    if (!req.topRankUser) throw new Error("TopRank login required");
+    res.json({ success: true, ...(await topRankMissionService.calendar(req.topRankUser.id)) });
+  }),
+
+  missionDetail: asyncHandler(async (req, res) => {
+    if (!req.topRankUser) throw new Error("TopRank login required");
+    const missionId = Array.isArray(req.params.missionId) ? req.params.missionId[0] : req.params.missionId;
+    if (!missionId) throw new Error("Mission id is required");
+    res.json({ success: true, mission: await topRankMissionService.detail(req.topRankUser.id, missionId) });
+  }),
+
+  completeMission: asyncHandler(async (req, res) => {
+    if (!req.topRankUser) throw new Error("TopRank login required");
+    const missionId = Array.isArray(req.params.missionId) ? req.params.missionId[0] : req.params.missionId;
+    if (!missionId) throw new Error("Mission id is required");
+    res.json({ success: true, ...(await topRankMissionService.complete(req.topRankUser.id, missionId, req.body)) });
   })
 };

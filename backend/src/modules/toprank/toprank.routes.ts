@@ -21,6 +21,11 @@ topRankRouter.post("/onboarding/agreement", topRankProtect, topRankAllowRoles(To
 topRankRouter.post("/onboarding/complete", topRankProtect, topRankAllowRoles(TopRankRole.TOPRANK_STUDENT), topRankController.completeEnrollment);
 topRankRouter.get("/assessment", topRankProtect, topRankAllowRoles(TopRankRole.TOPRANK_STUDENT), topRankController.assessmentStatus);
 topRankRouter.post("/assessment", topRankProtect, topRankAllowRoles(TopRankRole.TOPRANK_STUDENT), topRankController.submitAssessment);
+topRankRouter.get("/missions", topRankProtect, topRankAllowRoles(TopRankRole.TOPRANK_STUDENT), topRankController.missionDashboard);
+topRankRouter.post("/missions/generate", topRankProtect, topRankAllowRoles(TopRankRole.TOPRANK_STUDENT), topRankController.generateMissions);
+topRankRouter.get("/missions/calendar", topRankProtect, topRankAllowRoles(TopRankRole.TOPRANK_STUDENT), topRankController.missionCalendar);
+topRankRouter.get("/missions/:missionId", topRankProtect, topRankAllowRoles(TopRankRole.TOPRANK_STUDENT), topRankController.missionDetail);
+topRankRouter.post("/missions/:missionId/complete", topRankProtect, topRankAllowRoles(TopRankRole.TOPRANK_STUDENT), topRankController.completeMission);
 
 topRankRouter.get("/admin/students", topRankProtect, topRankAllowRoles(TopRankRole.TOPRANK_ADMIN, TopRankRole.TOPRANK_SUPER_ADMIN), topRankController.students);
 topRankRouter.get("/mentor/batches", topRankProtect, topRankAllowRoles(TopRankRole.TOPRANK_MENTOR), topRankController.mentorBatches);
