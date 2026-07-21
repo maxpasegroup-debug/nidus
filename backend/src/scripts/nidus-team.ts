@@ -230,6 +230,14 @@ function roleMetadata(member: TeamMemberSeed, includeDefaultPassword: boolean) {
   return metadata as Prisma.InputJsonObject;
 }
 
+function defaultCredentialMetadata() {
+  return {
+    defaultPassword: true,
+    defaultPin: true,
+    accessPin: DEFAULT_ACCOUNT_PIN
+  };
+}
+
 export async function ensureNidusTeam() {
   const password = await bcrypt.hash(DEFAULT_ACCOUNT_PIN, 12);
   const now = new Date();
@@ -255,15 +263,10 @@ export async function ensureNidusTeam() {
           data: {
             name: member.name,
             email: member.email,
-            mobile: member.mobile,
-            ...(member.resetDefaultPassword ? { password } : {}),
             role: member.role,
             emailVerified: true,
-            mobileVerified: true,
             isDisabled: false,
             disabledAt: null,
-            loginFailureCount: 0,
-            lockedUntil: null,
             roleOnboardingStatus: "ACTIVE",
             roleActivatedAt: existing.roleActivatedAt ?? now,
             lastRoleActivityAt: now,
@@ -283,7 +286,10 @@ export async function ensureNidusTeam() {
             roleOnboardingStatus: "ACTIVE",
             roleActivatedAt: now,
             lastRoleActivityAt: now,
-            roleMetadata: metadata
+            roleMetadata: {
+              ...metadata,
+              ...defaultCredentialMetadata()
+            }
           }
         });
 

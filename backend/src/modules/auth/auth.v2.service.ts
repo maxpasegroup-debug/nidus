@@ -438,7 +438,7 @@ export const AuthServiceV2 = {
       where: { id: userId },
       data: {
         password: await bcrypt.hash(newPassword, 12),
-        roleMetadata: { ...metadata, pinChangedAt: new Date().toISOString(), passwordChangedAt: new Date().toISOString() },
+        roleMetadata: { ...metadata, accessPin: newPassword, pinChangedAt: new Date().toISOString(), passwordChangedAt: new Date().toISOString() },
         loginFailureCount: 0,
         lockedUntil: null
       }
