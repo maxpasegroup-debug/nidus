@@ -59,6 +59,7 @@ export default function DirectorAccountsPage() {
     <WorkspaceDashboard
       roleTitle="Accounts Workspace"
       greeting="Today's Collections"
+      notificationHref="/dashboard/director/notifications"
       subtitle="Pending fees, receipts, invoices and finance reports in one focused accounts desk."
       focus={[
         { label: "Collections", title: `Rs ${monthlyRevenue.toLocaleString()}`, detail: "Current monthly revenue from payment analytics.", href: "/dashboard/director/accounts", icon: BadgeIndianRupee, tone: "success" },

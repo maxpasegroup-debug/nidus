@@ -15,7 +15,7 @@ const directorActions: QuickAction[] = [
   { label: "Notifications", href: "/dashboard/director/notifications", icon: Bell },
   { label: "Academics", href: "/dashboard/director/academic", icon: GraduationCap },
   { label: "HRM", href: "/dashboard/director/hrm", icon: Users },
-  { label: "Accounts", href: "/dashboard/director/admin-accounts", icon: WalletCards },
+  { label: "Accounts", href: "/dashboard/director/accounts", icon: WalletCards },
 ];
 
 const academicHeadActions: QuickAction[] = [

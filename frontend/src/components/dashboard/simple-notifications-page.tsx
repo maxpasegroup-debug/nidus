@@ -117,14 +117,13 @@ export function SimpleNotificationsPage({ owner }: { owner: "Director" | "Academ
             { label: "Automation Status", value: publishMutation.isPending ? "Sending" : "Ready", note: "Create announcement and queue push notification", tone: publishMutation.isPending ? "warning" : "success" },
           ]}
           approvals={[
-            { title: "Emergency notification", detail: "Emergency messages are sent to everyone through the existing announcement and push flow.", href: "#", icon: workflowIcons.notification, tone: audienceMode === "EMERGENCY" ? "warning" : "info" },
-            { title: "Batch reminder", detail: selectedBatch ? `Selected batch: ${selectedBatch.name}` : "Select a batch before sending batch-wise workflow reminders.", href: "#", icon: workflowIcons.reminder, tone: audienceMode === "BATCH" && !batchId ? "warning" : "success" },
-            { title: "Sent history", detail: "Use the existing announcement history as the notification timeline.", href: "#", icon: workflowIcons.task, tone: "info" },
+            { title: "Emergency notification", detail: "Emergency messages are sent to everyone through the existing announcement and push flow.", icon: workflowIcons.notification, tone: audienceMode === "EMERGENCY" ? "warning" : "info" },
+            { title: "Batch reminder", detail: selectedBatch ? `Selected batch: ${selectedBatch.name}` : "Select a batch before sending batch-wise workflow reminders.", icon: workflowIcons.reminder, tone: audienceMode === "BATCH" && !batchId ? "warning" : "success" },
+            { title: "Sent history", detail: "Use the existing announcement history as the notification timeline.", icon: workflowIcons.task, tone: "info" },
           ]}
           recent={(announcementsQuery.data ?? []).slice(0, 3).map((item) => ({
             title: item.title,
             detail: `${item.audience ?? item.targetAudience ?? "ALL"} / ${new Date(item.createdAt).toLocaleString()}`,
-            href: "#",
             icon: workflowIcons.notification,
             tone: "success",
           }))}

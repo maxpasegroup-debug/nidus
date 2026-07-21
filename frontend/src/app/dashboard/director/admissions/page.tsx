@@ -55,6 +55,7 @@ export default function DirectorAdmissionsPage() {
     <WorkspaceDashboard
       roleTitle="Director Admissions"
       greeting="Admission Overview"
+      notificationHref="/dashboard/director/notifications"
       subtitle="Lead, follow-up, counselling, application, approval, fee, batch allocation and activation in one journey."
       focus={[
         { label: "Today's Admissions", title: loading ? "..." : todayAdmissions.length, detail: "Admissions completed today.", href: "/dashboard/admission-cell#students", icon: GraduationCap, tone: todayAdmissions.length ? "success" : "default" },

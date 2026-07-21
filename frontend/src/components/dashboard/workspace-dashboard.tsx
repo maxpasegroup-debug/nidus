@@ -42,6 +42,7 @@ type WorkspaceDashboardProps = {
   focus: WorkspaceFocusCard[];
   actions: WorkspaceAction[];
   metrics: WorkspaceMetric[];
+  notificationHref?: string;
   activity?: WorkspaceListItem[];
   upcoming?: WorkspaceListItem[];
   children?: ReactNode;
@@ -61,6 +62,7 @@ export function WorkspaceDashboard({
   focus,
   greeting,
   metrics,
+  notificationHref = "/notifications",
   roleTitle,
   subtitle,
   upcoming = [],
@@ -68,7 +70,7 @@ export function WorkspaceDashboard({
   return (
     <main className="min-h-screen bg-[var(--ds-color-background)] px-4 py-5 text-[var(--ds-color-text)] md:px-6">
       <section className="mx-auto grid w-full max-w-[1500px] gap-5">
-        <WorkspaceHeader greeting={greeting} roleTitle={roleTitle} subtitle={subtitle} />
+        <WorkspaceHeader greeting={greeting} notificationHref={notificationHref} roleTitle={roleTitle} subtitle={subtitle} />
 
         <section aria-labelledby="today-focus-title">
           <div className="mb-3 flex items-end justify-between gap-3">
@@ -135,7 +137,7 @@ export function WorkspaceDashboard({
   );
 }
 
-function WorkspaceHeader({ greeting, roleTitle, subtitle }: { greeting: ReactNode; roleTitle: string; subtitle?: ReactNode }) {
+function WorkspaceHeader({ greeting, notificationHref, roleTitle, subtitle }: { greeting: ReactNode; notificationHref: string; roleTitle: string; subtitle?: ReactNode }) {
   return (
     <header className="rounded-[var(--ds-radius-xl)] border border-[var(--ds-color-border)] bg-[var(--ds-color-surface)] p-5 shadow-[var(--ds-shadow-soft)] md:p-6">
       <div className="grid gap-5 xl:grid-cols-[1fr_520px] xl:items-center">
@@ -158,7 +160,7 @@ function WorkspaceHeader({ greeting, roleTitle, subtitle }: { greeting: ReactNod
               type="search"
             />
           </label>
-          <Link href="/notifications" className="grid h-12 w-12 place-items-center rounded-[var(--ds-radius-large)] border border-[var(--ds-color-border)] bg-[var(--ds-color-surface-raised)]">
+          <Link href={notificationHref} className="grid h-12 w-12 place-items-center rounded-[var(--ds-radius-large)] border border-[var(--ds-color-border)] bg-[var(--ds-color-surface-raised)]">
             <span className="sr-only">Notifications</span>
             <Bell className="h-5 w-5" aria-hidden="true" />
           </Link>

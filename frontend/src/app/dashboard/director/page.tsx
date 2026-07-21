@@ -26,6 +26,7 @@ export default function DirectorDashboardPage() {
     <WorkspaceDashboard
       roleTitle="Director Workspace"
       greeting="Today's Academy"
+      notificationHref="/dashboard/director/notifications"
       subtitle="Admissions, revenue, faculty status, planner progress and alerts in one calm command view."
       focus={[
         {
@@ -107,6 +108,7 @@ export default function DirectorDashboardPage() {
       <WorkflowOsWorkspace
         title="Director Workflow Health"
         description="Approvals, automations, failed jobs, notifications, activity and operational queues are surfaced from existing workflows so the academy feels proactive."
+        notificationHref="/dashboard/director/notifications"
         metrics={[
           { label: "Pending Approvals", value: pendingAdmissions, note: "Admission and activation items", tone: pendingAdmissions ? "warning" : "success" },
           { label: "Automation Status", value: "Active", note: "Existing admission, academic, payment and notification flows", tone: "success" },

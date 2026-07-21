@@ -47,6 +47,7 @@ type WorkflowOsWorkspaceProps = {
   children?: ReactNode;
   description?: ReactNode;
   metrics: WorkflowMetric[];
+  notificationHref?: string;
   recent?: WorkflowItem[];
   title?: ReactNode;
 };
@@ -89,7 +90,11 @@ const notificationChannels: WorkflowItem[] = [
   { title: "WhatsApp/SMS", detail: "CRM reminders reuse the current notification integration hooks.", href: "/crm/followups", icon: MessageCircle, tone: "info" },
 ];
 
-export const WorkflowOsWorkspace = memo(function WorkflowOsWorkspace({ approvals = [], children, description, metrics, recent = [], title = "Workflow Operating System" }: WorkflowOsWorkspaceProps) {
+export const WorkflowOsWorkspace = memo(function WorkflowOsWorkspace({ approvals = [], children, description, metrics, notificationHref = "/notifications", recent = [], title = "Workflow Operating System" }: WorkflowOsWorkspaceProps) {
+  const roleNotificationChannels = notificationChannels.map((channel) =>
+    channel.title === "Dashboard" ? { ...channel, href: notificationHref } : channel,
+  );
+
   return (
     <Panel>
       <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
@@ -113,7 +118,7 @@ export const WorkflowOsWorkspace = memo(function WorkflowOsWorkspace({ approvals
 
       <div className="mt-5 grid gap-5 xl:grid-cols-[1fr_0.9fr]">
         <WorkflowPanel eyebrow="Automation chains" title="Natural next steps" items={workflowChains} />
-        <WorkflowPanel eyebrow="Notification channels" title="One notification layer" items={notificationChannels} />
+        <WorkflowPanel eyebrow="Notification channels" title="One notification layer" items={roleNotificationChannels} />
       </div>
 
       <div className="mt-5 grid gap-5 xl:grid-cols-2">
