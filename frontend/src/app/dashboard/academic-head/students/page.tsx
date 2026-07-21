@@ -1,5 +1,5 @@
-import { redirect } from "next/navigation";
+import StudentsByClassWorkspace from "@/components/academy/StudentsByClassWorkspace";
 
 export default function AcademicHeadStudentsPage() {
-  redirect("/dashboard/academic-head/hod/student-monitoring");
+  return <StudentsByClassWorkspace audience="academic-head" />;
 }

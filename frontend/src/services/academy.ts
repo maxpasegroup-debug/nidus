@@ -27,6 +27,10 @@ export type AcademyBatch = {
       email: string;
       mobile: string;
       role: string;
+      roleMetadata?: Record<string, unknown> | null;
+      rollNumber?: string | null;
+      photoUrl?: string | null;
+      avatarUrl?: string | null;
     };
   }>;
   teachers?: Array<{

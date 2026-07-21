@@ -1,5 +1,5 @@
-import TeacherDashboardClient from "../../../teacher/TeacherDashboardClient";
+import StudentsByClassWorkspace from "@/components/academy/StudentsByClassWorkspace";
 
 export default function DirectorTeachingStudentsPage() {
-  return <TeacherDashboardClient view="students" />;
+  return <StudentsByClassWorkspace audience="director" />;
 }
