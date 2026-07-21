@@ -64,6 +64,11 @@ function clearDefaultPinFlags(metadata: Record<string, unknown>) {
   return next;
 }
 
+function effectiveLoginMobile(metadata: Record<string, unknown>, fallbackMobile: string) {
+  const loginMobile = typeof metadata.loginMobile === "string" ? normalizeMobile(metadata.loginMobile) : "";
+  return isValidMobile(loginMobile) ? loginMobile : fallbackMobile;
+}
+
 function safeUser(user: SafeUser) {
   const metadata = metadataObject(user.roleMetadata);
   const profilePhotoUrl = typeof metadata.profilePhotoUrl === "string" ? metadata.profilePhotoUrl : null;
@@ -71,7 +76,7 @@ function safeUser(user: SafeUser) {
     id: user.id,
     name: user.name,
     email: user.email,
-    mobile: user.mobile,
+    mobile: effectiveLoginMobile(metadata, user.mobile),
     imageUrl: profilePhotoUrl,
     role: user.role,
     emailVerified: user.emailVerified,
@@ -340,6 +345,8 @@ export const AuthServiceV2 = {
     const loginRoleMetadata = shouldClearDefaultPin
       ? { ...clearDefaultPinFlags(metadata), pinDefaultClearedAt: new Date().toISOString() }
       : metadata;
+    const metadataLoginMobile = effectiveLoginMobile(loginRoleMetadata, user.mobile);
+    const shouldRepairMobile = mobileCandidates(metadataLoginMobile).includes(normalizeMobile(identity)) && !mobileCandidates(metadataLoginMobile).includes(user.mobile);
     const sessionId = crypto.randomBytes(32).toString("hex");
     await prisma.sessionToken.create({
       data: {
@@ -358,6 +365,7 @@ export const AuthServiceV2 = {
         lastRoleActivityAt: new Date(),
         loginFailureCount: 0,
         lockedUntil: null,
+        ...(shouldRepairMobile ? { mobile: metadataLoginMobile, mobileVerified: true } : {}),
         ...(shouldClearDefaultPin ? { roleMetadata: loginRoleMetadata as Prisma.InputJsonObject } : {})
       }
     });
