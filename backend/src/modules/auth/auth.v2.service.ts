@@ -125,7 +125,17 @@ export const AuthServiceV2 = {
 
   async findByMobile(mobile: string) {
     const candidates = mobileCandidates(mobile);
-    return prisma.user.findFirst({ where: { mobile: { in: candidates } } });
+    const user = await prisma.user.findFirst({ where: { mobile: { in: candidates } } });
+    if (user) return user;
+
+    const metadataMatches = await prisma.$queryRaw<Array<{ id: string }>>`
+      SELECT id
+      FROM "User"
+      WHERE "roleMetadata"->>'loginMobile' IN (${Prisma.join(candidates)})
+      LIMIT 1
+    `;
+    const metadataMatch = metadataMatches[0];
+    return metadataMatch ? prisma.user.findUnique({ where: { id: metadataMatch.id } }) : null;
   },
 
   async findByIdentity(identity: string) {
