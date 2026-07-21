@@ -1017,6 +1017,16 @@ export type TeacherCalendarLogRecord = Prisma.TeacherCalendarLogRecordModel
  */
 export type TeacherSyllabusProgressRecord = Prisma.TeacherSyllabusProgressRecordModel
 /**
+ * Model NdpReview
+ * 
+ */
+export type NdpReview = Prisma.NdpReviewModel
+/**
+ * Model NdpManualEntry
+ * 
+ */
+export type NdpManualEntry = Prisma.NdpManualEntryModel
+/**
  * Model AcademicActivityAuditRecord
  * 
  */

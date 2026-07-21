@@ -275,6 +275,29 @@ type EmployeeUpdateInput = Partial<EmployeeInput> & {
   status?: string;
 };
 
+type NdpManualEntryInput = {
+  category?: string;
+  item?: string;
+  subject?: string | null;
+  term1?: string | null;
+  term2?: string | null;
+  term3?: string | null;
+  rating?: string | null;
+  score?: number | null;
+  remarks?: string | null;
+};
+
+type NdpReviewInput = {
+  studentId?: string;
+  batchId?: string;
+  reviewPeriod?: string;
+  reviewType?: string;
+  academicYear?: string;
+  entries?: NdpManualEntryInput[];
+  sections?: Record<string, unknown>;
+  finalReview?: Record<string, unknown>;
+};
+
 type AcademicCalendarRow = {
   id: string;
   batchId: string | null;
@@ -417,6 +440,69 @@ function normalizedEmployeeRole(input: Pick<EmployeeInput, "role" | "dashboardTe
 
 function employeePin(input: Pick<EmployeeInput, "password" | "pin">) {
   return input.pin?.trim() || input.password?.trim() || "";
+}
+
+const ndpAcademicSubjects = ["Mathematics", "English", "General Knowledge", "Science", "Reasoning"];
+const ndpSkillAreas = ["Concept Understanding", "Problem Solving", "Speed & Accuracy", "English Communication", "General Awareness", "Reasoning Ability"];
+const ndpDevelopmentAreas = ["Discipline", "Attendance", "Punctuality", "Leadership", "Confidence", "Teamwork", "Physical Fitness", "Communication Skills", "National Awareness"];
+const ndpObservationAreas = ["Academic Progress", "Behaviour & Discipline", "Areas for Improvement", "Teacher's Overall Remark"];
+const ndpActionPlanAreas = ["Student's Strengths", "Areas Requiring Attention", "Next-Term Goals"];
+
+function ndpDefaultEntries(subjects: string[] = []) {
+  const academicSubjects = subjects.length ? subjects : ndpAcademicSubjects;
+  return [
+    ...academicSubjects.map((subject) => ({ category: "ACADEMIC_PERFORMANCE", item: subject, subject })),
+    ...ndpSkillAreas.map((item) => ({ category: "SKILL_DEVELOPMENT", item })),
+    ...["Class Tests", "Mock Tests", "Weekly Assessments"].map((item) => ({ category: "TEST_PERFORMANCE", item })),
+    ...ndpDevelopmentAreas.map((item) => ({ category: "DEFENCE_DEVELOPMENT", item })),
+    ...ndpObservationAreas.map((item) => ({ category: "TEACHER_OBSERVATION", item })),
+    ...ndpActionPlanAreas.map((item) => ({ category: "NEXT_TERM_ACTION_PLAN", item })),
+    ...["Overall Progress", "Recommended Focus", "Next Review Date"].map((item) => ({ category: "FINAL_REVIEW", item })),
+  ];
+}
+
+function ndpRatingScore(value?: string | null) {
+  const normalized = String(value ?? "").trim().toUpperCase();
+  if (normalized === "EXCELLENT") return 95;
+  if (normalized === "VERY GOOD") return 82;
+  if (normalized === "GOOD") return 68;
+  if (normalized === "NEEDS IMPROVEMENT") return 45;
+  if (normalized === "AT RISK") return 30;
+  return null;
+}
+
+function ndpEntryScore(entry: NdpManualEntryInput) {
+  if (typeof entry.score === "number" && Number.isFinite(entry.score)) return Math.max(0, Math.min(100, Math.round(entry.score)));
+  return ndpRatingScore(entry.rating ?? entry.term3 ?? entry.term2 ?? entry.term1);
+}
+
+function ndpScores(entries: NdpManualEntryInput[]) {
+  const categoryScores = new Map<string, number[]>();
+  for (const entry of entries) {
+    const score = ndpEntryScore(entry);
+    if (score === null || !entry.category) continue;
+    const scores = categoryScores.get(entry.category) ?? [];
+    scores.push(score);
+    categoryScores.set(entry.category, scores);
+  }
+  const average = (category: string) => {
+    const scores = categoryScores.get(category) ?? [];
+    return scores.length ? Math.round(scores.reduce((sum, value) => sum + value, 0) / scores.length) : null;
+  };
+  const academicReadiness = average("ACADEMIC_PERFORMANCE");
+  const testPerformance = average("TEST_PERFORMANCE");
+  const skillDevelopment = average("SKILL_DEVELOPMENT");
+  const defenceDevelopment = average("DEFENCE_DEVELOPMENT");
+  const values = [
+    { value: academicReadiness, weight: 30 },
+    { value: testPerformance, weight: 20 },
+    { value: skillDevelopment, weight: 20 },
+    { value: defenceDevelopment, weight: 30 },
+  ].filter((item): item is { value: number; weight: number } => item.value !== null);
+  const overallReadiness = values.length
+    ? Math.round(values.reduce((sum, item) => sum + item.value * item.weight, 0) / values.reduce((sum, item) => sum + item.weight, 0))
+    : null;
+  return { academicReadiness, testPerformance, skillDevelopment, defenceDevelopment, overallReadiness };
 }
 
 function clearDefaultPinFlags(metadata: Record<string, unknown>) {
@@ -1825,6 +1911,189 @@ export const academyService = {
       batches,
       calendar: visibleCalendar,
     };
+  },
+
+  async ndpStudents(user: Requester, query: Record<string, unknown> = {}) {
+    requireAcademic(user);
+    const batchId = typeof query.batchId === "string" && query.batchId.trim() ? query.batchId.trim() : undefined;
+    if (batchId) await assertBatchAccess(user, batchId);
+    const teachingPlan = await this.teacherTeachingPlan(user);
+    const batches = (teachingPlan.batches ?? [])
+      .filter((batch: any) => !batchId || batch.id === batchId)
+      .map((batch: any) => ({
+        id: batch.id,
+        name: batch.name,
+        programSlug: batch.programSlug,
+        courseTitle: batch.course?.title ?? batch.programName ?? batch.programSlug,
+        subjects: Array.isArray(batch.assignedSubjects) && batch.assignedSubjects.length ? batch.assignedSubjects : String(batch.subject ?? "").split(",").map((item) => item.trim()).filter(Boolean),
+        students: (batch.students ?? []).map((entry: any) => ({
+          id: entry.student?.id ?? entry.studentId,
+          name: entry.student?.name ?? entry.studentName ?? "Student",
+          email: entry.student?.email ?? null,
+          mobile: entry.student?.mobile ?? null,
+          status: entry.status ?? "ACTIVE",
+        })).filter((student: any) => Boolean(student.id)),
+      }));
+    return { batches };
+  },
+
+  async ndpReviews(user: Requester, query: Record<string, unknown> = {}) {
+    requireAcademic(user);
+    const batchId = typeof query.batchId === "string" && query.batchId.trim() ? query.batchId.trim() : undefined;
+    const studentId = typeof query.studentId === "string" && query.studentId.trim() ? query.studentId.trim() : undefined;
+    const status = typeof query.status === "string" && query.status.trim() ? query.status.trim().toUpperCase() : undefined;
+    if (batchId) await assertBatchAccess(user, batchId);
+    const where: Record<string, unknown> = {};
+    if (batchId) where.batchId = batchId;
+    if (studentId) where.studentId = studentId;
+    if (status) where.status = status;
+    if (!isAcademicManager(user) && usesTeacherWorkspace(user)) where.teacherId = user.id;
+    const reviews = await db.ndpReview.findMany({
+      where,
+      include: { entries: { orderBy: [{ category: "asc" }, { subject: "asc" }, { item: "asc" }] } },
+      orderBy: [{ updatedAt: "desc" }],
+      take: 100,
+    });
+    return { reviews };
+  },
+
+  async ndpReview(user: Requester, input: NdpReviewInput) {
+    requireAcademic(user);
+    const studentId = input.studentId?.trim();
+    const batchId = input.batchId?.trim();
+    const reviewPeriod = input.reviewPeriod?.trim();
+    if (!studentId || !batchId || !reviewPeriod) {
+      throw Object.assign(new Error("Student, batch and review period are required"), { statusCode: 400 });
+    }
+    await assertBatchAccess(user, batchId);
+    const batch = await prisma.batch.findUnique({
+      where: { id: batchId },
+      include: {
+        course: { select: { title: true } },
+        students: {
+          where: { studentId, status: "ACTIVE" },
+          include: { student: { select: { id: true, name: true, email: true, mobile: true } } },
+        },
+        teachers: { where: { teacherId: user.id, status: "ACTIVE" }, select: { subject: true } },
+      },
+    });
+    const student = batch?.students?.[0]?.student;
+    if (!batch || !student) {
+      throw Object.assign(new Error("Student is not active in this batch"), { statusCode: 404 });
+    }
+    const subjects = Array.from(new Set(batch.teachers.map((item) => item.subject).filter(Boolean)));
+    const existing = await db.ndpReview.findUnique({
+      where: { studentId_batchId_reviewPeriod: { studentId, batchId, reviewPeriod } },
+      include: { entries: { orderBy: [{ category: "asc" }, { subject: "asc" }, { item: "asc" }] } },
+    });
+    if (existing) return { review: existing };
+
+    const review = await db.ndpReview.create({
+      data: {
+        studentId,
+        studentName: student.name,
+        batchId,
+        batchName: batch.name,
+        reviewPeriod,
+        reviewType: input.reviewType?.trim().toUpperCase() || "MONTHLY",
+        academicYear: input.academicYear?.trim() || null,
+        teacherId: user.id,
+        teacherName: user.name || user.email || null,
+        status: "DRAFT",
+        scores: toJsonObject({}),
+        sections: toJsonObject({
+          studentDetails: {
+            studentName: student.name,
+            batchCourse: batch.course?.title ?? batch.programSlug,
+            studentId: student.id,
+            progressPeriod: reviewPeriod,
+          },
+        }),
+        finalReview: toJsonObject({}),
+        entries: {
+          create: ndpDefaultEntries(subjects).map((entry) => ({
+            ...entry,
+            studentId,
+            batchId,
+            teacherId: user.id,
+            status: "DRAFT",
+          })),
+        },
+      },
+      include: { entries: { orderBy: [{ category: "asc" }, { subject: "asc" }, { item: "asc" }] } },
+    });
+    return { review };
+  },
+
+  async saveNdpReview(user: Requester, input: NdpReviewInput) {
+    const { review } = await this.ndpReview(user, input);
+    if (review.status !== "DRAFT" && review.status !== "RETURNED") {
+      throw Object.assign(new Error("Submitted NDP reviews are locked for teacher editing"), { statusCode: 400 });
+    }
+    const entries = Array.isArray(input.entries) ? input.entries : [];
+    const normalizedEntries = entries
+      .filter((entry) => entry.category?.trim() && entry.item?.trim())
+      .map((entry) => ({
+        category: entry.category!.trim().toUpperCase(),
+        item: entry.item!.trim(),
+        subject: entry.subject?.trim() || "",
+        term1: entry.term1?.trim() || null,
+        term2: entry.term2?.trim() || null,
+        term3: entry.term3?.trim() || null,
+        rating: entry.rating?.trim() || null,
+        score: ndpEntryScore(entry),
+        remarks: entry.remarks?.trim() || null,
+      }));
+    for (const entry of normalizedEntries) {
+      await db.ndpManualEntry.upsert({
+        where: { reviewId_category_item_subject: { reviewId: review.id, category: entry.category, item: entry.item, subject: entry.subject } },
+        create: {
+          reviewId: review.id,
+          studentId: review.studentId,
+          batchId: review.batchId,
+          teacherId: user.id,
+          status: "DRAFT",
+          ...entry,
+        },
+        update: {
+          teacherId: user.id,
+          status: "DRAFT",
+          ...entry,
+        },
+      });
+    }
+    const savedEntries = await db.ndpManualEntry.findMany({ where: { reviewId: review.id }, orderBy: [{ category: "asc" }, { subject: "asc" }, { item: "asc" }] });
+    const scores = ndpScores(savedEntries);
+    const updated = await db.ndpReview.update({
+      where: { id: review.id },
+      data: {
+        reviewType: input.reviewType?.trim().toUpperCase() || review.reviewType,
+        academicYear: input.academicYear?.trim() || review.academicYear,
+        sections: input.sections ? toJsonObject(input.sections) : review.sections,
+        finalReview: input.finalReview ? toJsonObject(input.finalReview) : review.finalReview,
+        scores: toJsonObject(scores),
+        status: "DRAFT",
+        teacherId: user.id,
+        teacherName: user.name || user.email || null,
+      },
+      include: { entries: { orderBy: [{ category: "asc" }, { subject: "asc" }, { item: "asc" }] } },
+    });
+    return { review: updated };
+  },
+
+  async submitNdpReview(user: Requester, input: NdpReviewInput) {
+    const { review } = await this.saveNdpReview(user, input);
+    await db.ndpManualEntry.updateMany({ where: { reviewId: review.id }, data: { status: "SUBMITTED" } });
+    const submitted = await db.ndpReview.update({
+      where: { id: review.id },
+      data: {
+        status: "SUBMITTED",
+        submittedAt: new Date(),
+        scores: toJsonObject(ndpScores(review.entries)),
+      },
+      include: { entries: { orderBy: [{ category: "asc" }, { subject: "asc" }, { item: "asc" }] } },
+    });
+    return { review: submitted };
   },
 
   async batchAnnouncements(user: Requester, batchId: string) {

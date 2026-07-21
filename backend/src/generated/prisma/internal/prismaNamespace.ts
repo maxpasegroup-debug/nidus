@@ -579,6 +579,8 @@ export const ModelName = {
   TeacherExamRecord: 'TeacherExamRecord',
   TeacherCalendarLogRecord: 'TeacherCalendarLogRecord',
   TeacherSyllabusProgressRecord: 'TeacherSyllabusProgressRecord',
+  NdpReview: 'NdpReview',
+  NdpManualEntry: 'NdpManualEntry',
   AcademicActivityAuditRecord: 'AcademicActivityAuditRecord',
   DirectorExpenseRecord: 'DirectorExpenseRecord',
   AiWorkflowRequest: 'AiWorkflowRequest',
@@ -607,7 +609,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "sessionToken" | "passwordReset" | "parentStudentInvitation" | "parentStudentLink" | "otp" | "course" | "module" | "lesson" | "enrollment" | "batch" | "batchStudent" | "teacherBatchAssignment" | "test" | "question" | "questionBankItem" | "testAttempt" | "cBTAnswerState" | "cBTIntegrityEvent" | "answer" | "psychometricTest" | "psychometricQuestion" | "psychometricAttempt" | "psychometricReport" | "psychometricAnswer" | "assessmentArenaAssessment" | "assessmentTraitMapping" | "assessmentDimensionMapping" | "assessmentQuestionBlueprint" | "assessmentTraitBlueprint" | "assessmentDimensionBlueprint" | "assessmentTrait" | "assessmentDimension" | "assessmentQuestion" | "assessmentQuestionOption" | "assessmentQuestionVersion" | "assessmentQuestionReview" | "assessmentReviewBoard" | "assessmentPilotRun" | "assessmentPilotResponse" | "assessmentQuestionExposure" | "assessmentAttempt" | "assessmentAttemptQuestion" | "assessmentAnswer" | "assessmentTraitScore" | "assessmentDimensionScore" | "assessmentIntegritySignal" | "assessmentRiskSignal" | "assessmentGrowthSnapshot" | "assessmentRankPrediction" | "assessmentReportSnapshot" | "topRankUser" | "topRankGateway" | "topRankProgram" | "topRankBatch" | "topRankSession" | "topRankStudentProfile" | "topRankEnrollment" | "topRankBatchAssignment" | "topRankProgramAgreement" | "topRankOrientationProgress" | "topRankAssessment" | "topRankAssessmentAnswer" | "topRankAPR" | "topRankMission" | "topRankMissionTask" | "topRankMissionCompletion" | "topRankMissionCalendar" | "topRankSignalSnapshot" | "topRankReadinessScore" | "topRankPerformanceTrend" | "topRankGrowthTrend" | "topRankRiskTrend" | "topRankMentorFeedback" | "topRankSignalWeightConfig" | "assessmentTraitLibraryItem" | "assessmentDimensionLibraryItem" | "assessmentTraitBandInterpretation" | "assessmentRiskInterpretation" | "assessmentReadinessInterpretation" | "assessmentSsbOlq" | "assessmentSsbOlqMapping" | "assessmentSsbOlqInterpretation" | "oLQScore" | "studyPlan" | "performanceAnalytics" | "revisionSchedule" | "liveClass" | "recordedLecture" | "lectureProgress" | "lecturePlaybackEvent" | "attendance" | "timetable" | "faculty" | "classroom" | "payroll" | "announcement" | "hostel" | "room" | "hostelAllocation" | "inOutEntry" | "hostelLeave" | "messMenu" | "disciplineRecord" | "paradePerformance" | "lead" | "followUp" | "admission" | "counsellingBooking" | "referral" | "payment" | "subscription" | "feeInstallment" | "invoice" | "feePlan" | "paymentTransactionLog" | "approvalRequest" | "scholarshipDiscount" | "financeDocument" | "notification" | "messageThread" | "message" | "emailLog" | "pushNotification" | "aIInterviewSession" | "aIInterviewQuestion" | "doubtQuery" | "aIRecommendation" | "aITutorSession" | "aITutorMessage" | "aITutorFeedback" | "aIResponseCache" | "learningTopicInsight" | "revisionQueueItem" | "cBTIntelligenceReport" | "contentIngestionJob" | "generatedContentAsset" | "offlineSyncEvent" | "learningAnalyticsSnapshot" | "dailyIntelligenceIssue" | "contentModerationItem" | "officerPotential" | "fitnessProfile" | "pTSchedule" | "pTAttendance" | "physicalEligibility" | "dailyFitnessLog" | "pYQCategory" | "pYQQuestion" | "currentAffair" | "currentAffairQuiz" | "quizBattle" | "quizBattleParticipant" | "leaderboard" | "mediaFolder" | "mediaFile" | "document" | "adminRole" | "permission" | "rolePermission" | "userRole" | "roleActivity" | "systemSetting" | "auditLog" | "queueJobLog" | "aIRequestLog" | "salesBoosterCampaign" | "salesBoosterMetricSnapshot" | "salesBoosterAudienceContact" | "guruQuest" | "guruLesson" | "guruLessonCompletion" | "guruReflectionQuestion" | "guruReflectionAnswer" | "guruChallenge" | "guruChallengeCompletion" | "guruProgress" | "guruAchievement" | "guruUserAchievement" | "guruCertificate" | "guruUserCertificate" | "guruDailyMission" | "guruDailyMissionCompletion" | "guruMentorNote" | "guruReflectionInsight" | "guruXpLedger" | "branch" | "institute" | "teacherAttendanceRecord" | "teacherAssignmentRecord" | "assignmentSubmissionRecord" | "teacherStudyMaterialRecord" | "teacherExamRecord" | "teacherCalendarLogRecord" | "teacherSyllabusProgressRecord" | "academicActivityAuditRecord" | "directorExpenseRecord" | "aiWorkflowRequest" | "aiWorkflowContext" | "aiWorkflowContextSource" | "aiWorkflowDraft" | "aiWorkflowDraftVersion" | "aiWorkflowReview" | "aiWorkflowApproval" | "aiWorkflowFeedback" | "aiWorkflowPublication" | "aiWorkflowAuditEvent" | "academicLeaveRequest"
+    modelProps: "user" | "sessionToken" | "passwordReset" | "parentStudentInvitation" | "parentStudentLink" | "otp" | "course" | "module" | "lesson" | "enrollment" | "batch" | "batchStudent" | "teacherBatchAssignment" | "test" | "question" | "questionBankItem" | "testAttempt" | "cBTAnswerState" | "cBTIntegrityEvent" | "answer" | "psychometricTest" | "psychometricQuestion" | "psychometricAttempt" | "psychometricReport" | "psychometricAnswer" | "assessmentArenaAssessment" | "assessmentTraitMapping" | "assessmentDimensionMapping" | "assessmentQuestionBlueprint" | "assessmentTraitBlueprint" | "assessmentDimensionBlueprint" | "assessmentTrait" | "assessmentDimension" | "assessmentQuestion" | "assessmentQuestionOption" | "assessmentQuestionVersion" | "assessmentQuestionReview" | "assessmentReviewBoard" | "assessmentPilotRun" | "assessmentPilotResponse" | "assessmentQuestionExposure" | "assessmentAttempt" | "assessmentAttemptQuestion" | "assessmentAnswer" | "assessmentTraitScore" | "assessmentDimensionScore" | "assessmentIntegritySignal" | "assessmentRiskSignal" | "assessmentGrowthSnapshot" | "assessmentRankPrediction" | "assessmentReportSnapshot" | "topRankUser" | "topRankGateway" | "topRankProgram" | "topRankBatch" | "topRankSession" | "topRankStudentProfile" | "topRankEnrollment" | "topRankBatchAssignment" | "topRankProgramAgreement" | "topRankOrientationProgress" | "topRankAssessment" | "topRankAssessmentAnswer" | "topRankAPR" | "topRankMission" | "topRankMissionTask" | "topRankMissionCompletion" | "topRankMissionCalendar" | "topRankSignalSnapshot" | "topRankReadinessScore" | "topRankPerformanceTrend" | "topRankGrowthTrend" | "topRankRiskTrend" | "topRankMentorFeedback" | "topRankSignalWeightConfig" | "assessmentTraitLibraryItem" | "assessmentDimensionLibraryItem" | "assessmentTraitBandInterpretation" | "assessmentRiskInterpretation" | "assessmentReadinessInterpretation" | "assessmentSsbOlq" | "assessmentSsbOlqMapping" | "assessmentSsbOlqInterpretation" | "oLQScore" | "studyPlan" | "performanceAnalytics" | "revisionSchedule" | "liveClass" | "recordedLecture" | "lectureProgress" | "lecturePlaybackEvent" | "attendance" | "timetable" | "faculty" | "classroom" | "payroll" | "announcement" | "hostel" | "room" | "hostelAllocation" | "inOutEntry" | "hostelLeave" | "messMenu" | "disciplineRecord" | "paradePerformance" | "lead" | "followUp" | "admission" | "counsellingBooking" | "referral" | "payment" | "subscription" | "feeInstallment" | "invoice" | "feePlan" | "paymentTransactionLog" | "approvalRequest" | "scholarshipDiscount" | "financeDocument" | "notification" | "messageThread" | "message" | "emailLog" | "pushNotification" | "aIInterviewSession" | "aIInterviewQuestion" | "doubtQuery" | "aIRecommendation" | "aITutorSession" | "aITutorMessage" | "aITutorFeedback" | "aIResponseCache" | "learningTopicInsight" | "revisionQueueItem" | "cBTIntelligenceReport" | "contentIngestionJob" | "generatedContentAsset" | "offlineSyncEvent" | "learningAnalyticsSnapshot" | "dailyIntelligenceIssue" | "contentModerationItem" | "officerPotential" | "fitnessProfile" | "pTSchedule" | "pTAttendance" | "physicalEligibility" | "dailyFitnessLog" | "pYQCategory" | "pYQQuestion" | "currentAffair" | "currentAffairQuiz" | "quizBattle" | "quizBattleParticipant" | "leaderboard" | "mediaFolder" | "mediaFile" | "document" | "adminRole" | "permission" | "rolePermission" | "userRole" | "roleActivity" | "systemSetting" | "auditLog" | "queueJobLog" | "aIRequestLog" | "salesBoosterCampaign" | "salesBoosterMetricSnapshot" | "salesBoosterAudienceContact" | "guruQuest" | "guruLesson" | "guruLessonCompletion" | "guruReflectionQuestion" | "guruReflectionAnswer" | "guruChallenge" | "guruChallengeCompletion" | "guruProgress" | "guruAchievement" | "guruUserAchievement" | "guruCertificate" | "guruUserCertificate" | "guruDailyMission" | "guruDailyMissionCompletion" | "guruMentorNote" | "guruReflectionInsight" | "guruXpLedger" | "branch" | "institute" | "teacherAttendanceRecord" | "teacherAssignmentRecord" | "assignmentSubmissionRecord" | "teacherStudyMaterialRecord" | "teacherExamRecord" | "teacherCalendarLogRecord" | "teacherSyllabusProgressRecord" | "ndpReview" | "ndpManualEntry" | "academicActivityAuditRecord" | "directorExpenseRecord" | "aiWorkflowRequest" | "aiWorkflowContext" | "aiWorkflowContextSource" | "aiWorkflowDraft" | "aiWorkflowDraftVersion" | "aiWorkflowReview" | "aiWorkflowApproval" | "aiWorkflowFeedback" | "aiWorkflowPublication" | "aiWorkflowAuditEvent" | "academicLeaveRequest"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -15041,6 +15043,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    NdpReview: {
+      payload: Prisma.$NdpReviewPayload<ExtArgs>
+      fields: Prisma.NdpReviewFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.NdpReviewFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdpReviewPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.NdpReviewFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdpReviewPayload>
+        }
+        findFirst: {
+          args: Prisma.NdpReviewFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdpReviewPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.NdpReviewFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdpReviewPayload>
+        }
+        findMany: {
+          args: Prisma.NdpReviewFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdpReviewPayload>[]
+        }
+        create: {
+          args: Prisma.NdpReviewCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdpReviewPayload>
+        }
+        createMany: {
+          args: Prisma.NdpReviewCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.NdpReviewCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdpReviewPayload>[]
+        }
+        delete: {
+          args: Prisma.NdpReviewDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdpReviewPayload>
+        }
+        update: {
+          args: Prisma.NdpReviewUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdpReviewPayload>
+        }
+        deleteMany: {
+          args: Prisma.NdpReviewDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.NdpReviewUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.NdpReviewUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdpReviewPayload>[]
+        }
+        upsert: {
+          args: Prisma.NdpReviewUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdpReviewPayload>
+        }
+        aggregate: {
+          args: Prisma.NdpReviewAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateNdpReview>
+        }
+        groupBy: {
+          args: Prisma.NdpReviewGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.NdpReviewGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.NdpReviewCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.NdpReviewCountAggregateOutputType> | number
+        }
+      }
+    }
+    NdpManualEntry: {
+      payload: Prisma.$NdpManualEntryPayload<ExtArgs>
+      fields: Prisma.NdpManualEntryFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.NdpManualEntryFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdpManualEntryPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.NdpManualEntryFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdpManualEntryPayload>
+        }
+        findFirst: {
+          args: Prisma.NdpManualEntryFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdpManualEntryPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.NdpManualEntryFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdpManualEntryPayload>
+        }
+        findMany: {
+          args: Prisma.NdpManualEntryFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdpManualEntryPayload>[]
+        }
+        create: {
+          args: Prisma.NdpManualEntryCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdpManualEntryPayload>
+        }
+        createMany: {
+          args: Prisma.NdpManualEntryCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.NdpManualEntryCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdpManualEntryPayload>[]
+        }
+        delete: {
+          args: Prisma.NdpManualEntryDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdpManualEntryPayload>
+        }
+        update: {
+          args: Prisma.NdpManualEntryUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdpManualEntryPayload>
+        }
+        deleteMany: {
+          args: Prisma.NdpManualEntryDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.NdpManualEntryUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.NdpManualEntryUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdpManualEntryPayload>[]
+        }
+        upsert: {
+          args: Prisma.NdpManualEntryUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NdpManualEntryPayload>
+        }
+        aggregate: {
+          args: Prisma.NdpManualEntryAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateNdpManualEntry>
+        }
+        groupBy: {
+          args: Prisma.NdpManualEntryGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.NdpManualEntryGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.NdpManualEntryCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.NdpManualEntryCountAggregateOutputType> | number
+        }
+      }
+    }
     AcademicActivityAuditRecord: {
       payload: Prisma.$AcademicActivityAuditRecordPayload<ExtArgs>
       fields: Prisma.AcademicActivityAuditRecordFieldRefs
@@ -19144,6 +19294,56 @@ export const TeacherSyllabusProgressRecordScalarFieldEnum = {
 export type TeacherSyllabusProgressRecordScalarFieldEnum = (typeof TeacherSyllabusProgressRecordScalarFieldEnum)[keyof typeof TeacherSyllabusProgressRecordScalarFieldEnum]
 
 
+export const NdpReviewScalarFieldEnum = {
+  id: 'id',
+  studentId: 'studentId',
+  studentName: 'studentName',
+  batchId: 'batchId',
+  batchName: 'batchName',
+  reviewPeriod: 'reviewPeriod',
+  reviewType: 'reviewType',
+  academicYear: 'academicYear',
+  status: 'status',
+  teacherId: 'teacherId',
+  teacherName: 'teacherName',
+  submittedAt: 'submittedAt',
+  reviewedById: 'reviewedById',
+  reviewedByName: 'reviewedByName',
+  reviewedAt: 'reviewedAt',
+  publishedAt: 'publishedAt',
+  scores: 'scores',
+  sections: 'sections',
+  finalReview: 'finalReview',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type NdpReviewScalarFieldEnum = (typeof NdpReviewScalarFieldEnum)[keyof typeof NdpReviewScalarFieldEnum]
+
+
+export const NdpManualEntryScalarFieldEnum = {
+  id: 'id',
+  reviewId: 'reviewId',
+  studentId: 'studentId',
+  batchId: 'batchId',
+  teacherId: 'teacherId',
+  category: 'category',
+  item: 'item',
+  subject: 'subject',
+  term1: 'term1',
+  term2: 'term2',
+  term3: 'term3',
+  rating: 'rating',
+  score: 'score',
+  remarks: 'remarks',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type NdpManualEntryScalarFieldEnum = (typeof NdpManualEntryScalarFieldEnum)[keyof typeof NdpManualEntryScalarFieldEnum]
+
+
 export const AcademicActivityAuditRecordScalarFieldEnum = {
   id: 'id',
   actorId: 'actorId',
@@ -19994,6 +20194,8 @@ export type GlobalOmitConfig = {
   teacherExamRecord?: Prisma.TeacherExamRecordOmit
   teacherCalendarLogRecord?: Prisma.TeacherCalendarLogRecordOmit
   teacherSyllabusProgressRecord?: Prisma.TeacherSyllabusProgressRecordOmit
+  ndpReview?: Prisma.NdpReviewOmit
+  ndpManualEntry?: Prisma.NdpManualEntryOmit
   academicActivityAuditRecord?: Prisma.AcademicActivityAuditRecordOmit
   directorExpenseRecord?: Prisma.DirectorExpenseRecordOmit
   aiWorkflowRequest?: Prisma.AiWorkflowRequestOmit

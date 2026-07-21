@@ -246,6 +246,8 @@ export const ModelName = {
   TeacherExamRecord: 'TeacherExamRecord',
   TeacherCalendarLogRecord: 'TeacherCalendarLogRecord',
   TeacherSyllabusProgressRecord: 'TeacherSyllabusProgressRecord',
+  NdpReview: 'NdpReview',
+  NdpManualEntry: 'NdpManualEntry',
   AcademicActivityAuditRecord: 'AcademicActivityAuditRecord',
   DirectorExpenseRecord: 'DirectorExpenseRecord',
   AiWorkflowRequest: 'AiWorkflowRequest',
@@ -3377,6 +3379,56 @@ export const TeacherSyllabusProgressRecordScalarFieldEnum = {
 } as const
 
 export type TeacherSyllabusProgressRecordScalarFieldEnum = (typeof TeacherSyllabusProgressRecordScalarFieldEnum)[keyof typeof TeacherSyllabusProgressRecordScalarFieldEnum]
+
+
+export const NdpReviewScalarFieldEnum = {
+  id: 'id',
+  studentId: 'studentId',
+  studentName: 'studentName',
+  batchId: 'batchId',
+  batchName: 'batchName',
+  reviewPeriod: 'reviewPeriod',
+  reviewType: 'reviewType',
+  academicYear: 'academicYear',
+  status: 'status',
+  teacherId: 'teacherId',
+  teacherName: 'teacherName',
+  submittedAt: 'submittedAt',
+  reviewedById: 'reviewedById',
+  reviewedByName: 'reviewedByName',
+  reviewedAt: 'reviewedAt',
+  publishedAt: 'publishedAt',
+  scores: 'scores',
+  sections: 'sections',
+  finalReview: 'finalReview',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type NdpReviewScalarFieldEnum = (typeof NdpReviewScalarFieldEnum)[keyof typeof NdpReviewScalarFieldEnum]
+
+
+export const NdpManualEntryScalarFieldEnum = {
+  id: 'id',
+  reviewId: 'reviewId',
+  studentId: 'studentId',
+  batchId: 'batchId',
+  teacherId: 'teacherId',
+  category: 'category',
+  item: 'item',
+  subject: 'subject',
+  term1: 'term1',
+  term2: 'term2',
+  term3: 'term3',
+  rating: 'rating',
+  score: 'score',
+  remarks: 'remarks',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type NdpManualEntryScalarFieldEnum = (typeof NdpManualEntryScalarFieldEnum)[keyof typeof NdpManualEntryScalarFieldEnum]
 
 
 export const AcademicActivityAuditRecordScalarFieldEnum = {

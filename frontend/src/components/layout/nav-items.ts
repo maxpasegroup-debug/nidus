@@ -38,6 +38,7 @@ const teacherMenu: DashboardNavItem[] = [
   { label: "Assignments", href: "/dashboard/teacher/assignments" },
   { label: "Exams", href: "/dashboard/teacher/exams" },
   { label: "Students", href: "/dashboard/teacher/students" },
+  { label: "NDP", href: "/dashboard/teacher/ndp" },
   { label: "Resources", href: "/dashboard/teacher/library" },
   { label: "Profile", href: "/dashboard/settings" },
 ];
@@ -74,6 +75,7 @@ const academicHeadMenu: DashboardNavItem[] = [
   { label: "Planner", href: "/dashboard/academic-head/hod/timetable" },
   { label: "Faculty", href: "/dashboard/academic-head/hod/teacher-allocation" },
   { label: "Students", href: "/dashboard/academic-head/students" },
+  { label: "NDP", href: "/dashboard/academic-head/ndp" },
   { label: "Reports", href: "/dashboard/academic-head/hod/reports" },
   { label: "Profile", href: "/dashboard/settings" },
 ];

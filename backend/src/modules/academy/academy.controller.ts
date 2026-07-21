@@ -412,6 +412,41 @@ export const academyController = {
       next(error);
     }
   },
+  ndpStudents: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      res.json(await academyService.ndpStudents(requester(req), req.query));
+    } catch (error) {
+      next(error);
+    }
+  },
+  ndpReviews: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      res.json(await academyService.ndpReviews(requester(req), req.query));
+    } catch (error) {
+      next(error);
+    }
+  },
+  ndpReview: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      res.json(await academyService.ndpReview(requester(req), req.query));
+    } catch (error) {
+      next(error);
+    }
+  },
+  saveNdpReview: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      res.json(await academyService.saveNdpReview(requester(req), req.body));
+    } catch (error) {
+      next(error);
+    }
+  },
+  submitNdpReview: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      res.json(await academyService.submitNdpReview(requester(req), req.body));
+    } catch (error) {
+      next(error);
+    }
+  },
   academicAuditTrail: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     try {
       res.json(await academyService.academicAuditTrail(requester(req), req.query));

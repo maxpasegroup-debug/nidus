@@ -428,6 +428,71 @@ export type AcademicAssessmentEcosystemSummary = {
   aiGeneratedAssessments: number;
 };
 
+export type NdpManualEntry = {
+  id?: string;
+  reviewId?: string;
+  studentId?: string;
+  batchId?: string;
+  teacherId?: string | null;
+  category: string;
+  item: string;
+  subject?: string | null;
+  term1?: string | null;
+  term2?: string | null;
+  term3?: string | null;
+  rating?: string | null;
+  score?: number | null;
+  remarks?: string | null;
+  status?: string;
+};
+
+export type NdpReview = {
+  id: string;
+  studentId: string;
+  studentName?: string | null;
+  batchId: string;
+  batchName?: string | null;
+  reviewPeriod: string;
+  reviewType: string;
+  academicYear?: string | null;
+  status: string;
+  teacherId?: string | null;
+  teacherName?: string | null;
+  submittedAt?: string | null;
+  reviewedAt?: string | null;
+  publishedAt?: string | null;
+  scores?: {
+    academicReadiness?: number | null;
+    testPerformance?: number | null;
+    skillDevelopment?: number | null;
+    defenceDevelopment?: number | null;
+    overallReadiness?: number | null;
+  } | null;
+  sections?: Record<string, unknown> | null;
+  finalReview?: Record<string, unknown> | null;
+  entries: NdpManualEntry[];
+};
+
+export type NdpStudentBatch = {
+  id: string;
+  name: string;
+  programSlug?: string | null;
+  courseTitle?: string | null;
+  subjects: string[];
+  students: Array<{ id: string; name: string; email?: string | null; mobile?: string | null; status?: string | null }>;
+};
+
+export type NdpReviewPayload = {
+  studentId: string;
+  batchId: string;
+  reviewPeriod: string;
+  reviewType?: string;
+  academicYear?: string;
+  entries?: NdpManualEntry[];
+  sections?: Record<string, unknown>;
+  finalReview?: Record<string, unknown>;
+};
+
 export type BatchFilters = {
   programSlug?: string;
   batchType?: string;
@@ -603,6 +668,31 @@ export async function getStudentProgressSummary() {
 export async function getAcademicAssessmentEcosystem() {
   const response = await apiClient.get<{ summary: AcademicAssessmentEcosystemSummary }>("/academy/assessment-ecosystem");
   return response.data;
+}
+
+export async function getNdpStudents(filters: { batchId?: string } = {}) {
+  const response = await apiClient.get<{ batches: NdpStudentBatch[] }>("/academy/ndp/students", { params: filters });
+  return response.data;
+}
+
+export async function getNdpReviews(filters: { batchId?: string; studentId?: string; status?: string } = {}) {
+  const response = await apiClient.get<{ reviews: NdpReview[] }>("/academy/ndp/reviews", { params: filters });
+  return response.data;
+}
+
+export async function getNdpReview(payload: Pick<NdpReviewPayload, "studentId" | "batchId" | "reviewPeriod"> & Partial<NdpReviewPayload>) {
+  const response = await apiClient.get<{ review: NdpReview }>("/academy/ndp/review", { params: payload });
+  return response.data.review;
+}
+
+export async function saveNdpReview(payload: NdpReviewPayload) {
+  const response = await apiClient.post<{ review: NdpReview }>("/academy/ndp/review", payload);
+  return response.data.review;
+}
+
+export async function submitNdpReview(payload: NdpReviewPayload) {
+  const response = await apiClient.post<{ review: NdpReview }>("/academy/ndp/review/submit", payload);
+  return response.data.review;
 }
 
 export async function publishStudyMaterial(payload: {
