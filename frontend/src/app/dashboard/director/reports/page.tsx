@@ -7,12 +7,17 @@ import { useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import {
   AlertTriangle,
+  ArrowRight,
   BarChart3,
   BookOpen,
+  CalendarDays,
   CheckCircle2,
   ClipboardCheck,
+  Download,
   FileText,
   GraduationCap,
+  Printer,
+  Search,
   ShieldCheck,
   Users,
   WalletCards,
@@ -25,12 +30,10 @@ import {
   getMaterialSummary,
   getStudentProgressSummary,
   getSyllabusSummary,
-  getTeacherPerformanceSummary,
 } from "@/services/academy";
 import { getAdmissions, getApprovals, getLeads } from "@/services/crm";
 import { getDirectorDashboard } from "@/services/dashboard";
 import { getFees, getPaymentAnalytics } from "@/services/payments";
-import { ExecutiveIntelligenceSystem, ReportCommandBar, ReportQuestionCards, type ReportCommandState } from "@/components/reporting/executive-intelligence-system";
 
 type ReportMode = "overview" | "academic" | "admissions" | "finance" | "staff" | "students" | "marketing" | "launch" | "custom";
 
@@ -46,7 +49,7 @@ export default function DirectorReportsPage() {
     return date.toISOString().slice(0, 10);
   });
   const [toDate, setToDate] = useState(() => new Date().toISOString().slice(0, 10));
-  const [reportScope, setReportScope] = useState({ branch: "", programme: "", batch: "", search: "" });
+  const [searchText, setSearchText] = useState("");
   const directorQuery = useQuery({ queryKey: ["director", "reports", "command"], queryFn: getDirectorDashboard });
   const leadsQuery = useQuery({ queryKey: ["director", "reports", "leads"], queryFn: () => getLeads() });
   const admissionsQuery = useQuery({ queryKey: ["director", "reports", "admissions"], queryFn: getAdmissions });
@@ -56,7 +59,6 @@ export default function DirectorReportsPage() {
   const examsQuery = useQuery({ queryKey: ["director", "reports", "exams"], queryFn: () => getExamSummary() });
   const materialsQuery = useQuery({ queryKey: ["director", "reports", "materials"], queryFn: () => getMaterialSummary() });
   const syllabusQuery = useQuery({ queryKey: ["director", "reports", "syllabus"], queryFn: () => getSyllabusSummary() });
-  const teachersQuery = useQuery({ queryKey: ["director", "reports", "teacher-performance"], queryFn: getTeacherPerformanceSummary });
   const studentsQuery = useQuery({ queryKey: ["director", "reports", "student-progress"], queryFn: getStudentProgressSummary });
   const financeQuery = useQuery({ queryKey: ["director", "reports", "payment-analytics"], queryFn: getPaymentAnalytics });
   const feesQuery = useQuery({ queryKey: ["director", "reports", "fees"], queryFn: getFees });
@@ -232,6 +234,13 @@ export default function DirectorReportsPage() {
   ]);
 
   const reportTitle = `${mode === "overview" ? "Director Overview" : mode === "custom" ? "Custom Report" : `${mode.charAt(0).toUpperCase()}${mode.slice(1)} Report`} (${fromDate} to ${toDate})`;
+  const attentionCount = pendingFees.length + (approvalsQuery.data?.length ?? 0) + (command?.operationalAlerts.lowAttendanceAlerts ?? 0);
+  const selectedMenu = reportCards.find((card) => card.key === mode);
+  const filteredRows = useMemo(() => {
+    const query = searchText.trim().toLowerCase();
+    if (!query) return reportRows;
+    return [reportRows[0], ...reportRows.slice(1).filter((row) => row.join(" ").toLowerCase().includes(query))];
+  }, [reportRows, searchText]);
 
   const downloadReport = (format: "json" | "csv") => {
     const payload = {
@@ -254,118 +263,97 @@ export default function DirectorReportsPage() {
     URL.revokeObjectURL(url);
   };
 
-  const shareText = encodeURIComponent(`${reportTitle}\n${reportRows.slice(1).map(([category, metric, value]) => `${category} - ${metric}: ${value}`).join("\n")}`);
-
-  function updateReportCommand(next: ReportCommandState) {
-    setFromDate(next.from);
-    setToDate(next.to);
-    setReportScope({ branch: next.branch ?? "", programme: next.programme ?? "", batch: next.batch ?? "", search: next.search ?? "" });
-  }
-
   return (
-    <main className="min-h-screen bg-[var(--page-bg)] px-4 py-4 text-[var(--navy)] md:px-6 lg:h-[calc(100vh-var(--nav-height)-2rem)] lg:min-h-0 lg:overflow-hidden">
-      <section className="mx-auto flex h-full max-w-[1500px] flex-col gap-4 overflow-y-auto pr-0 lg:pr-2">
-        <section className="shrink-0 rounded-2xl border border-[var(--border)] bg-white/90 p-4 shadow-sm md:p-5">
+    <main className="min-h-screen bg-[var(--page-bg)] px-4 py-4 text-[var(--navy)] md:px-6">
+      <section className="mx-auto flex max-w-[1500px] flex-col gap-4">
+        <section className="rounded-2xl border border-[var(--border)] bg-white/95 p-4 shadow-sm md:p-5">
           <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold)]">Director Reports</p>
           <div className="mt-2 grid gap-4 lg:grid-cols-[1fr_0.35fr] lg:items-end">
             <div>
-              <h1 className="text-2xl font-black tracking-tight md:text-3xl">Report Room</h1>
+              <h1 className="text-2xl font-black tracking-tight md:text-3xl">Reports</h1>
               <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--muted-blue)]">
-                Live reports for admissions, academics, students, team, finance and learning. This page is built for weekly review and launch certification.
+                A simple review desk for admissions, academics, students, staff and finance. Start with the alerts, then open the area you want to check.
               </p>
             </div>
             <div className="rounded-2xl border border-[var(--border)] bg-white p-4">
-              <p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold)]">Last Updated</p>
+              <p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold)]">Updated</p>
               <p className="mt-2 text-sm font-black">{director?.lastUpdatedAt ? new Date(director.lastUpdatedAt).toLocaleString() : "Live data loading"}</p>
             </div>
           </div>
         </section>
 
-        <ExecutiveIntelligenceSystem
-          role="DIRECTOR"
-          title="Executive Intelligence System"
-          description="A single reporting foundation for platform health, admissions, academics, faculty, students, attendance, revenue, exam analytics, growth metrics and risk alerts."
-          metrics={[
-            { label: "Platform Health", value: directorQuery.isLoading ? "..." : `${attendance?.percentage ?? 0}%`, note: "Attendance health signal", tone: (attendance?.percentage ?? 0) >= 75 ? "success" : "warning" },
-            { label: "Admissions", value: leadsQuery.isLoading ? "..." : leadsQuery.data?.length ?? 0, note: `${admissionsQuery.data?.length ?? 0} admissions`, tone: "info" },
-            { label: "Revenue", value: financeQuery.isLoading ? "..." : `Rs ${(finance?.monthlyRevenue ?? 0).toLocaleString()}`, note: `Rs ${(finance?.pendingDues ?? 0).toLocaleString()} pending`, tone: (finance?.pendingDues ?? 0) ? "warning" : "success" },
-            { label: "Risk Alerts", value: command?.operationalAlerts.lowAttendanceAlerts ?? 0, note: "Low attendance alerts", tone: (command?.operationalAlerts.lowAttendanceAlerts ?? 0) ? "warning" : "success" },
-          ]}
-          insights={[
-            { title: "What happened?", detail: `${reportRows.length - 1} report metric(s) are currently available for the selected mode.`, tone: "info" },
-            { title: "Why did it happen?", detail: "Source reports are still pulled from admissions, academy, finance, staff and learning services.", tone: "success" },
-            { title: "What needs attention?", detail: `${pendingFees.length} open fee record(s), ${approvalsQuery.data?.length ?? 0} approval(s), ${command?.operationalAlerts.lowAttendanceAlerts ?? 0} attendance alert(s).`, href: "/dashboard/director/reports?mode=overview", tone: pendingFees.length || approvalsQuery.data?.length ? "warning" : "success" },
-            { title: "What should I do next?", detail: "Open the source workflow from the connected reports section before taking action.", tone: "info" },
-          ]}
-        >
-          <ReportQuestionCards />
-        </ExecutiveIntelligenceSystem>
-
-        <section className="grid shrink-0 gap-3 md:grid-cols-4 xl:grid-cols-8">
-          <ModeButton active={mode === "overview"} icon={BarChart3} label="Overview" onClick={() => setMode("overview")} />
-          <ModeButton active={mode === "academic"} icon={GraduationCap} label="Academic" onClick={() => setMode("academic")} />
-          <ModeButton active={mode === "admissions"} icon={ClipboardCheck} label="Admissions" onClick={() => setMode("admissions")} />
-          <ModeButton active={mode === "finance"} icon={WalletCards} label="Finance" onClick={() => setMode("finance")} />
-          <ModeButton active={mode === "staff"} icon={ShieldCheck} label="Staff" onClick={() => setMode("staff")} />
-          <ModeButton active={mode === "students"} icon={Users} label="Students" onClick={() => setMode("students")} />
-          <ModeButton active={mode === "marketing"} icon={BarChart3} label="Marketing" onClick={() => setMode("marketing")} />
-          <ModeButton active={mode === "launch"} icon={CheckCircle2} label="Launch QA" onClick={() => setMode("launch")} />
-          <ModeButton active={mode === "custom"} icon={FileText} label="Custom" onClick={() => setMode("custom")} />
+        <section className="grid gap-3 md:grid-cols-4">
+          <DirectorSignal title="Students" value={activeStudents} detail="active learners" tone="ok" />
+          <DirectorSignal title="Admissions" value={admissionsQuery.data?.length ?? 0} detail={`${approvalsQuery.data?.length ?? 0} waiting for approval`} tone={(approvalsQuery.data?.length ?? 0) ? "warn" : "ok"} />
+          <DirectorSignal title="Fees Pending" value={`Rs ${(finance?.pendingDues ?? 0).toLocaleString()}`} detail={`${pendingFees.length} open fee records`} tone={pendingFees.length ? "warn" : "ok"} />
+          <DirectorSignal title="Alerts" value={attentionCount} detail="items need review" tone={attentionCount ? "warn" : "ok"} />
         </section>
 
-        <ReportCommandBar
-          id={`director-${mode}`}
-          state={{ from: fromDate, to: toDate, ...reportScope }}
-          onStateChange={updateReportCommand}
-          onExportCsv={() => downloadReport("csv")}
-          onExportJson={() => downloadReport("json")}
-          onPrint={() => window.print()}
-          shareHref={`https://wa.me/?text=${shareText}`}
-        />
+        <section className="grid gap-4 xl:grid-cols-[0.9fr_1.1fr]">
+          <Panel title="Today's Action List" eyebrow="Start here">
+            <div className="grid gap-3">
+              <ActionLink title="Clear admission queue" text="Check applications, documents, approvals and fee status." href="/dashboard/director/admissions" value={command?.operationalAlerts.pendingAdmissions ?? 0} />
+              <ActionLink title="Review fee pressure" text="Open pending dues and overdue fee records." href="/dashboard/director/accounts?mode=fees" value={pendingFees.length} />
+              <ActionLink title="Check class delivery" text="Review attendance, syllabus movement and teacher delivery." href="/dashboard/director/academic/reports" value={`${attendance?.percentage ?? 0}%`} />
+              <ActionLink title="Open student progress" text="See batches with weak attendance or progress signals." href="/dashboard/director/teaching/students" value={command?.operationalAlerts.lowAttendanceAlerts ?? 0} />
+            </div>
+          </Panel>
+
+          <Panel title="Open a Report" eyebrow="Simple menu">
+            <div className="grid gap-3 sm:grid-cols-2">
+              <MenuButton active={mode === "overview"} icon={BarChart3} label="Overview" detail="Main academy picture" onClick={() => setMode("overview")} />
+              <MenuButton active={mode === "academic"} icon={GraduationCap} label="Academic" detail="Classes, syllabus, attendance" onClick={() => setMode("academic")} />
+              <MenuButton active={mode === "admissions"} icon={ClipboardCheck} label="Admissions" detail="Leads and approvals" onClick={() => setMode("admissions")} />
+              <MenuButton active={mode === "finance"} icon={WalletCards} label="Finance" detail="Collection and pending fees" onClick={() => setMode("finance")} />
+              <MenuButton active={mode === "students"} icon={Users} label="Students" detail="Student progress signals" onClick={() => setMode("students")} />
+              <MenuButton active={mode === "staff"} icon={ShieldCheck} label="Staff" detail="Teachers and team" onClick={() => setMode("staff")} />
+              <MenuButton active={mode === "marketing"} icon={BarChart3} label="Marketing" detail="Lead conversion" onClick={() => setMode("marketing")} />
+              <MenuButton active={mode === "launch"} icon={CheckCircle2} label="Launch Check" detail="Readiness before go-live" onClick={() => setMode("launch")} />
+            </div>
+          </Panel>
+        </section>
 
         {mode === "overview" ? (
-        <section className="grid min-h-0 gap-3 md:grid-cols-2 xl:grid-cols-3">
-          {reportCards.map((card) => (
-            <ReportCard key={`${card.key}-${card.title}`} card={card} onOpen={() => setMode(card.key)} />
-          ))}
-        </section>
+          <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            {reportCards.map((card) => (
+              <ReportCard key={`${card.key}-${card.title}`} card={card} onOpen={() => setMode(card.key)} />
+            ))}
+          </section>
         ) : null}
 
         {mode === "launch" || mode === "overview" ? (
-        <section className="grid min-h-0 gap-4 lg:grid-cols-[1fr_0.8fr]">
-          <Panel title="Launch readiness" eyebrow="Certification">
-            <div className="grid gap-3">
+          <Panel title="Launch Readiness" eyebrow="Before go-live">
+            <div className="grid gap-3 md:grid-cols-2">
               {readiness.map((item) => (
                 <ReadinessRow key={item.title} item={item} />
               ))}
             </div>
           </Panel>
-
-          <Panel title="Director action list" eyebrow="Today">
-            <div className="grid gap-3">
-              <ActionLink title="Clear admission queue" text="Review leads, approvals, documents and fees." href="/dashboard/director/admissions" value={command?.operationalAlerts.pendingAdmissions ?? 0} />
-              <ActionLink title="Review fee pressure" text="Open pending dues and overdue fees." href="/dashboard/director/accounts?mode=fees" value={pendingFees.length} />
-              <ActionLink title="Check teacher delivery" text="Open faculty performance and class logs." href="/dashboard/director/academic/teacher-performance" value={teachersQuery.data?.teachers.length ?? 0} />
-              <ActionLink title="Run launch QA" text="Open the final module checklist before public launch." href="/dashboard/director/launch-qa" value="QA" />
-            </div>
-          </Panel>
-        </section>
         ) : null}
 
         {mode !== "overview" && mode !== "launch" ? (
-        <section className="grid min-h-0 flex-1 gap-4">
-          <Panel title={reportTitle} eyebrow="Preview">
-            <div className="max-h-[58vh] overflow-y-auto pr-1">
+          <section className="grid gap-4">
+            <Panel title={selectedMenu?.title ?? reportTitle} eyebrow="Report details">
+              <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+                <div className="grid gap-2 sm:grid-cols-2">
+                  <DateField label="From" value={fromDate} onChange={setFromDate} />
+                  <DateField label="To" value={toDate} onChange={setToDate} />
+                </div>
+                <label className="flex min-h-11 min-w-0 flex-1 items-center gap-2 rounded-xl border border-[var(--border)] bg-white px-3 text-sm lg:max-w-md">
+                  <Search className="h-4 w-4 shrink-0 text-[var(--muted-blue)]" />
+                  <input value={searchText} onChange={(event) => setSearchText(event.target.value)} placeholder="Search inside this report" className="min-w-0 flex-1 bg-transparent outline-none" />
+                </label>
+              </div>
               <table className="w-full border-collapse text-left text-sm">
                 <thead className="sticky top-0 bg-white">
                   <tr>
-                    {reportRows[0].map((heading) => (
+                    {filteredRows[0].map((heading) => (
                       <th key={heading} className="border-b border-[var(--border)] px-3 py-3 font-black">{heading}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
-                  {reportRows.slice(1).map((row) => (
+                  {filteredRows.slice(1).map((row) => (
                     <tr key={row.join("-")} className="border-b border-[var(--border)] last:border-b-0">
                       {row.map((cell) => (
                         <td key={cell} className="px-3 py-3">{cell}</td>
@@ -374,20 +362,32 @@ export default function DirectorReportsPage() {
                   ))}
                 </tbody>
               </table>
-            </div>
-          </Panel>
-        </section>
+            </Panel>
+          </section>
         ) : null}
+
+        <Panel title="Download or Print" eyebrow="Optional">
+          <div className="flex flex-wrap gap-2">
+            <UtilityButton icon={Download} label="Download CSV" onClick={() => downloadReport("csv")} />
+            <UtilityButton icon={Download} label="Download JSON" onClick={() => downloadReport("json")} />
+            <UtilityButton icon={Printer} label="Print" onClick={() => window.print()} />
+          </div>
+        </Panel>
       </section>
     </main>
   );
 }
 
-function ModeButton({ active, icon: Icon, label, onClick }: { active: boolean; icon: LucideIcon; label: string; onClick: () => void }) {
+function MenuButton({ active, detail, icon: Icon, label, onClick }: { active: boolean; detail: string; icon: LucideIcon; label: string; onClick: () => void }) {
   return (
-    <button className={`flex min-h-20 flex-col items-center justify-center gap-2 rounded-2xl border p-2 text-center text-xs font-black shadow-sm transition hover:border-[var(--gold-border)] ${active ? "border-slate-950 bg-slate-950 text-white" : "border-[var(--border)] bg-white"}`} onClick={onClick} type="button">
-      <Icon className="h-4 w-4" />
-      {label}
+    <button className={`flex min-h-20 items-center gap-3 rounded-2xl border p-3 text-left shadow-sm transition hover:border-[var(--gold-border)] ${active ? "border-slate-950 bg-slate-950 text-white" : "border-[var(--border)] bg-white"}`} onClick={onClick} type="button">
+      <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl ${active ? "bg-white/10" : "bg-[var(--gold-soft)]"}`}>
+        <Icon className="h-5 w-5" />
+      </span>
+      <span className="min-w-0">
+        <span className="block text-sm font-black">{label}</span>
+        <span className={`mt-1 block text-xs leading-5 ${active ? "text-white/75" : "text-[var(--muted-blue)]"}`}>{detail}</span>
+      </span>
     </button>
   );
 }
@@ -400,7 +400,7 @@ function ReportCard({ card, onOpen }: { card: { title: string; href: string; ico
         <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-[var(--gold-border)] bg-[var(--gold-soft)]">
           <Icon className="h-6 w-6 text-[var(--navy)]" />
         </div>
-        <span className="rounded-full border border-[var(--border)] bg-white px-3 py-1 text-xs font-black">Open</span>
+        <span className="inline-flex items-center gap-1 rounded-full border border-[var(--border)] bg-white px-3 py-1 text-xs font-black">Open <ArrowRight className="h-3 w-3" /></span>
       </div>
       <h2 className="mt-4 text-xl font-black">{card.title}</h2>
       <div className="mt-4 grid gap-2">
@@ -415,6 +415,23 @@ function ReportCard({ card, onOpen }: { card: { title: string; href: string; ico
   );
 }
 
+function DirectorSignal({ title, value, detail, tone }: { title: string; value: string | number; detail: string; tone: "ok" | "warn" }) {
+  return (
+    <div className="rounded-2xl border border-[var(--border)] bg-white/95 p-4 shadow-sm">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[var(--muted-blue)]">{title}</p>
+          <p className="mt-2 text-2xl font-black">{value}</p>
+          <p className="mt-1 text-sm text-[var(--muted-blue)]">{detail}</p>
+        </div>
+        <span className={`rounded-full px-2.5 py-1 text-[11px] font-black ${tone === "ok" ? "bg-emerald-100 text-emerald-800" : "bg-amber-100 text-amber-800"}`}>
+          {tone === "ok" ? "OK" : "Check"}
+        </span>
+      </div>
+    </div>
+  );
+}
+
 function Panel({ title, eyebrow, children }: { title: string; eyebrow: string; children: ReactNode }) {
   return (
     <section className="min-h-0 rounded-2xl border border-[var(--border)] bg-white/90 p-4 shadow-sm">
@@ -422,6 +439,27 @@ function Panel({ title, eyebrow, children }: { title: string; eyebrow: string; c
       <h2 className="mt-1 text-xl font-black">{title}</h2>
       <div className="mt-4">{children}</div>
     </section>
+  );
+}
+
+function DateField({ label, value, onChange }: { label: string; value: string; onChange: (value: string) => void }) {
+  return (
+    <label className="grid gap-2 text-sm font-bold text-[var(--navy)]">
+      {label}
+      <span className="flex min-h-11 items-center gap-2 rounded-xl border border-[var(--border)] bg-white px-3">
+        <CalendarDays className="h-4 w-4 text-[var(--muted-blue)]" />
+        <input type="date" value={value} onChange={(event) => onChange(event.target.value)} className="min-w-0 bg-transparent outline-none" />
+      </span>
+    </label>
+  );
+}
+
+function UtilityButton({ icon: Icon, label, onClick }: { icon: LucideIcon; label: string; onClick: () => void }) {
+  return (
+    <button type="button" onClick={onClick} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-sm font-black text-[var(--navy)] shadow-sm hover:border-[var(--gold-border)]">
+      <Icon className="h-4 w-4" />
+      {label}
+    </button>
   );
 }
 
