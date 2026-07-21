@@ -10,6 +10,10 @@ const REDIS_LOG_THROTTLE_MS = 15_000;
 let redisDisabledUntil = 0;
 let lastConnectionLogAt = 0;
 
+function isRedisAuthError(message: string) {
+  return /WRONGPASS|invalid username-password|user is disabled/i.test(message);
+}
+
 function throttledRedisLog(level: "info" | "warn" | "error", message: string, meta?: Record<string, unknown>) {
   const now = Date.now();
   if (now - lastConnectionLogAt < REDIS_LOG_THROTTLE_MS) return;
@@ -73,6 +77,10 @@ export function getRedis() {
   });
   redis.on("error", (error) => {
     redisReady = false;
+    if (isRedisAuthError(error.message) && !env.REDIS_REQUIRED) {
+      disableOptionalRedisTemporarily(error.message);
+      return;
+    }
     if (env.REDIS_REQUIRED) {
       throttledRedisLog("error", "Redis connection error", { error: error.message });
     } else {
@@ -107,7 +115,7 @@ export async function verifyRedisConnection() {
     if (env.REDIS_REQUIRED) {
       logger.error("Redis health check failed", { error: message });
     }
-    if (/WRONGPASS|invalid username-password/i.test(message) || !env.REDIS_REQUIRED) {
+    if (isRedisAuthError(message) || !env.REDIS_REQUIRED) {
       redis?.disconnect();
       redis = null;
     }
