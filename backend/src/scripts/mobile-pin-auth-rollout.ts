@@ -53,7 +53,8 @@ async function main() {
   const director = users.find((user) => user.email.toLowerCase() === DIRECTOR_EMAIL);
   const defaultPinCandidates = users.filter((user) => {
     const metadata = metadataObject(user.roleMetadata);
-    return metadata.defaultPassword === true || metadata.defaultPin === true || user.role === Role.GUEST;
+    const hasStoredPin = typeof metadata.accessPin === "string" && /^\d{4}$/.test(metadata.accessPin);
+    return !hasStoredPin && (metadata.defaultPassword === true || metadata.defaultPin === true || user.role === Role.GUEST);
   });
 
   const report = {
@@ -123,6 +124,7 @@ async function main() {
           ...metadata,
           defaultPassword: true,
           defaultPin: true,
+          accessPin: DEFAULT_ACCOUNT_PIN,
           pinResetByRolloutAt: new Date().toISOString()
         })
       }
