@@ -51,6 +51,8 @@ type StudentInput = {
   phone?: string;
   rollNumber?: string;
   notes?: string;
+  joinedAt?: string;
+  createIfMissing?: boolean;
 };
 
 type TeacherInput = {
@@ -248,6 +250,7 @@ type ApproveAdmissionInput = StudentInput & {
   batchIds?: string[];
   applicationId?: string;
   leadId?: string;
+  admissionDate?: string;
   totalFee?: number;
   amountPaid?: number;
   paymentStatus?: string;
@@ -1566,8 +1569,39 @@ async function findStudentUserForAdmission(input: StudentInput) {
       ? await prisma.user.findUnique({ where: { email } })
       : null;
   if (!existing) {
-    throw Object.assign(new Error("Student account not found. Ask the applicant to sign up first, or create a guest account from BDE."), {
-      statusCode: 404,
+    if (!input.createIfMissing) {
+      throw Object.assign(new Error("Student account not found. Ask the applicant to sign up first, or create a guest account from BDE."), {
+        statusCode: 404,
+      });
+    }
+    if (!mobile) {
+      throw Object.assign(new Error("Mobile number is required to create an old admission login"), { statusCode: 400 });
+    }
+    const defaultPin = DEFAULT_ACCOUNT_PIN;
+    const password = await bcrypt.hash(defaultPin, 10);
+    const generatedEmail = email || `${mobile.replace(/^\+/, "")}@old-admissions.nidus.local`;
+    await assertEmailAvailable(generatedEmail);
+    return prisma.user.create({
+      data: {
+        name: input.name?.trim() || `Student ${mobile.slice(-4)}`,
+        email: generatedEmail,
+        mobile,
+        role: Role.STUDENT,
+        password,
+        roleOnboardingStatus: "ACTIVE",
+        roleActivatedAt: new Date(),
+        isDisabled: false,
+        lockedUntil: null,
+        loginFailureCount: 0,
+        roleMetadata: toJsonObject({
+          loginMobile: mobile,
+          defaultPassword: true,
+          defaultPin: true,
+          accessPin: defaultPin,
+          oldAdmissionImport: true,
+          credentialGeneratedAt: new Date().toISOString(),
+        }),
+      },
     });
   }
 
@@ -1610,7 +1644,7 @@ export const academyService = {
   },
 
   async createBatch(user: Requester, input: BatchInput) {
-    requireAcademicManagement(user);
+    if (!isAdmissionCell(user)) requireAcademicManagement(user);
     if (!input.name) {
       throw Object.assign(new Error("Batch name is required"), { statusCode: 400 });
     }
@@ -1674,6 +1708,7 @@ export const academyService = {
         data: {
           status: "ACTIVE",
           remarks: input.notes || input.rollNumber || existing.remarks,
+          joinedAt: toDate(input.joinedAt),
         },
       });
     }
@@ -1683,6 +1718,7 @@ export const academyService = {
         batchId,
         studentId: student.id,
         status: "ACTIVE",
+        joinedAt: toDate(input.joinedAt),
         remarks: input.notes || input.rollNumber || null,
       },
     });
@@ -4820,6 +4856,7 @@ export const academyService = {
     }
     const enrollment = enrollments[0];
     const now = new Date();
+    const recordDate = toDate(input.admissionDate || input.joinedAt) || now;
     const totalFee = Number(input.totalFee || 0);
     const amountPaid = Math.max(0, Number(input.amountPaid || 0));
     const paymentStatus = input.paymentStatus || (amountPaid >= totalFee && totalFee > 0 ? "PAID" : amountPaid > 0 ? "PARTIAL" : "PENDING");
@@ -4861,7 +4898,7 @@ export const academyService = {
               leadId: input.leadId || undefined,
               studentId: student.id,
               courseId: batch.courseId,
-              admissionDate: now,
+              admissionDate: recordDate,
               paymentStatus,
               status: "ENROLLED",
               admissionMode: input.paymentMethod === "RAZORPAY_LINK" ? "ONLINE" : "MANUAL",
@@ -4901,9 +4938,9 @@ export const academyService = {
           amount: totalFee,
           paidAmount: amountPaid,
           dueAmount: Math.max(totalFee - amountPaid, 0),
-          dueDate: now,
+          dueDate: recordDate,
           paidStatus: Math.max(totalFee - amountPaid, 0) > 0 ? (amountPaid > 0 ? "PARTIAL" : "PENDING") : "PAID",
-          paidAt: amountPaid > 0 ? now : undefined,
+          paidAt: amountPaid > 0 ? recordDate : undefined,
           sequence: 1,
         },
       });

@@ -19,12 +19,16 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { AdmissionAutomationPanel, AdmissionDocumentsPanel, AdmissionJourneyBanner, AdmissionRoleActions } from "@/components/admission/admission-journey-workspace";
+import StudentsByClassWorkspace from "@/components/academy/StudentsByClassWorkspace";
 import { AiOperatingLayer } from "@/components/ai/ai-operating-layer";
 import { WorkspaceDashboard } from "@/components/dashboard/workspace-dashboard";
 import { ExecutiveIntelligenceSystem } from "@/components/reporting/executive-intelligence-system";
+import { approveAdmissionToBatch, createAcademyBatch } from "@/services/academy";
+import { getCourses } from "@/services/courses";
 import { createDocument } from "@/services/media";
+import type { Course } from "@/types/course";
 
-type OfficerTab = "TODAY" | "APPLICATIONS" | "DOCUMENTS" | "FEES" | "BATCH" | "ACTIVATION" | "STUDENTS" | "REPORTS";
+type OfficerTab = "TODAY" | "APPLICATIONS" | "DOCUMENTS" | "FEES" | "BATCH" | "ACTIVATION" | "OLD_ADMISSIONS" | "STUDENTS" | "REPORTS";
 type DocumentKey = "photo" | "aadhaar" | "marksheet" | "parentDetails" | "otherFiles";
 type DocumentStatus = "Pending" | "Verified" | "Rejected";
 type DocumentUploads = Record<DocumentKey, string>;
@@ -91,6 +95,27 @@ type ApplicationDraft = {
   notes: string;
 };
 
+type OldAdmissionInput = {
+  batchMode: "existing" | "new";
+  batchId: string;
+  batchName: string;
+  batchType: string;
+  batchStartDate: string;
+  courseId: string;
+  programSlug: string;
+  studentName: string;
+  mobile: string;
+  email: string;
+  rollNumber: string;
+  admissionDate: string;
+  totalFee: number;
+  amountPaid: number;
+  paymentStatus: string;
+  paymentMethod: string;
+  transactionRef: string;
+  notes: string;
+};
+
 const tabs: Array<{ key: OfficerTab; label: string }> = [
   { key: "TODAY", label: "Today" },
   { key: "APPLICATIONS", label: "Applications" },
@@ -98,6 +123,8 @@ const tabs: Array<{ key: OfficerTab; label: string }> = [
   { key: "FEES", label: "Payment" },
   { key: "BATCH", label: "Assign Batch" },
   { key: "ACTIVATION", label: "Activate Student" },
+  { key: "OLD_ADMISSIONS", label: "Old Admissions" },
+  { key: "STUDENTS", label: "Students" },
   { key: "REPORTS", label: "Advanced" },
 ];
 
@@ -108,6 +135,7 @@ const hashTabs: Record<string, OfficerTab> = {
   fees: "FEES",
   batch: "BATCH",
   activation: "ACTIVATION",
+  "old-admissions": "OLD_ADMISSIONS",
   students: "STUDENTS",
   reports: "REPORTS",
 };
@@ -206,8 +234,6 @@ export function AdministrativeOfficerDashboard() {
   const [tab, setTab] = useState<OfficerTab>("TODAY");
   const [selectedLeadId, setSelectedLeadId] = useState("");
   const [search, setSearch] = useState("");
-  const [studentSearch, setStudentSearch] = useState("");
-  const [studentBatchId, setStudentBatchId] = useState("");
   const [admissionStatus, setAdmissionStatus] = useState("Received");
   const [documentStatuses, setDocumentStatuses] = useState<Record<DocumentKey, DocumentStatus>>(blankDocuments());
   const [documentUploads, setDocumentUploads] = useState<DocumentUploads>(blankDocumentUploads());
@@ -236,7 +262,9 @@ export function AdministrativeOfficerDashboard() {
 
   const batchesQuery = useQuery({ queryKey: ["admission-cell", "batches"], queryFn: () => apiJson<BatchResponse>("/api/academy/batches") });
   const leadsQuery = useQuery({ queryKey: ["admission-cell", "applications"], queryFn: () => apiJson<{ leads: LeadApplication[] }>("/api/crm/leads") });
+  const coursesQuery = useQuery({ queryKey: ["admission-cell", "courses"], queryFn: () => getCourses(), retry: false });
   const batches = useMemo(() => normalizeBatches(batchesQuery.data).filter((item) => item.status !== "ARCHIVED"), [batchesQuery.data]);
+  const courses = coursesQuery.data ?? [];
   const applications = useMemo(() => (leadsQuery.data?.leads ?? []).filter((lead) => !["ENROLLED", "LOST"].includes(lead.status)), [leadsQuery.data]);
   const selectedLead = applications.find((lead) => lead.id === selectedLeadId) ?? null;
   const selectedBatchIds = form.batchIds.length ? form.batchIds : form.batchId ? [form.batchId] : [];
@@ -267,7 +295,6 @@ export function AdministrativeOfficerDashboard() {
   const aoReady = applications.filter((lead) => noteHas(lead, "AO_QUEUE: YES")).length;
   const allStudentRows = useMemo(() => batches.flatMap((batch) => (batch.students ?? []).map((entry) => ({ batch, entry, student: entry.student ?? entry.user ?? null }))).filter((row) => row.student), [batches]);
   const uniqueStudents = new Set(allStudentRows.map((row) => row.student?.id)).size;
-  const visibleStudentRows = allStudentRows.filter((row) => (!studentBatchId || row.batch.id === studentBatchId) && [row.student?.name, row.student?.email, row.student?.mobile, row.batch.name].join(" ").toLowerCase().includes(studentSearch.trim().toLowerCase()));
   const nextAction = !selectedLead
     ? null
     : !requiredDocumentsVerified || rejectedDocuments.length
@@ -358,6 +385,48 @@ export function AdministrativeOfficerDashboard() {
       setMessage(error instanceof Error ? error.message : "Could not upload document.");
       setUploadingDocumentKey(null);
     },
+  });
+
+  const oldAdmissionMutation = useMutation({
+    mutationFn: async (input: OldAdmissionInput) => {
+      let batchId = input.batchId;
+      if (!batchId) {
+        const created = await createAcademyBatch({
+          name: input.batchName,
+          courseId: input.courseId,
+          programSlug: input.programSlug,
+          batchType: input.batchType,
+          learningMode: input.batchType,
+          startDate: input.batchStartDate || input.admissionDate,
+          status: "ACTIVE",
+          setupType: "OLD_ADMISSION_IMPORT",
+        });
+        batchId = created.id;
+      }
+      return approveAdmissionToBatch({
+        batchId,
+        name: input.studentName,
+        phone: input.mobile,
+        email: input.email || undefined,
+        rollNumber: input.rollNumber || undefined,
+        notes: input.notes || `Old admission import: ${input.studentName}`,
+        joinedAt: input.admissionDate,
+        admissionDate: input.admissionDate,
+        createIfMissing: true,
+        totalFee: Number(input.totalFee || 0),
+        amountPaid: Number(input.amountPaid || 0),
+        paymentStatus: input.paymentStatus,
+        paymentMethod: input.paymentMethod,
+        transactionRef: input.transactionRef || undefined,
+      });
+    },
+    onSuccess: () => {
+      setMessage("Old admission added. Student history, batch membership and login are ready.");
+      void queryClient.invalidateQueries({ queryKey: ["admission-cell"] });
+      void queryClient.invalidateQueries({ queryKey: ["academy", "batches"] });
+      openTab("STUDENTS");
+    },
+    onError: (error) => setMessage(error instanceof Error ? error.message : "Could not add old admission."),
   });
 
   function openLead(lead: LeadApplication) {
@@ -520,8 +589,17 @@ export function AdministrativeOfficerDashboard() {
         </ApplicantPanel>
       ) : null}
 
+      {tab === "OLD_ADMISSIONS" ? (
+        <OldAdmissionsPanel
+          batches={batches}
+          courses={courses}
+          pending={oldAdmissionMutation.isPending}
+          onSubmit={(input) => oldAdmissionMutation.mutate(input)}
+        />
+      ) : null}
+
       {tab === "STUDENTS" ? (
-        <Panel eyebrow="Students" title="Active learners by batch"><div className="grid gap-3 sm:grid-cols-[1fr_260px]"><SearchField value={studentSearch} onChange={setStudentSearch} placeholder="Search student, phone or batch" /><select value={studentBatchId} onChange={(event) => setStudentBatchId(event.target.value)} className="min-h-12 rounded-xl border border-[var(--border)] bg-white px-3 font-bold"><option value="">All batches</option>{batches.map((batch) => <option key={batch.id} value={batch.id}>{batch.name}</option>)}</select></div><div className="mt-5 overflow-hidden rounded-xl border border-[var(--border)]"><div className="hidden grid-cols-[1fr_1fr_180px] bg-[var(--page-bg)] px-4 py-3 text-xs font-black uppercase tracking-[0.14em] sm:grid"><span>Student</span><span>Batch</span><span>Status</span></div>{visibleStudentRows.map((row) => <div key={`${row.batch.id}-${row.student?.id}`} className="grid gap-2 border-t border-[var(--border)] p-4 first:border-t-0 sm:grid-cols-[1fr_1fr_180px]"><div><strong>{row.student?.name}</strong><p className="mt-1 text-xs text-[var(--muted-blue)]">{row.student?.mobile || row.student?.email}</p></div><span className="text-sm font-bold">{row.batch.name}</span><span className="w-fit rounded-full bg-emerald-50 px-3 py-1 text-xs font-black text-emerald-700">{row.entry.status || "ACTIVE"}</span></div>)}{!visibleStudentRows.length ? <Empty>No matching active students.</Empty> : null}</div></Panel>
+        <StudentsByClassWorkspace audience="admission-cell" embedded />
       ) : null}
 
       {tab === "REPORTS" ? (
@@ -569,6 +647,115 @@ export function AdministrativeOfficerDashboard() {
         </section>
       ) : null}
     </WorkspaceDashboard>
+  );
+}
+
+function todayInputDate() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function OldAdmissionsPanel({ batches, courses, pending, onSubmit }: { batches: BatchOption[]; courses: Course[]; pending: boolean; onSubmit: (input: OldAdmissionInput) => void }) {
+  const firstCourse = courses[0];
+  const [form, setForm] = useState<OldAdmissionInput>({
+    batchMode: "existing",
+    batchId: batches[0]?.id || "",
+    batchName: "",
+    batchType: "OFFLINE",
+    batchStartDate: "",
+    courseId: firstCourse?.id || "",
+    programSlug: firstCourse?.slug || "",
+    studentName: "",
+    mobile: "",
+    email: "",
+    rollNumber: "",
+    admissionDate: todayInputDate(),
+    totalFee: 0,
+    amountPaid: 0,
+    paymentStatus: "PENDING",
+    paymentMethod: "OFFICE_COLLECTION",
+    transactionRef: "",
+    notes: "",
+  });
+  const selectedCourse = courses.find((course) => course.id === form.courseId) ?? firstCourse;
+  const needsNewBatch = form.batchMode === "new";
+  const canSubmit = Boolean(form.studentName.trim() && form.mobile.trim() && form.admissionDate && (needsNewBatch ? form.batchName.trim() && form.courseId : form.batchId));
+
+  function update<K extends keyof OldAdmissionInput>(key: K, value: OldAdmissionInput[K]) {
+    setForm((current) => ({ ...current, [key]: value }));
+  }
+
+  return (
+    <Panel eyebrow="Old Admissions" title="Add old student history">
+      <form
+        className="grid gap-5"
+        onSubmit={(event) => {
+          event.preventDefault();
+          if (!canSubmit) return;
+          onSubmit({ ...form, programSlug: selectedCourse?.slug || form.programSlug || form.courseId });
+        }}
+      >
+        <div className="grid gap-3 rounded-xl border border-[var(--border)] bg-[var(--page-bg)] p-4 sm:grid-cols-2">
+          <label className="grid gap-2 text-sm font-black">Where should this student go?
+            <select value={form.batchMode} onChange={(event) => update("batchMode", event.target.value as OldAdmissionInput["batchMode"])} className="min-h-12 rounded-xl border border-[var(--border)] bg-white px-3 font-normal">
+              <option value="existing">Existing batch</option>
+              <option value="new">Create old batch</option>
+            </select>
+          </label>
+          {needsNewBatch ? (
+            <SelectField label="Course / program" value={form.courseId} onChange={(value) => {
+              const course = courses.find((item) => item.id === value);
+              setForm((current) => ({ ...current, courseId: value, programSlug: course?.slug || value }));
+            }}>
+              <option value="">Select course</option>
+              {courses.map((course) => <option key={course.id} value={course.id}>{course.title}</option>)}
+            </SelectField>
+          ) : (
+            <label className="grid gap-2 text-sm font-black">Batch
+              <select value={form.batchId} onChange={(event) => update("batchId", event.target.value)} className="min-h-12 rounded-xl border border-[var(--border)] bg-white px-3 font-normal">
+                <option value="">Select batch</option>
+                {batches.map((batch) => <option key={batch.id} value={batch.id}>{batch.name} / {batch.course?.title || batch.programSlug}</option>)}
+              </select>
+            </label>
+          )}
+          {needsNewBatch ? <Field label="Old batch name" value={form.batchName} onChange={(value) => update("batchName", value)} /> : null}
+          {needsNewBatch ? <Field label="Batch start date" value={form.batchStartDate} onChange={(value) => update("batchStartDate", value)} /> : null}
+        </div>
+
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          <Field label="Student name" value={form.studentName} onChange={(value) => update("studentName", value)} />
+          <Field label="Login mobile" value={form.mobile} onChange={(value) => update("mobile", value)} />
+          <Field label="Email optional" value={form.email} onChange={(value) => update("email", value)} />
+          <Field label="Roll number optional" value={form.rollNumber} onChange={(value) => update("rollNumber", value)} />
+          <Field label="Original admission date" value={form.admissionDate} onChange={(value) => update("admissionDate", value)} />
+          <SelectField label="Payment status" value={form.paymentStatus} onChange={(value) => update("paymentStatus", value)}>
+            <option value="PENDING">Pending</option>
+            <option value="PARTIAL">Partially paid</option>
+            <option value="PAID">Paid</option>
+            <option value="APPROVED">Approved by management</option>
+          </SelectField>
+          <NumberField label="Total fee" value={form.totalFee} onChange={(value) => update("totalFee", value)} />
+          <NumberField label="Amount paid" value={form.amountPaid} onChange={(value) => update("amountPaid", value)} />
+          <SelectField label="Payment method" value={form.paymentMethod} onChange={(value) => update("paymentMethod", value)}>
+            <option value="OFFICE_COLLECTION">Office collection</option>
+            <option value="CASH">Cash</option>
+            <option value="UPI">UPI</option>
+            <option value="BANK_TRANSFER">Bank transfer</option>
+            <option value="CHEQUE">Cheque</option>
+          </SelectField>
+        </div>
+
+        <Field label="Transaction reference optional" value={form.transactionRef} onChange={(value) => update("transactionRef", value)} />
+        <TextArea label="History note optional" value={form.notes} onChange={(value) => update("notes", value)} />
+
+        <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-bold text-emerald-900">
+          This will create or link the student login, keep default PIN 1234, save the original admission date, and show the student in Students by Class.
+        </div>
+
+        <button type="submit" disabled={!canSubmit || pending} className="inline-flex min-h-12 items-center justify-center rounded-xl bg-slate-950 px-5 text-sm font-black text-white disabled:opacity-50">
+          {pending ? "Adding old admission..." : "Add Old Admission"}
+        </button>
+      </form>
+    </Panel>
   );
 }
 

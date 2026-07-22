@@ -571,6 +571,7 @@ export async function createAcademyBatch(payload: {
   courseId?: string;
   startDate?: string;
   endDate?: string;
+  status?: string;
   setupType?: string;
   durationDays?: string | number;
   completedDays?: string | number;
@@ -625,6 +626,33 @@ export async function assignTeacherToBatch(batchId: string, payload: { teacherId
 
 export async function addStudentToBatch(batchId: string, payload: { userId?: string; email?: string; phone?: string; name?: string; rollNumber?: string; notes?: string }) {
   const response = await apiClient.post(`/academy/batches/${batchId}/students`, payload);
+  return response.data;
+}
+
+export type ApproveAdmissionToBatchPayload = {
+  batchId: string;
+  batchIds?: string[];
+  applicationId?: string;
+  leadId?: string;
+  userId?: string;
+  email?: string;
+  name?: string;
+  phone?: string;
+  rollNumber?: string;
+  notes?: string;
+  joinedAt?: string;
+  admissionDate?: string;
+  createIfMissing?: boolean;
+  totalFee?: number;
+  amountPaid?: number;
+  paymentStatus?: string;
+  paymentMethod?: string;
+  transactionRef?: string;
+  receiptUploadUrl?: string;
+};
+
+export async function approveAdmissionToBatch(payload: ApproveAdmissionToBatchPayload) {
+  const response = await apiClient.post("/academy/admissions/approve", payload);
   return response.data;
 }
 

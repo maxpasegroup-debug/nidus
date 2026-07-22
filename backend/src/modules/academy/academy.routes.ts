@@ -27,8 +27,8 @@ function requireAcademyRoles(roles: Role[]) {
     }
     const restrictedAdmin = req.user.role === Role.ADMIN && ["ADMISSION_CELL", "MARKETING", "SALES_BOOSTER"].includes(template);
     const admissionAllowed = (template === "ADMISSION_CELL" || req.user.role === Role.ADMINISTRATIVE_OFFICER) && (
-      (req.method === "GET" && req.path === "/batches") ||
-      (req.method === "POST" && req.path === "/admissions/approve")
+      (req.method === "GET" && ["/batches", "/student-progress-summary"].includes(req.path)) ||
+      (req.method === "POST" && (req.path === "/batches" || req.path === "/admissions/approve" || /^\/batches\/[^/]+\/students$/.test(req.path)))
     );
     if (restrictedAdmin && !admissionAllowed) {
       res.status(403).json({ message: "Access denied for assigned dashboard scope" });

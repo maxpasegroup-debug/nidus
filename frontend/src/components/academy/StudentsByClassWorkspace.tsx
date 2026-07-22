@@ -8,7 +8,8 @@ import { getAcademyBatches, getStudentProgressSummary, type AcademyBatch } from 
 import { AcademicHero, AcademicPill, AcademicShell, EmptyState, Panel, StatCard } from "@/app/dashboard/director/academic/_components";
 
 type Props = {
-  audience: "director" | "academic-head";
+  audience: "director" | "academic-head" | "admission-cell";
+  embedded?: boolean;
 };
 
 function metadataString(metadata: Record<string, unknown> | null | undefined, key: string) {
@@ -33,7 +34,7 @@ function metric(value: number | null | undefined, suffix = "%") {
   return typeof value === "number" ? `${value}${suffix}` : "No data";
 }
 
-export default function StudentsByClassWorkspace({ audience }: Props) {
+export default function StudentsByClassWorkspace({ audience, embedded = false }: Props) {
   const [activeBatchId, setActiveBatchId] = useState("");
   const [search, setSearch] = useState("");
   const [visiblePins, setVisiblePins] = useState<Record<string, boolean>>({});
@@ -57,14 +58,14 @@ export default function StudentsByClassWorkspace({ audience }: Props) {
       .includes(normalizedSearch);
   });
   const totalStudents = batches.reduce((sum, batch) => sum + (batch._count?.students ?? batch.students?.length ?? 0), 0);
-  const progressUrl = audience === "director" ? "/dashboard/director/academic/student-progress" : "/dashboard/academic-head/hod/student-monitoring";
+  const progressUrl = audience === "director" ? "/dashboard/director/academic/student-progress" : audience === "academic-head" ? "/dashboard/academic-head/hod/student-monitoring" : "/dashboard/admission-cell#students";
 
-  return (
-    <AcademicShell>
+  const content = (
+    <>
       <AcademicHero
         eyebrow="Students"
         title="Students by Class"
-        description="Open a class first, then check enrolled students, login mobile numbers, PIN status and progress report access from one place."
+        description="Open a class first, then check admitted students, login mobile numbers, PIN status and progress history from one place."
       />
 
       <section className="grid shrink-0 gap-3 md:grid-cols-4">
@@ -182,8 +183,12 @@ export default function StudentsByClassWorkspace({ audience }: Props) {
           <EmptyState text="Select a class to see student profiles, credentials and progress links." />
         )}
       </Panel>
-    </AcademicShell>
+    </>
   );
+
+  if (embedded) return <section className="grid gap-4">{content}</section>;
+
+  return <AcademicShell>{content}</AcademicShell>;
 }
 
 function ClassMetric({ icon: Icon, label, value }: { icon: typeof Users; label: string; value: string | number }) {
