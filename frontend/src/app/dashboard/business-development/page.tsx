@@ -2,7 +2,7 @@
 
 import { type FormEvent, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Archive, BarChart3, CalendarClock, Camera, CheckCircle2, Globe2, MessageCircle, Phone, PhoneCall, Plus, Send, UserPlus, Users } from "lucide-react";
+import { Archive, BarChart3, CalendarClock, CheckCircle2, Phone, PhoneCall, Plus, Send, UserPlus, Users } from "lucide-react";
 import { AiOperatingLayer } from "@/components/ai/ai-operating-layer";
 import { RoleDashboardGuard } from "@/components/dashboard";
 import { WorkspaceDashboard } from "@/components/dashboard/workspace-dashboard";
@@ -13,17 +13,15 @@ import { Input } from "@/components/ui/input";
 import { useFollowups, useLeads } from "@/hooks/use-crm";
 import type { GuestApplicantResult, Lead, LeadStatus } from "@/types/crm";
 
-type BdeTab = "PIPELINE" | "CALLING" | "LEADS" | "FOLLOWUPS" | "COUNSELLING" | "TEAM" | "REPORTS" | "SOCIAL";
+type BdeTab = "CALLING" | "NEW" | "FOLLOWUPS" | "COUNSELLING" | "LEADS" | "REPORTS";
 
 const tabs: Array<{ key: BdeTab; label: string }> = [
-  { key: "PIPELINE", label: "Pipeline" },
   { key: "CALLING", label: "Calling Desk" },
-  { key: "LEADS", label: "Leads" },
+  { key: "NEW", label: "New Enquiry" },
   { key: "FOLLOWUPS", label: "Follow-ups" },
-  { key: "COUNSELLING", label: "Counselling" },
-  { key: "TEAM", label: "Team" },
+  { key: "COUNSELLING", label: "Ready for AO" },
+  { key: "LEADS", label: "All Leads" },
   { key: "REPORTS", label: "Reports" },
-  { key: "SOCIAL", label: "Social" },
 ];
 
 const leadStatuses: Array<{ label: string; value: LeadStatus | "" }> = [
@@ -37,11 +35,14 @@ const leadStatuses: Array<{ label: string; value: LeadStatus | "" }> = [
 
 const callStatuses = ["Not reachable", "Connected", "Interested", "Call later", "Counselling needed", "Ready for admission", "Not interested"];
 const tabAliases: Record<string, BdeTab> = {
+  PIPELINE: "REPORTS",
+  TEAM: "REPORTS",
+  SOCIAL: "REPORTS",
   TODAY: "CALLING",
   READY: "COUNSELLING",
 };
 
-const validTabs = new Set<BdeTab>(["PIPELINE", "CALLING", "LEADS", "FOLLOWUPS", "COUNSELLING", "TEAM", "REPORTS", "SOCIAL"]);
+const validTabs = new Set<BdeTab>(["CALLING", "NEW", "FOLLOWUPS", "COUNSELLING", "LEADS", "REPORTS"]);
 
 function value(form: HTMLFormElement, name: string) {
   return String(new FormData(form).get(name) ?? "").trim();
@@ -131,106 +132,6 @@ function Metric({ label, value }: { label: string; value: number }) {
   );
 }
 
-function PipelineBoard({
-  contacted,
-  converted,
-  counselling,
-  lost,
-  newLeads,
-  readyForAo,
-}: {
-  contacted: number;
-  converted: number;
-  counselling: number;
-  lost: number;
-  newLeads: number;
-  readyForAo: number;
-}) {
-  const stages = [
-    { label: "New", value: newLeads, text: "Fresh enquiries waiting for first contact." },
-    { label: "Contacted", value: contacted, text: "Spoken to or attempted, needs next action." },
-    { label: "Counselling", value: counselling, text: "Interested leads, course guidance and parent discussion." },
-    { label: "AO Ready", value: readyForAo, text: "Ready for application/admission office action." },
-    { label: "Converted", value: converted, text: "Admission or enrollment completed." },
-    { label: "Lost", value: lost, text: "Not interested or dropped from the active pipeline." },
-  ];
-
-  return (
-    <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-      {stages.map((stage, index) => (
-        <div key={stage.label} className="rounded-2xl border border-[#071d36]/15 bg-white p-4 shadow-[0_10px_24px_rgba(7,29,54,0.04)]">
-          <div className="flex items-start justify-between gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#fff8df] text-sm font-black text-[#071d36]">{index + 1}</div>
-            <span className="rounded-full border border-[#071d36]/15 px-3 py-1 text-xs font-black">{stage.value}</span>
-          </div>
-          <h3 className="mt-4 text-xl font-black text-[#071d36]">{stage.label}</h3>
-          <p className="mt-2 text-sm leading-6 text-[#52627a]">{stage.text}</p>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function TeamBoard({ leads }: { leads: Lead[] }) {
-  const byAssignee = new Map<string, { name: string; leads: Lead[] }>();
-  leads.forEach((lead) => {
-    const key = lead.assignee?.id ?? "unassigned";
-    const name = lead.assignee?.name ?? "Unassigned";
-    const bucket = byAssignee.get(key) ?? { name, leads: [] };
-    bucket.leads.push(lead);
-    byAssignee.set(key, bucket);
-  });
-  const groups = Array.from(byAssignee.values()).sort((first, second) => second.leads.length - first.leads.length);
-
-  return (
-    <div className="mt-5 grid max-h-[52vh] gap-3 overflow-y-auto pr-1 md:grid-cols-2">
-      {groups.map((group) => (
-        <div key={group.name} className="rounded-2xl border border-[#071d36]/15 bg-white p-4">
-          <div className="flex items-start gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#fff8df]">
-              <Users className="h-5 w-5 text-[#071d36]" />
-            </div>
-            <div>
-              <h3 className="text-xl font-black text-[#071d36]">{group.name}</h3>
-              <p className="mt-1 text-sm text-[#52627a]">{group.leads.length} lead(s) assigned</p>
-            </div>
-          </div>
-          <div className="mt-4 grid grid-cols-3 gap-2 text-center text-xs font-black">
-            <span className="rounded-xl bg-[#f7f9fc] px-2 py-2">{group.leads.filter((lead) => lead.status === "NEW").length} new</span>
-            <span className="rounded-xl bg-[#f7f9fc] px-2 py-2">{group.leads.filter((lead) => lead.status === "COUNSELLING").length} warm</span>
-            <span className="rounded-xl bg-[#f7f9fc] px-2 py-2">{group.leads.filter(isReadyForAdmission).length} AO</span>
-          </div>
-        </div>
-      ))}
-      {!groups.length ? <EmptyState text="No team pipeline data yet." /> : null}
-    </div>
-  );
-}
-
-function SocialBoard() {
-  const channels = [
-    { label: "Instagram", icon: Camera, text: "Future API card for campaign DMs, leads and source tracking." },
-    { label: "Facebook", icon: Globe2, text: "Future API card for Meta lead forms and campaign audiences." },
-    { label: "WhatsApp", icon: MessageCircle, text: "Future API card for broadcasts, click-to-chat and admission follow-up." },
-    { label: "Campaign Reports", icon: BarChart3, text: "Use reports mode until social API integrations are connected." },
-  ];
-  return (
-    <div className="mt-5 grid gap-3 md:grid-cols-2">
-      {channels.map((channel) => {
-        const Icon = channel.icon;
-        return (
-          <div key={channel.label} className="rounded-2xl border border-dashed border-[#071d36]/20 bg-[#fffdf8] p-4 text-[#52627a]">
-            <Icon className="h-6 w-6 text-[#071d36]" />
-            <h3 className="mt-4 text-xl font-black text-[#071d36]">{channel.label}</h3>
-            <p className="mt-2 text-sm leading-6">{channel.text}</p>
-            <p className="mt-4 text-[10px] font-black uppercase tracking-[0.18em]">Future API</p>
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
 export default function BusinessDevelopmentDashboardPage() {
   const { user } = useAuth();
   const router = useRouter();
@@ -285,6 +186,8 @@ export default function BusinessDevelopmentDashboardPage() {
 
   const visibleLeads = activeTab === "CALLING"
     ? todayQueue
+    : activeTab === "NEW"
+      ? newLeads
     : activeTab === "COUNSELLING"
       ? readyLeads
       : activeTab === "FOLLOWUPS"
@@ -330,8 +233,10 @@ export default function BusinessDevelopmentDashboardPage() {
       });
     }
 
-    leads.update.mutate({ id: selectedLead.id, status: mapCallStatus(callStatus), notes: note });
-    setSelectedLead({ ...selectedLead, status: mapCallStatus(callStatus), notes: note });
+    leads.update.mutate(
+      { id: selectedLead.id, status: mapCallStatus(callStatus), notes: note },
+      { onSuccess: () => setSelectedLead(null) },
+    );
   }
 
   function handoverToAo(lead: Lead) {
@@ -342,8 +247,15 @@ export default function BusinessDevelopmentDashboardPage() {
       `Program: ${lead.targetExam}`,
       "Handover To Administrative Officer: YES",
     ]);
-    leads.update.mutate({ id: lead.id, status: "COUNSELLING", notes: note });
-    setSelectedLead({ ...lead, status: "COUNSELLING", notes: note });
+    leads.update.mutate(
+      { id: lead.id, status: "COUNSELLING", notes: note },
+      { onSuccess: () => setSelectedLead(null) },
+    );
+  }
+
+  function archiveLead(lead: Lead) {
+    if (!window.confirm(`Archive ${lead.fullName}? This will move the lead to Lost.`)) return;
+    leads.remove.mutate(lead.id, { onSuccess: () => setSelectedLead(null) });
   }
 
   function openTab(tab: BdeTab) {
@@ -364,6 +276,7 @@ export default function BusinessDevelopmentDashboardPage() {
         ]}
         actions={[
           { label: "Calling Desk", href: "/dashboard/business-development?tab=CALLING", icon: PhoneCall },
+          { label: "New Enquiry", href: "/dashboard/business-development?tab=NEW", icon: UserPlus },
           { label: "All Leads", href: "/dashboard/business-development?tab=LEADS", icon: Users },
           { label: "Follow-ups", href: "/dashboard/business-development?tab=FOLLOWUPS", icon: CalendarClock },
           { label: "Ready for AO", href: "/dashboard/business-development?tab=COUNSELLING", icon: Send },
@@ -420,7 +333,7 @@ export default function BusinessDevelopmentDashboardPage() {
               <div>
                 <p className="text-xs font-black uppercase tracking-[0.22em] text-[#3f4a32]">{tabs.find((tab) => tab.key === activeTab)?.label}</p>
                 <h2 className="mt-1 text-3xl font-black text-[#071d36]">
-                  {activeTab === "PIPELINE" ? "Where are leads stuck?" : activeTab === "CALLING" ? "Who should I call now?" : activeTab === "COUNSELLING" ? "Send these to AO" : activeTab === "FOLLOWUPS" ? "Follow-up tracker" : activeTab === "TEAM" ? "Team pipeline view" : activeTab === "REPORTS" ? "Simple performance" : activeTab === "SOCIAL" ? "Future social channels" : "Lead records"}
+                  {activeTab === "CALLING" ? "Who should I call now?" : activeTab === "NEW" ? "Fresh enquiries" : activeTab === "COUNSELLING" ? "Send these to AO" : activeTab === "FOLLOWUPS" ? "Follow-up tracker" : activeTab === "REPORTS" ? "Simple performance" : "Lead records"}
                 </h2>
               </div>
               <div className="grid gap-2 sm:grid-cols-[1fr_160px]">
@@ -434,24 +347,14 @@ export default function BusinessDevelopmentDashboardPage() {
               </div>
             </div>
 
-            {activeTab === "PIPELINE" ? (
-              <PipelineBoard
-                converted={reports.converted}
-                counselling={reports.counselling}
-                contacted={reports.contacted}
-                lost={reports.lost}
-                newLeads={reports.newLeads}
-                readyForAo={reports.readyForAo}
-              />
-            ) : activeTab === "TEAM" ? (
-              <TeamBoard leads={leadData} />
-            ) : activeTab === "SOCIAL" ? (
-              <SocialBoard />
-            ) : activeTab === "REPORTS" ? (
+            {activeTab === "REPORTS" ? (
               <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
                 <Metric label="Total Leads" value={leadData.length} />
                 <Metric label="Active Follow-ups" value={followupData.filter((item) => item.status !== "COMPLETED").length} />
                 <Metric label="AO Handovers" value={readyLeads.length} />
+                <Metric label="New Leads" value={reports.newLeads} />
+                <Metric label="Contacted" value={reports.contacted} />
+                <Metric label="Counselling" value={reports.counselling} />
                 <Metric label="Lost" value={reports.lost} />
                 <Metric label="Converted" value={reports.converted} />
                 <Metric label="Today's Work" value={reports.callsToday + reports.overdue} />
@@ -541,7 +444,7 @@ export default function BusinessDevelopmentDashboardPage() {
                   <Button type="button" onClick={() => handoverToAo(selectedLead)} disabled={leads.update.isPending} variant="secondary">
                     <Send className="mr-2 h-4 w-4" /> Send to AO
                   </Button>
-                  <Button type="button" variant="secondary" onClick={() => leads.remove.mutate(selectedLead.id)} disabled={leads.remove.isPending}>
+                  <Button type="button" variant="secondary" onClick={() => archiveLead(selectedLead)} disabled={leads.remove.isPending}>
                     <Archive className="mr-2 h-4 w-4" /> Archive
                   </Button>
                 </div>
