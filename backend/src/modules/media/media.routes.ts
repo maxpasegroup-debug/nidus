@@ -1,11 +1,19 @@
-import { Router } from "express";
+import { Router, type NextFunction, type Response } from "express";
 import { body } from "express-validator";
 import { Role } from "../../generated/prisma/client.js";
-import { allowRoles, protect } from "../../middlewares/session.middleware.js";
+import { allowRoles, protect, type AuthenticatedRequest } from "../../middlewares/session.middleware.js";
 import { documentsController, mediaController } from "./media.controller.js";
 import { upload } from "./media.middleware.js";
 
-const mediaRoles = allowRoles(Role.ADMIN, Role.DIRECTOR, Role.ACADEMIC_HEAD, Role.TEACHER, Role.PHYSICAL_TRAINER, Role.MARKETING_COORDINATOR);
+function mediaRoles(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+  const metadata = req.user?.roleMetadata && typeof req.user.roleMetadata === "object" ? req.user.roleMetadata : {};
+  const template = typeof metadata.dashboardTemplate === "string" ? metadata.dashboardTemplate.toUpperCase() : "";
+  if (template === "VIDEO_EDITOR") {
+    next();
+    return;
+  }
+  return allowRoles(Role.ADMIN, Role.DIRECTOR, Role.ACADEMIC_HEAD, Role.TEACHER, Role.PHYSICAL_TRAINER, Role.MARKETING_COORDINATOR)(req, res, next);
+}
 const documentRoles = allowRoles(Role.ADMIN, Role.DIRECTOR, Role.ACADEMIC_HEAD, Role.TEACHER, Role.PHYSICAL_TRAINER, Role.MARKETING_COORDINATOR, Role.ADMINISTRATIVE_OFFICER);
 
 export const mediaRouter = Router();

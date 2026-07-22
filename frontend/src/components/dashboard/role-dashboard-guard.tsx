@@ -25,6 +25,7 @@ function hasDashboardAccess(user: { role: AuthRole; roleMetadata?: Record<string
   if (requestedRoles.includes(user.role)) return true;
   const dashboardTemplate = template(user);
   if (requestedRoles.includes("TEACHER") && dashboardTemplate === "ACADEMIC_HEAD") return true;
+  if (requestedRoles.includes("TEACHER") && dashboardTemplate === "VIDEO_EDITOR") return true;
   if (requestedRoles.includes("ADMIN") && (dashboardTemplate === "ADMISSION_CELL" || dashboardTemplate === "MARKETING" || dashboardTemplate === "SALES_BOOSTER")) return true;
   return false;
 }
