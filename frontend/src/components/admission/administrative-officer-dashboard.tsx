@@ -96,10 +96,9 @@ const tabs: Array<{ key: OfficerTab; label: string }> = [
   { key: "APPLICATIONS", label: "Applications" },
   { key: "DOCUMENTS", label: "Documents" },
   { key: "FEES", label: "Payment" },
-  { key: "BATCH", label: "Batch" },
-  { key: "ACTIVATION", label: "Activate" },
-  { key: "STUDENTS", label: "Active Students" },
-  { key: "REPORTS", label: "Reports" },
+  { key: "BATCH", label: "Assign Batch" },
+  { key: "ACTIVATION", label: "Activate Student" },
+  { key: "REPORTS", label: "Advanced" },
 ];
 
 const hashTabs: Record<string, OfficerTab> = {
@@ -269,6 +268,15 @@ export function AdministrativeOfficerDashboard() {
   const allStudentRows = useMemo(() => batches.flatMap((batch) => (batch.students ?? []).map((entry) => ({ batch, entry, student: entry.student ?? entry.user ?? null }))).filter((row) => row.student), [batches]);
   const uniqueStudents = new Set(allStudentRows.map((row) => row.student?.id)).size;
   const visibleStudentRows = allStudentRows.filter((row) => (!studentBatchId || row.batch.id === studentBatchId) && [row.student?.name, row.student?.email, row.student?.mobile, row.batch.name].join(" ").toLowerCase().includes(studentSearch.trim().toLowerCase()));
+  const nextAction = !selectedLead
+    ? null
+    : !requiredDocumentsVerified || rejectedDocuments.length
+      ? { label: "Verify Documents", tab: "DOCUMENTS" as OfficerTab }
+      : !feesReady
+        ? { label: "Record Fee", tab: "FEES" as OfficerTab }
+        : !selectedBatchIds.length
+          ? { label: "Assign Batch", tab: "BATCH" as OfficerTab }
+          : { label: "Activate Student", tab: "ACTIVATION" as OfficerTab };
 
   const saveLeadMutation = useMutation({
     mutationFn: ({ lead, text, status }: { lead: LeadApplication; text: string; status: LeadApplication["status"] }) => apiJson(`/api/crm/leads/${lead.id}`, { method: "PUT", body: JSON.stringify({ status, notes: `${lead.notes ? `${lead.notes}\n\n` : ""}[${new Date().toISOString()}] ${text}` }) }),
@@ -430,50 +438,11 @@ export function AdministrativeOfficerDashboard() {
 
       {message ? <p className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-sm font-bold">{message}</p> : null}
 
-      <AdmissionJourneyBanner
-        role="ADMISSION_CELL"
-        metrics={[
-          { label: "Today's Leads", value: applications.length },
-          { label: "Pending Documents", value: documentPending, tone: documentPending ? "warning" : "success" },
-          { label: "Pending Approvals", value: aoReady, tone: aoReady ? "info" : "default" },
-          { label: "Completed Admissions", value: uniqueStudents },
-        ]}
-      />
-      <AdmissionRoleActions role="ADMISSION_CELL" />
-      <section className="grid gap-5 xl:grid-cols-2">
-        <AdmissionDocumentsPanel />
-        <AdmissionAutomationPanel />
-      </section>
-      <AiOperatingLayer
-        role="ADMISSION_CELL"
-        compact
-        items={[
-          { title: documentPending ? `${documentPending} document file(s) pending` : "Documents are clear", detail: "Lead summary stays inside existing verification workflow.", href: "/dashboard/admission-cell#documents", icon: FileArchive, tone: documentPending ? "warning" : "success" },
-          { title: feePending ? `${feePending} fee follow-up(s)` : "Fee follow-ups are calm", detail: "Suggested follow-up uses the same fee status shown here.", href: "/dashboard/admission-cell#fees", icon: BadgeIndianRupee, tone: feePending ? "warning" : "success" },
-          { title: `${aoReady} activation candidate(s)`, detail: "Admission probability is surfaced through AO-ready handover signals.", href: "/dashboard/admission-cell#activation", icon: GraduationCap, tone: aoReady ? "info" : "default" },
-        ]}
-      />
-
-      <ExecutiveIntelligenceSystem
-        role="ADMISSION_CELL"
-        title="Admission Intelligence"
-        description="Lead funnel, conversions, pending admissions, counselling outcomes and revenue forecast are connected to the existing admission journey."
-        metrics={[
-          { label: "Lead Funnel", value: applications.length, note: "Open admission applications", tone: "info" },
-          { label: "Pending Documents", value: documentPending, note: "Files waiting for verification", tone: documentPending ? "warning" : "success" },
-          { label: "Pending Admissions", value: aoReady, note: "AO-ready handovers", tone: aoReady ? "warning" : "success" },
-          { label: "Batch Allocation", value: batchPending, note: "Ready for batch assignment", tone: batchPending ? "warning" : "success" },
-        ]}
-        insights={[
-          { title: "What happened?", detail: `${applications.length} application(s) are currently moving through documents, fees, batch and activation.`, tone: "info" },
-          { title: "What needs attention?", detail: `${documentPending} document, ${feePending} payment and ${batchPending} batch allocation item(s) need follow-up.`, href: "/dashboard/admission-cell#reports", tone: documentPending || feePending || batchPending ? "warning" : "success" },
-          { title: "What should I do next?", detail: "Continue from the existing application, document, payment, batch and activation tabs below.", href: "/dashboard/admission-cell#applications", tone: "info" },
-        ]}
-      />
-
       <nav className="flex gap-2 overflow-x-auto rounded-2xl border border-[var(--border)] bg-white p-2 shadow-sm" aria-label="Admission workflow">
         {tabs.map((item) => <button key={item.key} type="button" onClick={() => openTab(item.key)} className={`min-h-11 shrink-0 rounded-xl px-4 text-sm font-black ${tab === item.key ? "bg-slate-950 text-white" : "hover:bg-[var(--page-bg)]"}`}>{item.label}</button>)}
       </nav>
+
+      <SelectedApplicantProgress lead={selectedLead} nextAction={nextAction} onOpen={openTab} />
 
       {tab === "TODAY" ? <TodayView applications={applications} documentPending={documentPending} feePending={feePending} batchPending={batchPending} aoReady={aoReady} onOpenApplications={() => openTab("APPLICATIONS")} /> : null}
 
@@ -495,6 +464,7 @@ export function AdministrativeOfficerDashboard() {
           setDocumentUploads={setDocumentUploads}
           setNote={setNote}
           setSearch={setSearch}
+          onNext={() => openTab("DOCUMENTS")}
           uploadApplicationDocument={uploadApplicationDocument}
           uploadingDocumentKey={uploadingDocumentKey}
           visibleApplications={visibleApplications}
@@ -505,7 +475,10 @@ export function AdministrativeOfficerDashboard() {
         <ApplicantPanel lead={selectedLead} title="Verify required documents" onChoose={() => openTab("APPLICATIONS")}>
           <div className="grid gap-3 sm:grid-cols-2">{Object.entries(documentLabels).map(([key, label]) => <label key={key} className="grid gap-2 text-sm font-black">{label}<select value={documentStatuses[key as DocumentKey]} onChange={(event) => setDocumentStatuses((current) => ({ ...current, [key]: event.target.value as DocumentStatus }))} className="min-h-12 rounded-xl border border-[var(--border)] bg-white px-3"><option>Pending</option><option>Verified</option><option>Rejected</option></select></label>)}</div>
           <TextArea label="Verification note or replacement request" value={note} onChange={setNote} />
-          <button type="button" onClick={saveDocuments} disabled={saveLeadMutation.isPending} className="inline-flex min-h-12 items-center justify-center rounded-xl bg-slate-950 px-5 text-sm font-black text-white disabled:opacity-50">Save Document Verification</button>
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <button type="button" onClick={saveDocuments} disabled={saveLeadMutation.isPending} className="inline-flex min-h-12 items-center justify-center rounded-xl bg-slate-950 px-5 text-sm font-black text-white disabled:opacity-50">Save Document Verification</button>
+            <button type="button" onClick={() => openTab("FEES")} disabled={!requiredDocumentsVerified || rejectedDocuments.length > 0} className="inline-flex min-h-12 items-center justify-center rounded-xl border border-[var(--border)] bg-white px-5 text-sm font-black disabled:opacity-50">Next: Record Fee</button>
+          </div>
         </ApplicantPanel>
       ) : null}
 
@@ -518,7 +491,10 @@ export function AdministrativeOfficerDashboard() {
             {!feesReady ? <span className="mt-2 block font-bold">Activation unlocks only after full payment or management approval.</span> : null}
           </div>
           <TextArea label="Payment note" value={note} onChange={setNote} />
-          <button type="button" onClick={saveFees} disabled={saveLeadMutation.isPending} className="inline-flex min-h-12 items-center justify-center rounded-xl bg-slate-950 px-5 text-sm font-black text-white disabled:opacity-50">Save Fee Confirmation</button>
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <button type="button" onClick={saveFees} disabled={saveLeadMutation.isPending} className="inline-flex min-h-12 items-center justify-center rounded-xl bg-slate-950 px-5 text-sm font-black text-white disabled:opacity-50">Save Fee Confirmation</button>
+            <button type="button" onClick={() => openTab("BATCH")} disabled={!feesReady} className="inline-flex min-h-12 items-center justify-center rounded-xl border border-[var(--border)] bg-white px-5 text-sm font-black disabled:opacity-50">Next: Assign Batch</button>
+          </div>
         </ApplicantPanel>
       ) : null}
 
@@ -533,13 +509,13 @@ export function AdministrativeOfficerDashboard() {
           })}</div>
           {selectedBatches.length ? <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-900"><strong className="block">Selected batches: {selectedBatches.map((batch) => batch.name).join(", ")}</strong><span className="mt-1 block text-sm">{selectedBatches.length} batch(es) will be activated for this learner. Only students enrolled in these batches will receive LMS content.</span></div> : null}
           <div className="grid gap-3 sm:grid-cols-2"><Field label="Student email (records only)" value={form.email} onChange={(value) => setForm((item) => ({ ...item, email: value }))} /><Field label="Student name" value={form.name} onChange={(value) => setForm((item) => ({ ...item, name: value }))} /><Field label="Login mobile" value={form.phone} onChange={(value) => setForm((item) => ({ ...item, phone: value }))} /><Field label="Roll number (optional)" value={form.rollNumber} onChange={(value) => setForm((item) => ({ ...item, rollNumber: value }))} /></div>
-          <button type="button" onClick={() => openTab("ACTIVATION")} disabled={!selectedBatchIds.length} className="inline-flex min-h-12 items-center justify-center rounded-xl bg-slate-950 px-5 text-sm font-black text-white disabled:opacity-50">Continue to Activation</button>
+          <button type="button" onClick={() => openTab("ACTIVATION")} disabled={!selectedBatchIds.length} className="inline-flex min-h-12 items-center justify-center rounded-xl bg-slate-950 px-5 text-sm font-black text-white disabled:opacity-50">Next: Activate Student</button>
         </ApplicantPanel>
       ) : null}
 
       {tab === "ACTIVATION" ? (
         <ApplicantPanel lead={selectedLead} title="Final activation check" onChoose={() => openTab("APPLICATIONS")}>
-          <form onSubmit={submitActivation} className="grid gap-4"><div className="grid gap-2">{readiness.map((item) => <div key={item.label} className="flex min-h-12 items-center justify-between rounded-xl border border-[var(--border)] px-4"><span className="font-bold">{item.label}</span><span className={`inline-flex items-center gap-1 text-sm font-black ${item.ready ? "text-emerald-700" : "text-amber-700"}`}>{item.ready ? <Check size={16} /> : null}{item.ready ? "Ready" : "Pending"}</span></div>)}</div><SelectField label="Enrollment status" value={admissionStatus} onChange={setAdmissionStatus}><option>Received</option><option>Documents Pending</option><option>Verification Pending</option><option>Ready For Admission</option></SelectField><TextArea label="Final admission note" value={form.notes} onChange={(value) => setForm((item) => ({ ...item, notes: value }))} /><button type="submit" disabled={!readyForEnrollment || !form.batchId || activateMutation.isPending} className="inline-flex min-h-12 items-center justify-center rounded-xl bg-emerald-700 px-5 text-sm font-black text-white disabled:opacity-50">{activateMutation.isPending ? "Activating..." : "Activate Learner Account"}</button></form>
+          <form onSubmit={submitActivation} className="grid gap-4"><div className="grid gap-2">{readiness.map((item) => <div key={item.label} className="flex min-h-12 items-center justify-between rounded-xl border border-[var(--border)] px-4"><span className="font-bold">{item.label}</span><span className={`inline-flex items-center gap-1 text-sm font-black ${item.ready ? "text-emerald-700" : "text-amber-700"}`}>{item.ready ? <Check size={16} /> : null}{item.ready ? "Ready" : "Pending"}</span></div>)}</div><SelectField label="Enrollment status" value={admissionStatus} onChange={setAdmissionStatus}><option>Received</option><option>Documents Pending</option><option>Verification Pending</option><option>Ready For Admission</option></SelectField><TextArea label="Final admission note" value={form.notes} onChange={(value) => setForm((item) => ({ ...item, notes: value }))} /><button type="submit" disabled={!readyForEnrollment || !form.batchId || activateMutation.isPending} className="inline-flex min-h-12 items-center justify-center rounded-xl bg-emerald-700 px-5 text-sm font-black text-white disabled:opacity-50">{activateMutation.isPending ? "Activating..." : "Activate Student Account"}</button></form>
           {activationResult ? <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-900"><div className="flex items-center gap-2 font-black"><CheckCircle2 size={18} /> Learner activated</div><p className="mt-2 text-sm">LMS access and batch membership are active. The applicant is removed from the open AO queue.</p>{activationResult.student ? <p className="mt-3 rounded-lg bg-white px-3 py-2 text-sm font-black">Student: {activationResult.student.name || activationResult.student.email || activationResult.student.mobile}</p> : null}{activationResult.payment?.receiptNumber ? <p className="mt-3 rounded-lg bg-white px-3 py-2 text-sm font-black">Receipt: {activationResult.payment.receiptNumber}</p> : <p className="mt-3 text-sm">No payment receipt was required for this activation.</p>}</div> : null}
         </ApplicantPanel>
       ) : null}
@@ -548,8 +524,93 @@ export function AdministrativeOfficerDashboard() {
         <Panel eyebrow="Students" title="Active learners by batch"><div className="grid gap-3 sm:grid-cols-[1fr_260px]"><SearchField value={studentSearch} onChange={setStudentSearch} placeholder="Search student, phone or batch" /><select value={studentBatchId} onChange={(event) => setStudentBatchId(event.target.value)} className="min-h-12 rounded-xl border border-[var(--border)] bg-white px-3 font-bold"><option value="">All batches</option>{batches.map((batch) => <option key={batch.id} value={batch.id}>{batch.name}</option>)}</select></div><div className="mt-5 overflow-hidden rounded-xl border border-[var(--border)]"><div className="hidden grid-cols-[1fr_1fr_180px] bg-[var(--page-bg)] px-4 py-3 text-xs font-black uppercase tracking-[0.14em] sm:grid"><span>Student</span><span>Batch</span><span>Status</span></div>{visibleStudentRows.map((row) => <div key={`${row.batch.id}-${row.student?.id}`} className="grid gap-2 border-t border-[var(--border)] p-4 first:border-t-0 sm:grid-cols-[1fr_1fr_180px]"><div><strong>{row.student?.name}</strong><p className="mt-1 text-xs text-[var(--muted-blue)]">{row.student?.mobile || row.student?.email}</p></div><span className="text-sm font-bold">{row.batch.name}</span><span className="w-fit rounded-full bg-emerald-50 px-3 py-1 text-xs font-black text-emerald-700">{row.entry.status || "ACTIVE"}</span></div>)}{!visibleStudentRows.length ? <Empty>No matching active students.</Empty> : null}</div></Panel>
       ) : null}
 
-      {tab === "REPORTS" ? <ReportsView applications={applications} batches={batches} uniqueStudents={uniqueStudents} documentPending={documentPending} feePending={feePending} batchPending={batchPending} /> : null}
+      {tab === "REPORTS" ? (
+        <section className="grid gap-5">
+          <ReportsView applications={applications} batches={batches} uniqueStudents={uniqueStudents} documentPending={documentPending} feePending={feePending} batchPending={batchPending} />
+          <AdmissionJourneyBanner
+            role="ADMISSION_CELL"
+            metrics={[
+              { label: "Today's Leads", value: applications.length },
+              { label: "Pending Documents", value: documentPending, tone: documentPending ? "warning" : "success" },
+              { label: "Pending Approvals", value: aoReady, tone: aoReady ? "info" : "default" },
+              { label: "Completed Admissions", value: uniqueStudents },
+            ]}
+          />
+          <AdmissionRoleActions role="ADMISSION_CELL" />
+          <section className="grid gap-5 xl:grid-cols-2">
+            <AdmissionDocumentsPanel />
+            <AdmissionAutomationPanel />
+          </section>
+          <AiOperatingLayer
+            role="ADMISSION_CELL"
+            compact
+            items={[
+              { title: documentPending ? `${documentPending} document file(s) pending` : "Documents are clear", detail: "Lead summary stays inside existing verification workflow.", href: "/dashboard/admission-cell#documents", icon: FileArchive, tone: documentPending ? "warning" : "success" },
+              { title: feePending ? `${feePending} fee follow-up(s)` : "Fee follow-ups are calm", detail: "Suggested follow-up uses the same fee status shown here.", href: "/dashboard/admission-cell#fees", icon: BadgeIndianRupee, tone: feePending ? "warning" : "success" },
+              { title: `${aoReady} activation candidate(s)`, detail: "Admission probability is surfaced through AO-ready handover signals.", href: "/dashboard/admission-cell#activation", icon: GraduationCap, tone: aoReady ? "info" : "default" },
+            ]}
+          />
+          <ExecutiveIntelligenceSystem
+            role="ADMISSION_CELL"
+            title="Admission Intelligence"
+            description="Lead funnel, conversions, pending admissions, counselling outcomes and revenue forecast are connected to the existing admission journey."
+            metrics={[
+              { label: "Lead Funnel", value: applications.length, note: "Open admission applications", tone: "info" },
+              { label: "Pending Documents", value: documentPending, note: "Files waiting for verification", tone: documentPending ? "warning" : "success" },
+              { label: "Pending Admissions", value: aoReady, note: "AO-ready handovers", tone: aoReady ? "warning" : "success" },
+              { label: "Batch Allocation", value: batchPending, note: "Ready for batch assignment", tone: batchPending ? "warning" : "success" },
+            ]}
+            insights={[
+              { title: "What happened?", detail: `${applications.length} application(s) are currently moving through documents, fees, batch and activation.`, tone: "info" },
+              { title: "What needs attention?", detail: `${documentPending} document, ${feePending} payment and ${batchPending} batch allocation item(s) need follow-up.`, href: "/dashboard/admission-cell#reports", tone: documentPending || feePending || batchPending ? "warning" : "success" },
+              { title: "What should I do next?", detail: "Continue from the existing application, document, payment, batch and activation tabs.", href: "/dashboard/admission-cell#applications", tone: "info" },
+            ]}
+          />
+        </section>
+      ) : null}
     </WorkspaceDashboard>
+  );
+}
+
+function SelectedApplicantProgress({ lead, nextAction, onOpen }: { lead: LeadApplication | null; nextAction: { label: string; tab: OfficerTab } | null; onOpen: (tab: OfficerTab) => void }) {
+  if (!lead || !nextAction) {
+    return (
+      <section className="rounded-2xl border border-dashed border-[var(--border)] bg-white p-4">
+        <p className="text-sm font-bold text-[var(--muted-blue)]">Choose an applicant from Applications to start document verification, payment, batch assignment and activation.</p>
+      </section>
+    );
+  }
+
+  const steps: Array<{ label: string; tab: OfficerTab }> = [
+    { label: "Application", tab: "APPLICATIONS" },
+    { label: "Documents", tab: "DOCUMENTS" },
+    { label: "Payment", tab: "FEES" },
+    { label: "Batch", tab: "BATCH" },
+    { label: "Activate", tab: "ACTIVATION" },
+  ];
+
+  return (
+    <section className="rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm">
+      <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+        <div>
+          <p className="text-xs font-black uppercase tracking-[0.18em] text-[var(--gold-dark)]">Selected Applicant</p>
+          <h2 className="mt-1 text-xl font-black">{lead.fullName}</h2>
+          <p className="mt-1 text-sm text-[var(--muted-blue)]">{lead.targetExam} / {lead.mobile} / {lead.email || "No email"}</p>
+        </div>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <span className="rounded-xl bg-[var(--page-bg)] px-4 py-3 text-sm font-black">Next: {nextAction.label}</span>
+          <button type="button" onClick={() => onOpen(nextAction.tab)} className="min-h-11 rounded-xl bg-slate-950 px-5 text-sm font-black text-white">Open Next Step</button>
+        </div>
+      </div>
+      <div className="mt-4 grid gap-2 sm:grid-cols-5">
+        {steps.map((step, index) => (
+          <button key={step.tab} type="button" onClick={() => onOpen(step.tab)} className="flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[var(--border)] bg-white px-3 text-sm font-black hover:border-slate-950">
+            <span className="grid h-6 w-6 place-items-center rounded-full bg-slate-950 text-xs text-white">{index + 1}</span>
+            {step.label}
+          </button>
+        ))}
+      </div>
+    </section>
   );
 }
 
@@ -570,6 +631,7 @@ function ApplicationWorkspace({
   setDocumentUploads,
   setNote,
   setSearch,
+  onNext,
   uploadApplicationDocument,
   uploadingDocumentKey,
   visibleApplications,
@@ -590,6 +652,7 @@ function ApplicationWorkspace({
   setDocumentUploads: Dispatch<SetStateAction<DocumentUploads>>;
   setNote: (value: string) => void;
   setSearch: (value: string) => void;
+  onNext: () => void;
   uploadApplicationDocument: (key: DocumentKey, file: File) => void;
   uploadingDocumentKey: DocumentKey | null;
   visibleApplications: LeadApplication[];
@@ -693,9 +756,14 @@ function ApplicationWorkspace({
               <button type="button" onClick={archiveApplication} disabled={paymentDone || archivePending} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 px-5 text-sm font-black text-red-700 disabled:cursor-not-allowed disabled:opacity-50">
                 <Trash2 size={16} /> Archive application
               </button>
-              <button type="button" onClick={saveApplication} disabled={!canSave || savePending} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-slate-950 px-5 text-sm font-black text-white disabled:opacity-50">
-                <Save size={16} /> Save application file
-              </button>
+              <span className="flex flex-col gap-3 sm:flex-row">
+                <button type="button" onClick={saveApplication} disabled={!canSave || savePending} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-slate-950 px-5 text-sm font-black text-white disabled:opacity-50">
+                  <Save size={16} /> Save application file
+                </button>
+                <button type="button" onClick={onNext} disabled={!selectedLead} className="inline-flex min-h-12 items-center justify-center rounded-xl border border-[var(--border)] bg-white px-5 text-sm font-black disabled:opacity-50">
+                  Next: Verify Documents
+                </button>
+              </span>
             </div>
             {paymentDone ? <p className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm font-bold text-amber-900">Payment is already recorded. This application cannot be deleted here; after activation, handle exit only as student discontinuation.</p> : null}
           </div>
