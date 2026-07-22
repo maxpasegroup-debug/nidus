@@ -68,6 +68,7 @@ const directorMenu: DashboardNavItem[] = [
   { label: "Staff & Access", href: "/dashboard/director/management" },
   { label: "Accounts", href: "/dashboard/director/accounts" },
   { label: "Reports", href: "/dashboard/director/reports" },
+  { label: "Readiness", href: "/dashboard/director/launch-qa" },
   { label: "Settings", href: "/dashboard/settings" },
 ];
 

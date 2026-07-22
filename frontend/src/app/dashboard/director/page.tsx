@@ -78,7 +78,7 @@ export default function DirectorDashboardPage() {
     { title: "Staff & Access", detail: "Staff details, roles and PIN reset", href: "/dashboard/director/management", icon: ShieldCheck },
     { title: "Accounts", detail: "Collections, receipts and pending fees", href: "/dashboard/director/accounts", icon: BadgeIndianRupee },
     { title: "Reports", detail: "Simple director review desk", href: "/dashboard/director/reports", icon: BarChart3 },
-    { title: "Launch Check", detail: "Production readiness board", href: "/dashboard/director/launch-qa", icon: CheckCircle2 },
+    { title: "Readiness", detail: "Ready, attention and blocked launch items", href: "/dashboard/director/launch-qa", icon: CheckCircle2 },
   ] as const;
 
   return (
