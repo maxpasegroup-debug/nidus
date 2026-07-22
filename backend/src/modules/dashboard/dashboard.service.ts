@@ -1304,17 +1304,20 @@ export const dashboardService = {
   async getBusinessDevelopmentDashboard(user: DashboardUser) {
     const executive = await prisma.user.findUnique({ where: { id: user.id }, select: { roleMetadata: true } });
     const customDashboard = staffDashboard(metadataObject(executive?.roleMetadata), "LEAD_SUPPORT");
+    const ownerScoped = user.role === "BUSINESS_DEVELOPMENT_EXECUTIVE" || user.role === "TELECALLER" || user.role === "MARKETING_COORDINATOR";
+    const leadScope = ownerScoped ? { assignedTo: user.id } : {};
+    const followUpScope = ownerScoped ? { lead: { assignedTo: user.id } } : {};
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
     const [assignedLeads, followUps, counselling, leadStatusCounts, callbacksToday, overdueFollowUps] = await Promise.all([
-      prisma.lead.count({ where: { assignedTo: user.role === "TELECALLER" ? user.id : undefined } }),
-      prisma.followUp.count({ where: { createdBy: user.role === "TELECALLER" ? user.id : undefined } }),
-      prisma.counsellingBooking.count(),
-      prisma.lead.groupBy({ by: ["status"], _count: { status: true } }),
-      prisma.followUp.count({ where: { followUpDate: { gte: today, lt: tomorrow }, createdBy: user.role === "TELECALLER" ? user.id : undefined } }),
-      prisma.followUp.count({ where: { followUpDate: { lt: today }, status: { not: "COMPLETED" }, createdBy: user.role === "TELECALLER" ? user.id : undefined } })
+      prisma.lead.count({ where: leadScope }),
+      prisma.followUp.count({ where: followUpScope }),
+      prisma.counsellingBooking.count({ where: ownerScoped ? { lead: { assignedTo: user.id } } : undefined }),
+      prisma.lead.groupBy({ by: ["status"], where: leadScope, _count: { status: true } }),
+      prisma.followUp.count({ where: { ...followUpScope, followUpDate: { gte: today, lt: tomorrow } } }),
+      prisma.followUp.count({ where: { ...followUpScope, followUpDate: { lt: today }, status: { not: "COMPLETED" } } })
     ]);
     const leadMap = new Map(leadStatusCounts.map((item) => [item.status, item._count.status]));
     const enrolled = leadMap.get("ENROLLED") ?? 0;

@@ -28,7 +28,7 @@ function allowDashboard(kind: "student" | "parent" | "admin" | "teacher" | "acad
       (kind === "teacher" && (role === Role.TEACHER || role === Role.DIRECTOR || role === Role.ACADEMIC_HEAD || role === Role.PHYSICAL_TRAINER || template === "ACADEMIC_HEAD" || unrestrictedAdmin(role, template))) ||
       (kind === "academicHead" && (role === Role.ACADEMIC_HEAD || template === "ACADEMIC_HEAD")) ||
       (kind === "director" && (role === Role.DIRECTOR || unrestrictedAdmin(role, template))) ||
-      (kind === "businessDevelopment" && (role === Role.BUSINESS_DEVELOPMENT_EXECUTIVE || role === Role.TELECALLER || role === Role.DIRECTOR || unrestrictedAdmin(role, template))) ||
+      (kind === "businessDevelopment" && (role === Role.BUSINESS_DEVELOPMENT_EXECUTIVE || role === Role.TELECALLER || role === Role.MARKETING_COORDINATOR || role === Role.DIRECTOR || unrestrictedAdmin(role, template))) ||
       (kind === "marketing" && (role === Role.MARKETING_COORDINATOR || role === Role.DIRECTOR || (role === Role.ADMIN && ["MARKETING", "SALES_BOOSTER"].includes(template))));
     if (!allowed) {
       res.status(403).json({ success: false, message: "Forbidden for assigned dashboard scope" });
