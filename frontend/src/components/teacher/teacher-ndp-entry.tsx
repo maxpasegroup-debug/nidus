@@ -33,6 +33,7 @@ const categoryHelp: Record<string, string> = {
 };
 
 const quickPeriods = ["Term 1", "Term 2", "Term 3"];
+const termTabs = ["Term 1", "Term 2", "Term 3"];
 const customCategories = [
   { value: "ACADEMIC_PERFORMANCE", label: "Subject Performance" },
   { value: "TEST_PERFORMANCE", label: "Exam/Test Performance" },
@@ -74,6 +75,25 @@ function parseScore(value: string) {
   return Math.max(0, Math.min(100, Math.round(number)));
 }
 
+function examItem(term: string, index: number) {
+  return `EXAM|${term}|${Date.now()}|${index}`;
+}
+
+function isExamEntry(entry: NdpManualEntry) {
+  return entry.category === "TEST_PERFORMANCE" && entry.item.startsWith("EXAM|");
+}
+
+function examTerm(entry: NdpManualEntry) {
+  return entry.item.split("|")[1] || "Term 1";
+}
+
+function examPercent(marks?: string | null, outOf?: string | null) {
+  const scored = Number(marks ?? "");
+  const total = Number(outOf ?? "");
+  if (!Number.isFinite(scored) || !Number.isFinite(total) || total <= 0) return null;
+  return Math.max(0, Math.min(100, Math.round((scored / total) * 100)));
+}
+
 function isAcademicManagerRole(user: ReturnType<typeof useAuth>["user"]) {
   const template = typeof user?.roleMetadata?.dashboardTemplate === "string" ? user.roleMetadata.dashboardTemplate.toUpperCase() : "";
   return user?.role === "ADMIN" || user?.role === "DIRECTOR" || user?.role === "ACADEMIC_HEAD" || template === "ACADEMIC_HEAD";
@@ -100,6 +120,7 @@ export function TeacherNdpEntry() {
   const [newSubject, setNewSubject] = useState("");
   const [newItem, setNewItem] = useState("");
   const [newCategory, setNewCategory] = useState("ACADEMIC_PERFORMANCE");
+  const [activeTerm, setActiveTerm] = useState("Term 1");
 
   useEffect(() => {
     getNdpStudents()
@@ -115,7 +136,8 @@ export function TeacherNdpEntry() {
 
   const selectedBatch = useMemo(() => batches.find((batch) => batch.id === batchId) ?? null, [batches, batchId]);
   const selectedStudent = useMemo(() => selectedBatch?.students.find((student) => student.id === studentId) ?? null, [selectedBatch, studentId]);
-  const groups = useMemo(() => groupedEntries(entries), [entries]);
+  const examEntries = useMemo(() => entries.filter(isExamEntry).sort((a, b) => String(a.term1 ?? "").localeCompare(String(b.term1 ?? ""))), [entries]);
+  const groups = useMemo(() => groupedEntries(entries.filter((entry) => !isExamEntry(entry))), [entries]);
   const isManager = isAcademicManagerRole(user);
   const locked = review?.status === "PUBLISHED" || (!isManager && (review?.status === "SUBMITTED" || review?.status === "APPROVED"));
   const availableSubjects = selectedBatch?.subjects?.length ? selectedBatch.subjects : entries.map((entry) => entry.subject).filter(Boolean) as string[];
@@ -194,6 +216,39 @@ export function TeacherNdpEntry() {
   function removeEntry(target: NdpManualEntry) {
     setEntries((current) => current.filter((entry) => entryKey(entry) !== entryKey(target)));
     setNotice("Row removed from this draft. Save to keep the updated report.");
+  }
+
+  function addExamination(term = activeTerm) {
+    const subject = availableSubjects[0] ?? "";
+    const entry: NdpManualEntry = {
+      category: "TEST_PERFORMANCE",
+      item: examItem(term, examEntries.length + 1),
+      subject: subject || null,
+      term1: "",
+      term2: "",
+      term3: "",
+      rating: "PRESENT",
+      score: null,
+      remarks: "",
+      status: review?.status ?? "DRAFT",
+    };
+    setEntries((current) => [...current, entry]);
+    setNotice("Examination row added. Enter date and marks, then save draft.");
+  }
+
+  function updateExam(target: NdpManualEntry, patch: Partial<NdpManualEntry>) {
+    const nextPatch = { ...patch };
+    const nextMarks = patch.term2 !== undefined ? patch.term2 : target.term2;
+    const nextOutOf = patch.term3 !== undefined ? patch.term3 : target.term3;
+    const nextRating = patch.rating !== undefined ? patch.rating : target.rating;
+    if (nextRating === "ABSENT") {
+      nextPatch.term2 = "AB";
+      nextPatch.term3 = "AB";
+      nextPatch.score = null;
+    } else {
+      nextPatch.score = examPercent(nextMarks, nextOutOf);
+    }
+    updateEntry(target, nextPatch);
   }
 
   async function persist(mode: "SAVE" | "SUBMIT") {
@@ -377,6 +432,95 @@ export function TeacherNdpEntry() {
             <ScoreCard label="Tests" value={review.scores?.testPerformance} />
             <ScoreCard label="Skills" value={review.scores?.skillDevelopment} />
             <ScoreCard label="Defence" value={review.scores?.defenceDevelopment} />
+          </section>
+
+          <section className="overflow-hidden rounded-2xl border border-[var(--border)] bg-white shadow-sm">
+            <header className="border-b border-[var(--border)] p-4 sm:p-5">
+              <p className="text-xs font-black uppercase tracking-[0.22em] text-[var(--gold-dark)]">Simple Exam Entry</p>
+              <div className="mt-2 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+                <div>
+                  <h2 className="text-2xl font-black text-[var(--ink)]">Enter examinations term-wise</h2>
+                  <p className="mt-1 text-sm leading-6 text-[var(--muted-blue)]">Use this table for multiple exams in the same term. Percentage is automatic. Mark absent to keep marks blank as AB.</p>
+                </div>
+                <button type="button" onClick={() => addExamination()} disabled={locked} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[var(--gold)] px-5 text-sm font-black text-slate-950 disabled:opacity-50">
+                  <Plus className="h-4 w-4" /> Add Examination
+                </button>
+              </div>
+              <div className="mt-4 grid gap-2 sm:grid-cols-3">
+                {termTabs.map((term) => {
+                  const termRows = examEntries.filter((entry) => examTerm(entry) === term);
+                  const presentRows = termRows.filter((entry) => entry.rating !== "ABSENT" && entry.score != null);
+                  const average = presentRows.length ? Math.round(presentRows.reduce((sum, entry) => sum + Number(entry.score ?? 0), 0) / presentRows.length) : null;
+                  return (
+                    <button
+                      key={term}
+                      type="button"
+                      onClick={() => setActiveTerm(term)}
+                      className={`rounded-2xl border px-4 py-3 text-left ${activeTerm === term ? "border-slate-950 bg-slate-950 text-white" : "border-[var(--border)] bg-[var(--page-bg)] text-[var(--ink)]"}`}
+                    >
+                      <span className="block text-sm font-black">{term}</span>
+                      <span className="mt-1 block text-xs font-bold opacity-75">{termRows.length} exam(s) / Avg {average == null ? "--" : `${average}%`}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </header>
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[920px] border-collapse text-sm">
+                <thead className="bg-[var(--page-bg)] text-left">
+                  <tr className="border-b border-[var(--border)]">
+                    {["Sl. No.", "Subject", "Date", "Status", "Marks Scored", "Out of", "Percentage (%)", "Action"].map((heading) => (
+                      <th key={heading} className="px-3 py-3 text-xs font-black uppercase tracking-[0.12em] text-[var(--muted-blue)]">{heading}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {examEntries.filter((entry) => examTerm(entry) === activeTerm).map((entry, index) => {
+                    const absent = entry.rating === "ABSENT";
+                    return (
+                      <tr key={entryKey(entry)} className="border-b border-[var(--border)] last:border-b-0">
+                        <td className="px-3 py-3 font-black">{index + 1}</td>
+                        <td className="px-3 py-3">
+                          <input value={entry.subject ?? ""} onChange={(event) => updateExam(entry, { subject: event.target.value })} disabled={locked} list="ndp-subjects" placeholder="Subject" className={termFieldClass} />
+                        </td>
+                        <td className="px-3 py-3">
+                          <input type="date" value={entry.term1 ?? ""} onChange={(event) => updateExam(entry, { term1: event.target.value })} disabled={locked} className={termFieldClass} />
+                        </td>
+                        <td className="px-3 py-3">
+                          <div className="grid gap-2">
+                            <label className="flex items-center gap-2 text-xs font-black">
+                              <input type="radio" checked={!absent} onChange={() => updateExam(entry, { rating: "PRESENT", term2: "", term3: "", score: null })} disabled={locked} />
+                              Present
+                            </label>
+                            <label className="flex items-center gap-2 text-xs font-black">
+                              <input type="radio" checked={absent} onChange={() => updateExam(entry, { rating: "ABSENT" })} disabled={locked} />
+                              Absent
+                            </label>
+                          </div>
+                        </td>
+                        <td className="px-3 py-3">
+                          <input type={absent ? "text" : "number"} value={absent ? "AB" : entry.term2 ?? ""} onChange={(event) => updateExam(entry, { term2: event.target.value })} disabled={locked || absent} placeholder="Marks" className={termFieldClass} />
+                        </td>
+                        <td className="px-3 py-3">
+                          <input type={absent ? "text" : "number"} value={absent ? "AB" : entry.term3 ?? ""} onChange={(event) => updateExam(entry, { term3: event.target.value })} disabled={locked || absent} placeholder="Out of" className={termFieldClass} />
+                        </td>
+                        <td className="px-3 py-3 font-black">{absent ? "AB" : entry.score == null ? "Auto" : `${entry.score}%`}</td>
+                        <td className="px-3 py-3">
+                          <button type="button" onClick={() => removeEntry(entry)} disabled={locked} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 px-3 text-xs font-black text-red-700 disabled:opacity-40">
+                            <Trash2 className="h-3.5 w-3.5" /> Remove
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                  {!examEntries.some((entry) => examTerm(entry) === activeTerm) ? (
+                    <tr>
+                      <td colSpan={8} className="px-3 py-8 text-center text-sm font-bold text-[var(--muted-blue)]">No examinations added for {activeTerm}. Click Add Examination.</td>
+                    </tr>
+                  ) : null}
+                </tbody>
+              </table>
+            </div>
           </section>
 
           <section className="rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm sm:p-5">
