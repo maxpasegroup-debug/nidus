@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState, type ReactNode } from "react";
-import { ClipboardCheck, FileText, Save, Send, UserRound } from "lucide-react";
+import { ClipboardCheck, FileText, GraduationCap, Save, Send, UserRound } from "lucide-react";
 import { getApiErrorMessage } from "@/services/api";
 import { getNdpReview, getNdpStudents, saveNdpReview, submitNdpReview, type NdpManualEntry, type NdpReview, type NdpStudentBatch } from "@/services/academy";
 import { TeacherModuleHeader } from "@/components/teacher/teacher-dashboard-primitives";
@@ -9,6 +9,7 @@ import { TeacherModuleHeader } from "@/components/teacher/teacher-dashboard-prim
 const reviewTypes = ["MONTHLY", "TERM", "WEEKLY"] as const;
 const ratings = ["", "Excellent", "Very Good", "Good", "Needs Improvement", "At Risk"];
 const fieldClass = "min-h-11 rounded-xl border border-[var(--border)] bg-white px-3 text-sm font-bold normal-case tracking-normal text-[var(--ink)] outline-none focus:border-slate-950 disabled:bg-slate-50 disabled:text-slate-400";
+const termFieldClass = "min-h-10 w-full rounded-xl border border-[var(--border)] bg-white px-3 text-sm font-bold normal-case tracking-normal text-[var(--ink)] outline-none focus:border-slate-950 disabled:bg-slate-50 disabled:text-slate-400";
 
 const categoryLabels: Record<string, string> = {
   ACADEMIC_PERFORMANCE: "Academic Performance",
@@ -19,6 +20,18 @@ const categoryLabels: Record<string, string> = {
   NEXT_TERM_ACTION_PLAN: "Next-Term Action Plan",
   FINAL_REVIEW: "Final Review",
 };
+
+const categoryHelp: Record<string, string> = {
+  ACADEMIC_PERFORMANCE: "Enter subject-wise term marks and the final performance score.",
+  SKILL_DEVELOPMENT: "Rate learning skills that affect classroom performance.",
+  TEST_PERFORMANCE: "Record class tests, mock tests and weekly assessment performance.",
+  DEFENCE_DEVELOPMENT: "Capture discipline, confidence, fitness and officer-readiness signals.",
+  TEACHER_OBSERVATION: "Keep remarks short and useful for review.",
+  NEXT_TERM_ACTION_PLAN: "Write strengths, attention areas and next-term goals.",
+  FINAL_REVIEW: "Close the review with the overall progress summary.",
+};
+
+const quickPeriods = ["Term 1", "Term 2", "Term 3"];
 
 function currentPeriod() {
   const now = new Date();
@@ -45,12 +58,19 @@ function scoreTone(score?: number | null) {
   return "bg-red-50 text-red-700";
 }
 
+function parseScore(value: string) {
+  if (!value.trim()) return null;
+  const number = Number(value);
+  if (!Number.isFinite(number)) return null;
+  return Math.max(0, Math.min(100, Math.round(number)));
+}
+
 export function TeacherNdpEntry() {
   const [batches, setBatches] = useState<NdpStudentBatch[]>([]);
   const [batchId, setBatchId] = useState("");
   const [studentId, setStudentId] = useState("");
   const [reviewPeriod, setReviewPeriod] = useState(currentPeriod());
-  const [reviewType, setReviewType] = useState<(typeof reviewTypes)[number]>("MONTHLY");
+  const [reviewType, setReviewType] = useState<(typeof reviewTypes)[number]>("TERM");
   const [academicYear, setAcademicYear] = useState(String(new Date().getFullYear()));
   const [review, setReview] = useState<NdpReview | null>(null);
   const [entries, setEntries] = useState<NdpManualEntry[]>([]);
@@ -123,7 +143,7 @@ export function TeacherNdpEntry() {
       <TeacherModuleHeader
         eyebrow="NIDUS Digital Profile"
         title="Manual progress card entry"
-        description="Select a batch and student, enter monthly or term progress, save as draft, then submit for Academic Head review."
+        description="Select a batch and student, enter term marks, performance scores and teacher remarks, then submit for Academic Head review."
       />
 
       {error ? <p className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm font-bold text-red-700">{error}</p> : null}
@@ -153,6 +173,25 @@ export function TeacherNdpEntry() {
             <input value={academicYear} onChange={(event) => setAcademicYear(event.target.value)} className={fieldClass} />
           </Field>
         </div>
+        <div className="mt-4 flex flex-wrap gap-2">
+          {quickPeriods.map((period) => (
+            <button
+              key={period}
+              type="button"
+              onClick={() => {
+                setReviewPeriod(period);
+                setReviewType("TERM");
+                setReview(null);
+                setEntries([]);
+              }}
+              className={`inline-flex min-h-9 items-center justify-center rounded-full border px-3 text-xs font-black ${
+                reviewPeriod === period ? "border-slate-950 bg-slate-950 text-white" : "border-[var(--border)] bg-white text-[var(--ink)]"
+              }`}
+            >
+              {period}
+            </button>
+          ))}
+        </div>
         <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3 text-sm text-[var(--muted-blue)]">
             <UserRound className="h-4 w-4" />
@@ -177,27 +216,46 @@ export function TeacherNdpEntry() {
           <section className="space-y-4">
             {Object.entries(groups).map(([category, rows]) => (
               <section key={category} className="overflow-hidden rounded-2xl border border-[var(--border)] bg-white shadow-sm">
-                <header className="bg-slate-950 px-4 py-3 text-white">
-                  <h3 className="text-sm font-black uppercase tracking-[0.16em]">{categoryLabels[category] ?? category}</h3>
+                <header className="flex flex-col gap-2 bg-slate-950 px-4 py-3 text-white sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <h3 className="text-sm font-black uppercase tracking-[0.16em]">{categoryLabels[category] ?? category}</h3>
+                    <p className="mt-1 text-xs font-semibold normal-case tracking-normal text-white/70">{categoryHelp[category] ?? "Enter student progress details."}</p>
+                  </div>
+                  {category === "ACADEMIC_PERFORMANCE" || category === "TEST_PERFORMANCE" ? (
+                    <span className="inline-flex w-fit items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-black">
+                      <GraduationCap className="h-3.5 w-3.5" /> Term marks enabled
+                    </span>
+                  ) : null}
                 </header>
                 <div className="divide-y divide-[var(--border)]">
                   {rows.map((entry) => (
-                    <article key={entryKey(entry)} className="grid gap-3 p-4 lg:grid-cols-[1fr_160px_120px_1.4fr] lg:items-end">
+                    <article key={entryKey(entry)} className="grid gap-3 p-4">
                       <div>
                         <p className="text-sm font-black text-[var(--ink)]">{entry.item}</p>
                         {entry.subject ? <p className="mt-1 text-xs font-bold text-[var(--muted-blue)]">{entry.subject}</p> : null}
                       </div>
-                      <Field label="Rating">
-                        <select value={entry.rating ?? ""} onChange={(event) => updateEntry(entry, { rating: event.target.value })} disabled={locked} className={fieldClass}>
-                          {ratings.map((rating) => <option key={rating} value={rating}>{rating || "Choose"}</option>)}
-                        </select>
-                      </Field>
-                      <Field label="Score">
-                        <input type="number" min={0} max={100} value={entry.score ?? ""} onChange={(event) => updateEntry(entry, { score: event.target.value === "" ? null : Number(event.target.value) })} disabled={locked} className={fieldClass} />
-                      </Field>
-                      <Field label="Remarks">
-                        <input value={entry.remarks ?? ""} onChange={(event) => updateEntry(entry, { remarks: event.target.value })} disabled={locked} placeholder="Short teacher remark" className={fieldClass} />
-                      </Field>
+                      <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-[repeat(3,minmax(120px,1fr))_150px_170px_minmax(220px,1.4fr)]">
+                        <Field label="1st Term Marks">
+                          <input value={entry.term1 ?? ""} onChange={(event) => updateEntry(entry, { term1: event.target.value })} disabled={locked} placeholder="Eg: 42/50" className={termFieldClass} />
+                        </Field>
+                        <Field label="2nd Term Marks">
+                          <input value={entry.term2 ?? ""} onChange={(event) => updateEntry(entry, { term2: event.target.value })} disabled={locked} placeholder="Eg: 45/50" className={termFieldClass} />
+                        </Field>
+                        <Field label="3rd Term Marks">
+                          <input value={entry.term3 ?? ""} onChange={(event) => updateEntry(entry, { term3: event.target.value })} disabled={locked} placeholder="Eg: 48/50" className={termFieldClass} />
+                        </Field>
+                        <Field label="Final Score">
+                          <input type="number" min={0} max={100} value={entry.score ?? ""} onChange={(event) => updateEntry(entry, { score: parseScore(event.target.value) })} disabled={locked} placeholder="0-100" className={termFieldClass} />
+                        </Field>
+                        <Field label="Performance">
+                          <select value={entry.rating ?? ""} onChange={(event) => updateEntry(entry, { rating: event.target.value })} disabled={locked} className={termFieldClass}>
+                            {ratings.map((rating) => <option key={rating} value={rating}>{rating || "Choose"}</option>)}
+                          </select>
+                        </Field>
+                        <Field label="Teacher Remark">
+                          <input value={entry.remarks ?? ""} onChange={(event) => updateEntry(entry, { remarks: event.target.value })} disabled={locked} placeholder="Short action-focused remark" className={termFieldClass} />
+                        </Field>
+                      </div>
                     </article>
                   ))}
                 </div>
