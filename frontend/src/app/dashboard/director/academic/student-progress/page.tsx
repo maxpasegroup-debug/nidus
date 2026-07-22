@@ -1,9 +1,9 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { getNdpReviews, getStudentProgressSummary, type NdpReview } from "@/services/academy";
+import { getNdpMonitor, getStudentProgressSummary, type NdpMonitorBatch } from "@/services/academy";
 import { AcademicCard, AcademicHero, AcademicPill, AcademicShell, EmptyState, Panel, StatCard } from "../_components";
-import { ClipboardCheck, PieChart } from "lucide-react";
+import { ClipboardCheck, Download, PieChart, Printer } from "lucide-react";
 
 function metric(value: number | null, suffix = "%") {
   return typeof value === "number" ? `${value}${suffix}` : "No data";
@@ -11,21 +11,9 @@ function metric(value: number | null, suffix = "%") {
 
 export default function DirectorStudentProgressPage() {
   const progressQuery = useQuery({ queryKey: ["academy", "student-progress-summary"], queryFn: getStudentProgressSummary });
-  const ndpQuery = useQuery({ queryKey: ["academy", "director", "ndp-reviews"], queryFn: () => getNdpReviews() });
+  const ndpQuery = useQuery({ queryKey: ["academy", "director", "ndp-monitor"], queryFn: getNdpMonitor });
   const batches = progressQuery.data?.batches ?? [];
-  const ndpReviews = ndpQuery.data?.reviews ?? [];
-  const ndpByBatch = ndpReviews.reduce<Record<string, NdpReview[]>>((groups, review) => {
-    const list = groups[review.batchId] ?? [];
-    list.push(review);
-    groups[review.batchId] = list;
-    return groups;
-  }, {});
-  const publishedStudentIds = new Set(ndpReviews.filter((review) => review.status === "PUBLISHED").map((review) => review.studentId));
-  const submittedCount = ndpReviews.filter((review) => review.status === "SUBMITTED").length;
-  const approvedCount = ndpReviews.filter((review) => review.status === "APPROVED").length;
-  const publishedCount = ndpReviews.filter((review) => review.status === "PUBLISHED").length;
-  const totalStudentSlots = batches.reduce((sum, batch) => sum + batch.studentCount, 0);
-  const missingPublishedCount = Math.max(0, totalStudentSlots - publishedStudentIds.size);
+  const ndp = ndpQuery.data;
 
   return (
     <AcademicShell>
@@ -37,19 +25,23 @@ export default function DirectorStudentProgressPage() {
         <StatCard label="Critical" value={batches.filter((batch) => batch.overallStatus === "Critical").length} />
       </section>
       <section className="grid shrink-0 gap-3 md:grid-cols-4">
-        <StatCard label="Published NDP" value={publishedCount} />
-        <StatCard label="Pending Review" value={submittedCount} />
-        <StatCard label="Ready To Publish" value={approvedCount} />
-        <StatCard label="Missing Published" value={missingPublishedCount} />
+        <StatCard label="Published NDP" value={ndp?.summary.published ?? 0} />
+        <StatCard label="Pending Review" value={ndp?.summary.submitted ?? 0} />
+        <StatCard label="Ready To Publish" value={ndp?.summary.approved ?? 0} />
+        <StatCard label="Missing NDP" value={ndp?.summary.missingStudents ?? 0} />
       </section>
       <Panel title="NDP Publication Monitor" eyebrow="Digital profile readiness">
+        <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:justify-end print:hidden">
+          <button type="button" onClick={() => window.print()} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[var(--border)] bg-white px-4 text-sm font-black">
+            <Printer className="h-4 w-4" /> Print
+          </button>
+          <button type="button" onClick={() => exportNdpMonitor(ndp?.batches ?? [])} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[var(--border)] bg-white px-4 text-sm font-black">
+            <Download className="h-4 w-4" /> CSV
+          </button>
+        </div>
         <div className="grid max-h-[42vh] gap-3 overflow-y-auto pr-1 md:grid-cols-2 xl:grid-cols-3">
-          {batches.map((batch) => {
-            const reviews = ndpByBatch[batch.batchId] ?? [];
-            const published = reviews.filter((review) => review.status === "PUBLISHED").length;
-            const submitted = reviews.filter((review) => review.status === "SUBMITTED").length;
-            const approved = reviews.filter((review) => review.status === "APPROVED").length;
-            const coverage = batch.studentCount ? Math.round((published / batch.studentCount) * 100) : 0;
+          {(ndp?.batches ?? []).map((batch) => {
+            const coverage = batch.studentCount ? Math.round((batch.publishedCount / batch.studentCount) * 100) : 0;
             return (
               <AcademicCard
                 key={`ndp-${batch.batchId}`}
@@ -60,15 +52,17 @@ export default function DirectorStudentProgressPage() {
                 description={`${coverage}% published coverage`}
               >
                 <div className="grid grid-cols-2 gap-2 text-sm">
-                  <ProgressMetric label="Published" value={published} />
-                  <ProgressMetric label="Submitted" value={submitted} />
-                  <ProgressMetric label="Approved" value={approved} />
-                  <ProgressMetric label="Missing" value={Math.max(0, batch.studentCount - published)} />
+                  <ProgressMetric label="Published" value={batch.publishedCount} />
+                  <ProgressMetric label="Submitted" value={batch.submittedCount} />
+                  <ProgressMetric label="Approved" value={batch.approvedCount} />
+                  <ProgressMetric label="Returned" value={batch.returnedCount} />
+                  <ProgressMetric label="Missing" value={batch.missingStudents} />
+                  <ProgressMetric label="Readiness" value={metric(batch.averageReadiness ?? null)} />
                 </div>
               </AcademicCard>
             );
           })}
-          {!batches.length ? <EmptyState text="No active batches are available for NDP monitoring." /> : null}
+          {!ndp?.batches.length ? <EmptyState text={ndpQuery.isLoading ? "Loading NDP monitor..." : "No active batches are available for NDP monitoring."} /> : null}
         </div>
       </Panel>
       <Panel title="Batch Health Cards" eyebrow="Real database calculations">
@@ -97,6 +91,28 @@ export default function DirectorStudentProgressPage() {
       </Panel>
     </AcademicShell>
   );
+}
+
+function exportNdpMonitor(batches: NdpMonitorBatch[]) {
+  const headers = ["Batch", "Students", "Reviewed", "Missing", "Submitted", "Approved", "Returned", "Published", "Average Readiness"];
+  const rows = batches.map((batch) => [
+    batch.batchName,
+    batch.studentCount,
+    batch.reviewedStudents,
+    batch.missingStudents,
+    batch.submittedCount,
+    batch.approvedCount,
+    batch.returnedCount,
+    batch.publishedCount,
+    batch.averageReadiness ?? "",
+  ]);
+  const csv = [headers, ...rows].map((row) => row.map((value) => `"${String(value).replaceAll('"', '""')}"`).join(",")).join("\n");
+  const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "ndp-monitor.csv";
+  link.click();
+  URL.revokeObjectURL(url);
 }
 
 function ProgressMetric({ label, value }: { label: string; value: string | number }) {

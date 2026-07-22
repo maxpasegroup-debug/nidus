@@ -18,6 +18,7 @@ import {
   FileText,
   GraduationCap,
   Library,
+  Printer,
   ShieldCheck,
   Target,
   TrendingUp,
@@ -155,6 +156,17 @@ export default function StudentProgressPage() {
   const latestNdp = ndpReviews[0] ?? null;
   const ndpHighlights = latestNdp?.entries.filter((entry) => ["ACADEMIC_PERFORMANCE", "TEST_PERFORMANCE", "TEACHER_OBSERVATION", "NEXT_TERM_ACTION_PLAN"].includes(entry.category)).slice(0, 8) ?? [];
 
+  function exportNdp() {
+    if (!latestNdp || typeof window === "undefined") return;
+    const blob = new Blob([JSON.stringify(latestNdp, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${latestNdp.studentName ?? "student"}-${latestNdp.reviewPeriod}-ndp.json`.replace(/\s+/g, "-").toLowerCase();
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
   useEffect(() => {
     if (shouldOpenApplicantLobby) router.replace("/dashboard/guest");
   }, [router, shouldOpenApplicantLobby]);
@@ -240,9 +252,14 @@ export default function StudentProgressPage() {
                   : "Your teacher's NDP review will appear here after Academic Head approval and publication."}
               </p>
             </div>
-            <button type="button" onClick={() => window.print()} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-[var(--border)] bg-white px-4 text-sm font-black shadow-sm print:hidden">
-              <Download className="h-4 w-4" /> Print / Save PDF
-            </button>
+            <div className="flex flex-wrap gap-2 print:hidden">
+              <button type="button" onClick={() => window.print()} disabled={!latestNdp} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-[var(--border)] bg-white px-4 text-sm font-black shadow-sm disabled:opacity-50">
+                <Printer className="h-4 w-4" /> Print
+              </button>
+              <button type="button" onClick={exportNdp} disabled={!latestNdp} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-[var(--border)] bg-white px-4 text-sm font-black shadow-sm disabled:opacity-50">
+                <Download className="h-4 w-4" /> Export
+              </button>
+            </div>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-5 lg:min-w-[520px]">
               <ScoreTile icon={ShieldCheck} label="Overall" value={formatNdpScore(latestNdp?.scores?.overallReadiness)} note={latestNdp?.status ?? "Pending"} />
               <ScoreTile icon={GraduationCap} label="Academic" value={formatNdpScore(latestNdp?.scores?.academicReadiness)} note="Subject progress" />

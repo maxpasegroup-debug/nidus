@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { Bell, CalendarDays, ClipboardList, CreditCard, Download, GraduationCap, MessageCircle, ShieldCheck, UserRound } from "lucide-react";
+import { Bell, CalendarDays, ClipboardList, CreditCard, Download, GraduationCap, MessageCircle, Printer, ShieldCheck, UserRound } from "lucide-react";
 import { RoleDashboardGuard, DashboardError, DashboardSkeleton } from "@/components/dashboard";
 import { WorkspaceDashboard } from "@/components/dashboard/workspace-dashboard";
 import { useParentDashboard } from "@/hooks/use-dashboard";
@@ -38,6 +38,17 @@ export default function ParentDashboardPage() {
   const attendanceSafe = data.attendance.percentage >= 75;
   const latestNdp = ndpQuery.data?.reviews?.[0] ?? null;
   const ndpHighlights = latestNdp?.entries.filter((entry) => ["ACADEMIC_PERFORMANCE", "TEST_PERFORMANCE", "TEACHER_OBSERVATION", "NEXT_TERM_ACTION_PLAN"].includes(entry.category)).slice(0, 6) ?? [];
+
+  function exportNdp() {
+    if (!latestNdp || typeof window === "undefined") return;
+    const blob = new Blob([JSON.stringify(latestNdp, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${latestNdp.studentName ?? "student"}-${latestNdp.reviewPeriod}-ndp.json`.replace(/\s+/g, "-").toLowerCase();
+    link.click();
+    URL.revokeObjectURL(url);
+  }
 
   return (
     <RoleDashboardGuard role="PARENT">
@@ -128,9 +139,14 @@ export default function ParentDashboardPage() {
                     : "The report will appear after the teacher submits it and Academic Head publishes it."}
               </p>
             </div>
-            <button type="button" onClick={() => window.print()} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[var(--ds-color-border)] px-4 text-sm font-black print:hidden">
-              <Download className="h-4 w-4" /> Print / Save PDF
-            </button>
+            <div className="flex flex-wrap gap-2 print:hidden">
+              <button type="button" onClick={() => window.print()} disabled={!latestNdp} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[var(--ds-color-border)] px-4 text-sm font-black disabled:opacity-50">
+                <Printer className="h-4 w-4" /> Print
+              </button>
+              <button type="button" onClick={exportNdp} disabled={!latestNdp} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[var(--ds-color-border)] px-4 text-sm font-black disabled:opacity-50">
+                <Download className="h-4 w-4" /> Export
+              </button>
+            </div>
           </div>
           {latestNdp ? (
             <>
