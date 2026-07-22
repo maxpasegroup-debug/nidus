@@ -1,10 +1,9 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { BookOpen, CalendarCheck, ClipboardList, FileText, Library, MonitorPlay, Users } from "lucide-react";
-import { AcademicEngineRoleActions } from "@/components/academy/academic-engine-workspace";
+import Link from "next/link";
+import { BarChart3, CalendarCheck, CalendarRange, ClipboardCheck, ClipboardList, FileText, HelpCircle, Library, Megaphone, MonitorPlay, Presentation, UserRound, Users } from "lucide-react";
 import { WorkspaceDashboard } from "@/components/dashboard/workspace-dashboard";
-import { WorkflowOsWorkspace, workflowIcons } from "@/components/workflow/workflow-os-workspace";
 import { getAcademyToday } from "@/services/academy";
 
 function displayTime(value?: string | null) {
@@ -29,8 +28,8 @@ export default function TeacherDashboardPage() {
   return (
     <WorkspaceDashboard
       roleTitle="Teacher Workspace"
-      greeting="Today's Classes"
-      subtitle="Open class, mark attendance, assign homework, evaluate pending work and share resources."
+      greeting="Today's teaching work"
+      subtitle="Open your class, mark attendance, enter NDP marks, give homework and upload study materials from one clean place."
       focus={[
         {
           label: "Next Class",
@@ -41,29 +40,29 @@ export default function TeacherDashboardPage() {
           tone: nextTask ? "info" : "default",
         },
         {
+          label: "NDP Marks",
+          title: "Add Progress",
+          detail: "Enter term exam marks and performance notes for assigned students.",
+          href: "/dashboard/teacher/ndp",
+          icon: ClipboardCheck,
+          tone: "info",
+        },
+        {
           label: "Attendance",
-          title: `${remaining} remaining`,
-          detail: "Finish today's class completion and attendance work.",
+          title: `${remaining} pending`,
+          detail: "Mark attendance and close today's class register.",
           href: "/dashboard/teacher/attendance?action=mark-attendance",
           icon: CalendarCheck,
           tone: remaining ? "warning" : "success",
         },
-        {
-          label: "Homework",
-          title: "Assignments",
-          detail: "Create homework, check submissions and publish student work.",
-          href: "/dashboard/teacher/assignments",
-          icon: ClipboardList,
-          tone: "info",
-        },
       ]}
       actions={[
-        { label: "Open Class", href: taskHref(nextTask), icon: MonitorPlay },
+        { label: "My Classes", href: "/dashboard/teacher/my-classes", icon: MonitorPlay },
         { label: "Mark Attendance", href: "/dashboard/teacher/attendance?action=mark-attendance", icon: CalendarCheck },
-        { label: "Give Homework", href: "/dashboard/teacher/assignments", icon: ClipboardList },
-        { label: "Evaluate Exams", href: "/dashboard/teacher/exams", icon: FileText },
-        { label: "Upload Resource", href: "/dashboard/teacher/library?action=upload-lesson", icon: Library },
-        { label: "View Students", href: "/dashboard/teacher/students", icon: Users },
+        { label: "Add NDP / Marks", href: "/dashboard/teacher/ndp", icon: ClipboardCheck },
+        { label: "Homework", href: "/dashboard/teacher/assignments", icon: ClipboardList },
+        { label: "Exams", href: "/dashboard/teacher/exams", icon: FileText },
+        { label: "Study Materials", href: "/dashboard/teacher/library?action=upload-lesson", icon: Library },
       ]}
       metrics={[
         { label: "Classes Today", value: todayQuery.isLoading ? "..." : today?.todayTasks.length ?? 0 },
@@ -84,32 +83,37 @@ export default function TeacherDashboardPage() {
         meta: displayTime(task.time),
       }))}
     >
-      <section>
-        <p className="ds-text-label mb-3 text-[var(--ds-color-primary)]">Daily Academic Flow</p>
-        <AcademicEngineRoleActions role="TEACHER" />
+      <section className="rounded-[var(--ds-radius-xl)] border border-[var(--ds-color-border)] bg-[var(--ds-color-surface)] p-5 shadow-[var(--ds-shadow-soft)]">
+        <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p className="ds-text-label text-[var(--ds-color-primary)]">More Tools</p>
+            <h2 className="mt-1 text-xl font-black">Open only when needed</h2>
+          </div>
+          <Link href="/dashboard/teacher/workspace" className="rounded-[var(--ds-radius-large)] border border-[var(--ds-color-border)] px-4 py-3 text-sm font-black">
+            All tools
+          </Link>
+        </div>
+        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+          {[
+            { label: "Lesson Planner", href: "/dashboard/teacher/lesson-planner", icon: CalendarRange },
+            { label: "Students", href: "/dashboard/teacher/students", icon: Users },
+            { label: "Reports", href: "/dashboard/teacher/reports", icon: BarChart3 },
+            { label: "Doubts", href: "/dashboard/teacher/doubts", icon: HelpCircle },
+            { label: "Announcements", href: "/dashboard/teacher/communications", icon: Megaphone },
+            { label: "PPT Generator", href: "/dashboard/teacher/ppt-generator", icon: Presentation },
+            { label: "Profile", href: "/dashboard/teacher/profile", icon: UserRound },
+            { label: "Question Bank", href: "/dashboard/teacher/question-bank", icon: FileText },
+          ].map((item) => {
+            const Icon = item.icon;
+            return (
+              <Link key={item.label} href={item.href} className="inline-flex min-h-12 items-center gap-3 rounded-[var(--ds-radius-large)] border border-[var(--ds-color-border)] bg-[var(--ds-color-surface-raised)] px-4 text-sm font-black hover:border-[var(--ds-color-border-strong)]">
+                <Icon className="h-4 w-4" aria-hidden="true" />
+                {item.label}
+              </Link>
+            );
+          })}
+        </div>
       </section>
-      <WorkflowOsWorkspace
-        title="Teacher Workflow"
-        description="Today's tasks, attendance reminder, lesson reminder, assignment reminder and quiz reminder are organized from the existing teacher academic workflow."
-        metrics={[
-          { label: "Today's Tasks", value: todayQuery.isLoading ? "..." : today?.todayTasks.length ?? 0, note: "Loaded from Academy Today", tone: "info" },
-          { label: "Attendance Reminder", value: remaining, note: "Remaining class workflow items", tone: remaining ? "warning" : "success" },
-          { label: "Assignment Reminder", value: "Ready", note: "Publish and review through assignments", tone: "info" },
-          { label: "Quiz Reminder", value: pendingEvaluation, note: "Exam/evaluation tasks visible today", tone: pendingEvaluation ? "warning" : "success" },
-        ]}
-        approvals={[
-          { title: "Complete lesson workflow", detail: nextTask ? `${nextTask.subject || "Subject"} / ${nextTask.topic || nextTask.detail || "Topic pending"}` : "No active lesson reminder is visible.", href: taskHref(nextTask), icon: workflowIcons.task, tone: nextTask ? "warning" : "success" },
-          { title: "Attendance lock", detail: `${remaining} task(s) remain before the day is fully closed.`, href: "/dashboard/teacher/attendance?action=mark-attendance", icon: workflowIcons.reminder, tone: remaining ? "warning" : "success" },
-          { title: "Assignment and quiz follow-up", detail: "Homework and quiz workflows continue in existing teacher modules.", href: "/dashboard/teacher/assignments", icon: workflowIcons.assignment, tone: "info" },
-        ]}
-        recent={(today?.todayTasks ?? []).slice(0, 3).map((task) => ({
-          title: task.title || task.batchName || "Teacher task",
-          detail: `${task.subject || "Subject"} / ${task.topic || task.detail || "Workflow pending"}`,
-          href: taskHref(task),
-          icon: task.done ? workflowIcons.approval : workflowIcons.task,
-          tone: task.done ? "success" : "warning",
-        }))}
-      />
     </WorkspaceDashboard>
   );
 }

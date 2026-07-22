@@ -3,7 +3,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
-import { Bell, CalendarDays, ChevronRight, Search, UserRound } from "lucide-react";
+import { Bell, CalendarDays, ChevronRight, UserRound } from "lucide-react";
 import { Button, Card, MetricCard, Panel, StatusChip } from "@/components/design-system";
 
 export type WorkspaceFocusCard = {
@@ -150,16 +150,7 @@ function WorkspaceHeader({ greeting, notificationHref, roleTitle, subtitle }: { 
             {dateLabel}
           </div>
         </div>
-        <div className="grid gap-3 sm:grid-cols-[1fr_auto_auto] sm:items-center">
-          <label className="relative block">
-            <span className="sr-only">Quick search</span>
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--ds-color-muted)]" aria-hidden="true" />
-            <input
-              className="min-h-12 w-full rounded-[var(--ds-radius-large)] border border-[var(--ds-color-border)] bg-[var(--ds-color-surface-raised)] pl-10 pr-3 text-sm font-semibold text-[var(--ds-color-text)] outline-none focus:border-[var(--ds-color-focus)] focus:ring-2 focus:ring-[color-mix(in_srgb,var(--ds-color-focus)_24%,transparent)]"
-              placeholder="Quick search"
-              type="search"
-            />
-          </label>
+        <div className="flex items-center gap-3 xl:justify-end">
           <Link href={notificationHref} className="grid h-12 w-12 place-items-center rounded-[var(--ds-radius-large)] border border-[var(--ds-color-border)] bg-[var(--ds-color-surface-raised)]">
             <span className="sr-only">Notifications</span>
             <Bell className="h-5 w-5" aria-hidden="true" />
