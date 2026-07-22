@@ -231,7 +231,7 @@ export default function PsychometricAdminPage() {
             <span className="flex items-center gap-3"><BarChart3 className="h-5 w-5" /> Manage Assessments</span>
             <ArrowRight className="h-4 w-4" />
           </Link>
-          <Link href="/dashboard/admin" className="flex min-h-14 items-center justify-between rounded border border-gold/20 bg-gold/10 px-4 py-3 text-sm font-semibold text-gold transition hover:-translate-y-0.5 hover:bg-gold/15">
+          <Link href="/dashboard/director" className="flex min-h-14 items-center justify-between rounded border border-gold/20 bg-gold/10 px-4 py-3 text-sm font-semibold text-gold transition hover:-translate-y-0.5 hover:bg-gold/15">
             <span className="flex items-center gap-3"><Users className="h-5 w-5" /> Management Dashboard</span>
             <ArrowRight className="h-4 w-4" />
           </Link>

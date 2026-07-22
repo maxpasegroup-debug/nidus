@@ -12,15 +12,15 @@ const tiles: DirectorTile[] = [
   },
   {
     label: "BDE Team",
-    href: "/dashboard/business-development?tab=TEAM",
+    href: "/dashboard/business-development?tab=REPORTS",
     icon: Users,
     note: "Review business development work and team pipeline.",
   },
   {
-    label: "Sales Booster",
-    href: "/dashboard/sales-booster",
+    label: "Campaign Reports",
+    href: "/dashboard/business-development?tab=REPORTS",
     icon: Megaphone,
-    note: "Open sales support and booster workflows.",
+    note: "Open sales support and campaign reporting.",
   },
   {
     label: "Leads",

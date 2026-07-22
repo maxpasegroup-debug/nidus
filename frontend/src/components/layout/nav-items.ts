@@ -95,7 +95,6 @@ const administrativeOfficerMenu: DashboardNavItem[] = [
 const businessDevelopmentMenu: DashboardNavItem[] = [
   { label: "Dashboard", href: "/dashboard/business-development" },
   { label: "Leads", href: "/dashboard/business-development?tab=LEADS" },
-  { label: "Campaigns", href: "/dashboard/sales-booster" },
   { label: "Follow-ups", href: "/dashboard/business-development?tab=FOLLOWUPS" },
   { label: "Reports", href: "/dashboard/business-development?tab=REPORTS" },
   { label: "Profile", href: "/dashboard/settings" },
@@ -168,7 +167,7 @@ export function getNavItems(role?: string | null, dashboardTemplate?: string | n
   }
 
   if (normalizedRole === "ADMIN" || normalizedRole === "SUPER_ADMIN" || normalizedRole === "MANAGEMENT") {
-    return adminMenu;
+    return directorMenu;
   }
 
   return studentMenu;

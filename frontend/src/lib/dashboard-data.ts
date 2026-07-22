@@ -8,7 +8,7 @@ export const roleDashboardPath: Record<AuthRole, string> = {
   PARENT: "/dashboard/parent",
   TEACHER: "/dashboard/teacher",
   ACADEMIC_HEAD: "/dashboard/academic-head",
-  PHYSICAL_TRAINER: "/dashboard/teacher",
+  PHYSICAL_TRAINER: "/dashboard/physical-trainer",
   ADMINISTRATIVE_OFFICER: "/dashboard/admission-cell",
   BUSINESS_DEVELOPMENT_EXECUTIVE: "/dashboard/business-development",
   DIRECTOR: "/dashboard/director",
@@ -29,7 +29,7 @@ export function effectiveDashboardPath(user?: Pick<AuthUser, "role" | "roleMetad
   if (user.role === "ACADEMIC_HEAD") return "/dashboard/academic-head";
   if (user.role === "ADMINISTRATIVE_OFFICER") return "/dashboard/admission-cell";
   if (user.role === "BUSINESS_DEVELOPMENT_EXECUTIVE") return "/dashboard/business-development";
-  if (user.role === "PHYSICAL_TRAINER") return "/dashboard/teacher";
+  if (user.role === "PHYSICAL_TRAINER") return "/dashboard/physical-trainer";
   if (template === "ACADEMIC_HEAD") return "/dashboard/academic-head";
   if (template === "ADMISSION_CELL") return "/dashboard/admission-cell";
   if (template === "MARKETING" || template === "SALES_BOOSTER") return "/dashboard/business-development";
@@ -62,7 +62,7 @@ export function canAccessDashboardPath(user: Pick<AuthUser, "role" | "roleMetada
       path.startsWith("/media-library") ||
       path.startsWith("/messages");
   }
-  if (user.role === "PHYSICAL_TRAINER") return path.startsWith("/dashboard/teacher") || path.startsWith("/fitness");
+  if (user.role === "PHYSICAL_TRAINER") return path.startsWith("/dashboard/physical-trainer") || path.startsWith("/fitness");
   if (user.role === "TEACHER") return path.startsWith("/dashboard/teacher");
   if (user.role === "MARKETING_COORDINATOR") return path.startsWith("/dashboard/business-development");
   if (user.role === "TELECALLER") return path.startsWith("/dashboard/business-development");
