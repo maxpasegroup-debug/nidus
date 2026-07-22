@@ -31,6 +31,9 @@ export const crmController = {
       res.json({ leads: await crmService.leads({ status: typeof req.query.status === "string" ? req.query.status as LeadStatus : undefined, search: typeof req.query.search === "string" ? req.query.search : undefined }, requester(req)) });
     } catch (error) { next(error); }
   },
+  async guestApplications(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try { res.json({ leads: await crmService.guestApplications(requester(req)) }); } catch (error) { next(error); }
+  },
   async createLead(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try { assertValid(req); res.status(201).json({ lead: await crmService.createLead(requester(req), req.body) }); } catch (error) { next(error); }
   },

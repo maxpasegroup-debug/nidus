@@ -2,6 +2,7 @@ import { apiClient } from "@/services/api";
 import type { Admission, ApprovalRequest, BulkLeadInput, BulkLeadResult, CounsellingBooking, FollowUp, GuestApplicantResult, Lead, LeadStatus, Referral, ScholarshipDiscount } from "@/types/crm";
 
 export async function getLeads(params?: { status?: LeadStatus; search?: string }) { return (await apiClient.get<{ leads: Lead[] }>("/crm/leads", { params })).data.leads; }
+export async function getMyGuestApplications() { return (await apiClient.get<{ leads: Lead[] }>("/crm/guest-applications")).data.leads; }
 export async function createLead(payload: Omit<Lead, "id" | "createdAt" | "assignee" | "followUps">) { return (await apiClient.post<{ lead: Lead }>("/crm/leads", payload)).data.lead; }
 export async function createBulkLeads(payload: { leads: BulkLeadInput[]; source?: string; notes?: string; allocationMode?: "ROUND_ROBIN" | "UNASSIGNED" }) { return (await apiClient.post<BulkLeadResult>("/crm/leads/bulk", payload)).data; }
 export async function createGuestApplicant(payload: { fullName: string; mobile: string; email?: string; targetExam: string; source: string; parentName?: string; notes?: string }) { return (await apiClient.post<GuestApplicantResult>("/crm/guest-applicants", payload)).data; }

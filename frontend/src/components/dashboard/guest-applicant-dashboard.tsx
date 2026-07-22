@@ -1,9 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, BookOpenCheck, Brain, CheckCircle2, Dumbbell, Flag, MessageCircle, Phone, ShieldCheck, Sparkles, UserRound } from "lucide-react";
 import { assessmentCatalog } from "@/components/assessments/assessment-catalog";
 import { academyProgramGroups } from "@/data/academy-programs";
+import { getMyGuestApplications } from "@/services/crm";
+import type { Lead } from "@/types/crm";
 
 const questCards = [
   { title: "Dream Discipline", text: "Convert ambition into daily action.", icon: Flag },
@@ -20,9 +23,28 @@ function academyApplyHref(programSlug?: string) {
   return programSlug ? `/programs/${programSlug}#apply` : "/programs";
 }
 
+function noteHas(lead: Lead, text: string) {
+  return String(lead.notes || "").toUpperCase().includes(text.toUpperCase());
+}
+
+function applicationStatus(lead?: Lead | null) {
+  if (!lead) return { title: "Not Applied", text: "Choose a course when you are ready.", step: 0 };
+  if (lead.status === "ENROLLED") return { title: "Activated", text: "Student access is ready. Open the student dashboard.", step: 6 };
+  if (noteHas(lead, "READY FOR ADMISSION") || noteHas(lead, "READY_FOR_ADMISSION")) return { title: "Batch Allocation", text: "Your file is ready for final batch allocation and activation.", step: 5 };
+  if (noteHas(lead, "FEES: PENDING") || noteHas(lead, "FEES: PARTIAL")) return { title: "Fees Pending", text: "The office will guide payment or fee confirmation.", step: 4 };
+  if (noteHas(lead, "DOCUMENTS: VERIFIED")) return { title: "Fees Pending", text: "Documents are checked. Fee confirmation is the next step.", step: 4 };
+  if (noteHas(lead, "DOCUMENTS: REJECTED") || noteHas(lead, "DOCUMENTS: PENDING")) return { title: "Documents Pending", text: "The office may ask for document correction or verification.", step: 3 };
+  if (noteHas(lead, "AO_QUEUE: YES") || noteHas(lead, "APPLICATION_STATUS: SUBMITTED")) return { title: "Office Review", text: "Your application has reached the Admission Cell.", step: 2 };
+  return { title: "Submitted", text: "Your application is captured and waiting for review.", step: 1 };
+}
+
 export type GuestApplicantView = "applications" | "assessments" | "guru" | "academy";
 
 export function GuestApplicantDashboard({ name, view = "applications" }: { name?: string | null; view?: GuestApplicantView }) {
+  const applicationsQuery = useQuery({ queryKey: ["guest", "applications"], queryFn: getMyGuestApplications, retry: false });
+  const applications = applicationsQuery.data ?? [];
+  const latestApplication = applications[0] ?? null;
+  const status = applicationStatus(latestApplication);
   const visibleAssessments = assessmentCatalog.slice(0, 15);
   const showApplications = view === "applications";
   const showAssessments = view === "assessments";
@@ -89,11 +111,12 @@ export function GuestApplicantDashboard({ name, view = "applications" }: { name?
             <aside className="grid gap-3 rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
               <div className="rounded-2xl border border-[var(--gold-border)] bg-white p-4">
                 <p className="text-xs font-black uppercase tracking-[0.22em] text-[var(--gold)]">Application Status</p>
-                <h2 className="mt-2 text-2xl font-black">Not submitted yet</h2>
-                <p className="mt-2 text-sm leading-6 text-[var(--muted-blue)]">Choose a course when you are ready. The academy office will guide the next step after submission.</p>
+                <h2 className="mt-2 text-2xl font-black">{applicationsQuery.isLoading ? "Checking..." : status.title}</h2>
+                <p className="mt-2 text-sm leading-6 text-[var(--muted-blue)]">{status.text}</p>
+                {latestApplication ? <p className="mt-3 rounded-xl bg-[var(--page-bg)] px-3 py-2 text-xs font-black">{latestApplication.targetExam}</p> : null}
               </div>
               <div className="grid grid-cols-2 gap-2">
-                <a href="https://wa.me/" target="_blank" rel="noreferrer" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-3 text-sm font-black text-emerald-800">
+                <a href="https://wa.me/918593950774" target="_blank" rel="noreferrer" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-3 text-sm font-black text-emerald-800">
                   <MessageCircle className="h-4 w-4" /> WhatsApp
                 </a>
                 <Link href="/contact" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-[var(--border)] bg-white px-3 text-sm font-black">
@@ -108,9 +131,9 @@ export function GuestApplicantDashboard({ name, view = "applications" }: { name?
           <div className="grid gap-5 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
             <div>
               <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold)]">My Applications</p>
-              <h2 className="mt-2 text-3xl font-black">No application is linked yet.</h2>
+              <h2 className="mt-2 text-3xl font-black">{applicationsQuery.isLoading ? "Checking your application..." : latestApplication ? status.title : "No application is linked yet."}</h2>
               <p className="mt-3 text-sm leading-7 text-[var(--muted-blue)]">
-                Once you apply, this page becomes your simple status tracker: submitted, office review, payment guidance and student activation.
+                {latestApplication ? status.text : "Once you apply, this page becomes your simple status tracker: submitted, office review, payment guidance and student activation."}
               </p>
               <div className="mt-5 flex flex-col gap-3 sm:flex-row">
                 <Link href="/dashboard/guest/academy" className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[var(--gold-gradient)] px-4 py-3 text-sm font-black text-[var(--navy)]">
@@ -123,16 +146,25 @@ export function GuestApplicantDashboard({ name, view = "applications" }: { name?
             </div>
             <div className="grid gap-3">
               {[
-                ["1", "Apply", "Choose a program and submit the form."],
-                ["2", "Academy office review", "Our team checks details and contacts you."],
-                ["3", "Student access", "Classes, lessons and timetable open after activation."],
-              ].map(([step, title, text]) => (
-                <div key={step} className="flex gap-3 rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
+                ["1", "Submitted", "Application received by NIDUS."],
+                ["2", "Office Review", "Admission Cell checks your details."],
+                ["3", "Documents Pending", "Documents are verified if needed."],
+                ["4", "Fees Pending", "Office guides payment confirmation."],
+                ["5", "Batch Allocation", "Batch is selected for your program."],
+                ["6", "Activated", "Student dashboard opens."],
+              ].map(([step, title, text], index) => (
+                <div key={step} className={`flex gap-3 rounded-2xl border p-4 ${status.step >= index + 1 ? "border-emerald-200 bg-emerald-50" : "border-[var(--border)] bg-[var(--page-bg)]"}`}>
                   <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white text-sm font-black">{step}</span>
                   <div>
                     <h3 className="font-black">{title}</h3>
                     <p className="mt-1 text-sm text-[var(--muted-blue)]">{text}</p>
                   </div>
+                </div>
+              ))}
+              {applications.slice(1).map((lead) => (
+                <div key={lead.id} className="rounded-2xl border border-[var(--border)] bg-white p-4">
+                  <h3 className="font-black">{lead.targetExam}</h3>
+                  <p className="mt-1 text-sm text-[var(--muted-blue)]">{applicationStatus(lead).title} / {new Date(lead.createdAt).toLocaleDateString()}</p>
                 </div>
               ))}
             </div>

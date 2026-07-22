@@ -107,6 +107,34 @@ export const crmService = {
       include: leadInclude
     });
   },
+  async guestApplications(requester: Requester) {
+    const user = await prisma.user.findUnique({
+      where: { id: requester.id },
+      select: { id: true, email: true, mobile: true }
+    });
+    if (!user) throw Object.assign(new Error("Applicant profile not found"), { statusCode: 404 });
+
+    const terms = [
+      user.email,
+      user.mobile,
+      `Guest User ID: ${user.id}`,
+      `Applicant User ID: ${user.id}`
+    ].filter(Boolean) as string[];
+
+    if (!terms.length) return [];
+
+    return prisma.lead.findMany({
+      where: {
+        OR: [
+          ...terms.map((term) => ({ email: { equals: term, mode: "insensitive" as const } })),
+          ...terms.map((term) => ({ mobile: { equals: term, mode: "insensitive" as const } })),
+          ...terms.map((term) => ({ notes: { contains: term, mode: "insensitive" as const } }))
+        ]
+      },
+      orderBy: { createdAt: "desc" },
+      include: leadInclude
+    });
+  },
   async createLead(requester: Requester, input: { fullName: string; mobile: string; email?: string; targetExam: string; source: string; status?: LeadStatus; assignedTo?: string; notes?: string }) {
     const lead = await prisma.lead.create({
       data: {

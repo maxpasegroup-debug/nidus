@@ -10,6 +10,7 @@ const leadRoles = [protect, allowRoles(Role.ADMIN, Role.DIRECTOR, Role.ADMINISTR
 const bulkLeadRoles = [protect, allowRoles(Role.ADMIN, Role.DIRECTOR)];
 const admissionRoles = [protect, allowRoles(Role.ADMIN, Role.DIRECTOR, Role.ADMINISTRATIVE_OFFICER)];
 const approvalRoles = [protect, allowRoles(Role.ADMIN, Role.DIRECTOR)];
+const applicantRoles = [protect, allowRoles(Role.GUEST, Role.STUDENT)];
 const leadStatuses = ["NEW", "CONTACTED", "COUNSELLING", "ENROLLED", "LOST"];
 
 crmRouter.post(
@@ -27,6 +28,7 @@ crmRouter.post(
 );
 
 crmRouter.get("/leads", ...leadRoles, [query("status").optional().isIn(leadStatuses), query("search").optional().trim()], crmController.leads);
+crmRouter.get("/guest-applications", ...applicantRoles, crmController.guestApplications);
 crmRouter.post("/leads", ...leadRoles, [body("fullName").trim().notEmpty(), body("mobile").trim().isLength({ min: 7 }), body("email").optional({ values: "falsy" }).isEmail().normalizeEmail(), body("targetExam").trim().notEmpty(), body("source").trim().notEmpty(), body("status").optional().isIn(leadStatuses), body("assignedTo").optional({ nullable: true }).trim(), body("notes").optional().trim()], crmController.createLead);
 crmRouter.post("/leads/bulk", ...bulkLeadRoles, [body("source").optional().trim(), body("notes").optional().trim(), body("allocationMode").optional().isIn(["ROUND_ROBIN", "UNASSIGNED"]), body("leads").isArray({ min: 1, max: 500 }), body("leads.*.fullName").trim().notEmpty(), body("leads.*.mobile").trim().isLength({ min: 7 }), body("leads.*.email").optional({ values: "falsy" }).isEmail().normalizeEmail(), body("leads.*.targetExam").trim().notEmpty(), body("leads.*.source").optional().trim(), body("leads.*.notes").optional().trim(), body("leads.*.assignedTo").optional().trim()], crmController.createBulkLeads);
 crmRouter.post("/guest-applicants", ...leadRoles, [body("fullName").trim().notEmpty(), body("mobile").trim().isLength({ min: 7 }), body("email").optional({ values: "falsy" }).isEmail().normalizeEmail(), body("targetExam").trim().notEmpty(), body("source").trim().notEmpty(), body("parentName").optional().trim(), body("notes").optional().trim()], crmController.createGuestApplicant);

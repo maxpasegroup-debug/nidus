@@ -1,7 +1,9 @@
 "use client";
 
 import { type FormEvent, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Send, ShieldCheck } from "lucide-react";
+import { useAuth } from "@/components/providers/auth-provider-v2";
 import { useToast } from "@/components/providers/toast-provider";
 import { Button } from "@/components/ui/button";
 import { getApiErrorMessage } from "@/services/api";
@@ -21,6 +23,8 @@ const initialForm = {
 
 export function ProgramEnquiryForm({ programTitle, source = "Academy Program Page" }: { programTitle: string; source?: string }) {
   const { showToast } = useToast();
+  const { user } = useAuth();
+  const router = useRouter();
   const [form, setForm] = useState(initialForm);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -53,12 +57,18 @@ export function ProgramEnquiryForm({ programTitle, source = "Academy Program Pag
           `School: ${form.school}`,
           `Blood Group: ${form.bloodGroup}`,
           `Address: ${form.address}`,
-          `Message: ${form.message || "-"}`
+          `Message: ${form.message || "-"}`,
+          user ? `Applicant User ID: ${user.id}` : "",
+          user?.mobile ? `Applicant Login Mobile: ${user.mobile}` : "",
+          user?.email ? `Applicant Login Email: ${user.email}` : ""
         ].join("\n")
       });
       setSubmitted(true);
       setForm(initialForm);
       showToast("Application submitted. Administration will review and approve.", "success");
+      if (user?.role === "GUEST" || user?.role === "STUDENT") {
+        router.push("/dashboard/guest/applications");
+      }
     } catch (error) {
       showToast(getApiErrorMessage(error), "error");
     } finally {
