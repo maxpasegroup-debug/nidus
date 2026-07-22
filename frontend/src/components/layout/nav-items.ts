@@ -63,8 +63,9 @@ const physicalTrainerMenu: DashboardNavItem[] = [
 const directorMenu: DashboardNavItem[] = [
   { label: "Dashboard", href: "/dashboard/director" },
   { label: "Academics", href: "/dashboard/director/academic" },
+  { label: "Students", href: "/dashboard/director/students" },
   { label: "Admissions", href: "/dashboard/director/admissions" },
-  { label: "Admin & HR", href: "/dashboard/director/management" },
+  { label: "Staff & Access", href: "/dashboard/director/management" },
   { label: "Accounts", href: "/dashboard/director/accounts" },
   { label: "Reports", href: "/dashboard/director/reports" },
   { label: "Settings", href: "/dashboard/settings" },

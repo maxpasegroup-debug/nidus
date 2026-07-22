@@ -8,7 +8,6 @@ import {
   BadgeIndianRupee,
   BarChart3,
   Bell,
-  BookOpen,
   CalendarDays,
   CheckCircle2,
   GraduationCap,
@@ -65,7 +64,7 @@ export default function DirectorDashboardPage() {
     {
       title: lowAttendance ? "Check student attendance" : "Attendance looks calm",
       detail: lowAttendance ? `${lowAttendance} attendance alert(s) need academic follow-up.` : "No low-attendance alert is visible.",
-      href: "/dashboard/director/teaching/students",
+      href: "/dashboard/director/students",
       value: lowAttendance,
       icon: AlertTriangle,
       tone: lowAttendance ? "warn" : "ok",
@@ -75,11 +74,10 @@ export default function DirectorDashboardPage() {
   const modules = [
     { title: "Academics", detail: "Programs, batches, timetable and progress", href: "/dashboard/director/academic", icon: GraduationCap },
     { title: "Admissions", detail: "Applications, approvals and activation", href: "/dashboard/director/admissions", icon: UserPlus },
-    { title: "Students", detail: "Class-wise student profiles and reports", href: "/dashboard/director/teaching/students", icon: Users },
+    { title: "Students", detail: "Class-wise student profiles and reports", href: "/dashboard/director/students", icon: Users },
     { title: "Staff & Access", detail: "Staff details, roles and PIN reset", href: "/dashboard/director/management", icon: ShieldCheck },
     { title: "Accounts", detail: "Collections, receipts and pending fees", href: "/dashboard/director/accounts", icon: BadgeIndianRupee },
     { title: "Reports", detail: "Simple director review desk", href: "/dashboard/director/reports", icon: BarChart3 },
-    { title: "Teaching", detail: "Classes, attendance and assignments", href: "/dashboard/director/teaching", icon: BookOpen },
     { title: "Launch Check", detail: "Production readiness board", href: "/dashboard/director/launch-qa", icon: CheckCircle2 },
   ] as const;
 
