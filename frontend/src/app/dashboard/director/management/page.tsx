@@ -5,7 +5,6 @@ import { useSearchParams } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Archive, Eye, EyeOff, KeyRound, Pencil, Save, ShieldCheck, UserPlus, Users, X } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { OperationsOsWorkspace } from "@/components/operations/operations-os-workspace";
 
 type Employee = {
   id: string;
@@ -271,6 +270,8 @@ export default function DirectorManagementPage() {
   const archivedAccounts = (employeesQuery.data ?? []).filter((employee) => employee.roleMetadata?.status === "ARCHIVED");
   const lockedAccounts = activeAccounts.filter((employee) => isAccountLocked(employee));
   const activeTeam = activeAccounts.filter(isTeamAccount);
+  const missingLoginAccounts = activeTeam.filter((employee) => !(employee.phone || employee.mobile));
+  const accessIssueAccounts = activeTeam.filter((employee) => isAccountLocked(employee) || !(employee.phone || employee.mobile) || accessPinLabel(employee) === "Reset to view");
   const visibleAccounts = activeTab === "ACTIVE" ? activeAccounts : archivedAccounts;
   const visibleTeam = visibleAccounts.filter(isTeamAccount);
   const visibleTeamGroups = groupTeamAccounts(visibleTeam);
@@ -316,10 +317,10 @@ export default function DirectorManagementPage() {
     <main className="min-h-screen bg-[var(--page-bg)] px-3 py-3 text-[var(--navy)] lg:h-[calc(100vh-var(--nav-height)-2rem)] lg:min-h-0 lg:overflow-hidden">
       <section className="mx-auto flex h-full max-w-[1500px] flex-col gap-3 overflow-y-auto pr-0 lg:pr-2">
         <div className="shrink-0 rounded-2xl border border-[var(--border)] bg-white/90 p-3 shadow-sm md:p-4">
-          <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold)]">People Control</p>
-          <h1 className="mt-1 text-2xl font-black tracking-tight">HRM Staff And Access</h1>
+          <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold)]">Staff & Access</p>
+          <h1 className="mt-1 text-2xl font-black tracking-tight">Staff Desk</h1>
           <p className="mt-1 max-w-3xl text-sm leading-6 text-[var(--muted-blue)]">
-            Add staff, edit staff details, reset access and archive inactive employees.
+            Add staff, check login mobile and PIN, reset access and archive inactive accounts.
           </p>
         </div>
 
@@ -327,30 +328,34 @@ export default function DirectorManagementPage() {
           <Metric icon={Users} label="Team Accounts" value={activeTeam.length} />
           <Metric icon={UserPlus} label="Active Staff" value={activeTeam.length} />
           <Metric icon={Archive} label="Archived History" value={archivedAccounts.length} />
-          <Metric icon={ShieldCheck} label="Locked Accounts" value={lockedAccounts.length} />
+          <Metric icon={ShieldCheck} label="Access Issues" value={accessIssueAccounts.length} />
         </div>
 
-        <OperationsOsWorkspace
-          title="HR Operations"
-          description="Employee directory, attendance, leave, payroll, recruitment, performance reviews, training, documents and exit management are organized around the existing staff and access workflows."
-          metrics={[
-            { label: "Employee Directory", value: activeTeam.length, note: `${activeAccounts.length} active account(s)`, tone: "info" },
-            { label: "Recruitment", value: mode === "add" ? "Open" : "Ready", note: "Create staff from existing employee API", tone: "success" },
-            { label: "Access Risk", value: lockedAccounts.length, note: "Locked or restricted account(s)", tone: lockedAccounts.length ? "warning" : "success" },
-            { label: "Exit History", value: archivedAccounts.length, note: "Archived employee record(s)", tone: archivedAccounts.length ? "info" : "default" },
-          ]}
-          alerts={[
-            { title: "Pending approvals", detail: "Leave, expenses and payroll approvals remain in existing operations queues.", href: "/admin-center/operations#leave", tone: "info" },
-            { title: "Access review", detail: `${lockedAccounts.length} account(s) may need PIN reset or unlock.`, href: "/dashboard/director/management?mode=access", tone: lockedAccounts.length ? "warning" : "success" },
-            { title: "Staff strength", detail: `${activeTeam.length} team account(s) are active across academy operations.`, href: "/dashboard/director/management?mode=manage", tone: "success" },
-          ]}
-        />
+        <section className="grid shrink-0 gap-3 lg:grid-cols-[0.8fr_1.2fr]">
+          <div className="rounded-2xl border border-[var(--border)] bg-white/90 p-3 shadow-sm md:p-4">
+            <p className="text-[11px] font-black uppercase tracking-[0.28em] text-[var(--gold)]">Quick Actions</p>
+            <div className="mt-3 grid gap-2 sm:grid-cols-2">
+              <button type="button" onClick={() => setMode("add")} className="min-h-12 rounded-xl bg-[var(--navy)] px-4 text-sm font-black text-white">Add Staff</button>
+              <button type="button" onClick={() => setMode("manage")} className="min-h-12 rounded-xl border border-[var(--border)] bg-white px-4 text-sm font-black">Staff List</button>
+              <button type="button" onClick={() => setMode("access")} className="min-h-12 rounded-xl border border-[var(--border)] bg-white px-4 text-sm font-black">Reset PIN</button>
+              <button type="button" onClick={() => { setActiveTab("ARCHIVED"); setMode("archive"); }} className="min-h-12 rounded-xl border border-rose-200 bg-rose-50 px-4 text-sm font-black text-rose-800">Archive</button>
+            </div>
+          </div>
+          <div className="rounded-2xl border border-[var(--border)] bg-white/90 p-3 shadow-sm md:p-4">
+            <p className="text-[11px] font-black uppercase tracking-[0.28em] text-[var(--gold)]">Access Issues</p>
+            <div className="mt-3 grid gap-2 md:grid-cols-3">
+              <AccessBox label="Locked" value={lockedAccounts.length} />
+              <AccessBox label="Mobile Missing" value={missingLoginAccounts.length} />
+              <AccessBox label="PIN Needs Reset" value={accessIssueAccounts.filter((employee) => accessPinLabel(employee) === "Reset to view").length} />
+            </div>
+          </div>
+        </section>
 
         <section className="grid shrink-0 gap-2 md:grid-cols-4">
           <ModeButton active={mode === "add"} icon={UserPlus} label="Add Staff" onClick={() => setMode("add")} />
-          <ModeButton active={mode === "manage"} icon={Users} label="Manage Staff" onClick={() => setMode("manage")} />
-          <ModeButton active={mode === "access"} icon={KeyRound} label="Access & PIN" onClick={() => setMode("access")} />
-          <ModeButton active={mode === "archive"} icon={Archive} label="Archive Staff" onClick={() => { setActiveTab("ARCHIVED"); setMode("archive"); }} />
+          <ModeButton active={mode === "manage"} icon={Users} label="Staff List" onClick={() => setMode("manage")} />
+          <ModeButton active={mode === "access"} icon={KeyRound} label="Reset PIN" onClick={() => setMode("access")} />
+          <ModeButton active={mode === "archive"} icon={Archive} label="Archive" onClick={() => { setActiveTab("ARCHIVED"); setMode("archive"); }} />
         </section>
 
         {notice && <div className="rounded-2xl border border-[var(--gold-border)] bg-[var(--gold-soft)] px-3 py-2 text-sm font-bold">{notice}</div>}
@@ -580,6 +585,15 @@ function Metric({ icon: Icon, label, value }: { icon: LucideIcon; label: string;
       <Icon className="h-4 w-4 text-[var(--gold)]" />
       <p className="mt-2 text-xl font-black">{value}</p>
       <p className="mt-0.5 text-sm text-[var(--muted-blue)]">{label}</p>
+    </div>
+  );
+}
+
+function AccessBox({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="rounded-xl border border-[var(--border)] bg-white px-3 py-2">
+      <p className="text-xs font-black uppercase tracking-[0.16em] text-[var(--muted-blue)]">{label}</p>
+      <p className="mt-1 text-xl font-black">{value}</p>
     </div>
   );
 }
