@@ -5,11 +5,21 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { CalendarDays, CheckCircle2, ClipboardCheck, Dumbbell, Users } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { apiClient, getApiErrorMessage } from "@/services/api";
-import type { PTAttendance, PTSchedule } from "@/types/fitness";
+import type { DailyFitnessLog, FitnessProfile, PTAttendance, PTSchedule } from "@/types/fitness";
 import { useAuth } from "@/components/providers/auth-provider-v2";
 
-type FitnessView = "dashboard" | "pt" | "eligibility" | "logs";
-type SimpleView = "today" | "batches" | "attendance" | "reports";
+type FitnessView = "dashboard" | "pt" | "eligibility" | "logs" | "attendance" | "records";
+type SimpleView = "today" | "batches" | "attendance" | "records" | "reports";
+
+type FitnessRecordForm = {
+  height: string;
+  weight: string;
+  runningTime: string;
+  pushups: string;
+  pullups: string;
+  situps: string;
+  remarks: string;
+};
 
 type AssignedStudent = {
   id?: string;
@@ -36,6 +46,7 @@ const tabs: Array<{ key: SimpleView; label: string }> = [
   { key: "today", label: "Today" },
   { key: "batches", label: "My Batches" },
   { key: "attendance", label: "Attendance" },
+  { key: "records", label: "Fitness Records" },
   { key: "reports", label: "Reports" },
 ];
 
@@ -44,7 +55,8 @@ const emptyStudents: AssignedStudent[] = [];
 
 function viewFromRoute(view: FitnessView): SimpleView {
   if (view === "pt") return "batches";
-  if (view === "eligibility") return "attendance";
+  if (view === "eligibility" || view === "attendance") return "attendance";
+  if (view === "records") return "records";
   if (view === "logs") return "reports";
   return "today";
 }
@@ -83,6 +95,14 @@ async function getPTAttendance(studentId: string) {
   return (await apiClient.get<{ attendance: PTAttendance[] }>(`/fitness/attendance/${studentId}`)).data.attendance;
 }
 
+async function upsertFitnessProfile(payload: Pick<FitnessProfile, "height" | "weight" | "runningTime" | "pushups" | "pullups" | "situps"> & { userId?: string }) {
+  return (await apiClient.post<{ profile: FitnessProfile; suggestions: string }>("/fitness/profile", payload)).data;
+}
+
+async function createFitnessLog(payload: Omit<DailyFitnessLog, "id" | "createdAt" | "userId"> & { userId?: string }) {
+  return (await apiClient.post<{ log: DailyFitnessLog }>("/fitness/log", payload)).data.log;
+}
+
 export function FitnessConsole({ view }: { view: FitnessView }) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -90,6 +110,16 @@ export function FitnessConsole({ view }: { view: FitnessView }) {
   const [selectedBatchId, setSelectedBatchId] = useState("");
   const [selectedStudentId, setSelectedStudentId] = useState("");
   const [remarks, setRemarks] = useState("");
+  const [fitnessForm, setFitnessForm] = useState({
+    height: "",
+    weight: "",
+    runningTime: "",
+    pushups: "",
+    pullups: "",
+    situps: "",
+    remarks: "",
+  });
+  const [fitnessSuggestion, setFitnessSuggestion] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
 
   const batchesQuery = useQuery({ queryKey: ["pt", "assigned-batches"], queryFn: getAssignedBatches });
@@ -182,6 +212,57 @@ export function FitnessConsole({ view }: { view: FitnessView }) {
     }
   };
 
+  const saveFitnessRecord = async () => {
+    if (!activeStudentId) {
+      setMessage("Choose a student before saving fitness records.");
+      return;
+    }
+
+    const height = Number(fitnessForm.height);
+    const weight = Number(fitnessForm.weight);
+    const runningTime = Number(fitnessForm.runningTime);
+    const pushups = Number(fitnessForm.pushups);
+    const pullups = Number(fitnessForm.pullups);
+    const situps = Number(fitnessForm.situps);
+
+    if ([height, weight, runningTime, pushups, pullups, situps].some((value) => !Number.isFinite(value) || value < 0) || height === 0 || weight === 0) {
+      setMessage("Enter valid numbers for height, weight and fitness activities.");
+      return;
+    }
+
+    const result = await upsertFitnessProfile({
+      userId: activeStudentId,
+      height,
+      weight,
+      runningTime,
+      pushups,
+      pullups,
+      situps,
+    });
+
+    if (fitnessForm.remarks.trim()) {
+      await createFitnessLog({
+        userId: activeStudentId,
+        runningDistance: 0,
+        caloriesBurned: 0,
+        waterIntake: 0,
+        workoutDuration: 0,
+        notes: `PT record: running ${runningTime} min, pushups ${pushups}, pullups ${pullups}, situps ${situps}. ${fitnessForm.remarks.trim()}`,
+      });
+    }
+
+    setFitnessSuggestion(result.suggestions);
+  };
+
+  const fitnessRecordMutation = useMutation({
+    mutationFn: saveFitnessRecord,
+    onSuccess: async () => {
+      setMessage("Fitness record saved.");
+      await queryClient.invalidateQueries({ queryKey: ["pt", "attendance", activeStudentId] });
+    },
+    onError: (error) => setMessage(getApiErrorMessage(error)),
+  });
+
   return (
     <main className="min-h-screen bg-[var(--page-bg)] px-4 py-5 text-[var(--navy)] md:px-6">
       <section className="mx-auto max-w-7xl space-y-5">
@@ -190,7 +271,7 @@ export function FitnessConsole({ view }: { view: FitnessView }) {
             <div>
               <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold)]">Physical Training</p>
               <h1 className="mt-2 text-3xl font-black md:text-5xl">PT attendance desk</h1>
-              <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--muted-blue)]">Open your assigned batch, mark attendance, and save simple remarks.</p>
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--muted-blue)]">Open your assigned batch, mark attendance, and save student fitness records without technical screens.</p>
             </div>
             <div className="rounded-2xl border border-[var(--gold-border)] bg-[var(--gold-soft)] p-4">
               <p className="text-xs font-black uppercase tracking-[0.2em] text-[var(--gold)]">Trainer</p>
@@ -208,7 +289,7 @@ export function FitnessConsole({ view }: { view: FitnessView }) {
         </section>
 
         <section className="rounded-2xl border border-[var(--border)] bg-white p-3 shadow-sm">
-          <div className="grid gap-2 sm:grid-cols-4">
+          <div className="grid gap-2 sm:grid-cols-5">
             {tabs.map((tab) => (
               <button
                 key={tab.key}
@@ -289,6 +370,25 @@ export function FitnessConsole({ view }: { view: FitnessView }) {
               selectedBatch={selectedBatch}
               selectedBatchId={selectedBatch?.id ?? ""}
               setRemarks={setRemarks}
+              setSelectedBatchId={setSelectedBatchId}
+              setSelectedStudentId={setSelectedStudentId}
+              students={students}
+            />
+          </Panel>
+        ) : null}
+
+        {activeView === "records" ? (
+          <Panel title="Fitness Records" eyebrow="Student profile">
+            <FitnessRecordDesk
+              batches={batches}
+              fitnessForm={fitnessForm}
+              fitnessPending={fitnessRecordMutation.isPending}
+              fitnessSuggestion={fitnessSuggestion}
+              onSave={() => fitnessRecordMutation.mutate()}
+              selectedBatch={selectedBatch}
+              selectedBatchId={selectedBatch?.id ?? ""}
+              selectedStudentId={activeStudentId}
+              setFitnessForm={setFitnessForm}
               setSelectedBatchId={setSelectedBatchId}
               setSelectedStudentId={setSelectedStudentId}
               students={students}
@@ -399,6 +499,123 @@ function AttendanceDesk({
       </div>
 
     </div>
+  );
+}
+
+function FitnessRecordDesk({
+  batches,
+  fitnessForm,
+  fitnessPending,
+  fitnessSuggestion,
+  onSave,
+  selectedBatch,
+  selectedBatchId,
+  selectedStudentId,
+  setFitnessForm,
+  setSelectedBatchId,
+  setSelectedStudentId,
+  students,
+}: {
+  batches: AssignedBatch[];
+  fitnessForm: FitnessRecordForm;
+  fitnessPending: boolean;
+  fitnessSuggestion: string | null;
+  onSave: () => void;
+  selectedBatch?: AssignedBatch;
+  selectedBatchId: string;
+  selectedStudentId: string;
+  setFitnessForm: (value: FitnessRecordForm) => void;
+  setSelectedBatchId: (value: string) => void;
+  setSelectedStudentId: (value: string) => void;
+  students: AssignedStudent[];
+}) {
+  const updateField = (key: keyof FitnessRecordForm, value: string) => {
+    setFitnessForm({ ...fitnessForm, [key]: value });
+  };
+
+  return (
+    <div className="grid gap-5">
+      <div className="grid gap-4 lg:grid-cols-2">
+        <label className="grid gap-2 text-sm font-black">
+          Batch
+          <select
+            value={selectedBatchId}
+            onChange={(event) => {
+              setSelectedBatchId(event.target.value);
+              setSelectedStudentId("");
+            }}
+            className="min-h-12 rounded-xl border border-[var(--border)] bg-white px-3 text-sm font-normal"
+          >
+            {batches.map((batch) => (
+              <option key={batch.id} value={batch.id}>{batch.name ?? batch.batchName ?? "PT Batch"}</option>
+            ))}
+          </select>
+        </label>
+
+        <label className="grid gap-2 text-sm font-black">
+          Student
+          <select
+            value={selectedStudentId}
+            onChange={(event) => setSelectedStudentId(event.target.value)}
+            className="min-h-12 rounded-xl border border-[var(--border)] bg-white px-3 text-sm font-normal"
+          >
+            {students.map((entry, index) => (
+              <option key={studentId(entry, index)} value={studentId(entry, index)}>{studentName(entry, index)}</option>
+            ))}
+          </select>
+        </label>
+      </div>
+
+      <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
+        <h3 className="text-xl font-black">{selectedBatch?.name ?? selectedBatch?.batchName ?? "Select a batch"}</h3>
+        <p className="mt-1 text-sm text-[var(--muted-blue)]">Enter the latest PT measurement for one student. Use zero only when the activity was not tested.</p>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <FitnessInput label="Height (cm)" value={fitnessForm.height} onChange={(value) => updateField("height", value)} />
+        <FitnessInput label="Weight (kg)" value={fitnessForm.weight} onChange={(value) => updateField("weight", value)} />
+        <FitnessInput label="Running time (min)" value={fitnessForm.runningTime} onChange={(value) => updateField("runningTime", value)} />
+        <FitnessInput label="Pushups" value={fitnessForm.pushups} onChange={(value) => updateField("pushups", value)} />
+        <FitnessInput label="Pullups" value={fitnessForm.pullups} onChange={(value) => updateField("pullups", value)} />
+        <FitnessInput label="Situps" value={fitnessForm.situps} onChange={(value) => updateField("situps", value)} />
+      </div>
+
+      <label className="grid gap-2 text-sm font-black">
+        Remarks
+        <textarea
+          value={fitnessForm.remarks}
+          onChange={(event) => updateField("remarks", event.target.value)}
+          className="min-h-28 rounded-xl border border-[var(--border)] bg-white px-3 py-3 text-sm font-normal"
+          placeholder="Improved stamina, knee pain, needs running practice..."
+        />
+      </label>
+
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <button type="button" onClick={onSave} disabled={fitnessPending || !selectedStudentId} className="min-h-12 rounded-xl bg-slate-950 px-5 text-sm font-black text-white disabled:opacity-50">
+          Save Fitness Record
+        </button>
+        {fitnessSuggestion ? <p className="text-sm font-semibold text-[var(--muted-blue)]">{fitnessSuggestion}</p> : null}
+      </div>
+
+      {!batches.length ? <SoftNote text="No batch is allocated to this physical trainer." /> : null}
+      {batches.length && !students.length ? <SoftNote text="No students are available in this batch." /> : null}
+    </div>
+  );
+}
+
+function FitnessInput({ label, value, onChange }: { label: string; value: string; onChange: (value: string) => void }) {
+  return (
+    <label className="grid gap-2 text-sm font-black">
+      {label}
+      <input
+        type="number"
+        min="0"
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        className="min-h-12 rounded-xl border border-[var(--border)] bg-white px-3 text-sm font-normal"
+        placeholder="0"
+      />
+    </label>
   );
 }
 

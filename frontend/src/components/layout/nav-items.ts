@@ -52,10 +52,11 @@ const videoEditorMenu: DashboardNavItem[] = [
 ];
 
 const physicalTrainerMenu: DashboardNavItem[] = [
-  { label: "Dashboard", href: "/fitness" },
-  { label: "PT Schedule", href: "/fitness/pt-schedule" },
-  { label: "Attendance", href: "/fitness/eligibility" },
-  { label: "Reports", href: "/fitness/logs" },
+  { label: "Dashboard", href: "/dashboard/physical-trainer" },
+  { label: "Batches", href: "/dashboard/physical-trainer/batches" },
+  { label: "Attendance", href: "/dashboard/physical-trainer/attendance" },
+  { label: "Fitness Records", href: "/dashboard/physical-trainer/fitness-records" },
+  { label: "Reports", href: "/dashboard/physical-trainer/reports" },
   { label: "Profile", href: "/dashboard/settings" },
 ];
 
