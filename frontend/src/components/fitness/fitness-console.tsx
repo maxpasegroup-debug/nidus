@@ -5,7 +5,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { CalendarDays, CheckCircle2, ClipboardCheck, Dumbbell, Users } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { apiClient, getApiErrorMessage } from "@/services/api";
-import type { DailyFitnessLog, FitnessProfile, PTAttendance, PTSchedule } from "@/types/fitness";
+import type { DailyFitnessLog, FitnessProfile, PhysicalEligibility, PTAttendance, PTSchedule } from "@/types/fitness";
 import { useAuth } from "@/components/providers/auth-provider-v2";
 
 type FitnessView = "dashboard" | "pt" | "eligibility" | "logs" | "attendance" | "records";
@@ -95,12 +95,31 @@ async function getPTAttendance(studentId: string) {
   return (await apiClient.get<{ attendance: PTAttendance[] }>(`/fitness/attendance/${studentId}`)).data.attendance;
 }
 
+async function getFitnessProfile(userId: string) {
+  if (!userId) return null;
+  return (await apiClient.get<{ profile: FitnessProfile | null }>("/fitness/profile", { params: { userId } })).data.profile;
+}
+
 async function upsertFitnessProfile(payload: Pick<FitnessProfile, "height" | "weight" | "runningTime" | "pushups" | "pullups" | "situps"> & { userId?: string }) {
   return (await apiClient.post<{ profile: FitnessProfile; suggestions: string }>("/fitness/profile", payload)).data;
 }
 
 async function createFitnessLog(payload: Omit<DailyFitnessLog, "id" | "createdAt" | "userId"> & { userId?: string }) {
   return (await apiClient.post<{ log: DailyFitnessLog }>("/fitness/log", payload)).data.log;
+}
+
+async function getFitnessLogs(userId: string) {
+  if (!userId) return [];
+  return (await apiClient.get<{ logs: DailyFitnessLog[] }>("/fitness/logs", { params: { userId } })).data.logs;
+}
+
+async function getEligibility(userId: string) {
+  if (!userId) return [];
+  return (await apiClient.get<{ eligibility: PhysicalEligibility[] }>("/fitness/eligibility", { params: { userId } })).data.eligibility;
+}
+
+async function checkEligibility(payload: { userId: string; examType: string }) {
+  return (await apiClient.post<{ eligibility: PhysicalEligibility }>("/fitness/eligibility/check", payload)).data.eligibility;
 }
 
 export function FitnessConsole({ view }: { view: FitnessView }) {
@@ -148,6 +167,24 @@ export function FitnessConsole({ view }: { view: FitnessView }) {
   const attendance = attendanceQuery.data ?? [];
   const selectedPresent = attendance.filter((item) => item.attendanceStatus === "PRESENT").length;
   const selectedAttendancePercent = attendance.length ? Math.round((selectedPresent / attendance.length) * 100) : 0;
+  const profileQuery = useQuery({
+    queryKey: ["pt", "profile", activeStudentId],
+    queryFn: () => getFitnessProfile(activeStudentId),
+    enabled: Boolean(activeStudentId),
+  });
+  const logsQuery = useQuery({
+    queryKey: ["pt", "logs", activeStudentId],
+    queryFn: () => getFitnessLogs(activeStudentId),
+    enabled: Boolean(activeStudentId),
+  });
+  const eligibilityQuery = useQuery({
+    queryKey: ["pt", "eligibility", activeStudentId],
+    queryFn: () => getEligibility(activeStudentId),
+    enabled: Boolean(activeStudentId),
+  });
+  const selectedProfile = profileQuery.data ?? null;
+  const fitnessLogs = logsQuery.data ?? [];
+  const eligibilityRows = eligibilityQuery.data ?? [];
 
   const createTodaySession = useMutation({
     mutationFn: () => createPTSchedule({
@@ -258,7 +295,19 @@ export function FitnessConsole({ view }: { view: FitnessView }) {
     mutationFn: saveFitnessRecord,
     onSuccess: async () => {
       setMessage("Fitness record saved.");
-      await queryClient.invalidateQueries({ queryKey: ["pt", "attendance", activeStudentId] });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["pt", "profile", activeStudentId] }),
+        queryClient.invalidateQueries({ queryKey: ["pt", "logs", activeStudentId] }),
+      ]);
+    },
+    onError: (error) => setMessage(getApiErrorMessage(error)),
+  });
+
+  const eligibilityMutation = useMutation({
+    mutationFn: checkEligibility,
+    onSuccess: async () => {
+      setMessage("Eligibility checked.");
+      await queryClient.invalidateQueries({ queryKey: ["pt", "eligibility", activeStudentId] });
     },
     onError: (error) => setMessage(getApiErrorMessage(error)),
   });
@@ -397,22 +446,23 @@ export function FitnessConsole({ view }: { view: FitnessView }) {
         ) : null}
 
         {activeView === "reports" ? (
-          <section className="grid gap-5 lg:grid-cols-[0.8fr_1.2fr]">
-            <Panel title="Simple Report" eyebrow="Selected student">
-              <div className="grid gap-3 sm:grid-cols-2">
-                <ReportCard title="Attendance" value={`${selectedAttendancePercent}%`} note="Selected student" icon={CheckCircle2} />
-                <ReportCard title="Records" value={String(attendance.length)} note="PT attendance entries" icon={ClipboardCheck} />
-              </div>
-            </Panel>
-            <Panel title="Recent Attendance" eyebrow={selectedStudent ? selectedStudent.student?.name ?? "Student" : "Select student"}>
-              <div className="grid gap-3">
-                {attendance.slice(0, 8).map((item) => (
-                  <HistoryRow key={item.id} title={item.ptSchedule?.title ?? "PT Session"} note={new Date(item.markedAt).toLocaleString()} badge={item.attendanceStatus} />
-                ))}
-                {!attendance.length ? <SoftNote text="Select a student from Attendance to view recent PT records." /> : null}
-              </div>
-            </Panel>
-          </section>
+          <TrainerReports
+            attendance={attendance}
+            batches={batches}
+            eligibilityPending={eligibilityMutation.isPending}
+            eligibilityRows={eligibilityRows}
+            fitnessLogs={fitnessLogs}
+            onCheckEligibility={(examType) => eligibilityMutation.mutate({ userId: activeStudentId, examType })}
+            profile={selectedProfile}
+            selectedAttendancePercent={selectedAttendancePercent}
+            selectedBatch={selectedBatch}
+            selectedBatchId={selectedBatch?.id ?? ""}
+            selectedStudent={selectedStudent}
+            selectedStudentId={activeStudentId}
+            setSelectedBatchId={setSelectedBatchId}
+            setSelectedStudentId={setSelectedStudentId}
+            students={students}
+          />
         ) : null}
       </section>
     </main>
@@ -616,6 +666,118 @@ function FitnessInput({ label, value, onChange }: { label: string; value: string
         placeholder="0"
       />
     </label>
+  );
+}
+
+function TrainerReports({
+  attendance,
+  batches,
+  eligibilityPending,
+  eligibilityRows,
+  fitnessLogs,
+  onCheckEligibility,
+  profile,
+  selectedAttendancePercent,
+  selectedBatch,
+  selectedBatchId,
+  selectedStudent,
+  selectedStudentId,
+  setSelectedBatchId,
+  setSelectedStudentId,
+  students,
+}: {
+  attendance: PTAttendance[];
+  batches: AssignedBatch[];
+  eligibilityPending: boolean;
+  eligibilityRows: PhysicalEligibility[];
+  fitnessLogs: DailyFitnessLog[];
+  onCheckEligibility: (examType: string) => void;
+  profile: FitnessProfile | null;
+  selectedAttendancePercent: number;
+  selectedBatch?: AssignedBatch;
+  selectedBatchId: string;
+  selectedStudent?: AssignedStudent;
+  selectedStudentId: string;
+  setSelectedBatchId: (value: string) => void;
+  setSelectedStudentId: (value: string) => void;
+  students: AssignedStudent[];
+}) {
+  return (
+    <section className="grid gap-5 xl:grid-cols-[0.85fr_1.15fr]">
+      <Panel title="Student Report" eyebrow="Select and check">
+        <div className="grid gap-4">
+          <div className="grid gap-4 lg:grid-cols-2">
+            <label className="grid gap-2 text-sm font-black">
+              Batch
+              <select
+                value={selectedBatchId}
+                onChange={(event) => {
+                  setSelectedBatchId(event.target.value);
+                  setSelectedStudentId("");
+                }}
+                className="min-h-12 rounded-xl border border-[var(--border)] bg-white px-3 text-sm font-normal"
+              >
+                {batches.map((batch) => (
+                  <option key={batch.id} value={batch.id}>{batch.name ?? batch.batchName ?? "PT Batch"}</option>
+                ))}
+              </select>
+            </label>
+
+            <label className="grid gap-2 text-sm font-black">
+              Student
+              <select
+                value={selectedStudentId}
+                onChange={(event) => setSelectedStudentId(event.target.value)}
+                className="min-h-12 rounded-xl border border-[var(--border)] bg-white px-3 text-sm font-normal"
+              >
+                {students.map((entry, index) => (
+                  <option key={studentId(entry, index)} value={studentId(entry, index)}>{studentName(entry, index)}</option>
+                ))}
+              </select>
+            </label>
+          </div>
+
+          <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
+            <h3 className="text-xl font-black">{selectedStudent ? selectedStudent.student?.name ?? "Student" : "No student selected"}</h3>
+            <p className="mt-1 text-sm text-[var(--muted-blue)]">{selectedBatch?.name ?? selectedBatch?.batchName ?? "Select a batch"} / {selectedStudent?.student?.mobile ?? selectedStudent?.student?.email ?? "Student profile"}</p>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            <ReportCard title="Attendance" value={`${selectedAttendancePercent}%`} note={`${attendance.length} attendance entries`} icon={CheckCircle2} />
+            <ReportCard title="Fitness Level" value={profile?.fitnessLevel?.replaceAll("_", " ") ?? "Pending"} note={profile ? `Score ${profile.staminaScore}` : "No fitness record"} icon={ClipboardCheck} />
+            <ReportCard title="BMI" value={profile ? String(profile.bmi) : "-"} note={profile ? `${profile.height} cm / ${profile.weight} kg` : "Save fitness record"} icon={Dumbbell} />
+            <ReportCard title="Eligibility" value={eligibilityRows[0]?.eligibilityStatus?.replaceAll("_", " ") ?? "Not checked"} note={eligibilityRows[0]?.examType ?? "Run check"} icon={CalendarDays} />
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            <button type="button" disabled={!profile || !selectedStudentId || eligibilityPending} onClick={() => onCheckEligibility("NDA")} className="min-h-12 rounded-xl bg-slate-950 px-4 text-sm font-black text-white disabled:opacity-50">Check NDA Eligibility</button>
+            <button type="button" disabled={!profile || !selectedStudentId || eligibilityPending} onClick={() => onCheckEligibility("AFCAT")} className="min-h-12 rounded-xl border border-[var(--border)] bg-white px-4 text-sm font-black disabled:opacity-50">Check AFCAT Eligibility</button>
+          </div>
+
+          {!profile ? <SoftNote text="Save a fitness record first, then eligibility can be checked." /> : null}
+        </div>
+      </Panel>
+
+      <Panel title="Recent Activity" eyebrow="Attendance and records">
+        <div className="grid gap-4 lg:grid-cols-2">
+          <div className="grid gap-3">
+            <h3 className="text-lg font-black">Attendance</h3>
+            {attendance.slice(0, 6).map((item) => (
+              <HistoryRow key={item.id} title={item.ptSchedule?.title ?? "PT Session"} note={new Date(item.markedAt).toLocaleString()} badge={item.attendanceStatus} />
+            ))}
+            {!attendance.length ? <SoftNote text="No PT attendance is available for this student." /> : null}
+          </div>
+
+          <div className="grid gap-3">
+            <h3 className="text-lg font-black">Fitness Notes</h3>
+            {fitnessLogs.slice(0, 6).map((item) => (
+              <HistoryRow key={item.id} title="Fitness record" note={item.notes || new Date(item.createdAt).toLocaleString()} badge={new Date(item.createdAt).toLocaleDateString()} />
+            ))}
+            {!fitnessLogs.length ? <SoftNote text="No fitness notes are available for this student." /> : null}
+          </div>
+        </div>
+      </Panel>
+    </section>
   );
 }
 

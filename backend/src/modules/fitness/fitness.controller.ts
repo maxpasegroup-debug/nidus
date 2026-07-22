@@ -19,9 +19,14 @@ function param(req: Request, key: string) {
   return value;
 }
 
+function optionalQuery(req: Request, key: string) {
+  const value = req.query[key];
+  return typeof value === "string" && value.trim() ? value.trim() : undefined;
+}
+
 export const fitnessController = {
   async profile(req: AuthenticatedRequest, res: Response, next: NextFunction) {
-    try { res.json({ profile: await fitnessService.profile(requester(req)) }); } catch (error) { next(error); }
+    try { res.json({ profile: await fitnessService.profile(requester(req), optionalQuery(req, "userId")) }); } catch (error) { next(error); }
   },
   async upsertProfile(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try { assertValid(req); const profile = await fitnessService.upsertProfile(requester(req), req.body); res.status(201).json({ profile, suggestions: fitnessService.suggestionsForProfile(profile) }); } catch (error) { next(error); }
@@ -39,7 +44,7 @@ export const fitnessController = {
     try { res.json({ attendance: await fitnessService.attendance(param(req, "studentId"), requester(req)) }); } catch (error) { next(error); }
   },
   async eligibility(req: AuthenticatedRequest, res: Response, next: NextFunction) {
-    try { res.json({ eligibility: await fitnessService.eligibility(requester(req)) }); } catch (error) { next(error); }
+    try { res.json({ eligibility: await fitnessService.eligibility(requester(req), optionalQuery(req, "userId")) }); } catch (error) { next(error); }
   },
   async checkEligibility(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try { assertValid(req); res.status(201).json({ eligibility: await fitnessService.checkEligibility(requester(req), req.body) }); } catch (error) { next(error); }
@@ -48,6 +53,6 @@ export const fitnessController = {
     try { assertValid(req); res.status(201).json({ log: await fitnessService.createLog(requester(req), req.body) }); } catch (error) { next(error); }
   },
   async logs(req: AuthenticatedRequest, res: Response, next: NextFunction) {
-    try { res.json({ logs: await fitnessService.logs(requester(req)) }); } catch (error) { next(error); }
+    try { res.json({ logs: await fitnessService.logs(requester(req), optionalQuery(req, "userId")) }); } catch (error) { next(error); }
   }
 };

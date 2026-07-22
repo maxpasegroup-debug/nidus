@@ -86,8 +86,9 @@ function eligibility(profile: { height: number; weight: number; bmi: number; sta
 }
 
 export const fitnessService = {
-  profile(requester: FitnessRequester) {
-    return prisma.fitnessProfile.findUnique({ where: { userId: requester.id }, include: { user: { select: userSelect } } });
+  async profile(requester: FitnessRequester, userId?: string) {
+    const scoped = userId ? await scopedUser(requester, userId) : requester.id;
+    return prisma.fitnessProfile.findUnique({ where: { userId: scoped }, include: { user: { select: userSelect } } });
   },
   async upsertProfile(requester: FitnessRequester, input: { userId?: string; height: number; weight: number; runningTime: number; pushups: number; pullups: number; situps: number }) {
     const userId = await scopedUser(requester, input.userId);
@@ -162,8 +163,9 @@ export const fitnessService = {
     }
     return Array.from(latestBySchedule.values());
   },
-  eligibility(requester: FitnessRequester) {
-    return prisma.physicalEligibility.findMany({ where: { userId: requester.id }, orderBy: { updatedAt: "desc" } });
+  async eligibility(requester: FitnessRequester, userId?: string) {
+    const scoped = userId ? await scopedUser(requester, userId) : requester.id;
+    return prisma.physicalEligibility.findMany({ where: { userId: scoped }, orderBy: { updatedAt: "desc" } });
   },
   async checkEligibility(requester: FitnessRequester, input: { userId?: string; examType: string }) {
     const userId = await scopedUser(requester, input.userId);
@@ -179,8 +181,9 @@ export const fitnessService = {
   async createLog(requester: FitnessRequester, input: { userId?: string; runningDistance: number; caloriesBurned: number; waterIntake: number; workoutDuration: number; notes?: string }) {
     return prisma.dailyFitnessLog.create({ data: { ...input, userId: await scopedUser(requester, input.userId) } });
   },
-  logs(requester: FitnessRequester) {
-    return prisma.dailyFitnessLog.findMany({ where: { userId: requester.id }, orderBy: { createdAt: "desc" } });
+  async logs(requester: FitnessRequester, userId?: string) {
+    const scoped = userId ? await scopedUser(requester, userId) : requester.id;
+    return prisma.dailyFitnessLog.findMany({ where: { userId: scoped }, orderBy: { createdAt: "desc" } });
   },
   suggestionsForProfile(profile: { bmi: number; runningTime: number; pushups: number; pullups: number; staminaScore: number }) {
     return fitnessAIService.generateFitnessSuggestions(profile);
