@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
-  AlertTriangle,
   BarChart3,
   BookOpenCheck,
   CalendarClock,
@@ -34,12 +33,8 @@ import {
   runAcademyTodayAction,
 } from "@/services/academy";
 import type { AcademyTodayTask } from "@/services/academy";
-import { AcademicEngineRoleActions } from "@/components/academy/academic-engine-workspace";
-import { AiOperatingLayer } from "@/components/ai/ai-operating-layer";
 import { QuickActionDock } from "@/components/dashboard/quick-action-dock";
 import { WorkspaceDashboard } from "@/components/dashboard/workspace-dashboard";
-import { ExecutiveIntelligenceSystem } from "@/components/reporting/executive-intelligence-system";
-import { WorkflowOsWorkspace, workflowIcons } from "@/components/workflow/workflow-os-workspace";
 
 type HodTab = "TODAY" | "BATCHES" | "TIMETABLE" | "ALLOCATION" | "APPROVALS" | "MONITORING" | "REPORTS";
 type HodTodayTask = {
@@ -272,12 +267,11 @@ export function HodControlCenter({ initialTab = "TODAY" }: { initialTab?: HodTab
   }
 
   if (tab === "TODAY") {
-    const remaining = todayTasks.filter((item) => !item.done).length;
     return (
       <WorkspaceDashboard
         roleTitle="Academic Head Workspace"
-        greeting="Today's academic focus"
-        subtitle="Classes, planner movement, faculty status and pending reviews without the module noise."
+        greeting="Today's academic control"
+        subtitle="Check timetable, approvals, teachers, students, NDP and reports from one clean HOD screen."
         focus={[
           {
             label: "Today's Classes",
@@ -305,12 +299,12 @@ export function HodControlCenter({ initialTab = "TODAY" }: { initialTab?: HodTab
           },
         ]}
         actions={[
-          { label: "My Classes", href: "/dashboard/academic-head/my-classes", icon: BookOpenCheck },
-          { label: "Planner", href: "/dashboard/academic-head/hod/timetable", icon: CalendarDays },
-          { label: "Faculty", href: "/dashboard/academic-head/hod/teacher-allocation", icon: Users },
-          { label: "Students", href: "/dashboard/academic-head/students", icon: GraduationCap },
-          { label: "Reports", href: "/dashboard/academic-head/hod/reports", icon: BarChart3 },
+          { label: "Timetable", href: "/dashboard/academic-head/hod/timetable", icon: CalendarDays },
+          { label: "Teacher Allocation", href: "/dashboard/academic-head/hod/teacher-allocation", icon: Users },
           { label: "Approvals", href: "/dashboard/academic-head/hod/approvals", icon: CheckCircle2 },
+          { label: "Students", href: "/dashboard/academic-head/students", icon: GraduationCap },
+          { label: "NDP Reviews", href: "/dashboard/academic-head/ndp", icon: FileText },
+          { label: "Reports", href: "/dashboard/academic-head/hod/reports", icon: BarChart3 },
         ]}
         metrics={[
           { label: "Active Batches", value: loading ? "..." : activeBatches.length, delta: `${totalStudents} students` },
@@ -330,55 +324,26 @@ export function HodControlCenter({ initialTab = "TODAY" }: { initialTab?: HodTab
           { title: "Calendar issues", detail: `${classIssues} delayed or missed class issue(s).`, href: "/dashboard/academic-head/hod/calendar-monitor", meta: "Planner" },
         ]}
       >
-        <AiOperatingLayer
-          role="ACADEMIC_HEAD"
-          items={[
-            { title: `${attentionBatches.length} weak batch signal(s)`, detail: "Weak batch insight uses existing student progress summary.", href: "/dashboard/academic-head/hod/student-monitoring", icon: AlertTriangle, tone: attentionBatches.length ? "warning" : "success" },
-            { title: `${attentionTeachers.length} faculty support signal(s)`, detail: "Faculty workload and support signals remain inside monitoring.", href: "/dashboard/academic-head/hod/teacher-monitoring", icon: Users, tone: attentionTeachers.length ? "warning" : "success" },
-            { title: `${pendingAssignments.length + pendingExams.length} pending review(s)`, detail: "Lesson and assessment review risk is visible before it becomes a delay.", href: "/dashboard/academic-head/hod/approvals", icon: ClipboardCheck, tone: pendingAssignments.length + pendingExams.length ? "warning" : "success" },
-          ]}
-        />
-        <ExecutiveIntelligenceSystem
-          role="ACADEMIC_HEAD"
-          title="Academic Intelligence"
-          description="Planner completion, faculty productivity, subject completion, weak batches, exam performance, attendance, lesson completion and pending reviews in one academic report layer."
-          metrics={[
-            { label: "Planner Completion", value: `${completedToday}/${todayClasses.length}`, note: "Today's completed classes", tone: completedToday === todayClasses.length && todayClasses.length ? "success" : "warning" },
-            { label: "Faculty Productivity", value: attentionTeachers.length, note: "Faculty support signal(s)", tone: attentionTeachers.length ? "warning" : "success" },
-            { label: "Weak Batches", value: attentionBatches.length, note: `${batchProgress.length} batch report(s)`, tone: attentionBatches.length ? "warning" : "success" },
-            { label: "Pending Reviews", value: pendingAssignments.length + pendingExams.length, note: "Assignment and exam review queue", tone: pendingAssignments.length + pendingExams.length ? "warning" : "success" },
-          ]}
-          insights={[
-            { title: "What happened?", detail: `${todayClasses.length} class(es), ${assignments.length} assignment(s), ${exams.length} exam(s) and ${calendar.length} calendar item(s) are available.`, tone: "info" },
-            { title: "What needs attention?", detail: `${attentionBatches.length} weak batch signal(s), ${attentionTeachers.length} faculty signal(s) and ${classIssues} calendar issue(s) need review.`, href: "/dashboard/academic-head/hod/reports", tone: attentionBatches.length || attentionTeachers.length || classIssues ? "warning" : "success" },
-            { title: "What should I do next?", detail: "Open reports, approvals or monitoring from the connected report links before changing the timetable.", href: "/dashboard/academic-head/hod/reports", tone: "info" },
-          ]}
-        />
-        <WorkflowOsWorkspace
-          title="Academic Workflow"
-          description="Pending lesson reviews, planner notifications, faculty reminders and exam approval queue are organized from the existing HOD academic workflow."
-          metrics={[
-            { label: "Pending Lesson Reviews", value: pendingAssignments.length, note: "Assignment review queue", tone: pendingAssignments.length ? "warning" : "success" },
-            { label: "Planner Notifications", value: classIssues, note: "Delayed or missed calendar issue(s)", tone: classIssues ? "warning" : "success" },
-            { label: "Faculty Reminders", value: attentionTeachers.length, note: "Faculty support signal(s)", tone: attentionTeachers.length ? "warning" : "success" },
-            { label: "Exam Approval Queue", value: pendingExams.length, note: "Exam review and approval queue", tone: pendingExams.length ? "warning" : "success" },
-          ]}
-          approvals={[
-            { title: "Lesson review queue", detail: `${pendingAssignments.length} assignment review item(s) need action.`, href: "/dashboard/academic-head/hod/approvals", icon: workflowIcons.assignment, tone: pendingAssignments.length ? "warning" : "success" },
-            { title: "Exam approval queue", detail: `${pendingExams.length} exam item(s) are waiting in the academic review flow.`, href: "/dashboard/academic-head/hod/approvals", icon: workflowIcons.exam, tone: pendingExams.length ? "warning" : "success" },
-            { title: "Faculty reminders", detail: `${attentionTeachers.length} faculty support signal(s) are visible from teacher monitoring.`, href: "/dashboard/academic-head/hod/teacher-monitoring", icon: workflowIcons.reminder, tone: attentionTeachers.length ? "warning" : "success" },
-          ]}
-          recent={todayTasks.slice(0, 3).map((task) => ({
-            title: task.title,
-            detail: task.detail,
-            href: task.href,
-            icon: task.done ? workflowIcons.approval : workflowIcons.task,
-            tone: task.done ? "success" : "warning",
-          }))}
-        />
-        <section>
-          <p className="ds-text-label mb-3 text-[var(--ds-color-primary)]">Academic Engine</p>
-          <AcademicEngineRoleActions role="ACADEMIC_HEAD" />
+        <section className="rounded-[var(--ds-radius-xl)] border border-[var(--ds-color-border)] bg-[var(--ds-color-surface)] p-5 shadow-[var(--ds-shadow-soft)]">
+          <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <p className="ds-text-label text-[var(--ds-color-primary)]">Today&apos;s Action Board</p>
+              <h2 className="mt-1 text-xl font-black">Open the exact area that needs work</h2>
+            </div>
+            <Link href="/dashboard/academic-head/workspace" className="rounded-[var(--ds-radius-large)] border border-[var(--ds-color-border)] px-4 py-3 text-sm font-black">
+              More tools
+            </Link>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+            {[
+              { href: "/dashboard/academic-head/hod/approvals", icon: ClipboardCheck, title: "Pending Approvals", note: `${pendingAssignments.length + pendingExams.length} assignment/exam review(s)` },
+              { href: "/dashboard/academic-head/hod/teacher-monitoring", icon: Users, title: "Teacher Follow-up", note: `${attentionTeachers.length} teacher(s) need attention` },
+              { href: "/dashboard/academic-head/hod/student-monitoring", icon: GraduationCap, title: "Student Support", note: `${attentionBatches.length} batch(es) need academic support` },
+              { href: "/dashboard/academic-head/hod/calendar-monitor", icon: CalendarClock, title: "Class Issues", note: `${classIssues} delayed or missed class issue(s)` },
+              { href: "/dashboard/academic-head/ndp", icon: FileText, title: "NDP Reviews", note: "Review or publish student progress records" },
+              { href: "/dashboard/academic-head/hod/reports", icon: BarChart3, title: "Simple Reports", note: "Attendance, syllabus, exams and student progress" },
+            ].map((item) => <ActionLink key={item.title} {...item} />)}
+          </div>
         </section>
         <QuickActionDock role="ACADEMIC_HEAD" />
       </WorkspaceDashboard>

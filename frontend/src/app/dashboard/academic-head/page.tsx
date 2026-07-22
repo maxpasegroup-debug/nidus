@@ -1,8 +1,8 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { BookOpenCheck, CalendarClock, ClipboardCheck, GraduationCap, ListChecks, Users } from "lucide-react";
-import { AcademicEngineRoleActions } from "@/components/academy/academic-engine-workspace";
+import Link from "next/link";
+import { BarChart3, BookOpenCheck, CalendarCheck, CalendarClock, CalendarRange, ClipboardCheck, ClipboardList, FileText, GraduationCap, HelpCircle, Library, Megaphone, Presentation, UserRound, Users } from "lucide-react";
 import { WorkspaceDashboard } from "@/components/dashboard/workspace-dashboard";
 import { getAcademyToday, type AcademyTodayTask } from "@/services/academy";
 
@@ -32,8 +32,8 @@ export default function AcademicHeadDashboardPage() {
   return (
     <WorkspaceDashboard
       roleTitle="Academic Head Workspace"
-      greeting="Today's Classes"
-      subtitle="Planner progress, faculty status and pending reviews in one simple academic view."
+      greeting="Run academics today"
+      subtitle="Timetable, teacher allocation, approvals, students, NDP and reports in one clean academic workspace."
       focus={[
         {
           label: "Classes",
@@ -46,27 +46,27 @@ export default function AcademicHeadDashboardPage() {
         {
           label: "Reviews",
           title: `${pendingReviews + pendingExamReviews} pending`,
-          detail: "Assignments and exams waiting for academic review.",
+          detail: "Approve assignments and exams before they reach students.",
           href: "/dashboard/academic-head/hod/approvals",
           icon: ClipboardCheck,
           tone: pendingReviews + pendingExamReviews ? "warning" : "success",
         },
         {
-          label: "Planner",
-          title: `${pending.length} open task(s)`,
-          detail: "Check timetable, syllabus progress and weak batches.",
-          href: "/dashboard/academic-head/hod/timetable",
-          icon: BookOpenCheck,
+          label: "NDP",
+          title: "Review Progress",
+          detail: "Check and publish student digital profile records.",
+          href: "/dashboard/academic-head/ndp",
+          icon: FileText,
           tone: pending.length ? "warning" : "success",
         },
       ]}
       actions={[
-        { label: "Open Planner", href: "/dashboard/academic-head/hod/timetable", icon: BookOpenCheck },
-        { label: "My Classes", href: "/dashboard/academic-head/my-classes", icon: CalendarClock },
-        { label: "Faculty", href: "/dashboard/academic-head/hod/teacher-allocation", icon: Users },
+        { label: "Timetable", href: "/dashboard/academic-head/hod/timetable", icon: CalendarRange },
+        { label: "Teacher Allocation", href: "/dashboard/academic-head/hod/teacher-allocation", icon: Users },
+        { label: "Approvals", href: "/dashboard/academic-head/hod/approvals", icon: ClipboardCheck },
         { label: "Students", href: "/dashboard/academic-head/students", icon: GraduationCap },
-        { label: "Reviews", href: "/dashboard/academic-head/hod/approvals", icon: ClipboardCheck },
-        { label: "Reports", href: "/dashboard/academic-head/hod/reports", icon: ListChecks },
+        { label: "NDP Reviews", href: "/dashboard/academic-head/ndp", icon: FileText },
+        { label: "Reports", href: "/dashboard/academic-head/hod/reports", icon: BarChart3 },
       ]}
       metrics={[
         { label: "Classes Today", value: todayQuery.isLoading ? "..." : tasks.length },
@@ -87,9 +87,40 @@ export default function AcademicHeadDashboardPage() {
         meta: displayTime(task.time),
       }))}
     >
-      <section>
-        <p className="ds-text-label mb-3 text-[var(--ds-color-primary)]">Academic Flow</p>
-        <AcademicEngineRoleActions role="ACADEMIC_HEAD" />
+      <section className="rounded-[var(--ds-radius-xl)] border border-[var(--ds-color-border)] bg-[var(--ds-color-surface)] p-5 shadow-[var(--ds-shadow-soft)]">
+        <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p className="ds-text-label text-[var(--ds-color-primary)]">More Tools</p>
+            <h2 className="mt-1 text-xl font-black">Open only when needed</h2>
+          </div>
+          <Link href="/dashboard/academic-head/workspace" className="rounded-[var(--ds-radius-large)] border border-[var(--ds-color-border)] px-4 py-3 text-sm font-black">
+            All tools
+          </Link>
+        </div>
+        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+          {[
+            { label: "My Classes", href: "/dashboard/academic-head/my-classes", icon: BookOpenCheck },
+            { label: "Attendance", href: "/dashboard/academic-head/attendance", icon: CalendarCheck },
+            { label: "Assignments", href: "/dashboard/academic-head/assignments", icon: ClipboardList },
+            { label: "Exams", href: "/dashboard/academic-head/exams", icon: FileText },
+            { label: "Library", href: "/dashboard/academic-head/library", icon: Library },
+            { label: "Lesson Planner", href: "/dashboard/academic-head/lesson-planner", icon: CalendarClock },
+            { label: "Doubts", href: "/dashboard/academic-head/doubts", icon: HelpCircle },
+            { label: "Announcements", href: "/dashboard/academic-head/communications", icon: Megaphone },
+            { label: "PPT Generator", href: "/dashboard/academic-head/ppt-generator", icon: Presentation },
+            { label: "Question Bank", href: "/dashboard/academic-head/question-bank", icon: FileText },
+            { label: "Leave", href: "/dashboard/academic-head/leave-requests", icon: ClipboardCheck },
+            { label: "Profile", href: "/dashboard/academic-head/profile", icon: UserRound },
+          ].map((item) => {
+            const Icon = item.icon;
+            return (
+              <Link key={item.label} href={item.href} className="inline-flex min-h-12 items-center gap-3 rounded-[var(--ds-radius-large)] border border-[var(--ds-color-border)] bg-[var(--ds-color-surface-raised)] px-4 text-sm font-black hover:border-[var(--ds-color-border-strong)]">
+                <Icon className="h-4 w-4" aria-hidden="true" />
+                {item.label}
+              </Link>
+            );
+          })}
+        </div>
       </section>
     </WorkspaceDashboard>
   );
