@@ -2169,16 +2169,85 @@ export const academyService = {
   },
 
   async myNdpReviews(user: Requester) {
-    if (user.role !== Role.STUDENT) {
-      throw Object.assign(new Error("Student access required"), { statusCode: 403 });
+    let studentIds = [user.id];
+    if (user.role === Role.PARENT) {
+      const links = await prisma.parentStudentLink.findMany({
+        where: { parentId: user.id, status: "ACTIVE" },
+        select: { studentId: true },
+      });
+      studentIds = links.map((link) => link.studentId).filter(Boolean);
+      if (!studentIds.length) {
+        return { reviews: [] };
+      }
+    } else if (user.role !== Role.STUDENT) {
+      throw Object.assign(new Error("Student or linked parent access required"), { statusCode: 403 });
     }
     const reviews = await db.ndpReview.findMany({
-      where: { studentId: user.id, status: "PUBLISHED" },
+      where: { studentId: { in: studentIds }, status: "PUBLISHED" },
       include: { entries: { orderBy: [{ category: "asc" }, { subject: "asc" }, { item: "asc" }] } },
       orderBy: [{ publishedAt: "desc" }, { updatedAt: "desc" }],
-      take: 12,
+      take: 24,
     });
     return { reviews };
+  },
+
+  async ndpMonitor(user: Requester) {
+    if (!isAcademicManager(user)) {
+      throw Object.assign(new Error("Academic Head access required"), { statusCode: 403 });
+    }
+    const [reviews, batches] = await Promise.all([
+      db.ndpReview.findMany({
+        include: { entries: { orderBy: [{ category: "asc" }, { subject: "asc" }, { item: "asc" }] } },
+        orderBy: [{ updatedAt: "desc" }],
+        take: 500,
+      }),
+      prisma.batch.findMany({
+        where: { status: "ACTIVE" },
+        select: { id: true, name: true, programSlug: true, students: { where: { status: "ACTIVE" }, select: { studentId: true } } },
+        orderBy: { createdAt: "desc" },
+      }),
+    ]);
+    const byBatch = new Map<string, any[]>();
+    for (const review of reviews) {
+      const list = byBatch.get(review.batchId) ?? [];
+      list.push(review);
+      byBatch.set(review.batchId, list);
+    }
+    const batchesSummary = batches.map((batch) => {
+      const batchReviews = byBatch.get(batch.id) ?? [];
+      const studentIds = new Set(batch.students.map((student) => student.studentId));
+      const reviewedStudentIds = new Set(batchReviews.map((review) => review.studentId));
+      const published = batchReviews.filter((review) => review.status === "PUBLISHED");
+      const publishedScores = published.map((review) => Number(review.scores?.overallReadiness)).filter((score) => Number.isFinite(score));
+      return {
+        batchId: batch.id,
+        batchName: batch.name,
+        programSlug: batch.programSlug,
+        studentCount: studentIds.size,
+        reviewedStudents: reviewedStudentIds.size,
+        missingStudents: Math.max(0, studentIds.size - reviewedStudentIds.size),
+        draftCount: batchReviews.filter((review) => review.status === "DRAFT").length,
+        submittedCount: batchReviews.filter((review) => review.status === "SUBMITTED").length,
+        approvedCount: batchReviews.filter((review) => review.status === "APPROVED").length,
+        returnedCount: batchReviews.filter((review) => review.status === "RETURNED").length,
+        publishedCount: published.length,
+        averageReadiness: publishedScores.length ? Math.round(publishedScores.reduce((sum, score) => sum + score, 0) / publishedScores.length) : null,
+        latestPublishedAt: published[0]?.publishedAt ?? null,
+      };
+    });
+    return {
+      summary: {
+        batches: batchesSummary.length,
+        students: batchesSummary.reduce((sum, batch) => sum + batch.studentCount, 0),
+        submitted: batchesSummary.reduce((sum, batch) => sum + batch.submittedCount, 0),
+        approved: batchesSummary.reduce((sum, batch) => sum + batch.approvedCount, 0),
+        returned: batchesSummary.reduce((sum, batch) => sum + batch.returnedCount, 0),
+        published: batchesSummary.reduce((sum, batch) => sum + batch.publishedCount, 0),
+        missingStudents: batchesSummary.reduce((sum, batch) => sum + batch.missingStudents, 0),
+      },
+      batches: batchesSummary,
+      reviews,
+    };
   },
 
   async batchAnnouncements(user: Requester, batchId: string) {

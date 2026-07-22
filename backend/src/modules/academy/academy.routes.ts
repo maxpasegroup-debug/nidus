@@ -45,6 +45,7 @@ function requireAcademyRoles(roles: Role[]) {
 
 const academicRoles = [Role.ADMIN, Role.DIRECTOR, Role.ACADEMIC_HEAD, Role.TEACHER, Role.PHYSICAL_TRAINER];
 const studentAcademicRoles = [Role.ADMIN, Role.DIRECTOR, Role.ACADEMIC_HEAD, Role.TEACHER, Role.PHYSICAL_TRAINER, Role.STUDENT];
+const ndpAudienceRoles = [Role.ADMIN, Role.DIRECTOR, Role.ACADEMIC_HEAD, Role.TEACHER, Role.PHYSICAL_TRAINER, Role.STUDENT, Role.PARENT];
 const managementRoles = [Role.ADMIN, Role.DIRECTOR];
 const academicManagementRoles = [Role.ADMIN, Role.DIRECTOR, Role.ACADEMIC_HEAD];
 
@@ -79,7 +80,8 @@ router.get("/assessment-ecosystem", requireAcademyRoles(academicRoles), academyC
 router.get("/ndp/students", requireAcademyRoles(academicRoles), academyController.ndpStudents);
 router.get("/ndp/reviews", requireAcademyRoles(academicRoles), academyController.ndpReviews);
 router.get("/ndp/review", requireAcademyRoles(academicRoles), academyController.ndpReview);
-router.get("/ndp/my-reviews", requireAcademyRoles(studentAcademicRoles), academyController.myNdpReviews);
+router.get("/ndp/my-reviews", requireAcademyRoles(ndpAudienceRoles), academyController.myNdpReviews);
+router.get("/ndp/monitor", requireAcademyRoles(academicManagementRoles), academyController.ndpMonitor);
 router.get("/academic-audit", requireAcademyRoles(managementRoles), academyController.academicAuditTrail);
 router.get("/director-expenses", requireAcademyRoles(managementRoles), academyController.directorExpenses);
 router.get("/expense-claims", requireAcademyRoles([...academicRoles, ...managementRoles]), academyController.expenseClaims);

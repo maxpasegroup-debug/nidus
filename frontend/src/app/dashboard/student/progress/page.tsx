@@ -13,6 +13,7 @@ import {
   BrainCircuit,
   CalendarDays,
   ClipboardCheck,
+  Download,
   Dumbbell,
   FileText,
   GraduationCap,
@@ -236,9 +237,12 @@ export default function StudentProgressPage() {
                   ? `Published by ${latestNdp.reviewedByName ?? "Academic Head"} after teacher submission.`
                   : ndpQuery.isLoading
                     ? "Loading your latest NIDUS Digital Profile card."
-                    : "Your teacher's NDP review will appear here after Academic Head approval and publication."}
+                  : "Your teacher's NDP review will appear here after Academic Head approval and publication."}
               </p>
             </div>
+            <button type="button" onClick={() => window.print()} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-[var(--border)] bg-white px-4 text-sm font-black shadow-sm print:hidden">
+              <Download className="h-4 w-4" /> Print / Save PDF
+            </button>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-5 lg:min-w-[520px]">
               <ScoreTile icon={ShieldCheck} label="Overall" value={formatNdpScore(latestNdp?.scores?.overallReadiness)} note={latestNdp?.status ?? "Pending"} />
               <ScoreTile icon={GraduationCap} label="Academic" value={formatNdpScore(latestNdp?.scores?.academicReadiness)} note="Subject progress" />

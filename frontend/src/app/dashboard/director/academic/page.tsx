@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import {
   ArrowLeft,
+  ClipboardCheck,
 } from "lucide-react";
 
 import { getAcademicCalendarMonitor, getAcademyBatches, getStudentProgressSummary } from "@/services/academy";
@@ -83,6 +84,10 @@ export default function DirectorAcademicDepartmentPage() {
       <section className="grid gap-3 lg:grid-cols-[1fr_1.4fr]">
         <Panel title="Academic Engine Entry Points" eyebrow="Planner to performance">
           <AcademicEngineRoleActions role="DIRECTOR" />
+          <Link href="/dashboard/director/academic/ndp" className="mt-3 flex min-h-14 items-center justify-between rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-sm font-black transition hover:-translate-y-0.5 hover:shadow-md">
+            <span className="flex items-center gap-3"><ClipboardCheck className="h-5 w-5 text-[var(--gold-dark)]" /> NDP Monitor</span>
+            <span>Open</span>
+          </Link>
         </Panel>
 
         <Panel title="Batch Planner Execution" eyebrow="Director tracking">

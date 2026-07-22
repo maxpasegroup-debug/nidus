@@ -475,6 +475,13 @@ export const academyController = {
       next(error);
     }
   },
+  ndpMonitor: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      res.json(await academyService.ndpMonitor(requester(req)));
+    } catch (error) {
+      next(error);
+    }
+  },
   academicAuditTrail: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     try {
       res.json(await academyService.academicAuditTrail(requester(req), req.query));

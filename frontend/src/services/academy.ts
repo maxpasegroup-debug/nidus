@@ -500,6 +500,36 @@ export type NdpReviewPayload = {
   note?: string;
 };
 
+export type NdpMonitorBatch = {
+  batchId: string;
+  batchName: string;
+  programSlug?: string | null;
+  studentCount: number;
+  reviewedStudents: number;
+  missingStudents: number;
+  draftCount: number;
+  submittedCount: number;
+  approvedCount: number;
+  returnedCount: number;
+  publishedCount: number;
+  averageReadiness?: number | null;
+  latestPublishedAt?: string | null;
+};
+
+export type NdpMonitorResponse = {
+  summary: {
+    batches: number;
+    students: number;
+    submitted: number;
+    approved: number;
+    returned: number;
+    published: number;
+    missingStudents: number;
+  };
+  batches: NdpMonitorBatch[];
+  reviews: NdpReview[];
+};
+
 export type BatchFilters = {
   programSlug?: string;
   batchType?: string;
@@ -719,6 +749,11 @@ export async function publishNdpReview(reviewId: string, payload: { note?: strin
 
 export async function getMyNdpReviews() {
   const response = await apiClient.get<{ reviews: NdpReview[] }>("/academy/ndp/my-reviews");
+  return response.data;
+}
+
+export async function getNdpMonitor() {
+  const response = await apiClient.get<NdpMonitorResponse>("/academy/ndp/monitor");
   return response.data;
 }
 
