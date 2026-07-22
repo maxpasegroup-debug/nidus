@@ -99,7 +99,7 @@ export function WorkspaceDashboard({
               <ChevronRight className="h-5 w-5 text-[var(--ds-color-muted)]" aria-hidden="true" />
             </div>
             <div className="mt-4 grid gap-2 sm:grid-cols-2">
-              {actions.slice(0, 6).map((action) => {
+              {actions.slice(0, 10).map((action) => {
                 const Icon = action.icon;
                 return (
                   <Button key={action.label} href={action.href} variant="secondary" className="justify-start">

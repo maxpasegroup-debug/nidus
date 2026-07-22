@@ -1,6 +1,6 @@
 "use client";
 
-import { BookOpen, CalendarDays, ClipboardList, Dumbbell, GraduationCap, Trophy } from "lucide-react";
+import { BookOpen, BrainCircuit, CalendarDays, ClipboardCheck, ClipboardList, FileText, GraduationCap, Trophy } from "lucide-react";
 import { RoleDashboardGuard, DashboardError, DashboardSkeleton } from "@/components/dashboard";
 import { WorkspaceDashboard } from "@/components/dashboard/workspace-dashboard";
 import { useStudentDashboard } from "@/hooks/use-dashboard";
@@ -70,12 +70,15 @@ export default function StudentDashboardPage() {
           },
         ]}
         actions={[
-          { label: "Today's Classes", href: "/dashboard/student/classes", icon: CalendarDays },
+          { label: "Classes", href: "/dashboard/student/classes", icon: CalendarDays },
           { label: "Learning", href: "/dashboard/student/learning", icon: BookOpen },
-          { label: "Practice Test", href: "/tests", icon: ClipboardList },
+          { label: "Homework", href: "/dashboard/student/assignments", icon: FileText },
+          { label: "Practice", href: "/tests", icon: ClipboardList },
           { label: "Exams", href: "/dashboard/student/exams", icon: GraduationCap },
-          { label: "Progress", href: "/dashboard/student/progress", icon: Trophy },
-          { label: "Fitness", href: "/fitness", icon: Dumbbell },
+          { label: "Attendance", href: "/dashboard/student/attendance", icon: ClipboardCheck },
+          { label: "Calendar", href: "/dashboard/student/calendar", icon: CalendarDays },
+          { label: "Progress / NDP", href: "/dashboard/student/progress", icon: Trophy },
+          { label: "Assessments", href: "/dashboard/student/assessments", icon: BrainCircuit },
         ]}
         metrics={[
           { label: "Attendance", value: `${data.attendance.percentage}%`, tone: data.attendance.percentage >= 75 ? "success" : "warning" },
