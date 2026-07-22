@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState, type ReactNode } from "react";
-import { CheckCircle2, ClipboardCheck, FileText, GraduationCap, RotateCcw, Save, Send, Upload, UserRound } from "lucide-react";
+import { CheckCircle2, ClipboardCheck, FileText, GraduationCap, Plus, RotateCcw, Save, Send, Trash2, Upload, UserRound } from "lucide-react";
 import { getApiErrorMessage } from "@/services/api";
 import { useAuth } from "@/components/providers/auth-provider-v2";
 import { approveNdpReview, getNdpReview, getNdpReviews, getNdpStudents, publishNdpReview, returnNdpReview, saveNdpReview, submitNdpReview, type NdpManualEntry, type NdpReview, type NdpStudentBatch } from "@/services/academy";
@@ -33,6 +33,14 @@ const categoryHelp: Record<string, string> = {
 };
 
 const quickPeriods = ["Term 1", "Term 2", "Term 3"];
+const customCategories = [
+  { value: "ACADEMIC_PERFORMANCE", label: "Subject Performance" },
+  { value: "TEST_PERFORMANCE", label: "Exam/Test Performance" },
+  { value: "SKILL_DEVELOPMENT", label: "Skill Development" },
+  { value: "DEFENCE_DEVELOPMENT", label: "Defence Development" },
+  { value: "TEACHER_OBSERVATION", label: "Teacher Observation" },
+  { value: "NEXT_TERM_ACTION_PLAN", label: "Action Plan" },
+];
 
 function currentPeriod() {
   const now = new Date();
@@ -89,6 +97,9 @@ export function TeacherNdpEntry() {
   const [queueLoading, setQueueLoading] = useState(false);
   const [reviewNote, setReviewNote] = useState("");
   const [transitioningId, setTransitioningId] = useState("");
+  const [newSubject, setNewSubject] = useState("");
+  const [newItem, setNewItem] = useState("");
+  const [newCategory, setNewCategory] = useState("ACADEMIC_PERFORMANCE");
 
   useEffect(() => {
     getNdpStudents()
@@ -106,7 +117,8 @@ export function TeacherNdpEntry() {
   const selectedStudent = useMemo(() => selectedBatch?.students.find((student) => student.id === studentId) ?? null, [selectedBatch, studentId]);
   const groups = useMemo(() => groupedEntries(entries), [entries]);
   const isManager = isAcademicManagerRole(user);
-  const locked = review?.status === "SUBMITTED" || review?.status === "APPROVED" || review?.status === "PUBLISHED";
+  const locked = review?.status === "PUBLISHED" || (!isManager && (review?.status === "SUBMITTED" || review?.status === "APPROVED"));
+  const availableSubjects = selectedBatch?.subjects?.length ? selectedBatch.subjects : entries.map((entry) => entry.subject).filter(Boolean) as string[];
 
   async function refreshQueue() {
     if (!isManager) return;
@@ -147,6 +159,41 @@ export function TeacherNdpEntry() {
 
   function updateEntry(target: NdpManualEntry, patch: Partial<NdpManualEntry>) {
     setEntries((current) => current.map((entry) => entryKey(entry) === entryKey(target) ? { ...entry, ...patch } : entry));
+  }
+
+  function addEntry() {
+    const subject = newSubject.trim();
+    const item = newItem.trim() || (newCategory === "ACADEMIC_PERFORMANCE" ? subject : customCategories.find((category) => category.value === newCategory)?.label ?? "Progress Record");
+    if (!item) {
+      setError("Enter a subject or progress record name.");
+      return;
+    }
+    const entry: NdpManualEntry = {
+      category: newCategory,
+      item,
+      subject: subject || null,
+      term1: null,
+      term2: null,
+      term3: null,
+      rating: null,
+      score: null,
+      remarks: null,
+      status: review?.status ?? "DRAFT",
+    };
+    if (entries.some((current) => entryKey(current) === entryKey(entry))) {
+      setError("This NDP row already exists.");
+      return;
+    }
+    setEntries((current) => [...current, entry]);
+    setNewItem("");
+    setNewSubject("");
+    setError("");
+    setNotice("New NDP row added. Save draft to store it.");
+  }
+
+  function removeEntry(target: NdpManualEntry) {
+    setEntries((current) => current.filter((entry) => entryKey(entry) !== entryKey(target)));
+    setNotice("Row removed from this draft. Save to keep the updated report.");
   }
 
   async function persist(mode: "SAVE" | "SUBMIT") {
@@ -332,6 +379,35 @@ export function TeacherNdpEntry() {
             <ScoreCard label="Defence" value={review.scores?.defenceDevelopment} />
           </section>
 
+          <section className="rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm sm:p-5">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.22em] text-[var(--gold-dark)]">Flexible Records</p>
+                <h2 className="mt-2 text-2xl font-black text-[var(--ink)]">Add subject or progress row</h2>
+                <p className="mt-1 text-sm leading-6 text-[var(--muted-blue)]">{isManager ? "Academic Head and Director can add all-subject and custom progress records." : "Teachers can add rows for their assigned subject records."}</p>
+              </div>
+            </div>
+            <div className="mt-4 grid gap-3 lg:grid-cols-[180px_1fr_1fr_auto] lg:items-end">
+              <Field label="Record Type">
+                <select value={newCategory} onChange={(event) => setNewCategory(event.target.value)} disabled={locked} className={fieldClass}>
+                  {customCategories.map((category) => <option key={category.value} value={category.value}>{category.label}</option>)}
+                </select>
+              </Field>
+              <Field label="Subject">
+                <input value={newSubject} onChange={(event) => setNewSubject(event.target.value)} disabled={locked} list="ndp-subjects" placeholder="Eg: Mathematics" className={fieldClass} />
+                <datalist id="ndp-subjects">
+                  {Array.from(new Set(availableSubjects.filter(Boolean))).map((subject) => <option key={subject} value={subject} />)}
+                </datalist>
+              </Field>
+              <Field label="Record Name">
+                <input value={newItem} onChange={(event) => setNewItem(event.target.value)} disabled={locked} placeholder="Eg: Term Exam, Mock Test, Confidence, Parent Attention" className={fieldClass} />
+              </Field>
+              <button type="button" onClick={addEntry} disabled={locked} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-slate-950 px-5 text-sm font-black text-white disabled:opacity-50">
+                <Plus className="h-4 w-4" /> Add Row
+              </button>
+            </div>
+          </section>
+
           <section className="space-y-4">
             {Object.entries(groups).map(([category, rows]) => (
               <section key={category} className="overflow-hidden rounded-2xl border border-[var(--border)] bg-white shadow-sm">
@@ -349,9 +425,14 @@ export function TeacherNdpEntry() {
                 <div className="divide-y divide-[var(--border)]">
                   {rows.map((entry) => (
                     <article key={entryKey(entry)} className="grid gap-3 p-4">
-                      <div>
-                        <p className="text-sm font-black text-[var(--ink)]">{entry.item}</p>
-                        {entry.subject ? <p className="mt-1 text-xs font-bold text-[var(--muted-blue)]">{entry.subject}</p> : null}
+                      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                        <div>
+                          <p className="text-sm font-black text-[var(--ink)]">{entry.item}</p>
+                          {entry.subject ? <p className="mt-1 text-xs font-bold text-[var(--muted-blue)]">{entry.subject}</p> : null}
+                        </div>
+                        <button type="button" onClick={() => removeEntry(entry)} disabled={locked} className="inline-flex min-h-9 w-fit items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 px-3 text-xs font-black text-red-700 disabled:opacity-40">
+                          <Trash2 className="h-3.5 w-3.5" /> Remove
+                        </button>
                       </div>
                       <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-[repeat(3,minmax(120px,1fr))_150px_170px_minmax(220px,1.4fr)]">
                         <Field label="1st Term Marks">

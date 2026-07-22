@@ -21,6 +21,7 @@ export default function DirectorNdpMonitorPage() {
   const summary = data?.summary;
   const batches = data?.batches ?? [];
   const attention = batches.filter((batch) => batch.missingStudents > 0 || batch.submittedCount > 0 || batch.returnedCount > 0);
+  const weakReviews = data?.weakReviews ?? [];
 
   return (
     <AcademicShell>
@@ -42,6 +43,7 @@ export default function DirectorNdpMonitorPage() {
         <StatCard label="Approved" value={summary?.approved ?? 0} />
         <StatCard label="Published" value={summary?.published ?? 0} />
         <StatCard label="Missing Students" value={summary?.missingStudents ?? 0} />
+        <StatCard label="Weak NDP" value={summary?.weakStudents ?? 0} />
       </section>
 
       <section className="grid gap-3 lg:grid-cols-[1.25fr_0.75fr]">
@@ -64,6 +66,7 @@ export default function DirectorNdpMonitorPage() {
                   <Metric label="Published" value={batch.publishedCount} />
                   <Metric label="Returned" value={batch.returnedCount} />
                   <Metric label="Missing" value={batch.missingStudents} />
+                  <Metric label="Weak" value={batch.weakStudentCount ?? 0} />
                   <Metric label="Avg Readiness" value={score(batch.averageReadiness)} />
                 </div>
               </AcademicCard>
@@ -88,6 +91,24 @@ export default function DirectorNdpMonitorPage() {
           </div>
         </Panel>
       </section>
+
+      <Panel title="Weak Student Watchlist" eyebrow="Published NDP below 60%">
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+          {weakReviews.map((review) => (
+            <Link key={review.id} href="/dashboard/academic-head/ndp" className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-amber-950 transition hover:-translate-y-0.5 hover:shadow-md">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <h3 className="font-black">{review.studentName ?? "Student"}</h3>
+                  <p className="mt-1 text-sm">{review.batchName ?? "Batch"} / {review.reviewPeriod}</p>
+                </div>
+                <span className="rounded-full bg-white px-3 py-1 text-xs font-black">{review.scores?.overallReadiness ?? "--"}%</span>
+              </div>
+              <p className="mt-3 text-sm leading-6">Open NDP queue to review teacher remarks and action plan.</p>
+            </Link>
+          ))}
+          {!weakReviews.length ? <EmptyState text="No published NDP below 60%." /> : null}
+        </div>
+      </Panel>
     </AcademicShell>
   );
 }

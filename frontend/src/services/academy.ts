@@ -512,6 +512,7 @@ export type NdpMonitorBatch = {
   approvedCount: number;
   returnedCount: number;
   publishedCount: number;
+  weakStudentCount?: number;
   averageReadiness?: number | null;
   latestPublishedAt?: string | null;
 };
@@ -525,8 +526,10 @@ export type NdpMonitorResponse = {
     returned: number;
     published: number;
     missingStudents: number;
+    weakStudents?: number;
   };
   batches: NdpMonitorBatch[];
+  weakReviews?: NdpReview[];
   reviews: NdpReview[];
 };
 

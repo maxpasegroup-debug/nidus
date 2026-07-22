@@ -1975,7 +1975,7 @@ export const academyService = {
           where: { studentId, status: "ACTIVE" },
           include: { student: { select: { id: true, name: true, email: true, mobile: true } } },
         },
-        teachers: { where: { teacherId: user.id, status: "ACTIVE" }, select: { subject: true } },
+        teachers: { where: isAcademicManager(user) ? { status: "ACTIVE" } : { teacherId: user.id, status: "ACTIVE" }, select: { subject: true } },
       },
     });
     const student = batch?.students?.[0]?.student;
@@ -2028,11 +2028,13 @@ export const academyService = {
 
   async saveNdpReview(user: Requester, input: NdpReviewInput) {
     const { review } = await this.ndpReview(user, input);
-    if (review.status !== "DRAFT" && review.status !== "RETURNED") {
+    const managerEdit = isAcademicManager(user) && ["SUBMITTED", "APPROVED"].includes(review.status);
+    if (review.status !== "DRAFT" && review.status !== "RETURNED" && !managerEdit) {
       throw Object.assign(new Error("Submitted NDP reviews are locked for teacher editing"), { statusCode: 400 });
     }
+    const nextStatus = managerEdit ? review.status : "DRAFT";
     const entries = Array.isArray(input.entries) ? input.entries : [];
-    const normalizedEntries = entries
+    const normalizedEntries = Array.from(new Map(entries
       .filter((entry) => entry.category?.trim() && entry.item?.trim())
       .map((entry) => ({
         category: entry.category!.trim().toUpperCase(),
@@ -2044,22 +2046,18 @@ export const academyService = {
         rating: entry.rating?.trim() || null,
         score: ndpEntryScore(entry),
         remarks: entry.remarks?.trim() || null,
-      }));
+      }))
+      .map((entry) => [`${entry.category}::${entry.subject}::${entry.item}`, entry])).values());
+    await db.ndpManualEntry.deleteMany({ where: { reviewId: review.id } });
     for (const entry of normalizedEntries) {
-      await db.ndpManualEntry.upsert({
-        where: { reviewId_category_item_subject: { reviewId: review.id, category: entry.category, item: entry.item, subject: entry.subject } },
-        create: {
-          reviewId: review.id,
-          studentId: review.studentId,
-          batchId: review.batchId,
-          teacherId: user.id,
-          status: "DRAFT",
-          ...entry,
-        },
-        update: {
-          teacherId: user.id,
-          status: "DRAFT",
-          ...entry,
+      await db.ndpManualEntry.create({
+        data: {
+        reviewId: review.id,
+        studentId: review.studentId,
+        batchId: review.batchId,
+        teacherId: user.id,
+        status: nextStatus,
+        ...entry,
         },
       });
     }
@@ -2073,7 +2071,7 @@ export const academyService = {
         sections: input.sections ? toJsonObject(input.sections) : review.sections,
         finalReview: input.finalReview ? toJsonObject(input.finalReview) : review.finalReview,
         scores: toJsonObject(scores),
-        status: "DRAFT",
+        status: nextStatus,
         teacherId: user.id,
         teacherName: user.name || user.email || null,
       },
@@ -2219,6 +2217,10 @@ export const academyService = {
       const reviewedStudentIds = new Set(batchReviews.map((review) => review.studentId));
       const published = batchReviews.filter((review) => review.status === "PUBLISHED");
       const publishedScores = published.map((review) => Number(review.scores?.overallReadiness)).filter((score) => Number.isFinite(score));
+      const weakPublished = published.filter((review) => {
+        const score = Number(review.scores?.overallReadiness);
+        return Number.isFinite(score) && score < 60;
+      });
       return {
         batchId: batch.id,
         batchName: batch.name,
@@ -2231,10 +2233,14 @@ export const academyService = {
         approvedCount: batchReviews.filter((review) => review.status === "APPROVED").length,
         returnedCount: batchReviews.filter((review) => review.status === "RETURNED").length,
         publishedCount: published.length,
+        weakStudentCount: weakPublished.length,
         averageReadiness: publishedScores.length ? Math.round(publishedScores.reduce((sum, score) => sum + score, 0) / publishedScores.length) : null,
         latestPublishedAt: published[0]?.publishedAt ?? null,
       };
     });
+    const weakReviews = (reviews as any[])
+      .filter((review: any) => review.status === "PUBLISHED" && Number.isFinite(Number(review.scores?.overallReadiness)) && Number(review.scores?.overallReadiness) < 60)
+      .slice(0, 25);
     return {
       summary: {
         batches: batchesSummary.length,
@@ -2244,8 +2250,10 @@ export const academyService = {
         returned: batchesSummary.reduce((sum, batch) => sum + batch.returnedCount, 0),
         published: batchesSummary.reduce((sum, batch) => sum + batch.publishedCount, 0),
         missingStudents: batchesSummary.reduce((sum, batch) => sum + batch.missingStudents, 0),
+        weakStudents: batchesSummary.reduce((sum, batch) => sum + batch.weakStudentCount, 0),
       },
       batches: batchesSummary,
+      weakReviews,
       reviews,
     };
   },
