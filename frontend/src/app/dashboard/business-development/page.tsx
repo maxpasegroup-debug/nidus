@@ -1,8 +1,8 @@
 "use client";
 
-import { type FormEvent, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
-import { Archive, BarChart3, CalendarClock, Camera, CheckCircle2, Globe2, MessageCircle, Phone, PhoneCall, Plus, RefreshCw, Send, UserPlus, Users } from "lucide-react";
+import { type FormEvent, useEffect, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Archive, BarChart3, CalendarClock, Camera, CheckCircle2, Globe2, MessageCircle, Phone, PhoneCall, Plus, Send, UserPlus, Users } from "lucide-react";
 import { AiOperatingLayer } from "@/components/ai/ai-operating-layer";
 import { RoleDashboardGuard } from "@/components/dashboard";
 import { WorkspaceDashboard } from "@/components/dashboard/workspace-dashboard";
@@ -40,6 +40,8 @@ const tabAliases: Record<string, BdeTab> = {
   TODAY: "CALLING",
   READY: "COUNSELLING",
 };
+
+const validTabs = new Set<BdeTab>(["PIPELINE", "CALLING", "LEADS", "FOLLOWUPS", "COUNSELLING", "TEAM", "REPORTS", "SOCIAL"]);
 
 function value(form: HTMLFormElement, name: string) {
   return String(new FormData(form).get(name) ?? "").trim();
@@ -231,11 +233,12 @@ function SocialBoard() {
 
 export default function BusinessDevelopmentDashboardPage() {
   const { user } = useAuth();
+  const router = useRouter();
   const searchParams = useSearchParams();
   const rawRequestedTab = searchParams?.get("tab")?.toUpperCase() ?? "";
   const requestedTab = (tabAliases[rawRequestedTab] ?? rawRequestedTab) as BdeTab | "";
   const [activeTab, setActiveTab] = useState<BdeTab>(
-    requestedTab && ["PIPELINE", "CALLING", "LEADS", "FOLLOWUPS", "COUNSELLING", "TEAM", "REPORTS", "SOCIAL"].includes(requestedTab) ? requestedTab : "PIPELINE",
+    requestedTab && validTabs.has(requestedTab) ? requestedTab : "CALLING",
   );
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<LeadStatus | undefined>();
@@ -246,6 +249,10 @@ export default function BusinessDevelopmentDashboardPage() {
   const followups = useFollowups();
   const leadData = useMemo(() => leads.data ?? [], [leads.data]);
   const followupData = useMemo(() => followups.data ?? [], [followups.data]);
+
+  useEffect(() => {
+    if (requestedTab && validTabs.has(requestedTab)) setActiveTab(requestedTab);
+  }, [requestedTab]);
 
   const latestFollowupByLead = useMemo(() => {
     const map = new Map<string, string>();
@@ -339,22 +346,27 @@ export default function BusinessDevelopmentDashboardPage() {
     setSelectedLead({ ...lead, status: "COUNSELLING", notes: note });
   }
 
+  function openTab(tab: BdeTab) {
+    setActiveTab(tab);
+    router.replace(`/dashboard/business-development?tab=${tab}`, { scroll: false });
+  }
+
   return (
     <RoleDashboardGuard role={["DIRECTOR", "BUSINESS_DEVELOPMENT_EXECUTIVE", "TELECALLER", "MARKETING_COORDINATOR"]}>
       <WorkspaceDashboard
         roleTitle="Business Development Workspace"
         greeting="Today's Leads"
-        subtitle="Campaign performance, follow-ups and admission handovers in one focused revenue workspace."
+        subtitle="Call leads, add enquiries, schedule follow-ups and send confirmed cases to the admission office."
         focus={[
-          { label: "Today's Leads", title: reports.callsToday, detail: "Calls and follow-ups that need action today.", href: "/dashboard/business-development?tab=CALLING", icon: PhoneCall, tone: reports.callsToday ? "warning" : "success" },
-          { label: "Campaign Performance", title: `${reports.newLeads} new`, detail: `${reports.counselling} counselling and ${reports.readyForAo} ready for AO.`, href: "/dashboard/business-development?tab=PIPELINE", icon: BarChart3, tone: "info" },
-          { label: "Targets", title: `${reports.converted} converted`, detail: `${reports.overdue} overdue follow-up(s) need recovery.`, href: "/dashboard/business-development?tab=REPORTS", icon: CheckCircle2, tone: reports.overdue ? "warning" : "success" },
+          { label: "Call Now", title: reports.callsToday, detail: "New leads and due follow-ups to call today.", href: "/dashboard/business-development?tab=CALLING", icon: PhoneCall, tone: reports.callsToday ? "warning" : "success" },
+          { label: "Overdue", title: reports.overdue, detail: "Follow-ups that need recovery before they go cold.", href: "/dashboard/business-development?tab=FOLLOWUPS", icon: CalendarClock, tone: reports.overdue ? "warning" : "success" },
+          { label: "Send to AO", title: reports.readyForAo, detail: "Interested leads ready for admission office handover.", href: "/dashboard/business-development?tab=COUNSELLING", icon: Send, tone: reports.readyForAo ? "info" : "success" },
         ]}
         actions={[
-          { label: "Leads", href: "/dashboard/business-development?tab=LEADS", icon: Users },
-          { label: "Campaigns", href: "/dashboard/sales-booster", icon: Globe2 },
+          { label: "Calling Desk", href: "/dashboard/business-development?tab=CALLING", icon: PhoneCall },
+          { label: "All Leads", href: "/dashboard/business-development?tab=LEADS", icon: Users },
           { label: "Follow-ups", href: "/dashboard/business-development?tab=FOLLOWUPS", icon: CalendarClock },
-          { label: "Counselling", href: "/dashboard/business-development?tab=COUNSELLING", icon: MessageCircle },
+          { label: "Ready for AO", href: "/dashboard/business-development?tab=COUNSELLING", icon: Send },
           { label: "Reports", href: "/dashboard/business-development?tab=REPORTS", icon: BarChart3 },
         ]}
         metrics={[
@@ -367,53 +379,9 @@ export default function BusinessDevelopmentDashboardPage() {
         upcoming={readyLeads.slice(0, 5).map((lead) => ({ title: lead.fullName, detail: `${lead.targetExam} is ready for AO handover.`, href: "/dashboard/business-development?tab=COUNSELLING", meta: "AO" }))}
       >
 
-        <AiOperatingLayer
-          role="BUSINESS_DEVELOPMENT"
-          items={[
-            {
-              title: reports.overdue ? `${reports.overdue} overdue follow-up(s)` : "No overdue follow-ups",
-              detail: "Lead priority is calculated from the existing follow-up queue.",
-              href: "/dashboard/business-development?tab=CALLING",
-              icon: CalendarClock,
-              tone: reports.overdue ? "warning" : "success",
-            },
-            {
-              title: `${reports.readyForAo} AO-ready lead(s)`,
-              detail: "These leads have admission handover signals and should not stay in sales.",
-              href: "/dashboard/business-development?tab=COUNSELLING",
-              icon: Send,
-              tone: reports.readyForAo ? "info" : "default",
-            },
-            {
-              title: `${reports.converted} converted`,
-              detail: "Conversion insight remains inside the growth workspace, not a separate AI dashboard.",
-              href: "/dashboard/business-development?tab=REPORTS",
-              icon: BarChart3,
-              tone: "success",
-            },
-          ]}
-        />
-
-        <ExecutiveIntelligenceSystem
-          role="BUSINESS_DEVELOPMENT"
-          title="Growth Intelligence"
-          description="Lead funnel, conversions, pending admissions, counselling outcomes, campaign performance and follow-up recovery are connected to the existing CRM workspace."
-          metrics={[
-            { label: "Lead Funnel", value: leadData.length, note: `${reports.newLeads} new lead(s)`, tone: "info" },
-            { label: "Conversions", value: reports.converted, note: `${reports.counselling} counselling`, tone: reports.converted ? "success" : "info" },
-            { label: "Follow-ups", value: reports.callsToday, note: `${reports.overdue} overdue`, tone: reports.overdue ? "warning" : "success" },
-            { label: "AO Ready", value: reports.readyForAo, note: "Ready for admission handover", tone: reports.readyForAo ? "warning" : "success" },
-          ]}
-          insights={[
-            { title: "What happened?", detail: `${leadData.length} lead(s), ${followupData.length} follow-up(s) and ${reports.readyForAo} AO-ready handover(s) are visible.`, tone: "info" },
-            { title: "What needs attention?", detail: reports.overdue ? `${reports.overdue} overdue follow-up(s) need recovery today.` : "No overdue recovery queue is visible.", href: "/dashboard/business-development?tab=CALLING", tone: reports.overdue ? "warning" : "success" },
-            { title: "What should I do next?", detail: "Work through calling, counselling and reports from the existing CRM tabs below.", href: "/dashboard/business-development?tab=REPORTS", tone: "info" },
-          ]}
-        />
-
-        <nav className="flex gap-2 overflow-x-auto rounded-2xl border border-[#071d36]/15 bg-white p-2">
+        <nav className="flex gap-2 overflow-x-auto rounded-2xl border border-[#071d36]/15 bg-white p-2" aria-label="Business development work views">
           {tabs.map((tab) => (
-            <button key={tab.key} type="button" onClick={() => setActiveTab(tab.key)} className={`min-h-11 shrink-0 rounded-xl px-4 text-sm font-black ${activeTab === tab.key ? "bg-[#071d36] text-white" : "text-[#071d36] hover:bg-[#f7f9fc]"}`}>
+            <button key={tab.key} type="button" onClick={() => openTab(tab.key)} className={`min-h-11 shrink-0 rounded-xl px-4 text-sm font-black ${activeTab === tab.key ? "bg-[#071d36] text-white" : "text-[#071d36] hover:bg-[#f7f9fc]"}`}>
               {tab.label}
             </button>
           ))}
@@ -496,6 +464,50 @@ export default function BusinessDevelopmentDashboardPage() {
             )}
           </section>
         </section>
+
+        <AiOperatingLayer
+          role="BUSINESS_DEVELOPMENT"
+          items={[
+            {
+              title: reports.overdue ? `${reports.overdue} overdue follow-up(s)` : "No overdue follow-ups",
+              detail: "Lead priority is calculated from the existing follow-up queue.",
+              href: "/dashboard/business-development?tab=CALLING",
+              icon: CalendarClock,
+              tone: reports.overdue ? "warning" : "success",
+            },
+            {
+              title: `${reports.readyForAo} AO-ready lead(s)`,
+              detail: "These leads have admission handover signals and should not stay in sales.",
+              href: "/dashboard/business-development?tab=COUNSELLING",
+              icon: Send,
+              tone: reports.readyForAo ? "info" : "default",
+            },
+            {
+              title: `${reports.converted} converted`,
+              detail: "Conversion insight remains inside the growth workspace, not a separate AI dashboard.",
+              href: "/dashboard/business-development?tab=REPORTS",
+              icon: BarChart3,
+              tone: "success",
+            },
+          ]}
+        />
+
+        <ExecutiveIntelligenceSystem
+          role="BUSINESS_DEVELOPMENT"
+          title="Growth Intelligence"
+          description="Lead funnel, conversions, pending admissions, counselling outcomes, campaign performance and follow-up recovery are connected to the existing CRM workspace."
+          metrics={[
+            { label: "Lead Funnel", value: leadData.length, note: `${reports.newLeads} new lead(s)`, tone: "info" },
+            { label: "Conversions", value: reports.converted, note: `${reports.counselling} counselling`, tone: reports.converted ? "success" : "info" },
+            { label: "Follow-ups", value: reports.callsToday, note: `${reports.overdue} overdue`, tone: reports.overdue ? "warning" : "success" },
+            { label: "AO Ready", value: reports.readyForAo, note: "Ready for admission handover", tone: reports.readyForAo ? "warning" : "success" },
+          ]}
+          insights={[
+            { title: "What happened?", detail: `${leadData.length} lead(s), ${followupData.length} follow-up(s) and ${reports.readyForAo} AO-ready handover(s) are visible.`, tone: "info" },
+            { title: "What needs attention?", detail: reports.overdue ? `${reports.overdue} overdue follow-up(s) need recovery today.` : "No overdue recovery queue is visible.", href: "/dashboard/business-development?tab=CALLING", tone: reports.overdue ? "warning" : "success" },
+            { title: "What should I do next?", detail: "Work through calling, counselling and reports from the existing CRM tabs above.", href: "/dashboard/business-development?tab=REPORTS", tone: "info" },
+          ]}
+        />
 
         {selectedLead ? (
           <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4 backdrop-blur-sm">

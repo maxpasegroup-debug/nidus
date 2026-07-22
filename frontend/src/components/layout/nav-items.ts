@@ -94,10 +94,10 @@ const administrativeOfficerMenu: DashboardNavItem[] = [
 
 const businessDevelopmentMenu: DashboardNavItem[] = [
   { label: "Dashboard", href: "/dashboard/business-development" },
-  { label: "Leads", href: "/dashboard/business-development#leads" },
+  { label: "Leads", href: "/dashboard/business-development?tab=LEADS" },
   { label: "Campaigns", href: "/dashboard/sales-booster" },
-  { label: "Follow-ups", href: "/dashboard/business-development#followups" },
-  { label: "Reports", href: "/dashboard/business-development#reports" },
+  { label: "Follow-ups", href: "/dashboard/business-development?tab=FOLLOWUPS" },
+  { label: "Reports", href: "/dashboard/business-development?tab=REPORTS" },
   { label: "Profile", href: "/dashboard/settings" },
 ];
 
