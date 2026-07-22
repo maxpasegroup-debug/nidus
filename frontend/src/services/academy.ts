@@ -463,6 +463,8 @@ export type NdpReview = {
   teacherId?: string | null;
   teacherName?: string | null;
   submittedAt?: string | null;
+  reviewedById?: string | null;
+  reviewedByName?: string | null;
   reviewedAt?: string | null;
   publishedAt?: string | null;
   scores?: {
@@ -495,6 +497,7 @@ export type NdpReviewPayload = {
   entries?: NdpManualEntry[];
   sections?: Record<string, unknown>;
   finalReview?: Record<string, unknown>;
+  note?: string;
 };
 
 export type BatchFilters = {
@@ -697,6 +700,26 @@ export async function saveNdpReview(payload: NdpReviewPayload) {
 export async function submitNdpReview(payload: NdpReviewPayload) {
   const response = await apiClient.post<{ review: NdpReview }>("/academy/ndp/review/submit", payload);
   return response.data.review;
+}
+
+export async function approveNdpReview(reviewId: string, payload: { note?: string } = {}) {
+  const response = await apiClient.post<{ review: NdpReview }>(`/academy/ndp/reviews/${reviewId}/approve`, payload);
+  return response.data.review;
+}
+
+export async function returnNdpReview(reviewId: string, payload: { note?: string } = {}) {
+  const response = await apiClient.post<{ review: NdpReview }>(`/academy/ndp/reviews/${reviewId}/return`, payload);
+  return response.data.review;
+}
+
+export async function publishNdpReview(reviewId: string, payload: { note?: string } = {}) {
+  const response = await apiClient.post<{ review: NdpReview }>(`/academy/ndp/reviews/${reviewId}/publish`, payload);
+  return response.data.review;
+}
+
+export async function getMyNdpReviews() {
+  const response = await apiClient.get<{ reviews: NdpReview[] }>("/academy/ndp/my-reviews");
+  return response.data;
 }
 
 export async function publishStudyMaterial(payload: {

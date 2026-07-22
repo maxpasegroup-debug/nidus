@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { ExecutiveIntelligenceSystem, ReportQuestionCards } from "@/components/reporting/executive-intelligence-system";
+import type { NdpManualEntry, NdpReview } from "@/services/academy";
 
 type StudentPlan = {
   batches?: Array<{ id: string; name?: string | null; status?: string | null; course?: { title?: string | null } | null }>;
@@ -110,6 +111,7 @@ export default function StudentProgressPage() {
   });
   const fitnessQuery = useQuery({ queryKey: ["student", "progress-fitness"], queryFn: () => apiJson<{ profile: FitnessProfile | null }>("/api/fitness/profile") });
   const psychometricQuery = useQuery({ queryKey: ["student", "progress-psychometric"], queryFn: () => apiJson<PsychometricReportHistory>("/api/psychometric/reports") });
+  const ndpQuery = useQuery({ queryKey: ["student", "progress-ndp"], queryFn: () => apiJson<{ reviews: NdpReview[] }>("/api/academy/ndp/my-reviews") });
 
   const plan = planQuery.data;
   const activeBatches = (plan?.batches ?? []).filter((batch) => !batch.status || batch.status === "ACTIVE");
@@ -148,6 +150,9 @@ export default function StudentProgressPage() {
   ]);
   const readinessStatus = readinessBand(readinessScore);
   const activeBatch = activeBatches[0];
+  const ndpReviews = ndpQuery.data?.reviews ?? [];
+  const latestNdp = ndpReviews[0] ?? null;
+  const ndpHighlights = latestNdp?.entries.filter((entry) => ["ACADEMIC_PERFORMANCE", "TEST_PERFORMANCE", "TEACHER_OBSERVATION", "NEXT_TERM_ACTION_PLAN"].includes(entry.category)).slice(0, 8) ?? [];
 
   useEffect(() => {
     if (shouldOpenApplicantLobby) router.replace("/dashboard/guest");
@@ -219,6 +224,37 @@ export default function StudentProgressPage() {
             <ScoreTile icon={GraduationCap} label="Exam Average" value={`${examAverage}%`} note={`Best ${bestExam}%`} />
             <ScoreTile icon={BrainCircuit} label="Assessments" value={`${assessmentAccuracy}%`} note={`${completedAssessments} completed`} />
           </section>
+        </section>
+
+        <section className="rounded-[28px] border border-[var(--border)] bg-white/95 p-5 shadow-sm md:p-6">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.32em] text-[var(--gold)]">Published NDP</p>
+              <h2 className="mt-2 text-3xl font-black">{latestNdp ? `${latestNdp.reviewPeriod} progress card` : "No published NDP yet"}</h2>
+              <p className="mt-2 max-w-3xl text-sm leading-7 text-[var(--muted-blue)]">
+                {latestNdp
+                  ? `Published by ${latestNdp.reviewedByName ?? "Academic Head"} after teacher submission.`
+                  : ndpQuery.isLoading
+                    ? "Loading your latest NIDUS Digital Profile card."
+                    : "Your teacher's NDP review will appear here after Academic Head approval and publication."}
+              </p>
+            </div>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-5 lg:min-w-[520px]">
+              <ScoreTile icon={ShieldCheck} label="Overall" value={formatNdpScore(latestNdp?.scores?.overallReadiness)} note={latestNdp?.status ?? "Pending"} />
+              <ScoreTile icon={GraduationCap} label="Academic" value={formatNdpScore(latestNdp?.scores?.academicReadiness)} note="Subject progress" />
+              <ScoreTile icon={Award} label="Tests" value={formatNdpScore(latestNdp?.scores?.testPerformance)} note="Test summary" />
+              <ScoreTile icon={BrainCircuit} label="Skills" value={formatNdpScore(latestNdp?.scores?.skillDevelopment)} note="Learning skills" />
+              <ScoreTile icon={Dumbbell} label="Defence" value={formatNdpScore(latestNdp?.scores?.defenceDevelopment)} note="Readiness" />
+            </div>
+          </div>
+          {latestNdp ? (
+            <div className="mt-5 grid gap-3 lg:grid-cols-2">
+              {ndpHighlights.map((entry) => (
+                <NdpEntryCard key={`${entry.category}-${entry.subject ?? ""}-${entry.item}`} entry={entry} />
+              ))}
+              {!ndpHighlights.length ? <p className="rounded-2xl border border-dashed border-[var(--border)] p-5 text-sm font-bold text-[var(--muted-blue)] lg:col-span-2">This published NDP has no visible entries yet.</p> : null}
+            </div>
+          ) : null}
         </section>
 
         <section className="grid gap-4 xl:grid-cols-3">
@@ -309,6 +345,49 @@ function LinkCard({ href, label, note }: { href: string; label: string; note: st
       <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
     </Link>
   );
+}
+
+function NdpEntryCard({ entry }: { entry: NdpManualEntry }) {
+  return (
+    <article className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-black uppercase tracking-[0.18em] text-[var(--gold)]">{ndpCategoryLabel(entry.category)}</p>
+          <h3 className="mt-2 text-lg font-black">{entry.subject || entry.item}</h3>
+          {entry.subject ? <p className="mt-1 text-sm font-bold text-[var(--muted-blue)]">{entry.item}</p> : null}
+        </div>
+        <span className="rounded-full border border-[var(--border)] bg-white px-3 py-1 text-xs font-black">{entry.score == null ? "--" : `${entry.score}%`}</span>
+      </div>
+      <div className="mt-4 grid grid-cols-3 gap-2 text-xs">
+        <TermValue label="Term 1" value={entry.term1} />
+        <TermValue label="Term 2" value={entry.term2} />
+        <TermValue label="Term 3" value={entry.term3} />
+      </div>
+      <p className="mt-3 text-sm font-black">{entry.rating || "Performance not rated"}</p>
+      <p className="mt-1 text-sm leading-6 text-[var(--muted-blue)]">{entry.remarks || "No teacher remark added."}</p>
+    </article>
+  );
+}
+
+function TermValue({ label, value }: { label: string; value?: string | null }) {
+  return (
+    <div className="rounded-xl border border-[var(--border)] bg-white p-2">
+      <p className="font-black text-[var(--muted-blue)]">{label}</p>
+      <p className="mt-1 font-black text-[var(--ink)]">{value || "--"}</p>
+    </div>
+  );
+}
+
+function formatNdpScore(value?: number | null) {
+  return value == null ? "--" : `${value}%`;
+}
+
+function ndpCategoryLabel(category: string) {
+  if (category === "ACADEMIC_PERFORMANCE") return "Academic";
+  if (category === "TEST_PERFORMANCE") return "Tests";
+  if (category === "TEACHER_OBSERVATION") return "Teacher Note";
+  if (category === "NEXT_TERM_ACTION_PLAN") return "Action Plan";
+  return category.replaceAll("_", " ");
 }
 
 function scorePercent(attempt: AttemptHistory["attempts"][number]) {

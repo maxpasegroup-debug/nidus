@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useState, type ReactNode } from "react";
-import { ClipboardCheck, FileText, GraduationCap, Save, Send, UserRound } from "lucide-react";
+import { CheckCircle2, ClipboardCheck, FileText, GraduationCap, RotateCcw, Save, Send, Upload, UserRound } from "lucide-react";
 import { getApiErrorMessage } from "@/services/api";
-import { getNdpReview, getNdpStudents, saveNdpReview, submitNdpReview, type NdpManualEntry, type NdpReview, type NdpStudentBatch } from "@/services/academy";
+import { useAuth } from "@/components/providers/auth-provider-v2";
+import { approveNdpReview, getNdpReview, getNdpReviews, getNdpStudents, publishNdpReview, returnNdpReview, saveNdpReview, submitNdpReview, type NdpManualEntry, type NdpReview, type NdpStudentBatch } from "@/services/academy";
 import { TeacherModuleHeader } from "@/components/teacher/teacher-dashboard-primitives";
 
 const reviewTypes = ["MONTHLY", "TERM", "WEEKLY"] as const;
@@ -65,7 +66,13 @@ function parseScore(value: string) {
   return Math.max(0, Math.min(100, Math.round(number)));
 }
 
+function isAcademicManagerRole(user: ReturnType<typeof useAuth>["user"]) {
+  const template = typeof user?.roleMetadata?.dashboardTemplate === "string" ? user.roleMetadata.dashboardTemplate.toUpperCase() : "";
+  return user?.role === "ADMIN" || user?.role === "DIRECTOR" || user?.role === "ACADEMIC_HEAD" || template === "ACADEMIC_HEAD";
+}
+
 export function TeacherNdpEntry() {
+  const { user } = useAuth();
   const [batches, setBatches] = useState<NdpStudentBatch[]>([]);
   const [batchId, setBatchId] = useState("");
   const [studentId, setStudentId] = useState("");
@@ -78,6 +85,10 @@ export function TeacherNdpEntry() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [reviewQueue, setReviewQueue] = useState<NdpReview[]>([]);
+  const [queueLoading, setQueueLoading] = useState(false);
+  const [reviewNote, setReviewNote] = useState("");
+  const [transitioningId, setTransitioningId] = useState("");
 
   useEffect(() => {
     getNdpStudents()
@@ -94,7 +105,25 @@ export function TeacherNdpEntry() {
   const selectedBatch = useMemo(() => batches.find((batch) => batch.id === batchId) ?? null, [batches, batchId]);
   const selectedStudent = useMemo(() => selectedBatch?.students.find((student) => student.id === studentId) ?? null, [selectedBatch, studentId]);
   const groups = useMemo(() => groupedEntries(entries), [entries]);
+  const isManager = isAcademicManagerRole(user);
   const locked = review?.status === "SUBMITTED" || review?.status === "APPROVED" || review?.status === "PUBLISHED";
+
+  async function refreshQueue() {
+    if (!isManager) return;
+    setQueueLoading(true);
+    try {
+      const result = await getNdpReviews();
+      setReviewQueue(result.reviews);
+    } catch (err) {
+      setError(getApiErrorMessage(err));
+    } finally {
+      setQueueLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    void refreshQueue();
+  }, [isManager]);
 
   async function loadReview() {
     if (!batchId || !studentId || !reviewPeriod.trim()) {
@@ -131,10 +160,48 @@ export function TeacherNdpEntry() {
       setReview(next);
       setEntries(next.entries);
       setNotice(mode === "SUBMIT" ? "NDP submitted for Academic Head review." : "NDP draft saved.");
+      if (isManager) void refreshQueue();
     } catch (err) {
       setError(getApiErrorMessage(err));
     } finally {
       setSaving(false);
+    }
+  }
+
+  function openQueuedReview(next: NdpReview) {
+    setReview(next);
+    setEntries(next.entries);
+    setBatchId(next.batchId);
+    setStudentId(next.studentId);
+    setReviewPeriod(next.reviewPeriod);
+    setReviewType((reviewTypes as readonly string[]).includes(next.reviewType) ? next.reviewType as (typeof reviewTypes)[number] : "TERM");
+    setAcademicYear(next.academicYear ?? String(new Date().getFullYear()));
+    setNotice(`Opened ${next.studentName ?? "student"} NDP with status ${next.status}.`);
+    setError("");
+  }
+
+  async function transitionReview(action: "APPROVE" | "RETURN" | "PUBLISH", target: NdpReview = review as NdpReview) {
+    if (!target?.id) return;
+    setTransitioningId(target.id);
+    setError("");
+    setNotice("");
+    try {
+      const payload = { note: reviewNote.trim() || undefined };
+      const next =
+        action === "APPROVE"
+          ? await approveNdpReview(target.id, payload)
+          : action === "RETURN"
+            ? await returnNdpReview(target.id, payload)
+            : await publishNdpReview(target.id, payload);
+      setReview(next);
+      setEntries(next.entries);
+      setReviewNote("");
+      setNotice(action === "APPROVE" ? "NDP approved. You can publish it now." : action === "RETURN" ? "NDP returned to teacher for correction." : "NDP published to the student Digital Profile.");
+      await refreshQueue();
+    } catch (err) {
+      setError(getApiErrorMessage(err));
+    } finally {
+      setTransitioningId("");
     }
   }
 
@@ -202,6 +269,58 @@ export function TeacherNdpEntry() {
           </button>
         </div>
       </section>
+
+      {isManager ? (
+        <section className="rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm sm:p-5">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.22em] text-[var(--gold-dark)]">Academic Head Review</p>
+              <h2 className="mt-2 text-2xl font-black text-[var(--ink)]">Submitted NDP queue</h2>
+              <p className="mt-1 text-sm leading-6 text-[var(--muted-blue)]">Approve, return for correction, or publish approved progress cards to the student Digital Profile.</p>
+            </div>
+            <button type="button" onClick={() => void refreshQueue()} disabled={queueLoading} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[var(--border)] px-4 text-sm font-black disabled:opacity-60">
+              <FileText className="h-4 w-4" /> {queueLoading ? "Refreshing..." : "Refresh"}
+            </button>
+          </div>
+          <div className="mt-4">
+            <Field label="Review Note">
+              <input value={reviewNote} onChange={(event) => setReviewNote(event.target.value)} placeholder="Optional note for approve, return or publish" className={fieldClass} />
+            </Field>
+          </div>
+          <div className="mt-4 grid gap-3 xl:grid-cols-2">
+            {reviewQueue.map((item) => (
+              <article key={item.id} className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h3 className="text-lg font-black text-[var(--ink)]">{item.studentName ?? "Student"}</h3>
+                      <StatusPill status={item.status} />
+                    </div>
+                    <p className="mt-1 text-sm font-bold text-[var(--muted-blue)]">{item.batchName ?? "Batch"} / {item.reviewPeriod} / {item.reviewType}</p>
+                    <p className="mt-1 text-xs text-[var(--muted-blue)]">Teacher: {item.teacherName ?? "Not recorded"}</p>
+                  </div>
+                  <ScoreBadge value={item.scores?.overallReadiness} />
+                </div>
+                <div className="mt-4 grid gap-2 sm:grid-cols-4">
+                  <button type="button" onClick={() => openQueuedReview(item)} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-[var(--border)] bg-white px-3 text-xs font-black">
+                    <FileText className="h-4 w-4" /> Open
+                  </button>
+                  <button type="button" onClick={() => void transitionReview("APPROVE", item)} disabled={transitioningId === item.id || item.status !== "SUBMITTED"} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-3 text-xs font-black text-emerald-800 disabled:opacity-50">
+                    <CheckCircle2 className="h-4 w-4" /> Approve
+                  </button>
+                  <button type="button" onClick={() => void transitionReview("RETURN", item)} disabled={transitioningId === item.id || !["SUBMITTED", "APPROVED"].includes(item.status)} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-3 text-xs font-black text-amber-800 disabled:opacity-50">
+                    <RotateCcw className="h-4 w-4" /> Return
+                  </button>
+                  <button type="button" onClick={() => void transitionReview("PUBLISH", item)} disabled={transitioningId === item.id || item.status !== "APPROVED"} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-blue-200 bg-blue-50 px-3 text-xs font-black text-blue-800 disabled:opacity-50">
+                    <Upload className="h-4 w-4" /> Publish
+                  </button>
+                </div>
+              </article>
+            ))}
+            {!reviewQueue.length ? <EmptyQueue loading={queueLoading} /> : null}
+          </div>
+        </section>
+      ) : null}
 
       {review ? (
         <>
@@ -284,6 +403,39 @@ export function TeacherNdpEntry() {
         </section>
       )}
     </section>
+  );
+}
+
+function StatusPill({ status }: { status: string }) {
+  const normalized = status.toUpperCase();
+  const tone = normalized === "PUBLISHED"
+    ? "border-blue-200 bg-blue-50 text-blue-800"
+    : normalized === "APPROVED"
+      ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+      : normalized === "RETURNED"
+        ? "border-amber-200 bg-amber-50 text-amber-800"
+        : normalized === "SUBMITTED"
+          ? "border-slate-300 bg-white text-slate-800"
+          : "border-slate-200 bg-slate-100 text-slate-600";
+  return <span className={`rounded-full border px-3 py-1 text-xs font-black ${tone}`}>{normalized}</span>;
+}
+
+function ScoreBadge({ value }: { value?: number | null }) {
+  return (
+    <div className={`w-fit rounded-2xl px-4 py-2 text-right ${scoreTone(value)}`}>
+      <p className="text-xs font-black uppercase tracking-[0.16em]">Overall</p>
+      <p className="text-xl font-black">{value == null ? "--" : `${value}%`}</p>
+    </div>
+  );
+}
+
+function EmptyQueue({ loading }: { loading: boolean }) {
+  return (
+    <div className="rounded-2xl border border-dashed border-[var(--border)] bg-white p-6 text-center xl:col-span-2">
+      <ClipboardCheck className="mx-auto h-7 w-7 text-[var(--gold-dark)]" />
+      <p className="mt-3 text-sm font-black text-[var(--ink)]">{loading ? "Loading NDP reviews..." : "No NDP reviews found."}</p>
+      <p className="mt-1 text-xs leading-5 text-[var(--muted-blue)]">Submitted reviews will appear here for Academic Head approval and publication.</p>
+    </div>
   );
 }
 

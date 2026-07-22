@@ -79,6 +79,7 @@ router.get("/assessment-ecosystem", requireAcademyRoles(academicRoles), academyC
 router.get("/ndp/students", requireAcademyRoles(academicRoles), academyController.ndpStudents);
 router.get("/ndp/reviews", requireAcademyRoles(academicRoles), academyController.ndpReviews);
 router.get("/ndp/review", requireAcademyRoles(academicRoles), academyController.ndpReview);
+router.get("/ndp/my-reviews", requireAcademyRoles(studentAcademicRoles), academyController.myNdpReviews);
 router.get("/academic-audit", requireAcademyRoles(managementRoles), academyController.academicAuditTrail);
 router.get("/director-expenses", requireAcademyRoles(managementRoles), academyController.directorExpenses);
 router.get("/expense-claims", requireAcademyRoles([...academicRoles, ...managementRoles]), academyController.expenseClaims);
@@ -112,6 +113,9 @@ router.post("/exams/:id/publish", requireAcademyRoles(academicRoles), academyCon
 router.post("/exams/:id/release-results", requireAcademyRoles(academicRoles), academyController.releaseExamResults);
 router.post("/ndp/review", requireAcademyRoles(academicRoles), academyController.saveNdpReview);
 router.post("/ndp/review/submit", requireAcademyRoles(academicRoles), academyController.submitNdpReview);
+router.post("/ndp/reviews/:id/approve", requireAcademyRoles(academicManagementRoles), academyController.approveNdpReview);
+router.post("/ndp/reviews/:id/return", requireAcademyRoles(academicManagementRoles), academyController.returnNdpReview);
+router.post("/ndp/reviews/:id/publish", requireAcademyRoles(academicManagementRoles), academyController.publishNdpReview);
 
 router.post("/batches", requireAcademyRoles(academicManagementRoles), academyController.createBatch);
 router.post("/director-expenses", requireAcademyRoles(managementRoles), academyController.createDirectorExpense);

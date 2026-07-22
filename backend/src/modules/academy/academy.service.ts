@@ -296,6 +296,7 @@ type NdpReviewInput = {
   entries?: NdpManualEntryInput[];
   sections?: Record<string, unknown>;
   finalReview?: Record<string, unknown>;
+  note?: string;
 };
 
 type AcademicCalendarRow = {
@@ -2094,6 +2095,90 @@ export const academyService = {
       include: { entries: { orderBy: [{ category: "asc" }, { subject: "asc" }, { item: "asc" }] } },
     });
     return { review: submitted };
+  },
+
+  async transitionNdpReview(user: Requester, reviewId: string, action: "APPROVE" | "RETURN" | "PUBLISH", input: NdpReviewInput = {}) {
+    if (!isAcademicManager(user)) {
+      throw Object.assign(new Error("Academic Head access required"), { statusCode: 403 });
+    }
+    const review = await db.ndpReview.findUnique({
+      where: { id: reviewId },
+      include: { entries: { orderBy: [{ category: "asc" }, { subject: "asc" }, { item: "asc" }] } },
+    });
+    if (!review) {
+      throw Object.assign(new Error("NDP review not found"), { statusCode: 404 });
+    }
+    await assertBatchAccess(user, review.batchId);
+
+    const status = String(review.status || "").toUpperCase();
+    const note = input.note?.trim();
+    const currentFinalReview = review.finalReview && typeof review.finalReview === "object" && !Array.isArray(review.finalReview) ? review.finalReview : {};
+
+    if (action === "APPROVE") {
+      if (status !== "SUBMITTED") {
+        throw Object.assign(new Error("Only submitted NDP reviews can be approved"), { statusCode: 400 });
+      }
+      await db.ndpManualEntry.updateMany({ where: { reviewId }, data: { status: "APPROVED" } });
+      const approved = await db.ndpReview.update({
+        where: { id: reviewId },
+        data: {
+          status: "APPROVED",
+          reviewedAt: new Date(),
+          reviewedById: user.id,
+          reviewedByName: user.name || user.email || "Academic Head",
+          finalReview: toJsonObject({ ...currentFinalReview, reviewNote: note || (currentFinalReview as Record<string, unknown>).reviewNote || null }),
+        },
+        include: { entries: { orderBy: [{ category: "asc" }, { subject: "asc" }, { item: "asc" }] } },
+      });
+      return { review: approved };
+    }
+
+    if (action === "RETURN") {
+      if (!["SUBMITTED", "APPROVED"].includes(status)) {
+        throw Object.assign(new Error("Only submitted or approved NDP reviews can be returned"), { statusCode: 400 });
+      }
+      await db.ndpManualEntry.updateMany({ where: { reviewId }, data: { status: "RETURNED" } });
+      const returned = await db.ndpReview.update({
+        where: { id: reviewId },
+        data: {
+          status: "RETURNED",
+          reviewedAt: new Date(),
+          reviewedById: user.id,
+          reviewedByName: user.name || user.email || "Academic Head",
+          finalReview: toJsonObject({ ...currentFinalReview, returnNote: note || (currentFinalReview as Record<string, unknown>).returnNote || "Returned for correction" }),
+        },
+        include: { entries: { orderBy: [{ category: "asc" }, { subject: "asc" }, { item: "asc" }] } },
+      });
+      return { review: returned };
+    }
+
+    if (status !== "APPROVED") {
+      throw Object.assign(new Error("Approve the NDP review before publishing"), { statusCode: 400 });
+    }
+    await db.ndpManualEntry.updateMany({ where: { reviewId }, data: { status: "PUBLISHED" } });
+    const published = await db.ndpReview.update({
+      where: { id: reviewId },
+      data: {
+        status: "PUBLISHED",
+        publishedAt: new Date(),
+        finalReview: toJsonObject({ ...currentFinalReview, publishNote: note || (currentFinalReview as Record<string, unknown>).publishNote || null }),
+      },
+      include: { entries: { orderBy: [{ category: "asc" }, { subject: "asc" }, { item: "asc" }] } },
+    });
+    return { review: published };
+  },
+
+  async myNdpReviews(user: Requester) {
+    if (user.role !== Role.STUDENT) {
+      throw Object.assign(new Error("Student access required"), { statusCode: 403 });
+    }
+    const reviews = await db.ndpReview.findMany({
+      where: { studentId: user.id, status: "PUBLISHED" },
+      include: { entries: { orderBy: [{ category: "asc" }, { subject: "asc" }, { item: "asc" }] } },
+      orderBy: [{ publishedAt: "desc" }, { updatedAt: "desc" }],
+      take: 12,
+    });
+    return { reviews };
   },
 
   async batchAnnouncements(user: Requester, batchId: string) {

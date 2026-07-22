@@ -447,6 +447,34 @@ export const academyController = {
       next(error);
     }
   },
+  approveNdpReview: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      res.json(await academyService.transitionNdpReview(requester(req), param(req, "id"), "APPROVE", req.body));
+    } catch (error) {
+      next(error);
+    }
+  },
+  returnNdpReview: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      res.json(await academyService.transitionNdpReview(requester(req), param(req, "id"), "RETURN", req.body));
+    } catch (error) {
+      next(error);
+    }
+  },
+  publishNdpReview: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      res.json(await academyService.transitionNdpReview(requester(req), param(req, "id"), "PUBLISH", req.body));
+    } catch (error) {
+      next(error);
+    }
+  },
+  myNdpReviews: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      res.json(await academyService.myNdpReviews(requester(req)));
+    } catch (error) {
+      next(error);
+    }
+  },
   academicAuditTrail: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     try {
       res.json(await academyService.academicAuditTrail(requester(req), req.query));

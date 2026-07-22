@@ -1,16 +1,19 @@
 "use client";
 
 import Link from "next/link";
+import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, BriefcaseBusiness, ClipboardCheck, Download, GraduationCap, Medal, Share2, ShieldCheck, Sparkles, UserRound } from "lucide-react";
 import { DashboardError, DashboardSkeleton, RoleDashboardGuard } from "@/components/dashboard";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/components/providers/auth-provider-v2";
 import { useStudentDashboard } from "@/hooks/use-dashboard";
+import { getMyNdpReviews } from "@/services/academy";
 
 export default function DigitalProfilePage() {
   const { user } = useAuth();
   const isStudent = user?.role === "STUDENT";
   const { data, isLoading, error, refetch } = useStudentDashboard(Boolean(isStudent));
+  const ndpQuery = useQuery({ queryKey: ["digital-profile", "ndp"], queryFn: getMyNdpReviews, enabled: Boolean(isStudent) });
 
   if (isStudent && isLoading) return <RoleDashboardGuard role={["GUEST", "STUDENT", "PARENT"]}><DashboardSkeleton /></RoleDashboardGuard>;
   if (isStudent && (error || !data)) return <RoleDashboardGuard role={["GUEST", "STUDENT", "PARENT"]}><DashboardError error={error} onRefresh={() => refetch()} /></RoleDashboardGuard>;
@@ -21,6 +24,7 @@ export default function DigitalProfilePage() {
   const readiness = data?.assessmentProfile?.averageScore ?? 0;
   const profileCompletion = isStudent ? Math.min(100, 35 + completedReports * 8 + (data?.enrolledCourses.length ? 20 : 0)) : 28;
   const target = data?.enrolledCourses[0]?.title ?? "Defence Career Pathway";
+  const latestNdp = ndpQuery.data?.reviews?.[0] ?? null;
 
   return (
     <RoleDashboardGuard role={["GUEST", "STUDENT", "PARENT"]}>
@@ -42,12 +46,13 @@ export default function DigitalProfilePage() {
           </div>
         </section>
 
-        <section className="grid gap-4 md:grid-cols-4">
+        <section className="grid gap-4 md:grid-cols-5">
           {[
             ["Profile Completion", `${profileCompletion}%`],
             ["Readiness Signal", readiness ? `${readiness}/100` : "Pending"],
             ["Assessment Reports", String(completedReports)],
-            ["Primary Path", target]
+            ["Primary Path", target],
+            ["NDP Status", latestNdp ? `${latestNdp.reviewPeriod} published` : "Not published"]
           ].map(([label, value]) => (
             <div key={label} className="rounded-lg border border-[#071d36]/10 bg-white p-5 shadow-[0_18px_60px_rgba(7,29,54,0.08)]">
               <p className="text-sm text-[#64748b]">{label}</p>
@@ -55,6 +60,21 @@ export default function DigitalProfilePage() {
             </div>
           ))}
         </section>
+
+        {isStudent ? (
+          <section className="rounded-lg border border-[#071d36]/10 bg-white p-6 shadow-[0_18px_60px_rgba(7,29,54,0.08)]">
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#b9913f]">NIDUS Digital Profile</p>
+            <h2 className="mt-3 text-2xl font-semibold text-[#071d36]">{latestNdp ? `${latestNdp.reviewPeriod} NDP is published` : "NDP report pending"}</h2>
+            <p className="mt-2 text-sm leading-7 text-[#64748b]">
+              {latestNdp
+                ? `Overall readiness ${latestNdp.scores?.overallReadiness ?? "--"}%. Open the complete progress profile to see term marks, teacher remarks and action plan.`
+                : "Your NDP term marks and teacher performance review will appear after Academic Head approval and publication."}
+            </p>
+            <div className="mt-4">
+              <Button href="/dashboard/student/progress">Open Complete Profile <ArrowRight className="h-4 w-4" /></Button>
+            </div>
+          </section>
+        ) : null}
 
         <section className="grid gap-6 lg:grid-cols-[0.85fr_1.15fr]">
           <div className="rounded-lg border border-[#071d36]/10 bg-white p-6 shadow-[0_18px_60px_rgba(7,29,54,0.08)]">
