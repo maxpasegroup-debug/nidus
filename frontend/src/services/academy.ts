@@ -629,6 +629,16 @@ export async function addStudentToBatch(batchId: string, payload: { userId?: str
   return response.data;
 }
 
+export async function updateAcademyStudent(id: string, payload: { batchId?: string; email?: string; phone?: string; name?: string; rollNumber?: string; pin?: string }) {
+  const response = await apiClient.patch<{ student: NonNullable<AcademyBatch["students"]>[number]["student"] & { rollNumber?: string | null } }>(`/academy/students/${id}`, payload);
+  return response.data;
+}
+
+export async function resetAcademyStudentPin(id: string, pin = "1234") {
+  const response = await apiClient.post<{ student: NonNullable<AcademyBatch["students"]>[number]["student"] & { rollNumber?: string | null } }>(`/academy/students/${id}/reset-pin`, { pin });
+  return response.data;
+}
+
 export type ApproveAdmissionToBatchPayload = {
   batchId: string;
   batchIds?: string[];

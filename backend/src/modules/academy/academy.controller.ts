@@ -48,6 +48,20 @@ export const academyController = {
       next(error);
     }
   },
+  updateStudent: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      res.json(await academyService.updateStudent(requester(req), param(req, "id"), req.body));
+    } catch (error) {
+      next(error);
+    }
+  },
+  resetStudentPin: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      res.json(await academyService.resetStudentPin(requester(req), param(req, "id"), req.body?.pin || req.body?.password));
+    } catch (error) {
+      next(error);
+    }
+  },
   assignTeacher: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     try {
       res.status(201).json(await academyService.assignTeacher(requester(req), param(req, "id"), req.body));

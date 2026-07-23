@@ -55,6 +55,12 @@ type StudentInput = {
   createIfMissing?: boolean;
 };
 
+type StudentUpdateInput = Partial<StudentInput> & {
+  batchId?: string;
+  pin?: string;
+  password?: string;
+};
+
 type TeacherInput = {
   teacherId: string;
   subject?: string;
@@ -1799,6 +1805,103 @@ export const academyService = {
         remarks: savedRollNumber,
       },
     });
+  },
+
+  async updateStudent(user: Requester, studentId: string, input: StudentUpdateInput) {
+    requireStudentEnrollmentAccess(user);
+    const student = await prisma.user.findUnique({ where: { id: studentId } });
+    if (!student || student.role !== Role.STUDENT) {
+      throw Object.assign(new Error("Student not found"), { statusCode: 404 });
+    }
+
+    const batchId = input.batchId || "";
+    const normalizedNextMobile = input.phone === undefined ? student.mobile : normalizeMobile(input.phone);
+    const normalizedNextEmail = input.email === undefined ? student.email : normalizeEmail(input.email);
+    if (input.phone !== undefined) await assertMobileAvailable(input.phone, studentId, true);
+    if (input.email !== undefined && normalizedNextEmail) await assertEmailAvailable(input.email, studentId);
+
+    const existingMetadata = (student.roleMetadata ?? {}) as Record<string, unknown>;
+    const updateData: Prisma.UserUpdateInput = {
+      name: input.name === undefined ? undefined : normalizePersonName(input.name),
+      email: input.email === undefined ? undefined : normalizedNextEmail,
+      mobile: input.phone === undefined ? undefined : normalizedNextMobile,
+      role: Role.STUDENT,
+      roleOnboardingStatus: "ACTIVE",
+      roleActivatedAt: new Date(),
+      isDisabled: false,
+      disabledAt: null,
+      loginFailureCount: 0,
+      lockedUntil: null,
+      roleMetadata: toJsonObject({
+        ...existingMetadata,
+        loginMobile: input.phone === undefined ? existingMetadata.loginMobile ?? student.mobile : normalizedNextMobile,
+        profileUpdatedBy: user.id,
+        profileUpdatedAt: new Date().toISOString(),
+      }),
+    };
+
+    const nextPin = input.pin?.trim() || input.password?.trim() || "";
+    if (nextPin) {
+      if (!/^\d{4}$/.test(nextPin)) {
+        throw Object.assign(new Error("PIN must be exactly 4 digits"), { statusCode: 400 });
+      }
+      const isDefaultPin = nextPin === DEFAULT_ACCOUNT_PIN;
+      const baseMetadata = (updateData.roleMetadata as Record<string, unknown>) ?? existingMetadata;
+      updateData.password = await bcrypt.hash(nextPin, 12);
+      updateData.roleMetadata = toJsonObject({
+        ...(isDefaultPin ? { ...baseMetadata, defaultPassword: true, defaultPin: true } : clearDefaultPinFlags(baseMetadata)),
+        accessPin: nextPin,
+        pinUpdatedBy: user.id,
+        pinUpdatedAt: new Date().toISOString(),
+      });
+    }
+
+    const updated = await prisma.user.update({
+      where: { id: studentId },
+      data: updateData,
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        mobile: true,
+        role: true,
+        isDisabled: true,
+        loginFailureCount: true,
+        lockedUntil: true,
+        lastLoginAt: true,
+        roleOnboardingStatus: true,
+        roleMetadata: true,
+      },
+    });
+
+    let enrollment: Record<string, unknown> | null = null;
+    if (batchId) {
+      enrollment = await db.batchStudent.findFirst({ where: { batchId, studentId } });
+      if (!enrollment) {
+        throw Object.assign(new Error("Student is not enrolled in this batch"), { statusCode: 404 });
+      }
+      if (input.rollNumber !== undefined) {
+        enrollment = await db.batchStudent.update({
+          where: { id: enrollment.id as string },
+          data: { remarks: normalizeRollNumber(input.rollNumber) },
+        });
+      }
+    }
+
+    if (input.phone !== undefined || input.email !== undefined || nextPin) {
+      await revokeUserSessions(studentId);
+    }
+
+    return {
+      student: {
+        ...updated,
+        rollNumber: typeof enrollment?.remarks === "string" ? enrollment.remarks : undefined,
+      },
+    };
+  },
+
+  async resetStudentPin(user: Requester, studentId: string, pinValue = DEFAULT_ACCOUNT_PIN) {
+    return this.updateStudent(user, studentId, { pin: pinValue });
   },
 
   async assignTeacher(user: Requester, batchId: string, input: TeacherInput) {

@@ -130,6 +130,8 @@ router.post("/employees/:id/archive", requireAcademyRoles(academicManagementRole
 router.post("/employees/:id/reset-password", requireAcademyRoles(academicManagementRoles), academyController.resetEmployeePassword);
 router.post("/employees/:id/unlock", requireAcademyRoles(academicManagementRoles), academyController.unlockEmployeeAccount);
 router.post("/batches/:id/students", requireAcademyRoles(academicManagementRoles), academyController.addStudent);
+router.patch("/students/:id", requireAcademyRoles(academicManagementRoles), academyController.updateStudent);
+router.post("/students/:id/reset-pin", requireAcademyRoles(academicManagementRoles), academyController.resetStudentPin);
 router.post("/batches/:id/teachers", requireAcademyRoles(academicManagementRoles), academyController.assignTeacher);
 router.post("/admissions/approve", requireAcademyRoles(managementRoles), academyController.approveAdmissionToBatch);
 

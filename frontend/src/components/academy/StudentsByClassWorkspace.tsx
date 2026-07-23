@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { BookOpen, Eye, EyeOff, FileBarChart2, GraduationCap, Search, ShieldCheck, UserRound, Users } from "lucide-react";
-import { getAcademyBatches, getStudentProgressSummary, type AcademyBatch } from "@/services/academy";
+import { useEffect, useMemo, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { BookOpen, Eye, EyeOff, FileBarChart2, GraduationCap, KeyRound, Mail, Phone, Save, Search, ShieldCheck, UserRound, Users, X } from "lucide-react";
+import { getAcademyBatches, getStudentProgressSummary, resetAcademyStudentPin, updateAcademyStudent, type AcademyBatch } from "@/services/academy";
+import { getApiErrorMessage } from "@/services/api";
 import { AcademicHero, AcademicPill, AcademicShell, EmptyState, Panel, StatCard } from "@/app/dashboard/director/academic/_components";
 
 type Props = {
@@ -18,6 +19,14 @@ function metadataString(metadata: Record<string, unknown> | null | undefined, ke
 }
 
 type BatchStudent = NonNullable<AcademyBatch["students"]>[number]["student"];
+type BatchStudentEntry = NonNullable<AcademyBatch["students"]>[number];
+type StudentDraft = {
+  name: string;
+  email: string;
+  phone: string;
+  rollNumber: string;
+  pin: string;
+};
 
 function loginMobile(student: BatchStudent) {
   return metadataString(student.roleMetadata, "loginMobile") || student.mobile || "No mobile";
@@ -35,9 +44,14 @@ function metric(value: number | null | undefined, suffix = "%") {
 }
 
 export default function StudentsByClassWorkspace({ audience, embedded = false }: Props) {
+  const queryClient = useQueryClient();
   const [activeBatchId, setActiveBatchId] = useState("");
   const [search, setSearch] = useState("");
   const [visiblePins, setVisiblePins] = useState<Record<string, boolean>>({});
+  const [selectedStudentId, setSelectedStudentId] = useState("");
+  const [draft, setDraft] = useState<StudentDraft>({ name: "", email: "", phone: "", rollNumber: "", pin: "" });
+  const [pinVisible, setPinVisible] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
   const batchesQuery = useQuery({ queryKey: ["academy", "batches", "students-workspace"], queryFn: () => getAcademyBatches() });
   const progressQuery = useQuery({ queryKey: ["academy", "student-progress-summary"], queryFn: getStudentProgressSummary });
   const batches = batchesQuery.data ?? [];
@@ -59,6 +73,54 @@ export default function StudentsByClassWorkspace({ audience, embedded = false }:
   });
   const totalStudents = batches.reduce((sum, batch) => sum + (batch._count?.students ?? batch.students?.length ?? 0), 0);
   const progressUrl = audience === "director" ? "/dashboard/director/academic/student-progress" : audience === "academic-head" ? "/dashboard/academic-head/hod/student-monitoring" : "/dashboard/admission-cell#students";
+  const selectedEntry = selectedBatch?.students?.find((entry) => entry.student.id === selectedStudentId) ?? null;
+  const selectedStudent = selectedEntry?.student ?? null;
+  const studentProfileUrl = selectedStudent ? `${progressUrl}?studentId=${selectedStudent.id}&batchId=${selectedBatch?.id ?? ""}` : progressUrl;
+  const invalidateStudents = () => {
+    queryClient.invalidateQueries({ queryKey: ["academy", "batches", "students-workspace"] });
+    queryClient.invalidateQueries({ queryKey: ["academy", "student-progress-summary"] });
+  };
+  const updateMutation = useMutation({
+    mutationFn: () =>
+      updateAcademyStudent(selectedStudentId, {
+        batchId: selectedBatch?.id,
+        name: draft.name,
+        email: draft.email,
+        phone: draft.phone,
+        rollNumber: draft.rollNumber,
+        pin: draft.pin || undefined,
+      }),
+    onSuccess: () => {
+      setDraft((current) => ({ ...current, pin: "" }));
+      setSuccessMessage("Student profile and login saved.");
+      invalidateStudents();
+    },
+  });
+  const resetPinMutation = useMutation({
+    mutationFn: () => resetAcademyStudentPin(selectedStudentId, draft.pin || "1234"),
+    onSuccess: () => {
+      setDraft((current) => ({ ...current, pin: "" }));
+      setSuccessMessage("Student PIN reset and login unlocked.");
+      invalidateStudents();
+    },
+  });
+
+  useEffect(() => {
+    if (!selectedEntry) return;
+    setDraft({
+      name: selectedEntry.student.name || "",
+      email: selectedEntry.student.email || "",
+      phone: loginMobile(selectedEntry.student) === "No mobile" ? "" : loginMobile(selectedEntry.student),
+      rollNumber: selectedEntry.student.rollNumber || selectedEntry.remarks || "",
+      pin: "",
+    });
+    setPinVisible(false);
+    setSuccessMessage("");
+  }, [selectedEntry]);
+
+  function openStudent(entry: BatchStudentEntry) {
+    setSelectedStudentId(entry.student.id);
+  }
 
   const content = (
     <>
@@ -142,16 +204,16 @@ export default function StudentsByClassWorkspace({ audience, embedded = false }:
                 const canRevealPin = /^\d{4}$/.test(pinLabel);
                 const pinVisible = visiblePins[student.id] === true;
                 return (
-                  <article key={entry.id} className="grid gap-3 rounded-2xl border border-[var(--border)] bg-white p-3 shadow-sm xl:grid-cols-[1.3fr_1fr_1fr_1fr_auto] xl:items-center">
-                    <div className="flex min-w-0 items-center gap-3">
+                  <article key={entry.id} className="grid gap-3 rounded-2xl border border-[var(--border)] bg-white p-3 shadow-sm transition hover:border-[var(--gold-border)] xl:grid-cols-[1.35fr_0.9fr_1fr_0.9fr_auto] xl:items-center">
+                    <button type="button" onClick={() => openStudent(entry)} className="flex min-w-0 items-center gap-3 rounded-xl text-left focus:outline-none focus:ring-2 focus:ring-[var(--gold-border)]">
                       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[var(--gold-border)] bg-[var(--gold-soft)]">
                         <UserRound className="h-5 w-5" />
                       </div>
                       <div className="min-w-0">
                         <h3 className="truncate text-base font-black">{student.name || "Student"}</h3>
-                        <p className="truncate text-xs text-[var(--muted-blue)]">{student.email || "No email"}</p>
+                        <p className="truncate text-xs text-[var(--muted-blue)]">Click to open and edit profile</p>
                       </div>
-                    </div>
+                    </button>
                     <InfoBlock label="Roll / Notes" value={student.rollNumber || entry.remarks || "Not set"} />
                     <InfoBlock label="Login Mobile" value={loginMobile(student)} />
                     <div className="flex items-center justify-between gap-2 rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-3 py-2">
@@ -170,10 +232,9 @@ export default function StudentsByClassWorkspace({ audience, embedded = false }:
                         </button>
                       ) : null}
                     </div>
-                    <Link href={progressUrl} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-sm font-black text-[var(--navy)]">
-                      <FileBarChart2 className="h-4 w-4" />
-                      Report
-                    </Link>
+                    <button type="button" onClick={() => openStudent(entry)} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-[var(--navy)] px-3 py-2 text-sm font-black text-white">
+                      Manage
+                    </button>
                   </article>
                 );
               })}
@@ -183,6 +244,97 @@ export default function StudentsByClassWorkspace({ audience, embedded = false }:
           <EmptyState text="Select a class to see student profiles, credentials and progress links." />
         )}
       </Panel>
+
+      {selectedStudent && selectedEntry ? (
+        <div className="fixed inset-0 z-50 grid place-items-end bg-black/35 p-3 sm:p-5" role="dialog" aria-modal="true" aria-label={`Manage ${selectedStudent.name}`}>
+          <form
+            onSubmit={(event) => {
+              event.preventDefault();
+              updateMutation.mutate();
+            }}
+            className="grid max-h-[92vh] w-full max-w-2xl gap-4 overflow-auto rounded-2xl border border-[var(--border)] bg-white p-4 shadow-2xl"
+          >
+            <div className="flex items-start justify-between gap-3 border-b border-[var(--border)] pb-4">
+              <div className="flex min-w-0 items-center gap-3">
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-[var(--gold-border)] bg-[var(--gold-soft)] text-xl font-black text-[var(--gold)]">
+                  {(selectedStudent.name || "S").slice(0, 1).toUpperCase()}
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-[var(--gold)]">Student Profile</p>
+                  <h2 className="truncate text-2xl font-black text-[var(--navy)]">{selectedStudent.name || "Student"}</h2>
+                  <p className="truncate text-sm text-[var(--muted-blue)]">{selectedBatch?.name}</p>
+                </div>
+              </div>
+              <button type="button" onClick={() => setSelectedStudentId("")} className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[var(--border)] bg-white" aria-label="Close student profile">
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="grid gap-3 md:grid-cols-3">
+              <InfoBlock label="Current Login" value={loginMobile(selectedStudent)} />
+              <InfoBlock label="Current PIN" value={accessPinLabel(selectedStudent.roleMetadata)} />
+              <InfoBlock label="Roll Number" value={selectedStudent.rollNumber || selectedEntry.remarks || "Not set"} />
+            </div>
+
+            {(updateMutation.error || resetPinMutation.error) ? (
+              <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm font-bold text-red-700">{getApiErrorMessage(updateMutation.error || resetPinMutation.error)}</div>
+            ) : null}
+            {successMessage ? <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-bold text-emerald-700">{successMessage}</div> : null}
+
+            <div className="grid gap-3 md:grid-cols-2">
+              <ProfileField label="Student Name" value={draft.name} onChange={(value) => setDraft((current) => ({ ...current, name: value }))} icon={UserRound} required />
+              <ProfileField label="Login Mobile Number" value={draft.phone} onChange={(value) => setDraft((current) => ({ ...current, phone: value }))} icon={Phone} required />
+              <ProfileField label="Email" value={draft.email} onChange={(value) => setDraft((current) => ({ ...current, email: value }))} icon={Mail} />
+              <ProfileField label="Roll Number" value={draft.rollNumber} onChange={(value) => setDraft((current) => ({ ...current, rollNumber: value.toUpperCase() }))} icon={ShieldCheck} />
+            </div>
+
+            <div className="grid gap-3 rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-3 md:grid-cols-[1fr_auto] md:items-end">
+              <label className="grid gap-1 text-sm font-bold text-[var(--navy)]">
+                <span>Set New 4 Digit PIN</span>
+                <span className="flex min-h-11 items-center gap-2 rounded-xl border border-[var(--border)] bg-white px-3">
+                  <KeyRound className="h-4 w-4 text-[var(--muted-blue)]" />
+                  <input
+                    value={draft.pin}
+                    onChange={(event) => setDraft((current) => ({ ...current, pin: event.target.value.replace(/\D/g, "").slice(0, 4) }))}
+                    type={pinVisible ? "text" : "password"}
+                    inputMode="numeric"
+                    placeholder="Leave blank unless changing"
+                    className="min-w-0 flex-1 bg-transparent outline-none"
+                  />
+                  <button type="button" onClick={() => setPinVisible((value) => !value)} className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--border)] bg-white" aria-label={pinVisible ? "Hide PIN" : "Show PIN"}>
+                    {pinVisible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </span>
+              </label>
+              <button
+                type="button"
+                onClick={() => resetPinMutation.mutate()}
+                disabled={resetPinMutation.isPending}
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[var(--border)] bg-white px-4 text-sm font-black text-[var(--navy)] disabled:opacity-60"
+              >
+                <KeyRound className="h-4 w-4" />
+                {resetPinMutation.isPending ? "Resetting..." : `Reset to ${draft.pin || "1234"}`}
+              </button>
+            </div>
+
+            <div className="flex flex-col gap-2 border-t border-[var(--border)] pt-4 sm:flex-row sm:justify-between">
+              <Link href={studentProfileUrl} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[var(--border)] bg-white px-4 text-sm font-black text-[var(--navy)]">
+                <FileBarChart2 className="h-4 w-4" />
+                Open Progress Report
+              </Link>
+              <div className="flex flex-col gap-2 sm:flex-row">
+                <button type="button" onClick={() => setSelectedStudentId("")} className="inline-flex min-h-11 items-center justify-center rounded-xl border border-[var(--border)] bg-white px-4 text-sm font-black text-[var(--navy)]">
+                  Close
+                </button>
+                <button type="submit" disabled={updateMutation.isPending} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[var(--navy)] px-5 text-sm font-black text-white disabled:opacity-60">
+                  <Save className="h-4 w-4" />
+                  {updateMutation.isPending ? "Saving..." : "Save Profile"}
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      ) : null}
     </>
   );
 
@@ -209,5 +361,29 @@ function InfoBlock({ label, value }: { label: string; value: string }) {
       <p className="text-[10px] font-black uppercase tracking-[0.14em] text-[var(--muted-blue)]">{label}</p>
       <p className="mt-1 truncate text-sm font-black">{value}</p>
     </div>
+  );
+}
+
+function ProfileField({
+  label,
+  value,
+  onChange,
+  icon: Icon,
+  required = false,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  icon: typeof UserRound;
+  required?: boolean;
+}) {
+  return (
+    <label className="grid gap-1 text-sm font-bold text-[var(--navy)]">
+      <span>{label}</span>
+      <span className="flex min-h-11 items-center gap-2 rounded-xl border border-[var(--border)] bg-white px-3">
+        <Icon className="h-4 w-4 shrink-0 text-[var(--muted-blue)]" />
+        <input value={value} onChange={(event) => onChange(event.target.value)} required={required} className="min-w-0 flex-1 bg-transparent outline-none" />
+      </span>
+    </label>
   );
 }
