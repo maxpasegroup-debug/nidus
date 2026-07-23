@@ -2472,9 +2472,11 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
 
   async function archiveLibraryMaterial(materialId: string) {
     if (!selectedClass) return;
+    if (typeof window !== "undefined" && !window.confirm("Archive this lesson? Students will no longer see it until you restore it.")) return;
     try {
       await apiPost<{ ok?: boolean }>([`/api/academy/study-materials/${materialId}/archive`], {});
       await loadClassWorkspace(selectedClass.id);
+      setLibraryMessage("Lesson archived. You can restore it later from archived materials.");
     } catch (error) {
       setLibraryMessage(error instanceof Error ? error.message : "Could not archive material.");
     }
@@ -2493,7 +2495,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
 
   async function deleteLibraryMaterial(materialId: string) {
     if (!selectedClass) return;
-    if (typeof window !== "undefined" && !window.confirm("Delete permanently and remove Cloudinary file?")) return;
+    if (typeof window !== "undefined" && !window.confirm("Delete this lesson permanently? This cannot be undone.")) return;
     try {
       await apiDelete<{ ok?: boolean }>([`/api/academy/study-materials/${materialId}`]);
       await loadClassWorkspace(selectedClass.id);
@@ -2522,9 +2524,20 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
   }
 
   async function createLibraryFolder(kind: "SUBJECT" | "TOPIC", name: string) {
-    if (!selectedClass || !name.trim()) return;
-    const subject = kind === "SUBJECT" ? name.trim() : activeLibrarySubject || "General";
-    const topic = kind === "SUBJECT" ? "__SUBJECT__" : name.trim();
+    const cleanName = name.trim();
+    if (!selectedClass || !cleanName) {
+      setLibraryMessage(`Enter a ${kind === "SUBJECT" ? "subject" : "topic"} folder name first.`);
+      return;
+    }
+    const duplicate = kind === "SUBJECT"
+      ? librarySubjects.some((item) => item.name.toLowerCase() === cleanName.toLowerCase())
+      : libraryTopics.some((item) => item.name.toLowerCase() === cleanName.toLowerCase());
+    if (duplicate) {
+      setLibraryMessage(`${cleanName} already exists.`);
+      return;
+    }
+    const subject = kind === "SUBJECT" ? cleanName : activeLibrarySubject || "General";
+    const topic = kind === "SUBJECT" ? "__SUBJECT__" : cleanName;
     try {
       await apiPost<{ ok?: boolean }>(["/api/academy/study-materials"], {
         batchId: selectedClass.id,
@@ -2533,21 +2546,22 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
         folder: subject,
         subject,
         topic,
-        title: name.trim(),
-        lessonName: name.trim(),
+        title: cleanName,
+        lessonName: cleanName,
         description: `${kind === "SUBJECT" ? "Subject" : "Topic"} folder`,
         type: "FOLDER",
         status: "PUBLISHED",
         reviewStatus: "APPROVED",
       });
       if (kind === "SUBJECT") {
-        setLibrarySubject(name.trim());
+        setLibrarySubject(cleanName);
         setLibraryTopic(null);
       } else {
-        setLibraryTopic(name.trim());
+        setLibraryTopic(cleanName);
       }
       setLibraryForm((form) => ({ ...form, subject: kind === "SUBJECT" ? "" : form.subject, topic: kind === "TOPIC" ? "" : form.topic }));
       await loadClassWorkspace(selectedClass.id);
+      setLibraryMessage(`${cleanName} folder created.`);
     } catch (error) {
       setLibraryMessage(error instanceof Error ? error.message : "Could not create folder.");
     }
@@ -2592,6 +2606,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
     if (!selectedClass) return;
     const records = libraryFolderRecords(kind, folderName).filter((item) => item.status !== "ARCHIVED");
     if (!records.length) return;
+    if (typeof window !== "undefined" && !window.confirm(`Archive ${folderName}? Students will not see lessons inside it until restored.`)) return;
     try {
       await Promise.all(records.map((item) => apiPost<{ ok?: boolean }>([`/api/academy/study-materials/${item.id}/archive`], {})));
       await loadClassWorkspace(selectedClass.id);
@@ -2618,7 +2633,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
     if (!selectedClass) return;
     const records = libraryFolderRecords(kind, folderName);
     if (!records.length) return;
-    if (typeof window !== "undefined" && !window.confirm(`Delete ${folderName} and every lesson inside it permanently?`)) return;
+    if (typeof window !== "undefined" && !window.confirm(`Delete ${folderName} and every lesson inside it permanently? This cannot be undone.`)) return;
     try {
       await Promise.all(records.map((item) => apiDelete<{ ok?: boolean }>([`/api/academy/study-materials/${item.id}`])));
       if (kind === "SUBJECT" && activeLibrarySubject === folderName) {
@@ -3646,6 +3661,9 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
                     archived={archived}
                     onOpen={() => { setLibrarySubject(subject.name); setLibraryTopic(null); setShowLibraryUpload(false); }}
                     onRename={subject.materials.length ? () => void renameLibraryFolder("SUBJECT", subject.name) : undefined}
+                    onArchive={subject.materials.length && !archived ? () => void archiveLibraryFolder("SUBJECT", subject.name) : undefined}
+                    onRestore={subject.materials.length && archived ? () => void restoreLibraryFolder("SUBJECT", subject.name) : undefined}
+                    onDelete={subject.materials.length ? () => void deleteLibraryFolder("SUBJECT", subject.name) : undefined}
                   />
                 );
               })}
@@ -3680,6 +3698,9 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
                       archived={archived}
                       onOpen={() => { setLibraryTopic(topic.name); setShowLibraryUpload(false); }}
                       onRename={() => void renameLibraryFolder("TOPIC", topic.name)}
+                      onArchive={topic.materials.length && !archived ? () => void archiveLibraryFolder("TOPIC", topic.name) : undefined}
+                      onRestore={topic.materials.length && archived ? () => void restoreLibraryFolder("TOPIC", topic.name) : undefined}
+                      onDelete={topic.materials.length ? () => void deleteLibraryFolder("TOPIC", topic.name) : undefined}
                     />
                   );
                 })}
@@ -6272,6 +6293,13 @@ function LibraryUploadPanel({
   const hasUploading = resources.some((resource) => resource.status === "UPLOADING");
   const hasReadyResource = resources.some((resource) => resource.status === "READY");
   const canPublish = Boolean(form.title.trim() && selectedSubject && (hasReadyResource || youtubePreviewUrl) && !hasUploading);
+  const publishHelp = !form.title.trim()
+    ? "Enter a lesson title to publish."
+    : hasUploading
+      ? "Please wait for the upload to finish."
+      : !hasReadyResource && !youtubePreviewUrl
+        ? "Add one file or YouTube link to publish."
+        : "Ready to publish to students.";
 
   const queueFiles = async (files: File[]) => {
     if (!files.length) return;
@@ -6351,19 +6379,19 @@ function LibraryUploadPanel({
     <div className="fixed inset-0 z-50 flex min-h-0 flex-col overflow-y-auto bg-[var(--page-bg)] xl:overflow-hidden">
       <header className="flex shrink-0 items-center justify-between gap-4 border-b border-[var(--border)] bg-white px-4 py-3 sm:px-6">
         <div className="min-w-0">
-          <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.18em] text-[var(--gold-dark)]"><Library size={15} /> Recorded Class Library</div>
-          <h1 className="mt-1 truncate text-xl font-black sm:text-2xl">Upload lesson resources</h1>
+          <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.18em] text-[var(--gold-dark)]"><Library size={15} /> Teaching Files</div>
+          <h1 className="mt-1 truncate text-xl font-black sm:text-2xl">Add lesson for students</h1>
         </div>
         <button type="button" onClick={closeUpload} className="inline-flex h-11 shrink-0 items-center gap-2 rounded-xl border border-[var(--border)] bg-white px-4 text-sm font-black text-[var(--ink)] hover:bg-[var(--page-bg)]" aria-label="Close upload lesson">
-          <X size={17} /> <span className="hidden sm:inline">Back to class</span>
+          <X size={17} /> <span className="hidden sm:inline">Close</span>
         </button>
       </header>
 
-      <main className="grid min-h-0 flex-1 grid-cols-1 gap-3 p-3 sm:p-4 xl:grid-cols-[300px_350px_minmax(0,1fr)]">
+      <main className="grid min-h-0 flex-1 grid-cols-1 gap-3 p-3 sm:p-4 xl:grid-cols-[340px_360px_minmax(0,1fr)]">
         <section className="min-w-0 rounded-xl border border-[var(--border)] bg-white p-4 xl:overflow-hidden">
           <div className="mb-3">
-            <p className="text-xs font-black uppercase tracking-[0.18em] text-[var(--gold-dark)]">1. Lesson Details</p>
-            <h2 className="mt-1 text-lg font-black">Where does this belong?</h2>
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-[var(--gold-dark)]">Step 1</p>
+            <h2 className="mt-1 text-lg font-black">Choose class and topic</h2>
           </div>
           <div className="grid gap-2.5">
             <label className="min-w-0 text-xs font-black">Course
@@ -6421,34 +6449,32 @@ function LibraryUploadPanel({
             </div>
             {customChapter ? <label className="text-xs font-black">New Chapter<input value={form.chapter} onChange={(event) => onChange((current) => ({ ...current, chapter: event.target.value, folder: event.target.value }))} className={compactInputClass} /></label> : null}
             {customTopic ? <label className="text-xs font-black">New Topic<input value={form.topic} onChange={(event) => onChange((current) => ({ ...current, topic: event.target.value }))} className={compactInputClass} /></label> : null}
-            <label className="min-w-0 text-xs font-black">Lesson Title
+            <label className="min-w-0 text-xs font-black">Lesson Title <span className="text-rose-700">*</span>
               <input value={form.title} onChange={(event) => onChange((current) => ({ ...current, title: event.target.value, lessonName: event.target.value, subject: selectedSubject, folder: form.chapter || selectedSubject }))} className={compactInputClass} placeholder="Example: Algebra - Part 1" />
             </label>
-            <label className="min-w-0 text-xs font-black">Teacher Notes <span className="font-normal text-[var(--muted-blue)]">(optional)</span>
+            <label className="min-w-0 text-xs font-black">Short Note <span className="font-normal text-[var(--muted-blue)]">(optional)</span>
               <textarea value={form.description} onChange={(event) => onChange((current) => ({ ...current, description: event.target.value }))} className="mt-1 h-16 w-full resize-none rounded-lg border border-[var(--border)] bg-white px-3 py-2 text-sm outline-none focus:border-slate-950" />
             </label>
           </div>
-          <p className="mt-3 rounded-lg bg-emerald-50 px-3 py-2 text-xs leading-5 text-emerald-900"><strong>{activeBatch?.name ?? "Selected batch"}</strong> students only.</p>
+          <p className="mt-3 rounded-lg bg-emerald-50 px-3 py-2 text-xs leading-5 text-emerald-900"><strong>{activeBatch?.name ?? "Selected batch"}</strong> students will see this after publishing.</p>
         </section>
 
         <section className="flex min-w-0 flex-col gap-3 rounded-xl border border-[var(--border)] bg-white p-4 xl:overflow-hidden">
           <div>
-            <p className="text-xs font-black uppercase tracking-[0.18em] text-[var(--gold-dark)]">2. Add Resources</p>
-            <h2 className="mt-1 text-lg font-black">Choose files or paste a link</h2>
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-[var(--gold-dark)]">Step 2</p>
+            <h2 className="mt-1 text-lg font-black">Add video, file, or link</h2>
           </div>
-          <label className="flex min-h-24 cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-slate-400 bg-[var(--page-bg)] p-4 text-center hover:border-slate-950">
+          <label className="flex min-h-20 cursor-pointer items-center gap-3 rounded-xl border border-dashed border-slate-400 bg-[var(--page-bg)] p-3 text-left hover:border-slate-950">
             <Video size={24} />
-            <strong className="mt-2 text-sm">Upload Recorded Video</strong>
-            <span className="mt-1 text-xs text-[var(--muted-blue)]">MP4, WebM or MOV</span>
+            <span className="min-w-0"><strong className="block text-sm">Recorded Video</strong><span className="text-xs text-[var(--muted-blue)]">MP4, WebM or MOV</span></span>
             <input type="file" accept="video/mp4,video/webm,video/quicktime" className="sr-only" onChange={(event) => {
               void queueFiles(Array.from(event.target.files ?? []));
               event.target.value = "";
             }} />
           </label>
-          <label className="flex min-h-20 cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-slate-400 bg-[var(--page-bg)] p-3 text-center hover:border-slate-950">
+          <label className="flex min-h-20 cursor-pointer items-center gap-3 rounded-xl border border-dashed border-slate-400 bg-[var(--page-bg)] p-3 text-left hover:border-slate-950">
             <Files size={22} />
-            <strong className="mt-1 text-sm">Add Notes and Files</strong>
-            <span className="mt-1 text-xs text-[var(--muted-blue)]">PDF, PPT, Word or images - multiple allowed</span>
+            <span className="min-w-0"><strong className="block text-sm">Notes / Worksheet</strong><span className="text-xs text-[var(--muted-blue)]">PDF, PPT, Word or images</span></span>
             <input type="file" multiple accept=".pdf,.doc,.docx,.ppt,.pptx,image/jpeg,image/png,image/webp,image/gif" className="sr-only" onChange={(event) => {
               void queueFiles(Array.from(event.target.files ?? []));
               event.target.value = "";
@@ -6477,7 +6503,7 @@ function LibraryUploadPanel({
         </section>
 
         <section className="flex min-h-[420px] min-w-0 flex-col rounded-xl border border-[var(--border)] bg-white p-4 xl:min-h-0 xl:overflow-hidden">
-          <div className="flex shrink-0 items-center justify-between gap-3"><div><p className="text-xs font-black uppercase tracking-[0.18em] text-[var(--gold-dark)]">3. Preview</p><h2 className="mt-1 text-lg font-black">Check before publishing</h2></div><span className="rounded-full border border-[var(--border)] px-3 py-1 text-xs font-black">{selectedPreviewId === "YOUTUBE" ? "YOUTUBE" : selectedResource?.materialType || "NO FILE"}</span></div>
+          <div className="flex shrink-0 items-center justify-between gap-3"><div><p className="text-xs font-black uppercase tracking-[0.18em] text-[var(--gold-dark)]">Step 3</p><h2 className="mt-1 text-lg font-black">Preview and publish</h2></div><span className="rounded-full border border-[var(--border)] px-3 py-1 text-xs font-black">{selectedPreviewId === "YOUTUBE" ? "YOUTUBE" : selectedResource?.materialType || "NO FILE"}</span></div>
           <div className="mt-3 min-h-0 flex-1 overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--page-bg)]">
               {selectedPreviewId === "YOUTUBE" && youtubePreviewUrl ? (
                 <iframe
@@ -6505,7 +6531,7 @@ function LibraryUploadPanel({
       </main>
 
       <footer className="flex shrink-0 flex-col gap-2 border-t border-[var(--border)] bg-white px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-        <p className="min-w-0 truncate text-xs font-bold text-[var(--muted-blue)]">{activeProgram?.name} / {activeBatch?.name} / {selectedSubject} / {selectedChapter} / {selectedTopic}</p>
+        <p className="min-w-0 truncate text-xs font-bold text-[var(--muted-blue)]">{publishHelp} {activeProgram?.name} / {activeBatch?.name} / {selectedSubject} / {selectedChapter} / {selectedTopic}</p>
         <button type="button" disabled={!canPublish} onClick={() => void publishUpload()} className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-emerald-700 px-6 font-black text-white disabled:cursor-not-allowed disabled:opacity-50"><Plus size={17} /> {hasUploading ? "Uploading..." : "Publish to students"}</button>
       </footer>
     </div>
