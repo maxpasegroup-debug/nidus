@@ -4,14 +4,64 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import {
   ArrowLeft,
+  BarChart3,
+  BookOpenCheck,
+  CalendarDays,
   ClipboardCheck,
+  GraduationCap,
+  UserCheck,
+  Users,
 } from "lucide-react";
 
 import { getAcademicCalendarMonitor, getAcademyBatches, getStudentProgressSummary } from "@/services/academy";
 import { useCourses } from "@/hooks/use-courses";
-import { AcademicEngineBanner, AcademicEngineRoleActions } from "@/components/academy/academic-engine-workspace";
 import { AcademicHero, AcademicShell, EmptyState, Panel, StatCard } from "./_components";
 import { livePlannerMetrics, parseBatchAcademicPlanner, parseCourseDescription } from "./academic-planner-utils";
+
+const directorActions = [
+  {
+    title: "Programs",
+    text: "Add or edit courses and their master planner.",
+    href: "/dashboard/director/academic/programs",
+    icon: GraduationCap,
+    primary: "Manage Programs",
+  },
+  {
+    title: "Batches",
+    text: "Create running batches, edit setup and archive old batches.",
+    href: "/dashboard/director/academic/batches",
+    icon: Users,
+    primary: "Manage Batches",
+  },
+  {
+    title: "Timetable",
+    text: "Publish class dates and teacher schedules.",
+    href: "/dashboard/director/academic/timetable",
+    icon: CalendarDays,
+    primary: "Open Timetable",
+  },
+  {
+    title: "Teachers",
+    text: "Allocate teachers and check delivery.",
+    href: "/dashboard/director/academic/teachers",
+    icon: UserCheck,
+    primary: "Manage Faculty",
+  },
+  {
+    title: "Syllabus",
+    text: "Track chapter and topic completion.",
+    href: "/dashboard/director/academic/syllabus",
+    icon: BookOpenCheck,
+    primary: "Track Syllabus",
+  },
+  {
+    title: "Reports",
+    text: "Review attendance, exams, assignments and materials.",
+    href: "/dashboard/director/academic/reports",
+    icon: BarChart3,
+    primary: "View Reports",
+  },
+];
 
 export default function DirectorAcademicDepartmentPage() {
   const coursesQuery = useCourses();
@@ -50,8 +100,8 @@ export default function DirectorAcademicDepartmentPage() {
     <AcademicShell>
       <AcademicHero
         eyebrow="Academics"
-        title="Academic Control"
-        description="Planner health, batch execution, delayed sessions, syllabus progress and resource readiness in one director view."
+        title="Academic Desk"
+        description="Manage programs, batches, timetable, faculty, syllabus and student progress from one simple place."
         action={
           <Link href="/dashboard/director" className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-sm font-black">
             <ArrowLeft className="h-4 w-4" />
@@ -69,23 +119,37 @@ export default function DirectorAcademicDepartmentPage() {
         <StatCard label="Avg Completion" value={`${averagePlannerCompletion}%`} />
       </section>
 
-      <AcademicEngineBanner
-        role="DIRECTOR"
-        title="Planner-first Academic Engine"
-        description="Program planner is the master source. Batch planner, timetable, class completion, attendance, materials, homework, tests and performance reports should follow this same flow."
-        metrics={[
-          { label: "Planner Progress", value: `${averagePlannerCompletion}%`, tone: averagePlannerCompletion >= 75 ? "success" : "warning" },
-          { label: "Batch Progress", value: `${completedSessionCount}/${generatedSessionCount || 0}` },
-          { label: "Faculty Progress", value: `${calendarItems.reduce((sum, item) => sum + item.completedClasses, 0)} completed`, tone: "info" },
-          { label: "Alerts", value: delayedBatches.length + batchesWithoutPlanner.length, tone: delayedBatches.length + batchesWithoutPlanner.length ? "warning" : "success" },
-        ]}
-      />
+      <Panel title="What do you want to manage?" eyebrow="Director actions">
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          {directorActions.map((item) => {
+            const Icon = item.icon;
+            return (
+              <Link key={item.href} href={item.href} className="group grid min-h-36 gap-3 rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-[var(--gold-border)] hover:bg-[var(--gold-soft)] hover:shadow-md">
+                <div className="flex items-start justify-between gap-3">
+                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[var(--gold-border)] bg-[var(--gold-soft)]">
+                    <Icon className="h-5 w-5 text-[var(--navy)]" />
+                  </span>
+                  <span className="rounded-full border border-[var(--border)] bg-white px-2.5 py-1 text-[10px] font-black text-[var(--navy)]">Open</span>
+                </div>
+                <div>
+                  <h3 className="text-lg font-black text-[var(--navy)]">{item.title}</h3>
+                  <p className="mt-1 text-sm leading-5 text-[var(--muted-blue)]">{item.text}</p>
+                </div>
+                <p className="mt-auto text-sm font-black text-[var(--gold-dark)]">{item.primary}</p>
+              </Link>
+            );
+          })}
+        </div>
+      </Panel>
 
-      <section className="grid gap-3 lg:grid-cols-[1fr_1.4fr]">
-        <Panel title="Academic Engine Entry Points" eyebrow="Planner to performance">
-          <AcademicEngineRoleActions role="DIRECTOR" />
+      <section className="grid gap-3 lg:grid-cols-[0.8fr_1.4fr]">
+        <Panel title="NDP and student progress" eyebrow="Student review">
           <Link href="/dashboard/director/academic/ndp" className="mt-3 flex min-h-14 items-center justify-between rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-sm font-black transition hover:-translate-y-0.5 hover:shadow-md">
             <span className="flex items-center gap-3"><ClipboardCheck className="h-5 w-5 text-[var(--gold-dark)]" /> NDP Monitor</span>
+            <span>Open</span>
+          </Link>
+          <Link href="/dashboard/director/academic/student-progress" className="mt-3 flex min-h-14 items-center justify-between rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-sm font-black transition hover:-translate-y-0.5 hover:shadow-md">
+            <span className="flex items-center gap-3"><BarChart3 className="h-5 w-5 text-[var(--gold-dark)]" /> Student Progress</span>
             <span>Open</span>
           </Link>
         </Panel>
@@ -93,7 +157,7 @@ export default function DirectorAcademicDepartmentPage() {
         <Panel title="Batch Planner Execution" eyebrow="Director tracking">
           {!plannerCards.length ? <EmptyState text="No active batches are available yet." /> : null}
           <div className="max-h-[48vh] overflow-auto rounded-2xl border border-[var(--border)]">
-            <table className="w-full min-w-[860px] border-collapse text-sm">
+            <table className="w-full min-w-[760px] border-collapse text-sm">
               <thead className="sticky top-0 bg-[var(--page-bg)] text-left">
                 <tr className="border-b border-[var(--border)]">
                   {["Batch", "Planner", "Completion", "Delayed", "Health", "Action"].map((heading) => (
@@ -110,8 +174,8 @@ export default function DirectorAcademicDepartmentPage() {
                     <td className="px-3 py-2 text-orange-700">{item.metrics.delayed}</td>
                     <td className="px-3 py-2">{item.health?.overallStatus ?? "No Data"}</td>
                     <td className="px-3 py-2">
-                      <Link href={`/dashboard/director/academic/batches/${item.batch.id}/planner`} className="inline-flex rounded-lg bg-[var(--navy)] px-3 py-1.5 text-xs font-black text-white">
-                        Open Planner
+                      <Link href={`/dashboard/director/academic/batches/${item.batch.id}/planner`} className="inline-flex min-w-24 items-center justify-center rounded-lg bg-[var(--navy)] px-3 py-2 text-xs font-black text-white">
+                        Open
                       </Link>
                     </td>
                   </tr>

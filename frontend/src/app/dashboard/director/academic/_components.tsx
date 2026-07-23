@@ -5,8 +5,8 @@ import { BrandGlassMark } from "@/components/brand/brand-glass-mark";
 
 export function AcademicShell({ children }: { children: ReactNode }) {
   return (
-    <main className="min-h-screen bg-[var(--page-bg)] px-4 py-4 text-[var(--navy)] md:px-6 lg:h-[calc(100vh-var(--nav-height)-2rem)] lg:min-h-0 lg:overflow-hidden">
-      <section className="mx-auto flex h-full max-w-[1500px] flex-col gap-4 overflow-y-auto pr-0 lg:pr-2">{children}</section>
+    <main className="min-h-screen overflow-x-hidden bg-[var(--page-bg)] px-4 py-4 text-[var(--navy)] md:px-6 lg:h-[calc(100vh-var(--nav-height)-2rem)] lg:min-h-0 lg:overflow-hidden">
+      <section className="mx-auto flex h-full max-w-[1500px] flex-col gap-4 overflow-x-hidden overflow-y-auto pr-0 lg:pr-2">{children}</section>
     </main>
   );
 }

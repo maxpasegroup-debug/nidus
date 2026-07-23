@@ -1,6 +1,27 @@
 import Image from "next/image";
 
 export function BrandGlassMark({ compact = false }: { compact?: boolean }) {
+  if (compact) {
+    return (
+      <div className="relative isolate overflow-hidden rounded-2xl border border-white/70 bg-white/45 p-3 shadow-[0_18px_60px_rgba(7,29,54,0.12)] backdrop-blur-xl">
+        <div className="absolute -left-8 -top-10 h-24 w-24 rounded-full bg-[rgba(194,141,34,0.18)] blur-2xl" />
+        <div className="relative flex min-h-20 items-center">
+          <div className="min-w-0">
+            <Image
+              src="/brand/nidus-logo-horizontal.png"
+              alt="NIDUS Academy"
+              width={176}
+              height={48}
+              className="max-h-12 w-auto object-contain"
+              priority
+            />
+            <p className="mt-2 text-[10px] font-black uppercase tracking-[0.26em] text-[var(--muted-blue)]">Command OS</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
       className={`relative isolate overflow-hidden rounded-2xl border border-white/70 bg-white/45 shadow-[0_18px_60px_rgba(7,29,54,0.16)] backdrop-blur-xl ${
