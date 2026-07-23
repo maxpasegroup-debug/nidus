@@ -228,5 +228,18 @@ export const authControllerV2 = {
     } catch (error) {
       res.status(400).json({ success: false, message: error instanceof Error ? error.message : "Profile photo update failed" });
     }
+  },
+
+  async updateProfile(req: AuthenticatedRequest, res: Response) {
+    try {
+      if (!req.user) {
+        res.status(401).json({ success: false, message: "Not authenticated" });
+        return;
+      }
+      res.json({ success: true, ...(await AuthServiceV2.updateProfile(req.user.id, req.body as Record<string, unknown>)) });
+    } catch (error) {
+      const statusCode = typeof (error as { statusCode?: unknown }).statusCode === "number" ? (error as { statusCode: number }).statusCode : 400;
+      res.status(statusCode).json({ success: false, message: error instanceof Error ? error.message : "Profile update failed" });
+    }
   }
 };

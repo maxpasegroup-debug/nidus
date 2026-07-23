@@ -64,6 +64,16 @@ function clearDefaultPinFlags(metadata: Record<string, unknown>) {
   return next;
 }
 
+function cleanText(value: unknown) {
+  return typeof value === "string" ? value.trim() : "";
+}
+
+function cleanPercent(value: unknown) {
+  const numberValue = Number(value ?? 0);
+  if (!Number.isFinite(numberValue)) return 0;
+  return Math.max(0, Math.min(100, Math.round(numberValue)));
+}
+
 function effectiveLoginMobile(metadata: Record<string, unknown>, fallbackMobile: string) {
   const loginMobile = typeof metadata.loginMobile === "string" ? normalizeMobile(metadata.loginMobile) : "";
   return isValidMobile(loginMobile) ? loginMobile : fallbackMobile;
@@ -550,6 +560,116 @@ export const AuthServiceV2 = {
     });
     await audit({ userId, action: "PROFILE_PHOTO_UPDATED", description: "Profile photo updated" });
     return { message: "Profile photo updated", user: safeUser(user), imageUrl };
+  },
+
+  async updateProfile(userId: string, input: Record<string, unknown>) {
+    const existing = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        mobile: true,
+        role: true,
+        emailVerified: true,
+        mobileVerified: true,
+        instituteId: true,
+        branchId: true,
+        roleMetadata: true
+      }
+    });
+    if (!existing) throw new Error("User not found");
+
+    const fullName = cleanText(input.name);
+    const email = cleanText(input.email).toLowerCase();
+    const mobile = cleanText(input.mobile);
+    const required = ["dateOfBirth", "gender", "address", "bloodGroup", "emergencyContactName", "emergencyContactMobile", "emergencyContactRelation", "designation", "department"];
+    const profile = {
+      dateOfBirth: cleanText(input.dateOfBirth),
+      gender: cleanText(input.gender),
+      address: cleanText(input.address),
+      bloodGroup: cleanText(input.bloodGroup).toUpperCase(),
+      emergencyContactName: cleanText(input.emergencyContactName),
+      emergencyContactMobile: normalizeMobile(cleanText(input.emergencyContactMobile)),
+      emergencyContactRelation: cleanText(input.emergencyContactRelation),
+      designation: cleanText(input.designation),
+      department: cleanText(input.department),
+      qualification: cleanText(input.qualification),
+      experience: cleanText(input.experience)
+    };
+    const missing = [
+      !fullName ? "Full name" : null,
+      !email ? "Email" : null,
+      !mobile ? "Mobile number" : null,
+      ...required.map((key) => profile[key as keyof typeof profile] ? null : key),
+    ].filter(Boolean);
+    if (missing.length) {
+      throw Object.assign(new Error(`Complete mandatory profile fields: ${missing.join(", ")}`), { statusCode: 400 });
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      throw Object.assign(new Error("Valid email is required"), { statusCode: 400 });
+    }
+    if (!isValidMobile(mobile) || !isValidMobile(profile.emergencyContactMobile)) {
+      throw Object.assign(new Error("Valid mobile and emergency contact numbers are required"), { statusCode: 400 });
+    }
+    const normalizedMobile = normalizeMobile(mobile);
+    const duplicate = await prisma.user.findFirst({
+      where: {
+        id: { not: userId },
+        OR: [
+          { email },
+          { mobile: { in: mobileCandidates(normalizedMobile) } }
+        ]
+      },
+      select: { email: true, mobile: true }
+    });
+    if (duplicate?.email === email) {
+      throw Object.assign(new Error("Email is already used by another account"), { statusCode: 409 });
+    }
+    if (duplicate?.mobile && mobileCandidates(normalizedMobile).includes(duplicate.mobile)) {
+      throw Object.assign(new Error("Mobile number is already used by another account"), { statusCode: 409 });
+    }
+
+    const metadata = metadataObject(existing.roleMetadata);
+    const teacherProgress = {
+      attendanceDiscipline: cleanPercent(input.attendanceDiscipline),
+      syllabusDelivery: cleanPercent(input.syllabusDelivery),
+      assignmentReview: cleanPercent(input.assignmentReview),
+      examReadiness: cleanPercent(input.examReadiness),
+      ndpCompletion: cleanPercent(input.ndpCompletion),
+      personalGrowth: cleanPercent(input.personalGrowth),
+      progressNote: cleanText(input.progressNote),
+      updatedAt: new Date().toISOString()
+    };
+    const updated = await prisma.user.update({
+      where: { id: userId },
+      data: {
+        name: fullName,
+        email,
+        mobile: normalizedMobile,
+        roleMetadata: {
+          ...metadata,
+          ...profile,
+          profileCompletionRequired: false,
+          profileCompletedAt: new Date().toISOString(),
+          teacherProgress
+        } as Prisma.InputJsonObject
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        mobile: true,
+        role: true,
+        emailVerified: true,
+        mobileVerified: true,
+        instituteId: true,
+        branchId: true,
+        roleMetadata: true
+      }
+    });
+    await audit({ userId, action: "PROFILE_UPDATED", description: "Mandatory profile details updated" });
+    return { message: "Profile saved", user: safeUser(updated) };
   },
 
   async inviteParentLink(studentId: string, parentIdentity: string) {

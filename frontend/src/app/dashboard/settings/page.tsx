@@ -1,24 +1,96 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { Camera, KeyRound } from "lucide-react";
+import { Activity, Camera, HeartPulse, KeyRound, PhoneCall, Save, ShieldCheck, UserRound } from "lucide-react";
 import { RoleDashboardGuard } from "@/components/dashboard";
 import { Button } from "@/components/ui/button";
 import { PasswordInput } from "@/components/ui/password-input";
 import { useToast } from "@/components/providers/toast-provider";
 import { getApiErrorMessage } from "@/services/api";
-import { changePin, updateProfilePhoto } from "@/services/auth.v2";
+import { changePin, updateProfile, updateProfilePhoto, type ProfileUpdatePayload } from "@/services/auth.v2";
 import { useAuth } from "@/components/providers/auth-provider-v2";
+
+const requiredFields: Array<{ key: keyof ProfileUpdatePayload; label: string }> = [
+  { key: "name", label: "Full name" },
+  { key: "email", label: "Email" },
+  { key: "mobile", label: "Mobile" },
+  { key: "dateOfBirth", label: "Date of birth" },
+  { key: "gender", label: "Gender" },
+  { key: "address", label: "Address" },
+  { key: "bloodGroup", label: "Blood group" },
+  { key: "emergencyContactName", label: "Emergency contact name" },
+  { key: "emergencyContactMobile", label: "Emergency contact mobile" },
+  { key: "emergencyContactRelation", label: "Emergency relation" },
+  { key: "designation", label: "Designation" },
+  { key: "department", label: "Department" },
+];
+
+const progressFields: Array<{ key: keyof ProfileUpdatePayload; label: string }> = [
+  { key: "attendanceDiscipline", label: "Attendance discipline" },
+  { key: "syllabusDelivery", label: "Syllabus delivery" },
+  { key: "assignmentReview", label: "Assignment review" },
+  { key: "examReadiness", label: "Exam readiness" },
+  { key: "ndpCompletion", label: "NDP completion" },
+  { key: "personalGrowth", label: "Personal growth" },
+];
+
+function textValue(value: unknown) {
+  return typeof value === "string" ? value : "";
+}
+
+function numberValue(value: unknown) {
+  const parsed = Number(value ?? 0);
+  return Number.isFinite(parsed) ? Math.max(0, Math.min(100, Math.round(parsed))) : 0;
+}
+
+function Field({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
+  return (
+    <label className="grid gap-2 text-sm font-black text-[var(--ink)]">
+      <span>{label}{required ? <span className="text-rose-600"> *</span> : null}</span>
+      {children}
+    </label>
+  );
+}
+
+function inputClass(missing = false) {
+  return `min-h-12 rounded-xl border bg-white px-4 text-sm font-bold outline-none focus:border-slate-950 ${missing ? "border-rose-300" : "border-[var(--border)]"}`;
+}
 
 export default function DashboardSettingsPage() {
   const router = useRouter();
   const { showToast } = useToast();
   const { user, refreshUser } = useAuth();
+  const metadata = useMemo(() => user?.roleMetadata && typeof user.roleMetadata === "object" ? user.roleMetadata : {}, [user?.roleMetadata]);
+  const progress = metadata.teacherProgress && typeof metadata.teacherProgress === "object" && !Array.isArray(metadata.teacherProgress) ? metadata.teacherProgress as Record<string, unknown> : {};
+  const [profile, setProfile] = useState<ProfileUpdatePayload>({
+    name: "",
+    email: "",
+    mobile: "",
+    dateOfBirth: "",
+    gender: "",
+    address: "",
+    bloodGroup: "",
+    emergencyContactName: "",
+    emergencyContactMobile: "",
+    emergencyContactRelation: "",
+    designation: "",
+    department: "",
+    qualification: "",
+    experience: "",
+    attendanceDiscipline: 0,
+    syllabusDelivery: 0,
+    assignmentReview: 0,
+    examReadiness: 0,
+    ndpCompletion: 0,
+    personalGrowth: 0,
+    progressNote: "",
+  });
   const [currentPin, setCurrentPin] = useState("");
   const [newPin, setNewPin] = useState("");
   const [confirmPin, setConfirmPin] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmittingPin, setIsSubmittingPin] = useState(false);
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
   const [mustChangePassword, setMustChangePassword] = useState(false);
 
@@ -26,7 +98,59 @@ export default function DashboardSettingsPage() {
     setMustChangePassword(new URLSearchParams(window.location.search).get("mustChangePassword") === "1");
   }, []);
 
-  async function submit(event: FormEvent<HTMLFormElement>) {
+  useEffect(() => {
+    setProfile({
+      name: user?.name ?? "",
+      email: user?.email ?? "",
+      mobile: user?.mobile ?? "",
+      dateOfBirth: textValue(metadata.dateOfBirth),
+      gender: textValue(metadata.gender),
+      address: textValue(metadata.address),
+      bloodGroup: textValue(metadata.bloodGroup),
+      emergencyContactName: textValue(metadata.emergencyContactName),
+      emergencyContactMobile: textValue(metadata.emergencyContactMobile),
+      emergencyContactRelation: textValue(metadata.emergencyContactRelation),
+      designation: textValue(metadata.designation) || (user?.role === "TEACHER" ? "Faculty" : ""),
+      department: textValue(metadata.department) || (user?.role === "TEACHER" ? "Academics" : ""),
+      qualification: textValue(metadata.qualification),
+      experience: textValue(metadata.experience),
+      attendanceDiscipline: numberValue(progress.attendanceDiscipline),
+      syllabusDelivery: numberValue(progress.syllabusDelivery),
+      assignmentReview: numberValue(progress.assignmentReview),
+      examReadiness: numberValue(progress.examReadiness),
+      ndpCompletion: numberValue(progress.ndpCompletion),
+      personalGrowth: numberValue(progress.personalGrowth),
+      progressNote: textValue(progress.progressNote),
+    });
+  }, [metadata, progress, user]);
+
+  const missingFields = requiredFields.filter((field) => !String(profile[field.key] ?? "").trim());
+  const completion = Math.round(((requiredFields.length - missingFields.length) / requiredFields.length) * 100);
+  const progressScore = Math.round(progressFields.reduce((total, field) => total + numberValue(profile[field.key]), 0) / progressFields.length);
+
+  function updateField<K extends keyof ProfileUpdatePayload>(key: K, value: ProfileUpdatePayload[K]) {
+    setProfile((current) => ({ ...current, [key]: value }));
+  }
+
+  async function submitProfile(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (missingFields.length) {
+      showToast(`Complete mandatory fields: ${missingFields.map((field) => field.label).join(", ")}`, "error");
+      return;
+    }
+    setIsSavingProfile(true);
+    try {
+      const response = await updateProfile(profile);
+      await refreshUser();
+      showToast(response.message ?? "Profile saved", "success");
+    } catch (error) {
+      showToast(getApiErrorMessage(error), "error");
+    } finally {
+      setIsSavingProfile(false);
+    }
+  }
+
+  async function submitPin(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!/^\d{4}$/.test(currentPin) || !/^\d{4}$/.test(newPin)) {
       showToast("PIN must be exactly 4 digits", "error");
@@ -36,8 +160,7 @@ export default function DashboardSettingsPage() {
       showToast("New PINs do not match", "error");
       return;
     }
-
-    setIsSubmitting(true);
+    setIsSubmittingPin(true);
     try {
       const response = await changePin({ currentPin, newPin });
       showToast(response.message ?? "PIN changed successfully", "success");
@@ -48,7 +171,7 @@ export default function DashboardSettingsPage() {
     } catch (error) {
       showToast(getApiErrorMessage(error), "error");
     } finally {
-      setIsSubmitting(false);
+      setIsSubmittingPin(false);
     }
   }
 
@@ -69,50 +192,151 @@ export default function DashboardSettingsPage() {
   return (
     <RoleDashboardGuard role={["ADMIN", "DIRECTOR", "ACADEMIC_HEAD", "TEACHER", "PHYSICAL_TRAINER", "STUDENT", "PARENT", "TELECALLER", "MARKETING_COORDINATOR", "BUSINESS_DEVELOPMENT_EXECUTIVE", "ADMINISTRATIVE_OFFICER", "GUEST"]}>
       <main className="min-h-screen px-4 py-6 sm:px-6 lg:px-8">
-        <section className="mx-auto max-w-5xl space-y-6">
-          <div className="premium-surface rounded-lg p-6">
-            <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+        <section className="mx-auto grid max-w-6xl gap-6">
+          <div className="overflow-hidden rounded-2xl border border-[var(--border)] bg-white shadow-sm">
+            <div className="grid gap-5 p-5 lg:grid-cols-[1fr_auto] lg:items-center">
               <div className="flex items-center gap-4">
-                <div className="grid h-20 w-20 overflow-hidden rounded-full border border-gold/30 bg-gold/10 text-2xl font-semibold text-gold-soft">
+                <div className="grid h-24 w-24 overflow-hidden rounded-2xl border border-gold/30 bg-gold/10 text-3xl font-black text-gold-soft">
                   {user?.imageUrl ? <span className="h-full w-full bg-cover bg-center" style={{ backgroundImage: `url(${user.imageUrl})` }} /> : <span className="m-auto">{user?.name?.slice(0, 1).toUpperCase() ?? "N"}</span>}
                 </div>
                 <div>
-                  <p className="text-xs uppercase tracking-[0.24em] text-gold-soft">Profile Photo</p>
-                  <h1 className="mt-2 text-2xl font-semibold text-ink">{user?.name ?? "My Profile"}</h1>
-                  <p className="mt-1 text-sm text-muted">{user?.mobile ?? "Mobile pending"} is your login number.</p>
+                  <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold-dark)]">Teacher Profile</p>
+                  <h1 className="mt-2 text-3xl font-black text-[var(--ink)]">{profile.name || "Complete your profile"}</h1>
+                  <p className="mt-1 text-sm font-bold text-[var(--muted-blue)]">{profile.designation || user?.role || "Role pending"} / {profile.mobile || "Mobile pending"}</p>
+                  <div className="mt-3 flex flex-wrap gap-2 text-xs font-black">
+                    <span className={`rounded-full px-3 py-1 ${completion === 100 ? "bg-emerald-50 text-emerald-800" : "bg-amber-50 text-amber-800"}`}>Profile {completion}% complete</span>
+                    <span className="rounded-full bg-[var(--page-bg)] px-3 py-1 text-[var(--ink)]">Progress {progressScore}%</span>
+                    <span className="rounded-full bg-[var(--page-bg)] px-3 py-1 text-[var(--ink)]">{profile.bloodGroup || "Blood group pending"}</span>
+                  </div>
                 </div>
               </div>
-              <label className="inline-flex min-h-12 cursor-pointer items-center justify-center gap-2 rounded bg-gold px-5 text-sm font-semibold text-navy-deep">
+              <label className="inline-flex min-h-12 cursor-pointer items-center justify-center gap-2 rounded-xl bg-gold px-5 text-sm font-black text-navy-deep">
                 <Camera className="h-4 w-4" />
                 {isUploadingPhoto ? "Uploading..." : "Upload Photo"}
                 <input className="sr-only" type="file" accept="image/*" disabled={isUploadingPhoto} onChange={(event) => void uploadPhoto(event.target.files?.[0])} />
               </label>
             </div>
-          </div>
-          <div className="premium-surface rounded-lg p-6">
-            <div className="flex items-center gap-3">
-              <div className="rounded bg-gold/15 p-3 text-gold-soft">
-                <KeyRound className="h-6 w-6" />
-              </div>
-              <div>
-                <p className="text-xs uppercase tracking-[0.24em] text-gold-soft">Account Security</p>
-                <h1 className="mt-2 text-3xl font-semibold text-ink">Change PIN</h1>
-              </div>
-            </div>
-
-            {mustChangePassword ? (
-              <div className="mt-6 rounded border border-gold/30 bg-gold/10 px-4 py-3 text-sm text-gold-soft">
-                This account is using the default PIN. Change it now to continue using the platform securely.
+            {completion < 100 ? (
+              <div className="border-t border-amber-200 bg-amber-50 px-5 py-3 text-sm font-bold text-amber-900">
+                Mandatory profile completion pending: {missingFields.map((field) => field.label).join(", ")}.
               </div>
             ) : null}
+          </div>
 
-            <form className="mt-6 space-y-4" onSubmit={submit}>
+          <form onSubmit={submitProfile} className="grid gap-6">
+            <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+              <section className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
+                <div className="flex items-center gap-3">
+                  <UserRound className="h-5 w-5 text-[var(--gold-dark)]" />
+                  <div>
+                    <p className="text-xs font-black uppercase tracking-[0.24em] text-[var(--gold-dark)]">Basic Details</p>
+                    <h2 className="mt-1 text-2xl font-black">Identity and contact</h2>
+                  </div>
+                </div>
+                <div className="mt-5 grid gap-4 md:grid-cols-2">
+                  <Field label="Full Name" required><input className={inputClass(!profile.name)} value={profile.name} onChange={(event) => updateField("name", event.target.value)} /></Field>
+                  <Field label="Mobile Number" required><input className={inputClass(!profile.mobile)} value={profile.mobile} onChange={(event) => updateField("mobile", event.target.value.replace(/[^\d+]/g, ""))} /></Field>
+                  <Field label="Email" required><input className={inputClass(!profile.email)} value={profile.email} onChange={(event) => updateField("email", event.target.value)} /></Field>
+                  <Field label="Date of Birth" required><input type="date" className={inputClass(!profile.dateOfBirth)} value={profile.dateOfBirth} onChange={(event) => updateField("dateOfBirth", event.target.value)} /></Field>
+                  <Field label="Gender" required>
+                    <select className={inputClass(!profile.gender)} value={profile.gender} onChange={(event) => updateField("gender", event.target.value)}>
+                      <option value="">Select</option><option>Female</option><option>Male</option><option>Other</option>
+                    </select>
+                  </Field>
+                  <Field label="Blood Group" required>
+                    <select className={inputClass(!profile.bloodGroup)} value={profile.bloodGroup} onChange={(event) => updateField("bloodGroup", event.target.value)}>
+                      <option value="">Select</option>{["A+","A-","B+","B-","AB+","AB-","O+","O-"].map((item) => <option key={item}>{item}</option>)}
+                    </select>
+                  </Field>
+                  <div className="md:col-span-2"><Field label="Address" required><textarea className={`${inputClass(!profile.address)} min-h-24 py-3`} value={profile.address} onChange={(event) => updateField("address", event.target.value)} /></Field></div>
+                </div>
+              </section>
+
+              <section className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
+                <div className="flex items-center gap-3">
+                  <PhoneCall className="h-5 w-5 text-[var(--gold-dark)]" />
+                  <div>
+                    <p className="text-xs font-black uppercase tracking-[0.24em] text-[var(--gold-dark)]">Emergency</p>
+                    <h2 className="mt-1 text-2xl font-black">Safety details</h2>
+                  </div>
+                </div>
+                <div className="mt-5 grid gap-4">
+                  <Field label="Emergency Contact Name" required><input className={inputClass(!profile.emergencyContactName)} value={profile.emergencyContactName} onChange={(event) => updateField("emergencyContactName", event.target.value)} /></Field>
+                  <Field label="Emergency Contact Mobile" required><input className={inputClass(!profile.emergencyContactMobile)} value={profile.emergencyContactMobile} onChange={(event) => updateField("emergencyContactMobile", event.target.value.replace(/[^\d+]/g, ""))} /></Field>
+                  <Field label="Relationship" required><input className={inputClass(!profile.emergencyContactRelation)} value={profile.emergencyContactRelation} onChange={(event) => updateField("emergencyContactRelation", event.target.value)} placeholder="Father, spouse, sibling" /></Field>
+                  <div className="rounded-2xl border border-rose-100 bg-rose-50 p-4">
+                    <div className="flex items-center gap-2 text-rose-800"><HeartPulse size={18} /><b>Medical quick card</b></div>
+                    <p className="mt-2 text-sm font-bold text-rose-900">Blood group: {profile.bloodGroup || "Mandatory"}</p>
+                    <p className="mt-1 text-sm text-rose-900">{profile.emergencyContactName || "Emergency contact pending"} / {profile.emergencyContactMobile || "Number pending"}</p>
+                  </div>
+                </div>
+              </section>
+            </div>
+
+            <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
+              <section className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
+                <div className="flex items-center gap-3">
+                  <ShieldCheck className="h-5 w-5 text-[var(--gold-dark)]" />
+                  <div>
+                    <p className="text-xs font-black uppercase tracking-[0.24em] text-[var(--gold-dark)]">Professional</p>
+                    <h2 className="mt-1 text-2xl font-black">Role details</h2>
+                  </div>
+                </div>
+                <div className="mt-5 grid gap-4">
+                  <Field label="Designation" required><input className={inputClass(!profile.designation)} value={profile.designation} onChange={(event) => updateField("designation", event.target.value)} /></Field>
+                  <Field label="Department" required><input className={inputClass(!profile.department)} value={profile.department} onChange={(event) => updateField("department", event.target.value)} /></Field>
+                  <Field label="Qualification"><input className={inputClass()} value={profile.qualification} onChange={(event) => updateField("qualification", event.target.value)} placeholder="MA English, B.Ed" /></Field>
+                  <Field label="Experience"><input className={inputClass()} value={profile.experience} onChange={(event) => updateField("experience", event.target.value)} placeholder="5 years" /></Field>
+                </div>
+              </section>
+
+              <section className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
+                <div className="flex items-center gap-3">
+                  <Activity className="h-5 w-5 text-[var(--gold-dark)]" />
+                  <div>
+                    <p className="text-xs font-black uppercase tracking-[0.24em] text-[var(--gold-dark)]">Performance Tracker</p>
+                    <h2 className="mt-1 text-2xl font-black">My teaching progress</h2>
+                  </div>
+                </div>
+                <div className="mt-5 grid gap-4">
+                  <div className="rounded-2xl bg-[var(--page-bg)] p-4">
+                    <p className="text-sm font-black">Overall Progress</p>
+                    <p className="mt-1 text-4xl font-black">{progressScore}%</p>
+                    <div className="mt-3 h-2 overflow-hidden rounded-full bg-white"><span className="block h-full rounded-full bg-emerald-700" style={{ width: `${progressScore}%` }} /></div>
+                  </div>
+                  {progressFields.map((field) => (
+                    <label key={field.key} className="grid gap-2 text-sm font-black">
+                      <span className="flex items-center justify-between"><span>{field.label}</span><b>{numberValue(profile[field.key])}%</b></span>
+                      <input type="range" min={0} max={100} value={numberValue(profile[field.key])} onChange={(event) => updateField(field.key, Number(event.target.value) as never)} />
+                    </label>
+                  ))}
+                  <Field label="Progress Note"><textarea className={`${inputClass()} min-h-20 py-3`} value={profile.progressNote} onChange={(event) => updateField("progressNote", event.target.value)} placeholder="What should you improve this week?" /></Field>
+                </div>
+              </section>
+            </div>
+
+            <div className="sticky bottom-0 z-20 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[var(--border)] bg-white/95 p-4 shadow-lg backdrop-blur">
+              <p className="text-sm font-bold text-[var(--muted-blue)]">Mandatory profile completion: <b className="text-[var(--ink)]">{completion}%</b></p>
+              <Button type="submit" disabled={isSavingProfile || completion < 100} className="inline-flex gap-2">{isSavingProfile ? "Saving..." : <><Save size={16} /> Save Mandatory Profile</>}</Button>
+            </div>
+          </form>
+
+          <section className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
+            <div className="flex items-center gap-3">
+              <div className="rounded-xl bg-gold/15 p-3 text-gold-soft"><KeyRound className="h-6 w-6" /></div>
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.24em] text-[var(--gold-dark)]">Account Security</p>
+                <h2 className="mt-1 text-2xl font-black">Change PIN</h2>
+              </div>
+            </div>
+            {mustChangePassword ? <div className="mt-5 rounded-xl border border-gold/30 bg-gold/10 px-4 py-3 text-sm text-gold-soft">This account is using the default PIN. Change it now to continue securely.</div> : null}
+            <form className="mt-5 grid gap-4 md:grid-cols-3" onSubmit={submitPin}>
               <PasswordInput label="Current PIN" value={currentPin} onChange={(event) => setCurrentPin(event.target.value.replace(/\D/g, "").slice(0, 4))} minLength={4} maxLength={4} inputMode="numeric" required />
               <PasswordInput label="New 4 Digit PIN" value={newPin} onChange={(event) => setNewPin(event.target.value.replace(/\D/g, "").slice(0, 4))} minLength={4} maxLength={4} inputMode="numeric" required />
               <PasswordInput label="Confirm New PIN" value={confirmPin} onChange={(event) => setConfirmPin(event.target.value.replace(/\D/g, "").slice(0, 4))} minLength={4} maxLength={4} inputMode="numeric" required />
-              <Button type="submit" disabled={isSubmitting}>{isSubmitting ? "Updating..." : "Update PIN"}</Button>
+              <div className="md:col-span-3"><Button type="submit" disabled={isSubmittingPin}>{isSubmittingPin ? "Updating..." : "Update PIN"}</Button></div>
             </form>
-          </div>
+          </section>
         </section>
       </main>
     </RoleDashboardGuard>

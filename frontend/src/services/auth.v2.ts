@@ -103,6 +103,35 @@ export async function updateProfilePhoto(file: File): Promise<AuthResponse & { i
   return response.data;
 }
 
+export type ProfileUpdatePayload = {
+  name: string;
+  email: string;
+  mobile: string;
+  dateOfBirth: string;
+  gender: string;
+  address: string;
+  bloodGroup: string;
+  emergencyContactName: string;
+  emergencyContactMobile: string;
+  emergencyContactRelation: string;
+  designation: string;
+  department: string;
+  qualification?: string;
+  experience?: string;
+  attendanceDiscipline?: number;
+  syllabusDelivery?: number;
+  assignmentReview?: number;
+  examReadiness?: number;
+  ndpCompletion?: number;
+  personalGrowth?: number;
+  progressNote?: string;
+};
+
+export async function updateProfile(payload: ProfileUpdatePayload): Promise<AuthResponse> {
+  const response = await apiClient.put<AuthResponse>("/auth/profile", payload);
+  return response.data;
+}
+
 export async function getMe(): Promise<AuthUser> {
   const response = await apiClient.get<{ success: boolean; user: AuthUser }>("/auth/me");
   return response.data.user;
