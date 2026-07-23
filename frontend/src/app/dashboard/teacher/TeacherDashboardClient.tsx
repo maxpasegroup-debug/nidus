@@ -2986,7 +2986,8 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
   async function markRosterAttendance(input: { batchId: string; subject: string; studentId: string; status: "PRESENT" | "ABSENT" | "HALF_DAY" | "LEAVE"; remarks: string; date: string }) {
     const response = await apiPatch<{ ok?: boolean }>(["/api/academy/attendance/student"], input);
     if (!response?.ok) throw new Error("Attendance could not be saved.");
-    if (selectedClass?.id === input.batchId) await loadClassWorkspace(input.batchId);
+    setSelectedClassId(input.batchId);
+    await loadClassWorkspace(input.batchId);
   }
 
   const viewTitles: Record<TeacherView, string> = {
