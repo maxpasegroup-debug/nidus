@@ -4864,6 +4864,7 @@ function AttendanceWorkspace({
   const allRecords = history.flatMap((record) => record.records ?? []);
   const present = allRecords.filter((record) => record.status === "PRESENT").length;
   const overallRate = allRecords.length ? Math.round((present / allRecords.length) * 100) : 0;
+  const registerRef = useRef<HTMLDivElement | null>(null);
   const classChoices = todayClasses.length
     ? todayClasses
     : activeClasses.map((batch) => ({
@@ -4874,16 +4875,24 @@ function AttendanceWorkspace({
         subject: batch.subject || subjectsForBatch(batch)[0] || "Subject",
         teacherName: facultyName,
       }));
+  useEffect(() => {
+    if (!registerOpen) return;
+    registerRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [registerOpen, selectedClass?.id]);
+  const openClassRegister = (batchId?: string | null) => {
+    if (!batchId) return;
+    onOpenRegister(batchId);
+  };
 
   return (
-    <section className="grid gap-5">
-      <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
-        <div className="flex items-start gap-4">
-          <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-[var(--border)] bg-[var(--page-bg)]"><ClipboardCheck size={22} /></span>
+    <section className="grid gap-4">
+      <div className="rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm">
+        <div className="flex items-start gap-3">
+          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-[var(--border)] bg-[var(--page-bg)]"><ClipboardCheck size={22} /></span>
           <div>
-            <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold-dark)]">{isAcademicHead ? "Academic Head Attendance" : "Attendance Register"}</p>
-            <h2 className="mt-2 text-3xl font-black">{isAcademicHead ? "Attendance reports and leave requests." : "Mark the class register."}</h2>
-            <p className="mt-2 text-sm leading-6 text-[var(--muted-blue)]">{isAcademicHead ? "Monitoring and approvals stay separate from the teacher's attendance entry." : "Open today's class, mark exceptions, and save."}</p>
+            <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold-dark)]">{isAcademicHead ? "Academic Head Attendance" : "Attendance Register"}</p>
+            <h2 className="mt-1 text-2xl font-black">{isAcademicHead ? "Attendance reports and leave requests." : "Mark attendance"}</h2>
+            <p className="mt-1 text-sm leading-6 text-[var(--muted-blue)]">{isAcademicHead ? "Monitoring and approvals stay separate from the teacher's attendance entry." : "Select a class once. The register opens immediately below."}</p>
           </div>
         </div>
       </div>
@@ -4891,27 +4900,33 @@ function AttendanceWorkspace({
 
       {!isAcademicHead ? (
         <>
-          <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
+          <div className="rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <p className="text-xs font-black uppercase tracking-[0.3em] text-[var(--gold-dark)]">Today's Classes</p>
-                <h3 className="mt-2 text-2xl font-black">Choose a class</h3>
+                <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold-dark)]">{todayClasses.length ? "Today's Classes" : "Assigned Classes"}</p>
+                <h3 className="mt-1 text-xl font-black">Choose class</h3>
               </div>
               <span className="rounded-full border border-[var(--border)] px-4 py-2 text-xs font-black">{classChoices.length} class(es)</span>
             </div>
-            <div className="mt-4 divide-y divide-[var(--border)] overflow-hidden rounded-2xl border border-[var(--border)]">
+            <div className="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
               {classChoices.map((item) => {
                 const batch = activeClasses.find((entry) => entry.id === item.batchId);
                 const studentCount = batch?._count?.students ?? batch?.students?.length ?? 0;
+                const active = selectedClass?.id === item.batchId && registerOpen;
                 return (
-                  <div key={item.id} className="grid gap-4 bg-white p-4 md:grid-cols-[1fr_auto] md:items-center">
-                    <div>
-                      <p className="text-sm font-black text-[var(--gold-dark)]">{item.time}</p>
-                      <h4 className="mt-1 text-xl font-black">{item.batchName}</h4>
-                      <p className="mt-1 text-sm text-[var(--muted-blue)]">{item.subject} / {studentCount} students</p>
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => openClassRegister(item.batchId)}
+                    className={`min-h-24 rounded-xl border p-3 text-left shadow-sm transition hover:-translate-y-0.5 ${active ? "border-slate-950 bg-slate-950 text-white" : "border-[var(--border)] bg-[var(--page-bg)] text-[var(--ink)]"}`}
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <p className={`truncate text-xs font-black uppercase tracking-[0.16em] ${active ? "text-[#e7c873]" : "text-[var(--gold-dark)]"}`}>{item.time}</p>
+                      <span className={`shrink-0 rounded-full px-2 py-1 text-[10px] font-black ${active ? "bg-emerald-400 text-slate-950" : "bg-white text-[var(--ink)]"}`}>{active ? "Opened" : "Open"}</span>
                     </div>
-                    <button type="button" onClick={() => item.batchId && onOpenRegister(item.batchId)} className="min-h-12 rounded-xl border border-slate-950 bg-slate-950 px-5 py-3 text-sm font-black text-white">Mark Attendance</button>
-                  </div>
+                    <h4 className="mt-2 line-clamp-2 text-base font-black">{item.batchName}</h4>
+                    <p className={`mt-1 truncate text-xs ${active ? "text-white/75" : "text-[var(--muted-blue)]"}`}>{item.subject} / {studentCount} students</p>
+                  </button>
                 );
               })}
               {!classChoices.length ? <EmptyState text="No assigned classes are available for attendance yet." /> : null}
@@ -4920,13 +4935,13 @@ function AttendanceWorkspace({
           </div>
 
           {registerOpen ? (
-            <div className="rounded-2xl border border-[var(--border)] bg-white shadow-sm">
-              <div className="border-b border-[var(--border)] p-5">
+            <div ref={registerRef} className="scroll-mt-4 rounded-2xl border border-[var(--border)] bg-white shadow-sm">
+              <div className="border-b border-[var(--border)] p-4">
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                   <div>
-                    <p className="text-xs font-black uppercase tracking-[0.3em] text-[var(--gold-dark)]">{editing ? "Edit Attendance" : "Attendance Register"}</p>
-                    <h3 className="mt-2 text-3xl font-black">{selectedClass?.name || "Class"}</h3>
-                    <p className="mt-2 text-sm text-[var(--muted-blue)]">{selectedClass?.subject || subjectsForBatch(selectedClass)[0] || "Subject"} / {facultyName} / {students.length} students</p>
+                    <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold-dark)]">{editing ? "Edit Attendance" : "Attendance Register"}</p>
+                    <h3 className="mt-1 text-2xl font-black">{selectedClass?.name || "Class"}</h3>
+                    <p className="mt-1 text-sm text-[var(--muted-blue)]">{selectedClass?.subject || subjectsForBatch(selectedClass)[0] || "Subject"} / {facultyName} / {students.length} students</p>
                   </div>
                   <div className="flex flex-wrap gap-2">
                     <button type="button" onClick={onAllPresent} className="min-h-11 rounded-xl bg-emerald-700 px-4 py-2 text-sm font-black text-white">Mark All Present</button>
