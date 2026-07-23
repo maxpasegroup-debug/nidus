@@ -78,7 +78,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           hasSidebar ? "lg:ml-[var(--sidebar-width)]" : ""
         }`}
       >
-        <div className={`mx-auto w-full ${isFocusedWorkspace ? "max-w-none" : "max-w-7xl"}`}>{children}</div>
+        <div className={`mx-auto w-full ${isFocusedWorkspace ? "max-w-none" : "max-w-[1500px]"}`}>{children}</div>
       </main>
       {isFocusedDirectorWorkspace ? <QuickActionDock role="DIRECTOR" /> : null}
       {!isFocusedWorkspace ? <BottomNav /> : null}

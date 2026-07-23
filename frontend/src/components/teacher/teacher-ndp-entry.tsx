@@ -9,7 +9,7 @@ import { TeacherModuleHeader } from "@/components/teacher/teacher-dashboard-prim
 
 const reviewTypes = ["MONTHLY", "TERM", "WEEKLY"] as const;
 const ratings = ["", "Excellent", "Very Good", "Good", "Needs Improvement", "At Risk"];
-const fieldClass = "min-h-11 rounded-xl border border-[var(--border)] bg-white px-3 text-sm font-bold normal-case tracking-normal text-[var(--ink)] outline-none focus:border-slate-950 disabled:bg-slate-50 disabled:text-slate-400";
+const fieldClass = "min-h-11 w-full min-w-0 rounded-xl border border-[var(--border)] bg-white px-3 text-sm font-bold normal-case tracking-normal text-[var(--ink)] outline-none focus:border-slate-950 disabled:bg-slate-50 disabled:text-slate-400";
 const termFieldClass = "min-h-10 w-full rounded-xl border border-[var(--border)] bg-white px-3 text-sm font-bold normal-case tracking-normal text-[var(--ink)] outline-none focus:border-slate-950 disabled:bg-slate-50 disabled:text-slate-400";
 
 const categoryLabels: Record<string, string> = {
@@ -308,7 +308,7 @@ export function TeacherNdpEntry() {
   }
 
   return (
-    <section className="mx-auto max-w-7xl space-y-5">
+    <section className="mx-auto w-full max-w-[1500px] space-y-5">
       <TeacherModuleHeader
         eyebrow="NIDUS Digital Profile"
         title="Manual progress card entry"
@@ -319,7 +319,7 @@ export function TeacherNdpEntry() {
       {notice ? <p className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-bold text-emerald-700">{notice}</p> : null}
 
       <section className="rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm sm:p-5">
-        <div className="grid gap-4 lg:grid-cols-5">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-[minmax(260px,1.35fr)_minmax(240px,1.2fr)_minmax(180px,0.9fr)_minmax(180px,0.9fr)_minmax(150px,0.75fr)]">
           <Field label="Batch">
             <select value={batchId} onChange={(event) => { setBatchId(event.target.value); const batch = batches.find((item) => item.id === event.target.value); setStudentId(batch?.students[0]?.id ?? ""); setReview(null); setEntries([]); }} className={fieldClass}>
               {batches.map((batch) => <option key={batch.id} value={batch.id}>{batch.name}</option>)}
@@ -361,12 +361,12 @@ export function TeacherNdpEntry() {
             </button>
           ))}
         </div>
-        <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-3 text-sm text-[var(--muted-blue)]">
+        <div className="mt-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex min-w-0 items-center gap-3 text-sm text-[var(--muted-blue)]">
             <UserRound className="h-4 w-4" />
-            <span>{selectedStudent?.mobile || selectedStudent?.email || selectedStudent?.name || "Choose a student"}</span>
+            <span className="truncate">{selectedStudent?.mobile || selectedStudent?.email || selectedStudent?.name || "Choose a student"}</span>
           </div>
-          <button type="button" onClick={() => void loadReview()} disabled={loading || !batchId || !studentId} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-slate-950 px-5 text-sm font-black text-white disabled:opacity-60">
+          <button type="button" onClick={() => void loadReview()} disabled={loading || !batchId || !studentId} className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-slate-950 px-5 text-sm font-black text-white disabled:opacity-60 sm:w-auto">
             <FileText className="h-4 w-4" /> {loading ? "Loading..." : "Open NDP"}
           </button>
         </div>
@@ -666,7 +666,7 @@ function EmptyQueue({ loading }: { loading: boolean }) {
 
 function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <label className="grid gap-1.5 text-xs font-black uppercase tracking-[0.12em] text-[var(--muted-blue)]">
+    <label className="grid min-w-0 gap-1.5 text-xs font-black uppercase tracking-[0.12em] text-[var(--muted-blue)]">
       {label}
       {children}
     </label>
