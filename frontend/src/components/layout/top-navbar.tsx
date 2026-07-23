@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/components/providers/auth-provider-v2";
 import { Bell, ChevronDown } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -19,11 +20,15 @@ export function TopNavbar({ hasSidebar = true }: { hasSidebar?: boolean }) {
       }`}
     >
       <div className="flex h-[var(--nav-height)] items-center justify-between px-4 sm:px-6 lg:px-8">
-        <Link href="/" className="flex items-center gap-3 lg:hidden">
-          <span className="grid h-10 w-10 place-items-center rounded border border-[#b9913f]/30 bg-[#071d36] text-sm font-bold text-[#e7c873]">
-            N
-          </span>
-          <span className="font-semibold text-[#071d36]">NIDUS</span>
+        <Link href="/" className="flex min-w-0 items-center lg:hidden" aria-label="NIDUS Academy home">
+          <Image
+            src="/brand/nidus-logo-horizontal.png"
+            alt="NIDUS Academy"
+            width={150}
+            height={42}
+            className="max-h-10 w-auto object-contain"
+            priority
+          />
         </Link>
 
         <div className="hidden lg:block">

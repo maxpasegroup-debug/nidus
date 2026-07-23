@@ -49,10 +49,6 @@ export function DashboardFetchGuard({ children }: { children: ReactNode }) {
       router.replace("/login");
       return;
     }
-    if (user.mustChangePassword && currentPath !== "/dashboard/settings") {
-      router.replace("/dashboard/settings?mustChangePassword=1");
-      return;
-    }
     if (currentPath !== "/dashboard" && !canAccessDashboardPath(user, currentPath)) {
       router.replace(effectiveDashboardPath(user));
     }

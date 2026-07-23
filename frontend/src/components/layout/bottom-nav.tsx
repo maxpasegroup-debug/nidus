@@ -54,7 +54,7 @@ export function BottomNav() {
       : userRole === "GUEST"
         ? guestMenu
         : getNavItems(userRole, dashboardTemplate);
-  const primaryCount = userRole === "STUDENT" && studentActivated === true ? 3 : 4;
+  const primaryCount = navItems.length > 4 ? 3 : 4;
   const primaryItems = navItems.slice(0, primaryCount);
   const remainingItems = navItems.slice(primaryCount);
   const isActive = (href: string) => href.split("#")[0] === pathname;

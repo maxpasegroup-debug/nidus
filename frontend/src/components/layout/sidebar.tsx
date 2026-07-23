@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
@@ -88,7 +89,7 @@ export function Sidebar() {
     <>
       <button
         type="button"
-        className="fixed left-4 top-4 z-50 rounded-2xl border border-[var(--border)] bg-white/95 p-3 shadow-lg backdrop-blur lg:hidden"
+        className="fixed left-4 top-[calc(var(--nav-height)+0.75rem)] z-50 rounded-2xl border border-[var(--border)] bg-white/95 p-3 shadow-lg backdrop-blur lg:hidden"
         onClick={() => setOpen((value) => !value)}
         aria-label={open ? "Close dashboard menu" : "Open dashboard menu"}
       >
@@ -101,11 +102,15 @@ export function Sidebar() {
         }`}
       >
         <Link href="/dashboard" className="flex items-center gap-3 rounded-2xl px-1 py-2 transition hover:bg-white/60">
-          <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--ink)] font-black text-[var(--gold)] shadow-sm">
-            N
-          </span>
-          <span>
-            <span className="block text-lg font-black tracking-wide text-[var(--ink)] leading-none">NIDUS</span>
+          <span className="flex min-w-0 flex-col">
+            <Image
+              src="/brand/nidus-logo-horizontal.png"
+              alt="NIDUS Academy"
+              width={180}
+              height={52}
+              className="max-h-12 w-auto object-contain"
+              priority
+            />
             <span className="mt-1 block text-[0.68rem] uppercase tracking-[0.35em] text-[var(--muted)]">Command OS</span>
           </span>
         </Link>
