@@ -436,6 +436,7 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
   const [editingExam, setEditingExam] = useState<TeacherExamRecord | null>(null);
   const [previewIndex, setPreviewIndex] = useState(0);
   const [handledAutoOpenKey, setHandledAutoOpenKey] = useState<string | null>(null);
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
   useEffect(() => {
     if (selectedBatchId && selectedBatchId !== activeBatchId) setActiveBatchId(selectedBatchId);
@@ -772,73 +773,84 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
   }
 
   return (
-    <section className="grid gap-5">
-      <ExaminationEngineBanner
-        role={role}
-        title={role === "ACADEMIC_HEAD" ? "Academic Head Examination Engine" : "Teacher Examination Engine"}
-        description="Create tests, reuse question sets, publish quizzes, review CBT results and identify weak students from the existing exam workspace."
-        metrics={[
-          { label: "Question Bank", value: batchExams.length, tone: "success" },
-          { label: "Published Tests", value: liveExamCount, tone: liveExamCount ? "info" : "default" },
-          { label: "Submitted Attempts", value: submittedCount, tone: submittedCount ? "success" : "default" },
-          { label: "Average Score", value: `${Math.round(averageScore)}%`, tone: averageScore ? "info" : "default" },
-        ]}
-      />
-      <section className="grid gap-4 xl:grid-cols-[1fr_0.75fr]">
-        <ExaminationRoleActions role={role} />
-        <ExamReportingPanel attempts={submittedCount} averageScore={averageScore} reports={submittedCount} />
-      </section>
-      <section className="grid gap-4 xl:grid-cols-[1fr_0.75fr]">
-        <QuestionBankHierarchyPanel questionCount={batchExams.reduce((total, exam) => total + Number(exam.questionCount ?? exam.draft?.questions?.length ?? 0), 0)} />
-        <ExamTypePanel />
-      </section>
-
-      <div className="rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm sm:p-5">
+    <section className="grid gap-4">
+      <div className="rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="flex items-start gap-4">
-            <span className="grid h-12 w-12 place-items-center rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] text-[var(--ink)]">
+            <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-[var(--border)] bg-[var(--page-bg)] text-[var(--ink)]">
               <BookOpen size={22} />
             </span>
             <div>
-              <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold-dark)]">Exams</p>
-              <h2 className="mt-2 text-2xl font-black sm:text-3xl">Create and publish an exam.</h2>
-              <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--muted-blue)]">Choose a class, add questions plus answer explanations, preview once, then publish to students.</p>
+              <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold-dark)]">Exams</p>
+              <h2 className="mt-1 text-2xl font-black">Create exam and check results</h2>
+              <p className="mt-1 max-w-3xl text-sm leading-6 text-[var(--muted-blue)]">Choose a batch, add the question paper, check once, and publish to students.</p>
             </div>
           </div>
-          <button type="button" onClick={openCreator} disabled={!activeBatch} className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl border border-slate-950 bg-slate-950 px-5 py-3 text-sm font-black text-white disabled:opacity-50 sm:w-auto">
-            <Plus size={18} /> New Exam
-          </button>
+          <div className="flex flex-wrap gap-2">
+            <button type="button" onClick={() => setShowAdvanced((value) => !value)} className="inline-flex min-h-12 items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-4 py-3 text-sm font-black">
+              {showAdvanced ? "Hide engine details" : "Engine details"}
+            </button>
+            <button type="button" onClick={openCreator} disabled={!activeBatch} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-slate-950 bg-slate-950 px-5 py-3 text-sm font-black text-white disabled:opacity-50">
+              <Plus size={18} /> New Exam
+            </button>
+          </div>
         </div>
       </div>
 
+      {showAdvanced ? (
+        <div className="grid gap-4">
+          <ExaminationEngineBanner
+            role={role}
+            title={role === "ACADEMIC_HEAD" ? "Academic Head Examination Engine" : "Teacher Examination Engine"}
+            description="Approved hosting engine, question bank structure, CBT results and reporting controls."
+            metrics={[
+              { label: "Question Bank", value: batchExams.length, tone: "success" },
+              { label: "Published Tests", value: liveExamCount, tone: liveExamCount ? "info" : "default" },
+              { label: "Submitted Attempts", value: submittedCount, tone: submittedCount ? "success" : "default" },
+              { label: "Average Score", value: `${Math.round(averageScore)}%`, tone: averageScore ? "info" : "default" },
+            ]}
+          />
+          <section className="grid gap-4 xl:grid-cols-[1fr_0.75fr]">
+            <ExaminationRoleActions role={role} />
+            <ExamReportingPanel attempts={submittedCount} averageScore={averageScore} reports={submittedCount} />
+          </section>
+          <section className="grid gap-4 xl:grid-cols-[1fr_0.75fr]">
+            <QuestionBankHierarchyPanel questionCount={batchExams.reduce((total, exam) => total + Number(exam.questionCount ?? exam.draft?.questions?.length ?? 0), 0)} />
+            <ExamTypePanel />
+          </section>
+        </div>
+      ) : null}
+
       {message ? <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-black text-rose-700">{message}</div> : null}
 
-      <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
+      <div className="rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold-dark)]">My Classes</p>
-            <h3 className="mt-2 text-2xl font-black">Select batch</h3>
+            <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold-dark)]">Step 1</p>
+            <h3 className="mt-1 text-xl font-black">Select batch</h3>
           </div>
           <span className="rounded-full border border-[var(--border)] px-4 py-2 text-xs font-black">{batches.length} batch(es)</span>
         </div>
-        <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
           {batches.map((batch) => (
-            <button key={batch.id} type="button" onClick={() => openBatch(batch.id)} className={`rounded-2xl border p-4 text-left transition ${activeBatch?.id === batch.id ? "border-slate-950 bg-slate-950 text-white" : "border-[var(--border)] bg-white text-[var(--ink)] hover:-translate-y-0.5"}`}>
-              <p className="text-lg font-black">{batch.name}</p>
-              <p className="mt-2 text-sm opacity-80">{batch.studentCount} students</p>
-              <p className="mt-1 text-xs font-black uppercase tracking-[0.18em] opacity-70">{batch.subjects.length} subjects</p>
+            <button key={batch.id} type="button" onClick={() => openBatch(batch.id)} className={`rounded-xl border p-3 text-left transition ${activeBatch?.id === batch.id ? "border-slate-950 bg-slate-950 text-white" : "border-[var(--border)] bg-[var(--page-bg)] text-[var(--ink)] hover:-translate-y-0.5"}`}>
+              <div className="flex items-start justify-between gap-2">
+                <p className="line-clamp-2 text-base font-black">{batch.name}</p>
+                {activeBatch?.id === batch.id ? <span className="rounded-full bg-emerald-400 px-2 py-1 text-[10px] font-black text-slate-950">Selected</span> : null}
+              </div>
+              <p className={`mt-2 text-xs ${activeBatch?.id === batch.id ? "text-white/75" : "text-[var(--muted-blue)]"}`}>{batch.studentCount} students / {batch.subjects.length} subjects</p>
             </button>
           ))}
         </div>
       </div>
 
       {activeBatch ? (
-        <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
+        <div className="rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm">
           <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div>
-              <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold-dark)]">Batch Workspace</p>
-              <h3 className="mt-2 text-2xl font-black">{activeBatch.name}</h3>
-              <p className="mt-1 text-sm text-[var(--muted-blue)]">{activeBatch.studentCount} students will receive published exams.</p>
+              <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold-dark)]">Published Exams</p>
+              <h3 className="mt-1 text-xl font-black">{activeBatch.name}</h3>
+              <p className="mt-1 text-sm text-[var(--muted-blue)]">{activeBatch.studentCount} students receive exams published here.</p>
             </div>
             <div className="grid gap-3 sm:grid-cols-3 md:min-w-[440px]">
               <Summary label="Live Exams" value={String(liveExamCount)} />
@@ -852,35 +864,35 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
             </div>
           </div>
 
-          <div className="mt-5 grid gap-4 xl:grid-cols-3">
+          <div className="mt-4 grid gap-3">
             {loading ? <p className="rounded-2xl border border-dashed border-[var(--border)] p-5 text-sm">Loading exams...</p> : null}
             {!loading && !batchExams.length ? <p className="rounded-2xl border border-dashed border-[var(--border)] p-5 text-sm">No exams published for this batch yet.</p> : null}
             {batchExams.map((exam) => (
-              <article key={exam.id} className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-5">
-                <div className="flex items-start justify-between gap-3">
-                  <span className="rounded-full bg-white px-3 py-1 text-xs font-black text-[var(--ink)]">{statusLabel(exam.status)}</span>
-                  <span className="text-xs font-black text-[var(--muted-blue)]">{exam.createdAt ? new Date(exam.createdAt).toLocaleDateString() : ""}</span>
-                </div>
-                <h4 className="mt-4 text-xl font-black">{exam.title || "Exam"}</h4>
-                <p className="mt-2 text-sm text-[var(--muted-blue)]">{exam.subject || subject} / {exam.topic || "Topic"}</p>
-                <div className="mt-4 grid grid-cols-3 gap-2 text-center text-xs font-black">
-                  <span>{exam.questionCount ?? 0} Qs</span>
-                  <span>{exam.durationMinutes ?? 0} min</span>
-                  <span>{exam.attemptStats?.submitted ?? 0} done</span>
-                </div>
-                <div className="mt-5 grid grid-cols-2 gap-2">
-                  <button type="button" onClick={() => openEditor(exam)} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[var(--border)] bg-white px-3 text-sm font-black text-slate-950">
-                    <Pencil size={16} /> Edit
-                  </button>
-                  <button type="button" onClick={() => void cancelExam(exam)} disabled={busy} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-3 text-sm font-black text-rose-700 disabled:opacity-50">
-                    <Trash2 size={16} /> Cancel
-                  </button>
-                  <button type="button" onClick={() => void publishChanges(exam)} disabled={busy} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-3 text-sm font-black text-emerald-700 disabled:opacity-50">
-                    <Send size={16} /> Publish
-                  </button>
-                  <button type="button" onClick={() => void openResults(exam)} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-slate-950 bg-white px-3 text-sm font-black text-slate-950">
-                    <Trophy size={16} /> Results
-                  </button>
+              <article key={exam.id} className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] p-3">
+                <div className="grid gap-3 lg:grid-cols-[1fr_auto] lg:items-center">
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="rounded-full bg-white px-3 py-1 text-xs font-black text-[var(--ink)]">{statusLabel(exam.status)}</span>
+                      <span className="text-xs font-black text-[var(--muted-blue)]">{exam.createdAt ? new Date(exam.createdAt).toLocaleDateString() : ""}</span>
+                    </div>
+                    <h4 className="mt-2 truncate text-lg font-black">{exam.title || "Exam"}</h4>
+                    <p className="mt-1 text-sm text-[var(--muted-blue)]">{exam.subject || subject} / {exam.topic || "Topic"} / {exam.questionCount ?? 0} Qs / {exam.durationMinutes ?? 0} min / {exam.attemptStats?.submitted ?? 0} submitted</p>
+                  </div>
+                  <div className="flex flex-wrap gap-2 lg:justify-end">
+                    <button type="button" onClick={() => openEditor(exam)} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-[var(--border)] bg-white px-3 text-sm font-black text-slate-950">
+                      <Pencil size={16} /> Edit
+                    </button>
+                    <button type="button" onClick={() => void openResults(exam)} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-slate-950 bg-white px-3 text-sm font-black text-slate-950">
+                      <Trophy size={16} /> Results
+                    </button>
+                    <details className="relative">
+                      <summary className="inline-flex min-h-10 cursor-pointer list-none items-center justify-center rounded-xl border border-[var(--border)] bg-white px-3 text-sm font-black">More</summary>
+                      <div className="absolute right-0 z-20 mt-2 grid min-w-40 gap-1 rounded-xl border border-[var(--border)] bg-white p-2 shadow-xl">
+                        <button type="button" onClick={() => void publishChanges(exam)} disabled={busy} className="rounded-lg px-3 py-2 text-left text-xs font-black text-emerald-700 hover:bg-emerald-50 disabled:opacity-50">Publish changes</button>
+                        <button type="button" onClick={() => void cancelExam(exam)} disabled={busy} className="rounded-lg px-3 py-2 text-left text-xs font-black text-rose-700 hover:bg-rose-50 disabled:opacity-50">Cancel exam</button>
+                      </div>
+                    </details>
+                  </div>
                 </div>
               </article>
             ))}
@@ -897,14 +909,14 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
               <div>
                 <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold-dark)]">{editingExam ? "Edit Exam" : "New Exam"}</p>
                 <h3 className="mt-2 text-xl font-black sm:text-2xl">{activeBatch?.name}</h3>
-                <p className="mt-1 text-sm text-[var(--muted-blue)]">Step {step} of 4</p>
+                <p className="mt-1 text-sm text-[var(--muted-blue)]">Step {step} of 4. Complete only what is shown on this screen.</p>
               </div>
               <button type="button" onClick={() => setShowCreator(false)} className="grid h-11 w-11 place-items-center rounded-full border border-[var(--border)]">
                 <X size={18} />
               </button>
               </div>
               <div className="mt-4 grid grid-cols-4 gap-2">
-                {["Exam details", "Upload paper", "Preview answers", "Publish"].map((label, index) => (
+                {["Details", "Questions", "Check", "Publish"].map((label, index) => (
                   <button key={label} type="button" onClick={() => index + 1 < step && setStep(index + 1)} className={`min-h-10 rounded-xl border px-2 text-xs font-black sm:text-sm ${step === index + 1 ? "border-slate-950 bg-slate-950 text-white" : index + 1 < step ? "border-emerald-200 bg-emerald-50 text-emerald-800" : "border-[var(--border)] bg-white text-[var(--muted-blue)]"}`}>{index + 1}. {label}</button>
                 ))}
               </div>
@@ -916,8 +928,8 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
               {step === 1 ? (
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4 md:col-span-2">
-                    <p className="text-sm font-black">Publish To Batches</p>
-                    <p className="mt-1 text-xs text-[var(--muted-blue)]">Select one or more assigned batches for a common exam.</p>
+                    <p className="text-sm font-black">Who should get this exam?</p>
+                    <p className="mt-1 text-xs text-[var(--muted-blue)]">Select one or more batches. Keep only one selected for a normal class exam.</p>
                     <div className="mt-3 grid gap-2 sm:grid-cols-2">
                       {batches.map((batch) => (
                         <label key={batch.id} className={`flex cursor-pointer items-center gap-3 rounded-xl border px-3 py-3 text-sm font-black ${targetBatchIds.includes(batch.id) ? "border-emerald-300 bg-emerald-50 text-emerald-950" : "border-[var(--border)] bg-white text-[var(--ink)]"}`}>
@@ -933,18 +945,18 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
                       {Array.from(new Set(targetBatchIds.flatMap((id) => batches.find((batch) => batch.id === id)?.subjects ?? []).concat(activeBatch?.subjects ?? []))).map((item) => <option key={item} value={item}>{item}</option>)}
                     </select>
                   </label>
-                  <Field label="Exam Name" value={form.title} onChange={(value) => setForm((current) => ({ ...current, title: value }))} />
+                  <Field label="Exam name" value={form.title} onChange={(value) => setForm((current) => ({ ...current, title: value }))} />
                   <Field label="Topic" value={form.topic} onChange={(value) => setForm((current) => ({ ...current, topic: value }))} placeholder="Algebra, Constitution, Motion..." />
                   <Field label="Date" type="date" value={form.date} onChange={(value) => setForm((current) => ({ ...current, date: value }))} />
                   <TimePickerField label="Time" value={form.time} onChange={(value) => setForm((current) => ({ ...current, time: value }))} />
-                  <Field label="Duration" type="number" value={form.duration} onChange={(value) => setForm((current) => ({ ...current, duration: value }))} />
-                  <Field label="Marks" type="number" value={form.marks} onChange={(value) => setForm((current) => ({ ...current, marks: value }))} />
+                  <Field label="Duration in minutes" type="number" value={form.duration} onChange={(value) => setForm((current) => ({ ...current, duration: value }))} />
+                  <Field label="Total marks" type="number" value={form.marks} onChange={(value) => setForm((current) => ({ ...current, marks: value }))} />
                 </div>
               ) : null}
 
               {step === 2 ? (
                 <div className="grid gap-4 lg:grid-cols-2">
-                  <ExamInputCard title="Question Paper" description="Upload PDF, Word or TXT. NIDUS extracts numbered questions and A/B/C/D options for review.">
+                  <ExamInputCard title="Question paper" description="Paste or upload MCQ questions. Format: question, then A, B, C and D options.">
                     <textarea value={questionSource} onChange={(event) => setQuestionSource(event.target.value)} rows={12} className="w-full rounded-xl border border-[var(--border)] bg-white p-3 text-sm leading-6" placeholder={"1. Question...\nA. Option\nB. Option\nC. Option\nD. Option"} />
                     <FileUploadRow
                       label="Upload question paper"
@@ -953,7 +965,7 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
                       onChange={(file) => void appendFileText(file, setQuestionSource, questionSource, setUploadedQuestionPaper)}
                     />
                   </ExamInputCard>
-                  <ExamInputCard title="Answer Key + Explanations" description="Keep each answer and explanation together. Example: 1 - A Explanation: Sets common to both are 2 and 4.">
+                  <ExamInputCard title="Answer key" description="Add the correct option and a short explanation. Example: 1 - A Explanation: ...">
                     <textarea value={answerGuide} onChange={(event) => setAnswerGuide(event.target.value)} rows={12} className="w-full rounded-xl border border-[var(--border)] bg-white p-3 text-sm leading-6" placeholder={"1 - A\nExplanation: Sets common to both are 2 and 4.\n\n2 - C\nExplanation: Substitute x = 4."} />
                     <FileUploadRow
                       label="Upload answer key + explanations"
@@ -968,7 +980,7 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
               {step === 3 ? (
                 <div className="grid gap-4">
                   <div className="rounded-2xl bg-slate-950 p-5 text-white">
-                    <p className="text-xs font-black uppercase tracking-[0.25em] text-amber-300">Student exam preview</p>
+                    <p className="text-xs font-black uppercase tracking-[0.25em] text-amber-300">Check before publishing</p>
                     <h3 className="mt-2 text-2xl font-black">{effectiveTitle}</h3>
                     <div className="mt-3 flex flex-wrap gap-2 text-xs font-black">
                       <span className="rounded-full bg-white/10 px-3 py-2">{subject}</span>
@@ -979,15 +991,15 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
                     <div className={`mt-3 rounded-xl border px-3 py-2 text-sm font-black ${canPublishPaper ? "border-emerald-400/40 bg-emerald-500/15 text-emerald-100" : "border-amber-300 bg-amber-50 text-amber-900"}`}>
                       {canPublishPaper
                         ? readiness.missingExplanations > 0
-                          ? `Paper ready to publish. ${readiness.missingExplanations} explanation(s) will use the faculty-key fallback until edited.`
-                          : "Paper ready: every question has four options, an answer key and an explanation."
-                        : `${readiness.missingOptions} missing options / ${readiness.missingAnswers} missing answers / ${readiness.missingExplanations} missing explanations / ${readiness.duplicateQuestions.length} duplicates`}
+                          ? `Ready. ${readiness.missingExplanations} explanation(s) will use a simple fallback if not edited.`
+                          : "Ready. Questions, options and answer key are available."
+                        : `${readiness.missingOptions} option issue(s) / ${readiness.missingAnswers} answer issue(s) / ${readiness.duplicateQuestions.length} duplicate(s)`}
                     </div>
                   </div>
                   <div className="grid items-start gap-4 lg:grid-cols-[260px_minmax(0,1fr)]">
                     <aside className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4 shadow-sm lg:sticky lg:top-4 lg:max-h-[calc(100dvh-22rem)] lg:min-h-[24rem] lg:overflow-y-auto">
                       <div className="flex items-center justify-between gap-3">
-                        <p className="text-sm font-black">Question palette</p>
+                        <p className="text-sm font-black">Questions</p>
                         <span className="rounded-full bg-white px-3 py-1 text-xs font-black text-[var(--muted-blue)]">{questions.length} Qs</span>
                       </div>
                       <div className="mt-3 grid grid-cols-5 gap-2">
@@ -1047,7 +1059,7 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
                       <p><b>Duration:</b> {form.duration} minutes</p><p><b>Total marks:</b> {form.marks}</p>
                     </div>
                   </div>
-                  <p className="mt-5 text-sm leading-6 text-[var(--muted-blue)]">Publish sends this exam to students. Students see only the question paper during the exam; after submission they receive score, correct answers, explanations and improvement feedback.</p>
+                  <p className="mt-5 text-sm leading-6 text-[var(--muted-blue)]">Publishing sends this exam to students. They can open it from their Student dashboard.</p>
                   {readiness.duplicateQuestions.length ? (
                     <p className="mt-4 rounded-2xl border border-rose-200 bg-rose-50 p-3 text-sm font-black text-rose-800">
                       Fix {readiness.duplicateQuestions.length} duplicate question(s) before publishing. Question {readiness.duplicateQuestions[0].index + 1} repeats Question {readiness.duplicateQuestions[0].firstIndex + 1}.
@@ -1062,10 +1074,10 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
             <div className="grid shrink-0 gap-3 border-t border-[var(--border)] bg-white p-4 sm:flex sm:justify-between sm:p-5">
               <button type="button" onClick={() => setStep((value) => Math.max(1, value - 1))} className="min-h-12 rounded-xl border border-[var(--border)] px-5 font-black">Back</button>
               {step < 4 ? (
-                <button type="button" onClick={goNextStep} className="min-h-12 rounded-xl border border-slate-950 bg-slate-950 px-6 font-black text-white">Continue</button>
+                <button type="button" onClick={goNextStep} className="min-h-12 rounded-xl border border-slate-950 bg-slate-950 px-6 font-black text-white">{step === 1 ? "Next: Questions" : step === 2 ? "Next: Check" : "Next: Publish"}</button>
               ) : (
                 <button type="button" onClick={() => void publishExam()} disabled={busy || (!editingExam && !canPublishPaper)} className="min-h-12 rounded-xl border border-emerald-700 bg-emerald-700 px-6 font-black text-white disabled:cursor-not-allowed disabled:opacity-60">
-                  {busy ? (editingExam ? "Saving..." : "Publishing...") : editingExam ? "Save Exam Changes" : "Publish To Students"}
+                  {busy ? (editingExam ? "Saving..." : "Publishing...") : editingExam ? "Save changes" : "Publish to students"}
                 </button>
               )}
             </div>
