@@ -599,6 +599,55 @@ function normalizeEmail(value?: string | null) {
   return value?.trim().toLowerCase() ?? "";
 }
 
+function normalizePersonName(value?: string | null) {
+  const normalized = value?.trim().replace(/\s+/g, " ") ?? "";
+  if (!normalized) return "";
+  return normalized
+    .split(" ")
+    .map((word) =>
+      word
+        .split(/([-'])/g)
+        .map((part) => {
+          if (part === "-" || part === "'") return part;
+          if (/^[a-z]$/i.test(part)) return part.toUpperCase();
+          return part ? part.charAt(0).toUpperCase() + part.slice(1).toLowerCase() : part;
+        })
+        .join(""),
+    )
+    .join(" ");
+}
+
+function rollBatchCode(batch?: { name?: string | null; batchType?: string | null; programSlug?: string | null } | null) {
+  const source = [batch?.name, batch?.batchType, batch?.programSlug].filter(Boolean).join(" ").toUpperCase();
+  const seen = new Set<string>();
+  const tokens = (source.match(/[A-Z0-9]+/g) ?? ["NIDUS"])
+    .map((token) => {
+      if (/^20\d{2}$/.test(token)) return token.slice(-2);
+      if (token === "OFFLINE") return "OFF";
+      if (token === "ONLINE") return "ONL";
+      return token;
+    })
+    .filter((token) => {
+      if (seen.has(token)) return false;
+      seen.add(token);
+      return true;
+    });
+  return tokens.slice(0, 4).join("-") || "NIDUS";
+}
+
+function isStandardRollNumber(value?: string | null) {
+  return /^[A-Z0-9]+(?:-[A-Z0-9]+)*-\d{3}$/.test(value?.trim() ?? "");
+}
+
+function normalizeRollNumber(value?: string | null) {
+  const normalized = value?.trim().toUpperCase().replace(/[^A-Z0-9]+/g, "-").replace(/^-+|-+$/g, "") ?? "";
+  return normalized || null;
+}
+
+function batchRollNumber(batch: { name?: string | null; batchType?: string | null; programSlug?: string | null } | null, index: number) {
+  return `${rollBatchCode(batch)}-${String(index + 1).padStart(3, "0")}`;
+}
+
 function mobileCandidates(value: string) {
   const normalized = normalizeMobile(value);
   const digitsOnly = normalized.replace(/^\+/, "");
@@ -1444,7 +1493,9 @@ async function batchWithCounts(options?: BatchWithCountsOptions) {
   const activeStudentsByBatch = new Map<string, any[]>(
     batches.map((batch: any) => [
       batch.id,
-      (batch.students ?? []).filter((student: any) => student.status === "ACTIVE"),
+      (batch.students ?? [])
+        .filter((student: any) => student.status === "ACTIVE")
+        .sort((left: any, right: any) => new Date(left.joinedAt ?? 0).getTime() - new Date(right.joinedAt ?? 0).getTime() || String(left.id).localeCompare(String(right.id))),
     ]),
   );
   const studentIds = Array.from(
@@ -1507,18 +1558,23 @@ async function batchWithCounts(options?: BatchWithCountsOptions) {
     const activeStudents = activeStudentsByBatch.get(batch.id) ?? [];
     return {
       ...batch,
-      students: activeStudents.map((student: any) => ({
-        ...student,
-        user: userMap.get(student.studentId) ?? null,
-        student: userMap.has(student.studentId)
-          ? {
-              ...userMap.get(student.studentId),
-              rollNumber: student.remarks || null,
-              photoUrl: profileValue(userMap.get(student.studentId)?.roleMetadata, "photoUrl"),
-              avatarUrl: profileValue(userMap.get(student.studentId)?.roleMetadata, "avatarUrl"),
-            }
-          : null,
-      })),
+      students: activeStudents.map((student: any, index: number) => {
+        const userRecord = userMap.get(student.studentId);
+        const rollNumber = isStandardRollNumber(student.remarks) ? normalizeRollNumber(student.remarks) : batchRollNumber(batch, index);
+        return {
+          ...student,
+          user: userRecord ?? null,
+          student: userRecord
+            ? {
+                ...userRecord,
+                name: normalizePersonName(userRecord.name) || userRecord.name,
+                rollNumber,
+                photoUrl: profileValue(userRecord.roleMetadata, "photoUrl"),
+                avatarUrl: profileValue(userRecord.roleMetadata, "avatarUrl"),
+              }
+            : null,
+        };
+      }),
       teachers: visibleTeacherAssignments
         .filter((assignment) => assignment.batchId === batch.id)
         .map((assignment) => ({
@@ -1537,6 +1593,7 @@ async function batchWithCounts(options?: BatchWithCountsOptions) {
 }
 
 async function findStudentUserForAdmission(input: StudentInput) {
+  const normalizedName = normalizePersonName(input.name);
   if (input.userId) {
     const mobile = normalizeMobile(input.phone);
     if (input.phone !== undefined) {
@@ -1545,7 +1602,7 @@ async function findStudentUserForAdmission(input: StudentInput) {
     return prisma.user.update({
       where: { id: input.userId },
       data: {
-        name: input.name,
+        name: normalizedName || undefined,
         mobile: mobile || undefined,
         role: Role.STUDENT,
         roleOnboardingStatus: "ACTIVE",
@@ -1583,7 +1640,7 @@ async function findStudentUserForAdmission(input: StudentInput) {
     await assertEmailAvailable(generatedEmail);
     return prisma.user.create({
       data: {
-        name: input.name?.trim() || `Student ${mobile.slice(-4)}`,
+        name: normalizedName || `Student ${mobile.slice(-4)}`,
         email: generatedEmail,
         mobile,
         role: Role.STUDENT,
@@ -1612,7 +1669,7 @@ async function findStudentUserForAdmission(input: StudentInput) {
   return prisma.user.update({
     where: { id: existing.id },
     data: {
-      name: input.name || existing.name,
+      name: normalizedName || normalizePersonName(existing.name) || existing.name,
       mobile: mobile || existing.mobile,
       role: Role.STUDENT,
       roleOnboardingStatus: "ACTIVE",
@@ -1698,16 +1755,36 @@ export const academyService = {
   async addStudent(user: Requester, batchId: string, input: StudentInput) {
     requireStudentEnrollmentAccess(user);
     const student = await findStudentUserForAdmission(input);
+    const batch = await db.batch.findUnique({
+      where: { id: batchId },
+      select: {
+        id: true,
+        name: true,
+        batchType: true,
+        programSlug: true,
+        students: {
+          select: { id: true, studentId: true, remarks: true, joinedAt: true },
+          orderBy: [{ joinedAt: "asc" }, { id: "asc" }],
+        },
+      },
+    });
+    if (!batch) {
+      throw Object.assign(new Error("Batch not found"), { statusCode: 404 });
+    }
     const existing = await db.batchStudent.findFirst({
       where: { batchId, studentId: student.id },
     });
+    const existingIndex = (batch.students ?? []).findIndex((entry: any) => entry.studentId === student.id);
+    const rollIndex = existingIndex >= 0 ? existingIndex : batch.students?.length ?? 0;
+    const requestedRoll = normalizeRollNumber(input.rollNumber);
+    const savedRollNumber = requestedRoll || (isStandardRollNumber(existing?.remarks) ? normalizeRollNumber(existing?.remarks) : batchRollNumber(batch, rollIndex));
 
     if (existing) {
       return db.batchStudent.update({
         where: { id: existing.id },
         data: {
           status: "ACTIVE",
-          remarks: input.notes || input.rollNumber || existing.remarks,
+          remarks: savedRollNumber,
           joinedAt: toDate(input.joinedAt),
         },
       });
@@ -1719,7 +1796,7 @@ export const academyService = {
         studentId: student.id,
         status: "ACTIVE",
         joinedAt: toDate(input.joinedAt),
-        remarks: input.notes || input.rollNumber || null,
+        remarks: savedRollNumber,
       },
     });
   },
@@ -3478,11 +3555,15 @@ export const academyService = {
 
     const id = randomUUID();
     const now = new Date();
+    const records = input.records.map((record) => ({
+      ...record,
+      studentName: normalizePersonName(record.studentName) || record.studentName,
+    }));
     await prisma.$executeRaw`
       INSERT INTO "TeacherAttendanceRecord"
       ("id", "batchId", "batchName", "subject", "teacherId", "teacherName", "date", "records", "status", "createdAt", "updatedAt")
       VALUES
-      (${id}, ${input.batchId}, ${input.batchName || null}, ${input.subject || null}, ${user.id}, ${user.name || user.email || null}, ${new Date(input.date)}, ${JSON.stringify(input.records)}::jsonb, ${input.status || "SAVED"}, ${now}, ${now})
+      (${id}, ${input.batchId}, ${input.batchName || null}, ${input.subject || null}, ${user.id}, ${user.name || user.email || null}, ${new Date(input.date)}, ${JSON.stringify(records)}::jsonb, ${input.status || "SAVED"}, ${now}, ${now})
     `;
     const rows = await prisma.$queryRaw<any[]>`
       SELECT * FROM "TeacherAttendanceRecord" WHERE "id" = ${id} LIMIT 1
@@ -3491,7 +3572,7 @@ export const academyService = {
     await auditAcademicAction(user, "ATTENDANCE_SAVED", "TeacherAttendanceRecord", id, {
       batchId: input.batchId,
       date: input.date,
-      total: input.records.length,
+      total: records.length,
     });
     return { ok: true, attendance };
   },
@@ -3512,11 +3593,15 @@ export const academyService = {
     if (!Array.isArray(input.records) || !input.records.length) {
       throw Object.assign(new Error("Attendance records are required"), { statusCode: 400 });
     }
+    const records = input.records.map((record) => ({
+      ...record,
+      studentName: normalizePersonName(record.studentName) || record.studentName,
+    }));
     await prisma.$executeRaw`
       UPDATE "TeacherAttendanceRecord"
       SET "subject" = ${input.subject ?? current.subject},
           "date" = ${input.date ? new Date(input.date) : current.date},
-          "records" = ${JSON.stringify(input.records)}::jsonb,
+          "records" = ${JSON.stringify(records)}::jsonb,
           "status" = ${input.status ?? current.status},
           "updatedAt" = ${new Date()}
       WHERE "id" = ${attendanceId}

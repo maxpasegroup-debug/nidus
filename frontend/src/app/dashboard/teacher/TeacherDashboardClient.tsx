@@ -582,6 +582,51 @@ function studentId(entry: NonNullable<AssignedClass["students"]>[number], index:
   return entry.student?.id || entry.id || `student-${index}`;
 }
 
+function formatStudentName(value?: string | null) {
+  const normalized = value?.trim().replace(/\s+/g, " ") ?? "";
+  if (!normalized) return "";
+  return normalized
+    .split(" ")
+    .map((word) =>
+      word
+        .split(/([-'])/g)
+        .map((part) => {
+          if (part === "-" || part === "'") return part;
+          if (/^[a-z]$/i.test(part)) return part.toUpperCase();
+          return part ? part.charAt(0).toUpperCase() + part.slice(1).toLowerCase() : part;
+        })
+        .join(""),
+    )
+    .join(" ");
+}
+
+function rollPrefix(batch: AssignedClass | null) {
+  const source = [batch?.name, batch?.batchType, batch?.course?.slug].filter(Boolean).join(" ").toUpperCase();
+  const seen = new Set<string>();
+  const tokens = (source.match(/[A-Z0-9]+/g) ?? ["NIDUS"])
+    .map((token) => {
+      if (/^20\d{2}$/.test(token)) return token.slice(-2);
+      if (token === "OFFLINE") return "OFF";
+      if (token === "ONLINE") return "ONL";
+      return token;
+    })
+    .filter((token) => {
+      if (seen.has(token)) return false;
+      seen.add(token);
+      return true;
+    });
+  return tokens.slice(0, 4).join("-") || "NIDUS";
+}
+
+function isStandardRollNumber(value?: string | null) {
+  return /^[A-Z0-9]+(?:-[A-Z0-9]+)*-\d{3}$/.test(value?.trim() ?? "");
+}
+
+function displayRollNumber(batch: AssignedClass | null, entry: NonNullable<AssignedClass["students"]>[number], index: number) {
+  const rollNumber = entry.student?.rollNumber?.trim().toUpperCase();
+  return isStandardRollNumber(rollNumber) ? rollNumber : `${rollPrefix(batch)}-${String(index + 1).padStart(3, "0")}`;
+}
+
 function subjectsForBatch(batch: AssignedClass | null) {
   if (!batch) return ["General"];
   const subjects = new Set<string>();
@@ -2193,7 +2238,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
           const id = studentId(entry, index);
           return {
             studentId: entry.student?.id ?? id,
-            studentName: entry.student?.name ?? entry.student?.email ?? "Student",
+            studentName: formatStudentName(entry.student?.name) || entry.student?.email || "Student",
             status: attendance[id] ?? "PRESENT",
             remarks: attendanceComments[id] || undefined,
           };
@@ -4306,9 +4351,10 @@ function ClassroomWorkspace({ batch, programName: courseName, students, totalStu
               const absoluteIndex = (safePage - 1) * pageSize + index;
               const id = studentId(entry, absoluteIndex);
               const selected = selectedStudentId === id;
-              const name = entry.student?.name || entry.student?.email || "Student";
+              const name = formatStudentName(entry.student?.name) || entry.student?.email || "Student";
+              const rollNumber = displayRollNumber(batch, entry, absoluteIndex);
               const photo = entry.student?.photoUrl || entry.student?.avatarUrl;
-              return <button key={id} type="button" onClick={() => onSelectStudent(id)} className={`min-h-32 rounded-xl border p-3 text-center transition hover:-translate-y-0.5 hover:border-slate-950 ${selected ? "border-slate-950 bg-slate-950 text-white" : "border-[var(--border)] bg-[var(--page-bg)]"}`}><span className={`mx-auto grid h-12 w-12 overflow-hidden rounded-full bg-cover bg-center text-base font-black ${selected ? "bg-white text-slate-950" : "bg-white text-slate-950 shadow-sm"}`} style={photo ? { backgroundImage: `url(${photo})` } : undefined}>{photo ? null : <span className="m-auto">{name.slice(0, 1).toUpperCase()}</span>}</span><strong className="mt-3 block line-clamp-2 text-sm">{name}</strong><span className={`mt-1 block text-xs ${selected ? "text-slate-300" : "text-[var(--muted-blue)]"}`}>Roll {entry.student?.rollNumber || String(absoluteIndex + 1).padStart(2, "0")}</span></button>;
+              return <button key={id} type="button" onClick={() => onSelectStudent(id)} className={`min-h-32 rounded-xl border p-3 text-center transition hover:-translate-y-0.5 hover:border-slate-950 ${selected ? "border-slate-950 bg-slate-950 text-white" : "border-[var(--border)] bg-[var(--page-bg)]"}`}><span className={`mx-auto grid h-12 w-12 overflow-hidden rounded-full bg-cover bg-center text-base font-black ${selected ? "bg-white text-slate-950" : "bg-white text-slate-950 shadow-sm"}`} style={photo ? { backgroundImage: `url(${photo})` } : undefined}>{photo ? null : <span className="m-auto">{name.slice(0, 1).toUpperCase()}</span>}</span><strong className="mt-3 block line-clamp-2 text-sm">{name}</strong><span className={`mt-1 block text-xs ${selected ? "text-slate-300" : "text-[var(--muted-blue)]"}`}>Roll {rollNumber}</span></button>;
             })}
           </div>
           {students.length > pageSize ? <div className="mt-5 flex items-center justify-between gap-3 border-t border-[var(--border)] pt-4"><button type="button" disabled={safePage === 1} onClick={() => setRosterPage((page) => Math.max(1, page - 1))} className="rounded-xl border border-[var(--border)] px-4 py-2 text-sm font-black disabled:opacity-40">Previous</button><span className="text-sm font-bold text-[var(--muted-blue)]">Page {safePage} of {totalPages}</span><button type="button" disabled={safePage === totalPages} onClick={() => setRosterPage((page) => Math.min(totalPages, page + 1))} className="rounded-xl border border-[var(--border)] px-4 py-2 text-sm font-black disabled:opacity-40">Next</button></div> : null}
@@ -4638,13 +4684,15 @@ function FootballStudentGrid({
                 const id = studentId(entry, rowIndex * 4 + index);
                 const active = selectedStudentId === id;
                 const metrics = studentProgressMetrics(entry.student, workspace, totalStudents);
+                const name = formatStudentName(entry.student?.name) || entry.student?.email || "Student";
+                const rollNumber = isStandardRollNumber(entry.student?.rollNumber) ? entry.student?.rollNumber : id.slice(-5);
                 return (
                   <button key={id} type="button" onClick={() => onSelect(id)} className={`w-48 rounded-2xl border p-3 text-left ${active ? "border-white bg-white text-emerald-950" : "border-white/25 bg-white/10 text-white"}`}>
                     <span className="flex items-center gap-3">
                       <StudentAvatar student={entry.student} />
                       <span className="min-w-0">
-                        <span className="block truncate text-sm font-black">{entry.student?.name || entry.student?.email || "Student"}</span>
-                        <span className="mt-1 block truncate text-[0.68rem] font-black opacity-80">Roll {entry.student?.rollNumber || id.slice(-5)}</span>
+                        <span className="block truncate text-sm font-black">{name}</span>
+                        <span className="mt-1 block truncate text-[0.68rem] font-black opacity-80">Roll {rollNumber}</span>
                       </span>
                     </span>
                     <div className="mt-3 grid grid-cols-2 gap-2 text-[0.65rem] font-black">
@@ -4673,7 +4721,7 @@ function StudentAvatar({ student }: { student?: AssignedStudent | null }) {
   if (photo) {
     return <span className="h-12 w-12 shrink-0 rounded-full bg-cover bg-center" style={{ backgroundImage: `url(${photo})` }} />;
   }
-  return <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white font-black text-emerald-950">{(student?.name || student?.email || "?").slice(0, 1).toUpperCase()}</span>;
+  return <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white font-black text-emerald-950">{(formatStudentName(student?.name) || student?.email || "?").slice(0, 1).toUpperCase()}</span>;
 }
 
 function CourseSummaryCards({ students, progress, exams, assignments }: { students: number; progress: number; exams: number; assignments: number }) {
@@ -4812,21 +4860,23 @@ function AttendanceWorkspace({
                 <div className="mt-4 max-w-xs"><Input label="Date" type="date" value={date} onChange={onDate} /></div>
               </div>
 
-              <div className="hidden grid-cols-[5rem_minmax(12rem,1fr)_repeat(4,5.5rem)_minmax(10rem,1fr)] border-b border-[var(--border)] bg-[var(--page-bg)] px-4 py-3 text-xs font-black uppercase tracking-[0.12em] md:grid">
+              <div className="hidden grid-cols-[9rem_minmax(12rem,1fr)_repeat(4,5.5rem)_minmax(10rem,1fr)] border-b border-[var(--border)] bg-[var(--page-bg)] px-4 py-3 text-xs font-black uppercase tracking-[0.12em] md:grid">
                 <span>Roll No</span><span>Student Name</span><span>Present</span><span>Absent</span><span>Leave</span><span>Half Day</span><span>Remarks</span>
               </div>
               <div className="divide-y divide-[var(--border)]">
                 {students.map((entry, index) => {
                   const id = studentId(entry, index);
                   const current = attendance[id] ?? "PRESENT";
+                  const rollNumber = displayRollNumber(selectedClass, entry, index);
+                  const studentName = formatStudentName(entry.student?.name) || entry.student?.email || "Student";
                   const studentRecords = history.flatMap((record) => (record.records ?? []).filter((item) => item.studentId === entry.student?.id));
                   const studentPresent = studentRecords.filter((record) => record.status === "PRESENT").length;
                   const studentRate = studentRecords.length ? Math.round((studentPresent / studentRecords.length) * 100) : 0;
                   return (
-                    <div key={id} className="grid gap-3 p-4 md:grid-cols-[5rem_minmax(12rem,1fr)_repeat(4,5.5rem)_minmax(10rem,1fr)] md:items-center">
-                      <span className="text-sm font-black">{entry.student?.rollNumber || index + 1}</span>
+                    <div key={id} className="grid gap-3 p-4 md:grid-cols-[9rem_minmax(12rem,1fr)_repeat(4,5.5rem)_minmax(10rem,1fr)] md:items-center">
+                      <span className="text-xs font-black uppercase tracking-[0.04em] text-[var(--muted-blue)]">{rollNumber}</span>
                       <details>
-                        <summary className="cursor-pointer list-none font-black">{entry.student?.name || entry.student?.email || "Student"}</summary>
+                        <summary className="cursor-pointer list-none font-black">{studentName}</summary>
                         <p className="mt-1 text-xs text-[var(--muted-blue)]">{studentRate}% / {studentPresent} present / {studentRecords.filter((record) => record.status === "ABSENT").length} absent / {studentRecords.filter((record) => record.status === "LEAVE").length} leave</p>
                       </details>
                       {(["PRESENT", "ABSENT", "LEAVE", "HALF_DAY"] as AttendanceStatus[]).map((status) => (
