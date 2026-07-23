@@ -3569,26 +3569,26 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
         ) : null}
       </section> : null}
 
-      {view === "library" ? <section className="grid gap-5">
-        <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
+      {view === "library" ? <section className="grid gap-4">
+        <div className="rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex items-start gap-4">
-              <span className="grid h-12 w-12 place-items-center rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] text-[var(--ink)]">
+              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-[var(--border)] bg-[var(--page-bg)] text-[var(--ink)]">
                 <Library size={22} />
               </span>
               <div>
-                <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold-dark)]">My Library</p>
-                <h2 className="mt-2 text-3xl font-black">Teaching files</h2>
-                <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--muted-blue)]">Open batch folder, subject folder and topic folder. Upload videos, notes and worksheets like a simple computer drive.</p>
+                <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold-dark)]">Resources</p>
+                <h2 className="mt-1 text-2xl font-black">Teaching files</h2>
+                <p className="mt-1 max-w-3xl text-sm leading-6 text-[var(--muted-blue)]">Choose a batch, open a subject, then upload or manage lessons for students.</p>
               </div>
             </div>
             {selectedClass && activeLibrarySubject ? (
               <button type="button" onClick={() => openLibraryUpload()} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-slate-950 !bg-slate-950 px-5 py-3 text-sm font-black !text-white">
-                <Plus size={18} /> Upload
+                <Plus size={18} /> Upload Lesson
               </button>
             ) : null}
           </div>
-          <div className="mt-5 flex flex-wrap items-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-4 py-3 text-sm font-black">
+          <div className="mt-4 flex flex-wrap items-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-3 py-2 text-sm font-black">
             <button type="button" onClick={() => { setSelectedClassId(null); setLibrarySubject(null); setLibraryTopic(null); }} className="text-[var(--ink)]">My Library</button>
             {selectedClass ? <><span className="text-[var(--muted-blue)]">/</span><button type="button" onClick={() => { setLibrarySubject(null); setLibraryTopic(null); }} className="text-[var(--ink)]">{selectedClass.name}</button></> : null}
             {activeLibrarySubject ? <><span className="text-[var(--muted-blue)]">/</span><button type="button" onClick={() => setLibraryTopic(null)} className="text-[var(--ink)]">{activeLibrarySubject}</button></> : null}
@@ -3597,15 +3597,15 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
         </div>
 
         {!selectedClass ? (
-          <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
+          <div className="rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm">
             <div className="flex flex-wrap items-end justify-between gap-3">
               <div>
-                <p className="text-xs font-black uppercase tracking-[0.3em] text-[var(--gold-dark)]">This PC</p>
-                <h3 className="mt-2 text-2xl font-black">Batch folders</h3>
+                <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold-dark)]">Step 1</p>
+                <h3 className="mt-1 text-xl font-black">Open batch folder</h3>
               </div>
               <span className="rounded-full border border-[var(--border)] bg-[var(--page-bg)] px-4 py-2 text-xs font-black">{activeClasses.length} folder(s)</span>
             </div>
-            <div className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
               {activeClasses.map((batch) => {
                 const subjects = subjectsForBatch(batch);
                 return (
@@ -3624,16 +3624,16 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
         ) : null}
 
         {selectedClass && !activeLibrarySubject ? (
-          <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
+          <div className="rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm">
             <div className="flex flex-wrap items-end justify-between gap-3">
               <div>
-                <p className="text-xs font-black uppercase tracking-[0.3em] text-[var(--gold-dark)]">Batch Folder</p>
-                <h3 className="mt-2 text-2xl font-black">{selectedClass.name}</h3>
-                <p className="mt-2 text-sm text-[var(--muted-blue)]">{programName(selectedClass)} / Open the subject you taught.</p>
+                <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold-dark)]">Step 2</p>
+                <h3 className="mt-1 text-xl font-black">{selectedClass.name}</h3>
+                <p className="mt-1 text-sm text-[var(--muted-blue)]">{programName(selectedClass)} / Open subject folder.</p>
               </div>
               <button type="button" onClick={() => { setSelectedClassId(null); setLibrarySubject(null); setLibraryTopic(null); }} className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-4 py-3 text-sm font-black">Back to Batches</button>
             </div>
-            <div className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
               {librarySubjects.map((subject) => {
                 const materials = subject.materials.filter((item) => !isFolderMaterial(item));
                 const archived = subject.materials.length > 0 && subject.materials.every((item) => item.status === "ARCHIVED");
@@ -3654,21 +3654,20 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
         ) : null}
 
         {selectedClass && activeLibrarySubject && !activeLibraryTopic ? (
-          <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
+          <div className="rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm">
             <div className="flex flex-wrap items-end justify-between gap-3">
               <div>
-                <p className="text-xs font-black uppercase tracking-[0.3em] text-[var(--gold-dark)]">Subject Folder</p>
-                <h3 className="mt-2 text-2xl font-black">{activeLibrarySubject}</h3>
-                <p className="mt-2 text-sm text-[var(--muted-blue)]">{selectedClass.name} / Open a topic folder or create one.</p>
+                <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold-dark)]">Step 3</p>
+                <h3 className="mt-1 text-xl font-black">{activeLibrarySubject}</h3>
+                <p className="mt-1 text-sm text-[var(--muted-blue)]">{selectedClass.name} / Open topic folder or create one.</p>
               </div>
               <div className="flex flex-wrap gap-2">
                 <button type="button" onClick={() => setLibrarySubject(null)} className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-4 py-3 text-sm font-black">Back to Subjects</button>
-                <button type="button" onClick={() => openLibraryUpload()} className="rounded-xl bg-[var(--ink)] px-4 py-3 text-sm font-black text-white">Upload Lesson</button>
               </div>
             </div>
-            <div className="mt-5 grid gap-4 lg:grid-cols-[320px_1fr]">
+            <div className="mt-4 grid gap-3 xl:grid-cols-[280px_1fr]">
               <FolderCreateBox label="New topic folder" placeholder="Example: Algebra" value={libraryForm.topic} onChange={(value) => setLibraryForm((form) => ({ ...form, subject: activeLibrarySubject, folder: activeLibrarySubject, topic: value }))} onCreate={() => void createLibraryFolder("TOPIC", libraryForm.topic)} />
-              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
                 {libraryTopics.map((topic) => {
                   const files = topic.materials.filter((item) => !isFolderMaterial(item));
                   const archived = topic.materials.length > 0 && topic.materials.every((item) => item.status === "ARCHIVED");
@@ -3690,12 +3689,12 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
         ) : null}
 
         {selectedClass && activeLibrarySubject && activeLibraryTopic ? (
-          <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
+          <div className="rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm">
             <div className="flex flex-wrap items-end justify-between gap-3">
               <div>
-                <p className="text-xs font-black uppercase tracking-[0.3em] text-[var(--gold-dark)]">Topic Folder</p>
-                <h3 className="mt-2 text-2xl font-black">{activeLibraryTopic}</h3>
-                <p className="mt-2 text-sm text-[var(--muted-blue)]">{selectedClass.name} / {activeLibrarySubject}</p>
+                <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold-dark)]">Step 4</p>
+                <h3 className="mt-1 text-xl font-black">{activeLibraryTopic}</h3>
+                <p className="mt-1 text-sm text-[var(--muted-blue)]">{selectedClass.name} / {activeLibrarySubject}</p>
               </div>
               <div className="flex flex-wrap gap-2">
                 <button type="button" onClick={() => setLibraryTopic(null)} className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-4 py-3 text-sm font-black">Back to Topics</button>
@@ -3707,11 +3706,11 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
             <div className="mt-5 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
               <input value={librarySearch} onChange={(event) => setLibrarySearch(event.target.value)} placeholder="Search this folder..." className="min-h-12 w-full rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-4 text-sm font-bold outline-none md:max-w-md" />
               <select value={librarySort} onChange={(event) => setLibrarySort(event.target.value as "LATEST" | "OLDEST")} className="min-h-12 rounded-xl border border-[var(--border)] bg-white px-4 text-sm font-black">
-                <option value="LATEST">Sort Latest</option>
-                <option value="OLDEST">Sort Oldest</option>
+                <option value="LATEST">Latest first</option>
+                <option value="OLDEST">Oldest first</option>
               </select>
             </div>
-            <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            <div className="mt-4 grid gap-3">
               {pagedLibraryMaterials.map((material) => (
                 <MaterialCard
                   key={material.id}
@@ -6150,23 +6149,22 @@ function ExplorerFolder({
   onDelete?: () => void;
 }) {
   return (
-    <article className={`group rounded-2xl border p-4 shadow-sm transition hover:-translate-y-0.5 ${active ? "border-slate-950 bg-slate-950 text-white" : "border-[var(--border)] bg-[var(--page-bg)] text-[var(--ink)]"} ${archived ? "opacity-60" : ""}`}>
-      <button type="button" onClick={onOpen} className="grid w-full gap-3 text-left">
-        <div className="relative h-24">
-          <div className={`absolute left-0 top-3 h-16 w-28 rounded-lg border ${active ? "border-white/20 bg-white/20" : "border-amber-300 bg-amber-100"}`} />
-          <div className={`absolute left-2 top-0 h-6 w-14 rounded-t-lg border ${active ? "border-white/20 bg-white/20" : "border-amber-300 bg-amber-200"}`} />
-          <div className={`absolute left-0 top-5 grid h-16 w-32 place-items-center rounded-lg border text-xs font-black ${active ? "border-white/20 bg-white/10 text-white" : "border-amber-400 bg-amber-200 text-amber-950"}`}>
-            <Folder size={28} />
-          </div>
+    <article className={`group rounded-xl border p-3 shadow-sm transition hover:-translate-y-0.5 ${active ? "border-slate-950 bg-slate-950 text-white" : "border-[var(--border)] bg-white text-[var(--ink)]"} ${archived ? "opacity-60" : ""}`}>
+      <button type="button" onClick={onOpen} className="flex w-full items-center gap-3 text-left">
+        <span className={`grid h-12 w-12 shrink-0 place-items-center rounded-xl border ${active ? "border-white/20 bg-white/10 text-white" : "border-amber-200 bg-amber-50 text-amber-800"}`}>
+          <Folder size={22} />
+        </span>
+        <div className="min-w-0 flex-1">
+          <h4 className="truncate text-base font-black">{title}</h4>
+          <p className={`mt-1 truncate text-xs font-bold ${active ? "text-white/70" : "text-[var(--muted-blue)]"}`}>{archived ? "Archived / " : ""}{subtitle}</p>
         </div>
-        <div>
-          <h4 className="line-clamp-2 text-lg font-black">{title}</h4>
-          <p className={`mt-1 text-xs font-bold ${active ? "text-white/70" : "text-[var(--muted-blue)]"}`}>{archived ? "Archived / " : ""}{subtitle}</p>
-        </div>
+        <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-lg border ${active ? "border-white/20 text-white" : "border-[var(--border)] text-[var(--ink)]"}`}>
+          <ChevronRight size={17} />
+        </span>
       </button>
       {(onRename || onArchive || onRestore || onDelete) ? (
-        <details className="relative mt-4 border-t border-current/10 pt-3">
-          <summary className={`inline-flex min-h-9 cursor-pointer list-none items-center justify-center rounded-lg border px-3 text-xs font-black ${active ? "border-white/30 text-white" : "border-[var(--border)] bg-white text-[var(--ink)]"}`}>More</summary>
+        <details className="relative mt-3 border-t border-current/10 pt-2">
+          <summary className={`inline-flex min-h-8 cursor-pointer list-none items-center justify-center rounded-lg border px-3 text-xs font-black ${active ? "border-white/30 text-white" : "border-[var(--border)] bg-[var(--page-bg)] text-[var(--ink)]"}`}>Actions</summary>
           <div className="absolute left-0 z-20 mt-2 grid min-w-40 gap-1 rounded-xl border border-[var(--border)] bg-white p-2 text-slate-950 shadow-xl">
             {onRename ? <button type="button" onClick={onRename} className="rounded-lg px-3 py-2 text-left text-xs font-black hover:bg-[var(--page-bg)]">Rename</button> : null}
             {archived && onRestore ? <button type="button" onClick={onRestore} className="rounded-lg px-3 py-2 text-left text-xs font-black text-emerald-700 hover:bg-emerald-50">Restore</button> : null}
@@ -6181,11 +6179,11 @@ function ExplorerFolder({
 
 function FolderCreateBox({ label, placeholder, value, onChange, onCreate }: { label: string; placeholder: string; value: string; onChange: (value: string) => void; onCreate: () => void }) {
   return (
-    <div className="rounded-2xl border border-dashed border-[var(--border)] bg-white p-4">
+    <div className="rounded-xl border border-dashed border-[var(--border)] bg-[var(--page-bg)] p-3">
       <p className="text-sm font-black">{label}</p>
-      <div className="mt-3 flex gap-2">
-        <input value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} className="min-h-11 min-w-0 flex-1 rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-3 text-sm outline-none" />
-        <button type="button" onClick={onCreate} className="rounded-xl border border-slate-950 !bg-slate-950 px-4 text-sm font-black !text-white">Create</button>
+      <div className="mt-2 flex gap-2">
+        <input value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} className="min-h-10 min-w-0 flex-1 rounded-lg border border-[var(--border)] bg-white px-3 text-sm outline-none" />
+        <button type="button" onClick={onCreate} className="rounded-lg border border-slate-950 !bg-slate-950 px-4 text-sm font-black !text-white">Create</button>
       </div>
     </div>
   );
@@ -6540,55 +6538,62 @@ function MaterialCard({
   onDelete: () => void;
 }) {
   const type = material.type || "Material";
+  const normalizedType = type.toUpperCase();
   const date = material.createdAt ? new Date(material.createdAt).toLocaleDateString() : "Upload date pending";
   const archived = material.status === "ARCHIVED";
-  const isVideo = type.toUpperCase().includes("VIDEO");
+  const isVideo = normalizedType.includes("VIDEO") || normalizedType.includes("YOUTUBE");
+  const isDocument = ["PDF", "PPT", "PPTX", "WORD", "DOC", "DOCX", "NOTE", "NOTES"].some((item) => normalizedType.includes(item));
+  const [thumbnailFailed, setThumbnailFailed] = useState(false);
   const fileSize = material.fileSize ? `${(material.fileSize / 1024 / 1024).toFixed(1)} MB` : null;
   const duration = material.durationSeconds ? `${Math.max(1, Math.round(material.durationSeconds / 60))} min` : null;
+  const meta = [material.subject, material.topic, date].filter(Boolean).join(" / ");
+  const typeLabel = isVideo ? "Video" : isDocument ? "Document" : normalizedType.includes("IMAGE") ? "Image" : "File";
 
   return (
-    <div className={`rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4 ${archived ? "opacity-65" : ""}`}>
-      <div className="relative grid aspect-video place-items-center overflow-hidden rounded-xl bg-white text-center text-xs font-black text-[var(--muted-blue)]">
-        {material.thumbnailUrl ? (
+    <article className={`rounded-xl border border-[var(--border)] bg-white p-3 shadow-sm ${archived ? "opacity-65" : ""}`}>
+      <div className="grid gap-3 md:grid-cols-[116px_1fr_auto] md:items-center">
+        <div className="relative grid aspect-video place-items-center overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--page-bg)] text-center text-xs font-black text-[var(--muted-blue)] md:aspect-square">
+        {material.thumbnailUrl && !thumbnailFailed ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={material.thumbnailUrl} alt="" className="h-full w-full object-cover" />
+          <img src={material.thumbnailUrl} alt="" onError={() => setThumbnailFailed(true)} className="h-full w-full object-cover" />
         ) : (
-          <div className="flex flex-col items-center gap-2">
-            {isVideo ? <PlayCircle size={26} /> : <FileText size={24} />}
-            <span>{material.fileName || type}</span>
+          <div className="flex flex-col items-center gap-2 px-2">
+            {isVideo ? <PlayCircle size={28} /> : <FileText size={26} />}
+            <span className="truncate">{typeLabel}</span>
           </div>
         )}
-        <span className="absolute left-3 top-3 rounded-full bg-white/90 px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-[var(--ink)]">{type}</span>
-      </div>
-      <div className="mt-4 flex items-start justify-between gap-3">
-        <div>
-          <h4 className="font-black">{material.title || "Untitled material"}</h4>
-          <p className="mt-1 text-sm text-[var(--muted-blue)]">{material.lessonName || material.topic || "Lesson"} / {date}</p>
-          {material.description ? <p className="mt-2 line-clamp-2 text-sm text-[var(--muted-blue)]">{material.description}</p> : null}
-          <p className="mt-2 text-xs font-black text-[var(--muted-blue)]">{[fileSize, duration].filter(Boolean).join(" / ") || "Details pending"}</p>
+        <span className="absolute left-2 top-2 rounded-full bg-white/90 px-2 py-1 text-[10px] font-black uppercase tracking-[0.14em] text-[var(--ink)]">{typeLabel}</span>
         </div>
-        <span className={`rounded-full px-3 py-1 text-xs font-black ${statusTone(material.reviewStatus || material.status)}`}>{material.reviewStatus || material.status || "LIVE"}</span>
-      </div>
-      <div className="mt-4 flex flex-wrap gap-2">
-        {material.url ? (
-          <a href={material.url} target="_blank" rel="noreferrer" className="rounded-xl bg-[var(--ink)] px-4 py-2 text-xs font-black text-white">View</a>
-        ) : (
-          <button type="button" disabled className="rounded-xl bg-slate-200 px-4 py-2 text-xs font-black text-slate-500">View</button>
-        )}
-        <button type="button" onClick={onRename} className="rounded-xl border border-[var(--border)] bg-white px-4 py-2 text-xs font-black">Rename</button>
-        <details className="relative">
-          <summary className="inline-flex min-h-9 cursor-pointer list-none items-center justify-center rounded-xl border border-[var(--border)] bg-white px-4 text-xs font-black">More</summary>
-          <div className="absolute right-0 z-20 mt-2 grid min-w-36 gap-1 rounded-xl border border-[var(--border)] bg-white p-2 shadow-xl">
-            {archived ? (
-              <button type="button" onClick={onRestore} className="rounded-lg px-3 py-2 text-left text-xs font-black text-emerald-700 hover:bg-emerald-50">Restore</button>
-            ) : (
-              <button type="button" onClick={onArchive} className="rounded-lg px-3 py-2 text-left text-xs font-black text-amber-700 hover:bg-amber-50">Archive</button>
-            )}
-            <button type="button" onClick={onDelete} className="rounded-lg px-3 py-2 text-left text-xs font-black text-rose-700 hover:bg-rose-50">Delete</button>
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-2">
+            <h4 className="min-w-0 truncate font-black">{material.title || "Untitled material"}</h4>
+            <span className={`rounded-full px-2 py-1 text-[10px] font-black uppercase tracking-[0.12em] ${statusTone(material.reviewStatus || material.status)}`}>{material.reviewStatus || material.status || "LIVE"}</span>
           </div>
-        </details>
+          <p className="mt-1 truncate text-sm text-[var(--muted-blue)]">{meta || material.lessonName || "Lesson details pending"}</p>
+          {material.description ? <p className="mt-1 line-clamp-1 text-sm text-[var(--muted-blue)]">{material.description}</p> : null}
+          <p className="mt-2 text-xs font-black text-[var(--muted-blue)]">{[fileSize, duration, material.fileName].filter(Boolean).join(" / ") || "Details pending"}</p>
+        </div>
+        <div className="flex flex-wrap gap-2 md:justify-end">
+          {material.url ? (
+            <a href={material.url} target="_blank" rel="noreferrer" className="inline-flex min-h-10 items-center justify-center rounded-xl bg-[var(--ink)] px-4 text-xs font-black text-white">Open</a>
+          ) : (
+            <button type="button" disabled className="inline-flex min-h-10 items-center justify-center rounded-xl bg-slate-200 px-4 text-xs font-black text-slate-500">Open</button>
+          )}
+          <button type="button" onClick={onRename} className="inline-flex min-h-10 items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-4 text-xs font-black">Rename</button>
+          <details className="relative">
+            <summary className="inline-flex min-h-10 cursor-pointer list-none items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-4 text-xs font-black">Actions</summary>
+            <div className="absolute right-0 z-20 mt-2 grid min-w-36 gap-1 rounded-xl border border-[var(--border)] bg-white p-2 shadow-xl">
+              {archived ? (
+                <button type="button" onClick={onRestore} className="rounded-lg px-3 py-2 text-left text-xs font-black text-emerald-700 hover:bg-emerald-50">Restore</button>
+              ) : (
+                <button type="button" onClick={onArchive} className="rounded-lg px-3 py-2 text-left text-xs font-black text-amber-700 hover:bg-amber-50">Archive</button>
+              )}
+              <button type="button" onClick={onDelete} className="rounded-lg px-3 py-2 text-left text-xs font-black text-rose-700 hover:bg-rose-50">Delete</button>
+            </div>
+          </details>
+        </div>
       </div>
-    </div>
+    </article>
   );
 }
 
