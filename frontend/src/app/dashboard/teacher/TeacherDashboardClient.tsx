@@ -34,7 +34,6 @@ import {
   RefreshCw,
   Shield,
   Users,
-  Wrench,
   X,
 } from "lucide-react";
 
@@ -4361,9 +4360,8 @@ function ClassroomWorkspace({ batch, programName: courseName, students, totalStu
   onCreateAssignment: () => void;
 }) {
   const [rosterPage, setRosterPage] = useState(1);
-  const [mobileToolsOpen, setMobileToolsOpen] = useState(false);
   const [activeTool, setActiveTool] = useState<"OVERVIEW" | "ATTENDANCE" | "SYLLABUS">("OVERVIEW");
-  const pageSize = 24;
+  const pageSize = 48;
   const subjects = subjectsForBatch(batch);
   const totalPages = Math.max(1, Math.ceil(students.length / pageSize));
   const safePage = Math.min(rosterPage, totalPages);
@@ -4379,12 +4377,12 @@ function ClassroomWorkspace({ batch, programName: courseName, students, totalStu
   const selectedSubjectProgress = workspace.progress.filter((item) => !selectedSubject || item.subject === selectedSubject);
   return (
     <div className="grid gap-5">
-      <header className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm sm:p-6">
+      <header className="rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm sm:p-5">
         <Link href={`${classesBasePath}/${encodeURIComponent(courseKey)}`} className="text-sm font-black text-[var(--gold-dark)]">Back to batches</Link>
         <div className="mt-3 flex flex-wrap items-end justify-between gap-3">
           <div>
-            <p className="text-xs font-black uppercase tracking-[0.2em] text-[var(--gold-dark)]">My Classroom</p>
-            <h2 className="mt-1 text-3xl font-black">{batch.name}</h2>
+            <p className="text-xs font-black uppercase tracking-[0.2em] text-[var(--gold-dark)]">Classroom</p>
+            <h2 className="mt-1 text-2xl font-black">{batch.name}</h2>
             <p className="mt-2 text-sm text-[var(--muted-blue)]">{courseName} / {batchMode(batch).toLowerCase()}</p>
             <div className="mt-3 flex flex-wrap gap-2">
               {subjects.map((subject) => <button type="button" key={subject} onClick={() => onSubject(subject)} className={`rounded-full border px-3 py-2 text-xs font-black ${selectedSubject === subject ? "border-slate-950 bg-slate-950 text-white" : "border-[var(--border)] bg-[var(--page-bg)]"}`}>{subject}</button>)}
@@ -4398,13 +4396,32 @@ function ClassroomWorkspace({ batch, programName: courseName, students, totalStu
       {workspaceError ? <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm font-bold text-rose-800"><span>{workspaceError}</span><button type="button" onClick={onRetry} className="rounded-xl border border-rose-300 bg-white px-4 py-2 font-black">Retry</button></div> : null}
       {workspace.announcements[0] ? <div className="flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4"><Megaphone size={18} className="mt-0.5 shrink-0 text-amber-800" /><div><p className="font-black text-amber-950">{workspace.announcements[0].title}</p><p className="mt-1 text-sm text-amber-900">{workspace.announcements[0].description}</p><p className="mt-2 text-xs font-bold text-amber-700">Sent {new Date(workspace.announcements[0].createdAt).toLocaleString()}</p></div></div> : null}
 
-      <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_230px]">
+      <section className="rounded-2xl border border-[var(--border)] bg-white p-3 shadow-sm">
+        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-6">
+          {tools.map((tool) => {
+            const Icon = tool.icon;
+            return (
+              <button
+                key={tool.label}
+                type="button"
+                onClick={tool.onClick}
+                className="flex min-h-12 items-center justify-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-3 text-sm font-black text-[var(--ink)] transition hover:-translate-y-0.5 hover:border-slate-950 hover:bg-white"
+              >
+                <Icon size={17} />
+                <span className="truncate">{tool.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      </section>
+
+      <div className="grid items-start gap-5">
         <section className="rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm sm:p-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <div><p className="text-xs font-black uppercase tracking-[0.2em] text-[var(--gold-dark)]">Classroom</p><h3 className="mt-1 text-xl font-black">Students</h3></div>
+            <div><p className="text-xs font-black uppercase tracking-[0.2em] text-[var(--gold-dark)]">Student Register</p><h3 className="mt-1 text-xl font-black">Roster</h3></div>
             <input value={search} onChange={(event) => { onSearch(event.target.value); setRosterPage(1); }} placeholder="Find a student" className="min-h-11 w-full rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-4 text-sm outline-none sm:w-60" />
           </div>
-          <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
+          <div className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
             {pageStudents.map((entry, index) => {
               const absoluteIndex = (safePage - 1) * pageSize + index;
               const id = studentId(entry, absoluteIndex);
@@ -4412,33 +4429,25 @@ function ClassroomWorkspace({ batch, programName: courseName, students, totalStu
               const name = formatStudentName(entry.student?.name) || entry.student?.email || "Student";
               const rollNumber = displayRollNumber(batch, entry, absoluteIndex);
               const photo = entry.student?.photoUrl || entry.student?.avatarUrl;
-              return <button key={id} type="button" onClick={() => onSelectStudent(id)} className={`min-h-32 rounded-xl border p-3 text-center transition hover:-translate-y-0.5 hover:border-slate-950 ${selected ? "border-slate-950 bg-slate-950 text-white" : "border-[var(--border)] bg-[var(--page-bg)]"}`}><span className={`mx-auto grid h-12 w-12 overflow-hidden rounded-full bg-cover bg-center text-base font-black ${selected ? "bg-white text-slate-950" : "bg-white text-slate-950 shadow-sm"}`} style={photo ? { backgroundImage: `url(${photo})` } : undefined}>{photo ? null : <span className="m-auto">{name.slice(0, 1).toUpperCase()}</span>}</span><strong className="mt-3 block line-clamp-2 text-sm">{name}</strong><span className={`mt-1 block text-xs ${selected ? "text-slate-300" : "text-[var(--muted-blue)]"}`}>Roll {rollNumber}</span></button>;
+              const metrics = studentProgressMetrics(entry.student, workspace, totalStudents);
+              return (
+                <button key={id} type="button" onClick={() => onSelectStudent(id)} className={`grid min-h-16 grid-cols-[2.5rem_minmax(0,1fr)_auto] items-center gap-3 rounded-xl border p-3 text-left transition hover:-translate-y-0.5 hover:border-slate-950 ${selected ? "border-slate-950 bg-slate-950 text-white" : "border-[var(--border)] bg-[var(--page-bg)]"}`}>
+                  <span className={`grid h-10 w-10 overflow-hidden rounded-full bg-cover bg-center text-sm font-black ${selected ? "bg-white text-slate-950" : "bg-white text-slate-950 shadow-sm"}`} style={photo ? { backgroundImage: `url(${photo})` } : undefined}>{photo ? null : <span className="m-auto">{name.slice(0, 1).toUpperCase()}</span>}</span>
+                  <span className="min-w-0">
+                    <strong className="block truncate text-sm font-black">{name}</strong>
+                    <span className={`mt-0.5 block truncate text-[11px] font-bold ${selected ? "text-slate-300" : "text-[var(--muted-blue)]"}`}>Roll {rollNumber}</span>
+                  </span>
+                  <span className="grid gap-1 text-right">
+                    <span className={`rounded-full px-2 py-1 text-[10px] font-black ${selected ? "bg-white text-slate-950" : "bg-white text-emerald-800"}`}>{metrics.attendance}%</span>
+                    <span className={`text-[10px] font-black ${selected ? "text-slate-300" : "text-[var(--muted-blue)]"}`}>View</span>
+                  </span>
+                </button>
+              );
             })}
           </div>
           {students.length > pageSize ? <div className="mt-5 flex items-center justify-between gap-3 border-t border-[var(--border)] pt-4"><button type="button" disabled={safePage === 1} onClick={() => setRosterPage((page) => Math.max(1, page - 1))} className="rounded-xl border border-[var(--border)] px-4 py-2 text-sm font-black disabled:opacity-40">Previous</button><span className="text-sm font-bold text-[var(--muted-blue)]">Page {safePage} of {totalPages}</span><button type="button" disabled={safePage === totalPages} onClick={() => setRosterPage((page) => Math.min(totalPages, page + 1))} className="rounded-xl border border-[var(--border)] px-4 py-2 text-sm font-black disabled:opacity-40">Next</button></div> : null}
           {!students.length ? <div className="mt-5 rounded-xl border border-dashed border-[var(--border)] p-8 text-center text-sm text-[var(--muted-blue)]">Students will appear after admission and batch allocation.</div> : null}
         </section>
-
-        <aside className="sticky top-24 hidden rounded-2xl border border-[var(--border)] bg-white p-3 shadow-sm lg:block">
-          <p className="px-2 py-2 text-xs font-black uppercase tracking-[0.2em] text-[var(--gold-dark)]">Class Tools</p>
-          <div className="grid grid-cols-2 gap-2 lg:grid-cols-1">
-            {tools.map((tool) => {
-              const Icon = tool.icon;
-              return (
-                <button
-                  key={tool.label}
-                  type="button"
-                  onClick={tool.onClick}
-                  className="flex min-h-12 items-center gap-3 rounded-xl border border-transparent bg-white px-3 text-left text-sm font-black text-[var(--ink)] transition hover:border-slate-950 hover:bg-[var(--page-bg)]"
-                >
-                  <Icon size={17} />
-                  <span className="min-w-0 flex-1">{tool.label}</span>
-                  <ChevronRight size={14} className="opacity-40" />
-                </button>
-              );
-            })}
-          </div>
-        </aside>
       </div>
       {activeTool === "ATTENDANCE" ? (
         <section className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
@@ -4480,35 +4489,6 @@ function ClassroomWorkspace({ batch, programName: courseName, students, totalStu
             {!selectedSubjectProgress.length ? <EmptyState text="No syllabus progress is recorded for this subject yet." /> : null}
           </div>
         </section>
-      ) : null}
-      <button type="button" onClick={() => setMobileToolsOpen(true)} className="fixed bottom-4 left-1/2 z-30 flex min-h-12 -translate-x-1/2 items-center gap-2 rounded-full bg-slate-950 px-6 text-sm font-black text-white shadow-xl lg:hidden"><Wrench size={17} /> Class Tools</button>
-      {mobileToolsOpen ? (
-        <div className="fixed inset-0 z-50 flex items-end bg-slate-950/45 lg:hidden" onClick={() => setMobileToolsOpen(false)}>
-          <div className="w-full rounded-t-3xl bg-white p-4 pb-8 shadow-2xl" onClick={(event) => event.stopPropagation()}>
-            <div className="flex items-center justify-between">
-              <div><p className="text-xs font-black uppercase tracking-[0.2em] text-[var(--gold-dark)]">Class Tools</p><p className="mt-1 text-sm font-bold">{selectedSubject}</p></div>
-              <button type="button" onClick={() => setMobileToolsOpen(false)} aria-label="Close class tools" className="rounded-xl border border-[var(--border)] p-3"><X size={18} /></button>
-            </div>
-            <div className="mt-4 grid grid-cols-2 gap-2">
-              {tools.map((tool) => {
-                const Icon = tool.icon;
-                return (
-                  <button
-                    key={tool.label}
-                    type="button"
-                    onClick={() => {
-                      tool.onClick();
-                      setMobileToolsOpen(false);
-                    }}
-                    className="flex min-h-14 items-center gap-3 rounded-xl border border-[var(--border)] bg-white px-4 text-left text-sm font-black text-[var(--ink)]"
-                  >
-                    <Icon size={17} />{tool.label}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </div>
       ) : null}
     </div>
   );
