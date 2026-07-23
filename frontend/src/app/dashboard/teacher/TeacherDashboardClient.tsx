@@ -1355,6 +1355,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
   const libraryPageSize = 12;
   const pagedLibraryMaterials = visibleLibraryMaterials.slice((libraryPage - 1) * libraryPageSize, libraryPage * libraryPageSize);
   const libraryTotalPages = Math.max(1, Math.ceil(visibleLibraryMaterials.length / libraryPageSize));
+  const archivedLibraryCount = classWorkspace.materials.filter((item) => item.status === "ARCHIVED").length;
   const libraryStats = useMemo(() => {
     const materials = activeLibraryRecords.filter((item) => !isFolderMaterial(item) && (item.subject || item.folder || "General") === activeLibrarySubject);
     const videos = materials.filter((item) => (item.type || "").toUpperCase().includes("VIDEO")).length;
@@ -3597,11 +3598,22 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
                 <p className="mt-1 max-w-3xl text-sm leading-6 text-[var(--muted-blue)]">Choose a batch, open a subject, then upload or manage lessons for students.</p>
               </div>
             </div>
-            {selectedClass && activeLibrarySubject ? (
-              <button type="button" onClick={() => openLibraryUpload()} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-slate-950 !bg-slate-950 px-5 py-3 text-sm font-black !text-white">
-                <Plus size={18} /> Upload Lesson
-              </button>
-            ) : null}
+            <div className="flex flex-wrap gap-2">
+              {selectedClass ? (
+                <button
+                  type="button"
+                  onClick={() => setShowArchivedLibrary((value) => !value)}
+                  className={`inline-flex min-h-12 items-center justify-center rounded-xl border px-4 py-3 text-sm font-black ${showArchivedLibrary ? "border-emerald-200 bg-emerald-50 text-emerald-800" : "border-[var(--border)] bg-[var(--page-bg)] text-[var(--ink)]"}`}
+                >
+                  {showArchivedLibrary ? "Hide archived" : `Show archived${archivedLibraryCount ? ` (${archivedLibraryCount})` : ""}`}
+                </button>
+              ) : null}
+              {selectedClass && activeLibrarySubject ? (
+                <button type="button" onClick={() => openLibraryUpload()} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-slate-950 !bg-slate-950 px-5 py-3 text-sm font-black !text-white">
+                  <Plus size={18} /> Upload Lesson
+                </button>
+              ) : null}
+            </div>
           </div>
           <div className="mt-4 flex flex-wrap items-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-3 py-2 text-sm font-black">
             <button type="button" onClick={() => { setSelectedClassId(null); setLibrarySubject(null); setLibraryTopic(null); }} className="text-[var(--ink)]">My Library</button>
