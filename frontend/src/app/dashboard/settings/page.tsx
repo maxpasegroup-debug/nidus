@@ -2,12 +2,12 @@
 
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { Activity, Camera, HeartPulse, KeyRound, PhoneCall, Save, ShieldCheck, UserRound } from "lucide-react";
+import { Activity, AlertCircle, Camera, CheckCircle2, HeartPulse, KeyRound, PhoneCall, RefreshCw, Save, ShieldCheck, UserRound } from "lucide-react";
 import { RoleDashboardGuard } from "@/components/dashboard";
 import { Button } from "@/components/ui/button";
 import { PasswordInput } from "@/components/ui/password-input";
 import { useToast } from "@/components/providers/toast-provider";
-import { getApiErrorMessage } from "@/services/api";
+import { apiClient, getApiErrorMessage } from "@/services/api";
 import { changePin, updateProfile, updateProfilePhoto, type ProfileUpdatePayload } from "@/services/auth.v2";
 import { useAuth } from "@/components/providers/auth-provider-v2";
 
@@ -35,6 +35,47 @@ const progressFields: Array<{ key: keyof ProfileUpdatePayload; label: string }> 
   { key: "personalGrowth", label: "Personal growth" },
 ];
 
+type TeachingBatch = {
+  id: string;
+  name: string;
+  students?: unknown[];
+  _count?: { students?: number };
+};
+
+type TeacherSystemProgress = {
+  loading: boolean;
+  error: string | null;
+  assignedBatches: number;
+  totalStudents: number;
+  attendanceRecords: number;
+  assignments: number;
+  exams: number;
+  materials: number;
+  syllabusAverage: number;
+  attendanceSignal: number;
+  assignmentSignal: number;
+  examSignal: number;
+  materialSignal: number;
+  systemScore: number;
+};
+
+const emptySystemProgress: TeacherSystemProgress = {
+  loading: false,
+  error: null,
+  assignedBatches: 0,
+  totalStudents: 0,
+  attendanceRecords: 0,
+  assignments: 0,
+  exams: 0,
+  materials: 0,
+  syllabusAverage: 0,
+  attendanceSignal: 0,
+  assignmentSignal: 0,
+  examSignal: 0,
+  materialSignal: 0,
+  systemScore: 0,
+};
+
 function textValue(value: unknown) {
   return typeof value === "string" ? value : "";
 }
@@ -44,12 +85,35 @@ function numberValue(value: unknown) {
   return Number.isFinite(parsed) ? Math.max(0, Math.min(100, Math.round(parsed))) : 0;
 }
 
+function studentCount(batch: TeachingBatch) {
+  return batch._count?.students ?? batch.students?.length ?? 0;
+}
+
+function average(values: number[]) {
+  const clean = values.filter((value) => Number.isFinite(value));
+  return clean.length ? Math.round(clean.reduce((total, value) => total + value, 0) / clean.length) : 0;
+}
+
+function signal(count: number, target: number) {
+  if (!target) return 0;
+  return Math.min(100, Math.round((count / target) * 100));
+}
+
 function Field({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
   return (
     <label className="grid gap-2 text-sm font-black text-[var(--ink)]">
       <span>{label}{required ? <span className="text-rose-600"> *</span> : null}</span>
       {children}
     </label>
+  );
+}
+
+function MetricTile({ label, value, loading }: { label: string; value: string | number; loading?: boolean }) {
+  return (
+    <div className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] p-3">
+      <p className="text-[10px] font-black uppercase tracking-[0.16em] text-[var(--muted-blue)]">{label}</p>
+      <p className="mt-1 text-xl font-black">{loading ? "--" : value}</p>
+    </div>
   );
 }
 
@@ -93,6 +157,7 @@ export default function DashboardSettingsPage() {
   const [isSavingProfile, setIsSavingProfile] = useState(false);
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
   const [mustChangePassword, setMustChangePassword] = useState(false);
+  const [systemProgress, setSystemProgress] = useState<TeacherSystemProgress>(emptySystemProgress);
 
   useEffect(() => {
     setMustChangePassword(new URLSearchParams(window.location.search).get("mustChangePassword") === "1");
@@ -124,9 +189,71 @@ export default function DashboardSettingsPage() {
     });
   }, [metadata, progress, user]);
 
+  async function loadSystemProgress() {
+    if (!user || !["TEACHER", "ACADEMIC_HEAD", "DIRECTOR"].includes(user.role)) return;
+    setSystemProgress((current) => ({ ...current, loading: true, error: null }));
+    try {
+      const plan = await apiClient.get<{ batches?: TeachingBatch[] }>("/academy/my-teaching-plan");
+      const batches = Array.isArray(plan.data.batches) ? plan.data.batches : [];
+      const workspace = await Promise.all(batches.map(async (batch) => {
+        const [attendance, assignments, materials, exams, progressItems] = await Promise.all([
+          apiClient.get<{ attendance?: Array<{ records?: unknown[] }> }>(`/academy/attendance?batchId=${encodeURIComponent(batch.id)}`).catch(() => ({ data: { attendance: [] } })),
+          apiClient.get<{ assignments?: unknown[] }>(`/academy/assignments?batchId=${encodeURIComponent(batch.id)}`).catch(() => ({ data: { assignments: [] } })),
+          apiClient.get<{ materials?: unknown[] }>(`/academy/study-materials?batchId=${encodeURIComponent(batch.id)}&includeArchived=true`).catch(() => ({ data: { materials: [] } })),
+          apiClient.get<{ exams?: unknown[] }>(`/academy/exams?batchId=${encodeURIComponent(batch.id)}`).catch(() => ({ data: { exams: [] } })),
+          apiClient.get<{ progress?: Array<{ completionPercentage?: number; completionPercent?: number; progress?: number }> }>(`/academy/syllabus-progress?batchId=${encodeURIComponent(batch.id)}`).catch(() => ({ data: { progress: [] } })),
+        ]);
+        return {
+          attendance: attendance.data.attendance ?? [],
+          assignments: assignments.data.assignments ?? [],
+          materials: materials.data.materials ?? [],
+          exams: exams.data.exams ?? [],
+          progress: progressItems.data.progress ?? [],
+        };
+      }));
+      const totalStudents = batches.reduce((total, batch) => total + studentCount(batch), 0);
+      const attendanceRecords = workspace.reduce((total, item) => total + item.attendance.length, 0);
+      const assignments = workspace.reduce((total, item) => total + item.assignments.length, 0);
+      const materials = workspace.reduce((total, item) => total + item.materials.length, 0);
+      const exams = workspace.reduce((total, item) => total + item.exams.length, 0);
+      const syllabusAverage = average(workspace.flatMap((item) => item.progress.map((record) => numberValue(record.completionPercentage ?? record.completionPercent ?? record.progress))));
+      const attendanceSignal = signal(attendanceRecords, Math.max(1, batches.length));
+      const assignmentSignal = signal(assignments, Math.max(1, batches.length));
+      const examSignal = signal(exams, Math.max(1, batches.length));
+      const materialSignal = signal(materials, Math.max(1, batches.length));
+      const systemScore = average([attendanceSignal, assignmentSignal, examSignal, materialSignal, syllabusAverage]);
+      setSystemProgress({
+        loading: false,
+        error: null,
+        assignedBatches: batches.length,
+        totalStudents,
+        attendanceRecords,
+        assignments,
+        exams,
+        materials,
+        syllabusAverage,
+        attendanceSignal,
+        assignmentSignal,
+        examSignal,
+        materialSignal,
+        systemScore,
+      });
+    } catch (error) {
+      setSystemProgress({ ...emptySystemProgress, loading: false, error: getApiErrorMessage(error) });
+    }
+  }
+
+  useEffect(() => {
+    void loadSystemProgress();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id, user?.role]);
+
   const missingFields = requiredFields.filter((field) => !String(profile[field.key] ?? "").trim());
-  const completion = Math.round(((requiredFields.length - missingFields.length) / requiredFields.length) * 100);
+  const hasProfilePhoto = Boolean(user?.imageUrl);
+  const missingItems = [!hasProfilePhoto ? "Profile photo" : null, ...missingFields.map((field) => field.label)].filter((item): item is string => Boolean(item));
+  const completion = Math.round(((requiredFields.length + 1 - missingItems.length) / (requiredFields.length + 1)) * 100);
   const progressScore = Math.round(progressFields.reduce((total, field) => total + numberValue(profile[field.key]), 0) / progressFields.length);
+  const hybridScore = systemProgress.systemScore ? Math.round((systemProgress.systemScore + progressScore) / 2) : progressScore;
 
   function updateField<K extends keyof ProfileUpdatePayload>(key: K, value: ProfileUpdatePayload[K]) {
     setProfile((current) => ({ ...current, [key]: value }));
@@ -134,8 +261,8 @@ export default function DashboardSettingsPage() {
 
   async function submitProfile(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (missingFields.length) {
-      showToast(`Complete mandatory fields: ${missingFields.map((field) => field.label).join(", ")}`, "error");
+    if (missingItems.length) {
+      showToast(`Complete mandatory fields: ${missingItems.join(", ")}`, "error");
       return;
     }
     setIsSavingProfile(true);
@@ -205,7 +332,8 @@ export default function DashboardSettingsPage() {
                   <p className="mt-1 text-sm font-bold text-[var(--muted-blue)]">{profile.designation || user?.role || "Role pending"} / {profile.mobile || "Mobile pending"}</p>
                   <div className="mt-3 flex flex-wrap gap-2 text-xs font-black">
                     <span className={`rounded-full px-3 py-1 ${completion === 100 ? "bg-emerald-50 text-emerald-800" : "bg-amber-50 text-amber-800"}`}>Profile {completion}% complete</span>
-                    <span className="rounded-full bg-[var(--page-bg)] px-3 py-1 text-[var(--ink)]">Progress {progressScore}%</span>
+                    <span className="rounded-full bg-[var(--page-bg)] px-3 py-1 text-[var(--ink)]">Hybrid progress {hybridScore}%</span>
+                    <span className={`rounded-full px-3 py-1 ${hasProfilePhoto ? "bg-emerald-50 text-emerald-800" : "bg-rose-50 text-rose-700"}`}>{hasProfilePhoto ? "Photo added" : "Photo required"}</span>
                     <span className="rounded-full bg-[var(--page-bg)] px-3 py-1 text-[var(--ink)]">{profile.bloodGroup || "Blood group pending"}</span>
                   </div>
                 </div>
@@ -218,7 +346,7 @@ export default function DashboardSettingsPage() {
             </div>
             {completion < 100 ? (
               <div className="border-t border-amber-200 bg-amber-50 px-5 py-3 text-sm font-bold text-amber-900">
-                Mandatory profile completion pending: {missingFields.map((field) => field.label).join(", ")}.
+                Mandatory profile completion pending: {missingItems.join(", ")}.
               </div>
             ) : null}
           </div>
@@ -299,10 +427,36 @@ export default function DashboardSettingsPage() {
                   </div>
                 </div>
                 <div className="mt-5 grid gap-4">
+                  <div className="grid gap-3 sm:grid-cols-3">
+                    <MetricTile label="System Score" value={`${systemProgress.systemScore}%`} loading={systemProgress.loading} />
+                    <MetricTile label="Self Score" value={`${progressScore}%`} />
+                    <MetricTile label="Hybrid Score" value={`${hybridScore}%`} />
+                  </div>
+                  {systemProgress.error ? <p className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-bold text-amber-900">{systemProgress.error}</p> : null}
+                  <div className="grid gap-2 sm:grid-cols-3">
+                    <MetricTile label="Batches" value={systemProgress.assignedBatches} loading={systemProgress.loading} />
+                    <MetricTile label="Students" value={systemProgress.totalStudents} loading={systemProgress.loading} />
+                    <MetricTile label="Materials" value={systemProgress.materials} loading={systemProgress.loading} />
+                    <MetricTile label="Attendance Records" value={systemProgress.attendanceRecords} loading={systemProgress.loading} />
+                    <MetricTile label="Assignments" value={systemProgress.assignments} loading={systemProgress.loading} />
+                    <MetricTile label="Exams" value={systemProgress.exams} loading={systemProgress.loading} />
+                  </div>
                   <div className="rounded-2xl bg-[var(--page-bg)] p-4">
-                    <p className="text-sm font-black">Overall Progress</p>
-                    <p className="mt-1 text-4xl font-black">{progressScore}%</p>
-                    <div className="mt-3 h-2 overflow-hidden rounded-full bg-white"><span className="block h-full rounded-full bg-emerald-700" style={{ width: `${progressScore}%` }} /></div>
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <div>
+                        <p className="text-sm font-black">Overall Hybrid Progress</p>
+                        <p className="mt-1 text-4xl font-black">{hybridScore}%</p>
+                      </div>
+                      <button type="button" onClick={() => {
+                        updateField("attendanceDiscipline", systemProgress.attendanceSignal);
+                        updateField("syllabusDelivery", systemProgress.syllabusAverage);
+                        updateField("assignmentReview", systemProgress.assignmentSignal);
+                        updateField("examReadiness", systemProgress.examSignal);
+                      }} className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-[var(--border)] bg-white px-4 text-sm font-black">
+                        <RefreshCw size={15} /> Use system signals
+                      </button>
+                    </div>
+                    <div className="mt-3 h-2 overflow-hidden rounded-full bg-white"><span className="block h-full rounded-full bg-emerald-700" style={{ width: `${hybridScore}%` }} /></div>
                   </div>
                   {progressFields.map((field) => (
                     <label key={field.key} className="grid gap-2 text-sm font-black">
@@ -316,7 +470,10 @@ export default function DashboardSettingsPage() {
             </div>
 
             <div className="sticky bottom-0 z-20 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[var(--border)] bg-white/95 p-4 shadow-lg backdrop-blur">
-              <p className="text-sm font-bold text-[var(--muted-blue)]">Mandatory profile completion: <b className="text-[var(--ink)]">{completion}%</b></p>
+              <p className={`inline-flex items-center gap-2 text-sm font-bold ${completion === 100 ? "text-emerald-700" : "text-amber-800"}`}>
+                {completion === 100 ? <CheckCircle2 size={17} /> : <AlertCircle size={17} />}
+                Mandatory profile completion: <b className="text-[var(--ink)]">{completion}%</b>
+              </p>
               <Button type="submit" disabled={isSavingProfile || completion < 100} className="inline-flex gap-2">{isSavingProfile ? "Saving..." : <><Save size={16} /> Save Mandatory Profile</>}</Button>
             </div>
           </form>

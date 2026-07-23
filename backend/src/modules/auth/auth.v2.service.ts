@@ -598,6 +598,7 @@ export const AuthServiceV2 = {
       experience: cleanText(input.experience)
     };
     const missing = [
+      !metadataObject(existing.roleMetadata).profilePhotoUrl ? "Profile photo" : null,
       !fullName ? "Full name" : null,
       !email ? "Email" : null,
       !mobile ? "Mobile number" : null,
