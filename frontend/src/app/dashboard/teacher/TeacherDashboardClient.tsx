@@ -3268,15 +3268,15 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
         </div>
         {assignmentMessage ? <Notice text={assignmentMessage} /> : null}
 
-        <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
+        <div className="rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
               <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold-dark)]">My Classes</p>
-              <h3 className="mt-2 text-2xl font-black">Select class</h3>
+              <h3 className="mt-2 text-xl font-black">Select class</h3>
             </div>
             <span className="rounded-full border border-[var(--border)] bg-[var(--page-bg)] px-4 py-2 text-xs font-black">{activeClasses.length} class(es)</span>
           </div>
-          <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-4">
             {activeClasses.map((batch) => (
               <AssignmentClassTile
                 key={batch.id}
@@ -3293,14 +3293,11 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
               <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold-dark)]">Homework</p>
-              <h3 className="mt-2 text-3xl font-black">{selectedClass?.name ?? "Open a class"}</h3>
+              <h3 className="mt-2 text-2xl font-black">{selectedClass?.name ?? "Open a class"}</h3>
               <p className="mt-2 text-sm leading-6 text-[var(--muted-blue)]">
                 {selectedClass ? `${selectedStudents.length} students / ${subjectsForBatch(selectedClass).join(", ")}` : "Select a class above to create and track homework."}
               </p>
             </div>
-            <button type="button" onClick={() => openAssignmentCreator()} disabled={!selectedClass} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-slate-950 bg-slate-950 px-5 py-3 text-sm font-black text-white disabled:opacity-50">
-              <Plus size={18} /> New Homework
-            </button>
           </div>
           <div className="mt-5 grid gap-3">
             {classWorkspace.assignments.map((assignment) => (
@@ -4835,6 +4832,16 @@ function AttendanceWorkspace({
   const allRecords = history.flatMap((record) => record.records ?? []);
   const present = allRecords.filter((record) => record.status === "PRESENT").length;
   const overallRate = allRecords.length ? Math.round((present / allRecords.length) * 100) : 0;
+  const classChoices = todayClasses.length
+    ? todayClasses
+    : activeClasses.map((batch) => ({
+        id: `assigned-${batch.id}`,
+        batchId: batch.id,
+        time: "Assigned batch",
+        batchName: batch.name,
+        subject: batch.subject || subjectsForBatch(batch)[0] || "Subject",
+        teacherName: facultyName,
+      }));
 
   return (
     <section className="grid gap-5">
@@ -4858,10 +4865,10 @@ function AttendanceWorkspace({
                 <p className="text-xs font-black uppercase tracking-[0.3em] text-[var(--gold-dark)]">Today's Classes</p>
                 <h3 className="mt-2 text-2xl font-black">Choose a class</h3>
               </div>
-              <span className="rounded-full border border-[var(--border)] px-4 py-2 text-xs font-black">{todayClasses.length} class(es)</span>
+              <span className="rounded-full border border-[var(--border)] px-4 py-2 text-xs font-black">{classChoices.length} class(es)</span>
             </div>
             <div className="mt-4 divide-y divide-[var(--border)] overflow-hidden rounded-2xl border border-[var(--border)]">
-              {todayClasses.map((item) => {
+              {classChoices.map((item) => {
                 const batch = activeClasses.find((entry) => entry.id === item.batchId);
                 const studentCount = batch?._count?.students ?? batch?.students?.length ?? 0;
                 return (
@@ -4875,8 +4882,9 @@ function AttendanceWorkspace({
                   </div>
                 );
               })}
-              {!todayClasses.length ? <EmptyState text="No class is scheduled for today in the academic calendar." /> : null}
+              {!classChoices.length ? <EmptyState text="No assigned classes are available for attendance yet." /> : null}
             </div>
+            {!todayClasses.length && !!classChoices.length ? <p className="mt-3 rounded-xl bg-amber-50 px-4 py-3 text-sm font-bold text-amber-900">No calendar class is scheduled today, so assigned batches are shown for manual attendance.</p> : null}
           </div>
 
           {registerOpen ? (
@@ -4898,9 +4906,6 @@ function AttendanceWorkspace({
                 <div className="mt-4 max-w-xs"><Input label="Date" type="date" value={date} onChange={onDate} /></div>
               </div>
 
-              <div className="hidden grid-cols-[9rem_minmax(12rem,1fr)_repeat(4,5.5rem)_minmax(10rem,1fr)] border-b border-[var(--border)] bg-[var(--page-bg)] px-4 py-3 text-xs font-black uppercase tracking-[0.12em] md:grid">
-                <span>Roll No</span><span>Student Name</span><span>Present</span><span>Absent</span><span>Leave</span><span>Half Day</span><span>Remarks</span>
-              </div>
               <div className="divide-y divide-[var(--border)]">
                 {students.map((entry, index) => {
                   const id = studentId(entry, index);
@@ -4911,18 +4916,20 @@ function AttendanceWorkspace({
                   const studentPresent = studentRecords.filter((record) => record.status === "PRESENT").length;
                   const studentRate = studentRecords.length ? Math.round((studentPresent / studentRecords.length) * 100) : 0;
                   return (
-                    <div key={id} className="grid gap-3 p-4 md:grid-cols-[9rem_minmax(12rem,1fr)_repeat(4,5.5rem)_minmax(10rem,1fr)] md:items-center">
+                    <div key={id} className="grid gap-3 p-3 md:grid-cols-[9rem_minmax(12rem,1fr)_minmax(18rem,auto)_minmax(12rem,1fr)] md:items-center">
                       <span className="text-xs font-black uppercase tracking-[0.04em] text-[var(--muted-blue)]">{rollNumber}</span>
-                      <details>
-                        <summary className="cursor-pointer list-none font-black">{studentName}</summary>
-                        <p className="mt-1 text-xs text-[var(--muted-blue)]">{studentRate}% / {studentPresent} present / {studentRecords.filter((record) => record.status === "ABSENT").length} absent / {studentRecords.filter((record) => record.status === "LEAVE").length} leave</p>
-                      </details>
-                      {(["PRESENT", "ABSENT", "LEAVE", "HALF_DAY"] as AttendanceStatus[]).map((status) => (
-                        <button key={status} type="button" onClick={() => onStatus(id, status)} className={`min-h-11 rounded-xl border px-2 text-xs font-black ${current === status ? status === "PRESENT" ? "border-emerald-700 bg-emerald-700 text-white" : status === "ABSENT" ? "border-rose-700 bg-rose-700 text-white" : status === "LEAVE" ? "border-amber-600 bg-amber-500 text-white" : "border-blue-700 bg-blue-700 text-white" : "border-[var(--border)] bg-white text-[var(--ink)]"}`}>
-                          {status === "HALF_DAY" ? "Half Day" : status.charAt(0) + status.slice(1).toLowerCase()}
-                        </button>
-                      ))}
-                      <input value={comments[id] ?? ""} onChange={(event) => onComment(id, event.target.value)} placeholder="Optional remark" className="min-h-11 rounded-xl border border-[var(--border)] bg-white px-3 text-sm outline-none" />
+                      <div>
+                        <p className="font-black">{studentName}</p>
+                        <p className="mt-1 text-xs text-[var(--muted-blue)]">{studentRate}% attendance / {studentPresent} present</p>
+                      </div>
+                      <div className="grid grid-cols-4 gap-1 rounded-xl border border-[var(--border)] bg-[var(--page-bg)] p-1">
+                        {(["PRESENT", "ABSENT", "LEAVE", "HALF_DAY"] as AttendanceStatus[]).map((status) => (
+                          <button key={status} type="button" onClick={() => onStatus(id, status)} className={`min-h-10 rounded-lg px-2 text-[11px] font-black ${current === status ? status === "PRESENT" ? "bg-emerald-700 text-white" : status === "ABSENT" ? "bg-rose-700 text-white" : status === "LEAVE" ? "bg-amber-500 text-white" : "bg-blue-700 text-white" : "bg-white text-[var(--ink)]"}`}>
+                            {status === "HALF_DAY" ? "Half" : status.charAt(0)}
+                          </button>
+                        ))}
+                      </div>
+                      <input value={comments[id] ?? ""} onChange={(event) => onComment(id, event.target.value)} placeholder="Remark" className="min-h-10 rounded-xl border border-[var(--border)] bg-white px-3 text-sm outline-none" />
                     </div>
                   );
                 })}
@@ -5487,21 +5494,19 @@ function ReviewMetric({ label, value, tone = "neutral" }: { label: string; value
 }
 
 function AssignmentClassTile({ batch, active, onOpen }: { batch: AssignedClass; active: boolean; onOpen: () => void }) {
+  const students = batch._count?.students ?? batch.students?.length ?? 0;
+  const subjects = subjectsForBatch(batch);
   return (
     <button
       type="button"
       onClick={onOpen}
-      className={`aspect-[1.45] rounded-2xl border p-4 text-left shadow-sm transition hover:-translate-y-0.5 ${active ? "border-slate-950 bg-slate-950 text-white" : "border-[var(--border)] bg-[var(--page-bg)] text-[var(--ink)]"}`}
+      className={`grid min-h-20 grid-cols-[2.5rem_minmax(0,1fr)] items-center gap-3 rounded-xl border p-3 text-left shadow-sm transition hover:-translate-y-0.5 ${active ? "border-slate-950 bg-slate-950 text-white" : "border-[var(--border)] bg-[var(--page-bg)] text-[var(--ink)]"}`}
     >
-      <div className="flex h-full flex-col justify-between">
-        <div>
-          <p className={`text-xs font-black uppercase tracking-[0.24em] ${active ? "text-[#e7c873]" : "text-[var(--gold-dark)]"}`}>Class</p>
-          <h3 className="mt-2 text-lg font-black leading-tight">{batch.name}</h3>
-        </div>
-        <div className="flex flex-wrap gap-2 text-xs font-black">
-          <span className={`rounded-full border px-3 py-1 ${active ? "border-white/30 text-white" : "border-[var(--border)] text-[var(--ink)]"}`}>{batch._count?.students ?? batch.students?.length ?? 0} students</span>
-          <span className={`rounded-full border px-3 py-1 ${active ? "border-white/30 text-white" : "border-[var(--border)] text-[var(--ink)]"}`}>{subjectsForBatch(batch).length} subjects</span>
-        </div>
+      <span className={`grid h-10 w-10 place-items-center rounded-lg text-sm font-black ${active ? "bg-white text-slate-950" : "bg-white text-[var(--ink)]"}`}>{programName(batch).slice(0, 1).toUpperCase()}</span>
+      <div className="min-w-0">
+        <p className={`text-[10px] font-black uppercase tracking-[0.18em] ${active ? "text-[#e7c873]" : "text-[var(--gold-dark)]"}`}>Class</p>
+        <h3 className="mt-1 truncate text-sm font-black">{batch.name}</h3>
+        <p className={`mt-1 text-xs font-bold ${active ? "text-white/70" : "text-[var(--muted-blue)]"}`}>{students} students / {subjects.length} subject{subjects.length === 1 ? "" : "s"}</p>
       </div>
     </button>
   );
@@ -5650,16 +5655,6 @@ function AssignmentDetailsModal({
             </div>
           </div>
         </div>
-        <details className="mt-5 rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
-          <summary className="cursor-pointer text-sm font-black">Advanced Tools</summary>
-          <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-            {["Review Assignment", "Improve Questions", "Simplify Language", "Generate Rubric", "Convert To MCQ", "Convert To Descriptive", "Generate Model Answers"].map((action) => (
-              <button key={action} type="button" className="rounded-xl border border-[var(--border)] bg-white px-3 py-3 text-left text-xs font-black hover:bg-[var(--page-bg)]">
-                {action}
-              </button>
-            ))}
-          </div>
-        </details>
       </div>
     </div>
   );
@@ -5781,17 +5776,6 @@ function AssignmentCreateModal({
                 </div>
                 {assignmentSourceName ? <p className="mt-3 truncate rounded-xl bg-white px-3 py-2 text-xs font-black">Attached: {assignmentSourceName}</p> : null}
               </div>
-
-              <details className="rounded-2xl border border-[var(--border)] bg-white p-4">
-                <summary className="cursor-pointer text-sm font-black">Advanced Tools</summary>
-                <div className="mt-4 grid gap-2 sm:grid-cols-2">
-                  {["Review Assignment", "Improve Questions", "Simplify Language", "Generate Rubric", "Convert To MCQ", "Convert To Descriptive", "Generate Model Answers"].map((action) => (
-                    <button key={action} type="button" onClick={() => setAssignmentForm((form) => ({ ...form, instructions: [form.instructions, `Advanced tool requested: ${action}`].filter(Boolean).join("\n") }))} className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] px-3 py-3 text-left text-xs font-black hover:bg-white">
-                      {action}
-                    </button>
-                  ))}
-                </div>
-              </details>
             </div>
           ) : (
             <div className="grid gap-4">
