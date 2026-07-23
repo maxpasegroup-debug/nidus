@@ -32,6 +32,7 @@ import {
   PlayCircle,
   Radio,
   RefreshCw,
+  Shield,
   Users,
   Wrench,
   X,
@@ -4181,6 +4182,22 @@ function ClassesEmptyState() {
 
 type AssignedProgramGroup = { key: string; name: string; classes: AssignedClass[] };
 
+const classCategoryStyles = [
+  { icon: GraduationCap, frame: "border-emerald-200 bg-emerald-50", iconBox: "bg-emerald-700 text-white", badge: "bg-emerald-100 text-emerald-900", accent: "text-emerald-800" },
+  { icon: Shield, frame: "border-blue-200 bg-blue-50", iconBox: "bg-blue-700 text-white", badge: "bg-blue-100 text-blue-900", accent: "text-blue-800" },
+  { icon: BookOpenCheck, frame: "border-amber-200 bg-amber-50", iconBox: "bg-amber-600 text-white", badge: "bg-amber-100 text-amber-950", accent: "text-amber-800" },
+  { icon: MonitorPlay, frame: "border-slate-200 bg-slate-50", iconBox: "bg-slate-950 text-white", badge: "bg-slate-100 text-slate-900", accent: "text-slate-700" },
+];
+
+function classCategoryStyle(index: number) {
+  return classCategoryStyles[index % classCategoryStyles.length];
+}
+
+function classModeLabel(batch: AssignedClass) {
+  const mode = batchMode(batch);
+  return mode.charAt(0) + mode.slice(1).toLowerCase();
+}
+
 function MyClassesCatalog({ programs, classesBasePath, loading }: {
   programs: AssignedProgramGroup[];
   classesBasePath: string;
@@ -4195,43 +4212,84 @@ function MyClassesCatalog({ programs, classesBasePath, loading }: {
       href: `${classesBasePath}/${encodeURIComponent(program.key)}/${encodeURIComponent(batch.id)}`,
     })),
   );
+  const assignedSubjects = new Set(assignedBatches.flatMap(({ batch }) => subjectsForBatch(batch)));
+  const totalStudents = assignedBatches.reduce((total, item) => total + (Array.isArray(item.batch.students) ? item.batch.students.length : item.batch._count?.students ?? 0), 0);
 
   return (
     <div className="grid gap-5">
-      <header className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm sm:p-6">
-        <p className="text-xs font-black uppercase tracking-[0.3em] text-[var(--gold-dark)]">My Classes</p>
-        <h2 className="mt-2 text-3xl font-black">MY CLASSES</h2>
-        <p className="mt-2 text-sm text-[var(--muted-blue)]">Open any assigned batch and start teaching from its classroom tools.</p>
+      <header className="rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm sm:p-5">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold-dark)]">Assigned Classroom</p>
+            <p className="mt-2 text-sm font-bold text-[var(--muted-blue)]">Choose a programme, then open the batch for attendance, lessons, exams and NDP.</p>
+          </div>
+          <div className="grid grid-cols-3 gap-2 text-center">
+            <span className="rounded-xl bg-[var(--page-bg)] px-4 py-3">
+              <span className="block text-lg font-black">{programs.length}</span>
+              <span className="block text-[10px] font-black uppercase tracking-[0.12em] text-[var(--muted-blue)]">Programs</span>
+            </span>
+            <span className="rounded-xl bg-[var(--page-bg)] px-4 py-3">
+              <span className="block text-lg font-black">{assignedBatches.length}</span>
+              <span className="block text-[10px] font-black uppercase tracking-[0.12em] text-[var(--muted-blue)]">Batches</span>
+            </span>
+            <span className="rounded-xl bg-[var(--page-bg)] px-4 py-3">
+              <span className="block text-lg font-black">{totalStudents}</span>
+              <span className="block text-[10px] font-black uppercase tracking-[0.12em] text-[var(--muted-blue)]">Students</span>
+            </span>
+          </div>
+        </div>
       </header>
 
       {loading ? <Notice text="Loading assigned batches..." /> : null}
       {!loading && !assignedBatches.length ? <ClassesEmptyState /> : null}
-      <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        {assignedBatches.map(({ batch, courseName, batchNumber, href }) => {
-          const subjects = subjectsForBatch(batch);
-          const students = Array.isArray(batch.students) ? batch.students.length : batch.students ?? 0;
+      <section className="grid gap-4">
+        {programs.map((program, programIndex) => {
+          const style = classCategoryStyle(programIndex);
+          const Icon = style.icon;
+          const programmeStudents = program.classes.reduce((total, batch) => total + (Array.isArray(batch.students) ? batch.students.length : batch._count?.students ?? 0), 0);
+          const programmeSubjects = new Set(program.classes.flatMap((batch) => subjectsForBatch(batch)));
           return (
-            <Link
-              key={batch.id}
-              href={href}
-              className="group flex min-h-36 flex-col rounded-2xl border border-[var(--border)] bg-white p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-slate-950"
-            >
-              <div className="flex items-start justify-between gap-2">
-                <span className="grid h-10 w-10 place-items-center rounded-xl bg-slate-950 text-white">
-                  <GraduationCap size={19} />
-                </span>
-                <span className="rounded-full bg-emerald-50 px-2 py-1 text-[10px] font-black uppercase text-emerald-800">Assigned</span>
+            <section key={program.key} className={`rounded-2xl border p-4 shadow-sm ${style.frame}`}>
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="flex min-w-0 items-center gap-3">
+                  <span className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl ${style.iconBox}`}>
+                    <Icon size={21} />
+                  </span>
+                  <div className="min-w-0">
+                    <p className={`text-xs font-black uppercase tracking-[0.22em] ${style.accent}`}>Programme</p>
+                    <h3 className="truncate text-xl font-black text-[var(--ink)]">{program.name}</h3>
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-2 text-xs font-black">
+                  <span className={`rounded-full px-3 py-1 ${style.badge}`}>{program.classes.length} batches</span>
+                  <span className="rounded-full bg-white/80 px-3 py-1 text-[var(--ink)]">{programmeStudents} students</span>
+                  <span className="rounded-full bg-white/80 px-3 py-1 text-[var(--ink)]">{programmeSubjects.size} subjects</span>
+                </div>
               </div>
-              <p className="mt-4 text-[10px] font-black uppercase tracking-[0.15em] text-[var(--gold-dark)]">Batch {batchNumber}</p>
-              <h3 className="mt-2 text-base font-black leading-5 text-[var(--ink)] sm:text-lg">{batch.name}</h3>
-              <p className="mt-1 line-clamp-1 text-xs font-bold text-[var(--muted-blue)]">{courseName}</p>
-              <div className="mt-auto flex items-center justify-between gap-2 pt-4 text-xs font-black">
-                <span>{students} students / {subjects.length} subject{subjects.length === 1 ? "" : "s"}</span>
-                <ChevronRight size={16} className="transition group-hover:translate-x-1" />
+              <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                {program.classes.map((batch, index) => {
+                  const subjects = subjectsForBatch(batch);
+                  const students = Array.isArray(batch.students) ? batch.students.length : batch._count?.students ?? 0;
+                  const href = `${classesBasePath}/${encodeURIComponent(program.key)}/${encodeURIComponent(batch.id)}`;
+                  return (
+                    <Link key={batch.id} href={href} className="group flex min-h-28 flex-col rounded-xl border border-white/70 bg-white/90 p-3 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-slate-950 hover:bg-white">
+                      <div className="flex items-start justify-between gap-2">
+                        <span className={`grid h-9 w-9 place-items-center rounded-lg text-xs font-black ${style.iconBox}`}>{String(index + 1).padStart(2, "0")}</span>
+                        <span className={`rounded-full px-2 py-1 text-[10px] font-black uppercase ${style.badge}`}>{classModeLabel(batch)}</span>
+                      </div>
+                      <h4 className="mt-3 line-clamp-2 text-sm font-black leading-5 text-[var(--ink)]">{batch.name}</h4>
+                      <div className="mt-auto flex items-center justify-between gap-2 pt-3 text-xs font-black text-[var(--muted-blue)]">
+                        <span>{students} students / {subjects.length} subject{subjects.length === 1 ? "" : "s"}</span>
+                        <ChevronRight size={15} className="text-[var(--ink)] transition group-hover:translate-x-1" />
+                      </div>
+                    </Link>
+                  );
+                })}
               </div>
-            </Link>
+            </section>
           );
         })}
+        {!!assignedBatches.length ? <p className="text-xs font-bold text-[var(--muted-blue)]">{assignedSubjects.size} unique subject{assignedSubjects.size === 1 ? "" : "s"} across all assigned batches.</p> : null}
       </section>
     </div>
   );
