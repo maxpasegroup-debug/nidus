@@ -40,7 +40,7 @@ const teacherMenu: DashboardNavItem[] = [
   { label: "Students", href: "/dashboard/teacher/students" },
   { label: "NDP", href: "/dashboard/teacher/ndp" },
   { label: "Resources", href: "/dashboard/teacher/library" },
-  { label: "Profile", href: "/dashboard/teacher/profile" },
+  { label: "Profile", href: "/dashboard/settings" },
 ];
 
 const videoEditorMenu: DashboardNavItem[] = [

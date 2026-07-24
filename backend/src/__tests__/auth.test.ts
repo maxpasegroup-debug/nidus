@@ -47,6 +47,20 @@ describe("Phase 2 auth hardening", () => {
     expect(authService).toContain("delete next.defaultPin");
   });
 
+  it("keeps role dashboard PIN update compatible with currentPin/newPin payloads", () => {
+    expect(frontendAuth).toContain("currentPin: string");
+    expect(frontendAuth).toContain("newPin: string");
+    expect(authService).toContain("pinHashRepairedAt");
+    expect(authService).toContain("metadataAccessPin === password");
+  });
+
+  it("saves profile data even while mandatory completion is still pending", () => {
+    expect(authService).toContain("profileCompletionRequired: missing.length > 0");
+    expect(authService).toContain("profileMissingFields: missing");
+    expect(authService).toContain("loginMobile: normalizedMobile");
+    expect(authService).not.toContain("Complete mandatory profile fields");
+  });
+
   it("supports reset token lifecycle", () => {
     expect(authService).toContain("prisma.passwordReset.create");
     expect(authService).toContain("prisma.passwordReset.findUnique");

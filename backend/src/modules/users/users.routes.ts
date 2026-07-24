@@ -10,7 +10,18 @@ const createUserSchema = z.object({
   name: z.string().min(2),
   email: z.string().email(),
   mobile: z.string().min(7),
-  role: z.enum([Role.DIRECTOR, Role.TEACHER, Role.STUDENT, Role.PARENT, Role.TELECALLER, Role.MARKETING_COORDINATOR]).default(Role.STUDENT)
+  role: z.enum([
+    Role.DIRECTOR,
+    Role.TEACHER,
+    Role.ACADEMIC_HEAD,
+    Role.PHYSICAL_TRAINER,
+    Role.STUDENT,
+    Role.PARENT,
+    Role.TELECALLER,
+    Role.MARKETING_COORDINATOR,
+    Role.BUSINESS_DEVELOPMENT_EXECUTIVE,
+    Role.ADMINISTRATIVE_OFFICER
+  ]).default(Role.STUDENT)
 });
 
 function metadataObject(value: unknown) {
@@ -86,7 +97,7 @@ usersRouter.post("/", async (req, res, next) => {
         roleOnboardingStatus: "ACTIVE",
         roleActivatedAt: new Date(),
         lastRoleActivityAt: new Date(),
-        roleMetadata: { defaultPassword: true, defaultPin: true, accessPin: DEFAULT_ACCOUNT_PIN, createdByAdmin: true }
+        roleMetadata: { loginMobile: mobile, defaultPassword: true, defaultPin: true, accessPin: DEFAULT_ACCOUNT_PIN, createdByAdmin: true }
       },
       select: {
         id: true,
@@ -128,7 +139,7 @@ usersRouter.post("/:id/reset-password", async (req, res, next) => {
         disabledAt: null,
         loginFailureCount: 0,
         lockedUntil: null,
-        roleMetadata: { ...metadataObject(user.roleMetadata), defaultPassword: true, defaultPin: true, accessPin: DEFAULT_ACCOUNT_PIN, pinResetByAdminAt: new Date().toISOString(), passwordResetByAdminAt: new Date().toISOString() }
+        roleMetadata: { ...metadataObject(user.roleMetadata), loginMobile: normalizeMobile(user.mobile), defaultPassword: true, defaultPin: true, accessPin: DEFAULT_ACCOUNT_PIN, pinResetByAdminAt: new Date().toISOString(), passwordResetByAdminAt: new Date().toISOString() }
       }
     });
     await prisma.sessionToken.deleteMany({ where: { userId: user.id } });

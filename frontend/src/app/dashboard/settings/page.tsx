@@ -261,10 +261,6 @@ export default function DashboardSettingsPage() {
 
   async function submitProfile(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (missingItems.length) {
-      showToast(`Complete mandatory fields: ${missingItems.join(", ")}`, "error");
-      return;
-    }
     setIsSavingProfile(true);
     try {
       const response = await updateProfile(profile);
@@ -474,7 +470,7 @@ export default function DashboardSettingsPage() {
                 {completion === 100 ? <CheckCircle2 size={17} /> : <AlertCircle size={17} />}
                 Mandatory profile completion: <b className="text-[var(--ink)]">{completion}%</b>
               </p>
-              <Button type="submit" disabled={isSavingProfile || completion < 100} className="inline-flex gap-2">{isSavingProfile ? "Saving..." : <><Save size={16} /> Save Mandatory Profile</>}</Button>
+              <Button type="submit" disabled={isSavingProfile} className="inline-flex gap-2">{isSavingProfile ? "Saving..." : <><Save size={16} /> Save Profile</>}</Button>
             </div>
           </form>
 

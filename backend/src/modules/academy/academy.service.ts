@@ -3104,6 +3104,7 @@ export const academyService = {
       subjects: input.subjects || [],
       dashboardTemplate: input.dashboardTemplate || (input.designation?.toLowerCase().includes("academic head") ? "ACADEMIC_HEAD" : null),
       status: "ACTIVE",
+      loginMobile: normalizeMobile(input.phone),
       defaultPassword: true,
       defaultPin: true,
       accessPin: temporaryPassword,
@@ -3168,6 +3169,7 @@ export const academyService = {
       subjects: input.subjects ?? existingMetadata.subjects ?? [],
       dashboardTemplate: input.dashboardTemplate ?? existingMetadata.dashboardTemplate ?? null,
       status: input.status ?? existingMetadata.status ?? "ACTIVE",
+      loginMobile: normalizedNextMobile,
       updatedBy: user.id,
       updatedAt: new Date().toISOString(),
     });
@@ -3273,6 +3275,7 @@ export const academyService = {
         lockedUntil: null,
         roleMetadata: toJsonObject({
           ...pinMetadata,
+          loginMobile: normalizeMobile(employee.mobile),
           pinResetBy: user.id,
           pinResetAt: new Date().toISOString(),
           passwordResetBy: user.id,

@@ -140,7 +140,7 @@ export default function StudentsByClassWorkspace({ audience, embedded = false }:
       <Panel title="Classes" eyebrow="Select a class">
         {batchesQuery.isLoading ? <EmptyState text="Loading classes..." /> : null}
         {!batchesQuery.isLoading && !batches.length ? <EmptyState text="No active classes are available yet. Students will appear here after they are enrolled in a batch." /> : null}
-        <div className="grid max-h-[38vh] gap-3 overflow-auto pr-1 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-4">
           {batches.map((batch) => {
             const health = progressByBatch.get(batch.id);
             const selected = selectedBatch?.id === batch.id;
@@ -149,17 +149,17 @@ export default function StudentsByClassWorkspace({ audience, embedded = false }:
                 key={batch.id}
                 type="button"
                 onClick={() => setActiveBatchId(batch.id)}
-                className={`rounded-2xl border bg-white p-3 text-left shadow-sm transition hover:border-[var(--gold-border)] ${selected ? "border-[var(--gold-border)] bg-[var(--gold-soft)]" : "border-[var(--border)]"}`}
+                className={`rounded-xl border bg-white p-3 text-left shadow-sm transition hover:border-[var(--gold-border)] ${selected ? "border-[var(--gold-border)] bg-[var(--gold-soft)] ring-1 ring-[var(--gold-border)]" : "border-[var(--border)]"}`}
               >
-                <div className="flex items-start justify-between gap-3">
+                <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--gold)]">{batch.programSlug || batch.course?.slug || "Program"}</p>
-                    <h3 className="mt-1 truncate text-lg font-black">{batch.name}</h3>
-                    <p className="mt-1 text-xs text-[var(--muted-blue)]">{batch.course?.title || batch.batchType}</p>
+                    <p className="truncate text-[10px] font-black uppercase tracking-[0.16em] text-[var(--gold)]">{batch.programSlug || batch.course?.slug || "Program"}</p>
+                    <h3 className="mt-1 line-clamp-2 text-base font-black leading-tight">{batch.name}</h3>
+                    <p className="mt-1 truncate text-xs text-[var(--muted-blue)]">{batch.batchType || batch.course?.title || "Batch"}</p>
                   </div>
-                  <AcademicPill>{health?.overallStatus ?? batch.status}</AcademicPill>
+                  <AcademicPill>{selected ? "Open" : health?.overallStatus ?? batch.status}</AcademicPill>
                 </div>
-                <div className="mt-3 grid grid-cols-3 gap-2 text-xs">
+                <div className="mt-2 grid grid-cols-3 gap-1.5 text-xs">
                   <ClassMetric icon={Users} label="Students" value={batch._count?.students ?? batch.students?.length ?? 0} />
                   <ClassMetric icon={ShieldCheck} label="Attendance" value={metric(health?.attendancePercentage)} />
                   <ClassMetric icon={FileBarChart2} label="Health" value={metric(health?.batchHealthScore)} />
@@ -197,7 +197,7 @@ export default function StudentsByClassWorkspace({ audience, embedded = false }:
             </label>
 
             {!selectedStudents.length ? <EmptyState text="No students match this class and search." /> : null}
-            <div className="grid max-h-[48vh] gap-2 overflow-auto pr-1">
+            <div className="grid gap-2">
               {selectedStudents.map((entry) => {
                 const student = entry.student;
                 const pinLabel = accessPinLabel(student.roleMetadata);
@@ -345,10 +345,10 @@ export default function StudentsByClassWorkspace({ audience, embedded = false }:
 
 function ClassMetric({ icon: Icon, label, value }: { icon: typeof Users; label: string; value: string | number }) {
   return (
-    <div className="rounded-xl border border-[var(--border)] bg-white px-3 py-2">
-      <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.14em] text-[var(--muted-blue)]">
+    <div className="min-w-0 rounded-lg border border-[var(--border)] bg-white px-2 py-1.5">
+      <div className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-[0.1em] text-[var(--muted-blue)]">
         <Icon className="h-3.5 w-3.5" />
-        {label}
+        <span className="truncate">{label}</span>
       </div>
       <p className="mt-1 text-sm font-black">{value}</p>
     </div>

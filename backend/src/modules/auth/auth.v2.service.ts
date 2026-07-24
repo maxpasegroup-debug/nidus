@@ -68,6 +68,14 @@ function cleanText(value: unknown) {
   return typeof value === "string" ? value.trim() : "";
 }
 
+function cleanFirstText(input: Record<string, unknown>, keys: string[]) {
+  for (const key of keys) {
+    const value = cleanText(input[key]);
+    if (value) return value;
+  }
+  return "";
+}
+
 function cleanPercent(value: unknown) {
   const numberValue = Number(value ?? 0);
   if (!Number.isFinite(numberValue)) return 0;
@@ -331,8 +339,12 @@ export const AuthServiceV2 = {
       throw new Error("Account temporarily locked. Try again later or reset the PIN.");
     }
 
+    const metadata = metadataObject(user.roleMetadata);
+    const metadataAccessPin = typeof metadata.accessPin === "string" && isValidPin(metadata.accessPin) ? metadata.accessPin : "";
     const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
+    const shouldRepairPinHash = !isPasswordValid && metadataAccessPin === password;
+    const pinAccepted = isPasswordValid || shouldRepairPinHash;
+    if (!pinAccepted) {
       const nextFailureCount = user.loginFailureCount + 1;
       const shouldLock = nextFailureCount >= env.AUTH_MAX_LOGIN_FAILURES;
       const lockedUntil = shouldLock ? new Date(Date.now() + env.AUTH_LOCK_MINUTES * 60 * 1000) : null;
@@ -350,11 +362,12 @@ export const AuthServiceV2 = {
       throw new Error("Invalid credentials");
     }
 
-    const metadata = metadataObject(user.roleMetadata);
     const shouldClearDefaultPin = isDefaultPinAccount(metadata) && password !== DEFAULT_ACCOUNT_PIN;
-    const loginRoleMetadata = shouldClearDefaultPin
-      ? { ...clearDefaultPinFlags(metadata), pinDefaultClearedAt: new Date().toISOString() }
-      : metadata;
+    const loginRoleMetadata = {
+      ...(shouldClearDefaultPin ? clearDefaultPinFlags(metadata) : metadata),
+      ...(shouldClearDefaultPin ? { pinDefaultClearedAt: new Date().toISOString() } : {}),
+      ...(shouldRepairPinHash ? { pinHashRepairedAt: new Date().toISOString() } : {})
+    };
     const metadataLoginMobile = effectiveLoginMobile(loginRoleMetadata, user.mobile);
     const shouldRepairMobile = mobileCandidates(metadataLoginMobile).includes(normalizeMobile(identity)) && !mobileCandidates(metadataLoginMobile).includes(user.mobile);
     const sessionId = crypto.randomBytes(32).toString("hex");
@@ -375,8 +388,9 @@ export const AuthServiceV2 = {
         lastRoleActivityAt: new Date(),
         loginFailureCount: 0,
         lockedUntil: null,
+        ...(shouldRepairPinHash ? { password: await bcrypt.hash(password, 12) } : {}),
         ...(shouldRepairMobile ? { mobile: metadataLoginMobile, mobileVerified: true } : {}),
-        ...(shouldClearDefaultPin ? { roleMetadata: loginRoleMetadata as Prisma.InputJsonObject } : {})
+        ...(shouldClearDefaultPin || shouldRepairPinHash ? { roleMetadata: loginRoleMetadata as Prisma.InputJsonObject } : {})
       }
     });
     await audit({ userId: user.id, action: "LOGIN_SUCCESS", description: "Successful login", ip });
@@ -580,22 +594,22 @@ export const AuthServiceV2 = {
     });
     if (!existing) throw new Error("User not found");
 
-    const fullName = cleanText(input.name);
-    const email = cleanText(input.email).toLowerCase();
-    const mobile = cleanText(input.mobile);
+    const fullName = cleanFirstText(input, ["name", "fullName"]);
+    const email = cleanFirstText(input, ["email"]).toLowerCase();
+    const mobile = cleanFirstText(input, ["mobile", "phone", "loginMobile"]);
     const required = ["dateOfBirth", "gender", "address", "bloodGroup", "emergencyContactName", "emergencyContactMobile", "emergencyContactRelation", "designation", "department"];
     const profile = {
-      dateOfBirth: cleanText(input.dateOfBirth),
-      gender: cleanText(input.gender),
-      address: cleanText(input.address),
-      bloodGroup: cleanText(input.bloodGroup).toUpperCase(),
-      emergencyContactName: cleanText(input.emergencyContactName),
-      emergencyContactMobile: normalizeMobile(cleanText(input.emergencyContactMobile)),
-      emergencyContactRelation: cleanText(input.emergencyContactRelation),
-      designation: cleanText(input.designation),
-      department: cleanText(input.department),
-      qualification: cleanText(input.qualification),
-      experience: cleanText(input.experience)
+      dateOfBirth: cleanFirstText(input, ["dateOfBirth", "dob", "dateOfBirthIso"]),
+      gender: cleanFirstText(input, ["gender", "sex"]),
+      address: cleanFirstText(input, ["address", "residentialAddress", "homeAddress"]),
+      bloodGroup: cleanFirstText(input, ["bloodGroup", "blood_group", "blood"]).toUpperCase(),
+      emergencyContactName: cleanFirstText(input, ["emergencyContactName", "emergencyName"]),
+      emergencyContactMobile: normalizeMobile(cleanFirstText(input, ["emergencyContactMobile", "emergencyMobile", "emergencyPhone"])),
+      emergencyContactRelation: cleanFirstText(input, ["emergencyContactRelation", "emergencyRelation", "emergencyContactRelationship"]),
+      designation: cleanFirstText(input, ["designation", "jobTitle"]),
+      department: cleanFirstText(input, ["department"]),
+      qualification: cleanFirstText(input, ["qualification", "education"]),
+      experience: cleanFirstText(input, ["experience", "yearsOfExperience"])
     };
     const missing = [
       !metadataObject(existing.roleMetadata).profilePhotoUrl ? "Profile photo" : null,
@@ -604,27 +618,24 @@ export const AuthServiceV2 = {
       !mobile ? "Mobile number" : null,
       ...required.map((key) => profile[key as keyof typeof profile] ? null : key),
     ].filter(Boolean);
-    if (missing.length) {
-      throw Object.assign(new Error(`Complete mandatory profile fields: ${missing.join(", ")}`), { statusCode: 400 });
-    }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       throw Object.assign(new Error("Valid email is required"), { statusCode: 400 });
     }
-    if (!isValidMobile(mobile) || !isValidMobile(profile.emergencyContactMobile)) {
+    if ((mobile && !isValidMobile(mobile)) || (profile.emergencyContactMobile && !isValidMobile(profile.emergencyContactMobile))) {
       throw Object.assign(new Error("Valid mobile and emergency contact numbers are required"), { statusCode: 400 });
     }
-    const normalizedMobile = normalizeMobile(mobile);
+    const normalizedMobile = mobile ? normalizeMobile(mobile) : existing.mobile;
     const duplicate = await prisma.user.findFirst({
       where: {
         id: { not: userId },
         OR: [
-          { email },
+          ...(email ? [{ email }] : []),
           { mobile: { in: mobileCandidates(normalizedMobile) } }
         ]
       },
       select: { email: true, mobile: true }
     });
-    if (duplicate?.email === email) {
+    if (email && duplicate?.email === email) {
       throw Object.assign(new Error("Email is already used by another account"), { statusCode: 409 });
     }
     if (duplicate?.mobile && mobileCandidates(normalizedMobile).includes(duplicate.mobile)) {
@@ -632,6 +643,9 @@ export const AuthServiceV2 = {
     }
 
     const metadata = metadataObject(existing.roleMetadata);
+    const totalRequired = required.length + 4;
+    const completedRequired = totalRequired - missing.length;
+    const profileCompletionPercent = Math.max(0, Math.min(100, Math.round((completedRequired / totalRequired) * 100)));
     const teacherProgress = {
       attendanceDiscipline: cleanPercent(input.attendanceDiscipline),
       syllabusDelivery: cleanPercent(input.syllabusDelivery),
@@ -645,14 +659,18 @@ export const AuthServiceV2 = {
     const updated = await prisma.user.update({
       where: { id: userId },
       data: {
-        name: fullName,
-        email,
+        name: fullName || existing.name,
+        email: email || existing.email,
         mobile: normalizedMobile,
         roleMetadata: {
           ...metadata,
           ...profile,
-          profileCompletionRequired: false,
-          profileCompletedAt: new Date().toISOString(),
+          loginMobile: normalizedMobile,
+          profileCompletionRequired: missing.length > 0,
+          profileCompletionPercent,
+          profileMissingFields: missing,
+          profileCompletedAt: missing.length ? metadata.profileCompletedAt ?? null : new Date().toISOString(),
+          profileUpdatedAt: new Date().toISOString(),
           teacherProgress
         } as Prisma.InputJsonObject
       },
@@ -670,7 +688,10 @@ export const AuthServiceV2 = {
       }
     });
     await audit({ userId, action: "PROFILE_UPDATED", description: "Mandatory profile details updated" });
-    return { message: "Profile saved", user: safeUser(updated) };
+    return {
+      message: missing.length ? `Profile saved. Pending: ${missing.join(", ")}` : "Profile saved",
+      user: safeUser(updated)
+    };
   },
 
   async inviteParentLink(studentId: string, parentIdentity: string) {
