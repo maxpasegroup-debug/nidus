@@ -44,6 +44,18 @@ type QuestionDraft = {
   topic: string;
 };
 
+type ExtractionReport = {
+  fileName: string;
+  sourceKind: "QUESTION_PAPER" | "ANSWER_KEY";
+  status: "READY" | "REVIEW_REQUIRED" | "BLOCKED";
+  textCharacters: number;
+  detectedQuestions: number;
+  warnings: string[];
+  blockers: string[];
+  visualRisk: boolean;
+  createdAt: string;
+};
+
 type ResultRow = {
   rank: number;
   attemptId: string;
@@ -363,6 +375,36 @@ function buildQuestions(source: string, answerGuide: string, topic: string, tota
   return parsedQuestions.map((question) => ({ ...question, marks: perQuestionMarks }));
 }
 
+function auditExtractedSource(file: File, text: string, sourceKind: ExtractionReport["sourceKind"], isPdf: boolean): ExtractionReport {
+  const normalized = normalizeExtractedText(text);
+  const detectedQuestions = sourceKind === "QUESTION_PAPER" ? parseNumberedBlocks(normalized).length : parseAnswerGuide(normalized).size;
+  const warnings: string[] = [];
+  const blockers: string[] = [];
+  const hasVisualReferences = /\b(diagram|figure|fig\.|graph|chart|table|circuit|image|shown|following|above|below|ray diagram|bar graph|pie chart|map|data table)\b/i.test(normalized);
+  const hasFormulaSignals = /[∫√πθλΩ≈≤≥÷×∞Σµ]|\\frac|\^\s*\d|\b(sin|cos|tan|log|lim)\b|[a-z]\s*=\s*[^.,;]+/i.test(normalized);
+  const visualRisk = isPdf && (hasVisualReferences || hasFormulaSignals);
+
+  if (!normalized) blockers.push("No readable text was extracted. This is likely a scanned/image PDF.");
+  if (sourceKind === "QUESTION_PAPER" && normalized.length < 350) blockers.push("Very little question text was extracted.");
+  if (sourceKind === "QUESTION_PAPER" && detectedQuestions === 0) blockers.push("No numbered MCQ questions were detected.");
+  if (visualRisk) blockers.push("Diagram/formula/chart-heavy PDF detected. Auto extraction cannot preserve visual content.");
+  if (isPdf && /[^\x00-\x7F]/.test(normalized)) warnings.push("Special symbols were detected. Check formulas and units carefully.");
+  if (isPdf && detectedQuestions > 0 && detectedQuestions < 5 && sourceKind === "QUESTION_PAPER") warnings.push("Only a few questions were detected from the PDF.");
+  if (sourceKind === "ANSWER_KEY" && detectedQuestions === 0) warnings.push("No answer key entries were detected.");
+
+  return {
+    fileName: file.name,
+    sourceKind,
+    status: blockers.length ? "BLOCKED" : warnings.length ? "REVIEW_REQUIRED" : "READY",
+    textCharacters: normalized.length,
+    detectedQuestions,
+    warnings,
+    blockers,
+    visualRisk,
+    createdAt: new Date().toISOString(),
+  };
+}
+
 function normalizeQuestionText(value?: string) {
   return value?.trim().replace(/\s+/g, " ").toLowerCase() || "";
 }
@@ -429,6 +471,8 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
   const [answerGuide, setAnswerGuide] = useState("");
   const [uploadedQuestionPaper, setUploadedQuestionPaper] = useState("");
   const [uploadedAnswerGuide, setUploadedAnswerGuide] = useState("");
+  const [extractionReports, setExtractionReports] = useState<ExtractionReport[]>([]);
+  const [manualPaperReview, setManualPaperReview] = useState(false);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const [resultsExam, setResultsExam] = useState<TeacherExamRecord | null>(null);
@@ -469,7 +513,10 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
 
   const questions = useMemo(() => buildQuestions(questionSource, answerGuide, form.topic, Number(form.marks)), [answerGuide, form.marks, form.topic, questionSource]);
   const readiness = useMemo(() => paperReadiness(questions), [questions]);
-  const canPublishPaper = questions.length > 0 && readiness.missingOptions === 0 && readiness.missingAnswers === 0;
+  const blockingExtractionReports = useMemo(() => extractionReports.filter((report) => report.status === "BLOCKED" && report.sourceKind === "QUESTION_PAPER"), [extractionReports]);
+  const reviewExtractionReports = useMemo(() => extractionReports.filter((report) => report.status !== "READY"), [extractionReports]);
+  const extractionNeedsManualReview = blockingExtractionReports.length > 0 || extractionReports.some((report) => report.visualRisk);
+  const canPublishPaper = questions.length > 0 && readiness.missingOptions === 0 && readiness.missingAnswers === 0 && (!extractionNeedsManualReview || manualPaperReview);
   const questionsForPublish = useMemo(() => questions.map((question) => ({
     ...question,
     explanation: question.explanation && !/^Explanation will be reviewed/i.test(question.explanation)
@@ -503,7 +550,7 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
     setTargetBatchIds((ids) => ids.includes(batchId) ? ids.filter((id) => id !== batchId) : [...ids, batchId]);
   }
 
-  async function appendFileText(file: File | null, setter: (value: string) => void, current: string, setUploadedName?: (value: string) => void) {
+  async function appendFileText(file: File | null, setter: (value: string) => void, current: string, sourceKind: ExtractionReport["sourceKind"], setUploadedName?: (value: string) => void) {
     if (!file) return;
     setUploadedName?.(file.name);
     try {
@@ -516,12 +563,19 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
         return;
       }
       const text = isDocx ? await extractDocxText(file) : isPdf ? await extractPdfText(file) : await file.text().catch(() => "");
+      const report = auditExtractedSource(file, text, sourceKind, isPdf);
+      setExtractionReports((reports) => [...reports.filter((item) => !(item.sourceKind === sourceKind && item.fileName === file.name)), report]);
+      if (sourceKind === "QUESTION_PAPER") setManualPaperReview(false);
       if (!text.trim()) {
-        setMessage(`No readable text was found in ${file.name}.`);
+        setMessage(`No readable text was found in ${file.name}. Upload a text/DOCX version or manually paste the questions.`);
         return;
       }
       setter([current, text].filter(Boolean).join("\n\n"));
-      setMessage(isDocx ? `${file.name} extracted successfully. Review the questions before continuing.` : `${file.name} added successfully.`);
+      setMessage(report.status === "BLOCKED"
+        ? `${file.name} needs manual review before publishing: ${report.blockers.join(" ")}`
+        : report.status === "REVIEW_REQUIRED"
+          ? `${file.name} extracted, but please review: ${report.warnings.join(" ")}`
+          : `${file.name} extracted successfully. Review the questions before continuing.`);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : `Unable to read ${file.name}.`);
       return;
@@ -539,6 +593,8 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
     setAnswerGuide("");
     setUploadedQuestionPaper("");
     setUploadedAnswerGuide("");
+    setExtractionReports([]);
+    setManualPaperReview(false);
     setTargetBatchIds(activeBatch?.id ? [activeBatch.id] : []);
     setStep(1);
     setPreviewIndex(0);
@@ -570,6 +626,8 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
     setAnswerGuide(savedQuestions.map((question, index) => `${index + 1} - ${question.correctAnswer}\nExplanation: ${question.explanation}`).join("\n\n"));
     setUploadedQuestionPaper("");
     setUploadedAnswerGuide("");
+    setExtractionReports([]);
+    setManualPaperReview(false);
     setStep(1);
     setPreviewIndex(0);
     setMessage("");
@@ -593,7 +651,9 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
       return;
     }
     if (!editingExam && !canPublishPaper) {
-      setMessage(`Paper is incomplete: ${readiness.missingOptions} question(s) need options and ${readiness.missingAnswers} question(s) need answer keys before publishing.`);
+      setMessage(extractionNeedsManualReview && !manualPaperReview
+        ? "Manual review is required for this uploaded paper before publishing. Check/correct every question, then tick manual review completed."
+        : `Paper is incomplete: ${readiness.missingOptions} question(s) need options and ${readiness.missingAnswers} question(s) need answer keys before publishing.`);
       return;
     }
     if (!effectiveTitle.trim() || !effectiveTopic.trim()) {
@@ -625,6 +685,8 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
               duration: Number(form.duration),
               totalMarks: Number(form.marks),
               questions: questionsForPublish,
+              extractionAudit: extractionReports,
+              manualPaperReview,
             } : undefined,
           }),
         });
@@ -666,6 +728,8 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
               duration: Number(form.duration),
               totalMarks: Number(form.marks),
               questions: questionsForPublish,
+              extractionAudit: extractionReports,
+              manualPaperReview,
             },
           }),
         }),
@@ -758,6 +822,10 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
     }
     if (step === 2 && !editingExam && readiness.missingAnswers > 0) {
       setMessage(`Answer key review required: ${readiness.missingAnswers} question(s) need answer keys before preview.`);
+      return;
+    }
+    if (step === 2 && !editingExam && extractionNeedsManualReview && !manualPaperReview) {
+      setMessage("This paper contains scanned/visual/formula risk. Correct the extracted questions if needed, then tick manual review completed before preview.");
       return;
     }
     if (step === 2 && !editingExam && readiness.duplicateQuestions.length > 0) {
@@ -962,7 +1030,7 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
                       label="Upload question paper"
                       fileName={uploadedQuestionPaper}
                       accept=".txt,.docx,.pdf,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                      onChange={(file) => void appendFileText(file, setQuestionSource, questionSource, setUploadedQuestionPaper)}
+                      onChange={(file) => void appendFileText(file, setQuestionSource, questionSource, "QUESTION_PAPER", setUploadedQuestionPaper)}
                     />
                   </ExamInputCard>
                   <ExamInputCard title="Answer key" description="Add the correct option and a short explanation. Example: 1 - A Explanation: ...">
@@ -971,9 +1039,12 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
                       label="Upload answer key + explanations"
                       fileName={uploadedAnswerGuide}
                       accept=".txt,.docx,.pdf"
-                      onChange={(file) => void appendFileText(file, setAnswerGuide, answerGuide, setUploadedAnswerGuide)}
+                      onChange={(file) => void appendFileText(file, setAnswerGuide, answerGuide, "ANSWER_KEY", setUploadedAnswerGuide)}
                     />
                   </ExamInputCard>
+                  {reviewExtractionReports.length ? (
+                    <ExtractionAuditPanel reports={reviewExtractionReports} manualReview={manualPaperReview} onManualReviewChange={setManualPaperReview} />
+                  ) : null}
                 </div>
               ) : null}
 
@@ -993,9 +1064,12 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
                         ? readiness.missingExplanations > 0
                           ? `Ready. ${readiness.missingExplanations} explanation(s) will use a simple fallback if not edited.`
                           : "Ready. Questions, options and answer key are available."
-                        : `${readiness.missingOptions} option issue(s) / ${readiness.missingAnswers} answer issue(s) / ${readiness.duplicateQuestions.length} duplicate(s)`}
+                        : extractionNeedsManualReview && !manualPaperReview
+                          ? "Manual review is required because the uploaded paper may contain diagrams, formulas, charts or scanned content."
+                          : `${readiness.missingOptions} option issue(s) / ${readiness.missingAnswers} answer issue(s) / ${readiness.duplicateQuestions.length} duplicate(s)`}
                     </div>
                   </div>
+                  {reviewExtractionReports.length ? <ExtractionAuditPanel reports={reviewExtractionReports} manualReview={manualPaperReview} onManualReviewChange={setManualPaperReview} compact /> : null}
                   <div className="grid items-start gap-4 lg:grid-cols-[260px_minmax(0,1fr)]">
                     <aside className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4 shadow-sm lg:sticky lg:top-4 lg:max-h-[calc(100dvh-22rem)] lg:min-h-[24rem] lg:overflow-y-auto">
                       <div className="flex items-center justify-between gap-3">
@@ -1065,6 +1139,7 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
                       Fix {readiness.duplicateQuestions.length} duplicate question(s) before publishing. Question {readiness.duplicateQuestions[0].index + 1} repeats Question {readiness.duplicateQuestions[0].firstIndex + 1}.
                     </p>
                   ) : null}
+                  {reviewExtractionReports.length ? <ExtractionAuditPanel reports={reviewExtractionReports} manualReview={manualPaperReview} onManualReviewChange={setManualPaperReview} compact /> : null}
                 </div>
               ) : null}
 
@@ -1137,6 +1212,41 @@ function Field({ label, value, onChange, type = "text", placeholder }: { label: 
       {label}
       <input type={type} value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} className="min-h-12 rounded-xl border border-[var(--border)] bg-white px-4" />
     </label>
+  );
+}
+
+function ExtractionAuditPanel({ reports, manualReview, onManualReviewChange, compact = false }: { reports: ExtractionReport[]; manualReview: boolean; onManualReviewChange: (value: boolean) => void; compact?: boolean }) {
+  const hasBlocker = reports.some((report) => report.status === "BLOCKED");
+  return (
+    <div className={`rounded-2xl border p-4 ${hasBlocker ? "border-amber-300 bg-amber-50" : "border-blue-200 bg-blue-50"} ${compact ? "" : "lg:col-span-2"}`}>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <p className={`text-xs font-black uppercase tracking-[0.24em] ${hasBlocker ? "text-amber-800" : "text-blue-800"}`}>Paper digitizing check</p>
+          <h4 className="mt-1 text-lg font-black">{hasBlocker ? "Manual review required" : "Review recommended"}</h4>
+          <p className="mt-1 text-sm leading-6 text-[var(--muted-blue)]">PDF text extraction cannot preserve diagrams, formula layout, charts or scanned images. Check the extracted questions before publishing.</p>
+        </div>
+        <label className="flex min-h-11 cursor-pointer items-center gap-2 rounded-xl border border-[var(--border)] bg-white px-3 text-sm font-black">
+          <input type="checkbox" checked={manualReview} onChange={(event) => onManualReviewChange(event.target.checked)} />
+          Manual review completed
+        </label>
+      </div>
+      <div className="mt-3 grid gap-2">
+        {reports.map((report) => (
+          <div key={`${report.sourceKind}-${report.fileName}`} className="rounded-xl border border-white/80 bg-white p-3 text-sm">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <p className="font-black">{report.fileName}</p>
+              <span className={`rounded-full px-3 py-1 text-xs font-black ${report.status === "BLOCKED" ? "bg-amber-100 text-amber-900" : "bg-blue-100 text-blue-900"}`}>{report.status.replace(/_/g, " ")}</span>
+            </div>
+            <p className="mt-1 text-xs font-bold text-[var(--muted-blue)]">{report.detectedQuestions} detected item(s) / {report.textCharacters} text characters</p>
+            {[...report.blockers, ...report.warnings].length ? (
+              <ul className="mt-2 grid gap-1 text-xs font-bold leading-5 text-slate-700">
+                {[...report.blockers, ...report.warnings].map((item) => <li key={item}>- {item}</li>)}
+              </ul>
+            ) : null}
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
 
