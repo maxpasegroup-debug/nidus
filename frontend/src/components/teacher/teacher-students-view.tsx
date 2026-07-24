@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { Check, ChevronLeft, Clock3, Search, UserRound, Users, X } from "lucide-react";
-import { TeacherModuleHeader, TeacherTileGrid } from "@/components/teacher/teacher-dashboard-primitives";
+import { TeacherModuleHeader } from "@/components/teacher/teacher-dashboard-primitives";
 
 export type TeacherRosterStudent = {
   id: string;
@@ -103,18 +103,19 @@ export function TeacherStudentsView({ batches, loading, onMarkAttendance }: {
 
       {loading ? <p className="rounded-xl border border-[var(--border)] bg-white p-5 text-sm font-bold text-[var(--muted-blue)]">Loading assigned batches...</p> : null}
       {!loading && batches.length ? (
-        <TeacherTileGrid>
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {batches.map((item) => (
-            <button key={item.id} type="button" onClick={() => openBatch(item)} className="flex aspect-square min-w-0 flex-col justify-between rounded-xl border border-[var(--border)] bg-white p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-slate-950 focus:outline-none focus:ring-2 focus:ring-slate-950">
-              <span className="grid h-9 w-9 place-items-center rounded-lg bg-[var(--page-bg)]"><Users size={17} /></span>
+            <button key={item.id} type="button" onClick={() => openBatch(item)} className="flex min-h-[96px] min-w-0 items-center gap-3 rounded-xl border border-[var(--border)] bg-white p-3 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-slate-950 focus:outline-none focus:ring-2 focus:ring-slate-950">
+              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[var(--ink)] text-white"><Users size={17} /></span>
               <span className="min-w-0">
                 <span className="line-clamp-1 text-[10px] font-black uppercase tracking-[0.18em] text-[var(--gold-dark)]">{item.program}</span>
-                <span className="mt-1 line-clamp-3 block text-sm font-black leading-5 sm:text-base">{item.name}</span>
-                <span className="mt-2 block text-xs font-bold text-[var(--muted-blue)]">{item.students.length} students</span>
+                <span className="mt-1 line-clamp-2 block text-sm font-black leading-5 sm:text-base">{item.name}</span>
+                <span className="mt-2 inline-flex rounded-full border border-[var(--border)] bg-[var(--page-bg)] px-2 py-1 text-[11px] font-black text-[var(--muted-blue)]">{item.students.length} students</span>
               </span>
+              <ChevronLeft className="ml-auto rotate-180 text-[var(--muted-blue)]" size={17} />
             </button>
           ))}
-        </TeacherTileGrid>
+        </div>
       ) : null}
       {!loading && !batches.length ? <p className="rounded-xl border border-dashed border-[var(--border)] bg-white p-6 text-sm text-[var(--muted-blue)]">No student batches are assigned to this teacher.</p> : null}
 

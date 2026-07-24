@@ -398,6 +398,14 @@ type LiveClassForm = {
   meetingLink: string;
 };
 
+type LiveClassEditState = { record: LiveClassRecord; form: LiveClassForm };
+type ExamEditState = { record: ExamRecord; title: string; topic: string; duration: string };
+type AssignmentEditState = { record: AssignmentRecord; title: string; topic: string; instructions: string };
+type TodayActionDialogState = { item: TeacherTodayScheduleItem; actionKey: "COMPLETE" | "RECORDING_UPLOADED"; value: string };
+type RenameDialogState =
+  | { mode: "LESSON"; material: MaterialRecord; value: string }
+  | { mode: "FOLDER"; kind: "SUBJECT" | "TOPIC"; currentName: string; value: string };
+
 export type TeacherView = "classes" | "students" | "exams" | "assignments" | "attendance" | "library" | "academic-calendar";
 
 function resolveApiBase() {
@@ -974,6 +982,11 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
   const [showExamCreator, setShowExamCreator] = useState(false);
   const [showAssignmentCreator, setShowAssignmentCreator] = useState(false);
   const [showLiveClassCreator, setShowLiveClassCreator] = useState(false);
+  const [editingLiveClass, setEditingLiveClass] = useState<LiveClassEditState | null>(null);
+  const [editingExam, setEditingExam] = useState<ExamEditState | null>(null);
+  const [editingAssignment, setEditingAssignment] = useState<AssignmentEditState | null>(null);
+  const [todayActionDialog, setTodayActionDialog] = useState<TodayActionDialogState | null>(null);
+  const [renameDialog, setRenameDialog] = useState<RenameDialogState | null>(null);
   const [liveClassPublishing, setLiveClassPublishing] = useState(false);
   const [studentExamResults, setStudentExamResults] = useState<ExamResultEntry[]>([]);
   const [studentExamResultsLoading, setStudentExamResultsLoading] = useState(false);
@@ -1980,16 +1993,8 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
     };
     try {
       if (action.key === "COMPLETE") {
-        const teacherLog = window.prompt("What did you complete in this class?", item.topic || "Class completed.");
-        if (teacherLog === null) return;
-        await runAcademyTodayAction({
-          ...basePayload,
-          action: "COMPLETE",
-          teacherLog,
-          completionStatus: "COMPLETED",
-          nextAction: "Class completed",
-        });
-        setMessage("Class marked completed.");
+        setTodayActionDialog({ item, actionKey: "COMPLETE", value: item.topic || "Class completed." });
+        return;
       } else if (action.key === "ATTENDANCE") {
         if (!window.confirm(`Mark all students present for ${item.batchName} / ${item.subject}? You can edit exceptions inside Attendance.`)) return;
         await runAcademyTodayAction({ ...basePayload, action: "MARK_ATTENDANCE" });
@@ -1998,11 +2003,48 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
         await runAcademyTodayAction({ ...basePayload, action: "START_LIVE_CLASS" });
         setMessage("Live class started/scheduled for this task.");
       } else if (action.key === "RECORDING_UPLOADED") {
-        const recordingUrl = window.prompt("Paste the uploaded recording URL");
-        if (!recordingUrl) return;
-        await runAcademyTodayAction({ ...basePayload, action: "RECORDING_UPLOADED", recordingUrl });
+        setTodayActionDialog({ item, actionKey: "RECORDING_UPLOADED", value: "" });
+        return;
+      }
+      await loadTeachingPlan();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Today action failed.");
+    }
+  }
+
+  async function submitTodayActionDialog() {
+    if (!todayActionDialog) return;
+    const { item, actionKey, value } = todayActionDialog;
+    const calendarId = item.id.replace(/^calendar-/, "");
+    const basePayload = {
+      taskId: item.id,
+      calendarId,
+      batchId: item.batchId,
+      subject: item.subject,
+      topic: item.topic,
+      date: item.date,
+      startTime: item.startTime || undefined,
+      endTime: item.endTime || undefined,
+    };
+    try {
+      if (actionKey === "COMPLETE") {
+        await runAcademyTodayAction({
+          ...basePayload,
+          action: "COMPLETE",
+          teacherLog: value.trim() || item.topic || "Class completed.",
+          completionStatus: "COMPLETED",
+          nextAction: "Class completed",
+        });
+        setMessage("Class marked completed.");
+      } else {
+        if (!value.trim()) {
+          setMessage("Paste the recording link before saving.");
+          return;
+        }
+        await runAcademyTodayAction({ ...basePayload, action: "RECORDING_UPLOADED", recordingUrl: value.trim() });
         setMessage("Recording linked to library.");
       }
+      setTodayActionDialog(null);
       await loadTeachingPlan();
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Today action failed.");
@@ -2049,6 +2091,55 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
       setLiveClassMessage(error instanceof Error ? error.message : "Could not publish live class.");
     } finally {
       setLiveClassPublishing(false);
+    }
+  }
+
+  function openLiveClassEditor(item: LiveClassRecord) {
+    const scheduled = item.scheduledAt ? new Date(item.scheduledAt) : new Date();
+    const fallbackTime = Number.isNaN(scheduled.getTime()) ? new Date() : scheduled;
+    setLiveClassMessage(null);
+    setEditingLiveClass({
+      record: item,
+      form: {
+        subject: item.subject || classroomSubject || subjectsForBatch(selectedClass)[0] || "General",
+        topic: item.topic || item.title || "",
+        date: fallbackTime.toISOString().slice(0, 10),
+        time: fallbackTime.toTimeString().slice(0, 5),
+        duration: String(item.duration || 60),
+        description: item.description || "",
+        meetingLink: item.meetingLink || "",
+      },
+    });
+  }
+
+  async function saveLiveClassEdit() {
+    if (!editingLiveClass || !selectedClass) return;
+    const { record, form } = editingLiveClass;
+    if (!form.topic.trim() || !form.date || !form.time || !form.meetingLink.trim()) {
+      setLiveClassMessage("Topic, date, time and meeting link are required.");
+      return;
+    }
+    try {
+      const scheduledAt = new Date(`${form.date}T${form.time}`).toISOString();
+      const duration = Math.max(1, Number(form.duration || record.duration || 60));
+      const response = await apiPut<{ liveClass?: LiveClassRecord }>([`/api/live-classes/${record.id}`], {
+        title: form.topic.trim(),
+        topic: form.topic.trim(),
+        description: form.description,
+        subject: form.subject || record.subject || classroomSubject || subjectsForBatch(selectedClass)[0] || "General",
+        scheduledAt,
+        duration,
+        meetingLink: form.meetingLink.trim(),
+        batchId: record.batchId || selectedClass.id,
+        programSlug: record.programSlug || selectedClass.course?.slug || selectedProgram?.key || "academy",
+        status: record.status || "SCHEDULED",
+      });
+      const next = response?.liveClass ?? { ...record, title: form.topic.trim(), topic: form.topic.trim(), description: form.description, subject: form.subject, scheduledAt, duration, meetingLink: form.meetingLink.trim() };
+      setLiveClasses((records) => records.map((item) => item.id === record.id ? next : item));
+      setEditingLiveClass(null);
+      setLiveClassMessage("Live class updated.");
+    } catch (error) {
+      setLiveClassMessage(error instanceof Error ? error.message : "Could not update live class.");
     }
   }
 
@@ -2494,21 +2585,51 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
     }
   }
 
-  async function renameLibraryMaterial(material: MaterialRecord) {
-    if (!selectedClass) return;
+  function renameLibraryMaterial(material: MaterialRecord) {
     const currentName = material.title || material.lessonName || material.fileName || "Lesson";
-    const nextName = typeof window !== "undefined" ? window.prompt("Rename lesson", currentName) : null;
-    if (!nextName?.trim() || nextName.trim() === currentName) return;
+    setRenameDialog({ mode: "LESSON", material, value: currentName });
+  }
+
+  async function saveRenameDialog() {
+    if (!selectedClass || !renameDialog) return;
+    const nextName = renameDialog.value.trim();
+    const currentName = renameDialog.mode === "LESSON"
+      ? renameDialog.material.title || renameDialog.material.lessonName || renameDialog.material.fileName || "Lesson"
+      : renameDialog.currentName;
+    if (!nextName || nextName === currentName) {
+      setRenameDialog(null);
+      return;
+    }
     try {
-      await apiPatch<{ ok?: boolean }>([`/api/academy/study-materials/${material.id}`], {
-        batchId: material.batchId,
-        title: nextName.trim(),
-        lessonName: nextName.trim(),
-      });
+      if (renameDialog.mode === "LESSON") {
+        await apiPatch<{ ok?: boolean }>([`/api/academy/study-materials/${renameDialog.material.id}`], {
+          batchId: renameDialog.material.batchId,
+          title: nextName,
+          lessonName: nextName,
+        });
+        setLibraryMessage("Lesson renamed.");
+      } else {
+        const updates = activeLibraryRecords.filter((item) => {
+          const subject = item.subject || item.folder || "General";
+          const topic = item.topic && item.topic !== "__SUBJECT__" ? item.topic : "General";
+          return renameDialog.kind === "SUBJECT" ? subject === currentName : subject === activeLibrarySubject && topic === currentName;
+        });
+        await Promise.all(updates.map((item) => apiPatch<{ ok?: boolean }>([`/api/academy/study-materials/${item.id}`], {
+          batchId: item.batchId,
+          folder: renameDialog.kind === "SUBJECT" ? nextName : item.folder,
+          subject: renameDialog.kind === "SUBJECT" ? nextName : item.subject,
+          topic: renameDialog.kind === "TOPIC" ? nextName : item.topic,
+          title: isFolderMaterial(item) ? nextName : item.title,
+          lessonName: isFolderMaterial(item) ? nextName : item.lessonName,
+        })));
+        if (renameDialog.kind === "SUBJECT") setLibrarySubject(nextName);
+        if (renameDialog.kind === "TOPIC") setLibraryTopic(nextName);
+        setLibraryMessage("Folder renamed.");
+      }
+      setRenameDialog(null);
       await loadClassWorkspace(selectedClass.id);
-      setLibraryMessage("Lesson renamed.");
     } catch (error) {
-      setLibraryMessage(error instanceof Error ? error.message : "Could not rename lesson.");
+      setLibraryMessage(error instanceof Error ? error.message : "Could not rename.");
     }
   }
 
@@ -2556,31 +2677,8 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
     }
   }
 
-  async function renameLibraryFolder(kind: "SUBJECT" | "TOPIC", currentName: string) {
-    if (!selectedClass) return;
-    const nextName = typeof window !== "undefined" ? window.prompt(`Rename ${kind.toLowerCase()} folder`, currentName) : null;
-    if (!nextName?.trim() || nextName.trim() === currentName) return;
-    const updates = activeLibraryRecords.filter((item) => {
-      const subject = item.subject || item.folder || "General";
-      const topic = item.topic && item.topic !== "__SUBJECT__" ? item.topic : "General";
-      return kind === "SUBJECT" ? subject === currentName : subject === activeLibrarySubject && topic === currentName;
-    });
-    try {
-      await Promise.all(updates.map((item) => apiPatch<{ ok?: boolean }>([`/api/academy/study-materials/${item.id}`], {
-        batchId: item.batchId,
-        folder: kind === "SUBJECT" ? nextName.trim() : item.folder,
-        subject: kind === "SUBJECT" ? nextName.trim() : item.subject,
-        topic: kind === "TOPIC" ? nextName.trim() : item.topic,
-        title: isFolderMaterial(item) ? nextName.trim() : item.title,
-        lessonName: isFolderMaterial(item) ? nextName.trim() : item.lessonName,
-      })));
-      if (kind === "SUBJECT") setLibrarySubject(nextName.trim());
-      if (kind === "TOPIC") setLibraryTopic(nextName.trim());
-      await loadClassWorkspace(selectedClass.id);
-      setLibraryMessage("Folder renamed.");
-    } catch (error) {
-      setLibraryMessage(error instanceof Error ? error.message : "Could not rename folder.");
-    }
+  function renameLibraryFolder(kind: "SUBJECT" | "TOPIC", currentName: string) {
+    setRenameDialog({ mode: "FOLDER", kind, currentName, value: currentName });
   }
 
   function libraryFolderRecords(kind: "SUBJECT" | "TOPIC", folderName: string) {
@@ -2880,21 +2978,31 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
     }
   }
 
-  async function editExamRecord(exam: ExamRecord) {
-    const title = window.prompt("Exam title", exam.title || "");
-    if (title === null) return;
-    const topic = window.prompt("Topic", exam.topic || "");
-    if (topic === null) return;
-    const duration = window.prompt("Duration in minutes", String(exam.durationMinutes ?? 30));
-    if (duration === null) return;
+  function editExamRecord(exam: ExamRecord) {
     setExamMessage(null);
+    setEditingExam({
+      record: exam,
+      title: exam.title || "",
+      topic: exam.topic || "",
+      duration: String(exam.durationMinutes ?? 30),
+    });
+  }
+
+  async function saveExamEdit() {
+    if (!editingExam) return;
+    const { record, title, topic, duration } = editingExam;
+    if (!title.trim()) {
+      setExamMessage("Exam title is required.");
+      return;
+    }
     try {
-      await apiPatch<{ ok?: boolean }>([`/api/academy/exams/${exam.id}`], {
-        title: title.trim() || exam.title,
-        topic: topic.trim() || exam.topic,
-        durationMinutes: Number(duration) || exam.durationMinutes || 30,
-        status: exam.status || "PUBLISHED",
+      await apiPatch<{ ok?: boolean }>([`/api/academy/exams/${record.id}`], {
+        title: title.trim() || record.title,
+        topic: topic.trim() || record.topic,
+        durationMinutes: Number(duration) || record.durationMinutes || 30,
+        status: record.status || "PUBLISHED",
       });
+      setEditingExam(null);
       setExamMessage("Exam updated.");
       if (selectedClass?.id) await loadClassWorkspace(selectedClass.id);
     } catch (error) {
@@ -2925,22 +3033,32 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
     }
   }
 
-  async function editAssignmentRecord(assignment: AssignmentRecord) {
-    const title = window.prompt("Assignment title", assignment.title || "");
-    if (title === null) return;
-    const topic = window.prompt("Topic", assignment.topic || "");
-    if (topic === null) return;
-    const instructions = window.prompt("Instructions", assignment.instructions || "");
-    if (instructions === null) return;
+  function editAssignmentRecord(assignment: AssignmentRecord) {
     setAssignmentMessage(null);
+    setEditingAssignment({
+      record: assignment,
+      title: assignment.title || "",
+      topic: assignment.topic || "",
+      instructions: assignment.instructions || "",
+    });
+  }
+
+  async function saveAssignmentEdit() {
+    if (!editingAssignment) return;
+    const { record, title, topic, instructions } = editingAssignment;
+    if (!title.trim()) {
+      setAssignmentMessage("Homework title is required.");
+      return;
+    }
     try {
-      await apiPatch<{ ok?: boolean }>([`/api/academy/assignments/${assignment.id}`], {
-        title: title.trim() || assignment.title,
-        topic: topic.trim() || assignment.topic,
-        instructions: instructions.trim() || assignment.instructions,
-        dueDate: assignment.dueDate || undefined,
-        status: assignment.status || "PUBLISHED",
+      await apiPatch<{ ok?: boolean }>([`/api/academy/assignments/${record.id}`], {
+        title: title.trim() || record.title,
+        topic: topic.trim() || record.topic,
+        instructions: instructions.trim() || record.instructions,
+        dueDate: record.dueDate || undefined,
+        status: record.status || "PUBLISHED",
       });
+      setEditingAssignment(null);
       setAssignmentMessage("Assignment updated.");
       if (selectedClass?.id) await loadClassWorkspace(selectedClass.id);
     } catch (error) {
@@ -3100,34 +3218,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
                 />
                 <LiveClassStrip
                   items={selectedBatchLiveClasses}
-                  onEdit={async (item) => {
-                    if (typeof window === "undefined") return;
-                    const currentDate = item.scheduledAt ? new Date(item.scheduledAt) : new Date();
-                    const dateValue = currentDate.toISOString().slice(0, 10);
-                    const timeValue = currentDate.toTimeString().slice(0, 5);
-                    const topic = window.prompt("Live class topic", item.topic || item.title || "")?.trim();
-                    if (!topic) return;
-                    const date = window.prompt("Date (YYYY-MM-DD)", dateValue)?.trim() || dateValue;
-                    const time = window.prompt("Time (HH:mm)", timeValue)?.trim() || timeValue;
-                    const durationInput = window.prompt("Duration in minutes", String(item.duration || 60))?.trim();
-                    const meetingLink = window.prompt("Meeting link", item.meetingLink || "")?.trim() || item.meetingLink;
-                    const duration = Math.max(1, Number(durationInput || item.duration || 60));
-                    const scheduledAt = new Date(`${date}T${time}`).toISOString();
-                    const response = await apiPut<{ liveClass?: LiveClassRecord }>([`/api/live-classes/${item.id}`], {
-                      title: topic,
-                      topic,
-                      subject: item.subject || classroomSubject || subjectsForBatch(selectedClass)[0] || "General",
-                      scheduledAt,
-                      duration,
-                      meetingLink,
-                      batchId: item.batchId || selectedClass.id,
-                      programSlug: item.programSlug || selectedClass.course?.slug || selectedProgram?.key || "academy",
-                      status: item.status || "SCHEDULED",
-                    });
-                    const next = response?.liveClass ?? { ...item, title: topic, topic, scheduledAt, duration, meetingLink };
-                    setLiveClasses((records) => records.map((record) => record.id === item.id ? next : record));
-                    setLiveClassMessage("Live class updated.");
-                  }}
+                  onEdit={openLiveClassEditor}
                   onCancel={async (item) => {
                     if (typeof window !== "undefined" && !window.confirm("Cancel this live class for the selected batch?")) return;
                     await apiDelete<{ ok?: boolean }>([`/api/live-classes/${item.id}`]);
@@ -3171,6 +3262,51 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
           onPublish={() => void publishLiveClass()}
           publishing={liveClassPublishing}
           message={liveClassMessage}
+        />
+      ) : null}
+      {editingLiveClass ? (
+        <LiveClassEditModal
+          state={editingLiveClass}
+          setState={setEditingLiveClass}
+          onClose={() => setEditingLiveClass(null)}
+          onSave={() => void saveLiveClassEdit()}
+          message={liveClassMessage}
+        />
+      ) : null}
+      {editingExam ? (
+        <ExamEditModal
+          state={editingExam}
+          setState={setEditingExam}
+          onClose={() => setEditingExam(null)}
+          onSave={() => void saveExamEdit()}
+          message={examMessage}
+        />
+      ) : null}
+      {editingAssignment ? (
+        <AssignmentEditModal
+          state={editingAssignment}
+          setState={setEditingAssignment}
+          onClose={() => setEditingAssignment(null)}
+          onSave={() => void saveAssignmentEdit()}
+          message={assignmentMessage}
+        />
+      ) : null}
+      {todayActionDialog ? (
+        <TodayActionModal
+          state={todayActionDialog}
+          setState={setTodayActionDialog}
+          onClose={() => setTodayActionDialog(null)}
+          onSave={() => void submitTodayActionDialog()}
+          message={message}
+        />
+      ) : null}
+      {renameDialog ? (
+        <RenameModal
+          state={renameDialog}
+          setState={setRenameDialog}
+          onClose={() => setRenameDialog(null)}
+          onSave={() => void saveRenameDialog()}
+          message={libraryMessage}
         />
       ) : null}
       {showAssignmentCreator && view === "classes" && activeCourseKey && activeBatchId ? (
@@ -4487,6 +4623,193 @@ function LiveClassCreatorModal({
           <button type="button" disabled={publishing} onClick={onPublish} className="rounded-xl bg-[var(--ink)] px-5 py-3 text-sm font-black text-white disabled:opacity-50">{publishing ? "Publishing..." : "Publish Live Class"}</button>
         </div>
       </div>
+    </div>
+  );
+}
+
+function LiveClassEditModal({
+  state,
+  setState,
+  onClose,
+  onSave,
+  message,
+}: {
+  state: LiveClassEditState;
+  setState: React.Dispatch<React.SetStateAction<LiveClassEditState | null>>;
+  onClose: () => void;
+  onSave: () => void;
+  message?: string | null;
+}) {
+  const updateForm = (patch: Partial<LiveClassForm>) => setState((current) => current ? { ...current, form: { ...current.form, ...patch } } : current);
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 px-4 py-6">
+      <div className="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-2xl border border-[var(--border)] bg-white p-5 shadow-2xl">
+        <ModalTitle eyebrow="Live Classes" title="Edit live class" subtitle="Update the topic, timing and meeting link in one place." onClose={onClose} />
+        {message ? <Notice text={message} /> : null}
+        <div className="mt-5 grid gap-4 md:grid-cols-2">
+          <Input label="Subject" value={state.form.subject} onChange={(value) => updateForm({ subject: value })} />
+          <Input label="Topic" value={state.form.topic} onChange={(value) => updateForm({ topic: value })} />
+          <Input label="Date" type="date" value={state.form.date} onChange={(value) => updateForm({ date: value })} />
+          <Input label="Time" type="time" value={state.form.time} onChange={(value) => updateForm({ time: value })} />
+          <Input label="Duration" type="number" value={state.form.duration} onChange={(value) => updateForm({ duration: value })} />
+          <Input label="Meeting Link" value={state.form.meetingLink} onChange={(value) => updateForm({ meetingLink: value })} />
+        </div>
+        <div className="mt-4">
+          <Textarea label="Description" value={state.form.description} onChange={(value) => updateForm({ description: value })} />
+        </div>
+        <ModalActions onClose={onClose} onSave={onSave} saveLabel="Save Live Class" />
+      </div>
+    </div>
+  );
+}
+
+function ExamEditModal({
+  state,
+  setState,
+  onClose,
+  onSave,
+  message,
+}: {
+  state: ExamEditState;
+  setState: React.Dispatch<React.SetStateAction<ExamEditState | null>>;
+  onClose: () => void;
+  onSave: () => void;
+  message?: string | null;
+}) {
+  const update = (patch: Partial<Omit<ExamEditState, "record">>) => setState((current) => current ? { ...current, ...patch } : current);
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 px-4 py-6">
+      <div className="w-full max-w-2xl rounded-2xl border border-[var(--border)] bg-white p-5 shadow-2xl">
+        <ModalTitle eyebrow="Exams" title="Edit exam" subtitle="Keep the approved exam engine simple: title, topic and duration." onClose={onClose} />
+        {message ? <Notice text={message} /> : null}
+        <div className="mt-5 grid gap-4 md:grid-cols-2">
+          <Input label="Exam Title" value={state.title} onChange={(value) => update({ title: value })} />
+          <Input label="Topic" value={state.topic} onChange={(value) => update({ topic: value })} />
+          <Input label="Duration" type="number" value={state.duration} onChange={(value) => update({ duration: value })} />
+        </div>
+        <ModalActions onClose={onClose} onSave={onSave} saveLabel="Save Exam" />
+      </div>
+    </div>
+  );
+}
+
+function AssignmentEditModal({
+  state,
+  setState,
+  onClose,
+  onSave,
+  message,
+}: {
+  state: AssignmentEditState;
+  setState: React.Dispatch<React.SetStateAction<AssignmentEditState | null>>;
+  onClose: () => void;
+  onSave: () => void;
+  message?: string | null;
+}) {
+  const update = (patch: Partial<Omit<AssignmentEditState, "record">>) => setState((current) => current ? { ...current, ...patch } : current);
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 px-4 py-6">
+      <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-[var(--border)] bg-white p-5 shadow-2xl">
+        <ModalTitle eyebrow="Homework" title="Edit homework" subtitle="Update the homework title, topic and instructions without leaving the page." onClose={onClose} />
+        {message ? <Notice text={message} /> : null}
+        <div className="mt-5 grid gap-4 md:grid-cols-2">
+          <Input label="Homework Title" value={state.title} onChange={(value) => update({ title: value })} />
+          <Input label="Topic" value={state.topic} onChange={(value) => update({ topic: value })} />
+        </div>
+        <div className="mt-4">
+          <Textarea label="Instructions" value={state.instructions} onChange={(value) => update({ instructions: value })} />
+        </div>
+        <ModalActions onClose={onClose} onSave={onSave} saveLabel="Save Homework" />
+      </div>
+    </div>
+  );
+}
+
+function TodayActionModal({
+  state,
+  setState,
+  onClose,
+  onSave,
+  message,
+}: {
+  state: TodayActionDialogState;
+  setState: React.Dispatch<React.SetStateAction<TodayActionDialogState | null>>;
+  onClose: () => void;
+  onSave: () => void;
+  message?: string | null;
+}) {
+  const isRecording = state.actionKey === "RECORDING_UPLOADED";
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 px-4 py-6">
+      <div className="w-full max-w-2xl rounded-2xl border border-[var(--border)] bg-white p-5 shadow-2xl">
+        <ModalTitle
+          eyebrow="Today"
+          title={isRecording ? "Add recording link" : "Complete class"}
+          subtitle={`${state.item.batchName || "Batch"} / ${state.item.subject || "Subject"}`}
+          onClose={onClose}
+        />
+        {message ? <Notice text={message} /> : null}
+        <div className="mt-5">
+          {isRecording ? (
+            <Input label="Recording Link" value={state.value} onChange={(value) => setState((current) => current ? { ...current, value } : current)} />
+          ) : (
+            <Textarea label="What was completed?" value={state.value} onChange={(value) => setState((current) => current ? { ...current, value } : current)} />
+          )}
+        </div>
+        <ModalActions onClose={onClose} onSave={onSave} saveLabel={isRecording ? "Save Recording" : "Mark Completed"} />
+      </div>
+    </div>
+  );
+}
+
+function RenameModal({
+  state,
+  setState,
+  onClose,
+  onSave,
+  message,
+}: {
+  state: RenameDialogState;
+  setState: React.Dispatch<React.SetStateAction<RenameDialogState | null>>;
+  onClose: () => void;
+  onSave: () => void;
+  message?: string | null;
+}) {
+  const title = state.mode === "LESSON" ? "Rename lesson" : `Rename ${state.kind.toLowerCase()} folder`;
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 px-4 py-6">
+      <div className="w-full max-w-xl rounded-2xl border border-[var(--border)] bg-white p-5 shadow-2xl">
+        <ModalTitle eyebrow="Resources" title={title} subtitle="Enter the new name and save." onClose={onClose} />
+        {message ? <Notice text={message} /> : null}
+        <div className="mt-5">
+          <Input label="Name" value={state.value} onChange={(value) => setState((current) => current ? { ...current, value } : current)} />
+        </div>
+        <ModalActions onClose={onClose} onSave={onSave} saveLabel="Save Name" />
+      </div>
+    </div>
+  );
+}
+
+function ModalTitle({ eyebrow, title, subtitle, onClose }: { eyebrow: string; title: string; subtitle: string; onClose: () => void }) {
+  return (
+    <div className="flex items-start justify-between gap-3">
+      <div>
+        <p className="text-xs font-black uppercase tracking-[0.3em] text-[var(--gold-dark)]">{eyebrow}</p>
+        <h2 className="mt-2 text-2xl font-black sm:text-3xl">{title}</h2>
+        <p className="mt-2 text-sm text-[var(--muted-blue)]">{subtitle}</p>
+      </div>
+      <button type="button" onClick={onClose} className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] p-3" aria-label={`Close ${title}`}>
+        <X size={18} />
+      </button>
+    </div>
+  );
+}
+
+function ModalActions({ onClose, onSave, saveLabel }: { onClose: () => void; onSave: () => void; saveLabel: string }) {
+  return (
+    <div className="mt-5 flex flex-wrap justify-end gap-3">
+      <button type="button" onClick={onClose} className="rounded-xl border border-[var(--border)] bg-white px-5 py-3 text-sm font-black">Cancel</button>
+      <button type="button" onClick={onSave} className="rounded-xl bg-[var(--ink)] px-5 py-3 text-sm font-black text-white">{saveLabel}</button>
     </div>
   );
 }
@@ -6832,31 +7155,33 @@ function ProgramBatchPicker({
   const selectedProgram = programGroups.find((program) => program.key === selectedProgramKey) ?? programGroups[0] ?? null;
 
   return (
-    <div className="mt-5 rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
-      <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold-dark)]">Choose class</p>
-      <div className="mt-3 flex gap-3 overflow-x-auto pb-1">
+    <div className="mt-4 rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-3 sm:p-4">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <p className="text-xs font-black uppercase tracking-[0.24em] text-[var(--gold-dark)]">Choose class</p>
+        {selectedProgram ? <span className="rounded-full bg-white px-3 py-1 text-[11px] font-black text-[var(--muted-blue)]">{selectedProgram.classes.length} batch(es)</span> : null}
+      </div>
+      <div className="mt-3 flex flex-wrap gap-2">
         {programGroups.map((program) => (
           <button
             key={program.key}
             type="button"
             onClick={() => onProgram(program.key)}
-            className={`min-w-40 rounded-2xl border px-4 py-3 text-left ${selectedProgram?.key === program.key ? "border-[var(--ink)] bg-white shadow-sm" : "border-[var(--border)] bg-[var(--page-bg)]"}`}
+            className={`min-h-10 rounded-xl border px-3 py-2 text-left text-sm transition ${selectedProgram?.key === program.key ? "border-[var(--ink)] bg-white shadow-sm" : "border-[var(--border)] bg-white/70 hover:border-[var(--ink)]"}`}
           >
-            <span className="text-xs font-black uppercase tracking-[0.18em] text-[var(--gold-dark)]">Program</span>
-            <span className="mt-2 block font-black">{program.name}</span>
+            <span className="font-black">{program.name}</span>
           </button>
         ))}
       </div>
-      <div className="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+      <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {(selectedProgram?.classes ?? []).map((batch) => (
           <button
             key={batch.id}
             type="button"
             onClick={() => onBatch(batch.id)}
-            className={`rounded-2xl border p-4 text-left ${selectedClassId === batch.id ? "border-[var(--ink)] bg-white shadow-sm" : "border-[var(--border)] bg-white/70"}`}
+            className={`rounded-xl border px-3 py-2 text-left transition ${selectedClassId === batch.id ? "border-[var(--ink)] bg-white shadow-sm ring-1 ring-[var(--ink)]" : "border-[var(--border)] bg-white/75 hover:border-[var(--ink)]"}`}
           >
-            <p className="font-black">{batch.name}</p>
-            <p className="mt-1 text-sm text-[var(--muted-blue)]">{batch.students?.length ?? batch._count?.students ?? 0} students</p>
+            <p className="line-clamp-1 text-sm font-black">{batch.name}</p>
+            <p className="mt-1 text-xs font-bold text-[var(--muted-blue)]">{batch.students?.length ?? batch._count?.students ?? 0} students</p>
           </button>
         ))}
       </div>
