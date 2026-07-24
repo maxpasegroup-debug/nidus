@@ -665,6 +665,21 @@ function mobileCandidates(value: string) {
   return Array.from(candidates).filter(Boolean);
 }
 
+function authSyncedMetadata(metadata: Record<string, unknown>, mobile: string, actorId: string) {
+  const normalizedMobile = normalizeMobile(mobile);
+  return toJsonObject({
+    ...metadata,
+    loginMobile: normalizedMobile,
+    authMobile: normalizedMobile,
+    authSyncedAt: new Date().toISOString(),
+    authSyncedBy: actorId,
+  });
+}
+
+function metadataLoginMobile(metadata: Record<string, unknown>, fallbackMobile: string) {
+  return typeof metadata.loginMobile === "string" && metadata.loginMobile.trim() ? metadata.loginMobile : fallbackMobile;
+}
+
 async function assertMobileAvailable(mobile: string, exceptUserId?: string, required = false) {
   const normalized = normalizeMobile(mobile);
   if (!normalized) {
@@ -678,6 +693,16 @@ async function assertMobileAvailable(mobile: string, exceptUserId?: string, requ
   }
   const existing = await prisma.user.findFirst({ where: { mobile: { in: mobileCandidates(normalized) } }, select: { id: true } });
   if (existing && existing.id !== exceptUserId) {
+    throw Object.assign(new Error("Mobile number is already used for another login"), { statusCode: 409 });
+  }
+  const metadataMatches = await prisma.$queryRaw<Array<{ id: string }>>`
+    SELECT id
+    FROM "User"
+    WHERE "roleMetadata"->>'loginMobile' IN (${Prisma.join(mobileCandidates(normalized))})
+    LIMIT 5
+  `;
+  const conflictingMetadataMatch = metadataMatches.find((match) => match.id !== exceptUserId);
+  if (conflictingMetadataMatch) {
     throw Object.assign(new Error("Mobile number is already used for another login"), { statusCode: 409 });
   }
 }
@@ -1602,20 +1627,25 @@ async function findStudentUserForAdmission(input: StudentInput) {
   const normalizedName = normalizePersonName(input.name);
   if (input.userId) {
     const mobile = normalizeMobile(input.phone);
+    const existing = await prisma.user.findUnique({ where: { id: input.userId }, select: { mobile: true, roleMetadata: true } });
     if (input.phone !== undefined) {
       await assertMobileAvailable(input.phone, input.userId, true);
     }
+    const nextMobile = mobile || existing?.mobile || "";
+    const existingMetadata = (existing?.roleMetadata ?? {}) as Record<string, unknown>;
     return prisma.user.update({
       where: { id: input.userId },
       data: {
         name: normalizedName || undefined,
         mobile: mobile || undefined,
+        mobileVerified: mobile ? true : undefined,
         role: Role.STUDENT,
         roleOnboardingStatus: "ACTIVE",
         roleActivatedAt: new Date(),
         isDisabled: false,
         lockedUntil: null,
         loginFailureCount: 0,
+        roleMetadata: nextMobile ? authSyncedMetadata(existingMetadata, nextMobile, input.userId) : undefined,
       },
     });
   }
@@ -1649,6 +1679,7 @@ async function findStudentUserForAdmission(input: StudentInput) {
         name: normalizedName || `Student ${mobile.slice(-4)}`,
         email: generatedEmail,
         mobile,
+        mobileVerified: true,
         role: Role.STUDENT,
         password,
         roleOnboardingStatus: "ACTIVE",
@@ -1658,10 +1689,12 @@ async function findStudentUserForAdmission(input: StudentInput) {
         loginFailureCount: 0,
         roleMetadata: toJsonObject({
           loginMobile: mobile,
+          authMobile: mobile,
           defaultPassword: true,
           defaultPin: true,
           accessPin: defaultPin,
           oldAdmissionImport: true,
+          authSyncedAt: new Date().toISOString(),
           credentialGeneratedAt: new Date().toISOString(),
         }),
       },
@@ -1677,12 +1710,14 @@ async function findStudentUserForAdmission(input: StudentInput) {
     data: {
       name: normalizedName || normalizePersonName(existing.name) || existing.name,
       mobile: mobile || existing.mobile,
+      mobileVerified: Boolean(mobile) || undefined,
       role: Role.STUDENT,
       roleOnboardingStatus: "ACTIVE",
       roleActivatedAt: new Date(),
       isDisabled: false,
       lockedUntil: null,
       loginFailureCount: 0,
+      roleMetadata: authSyncedMetadata((existing.roleMetadata ?? {}) as Record<string, unknown>, mobile || existing.mobile, existing.id),
     },
   });
 }
@@ -1825,6 +1860,7 @@ export const academyService = {
       name: input.name === undefined ? undefined : normalizePersonName(input.name),
       email: input.email === undefined ? undefined : normalizedNextEmail,
       mobile: input.phone === undefined ? undefined : normalizedNextMobile,
+      mobileVerified: input.phone === undefined ? undefined : true,
       role: Role.STUDENT,
       roleOnboardingStatus: "ACTIVE",
       roleActivatedAt: new Date(),
@@ -1832,12 +1868,11 @@ export const academyService = {
       disabledAt: null,
       loginFailureCount: 0,
       lockedUntil: null,
-      roleMetadata: toJsonObject({
+      roleMetadata: authSyncedMetadata({
         ...existingMetadata,
-        loginMobile: input.phone === undefined ? existingMetadata.loginMobile ?? student.mobile : normalizedNextMobile,
         profileUpdatedBy: user.id,
         profileUpdatedAt: new Date().toISOString(),
-      }),
+      }, input.phone === undefined ? normalizeMobile(metadataLoginMobile(existingMetadata, student.mobile)) : normalizedNextMobile, user.id),
     };
 
     const nextPin = input.pin?.trim() || input.password?.trim() || "";
@@ -3105,10 +3140,13 @@ export const academyService = {
       dashboardTemplate: input.dashboardTemplate || (input.designation?.toLowerCase().includes("academic head") ? "ACADEMIC_HEAD" : null),
       status: "ACTIVE",
       loginMobile: normalizeMobile(input.phone),
+      authMobile: normalizeMobile(input.phone),
       defaultPassword: true,
       defaultPin: true,
       accessPin: temporaryPassword,
       createdBy: user.id,
+      authSyncedAt: new Date().toISOString(),
+      authSyncedBy: user.id,
       credentialGeneratedAt: new Date().toISOString(),
     });
 
@@ -3117,6 +3155,7 @@ export const academyService = {
         name: input.name,
         email: normalizeEmail(input.email),
         mobile: normalizeMobile(input.phone),
+        mobileVerified: true,
         role,
         password,
         roleMetadata,
@@ -3160,7 +3199,7 @@ export const academyService = {
       dashboardTemplate: input.dashboardTemplate,
       designation: input.designation,
     });
-    const roleMetadata = toJsonObject({
+    const roleMetadata = authSyncedMetadata({
       ...existingMetadata,
       designation: input.designation ?? existingMetadata.designation ?? null,
       department: input.department ?? existingMetadata.department ?? null,
@@ -3169,14 +3208,14 @@ export const academyService = {
       subjects: input.subjects ?? existingMetadata.subjects ?? [],
       dashboardTemplate: input.dashboardTemplate ?? existingMetadata.dashboardTemplate ?? null,
       status: input.status ?? existingMetadata.status ?? "ACTIVE",
-      loginMobile: normalizedNextMobile,
       updatedBy: user.id,
       updatedAt: new Date().toISOString(),
-    });
+    }, normalizedNextMobile, user.id);
     const updateData: Prisma.UserUpdateInput = {
       name: input.name,
       email: input.email === undefined ? undefined : normalizedNextEmail,
       mobile: input.phone === undefined ? undefined : normalizedNextMobile,
+      mobileVerified: input.phone === undefined ? undefined : true,
       role,
       roleMetadata,
     };
@@ -3215,6 +3254,7 @@ export const academyService = {
         authSyncedAt: new Date().toISOString(),
         authSyncedBy: user.id,
         loginMobile: normalizedNextMobile,
+        authMobile: normalizedNextMobile,
       });
     }
 
@@ -3273,14 +3313,14 @@ export const academyService = {
         disabledAt: null,
         loginFailureCount: 0,
         lockedUntil: null,
-        roleMetadata: toJsonObject({
+        mobileVerified: true,
+        roleMetadata: authSyncedMetadata({
           ...pinMetadata,
-          loginMobile: normalizeMobile(employee.mobile),
           pinResetBy: user.id,
           pinResetAt: new Date().toISOString(),
           passwordResetBy: user.id,
           passwordResetAt: new Date().toISOString(),
-        }),
+        }, employee.mobile, user.id),
       },
       select: {
         id: true,

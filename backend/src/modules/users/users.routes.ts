@@ -2,7 +2,7 @@ import { Router } from "express";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { prisma } from "../../config/prisma.js";
-import { Role } from "../../generated/prisma/client.js";
+import { Prisma, Role } from "../../generated/prisma/client.js";
 import { allowRoles, protect } from "../../middlewares/session.middleware.js";
 import { DEFAULT_ACCOUNT_PIN } from "../auth/auth.v2.service.js";
 
@@ -84,6 +84,16 @@ usersRouter.post("/", async (req, res, next) => {
       res.status(409).json({ message: "Email or mobile already registered" });
       return;
     }
+    const metadataMatches = await prisma.$queryRaw<Array<{ id: string }>>`
+      SELECT id
+      FROM "User"
+      WHERE "roleMetadata"->>'loginMobile' IN (${Prisma.join(mobileCandidates(mobile))})
+      LIMIT 1
+    `;
+    if (metadataMatches.length) {
+      res.status(409).json({ message: "Email or mobile already registered" });
+      return;
+    }
 
     const hashedPassword = await bcrypt.hash(DEFAULT_ACCOUNT_PIN, 12);
     const user = await prisma.user.create({
@@ -93,11 +103,11 @@ usersRouter.post("/", async (req, res, next) => {
         mobile,
         password: hashedPassword,
         emailVerified: true,
-        mobileVerified: false,
+        mobileVerified: true,
         roleOnboardingStatus: "ACTIVE",
         roleActivatedAt: new Date(),
         lastRoleActivityAt: new Date(),
-        roleMetadata: { loginMobile: mobile, defaultPassword: true, defaultPin: true, accessPin: DEFAULT_ACCOUNT_PIN, createdByAdmin: true }
+        roleMetadata: { loginMobile: mobile, authMobile: mobile, defaultPassword: true, defaultPin: true, accessPin: DEFAULT_ACCOUNT_PIN, createdByAdmin: true, authSyncedAt: new Date().toISOString() }
       },
       select: {
         id: true,
@@ -139,7 +149,8 @@ usersRouter.post("/:id/reset-password", async (req, res, next) => {
         disabledAt: null,
         loginFailureCount: 0,
         lockedUntil: null,
-        roleMetadata: { ...metadataObject(user.roleMetadata), loginMobile: normalizeMobile(user.mobile), defaultPassword: true, defaultPin: true, accessPin: DEFAULT_ACCOUNT_PIN, pinResetByAdminAt: new Date().toISOString(), passwordResetByAdminAt: new Date().toISOString() }
+        mobileVerified: true,
+        roleMetadata: { ...metadataObject(user.roleMetadata), loginMobile: normalizeMobile(user.mobile), authMobile: normalizeMobile(user.mobile), defaultPassword: true, defaultPin: true, accessPin: DEFAULT_ACCOUNT_PIN, authSyncedAt: new Date().toISOString(), pinResetByAdminAt: new Date().toISOString(), passwordResetByAdminAt: new Date().toISOString() }
       }
     });
     await prisma.sessionToken.deleteMany({ where: { userId: user.id } });
