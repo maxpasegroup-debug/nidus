@@ -1483,18 +1483,6 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
     };
   }, [activeClasses, classWorkspace.attendance, classWorkspace.assignments, classWorkspace.exams, todayOperations]);
   const todaysAttendanceClasses = todayOperations.filter((item) => item.batchId);
-  const attendanceAbsentCount = selectedStudents.filter((entry, index) => (attendance[studentId(entry, index)] ?? "PRESENT") === "ABSENT").length;
-  const attendanceLeaveCount = selectedStudents.filter((entry, index) => (attendance[studentId(entry, index)] ?? "PRESENT") === "LEAVE").length;
-  const attendanceHalfDayCount = selectedStudents.filter((entry, index) => (attendance[studentId(entry, index)] ?? "PRESENT") === "HALF_DAY").length;
-  const attendancePresentCount = Math.max(0, selectedStudents.length - attendanceAbsentCount - attendanceLeaveCount - attendanceHalfDayCount);
-  const selectedAttendanceRate = selectedStudents.length ? Math.round((attendancePresentCount / selectedStudents.length) * 100) : 0;
-  const lowAttendanceStudents = selectedStudents
-    .map((entry, index) => {
-      const metrics = studentProgressMetrics(entry.student, classWorkspace, selectedStudents.length);
-      return { entry, index, attendance: metrics.attendance };
-    })
-    .filter((item) => item.attendance > 0 && item.attendance < 75)
-    .slice(0, 6);
   const teacherOperations = useMemo(() => {
     const map = new Map<string, {
       id: string;
@@ -3395,197 +3383,6 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
         />
       ) : null}
 
-      {false ? <section className="grid gap-5">
-        <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div className="flex items-start gap-4">
-              <span className="grid h-12 w-12 place-items-center rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] text-[var(--ink)]">
-                <ClipboardCheck size={22} />
-              </span>
-              <div>
-                <p className="text-xs font-black uppercase tracking-[0.35em] text-[var(--gold-dark)]">Attendance V3</p>
-                <h2 className="mt-2 text-3xl font-black">{isAcademicHead ? "Attendance overview." : "Mark absentees only."}</h2>
-                <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--muted-blue)]">
-                  {isAcademicHead ? "Monitor batch attendance, pending entries and low attendance students without entering records." : "All students are present by default. Tap only the absent students, then save attendance."}
-                </p>
-              </div>
-            </div>
-            <div className="grid grid-cols-3 gap-2 text-center text-xs font-black">
-              <span className="rounded-xl bg-emerald-50 px-4 py-3 text-emerald-700">Present {attendancePresentCount}</span>
-              <span className="rounded-xl bg-rose-50 px-4 py-3 text-rose-700">Absent {attendanceAbsentCount}</span>
-              <span className="rounded-xl bg-[var(--page-bg)] px-4 py-3 text-[var(--ink)]">{selectedAttendanceRate}%</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
-          <div className="flex flex-wrap items-end justify-between gap-3">
-            <div>
-              <p className="text-xs font-black uppercase tracking-[0.3em] text-[var(--gold-dark)]">Today's Classes</p>
-              <h3 className="mt-2 text-2xl font-black">{isAcademicHead ? "Attendance monitoring" : "Open a class and mark absentees"}</h3>
-            </div>
-            <span className="rounded-full border border-[var(--border)] bg-[var(--page-bg)] px-4 py-2 text-xs font-black">{todaysAttendanceClasses.length || activeClasses.length} class(es)</span>
-          </div>
-          <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-            {(todaysAttendanceClasses.length ? todaysAttendanceClasses : activeClasses.map((batch) => ({
-              id: `batch-${batch.id}`,
-              batchId: batch.id,
-              time: "Today",
-              batchName: batch.name,
-              programName: programName(batch),
-              subject: batch.subject || subjectsForBatch(batch)[0] || "Subject",
-              topic: "Attendance",
-              teacherName: teacherNameForBatch(batch),
-              status: "Upcoming",
-            }))).map((item) => {
-              const batch = activeClasses.find((entry) => entry.id === item.batchId);
-              const studentCount = batch?._count?.students ?? batch?.students?.length ?? 0;
-              const active = selectedClass?.id === item.batchId;
-              return (
-                <button
-                  key={item.id}
-                  type="button"
-                  onClick={() => {
-                    if (item.batchId) chooseBatch(item.batchId);
-                    setAttendanceDate(todayDate());
-                    resetAttendance();
-                  }}
-                  className={`min-h-44 rounded-2xl border p-5 text-left shadow-sm transition hover:-translate-y-0.5 ${active ? "border-slate-950 bg-slate-950 text-white" : "border-[var(--border)] bg-[var(--page-bg)] text-[var(--ink)]"}`}
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <p className={`text-xs font-black uppercase tracking-[0.24em] ${active ? "text-[#e7c873]" : "text-[var(--gold-dark)]"}`}>{item.time}</p>
-                    <span className="rounded-full border border-current/20 px-3 py-1 text-xs font-black">{item.status}</span>
-                  </div>
-                  <h3 className="mt-3 text-xl font-black">{item.batchName}</h3>
-                  <p className={`mt-2 text-sm ${active ? "text-white/75" : "text-[var(--muted-blue)]"}`}>{item.programName} / {item.subject}</p>
-                  <p className={`mt-1 text-sm ${active ? "text-white/75" : "text-[var(--muted-blue)]"}`}>Teacher: {item.teacherName}</p>
-                  <div className="mt-4 flex flex-wrap gap-2 text-xs font-black">
-                    <span className="rounded-full border border-current/20 px-3 py-1">{studentCount} students</span>
-                    <span className="rounded-full border border-current/20 px-3 py-1">{isAcademicHead ? "View Attendance" : "Mark Attendance"}</span>
-                  </div>
-                </button>
-              );
-            })}
-            {!activeClasses.length ? <EmptyState text="No assigned classes are available for attendance yet." /> : null}
-          </div>
-        </div>
-
-        {isAcademicHead ? (
-          <div className="grid gap-5 xl:grid-cols-[1.2fr_0.8fr]">
-            <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
-              <SectionHeader eyebrow="Academic Head" title="Batch attendance overview" description="Real attendance data appears as teachers save class records." icon={<BarChart3 size={20} />} />
-              <div className="mt-4 grid gap-3 md:grid-cols-2">
-                {activeClasses.map((batch) => {
-                  const isCurrent = selectedClass?.id === batch.id;
-                  const rate = isCurrent && selectedStudents.length ? selectedAttendanceRate : null;
-                  const status = rate === null ? "Data pending" : rate >= 85 ? "Healthy" : rate >= 75 ? "Attention Needed" : "Critical";
-                  return (
-                    <button key={batch.id} type="button" onClick={() => chooseBatch(batch.id)} className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4 text-left">
-                      <p className="text-xs font-black uppercase tracking-[0.22em] text-[var(--gold-dark)]">{programName(batch)}</p>
-                      <h3 className="mt-2 text-lg font-black">{batch.name}</h3>
-                      <div className="mt-3 flex flex-wrap gap-2 text-xs font-black">
-                        <span className="rounded-full bg-white px-3 py-1">Attendance {rate === null ? "pending" : `${rate}%`}</span>
-                        <span className={`rounded-full px-3 py-1 ${status === "Healthy" ? "bg-emerald-50 text-emerald-700" : status === "Critical" ? "bg-rose-50 text-rose-700" : "bg-amber-50 text-amber-700"}`}>{status}</span>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-            <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
-              <SectionHeader eyebrow="Alerts" title="Students below 75%" description="Low attendance students from the selected batch." icon={<Bell size={20} />} />
-              <div className="mt-4 grid gap-3">
-                {lowAttendanceStudents.map(({ entry, index, attendance: studentAttendance }) => (
-                  <button key={studentId(entry, index)} type="button" onClick={() => setStudentModalId(studentId(entry, index))} className="rounded-xl border border-[var(--border)] bg-[var(--page-bg)] p-3 text-left">
-                    <p className="font-black">{entry.student?.name || entry.student?.email || "Student"}</p>
-                    <p className="mt-1 text-sm text-[var(--muted-blue)]">{selectedClass?.name || "Batch"} / {studentAttendance}% attendance</p>
-                  </button>
-                ))}
-                {!lowAttendanceStudents.length ? <EmptyState text="No low-attendance students found in the selected batch." /> : null}
-              </div>
-            </div>
-          </div>
-        ) : (
-          <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
-            <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-              <div>
-                <p className="text-xs font-black uppercase tracking-[0.3em] text-[var(--gold-dark)]">Attendance Entry</p>
-                <h3 className="mt-2 text-3xl font-black">{selectedClass?.name || "Select class"}</h3>
-                <p className="mt-2 text-sm text-[var(--muted-blue)]">{selectedProgram?.name || "Program"} / {selectedClass?.subject || subjectsForBatch(selectedClass)[0] || "Subject"} / Date {attendanceDate}</p>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                <Input label="Date" type="date" value={attendanceDate} onChange={setAttendanceDate} />
-                <button type="button" onClick={() => setAllAttendance("PRESENT")} className="min-h-12 rounded-xl bg-emerald-700 px-4 py-3 text-sm font-black text-white">Mark All Present</button>
-                <button type="button" onClick={() => setAllAttendance("ABSENT")} className="min-h-12 rounded-xl bg-rose-700 px-4 py-3 text-sm font-black text-white">Mark All Absent</button>
-                <button type="button" onClick={resetAttendance} className="min-h-12 rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-sm font-black">Reset</button>
-                <button type="button" onClick={() => void saveAttendance()} className="min-h-12 rounded-xl border border-slate-950 bg-slate-950 px-5 py-3 text-sm font-black text-white">Save Attendance</button>
-              </div>
-            </div>
-            {attendanceMessage ? <Notice text={attendanceMessage || ""} /> : null}
-            <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-              {selectedStudents.map((entry, index) => {
-                const id = studentId(entry, index);
-                const current = attendance[id] ?? "PRESENT";
-                const absent = current === "ABSENT";
-                return (
-                  <button
-                    key={id}
-                    type="button"
-                    onClick={() => toggleAbsence(id)}
-                    className={`min-h-20 rounded-2xl border p-4 text-left shadow-sm transition active:scale-[0.99] ${absent ? "border-rose-300 bg-rose-50 text-rose-800" : "border-emerald-200 bg-emerald-50 text-emerald-800"}`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-full text-lg font-black ${absent ? "bg-rose-700 text-white" : "bg-emerald-700 text-white"}`}>{absent ? "x" : "✓"}</span>
-                      <div>
-                        <h3 className="font-black">{entry.student?.name || entry.student?.email || "Student"}</h3>
-                        <p className="mt-1 text-xs font-black">{absent ? "Absent" : "Present"}</p>
-                      </div>
-                    </div>
-                  </button>
-                );
-              })}
-              {!selectedStudents.length ? <EmptyState text="No students are assigned to this batch yet." /> : null}
-            </div>
-            <details className="mt-5 rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4">
-              <summary className="cursor-pointer text-sm font-black">Absent student comments</summary>
-              <div className="mt-4 grid gap-3 md:grid-cols-2">
-                {selectedStudents.map((entry, index) => {
-                  const id = studentId(entry, index);
-                  if ((attendance[id] ?? "PRESENT") !== "ABSENT") return null;
-                  return (
-                    <label key={id} className="grid gap-2 text-sm font-black">
-                      {entry.student?.name || entry.student?.email || "Student"}
-                      <input value={attendanceComments[id] ?? ""} onChange={(event) => setAttendanceComments((value) => ({ ...value, [id]: event.target.value }))} placeholder="Optional reason or note" className="rounded-xl border border-[var(--border)] bg-white px-3 py-3 text-sm font-normal" />
-                    </label>
-                  );
-                })}
-                {!attendanceAbsentCount ? <p className="text-sm text-[var(--muted-blue)]">No absentees selected.</p> : null}
-              </div>
-            </details>
-          </div>
-        )}
-
-        {modalStudent ? (
-          <StudentProgressModal
-            student={modalStudent!}
-            batchId={selectedClass?.id ?? ""}
-            programName={selectedProgram?.name ?? "Program"}
-            batchName={selectedClass?.name ?? "Batch"}
-            subjects={subjectsForBatch(selectedClass)}
-            attendance={modalStudentAttendance}
-            attendancePercent={modalAttendancePercent}
-            assignments={classWorkspace.assignments}
-            materials={classWorkspace.materials}
-            exams={classWorkspace.exams}
-            examResults={studentExamResults}
-            examResultsLoading={studentExamResultsLoading}
-            progress={classWorkspace.progress}
-            onMarkAttendance={markRosterAttendance}
-            onClose={() => setStudentModalId(null)}
-          />
-        ) : null}
-      </section> : null}
-
       {view === "library" ? <section className="grid gap-4">
         <div className="rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
@@ -4876,6 +4673,9 @@ function AttendanceWorkspace({
         subject: batch.subject || subjectsForBatch(batch)[0] || "Subject",
         teacherName: facultyName,
       }));
+  const selectedChoice = selectedClass
+    ? classChoices.find((item) => item.batchId === selectedClass.id)
+    : null;
   useEffect(() => {
     if (!registerOpen) return;
     registerRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -4932,6 +4732,15 @@ function AttendanceWorkspace({
               })}
               {!classChoices.length ? <EmptyState text="No assigned classes are available for attendance yet." /> : null}
             </div>
+            {registerOpen && selectedClass ? (
+              <div className="mt-3 flex flex-col gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-900 sm:flex-row sm:items-center sm:justify-between">
+                <span>
+                  Selected: <strong>{selectedClass.name}</strong>
+                  {selectedChoice?.subject ? ` / ${selectedChoice.subject}` : ""}
+                </span>
+                <span className="text-xs font-black uppercase tracking-[0.14em]">Register opened below</span>
+              </div>
+            ) : null}
             {!todayClasses.length && !!classChoices.length ? <p className="mt-3 rounded-xl bg-amber-50 px-4 py-3 text-sm font-bold text-amber-900">No calendar class is scheduled today, so assigned batches are shown for manual attendance.</p> : null}
           </div>
 

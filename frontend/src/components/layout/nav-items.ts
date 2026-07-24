@@ -33,14 +33,14 @@ const parentMenu: DashboardNavItem[] = [
 
 const teacherMenu: DashboardNavItem[] = [
   { label: "Today", href: "/dashboard/teacher" },
-  { label: "Classes", href: "/dashboard/teacher/classes" },
+  { label: "Classes", href: "/dashboard/teacher/my-classes" },
   { label: "Attendance", href: "/dashboard/teacher/attendance" },
   { label: "Assignments", href: "/dashboard/teacher/assignments" },
   { label: "Exams", href: "/dashboard/teacher/exams" },
   { label: "Students", href: "/dashboard/teacher/students" },
   { label: "NDP", href: "/dashboard/teacher/ndp" },
   { label: "Resources", href: "/dashboard/teacher/library" },
-  { label: "Profile", href: "/dashboard/settings" },
+  { label: "Profile", href: "/dashboard/teacher/profile" },
 ];
 
 const videoEditorMenu: DashboardNavItem[] = [
