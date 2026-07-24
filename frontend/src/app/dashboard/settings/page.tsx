@@ -125,8 +125,11 @@ export default function DashboardSettingsPage() {
   const router = useRouter();
   const { showToast } = useToast();
   const { user, refreshUser } = useAuth();
-  const metadata = useMemo(() => user?.roleMetadata && typeof user.roleMetadata === "object" ? user.roleMetadata : {}, [user?.roleMetadata]);
-  const progress = metadata.teacherProgress && typeof metadata.teacherProgress === "object" && !Array.isArray(metadata.teacherProgress) ? metadata.teacherProgress as Record<string, unknown> : {};
+  const metadata = useMemo(() => user?.roleMetadata && typeof user.roleMetadata === "object" ? user.roleMetadata : {}, [user]);
+  const progress = useMemo(
+    () => metadata.teacherProgress && typeof metadata.teacherProgress === "object" && !Array.isArray(metadata.teacherProgress) ? metadata.teacherProgress as Record<string, unknown> : {},
+    [metadata]
+  );
   const [profile, setProfile] = useState<ProfileUpdatePayload>({
     name: "",
     email: "",
