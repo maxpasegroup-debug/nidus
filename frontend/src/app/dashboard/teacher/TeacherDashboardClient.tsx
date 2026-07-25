@@ -52,6 +52,7 @@ type AssignedClass = {
   name: string;
   batchType?: string | null;
   subject?: string | null;
+  subjects?: string[] | string | null;
   assignedSubjects?: string[];
   role?: string | null;
   status?: string | null;
@@ -648,20 +649,24 @@ function subjectsForBatch(batch: AssignedClass | null) {
       .filter(Boolean)
       .forEach((item) => subjects.add(item));
   };
+  const addSubjects = (value?: string[] | string | null) => {
+    if (Array.isArray(value)) {
+      for (const item of value) addSubject(item);
+      return;
+    }
+    addSubject(value);
+  };
   for (const subject of batch.assignedSubjects ?? []) {
     addSubject(subject);
   }
-  if (!subjects.size && batch.subject) addSubject(batch.subject);
-  if (!subjects.size) {
-    for (const teacher of batch.teachers ?? []) {
-      addSubject(teacher.subject);
-    }
+  addSubjects(batch.subjects);
+  addSubject(batch.subject);
+  for (const teacher of batch.teachers ?? []) {
+    addSubject(teacher.subject);
   }
-  const fromSchedule = (batch as AssignedClass & { schedule?: { subjects?: string[] } | null }).schedule?.subjects;
-  if (!subjects.size && Array.isArray(fromSchedule)) {
-    for (const subject of fromSchedule) {
-      addSubject(subject);
-    }
+  const schedule = (batch as AssignedClass & { schedule?: { subjects?: string[] | string } | null }).schedule;
+  if (schedule && typeof schedule === "object" && !Array.isArray(schedule)) {
+    addSubjects(schedule.subjects);
   }
   return Array.from(subjects).filter(Boolean).length ? Array.from(subjects).filter(Boolean) : ["General"];
 }
