@@ -43,9 +43,20 @@ function metric(value: number | null | undefined, suffix = "%") {
   return typeof value === "number" ? `${value}${suffix}` : "No data";
 }
 
+const emptyBatches: AcademyBatch[] = [];
+
+function batchCourseKey(batch: AcademyBatch) {
+  return batch.course?.slug || batch.programSlug || batch.course?.title || "general";
+}
+
+function batchCourseLabel(batch: AcademyBatch) {
+  return batch.course?.title || batch.programSlug || "General Course";
+}
+
 export default function StudentsByClassWorkspace({ audience, embedded = false }: Props) {
   const queryClient = useQueryClient();
   const [activeBatchId, setActiveBatchId] = useState("");
+  const [activeCourseKey, setActiveCourseKey] = useState("");
   const [search, setSearch] = useState("");
   const [visiblePins, setVisiblePins] = useState<Record<string, boolean>>({});
   const [selectedStudentId, setSelectedStudentId] = useState("");
@@ -54,11 +65,24 @@ export default function StudentsByClassWorkspace({ audience, embedded = false }:
   const [successMessage, setSuccessMessage] = useState("");
   const batchesQuery = useQuery({ queryKey: ["academy", "batches", "students-workspace"], queryFn: () => getAcademyBatches() });
   const progressQuery = useQuery({ queryKey: ["academy", "student-progress-summary"], queryFn: getStudentProgressSummary });
-  const batches = batchesQuery.data ?? [];
+  const batches = batchesQuery.data ?? emptyBatches;
   const progressByBatch = useMemo(
     () => new Map((progressQuery.data?.batches ?? []).map((batch) => [batch.batchId, batch])),
     [progressQuery.data?.batches],
   );
+  const courseGroups = useMemo(() => {
+    const map = new Map<string, { key: string; label: string; batches: AcademyBatch[]; students: number }>();
+    for (const batch of batches) {
+      const key = batchCourseKey(batch);
+      const current = map.get(key) ?? { key, label: batchCourseLabel(batch), batches: [], students: 0 };
+      current.batches.push(batch);
+      current.students += batch._count?.students ?? batch.students?.length ?? 0;
+      map.set(key, current);
+    }
+    return Array.from(map.values()).sort((first, second) => first.label.localeCompare(second.label));
+  }, [batches]);
+  const activeCourse = courseGroups.find((course) => course.key === activeCourseKey) ?? courseGroups[0] ?? null;
+  const visibleBatches = activeCourse?.batches ?? batches;
   const selectedBatch = batches.find((batch) => batch.id === activeBatchId) ?? batches[0] ?? null;
   const selectedHealth = selectedBatch ? progressByBatch.get(selectedBatch.id) : null;
   const normalizedSearch = search.trim().toLowerCase();
@@ -106,6 +130,16 @@ export default function StudentsByClassWorkspace({ audience, embedded = false }:
   });
 
   useEffect(() => {
+    if (!courseGroups.length) return;
+    setActiveCourseKey((current) => current && courseGroups.some((course) => course.key === current) ? current : courseGroups[0].key);
+  }, [courseGroups]);
+
+  useEffect(() => {
+    if (!visibleBatches.length) return;
+    setActiveBatchId((current) => current && visibleBatches.some((batch) => batch.id === current) ? current : visibleBatches[0].id);
+  }, [visibleBatches]);
+
+  useEffect(() => {
     if (!selectedEntry) return;
     setDraft({
       name: selectedEntry.student.name || "",
@@ -137,36 +171,56 @@ export default function StudentsByClassWorkspace({ audience, embedded = false }:
         <StatCard label="Risk Students" value={(progressQuery.data?.batches ?? []).reduce((sum, batch) => sum + batch.riskStudentCount, 0)} />
       </section>
 
-      <Panel title="Classes" eyebrow="Select a class">
+      <Panel title="Courses and batches" eyebrow="Select course then batch">
         {batchesQuery.isLoading ? <EmptyState text="Loading classes..." /> : null}
         {!batchesQuery.isLoading && !batches.length ? <EmptyState text="No active classes are available yet. Students will appear here after they are enrolled in a batch." /> : null}
-        <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-4">
-          {batches.map((batch) => {
-            const health = progressByBatch.get(batch.id);
-            const selected = selectedBatch?.id === batch.id;
-            return (
+        <div className="grid gap-4 xl:grid-cols-[260px_1fr]">
+          <div className="grid gap-2 content-start">
+            {courseGroups.map((course) => (
               <button
-                key={batch.id}
+                key={course.key}
                 type="button"
-                onClick={() => setActiveBatchId(batch.id)}
-                className={`rounded-xl border bg-white p-3 text-left shadow-sm transition hover:border-[var(--gold-border)] ${selected ? "border-[var(--gold-border)] bg-[var(--gold-soft)] ring-1 ring-[var(--gold-border)]" : "border-[var(--border)]"}`}
+                onClick={() => {
+                  setActiveCourseKey(course.key);
+                  setActiveBatchId(course.batches[0]?.id ?? "");
+                }}
+                className={`rounded-xl border px-3 py-3 text-left transition ${activeCourse?.key === course.key ? "border-[var(--gold-border)] bg-[var(--gold-soft)] shadow-sm" : "border-[var(--border)] bg-white hover:border-[var(--gold-border)]"}`}
               >
-                <div className="flex items-start justify-between gap-2">
-                  <div className="min-w-0">
-                    <p className="truncate text-[10px] font-black uppercase tracking-[0.16em] text-[var(--gold)]">{batch.programSlug || batch.course?.slug || "Program"}</p>
-                    <h3 className="mt-1 line-clamp-2 text-base font-black leading-tight">{batch.name}</h3>
-                    <p className="mt-1 truncate text-xs text-[var(--muted-blue)]">{batch.batchType || batch.course?.title || "Batch"}</p>
-                  </div>
-                  <AcademicPill>{selected ? "Open" : health?.overallStatus ?? batch.status}</AcademicPill>
-                </div>
-                <div className="mt-2 grid grid-cols-3 gap-1.5 text-xs">
-                  <ClassMetric icon={Users} label="Students" value={batch._count?.students ?? batch.students?.length ?? 0} />
-                  <ClassMetric icon={ShieldCheck} label="Attendance" value={metric(health?.attendancePercentage)} />
-                  <ClassMetric icon={FileBarChart2} label="Health" value={metric(health?.batchHealthScore)} />
-                </div>
+                <p className="truncate text-sm font-black text-[var(--navy)]">{course.label}</p>
+                <p className="mt-1 text-xs font-bold text-[var(--muted-blue)]">{course.batches.length} batch{course.batches.length === 1 ? "" : "es"} / {course.students} students</p>
               </button>
-            );
-          })}
+            ))}
+          </div>
+
+          <div className="min-w-0">
+            <div className="grid gap-2 md:grid-cols-2 2xl:grid-cols-3">
+              {visibleBatches.map((batch) => {
+                const health = progressByBatch.get(batch.id);
+                const selected = selectedBatch?.id === batch.id;
+                return (
+                  <button
+                    key={batch.id}
+                    type="button"
+                    onClick={() => setActiveBatchId(batch.id)}
+                    className={`rounded-xl border p-3 text-left transition hover:border-[var(--gold-border)] ${selected ? "border-[var(--gold-border)] bg-[var(--gold-soft)] shadow-sm" : "border-[var(--border)] bg-white"}`}
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="truncate text-[10px] font-black uppercase tracking-[0.16em] text-[var(--gold)]">{batch.batchType || "Batch"}</p>
+                        <h3 className="mt-1 truncate text-base font-black leading-tight">{batch.name}</h3>
+                      </div>
+                      <AcademicPill>{selected ? "Open" : health?.overallStatus ?? batch.status}</AcademicPill>
+                    </div>
+                    <div className="mt-3 grid grid-cols-3 gap-1.5">
+                      <ClassMetric icon={Users} label="Students" value={batch._count?.students ?? batch.students?.length ?? 0} />
+                      <ClassMetric icon={ShieldCheck} label="Attendance" value={metric(health?.attendancePercentage)} />
+                      <ClassMetric icon={FileBarChart2} label="Health" value={metric(health?.batchHealthScore)} />
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
         </div>
       </Panel>
 
