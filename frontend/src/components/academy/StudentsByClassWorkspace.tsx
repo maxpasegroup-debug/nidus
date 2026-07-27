@@ -58,6 +58,29 @@ function batchStudentCount(batch: AcademyBatch) {
   return batch._count?.students ?? batch.students?.length ?? 0;
 }
 
+function rollBatchCode(batch?: Pick<AcademyBatch, "batchType" | "name" | "programSlug"> | null) {
+  const source = [batch?.name, batch?.batchType, batch?.programSlug].filter(Boolean).join(" ").toUpperCase();
+  const seen = new Set<string>();
+  const tokens = (source.match(/[A-Z0-9]+/g) ?? ["NIDUS"])
+    .map((token) => {
+      if (/^20\d{2}$/.test(token)) return token.slice(-2);
+      if (token === "OFFLINE") return "OFF";
+      if (token === "ONLINE") return "ONL";
+      return token;
+    })
+    .filter((token) => {
+      if (seen.has(token)) return false;
+      seen.add(token);
+      return true;
+    });
+  return tokens.slice(0, 4).join("-") || "NIDUS";
+}
+
+function nextAutoRollNumber(batch?: AcademyBatch | null) {
+  if (!batch) return "";
+  return `${rollBatchCode(batch)}-${String(batchStudentCount(batch) + 1).padStart(3, "0")}`;
+}
+
 function studentSearchText(entry: BatchStudentEntry) {
   const student = entry.student;
   return [student.name, student.email, student.mobile, loginMobile(student), student.rollNumber, entry.remarks].filter(Boolean).join(" ").toLowerCase();
@@ -82,6 +105,7 @@ export default function StudentsByClassWorkspace({ audience, embedded = false }:
   const batchesQuery = useQuery({ queryKey: ["academy", "batches", "students-workspace"], queryFn: () => getAcademyBatches() });
   const batches = (batchesQuery.data ?? emptyBatches).filter((batch) => batch.status !== "ARCHIVED");
   const activeBatch = batches.find((batch) => batch.id === activeBatchId) ?? batches[0] ?? null;
+  const nextRollNumber = nextAutoRollNumber(activeBatch);
   const selectedEntry = activeBatch?.students?.find((entry) => entry.student.id === selectedStudentId) ?? null;
   const selectedStudent = selectedEntry?.student ?? null;
 
@@ -296,7 +320,14 @@ export default function StudentsByClassWorkspace({ audience, embedded = false }:
               <Field label="Name" value={addForm.name} onChange={(value) => setAddForm((current) => ({ ...current, name: value }))} icon={UserRound} required />
               <Field label="Mobile" value={addForm.phone} onChange={(value) => setAddForm((current) => ({ ...current, phone: value.replace(/[^\d+]/g, "") }))} icon={Phone} required />
               <Field label="Email" value={addForm.email} onChange={(value) => setAddForm((current) => ({ ...current, email: value }))} icon={Mail} />
-              <Field label="Roll number" value={addForm.rollNumber} onChange={(value) => setAddForm((current) => ({ ...current, rollNumber: value.toUpperCase() }))} icon={BookOpen} />
+              <Field
+                label="Roll number override"
+                value={addForm.rollNumber}
+                onChange={(value) => setAddForm((current) => ({ ...current, rollNumber: value.toUpperCase() }))}
+                icon={BookOpen}
+                placeholder={nextRollNumber ? `Auto: ${nextRollNumber}` : "Auto-generated if blank"}
+                helpText={nextRollNumber ? `Leave blank to assign ${nextRollNumber}.` : "Leave blank to auto-generate after selecting a batch."}
+              />
               <button disabled={addMutation.isPending} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[var(--navy)] px-4 text-sm font-black text-white disabled:opacity-60">
                 <Plus className="h-4 w-4" />
                 {addMutation.isPending ? "Adding..." : "Add to Batch"}
@@ -367,6 +398,7 @@ function Field({
   placeholder,
   required,
   value,
+  helpText,
 }: {
   icon: LucideIcon;
   label: string;
@@ -374,6 +406,7 @@ function Field({
   placeholder?: string;
   required?: boolean;
   value: string;
+  helpText?: string;
 }) {
   return (
     <label className="grid gap-1 text-sm font-bold text-[var(--navy)]">
@@ -382,6 +415,7 @@ function Field({
         <Icon className="h-4 w-4 shrink-0 text-[var(--muted-blue)]" />
         <input value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} required={required} className="min-w-0 flex-1 bg-transparent outline-none" />
       </span>
+      {helpText ? <span className="text-xs font-bold leading-5 text-[var(--muted-blue)]">{helpText}</span> : null}
     </label>
   );
 }
