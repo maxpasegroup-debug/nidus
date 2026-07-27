@@ -1,4 +1,4 @@
-import { Role } from "../../generated/prisma/client.js";
+import { Prisma, Role } from "../../generated/prisma/client.js";
 import { prisma } from "../../config/prisma.js";
 
 export type TestPayload = {
@@ -22,6 +22,8 @@ export type TestPayload = {
 type QuestionPayload = {
   questionText: string;
   questionImage?: string;
+  visualReviewRequired?: boolean;
+  visualReviewNotes?: Prisma.InputJsonValue;
   optionA: string;
   optionB: string;
   optionC: string;
@@ -264,6 +266,42 @@ function getTopicAnalysis(answers: Array<{ isCorrect: boolean; question: { topic
     total: value.total,
     accuracy: value.total > 0 ? Math.round((value.correct / value.total) * 100) : 0
   }));
+}
+
+async function resultReleaseState(testId: string) {
+  const record = await prisma.teacherExamRecord.findFirst({
+    where: { testId },
+    select: { id: true, status: true, updatedAt: true }
+  });
+  if (!record) return { managed: false, released: true, status: "LEGACY_RELEASED", releasedAt: null };
+  const released = record.status === "RESULTS_RELEASED";
+  return {
+    managed: true,
+    released,
+    status: released ? "RESULTS_RELEASED" : "PENDING_RELEASE",
+    releasedAt: released ? record.updatedAt.toISOString() : null
+  };
+}
+
+function sanitizePendingResultAttempt<
+  T extends {
+    answers?: unknown[];
+    test?: { questions?: Array<Record<string, unknown>> };
+  }
+>(attempt: T): T {
+  return {
+    ...attempt,
+    answers: [],
+    test: attempt.test
+      ? {
+          ...attempt.test,
+          questions: attempt.test.questions?.map((question) => {
+            const { correctAnswer: _correctAnswer, explanation: _explanation, ...safeQuestion } = question;
+            return safeQuestion;
+          })
+        }
+      : attempt.test
+  };
 }
 
 export const testsService = {
@@ -799,12 +837,19 @@ export const testsService = {
       }
     });
     const testIds = attempts.map((attempt) => attempt.testId);
-    const released = testIds.length ? await prisma.teacherExamRecord.findMany({
-      where: { testId: { in: testIds }, status: "RESULTS_RELEASED" },
-      select: { testId: true }
+    const releaseRecords = testIds.length ? await prisma.teacherExamRecord.findMany({
+      where: { testId: { in: testIds } },
+      select: { testId: true, status: true }
     }) : [];
-    const releasedIds = new Set(released.map((record) => record.testId).filter(Boolean));
-    return attempts.map((attempt) => ({ ...attempt, resultsReleased: releasedIds.has(attempt.testId) }));
+    const releaseStatusByTest = new Map(releaseRecords.map((record) => [record.testId, record.status]));
+    return attempts.map((attempt) => {
+      const releaseStatus = releaseStatusByTest.get(attempt.testId);
+      return {
+        ...attempt,
+        resultsReleased: releaseStatus ? releaseStatus === "RESULTS_RELEASED" : true,
+        resultStatus: releaseStatus ? releaseStatus === "RESULTS_RELEASED" ? "RESULTS_RELEASED" : "PENDING_RELEASE" : "LEGACY_RELEASED"
+      };
+    });
   },
 
   async result(userId: string, attemptId: string) {
@@ -818,6 +863,37 @@ export const testsService = {
 
     if (!attempt) {
       throw new Error("Result not found");
+    }
+
+    const release = await resultReleaseState(attempt.testId);
+    if (!attempt.submittedAt || !release.released) {
+      const questionCount = attempt.test.questions.length;
+      const submitted = Boolean(attempt.submittedAt);
+      return {
+        resultsReleased: false,
+        resultStatus: submitted ? "PENDING_RELEASE" : "ATTEMPT_IN_PROGRESS",
+        release,
+        attempt: sanitizePendingResultAttempt(attempt),
+        analytics: {
+          accuracy: 0,
+          weakTopics: [],
+          timeAnalysis: {
+            timeTaken: attempt.timeTaken,
+            averagePerQuestion: 0
+          },
+          rankEstimation: null,
+          batchRank: null,
+          rankedStudents: 0,
+          topicAnalysis: [],
+          improvementAreas: [],
+          feedbackSummary: submitted
+            ? "Your exam has been submitted. The official result, answer key and explanations will appear after faculty release."
+            : "Result is not available because this exam has not been submitted.",
+          aiInsights: "Result review is pending.",
+          submitted,
+          questionCount
+        }
+      };
     }
 
     const attempted = attempt.answers.length;
@@ -843,6 +919,9 @@ export const testsService = {
     const actualRank = Math.max(1, rankedAttempts.findIndex((item) => item.id === attempt.id) + 1);
 
     return {
+      resultsReleased: true,
+      resultStatus: release.status,
+      release,
       attempt,
       analytics: {
         accuracy,

@@ -1007,6 +1007,11 @@ export type TeacherStudyMaterialRecord = Prisma.TeacherStudyMaterialRecordModel
  */
 export type TeacherExamRecord = Prisma.TeacherExamRecordModel
 /**
+ * Model ExamUpload
+ * 
+ */
+export type ExamUpload = Prisma.ExamUploadModel
+/**
  * Model TeacherCalendarLogRecord
  * 
  */

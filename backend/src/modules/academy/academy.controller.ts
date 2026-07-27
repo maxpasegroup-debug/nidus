@@ -62,6 +62,13 @@ export const academyController = {
       next(error);
     }
   },
+  transferStudent: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      res.json(await academyService.transferStudent(requester(req), param(req, "id"), req.body));
+    } catch (error) {
+      next(error);
+    }
+  },
   assignTeacher: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     try {
       res.status(201).json(await academyService.assignTeacher(requester(req), param(req, "id"), req.body));
@@ -328,6 +335,26 @@ export const academyController = {
       next(error);
     }
   },
+  uploadExamSource: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      if (!req.file) throw new Error("Exam source file is required");
+      const extractionAudit = typeof req.body.extractionAudit === "string"
+        ? JSON.parse(req.body.extractionAudit || "null")
+        : req.body.extractionAudit;
+      res.status(201).json(await academyService.uploadExamSource(requester(req), req.file, {
+        batchId: req.body.batchId,
+        subject: req.body.subject,
+        topic: req.body.topic,
+        sourceKind: req.body.sourceKind,
+        extractionStatus: req.body.extractionStatus,
+        extractionAudit,
+        manualReviewRequired: req.body.manualReviewRequired === "true" || req.body.manualReviewRequired === true,
+        manualReviewCompleted: req.body.manualReviewCompleted === "true" || req.body.manualReviewCompleted === true,
+      }));
+    } catch (error) {
+      next(error);
+    }
+  },
   publishExam: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     try {
       res.status(201).json(await academyService.publishExam(requester(req), req.body));
@@ -366,6 +393,13 @@ export const academyController = {
   examSummary: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     try {
       res.json(await academyService.examSummary(requester(req), req.query));
+    } catch (error) {
+      next(error);
+    }
+  },
+  examUploads: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      res.json(await academyService.examUploads(requester(req), { ...req.query, examId: req.params.id }));
     } catch (error) {
       next(error);
     }

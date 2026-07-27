@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { BookOpen, CheckCircle2, ChevronLeft, ChevronRight, Clock3, Eye, FileText, Pencil, Plus, Send, Trash2, Trophy, X } from "lucide-react";
 import { ExamReportingPanel, ExaminationEngineBanner, ExaminationRoleActions, ExamTypePanel, QuestionBankHierarchyPanel, type ExaminationEngineRole } from "@/components/examination/examination-engine-workspace";
@@ -28,10 +28,12 @@ export type TeacherExamRecord = {
   createdAt?: string;
   attemptStats?: { attempts?: number; submitted?: number; averageScore?: number };
   draft?: { questions?: QuestionDraft[] } | null;
+  uploads?: ExamUploadRecord[];
 };
 
 type QuestionDraft = {
   questionText: string;
+  questionImage?: string;
   optionA: string;
   optionB: string;
   optionC: string;
@@ -56,6 +58,33 @@ type ExtractionReport = {
   createdAt: string;
 };
 
+type ExamUploadRecord = {
+  id: string;
+  sourceKind: ExtractionReport["sourceKind"] | "EXPLANATION" | "SUPPORTING_ASSET";
+  fileName: string;
+  originalName: string;
+  fileType: string;
+  fileSize: number;
+  signedUrl?: string;
+  cloudinaryUrl?: string;
+  localPreviewUrl?: string;
+  extractionStatus?: string;
+  extractionAudit?: ExtractionReport | null;
+  manualReviewRequired?: boolean;
+  manualReviewCompleted?: boolean;
+  createdAt?: string;
+};
+
+type QuestionVisualAsset = {
+  id: string;
+  label: string;
+  fileName: string;
+  pageNumber?: number;
+  dataUrl: string;
+};
+
+type VisualCropRegion = "FULL" | "TOP" | "MIDDLE" | "BOTTOM";
+
 type ResultRow = {
   rank: number;
   attemptId: string;
@@ -70,10 +99,70 @@ type ResultRow = {
   submittedAt?: string | null;
 };
 
+type PaperUnderstandingReport = {
+  inferredExamType: string;
+  inferredSubject: string;
+  inferredTopic: string;
+  solutionMode: "ANSWER_KEY_ONLY" | "EXPLANATION_OPTIONAL" | "EXPLANATION_REQUIRED";
+  markingScheme: {
+    marksPerQuestion: number;
+    negativeMarks: number;
+    totalMarks: number;
+    source: "DETECTED" | "FORM_DEFAULT";
+  };
+  sections: Array<{ title: string; startQuestion: number; questionCount: number }>;
+  answerKey: {
+    entries: number;
+    missing: number[];
+    extra: number[];
+    withExplanations: number;
+    mode: "WITH_EXPLANATIONS" | "ANSWER_KEY_ONLY" | "NOT_FOUND";
+  };
+  riskSignals: Array<{ type: string; count: number; severity: "LOW" | "MEDIUM" | "HIGH"; message: string }>;
+  questionSignals: Array<{
+    number: number;
+    visualRequired: boolean;
+    formulaRisk: boolean;
+    tableRisk: boolean;
+    graphRisk: boolean;
+    confidence: "HIGH" | "MEDIUM" | "LOW";
+    notes: string[];
+  }>;
+  warnings: string[];
+  blockers: string[];
+  confidence: "HIGH" | "MEDIUM" | "LOW";
+  createdAt: string;
+};
+
+type VisualFidelityReport = {
+  sourcePreviewAvailable: boolean;
+  visualQuestionCount: number;
+  formulaQuestionCount: number;
+  tableQuestionCount: number;
+  graphQuestionCount: number;
+  questionsNeedingSource: number[];
+  questionsNeedingReview: number[];
+  missingSourceForVisuals: boolean;
+  warnings: string[];
+  blockers: string[];
+  confidence: "HIGH" | "MEDIUM" | "LOW";
+  createdAt: string;
+};
+
 type ResultsPayload = {
   exam: TeacherExamRecord;
   released: boolean;
   releasedAt?: string;
+  summary?: {
+    assignedStudents: number;
+    submitted: number;
+    pending: number;
+    averageScore: number;
+    highestScore: number;
+    lowestScore: number;
+    totalMarks: number;
+    releaseReady: boolean;
+  };
   results: ResultRow[];
 };
 
@@ -137,6 +226,19 @@ async function requestJson<T>(path: string, init?: RequestInit) {
       "Content-Type": "application/json",
       ...(init?.headers ?? {}),
     },
+  });
+  if (!response.ok) {
+    const raw = await response.text().catch(() => "");
+    throw new Error(extractErrorMessage(raw, `Request failed: ${response.status}`));
+  }
+  return unwrap<T>(await response.json());
+}
+
+async function requestForm<T>(path: string, body: FormData) {
+  const response = await fetch(`${API_BASE}${path}`, {
+    method: "POST",
+    credentials: "include",
+    body,
   });
   if (!response.ok) {
     const raw = await response.text().catch(() => "");
@@ -268,6 +370,78 @@ async function extractPdfText(file: File) {
   return pages.join("\n\n");
 }
 
+async function renderPdfPageAssets(file: File): Promise<QuestionVisualAsset[]> {
+  const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
+  pdfjs.GlobalWorkerOptions.workerSrc = new URL("pdfjs-dist/legacy/build/pdf.worker.min.mjs", import.meta.url).toString();
+  const document = await pdfjs.getDocument({ data: new Uint8Array(await file.arrayBuffer()) }).promise;
+  const assets: QuestionVisualAsset[] = [];
+  for (let pageNumber = 1; pageNumber <= Math.min(document.numPages, 12); pageNumber += 1) {
+    const page = await document.getPage(pageNumber);
+    const baseViewport = page.getViewport({ scale: 1 });
+    const scale = Math.min(1.35, 980 / Math.max(1, baseViewport.width));
+    const viewport = page.getViewport({ scale });
+    const canvas = window.document.createElement("canvas");
+    const context = canvas.getContext("2d");
+    if (!context) continue;
+    canvas.width = Math.floor(viewport.width);
+    canvas.height = Math.floor(viewport.height);
+    await page.render({ canvas, canvasContext: context, viewport }).promise;
+    assets.push({
+      id: `${file.name}-${pageNumber}-${Date.now()}`,
+      label: `Page ${pageNumber}`,
+      fileName: file.name,
+      pageNumber,
+      dataUrl: canvas.toDataURL("image/jpeg", 0.78),
+    });
+  }
+  return assets;
+}
+
+async function renderImageAsset(file: File): Promise<QuestionVisualAsset> {
+  const dataUrl = await new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result || ""));
+    reader.onerror = () => reject(new Error(`Unable to read ${file.name}.`));
+    reader.readAsDataURL(file);
+  });
+  return {
+    id: `${file.name}-image-${Date.now()}`,
+    label: "Image",
+    fileName: file.name,
+    dataUrl,
+  };
+}
+
+function cropRegionLabel(region: VisualCropRegion) {
+  if (region === "FULL") return "Full";
+  if (region === "TOP") return "Top";
+  if (region === "MIDDLE") return "Middle";
+  return "Bottom";
+}
+
+async function cropVisualAsset(dataUrl: string, region: VisualCropRegion): Promise<string> {
+  if (region === "FULL") return dataUrl;
+  const image = await new Promise<HTMLImageElement>((resolve, reject) => {
+    const element = new window.Image();
+    element.onload = () => resolve(element);
+    element.onerror = () => reject(new Error("Unable to crop visual asset."));
+    element.src = dataUrl;
+  });
+  const third = Math.floor(image.naturalHeight / 3);
+  const sourceY = region === "TOP" ? 0 : region === "MIDDLE" ? third : third * 2;
+  const sourceHeight = region === "BOTTOM" ? image.naturalHeight - sourceY : third;
+  const outputWidth = Math.min(900, image.naturalWidth);
+  const scale = outputWidth / Math.max(1, image.naturalWidth);
+  const outputHeight = Math.max(1, Math.round(sourceHeight * scale));
+  const canvas = window.document.createElement("canvas");
+  const context = canvas.getContext("2d");
+  if (!context) return dataUrl;
+  canvas.width = outputWidth;
+  canvas.height = outputHeight;
+  context.drawImage(image, 0, sourceY, image.naturalWidth, sourceHeight, 0, 0, outputWidth, outputHeight);
+  return canvas.toDataURL("image/jpeg", 0.82);
+}
+
 function stripNumber(line: string) {
   return line.replace(/^\s*(?:Q\s*)?\d+\s*(?:[\).:-]|\u2013|\u2014)\s*/i, "").trim();
 }
@@ -344,6 +518,15 @@ function parseAnswerGuideV2(text: string) {
       if (answer || explanation) map.set(number, { answer, explanation });
     });
 
+  if (map.size === 0) {
+    [...normalized.matchAll(/(?:^|\s)(?:Q\s*)?(\d{1,3})\s*(?:[\).:\-]|\u2013|\u2014)?\s*\(?([A-D])\)?(?=\s|$)/gi)]
+      .forEach((match) => {
+        const number = Number(match[1]);
+        const answer = match[2]?.toUpperCase();
+        if (number && answer) map.set(number, { answer });
+      });
+  }
+
   return map;
 }
 
@@ -373,6 +556,177 @@ function buildQuestions(source: string, answerGuide: string, topic: string, tota
   });
   const perQuestionMarks = Math.max(1, Number(((Number.isFinite(totalMarks) ? totalMarks : 100) / Math.max(1, parsedQuestions.length)).toFixed(2)));
   return parsedQuestions.map((question) => ({ ...question, marks: perQuestionMarks }));
+}
+
+function inferSubjectFromText(source: string, fallback: string) {
+  const text = source.toLowerCase();
+  const signals: Array<[string, RegExp]> = [
+    ["Mathematics", /\b(mathematics|maths|algebra|trigonometry|geometry|calculus|coordinate|probability|matrix|vector|quadratic)\b/i],
+    ["Physics", /\b(physics|motion|force|velocity|acceleration|circuit|ray|lens|mirror|current|voltage|newton|projectile)\b/i],
+    ["Chemistry", /\b(chemistry|mole|atomic|compound|reaction|acid|base|organic|periodic|valency)\b/i],
+    ["English", /\b(english|grammar|synonym|antonym|passage|comprehension|sentence|idiom|vocabulary)\b/i],
+    ["Reasoning", /\b(reasoning|series|coding|decoding|analogy|blood relation|direction|syllogism|venn)\b/i],
+    ["General Studies", /\b(history|geography|polity|constitution|economics|current affairs|biology|science|gk)\b/i],
+  ];
+  return signals.find(([, pattern]) => pattern.test(text))?.[0] || fallback || "General";
+}
+
+function inferExamTypeFromText(source: string) {
+  const upper = source.toUpperCase();
+  for (const exam of ["NDA", "CDS", "AFCAT", "AGNIVEER", "SSB", "SSC", "RIMC", "AISSEE"]) {
+    if (upper.includes(exam)) return exam;
+  }
+  if (/weekly\s+test/i.test(source)) return "Weekly Test";
+  if (/scholarship/i.test(source)) return "Scholarship Exam";
+  if (/mock\s+test/i.test(source)) return "Mock Test";
+  return "Teacher Exam";
+}
+
+function detectMarkingScheme(source: string, questionCount: number, formTotalMarks: number) {
+  const normalized = normalizeExtractedText(source);
+  const perQuestionMatch = normalized.match(/(?:each question carries|each question|marks per question|marking)\s*[:\-]?\s*(\d+(?:\.\d+)?)\s*(?:mark|marks)?/i)
+    || normalized.match(/(\d+(?:\.\d+)?)\s*marks?\s*(?:each|per question)/i);
+  const negativeMatch = normalized.match(/negative\s+mark(?:ing)?\s*[:\-]?\s*(\d+(?:\.\d+)?|1\/3|0\.33|0\.25|1\/4)/i)
+    || normalized.match(/(?:minus|deduct(?:ion)?)\s*(\d+(?:\.\d+)?|1\/3|0\.33|0\.25|1\/4)/i);
+  const marksPerQuestion = perQuestionMatch ? Number(perQuestionMatch[1]) : Math.max(1, Number((formTotalMarks / Math.max(1, questionCount)).toFixed(2)));
+  const negativeRaw = negativeMatch?.[1];
+  const negativeMarks = negativeRaw === "1/3" ? 0.33 : negativeRaw === "1/4" ? 0.25 : Number(negativeRaw || 0);
+  return {
+    marksPerQuestion: Number.isFinite(marksPerQuestion) ? marksPerQuestion : 1,
+    negativeMarks: Number.isFinite(negativeMarks) ? negativeMarks : 0,
+    totalMarks: formTotalMarks || Number((marksPerQuestion * questionCount).toFixed(2)),
+    source: perQuestionMatch || negativeMatch ? "DETECTED" as const : "FORM_DEFAULT" as const,
+  };
+}
+
+function detectSections(source: string, questionCount: number) {
+  const lines = source.split(/\n+/).map((line) => line.trim()).filter(Boolean);
+  const sections = lines
+    .map((line) => {
+      const match = line.match(/^(section|part)\s*[-:]?\s*([a-z0-9]+)?\s*[:\-]?\s*(.{0,80})$/i);
+      if (!match) return null;
+      const following = source.slice(source.indexOf(line));
+      const nextQuestion = Number(following.match(/(?:Q\s*)?(\d+)\s*[\).]/i)?.[1] || 1);
+      return { title: line.replace(/\s+/g, " "), startQuestion: nextQuestion, questionCount: 0 };
+    })
+    .filter((item): item is { title: string; startQuestion: number; questionCount: number } => Boolean(item));
+  if (!sections.length) return [{ title: "Main Paper", startQuestion: 1, questionCount }];
+  return sections.map((section, index) => {
+    const next = sections[index + 1];
+    return {
+      ...section,
+      questionCount: Math.max(0, (next?.startQuestion ?? questionCount + 1) - section.startQuestion),
+    };
+  });
+}
+
+function visualNotesForQuestion(question: QuestionDraft) {
+  const text = [question.questionText, question.optionA, question.optionB, question.optionC, question.optionD].join(" ");
+  const visualRequired = /\b(diagram|figure|fig\.|image|shown|following|above|below|circuit|ray diagram|map)\b/i.test(text);
+  const tableRisk = /\b(table|data table|tabular|column|row)\b/i.test(text);
+  const graphRisk = /\b(graph|chart|bar graph|pie chart|line graph|plot)\b/i.test(text);
+  const formulaRisk = /[∫√πθλΩ≈≤≥÷×∞Σµ]|\\frac|\^\s*\d|\b(sin|cos|tan|log|lim)\b|[a-z]\s*=\s*[^.,;]+/i.test(text);
+  const notes = [
+    visualRequired ? "Visual reference detected" : "",
+    tableRisk ? "Table/data dependency detected" : "",
+    graphRisk ? "Graph/chart dependency detected" : "",
+    formulaRisk ? "Formula/symbol risk detected" : "",
+  ].filter(Boolean);
+  const confidence = visualRequired || tableRisk || graphRisk ? "LOW" : formulaRisk ? "MEDIUM" : "HIGH";
+  return { visualRequired, formulaRisk, tableRisk, graphRisk, confidence: confidence as "HIGH" | "MEDIUM" | "LOW", notes };
+}
+
+function understandPaper(source: string, answerGuide: string, questions: QuestionDraft[], formTopic: string, formSubject: string, formMarks: number): PaperUnderstandingReport {
+  const answerMap = parseAnswerGuide(answerGuide);
+  const numbers = questions.map((_, index) => index + 1);
+  const answerNumbers = Array.from(answerMap.keys()).sort((a, b) => a - b);
+  const missing = numbers.filter((number) => !answerMap.has(number));
+  const extra = answerNumbers.filter((number) => number > questions.length);
+  const withExplanations = answerNumbers.filter((number) => Boolean(answerMap.get(number)?.explanation?.trim())).length;
+  const questionSignals = questions.map((question, index) => ({ number: index + 1, ...visualNotesForQuestion(question) }));
+  const visualCount = questionSignals.filter((signal) => signal.visualRequired).length;
+  const formulaCount = questionSignals.filter((signal) => signal.formulaRisk).length;
+  const tableCount = questionSignals.filter((signal) => signal.tableRisk).length;
+  const graphCount = questionSignals.filter((signal) => signal.graphRisk).length;
+  const warnings = [
+    missing.length ? `${missing.length} question(s) do not have a parsed answer key.` : "",
+    extra.length ? `${extra.length} answer key item(s) do not match extracted questions.` : "",
+    visualCount ? `${visualCount} question(s) refer to diagrams/images that must be checked against the original paper.` : "",
+    tableCount || graphCount ? `${tableCount + graphCount} question(s) may depend on tables, charts or graphs.` : "",
+    formulaCount ? `${formulaCount} formula/symbol-heavy question(s) need faculty review.` : "",
+  ].filter(Boolean);
+  const blockers = [
+    questions.length === 0 ? "No valid MCQ questions were detected." : "",
+    missing.length === questions.length && questions.length > 0 ? "No answer key could be matched to the extracted paper." : "",
+  ].filter(Boolean);
+  const solutionMode = answerNumbers.length && withExplanations === 0
+    ? "ANSWER_KEY_ONLY"
+    : withExplanations < answerNumbers.length
+      ? "EXPLANATION_OPTIONAL"
+      : "EXPLANATION_REQUIRED";
+  const highRisk = blockers.length > 0 || visualCount + tableCount + graphCount > 0;
+  const riskSignals: PaperUnderstandingReport["riskSignals"] = [];
+  if (visualCount) riskSignals.push({ type: "VISUAL_REFERENCE", count: visualCount, severity: "HIGH", message: "Diagrams/images must be preserved or manually rebuilt." });
+  if (tableCount) riskSignals.push({ type: "TABLE", count: tableCount, severity: "HIGH", message: "Table-based questions must be checked against source layout." });
+  if (graphCount) riskSignals.push({ type: "GRAPH", count: graphCount, severity: "HIGH", message: "Graph/chart questions must be checked against source layout." });
+  if (formulaCount) riskSignals.push({ type: "FORMULA", count: formulaCount, severity: "MEDIUM", message: "Formula rendering should be reviewed before publishing." });
+  return {
+    inferredExamType: inferExamTypeFromText(source),
+    inferredSubject: inferSubjectFromText(source, formSubject),
+    inferredTopic: inferExamTopic(source, formTopic),
+    solutionMode,
+    markingScheme: detectMarkingScheme(source, questions.length, formMarks),
+    sections: detectSections(source, questions.length),
+    answerKey: {
+      entries: answerNumbers.length,
+      missing,
+      extra,
+      withExplanations,
+      mode: answerNumbers.length ? withExplanations ? "WITH_EXPLANATIONS" : "ANSWER_KEY_ONLY" : "NOT_FOUND",
+    },
+    riskSignals,
+    questionSignals,
+    warnings,
+    blockers,
+    confidence: blockers.length || highRisk ? "LOW" : warnings.length ? "MEDIUM" : "HIGH",
+    createdAt: new Date().toISOString(),
+  };
+}
+
+function buildVisualFidelityReport(report: PaperUnderstandingReport, uploads: ExamUploadRecord[]): VisualFidelityReport {
+  const visualSignals = report.questionSignals.filter((signal) => signal.visualRequired);
+  const formulaSignals = report.questionSignals.filter((signal) => signal.formulaRisk);
+  const tableSignals = report.questionSignals.filter((signal) => signal.tableRisk);
+  const graphSignals = report.questionSignals.filter((signal) => signal.graphRisk);
+  const reviewSignals = report.questionSignals.filter((signal) => signal.visualRequired || signal.formulaRisk || signal.tableRisk || signal.graphRisk);
+  const sourceUpload = uploads.find((upload) => upload.sourceKind === "QUESTION_PAPER") ?? null;
+  const sourcePreviewAvailable = Boolean(sourceUpload?.localPreviewUrl || sourceUpload?.signedUrl || sourceUpload?.cloudinaryUrl);
+  const questionsNeedingSource = Array.from(new Set([...visualSignals, ...tableSignals, ...graphSignals].map((signal) => signal.number))).sort((a, b) => a - b);
+  const questionsNeedingReview = Array.from(new Set(reviewSignals.map((signal) => signal.number))).sort((a, b) => a - b);
+  const missingSourceForVisuals = questionsNeedingSource.length > 0 && !sourcePreviewAvailable;
+  const warnings = [
+    visualSignals.length ? `${visualSignals.length} question(s) refer to a diagram, figure or image.` : "",
+    tableSignals.length ? `${tableSignals.length} question(s) depend on table layout or tabular data.` : "",
+    graphSignals.length ? `${graphSignals.length} question(s) depend on a graph or chart.` : "",
+    formulaSignals.length ? `${formulaSignals.length} question(s) include formula or symbol risk.` : "",
+  ].filter(Boolean);
+  const blockers = [
+    missingSourceForVisuals ? "Upload or preserve the original question paper before publishing visual/table/graph based questions." : "",
+  ].filter(Boolean);
+  return {
+    sourcePreviewAvailable,
+    visualQuestionCount: visualSignals.length,
+    formulaQuestionCount: formulaSignals.length,
+    tableQuestionCount: tableSignals.length,
+    graphQuestionCount: graphSignals.length,
+    questionsNeedingSource,
+    questionsNeedingReview,
+    missingSourceForVisuals,
+    warnings,
+    blockers,
+    confidence: blockers.length ? "LOW" : questionsNeedingReview.length ? "MEDIUM" : "HIGH",
+    createdAt: new Date().toISOString(),
+  };
 }
 
 function auditExtractedSource(file: File, text: string, sourceKind: ExtractionReport["sourceKind"], isPdf: boolean): ExtractionReport {
@@ -471,6 +825,10 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
   const [answerGuide, setAnswerGuide] = useState("");
   const [uploadedQuestionPaper, setUploadedQuestionPaper] = useState("");
   const [uploadedAnswerGuide, setUploadedAnswerGuide] = useState("");
+  const [examUploads, setExamUploads] = useState<ExamUploadRecord[]>([]);
+  const uploadPreviewUrlsRef = useRef<string[]>([]);
+  const [visualAssets, setVisualAssets] = useState<QuestionVisualAsset[]>([]);
+  const [questionVisuals, setQuestionVisuals] = useState<Record<number, string>>({});
   const [extractionReports, setExtractionReports] = useState<ExtractionReport[]>([]);
   const [manualPaperReview, setManualPaperReview] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -513,26 +871,49 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
 
   const questions = useMemo(() => buildQuestions(questionSource, answerGuide, form.topic, Number(form.marks)), [answerGuide, form.marks, form.topic, questionSource]);
   const readiness = useMemo(() => paperReadiness(questions), [questions]);
+  const understanding = useMemo(
+    () => understandPaper(questionSource, answerGuide, questions, form.topic, subject, Number(form.marks)),
+    [answerGuide, form.marks, form.topic, questionSource, questions, subject]
+  );
+  const visualFidelity = useMemo(() => buildVisualFidelityReport(understanding, examUploads), [examUploads, understanding]);
+  const persistedExamUploads = useMemo(() => examUploads.map(({ localPreviewUrl, ...upload }) => upload), [examUploads]);
+  const visualQuestionsWithoutAttachment = useMemo(() => understanding.questionSignals
+    .filter((signal) => (signal.visualRequired || signal.tableRisk || signal.graphRisk) && !questionVisuals[signal.number])
+    .map((signal) => signal.number), [questionVisuals, understanding.questionSignals]);
   const blockingExtractionReports = useMemo(() => extractionReports.filter((report) => report.status === "BLOCKED" && report.sourceKind === "QUESTION_PAPER"), [extractionReports]);
   const reviewExtractionReports = useMemo(() => extractionReports.filter((report) => report.status !== "READY"), [extractionReports]);
-  const extractionNeedsManualReview = blockingExtractionReports.length > 0 || extractionReports.some((report) => report.visualRisk);
-  const canPublishPaper = questions.length > 0 && readiness.missingOptions === 0 && readiness.missingAnswers === 0 && (!extractionNeedsManualReview || manualPaperReview);
-  const questionsForPublish = useMemo(() => questions.map((question) => ({
-    ...question,
-    explanation: question.explanation && !/^Explanation will be reviewed/i.test(question.explanation)
-      ? question.explanation
-      : `The correct answer is option ${question.correctAnswer}. Review this answer against the uploaded faculty key and topic notes.`,
-  })), [questions]);
+  const extractionNeedsManualReview = blockingExtractionReports.length > 0 || extractionReports.some((report) => report.visualRisk) || understanding.confidence === "LOW" || visualFidelity.confidence === "LOW";
+  const canPublishPaper = questions.length > 0 && readiness.missingOptions === 0 && readiness.missingAnswers === 0 && !visualFidelity.missingSourceForVisuals && (!extractionNeedsManualReview || manualPaperReview);
+  const questionsForPublish = useMemo(() => questions.map((question, index) => {
+    const signal = understanding.questionSignals[index];
+    const visualReviewNotes = signal?.notes ?? [];
+    return {
+      ...question,
+      questionImage: questionVisuals[index + 1] || question.questionImage,
+      visualReviewRequired: Boolean(signal && (signal.visualRequired || signal.tableRisk || signal.graphRisk || signal.formulaRisk)),
+      visualReviewNotes,
+      explanation: question.explanation && !/^Explanation will be reviewed/i.test(question.explanation)
+        ? question.explanation
+        : `The correct answer is option ${question.correctAnswer}. Review this answer against the uploaded faculty key and topic notes.`,
+      marks: understanding.markingScheme.marksPerQuestion || question.marks,
+      negativeMarks: understanding.markingScheme.negativeMarks,
+    };
+  }), [questionVisuals, questions, understanding.markingScheme.marksPerQuestion, understanding.markingScheme.negativeMarks, understanding.questionSignals]);
   const duplicateQuestionIndexes = useMemo(() => new Set(readiness.duplicateQuestions.flatMap((item) => [item.firstIndex, item.index])), [readiness.duplicateQuestions]);
   const effectiveTopic = useMemo(() => inferExamTopic(questionSource, form.topic), [form.topic, questionSource]);
   const effectiveTitle = useMemo(() => form.title.trim() || inferExamTitle(questionSource, subject, activeBatch?.name), [activeBatch?.name, form.title, questionSource, subject]);
 
+  useEffect(() => () => {
+    uploadPreviewUrlsRef.current.forEach((url) => URL.revokeObjectURL(url));
+    uploadPreviewUrlsRef.current = [];
+  }, []);
+
   useEffect(() => {
     if (!questionSource || !activeBatch?.subjects?.length) return;
-    if (/mathematics|maths/i.test(questionSource) && activeBatch.subjects.includes("Mathematics") && subject !== "Mathematics") {
-      setSubject("Mathematics");
+    if (activeBatch.subjects.includes(understanding.inferredSubject) && subject !== understanding.inferredSubject) {
+      setSubject(understanding.inferredSubject);
     }
-  }, [activeBatch?.subjects, questionSource, subject]);
+  }, [activeBatch?.subjects, questionSource, subject, understanding.inferredSubject]);
 
   useEffect(() => {
     if (!autoOpenCreatorKey || autoOpenCreatorKey === handledAutoOpenKey || !activeBatch) return;
@@ -550,6 +931,29 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
     setTargetBatchIds((ids) => ids.includes(batchId) ? ids.filter((id) => id !== batchId) : [...ids, batchId]);
   }
 
+  async function preserveExamSource(file: File, sourceKind: ExtractionReport["sourceKind"], report: ExtractionReport) {
+    if (!activeBatch?.id) throw new Error("Select a batch before uploading exam source files.");
+    const body = new FormData();
+    body.append("file", file);
+    body.append("batchId", activeBatch.id);
+    body.append("subject", subject);
+    body.append("topic", form.topic || effectiveTopic || "General");
+    body.append("sourceKind", sourceKind);
+    body.append("extractionStatus", report.status);
+    body.append("manualReviewRequired", String(report.status === "BLOCKED" || report.visualRisk));
+    body.append("manualReviewCompleted", String(manualPaperReview));
+    body.append("extractionAudit", JSON.stringify({ ...report, paperUnderstanding: understanding, visualFidelity }));
+    const result = await requestForm<{ upload: ExamUploadRecord }>("/api/academy/exams/uploads", body);
+    const localPreviewUrl = typeof URL !== "undefined" ? URL.createObjectURL(file) : undefined;
+    if (localPreviewUrl) uploadPreviewUrlsRef.current.push(localPreviewUrl);
+    const uploadWithPreview = { ...result.upload, localPreviewUrl };
+    setExamUploads((uploads) => [
+      ...uploads.filter((upload) => !(upload.sourceKind === sourceKind && upload.originalName === file.name)),
+      uploadWithPreview,
+    ]);
+    return uploadWithPreview;
+  }
+
   async function appendFileText(file: File | null, setter: (value: string) => void, current: string, sourceKind: ExtractionReport["sourceKind"], setUploadedName?: (value: string) => void) {
     if (!file) return;
     setUploadedName?.(file.name);
@@ -558,13 +962,29 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
       const isTxt = file.type.startsWith("text/") || fileName.endsWith(".txt");
       const isDocx = fileName.endsWith(".docx");
       const isPdf = fileName.endsWith(".pdf") || file.type === "application/pdf";
-      if (!isTxt && !isDocx && !isPdf) {
-        setMessage(`${file.name} is attached, but only PDF, DOCX and TXT documents can be extracted.`);
+      const isImage = file.type.startsWith("image/");
+      if (!isTxt && !isDocx && !isPdf && !(sourceKind === "QUESTION_PAPER" && isImage)) {
+        setMessage(`${file.name} is attached, but only PDF, DOCX, TXT and question-paper images can be extracted.`);
         return;
       }
-      const text = isDocx ? await extractDocxText(file) : isPdf ? await extractPdfText(file) : await file.text().catch(() => "");
+      if (sourceKind === "QUESTION_PAPER" && isPdf) {
+        const assets = await renderPdfPageAssets(file).catch(() => []);
+        if (assets.length) setVisualAssets((current) => [...current.filter((asset) => asset.fileName !== file.name), ...assets]);
+      }
+      if (sourceKind === "QUESTION_PAPER" && isImage) {
+        const asset = await renderImageAsset(file);
+        setVisualAssets((current) => [...current.filter((item) => item.fileName !== file.name), asset]);
+      }
+      const text = isDocx ? await extractDocxText(file) : isPdf ? await extractPdfText(file) : isTxt ? await file.text().catch(() => "") : "";
       const report = auditExtractedSource(file, text, sourceKind, isPdf);
       setExtractionReports((reports) => [...reports.filter((item) => !(item.sourceKind === sourceKind && item.fileName === file.name)), report]);
+      let preserved = false;
+      try {
+        await preserveExamSource(file, sourceKind, report);
+        preserved = true;
+      } catch (uploadError) {
+        setMessage(uploadError instanceof Error ? `Extraction completed, but source preservation failed: ${uploadError.message}` : "Extraction completed, but source preservation failed.");
+      }
       if (sourceKind === "QUESTION_PAPER") setManualPaperReview(false);
       if (!text.trim()) {
         setMessage(`No readable text was found in ${file.name}. Upload a text/DOCX version or manually paste the questions.`);
@@ -572,10 +992,10 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
       }
       setter([current, text].filter(Boolean).join("\n\n"));
       setMessage(report.status === "BLOCKED"
-        ? `${file.name} needs manual review before publishing: ${report.blockers.join(" ")}`
+        ? `${file.name} ${preserved ? "was preserved and" : ""} needs manual review before publishing: ${report.blockers.join(" ")}`
         : report.status === "REVIEW_REQUIRED"
-          ? `${file.name} extracted, but please review: ${report.warnings.join(" ")}`
-          : `${file.name} extracted successfully. Review the questions before continuing.`);
+          ? `${file.name} ${preserved ? "was preserved and" : "was"} extracted, but please review: ${report.warnings.join(" ")}`
+          : `${file.name} ${preserved ? "was preserved and" : "was"} extracted successfully. Review the questions before continuing.`);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : `Unable to read ${file.name}.`);
       return;
@@ -593,6 +1013,9 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
     setAnswerGuide("");
     setUploadedQuestionPaper("");
     setUploadedAnswerGuide("");
+    setExamUploads([]);
+    setVisualAssets([]);
+    setQuestionVisuals({});
     setExtractionReports([]);
     setManualPaperReview(false);
     setTargetBatchIds(activeBatch?.id ? [activeBatch.id] : []);
@@ -616,6 +1039,18 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
       instructions: "",
     });
     const savedQuestions = Array.isArray(exam.draft?.questions) ? exam.draft.questions : [];
+    setQuestionVisuals(savedQuestions.reduce<Record<number, string>>((acc, question, index) => {
+      if (question.questionImage) acc[index + 1] = question.questionImage;
+      return acc;
+    }, {}));
+    setVisualAssets(savedQuestions
+      .map((question, index) => question.questionImage ? {
+        id: `saved-question-${index + 1}`,
+        label: `Saved Q${index + 1}`,
+        fileName: "Saved question image",
+        dataUrl: question.questionImage,
+      } : null)
+      .filter((asset): asset is QuestionVisualAsset => Boolean(asset)));
     setQuestionSource(savedQuestions.map((question, index) => [
       `Q${index + 1}. ${question.questionText}`,
       `(A) ${question.optionA}`,
@@ -626,8 +1061,12 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
     setAnswerGuide(savedQuestions.map((question, index) => `${index + 1} - ${question.correctAnswer}\nExplanation: ${question.explanation}`).join("\n\n"));
     setUploadedQuestionPaper("");
     setUploadedAnswerGuide("");
-    setExtractionReports([]);
-    setManualPaperReview(false);
+    setExamUploads(exam.uploads ?? []);
+    const savedReports = (exam.uploads ?? [])
+      .map((upload) => upload.extractionAudit)
+      .filter((report): report is ExtractionReport => Boolean(report));
+    setExtractionReports(savedReports);
+    setManualPaperReview((exam.uploads ?? []).some((upload) => upload.manualReviewCompleted));
     setStep(1);
     setPreviewIndex(0);
     setMessage("");
@@ -651,7 +1090,9 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
       return;
     }
     if (!editingExam && !canPublishPaper) {
-      setMessage(extractionNeedsManualReview && !manualPaperReview
+      setMessage(visualFidelity.missingSourceForVisuals
+        ? "Original question paper source is required before publishing diagram, table or graph based questions."
+        : extractionNeedsManualReview && !manualPaperReview
         ? "Manual review is required for this uploaded paper before publishing. Check/correct every question, then tick manual review completed."
         : `Paper is incomplete: ${readiness.missingOptions} question(s) need options and ${readiness.missingAnswers} question(s) need answer keys before publishing.`);
       return;
@@ -678,6 +1119,7 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
             difficulty: editingExam.difficulty || "MEDIUM",
             instructions: form.instructions,
             status: editingExam.status || "PUBLISHED",
+            examUploadIds: persistedExamUploads.map((upload) => upload.id),
             draft: canPublishPaper ? {
               title: effectiveTitle,
               subject,
@@ -686,6 +1128,9 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
               totalMarks: Number(form.marks),
               questions: questionsForPublish,
               extractionAudit: extractionReports,
+              examUploads: persistedExamUploads,
+              paperUnderstanding: understanding,
+              visualFidelity: { ...visualFidelity, questionImageAssignments: Object.keys(questionVisuals).length, visualQuestionsWithoutAttachment },
               manualPaperReview,
             } : undefined,
           }),
@@ -718,6 +1163,7 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
             publishDate: form.date,
             publishTime: form.time,
             publishAt,
+            examUploadIds: persistedExamUploads.map((upload) => upload.id),
             draft: {
               title: effectiveTitle,
               description: form.instructions || `Faculty published ${subject} exam for ${targetBatch.name}.`,
@@ -729,6 +1175,9 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
               totalMarks: Number(form.marks),
               questions: questionsForPublish,
               extractionAudit: extractionReports,
+              examUploads: persistedExamUploads,
+              paperUnderstanding: understanding,
+              visualFidelity: { ...visualFidelity, questionImageAssignments: Object.keys(questionVisuals).length, visualQuestionsWithoutAttachment },
               manualPaperReview,
             },
           }),
@@ -786,6 +1235,11 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
 
   async function releaseResults() {
     if (!resultsExam) return;
+    if (!results?.results.length) {
+      setMessage("At least one submitted attempt is required before releasing results.");
+      return;
+    }
+    if (!window.confirm("Release official results now? Students will immediately see scores, ranks, answer keys and explanations.")) return;
     setBusy(true);
     try {
       setResults(await requestJson<ResultsPayload>(`/api/academy/exams/${resultsExam.id}/release-results`, { method: "POST", body: JSON.stringify({}) }));
@@ -824,8 +1278,12 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
       setMessage(`Answer key review required: ${readiness.missingAnswers} question(s) need answer keys before preview.`);
       return;
     }
+    if (step === 2 && !editingExam && visualFidelity.missingSourceForVisuals) {
+      setMessage("Upload the original question paper/source so diagram, table and graph questions can be verified beside the extracted preview.");
+      return;
+    }
     if (step === 2 && !editingExam && extractionNeedsManualReview && !manualPaperReview) {
-      setMessage("This paper contains scanned/visual/formula risk. Correct the extracted questions if needed, then tick manual review completed before preview.");
+      setMessage("The engine found visual, table, graph, formula or low-confidence extraction risk. Correct the extracted questions if needed, then tick manual review completed before preview.");
       return;
     }
     if (step === 2 && !editingExam && readiness.duplicateQuestions.length > 0) {
@@ -1029,7 +1487,7 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
                     <FileUploadRow
                       label="Upload question paper"
                       fileName={uploadedQuestionPaper}
-                      accept=".txt,.docx,.pdf,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                      accept=".txt,.docx,.pdf,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,image/*"
                       onChange={(file) => void appendFileText(file, setQuestionSource, questionSource, "QUESTION_PAPER", setUploadedQuestionPaper)}
                     />
                   </ExamInputCard>
@@ -1045,6 +1503,9 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
                   {reviewExtractionReports.length ? (
                     <ExtractionAuditPanel reports={reviewExtractionReports} manualReview={manualPaperReview} onManualReviewChange={setManualPaperReview} />
                   ) : null}
+                  {questions.length ? <PaperUnderstandingPanel report={understanding} /> : null}
+                  {questions.length ? <VisualFidelityPanel report={visualFidelity} /> : null}
+                  {examUploads.length ? <SourceFilesPanel uploads={examUploads} /> : null}
                 </div>
               ) : null}
 
@@ -1061,16 +1522,26 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
                     </div>
                     <div className={`mt-3 rounded-xl border px-3 py-2 text-sm font-black ${canPublishPaper ? "border-emerald-400/40 bg-emerald-500/15 text-emerald-100" : "border-amber-300 bg-amber-50 text-amber-900"}`}>
                       {canPublishPaper
-                        ? readiness.missingExplanations > 0
-                          ? `Ready. ${readiness.missingExplanations} explanation(s) will use a simple fallback if not edited.`
-                          : "Ready. Questions, options and answer key are available."
+                        ? understanding.solutionMode === "ANSWER_KEY_ONLY"
+                          ? "Ready. Answer-key-only paper detected; explanations are optional for this exam."
+                          : readiness.missingExplanations > 0
+                            ? `Ready. ${readiness.missingExplanations} explanation(s) will use a simple fallback if not edited.`
+                            : "Ready. Questions, options and answer key are available."
                         : extractionNeedsManualReview && !manualPaperReview
                           ? "Manual review is required because the uploaded paper may contain diagrams, formulas, charts or scanned content."
                           : `${readiness.missingOptions} option issue(s) / ${readiness.missingAnswers} answer issue(s) / ${readiness.duplicateQuestions.length} duplicate(s)`}
                     </div>
                   </div>
                   {reviewExtractionReports.length ? <ExtractionAuditPanel reports={reviewExtractionReports} manualReview={manualPaperReview} onManualReviewChange={setManualPaperReview} compact /> : null}
-                  <div className="grid items-start gap-4 lg:grid-cols-[260px_minmax(0,1fr)]">
+                  <PaperUnderstandingPanel report={understanding} compact />
+                  <VisualFidelityPanel report={visualFidelity} compact />
+                  {visualQuestionsWithoutAttachment.length ? (
+                    <p className="rounded-2xl border border-amber-200 bg-amber-50 p-3 text-sm font-black text-amber-900">
+                      Visual attachment reminder: question(s) {visualQuestionsWithoutAttachment.join(", ")} still rely on the preserved source instead of a direct question image.
+                    </p>
+                  ) : null}
+                  {examUploads.length ? <SourceFilesPanel uploads={examUploads} compact /> : null}
+                  <div className="grid items-start gap-4 lg:grid-cols-[240px_minmax(0,1fr)] xl:grid-cols-[240px_minmax(0,1fr)_340px]">
                     <aside className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4 shadow-sm lg:sticky lg:top-4 lg:max-h-[calc(100dvh-22rem)] lg:min-h-[24rem] lg:overflow-y-auto">
                       <div className="flex items-center justify-between gap-3">
                         <p className="text-sm font-black">Questions</p>
@@ -1087,6 +1558,23 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
                       <article className={`rounded-2xl border p-5 shadow-sm sm:p-7 lg:self-start ${duplicateQuestionIndexes.has(previewIndex) ? "animate-pulse border-rose-500 bg-rose-50 shadow-rose-100" : "border-[var(--border)] bg-white"}`}>
                         <div className="flex items-center justify-between gap-3"><span className="text-sm font-black text-[var(--gold-dark)]">Question {previewIndex + 1} of {questions.length}</span><span className="rounded-full bg-[var(--page-bg)] px-3 py-1 text-xs font-black">{questions[previewIndex].marks} mark(s)</span></div>
                         <h4 className="mt-5 text-lg font-black leading-7 sm:text-xl">{questions[previewIndex].questionText}</h4>
+                        <QuestionFidelityNotice signal={understanding.questionSignals[previewIndex]} />
+                        {questionVisuals[previewIndex + 1] ? (
+                          <div className="mt-4 rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-3">
+                            <div className="flex flex-wrap items-center justify-between gap-2">
+                              <p className="text-sm font-black">Attached visual for Question {previewIndex + 1}</p>
+                              <button type="button" onClick={() => setQuestionVisuals((current) => {
+                                const next = { ...current };
+                                delete next[previewIndex + 1];
+                                return next;
+                              })} className="rounded-lg border border-rose-200 bg-white px-3 py-2 text-xs font-black text-rose-700">
+                                Remove
+                              </button>
+                            </div>
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src={questionVisuals[previewIndex + 1]} alt="" className="mt-3 max-h-80 w-auto rounded-xl border border-[var(--border)] bg-white object-contain" />
+                          </div>
+                        ) : null}
                         <div className="mt-5 grid gap-3 sm:grid-cols-2">
                           {(["A", "B", "C", "D"] as const).map((option) => <div key={option} className="flex min-h-14 items-center gap-3 rounded-xl border border-[var(--border)] bg-white px-4 text-sm font-bold"><span className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-[var(--border)] bg-[var(--page-bg)] font-black">{option}</span>{optionText(questions[previewIndex], option)}</div>)}
                         </div>
@@ -1112,6 +1600,14 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
                         <div className="mt-6 flex items-center justify-between gap-3 border-t border-[var(--border)] pt-5"><button type="button" disabled={previewIndex === 0} onClick={() => setPreviewIndex((value) => Math.max(0, value - 1))} className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-[var(--border)] px-4 text-sm font-black disabled:opacity-40"><ChevronLeft size={16} />Previous</button><button type="button" disabled={previewIndex >= questions.length - 1} onClick={() => setPreviewIndex((value) => Math.min(questions.length - 1, value + 1))} className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-slate-950 px-4 text-sm font-black text-white disabled:opacity-40">Next<ChevronRight size={16} /></button></div>
                       </article>
                     ) : <p className="rounded-2xl border border-dashed border-[var(--border)] p-8 text-center font-bold text-[var(--muted-blue)]">Upload a valid question paper to preview the student exam.</p>}
+                    <VisualSourcePreviewPanel
+                      uploads={examUploads}
+                      report={understanding}
+                      activeIndex={previewIndex}
+                      assets={visualAssets}
+                      attachedImage={questionVisuals[previewIndex + 1]}
+                      onAttachVisual={(dataUrl) => setQuestionVisuals((current) => ({ ...current, [previewIndex + 1]: dataUrl }))}
+                    />
                   </div>
                 </div>
               ) : null}
@@ -1140,6 +1636,14 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
                     </p>
                   ) : null}
                   {reviewExtractionReports.length ? <ExtractionAuditPanel reports={reviewExtractionReports} manualReview={manualPaperReview} onManualReviewChange={setManualPaperReview} compact /> : null}
+                  <PaperUnderstandingPanel report={understanding} compact />
+                  <VisualFidelityPanel report={visualFidelity} compact />
+                  {visualQuestionsWithoutAttachment.length ? (
+                    <p className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-3 text-sm font-black text-amber-900">
+                      Visual attachment reminder: question(s) {visualQuestionsWithoutAttachment.join(", ")} will depend on teacher-reviewed source preservation unless you attach page snapshots.
+                    </p>
+                  ) : null}
+                  {examUploads.length ? <SourceFilesPanel uploads={examUploads} compact /> : null}
                 </div>
               ) : null}
 
@@ -1176,9 +1680,10 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
               {!results ? <p className="rounded-2xl border border-dashed border-[var(--border)] p-5">Loading results...</p> : null}
               {results ? (
                 <>
+                <ResultReleasePanel payload={results} />
                 <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
                   <p className="text-sm font-black">{results.results.length} submitted / {results.released ? "Released" : "Not released"}</p>
-                  <button type="button" onClick={() => void releaseResults()} disabled={busy || results.released} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-emerald-700 bg-emerald-700 px-5 text-sm font-black text-white disabled:opacity-50">
+                  <button type="button" onClick={() => void releaseResults()} disabled={busy || results.released || !results.results.length} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-emerald-700 bg-emerald-700 px-5 text-sm font-black text-white disabled:opacity-50">
                     <CheckCircle2 size={16} /> Release Results
                   </button>
                 </div>
@@ -1212,6 +1717,294 @@ function Field({ label, value, onChange, type = "text", placeholder }: { label: 
       {label}
       <input type={type} value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} className="min-h-12 rounded-xl border border-[var(--border)] bg-white px-4" />
     </label>
+  );
+}
+
+function ResultReleasePanel({ payload }: { payload: ResultsPayload }) {
+  const summary = payload.summary ?? {
+    assignedStudents: payload.results.length,
+    submitted: payload.results.length,
+    pending: 0,
+    averageScore: payload.results.length ? Math.round(payload.results.reduce((sum, row) => sum + row.score, 0) / payload.results.length) : 0,
+    highestScore: payload.results.length ? Math.max(...payload.results.map((row) => row.score)) : 0,
+    lowestScore: payload.results.length ? Math.min(...payload.results.map((row) => row.score)) : 0,
+    totalMarks: payload.results[0]?.totalMarks ?? 0,
+    releaseReady: payload.results.length > 0,
+  };
+  const tone = payload.released
+    ? "border-emerald-200 bg-emerald-50 text-emerald-950"
+    : summary.releaseReady
+      ? "border-amber-200 bg-amber-50 text-amber-950"
+      : "border-rose-200 bg-rose-50 text-rose-950";
+  return (
+    <section className={`rounded-2xl border p-4 ${tone}`}>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-black uppercase tracking-[0.24em] opacity-75">Result release audit</p>
+          <h4 className="mt-1 text-lg font-black">{payload.released ? "Official result published" : summary.releaseReady ? "Ready for faculty release" : "Waiting for submissions"}</h4>
+          <p className="mt-1 text-sm font-bold opacity-75">Release unlocks score, rank, solved paper, answer key and explanations for students.</p>
+        </div>
+        <span className="rounded-full bg-white/80 px-3 py-1 text-xs font-black">{payload.released ? "Released" : "Locked"}</span>
+      </div>
+      <div className="mt-3 grid gap-2 sm:grid-cols-4">
+        <MiniFact label="Submitted" value={`${summary.submitted}/${summary.assignedStudents || summary.submitted}`} />
+        <MiniFact label="Pending" value={summary.pending} />
+        <MiniFact label="Average" value={`${summary.averageScore}/${summary.totalMarks || "-"}`} />
+        <MiniFact label="Top Score" value={`${summary.highestScore}/${summary.totalMarks || "-"}`} />
+      </div>
+    </section>
+  );
+}
+
+function VisualFidelityPanel({ report, compact = false }: { report: VisualFidelityReport; compact?: boolean }) {
+  const tone = report.confidence === "HIGH"
+    ? "border-emerald-200 bg-emerald-50 text-emerald-950"
+    : report.confidence === "MEDIUM"
+      ? "border-amber-200 bg-amber-50 text-amber-950"
+      : "border-rose-200 bg-rose-50 text-rose-950";
+  return (
+    <div className={`rounded-2xl border p-4 ${tone} ${compact ? "" : "lg:col-span-2"}`}>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-black uppercase tracking-[0.24em] opacity-75">Visual fidelity</p>
+          <h4 className="mt-1 text-lg font-black">{report.sourcePreviewAvailable ? "Source preview attached" : "Source preview not attached"}</h4>
+          <p className="mt-1 text-sm font-bold opacity-75">Diagrams, tables, graphs and formula-heavy questions are checked before publish.</p>
+        </div>
+        <span className="rounded-full bg-white/80 px-3 py-1 text-xs font-black">{report.confidence} confidence</span>
+      </div>
+      <div className="mt-3 grid gap-2 sm:grid-cols-4">
+        <MiniFact label="Visual" value={report.visualQuestionCount} />
+        <MiniFact label="Tables" value={report.tableQuestionCount} />
+        <MiniFact label="Graphs" value={report.graphQuestionCount} />
+        <MiniFact label="Formula" value={report.formulaQuestionCount} />
+      </div>
+      {report.questionsNeedingReview.length ? (
+        <p className="mt-3 rounded-xl border border-current/10 bg-white/75 p-3 text-xs font-black leading-5">
+          Review question(s): {report.questionsNeedingReview.slice(0, compact ? 12 : 24).join(", ")}
+          {report.questionsNeedingReview.length > (compact ? 12 : 24) ? "..." : ""}
+        </p>
+      ) : null}
+      {[...report.blockers, ...report.warnings].length ? (
+        <ul className="mt-3 grid gap-1 text-xs font-bold leading-5">
+          {[...report.blockers, ...report.warnings].slice(0, compact ? 4 : 8).map((item) => <li key={item}>- {item}</li>)}
+        </ul>
+      ) : (
+        <p className="mt-3 text-xs font-bold opacity-75">No visual fidelity risk detected in the extracted questions.</p>
+      )}
+    </div>
+  );
+}
+
+function QuestionFidelityNotice({ signal }: { signal?: PaperUnderstandingReport["questionSignals"][number] }) {
+  if (!signal || !signal.notes.length) return null;
+  const tone = signal.confidence === "LOW" ? "border-amber-300 bg-amber-50 text-amber-950" : "border-blue-200 bg-blue-50 text-blue-950";
+  return (
+    <div className={`mt-4 rounded-2xl border p-4 text-sm ${tone}`}>
+      <p className="font-black">Faculty visual review needed</p>
+      <div className="mt-2 flex flex-wrap gap-2">
+        {signal.notes.map((note) => (
+          <span key={note} className="rounded-full border border-current/10 bg-white/75 px-3 py-1 text-xs font-black">{note}</span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function VisualSourcePreviewPanel({
+  uploads,
+  report,
+  activeIndex,
+  assets = [],
+  attachedImage,
+  onAttachVisual,
+}: {
+  uploads: ExamUploadRecord[];
+  report: PaperUnderstandingReport;
+  activeIndex: number;
+  assets?: QuestionVisualAsset[];
+  attachedImage?: string;
+  onAttachVisual?: (dataUrl: string) => void;
+}) {
+  const source = uploads.find((upload) => upload.sourceKind === "QUESTION_PAPER") ?? uploads[0];
+  const sourceUrl = source?.localPreviewUrl || source?.signedUrl || source?.cloudinaryUrl || "";
+  const fileType = source?.fileType || "";
+  const fileName = (source?.originalName || source?.fileName || "").toLowerCase();
+  const isPdf = fileType === "application/pdf" || fileName.endsWith(".pdf");
+  const isImage = fileType.startsWith("image/") || /\.(png|jpe?g|webp|gif)$/i.test(fileName);
+  const signal = report.questionSignals[activeIndex];
+  const [cropMessage, setCropMessage] = useState("");
+
+  async function attachRegion(asset: QuestionVisualAsset, region: VisualCropRegion) {
+    if (!onAttachVisual) return;
+    setCropMessage("");
+    try {
+      const dataUrl = await cropVisualAsset(asset.dataUrl, region);
+      onAttachVisual(dataUrl);
+      setCropMessage(`${cropRegionLabel(region)} region attached to Question ${activeIndex + 1}.`);
+    } catch (error) {
+      setCropMessage(error instanceof Error ? error.message : "Unable to attach cropped visual.");
+    }
+  }
+
+  return (
+    <aside className="rounded-2xl border border-[var(--border)] bg-[var(--page-bg)] p-4 shadow-sm xl:sticky xl:top-4 xl:max-h-[calc(100dvh-22rem)] xl:min-h-[24rem] xl:overflow-y-auto">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-black uppercase tracking-[0.24em] text-[var(--gold-dark)]">Original source</p>
+          <h4 className="mt-1 text-sm font-black">{source?.originalName || source?.fileName || "No question paper source"}</h4>
+        </div>
+        {sourceUrl ? (
+          <a href={sourceUrl} target="_blank" rel="noreferrer" className="rounded-lg border border-[var(--border)] bg-white px-3 py-2 text-xs font-black">
+            Open
+          </a>
+        ) : null}
+      </div>
+      <div className="mt-3 min-h-[22rem] overflow-hidden rounded-xl border border-[var(--border)] bg-white">
+        {sourceUrl && isPdf ? (
+          <iframe src={sourceUrl} title="Original question paper preview" className="h-[28rem] w-full" />
+        ) : sourceUrl && isImage ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={sourceUrl} alt="Original question paper preview" className="h-auto min-h-[22rem] w-full object-contain" />
+        ) : sourceUrl ? (
+          <div className="grid min-h-[22rem] place-items-center p-5 text-center text-sm font-bold text-[var(--muted-blue)]">
+            This source file is preserved. Open it in a new tab to compare the original layout.
+          </div>
+        ) : (
+          <div className="grid min-h-[22rem] place-items-center p-5 text-center text-sm font-bold text-[var(--muted-blue)]">
+            Upload a question paper PDF or image to compare diagrams, tables and graphs beside this preview.
+          </div>
+        )}
+      </div>
+      {signal?.notes.length ? (
+        <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs font-bold leading-5 text-amber-950">
+          <p className="font-black">Question {signal.number} source check</p>
+          <p className="mt-1">{signal.notes.join(" / ")}</p>
+        </div>
+      ) : (
+        <p className="mt-3 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-xs font-bold text-emerald-950">
+          This question has no detected visual dependency.
+        </p>
+      )}
+      <div className="mt-4 rounded-xl border border-[var(--border)] bg-white p-3">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <p className="text-xs font-black uppercase tracking-[0.18em] text-[var(--gold-dark)]">Question visual assets</p>
+          <span className="rounded-full bg-[var(--page-bg)] px-2 py-1 text-[10px] font-black text-[var(--muted-blue)]">{assets.length} ready</span>
+        </div>
+        {assets.length ? (
+          <div className="mt-3 grid gap-2">
+            {assets.slice(0, 12).map((asset) => (
+              <div
+                key={asset.id}
+                className={`grid gap-2 rounded-lg border p-2 text-left transition ${attachedImage === asset.dataUrl ? "border-emerald-300 bg-emerald-50" : "border-[var(--border)] bg-white"}`}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={asset.dataUrl} alt="" className="h-28 w-full rounded border border-[var(--border)] object-contain" />
+                <span className="text-xs font-black">{asset.label} / {asset.fileName}</span>
+                <div className="grid grid-cols-4 gap-1">
+                  {(["FULL", "TOP", "MIDDLE", "BOTTOM"] as VisualCropRegion[]).map((region) => (
+                    <button
+                      key={region}
+                      type="button"
+                      onClick={() => void attachRegion(asset, region)}
+                      className="min-h-8 rounded border border-[var(--border)] bg-[var(--page-bg)] px-2 text-[10px] font-black text-[var(--ink)] transition hover:border-[var(--gold-border)] hover:bg-[var(--gold-soft)]"
+                    >
+                      {cropRegionLabel(region)}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="mt-3 text-xs font-bold leading-5 text-[var(--muted-blue)]">
+            Upload a PDF or image question paper to create attachable page snapshots for diagram questions.
+          </p>
+        )}
+        {cropMessage ? <p className="mt-3 rounded-lg border border-[var(--border)] bg-[var(--page-bg)] p-2 text-xs font-black text-[var(--muted-blue)]">{cropMessage}</p> : null}
+      </div>
+    </aside>
+  );
+}
+
+function SourceFilesPanel({ uploads, compact = false }: { uploads: ExamUploadRecord[]; compact?: boolean }) {
+  return (
+    <div className={`rounded-2xl border border-emerald-200 bg-emerald-50 p-4 ${compact ? "" : "lg:col-span-2"}`}>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-black uppercase tracking-[0.24em] text-emerald-800">Preserved source files</p>
+          <h4 className="mt-1 text-lg font-black text-emerald-950">{uploads.length} original file{uploads.length === 1 ? "" : "s"} saved</h4>
+        </div>
+        <span className="rounded-full bg-white px-3 py-1 text-xs font-black text-emerald-800">Exam audit ready</span>
+      </div>
+      <div className="mt-3 grid gap-2">
+        {uploads.map((upload) => (
+          <div key={upload.id} className="rounded-xl border border-emerald-100 bg-white p-3 text-sm">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <p className="font-black text-slate-950">{upload.originalName || upload.fileName}</p>
+                <p className="mt-1 text-xs font-bold text-[var(--muted-blue)]">{String(upload.sourceKind).replace(/_/g, " ")} / {Math.max(1, Math.round(upload.fileSize / 1024))} KB / {upload.extractionStatus || "UPLOADED"}</p>
+              </div>
+              {upload.localPreviewUrl || upload.signedUrl || upload.cloudinaryUrl ? (
+                <a href={upload.localPreviewUrl || upload.signedUrl || upload.cloudinaryUrl} target="_blank" rel="noreferrer" className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-black text-emerald-800">
+                  Open source
+                </a>
+              ) : null}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function PaperUnderstandingPanel({ report, compact = false }: { report: PaperUnderstandingReport; compact?: boolean }) {
+  const tone = report.confidence === "HIGH"
+    ? "border-emerald-200 bg-emerald-50 text-emerald-950"
+    : report.confidence === "MEDIUM"
+      ? "border-amber-200 bg-amber-50 text-amber-950"
+      : "border-rose-200 bg-rose-50 text-rose-950";
+  return (
+    <div className={`rounded-2xl border p-4 ${tone} ${compact ? "" : "lg:col-span-2"}`}>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-black uppercase tracking-[0.24em] opacity-75">Paper understanding</p>
+          <h4 className="mt-1 text-lg font-black">{report.inferredExamType} / {report.inferredSubject}</h4>
+          <p className="mt-1 text-sm font-bold opacity-75">{report.inferredTopic} / {report.solutionMode.replace(/_/g, " ").toLowerCase()}</p>
+        </div>
+        <span className="rounded-full bg-white/80 px-3 py-1 text-xs font-black">{report.confidence} confidence</span>
+      </div>
+      <div className="mt-3 grid gap-2 sm:grid-cols-4">
+        <MiniFact label="Sections" value={report.sections.length} />
+        <MiniFact label="Answers" value={`${report.answerKey.entries}/${report.answerKey.entries + report.answerKey.missing.length}`} />
+        <MiniFact label="Marks/Q" value={report.markingScheme.marksPerQuestion} />
+        <MiniFact label="Negative" value={report.markingScheme.negativeMarks} />
+      </div>
+      {report.riskSignals.length ? (
+        <div className="mt-3 flex flex-wrap gap-2">
+          {report.riskSignals.map((risk) => (
+            <span key={risk.type} className="rounded-full border border-current/10 bg-white/75 px-3 py-1 text-xs font-black">
+              {risk.type.replace(/_/g, " ")}: {risk.count}
+            </span>
+          ))}
+        </div>
+      ) : null}
+      {[...report.blockers, ...report.warnings].length ? (
+        <ul className="mt-3 grid gap-1 text-xs font-bold leading-5">
+          {[...report.blockers, ...report.warnings].slice(0, compact ? 4 : 8).map((item) => <li key={item}>- {item}</li>)}
+        </ul>
+      ) : (
+        <p className="mt-3 text-xs font-bold opacity-75">No paper-structure issues detected. Still review the student preview before publishing.</p>
+      )}
+    </div>
+  );
+}
+
+function MiniFact({ label, value }: { label: string; value: string | number }) {
+  return (
+    <div className="rounded-xl border border-current/10 bg-white/75 p-3">
+      <p className="text-[10px] font-black uppercase tracking-[0.18em] opacity-70">{label}</p>
+      <p className="mt-1 text-sm font-black">{value}</p>
+    </div>
   );
 }
 

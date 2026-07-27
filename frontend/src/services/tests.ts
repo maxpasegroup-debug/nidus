@@ -24,6 +24,9 @@ export type TestPayload = {
   isLive?: boolean;
   questions?: Array<{
     questionText: string;
+    questionImage?: string;
+    visualReviewRequired?: boolean;
+    visualReviewNotes?: string[];
     optionA: string;
     optionB: string;
     optionC: string;

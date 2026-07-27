@@ -197,7 +197,7 @@ export default function DirectorReportsPage() {
           <Panel title="Today's Action List" eyebrow="Start here">
             <div className="grid gap-3">
               <ActionLink title="Clear admission queue" text="Check applications, documents, approvals and fee status." href="/dashboard/director/admissions" value={command?.operationalAlerts.pendingAdmissions ?? 0} />
-              <ActionLink title="Review fee pressure" text="Open pending dues and overdue fee records." href="/dashboard/director/accounts#pending-fees" value={pendingFees.length} />
+              <ActionLink title="Review fee pressure" text="Open pending dues and overdue fee records." href="/dashboard/director/accounts?tab=dues" value={pendingFees.length} />
               <ActionLink title="Check class delivery" text="Review attendance, syllabus movement and teacher delivery." href="/dashboard/director/academic/reports" value={`${attendance?.percentage ?? 0}%`} />
               <ActionLink title="Open student progress" text="See batches with weak attendance or progress signals." href="/dashboard/director/students" value={lowAttendance} />
             </div>

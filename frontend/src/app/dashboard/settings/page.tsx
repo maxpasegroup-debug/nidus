@@ -121,6 +121,18 @@ function inputClass(missing = false) {
   return `min-h-12 rounded-xl border bg-white px-4 text-sm font-bold outline-none focus:border-slate-950 ${missing ? "border-rose-300" : "border-[var(--border)]"}`;
 }
 
+function profileTitle(role?: string | null) {
+  if (role === "DIRECTOR") return "Director Profile";
+  if (role === "ACADEMIC_HEAD") return "Academic Head Profile";
+  if (role === "PHYSICAL_TRAINER") return "Trainer Profile";
+  if (role === "STUDENT") return "Student Profile";
+  if (role === "PARENT") return "Parent Profile";
+  if (role === "ADMINISTRATIVE_OFFICER") return "Administrative Profile";
+  if (role === "BUSINESS_DEVELOPMENT_EXECUTIVE" || role === "MARKETING_COORDINATOR" || role === "TELECALLER") return "Business Profile";
+  if (role === "TEACHER") return "Teacher Profile";
+  return "Profile Setup";
+}
+
 export default function DashboardSettingsPage() {
   const router = useRouter();
   const { showToast } = useToast();
@@ -326,7 +338,7 @@ export default function DashboardSettingsPage() {
                   {user?.imageUrl ? <span className="h-full w-full bg-cover bg-center" style={{ backgroundImage: `url(${user.imageUrl})` }} /> : <span className="m-auto">{user?.name?.slice(0, 1).toUpperCase() ?? "N"}</span>}
                 </div>
                 <div>
-                  <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold-dark)]">Teacher Profile</p>
+                  <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold-dark)]">{profileTitle(user?.role)}</p>
                   <h1 className="mt-2 text-3xl font-black text-[var(--ink)]">{profile.name || "Complete your profile"}</h1>
                   <p className="mt-1 text-sm font-bold text-[var(--muted-blue)]">{profile.designation || user?.role || "Role pending"} / {profile.mobile || "Mobile pending"}</p>
                   <div className="mt-3 flex flex-wrap gap-2 text-xs font-black">

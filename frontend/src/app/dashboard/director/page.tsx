@@ -56,7 +56,7 @@ export default function DirectorDashboardPage() {
     {
       title: pendingFees ? "Review pending fees" : "Fee alerts are clear",
       detail: pendingFees ? `${pendingFees} fee item(s) need collection follow-up.` : "No fee alert is visible.",
-      href: "/dashboard/director/accounts#pending-fees",
+      href: "/dashboard/director/accounts?tab=dues",
       value: pendingFees,
       icon: BadgeIndianRupee,
       tone: pendingFees ? "warn" : "ok",

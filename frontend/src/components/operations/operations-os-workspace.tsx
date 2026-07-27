@@ -65,11 +65,11 @@ const hrFlow: OperationLink[] = [
 ];
 
 const financeFlow: OperationLink[] = [
-  { title: "Fee Collection", detail: "Today's collections and pending fees.", href: "/dashboard/director/accounts#pending-fees", icon: BadgeIndianRupee },
-  { title: "Invoices", detail: "Generate and review receipts.", href: "/dashboard/director/accounts?mode=invoices#receipts", icon: ReceiptText },
+  { title: "Fee Collection", detail: "Today's collections and pending fees.", href: "/dashboard/director/accounts?tab=collect", icon: BadgeIndianRupee },
+  { title: "Receipts", detail: "Generate and review receipts.", href: "/dashboard/director/accounts?tab=receipts", icon: ReceiptText },
   { title: "Payments", detail: "Existing online and manual payment records.", href: "/payments", icon: WalletCards },
   { title: "Refunds", detail: "Use the existing payment/refund workflow.", href: "/payments", icon: Landmark },
-  { title: "Expenses", detail: "Teacher and academic expense claims.", href: "/dashboard/director/accounts?mode=reports#finance-reports", icon: FileCheck2 },
+  { title: "Reports", detail: "Collection and pending dues summaries.", href: "/dashboard/director/accounts?tab=reports", icon: FileCheck2 },
   { title: "Reports", detail: "Finance reports and executive intelligence.", href: "/dashboard/director/reports?mode=finance", icon: BarChart3 },
 ];
 

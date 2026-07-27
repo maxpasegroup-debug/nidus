@@ -244,6 +244,7 @@ export const ModelName = {
   AssignmentSubmissionRecord: 'AssignmentSubmissionRecord',
   TeacherStudyMaterialRecord: 'TeacherStudyMaterialRecord',
   TeacherExamRecord: 'TeacherExamRecord',
+  ExamUpload: 'ExamUpload',
   TeacherCalendarLogRecord: 'TeacherCalendarLogRecord',
   TeacherSyllabusProgressRecord: 'TeacherSyllabusProgressRecord',
   NdpReview: 'NdpReview',
@@ -497,6 +498,8 @@ export const QuestionScalarFieldEnum = {
   testId: 'testId',
   questionText: 'questionText',
   questionImage: 'questionImage',
+  visualReviewRequired: 'visualReviewRequired',
+  visualReviewNotes: 'visualReviewNotes',
   optionA: 'optionA',
   optionB: 'optionB',
   optionC: 'optionC',
@@ -3341,6 +3344,32 @@ export const TeacherExamRecordScalarFieldEnum = {
 } as const
 
 export type TeacherExamRecordScalarFieldEnum = (typeof TeacherExamRecordScalarFieldEnum)[keyof typeof TeacherExamRecordScalarFieldEnum]
+
+
+export const ExamUploadScalarFieldEnum = {
+  id: 'id',
+  examId: 'examId',
+  testId: 'testId',
+  batchId: 'batchId',
+  subject: 'subject',
+  topic: 'topic',
+  sourceKind: 'sourceKind',
+  fileName: 'fileName',
+  originalName: 'originalName',
+  fileType: 'fileType',
+  fileSize: 'fileSize',
+  cloudinaryUrl: 'cloudinaryUrl',
+  publicId: 'publicId',
+  extractionStatus: 'extractionStatus',
+  extractionAudit: 'extractionAudit',
+  manualReviewRequired: 'manualReviewRequired',
+  manualReviewCompleted: 'manualReviewCompleted',
+  uploadedBy: 'uploadedBy',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ExamUploadScalarFieldEnum = (typeof ExamUploadScalarFieldEnum)[keyof typeof ExamUploadScalarFieldEnum]
 
 
 export const TeacherCalendarLogRecordScalarFieldEnum = {

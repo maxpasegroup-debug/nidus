@@ -415,6 +415,8 @@ model Question {
   testId          String
   questionText    String
   questionImage   String?
+  visualReviewRequired Boolean @default(false)
+  visualReviewNotes Json?
   optionA         String
   optionB         String
   optionC         String
@@ -3761,6 +3763,36 @@ model TeacherExamRecord {
   @@index([testId])
   @@index([teacherId])
   @@index([status])
+}
+
+model ExamUpload {
+  id                    String   @id @default(cuid())
+  examId                String?
+  testId                String?
+  batchId               String?
+  subject               String?
+  topic                 String?
+  sourceKind            String
+  fileName              String
+  originalName          String
+  fileType              String
+  fileSize              Int
+  cloudinaryUrl         String
+  publicId              String
+  extractionStatus      String   @default("UPLOADED")
+  extractionAudit       Json?
+  manualReviewRequired  Boolean  @default(false)
+  manualReviewCompleted Boolean  @default(false)
+  uploadedBy            String
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  @@index([examId])
+  @@index([testId])
+  @@index([batchId])
+  @@index([uploadedBy])
+  @@index([sourceKind])
+  @@index([extractionStatus])
 }
 
 model TeacherCalendarLogRecord {

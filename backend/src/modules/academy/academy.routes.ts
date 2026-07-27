@@ -2,6 +2,7 @@ import { Router, type NextFunction, type Response } from "express";
 
 import { Role } from "../../generated/prisma/client.js";
 import { protect, type AuthenticatedRequest } from "../../middlewares/session.middleware.js";
+import { upload } from "../media/media.middleware.js";
 import { academyController } from "./academy.controller.js";
 
 const router = Router();
@@ -71,6 +72,7 @@ router.get("/material-summary", requireAcademyRoles(academicRoles), academyContr
 router.get("/exams", requireAcademyRoles(academicRoles), academyController.exams);
 router.get("/exam-summary", requireAcademyRoles(academicRoles), academyController.examSummary);
 router.get("/exams/:id/results", requireAcademyRoles(academicRoles), academyController.examResults);
+router.get("/exams/:id/uploads", requireAcademyRoles(academicRoles), academyController.examUploads);
 router.get("/syllabus-progress", requireAcademyRoles(academicRoles), academyController.syllabusProgress);
 router.get("/syllabus-summary", requireAcademyRoles(academicRoles), academyController.syllabusSummary);
 router.get("/teacher-performance-summary", requireAcademyRoles(academicRoles), academyController.teacherPerformanceSummary);
@@ -108,6 +110,7 @@ router.post("/study-materials/:id/restore", requireAcademyRoles(academicRoles), 
 router.delete("/study-materials/:id", requireAcademyRoles(academicRoles), academyController.deleteStudyMaterial);
 router.patch("/study-materials/:id/review", requireAcademyRoles(academicRoles), academyController.reviewStudyMaterial);
 router.post("/exams/ai-draft", requireAcademyRoles(academicRoles), academyController.createExamDraft);
+router.post("/exams/uploads", requireAcademyRoles(academicRoles), upload.single("file"), academyController.uploadExamSource);
 router.post("/exams", requireAcademyRoles(academicRoles), academyController.publishExam);
 router.patch("/exams/:id", requireAcademyRoles(academicRoles), academyController.updateExam);
 router.post("/exams/:id/archive", requireAcademyRoles(academicRoles), academyController.archiveExam);
@@ -132,6 +135,7 @@ router.post("/employees/:id/unlock", requireAcademyRoles(academicManagementRoles
 router.post("/batches/:id/students", requireAcademyRoles(academicManagementRoles), academyController.addStudent);
 router.patch("/students/:id", requireAcademyRoles(academicManagementRoles), academyController.updateStudent);
 router.post("/students/:id/reset-pin", requireAcademyRoles(academicManagementRoles), academyController.resetStudentPin);
+router.post("/students/:id/transfer", requireAcademyRoles(academicManagementRoles), academyController.transferStudent);
 router.post("/batches/:id/teachers", requireAcademyRoles(academicManagementRoles), academyController.assignTeacher);
 router.post("/admissions/approve", requireAcademyRoles(managementRoles), academyController.approveAdmissionToBatch);
 

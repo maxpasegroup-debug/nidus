@@ -686,7 +686,7 @@ export const aiExamService = {
     await prisma.teacherExamRecord.create({
       data: {
         batchId,
-        batchName: test.batch?.name,
+        batchName: examDraft.batch,
         testId: test.id,
         subject: examDraft.subject,
         course: examDraft.program,
@@ -694,7 +694,7 @@ export const aiExamService = {
         teacherName: actor.name,
         title: examDraft.title,
         topic: examDraft.topic,
-        questionCount: test.questions.length,
+        questionCount: examDraft.sections.reduce((sum, section) => sum + section.questions.length, 0),
         durationMinutes: examDraft.durationMinutes,
         difficulty: `${examDraft.difficultyMix.easy}/${examDraft.difficultyMix.medium}/${examDraft.difficultyMix.hard}`,
         instructions: examDraft.instructions.join("\n"),

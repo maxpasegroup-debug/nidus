@@ -150,6 +150,7 @@ type AttemptHistory = {
   totalCorrect?: number | null;
   timeTaken?: number | null;
   resultsReleased?: boolean;
+  resultStatus?: string | null;
   test: { id?: string | null; title: string; examType?: string | null; subject?: string | null; topic?: string | null; totalMarks: number; duration: number };
 };
 
@@ -1326,6 +1327,7 @@ function ExamCard({ exam }: { exam: ExamSummary }) {
 
 function AttemptHistoryCard({ attempt }: { attempt: AttemptHistory }) {
   const submittedAt = attempt.submittedAt ? new Date(attempt.submittedAt).toLocaleString([], { dateStyle: "medium", timeStyle: "short" }) : "Submitted";
+  const released = attempt.resultsReleased !== false;
   const score = `${attempt.score ?? 0}/${attempt.test.totalMarks}`;
   const minutesTaken = attempt.timeTaken ? Math.max(1, Math.round(attempt.timeTaken / 60)) : null;
   return (
@@ -1337,19 +1339,25 @@ function AttemptHistoryCard({ attempt }: { attempt: AttemptHistory }) {
       <h3 className="mt-3 text-xl font-black">{attempt.test.title}</h3>
       <p className="mt-1 text-sm font-bold text-[var(--muted-blue)]">{attempt.test.subject ?? attempt.test.examType ?? "Exam"} / {attempt.test.topic ?? "General"}</p>
       <div className="mt-4 grid grid-cols-3 gap-2 text-sm font-black">
-        <span className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-3">Score<br />{score}</span>
-        <span className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-3">Correct<br />{attempt.totalCorrect ?? "-"}</span>
+        <span className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-3">Score<br />{released ? score : "Pending"}</span>
+        <span className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-3">Correct<br />{released ? attempt.totalCorrect ?? "-" : "Locked"}</span>
         <span className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-3">Time<br />{minutesTaken ? `${minutesTaken} min` : `${attempt.test.duration} min`}</span>
       </div>
       <div className="mt-4 flex flex-wrap gap-2">
-        <Link href={`/results/${attempt.id}`} className="rounded-xl bg-[var(--gold-gradient)] px-4 py-2 text-sm font-black">
-          View solved paper
-        </Link>
+        {released ? (
+          <Link href={`/results/${attempt.id}`} className="rounded-xl bg-[var(--gold-gradient)] px-4 py-2 text-sm font-black">
+            View solved paper
+          </Link>
+        ) : (
+          <Link href={`/results/${attempt.id}`} className="rounded-xl border border-[var(--gold-border)] bg-[var(--gold-soft)] px-4 py-2 text-sm font-black text-[var(--gold-dark)]">
+            Result under review
+          </Link>
+        )}
         <button type="button" disabled className="rounded-xl border border-[var(--border)] bg-white px-4 py-2 text-sm font-black text-[var(--muted-blue)] opacity-70">
           Timed retest coming next
         </button>
       </div>
-      {!attempt.resultsReleased ? <p className="mt-3 text-xs font-bold text-[var(--muted-blue)]">Official explanations appear after result release.</p> : null}
+      {!released ? <p className="mt-3 text-xs font-bold text-[var(--muted-blue)]">Score, rank, answer key and explanations appear after faculty releases the result.</p> : null}
     </article>
   );
 }

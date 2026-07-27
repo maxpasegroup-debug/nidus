@@ -3,6 +3,8 @@ export type Question = {
   testId: string;
   questionText: string;
   questionImage?: string | null;
+  visualReviewRequired?: boolean | null;
+  visualReviewNotes?: string[] | null;
   optionA: string;
   optionB: string;
   optionC: string;
@@ -90,6 +92,14 @@ export type ResultAnswer = {
 };
 
 export type TestResult = {
+  resultsReleased?: boolean;
+  resultStatus?: "PENDING_RELEASE" | "RESULTS_RELEASED" | "LEGACY_RELEASED" | string;
+  release?: {
+    managed: boolean;
+    released: boolean;
+    status: string;
+    releasedAt?: string | null;
+  };
   attempt: TestAttempt & {
     answers: ResultAnswer[];
   };
@@ -100,12 +110,14 @@ export type TestResult = {
       timeTaken: number;
       averagePerQuestion: number;
     };
-    rankEstimation: number;
-    batchRank: number;
+    rankEstimation: number | null;
+    batchRank: number | null;
     rankedStudents: number;
     topicAnalysis: Array<{ topic: string; correct: number; total: number; accuracy: number }>;
     improvementAreas?: Array<{ topic: string; accuracy: number; message: string }>;
     feedbackSummary?: string;
     aiInsights: string;
+    submitted?: boolean;
+    questionCount?: number;
   };
 };

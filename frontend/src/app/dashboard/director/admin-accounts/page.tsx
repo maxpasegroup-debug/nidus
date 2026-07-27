@@ -17,10 +17,10 @@ const tiles: DirectorTile[] = [
     note: "Approve paid learners and activate them into batches.",
   },
   {
-    label: "Payments & Receipts",
-    href: "/dashboard/director/accounts?mode=invoices",
+    label: "Collect Fee",
+    href: "/dashboard/director/accounts?tab=collect",
     icon: WalletCards,
-    note: "Record payments, verify dues and download receipts.",
+    note: "Search student, collect amount and save receipt.",
   },
   {
     label: "Student Records",
@@ -30,9 +30,9 @@ const tiles: DirectorTile[] = [
   },
   {
     label: "Finance Reports",
-    href: "/dashboard/director/accounts?mode=reports",
+    href: "/dashboard/director/accounts?tab=reports",
     icon: BadgeIndianRupee,
-    note: "Download date-filtered collection and fee reports.",
+    note: "Open filtered collection, pending due and monthly reports.",
   },
 ];
 

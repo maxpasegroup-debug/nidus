@@ -111,10 +111,10 @@ const adminMenu: DashboardNavItem[] = [
 
 const accountsMenu: DashboardNavItem[] = [
   { label: "Dashboard", href: "/dashboard/director/accounts" },
-  { label: "Fees", href: "/dashboard/director/accounts#pending-fees" },
-  { label: "Invoices", href: "/dashboard/director/accounts?mode=invoices#receipts" },
-  { label: "Expenses", href: "/dashboard/director/accounts#finance-reports" },
-  { label: "Reports", href: "/dashboard/director/accounts?mode=reports#finance-reports" },
+  { label: "Collect Fee", href: "/dashboard/director/accounts?tab=collect" },
+  { label: "Pending Dues", href: "/dashboard/director/accounts?tab=dues" },
+  { label: "Receipts", href: "/dashboard/director/accounts?tab=receipts" },
+  { label: "Reports", href: "/dashboard/director/accounts?tab=reports" },
   { label: "Profile", href: "/dashboard/settings" },
 ];
 

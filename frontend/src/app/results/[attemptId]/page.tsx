@@ -20,6 +20,33 @@ export default function ResultPage() {
   if (isLoading) return <div className="h-96 animate-pulse rounded-lg border border-[#d9c79d] bg-white" />;
   if (error || !data) return <EmptyState title="Unable to load result" description={getApiErrorMessage(error)} />;
 
+  if (data.resultsReleased === false || data.resultStatus === "PENDING_RELEASE") {
+    const submittedAt = data.attempt.submittedAt
+      ? new Date(data.attempt.submittedAt).toLocaleString([], { dateStyle: "medium", timeStyle: "short" })
+      : "Submitted";
+    const questionCount = data.analytics.questionCount ?? data.attempt.test._count?.questions ?? data.attempt.test.questions?.length ?? 0;
+
+    return (
+      <motion.div className="space-y-6 bg-[#f7f3ea] p-4 text-[#071d36]" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+        <SectionHeader eyebrow="Result Review" title={data.attempt.test.title} action="Pending faculty release" />
+        <section className="rounded-lg border border-[#d9c79d] bg-white p-6 shadow-sm">
+          <span className="inline-flex rounded-full border border-amber-200 bg-amber-50 px-4 py-2 text-xs font-black uppercase tracking-[0.18em] text-amber-700">
+            Result under review
+          </span>
+          <h2 className="mt-5 text-2xl font-black">Your exam has been submitted.</h2>
+          <p className="mt-2 max-w-3xl text-sm leading-7 text-[#64748b]">
+            The official score, rank, answer key, solved paper and explanations will appear here after faculty releases the result.
+          </p>
+          <div className="mt-5 grid gap-3 md:grid-cols-3">
+            <Metric icon={<CheckCircle2 className="h-5 w-5" />} label="Submission" value={submittedAt} />
+            <Metric icon={<Target className="h-5 w-5" />} label="Questions" value={questionCount ? String(questionCount) : "Locked"} />
+            <Metric icon={<Clock3 className="h-5 w-5" />} label="Time Taken" value={`${Math.round((data.attempt.timeTaken ?? 0) / 60)} min`} />
+          </div>
+        </section>
+      </motion.div>
+    );
+  }
+
   const questionCount = data.attempt.test._count?.questions ?? data.attempt.test.questions?.length ?? data.attempt.answers.length;
   const skipped = Math.max(0, questionCount - data.attempt.answers.length);
   const allQuestions = data.attempt.test.questions?.length ? data.attempt.test.questions : data.attempt.answers.map((answer) => answer.question);
@@ -73,6 +100,7 @@ export default function ResultPage() {
         {allQuestions.map((question, index) => {
           const answer = answersByQuestion.get(question.id);
           const isCorrect = Boolean(answer?.isCorrect);
+          const visualNotes = Array.isArray(question.visualReviewNotes) ? question.visualReviewNotes.filter(Boolean) : [];
           return (
           <div key={question.id} className="rounded-lg border border-[#d9c79d] bg-white p-4 shadow-sm">
             <div className="flex flex-wrap items-start justify-between gap-3">
@@ -81,6 +109,17 @@ export default function ResultPage() {
                 {answer ? isCorrect ? "Correct" : "Wrong" : "Skipped"}
               </span>
             </div>
+            {question.questionImage ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={question.questionImage} alt="" className="mt-4 max-h-80 w-auto rounded-lg border border-[#eadfca] object-contain" />
+            ) : null}
+            {visualNotes.length ? (
+              <div className="mt-3 flex flex-wrap gap-2">
+                {visualNotes.map((note) => (
+                  <span key={note} className="rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-black text-amber-800">{note}</span>
+                ))}
+              </div>
+            ) : null}
             <div className="mt-3 grid gap-2 text-sm sm:grid-cols-2">
               {(["A", "B", "C", "D"] as const).map((option) => (
                 <p key={option} className={`rounded-lg border px-3 py-2 ${question.correctAnswer === option ? "border-emerald-300 bg-emerald-50 font-black text-emerald-800" : answer?.selectedAnswer === option ? "border-red-300 bg-red-50 text-red-800" : "border-[#eadfca] bg-[#fbf8f1]"}`}>

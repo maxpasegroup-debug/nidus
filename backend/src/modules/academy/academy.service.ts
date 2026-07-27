@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 
 import { Prisma, Role } from "../../generated/prisma/client.js";
 import { prisma } from "../../config/prisma.js";
-import { deleteCloudinaryAsset, signedMediaUrl } from "../../config/cloudinary.js";
+import { deleteCloudinaryAsset, signedMediaUrl, uploadBufferToCloudinary } from "../../config/cloudinary.js";
 import { enqueuePDF } from "../../queues/pdf.queue.js";
 import { testsService, validatePublishedQuestions, type TestPayload } from "../tests/tests.service.js";
 import { DEFAULT_ACCOUNT_PIN } from "../auth/auth.v2.service.js";
@@ -228,7 +228,19 @@ type ExamInput = {
   publishTime?: string;
   publishAt?: string;
   draft?: unknown;
+  examUploadIds?: string[];
   status?: string;
+};
+
+type ExamUploadInput = {
+  batchId?: string;
+  subject?: string;
+  topic?: string;
+  sourceKind?: string;
+  extractionStatus?: string;
+  extractionAudit?: unknown;
+  manualReviewRequired?: boolean;
+  manualReviewCompleted?: boolean;
 };
 
 type TodayActionInput = {
@@ -788,6 +800,20 @@ function withSignedMaterialUrls<T extends Record<string, any>>(rows: T[]) {
   });
 }
 
+function withSignedExamUploadUrls<T extends Record<string, any>>(rows: T[]) {
+  return normalizeRows(rows).map((row) => {
+    if (!row.publicId) return row;
+    try {
+      return {
+        ...row,
+        signedUrl: signedMediaUrl(String(row.publicId), row.fileType ? String(row.fileType) : undefined),
+      };
+    } catch {
+      return { ...row, signedUrl: row.cloudinaryUrl };
+    }
+  });
+}
+
 async function auditAcademicAction(user: Requester, action: string, entityType: string, entityId: string | null, payload: Record<string, unknown>) {
   await prisma.$executeRaw`
     INSERT INTO "AcademicActivityAuditRecord"
@@ -810,6 +836,74 @@ function asDraftPayload(input: ExamInput) {
   } catch {
     return null;
   }
+}
+
+function draftExamUploadIds(draft: Partial<TestPayload> | null, input: ExamInput) {
+  const draftUploads = draft && "examUploads" in draft && Array.isArray((draft as { examUploads?: unknown }).examUploads)
+    ? (draft as { examUploads?: Array<{ id?: unknown }> }).examUploads ?? []
+    : [];
+  return Array.from(new Set([
+    ...(Array.isArray(input.examUploadIds) ? input.examUploadIds : []),
+    ...draftUploads.map((upload) => typeof upload.id === "string" ? upload.id : "").filter(Boolean)
+  ]));
+}
+
+function jsonRecord(value: unknown) {
+  return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
+}
+
+async function attachExamUploadsToExam(
+  user: Requester,
+  uploadIds: string[],
+  target: { examId: string; testId?: string | null; batchId?: string | null; subject?: string | null; topic?: string | null; manualReviewCompleted?: boolean; paperUnderstanding?: unknown; visualFidelity?: unknown }
+) {
+  if (!uploadIds.length) return [];
+  const rows = await prisma.$queryRaw<any[]>`
+    SELECT * FROM "ExamUpload"
+    WHERE "id" IN (${Prisma.join(uploadIds)})
+      AND "uploadedBy" = ${user.id}
+  `;
+  const attachedIds: string[] = [];
+  for (const row of rows) {
+    const alreadyLinkedElsewhere = row.examId && row.examId !== target.examId;
+    if (alreadyLinkedElsewhere) {
+      const copyId = randomUUID();
+      const existingAudit = jsonRecord(row.extractionAudit);
+      const mergedAudit = {
+        ...existingAudit,
+        paperUnderstanding: target.paperUnderstanding ?? existingAudit.paperUnderstanding,
+        visualFidelity: target.visualFidelity ?? existingAudit.visualFidelity,
+      };
+      await prisma.$executeRaw`
+        INSERT INTO "ExamUpload"
+        ("id", "examId", "testId", "batchId", "subject", "topic", "sourceKind", "fileName", "originalName", "fileType", "fileSize", "cloudinaryUrl", "publicId", "extractionStatus", "extractionAudit", "manualReviewRequired", "manualReviewCompleted", "uploadedBy", "createdAt", "updatedAt")
+        VALUES
+        (${copyId}, ${target.examId}, ${target.testId || null}, ${target.batchId || row.batchId || null}, ${target.subject || row.subject || null}, ${target.topic || row.topic || null}, ${row.sourceKind}, ${row.fileName}, ${row.originalName}, ${row.fileType}, ${row.fileSize}, ${row.cloudinaryUrl}, ${row.publicId}, ${row.extractionStatus}, ${JSON.stringify(mergedAudit)}::jsonb, ${Boolean(row.manualReviewRequired)}, ${Boolean(target.manualReviewCompleted)}, ${user.id}, ${new Date()}, ${new Date()})
+      `;
+      attachedIds.push(copyId);
+      continue;
+    }
+    const existingAudit = jsonRecord(row.extractionAudit);
+    const mergedAudit = {
+      ...existingAudit,
+      paperUnderstanding: target.paperUnderstanding ?? existingAudit.paperUnderstanding,
+      visualFidelity: target.visualFidelity ?? existingAudit.visualFidelity,
+    };
+    await prisma.$executeRaw`
+      UPDATE "ExamUpload"
+      SET "examId" = ${target.examId},
+          "testId" = ${target.testId || null},
+          "batchId" = COALESCE("batchId", ${target.batchId || null}),
+          "subject" = COALESCE("subject", ${target.subject || null}),
+          "topic" = COALESCE("topic", ${target.topic || null}),
+          "extractionAudit" = ${JSON.stringify(mergedAudit)}::jsonb,
+          "manualReviewCompleted" = ${Boolean(target.manualReviewCompleted)},
+          "updatedAt" = ${new Date()}
+      WHERE "id" = ${row.id}
+    `;
+    attachedIds.push(row.id);
+  }
+  return attachedIds;
 }
 
 async function buildExamDraft(user: Requester, input: ExamInput) {
@@ -861,21 +955,42 @@ function summarizeSyllabusProgress(rows: Array<Record<string, any>>) {
 
 async function attachExamStats(rows: Array<Record<string, any>>) {
   const exams = normalizeRows(rows);
+  const examIds = exams.map((exam) => (typeof exam.id === "string" ? exam.id : null)).filter(Boolean) as string[];
   const testIds = exams.map((exam) => (typeof exam.testId === "string" ? exam.testId : null)).filter(Boolean) as string[];
-  if (!testIds.length) {
-    return exams.map((exam) => ({ ...exam, attemptStats: { attempts: 0, submitted: 0, averageScore: 0 } }));
-  }
-  const attempts = await prisma.testAttempt.findMany({
-    where: { testId: { in: testIds } },
-    select: { testId: true, status: true, submittedAt: true, score: true },
-  });
+  const [attempts, uploads] = await Promise.all([
+    testIds.length
+      ? prisma.testAttempt.findMany({
+          where: { testId: { in: testIds } },
+          select: { testId: true, status: true, submittedAt: true, score: true },
+        })
+      : Promise.resolve([]),
+    examIds.length || testIds.length
+      ? prisma.$queryRaw<any[]>`
+          SELECT * FROM "ExamUpload"
+          WHERE (${examIds.length ? Prisma.sql`"examId" IN (${Prisma.join(examIds)})` : Prisma.sql`false`})
+             OR (${testIds.length ? Prisma.sql`"testId" IN (${Prisma.join(testIds)})` : Prisma.sql`false`})
+          ORDER BY "createdAt" DESC
+        `
+      : Promise.resolve([]),
+  ]);
   const stats = summarizeExamAttempts(attempts);
+  const signedUploads = withSignedExamUploadUrls(uploads);
+  const uploadsByExam = new Map<string, Array<Record<string, unknown>>>();
+  for (const upload of signedUploads) {
+    const key = typeof upload.examId === "string" ? upload.examId : typeof upload.testId === "string" ? upload.testId : "";
+    if (!key) continue;
+    uploadsByExam.set(key, [...(uploadsByExam.get(key) ?? []), upload]);
+  }
   return exams.map((exam) => ({
     ...exam,
     attemptStats:
       typeof exam.testId === "string"
         ? stats.get(exam.testId) ?? { attempts: 0, submitted: 0, averageScore: 0 }
         : { attempts: 0, submitted: 0, averageScore: 0 },
+    uploads: [
+      ...(typeof exam.id === "string" ? uploadsByExam.get(exam.id) ?? [] : []),
+      ...(typeof exam.testId === "string" ? uploadsByExam.get(exam.testId) ?? [] : []),
+    ],
   }));
 }
 
@@ -1937,6 +2052,45 @@ export const academyService = {
 
   async resetStudentPin(user: Requester, studentId: string, pinValue = DEFAULT_ACCOUNT_PIN) {
     return this.updateStudent(user, studentId, { pin: pinValue });
+  },
+
+  async transferStudent(user: Requester, studentId: string, input: { fromBatchId?: string; toBatchId?: string; mode?: "COPY" | "TRANSFER"; rollNumber?: string; notes?: string }) {
+    requireStudentEnrollmentAccess(user);
+    const fromBatchId = input.fromBatchId?.trim();
+    const toBatchId = input.toBatchId?.trim();
+    if (!fromBatchId || !toBatchId) {
+      throw Object.assign(new Error("Source and destination batch are required"), { statusCode: 400 });
+    }
+    if (fromBatchId === toBatchId) {
+      throw Object.assign(new Error("Choose a different destination batch"), { statusCode: 400 });
+    }
+    const source = await db.batchStudent.findFirst({
+      where: { batchId: fromBatchId, studentId, status: "ACTIVE" },
+      include: { student: { select: { id: true, name: true, email: true, mobile: true } } },
+    });
+    if (!source?.student) {
+      throw Object.assign(new Error("Student is not active in the source batch"), { statusCode: 404 });
+    }
+    const target = await this.addStudent(user, toBatchId, {
+      userId: studentId,
+      name: source.student.name,
+      email: source.student.email,
+      phone: source.student.mobile,
+      rollNumber: input.rollNumber || source.remarks || undefined,
+      notes: input.notes,
+    });
+    if ((input.mode ?? "TRANSFER") === "TRANSFER") {
+      await db.batchStudent.update({
+        where: { id: source.id },
+        data: { status: "TRANSFERRED", remarks: source.remarks },
+      });
+    }
+    return {
+      mode: input.mode ?? "TRANSFER",
+      sourceBatchId: fromBatchId,
+      targetBatchId: toBatchId,
+      enrollment: target,
+    };
   },
 
   async assignTeacher(user: Requester, batchId: string, input: TeacherInput) {
@@ -4456,6 +4610,69 @@ export const academyService = {
     return { ok: true, material };
   },
 
+  async uploadExamSource(user: Requester, file: Express.Multer.File, input: ExamUploadInput) {
+    await assertBatchSubjectAccess(user, input.batchId, input.subject);
+    const sourceKind = String(input.sourceKind || "QUESTION_PAPER").toUpperCase();
+    if (!["QUESTION_PAPER", "ANSWER_KEY", "EXPLANATION", "SUPPORTING_ASSET"].includes(sourceKind)) {
+      throw Object.assign(new Error("Invalid exam upload source kind"), { statusCode: 400 });
+    }
+    const extractionAudit = input.extractionAudit && typeof input.extractionAudit === "object"
+      ? input.extractionAudit as Record<string, unknown>
+      : null;
+    const result = await uploadBufferToCloudinary(file, `nidus/exams/${input.batchId || "unassigned"}/${sourceKind.toLowerCase()}`);
+    const id = randomUUID();
+    const now = new Date();
+    await prisma.$executeRaw`
+      INSERT INTO "ExamUpload"
+      ("id", "batchId", "subject", "topic", "sourceKind", "fileName", "originalName", "fileType", "fileSize", "cloudinaryUrl", "publicId", "extractionStatus", "extractionAudit", "manualReviewRequired", "manualReviewCompleted", "uploadedBy", "createdAt", "updatedAt")
+      VALUES
+      (${id}, ${input.batchId || null}, ${input.subject || null}, ${input.topic || null}, ${sourceKind}, ${file.originalname.replace(/\s+/g, "-")}, ${file.originalname}, ${file.mimetype}, ${file.size}, ${result.secureUrl}, ${result.publicId}, ${input.extractionStatus || "UPLOADED"}, ${extractionAudit ? JSON.stringify(extractionAudit) : null}::jsonb, ${Boolean(input.manualReviewRequired)}, ${Boolean(input.manualReviewCompleted)}, ${user.id}, ${now}, ${now})
+    `;
+    const rows = await prisma.$queryRaw<any[]>`
+      SELECT * FROM "ExamUpload" WHERE "id" = ${id} LIMIT 1
+    `;
+    const upload = withSignedExamUploadUrls(rows)[0];
+    await auditAcademicAction(user, "EXAM_SOURCE_UPLOADED", "ExamUpload", id, {
+      batchId: input.batchId,
+      subject: input.subject,
+      topic: input.topic,
+      sourceKind,
+      fileName: file.originalname,
+      fileSize: file.size,
+      extractionStatus: input.extractionStatus || "UPLOADED",
+    });
+    return { ok: true, upload };
+  },
+
+  async examUploads(user: Requester, query: Record<string, unknown>) {
+    requireAcademic(user);
+    const examId = typeof query.examId === "string" ? query.examId : undefined;
+    const batchId = typeof query.batchId === "string" ? query.batchId : undefined;
+    if (batchId) await assertBatchAccess(user, batchId);
+    if (examId) {
+      const rows = await prisma.$queryRaw<any[]>`
+        SELECT * FROM "TeacherExamRecord" WHERE "id" = ${examId} LIMIT 1
+      `;
+      const exam = rows[0];
+      if (!exam) throw Object.assign(new Error("Exam not found"), { statusCode: 404 });
+      await assertBatchSubjectAccess(user, exam.batchId, exam.subject);
+      const uploads = await prisma.$queryRaw<any[]>`
+        SELECT * FROM "ExamUpload"
+        WHERE "examId" = ${examId} OR (${exam.testId}::text IS NOT NULL AND "testId" = ${exam.testId})
+        ORDER BY "createdAt" DESC
+      `;
+      return { uploads: withSignedExamUploadUrls(uploads) };
+    }
+    const uploads = batchId
+      ? await prisma.$queryRaw<any[]>`
+          SELECT * FROM "ExamUpload" WHERE "batchId" = ${batchId} ORDER BY "createdAt" DESC
+        `
+      : await prisma.$queryRaw<any[]>`
+          SELECT * FROM "ExamUpload" WHERE "uploadedBy" = ${user.id} ORDER BY "createdAt" DESC
+        `;
+    return { uploads: withSignedExamUploadUrls(uploads) };
+  },
+
   async createExamDraft(user: Requester, input: ExamInput) {
     await assertBatchSubjectAccess(user, input.batchId, input.subject);
     if (!input.topic) {
@@ -4519,8 +4736,22 @@ export const academyService = {
     const rows = await prisma.$queryRaw<any[]>`
       SELECT * FROM "TeacherExamRecord" WHERE "id" = ${id} LIMIT 1
     `;
+    const examUploadIds = draftExamUploadIds(generatedDraft, input);
+    const manualReviewCompleted = "manualPaperReview" in generatedDraft ? Boolean((generatedDraft as { manualPaperReview?: unknown }).manualPaperReview) : false;
+    const paperUnderstanding = "paperUnderstanding" in generatedDraft ? (generatedDraft as { paperUnderstanding?: unknown }).paperUnderstanding : undefined;
+    const visualFidelity = "visualFidelity" in generatedDraft ? (generatedDraft as { visualFidelity?: unknown }).visualFidelity : undefined;
+    const attachedExamUploadIds = await attachExamUploadsToExam(user, examUploadIds, {
+      examId: id,
+      testId: test.id,
+      batchId: input.batchId,
+      subject: input.subject,
+      topic: input.topic,
+      manualReviewCompleted,
+      paperUnderstanding,
+      visualFidelity,
+    });
     const exam = (await attachExamStats(rows))[0];
-    await auditAcademicAction(user, "EXAM_PUBLISHED", "TeacherExamRecord", id, { ...exam, testId: test.id });
+    await auditAcademicAction(user, "EXAM_PUBLISHED", "TeacherExamRecord", id, { ...exam, testId: test.id, examUploadIds: attachedExamUploadIds });
     return { ok: true, exam, test };
   },
 
@@ -4532,6 +4763,11 @@ export const academyService = {
     const current = rows[0];
     if (!current) {
       throw Object.assign(new Error("Exam not found"), { statusCode: 404 });
+    }
+    const currentStatus = String(current.status || "").toUpperCase();
+    const nextStatus = String(input.status ?? current.status ?? "").toUpperCase();
+    if (currentStatus === "RESULTS_RELEASED" && nextStatus !== "ARCHIVED" && nextStatus !== "RESULTS_RELEASED") {
+      throw Object.assign(new Error("Results have already been released. This exam can no longer be edited or republished."), { statusCode: 409 });
     }
     await assertBatchAccess(user, current.batchId);
     await assertBatchSubjectAccess(user, current.batchId, input.subject ?? current.subject);
@@ -4590,6 +4826,20 @@ export const academyService = {
         },
       }).catch(() => undefined);
     }
+    const examUploadIds = draftExamUploadIds(replacementDraft, input);
+    const manualReviewCompleted = replacementDraft && "manualPaperReview" in replacementDraft ? Boolean((replacementDraft as { manualPaperReview?: unknown }).manualPaperReview) : false;
+    const paperUnderstanding = replacementDraft && "paperUnderstanding" in replacementDraft ? (replacementDraft as { paperUnderstanding?: unknown }).paperUnderstanding : undefined;
+    const visualFidelity = replacementDraft && "visualFidelity" in replacementDraft ? (replacementDraft as { visualFidelity?: unknown }).visualFidelity : undefined;
+    await attachExamUploadsToExam(user, examUploadIds, {
+      examId,
+      testId: current.testId || null,
+      batchId: current.batchId || null,
+      subject: input.subject ?? current.subject ?? null,
+      topic: input.topic ?? current.topic ?? null,
+      manualReviewCompleted,
+      paperUnderstanding,
+      visualFidelity,
+    });
     const updated = await prisma.$queryRaw<any[]>`
       SELECT * FROM "TeacherExamRecord" WHERE "id" = ${examId} LIMIT 1
     `;
@@ -4658,15 +4908,33 @@ export const academyService = {
     }
     if (!exam.testId) return { exam: normalizeRows(rows)[0], results: [], released: exam.status === "RESULTS_RELEASED" };
 
-    const test = await prisma.test.findUnique({ where: { id: exam.testId }, select: { totalMarks: true } });
-    const attempts = await prisma.testAttempt.findMany({
-      where: { testId: exam.testId, status: "SUBMITTED", submittedAt: { not: null } },
-      orderBy: [{ score: "desc" }, { totalCorrect: "desc" }, { timeTaken: "asc" }, { submittedAt: "asc" }],
-      include: { user: { select: { id: true, name: true, email: true } } },
-    });
+    const [test, attempts, assignedStudents] = await Promise.all([
+      prisma.test.findUnique({ where: { id: exam.testId }, select: { totalMarks: true } }),
+      prisma.testAttempt.findMany({
+        where: { testId: exam.testId, status: "SUBMITTED", submittedAt: { not: null } },
+        orderBy: [{ score: "desc" }, { totalCorrect: "desc" }, { timeTaken: "asc" }, { submittedAt: "asc" }],
+        include: { user: { select: { id: true, name: true, email: true } } },
+      }),
+      exam.batchId
+        ? prisma.batchStudent.count({ where: { batchId: exam.batchId, status: "ACTIVE" } })
+        : Promise.resolve(0),
+    ]);
+    const totalMarks = test?.totalMarks ?? 0;
+    const scores = attempts.map((attempt) => attempt.score);
+    const averageScore = scores.length ? Math.round(scores.reduce((sum, score) => sum + score, 0) / scores.length) : 0;
     return {
       exam: normalizeRows(rows)[0],
       released: exam.status === "RESULTS_RELEASED",
+      summary: {
+        assignedStudents,
+        submitted: attempts.length,
+        pending: Math.max(0, assignedStudents - attempts.length),
+        averageScore,
+        highestScore: scores.length ? Math.max(...scores) : 0,
+        lowestScore: scores.length ? Math.min(...scores) : 0,
+        totalMarks,
+        releaseReady: attempts.length > 0,
+      },
       results: attempts.map((attempt, index) => ({
         rank: index + 1,
         attemptId: attempt.id,
@@ -4674,8 +4942,8 @@ export const academyService = {
         studentName: attempt.user.name,
         studentEmail: attempt.user.email,
         score: attempt.score,
-        totalMarks: test?.totalMarks ?? 0,
-        percentage: test?.totalMarks ? Math.round((attempt.score / test.totalMarks) * 100) : 0,
+        totalMarks,
+        percentage: totalMarks ? Math.round((attempt.score / totalMarks) * 100) : 0,
         correct: attempt.totalCorrect,
         wrong: attempt.totalWrong,
         timeTaken: attempt.timeTaken,
@@ -4686,7 +4954,11 @@ export const academyService = {
 
   async releaseExamResults(user: Requester, examId: string) {
     const result = await this.examResults(user, examId);
+    if (!result.results.length) {
+      throw Object.assign(new Error("At least one submitted attempt is required before releasing results."), { statusCode: 409 });
+    }
     const releasedAt = new Date();
+    const testId = (result.exam as { testId?: string | null }).testId;
     await prisma.$executeRaw`
       UPDATE "TeacherExamRecord"
       SET "status" = 'RESULTS_RELEASED',
@@ -4694,6 +4966,12 @@ export const academyService = {
           "updatedAt" = ${releasedAt}
       WHERE "id" = ${examId}
     `;
+    if (testId) {
+      await prisma.test.update({
+        where: { id: testId },
+        data: { status: "RESULTS_RELEASED", isLive: false }
+      }).catch(() => undefined);
+    }
     await auditAcademicAction(user, "EXAM_RESULTS_RELEASED", "TeacherExamRecord", examId, {
       releasedAt: releasedAt.toISOString(),
       rankedStudents: result.results.length,

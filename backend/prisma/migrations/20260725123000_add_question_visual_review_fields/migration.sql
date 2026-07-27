@@ -1,0 +1,3 @@
+ALTER TABLE "Question"
+ADD COLUMN IF NOT EXISTS "visualReviewRequired" BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN IF NOT EXISTS "visualReviewNotes" JSONB;

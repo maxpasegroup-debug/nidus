@@ -26,6 +26,8 @@ export const allowedMediaMimeTypes = new Set([
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
   "application/vnd.ms-powerpoint",
   "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+  "text/plain",
+  "text/csv",
   "video/mp4",
   "video/webm",
   "video/quicktime"

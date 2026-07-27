@@ -639,6 +639,11 @@ export async function resetAcademyStudentPin(id: string, pin = "1234") {
   return response.data;
 }
 
+export async function transferAcademyStudent(id: string, payload: { fromBatchId: string; toBatchId: string; mode: "COPY" | "TRANSFER"; rollNumber?: string; notes?: string }) {
+  const response = await apiClient.post(`/academy/students/${id}/transfer`, payload);
+  return response.data;
+}
+
 export type ApproveAdmissionToBatchPayload = {
   batchId: string;
   batchIds?: string[];

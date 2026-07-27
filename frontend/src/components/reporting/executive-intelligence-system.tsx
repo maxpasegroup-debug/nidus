@@ -90,7 +90,7 @@ const roleReportMaps: Record<IntelligenceRole, ReportModule[]> = {
     { title: "Executive Dashboard", detail: "Platform health, growth metrics and risk alerts.", href: "/dashboard/director/reports", icon: BarChart3 },
     { title: "Admissions", detail: "Lead funnel, conversions and pending admissions.", href: "/dashboard/director/admissions", icon: Users },
     { title: "Academic Performance", detail: "Planner, attendance, completion and exam analytics.", href: "/dashboard/director/academic/reports", icon: GraduationCap },
-    { title: "Revenue", detail: "Collection, outstanding fees, income and monthly summary.", href: "/dashboard/director/accounts?mode=reports", icon: WalletCards },
+    { title: "Revenue", detail: "Collection, outstanding fees, income and monthly summary.", href: "/dashboard/director/accounts?tab=reports", icon: WalletCards },
   ],
   ACADEMIC_HEAD: [
     { title: "Planner Completion", detail: "Subject completion, weak batches and lesson reviews.", href: "/dashboard/academic-head/hod/reports", icon: GraduationCap },
@@ -118,8 +118,8 @@ const roleReportMaps: Record<IntelligenceRole, ReportModule[]> = {
     { title: "Counselling Outcomes", detail: "Applications and AO-ready handovers.", href: "/dashboard/admission-cell#applications", icon: BarChart3 },
   ],
   ACCOUNTS: [
-    { title: "Fee Collection", detail: "Collections, pending fees and receipts.", href: "/dashboard/director/accounts#pending-fees", icon: WalletCards },
-    { title: "Income & Expenses", detail: "Finance report data and monthly summary.", href: "/dashboard/director/accounts?mode=reports", icon: BarChart3 },
+    { title: "Fee Collection", detail: "Collections, pending fees and receipts.", href: "/dashboard/director/accounts?tab=collect", icon: WalletCards },
+    { title: "Finance Reports", detail: "Collection, pending dues and monthly summaries.", href: "/dashboard/director/accounts?tab=reports", icon: BarChart3 },
     { title: "Payroll", detail: "Payroll and staff finance summary.", href: "/dashboard/director/hrm", icon: Users },
   ],
   BUSINESS_DEVELOPMENT: [
