@@ -1,5 +1,5 @@
-import { PptGeneratorPage } from "@/components/teacher/ppt-generator-page";
+import { redirect } from "next/navigation";
 
-export default function AcademicHeadPptGeneratorRoute() {
-  return <PptGeneratorPage role="ACADEMIC_HEAD" backHref="/dashboard/academic-head/workspace" />;
+export default function AcademicHeadPptGeneratorRedirectPage() {
+  redirect("/dashboard/academic-head");
 }

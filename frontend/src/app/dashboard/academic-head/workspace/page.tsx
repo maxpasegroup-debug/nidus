@@ -1,5 +1,5 @@
-import { MyWorkspace } from "@/components/teacher/my-workspace";
+import { redirect } from "next/navigation";
 
-export default function AcademicHeadWorkspacePage() {
-  return <MyWorkspace role="ACADEMIC_HEAD" />;
+export default function AcademicHeadWorkspaceRedirectPage() {
+  redirect("/dashboard/academic-head/hod");
 }

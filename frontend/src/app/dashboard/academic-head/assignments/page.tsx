@@ -1,5 +1,5 @@
-import TeacherDashboardClient from "../../teacher/TeacherDashboardClient";
+import { redirect } from "next/navigation";
 
-export default function AcademicHeadAssignmentsPage() {
-  return <TeacherDashboardClient view="assignments" />;
+export default function AcademicHeadAssignmentsRedirectPage() {
+  redirect("/dashboard/academic-head/my-classes");
 }

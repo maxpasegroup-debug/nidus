@@ -1,3 +1,5 @@
-import { AcademicProfile } from "@/components/teacher/academic-profile";
+import { redirect } from "next/navigation";
 
-export default function AcademicHeadProfilePage() { return <AcademicProfile />; }
+export default function AcademicHeadProfileRedirectPage() {
+  redirect("/dashboard/settings");
+}

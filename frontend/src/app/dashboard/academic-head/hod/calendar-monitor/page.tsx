@@ -1,1 +1,5 @@
-export { default } from "@/app/dashboard/director/academic/calendar-monitor/page";
+import { redirect } from "next/navigation";
+
+export default function AcademicHeadCalendarMonitorRedirectPage() {
+  redirect("/dashboard/academic-head/hod/reports");
+}

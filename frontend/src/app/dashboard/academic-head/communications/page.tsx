@@ -1,3 +1,5 @@
-import { AcademicCommunications } from "@/components/teacher/academic-communications";
+import { redirect } from "next/navigation";
 
-export default function AcademicHeadCommunicationsPage() { return <AcademicCommunications />; }
+export default function AcademicHeadCommunicationsRedirectPage() {
+  redirect("/dashboard/academic-head");
+}

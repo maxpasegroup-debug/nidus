@@ -1,5 +1,5 @@
-import { TeacherQuestionBankPage } from "@/components/teacher/teacher-question-bank-page";
+import { redirect } from "next/navigation";
 
-export default function AcademicHeadQuestionBankPage() {
-  return <TeacherQuestionBankPage role="ACADEMIC_HEAD" backHref="/dashboard/academic-head/workspace" />;
+export default function AcademicHeadQuestionBankRedirectPage() {
+  redirect("/dashboard/academic-head/exams");
 }

@@ -1,3 +1,5 @@
-import { HodControlCenter } from "@/components/academic-head/hod-control-center";
+import { redirect } from "next/navigation";
 
-export default function AcademicHeadControlPage() { return <HodControlCenter initialTab="BATCHES" />; }
+export default function AcademicHeadHodControlRedirectPage() {
+  redirect("/dashboard/academic-head/hod");
+}

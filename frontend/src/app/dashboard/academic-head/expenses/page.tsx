@@ -1,5 +1,5 @@
-import { TeacherSupportToolPage } from "@/components/teacher/teacher-support-tool-page";
+import { redirect } from "next/navigation";
 
-export default function AcademicHeadExpensesPage() {
-  return <TeacherSupportToolPage tool="EXPENSE" backHref="/dashboard/academic-head/workspace" />;
+export default function AcademicHeadExpensesRedirectPage() {
+  redirect("/dashboard/academic-head");
 }

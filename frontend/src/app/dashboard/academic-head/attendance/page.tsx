@@ -1,5 +1,5 @@
-import TeacherDashboardClient from "../../teacher/TeacherDashboardClient";
+import { redirect } from "next/navigation";
 
-export default function AcademicHeadAttendancePage() {
-  return <TeacherDashboardClient view="attendance" />;
+export default function AcademicHeadAttendanceRedirectPage() {
+  redirect("/dashboard/academic-head/hod/reports");
 }

@@ -1,5 +1,5 @@
-import { TeacherDoubtsPage } from "@/components/teacher/teacher-doubts-page";
+import { redirect } from "next/navigation";
 
-export default function AcademicHeadDoubtsRoute() {
-  return <TeacherDoubtsPage role="ACADEMIC_HEAD" backHref="/dashboard/academic-head/workspace" />;
+export default function AcademicHeadDoubtsRedirectPage() {
+  redirect("/dashboard/academic-head");
 }

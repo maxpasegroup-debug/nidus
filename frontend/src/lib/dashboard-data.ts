@@ -43,7 +43,7 @@ export function canAccessDashboardPath(user: Pick<AuthUser, "role" | "roleMetada
   const template = dashboardTemplate(user);
   if (template === "VIDEO_EDITOR") return path.startsWith("/dashboard/video-editor");
   if (user.role === "ACADEMIC_HEAD" || template === "ACADEMIC_HEAD") {
-    return path.startsWith("/dashboard/academic-head") || path.startsWith("/dashboard/teacher") || path.startsWith("/dashboard/director/academic") || path.startsWith("/dashboard/director/materials") || path.startsWith("/dashboard/director/exams");
+    return path.startsWith("/dashboard/academic-head") || path.startsWith("/dashboard/teacher");
   }
   if (user.role === "ADMINISTRATIVE_OFFICER") return path.startsWith("/dashboard/admission-cell");
   if (user.role === "BUSINESS_DEVELOPMENT_EXECUTIVE") return path.startsWith("/dashboard/business-development");

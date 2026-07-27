@@ -1,1 +1,5 @@
-export { default } from "@/app/dashboard/director/academic/student-progress/page";
+import { redirect } from "next/navigation";
+
+export default function AcademicHeadStudentMonitoringRedirectPage() {
+  redirect("/dashboard/academic-head/hod/reports");
+}

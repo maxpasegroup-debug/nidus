@@ -1,5 +1,5 @@
-import { SimpleNotificationsPage } from "@/components/dashboard/simple-notifications-page";
+import { redirect } from "next/navigation";
 
-export default function AcademicHeadNotificationsPage() {
-  return <SimpleNotificationsPage owner="Academic Head" />;
+export default function AcademicHeadNotificationsRedirectPage() {
+  redirect("/dashboard/academic-head");
 }

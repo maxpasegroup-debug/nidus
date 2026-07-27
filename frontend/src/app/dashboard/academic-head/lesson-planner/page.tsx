@@ -1,5 +1,5 @@
-import { LessonPlannerPage } from "@/components/teacher/lesson-planner-page";
+import { redirect } from "next/navigation";
 
-export default function AcademicHeadLessonPlannerRoute() {
-  return <LessonPlannerPage role="ACADEMIC_HEAD" backHref="/dashboard/academic-head/workspace" />;
+export default function AcademicHeadLessonPlannerRedirectPage() {
+  redirect("/dashboard/academic-head/my-classes");
 }
