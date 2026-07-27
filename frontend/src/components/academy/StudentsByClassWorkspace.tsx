@@ -80,7 +80,7 @@ export default function StudentsByClassWorkspace({ audience, embedded = false }:
   const [notice, setNotice] = useState("");
 
   const batchesQuery = useQuery({ queryKey: ["academy", "batches", "students-workspace"], queryFn: () => getAcademyBatches() });
-  const batches = batchesQuery.data ?? emptyBatches;
+  const batches = (batchesQuery.data ?? emptyBatches).filter((batch) => batch.status !== "ARCHIVED");
   const activeBatch = batches.find((batch) => batch.id === activeBatchId) ?? batches[0] ?? null;
   const selectedEntry = activeBatch?.students?.find((entry) => entry.student.id === selectedStudentId) ?? null;
   const selectedStudent = selectedEntry?.student ?? null;

@@ -38,12 +38,11 @@ const roleLinks: Record<AcademicEngineRole, EngineLink[]> = {
     { label: "Performance", href: "/dashboard/director/academic/reports", icon: BarChart3, description: "Review attendance, exams, assignments and materials." },
   ],
   ACADEMIC_HEAD: [
+    { label: "Programs", href: "/dashboard/academic-head/hod/programs", icon: GraduationCap, description: "Maintain academy program planners and syllabus templates." },
+    { label: "Batches", href: "/dashboard/academic-head/hod/batches", icon: Users, description: "Create and manage batches from the program planner." },
     { label: "Today's Classes", href: "/dashboard/academic-head/my-classes", icon: CalendarDays, description: "Run the day from published planner sessions." },
     { label: "Planner", href: "/dashboard/academic-head/hod/timetable", icon: ListChecks, description: "Manage class schedule and timetable execution." },
     { label: "Faculty", href: "/dashboard/academic-head/hod/teacher-allocation", icon: Users, description: "Allocate teachers and check faculty delivery." },
-    { label: "Pending Reviews", href: "/dashboard/academic-head/hod/approvals", icon: ClipboardCheck, description: "Review assignments, tests and academic work." },
-    { label: "Weak Batches", href: "/dashboard/academic-head/hod/student-monitoring", icon: BarChart3, description: "Find batches needing academic support." },
-    { label: "Reports", href: "/dashboard/academic-head/hod/reports", icon: FileText, description: "Read academic progress and completion reports." },
   ],
   TEACHER: [
     { label: "Today's Classes", href: "/dashboard/teacher/classes", icon: CalendarDays, description: "Open class from the generated timetable." },

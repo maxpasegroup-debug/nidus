@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
-import { BarChart3, BookOpenCheck, CalendarCheck, CalendarClock, CalendarRange, ClipboardCheck, ClipboardList, FileText, GraduationCap, HelpCircle, Library, Megaphone, Presentation, UserRound, Users } from "lucide-react";
+import { BarChart3, CalendarClock, CalendarRange, ClipboardCheck, FileText, GraduationCap, UserCheck, Users } from "lucide-react";
 import { WorkspaceDashboard } from "@/components/dashboard/workspace-dashboard";
 import { getAcademyToday, type AcademyTodayTask } from "@/services/academy";
 
@@ -61,11 +61,11 @@ export default function AcademicHeadDashboardPage() {
         },
       ]}
       actions={[
+        { label: "Programs", href: "/dashboard/academic-head/hod/programs", icon: GraduationCap },
+        { label: "Batches", href: "/dashboard/academic-head/hod/batches", icon: Users },
+        { label: "Students", href: "/dashboard/academic-head/students", icon: UserCheck },
         { label: "Timetable", href: "/dashboard/academic-head/hod/timetable", icon: CalendarRange },
         { label: "Teacher Allocation", href: "/dashboard/academic-head/hod/teacher-allocation", icon: Users },
-        { label: "Approvals", href: "/dashboard/academic-head/hod/approvals", icon: ClipboardCheck },
-        { label: "Students", href: "/dashboard/academic-head/students", icon: GraduationCap },
-        { label: "NDP Reviews", href: "/dashboard/academic-head/ndp", icon: FileText },
         { label: "Reports", href: "/dashboard/academic-head/hod/reports", icon: BarChart3 },
       ]}
       metrics={[
@@ -90,27 +90,21 @@ export default function AcademicHeadDashboardPage() {
       <section className="rounded-[var(--ds-radius-xl)] border border-[var(--ds-color-border)] bg-[var(--ds-color-surface)] p-5 shadow-[var(--ds-shadow-soft)]">
         <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
           <div>
-            <p className="ds-text-label text-[var(--ds-color-primary)]">More Tools</p>
-            <h2 className="mt-1 text-xl font-black">Open only when needed</h2>
+            <p className="ds-text-label text-[var(--ds-color-primary)]">Academic Setup</p>
+            <h2 className="mt-1 text-xl font-black">Core workflow</h2>
           </div>
-          <Link href="/dashboard/academic-head/workspace" className="rounded-[var(--ds-radius-large)] border border-[var(--ds-color-border)] px-4 py-3 text-sm font-black">
-            All tools
+          <Link href="/dashboard/academic-head/hod" className="rounded-[var(--ds-radius-large)] border border-[var(--ds-color-border)] px-4 py-3 text-sm font-black">
+            Academic Control
           </Link>
         </div>
-        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {[
-            { label: "My Classes", href: "/dashboard/academic-head/my-classes", icon: BookOpenCheck },
-            { label: "Attendance", href: "/dashboard/academic-head/attendance", icon: CalendarCheck },
-            { label: "Assignments", href: "/dashboard/academic-head/assignments", icon: ClipboardList },
-            { label: "Exams", href: "/dashboard/academic-head/exams", icon: FileText },
-            { label: "Library", href: "/dashboard/academic-head/library", icon: Library },
-            { label: "Lesson Planner", href: "/dashboard/academic-head/lesson-planner", icon: CalendarClock },
-            { label: "Doubts", href: "/dashboard/academic-head/doubts", icon: HelpCircle },
-            { label: "Announcements", href: "/dashboard/academic-head/communications", icon: Megaphone },
-            { label: "PPT Generator", href: "/dashboard/academic-head/ppt-generator", icon: Presentation },
-            { label: "Question Bank", href: "/dashboard/academic-head/question-bank", icon: FileText },
-            { label: "Leave", href: "/dashboard/academic-head/leave-requests", icon: ClipboardCheck },
-            { label: "Profile", href: "/dashboard/academic-head/profile", icon: UserRound },
+            { label: "Programs", href: "/dashboard/academic-head/hod/programs", icon: GraduationCap },
+            { label: "Batches", href: "/dashboard/academic-head/hod/batches", icon: Users },
+            { label: "Students", href: "/dashboard/academic-head/students", icon: UserCheck },
+            { label: "Planner", href: "/dashboard/academic-head/hod/timetable", icon: CalendarRange },
+            { label: "Faculty", href: "/dashboard/academic-head/hod/teacher-allocation", icon: ClipboardCheck },
+            { label: "Reports", href: "/dashboard/academic-head/hod/reports", icon: FileText },
           ].map((item) => {
             const Icon = item.icon;
             return (

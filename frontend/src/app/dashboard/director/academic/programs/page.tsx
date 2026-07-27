@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import type { FormEvent } from "react";
+import { usePathname } from "next/navigation";
 import {
   ArrowLeft,
   BookOpen,
@@ -152,7 +153,7 @@ const programCategories: ProgramCategory[] = [
     key: "other",
     title: "Other Programs",
     shortTitle: "Other",
-    description: "Custom academy programs created by the Director.",
+    description: "Custom academy programs created for this academy.",
     icon: BookOpen,
     match: () => true,
   },
@@ -228,6 +229,9 @@ function modeLabel(mode: DeliveryMode) {
 }
 
 export default function DirectorProgramsPage() {
+  const pathname = usePathname();
+  const isAcademicHeadPath = (pathname ?? "").includes("/dashboard/academic-head/");
+  const hiddenTemplateStorageKey = isAcademicHeadPath ? "academicHeadHiddenProgramTemplates" : "academyHiddenProgramTemplates";
   const [step, setStep] = useState<ViewStep>("categories");
   const [selectedCategoryKey, setSelectedCategoryKey] = useState<ProgramCategoryKey | null>(null);
   const [selectedMode, setSelectedMode] = useState<DeliveryMode | null>(null);
@@ -240,7 +244,7 @@ export default function DirectorProgramsPage() {
   const [hiddenTemplateSlugs, setHiddenTemplateSlugs] = useState<string[]>(() => {
     if (typeof window === "undefined") return [];
     try {
-      return JSON.parse(window.localStorage.getItem("directorHiddenProgramTemplates") || "[]") as string[];
+      return JSON.parse(window.localStorage.getItem(hiddenTemplateStorageKey) || "[]") as string[];
     } catch {
       return [];
     }
@@ -376,7 +380,7 @@ export default function DirectorProgramsPage() {
     if (deleteTarget.id.startsWith("template-")) {
       setHiddenTemplateSlugs((current) => {
         const next = [...new Set([...current, deleteTarget.slug])];
-        window.localStorage.setItem("directorHiddenProgramTemplates", JSON.stringify(next));
+        window.localStorage.setItem(hiddenTemplateStorageKey, JSON.stringify(next));
         return next;
       });
       setDeleteTarget(null);
@@ -392,7 +396,7 @@ export default function DirectorProgramsPage() {
     const description = JSON.stringify({
       summary: form.description,
       deliveryMode,
-      source: "Director Programs & Courses",
+      source: "Academy Programs & Courses",
       academicPlanner: editingCourse ? parseCourseDescription(editingCourse).academicPlanner : undefined,
     });
     const payload = {
@@ -439,7 +443,7 @@ export default function DirectorProgramsPage() {
       </section>
 
       <AcademicEngineBanner
-        role="DIRECTOR"
+        role={isAcademicHeadPath ? "ACADEMIC_HEAD" : "DIRECTOR"}
         title="Program Planner is the master syllabus"
         description="Paste, review and publish the complete program plan here. New batches generate timetable sessions from this master planner, and running batches can sync updates manually from their batch planner."
         metrics={[
@@ -591,7 +595,7 @@ export default function DirectorProgramsPage() {
                         disabled={deleteCourse.isPending}
                         onClick={() => requestDelete(course)}
                         className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-rose-200 bg-rose-50 px-2 py-2 text-xs font-black text-rose-700 transition hover:bg-rose-100 disabled:cursor-not-allowed disabled:border-[var(--border)] disabled:bg-[var(--page-bg)] disabled:text-[var(--muted-blue)]"
-                        title={isTemplate ? "Remove this template from the Director program list." : "Delete program"}
+                        title={isTemplate ? "Remove this template from this program list." : "Delete program"}
                       >
                         <Trash2 className="h-3.5 w-3.5" />
                         Delete
@@ -670,7 +674,7 @@ export default function DirectorProgramsPage() {
                     <h2 className="mt-1 text-xl font-black text-[var(--navy)]">{deleteTarget.title}</h2>
                     <p className="mt-2 text-sm leading-6 text-[var(--muted-blue)]">
                       {deleteTarget.id.startsWith("template-")
-                        ? "This is a default template. It will be removed from this Director program list."
+                        ? "This is a default template. It will be removed from this program list."
                         : "This saved program will be deleted from the system."}
                     </p>
                   </div>

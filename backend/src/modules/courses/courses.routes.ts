@@ -25,9 +25,9 @@ function courseValidators(optional = false) {
 coursesRouter.get("/", coursesController.list);
 coursesRouter.get("/:slug", coursesController.details);
 
-coursesRouter.post("/", protect, allowRoles(Role.ADMIN, Role.DIRECTOR), courseValidators(), coursesController.create);
-coursesRouter.put("/:id", protect, allowRoles(Role.ADMIN, Role.DIRECTOR), courseValidators(true), coursesController.update);
-coursesRouter.delete("/:id", protect, allowRoles(Role.ADMIN, Role.DIRECTOR), coursesController.remove);
+coursesRouter.post("/", protect, allowRoles(Role.ADMIN, Role.DIRECTOR, Role.ACADEMIC_HEAD), courseValidators(), coursesController.create);
+coursesRouter.put("/:id", protect, allowRoles(Role.ADMIN, Role.DIRECTOR, Role.ACADEMIC_HEAD), courseValidators(true), coursesController.update);
+coursesRouter.delete("/:id", protect, allowRoles(Role.ADMIN, Role.DIRECTOR, Role.ACADEMIC_HEAD), coursesController.remove);
 
 coursesRouter.post(
   "/enroll",

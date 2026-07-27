@@ -1847,7 +1847,7 @@ export const academyService = {
     }
 
     let where = batchWhereFromQuery(query);
-    if (!isManagement(user) && !isAdmissionCell(user) && !isVideoEditor(user)) {
+    if (!isManagement(user) && !isAcademicManager(user) && !isAdmissionCell(user) && !isVideoEditor(user)) {
       const assignedBatchIds = await assignedBatchIdsForUser(user.id);
       if (!assignedBatchIds.length) return [];
       where = mergeBatchWhere(where, { id: { in: assignedBatchIds } });
@@ -2070,6 +2070,12 @@ export const academyService = {
     });
     if (!source?.student) {
       throw Object.assign(new Error("Student is not active in the source batch"), { statusCode: 404 });
+    }
+    const existingTarget = await db.batchStudent.findFirst({
+      where: { batchId: toBatchId, studentId, status: "ACTIVE" },
+    });
+    if (existingTarget) {
+      throw Object.assign(new Error("Student is already active in the destination batch"), { statusCode: 400 });
     }
     const target = await this.addStudent(user, toBatchId, {
       userId: studentId,
