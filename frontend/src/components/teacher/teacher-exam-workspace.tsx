@@ -816,8 +816,12 @@ function inferExamTopic(source: string, fallback: string) {
 export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject, exams, role = "TEACHER", loading, autoOpenCreatorKey, onSelectBatch, onRefresh }: Props) {
   const [activeBatchId, setActiveBatchId] = useState(selectedBatchId || batches[0]?.id || "");
   const activeBatch = useMemo(() => batches.find((batch) => batch.id === activeBatchId) || batches[0] || null, [activeBatchId, batches]);
+  const subjectOptions = useMemo(() => {
+    const options = Array.from(new Set((activeBatch?.subjects ?? []).map((item) => item.trim()).filter(Boolean)));
+    return options.length ? options : ["General"];
+  }, [activeBatch?.subjects]);
   const [targetBatchIds, setTargetBatchIds] = useState<string[]>(activeBatch?.id ? [activeBatch.id] : []);
-  const [subject, setSubject] = useState(activeBatch?.subjects[0] || "General");
+  const [subject, setSubject] = useState(subjectOptions[0] || "General");
   const [showCreator, setShowCreator] = useState(false);
   const [step, setStep] = useState(1);
   const [form, setForm] = useState(initialForm);
@@ -849,16 +853,16 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
   }, [activeBatch?.id, targetBatchIds.length]);
 
   useEffect(() => {
-    if (activeBatch?.subjects?.length && !activeBatch.subjects.includes(subject)) {
-      setSubject(activeBatch.subjects[0]);
+    if (subjectOptions.length && !subjectOptions.includes(subject)) {
+      setSubject(subjectOptions[0]);
     }
-  }, [activeBatch, subject]);
+  }, [subject, subjectOptions]);
 
   useEffect(() => {
-    if (selectedSubject && activeBatch?.subjects?.includes(selectedSubject) && subject !== selectedSubject) {
+    if (selectedSubject && subjectOptions.includes(selectedSubject) && subject !== selectedSubject) {
       setSubject(selectedSubject);
     }
-  }, [activeBatch?.subjects, selectedSubject, subject]);
+  }, [selectedSubject, subject, subjectOptions]);
 
   const batchExams = useMemo(() => {
     if (!activeBatch) return [];
@@ -909,11 +913,11 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
   }, []);
 
   useEffect(() => {
-    if (!questionSource || !activeBatch?.subjects?.length) return;
-    if (activeBatch.subjects.includes(understanding.inferredSubject) && subject !== understanding.inferredSubject) {
+    if (!questionSource || !subjectOptions.length) return;
+    if (subjectOptions.includes(understanding.inferredSubject) && subject !== understanding.inferredSubject) {
       setSubject(understanding.inferredSubject);
     }
-  }, [activeBatch?.subjects, questionSource, subject, understanding.inferredSubject]);
+  }, [questionSource, subject, subjectOptions, understanding.inferredSubject]);
 
   useEffect(() => {
     if (!autoOpenCreatorKey || autoOpenCreatorKey === handledAutoOpenKey || !activeBatch) return;
@@ -1384,7 +1388,7 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
               <label className="grid gap-2 text-sm font-black">
                 Subject
                 <select value={subject} onChange={(event) => setSubject(event.target.value)} className="min-h-12 rounded-xl border border-[var(--border)] bg-white px-4">
-                  {activeBatch.subjects.map((item) => <option key={item} value={item}>{item}</option>)}
+                  {subjectOptions.map((item) => <option key={item} value={item}>{item}</option>)}
                 </select>
               </label>
             </div>
@@ -1468,7 +1472,10 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
                   <label className="grid gap-2 text-sm font-black">
                     Subject
                     <select value={subject} onChange={(event) => setSubject(event.target.value)} className="min-h-12 rounded-xl border border-[var(--border)] bg-white px-4">
-                      {Array.from(new Set(targetBatchIds.flatMap((id) => batches.find((batch) => batch.id === id)?.subjects ?? []).concat(activeBatch?.subjects ?? []))).map((item) => <option key={item} value={item}>{item}</option>)}
+                      {Array.from(new Set(targetBatchIds.flatMap((id) => {
+                        const options = batches.find((batch) => batch.id === id)?.subjects ?? [];
+                        return options.length ? options : ["General"];
+                      }).concat(subjectOptions))).map((item) => <option key={item} value={item}>{item}</option>)}
                     </select>
                   </label>
                   <Field label="Exam name" value={form.title} onChange={(value) => setForm((current) => ({ ...current, title: value }))} />

@@ -1,121 +1,124 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
-import { BarChart3, CalendarClock, CalendarRange, ClipboardCheck, FileText, GraduationCap, UserCheck, Users } from "lucide-react";
-import { WorkspaceDashboard } from "@/components/dashboard/workspace-dashboard";
-import { getAcademyToday, type AcademyTodayTask } from "@/services/academy";
+import { useQuery } from "@tanstack/react-query";
+import { BarChart3, CalendarDays, CalendarRange, ClipboardCheck, FileText, GraduationCap, UserCheck, Users } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+import { getAcademyToday } from "@/services/academy";
 
-function displayTime(value?: string | null) {
-  if (!value) return "Time pending";
-  const [hours, minutes] = value.split(":").map(Number);
-  if (!Number.isFinite(hours)) return value;
-  return new Date(2000, 0, 1, hours, minutes || 0).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
-}
+const dateLabel = new Intl.DateTimeFormat("en-IN", {
+  weekday: "long",
+  day: "numeric",
+  month: "long",
+  year: "numeric",
+}).format(new Date());
 
-function taskHref(task?: AcademyTodayTask | null) {
-  if (!task?.batchId) return "/dashboard/academic-head/hod/timetable";
-  return `/dashboard/academic-head/classes/assigned-program/${task.batchId}`;
-}
+const workLinks = [
+  { label: "My Classes", href: "/dashboard/academic-head/my-classes", icon: CalendarDays },
+  { label: "Programs", href: "/dashboard/academic-head/hod/programs", icon: GraduationCap },
+  { label: "Batches", href: "/dashboard/academic-head/hod/batches", icon: Users },
+  { label: "Students", href: "/dashboard/academic-head/students", icon: UserCheck },
+  { label: "Planner", href: "/dashboard/academic-head/hod/timetable", icon: CalendarRange },
+  { label: "Faculty", href: "/dashboard/academic-head/hod/teacher-allocation", icon: ClipboardCheck },
+  { label: "NDP", href: "/dashboard/academic-head/ndp", icon: FileText },
+  { label: "Reports", href: "/dashboard/academic-head/hod/reports", icon: BarChart3 },
+];
 
 export default function AcademicHeadDashboardPage() {
   const todayQuery = useQuery({ queryKey: ["academic-head", "simple-dashboard"], queryFn: () => getAcademyToday() });
   const today = todayQuery.data;
   const tasks = today?.todayTasks ?? [];
   const upcoming = today?.upcomingTasks ?? [];
-  const nextTask = today?.nextUpcomingTask ?? tasks.find((task) => !task.done) ?? upcoming[0] ?? null;
-  const pending = tasks.filter((task) => !task.done);
-  const pendingReviews = today?.diagnostics.pendingAssignmentReviews ?? 0;
-  const pendingExamReviews = today?.diagnostics.pendingExamReviews ?? 0;
+  const pendingTasks = tasks.filter((task) => !task.done);
+  const pendingReviews = (today?.diagnostics.pendingAssignmentReviews ?? 0) + (today?.diagnostics.pendingExamReviews ?? 0);
   const attendancePending = today?.diagnostics.attendancePendingCount ?? 0;
+  const nextTask = today?.nextUpcomingTask ?? pendingTasks[0] ?? upcoming[0] ?? null;
 
   return (
-    <WorkspaceDashboard
-      roleTitle="Academic Head Workspace"
-      greeting="Run academics today"
-      subtitle="Timetable, teacher allocation, approvals, students, NDP and reports in one clean academic workspace."
-      focus={[
-        {
-          label: "Classes",
-          title: nextTask ? nextTask.batchName || "Class pending" : "No class pending",
-          detail: nextTask ? `${displayTime(nextTask.time)} / ${nextTask.subject || "Subject"} / ${nextTask.topic || nextTask.detail || "Topic pending"}` : "Published timetable tasks will appear here.",
-          href: taskHref(nextTask),
-          icon: CalendarClock,
-          tone: nextTask ? "info" : "success",
-        },
-        {
-          label: "Reviews",
-          title: `${pendingReviews + pendingExamReviews} pending`,
-          detail: "Approve assignments and exams before they reach students.",
-          href: "/dashboard/academic-head/hod/approvals",
-          icon: ClipboardCheck,
-          tone: pendingReviews + pendingExamReviews ? "warning" : "success",
-        },
-        {
-          label: "NDP",
-          title: "Review Progress",
-          detail: "Check and publish student digital profile records.",
-          href: "/dashboard/academic-head/ndp",
-          icon: FileText,
-          tone: pending.length ? "warning" : "success",
-        },
-      ]}
-      actions={[
-        { label: "Programs", href: "/dashboard/academic-head/hod/programs", icon: GraduationCap },
-        { label: "Batches", href: "/dashboard/academic-head/hod/batches", icon: Users },
-        { label: "Students", href: "/dashboard/academic-head/students", icon: UserCheck },
-        { label: "Timetable", href: "/dashboard/academic-head/hod/timetable", icon: CalendarRange },
-        { label: "Teacher Allocation", href: "/dashboard/academic-head/hod/teacher-allocation", icon: Users },
-        { label: "Reports", href: "/dashboard/academic-head/hod/reports", icon: BarChart3 },
-      ]}
-      metrics={[
-        { label: "Classes Today", value: todayQuery.isLoading ? "..." : tasks.length },
-        { label: "Open Tasks", value: todayQuery.isLoading ? "..." : pending.length, tone: pending.length ? "warning" : "success" },
-        { label: "Attendance Pending", value: todayQuery.isLoading ? "..." : attendancePending, tone: attendancePending ? "warning" : "success" },
-        { label: "Reviews", value: todayQuery.isLoading ? "..." : pendingReviews + pendingExamReviews, tone: pendingReviews + pendingExamReviews ? "warning" : "success" },
-      ]}
-      activity={tasks.slice(0, 5).map((task) => ({
-        title: task.batchName || task.title || "Academic task",
-        detail: `${task.subject || "Subject"} / ${task.topic || task.detail || "Topic pending"}`,
-        href: taskHref(task),
-        meta: task.done ? "Done" : displayTime(task.time),
-      }))}
-      upcoming={upcoming.slice(0, 5).map((task) => ({
-        title: task.batchName || task.title || "Upcoming class",
-        detail: `${task.subject || "Subject"} / ${task.topic || task.detail || "Topic pending"}`,
-        href: taskHref(task),
-        meta: displayTime(task.time),
-      }))}
-    >
-      <section className="rounded-[var(--ds-radius-xl)] border border-[var(--ds-color-border)] bg-[var(--ds-color-surface)] p-5 shadow-[var(--ds-shadow-soft)]">
-        <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <p className="ds-text-label text-[var(--ds-color-primary)]">Academic Setup</p>
-            <h2 className="mt-1 text-xl font-black">Core workflow</h2>
+    <main className="min-h-screen bg-[var(--page-bg)] px-4 py-4 text-[var(--navy)] md:px-6">
+      <section className="mx-auto grid max-w-[1500px] gap-4">
+        <header className="rounded-2xl border border-[var(--border)] bg-white/95 p-4 shadow-sm md:p-5">
+          <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--gold)]">Academic Head</p>
+          <h1 className="mt-2 text-2xl font-black tracking-tight md:text-4xl">Today&apos;s Academic Work</h1>
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--muted-blue)]">Open classes, finish reviews, manage batches and check reports from one simple page.</p>
+          <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--page-bg)] px-3 py-2 text-sm font-bold text-[var(--muted-blue)]">
+            <CalendarDays className="h-4 w-4" />
+            {dateLabel}
           </div>
-          <Link href="/dashboard/academic-head/hod" className="rounded-[var(--ds-radius-large)] border border-[var(--ds-color-border)] px-4 py-3 text-sm font-black">
-            Academic Control
-          </Link>
-        </div>
-        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-          {[
-            { label: "Programs", href: "/dashboard/academic-head/hod/programs", icon: GraduationCap },
-            { label: "Batches", href: "/dashboard/academic-head/hod/batches", icon: Users },
-            { label: "Students", href: "/dashboard/academic-head/students", icon: UserCheck },
-            { label: "Planner", href: "/dashboard/academic-head/hod/timetable", icon: CalendarRange },
-            { label: "Faculty", href: "/dashboard/academic-head/hod/teacher-allocation", icon: ClipboardCheck },
-            { label: "Reports", href: "/dashboard/academic-head/hod/reports", icon: FileText },
-          ].map((item) => {
-            const Icon = item.icon;
-            return (
-              <Link key={item.label} href={item.href} className="inline-flex min-h-12 items-center gap-3 rounded-[var(--ds-radius-large)] border border-[var(--ds-color-border)] bg-[var(--ds-color-surface-raised)] px-4 text-sm font-black hover:border-[var(--ds-color-border-strong)]">
-                <Icon className="h-4 w-4" aria-hidden="true" />
-                {item.label}
-              </Link>
-            );
-          })}
-        </div>
+        </header>
+
+        <section className="grid gap-3 lg:grid-cols-3">
+          <PriorityCard
+            label="Next class"
+            title={todayQuery.isLoading ? "Loading..." : nextTask?.batchName || nextTask?.title || "No class pending"}
+            detail={nextTask ? `${nextTask.subject || "Subject"} / ${nextTask.topic || nextTask.detail || "Topic pending"}` : "Published timetable tasks will appear here."}
+            href={nextTask?.batchId ? `/dashboard/academic-head/classes/assigned-program/${nextTask.batchId}` : "/dashboard/academic-head/my-classes"}
+            value={tasks.length}
+          />
+          <PriorityCard
+            label="Reviews"
+            title={`${pendingReviews} pending`}
+            detail="Assignments and exams waiting for Academic Head approval."
+            href="/dashboard/academic-head/hod/approvals"
+            value={pendingReviews}
+            tone={pendingReviews ? "warn" : "ok"}
+          />
+          <PriorityCard
+            label="Attendance"
+            title={`${attendancePending} pending`}
+            detail="Class attendance items that still need completion."
+            href="/dashboard/academic-head/hod/reports"
+            value={attendancePending}
+            tone={attendancePending ? "warn" : "ok"}
+          />
+        </section>
+
+        <section className="rounded-2xl border border-[var(--border)] bg-white/95 p-4 shadow-sm">
+          <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[var(--gold)]">Main Work</p>
+          <h2 className="mt-1 text-xl font-black">Choose one</h2>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {workLinks.map((item) => <WorkTile key={item.href} item={item} />)}
+          </div>
+        </section>
       </section>
-    </WorkspaceDashboard>
+    </main>
+  );
+}
+
+function PriorityCard({
+  detail,
+  href,
+  label,
+  title,
+  tone = "ok",
+  value,
+}: {
+  detail: string;
+  href: string;
+  label: string;
+  title: string;
+  tone?: "ok" | "warn";
+  value: number | string;
+}) {
+  return (
+    <Link href={href} className="rounded-2xl border border-[var(--border)] bg-white/95 p-4 shadow-sm transition hover:border-[var(--gold-border)] hover:bg-[var(--gold-soft)]">
+      <div className="flex items-start justify-between gap-3">
+        <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[var(--gold)]">{label}</p>
+        <span className={`rounded-full px-2.5 py-1 text-xs font-black ${tone === "warn" ? "bg-amber-100 text-amber-800" : "bg-emerald-100 text-emerald-800"}`}>{value}</span>
+      </div>
+      <h2 className="mt-4 text-xl font-black">{title}</h2>
+      <p className="mt-2 text-sm leading-6 text-[var(--muted-blue)]">{detail}</p>
+      <span className="mt-4 inline-flex text-sm font-black text-[var(--gold-dark)]">Open</span>
+    </Link>
+  );
+}
+
+function WorkTile({ item }: { item: { href: string; icon: LucideIcon; label: string } }) {
+  const Icon = item.icon;
+  return (
+    <Link href={item.href} className="flex min-h-14 items-center gap-3 rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-sm font-black shadow-sm transition hover:border-[var(--gold-border)] hover:bg-[var(--gold-soft)]">
+      <Icon className="h-4 w-4 text-[var(--gold-dark)]" />
+      {item.label}
+    </Link>
   );
 }

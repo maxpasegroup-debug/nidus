@@ -1100,7 +1100,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
     name: batch.name,
     program: programName(batch),
     studentCount: batch._count?.students ?? batch.students?.length ?? 0,
-    subjects: subjectsForBatch(batch),
+    subjects: subjectsForBatch(batch).length ? subjectsForBatch(batch) : ["General"],
   })), [activeClasses]);
   const activeCourseKey = courseKey ? decodeURIComponent(courseKey) : null;
   const activeBatchId = batchId ? decodeURIComponent(batchId) : null;
