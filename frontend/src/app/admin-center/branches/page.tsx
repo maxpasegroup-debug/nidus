@@ -20,7 +20,7 @@ export default function BranchesPage() {
     <main className="min-h-screen px-4 py-6 sm:px-6 lg:px-8">
       <section className="mx-auto max-w-7xl">
         <div>
-          <p className="text-xs uppercase tracking-[0.28em] text-gold-soft">Multi-Branch Command</p>
+          <p className="text-xs uppercase tracking-[0.28em] text-gold-soft">CEO Branch Control</p>
           <h1 className="mt-3 text-3xl font-semibold text-ink">Branches</h1>
         </div>
         <form onSubmit={submit} className="premium-surface mt-6 grid gap-3 rounded-lg p-4 md:grid-cols-[1fr_1fr_14rem_auto]">

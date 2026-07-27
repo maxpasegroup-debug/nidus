@@ -3277,6 +3277,9 @@ export const academyService = {
     if (!employeeRoles.includes(role)) {
       throw Object.assign(new Error("Only employee roles can be created here"), { statusCode: 400 });
     }
+    if (role === Role.ADMIN && user.role !== Role.ADMIN) {
+      throw Object.assign(new Error("CEO/Admin accounts can be created only from the CEO Dashboard"), { statusCode: 403 });
+    }
 
     const temporaryPassword = employeePin(input) || DEFAULT_ACCOUNT_PIN;
     if (!/^\d{4}$/.test(temporaryPassword)) {
@@ -3353,6 +3356,9 @@ export const academyService = {
       dashboardTemplate: input.dashboardTemplate,
       designation: input.designation,
     });
+    if ((employee.role === Role.ADMIN || role === Role.ADMIN) && user.role !== Role.ADMIN) {
+      throw Object.assign(new Error("CEO/Admin accounts can be changed only from the CEO Dashboard"), { statusCode: 403 });
+    }
     const roleMetadata = authSyncedMetadata({
       ...existingMetadata,
       designation: input.designation ?? existingMetadata.designation ?? null,

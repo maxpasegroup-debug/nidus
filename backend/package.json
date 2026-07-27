@@ -22,6 +22,7 @@
     "calendar:generate": "tsx src/scripts/generate-academic-calendar.ts",
     "seed:pilot-exam": "tsx src/scripts/pilot-exam-seed.ts",
     "seed:nidus-team": "tsx src/scripts/nidus-team.ts",
+    "seed:ceo": "tsx src/scripts/seed-ceo-account.ts",
     "seed:video-editor": "tsx src/scripts/seed-video-editor.ts",
     "auth:rollout": "tsx src/scripts/mobile-pin-auth-rollout.ts",
     "auth:rollout:apply": "tsx src/scripts/mobile-pin-auth-rollout.ts --apply",

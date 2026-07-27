@@ -188,7 +188,7 @@ export const AuthServiceV2 = {
     if (!existing) {
       const user = await prisma.user.create({
         data: {
-          name: "Management",
+          name: "CEO",
           email: SUPER_ADMIN_EMAIL,
           mobile: "+910000000001",
           password,
@@ -199,7 +199,7 @@ export const AuthServiceV2 = {
           roleOnboardingStatus: "ACTIVE",
           roleActivatedAt: new Date(),
           lastRoleActivityAt: new Date(),
-          roleMetadata: { superAdmin: true, defaultPassword: true, defaultPin: true }
+          roleMetadata: { superAdmin: true, dashboardTemplate: "CEO", designation: "CEO", department: "Executive Office", defaultPassword: true, defaultPin: true }
         }
       });
       await audit({ userId: user.id, action: "SUPER_ADMIN_BOOTSTRAP", description: "Bootstrapped permanent super admin" });
@@ -209,7 +209,7 @@ export const AuthServiceV2 = {
     const user = await prisma.user.update({
       where: { id: existing.id },
       data: {
-        name: "Management",
+        name: "CEO",
         role: Role.ADMIN,
         emailVerified: true,
         mobileVerified: true,
@@ -218,7 +218,7 @@ export const AuthServiceV2 = {
         roleOnboardingStatus: "ACTIVE",
         roleActivatedAt: existing.roleActivatedAt ?? new Date(),
         lastRoleActivityAt: new Date(),
-        roleMetadata: { ...metadataObject(existing.roleMetadata), superAdmin: true }
+        roleMetadata: { ...metadataObject(existing.roleMetadata), superAdmin: true, dashboardTemplate: "CEO", designation: "CEO", department: "Executive Office" }
       }
     });
     return safeUser(user);

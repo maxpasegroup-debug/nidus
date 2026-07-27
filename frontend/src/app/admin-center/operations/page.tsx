@@ -29,7 +29,7 @@ export default function OperationsPage() {
       <section className="mx-auto max-w-7xl">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-xs uppercase tracking-[0.28em] text-gold-soft">Production Operations</p>
+            <p className="text-xs uppercase tracking-[0.28em] text-gold-soft">CEO Operations</p>
             <h1 className="mt-3 text-3xl font-semibold text-ink sm:text-4xl">Beta Readiness</h1>
             <p className="mt-2 text-sm text-muted">Live deployment health, queues, infrastructure, payments, AI, CBT and platform usage.</p>
           </div>
@@ -38,7 +38,7 @@ export default function OperationsPage() {
 
         <div className="mt-6">
           <OperationsOsWorkspace
-            title="Administration Operations"
+            title="CEO Operations"
             description="Assets, inventory, maintenance, branches, academic resources and compliance are organized around the existing admin operations center."
             metrics={[
               { label: "Assets", value: data ? data.analytics.activeUsers : "...", note: "Active platform users as operational load", tone: "info" },

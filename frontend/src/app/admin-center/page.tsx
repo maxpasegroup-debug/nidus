@@ -3,20 +3,19 @@
 import Link from "next/link";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { motion } from "framer-motion";
-import { Activity, BookOpenCheck, Building2, ClipboardList, LockKeyhole, Settings, Shield, Users } from "lucide-react";
+import { Activity, Building2, ClipboardList, LockKeyhole, Settings, Shield, Users } from "lucide-react";
 import { AuditTimeline } from "@/components/admin-center/AuditTimeline";
 import { SystemHealthCard } from "@/components/admin-center/SystemHealthCard";
 import { useAdminDashboard } from "@/hooks/use-admin-center";
 
 const commandLinks = [
+  { href: "/admin-center/users", label: "Users & Staff", icon: Users },
   { href: "/admin-center/roles", label: "Roles", icon: Shield },
-  { href: "/admin-center/users", label: "Users", icon: Users },
   { href: "/admin-center/permissions", label: "Permissions", icon: LockKeyhole },
-  { href: "/admin-center/settings", label: "Settings", icon: Settings },
-  { href: "/admin-center/operations", label: "Operations", icon: Activity },
-  { href: "/admin-center/guru", label: "NIDUS Guru", icon: BookOpenCheck },
+  { href: "/admin-center/operations", label: "Platform Health", icon: Activity },
   { href: "/admin-center/audit-logs", label: "Audit Logs", icon: ClipboardList },
-  { href: "/admin-center/branches", label: "Branches", icon: Building2 }
+  { href: "/admin-center/branches", label: "Branches", icon: Building2 },
+  { href: "/admin-center/settings", label: "System Settings", icon: Settings }
 ];
 
 export default function AdminCenterPage() {
@@ -33,9 +32,9 @@ export default function AdminCenterPage() {
     <main className="min-h-screen px-4 py-6 sm:px-6 lg:px-8">
       <section className="mx-auto max-w-7xl">
         <div>
-          <p className="text-xs uppercase tracking-[0.28em] text-gold-soft">CEO Control Center</p>
-          <h1 className="mt-3 text-3xl font-semibold text-ink sm:text-4xl">Executive Control Center</h1>
-          <p className="mt-2 text-sm text-muted">System governance, security posture, branch operations, employee access, and command activity.</p>
+          <p className="text-xs uppercase tracking-[0.28em] text-gold-soft">CEO Dashboard</p>
+          <h1 className="mt-3 text-3xl font-semibold text-ink sm:text-4xl">CEO Control Center</h1>
+          <p className="mt-2 text-sm text-muted">System governance, users, roles, branches, audit logs, settings and platform health.</p>
         </div>
 
         {dashboard.isLoading && <div className="mt-6 grid gap-4 md:grid-cols-4">{Array.from({ length: 4 }).map((_, index) => <div key={index} className="h-36 animate-pulse rounded-lg bg-white/10" />)}</div>}

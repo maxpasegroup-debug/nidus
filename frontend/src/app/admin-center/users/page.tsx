@@ -6,7 +6,7 @@ import { useUsers } from "@/hooks/use-admin-center";
 import type { AuthRole } from "@/services/auth.v2";
 
 const roles: Array<{ label: string; value: AuthRole }> = [
-  { label: "Director / Management", value: "DIRECTOR" },
+  { label: "Director", value: "DIRECTOR" },
   { label: "Teacher / Faculty", value: "TEACHER" },
   { label: "Business Development Executive", value: "BUSINESS_DEVELOPMENT_EXECUTIVE" },
   { label: "Learner", value: "STUDENT" },
@@ -69,7 +69,7 @@ export default function UsersPage() {
       <section className="mx-auto max-w-7xl">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-xs uppercase tracking-[0.28em] text-gold-soft">People & HR</p>
+            <p className="text-xs uppercase tracking-[0.28em] text-gold-soft">CEO People Control</p>
             <h1 className="mt-3 text-3xl font-semibold text-ink">Employees, students, and parents</h1>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-muted">
               Add staff and learners from one place. Employees get the correct dashboard, and every new account can sign in immediately with default PIN: 1234.
@@ -161,7 +161,7 @@ export default function UsersPage() {
                 {roles.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}
               </select>
               <div className="rounded border border-white/10 bg-white/5 px-3 py-2 text-sm leading-6 text-muted sm:col-span-2">
-                Employee roles: Director, Teacher, and Business Development Executive. Mobile number is the login number. Administrative Officer is created from Director Management with the correct dashboard template. Learner roles: Learner and Parent.
+                Employee roles: Director, Teacher, and Business Development Executive. Mobile number is the login number. Administrative Officer is created from the Director staff workspace with the correct dashboard template. Learner roles: Learner and Parent.
               </div>
               <div className="rounded border border-gold/20 bg-gold/10 px-3 py-2 text-sm text-gold-soft sm:col-span-2">Default PIN: 1234</div>
             </div>

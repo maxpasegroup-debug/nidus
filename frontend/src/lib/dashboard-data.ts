@@ -2,7 +2,7 @@ import type { AuthRole } from "@/services/auth.v2";
 import type { AuthUser } from "@/services/auth.v2";
 
 export const roleDashboardPath: Record<AuthRole, string> = {
-  ADMIN: "/dashboard/director",
+  ADMIN: "/admin-center",
   GUEST: "/dashboard/guest/assessments",
   STUDENT: "/dashboard/student",
   PARENT: "/dashboard/parent",
@@ -24,6 +24,7 @@ function dashboardTemplate(user?: Pick<AuthUser, "roleMetadata"> | null) {
 export function effectiveDashboardPath(user?: Pick<AuthUser, "role" | "roleMetadata"> | null) {
   if (!user) return "/login";
   const template = dashboardTemplate(user);
+  if (user.role === "ADMIN" && template === "CEO") return "/admin-center";
   if (template === "VIDEO_EDITOR") return "/dashboard/video-editor";
   if (user.role === "DIRECTOR") return "/dashboard/director";
   if (user.role === "ACADEMIC_HEAD") return "/dashboard/academic-head";
@@ -54,7 +55,6 @@ export function canAccessDashboardPath(user: Pick<AuthUser, "role" | "roleMetada
   if (user.role === "DIRECTOR") {
     return path.startsWith("/dashboard/director") ||
       path.startsWith("/dashboard/teacher") ||
-      path.startsWith("/admin-center") ||
       path.startsWith("/crm") ||
       path.startsWith("/fees") ||
       path.startsWith("/invoices") ||

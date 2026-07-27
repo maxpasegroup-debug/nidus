@@ -11,7 +11,7 @@ export function TopNavbar({ hasSidebar = true }: { hasSidebar?: boolean }) {
   const { isAuthenticated, logout, user } = useAuth();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const designation = typeof user?.roleMetadata?.designation === "string" ? user.roleMetadata.designation : "";
-  const roleLabel = designation || (user?.role === "ADMIN" && user?.roleMetadata?.superAdmin === true ? "Management" : user?.role);
+  const roleLabel = designation || (user?.role === "ADMIN" && user?.roleMetadata?.superAdmin === true ? "CEO" : user?.role);
 
   return (
     <header

@@ -47,8 +47,8 @@ export default function DirectorHrmPage() {
           ]}
           alerts={[
             { title: "HR health", detail: "Use Manage Staff for staff strength, access risk and archived history.", href: "/dashboard/director/management?mode=manage", tone: "info" },
-            { title: "Payroll summary", detail: "Payroll remains connected to the existing Staff HR module.", href: "/staff-hr", tone: "info" },
-            { title: "Leave and approvals", detail: "Leave and approval queues remain in the existing operations center.", href: "/admin-center/operations#leave", tone: "info" },
+            { title: "Payroll summary", detail: "Review staff records first; payroll can be connected from the accounts workflow when finalized.", href: "/dashboard/director/management?mode=manage", tone: "info" },
+            { title: "Leave and approvals", detail: "Keep staff access and archive decisions inside Director staff management.", href: "/dashboard/director/management?mode=archive", tone: "info" },
           ]}
         />
         </div>

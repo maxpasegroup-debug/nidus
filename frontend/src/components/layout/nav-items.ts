@@ -101,11 +101,14 @@ const businessDevelopmentMenu: DashboardNavItem[] = [
 ];
 
 const adminMenu: DashboardNavItem[] = [
-  { label: "Dashboard", href: "/admin-center/operations" },
-  { label: "Employees", href: "/admin-center/users" },
-  { label: "Leave", href: "/admin-center/operations#leave" },
-  { label: "Payroll", href: "/staff-hr" },
-  { label: "Documents", href: "/documents" },
+  { label: "CEO Dashboard", href: "/admin-center" },
+  { label: "Users & Staff", href: "/admin-center/users" },
+  { label: "Roles", href: "/admin-center/roles" },
+  { label: "Permissions", href: "/admin-center/permissions" },
+  { label: "Platform Health", href: "/admin-center/operations" },
+  { label: "Branches", href: "/admin-center/branches" },
+  { label: "Audit Logs", href: "/admin-center/audit-logs" },
+  { label: "System Settings", href: "/admin-center/settings" },
   { label: "Profile", href: "/dashboard/settings" },
 ];
 
@@ -167,7 +170,7 @@ export function getNavItems(role?: string | null, dashboardTemplate?: string | n
   }
 
   if (normalizedRole === "ADMIN" || normalizedRole === "SUPER_ADMIN" || normalizedRole === "MANAGEMENT") {
-    return directorMenu;
+    return adminMenu;
   }
 
   return studentMenu;

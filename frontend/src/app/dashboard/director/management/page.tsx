@@ -85,8 +85,7 @@ const roleOptions = [
   { label: "Physical Trainer", value: "PHYSICAL_TRAINER", dashboardTemplate: "PHYSICAL_TRAINER" },
   { label: "Administrative Officer", value: "ADMINISTRATIVE_OFFICER", dashboardTemplate: "ADMISSION_CELL" },
   { label: "Business Development Executive", value: "BUSINESS_DEVELOPMENT_EXECUTIVE", dashboardTemplate: "LEAD_SUPPORT" },
-  { label: "Management", value: "DIRECTOR" },
-  { label: "Administration", value: "ADMIN" },
+  { label: "Director", value: "DIRECTOR" },
 ];
 
 const employmentTypes = ["FULL_TIME", "PART_TIME", "HOURLY", "CONTRACT"];
@@ -126,13 +125,6 @@ const quickProfiles = [
     designation: "Business Development Executive",
     department: "Admissions and Sales",
     dashboardTemplate: "LEAD_SUPPORT",
-  },
-  {
-    label: "Administration",
-    role: "ADMIN",
-    designation: "Administration",
-    department: "Admin & Accounts",
-    dashboardTemplate: "ADMINISTRATION",
   },
 ];
 
@@ -743,7 +735,6 @@ function EmployeeRow({
               <option value="STUDENT">Student</option>
               <option value="TEACHER">Teacher / Trainer</option>
               <option value="ACADEMIC_HEAD">Academic Head</option>
-              <option value="ADMIN">Admin</option>
               <option value="DIRECTOR">Director</option>
               <option value="BUSINESS_DEVELOPMENT_EXECUTIVE">BDE</option>
             </select>
@@ -756,7 +747,6 @@ function EmployeeRow({
               <option value="PHYSICAL_TRAINER">Physical Trainer</option>
               <option value="ADMISSION_CELL">Admission Cell</option>
               <option value="LEAD_SUPPORT">Lead Support</option>
-              <option value="ADMINISTRATION">Administration</option>
             </select>
           </label>
           <EditField label="New 4 Digit PIN" value={editForm.password} onChange={(value) => onEditChange?.("password", value.replace(/\D/g, "").slice(0, 4))} placeholder="Leave blank to keep same" />
