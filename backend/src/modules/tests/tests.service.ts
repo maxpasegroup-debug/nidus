@@ -75,6 +75,13 @@ type PublishDraftInput = TestPayload & {
   publishAt?: string;
 };
 
+function visualNotesRequireImage(notes: Prisma.InputJsonValue | undefined) {
+  if (!Array.isArray(notes)) return false;
+  return notes
+    .map((note) => String(note || "").toLowerCase())
+    .some((note) => note.includes("visual") || note.includes("table") || note.includes("graph"));
+}
+
 export function validatePublishedQuestions(questions: QuestionPayload[]) {
   const errors: string[] = [];
   const seen = new Set<string>();
@@ -95,6 +102,9 @@ export function validatePublishedQuestions(questions: QuestionPayload[]) {
     }
     if (!question.explanation?.trim() || /^(explanation (will be reviewed|pending)|teacher reviewed answer)/i.test(question.explanation.trim())) {
       errors.push(`${label} needs a reviewed answer explanation.`);
+    }
+    if (question.visualReviewRequired && visualNotesRequireImage(question.visualReviewNotes) && !question.questionImage?.trim()) {
+      errors.push(`${label} needs the exact diagram, table or graph image attached before publishing.`);
     }
     if (!Number.isFinite(Number(question.marks)) || Number(question.marks) <= 0) {
       errors.push(`${label} must have positive marks.`);

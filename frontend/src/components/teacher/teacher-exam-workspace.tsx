@@ -641,7 +641,7 @@ function detectSections(source: string, questionCount: number) {
 
 function visualNotesForQuestion(question: QuestionDraft) {
   const text = [question.questionText, question.optionA, question.optionB, question.optionC, question.optionD].join(" ");
-  const visualRequired = /\b(diagram|figure|fig\.|image|shown|following|above|below|circuit|ray diagram|map)\b/i.test(text);
+  const visualRequired = /\b(diagram|figure|fig\.|image|shown|following|above|below|circuit|ray diagram|map|triangle|triangles|geometry figure|geometrical figure|drawn|sketch)\b/i.test(text);
   const tableRisk = /\b(table|data table|tabular|column|row)\b/i.test(text);
   const graphRisk = /\b(graph|chart|bar graph|pie chart|line graph|plot)\b/i.test(text);
   const formulaRisk = /[∫√πθλΩ≈≤≥÷×∞Σµ]|\\frac|\^\s*\d|\b(sin|cos|tan|log|lim)\b|[a-z]\s*=\s*[^.,;]+/i.test(text);
@@ -915,7 +915,7 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
   const blockingExtractionReports = useMemo(() => extractionReports.filter((report) => report.status === "BLOCKED" && report.sourceKind === "QUESTION_PAPER"), [extractionReports]);
   const reviewExtractionReports = useMemo(() => extractionReports.filter((report) => report.status !== "READY"), [extractionReports]);
   const extractionNeedsManualReview = blockingExtractionReports.length > 0 || extractionReports.some((report) => report.visualRisk) || understanding.confidence === "LOW" || visualFidelity.confidence === "LOW";
-  const canPublishPaper = questions.length > 0 && readiness.missingOptions === 0 && readiness.missingAnswers === 0 && !visualFidelity.missingSourceForVisuals && (!extractionNeedsManualReview || manualPaperReview);
+  const canPublishPaper = questions.length > 0 && readiness.missingOptions === 0 && readiness.missingAnswers === 0 && !visualFidelity.missingSourceForVisuals && visualQuestionsWithoutAttachment.length === 0 && (!extractionNeedsManualReview || manualPaperReview);
   const questionsForPublish = useMemo(() => questions.map((question, index) => {
     const signal = understanding.questionSignals[index];
     const visualReviewNotes = signal?.notes ?? [];
@@ -1148,6 +1148,8 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
     if (!editingExam && !canPublishPaper) {
       setMessage(visualFidelity.missingSourceForVisuals
         ? "Original question paper source is required before publishing diagram, table or graph based questions."
+        : visualQuestionsWithoutAttachment.length
+        ? `Attach the exact diagram/table/graph image for question(s) ${visualQuestionsWithoutAttachment.join(", ")} before publishing.`
         : extractionNeedsManualReview && !manualPaperReview
         ? "Manual review is required for this uploaded paper before publishing. Check/correct every question, then tick manual review completed."
         : `Paper is incomplete: ${readiness.missingOptions} question(s) need options and ${readiness.missingAnswers} question(s) need answer keys before publishing.`);
