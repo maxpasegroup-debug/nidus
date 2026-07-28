@@ -479,6 +479,25 @@ function parseQuestionBlock(block: string, index: number) {
   return { number, questionText, options: [optionA, optionB, optionC, optionD] };
 }
 
+function isWeakExtractedOption(option: string) {
+  const cleaned = option.trim();
+  if (!cleaned) return true;
+  if (/^Option [A-D]$/i.test(cleaned)) return true;
+  if (cleaned.length <= 2 && !/^\d+\s*\/\s*\d+$/.test(cleaned)) return true;
+  return false;
+}
+
+function detectBrokenMathPdfExtraction(text: string) {
+  const normalized = normalizeExtractedText(text);
+  if (!normalized) return false;
+  const lines = text.split(/\n+/).map((line) => line.trim()).filter(Boolean);
+  const shortMathFragments = lines.filter((line) => line.length <= 4 && /[a-z0-9=+\-*/()√]/i.test(line)).length;
+  const mathSignals = /\b(mathematics|maths|algebra|geometry|trigonometry|calculus|direction cosines|direction ratios|vector|matrix|probability)\b|[√πθλΩ≈≤≥÷×∞Σµ]|\\frac|\b\d+\s*\/\s*\d+\b/i.test(normalized);
+  const parsed = parseNumberedBlocks(normalized).map((block, index) => parseQuestionBlock(block, index));
+  const weakOptionQuestions = parsed.filter((question) => question.options.filter((option) => !isWeakExtractedOption(option)).length < 2).length;
+  return mathSignals && (shortMathFragments >= 6 || (parsed.length > 0 && weakOptionQuestions / parsed.length >= 0.4));
+}
+
 function parseAnswerGuide(text: string) {
   return parseAnswerGuideV2(text);
 }
@@ -551,7 +570,7 @@ function buildQuestions(source: string, answerGuide: string, topic: string, tota
     };
   }).filter((question) => {
     const realOptionCount = [question.optionA, question.optionB, question.optionC, question.optionD]
-      .filter((option) => option && !/^Option [A-D]$/i.test(option)).length;
+      .filter((option) => !isWeakExtractedOption(option)).length;
     return question.questionText && realOptionCount >= 2;
   });
   const perQuestionMarks = Math.max(1, Number(((Number.isFinite(totalMarks) ? totalMarks : 100) / Math.max(1, parsedQuestions.length)).toFixed(2)));
@@ -736,11 +755,13 @@ function auditExtractedSource(file: File, text: string, sourceKind: ExtractionRe
   const blockers: string[] = [];
   const hasVisualReferences = /\b(diagram|figure|fig\.|graph|chart|table|circuit|image|shown|following|above|below|ray diagram|bar graph|pie chart|map|data table)\b/i.test(normalized);
   const hasFormulaSignals = /[∫√πθλΩ≈≤≥÷×∞Σµ]|\\frac|\^\s*\d|\b(sin|cos|tan|log|lim)\b|[a-z]\s*=\s*[^.,;]+/i.test(normalized);
-  const visualRisk = isPdf && (hasVisualReferences || hasFormulaSignals);
+  const brokenMathExtraction = sourceKind === "QUESTION_PAPER" && isPdf && detectBrokenMathPdfExtraction(text);
+  const visualRisk = isPdf && (hasVisualReferences || hasFormulaSignals || brokenMathExtraction);
 
   if (!normalized) blockers.push("No readable text was extracted. This is likely a scanned/image PDF.");
   if (sourceKind === "QUESTION_PAPER" && normalized.length < 350) blockers.push("Very little question text was extracted.");
   if (sourceKind === "QUESTION_PAPER" && detectedQuestions === 0) blockers.push("No numbered MCQ questions were detected.");
+  if (brokenMathExtraction) blockers.push("Maths/formula PDF extraction is fragmented. The source paper was preserved, but auto-created questions would be inaccurate.");
   if (visualRisk) blockers.push("Diagram/formula/chart-heavy PDF detected. Auto extraction cannot preserve visual content.");
   if (isPdf && /[^\x00-\x7F]/.test(normalized)) warnings.push("Special symbols were detected. Check formulas and units carefully.");
   if (isPdf && detectedQuestions > 0 && detectedQuestions < 5 && sourceKind === "QUESTION_PAPER") warnings.push("Only a few questions were detected from the PDF.");
@@ -1017,6 +1038,10 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
       if (sourceKind === "QUESTION_PAPER") setManualPaperReview(false);
       if (!text.trim()) {
         setMessage(`No readable text was found in ${file.name}. Upload a text/DOCX version or manually paste the questions.`);
+        return;
+      }
+      if (sourceKind === "QUESTION_PAPER" && isPdf && report.status === "BLOCKED") {
+        setMessage(`${file.name} ${preserved ? "was preserved for preview, but" : ""} was not auto-filled because PDF extraction broke formulas/layout. Use the page preview/crop tool or paste a clean DOCX/TXT version before publishing.`);
         return;
       }
       setter([current, text].filter(Boolean).join("\n\n"));
