@@ -807,6 +807,11 @@ function inferExamTitle(source: string, subject: string, batchName?: string) {
   return batchName ? `${subjectTitle} Test - ${batchName}` : `${subjectTitle} Test`;
 }
 
+function defaultExamTitle(subject: string, batchName?: string) {
+  const subjectTitle = subject && subject !== "General" ? subject : "Exam";
+  return batchName ? `${subjectTitle} Test - ${batchName}` : `${subjectTitle} Test`;
+}
+
 function inferExamTopic(source: string, fallback: string) {
   const match = source.match(/Topics?\s*:\s*([\s\S]*?)(?=\n\s*(?:Q\s*)?\d+[\).]|\s+(?:Q\s*)?1[\).])/i);
   const topic = match?.[1]?.replace(/\s+/g, " ").trim();
@@ -822,6 +827,7 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
   }, [activeBatch?.subjects]);
   const [targetBatchIds, setTargetBatchIds] = useState<string[]>(activeBatch?.id ? [activeBatch.id] : []);
   const [subject, setSubject] = useState(subjectOptions[0] || "General");
+  const [subjectTouched, setSubjectTouched] = useState(false);
   const [showCreator, setShowCreator] = useState(false);
   const [step, setStep] = useState(1);
   const [form, setForm] = useState(initialForm);
@@ -855,14 +861,15 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
   useEffect(() => {
     if (subjectOptions.length && !subjectOptions.includes(subject)) {
       setSubject(subjectOptions[0]);
+      setSubjectTouched(false);
     }
   }, [subject, subjectOptions]);
 
   useEffect(() => {
-    if (selectedSubject && subjectOptions.includes(selectedSubject) && subject !== selectedSubject) {
+    if (!subjectTouched && selectedSubject && subjectOptions.includes(selectedSubject)) {
       setSubject(selectedSubject);
     }
-  }, [selectedSubject, subject, subjectOptions]);
+  }, [selectedSubject, subjectOptions, subjectTouched]);
 
   const batchExams = useMemo(() => {
     if (!activeBatch) return [];
@@ -913,11 +920,28 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
   }, []);
 
   useEffect(() => {
-    if (!questionSource || !subjectOptions.length) return;
+    if (subjectTouched || !questionSource || !subjectOptions.length) return;
     if (subjectOptions.includes(understanding.inferredSubject) && subject !== understanding.inferredSubject) {
       setSubject(understanding.inferredSubject);
     }
-  }, [questionSource, subject, subjectOptions, understanding.inferredSubject]);
+  }, [questionSource, subject, subjectOptions, subjectTouched, understanding.inferredSubject]);
+
+  function chooseSubject(nextSubject: string) {
+    const previousAutoTitle = defaultExamTitle(subject, activeBatch?.name);
+    const nextAutoTitle = defaultExamTitle(nextSubject, activeBatch?.name);
+    setSubject(nextSubject);
+    setSubjectTouched(true);
+    setForm((current) => ({
+      ...current,
+      title: !current.title.trim() || current.title === previousAutoTitle ? nextAutoTitle : current.title,
+      topic: current.topic === subject ? nextSubject : current.topic,
+    }));
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      url.searchParams.set("subject", nextSubject);
+      window.history.replaceState(null, "", url.toString());
+    }
+  }
 
   useEffect(() => {
     if (!autoOpenCreatorKey || autoOpenCreatorKey === handledAutoOpenKey || !activeBatch) return;
@@ -927,6 +951,7 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
 
   function openBatch(batchId: string) {
     setActiveBatchId(batchId);
+    setSubjectTouched(false);
     setTargetBatchIds((ids) => ids.length ? Array.from(new Set([...ids, batchId])) : [batchId]);
     onSelectBatch(batchId);
   }
@@ -1008,9 +1033,10 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
 
   function openCreator() {
     setEditingExam(null);
+    setSubjectTouched(false);
     setForm({
       ...initialForm,
-      title: activeBatch && subject ? `${subject} Test - ${activeBatch.name}` : "",
+      title: activeBatch && subject ? defaultExamTitle(subject, activeBatch.name) : "",
       date: new Date().toISOString().slice(0, 10),
     });
     setQuestionSource("");
@@ -1032,6 +1058,7 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
   function openEditor(exam: TeacherExamRecord) {
     if (exam.batchId && exam.batchId !== activeBatchId) openBatch(exam.batchId);
     setEditingExam(exam);
+    setSubjectTouched(true);
     setSubject(exam.subject || subject || activeBatch?.subjects[0] || "General");
     setForm({
       title: exam.title || "",
@@ -1387,7 +1414,7 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
               <Summary label="Submitted" value={String(submittedCount)} />
               <label className="grid gap-2 text-sm font-black">
                 Subject
-                <select value={subject} onChange={(event) => setSubject(event.target.value)} className="min-h-12 rounded-xl border border-[var(--border)] bg-white px-4">
+                <select value={subject} onChange={(event) => chooseSubject(event.target.value)} className="min-h-12 rounded-xl border border-[var(--border)] bg-white px-4">
                   {subjectOptions.map((item) => <option key={item} value={item}>{item}</option>)}
                 </select>
               </label>
@@ -1471,7 +1498,7 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
                   </div>
                   <label className="grid gap-2 text-sm font-black">
                     Subject
-                    <select value={subject} onChange={(event) => setSubject(event.target.value)} className="min-h-12 rounded-xl border border-[var(--border)] bg-white px-4">
+                    <select value={subject} onChange={(event) => chooseSubject(event.target.value)} className="min-h-12 rounded-xl border border-[var(--border)] bg-white px-4">
                       {Array.from(new Set(targetBatchIds.flatMap((id) => {
                         const options = batches.find((batch) => batch.id === id)?.subjects ?? [];
                         return options.length ? options : ["General"];
