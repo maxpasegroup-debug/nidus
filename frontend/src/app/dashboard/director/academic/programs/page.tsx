@@ -24,7 +24,6 @@ import {
 import type { LucideIcon } from "lucide-react";
 
 import { AcademicActionButton, AcademicHero, AcademicShell, EmptyState, GoldButton, Input, Panel, Select, StatCard, TextArea } from "../_components";
-import { AcademicEngineBanner } from "@/components/academy/academic-engine-workspace";
 import { allAcademyPrograms } from "@/data/academy-programs";
 import { useCreateCourse, useCourses, useDeleteCourse, useUpdateCourse } from "@/hooks/use-courses";
 import type { Course } from "@/types/course";
@@ -322,6 +321,14 @@ export default function DirectorProgramsPage() {
     setShowForm(true);
   };
 
+  const startQuickCreate = () => {
+    const fallbackCategory = selectedCategoryKey ?? "other";
+    setSelectedCategoryKey(fallbackCategory);
+    setSelectedMode(selectedMode ?? "OFFLINE");
+    setStep("programs");
+    setTimeout(startCreate, 0);
+  };
+
   const startModify = (course: Course) => {
     const meta = parseCourseDescription(course);
     setEditingCourse(course);
@@ -424,14 +431,12 @@ export default function DirectorProgramsPage() {
       <AcademicHero
         eyebrow="Programs & Courses"
         title="Programs"
-        description="Choose a major program category first. Then open Online or Offline programs and manage only that small list."
+        description="Add, edit, remove and organize academy programs from one simple page."
         action={
-          step === "programs" ? (
-            <AcademicActionButton onClick={startCreate}>
-              <Plus className="h-4 w-4" />
-              Add Program
-            </AcademicActionButton>
-          ) : null
+          <AcademicActionButton onClick={step === "programs" ? startCreate : startQuickCreate}>
+            <Plus className="h-4 w-4" />
+            Add Program
+          </AcademicActionButton>
         }
       />
 
@@ -442,17 +447,49 @@ export default function DirectorProgramsPage() {
         <StatCard label="Planners" value={plannerCount} />
       </section>
 
-      <AcademicEngineBanner
-        role={isAcademicHeadPath ? "ACADEMIC_HEAD" : "DIRECTOR"}
-        title="Program Planner is the master syllabus"
-        description="Paste, review and publish the complete program plan here. New batches generate timetable sessions from this master planner, and running batches can sync updates manually from their batch planner."
-        metrics={[
-          { label: "Programs", value: totalPrograms },
-          { label: "Published Planners", value: plannerCount, tone: plannerCount ? "success" : "warning" },
-          { label: "Offline", value: offlineCount },
-          { label: "Online", value: onlineCount },
-        ]}
-      />
+      <Panel title="Manage Programs" eyebrow="Start Here">
+        <div className="grid gap-3 md:grid-cols-3">
+          <button
+            type="button"
+            onClick={startQuickCreate}
+            className="group rounded-2xl border border-[var(--gold-border)] bg-[var(--gold-soft)] p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+          >
+            <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-[var(--navy)] text-white">
+              <Plus className="h-5 w-5" />
+            </span>
+            <h3 className="mt-5 text-xl font-black">Add Program</h3>
+            <p className="mt-2 text-sm leading-6 text-[var(--muted-blue)]">Create a new course or program and choose online or offline delivery.</p>
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setStep("categories");
+              resetForm();
+            }}
+            className="group rounded-2xl border border-[var(--border)] bg-white p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-[var(--gold-border)] hover:shadow-md"
+          >
+            <span className="flex h-11 w-11 items-center justify-center rounded-xl border border-[var(--border)] bg-white">
+              <Pencil className="h-5 w-5 text-[var(--navy)]" />
+            </span>
+            <h3 className="mt-5 text-xl font-black">Edit Existing</h3>
+            <p className="mt-2 text-sm leading-6 text-[var(--muted-blue)]">Open a category below, then use Modify or Delete on the program card.</p>
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setStep("categories");
+              resetForm();
+            }}
+            className="group rounded-2xl border border-[var(--border)] bg-white p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-[var(--gold-border)] hover:shadow-md"
+          >
+            <span className="flex h-11 w-11 items-center justify-center rounded-xl border border-[var(--border)] bg-white">
+              <CalendarDays className="h-5 w-5 text-[var(--navy)]" />
+            </span>
+            <h3 className="mt-5 text-xl font-black">Planner</h3>
+            <p className="mt-2 text-sm leading-6 text-[var(--muted-blue)]">Planner is optional syllabus setup inside each program. It is not the first step.</p>
+          </button>
+        </div>
+      </Panel>
 
       {step === "categories" ? (
         <Panel title="Program Categories" eyebrow="Step 1">
