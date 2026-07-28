@@ -123,15 +123,15 @@ function hodActionHref(actionKey: string, task: AcademyTodayTask) {
   if (actionKey === "ASSIGNMENT") return "/dashboard/academic-head/assignments";
   if (actionKey === "EXAM") return "/dashboard/academic-head/exams";
   if (actionKey === "LIBRARY") return "/dashboard/academic-head/library";
-  if (actionKey === "LIVE_CLASS") return "/dashboard/academic-head/classes";
-  return task.batchId ? `/dashboard/academic-head/classes/assigned-program/${task.batchId}` : "/dashboard/academic-head/hod/timetable";
+  if (actionKey === "LIVE_CLASS") return "/dashboard/academic-head/my-classes";
+  return task.batchId ? "/dashboard/academic-head/my-classes" : "/dashboard/academic-head/hod/timetable";
 }
 
 function academyTaskToHodTask(task: AcademyTodayTask): HodTodayTask {
   const defaultHref = task.type === "ASSIGNMENT_REVIEW" || task.type === "EXAM_REVIEW"
     ? "/dashboard/academic-head/hod/approvals"
     : task.batchId
-      ? `/dashboard/academic-head/classes/assigned-program/${task.batchId}`
+      ? "/dashboard/academic-head/my-classes"
       : "/dashboard/academic-head/hod/timetable";
   return {
     id: task.id,

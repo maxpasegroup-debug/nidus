@@ -3185,7 +3185,7 @@ export default function TeacherDashboardClient({ view, courseKey, batchId, class
           />
         ) : (
           <div>
-            {!selectedClass && !loadingPlan ? <EmptyState text="This batch is not assigned to this teacher." /> : null}
+            {!selectedClass && !loadingPlan ? <EmptyState text={isAcademicHead ? "This batch is not available in Academic Head classes." : "This batch is not assigned to this teacher."} /> : null}
             {selectedClass ? (
               <div className="grid gap-5">
                 <ClassroomWorkspace
@@ -4187,8 +4187,8 @@ function MyClassesCatalog({ programs, classesBasePath, loading }: {
       <header className="rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm sm:p-5">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold-dark)]">Assigned Classroom</p>
-            <p className="mt-2 text-sm font-bold text-[var(--muted-blue)]">Choose a programme, then open the batch for attendance, lessons, exams and NDP.</p>
+            <p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--gold-dark)]">My Classes</p>
+            <p className="mt-2 text-sm font-bold text-[var(--muted-blue)]">Choose a program, then open a batch to manage attendance, lessons, exams and students.</p>
           </div>
           <div className="grid grid-cols-3 gap-2 text-center">
             <span className="rounded-xl bg-[var(--page-bg)] px-4 py-3">
@@ -4223,7 +4223,7 @@ function MyClassesCatalog({ programs, classesBasePath, loading }: {
                     <Icon size={21} />
                   </span>
                   <div className="min-w-0">
-                    <p className={`text-xs font-black uppercase tracking-[0.22em] ${style.accent}`}>Programme</p>
+                    <p className={`text-xs font-black uppercase tracking-[0.22em] ${style.accent}`}>Program</p>
                     <h3 className="truncate text-xl font-black text-[var(--ink)]">{program.name}</h3>
                   </div>
                 </div>
@@ -4298,7 +4298,7 @@ function CourseBatchSelector({ program, courseKey, classesBasePath, catalogPath,
           </div>
         </section>
       ))}
-      {!program && !loading ? <EmptyState text="This course is not assigned to you." /> : null}
+      {!program && !loading ? <EmptyState text="No batches are available for this program." /> : null}
       {program && !groups.length ? <EmptyState text="No active batch is available under this course." /> : null}
     </div>
   );

@@ -1,6 +1,6 @@
-import TeacherDashboardClient from "../../../teacher/TeacherDashboardClient";
+import { redirect } from "next/navigation";
 
 export default async function AcademicHeadCourseDetailPage({ params }: { params: Promise<{ courseKey: string }> }) {
   const { courseKey } = await params;
-  return <TeacherDashboardClient view="classes" courseKey={courseKey} classesMode="CATALOG" />;
+  redirect(`/dashboard/academic-head/my-classes/${encodeURIComponent(courseKey)}`);
 }

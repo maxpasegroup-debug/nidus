@@ -52,7 +52,7 @@ export default function AcademicHeadDashboardPage() {
             label="Next class"
             title={todayQuery.isLoading ? "Loading..." : nextTask?.batchName || nextTask?.title || "No class pending"}
             detail={nextTask ? `${nextTask.subject || "Subject"} / ${nextTask.topic || nextTask.detail || "Topic pending"}` : "Published timetable tasks will appear here."}
-            href={nextTask?.batchId ? `/dashboard/academic-head/classes/assigned-program/${nextTask.batchId}` : "/dashboard/academic-head/my-classes"}
+            href="/dashboard/academic-head/my-classes"
             value={tasks.length}
           />
           <PriorityCard
