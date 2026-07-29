@@ -238,6 +238,8 @@ type ImportAnalyticsPayload = {
   }>;
 };
 
+type ConfidenceHeatTone = "GREEN" | "YELLOW" | "RED" | "UNKNOWN";
+
 type Props = {
   batches: TeacherExamBatch[];
   selectedBatchId?: string | null;
@@ -304,6 +306,45 @@ async function requestJson<T>(path: string, init?: RequestInit) {
     throw new Error(extractErrorMessage(raw, `Request failed: ${response.status}`));
   }
   return unwrap<T>(await response.json());
+}
+
+function confidenceHeatTone(confidence?: number | null, status?: string): ConfidenceHeatTone {
+  const normalizedStatus = String(status || "").toUpperCase();
+  if (!normalizedStatus && typeof confidence !== "number") return "UNKNOWN";
+  if (normalizedStatus === "MANUAL_CORRECTION_REQUIRED" || (typeof confidence === "number" && confidence < 70)) return "RED";
+  if (normalizedStatus === "NEEDS_REVIEW" || (typeof confidence === "number" && confidence < 90)) return "YELLOW";
+  return "GREEN";
+}
+
+function confidenceHeatLabel(tone: ConfidenceHeatTone) {
+  if (tone === "GREEN") return "High";
+  if (tone === "YELLOW") return "Review";
+  if (tone === "RED") return "Fix";
+  return "Pending";
+}
+
+function confidenceHeatBadgeClass(tone: ConfidenceHeatTone) {
+  if (tone === "GREEN") return "border-emerald-200 bg-emerald-50 text-emerald-900";
+  if (tone === "YELLOW") return "border-amber-200 bg-amber-50 text-amber-900";
+  if (tone === "RED") return "border-rose-200 bg-rose-50 text-rose-900";
+  return "border-slate-200 bg-slate-50 text-slate-700";
+}
+
+function confidenceHeatButtonClass(tone: ConfidenceHeatTone, selected: boolean) {
+  const selectedRing = selected ? "ring-2 ring-slate-950 ring-offset-2" : "";
+  if (tone === "GREEN") return `border-emerald-300 bg-emerald-50 text-emerald-900 hover:border-emerald-500 ${selectedRing}`;
+  if (tone === "YELLOW") return `border-amber-300 bg-amber-50 text-amber-950 hover:border-amber-500 ${selectedRing}`;
+  if (tone === "RED") return `border-rose-400 bg-rose-50 text-rose-950 shadow-sm shadow-rose-100 hover:border-rose-600 ${selectedRing}`;
+  return selected ? "border-slate-950 bg-slate-950 text-white shadow-sm" : "border-[var(--border)] bg-white hover:border-slate-300 hover:bg-slate-50";
+}
+
+function buildConfidenceHeatMap(validation: ImportValidationPayload | null) {
+  const reports = validation?.questionReports ?? [];
+  return {
+    high: reports.filter((report) => confidenceHeatTone(report.confidence, report.status) === "GREEN").map((report) => report.number),
+    review: reports.filter((report) => confidenceHeatTone(report.confidence, report.status) === "YELLOW").map((report) => report.number),
+    fix: reports.filter((report) => confidenceHeatTone(report.confidence, report.status) === "RED").map((report) => report.number),
+  };
 }
 
 async function requestForm<T>(path: string, body: FormData) {
@@ -1029,6 +1070,16 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
   const validationRequired = questions.length > 0 && !editingExam;
   const validationBlocksPublish = validationRequired && (!importValidation || importValidation.summary.manualCorrection > 0);
   const validationReportMap = useMemo(() => new Map((importValidation?.questionReports ?? []).map((report) => [report.number, report])), [importValidation?.questionReports]);
+  const validationHeatMap = useMemo(() => buildConfidenceHeatMap(importValidation), [importValidation]);
+  const importQualityDraft = useMemo(() => importValidation ? {
+    schema: "NIDUS_IMPORT_QUALITY_V1",
+    averageConfidence: importValidation.averageConfidence,
+    highConfidenceQuestions: validationHeatMap.high,
+    reviewQuestions: validationHeatMap.review,
+    manualFixQuestions: validationHeatMap.fix,
+    publishReady: importValidation.publishReady,
+    generatedAt: importValidation.createdAt,
+  } : null, [importValidation, validationHeatMap]);
   const canPublishPaper = questions.length > 0 && readiness.missingOptions === 0 && readiness.missingAnswers === 0 && !visualFidelity.missingSourceForVisuals && visualQuestionsWithoutAttachment.length === 0 && unapprovedQuestionNumbers.length === 0 && !validationBlocksPublish && (!extractionNeedsManualReview || manualPaperReview || reviewRequiredQuestionNumbers.length === 0);
   const effectiveTopic = useMemo(() => inferExamTopic(questionSource, form.topic), [form.topic, questionSource]);
   const effectiveTitle = useMemo(() => form.title.trim() || inferExamTitle(questionSource, subject, activeBatch?.name), [activeBatch?.name, form.title, questionSource, subject]);
@@ -1084,6 +1135,7 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
         documentClass: sourceUpload?.documentClass || "UNKNOWN",
         pipeline: sourceUpload?.pipeline || "UNCLASSIFIED",
         schema: "NIDUS_QUESTION_CONTENT_V1",
+        confidenceHeat: confidenceHeatTone(validationReport?.confidence, validationReport?.status),
       },
       renderMode: signal?.formulaRisk ? "RICH_MATH_REVIEWED" : questionVisuals[index + 1] ? "RICH_VISUAL_MCQ" : "LEGACY_MCQ",
       aiConfidence,
@@ -1408,6 +1460,7 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
               paperUnderstanding: understanding,
               visualFidelity: { ...visualFidelity, questionImageAssignments: Object.keys(questionVisuals).length, visualQuestionsWithoutAttachment },
               importValidation,
+              importQuality: importQualityDraft,
               manualPaperReview,
             } : undefined,
           }),
@@ -1456,6 +1509,7 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
               paperUnderstanding: understanding,
               visualFidelity: { ...visualFidelity, questionImageAssignments: Object.keys(questionVisuals).length, visualQuestionsWithoutAttachment },
               importValidation,
+              importQuality: importQualityDraft,
               manualPaperReview,
             },
           }),
@@ -1930,6 +1984,19 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
                             ? `Teacher approval required for question(s) ${unapprovedQuestionNumbers.slice(0, 8).join(", ")}${unapprovedQuestionNumbers.length > 8 ? "..." : ""}.`
                           : `${readiness.missingOptions} option issue(s) / ${readiness.missingAnswers} answer issue(s) / ${readiness.duplicateQuestions.length} duplicate(s)`}
                     </div>
+                    {importValidation ? (
+                      <div className="mt-3 flex flex-wrap gap-2 text-xs font-black">
+                        <button type="button" onClick={() => validationHeatMap.high[0] ? setPreviewIndex(validationHeatMap.high[0] - 1) : undefined} className="rounded-full border border-emerald-300 bg-emerald-50 px-3 py-2 text-emerald-900">
+                          High confidence: {validationHeatMap.high.length}
+                        </button>
+                        <button type="button" onClick={() => validationHeatMap.review[0] ? setPreviewIndex(validationHeatMap.review[0] - 1) : undefined} className="rounded-full border border-amber-300 bg-amber-50 px-3 py-2 text-amber-950">
+                          Review: {validationHeatMap.review.length}
+                        </button>
+                        <button type="button" onClick={() => validationHeatMap.fix[0] ? setPreviewIndex(validationHeatMap.fix[0] - 1) : undefined} className="rounded-full border border-rose-300 bg-rose-50 px-3 py-2 text-rose-950">
+                          Manual fix: {validationHeatMap.fix.length}
+                        </button>
+                      </div>
+                    ) : null}
                     {reviewRequiredQuestionNumbers.length ? (
                       <div className="mt-4 flex flex-wrap items-center gap-2">
                         <span className="rounded-full border border-white/15 bg-white/10 px-3 py-2 text-xs font-black">
@@ -1969,12 +2036,21 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
                         <p className="text-sm font-black">Questions</p>
                         <span className="rounded-full bg-white px-3 py-1 text-xs font-black text-[var(--muted-blue)]">{questions.length} Qs</span>
                       </div>
+                      <div className="mt-3 grid grid-cols-3 gap-1 text-center text-[10px] font-black uppercase tracking-[0.12em]">
+                        <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-1 text-emerald-900">High</span>
+                        <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-1 text-amber-900">Review</span>
+                        <span className="rounded-full border border-rose-200 bg-rose-50 px-2 py-1 text-rose-900">Fix</span>
+                      </div>
                       <div className="mt-3 grid grid-cols-5 gap-2">
                         {questions.map((_, index) => {
                           const isDuplicate = duplicateQuestionIndexes.has(index);
                           const isPendingReview = unapprovedQuestionNumbers.includes(index + 1);
                           const isApproved = questionReviewStatus[index + 1] === "APPROVED" || (!reviewRequiredQuestionNumbers.includes(index + 1) && !isPendingReview);
-                          return <button key={index} type="button" onClick={() => setPreviewIndex(index)} className={`grid h-11 w-full place-items-center rounded-lg border text-xs font-black transition ${isDuplicate ? "animate-pulse border-rose-500 bg-rose-100 text-rose-900 shadow-sm shadow-rose-200 hover:border-rose-600" : isPendingReview ? "border-amber-300 bg-amber-50 text-amber-900 hover:border-amber-500" : isApproved ? "border-emerald-200 bg-emerald-50 text-emerald-800 hover:border-emerald-400" : previewIndex === index ? "border-slate-950 bg-slate-950 text-white shadow-sm" : "border-[var(--border)] bg-white hover:border-slate-300 hover:bg-slate-50"}`}>{index + 1}</button>;
+                          const validationReport = validationReportMap.get(index + 1);
+                          const heatTone = confidenceHeatTone(validationReport?.confidence, validationReport?.status);
+                          const statusTitle = validationReport ? `Q${index + 1}: ${confidenceHeatLabel(heatTone)} / ${validationReport.confidence}% / ${validationReport.status.replace(/_/g, " ")}` : `Q${index + 1}`;
+                          const fallbackClass = isPendingReview ? "border-amber-300 bg-amber-50 text-amber-900 hover:border-amber-500" : isApproved ? "border-emerald-200 bg-emerald-50 text-emerald-800 hover:border-emerald-400" : previewIndex === index ? "border-slate-950 bg-slate-950 text-white shadow-sm" : "border-[var(--border)] bg-white hover:border-slate-300 hover:bg-slate-50";
+                          return <button key={index} type="button" title={statusTitle} onClick={() => setPreviewIndex(index)} className={`grid h-11 w-full place-items-center rounded-lg border text-xs font-black transition ${isDuplicate ? "animate-pulse border-rose-500 bg-rose-100 text-rose-900 shadow-sm shadow-rose-200 hover:border-rose-600" : validationReport ? confidenceHeatButtonClass(heatTone, previewIndex === index) : fallbackClass}`}>{index + 1}</button>;
                         })}
                       </div>
                     </aside>
@@ -1989,9 +2065,14 @@ export function TeacherExamWorkspace({ batches, selectedBatchId, selectedSubject
                                 Confidence {validationReportMap.get(previewIndex + 1)?.confidence ?? understanding.questionSignals[previewIndex]?.confidence ?? "HIGH"} / {questionReviewStatus[previewIndex + 1] === "APPROVED" ? "Approved" : reviewRequiredQuestionNumbers.includes(previewIndex + 1) ? "Needs approval" : "Auto safe"}
                               </p>
                               {validationReportMap.get(previewIndex + 1) ? (
-                                <p className="mt-1 text-xs font-black text-[var(--muted-blue)]">
-                                  NIDUS AI: {validationReportMap.get(previewIndex + 1)?.status.replace(/_/g, " ")}
-                                </p>
+                                <div className="mt-2 flex flex-wrap gap-2">
+                                  <span className={`rounded-full border px-3 py-1 text-xs font-black ${confidenceHeatBadgeClass(confidenceHeatTone(validationReportMap.get(previewIndex + 1)?.confidence, validationReportMap.get(previewIndex + 1)?.status))}`}>
+                                    {confidenceHeatLabel(confidenceHeatTone(validationReportMap.get(previewIndex + 1)?.confidence, validationReportMap.get(previewIndex + 1)?.status))}: {validationReportMap.get(previewIndex + 1)?.confidence}%
+                                  </span>
+                                  <span className="rounded-full border border-[var(--border)] bg-white px-3 py-1 text-xs font-black text-[var(--muted-blue)]">
+                                    NIDUS AI: {validationReportMap.get(previewIndex + 1)?.status.replace(/_/g, " ")}
+                                  </span>
+                                </div>
                               ) : null}
                             </div>
                             <div className="flex flex-wrap gap-2">
@@ -2193,10 +2274,11 @@ function ImportValidationPanel({
     ? "border-amber-200 bg-amber-50 text-amber-950"
     : validation.summary.manualCorrection > 0
       ? "border-rose-200 bg-rose-50 text-rose-950"
-      : validation.summary.needsReview > 0
-        ? "border-amber-200 bg-amber-50 text-amber-950"
-        : "border-emerald-200 bg-emerald-50 text-emerald-950";
+        : validation.summary.needsReview > 0
+          ? "border-amber-200 bg-amber-50 text-amber-950"
+          : "border-emerald-200 bg-emerald-50 text-emerald-950";
   const flagged = validation?.questionReports.filter((report) => report.status !== "AUTO_APPROVED") ?? [];
+  const heatMap = buildConfidenceHeatMap(validation);
   return (
     <section className={`rounded-2xl border p-4 ${tone} ${compact ? "" : "lg:col-span-2"}`}>
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -2217,15 +2299,16 @@ function ImportValidationPanel({
         <>
           <div className="mt-3 grid gap-2 sm:grid-cols-4">
             <MiniFact label="Confidence" value={`${validation.averageConfidence}%`} />
-            <MiniFact label="Auto Approved" value={validation.summary.autoApproved} />
-            <MiniFact label="Needs Review" value={validation.summary.needsReview} />
-            <MiniFact label="Manual Fix" value={validation.summary.manualCorrection} />
+            <MiniFact label="High" value={heatMap.high.length || validation.summary.autoApproved} />
+            <MiniFact label="Review" value={heatMap.review.length || validation.summary.needsReview} />
+            <MiniFact label="Fix" value={heatMap.fix.length || validation.summary.manualCorrection} />
           </div>
+          <ConfidenceHeatMap reports={validation.questionReports} onOpenQuestion={onOpenQuestion} compact={compact} />
           {flagged.length ? (
             <div className="mt-3 grid gap-2">
               {flagged.slice(0, compact ? 5 : 10).map((report) => (
-                <button key={report.number} type="button" onClick={() => onOpenQuestion(report.number)} className="rounded-xl border border-current/10 bg-white/80 p-3 text-left text-xs font-bold leading-5">
-                  <span className="font-black">Q{report.number}: {report.status.replace(/_/g, " ")} / {report.confidence}%</span>
+                <button key={report.number} type="button" onClick={() => onOpenQuestion(report.number)} className={`rounded-xl border p-3 text-left text-xs font-bold leading-5 ${confidenceHeatBadgeClass(confidenceHeatTone(report.confidence, report.status))}`}>
+                  <span className="font-black">Q{report.number}: {confidenceHeatLabel(confidenceHeatTone(report.confidence, report.status))} / {report.confidence}% / {report.status.replace(/_/g, " ")}</span>
                   {[...report.issues, ...report.warnings].length ? <span className="mt-1 block opacity-80">{[...report.issues, ...report.warnings].slice(0, 3).join(" ")}</span> : null}
                 </button>
               ))}
@@ -2245,6 +2328,49 @@ function ImportValidationPanel({
         </p>
       )}
     </section>
+  );
+}
+
+function ConfidenceHeatMap({
+  reports,
+  onOpenQuestion,
+  compact = false,
+}: {
+  reports: ImportValidationPayload["questionReports"];
+  onOpenQuestion: (number: number) => void;
+  compact?: boolean;
+}) {
+  const visibleReports = compact ? reports.slice(0, 40) : reports;
+  return (
+    <div className="mt-3 rounded-xl border border-current/10 bg-white/60 p-3">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <p className="text-xs font-black uppercase tracking-[0.2em] opacity-75">Confidence heat map</p>
+        <div className="flex flex-wrap gap-1 text-[10px] font-black uppercase tracking-[0.12em]">
+          <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-1 text-emerald-900">High 90-100</span>
+          <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-1 text-amber-900">Review 70-89</span>
+          <span className="rounded-full border border-rose-200 bg-rose-50 px-2 py-1 text-rose-900">Fix below 70</span>
+        </div>
+      </div>
+      <div className="mt-3 grid grid-cols-8 gap-2 sm:grid-cols-10 md:grid-cols-12">
+        {visibleReports.map((report) => {
+          const tone = confidenceHeatTone(report.confidence, report.status);
+          return (
+            <button
+              key={report.number}
+              type="button"
+              title={`Q${report.number}: ${confidenceHeatLabel(tone)} / ${report.confidence}% / ${report.status.replace(/_/g, " ")}`}
+              onClick={() => onOpenQuestion(report.number)}
+              className={`grid h-9 place-items-center rounded-lg border text-xs font-black transition ${confidenceHeatButtonClass(tone, false)}`}
+            >
+              {report.number}
+            </button>
+          );
+        })}
+      </div>
+      {compact && reports.length > visibleReports.length ? (
+        <p className="mt-2 text-xs font-bold opacity-75">{reports.length - visibleReports.length} more question(s) are available in the full check view.</p>
+      ) : null}
+    </div>
   );
 }
 
